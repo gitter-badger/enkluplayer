@@ -85,14 +85,26 @@
     <Reference Include="UnityEditor.iOS.Extensions.Common">
       <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Common.dll</HintPath>
     </Reference>
+    <Reference Include="CreateAR.Commons.Unity.Nuget">
+      <HintPath>Assets\Plugins\CreateAR\CreateAR.Commons.Unity.Nuget.dll</HintPath>
+    </Reference>
     <Reference Include="Strange.Net35">
       <HintPath>Assets\Plugins\Lib\Strange\net35\Strange.Net35.dll</HintPath>
     </Reference>
     <Reference Include="CreateAR.Commons.Unity.Editor.UI">
       <HintPath>Assets\Plugins\CreateAR\CreateAR.Commons.Unity.Editor.UI.dll</HintPath>
     </Reference>
-    <Reference Include="CreateAR.Commons.Unity.Nuget">
-      <HintPath>Assets\Plugins\CreateAR\CreateAR.Commons.Unity.Nuget.dll</HintPath>
+    <Reference Include="CreateAR.Commons.Unity.Async">
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Async.0.4.0\lib\net35\CreateAR.Commons.Unity.Async.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.DataStructures">
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.DataStructures.0.1.0\lib\net35\CreateAR.Commons.Unity.DataStructures.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.Logging">
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Logging.0.4.0\lib\net35\CreateAR.Commons.Unity.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.Http">
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Http.0.5.0\lib\net35\CreateAR.Commons.Unity.Http.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
