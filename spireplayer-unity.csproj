@@ -98,7 +98,7 @@
       <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Logging.0.4.0\lib\net35\CreateAR.Commons.Unity.Logging.dll</HintPath>
     </Reference>
     <Reference Include="CreateAR.Commons.Unity.Http">
-      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Http.0.5.0\lib\net35\CreateAR.Commons.Unity.Http.dll</HintPath>
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Http.0.5.1\lib\net35\CreateAR.Commons.Unity.Http.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
