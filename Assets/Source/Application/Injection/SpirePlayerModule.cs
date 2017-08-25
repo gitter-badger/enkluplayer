@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer
         public void Load(InjectionBinder binder)
         {
             binder.Bind<Application>().To<Application>().ToSingleton();
-            binder.Bind<IApplicationState>().To<ViewportApplicationState>().ToName("Default");
+            binder.Bind<IApplicationState>().To<EditApplicationState>().ToName("Default");
 
             binder.Bind<IMultiInput>().To<MultiInput>().ToSingleton();
         }

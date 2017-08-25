@@ -35,7 +35,6 @@ namespace CreateAR.SpirePlayer
 	        _binder.Load(new SpirePlayerModule());
 
 	        _app = _binder.GetInstance<Application>();
-            Debug.Log(_app);
 	    }
 
         /// <summary>
@@ -43,7 +42,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
 	    private void Update()
 	    {
-	        //_app.Update(Time.deltaTime);
+	        _app.Update(Time.deltaTime);
 	    }
 	}
 }

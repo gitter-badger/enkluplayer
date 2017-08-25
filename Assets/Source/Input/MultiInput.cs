@@ -11,6 +11,11 @@ namespace CreateAR.SpirePlayer
 
         public List<InputPoint> Points { get; private set; }
 
+        public MultiInput()
+        {
+            Points = new List<InputPoint>();
+        }
+
         public void Update(float dt)
         {
             _time += dt;
