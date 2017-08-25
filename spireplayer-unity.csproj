@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -100,7 +98,7 @@
       <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Http.0.5.1\lib\net35\CreateAR.Commons.Unity.Http.dll</HintPath>
     </Reference>
     <Reference Include="CreateAR.Commons.Unity.Logging">
-      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Logging.0.4.4\lib\net35\CreateAR.Commons.Unity.Logging.dll</HintPath>
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Logging.0.4.5\lib\net35\CreateAR.Commons.Unity.Logging.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -110,15 +108,16 @@
     <Compile Include="Assets\Source\Application\Injection\SpirePlayerModule.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
     <Compile Include="Assets\Source\Input\IInputManager.cs" />
-    <Compile Include="Assets\Source\Input\IInputState.cs" />
-    <Compile Include="Assets\Source\Input\IMultiInput.cs" />
     <Compile Include="Assets\Source\Input\InputManager.cs" />
-    <Compile Include="Assets\Source\Input\InputPoint.cs" />
-    <Compile Include="Assets\Source\Input\MultiInput.cs" />
+    <Compile Include="Assets\Source\Input\MultiInput\IMultiInput.cs" />
+    <Compile Include="Assets\Source\Input\MultiInput\InputPoint.cs" />
+    <Compile Include="Assets\Source\Input\MultiInput\MultiInput.cs" />
+    <Compile Include="Assets\Source\Input\States\EditModeInputState.cs" />
+    <Compile Include="Assets\Source\Input\States\IInputState.cs" />
     <Compile Include="Assets\Source\Main.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
-    <Compile Include="Assets\Source\States\IApplicationState.cs" />
     <Compile Include="Assets\Source\States\EditApplicationState.cs" />
+    <Compile Include="Assets\Source\States\IApplicationState.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

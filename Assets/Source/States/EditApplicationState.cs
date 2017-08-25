@@ -2,9 +2,12 @@
 {
     public class EditApplicationState : IApplicationState
     {
-        private readonly IMultiInput _input;
+        private readonly IInputManager _input;
 
-        public EditApplicationState(IMultiInput input)
+        [Inject("EditMode")]
+        public IInputState InputState { get; set; }
+
+        public EditApplicationState(IInputManager input)
         {
             _input = input;
         }
@@ -16,7 +19,7 @@
 
         public void Enter()
         {
-            
+            _input.ChangeState(InputState);
         }
 
         public void Update(float dt)

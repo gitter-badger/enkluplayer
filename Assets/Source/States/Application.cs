@@ -2,8 +2,14 @@
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Root application.
+    /// </summary>
     public class Application
     {
+        /// <summary>
+        /// Current state of the application.
+        /// </summary>
         private IApplicationState _state;
 
         /// <summary>
@@ -28,6 +34,10 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Application created.");
         }
 
+        /// <summary>
+        /// Changes the application state.
+        /// </summary>
+        /// <param name="state">Name of the state.</param>
         public void ChangeState(IApplicationState state)
         {
             Log.Debug(this, "Change state from {0} to {1}.",
@@ -47,6 +57,10 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
+        /// <param name="dt">The time since last time Update was called.</param>
         public void Update(float dt)
         {
             if (null == _state)

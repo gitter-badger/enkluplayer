@@ -11,7 +11,6 @@
             _input = input;
         }
 
-
         public void ChangeState(IInputState state)
         {
             if (null != _state)
@@ -29,6 +28,8 @@
 
         public void Update(float dt)
         {
+            _input.Update(dt);
+
             if (null != _state)
             {
                 _state.Update(dt);

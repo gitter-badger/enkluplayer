@@ -1,8 +1,10 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Renders an okay grid.
+    /// </summary>
     public class Grid : MonoBehaviour
     {
         public int CellSize = 1;
@@ -21,11 +23,7 @@ namespace CreateAR.SpirePlayer
             {
                 hideFlags = HideFlags.HideAndDontSave
             };
-
-            // Turn on alpha blending
-            Material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-            Material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-
+            
             // Turn backface culling off
             Material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
 

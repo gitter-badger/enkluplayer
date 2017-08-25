@@ -13,7 +13,9 @@ namespace CreateAR.SpirePlayer
             binder.Bind<Application>().To<Application>().ToSingleton();
             binder.Bind<IApplicationState>().To<EditApplicationState>().ToName("Default");
 
+            binder.Bind<IInputManager>().To<InputManager>().ToSingleton();
             binder.Bind<IMultiInput>().To<MultiInput>().ToSingleton();
+            binder.Bind<IInputState>().To<EditModeInputState>().ToName("EditMode");
         }
     }
 }
