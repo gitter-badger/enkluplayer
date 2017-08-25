@@ -1,18 +1,5 @@
 ﻿namespace CreateAR.SpirePlayer
 {
-    public interface IInputState
-    {
-        void Enter();
-        void Update(float dt);
-        void Exit();
-    }
-
-    public interface IInputManager
-    {
-        void ChangeState(IInputState state);
-        void Update(float dt);
-    }
-
     public class InputManager : IInputManager
     {
         private readonly IMultiInput _input;

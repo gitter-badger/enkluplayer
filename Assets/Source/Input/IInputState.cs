@@ -1,6 +1,6 @@
-﻿namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer
 {
-    public interface IApplicationState
+    public interface IInputState
     {
         void Enter();
         void Update(float dt);

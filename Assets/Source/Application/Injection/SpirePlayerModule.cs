@@ -10,6 +10,9 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IInjectionModule"/>
         public void Load(InjectionBinder binder)
         {
+            binder.Bind<Application>().To<Application>().ToSingleton();
+            binder.Bind<IApplicationState>().To<ViewportApplicationState>().ToName("Default");
+
             binder.Bind<IMultiInput>().To<MultiInput>().ToSingleton();
         }
     }

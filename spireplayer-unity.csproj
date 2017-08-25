@@ -94,11 +94,11 @@
     <Reference Include="CreateAR.Commons.Unity.DataStructures">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.DataStructures.0.1.0\lib\net35\CreateAR.Commons.Unity.DataStructures.dll</HintPath>
     </Reference>
-    <Reference Include="CreateAR.Commons.Unity.Logging">
-      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Logging.0.4.0\lib\net35\CreateAR.Commons.Unity.Logging.dll</HintPath>
-    </Reference>
     <Reference Include="CreateAR.Commons.Unity.Http">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Http.0.5.1\lib\net35\CreateAR.Commons.Unity.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.Logging">
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Logging.0.4.1\lib\net35\CreateAR.Commons.Unity.Logging.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -106,10 +106,16 @@
     <Compile Include="Assets\Source\Application\Injection\InjectableMonoBehaviour.cs" />
     <Compile Include="Assets\Source\Application\Injection\InjectionExtensions.cs" />
     <Compile Include="Assets\Source\Application\Injection\SpirePlayerModule.cs" />
+    <Compile Include="Assets\Source\Input\IInputManager.cs" />
+    <Compile Include="Assets\Source\Input\IInputState.cs" />
+    <Compile Include="Assets\Source\Input\IMultiInput.cs" />
     <Compile Include="Assets\Source\Input\InputManager.cs" />
+    <Compile Include="Assets\Source\Input\InputPoint.cs" />
     <Compile Include="Assets\Source\Input\MultiInput.cs" />
     <Compile Include="Assets\Source\Main.cs" />
+    <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\IApplicationState.cs" />
+    <Compile Include="Assets\Source\States\ViewportApplicationState.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

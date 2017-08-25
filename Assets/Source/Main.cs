@@ -13,6 +13,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private static readonly InjectionBinder _binder = new InjectionBinder();
 
+	    /// <summary>
+	    /// The application to run.
+	    /// </summary>
+	    private Application _app;
+
         /// <summary>
         /// Injects bindings into a MonoBehaviour.
         /// </summary>
@@ -28,6 +33,17 @@ namespace CreateAR.SpirePlayer
 	    private void Awake()
 	    {
 	        _binder.Load(new SpirePlayerModule());
+
+	        _app = _binder.GetInstance<Application>();
+            Debug.Log(_app);
+	    }
+
+        /// <summary>
+        /// Update loop.
+        /// </summary>
+	    private void Update()
+	    {
+	        //_app.Update(Time.deltaTime);
 	    }
 	}
 }
