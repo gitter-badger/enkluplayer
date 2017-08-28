@@ -1,24 +1,24 @@
-﻿using CreateAR.Commons.Unity.DebugRenderer;
-using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.DebugRenderer;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace CreateAR.SpirePlayer
 {
     public class EditPanState : IState
     {
         private readonly DebugRenderer _renderer;
-        private readonly InputPoint _a;
-        private readonly InputPoint _b;
+        private readonly IMultiInput _input;
         private Vector3 _startFloorIntersection;
+
+        public event Action<Type> OnNext;
 
         public EditPanState(
             DebugRenderer renderer,
-            InputPoint a,
-            InputPoint b)
+            IMultiInput input)
         {
             _renderer = renderer;
-            _a = a;
-            _b = b;
+            _input = input;
         }
 
         public void Enter()
@@ -28,50 +28,62 @@ namespace CreateAR.SpirePlayer
 
         public void Update(float dt)
         {
-            var handle2D = _renderer.Handle2D("Input.EditModeInputState");
-            if (null != handle2D)
-            {
-                handle2D.Draw(context =>
-                {
-                    context.Color(Color.green);
-                    context.Line(_a.DownPosition, _a.CurrentPosition);
-                    context.Line(_b.DownPosition, _b.CurrentPosition);
-                });
-            }
+            Assert.IsTrue(2 == _input.Points.Count, "EditPanState expects exactly two points.");
 
-            var handle = _renderer.Handle("Input.EditModeInputState");
-            if (null != handle)
-            {
-                handle.Draw(context =>
-                {
-                    context.Color(Color.yellow);
-                    context.Cube(_a.DownWorldSpacePosition, 2);
-                    context.Cube(_a.CurrentWorldSpacePosition, 2);
+            var a = _input.Points[0];
+            var b = _input.Points[1];
 
-                    context.Cube(_b.DownWorldSpacePosition, 2);
-                    context.Cube(_b.CurrentWorldSpacePosition, 2);
-                });
-            }
+            DebugDraw(a, b);
         }
 
         public void Exit()
         {
             
+        }
+
+        private void DebugDraw(InputPoint a, InputPoint b)
+        {
+            var handle2D = _renderer.Handle2D("Input.Edit.Pan");
+            if (null != handle2D)
+            {
+                handle2D.Draw(context =>
+                {
+                    context.Color(Color.green);
+                    context.Line(a.DownPosition, a.CurrentPosition);
+                    context.Line(b.DownPosition, b.CurrentPosition);
+                });
+            }
+
+            var handle = _renderer.Handle("Input.Edit.Pan");
+            if (null != handle)
+            {
+                handle.Draw(context =>
+                {
+                    context.Color(Color.yellow);
+                    context.Cube(a.DownWorldSpacePosition, 2);
+                    context.Cube(a.CurrentWorldSpacePosition, 2);
+
+                    context.Cube(b.DownWorldSpacePosition, 2);
+                    context.Cube(b.CurrentWorldSpacePosition, 2);
+                });
+            }
         }
     }
 
     public class EditRotateState : IState
     {
         private readonly DebugRenderer _renderer;
-        private readonly InputPoint _point;
+        private readonly IMultiInput _input;
         private Vector3 _startFloorIntersection;
+
+        public event Action<Type> OnNext;
 
         public EditRotateState(
             DebugRenderer renderer,
-            InputPoint point)
+            IMultiInput input)
         {
             _renderer = renderer;
-            _point = point;
+            _input = input;
         }
 
         public void Enter()
@@ -81,31 +93,40 @@ namespace CreateAR.SpirePlayer
 
         public void Update(float dt)
         {
-            var handle2D = _renderer.Handle2D("Input.EditModeInputState");
-            if (null != handle2D)
-            {
-                handle2D.Draw(context =>
-                {
-                    context.Color(Color.green);
-                    context.Line(_point.DownPosition, _point.CurrentPosition);
-                });
-            }
+            Assert.IsTrue(1 == _input.Points.Count, "EditRotateState expects exactly one point.");
 
-            var handle = _renderer.Handle("Input.EditModeInputState");
-            if (null != handle)
-            {
-                handle.Draw(context =>
-                {
-                    context.Color(Color.yellow);
-                    context.Cube(_point.DownWorldSpacePosition, 2);
-                    context.Cube(_point.CurrentWorldSpacePosition, 2);
-                });
-            }
+            var point = _input.Points[0];
+            
+            DebugDraw(point);
         }
 
         public void Exit()
         {
 
+        }
+
+        private void DebugDraw(InputPoint point)
+        {
+            var handle2D = _renderer.Handle2D("Input.Edit.Rotate");
+            if (null != handle2D)
+            {
+                handle2D.Draw(context =>
+                {
+                    context.Color(Color.green);
+                    context.Line(point.DownPosition, point.CurrentPosition);
+                });
+            }
+
+            var handle = _renderer.Handle("Input.Edit.Rotate");
+            if (null != handle)
+            {
+                handle.Draw(context =>
+                {
+                    context.Color(Color.yellow);
+                    context.Cube(point.DownWorldSpacePosition, 2);
+                    context.Cube(point.CurrentWorldSpacePosition, 2);
+                });
+            }
         }
     }
 
@@ -113,16 +134,15 @@ namespace CreateAR.SpirePlayer
     {
         private readonly DebugRenderer _renderer;
         private readonly IMultiInput _input;
-        private readonly StateMachine _states;
+
+        public event Action<Type> OnNext;
 
         public EditIdleState(
             DebugRenderer renderer,
-            IMultiInput input,
-            StateMachine states)
+            IMultiInput input)
         {
             _renderer = renderer;
             _input = input;
-            _states = states;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -141,9 +161,7 @@ namespace CreateAR.SpirePlayer
                 var point = points[0];
                 if (point.IsDown)
                 {
-                    _states.Change(new EditRotateState(
-                        _renderer,
-                        point));
+                    OnNext(typeof(EditRotateState));
                 }
             }
 
@@ -153,10 +171,7 @@ namespace CreateAR.SpirePlayer
 
                 if (point.IsDown)
                 {
-                    _states.Change(new EditPanState(
-                        _renderer,
-                        points[0],
-                        points[1]));
+                    OnNext(typeof(EditPanState));
                 }
             }
         }
@@ -172,7 +187,7 @@ namespace CreateAR.SpirePlayer
     {
         private readonly DebugRenderer _renderer;
         private readonly IMultiInput _input;
-        private readonly StateMachine _states = new StateMachine();
+        private readonly FinineStateMachine _states;
 
         public EditModeInputState(
             DebugRenderer renderer,
@@ -180,11 +195,25 @@ namespace CreateAR.SpirePlayer
         {
             _renderer = renderer;
             _input = input;
+
+            var idle = new EditIdleState(_renderer, _input);
+            idle.OnNext += _states.Change;
+
+            var pan = new EditPanState(_renderer, _input);
+            pan.OnNext += _states.Change;
+
+            var rotate = new EditRotateState(_renderer, _input);
+            rotate.OnNext += _states.Change;
+
+            _states = new FinineStateMachine(new IState[]
+            {
+                idle, pan, rotate
+            });
         }
 
         public void Enter()
         {
-            _states.Change(new EditIdleState(_renderer, _input, _states));
+            _states.Change<EditIdleState>();
         }
 
         public void Update(float dt)
@@ -194,7 +223,7 @@ namespace CreateAR.SpirePlayer
 
         public void Exit()
         {
-            _states.Change(null);
+            _states.Change<EditIdleState>();
         }
     }
 }
