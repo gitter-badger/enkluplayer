@@ -128,6 +128,7 @@
     <Compile Include="Assets\Source\States\EditApplicationState.cs" />
     <Compile Include="Assets\Source\States\IApplicationState.cs" />
     <Compile Include="Assets\Source\Util\CameraUtil.cs" />
+    <Compile Include="Assets\Source\Util\Render.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

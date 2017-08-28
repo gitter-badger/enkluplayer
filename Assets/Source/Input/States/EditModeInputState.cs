@@ -1,5 +1,4 @@
 ﻿using System;
-using CreateAR.Commons.Unity.DebugRenderer;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -7,17 +6,13 @@ namespace CreateAR.SpirePlayer
 {
     public class EditPanState : IState
     {
-        private readonly DebugRenderer _renderer;
         private readonly IMultiInput _input;
         private Vector3 _startFloorIntersection;
 
         public event Action<Type> OnNext;
 
-        public EditPanState(
-            DebugRenderer renderer,
-            IMultiInput input)
+        public EditPanState(IMultiInput input)
         {
-            _renderer = renderer;
             _input = input;
         }
 
@@ -43,7 +38,7 @@ namespace CreateAR.SpirePlayer
 
         private void DebugDraw(InputPoint a, InputPoint b)
         {
-            var handle2D = _renderer.Handle2D("Input.Edit.Pan");
+            var handle2D = Render.Handle2D("Input.Edit.Pan");
             if (null != handle2D)
             {
                 handle2D.Draw(context =>
@@ -54,7 +49,7 @@ namespace CreateAR.SpirePlayer
                 });
             }
 
-            var handle = _renderer.Handle("Input.Edit.Pan");
+            var handle = Render.Handle("Input.Edit.Pan");
             if (null != handle)
             {
                 handle.Draw(context =>
@@ -72,17 +67,13 @@ namespace CreateAR.SpirePlayer
 
     public class EditRotateState : IState
     {
-        private readonly DebugRenderer _renderer;
         private readonly IMultiInput _input;
         private Vector3 _startFloorIntersection;
 
         public event Action<Type> OnNext;
 
-        public EditRotateState(
-            DebugRenderer renderer,
-            IMultiInput input)
+        public EditRotateState(IMultiInput input)
         {
-            _renderer = renderer;
             _input = input;
         }
 
@@ -107,7 +98,7 @@ namespace CreateAR.SpirePlayer
 
         private void DebugDraw(InputPoint point)
         {
-            var handle2D = _renderer.Handle2D("Input.Edit.Rotate");
+            var handle2D = Render.Handle2D("Input.Edit.Rotate");
             if (null != handle2D)
             {
                 handle2D.Draw(context =>
@@ -117,7 +108,7 @@ namespace CreateAR.SpirePlayer
                 });
             }
 
-            var handle = _renderer.Handle("Input.Edit.Rotate");
+            var handle = Render.Handle("Input.Edit.Rotate");
             if (null != handle)
             {
                 handle.Draw(context =>
@@ -132,16 +123,12 @@ namespace CreateAR.SpirePlayer
 
     public class EditIdleState : IState
     {
-        private readonly DebugRenderer _renderer;
         private readonly IMultiInput _input;
 
         public event Action<Type> OnNext;
 
-        public EditIdleState(
-            DebugRenderer renderer,
-            IMultiInput input)
+        public EditIdleState(IMultiInput input)
         {
-            _renderer = renderer;
             _input = input;
         }
 
@@ -185,24 +172,20 @@ namespace CreateAR.SpirePlayer
 
     public class EditModeInputState : IInputState
     {
-        private readonly DebugRenderer _renderer;
         private readonly IMultiInput _input;
         private readonly FinineStateMachine _states;
 
-        public EditModeInputState(
-            DebugRenderer renderer,
-            IMultiInput input)
+        public EditModeInputState(IMultiInput input)
         {
-            _renderer = renderer;
             _input = input;
 
-            var idle = new EditIdleState(_renderer, _input);
+            var idle = new EditIdleState(_input);
             idle.OnNext += _states.Change;
 
-            var pan = new EditPanState(_renderer, _input);
+            var pan = new EditPanState(_input);
             pan.OnNext += _states.Change;
 
-            var rotate = new EditRotateState(_renderer, _input);
+            var rotate = new EditRotateState(_input);
             rotate.OnNext += _states.Change;
 
             _states = new FinineStateMachine(new IState[]

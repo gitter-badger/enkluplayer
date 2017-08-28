@@ -11,17 +11,11 @@ namespace CreateAR.SpirePlayer
         /// Current state of the application.
         /// </summary>
         private IApplicationState _state;
-
-        /// <summary>
-        /// Default state (named injections are not allowed in constructor).
-        /// </summary>
-        [Inject("Default")]
-        public IApplicationState DefaultState { get; set; }
-
+        
         /// <summary>
         /// Creates a new Application.
         /// </summary>
-        public Application()
+        public Application(EditApplicationState defaultState)
         {
             Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
             {
@@ -32,6 +26,8 @@ namespace CreateAR.SpirePlayer
 
             Log.Filter = LogLevel.Debug;
             Log.Info(this, "Application created.");
+
+            ChangeState(defaultState);
         }
 
         /// <summary>
@@ -41,8 +37,8 @@ namespace CreateAR.SpirePlayer
         public void ChangeState(IApplicationState state)
         {
             Log.Debug(this, "Change state from {0} to {1}.",
-                _state,
-                state);
+                null == _state ? "[Null]" : _state.ToString(),
+                null == state ? "[Null]" : state.ToString());
 
             if (null != _state)
             {
@@ -63,11 +59,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="dt">The time since last time Update was called.</param>
         public void Update(float dt)
         {
-            if (null == _state)
-            {
-                ChangeState(DefaultState);
-            }
-
             if (null != _state)
             {
                 _state.Update(dt);

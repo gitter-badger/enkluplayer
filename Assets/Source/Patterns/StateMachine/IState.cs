@@ -37,6 +37,10 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
+            Log.Info(this, "Change({0} -> {1})",
+                null == _state ? "[Null]" : _state.ToString(),
+                null == newState ? "[Null]" : newState.ToString());
+
             if (null != _state)
             {
                 _state.Exit();
@@ -65,9 +69,9 @@ namespace CreateAR.SpirePlayer
 
         public void Change(IState state)
         {
-            Log.Info(this, "Change([{0}] -> [{1}])",
-                _state,
-                state);
+            Log.Info(this, "Change({0} -> {1})",
+                null == _state ? "[Null]" : _state.ToString(),
+                null == state ? "[Null]" : state.ToString());
 
             if (null != _state)
             {

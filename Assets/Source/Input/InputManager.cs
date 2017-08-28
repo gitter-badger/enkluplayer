@@ -1,19 +1,13 @@
-﻿using CreateAR.Commons.Unity.DebugRenderer;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     public class InputManager : IInputManager
     {
-        private readonly DebugRenderer _renderer;
         private readonly IMultiInput _input;
 
         private IInputState _state;
 
-        public InputManager(
-            DebugRenderer renderer,
-            IMultiInput input)
+        public InputManager(IMultiInput input)
         {
-            _renderer = renderer;
             _input = input;
         }
 
@@ -46,7 +40,7 @@ namespace CreateAR.SpirePlayer
 
         private void DebugDraw()
         {
-            var handle = _renderer.Handle2D("Input.Touches");
+            var handle = Render.Handle2D("Input.Touches");
             if (null != handle)
             {
                 handle.Draw(context =>

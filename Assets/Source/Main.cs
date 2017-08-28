@@ -18,12 +18,7 @@ namespace CreateAR.SpirePlayer
 	    /// The application to run.
 	    /// </summary>
 	    private Application _app;
-
-        /// <summary>
-        /// DebugRenderer.
-        /// </summary>
-	    public DebugRendererMonoBehaviour DebugRenderer;
-
+        
         /// <summary>
         /// Injects bindings into a MonoBehaviour.
         /// </summary>
@@ -38,7 +33,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
 	    private void Awake()
 	    {
-	        _binder.Load(new SpirePlayerModule(DebugRenderer.Renderer));
+            _binder.Load(new SpirePlayerModule());
 
 	        _app = _binder.GetInstance<Application>();
 	    }

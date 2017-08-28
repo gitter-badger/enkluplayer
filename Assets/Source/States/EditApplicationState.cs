@@ -3,13 +3,14 @@
     public class EditApplicationState : IApplicationState
     {
         private readonly IInputManager _input;
-
-        [Inject("EditMode")]
-        public IInputState InputState { get; set; }
-
-        public EditApplicationState(IInputManager input)
+        private readonly IInputState _defaultState;
+        
+        public EditApplicationState(
+            IInputManager input,
+            IInputState defaultState)
         {
             _input = input;
+            _defaultState = defaultState;
         }
 
         public override string ToString()
@@ -19,7 +20,7 @@
 
         public void Enter()
         {
-            _input.ChangeState(InputState);
+            _input.ChangeState(_defaultState);
         }
 
         public void Update(float dt)
