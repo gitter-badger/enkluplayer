@@ -46,7 +46,7 @@ namespace CreateAR.SpirePlayer
 
         private void DebugDraw()
         {
-            var handle = _renderer.Handle2D("Input");
+            var handle = _renderer.Handle2D("Input.Touches");
             if (null != handle)
             {
                 handle.Draw(context =>
