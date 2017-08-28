@@ -1,13 +1,19 @@
-﻿namespace CreateAR.SpirePlayer
+﻿using CreateAR.Commons.Unity.DebugRenderer;
+
+namespace CreateAR.SpirePlayer
 {
     public class InputManager : IInputManager
     {
+        private readonly DebugRenderer _renderer;
         private readonly IMultiInput _input;
 
         private IInputState _state;
 
-        public InputManager(IMultiInput input)
+        public InputManager(
+            DebugRenderer renderer,
+            IMultiInput input)
         {
+            _renderer = renderer;
             _input = input;
         }
 
@@ -33,6 +39,26 @@
             if (null != _state)
             {
                 _state.Update(dt);
+            }
+
+            DebugDraw();
+        }
+
+        private void DebugDraw()
+        {
+            var handle = _renderer.Handle2D("Input");
+            if (null != handle)
+            {
+                handle.Draw(context =>
+                {
+                    var points = _input.Points;
+                    for (int i = 0, len = points.Count; i < len; i++)
+                    {
+                        var point = points[i];
+
+                        context.Square(point.CurrentPosition, 50f);
+                    }
+                });
             }
         }
     }

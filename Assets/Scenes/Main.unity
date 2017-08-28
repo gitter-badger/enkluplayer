@@ -181,6 +181,7 @@ GameObject:
   - component: {fileID: 142035196}
   - component: {fileID: 142035195}
   - component: {fileID: 142035193}
+  - component: {fileID: 142035199}
   - component: {fileID: 142035194}
   - component: {fileID: 142035198}
   m_Layer: 0
@@ -208,6 +209,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e1c7e1963f9f4d43a1d8cd7df37be46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DebugRenderer: {fileID: 142035199}
 --- !u!92 &142035195
 Behaviour:
   m_ObjectHideFlags: 0
@@ -281,6 +283,18 @@ MonoBehaviour:
   SecondaryColor: {r: 0.4627451, g: 0.4627451, b: 0.4627451, a: 1}
   Material: {fileID: 0}
   LodDropoff: -0.9
+--- !u!114 &142035199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 142035192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 693ec2743dbe899449dd5ab4321dad3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Filter: .*
 --- !u!1 &740162823
 GameObject:
   m_ObjectHideFlags: 0

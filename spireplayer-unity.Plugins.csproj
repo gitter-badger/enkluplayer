@@ -5,16 +5,16 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{EACC8403-073E-7D2C-6C33-59D57AD9A04B}</ProjectGuid>
+    <ProjectGuid>{53930814-9EC8-FEBF-DC68-610C5017B975}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
     <CompilerResponseFile></CompilerResponseFile>
-    <UnityProjectType>Game:1</UnityProjectType>
+    <UnityProjectType>GamePlugins:3</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
     <RootNamespace></RootNamespace>
@@ -102,28 +102,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="spireplayer-unity.Plugins.csproj">
-      <Project>{53930814-9EC8-FEBF-DC68-610C5017B975}</Project>
-      <Name>spireplayer-unity.Plugins</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Assets\Source\Application\Injection\IInjectionModule.cs" />
-    <Compile Include="Assets\Source\Application\Injection\InjectableMonoBehaviour.cs" />
-    <Compile Include="Assets\Source\Application\Injection\InjectionExtensions.cs" />
-    <Compile Include="Assets\Source\Application\Injection\SpirePlayerModule.cs" />
-    <Compile Include="Assets\Source\Graphics\Grid.cs" />
-    <Compile Include="Assets\Source\Input\IInputManager.cs" />
-    <Compile Include="Assets\Source\Input\InputManager.cs" />
-    <Compile Include="Assets\Source\Input\MultiInput\IMultiInput.cs" />
-    <Compile Include="Assets\Source\Input\MultiInput\InputPoint.cs" />
-    <Compile Include="Assets\Source\Input\MultiInput\MultiInput.cs" />
-    <Compile Include="Assets\Source\Input\States\EditModeInputState.cs" />
-    <Compile Include="Assets\Source\Input\States\IInputState.cs" />
-    <Compile Include="Assets\Source\Main.cs" />
-    <Compile Include="Assets\Source\States\Application.cs" />
-    <Compile Include="Assets\Source\States\EditApplicationState.cs" />
-    <Compile Include="Assets\Source\States\IApplicationState.cs" />
+    <Compile Include="Assets\Plugins\CreateAR\Debug\DebugRenderer.cs" />
+    <Compile Include="Assets\Plugins\CreateAR\Debug\DebugRendererMonoBehaviour.cs" />
+    <Compile Include="Assets\Plugins\CreateAR\Debug\FilteredRendererHandle.cs" />
+    <Compile Include="Assets\Plugins\CreateAR\Debug\RenderContext.cs" />
+    <Compile Include="Assets\Plugins\CreateAR\Debug\RenderContext2d.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

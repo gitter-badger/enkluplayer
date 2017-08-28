@@ -1,3 +1,4 @@
+using CreateAR.Commons.Unity.DebugRenderer;
 using strange.extensions.injector.impl;
 using UnityEngine;
 
@@ -19,6 +20,11 @@ namespace CreateAR.SpirePlayer
 	    private Application _app;
 
         /// <summary>
+        /// DebugRenderer.
+        /// </summary>
+	    public DebugRendererMonoBehaviour DebugRenderer;
+
+        /// <summary>
         /// Injects bindings into a MonoBehaviour.
         /// </summary>
         /// <param name="monobehaviour">The target MonoBehaviour.</param>
@@ -32,7 +38,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
 	    private void Awake()
 	    {
-	        _binder.Load(new SpirePlayerModule());
+	        _binder.Load(new SpirePlayerModule(DebugRenderer.Renderer));
 
 	        _app = _binder.GetInstance<Application>();
 	    }

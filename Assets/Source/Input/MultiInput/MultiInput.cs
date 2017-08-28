@@ -85,6 +85,7 @@ namespace CreateAR.SpirePlayer
         {
             UpdateLeftClick();
             UpdateRightClick();
+            UpdateMouseWheel();
         }
 
         private void UpdateLeftClick()
@@ -96,8 +97,10 @@ namespace CreateAR.SpirePlayer
             }
 
             var id = 0;
-            var down = Input.GetMouseButtonDown(id);
-            if (down)
+            var isDown = Input.GetMouseButtonDown(id);
+            var isUp = Input.GetMouseButtonUp(0);
+            var down = Input.GetMouseButton(id);
+            if (isDown)
             {
                 Assert.IsTrue(0 == Points.Count, "Input should not have points until down.");
 
@@ -106,17 +109,13 @@ namespace CreateAR.SpirePlayer
 
                 Points.Add(point);
             }
-
-            var up = Input.GetMouseButtonUp(0);
-            if (up)
+            else if (isUp)
             {
                 Assert.IsTrue(1 == Points.Count, "Input should have exactly 1 point.");
 
                 Points[0].Up(Input.mousePosition, _time);
             }
-
-            down = Input.GetMouseButton(id);
-            if (down)
+            else if (down)
             {
                 Assert.IsTrue(1 == Points.Count, "Input should have exactly 1 point while updating.");
                 Points[0].Update(Input.mousePosition, _time);
@@ -132,8 +131,10 @@ namespace CreateAR.SpirePlayer
             }
 
             var id = 1;
-            var down = Input.GetMouseButtonDown(id);
-            if (down)
+            var isDown = Input.GetMouseButtonDown(id);
+            var isUp = Input.GetMouseButtonUp(id);
+            var down = Input.GetMouseButton(id);
+            if (isDown)
             {
                 Assert.IsTrue(0 == Points.Count, "Input should have exactly 0 points.");
 
@@ -145,24 +146,25 @@ namespace CreateAR.SpirePlayer
                 point.Down(Input.mousePosition, _time);
                 Points.Add(point);
             }
-
-            var up = Input.GetMouseButtonUp(id);
-            if (up)
+            else if (isUp)
             {
                 Assert.IsTrue(2 == Points.Count, "Input should have exactly 2 points.");
 
                 Points[0].Up(Input.mousePosition, _time);
                 Points[1].Up(Input.mousePosition, _time);
             }
-
-            down = Input.GetMouseButton(1);
-            if (down)
+            else if (down)
             {
                 Assert.IsTrue(2 == Points.Count, "Input should have exactly 2 points.");
 
                 Points[0].Update(Input.mousePosition, _time);
                 Points[1].Update(Input.mousePosition, _time);
             }
+        }
+
+        private void UpdateMouseWheel()
+        {
+            var wheel = Input.GetAxis("Mouse ScrollWheel");
         }
 
         /// <summary>
