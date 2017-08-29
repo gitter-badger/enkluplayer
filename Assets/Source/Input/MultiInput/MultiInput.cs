@@ -7,17 +7,26 @@ namespace CreateAR.SpirePlayer
 {
     public class MultiInput : IMultiInput
     {
+        /// <summary>
+        /// Elapsed time.
+        /// </summary>
         private float _time;
 
+        /// <inheritdoc cref="IMultiInput"/>
         public Camera Camera { get; set; }
 
+        /// <inheritdoc cref="IMultiInput"/>
         public List<InputPoint> Points { get; private set; }
 
+        /// <summary>
+        /// Creates a new MultiInput.
+        /// </summary>
         public MultiInput()
         {
             Points = new List<InputPoint>();
         }
 
+        /// <inheritdoc cref="IMultiInput"/>
         public void Update(float dt)
         {
             _time += dt;
@@ -30,6 +39,10 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Updates <c>InputPoint</c>s from Touch data.
+        /// </summary>
+        /// <returns></returns>
         private bool UpdateFromTouches()
         {
             var touches = Input.touches;
@@ -81,6 +94,9 @@ namespace CreateAR.SpirePlayer
             return touches.Length > 0;
         }
 
+        /// <summary>
+        /// Updates <c>InputPoint</c>s from Mouse data.
+        /// </summary>
         private void UpdateFromMouse()
         {
             UpdateLeftClick();
@@ -88,6 +104,9 @@ namespace CreateAR.SpirePlayer
             UpdateMouseWheel();
         }
 
+        /// <summary>
+        /// Updates the left click. Left click creates a single InputPoint.
+        /// </summary>
         private void UpdateLeftClick()
         {
             // right click has control
@@ -122,6 +141,10 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Updates the right click. Creates two InputPoints like a two finger
+        /// gesture would.
+        /// </summary>
         private void UpdateRightClick()
         {
             // left click has control
@@ -162,6 +185,10 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Updates the mouse wheel. Creates two InputPoints and uses them like
+        /// pinch + zoom.
+        /// </summary>
         private void UpdateMouseWheel()
         {
             var wheel = Input.GetAxis("Mouse ScrollWheel");

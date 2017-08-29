@@ -2,12 +2,24 @@ using System;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Input state when idle in edit mode.
+    /// </summary>
     public class EditIdleState : IState
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly IMultiInput _input;
 
-        public event Action<Type> OnNext;
+        /// <summary>
+        /// Called when this state requests a transition.
+        /// </summary>
+        public event Action<Type> OnTransition;
 
+        /// <summary>
+        /// Creates a new EditIdleStaet.
+        /// </summary>
         public EditIdleState(IMultiInput input)
         {
             _input = input;
@@ -29,7 +41,7 @@ namespace CreateAR.SpirePlayer
                 var point = points[0];
                 if (point.IsDown)
                 {
-                    OnNext(typeof(EditRotateState));
+                    OnTransition(typeof(EditRotateState));
                 }
             }
 
@@ -39,7 +51,7 @@ namespace CreateAR.SpirePlayer
 
                 if (point.IsDown)
                 {
-                    OnNext(typeof(EditPanState));
+                    OnTransition(typeof(EditPanState));
                 }
             }
         }

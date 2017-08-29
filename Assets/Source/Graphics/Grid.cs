@@ -3,18 +3,26 @@
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Renders an okay grid.
+    /// Renders an okay-looking grid from GL.LINES.
     /// </summary>
     public class Grid : MonoBehaviour
     {
+        [Tooltip("The size of each cell, in world space.")]
         public int CellSize = 1;
+
+        [Tooltip("The worldspace size of the grid.")]
         public Vector2 GridSize = new Vector2(10, 10);
+
+        [Tooltip("The color of the emphasized lines.")]
         public Color PrimaryColor = new Color(0f, 0f, 0f, 1f);
+
+        [Tooltip("The color of the unemphasized lines.")]
         public Color SecondaryColor = new Color(0f, 0f, 0f, 1f);
 
+        [Tooltip("The material to render with. Auto generated and only useful for viewing at runtime.")]
         public Material Material;
-        public float LodDropoff = -0.9f;
-
+        
+        /// <inheritdoc cref="MonoBehaviour"/>
         private void Awake()
         {
             // Unity has a built-in shader that is useful for drawing
@@ -31,12 +39,19 @@ namespace CreateAR.SpirePlayer
             Material.SetInt("_ZWrite", 0);
         }
 
+        /// <inheritdoc cref="MonoBehaviour"/>
         private void OnPostRender()
         {
             DrawGrid(GridSize, CellSize, SecondaryColor);
             DrawGrid(GridSize, CellSize * 4, PrimaryColor);
         }
 
+        /// <summary>
+        /// Draws a grid.
+        /// </summary>
+        /// <param name="worldSize">Size in world space.</param>
+        /// <param name="cellSize">Size of each cell.</param>
+        /// <param name="color">Color of the grid.</param>
         private void DrawGrid(
             Vector2 worldSize,
             int cellSize,

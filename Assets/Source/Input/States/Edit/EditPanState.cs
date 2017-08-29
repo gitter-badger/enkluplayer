@@ -4,15 +4,26 @@ using UnityEngine.Assertions;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Input state that controls panning.
+    /// </summary>
     public class EditPanState : IState
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly IMultiInput _input;
         private readonly MainCamera _camera;
         private readonly InputConfig _config;
-        private Vector3 _startFloorIntersection;
 
-        public event Action<Type> OnNext;
+        /// <summary>
+        /// Called when this state requests a transition.
+        /// </summary>
+        public event Action<Type> OnTransition;
 
+        /// <summary>
+        /// Creates a new EditPanState.
+        /// </summary>
         public EditPanState(
             IMultiInput input,
             MainCamera camera,
@@ -23,11 +34,13 @@ namespace CreateAR.SpirePlayer
             _config = config;
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Enter()
         {
             
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Update(float dt)
         {
             Assert.IsTrue(2 == _input.Points.Count, "EditPanState expects exactly two points.");
@@ -37,7 +50,7 @@ namespace CreateAR.SpirePlayer
 
             if (a.IsUp || b.IsUp)
             {
-                OnNext(typeof(EditIdleState));
+                OnTransition(typeof(EditIdleState));
             }
             else
             {
@@ -48,6 +61,7 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Exit()
         {
             

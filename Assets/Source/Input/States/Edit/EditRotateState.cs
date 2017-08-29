@@ -4,15 +4,26 @@ using UnityEngine.Assertions;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Input state for controlling rotation.
+    /// </summary>
     public class EditRotateState : IState
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly IMultiInput _input;
         private readonly MainCamera _camera;
         private readonly InputConfig _config;
-        private Vector3 _startFloorIntersection;
 
-        public event Action<Type> OnNext;
+        /// <summary>
+        /// Called when a state should be transitioned to.
+        /// </summary>
+        public event Action<Type> OnTransition;
 
+        /// <summary>
+        /// Crates a new rotation state.
+        /// </summary>
         public EditRotateState(
             IMultiInput input,
             MainCamera camera,
@@ -23,11 +34,13 @@ namespace CreateAR.SpirePlayer
             _config = config;
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Enter()
         {
 
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Update(float dt)
         {
             Assert.IsTrue(1 == _input.Points.Count, "EditRotateState expects exactly one point.");
@@ -35,7 +48,7 @@ namespace CreateAR.SpirePlayer
             var point = _input.Points[0];
             if (point.IsUp)
             {
-                OnNext(typeof(EditIdleState));
+                OnTransition(typeof(EditIdleState));
             }
             else
             {
@@ -51,6 +64,7 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Exit()
         {
 
