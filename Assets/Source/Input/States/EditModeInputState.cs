@@ -173,22 +173,22 @@ namespace CreateAR.SpirePlayer
     public class EditModeInputState : IInputState
     {
         private readonly IMultiInput _input;
-        private readonly FinineStateMachine _states;
+        private readonly FiniteStateMachine _states;
 
         public EditModeInputState(IMultiInput input)
         {
             _input = input;
 
             var idle = new EditIdleState(_input);
-            idle.OnNext += _states.Change;
+            idle.OnNext += type => _states.Change(type);
 
             var pan = new EditPanState(_input);
-            pan.OnNext += _states.Change;
+            pan.OnNext += type => _states.Change(type);
 
             var rotate = new EditRotateState(_input);
-            rotate.OnNext += _states.Change;
+            rotate.OnNext += type => _states.Change(type);
 
-            _states = new FinineStateMachine(new IState[]
+            _states = new FiniteStateMachine(new IState[]
             {
                 idle, pan, rotate
             });

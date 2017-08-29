@@ -1,4 +1,4 @@
-using CreateAR.Commons.Unity.DebugRenderer;
+using CreateAR.Commons.Unity.Logging;
 using strange.extensions.injector.impl;
 using UnityEngine;
 
@@ -36,6 +36,8 @@ namespace CreateAR.SpirePlayer
             _binder.Load(new SpirePlayerModule());
 
 	        _app = _binder.GetInstance<Application>();
+
+            Log.Info(this, "Created application : {0}.", _app);
 	    }
 
         /// <summary>

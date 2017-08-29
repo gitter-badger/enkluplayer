@@ -23,10 +23,8 @@ namespace CreateAR.SpirePlayer
                 Timestamp = false
             }));
             Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
-
             Log.Filter = LogLevel.Debug;
-            Log.Info(this, "Application created.");
-
+            
             ChangeState(defaultState);
         }
 

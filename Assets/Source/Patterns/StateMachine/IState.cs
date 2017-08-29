@@ -3,12 +3,12 @@ using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
-    public class FinineStateMachine
+    public class FiniteStateMachine
     {
         private readonly IState[] _states;
         private IState _state;
 
-        public FinineStateMachine(IState[] states)
+        public FiniteStateMachine(IState[] states)
         {
             _states = states;
         }

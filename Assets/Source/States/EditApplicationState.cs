@@ -1,4 +1,6 @@
-﻿namespace CreateAR.SpirePlayer
+﻿using CreateAR.Commons.Unity.Logging;
+
+namespace CreateAR.SpirePlayer
 {
     public class EditApplicationState : IApplicationState
     {
@@ -20,6 +22,8 @@
 
         public void Enter()
         {
+            Log.Info(this, "Enter {0}.", _defaultState);
+
             _input.ChangeState(_defaultState);
         }
 
