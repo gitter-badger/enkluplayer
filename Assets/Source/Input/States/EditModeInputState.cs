@@ -28,6 +28,11 @@ namespace CreateAR.SpirePlayer
             var a = _input.Points[0];
             var b = _input.Points[1];
 
+            if (a.IsUp || b.IsUp)
+            {
+                OnNext(typeof(EditIdleState));
+            }
+
             DebugDraw(a, b);
         }
 
@@ -90,6 +95,10 @@ namespace CreateAR.SpirePlayer
             if (point.IsUp)
             {
                 OnNext(typeof(EditIdleState));
+            }
+            else
+            {
+                var worldDelta = point.CurrentWorldSpacePosition - point.PreviousWorldSpacePosition;
             }
             
             DebugDraw(point);
