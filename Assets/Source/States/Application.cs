@@ -33,6 +33,10 @@ namespace CreateAR.SpirePlayer
             Log.Filter = LogLevel.Debug;
 
             _defaultState = defaultState;
+
+#if !UNITY_EDITOR && UNITY_WEBGL
+            WebGLInput.captureAllKeyboardInput = false;
+#endif
         }
 
         /// <summary>
