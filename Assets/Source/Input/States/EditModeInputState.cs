@@ -91,10 +91,13 @@ namespace CreateAR.SpirePlayer
             {
                 var screenDelta = point.CurrentPosition - point.PreviousPosition;
                 var transform = _camera.transform;
-                transform.localRotation = Quaternion.Euler(
-                    transform.localEulerAngles.x - _config.RotateMultiplier * screenDelta.y,
-                    transform.localEulerAngles.y + _config.RotateMultiplier * screenDelta.x,
-                    transform.localEulerAngles.z);
+                transform.Rotate(
+                    Vector3.right,
+                    _config.RotateMultiplier * screenDelta.y);
+                transform.Rotate(
+                    Vector3.up,
+                    -_config.RotateMultiplier * screenDelta.x,
+                    Space.World);
             }
         }
 
