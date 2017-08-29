@@ -89,40 +89,18 @@ namespace CreateAR.SpirePlayer
             }
             else
             {
-                var worldDelta = point.CurrentWorldSpacePosition - point.PreviousWorldSpacePosition;
-
+                var screenDelta = point.CurrentPosition - point.PreviousPosition;
+                var transform = _camera.transform;
+                transform.localRotation = Quaternion.Euler(
+                    transform.localEulerAngles.x - _config.RotateMultiplier * screenDelta.y,
+                    transform.localEulerAngles.y + _config.RotateMultiplier * screenDelta.x,
+                    transform.localEulerAngles.z);
             }
-            
-            DebugDraw(point);
         }
 
         public void Exit()
         {
 
-        }
-
-        private void DebugDraw(InputPoint point)
-        {
-            var handle2D = Render.Handle2D("Input.Edit.Rotate");
-            if (null != handle2D)
-            {
-                handle2D.Draw(context =>
-                {
-                    context.Color(Color.green);
-                    context.Line(point.DownPosition, point.CurrentPosition);
-                });
-            }
-
-            var handle = Render.Handle("Input.Edit.Rotate");
-            if (null != handle)
-            {
-                handle.Draw(context =>
-                {
-                    context.Color(Color.yellow);
-                    context.Cube(point.DownWorldSpacePosition, 2);
-                    context.Cube(point.CurrentWorldSpacePosition, 2);
-                });
-            }
         }
     }
 
