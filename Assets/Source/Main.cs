@@ -37,8 +37,25 @@ namespace CreateAR.SpirePlayer
 
 	        _app = _binder.GetInstance<Application>();
 
-            Log.Info(this, "Created application : {0}.", _app);
+	        if (null != _app)
+	        {
+	            Log.Info(this, "Application created.");
+	        }
+	        else
+	        {
+	            Log.Fatal(this, "Application could not be created.");
+	        }
 	    }
+
+        /// <summary>
+        /// Starts the application.
+        /// </summary>
+	    private void Start()
+	    {
+            _app.Initialize();
+
+	        Log.Info(this, "Application initialized.");
+        }
 
         /// <summary>
         /// Update loop.

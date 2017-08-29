@@ -87,6 +87,10 @@ namespace CreateAR.SpirePlayer
             Assert.IsTrue(1 == _input.Points.Count, "EditRotateState expects exactly one point.");
 
             var point = _input.Points[0];
+            if (point.IsUp)
+            {
+                OnNext(typeof(EditIdleState));
+            }
             
             DebugDraw(point);
         }

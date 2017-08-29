@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.DebugRenderer;
+using CreateAR.Commons.Unity.Logging;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -11,7 +13,12 @@ namespace CreateAR.SpirePlayer
         /// Current state of the application.
         /// </summary>
         private IApplicationState _state;
-        
+
+        /// <summary>
+        /// Default state of the application.
+        /// </summary>
+        private EditApplicationState _defaultState;
+
         /// <summary>
         /// Creates a new Application.
         /// </summary>
@@ -24,8 +31,27 @@ namespace CreateAR.SpirePlayer
             }));
             Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
             Log.Filter = LogLevel.Debug;
-            
-            ChangeState(defaultState);
+
+            _defaultState = defaultState;
+        }
+
+        /// <summary>
+        /// Initializes the application.
+        /// </summary>
+        public void Initialize()
+        {
+            // setup renderer
+            var host = Object.FindObjectOfType<DebugRendererMonoBehaviour>();
+            if (null != host)
+            {
+                Render.Renderer = host.Renderer;
+            }
+            else
+            {
+                Log.Error(this, "Could not find DebugRenderer host.");
+            }
+
+            ChangeState(_defaultState);
         }
 
         /// <summary>
