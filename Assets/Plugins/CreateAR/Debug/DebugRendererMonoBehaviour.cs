@@ -17,7 +17,12 @@ namespace CreateAR.Commons.Unity.DebugRenderer
         /// Reflects Renderer filter.
         /// </summary>
         public string Filter = ".*";
-        
+
+        /// <summary>
+        /// True iff debug rendering is enabled.
+        /// </summary>
+        public bool Enabled = false;
+
         /// <summary>
         /// Called to initialize the object.
         /// </summary>
@@ -32,6 +37,7 @@ namespace CreateAR.Commons.Unity.DebugRenderer
         private void Update()
         {
             Renderer.Filter = Filter;
+            Renderer.Enabled = Enabled;
         }
 
         /// <summary>

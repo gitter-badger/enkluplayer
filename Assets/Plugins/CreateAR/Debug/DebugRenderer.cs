@@ -70,6 +70,11 @@ namespace CreateAR.Commons.Unity.DebugRenderer
         }
 
         /// <summary>
+        /// Turns rendering on and off at runtime.
+        /// </summary>
+        public bool Enabled { get; set; }
+
+        /// <summary>
         /// Creates a new DebugRenderer.
         /// </summary>
         public DebugRenderer()
@@ -87,7 +92,7 @@ namespace CreateAR.Commons.Unity.DebugRenderer
         {
             _context = context;
             _context2D = context2D;
-            
+
             Filter = ".*";
 
             PrepareMaterial();
@@ -103,6 +108,11 @@ namespace CreateAR.Commons.Unity.DebugRenderer
 #if !DEBUG_RENDERING
             return null;
 #endif
+
+            if (!Enabled)
+            {
+                return null;
+            }
 
             if (_filterRegex.IsMatch(category))
             {
@@ -126,6 +136,11 @@ namespace CreateAR.Commons.Unity.DebugRenderer
             return null;
 #endif
 
+            if (!Enabled)
+            {
+                return null;
+            }
+
             if (_filterRegex.IsMatch(category))
             {
                 var renderer = new FilteredRendererHandle2D();
@@ -144,7 +159,7 @@ namespace CreateAR.Commons.Unity.DebugRenderer
         public void Update(float dt)
         {
             _material.SetPass(0);
-            
+
             for (int i = 0, len = _renderers.Count; i < len; i++)
             {
                 _renderers[i].Action(_context);
@@ -163,7 +178,7 @@ namespace CreateAR.Commons.Unity.DebugRenderer
             }
             _renderers2D.Clear();
         }
-        
+
         /// <summary>
         /// Prepares a material for drawing.
         /// </summary>
@@ -174,7 +189,7 @@ namespace CreateAR.Commons.Unity.DebugRenderer
                 hideFlags = HideFlags.HideAndDontSave
             };
 
-            _material.SetInt("_Cull", (int) UnityEngine.Rendering.CullMode.Off);
+            _material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
             _material.SetInt("_ZWrite", 0);
         }
     }

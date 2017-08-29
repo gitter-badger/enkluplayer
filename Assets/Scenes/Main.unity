@@ -282,7 +282,6 @@ MonoBehaviour:
   PrimaryColor: {r: 0.36078432, g: 0.36078432, b: 0.36078432, a: 1}
   SecondaryColor: {r: 0.4627451, g: 0.4627451, b: 0.4627451, a: 1}
   Material: {fileID: 0}
-  LodDropoff: -0.9
 --- !u!114 &142035199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295,6 +294,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Filter: .*
+  Enabled: 0
 --- !u!114 &142035200
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,8 +346,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47176fe70db7b064f86e27782ea25d97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TranslateMultiplier: 0.1
-  RotateMultiplier: 0.4
+  TranslateMultiplier: 0.05
+  RotateMultiplier: 0.2
 --- !u!1 &615226714
 GameObject:
   m_ObjectHideFlags: 0
