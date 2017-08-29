@@ -114,9 +114,11 @@
     <Compile Include="Assets\Source\Application\Injection\InjectableMonoBehaviour.cs" />
     <Compile Include="Assets\Source\Application\Injection\InjectionExtensions.cs" />
     <Compile Include="Assets\Source\Application\Injection\SpirePlayerModule.cs" />
+    <Compile Include="Assets\Source\Application\Injection\Tags\MainCamera.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
     <Compile Include="Assets\Source\Input\IInputManager.cs" />
     <Compile Include="Assets\Source\Input\InputManager.cs" />
+    <Compile Include="Assets\Source\Input\InputConfig.cs" />
     <Compile Include="Assets\Source\Input\MultiInput\IMultiInput.cs" />
     <Compile Include="Assets\Source\Input\MultiInput\InputPoint.cs" />
     <Compile Include="Assets\Source\Input\MultiInput\MultiInput.cs" />

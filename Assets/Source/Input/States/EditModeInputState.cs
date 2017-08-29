@@ -7,13 +7,20 @@ namespace CreateAR.SpirePlayer
     public class EditPanState : IState
     {
         private readonly IMultiInput _input;
+        private readonly MainCamera _camera;
+        private readonly InputConfig _config;
         private Vector3 _startFloorIntersection;
 
         public event Action<Type> OnNext;
 
-        public EditPanState(IMultiInput input)
+        public EditPanState(
+            IMultiInput input,
+            MainCamera camera,
+            InputConfig config)
         {
             _input = input;
+            _camera = camera;
+            _config = config;
         }
 
         public void Enter()
@@ -32,54 +39,38 @@ namespace CreateAR.SpirePlayer
             {
                 OnNext(typeof(EditIdleState));
             }
-
-            DebugDraw(a, b);
+            else
+            {
+                var screenDelta = a.CurrentPosition - a.PreviousPosition;
+                _camera.transform.Translate(
+                    _config.TranslateMultiplier * 
+                    -(Vector3.up * screenDelta.y + Vector3.right * screenDelta.x));
+            }
         }
 
         public void Exit()
         {
             
         }
-
-        private void DebugDraw(InputPoint a, InputPoint b)
-        {
-            var handle2D = Render.Handle2D("Input.Edit.Pan");
-            if (null != handle2D)
-            {
-                handle2D.Draw(context =>
-                {
-                    context.Color(Color.green);
-                    context.Line(a.DownPosition, a.CurrentPosition);
-                    context.Line(b.DownPosition, b.CurrentPosition);
-                });
-            }
-
-            var handle = Render.Handle("Input.Edit.Pan");
-            if (null != handle)
-            {
-                handle.Draw(context =>
-                {
-                    context.Color(Color.yellow);
-                    context.Cube(a.DownWorldSpacePosition, 2);
-                    context.Cube(a.CurrentWorldSpacePosition, 2);
-
-                    context.Cube(b.DownWorldSpacePosition, 2);
-                    context.Cube(b.CurrentWorldSpacePosition, 2);
-                });
-            }
-        }
     }
 
     public class EditRotateState : IState
     {
         private readonly IMultiInput _input;
+        private readonly MainCamera _camera;
+        private readonly InputConfig _config;
         private Vector3 _startFloorIntersection;
 
         public event Action<Type> OnNext;
 
-        public EditRotateState(IMultiInput input)
+        public EditRotateState(
+            IMultiInput input,
+            MainCamera camera,
+            InputConfig config)
         {
             _input = input;
+            _camera = camera;
+            _config = config;
         }
 
         public void Enter()
@@ -99,6 +90,7 @@ namespace CreateAR.SpirePlayer
             else
             {
                 var worldDelta = point.CurrentWorldSpacePosition - point.PreviousWorldSpacePosition;
+
             }
             
             DebugDraw(point);
@@ -186,29 +178,37 @@ namespace CreateAR.SpirePlayer
     public class EditModeInputState : IInputState
     {
         private readonly IMultiInput _input;
-        private readonly FiniteStateMachine _states;
+        private readonly MainCamera _camera;
+        private readonly InputConfig _config;
 
-        public EditModeInputState(IMultiInput input)
+        private FiniteStateMachine _states;
+
+        public EditModeInputState(
+            IMultiInput input,
+            MainCamera camera,
+            InputConfig config)
         {
             _input = input;
+            _camera = camera;
+            _config = config;
+        }
 
+        public void Enter()
+        {
             var idle = new EditIdleState(_input);
             idle.OnNext += type => _states.Change(type);
 
-            var pan = new EditPanState(_input);
+            var pan = new EditPanState(_input, _camera, _config);
             pan.OnNext += type => _states.Change(type);
 
-            var rotate = new EditRotateState(_input);
+            var rotate = new EditRotateState(_input, _camera, _config);
             rotate.OnNext += type => _states.Change(type);
 
             _states = new FiniteStateMachine(new IState[]
             {
                 idle, pan, rotate
             });
-        }
 
-        public void Enter()
-        {
             _states.Change<EditIdleState>();
         }
 
@@ -220,6 +220,7 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             _states.Change<EditIdleState>();
+            _states = null;
         }
     }
 }
