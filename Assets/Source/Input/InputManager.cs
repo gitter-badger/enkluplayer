@@ -1,46 +1,59 @@
 ﻿namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Controls input across the application.
+    /// </summary>
     public class InputManager : IInputManager
     {
+        /// <summary>
+        /// <c>IMultiInput</c> implementation.
+        /// </summary>
         private readonly IMultiInput _input;
 
-        private IInputState _state;
+        /// <summary>
+        /// Controls input states.
+        /// </summary>
+        private readonly StateMachine _states = new StateMachine();
 
+        /// <inheritdoc cref="IInputManager"/>
+        public IMultiInput MultiInput
+        {
+            get
+            {
+                return _input;
+            }
+        }
+
+        /// <summary>
+        /// Creates
+        /// </summary>
+        /// <param name="input"></param>
         public InputManager(IMultiInput input)
         {
             _input = input;
         }
 
-        public void ChangeState(IInputState state)
+        /// <inheritdoc cref="IInputManager"/>
+        public void ChangeState(IState state)
         {
-            if (null != _state)
-            {
-                _state.Exit();
-            }
-
-            _state = state;
-
-            if (null != _state)
-            {
-                _state.Enter();
-            }
+            _states.Change(state);
         }
 
+        /// <inheritdoc cref="IInputManager"/>
         public void Update(float dt)
         {
             _input.Update(dt);
-
-            if (null != _state)
-            {
-                _state.Update(dt);
-            }
+            _states.Update(dt);
 
             DebugDraw();
         }
 
+        /// <summary>
+        /// Draws each input point.
+        /// </summary>
         private void DebugDraw()
         {
-            var handle = Render.Handle2D("Input.Touches");
+            var handle = Render.Handle2D("Input.Points");
             if (null != handle)
             {
                 handle.Draw(context =>

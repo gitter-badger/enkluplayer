@@ -122,13 +122,16 @@
     <Compile Include="Assets\Source\Input\MultiInput\IMultiInput.cs" />
     <Compile Include="Assets\Source\Input\MultiInput\InputPoint.cs" />
     <Compile Include="Assets\Source\Input\MultiInput\MultiInput.cs" />
+    <Compile Include="Assets\Source\Input\States\Edit\EditIdleState.cs" />
     <Compile Include="Assets\Source\Input\States\EditModeInputState.cs" />
-    <Compile Include="Assets\Source\Input\States\IInputState.cs" />
+    <Compile Include="Assets\Source\Input\States\Edit\EditRotateState.cs" />
+    <Compile Include="Assets\Source\Input\States\Edit\EditPanState.cs" />
     <Compile Include="Assets\Source\Main.cs" />
+    <Compile Include="Assets\Source\Patterns\StateMachine\FiniteStateMachine.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\IState.cs" />
+    <Compile Include="Assets\Source\Patterns\StateMachine\StateMachine.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\EditApplicationState.cs" />
-    <Compile Include="Assets\Source\States\IApplicationState.cs" />
     <Compile Include="Assets\Source\Util\CameraUtil.cs" />
     <Compile Include="Assets\Source\Util\Render.cs" />
   </ItemGroup>

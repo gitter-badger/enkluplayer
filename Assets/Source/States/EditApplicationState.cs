@@ -2,24 +2,46 @@
 
 namespace CreateAR.SpirePlayer
 {
-    public class EditApplicationState : IApplicationState
+    /// <summary>
+    /// Application state that is used in edit mode.
+    /// </summary>
+    public class EditApplicationState : IState
     {
+        /// <summary>
+        /// The input mechanism.
+        /// </summary>
         private readonly IInputManager _input;
-        private readonly IInputState _defaultState;
+
+        /// <summary>
+        /// The default state for input in edit mode.
+        /// </summary>
+        private readonly IState _defaultState;
         
+        /// <summary>
+        /// Creates a new EditApplicationState.
+        /// </summary>
+        /// <param name="input">The input mechanism.</param>
+        /// <param name="defaultState">The default state for input in edit mode.</param>
         public EditApplicationState(
             IInputManager input,
-            IInputState defaultState)
+            IState defaultState)
         {
             _input = input;
             _defaultState = defaultState;
         }
 
+        /// <summary>
+        /// A meaningful ToString.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return "[EditApplicationState]";
         }
 
+        /// <summary>
+        /// Called when the state is entered.
+        /// </summary>
         public void Enter()
         {
             Log.Info(this, "Enter {0}.", _defaultState);

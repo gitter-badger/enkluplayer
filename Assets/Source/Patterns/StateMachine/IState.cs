@@ -1,104 +1,24 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
-    public class FiniteStateMachine
-    {
-        private readonly IState[] _states;
-        private IState _state;
-
-        public FiniteStateMachine(IState[] states)
-        {
-            _states = states;
-        }
-
-        public void Change<T>() where T : IState
-        {
-            Change(typeof(T));
-        }
-
-        public void Change(Type type)
-        {
-            IState newState = null;
-
-            for (int i = 0, len = _states.Length; i < len; i++)
-            {
-                var state = _states[i];
-                if (state.GetType() == type)
-                {
-                    if (_state == state)
-                    {
-                        return;
-                    }
-
-                    newState = state;
-                    break;
-                }
-            }
-
-            Log.Info(this, "Change({0} -> {1})",
-                null == _state ? "[Null]" : _state.ToString(),
-                null == newState ? "[Null]" : newState.ToString());
-
-            if (null != _state)
-            {
-                _state.Exit();
-            }
-
-            _state = newState;
-
-            if (null != _state)
-            {
-                _state.Enter();
-            }
-        }
-
-        public void Update(float dt)
-        {
-            if (null != _state)
-            {
-                _state.Update(dt);
-            }
-        }
-    }
-    
-    public class StateMachine
-    {
-        private IState _state;
-
-        public void Change(IState state)
-        {
-            Log.Info(this, "Change({0} -> {1})",
-                null == _state ? "[Null]" : _state.ToString(),
-                null == state ? "[Null]" : state.ToString());
-
-            if (null != _state)
-            {
-                _state.Exit();
-            }
-
-            _state = state;
-
-            if (null != _state)
-            {
-                _state.Enter();
-            }
-        }
-
-        public void Update(float dt)
-        {
-            if (null != _state)
-            {
-                _state.Update(dt);
-            }
-        }
-    }
-
+    /// <summary>
+    /// Basic interface for a state.
+    /// </summary>
     public interface IState
     {
+        /// <summary>
+        /// Called when the state is transitioned to.
+        /// </summary>
         void Enter();
+
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
+        /// <param name="dt">Delta time.</param>
         void Update(float dt);
+
+        /// <summary>
+        /// Called when the state is transitioned out.
+        /// </summary>
         void Exit();
     }
 }

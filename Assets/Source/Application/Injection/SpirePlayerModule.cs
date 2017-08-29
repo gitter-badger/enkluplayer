@@ -21,7 +21,7 @@ namespace CreateAR.SpirePlayer
 
             // input
             {
-                binder.Bind<IInputState>().To<EditModeInputState>();
+                binder.Bind<IState>().To<EditModeInputState>();
                 binder.Bind<IInputManager>().To<InputManager>().ToSingleton();
                 binder.Bind<IMultiInput>().To<MultiInput>().ToSingleton();
             }
@@ -33,6 +33,11 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Looks up a component on the Unity hierarchy.
+        /// </summary>
+        /// <typeparam name="T">The type of component to lookup.</typeparam>
+        /// <returns></returns>
         private T LookupComponent<T>() where T : Object
         {
             var value = Object.FindObjectOfType<T>();

@@ -10,14 +10,14 @@ namespace CreateAR.SpirePlayer
     public class Application
     {
         /// <summary>
-        /// Current state of the application.
+        /// Controls application states.
         /// </summary>
-        private IApplicationState _state;
-
+        private readonly StateMachine _states = new StateMachine();
+        
         /// <summary>
         /// Default state of the application.
         /// </summary>
-        private EditApplicationState _defaultState;
+        private readonly EditApplicationState _defaultState;
 
         /// <summary>
         /// Creates a new Application.
@@ -51,42 +51,17 @@ namespace CreateAR.SpirePlayer
                 Log.Error(this, "Could not find DebugRenderer host.");
             }
 
-            ChangeState(_defaultState);
+            // move to the default application state
+            _states.Change(_defaultState);
         }
-
-        /// <summary>
-        /// Changes the application state.
-        /// </summary>
-        /// <param name="state">Name of the state.</param>
-        public void ChangeState(IApplicationState state)
-        {
-            Log.Debug(this, "Change state from {0} to {1}.",
-                null == _state ? "[Null]" : _state.ToString(),
-                null == state ? "[Null]" : state.ToString());
-
-            if (null != _state)
-            {
-                _state.Exit();
-            }
-
-            _state = state;
-
-            if (null != _state)
-            {
-                _state.Enter();
-            }
-        }
-
+        
         /// <summary>
         /// Called every frame.
         /// </summary>
         /// <param name="dt">The time since last time Update was called.</param>
         public void Update(float dt)
         {
-            if (null != _state)
-            {
-                _state.Update(dt);
-            }
+            _states.Update(dt);
         }
     }
 }
