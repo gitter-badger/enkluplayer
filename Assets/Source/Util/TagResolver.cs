@@ -23,7 +23,12 @@ namespace CreateAR.SpirePlayer
             var subqueries = query.Split(',');
             for (int i = 0, len = subqueries.Length; i < len; i++)
             {
-                var subquery = subqueries[i];
+                var subquery = subqueries[i].Trim(' ');
+                if (string.IsNullOrEmpty(subquery))
+                {
+                    return true;
+                }
+
                 if (!MatchSubquery(subquery, ref tags))
                 {
                     return false;

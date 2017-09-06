@@ -160,5 +160,17 @@ namespace CreateAR.SpirePlayer.Test
                     ref _tags),
                 "Should match complex query.");
         }
+
+        [Test]
+        public void MatchComplexWhitespace()
+        {
+            var query = "a q, b   ,  !z ";
+
+            Assert.IsTrue(
+                _resolver.Resolve(
+                    query,
+                    ref _tags),
+                "Should match complex query.");
+        }
     }
 }
