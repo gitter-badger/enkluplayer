@@ -33,7 +33,9 @@ namespace CreateAR.SpirePlayer.Test
         [SetUp]
         public void Setup()
         {
-            _manifest = new AssetManifest(new TagResolver());
+            _manifest = new AssetManifest(
+                new TagResolver(),
+                new DummyAssetLoader());
             _manifest.Add(_infos);
         }
 

@@ -3,33 +3,18 @@ using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer
 {
-    public class AssetInfo
-    {
-        public string Guid;
-        public string Uri;
-        public int Version;
-        public string Crc;
-        public string[] Tags;
-    }
-
-    public class AssetReference
-    {
-        public AssetInfo Info { get; private set; }
-
-        public AssetReference(AssetInfo info)
-        {
-            Info = info;
-        }
-    }
-
     public class AssetManifest
     {
         private readonly Dictionary<string, AssetReference> _guidToReference = new Dictionary<string, AssetReference>();
         private readonly IQueryResolver _resolver;
-
-        public AssetManifest(IQueryResolver resolver)
+        private readonly IAssetLoader _loader;
+        
+        public AssetManifest(
+            IQueryResolver resolver,
+            IAssetLoader loader)
         {
             _resolver = resolver;
+            _loader = loader;
         }
 
         public void Add(params AssetInfo[] infos)
@@ -38,7 +23,7 @@ namespace CreateAR.SpirePlayer
             {
                 var info = infos[i];
 
-                _guidToReference[info.Guid] = new AssetReference(info);
+                _guidToReference[info.Guid] = new AssetReference(_loader, info);
             }
         }
 
