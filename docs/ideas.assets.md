@@ -17,20 +17,6 @@ class AssetInfo
 }
 ```
 
-#### Setup
-
-```
-var map = new AssetMap();
-map.Add(info);
-map.Add(infos);
-```
-
-#### Usage
-
-```
-var info = map.Info(guid);
-```
-
 ### AssetManager
 
 #### Initialization
@@ -125,7 +111,7 @@ var unwatch = assetRef.WatchAsset<T>(asset => ...);
 
 ```
 // manually
-assetRef.Watch(unsub => assetRef.Load());
+assetRef.Watch(unsub => assetRef.Load<Object>());
 
 // automatically
 assetRef.AutoReload = true;
@@ -133,7 +119,7 @@ assetRef.AutoReload = true;
 // either of the above actions may call WatchAsset<T>
 ```
 
-#### Initializers
+#### EXPERIMENTAL: Initializers
 
 ```
 // register intitializers
