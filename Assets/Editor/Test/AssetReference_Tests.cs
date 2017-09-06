@@ -209,11 +209,52 @@ namespace CreateAR.SpirePlayer.Test
             _reference.Watch((unwatch, reference) =>
             {
                 watchCalled++;
+
+                unwatch();
+            });
+
+            _reference.Update(_infoUpdate);
+            _reference.Update(_infoUpdate);
+
+            Assert.AreEqual(1, watchCalled);
+        }
+
+        [Test]
+        public void WatchAssetRefReturnedUnwatch()
+        {
+            var watchCalled = false;
+
+            var unwatch = _reference.Watch(reference =>
+            {
+                watchCalled = true;
+
+                Assert.AreSame(_reference, reference);
             });
 
             _reference.Update(_infoUpdate);
 
-            Assert.AreEqual(2, watchCalled);
+            Assert.IsTrue(watchCalled);
+        }
+
+        [Test]
+        public void WatchUnwatchAssetRefReturnedUnwatch()
+        {
+            var watchCalled = 0;
+
+            var unwatch = _reference.Watch(reference =>
+            {
+                watchCalled++;
+
+                Assert.AreSame(_reference, reference);
+            });
+
+            _reference.Update(_infoUpdate);
+
+            unwatch();
+
+            _reference.Update(_infoUpdate);
+
+            Assert.AreEqual(1, watchCalled);
         }
     }
 }
