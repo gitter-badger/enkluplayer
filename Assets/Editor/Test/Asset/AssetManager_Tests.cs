@@ -14,7 +14,7 @@ namespace CreateAR.SpirePlayer.Test
             _configuration = new AssetManagerConfiguration
             {
                 Loader = new DummyAssetLoader(),
-                Queries = new TagResolver()
+                Queries = new StandardQueryResolver()
             };
 
             _assets = new AssetManager();
@@ -98,7 +98,7 @@ namespace CreateAR.SpirePlayer.Test
             {
                 Guid = "This is a test"
             };
-            _assets.Manifest.OnNewAsset += reference =>
+            _assets.Manifest.OnAssetAdded += reference =>
             {
                 addedCalled = true;
 
@@ -114,7 +114,7 @@ namespace CreateAR.SpirePlayer.Test
             {
                 Guid = info.Guid
             };
-            _assets.Manifest.OnUpdatedAsset += reference =>
+            _assets.Manifest.OnAssetUpdated += reference =>
             {
                 updatedCalled = true;
 

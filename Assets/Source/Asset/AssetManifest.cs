@@ -3,14 +3,35 @@ using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Serves as the table of contets for all Assets.
+    /// </summary>
     public class AssetManifest
     {
+        /// <summary>
+        /// A lookup from guid to AssetReference.
+        /// </summary>
         private readonly Dictionary<string, AssetReference> _guidToReference = new Dictionary<string, AssetReference>();
+
+        /// <summary>
+        /// Resolves queries against tags.
+        /// </summary>
         private readonly IQueryResolver _resolver;
+
+        /// <summary>
+        /// Loads assets.
+        /// </summary>
         private readonly IAssetLoader _loader;
 
-        public event Action<AssetReference> OnNewAsset;
-        public event Action<AssetReference> OnUpdatedAsset;
+        /// <summary>
+        /// Called when an asset has been added.
+        /// </summary>
+        public event Action<AssetReference> OnAssetAdded;
+
+        /// <summary>
+        /// Called when an asset has been updated.
+        /// </summary>
+        public event Action<AssetReference> OnAssetUpdated;
 
         public AssetManifest(
             IQueryResolver resolver,
@@ -20,6 +41,11 @@ namespace CreateAR.SpirePlayer
             _loader = loader;
         }
 
+        /// <summary>
+        /// Adds a set of assets. Throws an <c>ArgumentException</c> if an <c>AssetInfo</c>
+        /// instance has a guid that matches an existing instance.
+        /// </summary>
+        /// <param name="infos">One or more <c>AssetInfo</c> instances to add.</param>
         public void Add(params AssetInfo[] infos)
         {
             if (null == infos)
@@ -44,13 +70,18 @@ namespace CreateAR.SpirePlayer
 
                 _guidToReference[info.Guid] = reference;
 
-                if (null != OnNewAsset)
+                if (null != OnAssetAdded)
                 {
-                    OnNewAsset(reference);
+                    OnAssetAdded(reference);
                 }
             }
         }
 
+        /// <summary>
+        /// Updates a set of <c>AssetInfo</c> instances. Throws an <c>ArgumentException</c>
+        /// if an <c>AssetInfo</c> does not exist.
+        /// </summary>
+        /// <param name="infos"></param>
         public void Update(params AssetInfo[] infos)
         {
             if (null == infos)
@@ -83,13 +114,18 @@ namespace CreateAR.SpirePlayer
 
                 reference.Update(info);
 
-                if (null != OnUpdatedAsset)
+                if (null != OnAssetUpdated)
                 {
-                    OnUpdatedAsset(reference);
+                    OnAssetUpdated(reference);
                 }
             }
         }
 
+        /// <summary>
+        /// Retrieves the <c>AssetInfo</c> for a specific guid.
+        /// </summary>
+        /// <param name="guid">The guid for a particular asset.</param>
+        /// <returns></returns>
         public AssetInfo Info(string guid)
         {
             var reference = Reference(guid);
@@ -99,6 +135,11 @@ namespace CreateAR.SpirePlayer
                 : reference.Info;
         }
 
+        /// <summary>
+        /// Retrieves the <c>AssetReference</c> for a particular guid.
+        /// </summary>
+        /// <param name="guid">The guid for a particular asset.</param>
+        /// <returns></returns>
         public AssetReference Reference(string guid)
         {
             AssetReference reference;
@@ -107,6 +148,15 @@ namespace CreateAR.SpirePlayer
             return reference;
         }
 
+        /// <summary>
+        /// Finds a single <c>AssetReference</c> by some query.
+        /// 
+        /// Queries are resolved against <c>AssetReference</c> tags via the
+        /// <c>IQueryResolver</c> object passed into the
+        /// <c>AssetManagerConfiguration.</c>
+        /// </summary>
+        /// <param name="query">The query to resolve.</param>
+        /// <returns></returns>
         public AssetReference FindOne(string query)
         {
             foreach (var pair in _guidToReference)
@@ -122,6 +172,15 @@ namespace CreateAR.SpirePlayer
             return null;
         }
 
+        /// <summary>
+        /// Finds all <c>AssetReference</c> instances that match the given query.
+        /// 
+        /// Queries are resolved against <c>AssetReference</c> tags via the
+        /// <c>IQueryResolver</c> object passed into the
+        /// <c>AssetManagerConfiguration.</c>
+        /// </summary>
+        /// <param name="query">The query to resolve.</param>
+        /// <returns></returns>
         public AssetReference[] Find(string query)
         {
             var references = new List<AssetReference>();

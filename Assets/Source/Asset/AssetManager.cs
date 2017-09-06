@@ -4,13 +4,31 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Entry point into the asset system.
+    /// </summary>
     public class AssetManager
     {
+        /// <summary>
+        /// Configuration for assets.
+        /// </summary>
         private AssetManagerConfiguration _config;
+
+        /// <summary>
+        /// Token used to track initialization.
+        /// </summary>
         private AsyncToken<Void> _initializeToken;
 
+        /// <summary>
+        /// The manifest, which holds all the AssetRefs.
+        /// </summary>
         public AssetManifest Manifest { get; private set; }
 
+        /// <summary>
+        /// Initializes the manager.
+        /// </summary>
+        /// <param name="config">The configuration for this manager.</param>
+        /// <returns></returns>
         public IAsyncToken<Void> Initialize(AssetManagerConfiguration config)
         {
             if (null != _initializeToken)
@@ -18,7 +36,7 @@ namespace CreateAR.SpirePlayer
                 return new AsyncToken<Void>(new Exception("Already initialized."));
             }
 
-            if (!config.IsValid())
+            if (null == config || !config.IsValid())
             {
                 return new AsyncToken<Void>(new Exception("Invalid configuration."));
             }
@@ -43,6 +61,9 @@ namespace CreateAR.SpirePlayer
             return _initializeToken.Token();
         }
 
+        /// <summary>
+        /// Uninitializes the manager.
+        /// </summary>
         public void Uninitialize()
         {
             if (null == _initializeToken)
@@ -63,19 +84,31 @@ namespace CreateAR.SpirePlayer
             _config = null;
         }
 
+        /// <summary>
+        /// Called by the <c>IAssetUpdateService</c> when an asset has been added.
+        /// </summary>
+        /// <param name="assetInfos">The asset that has been added.</param>
         private void Service_OnAdded(AssetInfo[] assetInfos)
         {
             Manifest.Add(assetInfos);
         }
 
+        /// <summary>
+        /// Called by the <c>IAssetUpdateService</c> when an asset has been updated
+        /// </summary>
+        /// <param name="assetInfos">The asset that has been updated.</param>
         private void Service_OnUpdated(AssetInfo[] assetInfos)
         {
             Manifest.Update(assetInfos);
         }
 
+        /// <summary>
+        /// Called by the <c>IAssetUpdateService</c> when an asset has been removed.
+        /// </summary>
+        /// <param name="assetInfos">The asset that has been removed.</param>
         private void Service_OnRemoved(AssetInfo[] assetInfos)
         {
-            //
+            throw new NotImplementedException();
         }
     }
 }

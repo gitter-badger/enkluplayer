@@ -142,7 +142,7 @@
     <Compile Include="Assets\Source\Util\CameraUtil.cs" />
     <Compile Include="Assets\Source\Util\IQueryResolver.cs" />
     <Compile Include="Assets\Source\Util\Render.cs" />
-    <Compile Include="Assets\Source\Util\TagResolver.cs" />
+    <Compile Include="Assets\Source\Util\StandardQueryResolver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

@@ -2,9 +2,9 @@
 
 namespace CreateAR.SpirePlayer.Test
 {
-    public class TagResolver_Tests
+    public class StandardQueryResolver_Tests
     {
-        private readonly TagResolver _resolver = new TagResolver();
+        private readonly StandardQueryResolver _resolver = new StandardQueryResolver();
         
         private string[] _tags =
         {

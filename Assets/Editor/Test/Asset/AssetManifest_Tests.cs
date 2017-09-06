@@ -35,7 +35,7 @@ namespace CreateAR.SpirePlayer.Test
         public void Setup()
         {
             _manifest = new AssetManifest(
-                new TagResolver(),
+                new StandardQueryResolver(),
                 new DummyAssetLoader());
             _manifest.Add(_infos);
         }
@@ -85,7 +85,7 @@ namespace CreateAR.SpirePlayer.Test
                 Guid = "meh"
             };
 
-            _manifest.OnNewAsset += added =>
+            _manifest.OnAssetAdded += added =>
             {
                 called = true;
 
@@ -113,7 +113,7 @@ namespace CreateAR.SpirePlayer.Test
         public void UpdateNonExisting()
         {
             var eventCalled = false;
-            _manifest.OnUpdatedAsset += reference => eventCalled = true;
+            _manifest.OnAssetUpdated += reference => eventCalled = true;
 
             Assert.Throws<ArgumentException>(delegate
             {
@@ -130,7 +130,7 @@ namespace CreateAR.SpirePlayer.Test
         public void UpdateBadInfo()
         {
             var eventCalled = false;
-            _manifest.OnUpdatedAsset += reference => eventCalled = true;
+            _manifest.OnAssetUpdated += reference => eventCalled = true;
 
             Assert.Throws<ArgumentException>(delegate
             {
@@ -149,7 +149,7 @@ namespace CreateAR.SpirePlayer.Test
                 Guid = "a"
             };
 
-            _manifest.OnUpdatedAsset += reference =>
+            _manifest.OnAssetUpdated += reference =>
             {
                 eventCalled = true;
 
