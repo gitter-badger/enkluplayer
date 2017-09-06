@@ -25,7 +25,9 @@ class AssetInfo
 // configure
 var configuration = new AssetManagerConfiguration(map)
 {
-    UriResolver = new UriResolver(...)
+	Loader = new StandardAssetLoader(),
+	Queries = new StandardQueryResolver(),
+	Service = new WebSocketAssetUpdateService()
 };
 
 // use configuration to initialize
@@ -43,10 +45,18 @@ assetManager
 var assetRef = assets.Manifest.Get(guid);
 
 // build queries
-// commas are ANDs, spaces are ORs, exclamation points are NOTs
-var query = "tag anotherTag,yetAnotherTag,!finalTag";
-// equivalent to
-//      (tag || anotherTag) && (yetAnotherTag) && (!finalTag)
+// Commas are ANDs, spaces are ORs, !s are NOTs.
+// 
+// Egs-
+// 
+// "a" will resolve true for a set of tags including "a"
+// "a b" will resolve true for a set of tags including "a" OR "b"
+// "a,b" will resolve true for a set of tags including "a" AND "b"
+// "!a" will resolve true for a set of tags NOT including "a"
+// 
+// These can be composed for powerful effect:
+// 
+// "a b,!n,z !!b" is equivalent to: "(a || b) && !n && (z || b)"
 
 // retrieve AssetReference by query
 var b = assets.Manifest.FindOne(query);
