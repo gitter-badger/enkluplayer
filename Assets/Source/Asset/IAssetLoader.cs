@@ -5,6 +5,6 @@ namespace CreateAR.SpirePlayer
 {
     public interface IAssetLoader
     {
-        IAsyncToken<Object> Load(string url);
+        IAsyncToken<Object> Load(AssetInfo info);
     }
 }

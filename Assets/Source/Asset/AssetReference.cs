@@ -9,7 +9,6 @@ namespace CreateAR.SpirePlayer
     public class AssetReference
     {
         private readonly IAssetLoader _loader;
-        private bool _assetDirty = true;
         private Object _asset;
         private bool _autoReload;
 
@@ -17,6 +16,7 @@ namespace CreateAR.SpirePlayer
         private readonly List<Action> _assetWatchers = new List<Action>();
 
         public AssetInfo Info { get; private set; }
+        public bool IsAssetDirty { get; private set; }
 
         public bool AutoReload
         {
@@ -47,6 +47,7 @@ namespace CreateAR.SpirePlayer
             _loader = loader;
 
             Info = info;
+            IsAssetDirty = true;
         }
 
         public T Asset<T>() where T : Object
@@ -58,15 +59,15 @@ namespace CreateAR.SpirePlayer
         {
             var token = new AsyncToken<T>();
 
-            if (_assetDirty)
+            if (IsAssetDirty)
             {
                 var info = Info;
                 _loader
-                    .Load(info.Uri)
+                    .Load(info)
                     .OnSuccess(asset =>
                     {
                         _asset = asset;
-                        _assetDirty = info != Info;
+                        IsAssetDirty = info != Info;
 
                         token.Succeed(As<T>());
 
@@ -100,7 +101,7 @@ namespace CreateAR.SpirePlayer
 
             Info = info;
 
-            _assetDirty = true;
+            IsAssetDirty = true;
 
             var watchers = _refWatchers.ToArray();
             for (int i = 0, len = watchers.Length; i < len; i++)
