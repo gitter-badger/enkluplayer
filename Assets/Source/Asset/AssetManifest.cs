@@ -10,6 +10,7 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetLoader _loader;
 
         public event Action<AssetReference> OnNewAsset;
+        public event Action<AssetReference> OnUpdatedAsset;
 
         public AssetManifest(
             IQueryResolver resolver,
@@ -21,12 +22,17 @@ namespace CreateAR.SpirePlayer
 
         public void Add(params AssetInfo[] infos)
         {
+            if (null == infos)
+            {
+                throw new ArgumentException("Cannot add null.");
+            }
+
             // validate
             for (int i = 0, len = infos.Length; i < len; i++)
             {
                 if (_guidToReference.ContainsKey(infos[i].Guid))
                 {
-                    throw new Exception("Cannot add AssetInfo with same Guid as previous asset.");
+                    throw new ArgumentException("Cannot add AssetInfo with same Guid as previous asset : " + infos[i].Guid);
                 }
             }
 
@@ -41,6 +47,45 @@ namespace CreateAR.SpirePlayer
                 if (null != OnNewAsset)
                 {
                     OnNewAsset(reference);
+                }
+            }
+        }
+
+        public void Update(params AssetInfo[] infos)
+        {
+            if (null == infos)
+            {
+                throw new ArgumentException("Cannot update null.");
+            }
+
+            for (int i = 0, len = infos.Length; i < len; i++)
+            {
+                var guid = infos[i].Guid;
+                if (string.IsNullOrEmpty(guid))
+                {
+                    throw new ArgumentException("Cannot update with null or empty Guid.");
+                }
+
+                if (!_guidToReference.ContainsKey(guid))
+                {
+                    throw new ArgumentException("Cannot update non-existent Asset : " + guid);
+                }
+            }
+
+            for (int i = 0, len = infos.Length; i < len; i++)
+            {
+                var info = infos[i];
+                var reference = Reference(info.Guid);
+                if (null == reference)
+                {
+                    throw new ArgumentException("Invalid AssetInfo.");
+                }
+
+                reference.Update(info);
+
+                if (null != OnUpdatedAsset)
+                {
+                    OnUpdatedAsset(reference);
                 }
             }
         }

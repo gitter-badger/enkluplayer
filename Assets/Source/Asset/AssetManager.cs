@@ -4,19 +4,9 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
-    public class AssetManagerConfiguration
-    {
-        public IAssetLoader Loader;
-        public IQueryResolver Queries;
-
-        public bool IsValid()
-        {
-            return null != Loader && null != Queries;
-        }
-    }
-    
     public class AssetManager
     {
+        private AssetManagerConfiguration _config;
         private AsyncToken<Void> _initializeToken;
 
         public AssetManifest Manifest { get; private set; }
@@ -35,13 +25,22 @@ namespace CreateAR.SpirePlayer
 
             _initializeToken = new AsyncToken<Void>();
 
+            _config = config;
+
             Manifest = new AssetManifest(
-                config.Queries,
-                config.Loader);
+                _config.Queries,
+                _config.Loader);
+
+            if (null != _config.Service)
+            {
+                _config.Service.OnAdded += Service_OnAdded;
+                _config.Service.OnUpdated += Service_OnUpdated;
+                _config.Service.OnRemoved += Service_OnRemoved;
+            }
 
             _initializeToken.Succeed(Void.Instance);
 
-            return _initializeToken;
+            return _initializeToken.Token();
         }
 
         public void Uninitialize()
@@ -51,8 +50,32 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            _initializeToken.Abort();
+            _initializeToken.Fail(new Exception("Uninitialized."));
             _initializeToken = null;
+
+            if (null != _config.Service)
+            {
+                _config.Service.OnAdded -= Service_OnAdded;
+                _config.Service.OnUpdated -= Service_OnUpdated;
+                _config.Service.OnRemoved -= Service_OnRemoved;
+            }
+
+            _config = null;
+        }
+
+        private void Service_OnAdded(AssetInfo[] assetInfos)
+        {
+            Manifest.Add(assetInfos);
+        }
+
+        private void Service_OnUpdated(AssetInfo[] assetInfos)
+        {
+            Manifest.Update(assetInfos);
+        }
+
+        private void Service_OnRemoved(AssetInfo[] assetInfos)
+        {
+            //
         }
     }
 }

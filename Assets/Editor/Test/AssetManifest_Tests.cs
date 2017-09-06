@@ -99,7 +99,7 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void AddSameGuidError()
         {
-            Assert.Throws<Exception>(
+            Assert.Throws<ArgumentException>(
                 delegate
                 {
                     _manifest.Add(new AssetInfo
@@ -107,6 +107,58 @@ namespace CreateAR.SpirePlayer.Test
                         Guid = "a"
                     });
                 });
+        }
+
+        [Test]
+        public void UpdateNonExisting()
+        {
+            var eventCalled = false;
+            _manifest.OnUpdatedAsset += reference => eventCalled = true;
+
+            Assert.Throws<ArgumentException>(delegate
+            {
+                _manifest.Update(new AssetInfo
+                {
+                    Guid = "nonexistent"
+                });
+            });
+
+            Assert.IsFalse(eventCalled);
+        }
+
+        [Test]
+        public void UpdateBadInfo()
+        {
+            var eventCalled = false;
+            _manifest.OnUpdatedAsset += reference => eventCalled = true;
+
+            Assert.Throws<ArgumentException>(delegate
+            {
+                _manifest.Update(new AssetInfo());
+            });
+
+            Assert.IsFalse(eventCalled);
+        }
+
+        [Test]
+        public void UpdateEvent()
+        {
+            var eventCalled = false;
+            var info = new AssetInfo
+            {
+                Guid = "a"
+            };
+
+            _manifest.OnUpdatedAsset += reference =>
+            {
+                eventCalled = true;
+
+                Assert.AreSame(info, reference.Info);
+            };
+
+            _manifest.Update(info);
+
+            Assert.IsTrue(eventCalled);
         }
     }
 }

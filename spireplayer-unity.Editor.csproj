@@ -175,6 +175,7 @@
     <Compile Include="Assets\Editor\Test\AssetManifest_Tests.cs" />
     <Compile Include="Assets\Editor\Test\AssetReference_Tests.cs" />
     <Compile Include="Assets\Editor\Test\DummyAssetLoader.cs" />
+    <Compile Include="Assets\Editor\Test\DummyAssetUpdateService.cs" />
     <Compile Include="Assets\Editor\Test\TagResolver_Tests.cs" />
     <Compile Include="Assets\Editor\Build\UnityBuilder.cs" />
   </ItemGroup>
