@@ -122,12 +122,29 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         [Test]
+        public void UpdateLeaveLoadedAsset()
+        {
+            _reference.Load<GameObject>();
+            _reference.Update(_infoUpdate);
+
+            // check that we still have the old asset
+            Assert.AreEqual(
+                _testAsset.GetInstanceID(),
+                _reference.Asset<GameObject>().GetInstanceID());
+        }
+        
+        [Test]
         public void UpdateAssetRef()
         {
             var successCalled = true;
 
+            // load existing asset first
+            _reference.Load<GameObject>();
+
+            // update to invalidate loaded asset
             _reference.Update(_infoUpdate);
 
+            // reload
             _reference
                 .Load<GameObject>()
                 .OnSuccess(asset =>
@@ -316,6 +333,29 @@ namespace CreateAR.SpirePlayer.Test
             _reference.Load<GameObject>();
 
             Assert.AreEqual(1, watchCalled);
+        }
+
+        [Test]
+        public void AutoReload()
+        {
+            var watches = 0;
+
+            _reference.Load<GameObject>();
+
+            _reference.WatchAsset<GameObject>(asset =>
+            {
+                watches++;
+            });
+
+            Assert.AreEqual(0, watches);
+
+            _reference.AutoReload = true;
+
+            Assert.AreEqual(0, watches);
+
+            _reference.Update(_infoUpdate);
+
+            Assert.AreEqual(1, watches);
         }
     }
 }

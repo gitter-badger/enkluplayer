@@ -9,12 +9,36 @@ namespace CreateAR.SpirePlayer
     public class AssetReference
     {
         private readonly IAssetLoader _loader;
+        private bool _assetDirty = true;
         private Object _asset;
+        private bool _autoReload;
 
         private readonly List<Action> _refWatchers = new List<Action>();
         private readonly List<Action> _assetWatchers = new List<Action>();
 
         public AssetInfo Info { get; private set; }
+
+        public bool AutoReload
+        {
+            get
+            {
+                return _autoReload;
+            }
+            set
+            {
+                if (_autoReload == value)
+                {
+                    return;
+                }
+
+                _autoReload = value;
+
+                if (_autoReload)
+                {
+                    Load<Object>();
+                }
+            }
+        }
 
         public AssetReference(
             IAssetLoader loader,
@@ -34,25 +58,34 @@ namespace CreateAR.SpirePlayer
         {
             var token = new AsyncToken<T>();
 
-            _loader
-                .Load(Info.Uri)
-                .OnSuccess(asset =>
-                {
-                    _asset = asset;
-
-                    token.Succeed(As<T>());
-
-                    var watchers = _assetWatchers.ToArray();
-                    for (int i = 0, len = watchers.Length; i < len; i++)
+            if (_assetDirty)
+            {
+                var info = Info;
+                _loader
+                    .Load(info.Uri)
+                    .OnSuccess(asset =>
                     {
-                        watchers[i]();
-                    }
-                })
-                .OnFailure(token.Fail);
+                        _asset = asset;
+                        _assetDirty = info != Info;
+
+                        token.Succeed(As<T>());
+
+                        var watchers = _assetWatchers.ToArray();
+                        for (int i = 0, len = watchers.Length; i < len; i++)
+                        {
+                            watchers[i]();
+                        }
+                    })
+                    .OnFailure(token.Fail);
+            }
+            else
+            {
+                token.Succeed(As<T>());
+            }
 
             return token;
         }
-
+        
         public void Update(AssetInfo info)
         {
             if (Info.Guid != info.Guid)
@@ -67,12 +100,17 @@ namespace CreateAR.SpirePlayer
 
             Info = info;
 
-            _asset = null;
+            _assetDirty = true;
 
             var watchers = _refWatchers.ToArray();
             for (int i = 0, len = watchers.Length; i < len; i++)
             {
                 watchers[i]();
+            }
+
+            if (_autoReload)
+            {
+                Load<Object>();
             }
         }
 
@@ -100,6 +138,7 @@ namespace CreateAR.SpirePlayer
         public void Watch(Action<Action, AssetReference> callback)
         {
             Action watcher = null;
+            // ReSharper disable once AccessToModifiedClosure
             Action unwatcher = () => _refWatchers.Remove(watcher);
             watcher = () => callback(unwatcher, this);
 
@@ -117,6 +156,7 @@ namespace CreateAR.SpirePlayer
         public void WatchAsset<T>(Action<Action, T> callback) where T : Object
         {
             Action watcher = null;
+            // ReSharper disable once AccessToModifiedClosure
             Action unwatcher = () => _assetWatchers.Remove(watcher);
             watcher = () => callback(unwatcher, As<T>());
 
