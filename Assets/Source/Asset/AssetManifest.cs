@@ -8,7 +8,9 @@ namespace CreateAR.SpirePlayer
         private readonly Dictionary<string, AssetReference> _guidToReference = new Dictionary<string, AssetReference>();
         private readonly IQueryResolver _resolver;
         private readonly IAssetLoader _loader;
-        
+
+        public event Action<AssetReference> OnNewAsset;
+
         public AssetManifest(
             IQueryResolver resolver,
             IAssetLoader loader)
@@ -19,11 +21,27 @@ namespace CreateAR.SpirePlayer
 
         public void Add(params AssetInfo[] infos)
         {
+            // validate
+            for (int i = 0, len = infos.Length; i < len; i++)
+            {
+                if (_guidToReference.ContainsKey(infos[i].Guid))
+                {
+                    throw new Exception("Cannot add AssetInfo with same Guid as previous asset.");
+                }
+            }
+
+            // add
             for (int i = 0, len = infos.Length; i < len; i++)
             {
                 var info = infos[i];
+                var reference = new AssetReference(_loader, info);
 
-                _guidToReference[info.Guid] = new AssetReference(_loader, info);
+                _guidToReference[info.Guid] = reference;
+
+                if (null != OnNewAsset)
+                {
+                    OnNewAsset(reference);
+                }
             }
         }
 

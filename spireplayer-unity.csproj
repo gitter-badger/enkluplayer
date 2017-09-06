@@ -116,6 +116,7 @@
     <Compile Include="Assets\Source\Application\Injection\SpirePlayerModule.cs" />
     <Compile Include="Assets\Source\Application\Injection\Tags\MainCamera.cs" />
     <Compile Include="Assets\Source\Asset\AssetInfo.cs" />
+    <Compile Include="Assets\Source\Asset\AssetManager.cs" />
     <Compile Include="Assets\Source\Asset\AssetManifest.cs" />
     <Compile Include="Assets\Source\Asset\AssetReference.cs" />
     <Compile Include="Assets\Source\Asset\IAssetLoader.cs" />

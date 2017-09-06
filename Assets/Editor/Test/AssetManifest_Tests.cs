@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace CreateAR.SpirePlayer.Test
 {
@@ -73,6 +74,39 @@ namespace CreateAR.SpirePlayer.Test
             Assert.AreEqual(1, _manifest.Find("a,c").Length);
             Assert.AreEqual(2, _manifest.Find("!a").Length);
             Assert.AreEqual(3, _manifest.Find("a c").Length);
+        }
+
+        [Test]
+        public void AddEvent()
+        {
+            var called = false;
+            var asset = new AssetInfo
+            {
+                Guid = "meh"
+            };
+
+            _manifest.OnNewAsset += added =>
+            {
+                called = true;
+
+                Assert.AreSame(asset, added.Info);
+            };
+            _manifest.Add(asset);
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void AddSameGuidError()
+        {
+            Assert.Throws<Exception>(
+                delegate
+                {
+                    _manifest.Add(new AssetInfo
+                    {
+                        Guid = "a"
+                    });
+                });
         }
     }
 }

@@ -171,6 +171,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Editor\Test\AssetManager_Tests.cs" />
     <Compile Include="Assets\Editor\Test\AssetManifest_Tests.cs" />
     <Compile Include="Assets\Editor\Test\AssetReference_Tests.cs" />
     <Compile Include="Assets\Editor\Test\DummyAssetLoader.cs" />
