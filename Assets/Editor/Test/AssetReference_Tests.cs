@@ -154,7 +154,7 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         [Test]
-        public void WatchAssetRef()
+        public void WatchRef()
         {
             var watchCalled = false;
 
@@ -171,7 +171,7 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         [Test]
-        public void WatchIgnoreSameUpdate()
+        public void WatchRefIgnoreSameUpdate()
         {
             var watchCalled = false;
 
@@ -184,25 +184,9 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.IsFalse(watchCalled);
         }
-
+        
         [Test]
-        public void WatchTwice()
-        {
-            var watchCalled = 0;
-
-            _reference.Watch((unwatch, reference) =>
-            {
-                watchCalled++;
-            });
-
-            _reference.Update(_infoUpdate);
-            _reference.Update(_info);
-
-            Assert.AreEqual(2, watchCalled);
-        }
-
-        [Test]
-        public void WatchUnwatch()
+        public void WatchRefUnwatch()
         {
             var watchCalled = 0;
 
@@ -220,7 +204,7 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         [Test]
-        public void WatchAssetRefReturnedUnwatch()
+        public void WatchRefReturnedUnwatch()
         {
             var watchCalled = false;
 
@@ -237,7 +221,7 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         [Test]
-        public void WatchUnwatchAssetRefReturnedUnwatch()
+        public void WatchRefUnwatchReturnedUnwatch()
         {
             var watchCalled = 0;
 
@@ -253,6 +237,83 @@ namespace CreateAR.SpirePlayer.Test
             unwatch();
 
             _reference.Update(_infoUpdate);
+
+            Assert.AreEqual(1, watchCalled);
+        }
+
+        [Test]
+        public void WatchAsset()
+        {
+            var watchCalled = false;
+
+            _reference.WatchAsset<GameObject>((unwatch, asset) =>
+            {
+                watchCalled = true;
+
+                Assert.AreEqual(
+                    _testAsset.GetInstanceID(),
+                    asset.GetInstanceID());
+            });
+
+            _reference.Load<GameObject>();
+
+            Assert.IsTrue(watchCalled);
+        }
+
+        [Test]
+        public void WatchAssetUnwatch()
+        {
+            var watchCalled = 0;
+
+            _reference.WatchAsset<GameObject>((unwatch, asset) =>
+            {
+                watchCalled++;
+
+                unwatch();
+            });
+
+            _reference.Load<GameObject>();
+            _reference.Update(_infoUpdate);
+            _reference.Load<GameObject>();
+
+            Assert.AreEqual(1, watchCalled);
+        }
+
+        [Test]
+        public void WatchAssetReturnedUnwatch()
+        {
+            var watchCalled = false;
+
+            var unwatch = _reference.WatchAsset<GameObject>(asset =>
+            {
+                watchCalled = true;
+
+                Assert.AreEqual(
+                    _testAsset.GetInstanceID(),
+                    asset.GetInstanceID());
+            });
+
+            _reference.Load<GameObject>();
+
+            Assert.IsTrue(watchCalled);
+        }
+
+        [Test]
+        public void WatchAssetUnwatchReturnedUnwatch()
+        {
+            var watchCalled = 0;
+
+            var unwatch = _reference.WatchAsset<GameObject>(asset =>
+            {
+                watchCalled++;
+            });
+            
+            _reference.Load<GameObject>();
+
+            unwatch();
+
+            _reference.Update(_infoUpdate);
+            _reference.Load<GameObject>();
 
             Assert.AreEqual(1, watchCalled);
         }

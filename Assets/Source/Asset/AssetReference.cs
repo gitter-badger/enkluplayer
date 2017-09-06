@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using CreateAR.Commons.Unity.Async;
-using Mono.Cecil;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -13,7 +11,8 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetLoader _loader;
         private Object _asset;
 
-        private readonly List<Action> _watchers = new List<Action>();
+        private readonly List<Action> _refWatchers = new List<Action>();
+        private readonly List<Action> _assetWatchers = new List<Action>();
 
         public AssetInfo Info { get; private set; }
 
@@ -42,6 +41,12 @@ namespace CreateAR.SpirePlayer
                     _asset = asset;
 
                     token.Succeed(As<T>());
+
+                    var watchers = _assetWatchers.ToArray();
+                    for (int i = 0, len = watchers.Length; i < len; i++)
+                    {
+                        watchers[i]();
+                    }
                 })
                 .OnFailure(token.Fail);
 
@@ -64,7 +69,7 @@ namespace CreateAR.SpirePlayer
 
             _asset = null;
 
-            var watchers = _watchers.ToArray();
+            var watchers = _refWatchers.ToArray();
             for (int i = 0, len = watchers.Length; i < len; i++)
             {
                 watchers[i]();
@@ -95,26 +100,35 @@ namespace CreateAR.SpirePlayer
         public void Watch(Action<Action, AssetReference> callback)
         {
             Action watcher = null;
-            Action unwatcher = () =>
-            {
-                _watchers.Remove(watcher);
-            };
+            Action unwatcher = () => _refWatchers.Remove(watcher);
+            watcher = () => callback(unwatcher, this);
 
-            watcher = () =>
-            {
-                callback(unwatcher, this);
-            };
-
-            _watchers.Add(watcher);
+            _refWatchers.Add(watcher);
         }
 
         public Action Watch(Action<AssetReference> callback)
         {
             Action watcher = () => callback(this);
+            _refWatchers.Add(watcher);
 
-            _watchers.Add(watcher);
+            return () => _refWatchers.Remove(watcher);
+        }
 
-            return () => _watchers.Remove(watcher);
+        public void WatchAsset<T>(Action<Action, T> callback) where T : Object
+        {
+            Action watcher = null;
+            Action unwatcher = () => _assetWatchers.Remove(watcher);
+            watcher = () => callback(unwatcher, As<T>());
+
+            _assetWatchers.Add(watcher);
+        }
+
+        public Action WatchAsset<T>(Action<T> callback) where T : Object
+        {
+            Action watcher = () => callback(As<T>());
+            _assetWatchers.Add(watcher);
+
+            return () => _assetWatchers.Remove(watcher);
         }
     }
 }
