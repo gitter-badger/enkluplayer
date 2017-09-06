@@ -115,17 +115,18 @@
     <Compile Include="Assets\Source\Application\Injection\InjectionExtensions.cs" />
     <Compile Include="Assets\Source\Application\Injection\SpirePlayerModule.cs" />
     <Compile Include="Assets\Source\Application\Injection\Tags\MainCamera.cs" />
+    <Compile Include="Assets\Source\Asset\AssetManifest.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
     <Compile Include="Assets\Source\Input\IInputManager.cs" />
-    <Compile Include="Assets\Source\Input\InputManager.cs" />
     <Compile Include="Assets\Source\Input\InputConfig.cs" />
+    <Compile Include="Assets\Source\Input\InputManager.cs" />
     <Compile Include="Assets\Source\Input\MultiInput\IMultiInput.cs" />
     <Compile Include="Assets\Source\Input\MultiInput\InputPoint.cs" />
     <Compile Include="Assets\Source\Input\MultiInput\MultiInput.cs" />
     <Compile Include="Assets\Source\Input\States\Edit\EditIdleState.cs" />
-    <Compile Include="Assets\Source\Input\States\EditModeInputState.cs" />
-    <Compile Include="Assets\Source\Input\States\Edit\EditRotateState.cs" />
     <Compile Include="Assets\Source\Input\States\Edit\EditPanState.cs" />
+    <Compile Include="Assets\Source\Input\States\Edit\EditRotateState.cs" />
+    <Compile Include="Assets\Source\Input\States\EditModeInputState.cs" />
     <Compile Include="Assets\Source\Main.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\FiniteStateMachine.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\IState.cs" />
@@ -133,9 +134,10 @@
     <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\EditApplicationState.cs" />
     <Compile Include="Assets\Source\Util\CameraUtil.cs" />
+    <Compile Include="Assets\Source\Util\IQueryResolver.cs" />
     <Compile Include="Assets\Source\Util\Render.cs" />
+    <Compile Include="Assets\Source\Util\TagResolver.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
 </Project>

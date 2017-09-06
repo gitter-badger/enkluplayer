@@ -1,6 +1,6 @@
 namespace CreateAR.SpirePlayer
 {
-    public class TagResolver
+    public class TagResolver : IQueryResolver
     {
         public bool Resolve(string query, ref string[] tags)
         {
