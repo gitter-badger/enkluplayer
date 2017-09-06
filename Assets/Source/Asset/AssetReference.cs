@@ -68,13 +68,16 @@ namespace CreateAR.SpirePlayer
                 {
                     return gameObject.GetComponent<T>();
                 }
-                else
-                {
-                    return null;
-                }
+
+                return null;
             }
 
             return _asset as T;
+        }
+
+        public void Watch(Action<Action, AssetReference> callback)
+        {
+            
         }
     }
 }

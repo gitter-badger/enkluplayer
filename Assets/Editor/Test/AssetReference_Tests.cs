@@ -52,12 +52,6 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         [Test]
-        public void NullAssetWithoutLoad()
-        {
-            Assert.IsNull(_reference.Asset<GameObject>());
-        }
-
-        [Test]
         public void LoadAsset()
         {
             var successCalled = false;
@@ -80,7 +74,13 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         [Test]
-        public void LoadAssetGetAsset()
+        public void AssetNullWithoutLoad()
+        {
+            Assert.IsNull(_reference.Asset<GameObject>());
+        }
+
+        [Test]
+        public void AssetGetAsset()
         {
             var successCalled = false;
             var failureCalled = false;
@@ -143,7 +143,7 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         [Test]
-        public void ChangeGuidUpdate()
+        public void UpdateChangeGuidFail()
         {
             Assert.Throws<ArgumentException>(delegate {
                 _reference.Update(new AssetInfo
@@ -156,7 +156,64 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void WatchAssetRef()
         {
-            
+            var watchCalled = false;
+
+            _reference.Watch((unwatch, reference) =>
+            {
+                watchCalled = true;
+
+                Assert.AreSame(_reference, reference);
+            });
+
+            _reference.Update(_infoUpdate);
+
+            Assert.IsTrue(watchCalled);
+        }
+
+        [Test]
+        public void WatchIgnoreSameUpdate()
+        {
+            var watchCalled = false;
+
+            _reference.Watch((unwatch, reference) =>
+            {
+                watchCalled = true;
+            });
+
+            _reference.Update(_info);
+
+            Assert.IsFalse(watchCalled);
+        }
+
+        [Test]
+        public void WatchTwice()
+        {
+            var watchCalled = 0;
+
+            _reference.Watch((unwatch, reference) =>
+            {
+                watchCalled++;
+            });
+
+            _reference.Update(_infoUpdate);
+            _reference.Update(_info);
+
+            Assert.AreEqual(2, watchCalled);
+        }
+
+        [Test]
+        public void WatchUnwatch()
+        {
+            var watchCalled = 0;
+
+            _reference.Watch((unwatch, reference) =>
+            {
+                watchCalled++;
+            });
+
+            _reference.Update(_infoUpdate);
+
+            Assert.AreEqual(2, watchCalled);
         }
     }
 }
