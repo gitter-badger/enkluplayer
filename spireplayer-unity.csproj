@@ -118,6 +118,7 @@
     <Compile Include="Assets\Source\Asset\AssetInfo.cs" />
     <Compile Include="Assets\Source\Asset\AssetManifest.cs" />
     <Compile Include="Assets\Source\Asset\AssetReference.cs" />
+    <Compile Include="Assets\Source\Asset\IAssetLoader.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
     <Compile Include="Assets\Source\Input\IInputManager.cs" />
     <Compile Include="Assets\Source\Input\InputConfig.cs" />

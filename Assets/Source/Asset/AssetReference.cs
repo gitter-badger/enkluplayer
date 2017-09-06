@@ -1,13 +1,10 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
-    public interface IAssetLoader
-    {
-        IAsyncToken<Object> Load(string url);
-    }
-
     public class AssetReference
     {
         private readonly IAssetLoader _loader;
@@ -43,6 +40,18 @@ namespace CreateAR.SpirePlayer
                 .OnFailure(token.Fail);
 
             return token;
+        }
+
+        public void Update(AssetInfo info)
+        {
+            if (Info.Guid != info.Guid)
+            {
+                throw new ArgumentException("Cannot change AssetReference guid.");
+            }
+
+            Info = info;
+
+            _asset = null;
         }
 
         private T As<T>() where T : Object
