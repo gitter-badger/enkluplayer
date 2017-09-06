@@ -36,17 +36,16 @@ var info = map.Info(guid);
 #### Initialization
 
 ```
-// use configuration to initialize
-assetManager
-    .Initialize(configuration)
-    .OnSuccess(_ => ...);
-
 // configure
 var configuration = new AssetManagerConfiguration(map)
 {
     UriResolver = new UriResolver(...)
 };
 
+// use configuration to initialize
+assetManager
+    .Initialize(configuration)
+    .OnSuccess(_ => ...);
 ```
 
 ### AssetReference
@@ -90,39 +89,73 @@ assetRef
     .OnSuccess(value => ...);
 ```
 
-#### Watch for Updates
+#### Watch for AssetReference Updates
 
 ```
 // safely use a closure
-assetRef.Watch(unsub => {
+assetRef.Watch(unwatch => {
     ...
     
-    unsub();
+    unwatch();
 });
 
 // unsubscribe externally to closure
-var unsub = assetRef.Watch(watchedAssetRef => ...);
+var unwatch = assetRef.Watch(watchedAssetRef => ...);
 
 ...
 
-unsub();
+unwatch();
 
 // useful for class level handlers
-_unsub = assetRef.Watch(AssetRef_Watch);
+_unwatch = assetRef.Watch(AssetRef_Watch);
 
+```
+
+#### Watch for Asset Updates
+
+```
+// similar to Watch
+assetRef.WatchAsset<T>((unwatch, asset) => ...);
+
+// similar to Watch
+var unwatch = assetRef.WatchAsset<T>(asset => ...);
+```
+
+#### Reloading
+
+```
+// manually
+assetRef.Watch(unsub => assetRef.Load());
+
+// automatically
+assetRef.AutoReload = true;
+
+// either of the above actions may call WatchAsset<T>
 ```
 
 #### Initializers
+
 ```
 // register intitializers
-foreach (var reference in _assets.Find(query))
+foreach (var reference in _assets.Find(Tags.Runnable))
 {
-    reference.Use((asset, next) => {
-        // initialize asset in some way
-        ...
-
-        // pass it along
-        next();
+    reference.Use<IRunnable>((asset, next) => {
+        asset
+            .Run()
+            .OnFinally(_ => next());
     });  
 }
+
+...
+
+// elsewhere in the codebase, for MyThing : IRunnable
+var reference = _assets.Get(guid);
+reference
+    .Load<MyThing>()
+    .OnSuccess(thing =>
+    {
+        // don't need to worry about initializing
+        
+        thing.Foo();
+    });
 ```
