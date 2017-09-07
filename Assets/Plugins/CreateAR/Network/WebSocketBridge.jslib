@@ -8,7 +8,6 @@ mergeInto(
 			}
 
 			window.bridge.isReady = false;
-			window.bridge.isReadyCallback = null;
 			window.bridge.handlers = [];
 			window.bridge.logLevel = 4;
 			window.bridge.log = {
