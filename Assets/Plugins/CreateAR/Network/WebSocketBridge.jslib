@@ -1,109 +1,102 @@
-var log = (function() {
-	var logLevel = 4;
-
-	return {
-
-		debug: function(message) {
-			if (logLevel >= 4) {
-				console.log("%c" + message, "background: #ADD8E6;");
-			}
-		},
-
-		info: function(message) {
-			if (logLevel >= 3) {
-				console.log("%c" + message, "background: #FFFF94;");
-			}
-		},
-
-		warn: function(message) {
-			if (logLevel >= 2) {
-				console.log("%c" + message, "background: #FFA500;");
-			}
-		},
-
-		error: function(message) {
-			if (logLevel >= 1) {
-				console.log("%c" + message, "background: #FF3232;");
-			}
-		}
-	};
-})();
-
-window.bridge = (function() {
-
-	var socket = null;
-	var handlers = [];
-
-	function handleFromSocket(message) {
-		var messageType = message.messageType;
-		if (!messageType) {
-			log.warn("No message type found on message from socket.");
-			return;
-		}
-
-		// copy in case an Off() is in a handler
-		var handled = false;
-		var copy = handlers.slice();
-		for (var i = 0, len = copy.length; i < len; i++) {
-			var handler = copy[i];
-			if (handler.messageType === messageType) {
-				handled = true;
-				handler.callback(message.payload);
-			}
-		}
-
-		if (!handled) {
-			log.error("Unhandled message type : " + messageType);
-		}
-	}
-
-	function sendToUnity(messageType, message) {
-		SendMessage(
-			"Network",
-			"OnNetworkEvent",
-			JSON.stringify(
-				{
-					messageType: messageType,
-					payload: message || ""
-				}));
-	}
-
-	return {
-
+// merge
+mergeInto(
+	LibraryManager.library,
+	{
 		Init: function() {
-			socket = io.socket;
+			if (!window.bridge) {
+				window.bridge = {};
+			}
 
-			if (!socket) {
-				log.error("No socket available!");
+			window.bridge.isReady = false;
+			window.bridge.isReadyCallback = null;
+			window.bridge.handlers = [];
+			window.bridge.logLevel = 4;
+			window.bridge.log = {
+					debug: function(message) {
+						if (window.bridge.logLevel >= 4) {
+							console.log("%c" + message, "background: #ADD8E6;");
+						}
+					},
+
+					info: function(message) {
+						if (window.bridge.logLevel >= 3) {
+							console.log("%c" + message, "background: #FFFF94;");
+						}
+					},
+
+					warn: function(message) {
+						if (window.bridge.logLevel >= 2) {
+							console.log("%c" + message, "background: #FFA500;");
+						}
+					},
+
+					error: function(message) {
+						if (window.bridge.logLevel >= 1) {
+							console.log("%c" + message, "background: #FF3232;");
+						}
+					}
+				};
+
+			window.bridge.handleFromSocket = function (message) {
+					var messageType = message.messageType;
+					if (!messageType) {
+						return;
+					}
+
+					// copy in case an Off() is in a handler
+					var handled = false;
+					var copy = window.bridge.handlers.slice();
+					for (var i = 0, len = copy.length; i < len; i++) {
+						var handler = copy[i];
+						if (handler.messageType === messageType) {
+							handled = true;
+							handler.callback(message.payload);
+						}
+					}
+				};
+
+			window.bridge.sendToUnity = function(messageType, message) {
+					SendMessage(
+						"Network",
+						"OnNetworkEvent",
+						JSON.stringify(
+							{
+								messageType: messageType,
+								payload: message || ""
+							}));
+				};
+
+			if (!window.bridge.socket) {
+				window.bridge.log.error("No socket available!");
 				return;
 			}
 
-			socket.on('message', handleFromSocket);
+			window.bridge.socket.on('message', window.bridge.handleFromSocket);
+			window.bridge.log.debug("Initialized.");
 
-			initialized = true;
-
-			log.debug("Initialized.");
-
-			window.onBridgeReady();
+			window.bridge.isReady = true;
+			if (window.bridge.isReadyCallback) {
+				window.bridge.isReadyCallback();
+			}
 		},
 
 		On: function(messageType) {
 			// string it!
 			messageType = Pointer_stringify(messageType);
 
-			log.info("On [" + messageType + "]");
+			window.bridge.log.info("On [" + messageType + "]");
 
-			if (!socket) {
-				log.error("No socket to receive from.");
+			if (!window.bridge.socket) {
+				window.bridge.log.error("No socket to receive from.");
 				return;
 			}
 
-			log.info("Adding handler.");
+			window.bridge.log.info("Adding handler.");
 
-			handlers.push({
+			window.bridge.handlers.push({
 				messageType: messageType,
 				callback: function(message) {
-					sendToUnity(messageType, message);
+					window.bridge.sendToUnity(messageType, message);
 				}
 			});
 		},
@@ -112,28 +105,24 @@ window.bridge = (function() {
 			// string it!
 			messageType = Pointer_stringify(messageType);
 
-			log.info("Off [" + messageType + "]");
+			window.bridge.log.info("Off [" + messageType + "]");
 
-			if (!socket) {
-				log.error("No socket to stop receiving from.");
+			if (!window.bridge.socket) {
+				window.bridge.log.error("No socket to stop receiving from.");
 				return;
 			}
 
-			for (var i = handlers.length - 1; i >= 0; i--) {
-				var handler = handlers[i];
+			for (var i = window.bridge.handlers.length - 1; i >= 0; i--) {
+				var handler = window.bridge.handlers[i];
 				if (handler.messageType === messageType) {
-					log.info("Found handler. Removing.");
+					window.bridge.log.info("Found handler. Removing.");
 
-					handlers.splice(i, 1);
+					window.bridge.handlers.splice(i, 1);
 				}
 			}
 		},
 
-		SendToUnity: sendToUnity
-	};
-})();
-
-// merge
-mergeInto(
-	LibraryManager.library,
-	window.bridge);
+		SendToUnity: function(messageType, message) {
+			window.bridge.sendToUnity(messageType, message);
+		}
+	});
