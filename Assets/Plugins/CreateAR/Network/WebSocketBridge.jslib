@@ -29,7 +29,7 @@ var log = (function() {
 	};
 })();
 
-var bridge = (function() {
+window.bridge = (function() {
 
 	var socket = null;
 	var handlers = [];
@@ -80,7 +80,11 @@ var bridge = (function() {
 
 			socket.on('message', handleFromSocket);
 
+			initialized = true;
+
 			log.debug("Initialized.");
+
+			window.onBridgeReady();
 		},
 
 		On: function(messageType) {
@@ -123,11 +127,13 @@ var bridge = (function() {
 					handlers.splice(i, 1);
 				}
 			}
-		}
+		},
+
+		SendToUnity: sendToUnity
 	};
 })();
 
 // merge
 mergeInto(
 	LibraryManager.library,
-	bridge);
+	window.bridge);
