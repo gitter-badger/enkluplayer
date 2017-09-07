@@ -122,6 +122,7 @@
     <Compile Include="Assets\Source\Asset\AssetReference.cs" />
     <Compile Include="Assets\Source\Asset\IAssetLoader.cs" />
     <Compile Include="Assets\Source\Asset\IAssetUpdateService.cs" />
+    <Compile Include="Assets\Source\Asset\StandardAssetLoader.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
     <Compile Include="Assets\Source\Input\IInputManager.cs" />
     <Compile Include="Assets\Source\Input\InputConfig.cs" />

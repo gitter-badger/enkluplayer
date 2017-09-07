@@ -8,10 +8,10 @@ namespace CreateAR.SpirePlayer.Test
     [TestFixture]
     public class AssetReference_Tests
     {
-        private const string TEST_PREFAB_PATH = "Assets/Editor/Test/TestAsset.prefab";
-        private const string TEST_PREFAB_UPDATE_PATH = "Assets/Editor/Test/TestAsset2.prefab";
+        public const string TEST_PREFAB_PATH = "Assets/Editor/Test/TestAsset.prefab";
+        public const string TEST_PREFAB_UPDATE_PATH = "Assets/Editor/Test/TestAsset2.prefab";
 
-        private readonly AssetInfo _info = new AssetInfo
+        public static readonly AssetInfo Info = new AssetInfo
         {
             Guid = "guid",
             Crc = "crc",
@@ -20,7 +20,7 @@ namespace CreateAR.SpirePlayer.Test
             Version = 10
         };
 
-        private readonly AssetInfo _infoUpdate = new AssetInfo
+        public static readonly AssetInfo InfoUpdate = new AssetInfo
         {
             Guid = "guid",
             Crc = "crc",
@@ -36,7 +36,7 @@ namespace CreateAR.SpirePlayer.Test
         [SetUp]
         public void Setup()
         {
-            _reference = new AssetReference(new DummyAssetLoader(), _info);
+            _reference = new AssetReference(new DummyAssetLoader(), Info);
             _testAsset = AssetDatabase.LoadAssetAtPath<GameObject>(TEST_PREFAB_PATH);
             _testAssetUpdate = AssetDatabase.LoadAssetAtPath<GameObject>(TEST_PREFAB_UPDATE_PATH);
 
@@ -125,7 +125,7 @@ namespace CreateAR.SpirePlayer.Test
         public void UpdateLeaveLoadedAsset()
         {
             _reference.Load<GameObject>();
-            _reference.Update(_infoUpdate);
+            _reference.Update(InfoUpdate);
 
             // check that we still have the old asset
             Assert.AreEqual(
@@ -142,7 +142,7 @@ namespace CreateAR.SpirePlayer.Test
             _reference.Load<GameObject>();
 
             // update to invalidate loaded asset
-            _reference.Update(_infoUpdate);
+            _reference.Update(InfoUpdate);
 
             // reload
             _reference
@@ -182,7 +182,7 @@ namespace CreateAR.SpirePlayer.Test
                 Assert.AreSame(_reference, reference);
             });
 
-            _reference.Update(_infoUpdate);
+            _reference.Update(InfoUpdate);
 
             Assert.IsTrue(watchCalled);
         }
@@ -197,7 +197,7 @@ namespace CreateAR.SpirePlayer.Test
                 watchCalled = true;
             });
 
-            _reference.Update(_info);
+            _reference.Update(Info);
 
             Assert.IsFalse(watchCalled);
         }
@@ -214,8 +214,8 @@ namespace CreateAR.SpirePlayer.Test
                 unwatch();
             });
 
-            _reference.Update(_infoUpdate);
-            _reference.Update(_infoUpdate);
+            _reference.Update(InfoUpdate);
+            _reference.Update(InfoUpdate);
 
             Assert.AreEqual(1, watchCalled);
         }
@@ -232,7 +232,7 @@ namespace CreateAR.SpirePlayer.Test
                 Assert.AreSame(_reference, reference);
             });
 
-            _reference.Update(_infoUpdate);
+            _reference.Update(InfoUpdate);
 
             Assert.IsTrue(watchCalled);
         }
@@ -249,11 +249,11 @@ namespace CreateAR.SpirePlayer.Test
                 Assert.AreSame(_reference, reference);
             });
 
-            _reference.Update(_infoUpdate);
+            _reference.Update(InfoUpdate);
 
             unwatch();
 
-            _reference.Update(_infoUpdate);
+            _reference.Update(InfoUpdate);
 
             Assert.AreEqual(1, watchCalled);
         }
@@ -290,7 +290,7 @@ namespace CreateAR.SpirePlayer.Test
             });
 
             _reference.Load<GameObject>();
-            _reference.Update(_infoUpdate);
+            _reference.Update(InfoUpdate);
             _reference.Load<GameObject>();
 
             Assert.AreEqual(1, watchCalled);
@@ -329,7 +329,7 @@ namespace CreateAR.SpirePlayer.Test
 
             unwatch();
 
-            _reference.Update(_infoUpdate);
+            _reference.Update(InfoUpdate);
             _reference.Load<GameObject>();
 
             Assert.AreEqual(1, watchCalled);
@@ -353,7 +353,7 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.AreEqual(0, watches);
 
-            _reference.Update(_infoUpdate);
+            _reference.Update(InfoUpdate);
 
             Assert.AreEqual(1, watches);
         }

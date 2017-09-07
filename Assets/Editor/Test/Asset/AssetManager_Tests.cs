@@ -85,45 +85,5 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.IsTrue(success);
         }
-
-        [Test]
-        public void ServiceAddUpdate()
-        {
-            var service = new DummyAssetUpdateService();
-            _configuration.Service = service;
-            _assets.Initialize(_configuration);
-
-            var addedCalled = false;
-            var info = new AssetInfo
-            {
-                Guid = "This is a test"
-            };
-            _assets.Manifest.OnAssetAdded += reference =>
-            {
-                addedCalled = true;
-
-                Assert.AreSame(info, reference.Info);
-            };
-
-            service.Added(info);
-
-            Assert.IsTrue(addedCalled);
-        
-            var updatedCalled = false;
-            info = new AssetInfo
-            {
-                Guid = info.Guid
-            };
-            _assets.Manifest.OnAssetUpdated += reference =>
-            {
-                updatedCalled = true;
-
-                Assert.AreSame(info, reference.Info);
-            };
-
-            service.Updated(info);
-
-            Assert.IsTrue(updatedCalled);
-        }
     }
 }
