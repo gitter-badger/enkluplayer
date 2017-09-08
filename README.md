@@ -2,6 +2,7 @@
 
 `SpirePlayer` is a basic player for UWP, WebGL, Android, and iOS.
 
-### Systems
+### Systems of Interest
 
-* [Assets](docs/assets.md)
+* [AssetManager](docs/assets.md)
+* [MessageRouter](docs/messages.md)
