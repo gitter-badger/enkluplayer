@@ -17,6 +17,8 @@ router.SubscribeOnce(messageType, message => {
 
 // subscribe to all
 router.SubscribeAll((messageType, message) => {
+	// this method will receive all messages
+
 	...
 });
 ```
@@ -24,16 +26,18 @@ router.SubscribeAll((messageType, message) => {
 #### Unsubscribe
 
 ```
-// Guaranteed synchronous, 'stack-safe' unsubscribe.
-
-// returns function to unsubscribe with
+// subscribe functions return function to unsubscribe with
 var unsub = router.Subscribe(...);
 
 ...
 
 unsub();
+```
 
-// or passes function to subscriber
+Or
+
+```
+// or use subscribe variants to pass unsubscribe function to subscriber
 router.Subscribe(messageType, (unsub, message) => {
 	...
 	
