@@ -307,6 +307,31 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         [Test]
+        public void SubscribeUnsubscribeAll()
+        {
+            var called = 0;
+            var message = new Message();
+
+            _router.SubscribeAll(
+                (received, unsub) =>
+                {
+                    called++;
+
+                    unsub();
+                });
+
+            _router.Publish(
+                MESSAGE_TYPE_A,
+                message);
+
+            _router.Publish(
+                MESSAGE_TYPE_B,
+                message);
+
+            Assert.AreEqual(1, called);
+        }
+
+        [Test]
         public void Consume()
         {
             var called = 0;
@@ -327,6 +352,77 @@ namespace CreateAR.SpirePlayer.Test
 
             _router.Publish(
                 MESSAGE_TYPE_A,
+                message);
+
+            Assert.AreEqual(1, called);
+        }
+
+        [Test]
+        public void SubscribeReturnUnsub()
+        {
+            var called = false;
+            var message = new Message();
+
+            _router.Subscribe(
+                MESSAGE_TYPE_A,
+                received =>
+                {
+                    called = true;
+
+                    Assert.AreSame(message, received);
+                });
+
+            _router.Publish(
+                MESSAGE_TYPE_A,
+                message);
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void SubscribeUnsubscribeReturnUnsub()
+        {
+            var called = false;
+            var message = new Message();
+
+            var unsub = _router.Subscribe(
+                MESSAGE_TYPE_A,
+                received =>
+                {
+                    called = true;
+
+                    Assert.AreSame(message, received);
+                });
+
+            unsub();
+
+            _router.Publish(
+                MESSAGE_TYPE_A,
+                message);
+
+            Assert.IsFalse(called);
+        }
+
+        [Test]
+        public void SubscribeUnsubscribeAllReturnedUnsub()
+        {
+            var called = 0;
+            var message = new Message();
+
+            var unsub = _router.SubscribeAll(
+                received =>
+                {
+                    called++;
+                });
+
+            _router.Publish(
+                MESSAGE_TYPE_A,
+                message);
+
+            unsub();
+
+            _router.Publish(
+                MESSAGE_TYPE_B,
                 message);
 
             Assert.AreEqual(1, called);

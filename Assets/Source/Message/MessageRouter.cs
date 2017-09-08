@@ -39,8 +39,8 @@ namespace CreateAR.SpirePlayer
             {
                 MessageType = messageType;
             }
-
-            public void AddSubscriber(Action<object, Action> subscriber, bool once = false)
+            
+            public Action AddSubscriber(Action<object, Action> subscriber, bool once = false)
             {
                 Action unsub = null;
                 Action<object> action = message =>
@@ -66,6 +66,8 @@ namespace CreateAR.SpirePlayer
                 };
 
                 _subscribers.Add(action);
+
+                return unsub;
             }
 
             public void Publish(object message)
@@ -131,16 +133,37 @@ namespace CreateAR.SpirePlayer
             Group(messageType).AddSubscriber(subscriber);
         }
 
+        public Action Subscribe(
+            int messageType,
+            Action<object> subscriber)
+        {
+            return Group(messageType)
+                .AddSubscriber((message, unsub) => subscriber(message));
+        }
+
         public void SubscribeOnce(
             int messageType,
-            Action<Object, Action> subscriber)
+            Action<object, Action> subscriber)
         {
             Group(messageType).AddSubscriber(subscriber, true);
         }
 
-        public void SubscribeAll(Action<Object, Action> subscriber)
+        public Action SubscribeOnce(
+            int messageType,
+            Action<object> subscriber)
+        {
+            return Group(messageType)
+                .AddSubscriber((message, unsub) => subscriber(message), true);
+        }
+
+        public void SubscribeAll(Action<object, Action> subscriber)
         {
             _all.AddSubscriber(subscriber);
+        }
+
+        public Action SubscribeAll(Action<object> subscriber)
+        {
+            return _all.AddSubscriber((message, unsub) => subscriber(message));
         }
 
         public void Publish(
