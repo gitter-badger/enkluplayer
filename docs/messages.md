@@ -52,7 +52,7 @@ router.Subscribe(messageType, message => {
 	...
 
 	// next subscriber won't get message 
-	message.Consume();
+	router.Consume(message);
 });
 ```
 
