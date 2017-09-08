@@ -2,6 +2,7 @@
 
 #### Subscribe
 
+```
 // subscribe to a message type
 router.Subscribe(messageType, message => {
 	...
@@ -18,9 +19,11 @@ router.SubscribeOnce(messageType, message => {
 router.SubscribeAll((messageType, message) => {
 	...
 });
+```
 
 #### Unsubscribe
 
+```
 // Guaranteed synchronous, stack-safe unsubscribe.
 
 // returns function to unsubscribe with
@@ -36,12 +39,15 @@ router.Subscribe(messageType, (unsub, message) => {
 	
 	unsub();
 });
+```
 
 #### Consume
 
+```
 router.Subscribe(messageType, message => {
 	...
 
 	// next subscriber won't get message 
 	message.Consume();
 });
+```
