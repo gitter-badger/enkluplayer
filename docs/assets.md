@@ -85,7 +85,7 @@ assetRef
     .OnSuccess(value => ...);
 ```
 
-#### Watch for AssetReference Updates
+#### Watch for AssetReference Updates From a Closure
 
 ```
 // safely use a closure
@@ -94,7 +94,11 @@ assetRef.Watch(unwatch => {
     
     unwatch();
 });
+```
 
+#### Watch for AssetReference Updates Externally
+
+```
 // unsubscribe externally to closure
 var unwatch = assetRef.Watch(watchedAssetRef => ...);
 
