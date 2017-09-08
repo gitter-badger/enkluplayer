@@ -233,6 +233,38 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         [Test]
+        public void SubscribeWhileDispatching()
+        {
+            var called = 0;
+            var message = new Message();
+
+            _router.Subscribe(
+                MESSAGE_TYPE_A,
+                (received, unsub) =>
+                {
+                    // subscribe in the middle of a dispatch
+                    _router.Subscribe(
+                        MESSAGE_TYPE_A,
+                        (_, __) =>
+                        {
+                            called++;
+                        });
+                });
+
+            _router.Publish(
+                MESSAGE_TYPE_A,
+                message);
+
+            Assert.AreEqual(0, called);
+
+            _router.Publish(
+                MESSAGE_TYPE_A,
+                message);
+
+            Assert.AreEqual(1, called);
+        }
+
+        [Test]
         public void SubscribeOnce()
         {
             var called = 0;

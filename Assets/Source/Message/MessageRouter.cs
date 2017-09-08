@@ -1,131 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Extra-safe message dispatch system.
+    /// </summary>
     public class MessageRouter
     {
-        private class SubscriberGroup
-        {
-            private readonly List<Action<object>> _subscribers = new List<Action<object>>();
-            private readonly List<Action<object>> _toUnsubscribe = new List<Action<object>>();
-            private object _message;
-            private bool _isAborted = false;
+        /// <summary>
+        /// A MessageSubscriberGroup specifically for SubscribeAll.
+        /// </summary>
+        private readonly MessageSubscriberGroup _all = new MessageSubscriberGroup(-1);
 
-            public int MessageType { get; private set; }
-            public bool IsDispatching { get; private set; }
+        /// <summary>
+        /// A list of SubscriberGroups.
+        /// </summary>
+        private readonly List<MessageSubscriberGroup> _groups = new List<MessageSubscriberGroup>();
 
-            public object Message {
-                get
-                {
-                    return _message;
-                }
-                set
-                {
-                    _message = value;
-
-                    IsDispatching = null != _message;
-
-                    if (null == value)
-                    {
-                        _isAborted = false;
-                    }
-                }
-            }
-
-            public SubscriberGroup(int messageType)
-            {
-                MessageType = messageType;
-            }
-            
-            public Action AddSubscriber(Action<object, Action> subscriber, bool once = false)
-            {
-                Action unsub = null;
-                Action<object> action = message =>
-                {
-                    subscriber(message, unsub);
-
-                    if (once)
-                    {
-                        unsub();
-                    }
-                };
-
-                unsub = () =>
-                {
-                    if (IsDispatching)
-                    {
-                        _toUnsubscribe.Add(action);
-                    }
-                    else
-                    {
-                        _subscribers.Remove(action);
-                    }
-                };
-
-                _subscribers.Add(action);
-
-                return unsub;
-            }
-
-            public void Publish(object message)
-            {
-                Message = message;
-
-                AggregateException aggregate = null;
-
-                for (int i = 0, len = _subscribers.Count; i < len; i++)
-                {
-                    try
-                    {
-                        _subscribers[i](message);
-                    }
-                    catch (Exception exception)
-                    {
-                        if (null == aggregate)
-                        {
-                            aggregate = new AggregateException();
-                        }
-
-                        aggregate.Exceptions.Add(exception);
-                    }
-
-                    if (_isAborted)
-                    {
-                        break;
-                    }
-                }
-
-                // unsubscribes
-                var length = _toUnsubscribe.Count;
-                if (length > 0)
-                {
-                    for (var i = 0; i < length; i++)
-                    {
-                        _subscribers.Remove(_toUnsubscribe[i]);
-                    }
-                    _toUnsubscribe.Clear();
-                }
-
-                Message = null;
-
-                if (null != aggregate)
-                {
-                    throw aggregate;
-                }
-            }
-
-            public void Abort()
-            {
-                _isAborted = true;
-            }
-        }
-
-        private readonly SubscriberGroup _all = new SubscriberGroup(-1);
-        private readonly List<SubscriberGroup> _groups = new List<SubscriberGroup>();
-
+        /// <summary>
+        /// Subscribes to a specific messageType.
+        /// </summary>
+        /// <param name="messageType">The messageType to subscribe to.</param>
+        /// <param name="subscriber">The subscriber to be called.</param>
         public void Subscribe(
             int messageType,
             Action<object, Action> subscriber)
@@ -133,6 +31,12 @@ namespace CreateAR.SpirePlayer
             Group(messageType).AddSubscriber(subscriber);
         }
 
+        /// <summary>
+        /// Subscribes to a specific messageType and returns a method to unsubscribe.
+        /// </summary>
+        /// <param name="messageType">The messageType to subscribe to.</param>
+        /// <param name="subscriber">The subscriber to call.</param>
+        /// <returns></returns>
         public Action Subscribe(
             int messageType,
             Action<object> subscriber)
@@ -141,6 +45,12 @@ namespace CreateAR.SpirePlayer
                 .AddSubscriber((message, unsub) => subscriber(message));
         }
 
+        /// <summary>
+        /// Subscribes to a specific messageType once and only once. When the
+        /// first message is received, the subscriber is immediately unsubscribed.
+        /// </summary>
+        /// <param name="messageType">The messageType to subscribe to.</param>
+        /// <param name="subscriber">The subscriber to call.</param>
         public void SubscribeOnce(
             int messageType,
             Action<object, Action> subscriber)
@@ -148,6 +58,13 @@ namespace CreateAR.SpirePlayer
             Group(messageType).AddSubscriber(subscriber, true);
         }
 
+        /// <summary>
+        /// Subscribes to a specific messageType once and only once and returns
+        /// a method to unsubscribe. When the first message is received, the
+        /// subscriber is immediately unsubscribed.
+        /// </summary>
+        /// <param name="messageType">The messageType to subscribe to.</param>
+        /// <param name="subscriber">The subscriber to call.</param>
         public Action SubscribeOnce(
             int messageType,
             Action<object> subscriber)
@@ -156,16 +73,29 @@ namespace CreateAR.SpirePlayer
                 .AddSubscriber((message, unsub) => subscriber(message), true);
         }
 
+        /// <summary>
+        /// Subscribes to all message types.
+        /// </summary>
+        /// <param name="subscriber">The subscriber to call.</param>
         public void SubscribeAll(Action<object, Action> subscriber)
         {
             _all.AddSubscriber(subscriber);
         }
 
+        /// <summary>
+        /// Subscribes to all message types and returns a method for unsubscribing.
+        /// </summary>
+        /// <param name="subscriber">The subscriber to call.</param>
         public Action SubscribeAll(Action<object> subscriber)
         {
             return _all.AddSubscriber((message, unsub) => subscriber(message));
         }
 
+        /// <summary>
+        /// Publishes a method that will call subscribers of this message type.
+        /// </summary>
+        /// <param name="messageType">The message type to publish to.</param>
+        /// <param name="message">The message to publish.</param>
         public void Publish(
             int messageType,
             object message)
@@ -193,6 +123,10 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Consumes a message, preventing further subscriptions to be called.
+        /// </summary>
+        /// <param name="message">The message to consume.</param>
         public void Consume(object message)
         {
             for (int i = 0, len = _groups.Count; i < len; i++)
@@ -201,13 +135,20 @@ namespace CreateAR.SpirePlayer
                 if (group.Message == message)
                 {
                     group.Abort();
+
+                    // keep going
                 }
             }
         }
 
-        private SubscriberGroup Group(int messageType)
+        /// <summary>
+        /// Retrieves the <c>MessageSubscriberGroup</c> for a specific messageType.
+        /// </summary>
+        /// <param name="messageType">The messageType to retrieve the group for.</param>
+        /// <returns></returns>
+        private MessageSubscriberGroup Group(int messageType)
         {
-            SubscriberGroup subscribers = null;
+            MessageSubscriberGroup subscribers = null;
             for (int i = 0, len = _groups.Count; i < len; i++)
             {
                 var group = _groups[i];
@@ -221,7 +162,7 @@ namespace CreateAR.SpirePlayer
 
             if (null == subscribers)
             {
-                subscribers = new SubscriberGroup(messageType);
+                subscribers = new MessageSubscriberGroup(messageType);
                 _groups.Add(subscribers);
             }
             return subscribers;
