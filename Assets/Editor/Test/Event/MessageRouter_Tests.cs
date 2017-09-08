@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace CreateAR.SpirePlayer.Test
 {
     [TestFixture]
-    public class EventRouter_Tests
+    public class MessageRouter_Tests
     {
         public class Message
         {
