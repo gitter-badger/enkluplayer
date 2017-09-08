@@ -1,10 +1,10 @@
 # Interface
 
-### AssetMap
+### AssetInfo
 
 #### Description
 
-Collection of AssetInfo.
+Describes a single asset.
 
 ```
 class AssetInfo
