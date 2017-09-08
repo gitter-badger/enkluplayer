@@ -16,7 +16,7 @@ router.SubscribeOnce(messageType, message => {
 });
 
 // subscribe to all
-router.SubscribeAll((messageType, message) => {
+router.SubscribeAll((message, messageType) => {
 	// this method will receive all messages
 
 	...
@@ -38,11 +38,13 @@ Or
 
 ```
 // or use subscribe variants to pass unsubscribe function to subscriber
-router.Subscribe(messageType, (unsub, message) => {
+router.Subscribe(messageType, (message, unsub) => {
 	...
 	
 	unsub();
 });
+
+router.SubscribeAll((message, messageType, unsub) => ...);
 ```
 
 #### Consume
