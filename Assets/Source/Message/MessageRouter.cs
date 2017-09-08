@@ -92,6 +92,7 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        private readonly SubscriberGroup _all = new SubscriberGroup(-1);
         private readonly List<SubscriberGroup> _groups = new List<SubscriberGroup>();
 
         public void Subscribe(
@@ -108,10 +109,17 @@ namespace CreateAR.SpirePlayer
             Group(messageType).AddSubscriber(subscriber, true);
         }
 
+        public void SubscribeAll(Action<Object, Action> subscriber)
+        {
+            _all.AddSubscriber(subscriber);
+        }
+
         public void Publish(
             int messageType,
             object message)
         {
+            _all.Publish(message);
+
             for (int i = 0, len = _groups.Count; i < len; i++)
             {
                 var group = _groups[i];
