@@ -305,5 +305,31 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.AreEqual(2, called);
         }
+
+        [Test]
+        public void Consume()
+        {
+            var called = 0;
+            var message = new Message();
+
+            _router.Subscribe(
+                MESSAGE_TYPE_A,
+                (received, unsub) =>
+                {
+                    called++;
+
+                    _router.Consume(received);
+                });
+
+            _router.Subscribe(
+                MESSAGE_TYPE_A,
+                (received, unsub) => called++);
+
+            _router.Publish(
+                MESSAGE_TYPE_A,
+                message);
+
+            Assert.AreEqual(1, called);
+        }
     }
 }

@@ -9,12 +9,31 @@ namespace CreateAR.SpirePlayer
     {
         private class SubscriberGroup
         {
-            public int MessageType { get; private set; }
-
-            public bool IsDispatching = false;
-
             private readonly List<Action<object>> _subscribers = new List<Action<object>>();
             private readonly List<Action<object>> _toUnsubscribe = new List<Action<object>>();
+            private object _message;
+            private bool _isAborted = false;
+
+            public int MessageType { get; private set; }
+            public bool IsDispatching { get; private set; }
+
+            public object Message {
+                get
+                {
+                    return _message;
+                }
+                set
+                {
+                    _message = value;
+
+                    IsDispatching = null != _message;
+
+                    if (null == value)
+                    {
+                        _isAborted = false;
+                    }
+                }
+            }
 
             public SubscriberGroup(int messageType)
             {
@@ -51,7 +70,7 @@ namespace CreateAR.SpirePlayer
 
             public void Publish(object message)
             {
-                IsDispatching = true;
+                Message = message;
 
                 AggregateException aggregate = null;
 
@@ -70,6 +89,11 @@ namespace CreateAR.SpirePlayer
 
                         aggregate.Exceptions.Add(exception);
                     }
+
+                    if (_isAborted)
+                    {
+                        break;
+                    }
                 }
 
                 // unsubscribes
@@ -83,12 +107,17 @@ namespace CreateAR.SpirePlayer
                     _toUnsubscribe.Clear();
                 }
 
-                IsDispatching = false;
+                Message = null;
 
                 if (null != aggregate)
                 {
                     throw aggregate;
                 }
+            }
+
+            public void Abort()
+            {
+                _isAborted = true;
             }
         }
 
@@ -141,15 +170,27 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        public void Consume(object message)
+        {
+            for (int i = 0, len = _groups.Count; i < len; i++)
+            {
+                var group = _groups[i];
+                if (group.Message == message)
+                {
+                    group.Abort();
+                }
+            }
+        }
+
         private SubscriberGroup Group(int messageType)
         {
             SubscriberGroup subscribers = null;
             for (int i = 0, len = _groups.Count; i < len; i++)
             {
                 var group = _groups[i];
-                if (@group.MessageType == messageType)
+                if (group.MessageType == messageType)
                 {
-                    subscribers = @group;
+                    subscribers = group;
 
                     break;
                 }
