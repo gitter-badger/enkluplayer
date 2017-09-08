@@ -21,10 +21,18 @@ namespace CreateAR.SpirePlayer
                 MessageType = messageType;
             }
 
-            public void AddSubscriber(Action<object, Action> subscriber)
+            public void AddSubscriber(Action<object, Action> subscriber, bool once = false)
             {
                 Action unsub = null;
-                Action<object> action = message => subscriber(message, unsub);
+                Action<object> action = message =>
+                {
+                    subscriber(message, unsub);
+
+                    if (once)
+                    {
+                        unsub();
+                    }
+                };
 
                 unsub = () =>
                 {
@@ -90,25 +98,14 @@ namespace CreateAR.SpirePlayer
             int messageType,
             Action<object, Action> subscriber)
         {
-            SubscriberGroup subscribers = null;
-            for (int i = 0, len = _groups.Count; i < len; i++)
-            {
-                var group = _groups[i];
-                if (group.MessageType == messageType)
-                {
-                    subscribers = group;
+            Group(messageType).AddSubscriber(subscriber);
+        }
 
-                    break;
-                }
-            }
-
-            if (null == subscribers)
-            {
-                subscribers = new SubscriberGroup(messageType);
-                _groups.Add(subscribers);
-            }
-
-            subscribers.AddSubscriber(subscriber);
+        public void SubscribeOnce(
+            int messageType,
+            Action<Object, Action> subscriber)
+        {
+            Group(messageType).AddSubscriber(subscriber, true);
         }
 
         public void Publish(
@@ -134,6 +131,28 @@ namespace CreateAR.SpirePlayer
                     break;
                 }
             }
+        }
+
+        private SubscriberGroup Group(int messageType)
+        {
+            SubscriberGroup subscribers = null;
+            for (int i = 0, len = _groups.Count; i < len; i++)
+            {
+                var group = _groups[i];
+                if (@group.MessageType == messageType)
+                {
+                    subscribers = @group;
+
+                    break;
+                }
+            }
+
+            if (null == subscribers)
+            {
+                subscribers = new SubscriberGroup(messageType);
+                _groups.Add(subscribers);
+            }
+            return subscribers;
         }
     }
 }
