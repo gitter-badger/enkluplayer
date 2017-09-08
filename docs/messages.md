@@ -24,7 +24,7 @@ router.SubscribeAll((messageType, message) => {
 #### Unsubscribe
 
 ```
-// Guaranteed synchronous, stack-safe unsubscribe.
+// Guaranteed synchronous, 'stack-safe' unsubscribe.
 
 // returns function to unsubscribe with
 var unsub = router.Subscribe(...);
@@ -50,4 +50,14 @@ router.Subscribe(messageType, message => {
 	// next subscriber won't get message 
 	message.Consume();
 });
+```
+
+#### Publishing
+
+```
+// publish a message
+router.Publish(messageType, message);
+
+// publish many messages
+router.Publish(messageType, messageA, messageB, messageC);
 ```
