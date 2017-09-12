@@ -54,7 +54,7 @@ namespace CreateAR.SpirePlayer
                 {
                     if (response.Payload.success)
                     {
-                        Log.Debug(this, "Successfully created a user.");
+                        Log.Debug(this, "Host successfully created a user.");
 
                         var userId = response.Payload.body.id;
 
@@ -98,7 +98,7 @@ namespace CreateAR.SpirePlayer
                 {
                     if (response.Payload.success)
                     {
-                        Log.Debug(this, "Successfully retrieved token.");
+                        Log.Debug(this, "Host successfully retrieved token.");
 
                         var token = response.Payload.body.token;
 
