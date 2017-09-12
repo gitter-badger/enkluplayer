@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Extra-safe message dispatch system.
     /// </summary>
-    public class MessageRouter
+    public class MessageRouter : IMessageRouter
     {
         /// <summary>
         /// A MessageSubscriberGroup specifically for SubscribeAll.

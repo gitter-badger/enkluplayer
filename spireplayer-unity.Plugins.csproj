@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>GamePlugins:3</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -102,6 +100,9 @@
     <Reference Include="CreateAR.Commons.Unity.Logging">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Logging.0.4.5\lib\net35\CreateAR.Commons.Unity.Logging.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Assets\Plugins\Newtonsoft\net35\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Plugins\CreateAR\Debug\DebugRenderer.cs" />
@@ -110,6 +111,9 @@
     <Compile Include="Assets\Plugins\CreateAR\Debug\RenderContext.cs" />
     <Compile Include="Assets\Plugins\CreateAR\Debug\RenderContext2d.cs" />
     <Compile Include="Assets\Plugins\CreateAR\Network\WebSocketBridge.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Plugins\Newtonsoft\net35\Newtonsoft.Json.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

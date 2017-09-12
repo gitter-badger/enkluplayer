@@ -56,7 +56,7 @@ namespace CreateAR.SpirePlayer
 
         public void Exit()
         {
-            
+            _input.ChangeState(null);
         }
     }
 }

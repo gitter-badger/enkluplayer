@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using strange.extensions.injector.impl;
 using Object = UnityEngine.Object;
@@ -13,11 +14,28 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IInjectionModule"/>
         public void Load(InjectionBinder binder)
         {
+            // dependencies
+            {
+                binder.Bind<ISerializer>().To<JsonSerializer>();
+            }
+
             // application
             {
                 binder.Bind<Application>().To<Application>().ToSingleton();
-                binder.Bind<EditApplicationState>().To<EditApplicationState>();
-                binder.Bind<IAssetManager>().To<AssetManager>();
+
+                // application states
+                {
+                    binder.Bind<EditApplicationState>().To<EditApplicationState>();
+                    binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
+                }
+                
+                binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
+                binder.Bind<IHttpService>().To<HttpService>().ToSingleton();
+                binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
+
+#if UNITY_EDITOR
+                binder.Bind<IAssetUpdateService>().To<EditorAssetUpdateService>();
+#endif
             }
 
             // input
@@ -31,6 +49,7 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<MainCamera>().ToValue(LookupComponent<MainCamera>());
                 binder.Bind<InputConfig>().ToValue(LookupComponent<InputConfig>());
+                binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
             }
         }
 

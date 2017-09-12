@@ -13,24 +13,25 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Controls application states.
         /// </summary>
-        private readonly StateMachine _states = new StateMachine();
+        private readonly FiniteStateMachine _states;
         
         /// <summary>
-        /// Default state of the application.
+        /// Dependencies.
         /// </summary>
-        private readonly EditApplicationState _defaultState;
-
-        /// <summary>
-        /// Manages assets.
-        /// </summary>
+        private readonly IMessageRouter _messages;
         private readonly IAssetManager _assets;
+        private readonly IAssetUpdateService _assetUpdater;
 
         /// <summary>
         /// Creates a new Application.
         /// </summary>
         public Application(
-            EditApplicationState defaultState,
-            IAssetManager assets)
+            EditApplicationState edit,
+            PreviewApplicationState preview,
+
+            IMessageRouter messages,
+            IAssetManager assets,
+            IAssetUpdateService assetUpdater)
         {
             Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
             {
@@ -40,8 +41,15 @@ namespace CreateAR.SpirePlayer
             Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
             Log.Filter = LogLevel.Debug;
 
-            _defaultState = defaultState;
+            _states = new FiniteStateMachine(new IState[]
+            {
+                edit,
+                preview
+            });
+            
+            _messages = messages;
             _assets = assets;
+            _assetUpdater = assetUpdater;
 
 #if !UNITY_EDITOR && UNITY_WEBGL
             WebGLInput.captureAllKeyboardInput = false;
@@ -64,6 +72,16 @@ namespace CreateAR.SpirePlayer
                 Log.Error(this, "Could not find DebugRenderer host.");
             }
 
+            // setup messages
+            _messages.Subscribe(
+                MessageTypes.PREVIEW_ASSET,
+                (message, unsub) =>
+                {
+                    
+
+                    _states.Change<PreviewApplicationState>();
+                });
+
             // setup assets
             _assets
                 .Initialize(new AssetManagerConfiguration
@@ -74,14 +92,14 @@ namespace CreateAR.SpirePlayer
                         Port = 9091,
                         Protocol = "http"
                     }),
-                    Queries = new StandardQueryResolver()
+                    Queries = new StandardQueryResolver(),
+                    Service = _assetUpdater
                 })
                 .OnSuccess(_ =>
                 {
                     Log.Info(this, "AssetManager initialized.");
 
-                    // move to the default application state
-                    _states.Change(_defaultState);
+                    Ready();
                 })
                 .OnFailure(exception =>
                 {
@@ -97,6 +115,15 @@ namespace CreateAR.SpirePlayer
         public void Update(float dt)
         {
             _states.Update(dt);
+        }
+
+        /// <summary>
+        /// Called, internally, when the Application is ready.
+        /// </summary>
+        private void Ready()
+        {
+            // move to the default application state
+            _states.Change<EditApplicationState>();
         }
     }
 }
