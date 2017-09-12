@@ -17,6 +17,7 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<Application>().To<Application>().ToSingleton();
                 binder.Bind<EditApplicationState>().To<EditApplicationState>();
+                binder.Bind<IAssetManager>().To<AssetManager>();
             }
 
             // input

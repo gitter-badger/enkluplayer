@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Entry point into the asset system.
     /// </summary>
-    public class AssetManager
+    public class AssetManager : IAssetManager
     {
         /// <summary>
         /// Configuration for assets.
@@ -19,16 +19,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private AsyncToken<Void> _initializeToken;
 
-        /// <summary>
-        /// The manifest, which holds all the AssetRefs.
-        /// </summary>
+        /// <inheritdoc cref="IAssetManager"/>
         public AssetManifest Manifest { get; private set; }
 
-        /// <summary>
-        /// Initializes the manager.
-        /// </summary>
-        /// <param name="config">The configuration for this manager.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IAssetManager"/>
         public IAsyncToken<Void> Initialize(AssetManagerConfiguration config)
         {
             if (null != _initializeToken)
@@ -61,9 +55,7 @@ namespace CreateAR.SpirePlayer
             return _initializeToken.Token();
         }
 
-        /// <summary>
-        /// Uninitializes the manager.
-        /// </summary>
+        /// <inheritdoc cref="IAssetManager"/>
         public void Uninitialize()
         {
             if (null == _initializeToken)

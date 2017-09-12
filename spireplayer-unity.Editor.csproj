@@ -178,6 +178,7 @@
     <Compile Include="Assets\Editor\Test\Asset\AssetReference_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Asset\DummyAssetLoader.cs" />
     <Compile Include="Assets\Editor\Test\Asset\DummyAssetUpdateService.cs" />
+    <Compile Include="Assets\Editor\Test\Event\MessageRouter_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Util\StandardQueryResolver_Tests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

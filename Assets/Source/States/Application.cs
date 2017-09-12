@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.DebugRenderer;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
@@ -20,9 +21,16 @@ namespace CreateAR.SpirePlayer
         private readonly EditApplicationState _defaultState;
 
         /// <summary>
+        /// Manages assets.
+        /// </summary>
+        private readonly IAssetManager _assets;
+
+        /// <summary>
         /// Creates a new Application.
         /// </summary>
-        public Application(EditApplicationState defaultState)
+        public Application(
+            EditApplicationState defaultState,
+            IAssetManager assets)
         {
             Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
             {
@@ -33,6 +41,7 @@ namespace CreateAR.SpirePlayer
             Log.Filter = LogLevel.Debug;
 
             _defaultState = defaultState;
+            _assets = assets;
 
 #if !UNITY_EDITOR && UNITY_WEBGL
             WebGLInput.captureAllKeyboardInput = false;
@@ -55,8 +64,30 @@ namespace CreateAR.SpirePlayer
                 Log.Error(this, "Could not find DebugRenderer host.");
             }
 
-            // move to the default application state
-            _states.Change(_defaultState);
+            // setup assets
+            _assets
+                .Initialize(new AssetManagerConfiguration
+                {
+                    Loader = new StandardAssetLoader(new UrlBuilder
+                    {
+                        BaseUrl = "ec2-54-202-152-140.us-west-2.compute.amazonaws.com",
+                        Port = 9091,
+                        Protocol = "http"
+                    }),
+                    Queries = new StandardQueryResolver()
+                })
+                .OnSuccess(_ =>
+                {
+                    Log.Info(this, "AssetManager initialized.");
+
+                    // move to the default application state
+                    _states.Change(_defaultState);
+                })
+                .OnFailure(exception =>
+                {
+                    // rethrow
+                    throw exception;
+                });
         }
         
         /// <summary>

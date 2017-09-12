@@ -121,6 +121,7 @@
     <Compile Include="Assets\Source\Asset\AssetManifest.cs" />
     <Compile Include="Assets\Source\Asset\AssetReference.cs" />
     <Compile Include="Assets\Source\Asset\IAssetLoader.cs" />
+    <Compile Include="Assets\Source\Asset\IAssetManager.cs" />
     <Compile Include="Assets\Source\Asset\IAssetUpdateService.cs" />
     <Compile Include="Assets\Source\Asset\StandardAssetLoader.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
@@ -135,11 +136,14 @@
     <Compile Include="Assets\Source\Input\States\Edit\EditRotateState.cs" />
     <Compile Include="Assets\Source\Input\States\EditModeInputState.cs" />
     <Compile Include="Assets\Source\Main.cs" />
+    <Compile Include="Assets\Source\Message\MessageRouter.cs" />
+    <Compile Include="Assets\Source\Message\MessageSubscriberGroup.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\FiniteStateMachine.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\IState.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\StateMachine.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\EditApplicationState.cs" />
+    <Compile Include="Assets\Source\States\Preview\PreviewApplicationState.cs" />
     <Compile Include="Assets\Source\Util\CameraUtil.cs" />
     <Compile Include="Assets\Source\Util\IQueryResolver.cs" />
     <Compile Include="Assets\Source\Util\Render.cs" />
