@@ -21,10 +21,16 @@ namespace CreateAR.SpirePlayer
 
             // application
             {
+#if UNITY_EDITOR
+                binder.Bind<IApplicationHost>().To<EditorApplicationHost>().ToSingleton();
+#elif UNITY_WEBGL
+                binder.Bind<IApplicationHost>().To<WebApplicationHost>().ToSingleton();
+#endif
                 binder.Bind<Application>().To<Application>().ToSingleton();
 
                 // application states
                 {
+                    binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                     binder.Bind<EditApplicationState>().To<EditApplicationState>();
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                 }

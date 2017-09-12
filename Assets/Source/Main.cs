@@ -1,3 +1,4 @@
+using CreateAR.Commons.Unity.DebugRenderer;
 using CreateAR.Commons.Unity.Logging;
 using strange.extensions.injector.impl;
 using UnityEngine;
@@ -33,9 +34,31 @@ namespace CreateAR.SpirePlayer
         /// </summary>
 	    private void Awake()
 	    {
+            // setup logging
+	        Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
+	        {
+	            Level = false,
+	            Timestamp = false
+	        }));
+	        Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
+	        Log.Filter = LogLevel.Debug;
+
+	        // setup debug renderer
+	        var host = Object.FindObjectOfType<DebugRendererMonoBehaviour>();
+	        if (null != host)
+	        {
+	            Render.Renderer = host.Renderer;
+	        }
+	        else
+	        {
+	            Log.Error(this, "Could not find DebugRenderer host.");
+	        }
+
+            // load bindings
             _binder.Load(new SpirePlayerModule());
 
-	        _app = _binder.GetInstance<Application>();
+            // create application!
+            _app = _binder.GetInstance<Application>();
 
 	        if (null != _app)
 	        {
@@ -53,8 +76,6 @@ namespace CreateAR.SpirePlayer
 	    private void Start()
 	    {
             _app.Initialize();
-
-	        Log.Info(this, "Application initialized.");
         }
 
         /// <summary>

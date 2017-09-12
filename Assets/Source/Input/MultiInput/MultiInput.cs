@@ -191,7 +191,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateMouseWheel()
         {
-            var wheel = Input.GetAxis("Mouse ScrollWheel");
+            //var wheel = Input.GetAxis("Mouse ScrollWheel");
         }
 
         /// <summary>

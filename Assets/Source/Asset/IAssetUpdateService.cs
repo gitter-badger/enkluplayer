@@ -1,4 +1,6 @@
 using System;
+using CreateAR.Commons.Unity.Async;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -22,5 +24,11 @@ namespace CreateAR.SpirePlayer
         /// Called when assets have been removed.
         /// </summary>
         event Action<AssetInfo[]> OnRemoved;
+
+        /// <summary>
+        /// Initializes service.
+        /// </summary>
+        /// <returns></returns>
+        IAsyncToken<Void> Initialize();
     }
 }

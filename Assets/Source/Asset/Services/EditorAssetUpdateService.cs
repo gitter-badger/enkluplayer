@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -16,16 +18,20 @@ namespace CreateAR.SpirePlayer
         public EditorAssetUpdateService(IHttpService http)
         {
             _http = http;
-
-            Init();
         }
 
-        private void Init()
+        public IAsyncToken<Void> Initialize()
         {
+            var token = new AsyncToken<Void>();
+
+            Log.Info(this, "Get Asset Manifest.");
+
             _http
                 .Get<Response<GetAssetManifestBody>>(_http.UrlBuilder.Url("/asset"))
                 .OnSuccess(response =>
                 {
+                    Log.Info(this, "Got manifest.");
+
                     if (null == response.Payload.body
                         || null == response.Payload.body.assets)
                     {
@@ -48,13 +54,12 @@ namespace CreateAR.SpirePlayer
 
                         OnAdded(assetInfos);
                     }
+
+                    token.Succeed(Void.Instance);
                 })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this,
-                        "Could not get asset manifest : {0}.",
-                        exception);
-                });
+                .OnFailure(token.Fail);
+
+            return token;
         }
     }
 }
