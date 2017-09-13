@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Spire;
 using strange.extensions.injector.impl;
 using Object = UnityEngine.Object;
 
@@ -61,6 +62,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<MainCamera>().ToValue(LookupComponent<MainCamera>());
                 binder.Bind<InputConfig>().ToValue(LookupComponent<InputConfig>());
                 binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
+                binder.Bind<WebBridge>().ToValue(LookupComponent<WebBridge>());
             }
         }
 
@@ -79,6 +81,7 @@ namespace CreateAR.SpirePlayer
                     "Could not find an object of type {0}.",
                     typeof(T));
                 Log.Fatal(this, message);
+
                 throw new Exception(message);
             }
 

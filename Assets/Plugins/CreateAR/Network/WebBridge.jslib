@@ -6,7 +6,7 @@ mergeInto(
 			if (!window.bridge) {
 				window.bridge = {};
 			}
-
+			
 			window.bridge.isReady = false;
 			window.bridge.handlers = [];
 			window.bridge.logLevel = 4;

@@ -88,6 +88,9 @@
     <Reference Include="Strange.Net35">
       <HintPath>Assets\Plugins\Lib\Strange\net35\Strange.Net35.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Assets\Plugins\Newtonsoft\net35\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="CreateAR.Commons.Unity.Async">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Async.0.4.0\lib\net35\CreateAR.Commons.Unity.Async.dll</HintPath>
     </Reference>
@@ -100,9 +103,6 @@
     <Reference Include="CreateAR.Commons.Unity.Logging">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Logging.0.4.5\lib\net35\CreateAR.Commons.Unity.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>Assets\Plugins\Newtonsoft\net35\Newtonsoft.Json.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Plugins\CreateAR\Debug\DebugRenderer.cs" />
@@ -110,7 +110,6 @@
     <Compile Include="Assets\Plugins\CreateAR\Debug\FilteredRendererHandle.cs" />
     <Compile Include="Assets\Plugins\CreateAR\Debug\RenderContext.cs" />
     <Compile Include="Assets\Plugins\CreateAR\Debug\RenderContext2d.cs" />
-    <Compile Include="Assets\Plugins\CreateAR\Network\WebSocketBridge.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Plugins\Newtonsoft\net35\Newtonsoft.Json.xml" />

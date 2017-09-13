@@ -161,6 +161,7 @@
     <Compile Include="Assets\Source\Network\Response.cs" />
     <Compile Include="Assets\Source\Network\User\CreateUserRequest.cs" />
     <Compile Include="Assets\Source\Network\User\GetTokenBody.cs" />
+    <Compile Include="Assets\Source\Network\WebBridge.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\FiniteStateMachine.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\IState.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\StateMachine.cs" />
