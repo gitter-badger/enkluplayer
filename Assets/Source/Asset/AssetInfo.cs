@@ -19,6 +19,11 @@
         public string Uri;
 
         /// <summary>
+        /// Name of the asset in the bundle.
+        /// </summary>
+        public string AssetName;
+
+        /// <summary>
         /// Version of the asset.
         /// </summary>
         public int Version;

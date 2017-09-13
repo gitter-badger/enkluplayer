@@ -105,9 +105,21 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Loads the asset.
         /// </summary>
-        /// <typeparam name="T">Type parameter.</typeparam>
+        /// <typeparam name="T">The type of asset or component.</typeparam>
         /// <returns></returns>
         public IAsyncToken<T> Load<T>() where T : Object
+        {
+            LoadProgress progress;
+            return Load<T>(out progress);
+        }
+
+        /// <summary>
+        /// Loads the asset.
+        /// </summary>
+        /// <typeparam name="T">The type of asset or component.</typeparam>
+        /// <param name="progress">Outputs load progress.</param>
+        /// <returns></returns>
+        public IAsyncToken<T> Load<T>(out LoadProgress progress) where T : Object
         {
             var token = new AsyncToken<T>();
 
@@ -115,7 +127,7 @@ namespace CreateAR.SpirePlayer
             {
                 var info = Info;
                 _loader
-                    .Load(info)
+                    .Load(info, out progress)
                     .OnSuccess(asset =>
                     {
                         _asset = asset;
@@ -133,6 +145,12 @@ namespace CreateAR.SpirePlayer
             }
             else
             {
+                // load is complete
+                progress = new LoadProgress
+                {
+                    Value = 1f
+                };
+
                 token.Succeed(As<T>());
             }
 

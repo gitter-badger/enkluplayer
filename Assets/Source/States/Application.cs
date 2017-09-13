@@ -94,6 +94,9 @@ namespace CreateAR.SpirePlayer
                 (message, unsub) =>
                 {
                     Log.Info(this, "Application authorized!");
+
+                    // demo
+                    _states.Change<PreviewApplicationState>();
                 });
 
             _messages.Subscribe(

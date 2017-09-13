@@ -8,8 +8,8 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Receives a message from the <c>IApplicationHost</c>.
         /// </summary>
-        /// <param name="messageType"></param>
-        /// <param name="message"></param>
+        /// <param name="messageType">The type of message.</param>
+        /// <param name="message">The message.</param>
         void On(int messageType, object message);
     }
 }

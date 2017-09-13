@@ -12,6 +12,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly IMessageRouter _messages;
         private readonly IHttpService _http;
+        private readonly IBootstrapper _bootstrapper;
         private readonly IAssetManager _assets;
         private readonly IAssetUpdateService _assetUpdater;
 
@@ -21,11 +22,13 @@ namespace CreateAR.SpirePlayer
         public InitializeApplicationState(
             IMessageRouter messages,
             IHttpService http,
+            IBootstrapper bootstrapper,
             IAssetManager assets,
             IAssetUpdateService assetUpdater)
         {
             _messages = messages;
             _http = http;
+            _bootstrapper = bootstrapper;
             _assets = assets;
             _assetUpdater = assetUpdater;
         }
@@ -43,13 +46,14 @@ namespace CreateAR.SpirePlayer
             _assets
                 .Initialize(new AssetManagerConfiguration
                 {
-                    Loader = new StandardAssetLoader(new UrlBuilder
-                    {
-                        BaseUrl = "ec2-54-202-152-140.us-west-2.compute.amazonaws.com",
-                        Port = 9091,
-                        Protocol = "http",
-                        Version = "v1"
-                    }),
+                    Loader = new StandardAssetLoader(
+                        _bootstrapper,
+                        new UrlBuilder
+                        {
+                            BaseUrl = "ec2-54-202-152-140.us-west-2.compute.amazonaws.com",
+                            Port = 9091,
+                            Protocol = "http"
+                        }),
                     Queries = new StandardQueryResolver(),
                     Service = _assetUpdater
                 })

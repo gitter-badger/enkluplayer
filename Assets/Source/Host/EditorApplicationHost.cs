@@ -9,7 +9,6 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class EditorApplicationHost : IApplicationHost
     {
-
         /// <summary>
         /// Performs Http requests.
         /// </summary>

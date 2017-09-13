@@ -39,12 +39,29 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Enter()
         {
-            _load = _assets
-                .Manifest
-                .Reference("")
-                .Load<GameObject>()
-                .OnSuccess(instance =>
+            // fake data
+            const string guid = "ae67e232-9079-41d0-88df-73870998cfd7";
+            _assets.Manifest.Add(new AssetInfo
+            {
+                Guid = guid,
+                Uri = string.Format("/bundles/{0}/asset.bundle", guid)
+            });
+
+            var reference = _assets.Manifest.Reference(guid);
+            if (null == reference)
+            {
+                Log.Warning(
+                    this,
+                    "Could not find AssetReference with guid " + guid);
+                return;
+            }
+
+            _load = reference.Load<GameObject>();
+
+            _load.OnSuccess(instance =>
                 {
+                    Log.Info(this, "Successfully loaded.");
+
                     _instance = Object.Instantiate(instance, Vector3.zero, Quaternion.identity);
                 })
                 .OnFailure(exception =>
