@@ -24,7 +24,7 @@ namespace CreateAR.Spire
         public static extern void Off(string messageTypeString);
 #endif
 
-        private void Start()
+        private void Awake()
         {
 #if !UNITY_EDITOR && UNITY_WEBGL
             Init();
@@ -136,7 +136,7 @@ namespace CreateAR.Spire
             object payload;
             try
             {
-                payload = JsonConvert.DeserializeObject(
+                payload = JsonUtility.FromJson(
                     payloadObj.ToString(),
                     binding.Type);
             }
