@@ -6,6 +6,11 @@ using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
+    public class NamedInjections
+    {
+        public const string INPUT_STATE_DEFAULT = "inputstatedefault";
+    }
+
     /// <summary>
     /// Bindings for SpirePlayer.
     /// </summary>
@@ -46,7 +51,7 @@ namespace CreateAR.SpirePlayer
 
             // input
             {
-                binder.Bind<IState>().To<EditModeInputState>();
+                binder.Bind<IState>().To<EditModeInputState>().ToName(NamedInjections.INPUT_STATE_DEFAULT);
                 binder.Bind<IInputManager>().To<InputManager>().ToSingleton();
                 binder.Bind<IMultiInput>().To<MultiInput>().ToSingleton();
             }

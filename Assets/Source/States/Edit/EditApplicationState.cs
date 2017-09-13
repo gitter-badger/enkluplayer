@@ -1,6 +1,4 @@
-﻿using CreateAR.Commons.Unity.Logging;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Application state that is used in edit mode.
@@ -11,23 +9,20 @@ namespace CreateAR.SpirePlayer
         /// The input mechanism.
         /// </summary>
         private readonly IInputManager _input;
-
-        /// <summary>
-        /// The default state for input in edit mode.
-        /// </summary>
-        private readonly IState _defaultState;
         
+        /// <summary>
+        /// Input state.
+        /// </summary>
+        [Inject(NamedInjections.INPUT_STATE_DEFAULT)]
+        public IState InputState { get; set; }
+
         /// <summary>
         /// Creates a new EditApplicationState.
         /// </summary>
         /// <param name="input">The input mechanism.</param>
-        /// <param name="defaultState">The default state for input in edit mode.</param>
-        public EditApplicationState(
-            IInputManager input,
-            IState defaultState)
+        public EditApplicationState(IInputManager input)
         {
             _input = input;
-            _defaultState = defaultState;
         }
 
         /// <summary>
@@ -44,9 +39,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Enter()
         {
-            Log.Info(this, "Enter {0}.", _defaultState);
-
-            _input.ChangeState(_defaultState);
+            _input.ChangeState(InputState);
         }
 
         public void Update(float dt)

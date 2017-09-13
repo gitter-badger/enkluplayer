@@ -26,6 +26,12 @@ namespace CreateAR.SpirePlayer
         private GameObject _instance;
 
         /// <summary>
+        /// Input state.
+        /// </summary>
+        [Inject(NamedInjections.INPUT_STATE_DEFAULT)]
+        public IState InputState { get; set; }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public PreviewApplicationState(
@@ -39,6 +45,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Enter()
         {
+            _input.ChangeState(InputState);
+
             // fake data
             const string guid = "ae67e232-9079-41d0-88df-73870998cfd7";
             _assets.Manifest.Add(new AssetInfo
