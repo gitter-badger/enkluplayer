@@ -44,7 +44,8 @@ namespace CreateAR.SpirePlayer
             _assets.Manifest.Add(new AssetInfo
             {
                 Guid = guid,
-                Uri = string.Format("/bundles/{0}/asset.bundle", guid)
+                Uri = string.Format("/bundles/{0}/asset.bundle", guid),
+                AssetName = "Asset"
             });
 
             var reference = _assets.Manifest.Reference(guid);

@@ -46,8 +46,14 @@ namespace CreateAR.SpirePlayer
 
         public IAsyncToken<Object> Asset(string assetName, out LoadProgress progress)
         {
-            var token = new AsyncToken<Object>();
+            if (string.IsNullOrEmpty(assetName))
+            {
+                throw new ArgumentException(assetName);
+            }
 
+            Log.Info(this, "Load asset {0}.", assetName);
+
+            var token = new AsyncToken<Object>();
             var load = new LoadProgress();
 
             _bundleLoad
@@ -57,12 +63,19 @@ namespace CreateAR.SpirePlayer
 
                     Bundle = bundle;
 
-                    var request = Bundle.LoadAssetAsync(assetName);
+                    try
+                    {
+                        var request = Bundle.LoadAssetAsync(assetName);
+                        _bootstrapper.BootstrapCoroutine(WaitForLoadAsset(
+                            request,
+                            token,
+                            load));
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(this, exception);
+                    }
 
-                    _bootstrapper.BootstrapCoroutine(WaitForLoadAsset(
-                        request,
-                        token,
-                        load));
                 })
                 .OnFailure(token.Fail);
 
