@@ -1,5 +1,8 @@
 ﻿namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Represents an asset.
+    /// </summary>
     public class AssetModel
     {
         public string id;

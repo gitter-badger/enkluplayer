@@ -1,5 +1,8 @@
 ﻿namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Application-wide message types.
+    /// </summary>
     public static class MessageTypes
     {
         ///////////////////////////////////////////////////////////////////////

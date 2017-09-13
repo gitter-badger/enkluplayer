@@ -4,14 +4,30 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// State for previewing assets.
+    /// </summary>
     public class PreviewApplicationState : IState
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly IAssetManager _assets;
         private readonly IInputManager _input;
 
+        /// <summary>
+        /// The token for AssetReference load.
+        /// </summary>
         private IAsyncToken<GameObject> _load;
+
+        /// <summary>
+        /// The instantiated asset.
+        /// </summary>
         private GameObject _instance;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public PreviewApplicationState(
             IAssetManager assets,
             IInputManager input)
@@ -20,6 +36,7 @@ namespace CreateAR.SpirePlayer
             _input = input;
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Enter()
         {
             _load = _assets
@@ -36,11 +53,13 @@ namespace CreateAR.SpirePlayer
                 });
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Update(float dt)
         {
             _input.Update(dt);
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Exit()
         {
             if (null != _load)

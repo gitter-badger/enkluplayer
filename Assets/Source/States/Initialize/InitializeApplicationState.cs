@@ -1,8 +1,10 @@
 ﻿using CreateAR.Commons.Unity.Http;
-using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Initializes the application.
+    /// </summary>
     public class InitializeApplicationState : IState
     {
         /// <summary>
@@ -13,6 +15,9 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
         private readonly IAssetUpdateService _assetUpdater;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public InitializeApplicationState(
             IMessageRouter messages,
             IHttpService http,
@@ -25,6 +30,7 @@ namespace CreateAR.SpirePlayer
             _assetUpdater = assetUpdater;
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Enter()
         {
             // setup http
@@ -60,11 +66,13 @@ namespace CreateAR.SpirePlayer
                 });
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Update(float dt)
         {
             
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Exit()
         {
             

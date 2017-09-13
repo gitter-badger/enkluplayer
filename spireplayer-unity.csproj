@@ -131,7 +131,10 @@
     <Compile Include="Assets\Source\Asset\StandardAssetLoader.cs" />
     <Compile Include="Assets\Source\Debug\Preview\PreviewOptionsBehaviour.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
+    <Compile Include="Assets\Source\Host\EditorApplicationHost.cs" />
     <Compile Include="Assets\Source\Host\IApplicationHost.cs" />
+    <Compile Include="Assets\Source\Host\IApplicationHostDelegate.cs" />
+    <Compile Include="Assets\Source\Host\WebApplicationHost.cs" />
     <Compile Include="Assets\Source\Input\IInputManager.cs" />
     <Compile Include="Assets\Source\Input\InputConfig.cs" />
     <Compile Include="Assets\Source\Input\InputManager.cs" />

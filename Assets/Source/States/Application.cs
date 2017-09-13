@@ -84,6 +84,8 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.READY,
                 message =>
                 {
+                    Log.Info(this, "Application ready.");
+
                     _host.Ready(this);
                 });
 
@@ -91,9 +93,7 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.AUTHORIZED,
                 (message, unsub) =>
                 {
-                    Log.Info(this, "Application authorized.");
-
-
+                    Log.Info(this, "Application authorized!");
                 });
 
             _messages.Subscribe(
