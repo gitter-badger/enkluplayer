@@ -15,17 +15,21 @@ namespace CreateAR.Spire
         public static extern void Init();
 
         [System.Runtime.InteropServices.DllImport("__Internal")]
+        public static extern void Ready();
+
+        [System.Runtime.InteropServices.DllImport("__Internal")]
         public static extern void On(string messageTypeString);
 
         [System.Runtime.InteropServices.DllImport("__Internal")]
         public static extern void Off(string messageTypeString);
-
-        private void Awake()
-        {
-            // required to tell the webpage
-            Init();
-        }
 #endif
+
+        private void Start()
+        {
+#if !UNITY_EDITOR && UNITY_WEBGL
+            Init();
+#endif
+        }
 
         private class Binding
         {
@@ -35,9 +39,16 @@ namespace CreateAR.Spire
         }
 
         private readonly Dictionary<string, Binding> _messageMap = new Dictionary<string, Binding>();
-
+        
         [Inject]
         public IMessageRouter Router { get; set; }
+
+        public void BroadcastReady()
+        {
+#if !UNITY_EDITOR && UNITY_WEBGL
+            Ready();
+#endif
+        }
 
         public void Bind<T>(string messageTypeString, int messageTypeInt)
         {

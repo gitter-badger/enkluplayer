@@ -1,11 +1,13 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.DataStructures;
+using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Root application.
     /// </summary>
-    public class Application : IApplicationHostDelegate
+    public class Application
     {
         /// <summary>
         /// The host.
@@ -18,6 +20,11 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        /// For Http requests.
+        /// </summary>
+        private readonly IHttpService _http;
+
+        /// <summary>
         /// Controls application states.
         /// </summary>
         private readonly FiniteStateMachine _states;
@@ -28,12 +35,14 @@ namespace CreateAR.SpirePlayer
         public Application(
             IApplicationHost host,
             IMessageRouter messages,
+            IHttpService http,
             InitializeApplicationState initialize,
             EditApplicationState edit,
             PreviewApplicationState preview)
         {
             _host = host;
             _messages = messages;
+            _http = http;
 
             _states = new FiniteStateMachine(new IState[]
             {
@@ -67,14 +76,7 @@ namespace CreateAR.SpirePlayer
         {
             _states.Update(dt);
         }
-
-        /// <inheritdoc cref="IApplicationHostDelegate"/>
-        public void On(int messageType, object message)
-        {
-            // push to message router
-            _messages.Publish(messageType, message);
-        }
-
+        
         /// <summary>
         /// Subscribes to application events.
         /// </summary>
@@ -86,7 +88,7 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Application ready.");
 
-                    _host.Ready(this);
+                    _host.Ready();
                 });
 
             _messages.Subscribe(
@@ -94,6 +96,16 @@ namespace CreateAR.SpirePlayer
                 (message, unsub) =>
                 {
                     Log.Info(this, "Application authorized!");
+
+                    var authorizedMessage = (AuthorizedEvent) message;
+
+                    // setup http service
+                    _http.UrlBuilder.Replacements.Add(Tuple.Create(
+                        "userId",
+                        authorizedMessage.profile.id));
+                    _http.Headers.Add(Tuple.Create(
+                        "Authorization",
+                        string.Format("Bearer {0}", authorizedMessage.credentials.token)));
 
                     // demo
                     _states.Change<PreviewApplicationState>();

@@ -23,12 +23,14 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IApplicationHost"/>
-        public void Ready(IApplicationHostDelegate @delegate)
+        public void Ready()
         {
             Log.Info(this, "Application is ready.");
 
             // bind to events from web bridge
             _bridge.Bind<AuthorizedEvent>("Authorized", MessageTypes.AUTHORIZED);
+
+            _bridge.BroadcastReady();
         }
     }
 }

@@ -15,23 +15,29 @@ namespace CreateAR.SpirePlayer
         private readonly IHttpService _http;
 
         /// <summary>
-        /// Delegate implementation.
+        /// For sending/receiving messages.
         /// </summary>
-        private IApplicationHostDelegate _delegate;
+        private readonly IMessageRouter _messages;
+        
+        /// <summary>
+        /// User's profile.
+        /// </summary>
+        private UserProfileModel _profile;
 
         /// <summary>
         /// Creates a new IApplicationHost implementation in the Editor.
         /// </summary>
-        public EditorApplicationHost(IHttpService http)
+        public EditorApplicationHost(
+            IHttpService http,
+            IMessageRouter messages)
         {
             _http = http;
+            _messages = messages;
         }
 
         /// <inheritdoc cref="IApplicationHost"/>
-        public void Ready(IApplicationHostDelegate @delegate)
+        public void Ready()
         {
-            _delegate = @delegate;
-            
             CreateUser();
         }
 
@@ -60,17 +66,18 @@ namespace CreateAR.SpirePlayer
 
                         var userId = response.Payload.body.id;
 
-                        // set the userid
-                        _http.UrlBuilder.Replacements.Add(Tuple.Create(
-                            "userId",
-                            userId));
+                        _profile = new UserProfileModel
+                        {
+                            id = response.Payload.body.id,
+                            displayName = response.Payload.body.displayName
+                        };
 
                         // get a token
                         GetToken();
                     }
                     else
                     {
-                        _delegate.On(
+                        _messages.Publish(
                             MessageTypes.FATAL_ERROR,
                             new FatalErrorEvent
                             {
@@ -81,7 +88,7 @@ namespace CreateAR.SpirePlayer
                 .OnFailure(exception =>
                 {
                     // push to application
-                    _delegate.On(
+                    _messages.Publish(
                         MessageTypes.FATAL_ERROR,
                         new FatalErrorEvent
                         {
@@ -107,17 +114,20 @@ namespace CreateAR.SpirePlayer
 
                         var token = response.Payload.body.token;
 
-                        _http.Headers.Add(Tuple.Create(
-                            "Authorization",
-                            string.Format("Bearer {0}", token)));
-
-                        _delegate.On(
+                        _messages.Publish(
                             MessageTypes.AUTHORIZED,
-                            new AuthorizedEvent());
+                            new AuthorizedEvent
+                            {
+                                credentials = new UserCredentialsModel
+                                {
+                                    token = token
+                                },
+                                profile = _profile
+                            });
                     }
                     else
                     {
-                        _delegate.On(
+                        _messages.Publish(
                             MessageTypes.FATAL_ERROR,
                             new FatalErrorEvent
                             {
@@ -127,7 +137,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception =>
                 {
-                    _delegate.On(
+                    _messages.Publish(
                         MessageTypes.FATAL_ERROR,
                         new FatalErrorEvent
                         {

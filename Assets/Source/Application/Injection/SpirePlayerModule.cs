@@ -42,11 +42,17 @@ namespace CreateAR.SpirePlayer
                 }
                 
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
-                binder.Bind<IHttpService>().To<HttpService>().ToSingleton();
+                binder.Bind<IHttpService>()
+                    .To(new HttpService(
+                            new JsonSerializer(),
+                            LookupComponent<MonoBehaviourBootstrapper>()))
+                    .ToSingleton();
                 binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
 
 #if UNITY_EDITOR
                 binder.Bind<IAssetUpdateService>().To<EditorAssetUpdateService>();
+#else
+                binder.Bind<IAssetUpdateService>().To<WebAssetUpdateService>();
 #endif
             }
 
