@@ -12,8 +12,8 @@ namespace CreateAR.SpirePlayer
             if (Button("Load Model"))
             {
                Messages.Publish(
-                   MessageTypes.PREVIEW_ASSET,
-                   new PreviewAssetEvent());
+                   MessageTypes.PREVIEW,
+                   new PreviewEvent());
             }
         }
 

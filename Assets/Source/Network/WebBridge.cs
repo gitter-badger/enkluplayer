@@ -50,6 +50,9 @@ namespace CreateAR.Spire
 
         [System.Runtime.InteropServices.DllImport("__Internal")]
         public static extern void Off(string messageTypeString);
+
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        public static extern string Get(string path);
 #endif
 
         /// <inheritdoc cref="MonoBehaviour"/>
@@ -60,6 +63,15 @@ namespace CreateAR.Spire
 #endif
         }
 
+        public object Search(string path)
+        {
+#if !UNITY_EDITOR && UNITY_WEBGL
+            return Get(path);
+#else
+            throw new Exception("WebBridge should not be used outside of WebGL target.");
+#endif
+        }
+
         /// <summary>
         /// Tells the webpage that the application is ready.
         /// </summary>
@@ -67,6 +79,8 @@ namespace CreateAR.Spire
         {
 #if !UNITY_EDITOR && UNITY_WEBGL
             Ready();
+#else
+            throw new Exception("WebBridge should not be used outside of WebGL target.");
 #endif
         }
 
@@ -119,7 +133,7 @@ namespace CreateAR.Spire
             throw new Exception("WebBridge should not be used outside of WebGL target.");
 #endif
         }
-
+        
         /// <summary>
         /// Called by the webpage when it's trying to tell us something.
         /// </summary>
@@ -179,6 +193,10 @@ namespace CreateAR.Spire
             Router.Publish(
                 binding.MessageTypeInt,
                 payload);
+
+#if UNITY_EDITOR || !UNITY_WEBGL
+            throw new Exception("WebBridge should not be used outside of WebGL target.");
+#endif
         }
     }
 }

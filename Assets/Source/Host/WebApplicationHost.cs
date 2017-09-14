@@ -29,6 +29,7 @@ namespace CreateAR.SpirePlayer
 
             // bind to events from web bridge
             _bridge.Bind<AuthorizedEvent>("Authorized", MessageTypes.AUTHORIZED);
+            _bridge.Bind<PreviewEvent>("Preview", MessageTypes.PREVIEW);
 
             // tell the webpage
             _bridge.BroadcastReady();

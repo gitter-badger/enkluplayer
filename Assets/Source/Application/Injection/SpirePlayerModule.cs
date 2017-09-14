@@ -3,16 +3,10 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Spire;
 using strange.extensions.injector.impl;
-using UnityEngine.Assertions.Must;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
-    public class NamedInjections
-    {
-        public const string INPUT_STATE_DEFAULT = "inputstatedefault";
-    }
-
     /// <summary>
     /// Bindings for SpirePlayer.
     /// </summary>
@@ -34,6 +28,13 @@ namespace CreateAR.SpirePlayer
 #elif UNITY_WEBGL
                 binder.Bind<IApplicationHost>().To<WebApplicationHost>().ToSingleton();
 #endif
+
+#if UNITY_EDITOR
+                binder.Bind<IApplicationState>().To<EditorApplicationState>().ToSingleton();
+#elif UNITY_WEBGL
+                binder.Bind<IApplicationState>().To<WebApplicationState>().ToSingleton();
+#endif
+
                 binder.Bind<Application>().To<Application>().ToSingleton();
 
                 // application states

@@ -121,6 +121,19 @@ mergeInto(
 			}
 		},
 
+		Get: function(statePath) {
+			if (window.bridge.get) {
+				var value = window.bridge.get(Pointer_stringify(statePath));
+
+				var buffer = _malloc(lengthBytesUTF8(value) + 1);
+    			writeStringToMemory(value, buffer);
+    			
+    			return buffer;
+			}
+			
+			return "";
+		},
+
 		SendToUnity: function(messageType, message) {
 			window.bridge.sendToUnity(messageType, message);
 		}

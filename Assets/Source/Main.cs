@@ -21,14 +21,13 @@ namespace CreateAR.SpirePlayer
 	    private Application _app;
         
         /// <summary>
-        /// Injects bindings into a MonoBehaviour.
+        /// Injects bindings into an object.
         /// </summary>
-        /// <param name="monobehaviour">The target MonoBehaviour.</param>
-	    public static void Inject(InjectableMonoBehaviour monobehaviour)
+	    public static void Inject(Object @object)
 	    {
-	        _binder.injector.Inject(monobehaviour);
+	        _binder.injector.Inject(@object);
 	    }
-
+        
         /// <summary>
         /// Analogous to the main() function.
         /// </summary>

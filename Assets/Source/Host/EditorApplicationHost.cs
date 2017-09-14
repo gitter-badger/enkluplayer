@@ -1,4 +1,3 @@
-using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 
@@ -18,6 +17,11 @@ namespace CreateAR.SpirePlayer
         /// For sending/receiving messages.
         /// </summary>
         private readonly IMessageRouter _messages;
+
+        /// <summary>
+        /// State implementation.
+        /// </summary>
+        private readonly EditorApplicationState _state;
         
         /// <summary>
         /// User's profile.
@@ -29,15 +33,28 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public EditorApplicationHost(
             IHttpService http,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            IApplicationState state)
         {
             _http = http;
             _messages = messages;
+
+            // Kindof hacky, but if this throws an exception, the module bindings
+            // are messed up.
+            _state = (EditorApplicationState) state;
         }
 
         /// <inheritdoc cref="IApplicationHost"/>
         public void Ready()
         {
+            //var guid = "ae67e232-9079-41d0-88df-73870998cfd7";
+            var guid = "c1e7ab79-7b8d-474d-9025-ec76ba3136b6";
+            _state.Values["webgl.edit.asset.id"] = guid;
+            _state.Values["webgl.edit.asset.uri"] = string.Format(
+                //"/bundles/{0}/asset.bundle",
+                "/test",
+                guid);
+
             CreateUser();
         }
 

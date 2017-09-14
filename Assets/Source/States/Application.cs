@@ -108,13 +108,15 @@ namespace CreateAR.SpirePlayer
                         string.Format("Bearer {0}", authorizedMessage.credentials.token)));
 
                     // demo
-                    _states.Change<PreviewApplicationState>();
+                    _states.Change<EditApplicationState>();
                 });
 
             _messages.Subscribe(
-                MessageTypes.PREVIEW_ASSET,
+                MessageTypes.PREVIEW,
                 (message, unsub) =>
                 {
+                    Log.Info(this, "Preview requested.");
+
                     _states.Change<PreviewApplicationState>();
                 });
         }

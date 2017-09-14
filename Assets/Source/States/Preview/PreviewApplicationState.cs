@@ -1,6 +1,8 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -12,6 +14,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
+        private readonly IApplicationState _state;
         private readonly IAssetManager _assets;
         private readonly IInputManager _input;
 
@@ -35,9 +38,11 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public PreviewApplicationState(
+            IApplicationState state,
             IAssetManager assets,
             IInputManager input)
         {
+            _state = state;
             _assets = assets;
             _input = input;
         }
@@ -45,38 +50,78 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Enter()
         {
-            _input.ChangeState(InputState);
+            try { 
+                // input
+                _input.ChangeState(InputState);
 
-            // fake data
-            const string guid = "ae67e232-9079-41d0-88df-73870998cfd7";
-            _assets.Manifest.Add(new AssetInfo
-            {
-                Guid = guid,
-                Uri = string.Format("/bundles/{0}/asset.bundle", guid),
-                AssetName = "Asset"
-            });
-
-            var reference = _assets.Manifest.Reference(guid);
-            if (null == reference)
-            {
-                Log.Warning(
-                    this,
-                    "Could not find AssetReference with guid " + guid);
-                return;
-            }
-
-            _load = reference.Load<GameObject>();
-
-            _load.OnSuccess(instance =>
+                // get guid
+                string guid;
+                if (!_state.Get(
+                    "webgl.preview.asset.id",
+                    out guid))
                 {
-                    Log.Info(this, "Successfully loaded.");
+                    Log.Error(this, "Could not find assetId.");
+                    return;
+                }
 
-                    _instance = Object.Instantiate(instance, Vector3.zero, Quaternion.identity);
-                })
-                .OnFailure(exception =>
+                // get uri
+                string uri;
+                if (!_state.Get(
+                    "webgl.preview.asset.uri",
+                    out uri))
                 {
-                    Log.Error(this, "Could not load asset : {0}.", exception);
+                    Log.Error(this, "Could not find asset uri.");
+                    return;
+                }
+
+                Log.Info(this,
+                    "Got info : {0}, {1}.",
+                    guid,
+                    uri);
+
+                // add it to manifest
+                // TODO: This should be builtin.
+                _assets.Manifest.Add(new AssetInfo
+                {
+                    Guid = guid,
+                    Uri = uri,
+                    AssetName = "Asset"
                 });
+
+                Log.Info(this, "Added to manifest.");
+
+                // retrieve reference
+                var reference = _assets.Manifest.Reference(guid);
+                if (null == reference)
+                {
+                    Log.Warning(
+                        this,
+                        "Could not find AssetReference with guid " + guid);
+                    return;
+                }
+
+                Log.Info(this, "Got reference.");
+
+                // load!
+                _load = reference.Load<GameObject>();
+
+                Log.Info(this, "Called load.");
+
+                _load.OnSuccess(instance =>
+                    {
+                        Log.Info(this, "Successfully loaded.");
+
+                        //_instance = Object.Instantiate(instance, Vector3.zero, Quaternion.identity);
+                    })
+                    .OnFailure(exception =>
+                    {
+                        Log.Error(this, "Could not load asset : {0}.", exception);
+                    });
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Exception: " + exception);
+            }
         }
 
         /// <inheritdoc cref="IState"/>
