@@ -3,6 +3,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Spire;
 using strange.extensions.injector.impl;
+using UnityEngine.Assertions.Must;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
@@ -23,6 +24,7 @@ namespace CreateAR.SpirePlayer
             // dependencies
             {
                 binder.Bind<ISerializer>().To<JsonSerializer>();
+                binder.Bind<IMessageParser>().To<DefaultMessageParser>();
             }
 
             // application

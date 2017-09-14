@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace CreateAR.Spire
@@ -32,6 +31,12 @@ namespace CreateAR.Spire
         /// </summary>
         [Inject]
         public IMessageRouter Router { get; set; }
+
+        /// <summary>
+        /// Parses messages.
+        /// </summary>
+        [Inject]
+        public IMessageParser Parser { get; set; }
 
 #if !UNITY_EDITOR && UNITY_WEBGL
         [System.Runtime.InteropServices.DllImport("__Internal")]
@@ -123,50 +128,36 @@ namespace CreateAR.Spire
         {
             Log.Debug(this, "WebBridge Received [{0}]", message);
             
-            // pull off message type
-            JObject messageObj;
-            try
+            // parse
+            string messageTypeString;
+            string payloadString;
+            if (!Parser.ParseMessage(
+                message,
+                out messageTypeString,
+                out payloadString))
             {
-                messageObj = JObject.Parse(message);
-            }
-            catch (Exception exception)
-            {
-                Log.Error(this,
-                    "Received a message that cannot be parsed : {0} : {1}.",
-                    exception,
-                    message);
-                return;
-            }
-
-            var messageTypeObj = messageObj.SelectToken(".messageType");
-            if (null == messageTypeObj)
-            {
-                Log.Error(
+                Log.Warning(
                     this,
-                    "Received a message with no messageType : {0}.",
-                    message);
+                    "Received a message that cannot be parsed : {0}.", message);
                 return;
             }
-
-            var messageType = messageTypeObj.Value<string>();
 
             Binding binding;
-            if (!_messageMap.TryGetValue(messageType, out binding))
+            if (!_messageMap.TryGetValue(messageTypeString, out binding))
             {
                 Log.Fatal(
                     this,
                     "Receieved a message for which we do not have a binding : {0}.",
-                    messageType);
+                    messageTypeString);
                 return;
             }
 
-            var payloadObj = messageObj.SelectToken(".payload");
             object payload;
             try
             {
                 // eek-- Newtonsoft is failing me on webgl
                 payload = JsonUtility.FromJson(
-                    payloadObj.ToString(),
+                    payloadString,
                     binding.Type);
             }
             catch (Exception exception)
@@ -174,7 +165,7 @@ namespace CreateAR.Spire
                 Log.Error(
                     this,
                     "Could not deserialize {0} payload to a [{1}] : {2}.",
-                    messageType,
+                    messageTypeString,
                     binding.Type,
                     exception);
                 return;
@@ -182,7 +173,7 @@ namespace CreateAR.Spire
 
             Log.Debug(this,
                 "Publishing a {0} event.",
-                messageType);
+                messageTypeString);
             
             // publish
             Router.Publish(

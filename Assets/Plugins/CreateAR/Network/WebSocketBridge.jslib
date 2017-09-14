@@ -60,11 +60,7 @@ mergeInto(
 					SendMessage(
 						"Network",
 						"OnNetworkEvent",
-						JSON.stringify(
-							{
-								messageType: messageType,
-								payload: message || ""
-							}));
+						messageType + ";" + JSON.stringify(message || {}));
 				};
 
 			if (!window.bridge.socket) {
