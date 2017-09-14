@@ -2,14 +2,37 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace CreateAR.Spire
 {
+    /// <summary>
+    /// Acts as the glue between the webpage and Unity.
+    /// </summary>
     public class WebBridge : MonoBehaviour
     {
+        /// <summary>
+        /// Provides a binding for events.
+        /// </summary>
+        private class Binding
+        {
+            public string MessageTypeString;
+            public int MessageTypeInt;
+            public Type Type;
+        }
+
+        /// <summary>
+        /// Map from event string to binding.
+        /// </summary>
+        private readonly Dictionary<string, Binding> _messageMap = new Dictionary<string, Binding>();
+
+        /// <summary>
+        /// Routes messages.
+        /// </summary>
+        [Inject]
+        public IMessageRouter Router { get; set; }
+
 #if !UNITY_EDITOR && UNITY_WEBGL
         [System.Runtime.InteropServices.DllImport("__Internal")]
         public static extern void Init();
@@ -24,6 +47,7 @@ namespace CreateAR.Spire
         public static extern void Off(string messageTypeString);
 #endif
 
+        /// <inheritdoc cref="MonoBehaviour"/>
         private void Awake()
         {
 #if !UNITY_EDITOR && UNITY_WEBGL
@@ -31,18 +55,9 @@ namespace CreateAR.Spire
 #endif
         }
 
-        private class Binding
-        {
-            public string MessageTypeString;
-            public int MessageTypeInt;
-            public Type Type;
-        }
-
-        private readonly Dictionary<string, Binding> _messageMap = new Dictionary<string, Binding>();
-        
-        [Inject]
-        public IMessageRouter Router { get; set; }
-
+        /// <summary>
+        /// Tells the webpage that the application is ready.
+        /// </summary>
         public void BroadcastReady()
         {
 #if !UNITY_EDITOR && UNITY_WEBGL
@@ -50,6 +65,12 @@ namespace CreateAR.Spire
 #endif
         }
 
+        /// <summary>
+        /// Binds a message type to a Type.
+        /// </summary>
+        /// <typeparam name="T">The type with which to parse the event.</typeparam>
+        /// <param name="messageTypeString">The message type.</param>
+        /// <param name="messageTypeInt">The message type to push onto the <c>IMessageRouter</c>.</param>
         public void Bind<T>(string messageTypeString, int messageTypeInt)
         {
             if (_messageMap.ContainsKey(messageTypeString))
@@ -73,6 +94,9 @@ namespace CreateAR.Spire
 #endif
         }
 
+        /// <summary>
+        /// Unbinds an event. See Bind.
+        /// </summary>
         public void Unbind<T>(string messageTypeString, int messageTypeInt)
         {
             if (!_messageMap.ContainsKey(messageTypeString))
@@ -91,6 +115,10 @@ namespace CreateAR.Spire
 #endif
         }
 
+        /// <summary>
+        /// Called by the webpage when it's trying to tell us something.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public void OnNetworkEvent(string message)
         {
             Log.Debug(this, "WebBridge Received [{0}]", message);
@@ -136,6 +164,7 @@ namespace CreateAR.Spire
             object payload;
             try
             {
+                // eek-- Newtonsoft is failing me on webgl
                 payload = JsonUtility.FromJson(
                     payloadObj.ToString(),
                     binding.Type);
