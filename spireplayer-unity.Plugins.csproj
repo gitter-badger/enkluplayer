@@ -91,17 +91,17 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>Assets\Plugins\Newtonsoft\net35\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="CreateAR.Commons.Unity.Async">
-      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Async.0.4.0\lib\net35\CreateAR.Commons.Unity.Async.dll</HintPath>
-    </Reference>
     <Reference Include="CreateAR.Commons.Unity.DataStructures">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.DataStructures.0.1.0\lib\net35\CreateAR.Commons.Unity.DataStructures.dll</HintPath>
     </Reference>
-    <Reference Include="CreateAR.Commons.Unity.Http">
-      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Http.0.5.1\lib\net35\CreateAR.Commons.Unity.Http.dll</HintPath>
-    </Reference>
     <Reference Include="CreateAR.Commons.Unity.Logging">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Logging.0.4.5\lib\net35\CreateAR.Commons.Unity.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.Async">
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Async.0.5.0\lib\net35\CreateAR.Commons.Unity.Async.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.Http">
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Http.0.6.0\lib\net35\CreateAR.Commons.Unity.Http.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
