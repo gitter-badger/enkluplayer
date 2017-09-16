@@ -8,6 +8,8 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class EditorApplicationHost : IApplicationHost
     {
+        private const string PASSWORD = "111111";
+
         /// <summary>
         /// Performs Http requests.
         /// </summary>
@@ -28,6 +30,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private UserProfileModel _profile;
 
+        private string _displayName;
+        private string _email;
+
         /// <summary>
         /// Creates a new IApplicationHost implementation in the Editor.
         /// </summary>
@@ -42,6 +47,9 @@ namespace CreateAR.SpirePlayer
             // Kindof hacky, but if this throws an exception, the module bindings
             // are messed up.
             _state = (EditorApplicationState) state;
+
+            _displayName = System.Environment.MachineName;
+            _email = _displayName + "@createar.co";
         }
 
         /// <inheritdoc cref="IApplicationHost"/>
@@ -51,8 +59,7 @@ namespace CreateAR.SpirePlayer
             var guid = "c1e7ab79-7b8d-474d-9025-ec76ba3136b6";
             _state.Values["webgl.edit.asset.id"] = guid;
             _state.Values["webgl.edit.asset.uri"] = string.Format(
-                //"/bundles/{0}/asset.bundle",
-                "/test",
+                "/bundles/{0}/asset.bundle",
                 guid);
 
             CreateUser();
@@ -65,42 +72,27 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void CreateUser()
         {
-            var displayName = System.Environment.MachineName;
             _http
-                .Post<Response<UserModel>>(
-                    _http.UrlBuilder.Url("/user"),
+                .Post<Response<CreateUserResponseBody>>(
+                    _http.UrlBuilder.Url("/email/signup"),
                     new CreateUserRequest
                     {
-                        displayName = displayName,
-                        provider = "none",
-                        providerToken = "none"
+                        email = _email,
+                        password = PASSWORD,
+                        displayName = _displayName
                     })
                 .OnSuccess(response =>
                 {
                     if (response.Payload.success)
                     {
                         Log.Debug(this, "Host successfully created a user.");
-
-                        var userId = response.Payload.body.id;
-
-                        _profile = new UserProfileModel
-                        {
-                            id = response.Payload.body.id,
-                            displayName = response.Payload.body.displayName
-                        };
-
-                        // get a token
-                        GetToken();
                     }
                     else
                     {
-                        _messages.Publish(
-                            MessageTypes.FATAL_ERROR,
-                            new FatalErrorEvent
-                            {
-                                Error = response.Payload.error
-                            });
+                        Log.Debug(this, "Could not create user, logging in instead.");
                     }
+
+                    GetToken();
                 })
                 .OnFailure(exception =>
                 {
@@ -120,14 +112,26 @@ namespace CreateAR.SpirePlayer
         private void GetToken()
         {
             _http
-                .Post<Response<GetTokenBody>>(
-                    _http.UrlBuilder.Url("/user/{userId}/token"),
-                    null)
+                .Post<Response<EmailSigninResponseBody>>(
+                    _http.UrlBuilder.Url("/email/signin"),
+                    new EmailSigninRequest
+                    {
+                        email = _email,
+                        password = PASSWORD
+                    })
                 .OnSuccess(response =>
                 {
                     if (response.Payload.success)
                     {
                         Log.Debug(this, "Host successfully retrieved token.");
+
+                        var userId = response.Payload.body.user.id;
+
+                        _profile = new UserProfileModel
+                        {
+                            id = userId,
+                            displayName = _displayName
+                        };
 
                         var token = response.Payload.body.token;
 

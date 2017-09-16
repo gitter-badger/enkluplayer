@@ -7,30 +7,61 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 using Object = UnityEngine.Object;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Communicates progress of a load.
+    /// </summary>
     public class LoadProgress
     {
+        /// <summary>
+        /// Normalized load percentage, between 0 and 1.
+        /// </summary>
         public float Value;
 
+        /// <summary>
+        /// True iff the load is complete.
+        /// </summary>
         public bool IsComplete
         {
             get { return Math.Abs(Value - 1f) < Mathf.Epsilon; }
         }
     }
 
+    /// <summary>
+    /// Loads asset bundles.
+    /// </summary>
     public class AssetBundleLoader
     {
+        /// <summary>
+        /// Bootstraps coroutines.
+        /// </summary>
         private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// The URL being loaded.
+        /// </summary>
         private readonly string _url;
+
+        /// <summary>
+        /// The load.
+        /// </summary>
         private IAsyncToken<AssetBundle> _bundleLoad;
         
+        /// <summary>
+        /// The bundle that was loaded.
+        /// </summary>
         public AssetBundle Bundle { get; private set; }
 
+        /// <summary>
+        /// The progress of the load.
+        /// </summary>
         public readonly LoadProgress Progress = new LoadProgress();
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public AssetBundleLoader(
             IBootstrapper bootstrapper,
             string url)
@@ -39,11 +70,20 @@ namespace CreateAR.SpirePlayer
             _url = url;
         }
 
+        /// <summary>
+        /// Loads the bundle.
+        /// </summary>
         public void Load()
         {
             _bootstrapper.BootstrapCoroutine(LoadBundle());
         }
 
+        /// <summary>
+        /// Retrieves an asset from the bundle.
+        /// </summary>
+        /// <param name="assetName">The name of the asset.</param>
+        /// <param name="progress">The progress of the load.</param>
+        /// <returns></returns>
         public IAsyncToken<Object> Asset(string assetName, out LoadProgress progress)
         {
             if (string.IsNullOrEmpty(assetName))
@@ -59,7 +99,7 @@ namespace CreateAR.SpirePlayer
             _bundleLoad
                 .OnSuccess(bundle =>
                 {
-                    Log.Info(this, "Completed bundle load successfully : {0}.", bundle);
+                    Log.Info(this, "Completed bundle load successfully.");
 
                     Bundle = bundle;
 
@@ -83,12 +123,21 @@ namespace CreateAR.SpirePlayer
             return token;
         }
         
+        /// <summary>
+        /// Retrieves an asset from the bundle.
+        /// </summary>
+        /// <param name="assetName">The name of the asset.</param>
+        /// <returns></returns>
         public IAsyncToken<Object> Asset(string assetName)
         {
             LoadProgress progress;
             return Asset(assetName, out progress);
         }
 
+        /// <summary>
+        /// Loads the asset bundle.
+        /// </summary>
+        /// <returns></returns>
         private IEnumerator LoadBundle()
         {
             var token = new AsyncToken<AssetBundle>();
@@ -114,10 +163,24 @@ namespace CreateAR.SpirePlayer
             {
                 var bundle = ((DownloadHandlerAssetBundle) request.downloadHandler).assetBundle;
 
-                token.Succeed(bundle);
+                if (null == bundle)
+                {
+                    token.Fail(new Exception("Could not create bundle."));
+                }
+                else
+                {
+                    token.Succeed(bundle);
+                }
             }
         }
 
+        /// <summary>
+        /// Waits for the asset to be loaded.
+        /// </summary>
+        /// <param name="request">The Unity request.</param>
+        /// <param name="token">The token to resolve.</param>
+        /// <param name="progress">The progress of the load.</param>
+        /// <returns></returns>
         private IEnumerator WaitForLoadAsset(
             AssetBundleRequest request,
             AsyncToken<Object> token,

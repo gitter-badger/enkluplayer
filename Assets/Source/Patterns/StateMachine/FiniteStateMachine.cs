@@ -54,9 +54,9 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
-            /*Log.Info(this, "Change({0} -> {1})",
+            Log.Info(this, "Change({0} -> {1})",
                 null == _state ? "[Null]" : _state.ToString(),
-                null == newState ? "[Null]" : newState.ToString());*/
+                null == newState ? "[Null]" : newState.ToString());
 
             if (null != _state)
             {

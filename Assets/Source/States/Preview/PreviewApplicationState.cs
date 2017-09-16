@@ -73,12 +73,7 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this, "Could not find asset uri.");
                     return;
                 }
-
-                Log.Info(this,
-                    "Got info : {0}, {1}.",
-                    guid,
-                    uri);
-
+                
                 // add it to manifest
                 // TODO: This should be builtin.
                 _assets.Manifest.Add(new AssetInfo
@@ -87,9 +82,7 @@ namespace CreateAR.SpirePlayer
                     Uri = uri,
                     AssetName = "Asset"
                 });
-
-                Log.Info(this, "Added to manifest.");
-
+                
                 // retrieve reference
                 var reference = _assets.Manifest.Reference(guid);
                 if (null == reference)
@@ -100,18 +93,15 @@ namespace CreateAR.SpirePlayer
                     return;
                 }
 
-                Log.Info(this, "Got reference.");
+                Log.Info(this, "Loading asset.");
 
                 // load!
                 _load = reference.Load<GameObject>();
-
-                Log.Info(this, "Called load.");
-
                 _load.OnSuccess(instance =>
                     {
                         Log.Info(this, "Successfully loaded.");
 
-                        //_instance = Object.Instantiate(instance, Vector3.zero, Quaternion.identity);
+                        _instance = Object.Instantiate(instance, Vector3.zero, Quaternion.identity);
                     })
                     .OnFailure(exception =>
                     {

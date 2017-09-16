@@ -5,13 +5,29 @@ using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Standard implementation of <c>IAssetLoader</c>.
+    /// </summary>
     public class StandardAssetLoader : IAssetLoader
     {
+        /// <summary>
+        /// Bootstraps coroutines.
+        /// </summary>
         private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Builds URL.
+        /// </summary>
         private readonly UrlBuilder _urls;
 
+        /// <summary>
+        /// URI to loader.
+        /// </summary>
         private readonly Dictionary<string, AssetBundleLoader> _bundles = new Dictionary<string, AssetBundleLoader>();
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public StandardAssetLoader(
             IBootstrapper bootstrapper,
             UrlBuilder urls)
@@ -20,7 +36,15 @@ namespace CreateAR.SpirePlayer
             _urls = urls;
         }
         
-        public IAsyncToken<Object> Load(AssetInfo info, out LoadProgress progress)
+        /// <summary>
+        /// Loads an asset.
+        /// </summary>
+        /// <param name="info">The info to load.</param>
+        /// <param name="progress">Outputs the load progress.</param>
+        /// <returns></returns>
+        public IAsyncToken<Object> Load(
+            AssetInfo info,
+            out LoadProgress progress)
         {
             var url = _urls.Url(info.Uri);
 

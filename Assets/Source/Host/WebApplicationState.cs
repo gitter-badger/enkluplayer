@@ -25,8 +25,8 @@ namespace CreateAR.SpirePlayer
         public bool Get(string path, out string value)
         {
             value = (string) _bridge.Search(path);
-
-            return true;
+            
+            return !string.IsNullOrEmpty(value);
         }
     }
 }

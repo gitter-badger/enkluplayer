@@ -5,8 +5,8 @@
     /// </summary>
     public class CreateUserRequest
     {
+        public string email;
+        public string password;
         public string displayName;
-        public string provider;
-        public string providerToken;
     }
 }
