@@ -21,6 +21,11 @@ namespace CreateAR.SpirePlayer
         private readonly List<Action<object>> _toUnsubscribe = new List<Action<object>>();
 
         /// <summary>
+        /// Used to gather exceptions.
+        /// </summary>
+        private readonly List<Exception> _exceptionScratch = new List<Exception>();
+
+        /// <summary>
         /// Backing variable for Message property.
         /// </summary>
         private object _message;
@@ -114,8 +119,8 @@ namespace CreateAR.SpirePlayer
         public void Publish(object message)
         {
             Message = message;
-
-            AggregateException aggregate = null;
+            
+            _exceptionScratch.Clear();
 
             for (int i = 0, len = _subscribers.Count; i < len; i++)
             {
@@ -125,12 +130,7 @@ namespace CreateAR.SpirePlayer
                 }
                 catch (Exception exception)
                 {
-                    if (null == aggregate)
-                    {
-                        aggregate = new AggregateException();
-                    }
-
-                    aggregate.Exceptions.Add(exception);
+                    _exceptionScratch.Add(exception);
                 }
 
                 if (_isAborted)
@@ -152,8 +152,17 @@ namespace CreateAR.SpirePlayer
 
             Message = null;
 
-            if (null != aggregate)
+            var exceptions = _exceptionScratch.Count;
+            if (1 == exceptions)
             {
+                throw _exceptionScratch[0];
+            }
+
+            if (exceptions > 1)
+            {
+                var aggregate = new AggregateException();
+                aggregate.Exceptions.AddRange(_exceptionScratch);
+
                 throw aggregate;
             }
         }

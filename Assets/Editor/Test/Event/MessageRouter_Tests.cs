@@ -168,7 +168,7 @@ namespace CreateAR.SpirePlayer.Test
                     called = true;
                 });
 
-            Assert.Throws<AggregateException>(
+            Assert.Throws<Exception>(
                 delegate
                 {
                     _router.Publish(
@@ -177,6 +177,34 @@ namespace CreateAR.SpirePlayer.Test
                 });
 
             Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void MultipleSubscribersMultipleExceptions()
+        {
+            var message = new Message();
+
+            _router.Subscribe(
+                MESSAGE_TYPE_A,
+                (received, unsub) =>
+                {
+                    throw new Exception();
+                });
+
+            _router.Subscribe(
+                MESSAGE_TYPE_A,
+                (received, unsub) =>
+                {
+                    throw new Exception();
+                });
+
+            Assert.Throws<AggregateException>(
+                delegate
+                {
+                    _router.Publish(
+                        MESSAGE_TYPE_A,
+                        message);
+                });
         }
 
         [Test]
