@@ -1,15 +1,18 @@
-﻿using System;
+#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
+using System.Text;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer;
+using CreateAR.Spire;
 using UnityEngine;
+using WebSocketSharp;
+using WebSocketSharp.Server;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
-    /// <summary>
-    /// Acts as the glue between the webpage and Unity.
-    /// </summary>
-    public class WebBridge : MonoBehaviour, IBridge
+    public class EditorBridge : WebSocketBehavior, IBridge
     {
         /// <summary>
         /// Provides a binding for events.
@@ -26,46 +29,53 @@ namespace CreateAR.Spire
         /// </summary>
         private readonly Dictionary<string, Binding> _messageMap = new Dictionary<string, Binding>();
 
+        private class Command
+        {
+            public string messageType;
+        }
+
+        private readonly JsonSerializer _serializer = new JsonSerializer();
+
         /// <summary>
         /// Routes messages.
         /// </summary>
-        [Inject]
-        public IMessageRouter Router { get; set; }
+        private readonly IMessageRouter _router;
 
         /// <summary>
         /// Parses messages.
         /// </summary>
-        [Inject]
-        public IMessageParser Parser { get; set; }
+        private readonly IMessageParser _parser;
 
-#if !UNITY_EDITOR && UNITY_WEBGL
-        [System.Runtime.InteropServices.DllImport("__Internal")]
-        public static extern void init();
+        /// <summary>
+        /// WebSocket server.
+        /// </summary>
+        private readonly WebSocketServer _server;
 
-        [System.Runtime.InteropServices.DllImport("__Internal")]
-        public static extern void ready();
-#endif
+        /// <summary>
+        /// Token for init.
+        /// </summary>
+        private readonly AsyncToken<Void> _initToken = new AsyncToken<Void>();
         
-        /// <summary>
-        /// Initializes the bridge.
-        /// </summary>
-        public void Init()
+        public EditorBridge(
+            IMessageRouter router,
+            IMessageParser parser)
         {
-#if !UNITY_EDITOR && UNITY_WEBGL
-            init();
-#endif
-        }
+            _router = router;
+            _parser = parser;
 
-        /// <summary>
-        /// Tells the webpage that the application is ready.
-        /// </summary>
+            // listen for connections
+            _server = new WebSocketServer("ws://localhost:4649");
+            _server.AddWebSocketService(
+                "/bridge",
+                () => this);
+            _server.Start();
+
+            SendType("init");
+        }
+        
         public void BroadcastReady()
         {
-#if !UNITY_EDITOR && UNITY_WEBGL
-            ready();
-#else
-            throw new Exception("WebBridge should not be used outside of WebGL target.");
-#endif
+            _initToken.OnSuccess(_ => SendType("ready"));
         }
 
         /// <summary>
@@ -89,10 +99,6 @@ namespace CreateAR.Spire
                 MessageTypeInt = messageTypeInt,
                 Type = typeof(T)
             };
-
-#if UNITY_EDITOR || UNITY_WEBGL
-            throw new Exception("WebBridge should not be used outside of WebGL target.");
-#endif
         }
 
         /// <summary>
@@ -108,29 +114,61 @@ namespace CreateAR.Spire
             }
 
             _messageMap.Remove(messageTypeString);
-
-#if UNITY_EDITOR || UNITY_WEBGL
-            throw new Exception("WebBridge should not be used outside of WebGL target.");
-#endif
         }
-        
-        /// <summary>
-        /// Called by the webpage when it's trying to tell us something.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        public void OnNetworkEvent(string message)
+
+        private void SendType(string messageType)
         {
-            Log.Debug(this, "Received [{0}]", message);
+            byte[] bytes;
+            _serializer.Serialize(
+                new Command
+                {
+                    messageType = messageType
+                },
+                out bytes);
+
+            var payload = Encoding.UTF8.GetString(bytes);
+
+            Commons.Unity.Logging.Log.Info(this, "Sending {0}.", payload);
+
+            SendAsync(
+                payload,
+                result =>
+                {
+                    if (!result)
+                    {
+                        Commons.Unity.Logging.Log.Error(this, "Could not send message.");
+                    }
+                });
+        }
             
+        protected override void OnOpen()
+        {
+            base.OnOpen();
+                
+            Commons.Unity.Logging.Log.Info(this, "Connection opened.");
+
+            SendType("init");
+
+            _initToken.Succeed(Void.Instance);
+        }
+
+        protected override void OnMessage(MessageEventArgs @event)
+        {
+            base.OnMessage(@event);
+
+            var message = @event.Data;
+
+            Commons.Unity.Logging.Log.Debug(this, "Received [{0}]", message);
+
             // parse
             string messageTypeString;
             string payloadString;
-            if (!Parser.ParseMessage(
+            if (!_parser.ParseMessage(
                 message,
                 out messageTypeString,
                 out payloadString))
             {
-                Log.Warning(
+                Commons.Unity.Logging.Log.Warning(
                     this,
                     "Received a message that cannot be parsed : {0}.", message);
                 return;
@@ -139,7 +177,7 @@ namespace CreateAR.Spire
             Binding binding;
             if (!_messageMap.TryGetValue(messageTypeString, out binding))
             {
-                Log.Fatal(
+                Commons.Unity.Logging.Log.Fatal(
                     this,
                     "Receieved a message for which we do not have a binding : {0}.",
                     messageTypeString);
@@ -156,7 +194,7 @@ namespace CreateAR.Spire
             }
             catch (Exception exception)
             {
-                Log.Error(
+                Commons.Unity.Logging.Log.Error(
                     this,
                     "Could not deserialize {0} payload to a [{1}] : {2}.",
                     messageTypeString,
@@ -165,18 +203,22 @@ namespace CreateAR.Spire
                 return;
             }
 
-            Log.Debug(this,
+            Commons.Unity.Logging.Log.Debug(this,
                 "Publishing a {0} event.",
                 messageTypeString);
-            
+
             // publish
-            Router.Publish(
+            _router.Publish(
                 binding.MessageTypeInt,
                 payload);
+        }
 
-#if UNITY_EDITOR || !UNITY_WEBGL
-            throw new Exception("WebBridge should not be used outside of WebGL target.");
-#endif
+        protected override void OnClose(CloseEventArgs @event)
+        {
+            base.OnClose(@event);
+
+            Commons.Unity.Logging.Log.Info(this, "Closed.");
         }
     }
 }
+#endif

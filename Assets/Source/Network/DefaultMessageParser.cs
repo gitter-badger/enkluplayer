@@ -1,7 +1,9 @@
+using Newtonsoft.Json.Linq;
+
 namespace CreateAR.Spire
 {
     /// <summary>
-    /// Default method the WebBridge uses to parse messages from the web page.
+    /// Default method for parsing messages from the web page.
     /// </summary>
     public class DefaultMessageParser : IMessageParser
     {
@@ -11,17 +13,23 @@ namespace CreateAR.Spire
             out string messageType,
             out string payloadString)
         {
-            messageType = string.Empty;
-            payloadString = string.Empty;
-
-            var substrings = message.Split(new [] {';'}, 2);
-            if (2 != substrings.Length)
+            var parsedMessage = JObject.Parse(message);
+            var type = parsedMessage.SelectToken("messageType");
+            if (null == type)
             {
+                messageType = payloadString = null;
+                return false;
+            }
+            messageType = type.ToString();
+
+            var payload = parsedMessage.SelectToken("message");
+            if (null == payload)
+            {
+                messageType = payloadString = null;
                 return false;
             }
 
-            messageType = substrings[0];
-            payloadString = substrings[1];
+            payloadString = payload.ToString();
             return true;
         }
     }

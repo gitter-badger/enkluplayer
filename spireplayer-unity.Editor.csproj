@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Editor:5</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -163,6 +165,9 @@
     <Reference Include="CreateAR.Trellis.Messages">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Trellis.Messages.0.1.8\lib\net35\CreateAR.Trellis.Messages.dll</HintPath>
     </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>Assets\Plugins\WebSocket-Sharp\websocket-sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="spireplayer-unity.csproj">
@@ -183,7 +188,6 @@
     <Compile Include="Assets\Editor\Test\Asset\AssetReference_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Asset\DummyAssetLoader.cs" />
     <Compile Include="Assets\Editor\Test\Asset\DummyAssetUpdateService.cs" />
-    <Compile Include="Assets\Editor\Test\Bridge\MessageParser_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Event\MessageRouter_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Util\StandardQueryResolver_Tests.cs" />
   </ItemGroup>
@@ -192,6 +196,7 @@
     <None Include="Assets\Plugins\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\JsonDotNet\Assemblies\Windows\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\JsonDotNet\link.xml" />
+    <None Include="Assets\Plugins\WebSocket-Sharp\websocket-sharp.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

@@ -9,9 +9,11 @@ namespace CreateAR.SpirePlayer
 
         private int _sendMessageType;
         private string _sendMessagePayload;
-
+        
         [Inject]
         public IMessageRouter Router { get; set; }
+        [Inject]
+        public IApplicationState State { get; set; }
 
         [MenuItem("Window/Application Host Editor")]
         private static void Open()
@@ -27,6 +29,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            // fairly evil
             if (!_isInjected)
             {
                 _isInjected = true;

@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -106,6 +108,9 @@
     <Reference Include="CreateAR.Trellis.Messages">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Trellis.Messages.0.1.8\lib\net35\CreateAR.Trellis.Messages.dll</HintPath>
     </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>Assets\Plugins\WebSocket-Sharp\websocket-sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="spireplayer-unity.Plugins.csproj">
@@ -134,12 +139,11 @@
     <Compile Include="Assets\Source\Asset\StandardAssetLoader.cs" />
     <Compile Include="Assets\Source\Debug\Preview\PreviewOptionsBehaviour.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
-    <Compile Include="Assets\Source\Host\EditorApplicationHost.cs" />
-    <Compile Include="Assets\Source\Host\EditorApplicationState.cs" />
+    <Compile Include="Assets\Source\Host\ApplicationState.cs" />
+    <Compile Include="Assets\Source\Host\EditorBridge.cs" />
     <Compile Include="Assets\Source\Host\IApplicationHost.cs" />
     <Compile Include="Assets\Source\Host\IApplicationState.cs" />
-    <Compile Include="Assets\Source\Host\WebApplicationHost.cs" />
-    <Compile Include="Assets\Source\Host\WebApplicationState.cs" />
+    <Compile Include="Assets\Source\Host\ApplicationHost.cs" />
     <Compile Include="Assets\Source\Host\WebAssetUpdateService.cs" />
     <Compile Include="Assets\Source\Input\IInputManager.cs" />
     <Compile Include="Assets\Source\Input\InputConfig.cs" />
@@ -162,6 +166,7 @@
     <Compile Include="Assets\Source\Messages\ToApplication\PreviewEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToHost\ApplicationReadyEvent.cs" />
     <Compile Include="Assets\Source\Network\DefaultMessageParser.cs" />
+    <Compile Include="Assets\Source\Network\IBridge.cs" />
     <Compile Include="Assets\Source\Network\IMessageParser.cs" />
     <Compile Include="Assets\Source\Network\Model\AssetModel.cs" />
     <Compile Include="Assets\Source\Network\Model\UserModel.cs" />
@@ -186,6 +191,7 @@
     <None Include="Assets\Plugins\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\JsonDotNet\Assemblies\Windows\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\JsonDotNet\link.xml" />
+    <None Include="Assets\Plugins\WebSocket-Sharp\websocket-sharp.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

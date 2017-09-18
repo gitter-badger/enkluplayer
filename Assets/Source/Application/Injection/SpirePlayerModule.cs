@@ -24,16 +24,13 @@ namespace CreateAR.SpirePlayer
             // application
             {
 #if UNITY_EDITOR
-                binder.Bind<IApplicationHost>().To<EditorApplicationHost>().ToSingleton();
+                binder.Bind<IBridge>().To<EditorBridge>().ToSingleton();
 #elif UNITY_WEBGL
-                binder.Bind<IApplicationHost>().To<WebApplicationHost>().ToSingleton();
+                binder.Bind<IBridge>().To<WebBridge>().ToSingleton();
 #endif
 
-#if UNITY_EDITOR
-                binder.Bind<IApplicationState>().To<EditorApplicationState>().ToSingleton();
-#elif UNITY_WEBGL
-                binder.Bind<IApplicationState>().To<WebApplicationState>().ToSingleton();
-#endif
+                binder.Bind<IApplicationHost>().To<ApplicationHost>().ToSingleton();
+                binder.Bind<IApplicationState>().To<ApplicationState>().ToSingleton();
 
                 binder.Bind<Application>().To<Application>().ToSingleton();
 
@@ -52,6 +49,7 @@ namespace CreateAR.SpirePlayer
                     .ToSingleton();
                 binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
 
+                // TODO: These should just be events from the bridge.
 #if UNITY_EDITOR
                 binder.Bind<IAssetUpdateService>().To<EditorAssetUpdateService>();
 #else
