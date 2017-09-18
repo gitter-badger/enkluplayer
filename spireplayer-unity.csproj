@@ -103,6 +103,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>Assets\Plugins\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="CreateAR.Trellis.Messages">
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Trellis.Messages.0.1.8\lib\net35\CreateAR.Trellis.Messages.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="spireplayer-unity.Plugins.csproj">
@@ -158,17 +161,10 @@
     <Compile Include="Assets\Source\Messages\ToApplication\FatalErrorEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\PreviewEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToHost\ApplicationReadyEvent.cs" />
-    <Compile Include="Assets\Source\Network\Asset\GetAssetManifestBody.cs" />
     <Compile Include="Assets\Source\Network\DefaultMessageParser.cs" />
     <Compile Include="Assets\Source\Network\IMessageParser.cs" />
     <Compile Include="Assets\Source\Network\Model\AssetModel.cs" />
     <Compile Include="Assets\Source\Network\Model\UserModel.cs" />
-    <Compile Include="Assets\Source\Network\Response.cs" />
-    <Compile Include="Assets\Source\Network\User\CreateUserRequest.cs" />
-    <Compile Include="Assets\Source\Network\User\CreateUserResponseBody.cs" />
-    <Compile Include="Assets\Source\Network\User\EmailSigninRequest.cs" />
-    <Compile Include="Assets\Source\Network\User\EmailSigninResponseBody.cs" />
-    <Compile Include="Assets\Source\Network\User\GetTokenBody.cs" />
     <Compile Include="Assets\Source\Network\WebBridge.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\FiniteStateMachine.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\IState.cs" />

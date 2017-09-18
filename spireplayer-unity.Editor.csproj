@@ -160,6 +160,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>Assets\Plugins\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="CreateAR.Trellis.Messages">
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Trellis.Messages.0.1.8\lib\net35\CreateAR.Trellis.Messages.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="spireplayer-unity.csproj">

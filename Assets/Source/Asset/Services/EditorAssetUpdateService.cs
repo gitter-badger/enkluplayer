@@ -27,13 +27,13 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Get Asset Manifest.");
 
             _http
-                .Get<Response<GetAssetManifestBody>>(_http.UrlBuilder.Url("/asset"))
+                .Get<Trellis.Messages.GetAssets.Response>(_http.UrlBuilder.Url("/asset"))
                 .OnSuccess(response =>
                 {
                     Log.Info(this, "Got manifest.");
 
-                    if (null == response.Payload.body
-                        || null == response.Payload.body.assets)
+                    if (null == response.Payload.Body
+                        || null == response.Payload.Body.Assets)
                     {
                         Log.Error(
                             this,
@@ -43,11 +43,11 @@ namespace CreateAR.SpirePlayer
 
                     if (null != OnAdded)
                     {
-                        var assetInfos = response.Payload.body
-                            .assets
+                        var assetInfos = response.Payload.Body
+                            .Assets
                             .Select(asset => new AssetInfo
                             {
-                                Guid = asset.id,
+                                Guid = asset.Id,
                                 Uri = ""
                             })
                             .ToArray();

@@ -72,18 +72,19 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void CreateUser()
         {
+            
             _http
-                .Post<Response<CreateUserResponseBody>>(
+                .Post<Trellis.Messages.EmailSignUp.Response>(
                     _http.UrlBuilder.Url("/email/signup"),
-                    new CreateUserRequest
+                    new Trellis.Messages.EmailSignUp.Request
                     {
-                        email = _email,
-                        password = PASSWORD,
-                        displayName = _displayName
+                        Email = _email,
+                        Password = PASSWORD,
+                        DisplayName = _displayName
                     })
                 .OnSuccess(response =>
                 {
-                    if (response.Payload.success)
+                    if (response.Payload.Success)
                     {
                         Log.Debug(this, "Host successfully created a user.");
                     }
@@ -112,20 +113,20 @@ namespace CreateAR.SpirePlayer
         private void GetToken()
         {
             _http
-                .Post<Response<EmailSigninResponseBody>>(
+                .Post<Trellis.Messages.EmailSignIn.Response>(
                     _http.UrlBuilder.Url("/email/signin"),
-                    new EmailSigninRequest
+                    new Trellis.Messages.EmailSignIn.Request
                     {
-                        email = _email,
-                        password = PASSWORD
+                        Email = _email,
+                        Password = PASSWORD
                     })
                 .OnSuccess(response =>
                 {
-                    if (response.Payload.success)
+                    if (response.Payload.Success)
                     {
                         Log.Debug(this, "Host successfully retrieved token.");
 
-                        var userId = response.Payload.body.user.id;
+                        var userId = response.Payload.Body.User.Id;
 
                         _profile = new UserProfileModel
                         {
@@ -133,7 +134,7 @@ namespace CreateAR.SpirePlayer
                             displayName = _displayName
                         };
 
-                        var token = response.Payload.body.token;
+                        var token = response.Payload.Body.Token;
 
                         _messages.Publish(
                             MessageTypes.AUTHORIZED,
@@ -152,7 +153,7 @@ namespace CreateAR.SpirePlayer
                             MessageTypes.FATAL_ERROR,
                             new FatalErrorEvent
                             {
-                                Error = response.Payload.error
+                                Error = response.Payload.Error
                             });
                     }
                 })
