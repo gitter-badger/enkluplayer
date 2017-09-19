@@ -36,6 +36,7 @@ namespace CreateAR.SpirePlayer
             IApplicationHost host,
             IMessageRouter messages,
             IHttpService http,
+
             InitializeApplicationState initialize,
             EditApplicationState edit,
             PreviewApplicationState preview)
@@ -50,7 +51,7 @@ namespace CreateAR.SpirePlayer
                 edit,
                 preview
             });
-            
+
 #if !UNITY_EDITOR && UNITY_WEBGL
             UnityEngine.WebGLInput.captureAllKeyboardInput = false;
 #endif
@@ -95,9 +96,9 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.AUTHORIZED,
                 (message, unsub) =>
                 {
-                    Log.Info(this, "Application authorized!");
-
                     var authorizedMessage = (AuthorizedEvent) message;
+
+                    Log.Info(this, "Application authorized : " + authorizedMessage);
 
                     // setup http service
                     _http.UrlBuilder.Replacements.Add(Tuple.Create(

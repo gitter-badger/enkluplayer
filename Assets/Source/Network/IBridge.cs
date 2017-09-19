@@ -10,10 +10,10 @@ namespace CreateAR.Spire
         /// <summary>
         /// Binds data.
         /// </summary>
-        DataBinder Binder { get; }
+        MessageTypeBinder Binder { get; }
 
         /// <summary>
-        /// Tells the webpage that the application is ready.
+        /// Tells the hosting application that Unity application is ready.
         /// </summary>
         void BroadcastReady();
     }

@@ -9,13 +9,30 @@ namespace CreateAR.SpirePlayer
     public class ApplicationState : IApplicationState
     {
         /// <summary>
+        /// Message router.
+        /// </summary>
+        private readonly IMessageRouter _router;
+
+        /// <summary>
         /// Current, parsed application state.
         /// </summary>
         private JObject _state = JObject.Parse("{}");
 
+        /// <summary>
+        /// Creates obj.
+        /// </summary>
+        /// <param name="router">Routes messages.</param>
+        public ApplicationState(IMessageRouter router)
+        {
+            _router = router;
+            _router.Subscribe(MessageTypes.STATE, val => Update((string) val));
+        }
+
         /// <inheritdoc cref="IApplicationState"/>
         public bool Get(string path, out string value)
         {
+            Log.Debug(this, "Get({0})", path);
+
             var jval = _state.SelectToken(path);
             if (null == jval)
             {
@@ -31,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// Receives updates.
         /// </summary>
         /// <param name="state"></param>
-        public void Update(string state)
+        private void Update(string state)
         {
             Log.Info(this, "Received state update.");
 

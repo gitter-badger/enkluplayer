@@ -1,5 +1,6 @@
 using CreateAR.Commons.Unity.DebugRenderer;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Spire;
 using strange.extensions.injector.impl;
 using UnityEngine;
 
@@ -83,6 +84,22 @@ namespace CreateAR.SpirePlayer
 	    private void Update()
 	    {
 	        _app.Update(Time.deltaTime);
+	    }
+
+        /// <summary>
+        /// Called when the application quits.
+        /// </summary>
+	    private void OnApplicationQuit()
+	    {
+#if UNITY_EDITOR
+	        var bridge = _binder.GetInstance<IBridge>() as EditorBridge;
+	        if (null != bridge)
+	        {
+                Log.Info(this, "Disposing websocket server.");
+
+	            bridge.Dispose();
+	        }
+#endif
 	    }
 	}
 }

@@ -140,11 +140,13 @@
     <Compile Include="Assets\Source\Debug\Preview\PreviewOptionsBehaviour.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
     <Compile Include="Assets\Source\Host\ApplicationState.cs" />
-    <Compile Include="Assets\Source\Host\DataBinder.cs" />
+    <Compile Include="Assets\Source\Host\BridgeMessageHandler.cs" />
+    <Compile Include="Assets\Source\Host\MessageTypeBinder.cs" />
     <Compile Include="Assets\Source\Host\EditorBridge.cs" />
     <Compile Include="Assets\Source\Host\IApplicationHost.cs" />
     <Compile Include="Assets\Source\Host\IApplicationState.cs" />
     <Compile Include="Assets\Source\Host\ApplicationHost.cs" />
+    <Compile Include="Assets\Source\Host\IBridgeMessageHandler.cs" />
     <Compile Include="Assets\Source\Host\WebAssetUpdateService.cs" />
     <Compile Include="Assets\Source\Input\IInputManager.cs" />
     <Compile Include="Assets\Source\Input\InputConfig.cs" />
@@ -166,9 +168,7 @@
     <Compile Include="Assets\Source\Messages\ToApplication\FatalErrorEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\PreviewEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToHost\ApplicationReadyEvent.cs" />
-    <Compile Include="Assets\Source\Network\DefaultMessageParser.cs" />
     <Compile Include="Assets\Source\Network\IBridge.cs" />
-    <Compile Include="Assets\Source\Network\IMessageParser.cs" />
     <Compile Include="Assets\Source\Network\Model\AssetModel.cs" />
     <Compile Include="Assets\Source\Network\Model\UserModel.cs" />
     <Compile Include="Assets\Source\Network\WebBridge.cs" />

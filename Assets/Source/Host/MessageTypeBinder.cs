@@ -6,12 +6,12 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Binds together a string, int, and type.
     /// </summary>
-    public class DataBinder
+    public class MessageTypeBinder
     {
         /// <summary>
         /// Provides a binding for events.
         /// </summary>
-        public class Binding
+        public class MessageTypeBinding
         {
             public string MessageTypeString;
             public int MessageTypeInt;
@@ -21,16 +21,16 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Map from event string to binding.
         /// </summary>
-        private readonly Dictionary<string, Binding> _messageMap = new Dictionary<string, Binding>();
+        private readonly Dictionary<string, MessageTypeBinding> _messageMap = new Dictionary<string, MessageTypeBinding>();
 
         /// <summary>
         /// Retrieves binding by message type.
         /// </summary>
         /// <param name="messageTypeString">Message type to retrieve binding for.</param>
         /// <returns></returns>
-        public Binding ByMessageType(string messageTypeString)
+        public MessageTypeBinding ByMessageType(string messageTypeString)
         {
-            Binding binding;
+            MessageTypeBinding binding;
             _messageMap.TryGetValue(messageTypeString, out binding);
             return binding;
         }
@@ -50,7 +50,7 @@ namespace CreateAR.SpirePlayer
                     messageTypeString));
             }
 
-            _messageMap[messageTypeString] = new Binding
+            _messageMap[messageTypeString] = new MessageTypeBinding
             {
                 MessageTypeString = messageTypeString,
                 MessageTypeInt = messageTypeInt,

@@ -1,34 +1,48 @@
 #if UNITY_EDITOR
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Spire;
-using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
-    public class EditorBridge : WebSocketBehavior, IBridge
+    /// <summary>
+    /// <c>IBridge</c> implementation in the Unity Editor.
+    /// </summary>
+    public class EditorBridge : WebSocketBehavior, IBridge, IDisposable
     {
-        private class Command
+        /// <summary>
+        /// Represents a method on the webpage.
+        /// </summary>
+        private class Method
         {
-            public string messageType;
+            /// <summary>
+            /// Name of the method.
+            /// </summary>
+            public string methodName;
         }
 
+        /// <summary>
+        /// Serializes.
+        /// </summary>
         private readonly JsonSerializer _serializer = new JsonSerializer();
 
         /// <summary>
-        /// Routes messages.
+        /// Bootstraps coroutines.
         /// </summary>
-        private readonly IMessageRouter _router;
+        private readonly IBootstrapper _bootstrapper;
 
         /// <summary>
-        /// Parses messages.
+        /// Handles messages.
         /// </summary>
-        private readonly IMessageParser _parser;
-
+        private readonly IBridgeMessageHandler _handler;
+        
         /// <summary>
         /// WebSocket server.
         /// </summary>
@@ -39,16 +53,30 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly AsyncToken<Void> _initToken = new AsyncToken<Void>();
 
-        public DataBinder Binder { get; private set; }
+        /// <summary>
+        /// Messages received but not yet processed.
+        /// </summary>
+        private readonly List<string> _messages = new List<string>();
 
+        /// <summary>
+        /// Allows binding between message type and C# type.
+        /// </summary>
+        public MessageTypeBinder Binder { get { return _handler.Binder; } }
+
+        /// <summary>
+        /// Creates a new <c>EditorBridge</c>.
+        /// </summary>
+        /// <param name="bootstrapper">Bootstraps coroutines.</param>
+        /// <param name="handler">Object to handle messages.</param>
         public EditorBridge(
-            IMessageRouter router,
-            IMessageParser parser)
+            IBootstrapper bootstrapper,
+            IBridgeMessageHandler handler)
         {
-            _router = router;
-            _parser = parser;
+            _handler = handler;
+            _bootstrapper = bootstrapper;
 
-            Binder = new DataBinder();
+            // start watcher "thread"
+            _bootstrapper.BootstrapCoroutine(ConsumeMessages());
 
             // listen for connections
             _server = new WebSocketServer("ws://localhost:4649");
@@ -56,29 +84,95 @@ namespace CreateAR.SpirePlayer
                 "/bridge",
                 () => this);
             _server.Start();
-
-            SendType("init");
         }
 
+        /// <inheritdoc cref="IBridge"/>
         public void BroadcastReady()
         {
-            _initToken.OnSuccess(_ => SendType("ready"));
+            _initToken.OnSuccess(_ => CallMethod("ready"));
         }
-        
-        private void SendType(string messageType)
+            
+        /// <summary>
+        /// Called when a client joins.
+        /// </summary>
+        protected override void OnOpen()
+        {
+            base.OnOpen();
+                
+            Commons.Unity.Logging.Log.Info(this, "WebSocket client joined.");
+
+            CallMethod("init");
+
+            _initToken.Succeed(Void.Instance);
+        }
+
+        /// <summary>
+        /// Called when a client sends a message.
+        /// </summary>
+        /// <param name="event"></param>
+        protected override void OnMessage(MessageEventArgs @event)
+        {
+            base.OnMessage(@event);
+
+            lock (_messages)
+            {
+                _messages.Add(@event.Data);
+            }
+        }
+
+        /// <summary>
+        /// Called when a client leaves.
+        /// </summary>
+        /// <param name="event"></param>
+        protected override void OnClose(CloseEventArgs @event)
+        {
+            base.OnClose(@event);
+
+            Commons.Unity.Logging.Log.Info(this, "WebSocket client left.");
+        }
+
+        private IEnumerator ConsumeMessages()
+        {
+            while (true)
+            {
+                string[] messages = null;
+                lock (_messages)
+                {
+                    if (_messages.Count > 0)
+                    {
+                        messages = _messages.ToArray();
+                        _messages.Clear();
+                    }
+                }
+
+                if (null != messages)
+                {
+                    for (int i = 0, len = messages.Length; i < len; i++)
+                    {
+                        _handler.OnMessage(messages[i]);
+                    }
+                }
+
+                yield return null;
+            }
+        }
+
+        /// <summary>
+        /// Sends a message to connected hosts.
+        /// </summary>
+        /// <param name="methodName">The message type to send.</param>
+        private void CallMethod(string methodName)
         {
             byte[] bytes;
             _serializer.Serialize(
-                new Command
+                new Method
                 {
-                    messageType = messageType
+                    methodName = methodName
                 },
                 out bytes);
 
             var payload = Encoding.UTF8.GetString(bytes);
-
-            Commons.Unity.Logging.Log.Info(this, "Sending {0}.", payload);
-
+            
             SendAsync(
                 payload,
                 result =>
@@ -89,91 +183,21 @@ namespace CreateAR.SpirePlayer
                     }
                 });
         }
-            
-        protected override void OnOpen()
+
+        private void ReleaseUnmanagedResources()
         {
-            base.OnOpen();
-                
-            Commons.Unity.Logging.Log.Info(this, "Connection opened.");
-
-            SendType("init");
-
-            _initToken.Succeed(Void.Instance);
+            _server.Stop();
         }
 
-        protected override void OnMessage(MessageEventArgs @event)
+        public void Dispose()
         {
-            base.OnMessage(@event);
-
-            var message = @event.Data;
-
-            Commons.Unity.Logging.Log.Debug(this, "Received [{0}]", message);
-
-            // parse
-            string messageTypeString;
-            string payloadString;
-            if (!_parser.ParseMessage(
-                message,
-                out messageTypeString,
-                out payloadString))
-            {
-                Commons.Unity.Logging.Log.Warning(
-                    this,
-                    "Received a message that cannot be parsed : {0}.", message);
-                return;
-            }
-
-            var binding = Binder.ByMessageType(messageTypeString);
-            if (null == binding)
-            {
-                Commons.Unity.Logging.Log.Fatal(
-                    this,
-                    "Receieved a message for which we do not have a binding : {0}.",
-                    messageTypeString);
-                return;
-            }
-
-            object payload;
-            if (binding.Type == typeof(Void))
-            {
-                payload = Void.Instance;
-            }
-            else
-            {
-                try
-                {
-                    // eek-- Newtonsoft is failing me on webgl
-                    payload = JsonUtility.FromJson(
-                        payloadString,
-                        binding.Type);
-                }
-                catch (Exception exception)
-                {
-                    Commons.Unity.Logging.Log.Error(
-                        this,
-                        "Could not deserialize {0} payload to a [{1}] : {2}.",
-                        messageTypeString,
-                        binding.Type,
-                        exception);
-                    return;
-                }
-            }
-
-            Commons.Unity.Logging.Log.Debug(this,
-                "Publishing a {0} event.",
-                messageTypeString);
-
-            // publish
-            _router.Publish(
-                binding.MessageTypeInt,
-                payload);
+            ReleaseUnmanagedResources();
+            GC.SuppressFinalize(this);
         }
 
-        protected override void OnClose(CloseEventArgs @event)
+        ~EditorBridge()
         {
-            base.OnClose(@event);
-
-            Commons.Unity.Logging.Log.Info(this, "Closed.");
+            ReleaseUnmanagedResources();
         }
     }
 }
