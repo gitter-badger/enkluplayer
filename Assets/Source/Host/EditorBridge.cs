@@ -1,9 +1,7 @@
 #if UNITY_EDITOR
 using System;
-using System.Collections.Generic;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.Spire;
 using UnityEngine;
 using WebSocketSharp;
@@ -14,21 +12,6 @@ namespace CreateAR.SpirePlayer
 {
     public class EditorBridge : WebSocketBehavior, IBridge
     {
-        /// <summary>
-        /// Provides a binding for events.
-        /// </summary>
-        private class Binding
-        {
-            public string MessageTypeString;
-            public int MessageTypeInt;
-            public Type Type;
-        }
-
-        /// <summary>
-        /// Map from event string to binding.
-        /// </summary>
-        private readonly Dictionary<string, Binding> _messageMap = new Dictionary<string, Binding>();
-
         private class Command
         {
             public string messageType;
@@ -55,13 +38,17 @@ namespace CreateAR.SpirePlayer
         /// Token for init.
         /// </summary>
         private readonly AsyncToken<Void> _initToken = new AsyncToken<Void>();
-        
+
+        public DataBinder Binder { get; private set; }
+
         public EditorBridge(
             IMessageRouter router,
             IMessageParser parser)
         {
             _router = router;
             _parser = parser;
+
+            Binder = new DataBinder();
 
             // listen for connections
             _server = new WebSocketServer("ws://localhost:4649");
@@ -72,50 +59,12 @@ namespace CreateAR.SpirePlayer
 
             SendType("init");
         }
-        
+
         public void BroadcastReady()
         {
             _initToken.OnSuccess(_ => SendType("ready"));
         }
-
-        /// <summary>
-        /// Binds a message type to a Type.
-        /// </summary>
-        /// <typeparam name="T">The type with which to parse the event.</typeparam>
-        /// <param name="messageTypeString">The message type.</param>
-        /// <param name="messageTypeInt">The message type to push onto the <c>IMessageRouter</c>.</param>
-        public void Bind<T>(string messageTypeString, int messageTypeInt)
-        {
-            if (_messageMap.ContainsKey(messageTypeString))
-            {
-                throw new Exception(string.Format(
-                    "MessageType {0} already bound.",
-                    messageTypeString));
-            }
-
-            _messageMap[messageTypeString] = new Binding
-            {
-                MessageTypeString = messageTypeString,
-                MessageTypeInt = messageTypeInt,
-                Type = typeof(T)
-            };
-        }
-
-        /// <summary>
-        /// Unbinds an event. See Bind.
-        /// </summary>
-        public void Unbind<T>(string messageTypeString, int messageTypeInt)
-        {
-            if (!_messageMap.ContainsKey(messageTypeString))
-            {
-                throw new Exception(string.Format(
-                    "MessageType {0} not bound.",
-                    messageTypeString));
-            }
-
-            _messageMap.Remove(messageTypeString);
-        }
-
+        
         private void SendType(string messageType)
         {
             byte[] bytes;
@@ -174,8 +123,8 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            Binding binding;
-            if (!_messageMap.TryGetValue(messageTypeString, out binding))
+            var binding = Binder.ByMessageType(messageTypeString);
+            if (null == binding)
             {
                 Commons.Unity.Logging.Log.Fatal(
                     this,
@@ -185,22 +134,29 @@ namespace CreateAR.SpirePlayer
             }
 
             object payload;
-            try
+            if (binding.Type == typeof(Void))
             {
-                // eek-- Newtonsoft is failing me on webgl
-                payload = JsonUtility.FromJson(
-                    payloadString,
-                    binding.Type);
+                payload = Void.Instance;
             }
-            catch (Exception exception)
+            else
             {
-                Commons.Unity.Logging.Log.Error(
-                    this,
-                    "Could not deserialize {0} payload to a [{1}] : {2}.",
-                    messageTypeString,
-                    binding.Type,
-                    exception);
-                return;
+                try
+                {
+                    // eek-- Newtonsoft is failing me on webgl
+                    payload = JsonUtility.FromJson(
+                        payloadString,
+                        binding.Type);
+                }
+                catch (Exception exception)
+                {
+                    Commons.Unity.Logging.Log.Error(
+                        this,
+                        "Could not deserialize {0} payload to a [{1}] : {2}.",
+                        messageTypeString,
+                        binding.Type,
+                        exception);
+                    return;
+                }
             }
 
             Commons.Unity.Logging.Log.Debug(this,

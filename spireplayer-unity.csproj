@@ -140,6 +140,7 @@
     <Compile Include="Assets\Source\Debug\Preview\PreviewOptionsBehaviour.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
     <Compile Include="Assets\Source\Host\ApplicationState.cs" />
+    <Compile Include="Assets\Source\Host\DataBinder.cs" />
     <Compile Include="Assets\Source\Host\EditorBridge.cs" />
     <Compile Include="Assets\Source\Host\IApplicationHost.cs" />
     <Compile Include="Assets\Source\Host\IApplicationState.cs" />

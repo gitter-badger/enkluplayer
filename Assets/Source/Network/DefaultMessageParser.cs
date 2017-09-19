@@ -1,3 +1,4 @@
+using CreateAR.Commons.Unity.Async;
 using Newtonsoft.Json.Linq;
 
 namespace CreateAR.Spire
@@ -25,8 +26,8 @@ namespace CreateAR.Spire
             var payload = parsedMessage.SelectToken("message");
             if (null == payload)
             {
-                messageType = payloadString = null;
-                return false;
+                payloadString = string.Empty;
+                return true;
             }
 
             payloadString = payload.ToString();

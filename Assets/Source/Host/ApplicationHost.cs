@@ -1,5 +1,7 @@
+using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Spire;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -26,8 +28,8 @@ namespace CreateAR.SpirePlayer
         public void Ready()
         {
             // bind to events from web bridge
-            _bridge.Bind<AuthorizedEvent>("Authorized", MessageTypes.AUTHORIZED);
-            _bridge.Bind<PreviewEvent>("Preview", MessageTypes.PREVIEW);
+            _bridge.Binder.Add<AuthorizedEvent>("authorized", MessageTypes.AUTHORIZED);
+            _bridge.Binder.Add<Void>("preview", MessageTypes.PREVIEW);
 
             // tell the webpage
             _bridge.BroadcastReady();
