@@ -41,6 +41,8 @@ namespace CreateAR.Spire
             base.Awake();
 
 #if !UNITY_EDITOR && UNITY_WEBGL
+            UnityEngine.WebGLInput.captureAllKeyboardInput = false;
+
             init();
 #endif
         }

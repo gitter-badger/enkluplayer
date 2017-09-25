@@ -1,3 +1,7 @@
+using System;
+using CreateAR.Commons.Unity.DataStructures;
+using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Spire;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -14,12 +18,61 @@ namespace CreateAR.SpirePlayer
         private readonly IBridge _bridge;
 
         /// <summary>
+        /// Makes Http Requests.
+        /// </summary>
+        private readonly IHttpService _http;
+
+        /// <summary>
+        /// Message router.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
+        /// <summary>
         /// Creates a new WebApplicationHost.
         /// </summary>
         /// <param name="bridge">The WebBridge.</param>
-        public ApplicationHost(IBridge bridge)
+        /// <param name="state"></param>
+        /// <param name="http">Http service.</param>
+        /// <param name="messages">The message router.</param>
+        public ApplicationHost(
+            IBridge bridge,
+            IApplicationState state,
+            IHttpService http,
+            IMessageRouter messages)
         {
             _bridge = bridge;
+            _http = http;
+            _messages = messages;
+
+            _messages.Subscribe(
+                MessageTypes.AUTHORIZED,
+                _ =>
+                {
+                    Log.Info(this, "Application authorized.");
+
+                    // setup http service
+                    string userId;
+                    if (!state.Get("user.profile.id", out userId))
+                    {
+                        throw new Exception("Could not get user id.");
+                    }
+
+                    string token;
+                    if (!state.Get("user.credentials.token", out token))
+                    {
+                        throw new Exception("Could not get token.");
+                    }
+
+                    _http.UrlBuilder.Replacements.Add(Tuple.Create(
+                        "userId",
+                        userId));
+                    _http.Headers.Add(Tuple.Create(
+                        "Authorization",
+                        string.Format("Bearer {0}", token)));
+
+                    // ready
+                    _messages.Publish(MessageTypes.EDIT, Void.Instance);
+                });
         }
 
         /// <inheritdoc cref="IApplicationHost"/>

@@ -1,6 +1,4 @@
-﻿using CreateAR.Commons.Unity.DataStructures;
-using CreateAR.Commons.Unity.Http;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
@@ -20,11 +18,6 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
 
         /// <summary>
-        /// For Http requests.
-        /// </summary>
-        private readonly IHttpService _http;
-
-        /// <summary>
         /// Controls application states.
         /// </summary>
         private readonly FiniteStateMachine _states;
@@ -35,7 +28,6 @@ namespace CreateAR.SpirePlayer
         public Application(
             IApplicationHost host,
             IMessageRouter messages,
-            IHttpService http,
 
             InitializeApplicationState initialize,
             EditApplicationState edit,
@@ -43,7 +35,6 @@ namespace CreateAR.SpirePlayer
         {
             _host = host;
             _messages = messages;
-            _http = http;
 
             _states = new FiniteStateMachine(new IState[]
             {
@@ -51,10 +42,6 @@ namespace CreateAR.SpirePlayer
                 edit,
                 preview
             });
-
-#if !UNITY_EDITOR && UNITY_WEBGL
-            UnityEngine.WebGLInput.captureAllKeyboardInput = false;
-#endif
         }
 
         /// <summary>
@@ -93,30 +80,21 @@ namespace CreateAR.SpirePlayer
                 });
 
             _messages.Subscribe(
-                MessageTypes.AUTHORIZED,
-                _ =>
-                {
-                    Log.Info(this, "Application authorized.");
-
-                    // setup http service
-                    /*_http.UrlBuilder.Replacements.Add(Tuple.Create(
-                        "userId",
-                        authorizedMessage.profile.id));
-                    _http.Headers.Add(Tuple.Create(
-                        "Authorization",
-                        string.Format("Bearer {0}", authorizedMessage.credentials.token)));*/
-
-                    // demo
-                    _states.Change<EditApplicationState>();
-                });
-
-            _messages.Subscribe(
                 MessageTypes.PREVIEW,
                 _ =>
                 {
                     Log.Info(this, "Preview requested.");
 
                     _states.Change<PreviewApplicationState>();
+                });
+
+            _messages.Subscribe(
+                MessageTypes.EDIT,
+                _ =>
+                {
+                    Log.Info(this, "Edit requested.");
+
+                    _states.Change<EditApplicationState>();
                 });
         }
     }
