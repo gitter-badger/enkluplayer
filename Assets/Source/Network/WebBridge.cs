@@ -37,12 +37,10 @@ namespace CreateAR.Spire
         /// <summary>
         /// Initializes the bridge.
         /// </summary>
-        public void Init()
+        public void Awake()
         {
 #if !UNITY_EDITOR && UNITY_WEBGL
             init();
-#else
-            throw new Exception("WebBridge should not be used outside of WebGL target.");
 #endif
         }
 

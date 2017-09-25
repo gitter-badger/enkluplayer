@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -87,23 +85,23 @@
     <Reference Include="UnityEditor.iOS.Extensions.Common">
       <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Common.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Assets\Plugins\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Strange.Net35">
       <HintPath>Assets\Plugins\Lib\Strange\net35\Strange.Net35.dll</HintPath>
-    </Reference>
-    <Reference Include="CreateAR.Commons.Unity.DataStructures">
-      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.DataStructures.0.1.0\lib\net35\CreateAR.Commons.Unity.DataStructures.dll</HintPath>
-    </Reference>
-    <Reference Include="CreateAR.Commons.Unity.Logging">
-      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Logging.0.4.5\lib\net35\CreateAR.Commons.Unity.Logging.dll</HintPath>
     </Reference>
     <Reference Include="CreateAR.Commons.Unity.Async">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Async.0.5.0\lib\net35\CreateAR.Commons.Unity.Async.dll</HintPath>
     </Reference>
+    <Reference Include="CreateAR.Commons.Unity.DataStructures">
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.DataStructures.0.1.0\lib\net35\CreateAR.Commons.Unity.DataStructures.dll</HintPath>
+    </Reference>
     <Reference Include="CreateAR.Commons.Unity.Http">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Http.0.6.0\lib\net35\CreateAR.Commons.Unity.Http.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>Assets\Plugins\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="CreateAR.Commons.Unity.Logging">
+      <HintPath>Assets\Plugins\Nuget\CreateAR.Commons.Unity.Logging.0.4.5\lib\net35\CreateAR.Commons.Unity.Logging.dll</HintPath>
     </Reference>
     <Reference Include="CreateAR.Trellis.Messages">
       <HintPath>Assets\Plugins\Nuget\CreateAR.Trellis.Messages.0.1.8\lib\net35\CreateAR.Trellis.Messages.dll</HintPath>
@@ -139,14 +137,14 @@
     <Compile Include="Assets\Source\Asset\StandardAssetLoader.cs" />
     <Compile Include="Assets\Source\Debug\Preview\PreviewOptionsBehaviour.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
+    <Compile Include="Assets\Source\Host\ApplicationHost.cs" />
     <Compile Include="Assets\Source\Host\ApplicationState.cs" />
     <Compile Include="Assets\Source\Host\BridgeMessageHandler.cs" />
-    <Compile Include="Assets\Source\Host\MessageTypeBinder.cs" />
     <Compile Include="Assets\Source\Host\EditorBridge.cs" />
     <Compile Include="Assets\Source\Host\IApplicationHost.cs" />
     <Compile Include="Assets\Source\Host\IApplicationState.cs" />
-    <Compile Include="Assets\Source\Host\ApplicationHost.cs" />
     <Compile Include="Assets\Source\Host\IBridgeMessageHandler.cs" />
+    <Compile Include="Assets\Source\Host\MessageTypeBinder.cs" />
     <Compile Include="Assets\Source\Host\WebAssetUpdateService.cs" />
     <Compile Include="Assets\Source\Input\IInputManager.cs" />
     <Compile Include="Assets\Source\Input\InputConfig.cs" />
