@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer
     public class InjectableMonoBehaviour : MonoBehaviour
     {
         /// <inheritdoc cref="MonoBehaviour"/>
-        private void Awake()
+        protected virtual void Awake()
         {
             Main.Inject(this);
         }

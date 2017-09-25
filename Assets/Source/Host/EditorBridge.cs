@@ -41,7 +41,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Handles messages.
         /// </summary>
-        private readonly IBridgeMessageHandler _handler;
+        private readonly BridgeMessageHandler _handler;
         
         /// <summary>
         /// WebSocket server.
@@ -70,7 +70,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="handler">Object to handle messages.</param>
         public EditorBridge(
             IBootstrapper bootstrapper,
-            IBridgeMessageHandler handler)
+            BridgeMessageHandler handler)
         {
             _handler = handler;
             _bootstrapper = bootstrapper;
@@ -107,7 +107,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when a client sends a message.
+        /// Called when we receieve a message.
+        /// 
+        /// NOTE: This is called in a worker thread, so it is put on a queue.
         /// </summary>
         /// <param name="event"></param>
         protected override void OnMessage(MessageEventArgs @event)
@@ -131,6 +133,10 @@ namespace CreateAR.SpirePlayer
             Commons.Unity.Logging.Log.Info(this, "WebSocket client left.");
         }
 
+        /// <summary>
+        /// Generator that consumes messages off the queue.
+        /// </summary>
+        /// <returns></returns>
         private IEnumerator ConsumeMessages()
         {
             while (true)
@@ -184,17 +190,26 @@ namespace CreateAR.SpirePlayer
                 });
         }
 
+        /// <summary>
+        /// Kills server.
+        /// </summary>
         private void ReleaseUnmanagedResources()
         {
             _server.Stop();
         }
 
+        /// <summary>
+        /// IDisposable implementation.
+        /// </summary>
         public void Dispose()
         {
             ReleaseUnmanagedResources();
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Destructor.
+        /// </summary>
         ~EditorBridge()
         {
             ReleaseUnmanagedResources();

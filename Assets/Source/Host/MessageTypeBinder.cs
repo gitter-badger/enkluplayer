@@ -1,76 +1,76 @@
 using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.DataStructures;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Binds together a string, int, and type.
+    /// Binds together a string and int.
     /// </summary>
     public class MessageTypeBinder
     {
         /// <summary>
-        /// Provides a binding for events.
-        /// </summary>
-        public class MessageTypeBinding
-        {
-            public string MessageTypeString;
-            public int MessageTypeInt;
-            public Type Type;
-        }
-
-        /// <summary>
         /// Map from event string to binding.
         /// </summary>
-        private readonly Dictionary<string, MessageTypeBinding> _messageMap = new Dictionary<string, MessageTypeBinding>();
+        private readonly List<Tuple<string, int>> _messageMap = new List<Tuple<string, int>>();
 
         /// <summary>
         /// Retrieves binding by message type.
         /// </summary>
         /// <param name="messageTypeString">Message type to retrieve binding for.</param>
         /// <returns></returns>
-        public MessageTypeBinding ByMessageType(string messageTypeString)
+        public int ByMessageType(string messageTypeString)
         {
-            MessageTypeBinding binding;
-            _messageMap.TryGetValue(messageTypeString, out binding);
-            return binding;
+            for (int i = 0, len = _messageMap.Count; i < len; i++)
+            {
+                var map = _messageMap[i];
+                if (map.Item1 == messageTypeString)
+                {
+                    return map.Item2;
+                }
+            }
+            
+            return -1;
         }
 
         /// <summary>
         /// Binds a message type to a Type.
         /// </summary>
-        /// <typeparam name="T">The type with which to parse the event.</typeparam>
         /// <param name="messageTypeString">The message type.</param>
         /// <param name="messageTypeInt">The message type to push onto the <c>IMessageRouter</c>.</param>
-        public void Add<T>(string messageTypeString, int messageTypeInt)
+        public void Add(string messageTypeString, int messageTypeInt)
         {
-            if (_messageMap.ContainsKey(messageTypeString))
+            if (-1 != ByMessageType(messageTypeString))
             {
                 throw new Exception(string.Format(
                     "MessageType {0} already bound.",
                     messageTypeString));
             }
 
-            _messageMap[messageTypeString] = new MessageTypeBinding
-            {
-                MessageTypeString = messageTypeString,
-                MessageTypeInt = messageTypeInt,
-                Type = typeof(T)
-            };
+            _messageMap.Add(Tuple.Create(messageTypeString, messageTypeInt));
         }
 
         /// <summary>
         /// Unbinds an event. See Bind.
         /// </summary>
-        public void Remove<T>(string messageTypeString, int messageTypeInt)
+        public void Remove(string messageTypeString)
         {
-            if (!_messageMap.ContainsKey(messageTypeString))
+            if (-1 == ByMessageType(messageTypeString))
             {
                 throw new Exception(string.Format(
                     "MessageType {0} not bound.",
                     messageTypeString));
             }
 
-            _messageMap.Remove(messageTypeString);
+            for (int i = 0, len = _messageMap.Count; i < len; i++)
+            {
+                if (_messageMap[i].Item1 == messageTypeString)
+                {
+                    _messageMap.RemoveAt(i);
+                    return;
+                }
+            }
         }
     }
 }

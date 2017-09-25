@@ -37,7 +37,26 @@ namespace CreateAR.SpirePlayer
                 Main.Inject(this);
             }
 
-            EditorGUILayout.BeginVertical();
+            EditorGUILayout.BeginHorizontal();
+            {
+                DrawState();
+                DrawSendMessage();
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawState()
+        {
+            EditorGUILayout.BeginVertical(GUILayout.Width(Screen.width / 2f));
+            {
+                
+            }
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawSendMessage()
+        {
+            EditorGUILayout.BeginVertical(GUILayout.Width(Screen.width / 2f));
             {
                 _sendMessageType = EditorGUILayout.IntField(
                     "Message Type",
@@ -46,7 +65,7 @@ namespace CreateAR.SpirePlayer
                     _sendMessagePayload,
                     GUILayout.ExpandWidth(true),
                     GUILayout.Height(200));
-                
+
                 if (GUILayout.Button("Send"))
                 {
                     Router.Publish(

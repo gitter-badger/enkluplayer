@@ -1,13 +1,12 @@
 ﻿using System;
 using CreateAR.SpirePlayer;
-using UnityEngine;
 
 namespace CreateAR.Spire
 {
     /// <summary>
     /// Acts as the glue between the webpage and Unity.
     /// </summary>
-    public class WebBridge : MonoBehaviour, IBridge
+    public class WebBridge : InjectableMonoBehaviour, IBridge
     {
         /// <summary>
         /// Routes messages.
@@ -19,7 +18,7 @@ namespace CreateAR.Spire
         /// Parses messages.
         /// </summary>
         [Inject]
-        public IBridgeMessageHandler Handler{ get; set; }
+        public BridgeMessageHandler Handler { get; set; }
 
         /// <summary>
         /// Allows binding between message types and C# types.
@@ -37,8 +36,10 @@ namespace CreateAR.Spire
         /// <summary>
         /// Initializes the bridge.
         /// </summary>
-        public void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
 #if !UNITY_EDITOR && UNITY_WEBGL
             init();
 #endif

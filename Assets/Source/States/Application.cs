@@ -85,7 +85,7 @@ namespace CreateAR.SpirePlayer
         {
             _messages.SubscribeOnce(
                 MessageTypes.READY,
-                message =>
+                _ =>
                 {
                     Log.Info(this, "Application ready.");
 
@@ -94,19 +94,17 @@ namespace CreateAR.SpirePlayer
 
             _messages.Subscribe(
                 MessageTypes.AUTHORIZED,
-                (message, unsub) =>
+                _ =>
                 {
-                    var authorizedMessage = (AuthorizedEvent) message;
-
-                    Log.Info(this, "Application authorized : " + authorizedMessage);
+                    Log.Info(this, "Application authorized.");
 
                     // setup http service
-                    _http.UrlBuilder.Replacements.Add(Tuple.Create(
+                    /*_http.UrlBuilder.Replacements.Add(Tuple.Create(
                         "userId",
                         authorizedMessage.profile.id));
                     _http.Headers.Add(Tuple.Create(
                         "Authorization",
-                        string.Format("Bearer {0}", authorizedMessage.credentials.token)));
+                        string.Format("Bearer {0}", authorizedMessage.credentials.token)));*/
 
                     // demo
                     _states.Change<EditApplicationState>();
@@ -114,7 +112,7 @@ namespace CreateAR.SpirePlayer
 
             _messages.Subscribe(
                 MessageTypes.PREVIEW,
-                (message, unsub) =>
+                _ =>
                 {
                     Log.Info(this, "Preview requested.");
 

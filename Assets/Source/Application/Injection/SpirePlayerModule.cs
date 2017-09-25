@@ -18,15 +18,15 @@ namespace CreateAR.SpirePlayer
             // dependencies
             {
                 binder.Bind<ISerializer>().To<JsonSerializer>();
+                binder.Bind<BridgeMessageHandler>().To<BridgeMessageHandler>().ToSingleton();
             }
 
             // application
             {
-                binder.Bind<IBridgeMessageHandler>().To<BridgeMessageHandler>().ToSingleton();
 #if UNITY_EDITOR
                 binder.Bind<IBridge>().To<EditorBridge>().ToSingleton();
 #elif UNITY_WEBGL
-                binder.Bind<IBridge>().To<WebBridge>().ToSingleton();
+                binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
 #endif
 
                 binder.Bind<IApplicationHost>().To<ApplicationHost>().ToSingleton();
