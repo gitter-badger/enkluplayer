@@ -5,4 +5,3 @@
 ### Systems of Interest
 
 * [AssetManager](docs/assets.md)
-* [MessageRouter](docs/messages.md)

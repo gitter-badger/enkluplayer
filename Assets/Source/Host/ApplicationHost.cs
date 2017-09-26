@@ -2,6 +2,7 @@ using System;
 using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Spire;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
