@@ -170,6 +170,8 @@
     <Compile Include="Assets\Source\Network\IBridge.cs" />
     <Compile Include="Assets\Source\Network\Model\AssetModel.cs" />
     <Compile Include="Assets\Source\Network\Model\UserModel.cs" />
+    <Compile Include="Assets\Source\Network\Uwp\UwpBridge.cs" />
+    <Compile Include="Assets\Source\Network\Uwp\UwpWebsocketServer.cs" />
     <Compile Include="Assets\Source\Network\WebBridge.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\FiniteStateMachine.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\IState.cs" />

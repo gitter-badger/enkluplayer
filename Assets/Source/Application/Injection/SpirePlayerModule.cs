@@ -28,6 +28,8 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IBridge>().To<EditorBridge>().ToSingleton();
 #elif UNITY_WEBGL
                 binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
+#elif NETFX_CORE
+                binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
 #endif
 
                 binder.Bind<IApplicationHost>().To<ApplicationHost>().ToSingleton();

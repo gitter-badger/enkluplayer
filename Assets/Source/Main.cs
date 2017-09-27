@@ -39,7 +39,7 @@ namespace CreateAR.SpirePlayer
 	            Level = false,
 	            Timestamp = false
 	        }));
-	        Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
+	        //Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
 	        Log.Filter = LogLevel.Debug;
 
 	        // setup debug renderer
