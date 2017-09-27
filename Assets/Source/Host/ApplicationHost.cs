@@ -1,5 +1,4 @@
 using System;
-using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -19,16 +18,6 @@ namespace CreateAR.SpirePlayer
         private readonly IBridge _bridge;
 
         /// <summary>
-        /// Makes Http Requests.
-        /// </summary>
-        private readonly IHttpService _http;
-
-        /// <summary>
-        /// Message router.
-        /// </summary>
-        private readonly IMessageRouter _messages;
-
-        /// <summary>
         /// Creates a new WebApplicationHost.
         /// </summary>
         /// <param name="bridge">The WebBridge.</param>
@@ -42,10 +31,8 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages)
         {
             _bridge = bridge;
-            _http = http;
-            _messages = messages;
-
-            _messages.Subscribe(
+            
+            messages.Subscribe(
                 MessageTypes.AUTHORIZED,
                 _ =>
                 {
@@ -64,15 +51,15 @@ namespace CreateAR.SpirePlayer
                         throw new Exception("Could not get token.");
                     }
 
-                    _http.UrlBuilder.Replacements.Add(Tuple.Create(
+                    http.UrlBuilder.Replacements.Add(Commons.Unity.DataStructures.Tuple.Create(
                         "userId",
                         userId));
-                    _http.Headers.Add(Tuple.Create(
+                    http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
                         "Authorization",
                         string.Format("Bearer {0}", token)));
 
                     // ready
-                    _messages.Publish(MessageTypes.EDIT, Void.Instance);
+                    messages.Publish(MessageTypes.EDIT, Void.Instance);
                 });
         }
 

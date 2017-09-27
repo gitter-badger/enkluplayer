@@ -1,6 +1,4 @@
-﻿using CreateAR.Commons.Unity.DebugRenderer;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Static utility for easy rendering.
@@ -10,9 +8,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Renderer. Get/set by Application.
         /// </summary>
-        public static DebugRenderer Renderer;
+        public static DebugRenderController Renderer;
 
-        /// <inheritdoc cref="DebugRenderer"/>
+        /// <inheritdoc cref="DebugRenderController"/>
         public static IFilteredRendererHandle Handle(string category)
         {
             if (null == Renderer)
@@ -23,7 +21,7 @@ namespace CreateAR.SpirePlayer
             return Renderer.Handle(category);
         }
 
-        /// <inheritdoc cref="DebugRenderer"/>
+        /// <inheritdoc cref="DebugRenderController"/>
         public static IFilteredRendererHandle2D Handle2D(string category)
         {
             if (null == Renderer)

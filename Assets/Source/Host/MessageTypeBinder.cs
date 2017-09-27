@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using CreateAR.Commons.Unity.DataStructures;
-using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
@@ -13,7 +11,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Map from event string to binding.
         /// </summary>
-        private readonly List<Tuple<string, int>> _messageMap = new List<Tuple<string, int>>();
+        private readonly List<Commons.Unity.DataStructures.Tuple<string, int>> _messageMap = new List<Commons.Unity.DataStructures.Tuple<string, int>>();
 
         /// <summary>
         /// Retrieves binding by message type.
@@ -48,7 +46,7 @@ namespace CreateAR.SpirePlayer
                     messageTypeString));
             }
 
-            _messageMap.Add(Tuple.Create(messageTypeString, messageTypeInt));
+            _messageMap.Add(Commons.Unity.DataStructures.Tuple.Create(messageTypeString, messageTypeInt));
         }
 
         /// <summary>
