@@ -1,0 +1,69 @@
+﻿<ArrayOfStateData>
+
+  <!-- Startup -->
+  <StateData>
+    <Id>Startup</Id>
+    <SceneId>Startup</SceneId>
+  </StateData>
+
+  <!-- Login -->
+  <StateData>
+    <Id>Login</Id>
+    <SceneId>Login</SceneId>
+  </StateData>
+
+  <!-- Authenticate -->
+  <StateData>
+    <Id>Authentication</Id>
+    <SceneId>Authentication</SceneId>
+  </StateData>
+  
+  <!-- Home -->
+  <StateData>
+    <Id>Home</Id>
+    <SceneId>Home</SceneId>
+  </StateData>
+
+  <!-- Options -->
+  <StateData>
+    <Id>Options</Id>
+    <SceneId>Options</SceneId>
+  </StateData>
+
+  <!-- Modules -->
+  <StateData>
+    <Id>Modules</Id>
+    <SceneId>Modules</SceneId>
+  </StateData>
+
+  <!-- Module -->
+  <StateData>
+    <Id>Module</Id>
+    <SceneId>Module</SceneId>
+  </StateData>
+
+  <!-- Trophy -->
+  <StateData>
+    <Id>Trophy</Id>
+    <SceneId>Trophy</SceneId>
+  </StateData>
+
+  <!-- Review -->
+  <StateData>
+    <Id>Review</Id>
+    <SceneId>Review</SceneId>
+  </StateData>
+
+  <!-- Explore -->
+  <StateData>
+    <Id>Explore</Id>
+    <SceneId>Explore</SceneId>
+  </StateData>
+
+  <!-- Certification -->
+  <StateData>
+    <Id>Certification</Id>
+    <SceneId>Certification</SceneId>
+  </StateData>
+
+</ArrayOfStateData>

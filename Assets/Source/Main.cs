@@ -8,11 +8,20 @@ using Object = UnityEngine.Object;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
+    /// Potential modes.
+    /// </summary>
+    public enum PlayMode
+    {
+        Player,
+        Release
+    }
+
+    /// <summary>
     /// Entry point of the application.
     /// </summary>
 	public class Main : MonoBehaviour
 	{
-        /// <summary>
+	    /// <summary>
         /// IoC container.
         /// </summary>
         private static readonly InjectionBinder _binder = new InjectionBinder();
@@ -21,7 +30,12 @@ namespace CreateAR.SpirePlayer
 	    /// The application to run.
 	    /// </summary>
 	    private Application _app;
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+	    public PlayMode Mode;
+
         /// <summary>
         /// Injects bindings into an object.
         /// </summary>
@@ -62,7 +76,7 @@ namespace CreateAR.SpirePlayer
 	        }
 
             // load bindings
-            _binder.Load(new SpirePlayerModule());
+            _binder.Load(new SpirePlayerModule(Mode));
 
             // create application!
             _app = _binder.GetInstance<Application>();

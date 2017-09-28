@@ -13,6 +13,20 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class SpirePlayerModule : IInjectionModule
     {
+        /// <summary>
+        /// Mode.
+        /// </summary>
+        private readonly PlayMode _mode;
+
+        /// <summary>
+        /// Crates a module.
+        /// </summary>
+        /// <param name="mode">The mode this module should use to advise bindings.</param>
+        public SpirePlayerModule(PlayMode mode)
+        {
+            _mode = mode;
+        }
+
         /// <inheritdoc cref="IInjectionModule"/>
         public void Load(InjectionBinder binder)
         {
@@ -24,13 +38,20 @@ namespace CreateAR.SpirePlayer
 
             // application
             {
+                if (_mode == PlayMode.Release)
+                {
+                    binder.Bind<IBridge>().To<ReleaseBridge>().ToSingleton();
+                }
+                else
+                {
 #if UNITY_EDITOR
-                binder.Bind<IBridge>().To<EditorBridge>().ToSingleton();
+                    binder.Bind<IBridge>().To<EditorBridge>().ToSingleton();
 #elif UNITY_WEBGL
-                binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
+                    binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
 #elif NETFX_CORE
-                binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
-#endif
+                    binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
+#endif   
+                }
 
                 binder.Bind<IApplicationHost>().To<ApplicationHost>().ToSingleton();
                 binder.Bind<IApplicationState>().To<ApplicationState>().ToSingleton();
@@ -42,6 +63,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                     binder.Bind<EditApplicationState>().To<EditApplicationState>();
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
+                    binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                 }
                 
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
@@ -52,7 +74,7 @@ namespace CreateAR.SpirePlayer
                     .ToSingleton();
                 binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
 
-                // TODO: These should just be events from the bridge.
+                // TODO: These could just be events from the bridge.
 #if UNITY_EDITOR
                 binder.Bind<IAssetUpdateService>().To<EditorAssetUpdateService>();
 #else

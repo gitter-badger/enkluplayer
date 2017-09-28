@@ -32,7 +32,8 @@ namespace CreateAR.SpirePlayer
 
             InitializeApplicationState initialize,
             EditApplicationState edit,
-            PreviewApplicationState preview)
+            PreviewApplicationState preview,
+            PlayApplicationState play)
         {
             _host = host;
             _messages = messages;
@@ -41,7 +42,8 @@ namespace CreateAR.SpirePlayer
             {
                 initialize,
                 edit,
-                preview
+                preview,
+                play
             });
         }
 
@@ -96,6 +98,15 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Edit requested.");
 
                     _states.Change<EditApplicationState>();
+                });
+
+            _messages.Subscribe(
+                MessageTypes.PLAY,
+                _ =>
+                {
+                    Log.Info(this, "Play requested.");
+
+                    _states.Change<PlayApplicationState>();
                 });
         }
     }

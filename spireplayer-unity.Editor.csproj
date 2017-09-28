@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Editor:5</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -174,6 +172,9 @@
     <Reference Include="CreateAR.Commons.Unity.Nuget">
       <HintPath>Assets\Editor\Assemblies\CreateAR.Commons.Unity.Nuget.dll</HintPath>
     </Reference>
+    <Reference Include="Polenter.SharpSerializer">
+      <HintPath>Assets\Plugins\ThirdParty\Polenter.SharpSerializer.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="spireplayer-unity.csproj">
@@ -200,6 +201,24 @@
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\link.xml" />
     <None Include="Assets\Plugins\ThirdParty\WebSocket-Sharp\websocket-sharp.xml" />
     <None Include="Assets\Plugins\link.xml" />
+    <None Include="Assets\StreamingAssets\Static\AssetData\TeslaAssets.xml" />
+    <None Include="Assets\StreamingAssets\Static\ContentData\States.xml" />
+    <None Include="Assets\StreamingAssets\Static\ContentData\TeslaContent.xml" />
+    <None Include="Assets\StreamingAssets\Static\ModuleData\HVBatteryArchitecture.xml" />
+    <None Include="Assets\StreamingAssets\Static\ModuleData\HVBatteryComponents.xml" />
+    <None Include="Assets\StreamingAssets\Static\ModuleData\HVBatteryIntroduction.xml" />
+    <None Include="Assets\StreamingAssets\Static\ModuleData\HVBatteryPenthouse.xml" />
+    <None Include="Assets\StreamingAssets\Static\ModuleData\HVBatterySafetyConcerns.xml" />
+    <None Include="Assets\StreamingAssets\Static\ModuleData\SpireDemo.xml" />
+    <None Include="Assets\StreamingAssets\Static\PartData\HVBatteryParts.xml" />
+    <None Include="Assets\StreamingAssets\Static\PartGroupData\HVBatteryPartGroups.xml" />
+    <None Include="Assets\StreamingAssets\Static\SceneData\TeslaScenes.xml" />
+    <None Include="Assets\StreamingAssets\Static\ScriptData\TeslaScripts.xml" />
+    <None Include="Assets\StreamingAssets\Static\StateData\TeslaStates.xml" />
+    <None Include="Assets\StreamingAssets\Static\TuneVarData\GuideTuneVars.xml" />
+    <None Include="Assets\StreamingAssets\Static\TuneVarData\UITuneVars.xml" />
+    <None Include="Assets\StreamingAssets\Static\UIElementData\TeslaUIElements.xml" />
+    <None Include="Assets\StreamingAssets\Static\UserExperienceData\Tutorials.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

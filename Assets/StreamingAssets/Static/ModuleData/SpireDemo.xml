@@ -1,0 +1,408 @@
+﻿<ArrayOfModuleData>
+
+  <!-- 1. Geared Turbofan -->
+  <ModuleData>
+    <Id>Geared Turbofan</Id>
+    <CourseId>Geared Turbofan</CourseId>
+    <Anchor>
+      <Type>Locator</Type>
+      <LocatorId>Section 1</LocatorId>
+    </Anchor>
+    <LinkRootLocatorId>Section 1 Root</LinkRootLocatorId>
+    
+    <Concepts>
+      <!-- Concept 1: Fan -->
+      <ConceptData>
+        <Id>Fan</Id>
+
+        <Keywords>
+          <KeywordData>
+            <Keyword>Geared Turbofan</Keyword>
+            <VirtualColor>Highlight</VirtualColor>
+          </KeywordData>
+        </Keywords>
+
+        <Actions>
+
+          <!-- Welcome -->
+          <ActionData>
+            <Type>Music</Type>
+            <Id>Washed Out - Hard to Say Goodbye</Id>
+          </ActionData>
+
+          <ActionData>
+            <Type>Show</Type>
+            <Content>
+              <Id>Foreground</Id>
+            </Content>
+          </ActionData>
+          <ActionData>
+            <Delay>1</Delay>
+            <Text>Today, you'll learn about the Geared Turbofan</Text>
+          </ActionData>
+
+          <!-- Show Body -->
+          <ActionData>
+            <Type>Show</Type>
+            <!--<VirtualColor>Disabled</VirtualColor>-->
+            <Content>
+              <Id>Model3</Id>
+            </Content>
+          </ActionData>
+
+          <!-- More Text -->
+
+          <ActionData>
+            <Text>Turbofan engines use a large-diameter fan to pass air through the engine</Text>
+          </ActionData>
+          <ActionData>
+            <Text>They have dominated commercial aircraft since the 1960s</Text>
+          </ActionData>
+          <ActionData>
+            <Type>Hide</Type>
+            <Content>
+              <Id>Foreground</Id>
+            </Content>
+          </ActionData>
+
+          <!-- Highlight Fan -->
+
+          <ActionData>
+            <Type>Label</Type>
+            <Content>
+              <Id>Geared Turbofan</Id>
+            </Content>
+          </ActionData>
+
+          <ActionData>
+            <Delay>1</Delay>
+            <Text>The Geared Turbofan is a more efficient type of Turbofan engine</Text>
+          </ActionData>
+
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Highlight</VirtualColor>
+            <Content>
+              <Id>Compressor-Turbine Assembly</Id>
+            </Content>
+          </ActionData>
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Highlight</VirtualColor>
+            <Content>
+              <Id>Geared Turbofan</Id>
+            </Content>
+          </ActionData>
+
+          <ActionData>
+            <Delay>1</Delay>
+          </ActionData>
+          
+        </Actions>
+      </ConceptData>
+      
+      <!-- Concept 2: Inner Fan -->
+      <ConceptData>
+        <Id>Inner Fan</Id>
+
+        <Keywords>
+          <KeywordData>
+            <Keyword>Compressor-Turbine Assembly</Keyword>
+            <VirtualColor>Highlight2</VirtualColor>
+          </KeywordData>
+        </Keywords>
+
+        <Actions>
+          
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Disabled</VirtualColor>
+            <Content>
+              <Id>Compressor-Turbine Assembly</Id>
+            </Content>
+          </ActionData>
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Disabled</VirtualColor>
+            <Content>
+              <Id>Geared Turbofan</Id>
+            </Content>
+          </ActionData>
+
+          <!-- Describe inner fan -->
+
+          <ActionData>
+            <Delay>1</Delay>
+            <Text>Gears allow the Compressor-Turbine Assembly and the fan to spin at different angular velocities</Text>
+          </ActionData>
+          <ActionData>
+            <Type>Label</Type>
+            <Content>
+              <Id>Compressor-Turbine Assembly</Id>
+            </Content>
+          </ActionData>
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Highlight2</VirtualColor>
+            <Content>
+              <Id>Compressor-Turbine Assembly</Id>
+            </Content>
+          </ActionData>
+          
+          
+          <ActionData>
+            <Delay>1</Delay>
+            <Text>The lower fan speed allows higher bypass ratios, leading to reduced fuel consumption and much reduced noise</Text>
+          </ActionData>
+
+          <ActionData>
+            <Delay>1</Delay>
+          </ActionData>
+
+        </Actions>
+        <Assessments>
+          <AssessmentData>
+            <MultipleChoice>
+              <Score>15</Score>
+              <Title>Pop Quiz!</Title>
+              <Prompt>How does the Geared Turbofan achieve higher bypass ratios?</Prompt>
+              <Correct>
+                <int>1</int>
+              </Correct>
+              <Options>
+                <ButtonData>
+                  <Caption>Fuel consumption</Caption>
+                </ButtonData>
+                <ButtonData>
+                  <Caption>Fan speed</Caption>
+                </ButtonData>
+                <ButtonData>
+                  <Caption>Material density</Caption>
+                </ButtonData>
+              </Options>
+            </MultipleChoice>
+          </AssessmentData>
+        </Assessments>
+      </ConceptData>
+
+      <!-- Concept 3: Fuel -->
+      <ConceptsData>
+        <Id>Fuel</Id>
+
+        <Keywords>
+          <KeywordData>
+            <Keyword>Fuel Pipes</Keyword>
+            <VirtualColor>Highlight3</VirtualColor>
+          </KeywordData>
+          <KeywordData>
+            <Keyword>Sustainable Aviation Fuel</Keyword>
+            <VirtualColor>Highlight4</VirtualColor>
+          </KeywordData>
+          <KeywordData>
+            <Keyword>Nozzle</Keyword>
+            <VirtualColor>Highlight</VirtualColor>
+          </KeywordData>
+        </Keywords>
+
+        <Actions>
+
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Disabled</VirtualColor>
+            <Content>
+              <Id>Compressor-Turbine Assembly</Id>
+            </Content>
+          </ActionData>
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Disabled</VirtualColor>
+            <Content>
+              <Id>Geared Turbofan</Id>
+            </Content>
+          </ActionData>
+
+          <!-- Introduce Fuel Pipes -->
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Disabled</VirtualColor>
+            <Content>
+              <Id>Compressor-Turbine Assembly</Id>
+            </Content>
+          </ActionData>
+
+          <ActionData>
+            <Delay>1</Delay>
+          </ActionData>
+
+          <ActionData>
+            <Delay>1</Delay>
+            <Text>Fuel Pipes carry specialized fuel to the Turbofan</Text>
+          </ActionData>
+          <ActionData>
+            <Type>Label</Type>
+            <Content>
+              <Id>Fuel Pipes</Id>
+            </Content>
+          </ActionData>
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Highlight3</VirtualColor>
+            <Content>
+              <Id>Fuel</Id>
+            </Content>
+          </ActionData>
+
+          <!-- End Introduce -->
+
+          <ActionData>
+            <Delay>1</Delay>
+            <Text>The Turbo fan uses Sustainable Aviation Fuel (SAF) certified by the European-based roundtable on sustainable biomaterials</Text>
+          </ActionData>
+          <ActionData>
+            <Text>Sustainable Aviation Fuel has met criteria focused around long-term global environmental, social and economic sustainability</Text>
+          </ActionData>
+
+          <ActionData>
+            <Delay>1</Delay>
+          </ActionData>
+
+        </Actions>
+
+        <!-- Unlock the cover -->
+
+        <Assessments>
+          <AssessmentData>
+            <Collection>
+              <Score>20</Score>
+              <Title>Unlock Component</Title>
+              <Prompt>Find all the bolts on the rear to access the Nozzle. When you're ready, select Begin.</Prompt>
+              <ContentId>Bolts</ContentId>
+              <LocatorIds>
+                <string>Bolt 1</string>
+                <string>Bolt 2</string>
+                <string>Bolt 3</string>
+                <string>Bolt 4</string>
+                <string>Bolt 5</string>
+              </LocatorIds>
+            </Collection>
+          </AssessmentData>
+          <ActionData>
+            <Type>Hide</Type>
+            <Id>Nozzle Cover</Id>
+          </ActionData>
+        </Assessments>
+      </ConceptsData>
+
+      <!-- Concept 4: Nozzles -->
+      <ConceptData>
+        <Id>Nozzles</Id>
+
+        <Keywords>
+          <KeywordData>
+            <Keyword>Nozzle</Keyword>
+            <VirtualColor>Highlight</VirtualColor>
+          </KeywordData>
+          <KeywordData>
+            <Keyword>Fluid Pressure</Keyword>
+            <VirtualColor>Highlight2</VirtualColor>
+          </KeywordData>
+          <KeywordData>
+            <Keyword>Nozzle Cage</Keyword>
+            <VirtualColor>Highlight3</VirtualColor>
+          </KeywordData>
+          <KeywordData>
+            <Keyword>Venturi Effect</Keyword>
+            <VirtualColor>Highlight4</VirtualColor>
+          </KeywordData>
+        </Keywords>
+
+        <Actions>
+
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Disabled</VirtualColor>
+            <Content>
+              <Id>Compressor-Turbine Assembly</Id>
+            </Content>
+          </ActionData>
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Disabled</VirtualColor>
+            <Content>
+              <Id>Geared Turbofan</Id>
+            </Content>
+          </ActionData>
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Disabled</VirtualColor>
+            <Content>
+              <Id>Fuel</Id>
+            </Content>
+          </ActionData>
+
+          <ActionData>
+            <Delay>1</Delay>
+          </ActionData>
+
+          <ActionData>
+            <Delay>1</Delay>
+            <Text>The Nozzle produces a high speed propelling jet from the energy in the air that has passed through the fan</Text>
+          </ActionData>
+          <ActionData>
+            <Type>Label</Type>
+            <Content>
+              <Id>Nozzle</Id>
+            </Content>
+          </ActionData>
+          <ActionData>
+            <Type>Color</Type>
+            <VirtualColor>Highlight</VirtualColor>
+            <Content>
+              <Id>Nozzle</Id>
+            </Content>
+          </ActionData>
+
+          <!-- Introduce High Voltage Battery -->
+
+          <ActionData>
+            <Delay>1</Delay>
+            <Text>The Nozzle operates according to the Venturi Effect to bring the exhaust gasses to ambient pressure</Text>
+          </ActionData>
+          <ActionData>
+            <Text>The Venturi Effect is the reduction in Fluid Pressure that results when a fluid flows through a constricted section (or choke) of a pipe</Text>
+          </ActionData>
+
+          <ActionData>
+            <Delay>1.0</Delay>
+          </ActionData>
+          
+        </Actions>
+        <Assessments>
+          <AssessmentData>
+            <MultipleChoice>
+              <Score>15</Score>
+              <Title>Pop Quiz!</Title>
+              <Prompt>What does the Venturi Effect reduce?</Prompt>
+              <Correct>
+                <int>1</int>
+              </Correct>
+              <Options>
+                <ButtonData>
+                  <Caption>Air Pressure</Caption>
+                </ButtonData>
+                <ButtonData>
+                  <Caption>Fluid Pressure</Caption>
+                </ButtonData>
+                <ButtonData>
+                  <Caption>Fluid Presence</Caption>
+                </ButtonData>
+              </Options>
+            </MultipleChoice>
+          </AssessmentData>
+        </Assessments>
+      </ConceptData>
+
+    </Concepts>
+  </ModuleData>
+
+</ArrayOfModuleData>

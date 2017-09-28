@@ -1,0 +1,23 @@
+﻿<ArrayOfPartData>
+
+  <!-- High Voltage Battery -->
+  <PartData>
+    <Id>High Voltage Battery</Id>
+  </PartData>
+  
+  <!-- High Voltage Battery -->
+  <PartData>
+    <Id>Battery Platter</Id>
+  </PartData>
+
+  <!-- Battery Assembly Shell -->
+  <PartData>
+    <Id>Battery Assembly Shell</Id>
+  </PartData>
+
+  <!-- Penthouse -->
+  <PartData>
+    <Id>Penthouse</Id>
+  </PartData>
+
+</ArrayOfPartData>

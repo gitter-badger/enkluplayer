@@ -1,0 +1,816 @@
+﻿<ArrayOfUserExperienceData>
+
+  <!-- Startup: OnCalibrate -->
+  <UserExperienceData>
+    <Id>StartupOnCalibrate</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>Message</Event>
+      <Id>BeginCalibrate</Id>
+    </Trigger>
+
+    <!-- Actions -->
+    <Actions>
+      <ActionData>
+        <Delay>0.5</Delay>
+        <Type>ShowWidget</Type>
+        <Content>
+          <Id>SAI</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Prompt</Type>
+        <MultipleChoice>
+          <Title>Welcome</Title>
+          <Prompt>Move the cursor with your head to activate the [color=FFFFFFFF]Ok[/color] button.</Prompt>
+          <Options>
+            <ButtonData>
+              <Caption>Ok</Caption>
+              <ImageId>Yes</ImageId>
+              <Actions>
+                <ActionData>
+                  <Type>Event</Type>
+                  <Id>ShowPlacementPrompt</Id>
+                </ActionData>
+              </Actions>
+            </ButtonData>
+            <ButtonData>
+              <Caption>Login</Caption>
+              <ImageId>Key</ImageId>
+              <EditorOnly>true</EditorOnly>
+              <Actions>
+                <ActionData>
+                  <Type>State</Type>
+                  <Content>
+                    <Id>Login</Id>
+                  </Content>
+                </ActionData>
+              </Actions>
+            </ButtonData>
+            <ButtonData>
+              <Caption>Explore</Caption>
+              <ImageId>Map</ImageId>
+              <EditorOnly>true</EditorOnly>
+              <Actions>
+                <ActionData>
+                  <Type>State</Type>
+                  <Content>
+                    <Id>Explore</Id>
+                  </Content>
+                </ActionData>
+              </Actions>
+            </ButtonData>
+            <ButtonData>
+              <Caption>Options</Caption>
+              <ImageId>Setup</ImageId>
+              <EditorOnly>true</EditorOnly>
+              <Actions>
+                <ActionData>
+                  <Type>State</Type>
+                  <Content>
+                    <Id>Options</Id>
+                  </Content>
+                </ActionData>
+              </Actions>
+            </ButtonData>
+          </Options>
+        </MultipleChoice>
+      </ActionData>
+      
+    </Actions>
+  </UserExperienceData>
+
+  <!-- ShowPlacementPromptt -->
+  <UserExperienceData>
+    <Id>ShowPlacementPrompt</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>Message</Event>
+      <Id>ShowPlacementPrompt</Id>
+    </Trigger>
+    <!-- Show the placement window -->
+    <Actions>
+      <ActionData>
+        <Type>Show</Type>
+        <Content>
+          <Id>Floor</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Show</Type>
+        <Content>
+          <Id>Model3</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Prompt</Type>
+        <Movement>
+          <Title>Placement</Title>
+          <Prompt>Reposition the vehicle with your head to find a [color=VColor.Highlight]clear area[/color] nearby.</Prompt>
+          <MustMoveBeforeConfirm>true</MustMoveBeforeConfirm>
+          <ContentId>Floor</ContentId>
+          <CheckCollided>true</CheckCollided>
+          <CancelEnabled>false</CancelEnabled>
+        </Movement>
+      </ActionData>
+      <ActionData>
+        <Type>Hide</Type>
+        <Content>
+          <Id>Model3</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Event</Type>
+        <Id>ShowCalibratePrompt</Id>
+      </ActionData>
+    </Actions>
+  </UserExperienceData>
+
+  <!-- ShowCalibratePrompt -->
+  <UserExperienceData>
+    <Id>ShowCalibratePrompt</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>Message</Event>
+      <Id>ShowCalibratePrompt</Id>
+    </Trigger>
+
+    <!-- Show the calibration window -->
+    <Actions>
+      <ActionData>
+        <Type>ShowWidget</Type>
+        <Content>
+          <Id>Corners Widget</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Prompt</Type>
+        <Detail>
+          <Button>
+            <Caption> </Caption>
+            <ImageId>Speak</ImageId>
+            <HiddenVoiceActivationString>Continue</HiddenVoiceActivationString>
+          </Button>
+          <ImageId>Adjustment</ImageId>
+          <Details>Make sure the [color=VColor.Highlight2]headband[/color] sits snugly on your forehead, just below the hairline. Rest the [color=VColor.Highlight3]nose pad[/color] lightly on your nose. You may also slide the headset forward and backward. Turn the [color=VColor.Highlight4]adjustment wheel[/color] to tighten the handle for a snug fit.\n\nWhen you're comfortable and can see all [color=VColor.Tertiary]four corners[/color] in the frame, say [Color=VColor.Highlight]Continue[/color].</Details>
+        </Detail>
+      </ActionData>
+      <ActionData>
+        <Type>Hide</Type>
+        <Content>
+          <Id>Corners Widget</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Method</Type>
+        <Content>
+          <Id>StartupController</Id>
+        </Content>
+        <Text>CalibrationComplete</Text>
+      </ActionData>
+    </Actions>
+  </UserExperienceData>
+
+  <!-- Startup: OnBeginScan -->
+  <UserExperienceData>
+    <Id>StartupOnBeginScan</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>Message</Event>
+      <Id>BeginScan</Id>
+    </Trigger>
+
+    <!-- Actions -->
+    <Actions>
+      <ActionData>
+        <Type>Animate</Type>
+        <Id>Pulse</Id>
+      </ActionData>
+      <ActionData>
+        <Text>Great!</Text>
+      </ActionData>
+      <ActionData>
+        <Text>Let's find a clear area.</Text>
+      </ActionData>
+      <ActionData>
+        <Text>Focus on the [color=VColor.Highlight]Floor[/color] for up to 10 seconds while I [color=VColor.Tertiary]Map[/color] the environment.</Text>
+      </ActionData>
+      <ActionData>
+        <Type>Animate</Type>
+        <Id>Scan</Id>
+      </ActionData>
+      <ActionData>
+        <Type>Method</Type>
+        <Content>
+          <Id>StartupController</Id>
+        </Content>
+        <Text>BeginScan</Text>
+      </ActionData>
+    </Actions>
+  </UserExperienceData>
+
+  <!-- Startup: OnEndScan -->
+  <UserExperienceData>
+    <Id>StartupOnEndScan</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>Message</Event>
+      <Id>EndScan</Id>
+    </Trigger>
+
+    <!-- Actions -->
+    <Actions>
+      <ActionData>
+        <Type>Animate</Type>
+        <Id>Attract</Id>
+      </ActionData>
+      <ActionData>
+        <Text>Area located.</Text>
+      </ActionData>
+      <ActionData>
+        <Delay>1</Delay>
+        <Type>Method</Type>
+        <Content>
+          <Id>StartupController</Id>
+        </Content>
+        <Text>CompleteIntroduction</Text>
+      </ActionData>
+    </Actions>
+  </UserExperienceData>
+
+  <!-- Home: OnEnter -->
+  <UserExperienceData>
+    <Id>HomeOnEnter</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>StateEnter</Event>
+      <Id>Home</Id>
+    </Trigger>
+
+    <Requirements>
+      <NotModules>
+        <string>Components</string>
+      </NotModules>
+    </Requirements>
+    
+    <!-- Tutorial -->
+    <TutorialActions>
+      <ActionData>
+        <Text>Hello [color=VColor.Highlight][UserName][/color]!</Text>
+      </ActionData>
+      <ActionData>
+        <Text>Welcome to [color=VColor.Tertiary]Tesla Academy[/color] AR Prototype</Text>
+      </ActionData>
+      <ActionData>
+        <Text>This demonstration includes [color=VColor.Highlight]Training[/color] and [color=VColor.Highlight]3D Reference[/color] content in augmented reality</Text>
+      </ActionData>
+      <ActionData>
+        <Delay>0.25</Delay>
+        <Type>Animate</Type>
+        <Id>Happy</Id>
+      </ActionData>
+      <ActionData>
+        <Text>My name is [color=VColor.Positive]SAI[/color], and I'll be your guide</Text>
+      </ActionData>
+      <ActionData>
+        <Text>Let's get started</Text>
+      </ActionData>
+      <ActionData>
+        <Text>Follow me with your gaze and select [color=VColor.Highlight]Modules[/color]</Text>
+      </ActionData>
+      <ActionData>
+        <Type>Lock</Type>
+        <Content>
+          <Id>Map Button</Id>
+        </Content>
+      </ActionData>
+      
+      <ActionData>
+        <Type>Rails</Type>
+      </ActionData>
+      <ActionData>
+        <Type>Menu</Type>
+        <Content>
+          <Id>Home</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Highlight</Type>
+        <Content>
+          <Id>Modules Button</Id>
+        </Content>
+      </ActionData>
+      
+    </TutorialActions>
+
+    <!-- Session Introduction -->
+    <SessionIntroActions>
+      <ActionData>
+        <Text>Welcome back [color=VColor.Highlight][UserName][/color]!</Text>
+      </ActionData>
+      <ActionData>
+        <Text>You're making great progress!</Text>
+      </ActionData>
+      <ActionData>
+        <Type>Menu</Type>
+        <Content>
+          <Id>Home</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Lock</Type>
+        <Content>
+          <Id>Map Button</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Highlight</Type>
+        <Content>
+          <Id>Modules Button</Id>
+        </Content>
+      </ActionData>
+    </SessionIntroActions>
+    
+    <!-- Actions -->
+    <Actions>
+      <ActionData>
+        <Type>Menu</Type>
+        <Content>
+          <Id>Home</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Lock</Type>
+        <Content>
+          <Id>Map Button</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Highlight</Type>
+        <Content>
+          <Id>Modules Button</Id>
+        </Content>
+      </ActionData>
+    </Actions>
+  </UserExperienceData>
+
+  <!-- Home: OnEnter Explore -->
+  <UserExperienceData>
+    <Id>HomeOnEnterExplore</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>StateEnter</Event>
+      <Id>Home</Id>
+    </Trigger>
+
+    <Requirements>
+      <Modules>
+        <string>Components</string>
+      </Modules>
+    </Requirements>
+
+    <!-- Actions -->
+    <Actions>
+      <ActionData>
+        <Type>Menu</Type>
+        <Content>
+          <Id>Home</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Highlight</Type>
+        <Content>
+          <Id>Modules Button</Id>
+        </Content>
+      </ActionData>
+    </Actions>
+  </UserExperienceData>
+
+  <!-- Modules: OnEnter 1st -->
+  <UserExperienceData>
+    <Id>ModulesOnEnter1st</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>StateEnter</Event>
+      <Id>Modules</Id>
+    </Trigger>
+    
+    <Requirements>
+      <NotModules>
+        <string>Introduction</string>
+      </NotModules>
+    </Requirements>
+
+    <!-- Tutorial -->
+    <TutorialActions>
+      <ActionData>
+        <Type>Rails</Type>
+      </ActionData>
+      <ActionData>
+        <Text>In the [color=VColor.Highlight]Modules Menu[/color]</Text>
+      </ActionData>
+      <ActionData>
+        <Text>You can play newly unlocked Modules and replay recently completed Modules</Text>
+      </ActionData>
+      <ActionData>
+        <Text>Let's begin with an introduction to the [color=VColor.Highlight]High Voltage Battery[/color]!</Text>
+      </ActionData>
+      <ActionData>
+        <Type>Method</Type>
+        <Content>
+          <Id>ModulesUI</Id>
+        </Content>
+        <Text>HighlightNextModule</Text>
+      </ActionData>
+    </TutorialActions>
+
+    <!-- Actions -->
+    <Actions>
+      <ActionData>
+        <Type>Method</Type>
+        <Content>
+          <Id>ModulesUI</Id>
+        </Content>
+        <Text>HighlightNextModule</Text>
+      </ActionData>
+    </Actions>
+
+  </UserExperienceData>
+
+  <!-- Modules: OnEnter 2nd -->
+  <UserExperienceData>
+    <Id>ModulesOnEnter2nd</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>StateEnter</Event>
+      <Id>Modules</Id>
+    </Trigger>
+
+    <Requirements>
+      <Modules>
+        <string>Introduction</string>
+      </Modules>
+      <NotModules>
+        <string>Components</string>
+      </NotModules>
+    </Requirements>
+
+    <!-- Tutorial -->
+    <TutorialActions>
+      <ActionData>
+        <Type>Rails</Type>
+      </ActionData>
+      <ActionData>
+        <Text>Let's continue by learning about the [color=VColor.Highlight]Components[/color] of the HV Battery!</Text>
+      </ActionData>
+      <ActionData>
+        <Type>Method</Type>
+        <Content>
+          <Id>ModulesUI</Id>
+        </Content>
+        <Text>HighlightNextModule</Text>
+      </ActionData>
+    </TutorialActions>
+
+  </UserExperienceData>
+
+  <!-- Modules: OnEnter -->
+  <UserExperienceData>
+    <Id>ModulesOnEnter</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>StateEnter</Event>
+      <Id>Modules</Id>
+    </Trigger>
+
+    <Requirements>
+      <Modules>
+        <string>Components</string>
+      </Modules>
+    </Requirements>
+
+    <!-- Actions -->
+    <Actions>
+      <ActionData>
+        <Type>Method</Type>
+        <Content>
+          <Id>ModulesUI</Id>
+        </Content>
+        <Text>HighlightNextModule</Text>
+      </ActionData>
+    </Actions>
+  </UserExperienceData>
+
+  <!-- Concept: OnExplore -->
+  <UserExperienceData>
+    <Id>ConceptOnExplore</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>ConceptExplore</Event>
+    </Trigger>
+
+    <!-- Tutorial -->
+    <TutorialActions>
+      <ActionData>
+        <Type>Rails</Type>
+      </ActionData>
+      <ActionData>
+        <Type>Unhighlight</Type>
+      </ActionData>
+      <ActionData>
+        <Text>Move around carefully to get a closer look</Text>
+      </ActionData>
+      <ActionData>
+        <Text>and review keywords before moving to the next [color=VColor.Highlight]Concept[/color].</Text>
+      </ActionData>
+      <ActionData>
+        <Type>Method</Type>
+        <Content>
+          <Id>Concept</Id>
+        </Content>
+        <Text>ShowNavigatorWidget</Text>
+      </ActionData>
+    </TutorialActions>
+
+    <!-- Actions -->
+    <Actions>
+      <ActionData>
+        <Type>Method</Type>
+        <Content>
+          <Id>Concept</Id>
+        </Content>
+        <Text>ShowNavigatorWidget</Text>
+      </ActionData>
+    </Actions>
+
+  </UserExperienceData>
+
+  <!-- Module: OnReviewComplete -->
+  <UserExperienceData>
+    <Id>ModuleOnReviewComplete</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>ModuleReviewComplete</Event>
+    </Trigger>
+
+    <!-- Tutorial -->
+    <TutorialActions>
+      <ActionData>
+        <Text>Before we continue, I have a question</Text>
+      </ActionData>
+      <ActionData>
+        <Type>Prompt</Type>
+        <MultipleChoice>
+          <Title></Title>
+          <Prompt>Would you like me to adjust the speed of my [color=VColor.Highlight]Speech[/color]?</Prompt>
+          <Options>
+            <ButtonData>
+              <Caption>Faster, please.</Caption>
+              <ImageId>Up</ImageId>
+              <Actions>
+                <ActionData>
+                  <Type>Speech</Type>
+                  <Id>SpeakQuickly</Id>
+                </ActionData>
+              </Actions>
+            </ButtonData>
+            <ButtonData>
+              <Caption>It's great!</Caption>
+              <ImageId>Yes</ImageId>
+            </ButtonData>
+            <ButtonData>
+              <Caption>Slower would be better.</Caption>
+              <ImageId>Down</ImageId>
+              <Actions>
+                <ActionData>
+                  <Type>Speech</Type>
+                  <Id>SpeakSlowly</Id>
+                </ActionData>
+              </Actions>
+            </ButtonData>
+          </Options>
+        </MultipleChoice>
+      </ActionData>
+      
+      <ActionData>
+        <Text>Thanks for the feedback!</Text>
+      </ActionData>
+      <ActionData>
+        <Text>You can personalize me to fit your learning style</Text>
+      </ActionData>
+      <ActionData>
+        <Text>Let's try out a new voice</Text>
+      </ActionData>
+      <ActionData>
+        <Type>State</Type>
+        <Content>
+          <Id>Options</Id>
+        </Content>
+      </ActionData>
+      
+      <ActionData>
+        <Type>Rails</Type>
+      </ActionData>
+      <ActionData>
+        <Type>Highlight</Type>
+        <Content>
+          <Id>TextToSpeechVoice Next Button</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Wait</Type>
+      </ActionData>
+
+      <ActionData>
+        <Type>Unhighlight</Type>
+      </ActionData>
+      <ActionData>
+        <Type>Rails</Type>
+      </ActionData>
+      <ActionData>
+        <Delay>3.0</Delay>
+        <Text>When you're ready, let's return to the [color=VColor.Highlight]Home Menu[/color]</Text>
+      </ActionData>
+      <ActionData>
+        <Type>Rails</Type>
+      </ActionData>
+      <ActionData>
+        <Type>Lock</Type>
+        <Content>
+          <Id>Reset Progress Button</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Highlight</Type>
+        <Content>
+          <Id>Back Button</Id>
+        </Content>
+        <Wait>true</Wait>
+      </ActionData>
+    </TutorialActions>
+
+    <!-- Actions -->
+    <Actions>
+      <ActionData>
+        <Type>State</Type>
+        <Content>
+          <Id>Modules</Id>
+        </Content>
+      </ActionData>
+    </Actions>
+
+  </UserExperienceData>
+
+  <!-- Certification: OnComplete -->
+  <UserExperienceData>
+    <Id>CertificationOnComplete</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>CertificationComplete</Event>
+    </Trigger>
+
+    <!-- Tutorial -->
+    <TutorialActions>
+      <ActionData>
+        <Type>Rails</Type>
+      </ActionData>
+      <ActionData>
+        <Text>You have unlocked the [color=VColor.Highlight]Map[/color]!</Text>
+      </ActionData>
+      <ActionData>
+        <Text>In the [color=VColor.Highlight]Map[/color], you can review parts from completed Modules.</Text>
+      </ActionData>
+      <ActionData>
+        <Delay>0.5</Delay>
+        <Type>State</Type>
+        <Content>
+          <Id>Explore</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Text>Carefully move around to get a closer look at the [color=VColor.Highlight2]3D Structure[/color].</Text>
+      </ActionData>
+      <ActionData>
+        <Delay>5</Delay>
+        <Text>Expand parts to explore their internal components in greater detail.</Text>
+      </ActionData>
+    </TutorialActions>
+  </UserExperienceData>
+
+  <!-- Penthouse: OnActivate -->
+  <UserExperienceData>
+    <Id>PenthouseOnActivate</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>ButtonActivate</Event>
+      <Id>Penthouse Button</Id>
+    </Trigger>
+
+    <!-- Tutorial -->
+    <TutorialActions>
+      <ActionData>
+        <Delay>5</Delay>
+        <Text>Return to the [color=VColor.Highlight]Home Menu[/color] when you are finished reviewing the 3D Reference.</Text>
+      </ActionData>
+      <ActionData>
+        <Type>Highlight</Type>
+        <Content>
+          <Id>Back Button</Id>
+        </Content>
+      </ActionData>
+    </TutorialActions>
+  </UserExperienceData>
+  
+  <!-- Explore: OnComplete -->
+  <UserExperienceData>
+    <Id>ExploreOnComplete</Id>
+    <Trigger>
+      <Type>OnEvent</Type>
+      <Event>ExploreComplete</Event>
+    </Trigger>
+
+    <!-- Tutorial -->
+    <TutorialActions>
+      
+      <!-- KLUDGE -->
+      <ActionData>
+        <Type>Hide</Type>
+        <Content>
+          <Id>Model3</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Hide</Type>
+        <Content>
+          <Id>Model3</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Type>Hide</Type>
+        <Content>
+          <Id>Model3</Id>
+        </Content>
+      </ActionData>
+      
+      <ActionData>
+        <Delay>1</Delay>
+        <Text>Congratulations!</Text>
+      </ActionData>
+      <ActionData>
+        <Text>You have completed the [color=VColor.Tertiary]Tesla Academy[/color] AR Prototype</Text>
+      </ActionData>
+      <ActionData>
+        <Type>Prompt</Type>
+        <MultipleChoice>
+          <Title></Title>
+          <Prompt>How would you describe the experience to a coworker?</Prompt>
+          <Options>
+            <ButtonData>
+              <Caption>Awesome!</Caption>
+              <ImageId>Up</ImageId>
+            </ButtonData>
+            <ButtonData>
+              <Caption>It was fine.</Caption>
+              <ImageId>Yes</ImageId>
+            </ButtonData>
+            <ButtonData>
+              <Caption>I'm dissapointed.</Caption>
+              <ImageId>Down</ImageId>
+            </ButtonData>
+          </Options>
+        </MultipleChoice>
+      </ActionData>
+
+      <ActionData>
+        <Text>Thanks for the feedback!</Text>
+      </ActionData>
+      <ActionData>
+        <Text>Please let the attendent know that you are finished.</Text>
+      </ActionData>
+      <ActionData>
+        <Delay>0.5</Delay>
+        <Type>State</Type>
+        <Content>
+          <Id>Home</Id>
+        </Content>
+      </ActionData>
+    </TutorialActions>
+
+    <!-- Actions -->
+    <Actions>
+      <ActionData>
+        <Type>Hide</Type>
+        <Content>
+          <Id>Model3</Id>
+        </Content>
+      </ActionData>
+      <ActionData>
+        <Delay>0.0</Delay>
+        <Type>State</Type>
+        <Content>
+          <Id>Home</Id>
+        </Content>
+      </ActionData>
+    </Actions>
+  </UserExperienceData>
+</ArrayOfUserExperienceData>
