@@ -49,7 +49,7 @@ namespace CreateAR.SpirePlayer
             // listening!
             Log.Info(this,
                 "Listening on port {0}.",
-                _listener.Information.);
+                _listener.Information.LocalPort);
         }
 
         private readonly List<StreamSocket> _controllers = new List<StreamSocket>();
