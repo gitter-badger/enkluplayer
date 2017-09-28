@@ -13,12 +13,7 @@ namespace CreateAR.Spire
         /// Unique scene identifier.
         /// </summary>
         public string Id;
-
-        /// <summary>
-        /// Scenes which must be loaded prior to the loading of this scene.
-        /// </summary>
-        public List<string> Dependencies = new List<string>();
-
+        
         /// <summary>
         /// Content within this scene.
         /// </summary>

@@ -4,6 +4,6 @@
    <Id>Trophy</Id>
    <Content>
       <string>Floor</string>
-      <string>TrophyController</string>
+      <!--<string>TrophyController</string>-->
    </Content>
 </SceneData>

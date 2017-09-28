@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -191,8 +189,10 @@
     <Compile Include="Assets\Source\Patterns\StateMachine\FiniteStateMachine.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\IState.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\StateMachine.cs" />
+    <Compile Include="Assets\Source\Spire\Data\AnchorData.cs" />
     <Compile Include="Assets\Source\Spire\Data\AppData.cs" />
     <Compile Include="Assets\Source\Spire\Data\AppDataManager.cs" />
+    <Compile Include="Assets\Source\Spire\Data\ContentData.cs" />
     <Compile Include="Assets\Source\Spire\Data\FileProtocols.cs" />
     <Compile Include="Assets\Source\Spire\Data\SceneData.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
@@ -217,24 +217,22 @@
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\link.xml" />
     <None Include="Assets\Plugins\ThirdParty\WebSocket-Sharp\websocket-sharp.xml" />
     <None Include="Assets\Plugins\link.xml" />
-    <None Include="Assets\StreamingAssets\App\AssetData\TeslaAssets.xml" />
-    <None Include="Assets\StreamingAssets\App\ContentData\States.xml" />
-    <None Include="Assets\StreamingAssets\App\ContentData\TeslaContent.xml" />
-    <None Include="Assets\StreamingAssets\App\ModuleData\HVBatteryArchitecture.xml" />
-    <None Include="Assets\StreamingAssets\App\ModuleData\HVBatteryComponents.xml" />
-    <None Include="Assets\StreamingAssets\App\ModuleData\HVBatteryIntroduction.xml" />
-    <None Include="Assets\StreamingAssets\App\ModuleData\HVBatteryPenthouse.xml" />
-    <None Include="Assets\StreamingAssets\App\ModuleData\HVBatterySafetyConcerns.xml" />
-    <None Include="Assets\StreamingAssets\App\ModuleData\SpireDemo.xml" />
-    <None Include="Assets\StreamingAssets\App\PartData\HVBatteryParts.xml" />
-    <None Include="Assets\StreamingAssets\App\PartGroupData\HVBatteryPartGroups.xml" />
-    <None Include="Assets\StreamingAssets\App\SceneData\TeslaScenes.xml" />
-    <None Include="Assets\StreamingAssets\App\ScriptData\TeslaScripts.xml" />
-    <None Include="Assets\StreamingAssets\App\StateData\TeslaStates.xml" />
-    <None Include="Assets\StreamingAssets\App\TuneVarData\GuideTuneVars.xml" />
-    <None Include="Assets\StreamingAssets\App\TuneVarData\UITuneVars.xml" />
-    <None Include="Assets\StreamingAssets\App\UIElementData\TeslaUIElements.xml" />
-    <None Include="Assets\StreamingAssets\App\UserExperienceData\Tutorials.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\AssetData\TeslaAssets.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\HVBatteryArchitecture.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\HVBatteryComponents.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\HVBatteryIntroduction.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\HVBatteryPenthouse.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\HVBatterySafetyConcerns.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\SpireDemo.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\PartData\HVBatteryParts.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\PartGroupData\HVBatteryPartGroups.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\SceneData\TeslaScenes.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\ScriptData\TeslaScripts.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\StateData\TeslaStates.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\TuneVarData\GuideTuneVars.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\TuneVarData\UITuneVars.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\UIElementData\TeslaUIElements.xml" />
+    <None Include="Assets\StreamingAssets\App\SpireDemo\UserExperienceData\Tutorials.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

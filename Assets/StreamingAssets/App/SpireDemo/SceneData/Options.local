@@ -1,9 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Options -->
 <SceneData>
 	<Id>Options</Id>
 	<Content>
 		<string>Floor</string>
 		<string>Model3</string>
-		<string>OptionsController</string>
+		<!--<string>OptionsController</string>-->
 	</Content>
 </SceneData>

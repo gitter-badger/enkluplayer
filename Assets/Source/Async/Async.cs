@@ -3,8 +3,24 @@ using System.Collections.Generic;
 
 namespace CreateAR.Commons.Unity.Async
 {
+    /// <summary>
+    /// Helpful methods for <c>IAsyncToken</c>.
+    /// </summary>
     public static class Async
     {
+        /// <summary>
+        /// Creates a single token from a collection of tokens.
+        /// 
+        /// A failure from any one of the tokens will result in a failure of
+        /// the returned token. If only a single token fails, only that exception
+        /// is returned. If multiple tokens fail, an <c>AggregateException</c>
+        /// is returned.
+        /// 
+        /// If no tokens are passed in, the returned token is a Success.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tokens"></param>
+        /// <returns></returns>
         public static IAsyncToken<T[]> All<T>(IAsyncToken<T>[] tokens)
         {
             var len = tokens.Length;

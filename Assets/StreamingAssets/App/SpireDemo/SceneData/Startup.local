@@ -3,6 +3,6 @@
 <SceneData>
    <Id>Startup</Id>
    <Content>
-      <string>StartupController</string>
+      <!--<string>StartupController</string>-->
    </Content>
 </SceneData>
