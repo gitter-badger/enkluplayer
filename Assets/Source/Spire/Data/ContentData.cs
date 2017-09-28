@@ -6,9 +6,14 @@ namespace CreateAR.Spire
     public class ContentData
     {
         /// <summary>
-        /// Unique Identifier
+        /// Unique identifier.
         /// </summary>
         public string Id;
+
+        /// <summary>
+        /// Readable name.
+        /// </summary>
+        public string Name;
 
         /// <summary>
         /// Asset Id

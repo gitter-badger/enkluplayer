@@ -1,24 +1,51 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer;
 
 namespace CreateAR.Spire
 {
+    /// <summary>
+    /// Loads data for an App.
+    /// </summary>
     public class AppDataManager
     {
+        /// <summary>
+        /// For getting/setting files.
+        /// </summary>
         private readonly IFileManager _files;
 
+        /// <summary>
+        /// Containing app.
+        /// </summary>
         private AppData _app;
+
+        /// <summary>
+        /// List of all scenes.
+        /// </summary>
         private readonly List<SceneData> _scenes = new List<SceneData>();
+
+        /// <summary>
+        /// List of all content.
+        /// </summary>
         private readonly List<ContentData> _content = new List<ContentData>();
 
+        /// <summary>
+        /// Creates a new AppDataManager.
+        /// </summary>
+        /// <param name="files">For getting/setting files.</param>
         public AppDataManager(IFileManager files)
         {
             _files = files;
         }
 
+        /// <summary>
+        /// Loads an app by name.
+        /// 
+        /// TODO: Transition to id.
+        /// </summary>
+        /// <param name="name">Readable name.</param>
+        /// <returns></returns>
         public IAsyncToken<AppData> Load(string name)
         {
             var token = new AsyncToken<AppData>();
@@ -50,6 +77,11 @@ namespace CreateAR.Spire
             return token;
         }
 
+        /// <summary>
+        /// Loads all scenes in an app.
+        /// </summary>
+        /// <param name="app">Container app.</param>
+        /// <returns></returns>
         private IAsyncToken<Void> LoadScenes(AppData app)
         {
             var token = new AsyncToken<Void>();
@@ -73,6 +105,12 @@ namespace CreateAR.Spire
             return token;
         }
 
+        /// <summary>
+        /// Loads everything within a scene.
+        /// </summary>
+        /// <param name="app">The container app.</param>
+        /// <param name="id">Id of the scene to load.</param>
+        /// <returns></returns>
         private IAsyncToken<Void> LoadScene(AppData app, string id)
         {
             var token = new AsyncToken<Void>();
@@ -96,6 +134,12 @@ namespace CreateAR.Spire
             return token;
         }
 
+        /// <summary>
+        /// Loads all content for a scene.
+        /// </summary>
+        /// <param name="app">The container app.</param>
+        /// <param name="scene">The scene to load content for.</param>
+        /// <returns></returns>
         private IAsyncToken<Void> LoadContent(AppData app, SceneData scene)
         {
             var token = new AsyncToken<Void>();

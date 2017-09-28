@@ -13,6 +13,11 @@ namespace CreateAR.Spire
         /// Unique scene identifier.
         /// </summary>
         public string Id;
+
+        /// <summary>
+        /// Readable name.
+        /// </summary>
+        public string Name;
         
         /// <summary>
         /// Content within this scene.
