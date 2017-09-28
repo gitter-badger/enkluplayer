@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
@@ -30,7 +31,9 @@ namespace CreateAR.SpirePlayer
             var relUri = RelativeUri(uri);
             var path = Path.Combine(
                 _basePath,
-                relUri);
+                relUri) + ".local";
+
+            Log.Info(this, "Get({0})", path);
             
             byte[] bytes;
             try
@@ -53,7 +56,9 @@ namespace CreateAR.SpirePlayer
             var relUri = RelativeUri(file.Uri);
             var path = Path.Combine(
                 _basePath,
-                relUri);
+                relUri) + ".local";
+
+            Log.Info(this, "Set({0})", path);
 
             var directory = Path.GetDirectoryName(path) ?? ".";
 

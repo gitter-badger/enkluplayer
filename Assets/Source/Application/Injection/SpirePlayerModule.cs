@@ -55,7 +55,6 @@ namespace CreateAR.SpirePlayer
 
                 binder.Bind<IApplicationHost>().To<ApplicationHost>().ToSingleton();
                 binder.Bind<IApplicationState>().To<ApplicationState>().ToSingleton();
-
                 binder.Bind<Application>().To<Application>().ToSingleton();
 
                 // application states
@@ -73,6 +72,7 @@ namespace CreateAR.SpirePlayer
                             LookupComponent<MonoBehaviourBootstrapper>()))
                     .ToSingleton();
                 binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
+                binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
 
                 // TODO: These could just be events from the bridge.
 #if UNITY_EDITOR
@@ -96,6 +96,18 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
                 binder.Bind<WebBridge>().ToValue(LookupComponent<WebBridge>());
             }
+
+            // spire-specific bindings
+            AddSpireBindings(binder);
+        }
+
+        /// <summary>
+        /// Adds bindings for spire.
+        /// </summary>
+        /// <param name="binder">Object to add bindings to.</param>
+        private void AddSpireBindings(InjectionBinder binder)
+        {
+            binder.Bind<AppDataManager>().To<AppDataManager>().ToSingleton();
         }
 
         /// <summary>

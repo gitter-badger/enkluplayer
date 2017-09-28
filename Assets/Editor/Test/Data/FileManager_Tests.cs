@@ -22,7 +22,7 @@ namespace CreateAR.SpirePlayer.Test
                 new byte[0]));
 
             _files = new FileManager();
-            _files.Configure(
+            _files.Register(
                 "memory://",
                 new JsonSerializer(),
                 fileSystem);
@@ -31,17 +31,17 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void ProtocolBadReject()
         {
-            Assert.Throws<ArgumentException>(() => _files.Configure(
+            Assert.Throws<ArgumentException>(() => _files.Register(
                 "test",
                 new JsonSerializer(),
                 new NullFileSystem()));
 
-            Assert.Throws<ArgumentException>(() => _files.Configure(
+            Assert.Throws<ArgumentException>(() => _files.Register(
                 "test:",
                 new JsonSerializer(),
                 new NullFileSystem()));
 
-            Assert.Throws<ArgumentException>(() => _files.Configure(
+            Assert.Throws<ArgumentException>(() => _files.Register(
                 "test://a",
                 new JsonSerializer(),
                 new NullFileSystem()));
@@ -50,7 +50,7 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void ProtocolGood()
         {
-            Assert.DoesNotThrow(() => _files.Configure(
+            Assert.DoesNotThrow(() => _files.Register(
                 "null://",
                 new JsonSerializer(),
                 new NullFileSystem()));

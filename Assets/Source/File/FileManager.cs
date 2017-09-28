@@ -6,11 +6,10 @@ using CreateAR.Commons.Unity.Http;
 
 namespace CreateAR.SpirePlayer
 {
-
     /// <summary>
     /// Gets and sets files.
     /// </summary>
-    public class FileManager
+    public class FileManager : IFileManager
     {
         /// <summary>
         /// Object that describes how an <c>IFileSystem</c> is configured.
@@ -54,7 +53,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="protocol">The protocol this <c>IFileSystem</c> will handle.</param>
         /// <param name="serializer">An object for serializing/deserializing.</param>
         /// <param name="fileSystem">The <c>IFileSystem</c> to use for all operations.</param>
-        public void Configure(
+        public void Register(
             string protocol,
             ISerializer serializer,
             IFileSystem fileSystem)
@@ -72,6 +71,22 @@ namespace CreateAR.SpirePlayer
                 Serializer = serializer,
                 FileSystem = fileSystem
             });
+        }
+
+        /// <inheritdoc cref="IFileManager"/>
+        public bool Unregister(string protocol)
+        {
+            for (int i = 0, len = _configurations.Count; i < len; i++)
+            {
+                var config = _configurations[i];
+                if (config.Protocol == protocol)
+                {
+                    _configurations.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
