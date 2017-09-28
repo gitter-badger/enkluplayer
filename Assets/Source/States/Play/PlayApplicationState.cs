@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Spire;
 
 namespace CreateAR.SpirePlayer
@@ -22,7 +23,7 @@ namespace CreateAR.SpirePlayer
                 FileProtocols.APP,
                 new SystemXmlSerializer(),
                 new LocalFileSystem("Assets/StreamingAssets/App"));
-
+            
             // TODO: pull off of state
             var appName = "SpireDemo";
             _appDataManager
