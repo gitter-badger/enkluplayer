@@ -1,10 +1,17 @@
-﻿namespace CreateAR.SpirePlayer
+﻿using UnityEngine.SceneManagement;
+
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Application state that is used in edit mode.
     /// </summary>
     public class EditApplicationState : IState
     {
+        /// <summary>
+        /// Name of the scene to load.
+        /// </summary>
+        private const string SCENE_NAME = "EditMode";
+
         /// <summary>
         /// The input mechanism.
         /// </summary>
@@ -39,6 +46,9 @@
         /// </summary>
         public void Enter()
         {
+            // load scene
+            SceneManager.LoadScene(SCENE_NAME, LoadSceneMode.Additive);
+
             _input.ChangeState(InputState);
         }
 
@@ -50,6 +60,9 @@
         public void Exit()
         {
             _input.ChangeState(null);
+
+            // unload scene
+            SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(SCENE_NAME));
         }
     }
 }

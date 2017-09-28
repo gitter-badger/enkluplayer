@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Spire;
+using UnityEngine.SceneManagement;
 
 namespace CreateAR.SpirePlayer
 {
     public class PlayApplicationState : IState
     {
+        /// <summary>
+        /// Name of the playmode scene to load.
+        /// </summary>
+        private const string SCENE_NAME = "PlayMode";
         private readonly IFileManager _files;
         private readonly AppDataManager _appDataManager;
 
@@ -19,6 +23,10 @@ namespace CreateAR.SpirePlayer
 
         public void Enter()
         {
+            // load playmode scene
+            SceneManager.LoadScene(SCENE_NAME, LoadSceneMode.Additive);
+
+            // configure
             _files.Register(
                 FileProtocols.APP,
                 new SystemXmlSerializer(),
@@ -26,6 +34,8 @@ namespace CreateAR.SpirePlayer
             
             // TODO: pull off of state
             var appName = "SpireDemo";
+
+            // load data
             _appDataManager
                 .Load(appName)
                 .OnSuccess(data =>
@@ -46,6 +56,9 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             _files.Unregister(FileProtocols.APP);
+
+            // unload playmode scene
+            SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(SCENE_NAME));
         }
     }
 }

@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -195,6 +197,7 @@
     <Compile Include="Assets\Source\Spire\Data\ContentData.cs" />
     <Compile Include="Assets\Source\Spire\Data\FileProtocols.cs" />
     <Compile Include="Assets\Source\Spire\Data\SceneData.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\IntentionManager.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\Edit\EditApplicationState.cs" />
     <Compile Include="Assets\Source\States\Initialize\InitializeApplicationState.cs" />
