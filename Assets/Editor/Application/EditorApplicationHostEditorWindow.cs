@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using CreateAR.Commons.Unity.Messaging;
+using UnityEditor;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -9,9 +10,11 @@ namespace CreateAR.SpirePlayer
 
         private int _sendMessageType;
         private string _sendMessagePayload;
-
+        
         [Inject]
         public IMessageRouter Router { get; set; }
+        [Inject]
+        public IApplicationState State { get; set; }
 
         [MenuItem("Window/Application Host Editor")]
         private static void Open()
@@ -27,6 +30,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            // fairly evil
             if (!_isInjected)
             {
                 _isInjected = true;
@@ -34,7 +38,26 @@ namespace CreateAR.SpirePlayer
                 Main.Inject(this);
             }
 
-            EditorGUILayout.BeginVertical();
+            EditorGUILayout.BeginHorizontal();
+            {
+                DrawState();
+                DrawSendMessage();
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawState()
+        {
+            EditorGUILayout.BeginVertical(GUILayout.Width(Screen.width / 2f));
+            {
+                
+            }
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawSendMessage()
+        {
+            EditorGUILayout.BeginVertical(GUILayout.Width(Screen.width / 2f));
             {
                 _sendMessageType = EditorGUILayout.IntField(
                     "Message Type",
@@ -43,7 +66,7 @@ namespace CreateAR.SpirePlayer
                     _sendMessagePayload,
                     GUILayout.ExpandWidth(true),
                     GUILayout.Height(200));
-                
+
                 if (GUILayout.Button("Send"))
                 {
                     Router.Publish(

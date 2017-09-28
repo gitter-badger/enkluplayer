@@ -1,7 +1,9 @@
-using CreateAR.Commons.Unity.DebugRenderer;
+using System;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Spire;
 using strange.extensions.injector.impl;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -42,8 +44,14 @@ namespace CreateAR.SpirePlayer
 	        Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
 	        Log.Filter = LogLevel.Debug;
 
-	        // setup debug renderer
-	        var host = Object.FindObjectOfType<DebugRendererMonoBehaviour>();
+#if NETFX_CORE
+            Log.AddLogTarget(new UwpSocketLogger(
+                "Spire",
+                new Uri("ws://127.0.0.1:9999")));
+#endif
+
+            // setup debug renderer
+            var host = FindObjectOfType<DebugRendererMonoBehaviour>();
 	        if (null != host)
 	        {
 	            Render.Renderer = host.Renderer;
@@ -84,5 +92,32 @@ namespace CreateAR.SpirePlayer
 	    {
 	        _app.Update(Time.deltaTime);
 	    }
+
+        /// <summary>
+        /// Called when the application quits.
+        /// </summary>
+	    private void OnApplicationQuit()
+	    {
+#if UNITY_EDITOR
+	        var bridge = _binder.GetInstance<IBridge>() as EditorBridge;
+	        if (null != bridge)
+	        {
+                Log.Info(this, "Disposing websocket server.");
+
+	            bridge.Dispose();
+	        }
+#endif
+
+#if NETFX_CORE
+	        foreach (var target in Log.Targets)
+	        {
+	            var disposable = target as IDisposable;
+	            if (null != disposable)
+	            {
+	                disposable.Dispose();
+	            }
+	        }
+#endif
+        }
 	}
 }
