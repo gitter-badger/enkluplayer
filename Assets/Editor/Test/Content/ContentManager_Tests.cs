@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using CreateAR.Commons.Unity.Async;
 using NUnit.Framework;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -189,6 +188,19 @@ namespace CreateAR.Spire.Test
 
             Assert.AreEqual(0, content.Count);
             Assert.IsNull(_content.FindShared("B"));
+        }
+
+        [Test]
+        public void MultiReleaseException()
+        {
+            var a = _content.Request("Unique");
+
+            _content.Release(a);
+
+            Assert.Throws<NullReferenceException>(() =>
+            {
+                _content.Release(a);
+            });
         }
     }
 }

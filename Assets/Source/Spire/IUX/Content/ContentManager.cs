@@ -5,7 +5,7 @@ namespace CreateAR.Spire
     /// <summary>
     /// Creates, caches, releases, and provides searching for <c>Content</c>.
     /// </summary>
-    public class ContentManager
+    public class ContentManager : IContentManager
     {
         /// <summary>
         /// Internal record for tracking <c>Content</c>.
@@ -94,11 +94,7 @@ namespace CreateAR.Spire
             _appData = appData;
         }
         
-        /// <summary>
-        /// Finds all <c>Content</c> instances for a given <c>ContentData</c> id.
-        /// </summary>
-        /// <param name="contentId">Unique id of the <c>ContentData</c>.</param>
-        /// <param name="content">List to add instances to.</param>
+        /// <inheritdoc cref="IContentManager"/>
         public void FindAll(string contentId, List<Content> content)
         {
             for (int i = 0, len = _all.Count; i < len; i++)
@@ -111,12 +107,7 @@ namespace CreateAR.Spire
             }
         }
 
-        /// <summary>
-        /// Finds the shared instance of <c>Content</c> for a unique
-        /// <c>ContentData</c> id.
-        /// </summary>
-        /// <param name="contentId"><c>ContentData</c> id.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IContentManager"/>
         public Content FindShared(string contentId)
         {
             for (int i = 0, len = _shared.Count; i < len; i++)
@@ -131,13 +122,7 @@ namespace CreateAR.Spire
             return null;
         }
 
-        /// <summary>
-        /// Requests a <c>Conten</c> instance by id.
-        /// </summary>
-        /// <param name="contentId">Unique id of <c>ContenData</c>.</param>
-        /// <param name="tags">Associated meta. These are kept with the instance
-        /// so that it may be cleaned up later.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="IContentManager"/>
         public Content Request(string contentId, params string[] tags)
         {
             var data = _appData.Get<ContentData>(contentId);
@@ -154,12 +139,7 @@ namespace CreateAR.Spire
             return RequestShared(data, tags);
         }
 
-        /// <summary>
-        /// Releases an instance of <c>Content</c>. If the instance is shared,
-        /// nothing happens. If the instance is unique, Content::Destroy is
-        /// called.
-        /// </summary>
-        /// <param name="content">The content to release.</param>
+        /// <inheritdoc cref="IContentManager"/>
         public void Release(Content content)
         {
             // only remove unique content instances
@@ -170,15 +150,13 @@ namespace CreateAR.Spire
                 // Purposefully not null-checking-- calling Release() more than once
                 // is code smell.
 
+                record.Content.Destroy();
+
                 _all.Remove(record);
             }
         }
 
-        /// <summary>
-        /// Releases all <c>Content</c> that have no tags other than these. This
-        /// releases both shared and unique instances.
-        /// </summary>
-        /// <param name="tags">The tags.</param>
+        /// <inheritdoc cref="IContentManager"/>
         public void ReleaseAll(params string[] tags)
         {
             for (var i = _all.Count - 1; i >= 0; i--)

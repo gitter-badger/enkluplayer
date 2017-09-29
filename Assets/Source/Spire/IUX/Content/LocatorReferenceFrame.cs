@@ -1,0 +1,141 @@
+﻿using CreateAR.Commons.Unity.Logging;
+using UnityEngine;
+
+namespace CreateAR.Spire
+{
+    /// <summary>
+    /// Frame of reference for a locator.
+    /// </summary>
+    public class LocatorReferenceFrame : IAnchorReferenceFrame
+    {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
+        private readonly IntentionManager _intention;
+        private readonly IContentManager _content;
+
+        /// <summary>
+        /// The <c>Anchor</c> this is the frame of reference for.
+        /// </summary>
+        private readonly Anchor _anchor;
+
+        /// <inheritdoc cref="IAnchorReferenceFrame"/>
+        public Vector3 Forward { get { return _intention.Forward; } }
+
+        /// <inheritdoc cref="IAnchorReferenceFrame"/>
+        public Vector3 Up { get { return _intention.Up; } }
+
+        /// <inheritdoc cref="IAnchorReferenceFrame"/>
+        public Vector3 Right { get { return _intention.Right; } }
+
+        /// <summary>
+        /// Creates a new <c>LocatorReferenceFrame</c>.
+        /// </summary>
+        /// <param name="intention">Manages intentions.</param>
+        /// <param name="content">Manages content.</param>
+        /// <param name="anchor">The anchor this reference frame is for.</param>
+        public LocatorReferenceFrame(
+            IntentionManager intention,
+            IContentManager content,
+            Anchor anchor)
+        {
+            _intention = intention;
+            _content = content;
+            _anchor = anchor;
+        }
+
+        /// <inheritdoc cref="IAnchorReferenceFrame"/>
+        public void Attach()
+        {
+            var data = _anchor.Data;
+            var transform = _anchor.transform;
+            var parentTransform = transform;
+            if (!string.IsNullOrEmpty(data.ContentId))
+            {
+                var content = _content.Request(data.ContentId);
+                if (_content == null)
+                {
+                    Log.Error(this, "Missing Content [id={0}]!", data.ContentId);
+                    return;
+                }
+
+                if (!data.Reference)
+                {
+                    _content.Release(content);
+                }
+
+                parentTransform = content.Transform;
+            }
+
+            if (!string.IsNullOrEmpty(data.LocatorId))
+            {
+                parentTransform = FindExhaustive(parentTransform, data.LocatorId);
+                if (parentTransform == null)
+                {
+                    Log.Error(this, "Missing Locator[id={0}]!", data.LocatorId);
+                    return;
+                }
+            }
+
+            transform.SetParent(parentTransform, true);
+            transform.localPosition = Vector3.zero;
+        }
+
+        /// <inheritdoc cref="IAnchorReferenceFrame"/>
+        public void Update(float dt)
+        {
+            //
+        }
+
+        /// <summary>
+        /// Checks down and up the hierarchy for a named transform.
+        /// 
+        /// TODO: REMOVE THIS.
+        /// </summary>
+        /// <param name="root">Where to start.</param>
+        /// <param name="name">The name of the transform.</param>
+        /// <returns></returns>
+        private Transform FindExhaustive(Transform root, string name)
+        {
+            if (root == null)
+            {
+                return null;
+            }
+
+            // first look down
+            var found = FindInChildren(root, name);
+            if (found != null)
+            {
+                return found;
+            }
+
+            // then look up
+            return FindExhaustive(root.parent, name);
+        }
+
+        /// <summary>
+        /// Finds a transform down the hierarchy.
+        /// </summary>
+        /// <param name="root">Where to start searching.</param>
+        /// <param name="name">The name of the transform.</param>
+        /// <returns></returns>
+        private Transform FindInChildren(Transform root, string name)
+        {
+            if (root.name == name)
+            {
+                return root;
+            }
+
+            for (int i = 0, count = root.childCount; i < count; ++i)
+            {
+                var found = FindInChildren(root.GetChild(i), name);
+                if (found != null)
+                {
+                    return found;
+                }
+            }
+
+            return null;
+        }
+    }
+}

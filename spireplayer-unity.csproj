@@ -199,9 +199,14 @@
     <Compile Include="Assets\Source\Spire\Data\IAppDataManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\SceneData.cs" />
     <Compile Include="Assets\Source\Spire\IUX\ColorConfig.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\Anchor.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Content.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\ContentManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\FloorAnchorReferenceFrame.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\IAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IContentFactory.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\IContentManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\LocatorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\HsbColor.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\IElement.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\IFocusable.cs" />
@@ -222,6 +227,7 @@
     <Compile Include="Assets\Source\States\Preview\PreviewApplicationState.cs" />
     <Compile Include="Assets\Source\UI\Effects\Spinner.cs" />
     <Compile Include="Assets\Source\Util\CameraUtil.cs" />
+    <Compile Include="Assets\Source\Util\Extensions\VectorExtensions.cs" />
     <Compile Include="Assets\Source\Util\IQueryResolver.cs" />
     <Compile Include="Assets\Source\Util\JsonSerializer.cs" />
     <Compile Include="Assets\Source\Util\MonoBehaviourBootstrapper.cs" />
