@@ -45,7 +45,7 @@ namespace CreateAR.SpirePlayer
                 new LocalFileSystem("Assets/StreamingAssets/App"));
             
             // TODO: pull off of state
-            var appName = "SpireDemo";
+            var appName = "StaticContentDemo";
 
             // load data
             _appDataManager

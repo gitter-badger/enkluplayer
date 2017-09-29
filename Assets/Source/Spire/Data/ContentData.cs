@@ -19,16 +19,6 @@ namespace CreateAR.Spire
         public string Name;
 
         /// <summary>
-        /// Data about the asset.
-        /// </summary>
-        public AssetData Asset;
-
-        /// <summary>
-        /// Anchoring Data
-        /// </summary>
-        public AnchorData Anchor;
-
-        /// <summary>
         /// If true, each request from the IContentManager will create a new
         /// <c>Content</c> instance.
         /// </summary>
@@ -38,5 +28,15 @@ namespace CreateAR.Spire
         /// If true, does not inherit color from parent.
         /// </summary>
         public bool PreserveColor;
+
+        /// <summary>
+        /// Data about the asset.
+        /// </summary>
+        public AssetData Asset;
+
+        /// <summary>
+        /// Anchoring Data
+        /// </summary>
+        public AnchorData Anchor;
     }
 }
