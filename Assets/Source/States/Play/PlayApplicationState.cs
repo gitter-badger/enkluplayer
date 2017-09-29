@@ -10,9 +10,20 @@ namespace CreateAR.SpirePlayer
         /// Name of the playmode scene to load.
         /// </summary>
         private const string SCENE_NAME = "PlayMode";
+
+        /// <summary>
+        /// Gets + sets files.
+        /// </summary>
         private readonly IFileManager _files;
+
+        /// <summary>
+        /// Manages App data.
+        /// </summary>
         private readonly AppDataManager _appDataManager;
 
+        /// <summary>
+        /// Plays an App.
+        /// </summary>
         public PlayApplicationState(
             IFileManager files,
             AppDataManager appDataManager)
@@ -21,6 +32,7 @@ namespace CreateAR.SpirePlayer
             _appDataManager = appDataManager;
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Enter()
         {
             // load playmode scene
@@ -48,11 +60,13 @@ namespace CreateAR.SpirePlayer
                 });
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Update(float dt)
         {
             
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Exit()
         {
             _files.Unregister(FileProtocols.APP);

@@ -108,6 +108,12 @@ namespace CreateAR.SpirePlayer
         private void AddSpireBindings(InjectionBinder binder)
         {
             binder.Bind<AppDataManager>().To<AppDataManager>().ToSingleton();
+
+            // tagged components
+            {
+                binder.Bind<ColorManager>().ToValue(LookupComponent<ColorManager>());
+                binder.Bind<IntentionManager>().ToValue(LookupComponent<IntentionManager>());
+            }
         }
 
         /// <summary>
