@@ -13,7 +13,7 @@ namespace CreateAR.Spire
         Camera,
         Locator,
         ContextMenu,
-        SAI
+        Sai
     }
 
     public enum RotationType

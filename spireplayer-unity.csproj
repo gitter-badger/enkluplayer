@@ -194,9 +194,11 @@
     <Compile Include="Assets\Source\Spire\Data\AnchorData.cs" />
     <Compile Include="Assets\Source\Spire\Data\AppData.cs" />
     <Compile Include="Assets\Source\Spire\Data\AppDataManager.cs" />
+    <Compile Include="Assets\Source\Spire\Data\AssetData.cs" />
     <Compile Include="Assets\Source\Spire\Data\ContentData.cs" />
     <Compile Include="Assets\Source\Spire\Data\FileProtocols.cs" />
     <Compile Include="Assets\Source\Spire\Data\IAppDataManager.cs" />
+    <Compile Include="Assets\Source\Spire\Data\PoolData.cs" />
     <Compile Include="Assets\Source\Spire\Data\SceneData.cs" />
     <Compile Include="Assets\Source\Spire\IUX\ColorConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Anchor.cs" />

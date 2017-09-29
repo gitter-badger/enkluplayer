@@ -2,6 +2,9 @@
 
 namespace CreateAR.Spire
 {
+    /// <summary>
+    /// Associates AssetData, AnchorData, and some data about the Content.
+    /// </summary>
     [Serializable]
     public class ContentData
     {
@@ -16,11 +19,9 @@ namespace CreateAR.Spire
         public string Name;
 
         /// <summary>
-        /// Asset Id
-        /// 
-        /// TODO: Move to AssetReference guids.
+        /// Data about the asset.
         /// </summary>
-        public string AssetId;
+        public AssetData Asset;
 
         /// <summary>
         /// Anchoring Data
@@ -31,16 +32,6 @@ namespace CreateAR.Spire
         /// If true, each request gets its own instance
         /// </summary>
         public bool Unique;
-
-        /// <summary>
-        /// Defines how long the asset will stick around while unreferenced
-        /// </summary>
-        public float CacheDuration = 0.0f;
-
-        /// <summary>
-        /// If true, this asset is preloaded and not destroyed upon derefrencing
-        /// </summary>
-        public bool Pool;
 
         /// <summary>
         /// If true, does not inherit color
