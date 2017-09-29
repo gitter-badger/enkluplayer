@@ -17,5 +17,16 @@ namespace CreateAR.Spire
         /// Describes how this asset should be pooled.
         /// </summary>
         public PoolData Pooling;
+
+        /// <summary>
+        /// Useful ToString.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format(
+                "[AssetData AssetInfoId={0}]",
+                AssetInfoId);
+        }
     }
 }

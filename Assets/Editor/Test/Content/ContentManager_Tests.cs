@@ -42,6 +42,7 @@ namespace CreateAR.Spire.Test
         }
     }
 
+    [Ignore("Requires creating Content, which is a MonoBehaviour. Run in playmode.")]
     [TestFixture]
     public class ContentManager_Tests
     {
@@ -51,7 +52,7 @@ namespace CreateAR.Spire.Test
         public void Setup()
         {
             _content = new ContentManager(
-                new DummyContentManager(),
+                new DummyContentFactory(),
                 new DummyAppDataManager());
         }
         

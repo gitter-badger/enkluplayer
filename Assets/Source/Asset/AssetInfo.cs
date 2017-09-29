@@ -37,5 +37,17 @@
         /// Tags associated with this asset.
         /// </summary>
         public string[] Tags;
+
+        /// <summary>
+        /// Useful ToString.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[AssetInfo Guid={0}, AssetName={1}, Uri={2}]",
+                Guid,
+                AssetName,
+                Uri);
+        }
     }
 }

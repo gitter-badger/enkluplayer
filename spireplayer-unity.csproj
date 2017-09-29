@@ -202,10 +202,13 @@
     <Compile Include="Assets\Source\Spire\Data\SceneData.cs" />
     <Compile Include="Assets\Source\Spire\IUX\ColorConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Anchor.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\AnchorReferenceFrameFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Content.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\ContentFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\ContentManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\FloorAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IAnchorReferenceFrame.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\IAnchorReferenceFrameFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IContentFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IContentManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\LocatorReferenceFrame.cs" />

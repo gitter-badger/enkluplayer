@@ -257,6 +257,17 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Useful ToString override.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format(
+                "[AssetReference Info={0}]",
+                Info);
+        }
+
+        /// <summary>
         /// Retrieves the asset cast to a <c>T</c>.
         /// </summary>
         /// <typeparam name="T">The type.</typeparam>

@@ -194,7 +194,8 @@
     <Compile Include="Assets\Editor\Test\Asset\DummyAssetLoader.cs" />
     <Compile Include="Assets\Editor\Test\Asset\DummyAssetUpdateService.cs" />
     <Compile Include="Assets\Editor\Test\Content\ContentManager_Tests.cs" />
-    <Compile Include="Assets\Editor\Test\Content\DummyContentManager.cs" />
+    <Compile Include="Assets\Editor\Test\Content\DummyAssetManager.cs" />
+    <Compile Include="Assets\Editor\Test\Content\DummyContentFactory.cs" />
     <Compile Include="Assets\Editor\Test\Data\FileManager_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Util\StandardQueryResolver_Tests.cs" />
     <Compile Include="Assets\Editor\Tools\DataMigration\SpireDataMigrator.cs" />
