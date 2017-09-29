@@ -116,7 +116,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfig>());
             }
 
-            // controller + manager monobehaviours
+            // manager monobehaviours
             {
                 binder.Bind<ElementManager>().ToValue(LookupComponent<ElementManager>());
                 binder.Bind<IntentionManager>().ToValue(LookupComponent<IntentionManager>());
