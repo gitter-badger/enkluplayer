@@ -203,6 +203,7 @@
     <Compile Include="Assets\Source\Spire\IUX\Layer\ILayerable.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\Layer.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\LayerManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Widget\TweenConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\WidgetConfig.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\Edit\EditApplicationState.cs" />

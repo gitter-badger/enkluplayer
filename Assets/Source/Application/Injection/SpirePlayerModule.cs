@@ -112,6 +112,7 @@ namespace CreateAR.SpirePlayer
             // configs
             {
                 binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
+                binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfig>());
             }
 
             // controller + manager monobehaviours
