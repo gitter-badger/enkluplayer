@@ -389,6 +389,11 @@ namespace CreateAR.Spire
         public int HighlightPriority { get; private set; }
 
         /// <summary>
+        /// Retrieves the transform.
+        /// </summary>
+        public Transform Transform { get { return transform; } }
+
+        /// <summary>
         /// Layer mode.
         /// </summary>
         public LayerMode LayerMode { get; private set; }

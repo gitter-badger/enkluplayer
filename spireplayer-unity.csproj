@@ -207,6 +207,7 @@
     <Compile Include="Assets\Source\Spire\IUX\Layer\Layer.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\LayerManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\LayerMaskNames.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Widget\ToggleableWidget.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\TweenConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\Widget.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\WidgetConfig.cs" />

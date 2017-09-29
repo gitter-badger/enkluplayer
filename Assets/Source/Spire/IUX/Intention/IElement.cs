@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace CreateAR.Spire
 {
     /// <summary>
@@ -15,5 +17,10 @@ namespace CreateAR.Spire
         /// priority wins.
         /// </summary>
         int HighlightPriority { get; }
+
+        /// <summary>
+        /// The associated Unity transform.
+        /// </summary>
+        Transform Transform { get; }
     }
 }
