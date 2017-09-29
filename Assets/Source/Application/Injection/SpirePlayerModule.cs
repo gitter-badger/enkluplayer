@@ -112,7 +112,7 @@ namespace CreateAR.SpirePlayer
             // tagged components
             {
                 binder.Bind<ColorManager>().ToValue(LookupComponent<ColorManager>());
-                binder.Bind<IntentionManager>().ToValue(LookupComponent<IntentionManager>());
+                binder.Bind<IntentionController>().ToValue(LookupComponent<IntentionController>());
             }
         }
 

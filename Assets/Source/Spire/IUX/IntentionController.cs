@@ -4,10 +4,10 @@ using UnityEngine.VR.WSA.Input;
 namespace CreateAR.Spire
 {
     /// <summary>
-    /// Manages intention of the user, i.e. view direction and what they are
+    /// Tracks intention of the user, i.e. view direction and what they are
     /// intending by their view direction.
     /// </summary>
-    public class IntentionManager : MonoBehaviour
+    public class IntentionController : MonoBehaviour
     {
         /// <summary>
         /// Window for calculating steadiness.
