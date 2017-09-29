@@ -29,12 +29,13 @@ namespace CreateAR.Spire
         public AnchorData Anchor;
 
         /// <summary>
-        /// If true, each request gets its own instance
+        /// If true, each request from the IContentManager will create a new
+        /// <c>Content</c> instance.
         /// </summary>
         public bool Unique;
 
         /// <summary>
-        /// If true, does not inherit color
+        /// If true, does not inherit color from parent.
         /// </summary>
         public bool PreserveColor;
     }
