@@ -113,12 +113,13 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
                 binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfig>());
+                binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfig>());
             }
 
             // controller + manager monobehaviours
             {
-                binder.Bind<ColorManager>().ToValue(LookupComponent<ColorManager>());
-                binder.Bind<IntentionController>().ToValue(LookupComponent<IntentionController>());
+                binder.Bind<ElementManager>().ToValue(LookupComponent<ElementManager>());
+                binder.Bind<IntentionManager>().ToValue(LookupComponent<IntentionManager>());
             }
         }
 

@@ -7,7 +7,7 @@ namespace CreateAR.Spire
     /// Tracks intention of the user, i.e. view direction and what they are
     /// intending by their view direction.
     /// </summary>
-    public class IntentionController : MonoBehaviour
+    public class IntentionManager : MonoBehaviour
     {
         /// <summary>
         /// Window for calculating steadiness.

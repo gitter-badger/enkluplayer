@@ -35,7 +35,7 @@ namespace CreateAR.Spire
     /// <summary>
     /// Manages colors.
     /// </summary>
-    public class ColorManager : MonoBehaviour
+    public class ColorConfig : MonoBehaviour
     {
         /// <summary>
         /// Maps a VirtualColor to a Color.
