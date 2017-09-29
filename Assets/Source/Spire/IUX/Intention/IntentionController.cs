@@ -28,14 +28,7 @@ namespace CreateAR.Spire
         /// Current sample index.
         /// </summary>
         private int _angularVelocityDegreesSampleIndex;
-
-        /// <summary>
-        /// Backing variables for directional properties.
-        /// </summary>
-        private Vector3 _forward = Vector3.forward;
-        private Vector3 _up = Vector3.up;
-        private Vector3 _right = Vector3.right;
-
+        
         /// <summary>
         /// For aiming with a hand.
         /// </summary>
@@ -64,29 +57,17 @@ namespace CreateAR.Spire
         /// <summary>
         /// Forward direction.
         /// </summary>
-        public Vector3 Forward
-        {
-            get { return _forward; }
-            private set { _forward = value; }
-        }
+        public Vector3 Forward { get; private set; }
 
         /// <summary>
         /// Up direction.
         /// </summary>
-        public Vector3 Up
-        {
-            get { return _up; }
-            private set { _up = value; }
-        }
+        public Vector3 Up { get; private set; }
 
         /// <summary>
         /// Right direction.
         /// </summary>
-        public Vector3 Right
-        {
-            get { return _right; }
-            private set { _right = value; }
-        }
+        public Vector3 Right { get; private set; }
 
         /// <summary>
         /// Focus origin.
