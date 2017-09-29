@@ -203,6 +203,7 @@
     <Compile Include="Assets\Source\Spire\IUX\Layer\ILayerable.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\Layer.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\LayerManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Widget\WidgetConfig.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\Edit\EditApplicationState.cs" />
     <Compile Include="Assets\Source\States\Initialize\InitializeApplicationState.cs" />
@@ -242,6 +243,7 @@
     <None Include="Assets\StreamingAssets\App\SpireDemo\UIElementData\TeslaUIElements.xml" />
     <None Include="Assets\StreamingAssets\App\SpireDemo\UserExperienceData\Tutorials.xml" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
 </Project>
