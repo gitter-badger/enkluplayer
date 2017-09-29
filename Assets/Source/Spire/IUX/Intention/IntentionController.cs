@@ -30,6 +30,13 @@ namespace CreateAR.Spire
         private int _angularVelocityDegreesSampleIndex;
 
         /// <summary>
+        /// Backing variables for directional properties.
+        /// </summary>
+        private Vector3 _forward = Vector3.forward;
+        private Vector3 _up = Vector3.up;
+        private Vector3 _right = Vector3.right;
+
+        /// <summary>
         /// For aiming with a hand.
         /// </summary>
         public Vector3 LocalHandOffset;
@@ -40,9 +47,23 @@ namespace CreateAR.Spire
         public float MaxAngularVelocity = 40.0f;
 
         /// <summary>
+        /// Returns steadiness of the view.
+        /// </summary>
+        public float Steadiness;
+
+        /// <summary>
+        /// If true, input is not updated.
+        /// </summary>
+        public bool InputDisabled { get; private set; }
+
+        /// <summary>
+        /// Current focus.
+        /// </summary>
+        public IFocusable Focus { get; private set; }
+
+        /// <summary>
         /// Forward direction.
         /// </summary>
-        private Vector3 _forward = Vector3.forward;
         public Vector3 Forward
         {
             get { return _forward; }
@@ -52,7 +73,6 @@ namespace CreateAR.Spire
         /// <summary>
         /// Up direction.
         /// </summary>
-        private Vector3 _up = Vector3.up;
         public Vector3 Up
         {
             get { return _up; }
@@ -62,7 +82,6 @@ namespace CreateAR.Spire
         /// <summary>
         /// Right direction.
         /// </summary>
-        private Vector3 _right = Vector3.right;
         public Vector3 Right
         {
             get { return _right; }
@@ -77,20 +96,12 @@ namespace CreateAR.Spire
         /// <summary>
         /// Focus ray.
         /// </summary>
-        public Ray Ray
-        {
-            get { return new Ray(Origin, Forward); }
-        }
+        public Ray Ray { get { return new Ray(Origin, Forward); } }
 
         /// <summary>
         /// Tracks average angular velocity in degrees.
         /// </summary>
         public float AverageAngularVelocity { get; private set; }
-
-        /// <summary>
-        /// Returns steadiness of the view.
-        /// </summary>
-        public float Steadiness;
 
         /// <summary>
         /// Return if the supplied position is visible to the user.
@@ -128,6 +139,7 @@ namespace CreateAR.Spire
             UpdatePeripherals();
             UpdateHands();
             UpdateSteadiness(deltaTime);
+            UpdateFocus();
         }
 
         /// <summary>
@@ -227,6 +239,65 @@ namespace CreateAR.Spire
 
             AverageAngularVelocity = totalAngularVelocity / count;
             Steadiness = 1.0f - Mathf.Clamp01(AverageAngularVelocity / MaxAngularVelocity);
+        }
+
+        /// <summary>
+        /// Updates the current IFocusable that is considered focused.
+        /// </summary>
+        private void UpdateFocus()
+        {
+            if (InputDisabled)
+            {
+                Focus = null;
+                return;
+            }
+
+            var layerMask = 1 << LayerMask.NameToLayer(LayerMaskNames.UI);
+
+            RaycastHit raycastHit;
+            if (Physics.Raycast(
+                Origin,
+                Forward,
+                out raycastHit,
+                Mathf.Infinity,
+                layerMask))
+            {
+                if (raycastHit.collider != null)
+                {
+                    var focusable = raycastHit
+                        .collider
+                        .GetComponent<IFocusable>();
+                    if (focusable != null
+                        && focusable.IsVisible
+                        && focusable.FocusCollider != null
+                        && focusable.FocusCollider.enabled)
+                    {
+                        Focus = focusable;
+                        return;
+                    }
+                }
+            }
+
+            // determine if the current IFocusable should lose focus
+            if (Focus != null)
+            {
+                if (Focus.UnfocusCollider == null)
+                {
+                    Focus = null;
+                }
+                else
+                {
+                    if (!Focus
+                        .UnfocusCollider
+                        .Raycast(
+                            Ray,
+                            out raycastHit,
+                            Mathf.Infinity))
+                    {
+                        Focus = null;
+                    }
+                }
+            }
         }
     }
 }

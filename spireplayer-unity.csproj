@@ -199,10 +199,12 @@
     <Compile Include="Assets\Source\Spire\Data\SceneData.cs" />
     <Compile Include="Assets\Source\Spire\IUX\ColorManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\HsbColor.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Intention\IFocusable.cs" />
     <Compile Include="Assets\Source\Spire\IUX\IntentionController.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\ILayerable.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\Layer.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\LayerManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Layer\LayerMaskNames.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\TweenConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\WidgetConfig.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
