@@ -31,7 +31,7 @@ namespace CreateAR.Spire
     /// <summary>
     /// Base class for IUX elements.
     /// </summary>
-    public class Widget : InjectableMonoBehaviour, ILayerable
+    public class Widget : InjectableMonoBehaviour, ILayerable, IElement
     {
         /// <summary>
         /// True if the widget is currently visible
@@ -384,6 +384,11 @@ namespace CreateAR.Spire
         }
 
         /// <summary>
+        /// Highlight priority.
+        /// </summary>
+        public int HighlightPriority { get; private set; }
+
+        /// <summary>
         /// Layer mode.
         /// </summary>
         public LayerMode LayerMode { get; private set; }
@@ -451,21 +456,10 @@ namespace CreateAR.Spire
             {
                 OnDestroyed(this);
             }
-
-            OnVisible.OnChanged -= Widget_OnVisible;
-
+            
             LocalVisible = false;
         }
-
-        /// <summary>
-        /// Invoked when visibility changes
-        /// </summary>
-        /// <param name="visible"></param>
-        public virtual void Widget_OnVisible(bool visible)
-        {
-            // empty
-        }
-
+        
         /// <summary>
         /// Brings the layer to the foreground
         /// </summary>
@@ -530,7 +524,8 @@ namespace CreateAR.Spire
         {
             base.Awake();
 
-            OnVisible.OnChanged += Widget_OnVisible;
+            // track this element
+            Elements.Add(this);
         }
 
         /// <summary>
