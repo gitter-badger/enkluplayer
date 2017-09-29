@@ -13,14 +13,14 @@ namespace CreateAR.Spire
         /// <typeparam name="T">The type of data to retrieve.</typeparam>
         /// <param name="id">The id of the data.</param>
         /// <returns></returns>
-        T Get<T>(string id);
+        T Get<T>(string id) where T : class;
 
         /// <summary>
         /// Retrieves all of a type of data.
         /// </summary>
         /// <typeparam name="T">The type of data to retrieve.</typeparam>
         /// <returns></returns>
-        T[] GetAll<T>();
+        T[] GetAll<T>() where T : class;
 
         /// <summary>
         /// Loads all data for an app by name.

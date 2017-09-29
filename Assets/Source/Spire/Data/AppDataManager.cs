@@ -42,13 +42,13 @@ namespace CreateAR.Spire
         }
 
         /// <inheritdoc cref="IAppDataManager"/>
-        public T Get<T>(string id)
+        public T Get<T>(string id) where T : class
         {
             throw new NotImplementedException();
         }
 
         /// <inheritdoc cref="IAppDataManager"/>
-        public T[] GetAll<T>()
+        public T[] GetAll<T>() where T : class
         {
             throw new NotImplementedException();
         }
