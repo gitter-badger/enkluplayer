@@ -196,8 +196,12 @@
     <Compile Include="Assets\Source\Spire\Data\AppDataManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\ContentData.cs" />
     <Compile Include="Assets\Source\Spire\Data\FileProtocols.cs" />
+    <Compile Include="Assets\Source\Spire\Data\IAppDataManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\SceneData.cs" />
     <Compile Include="Assets\Source\Spire\IUX\ColorConfig.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\Content.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\ContentManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\IContentFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\HsbColor.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\IElement.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\IFocusable.cs" />

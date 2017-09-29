@@ -107,7 +107,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="binder">Object to add bindings to.</param>
         private void AddSpireBindings(InjectionBinder binder)
         {
-            binder.Bind<AppDataManager>().To<AppDataManager>().ToSingleton();
+            binder.Bind<IAppDataManager>().To<AppDataManager>().ToSingleton();
 
             // configs
             {

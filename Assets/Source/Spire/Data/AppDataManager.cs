@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.Spire
 {
     /// <summary>
-    /// Loads data for an App.
+    /// Default implementation of <c>IAppDataManager</c>.
     /// </summary>
-    public class AppDataManager
+    public class AppDataManager : IAppDataManager
     {
         /// <summary>
         /// For getting/setting files.
@@ -39,16 +41,22 @@ namespace CreateAR.Spire
             _files = files;
         }
 
-        /// <summary>
-        /// Loads an app by name.
-        /// 
-        /// TODO: Transition to id.
-        /// </summary>
-        /// <param name="name">Readable name.</param>
-        /// <returns></returns>
-        public IAsyncToken<AppData> Load(string name)
+        /// <inheritdoc cref="IAppDataManager"/>
+        public T Get<T>(string id)
         {
-            var token = new AsyncToken<AppData>();
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc cref="IAppDataManager"/>
+        public T[] GetAll<T>()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc cref="IAppDataManager"/>
+        public IAsyncToken<Void> Load(string name)
+        {
+            var token = new AsyncToken<Void>();
 
             // first, get app data
             _files
@@ -62,6 +70,8 @@ namespace CreateAR.Spire
                         .OnSuccess(_ =>
                         {
                             Log.Info(this, "Loaded scenes.");
+
+                            token.Succeed(Void.Instance);
                         })
                         .OnFailure(token.Fail);
                 })

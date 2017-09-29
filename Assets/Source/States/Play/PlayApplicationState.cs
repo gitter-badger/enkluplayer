@@ -19,14 +19,14 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Manages App data.
         /// </summary>
-        private readonly AppDataManager _appDataManager;
+        private readonly IAppDataManager _appDataManager;
 
         /// <summary>
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
             IFileManager files,
-            AppDataManager appDataManager)
+            IAppDataManager appDataManager)
         {
             _files = files;
             _appDataManager = appDataManager;
@@ -52,7 +52,7 @@ namespace CreateAR.SpirePlayer
                 .Load(appName)
                 .OnSuccess(data =>
                 {
-                    Log.Info(this, "Loaded {0}.", data.Name);
+                    Log.Info(this, "Loaded App.");
                 })
                 .OnFailure(exception =>
                 {
