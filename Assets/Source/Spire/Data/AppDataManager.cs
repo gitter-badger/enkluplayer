@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer;
@@ -18,39 +19,52 @@ namespace CreateAR.Spire
         private readonly IFileManager _files;
 
         /// <summary>
+        /// Manages assets.
+        /// </summary>
+        private readonly IAssetManager _assets;
+
+        /// <summary>
         /// Containing app.
         /// </summary>
         private AppData _app;
 
         /// <summary>
-        /// List of all scenes.
+        /// Type to list of data.
         /// </summary>
-        private readonly List<SceneData> _scenes = new List<SceneData>();
-
-        /// <summary>
-        /// List of all content.
-        /// </summary>
-        private readonly List<ContentData> _content = new List<ContentData>();
+        private readonly Dictionary<Type, List<StaticData>> _dataByType = new Dictionary<Type, List<StaticData>>();
 
         /// <summary>
         /// Creates a new AppDataManager.
         /// </summary>
         /// <param name="files">For getting/setting files.</param>
-        public AppDataManager(IFileManager files)
+        /// <param name="assets">For getting assets.</param>
+        public AppDataManager(
+            IFileManager files,
+            IAssetManager assets)
         {
             _files = files;
+            _assets = assets;
         }
 
         /// <inheritdoc cref="IAppDataManager"/>
-        public T Get<T>(string id) where T : class
+        public T Get<T>(string id) where T : StaticData
         {
-            throw new NotImplementedException();
+            var list = List<T>();
+            foreach (var element in list)
+            {
+                if (element.Id == id)
+                {
+                    return (T) element;
+                }
+            }
+
+            return null;
         }
 
         /// <inheritdoc cref="IAppDataManager"/>
-        public T[] GetAll<T>() where T : class
+        public T[] GetAll<T>() where T : StaticData
         {
-            throw new NotImplementedException();
+            return List<T>().Cast<T>().ToArray();
         }
 
         /// <inheritdoc cref="IAppDataManager"/>
@@ -58,13 +72,73 @@ namespace CreateAR.Spire
         {
             var token = new AsyncToken<Void>();
 
-            // first, get app data
+            Async
+                .All(
+                    LoadAssets(name),
+                    LoadApp(name))
+                .OnSuccess(_ => token.Succeed(Void.Instance))
+                .OnFailure(token.Fail);
+
+            return token;
+        }
+
+        /// <inheritdoc cref="IAppDataManager"/>
+        public IAsyncToken<Void> Unload()
+        {
+            return new AsyncToken<Void>(new NotImplementedException());
+        }
+
+        /// <summary>
+        /// Loads AssetInfoManifest for app into <c>IAssetManager</c>.
+        /// </summary>
+        /// <param name="name">Name of the app.</param>
+        /// <returns></returns>
+        private IAsyncToken<Void> LoadAssets(string name)
+        {
+            var token = new AsyncToken<Void>();
+
+            _files
+                .Get<AssetInfoManifest>(FileProtocols.APP + name + "/Assets")
+                .OnSuccess(file =>
+                {
+                    var assets = file.Data.Assets;
+
+                    Log.Info(this,
+                        "Loading {0} assets into manifest.",
+                        assets.Length);
+
+                    _assets.Manifest.Add(assets);
+
+                    token.Succeed(Void.Instance);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not load AssetInfoManifest : {0}.",
+                        exception);
+
+                    token.Fail(exception);
+                });
+
+            return token;
+        }
+
+        /// <summary>
+        /// Loads all app data.
+        /// </summary>
+        /// <param name="name">The name of the app.</param>
+        /// <returns></returns>
+        private IAsyncToken<Void> LoadApp(string name)
+        {
+            var token = new AsyncToken<Void>();
+            
+            // get app data
             _files
                 .Get<AppData>(FileProtocols.APP + name + "/App")
                 .OnSuccess(file =>
                 {
                     _app = file.Data;
-                    
+
                     // now get accompanying scenes
                     LoadScenes(_app)
                         .OnSuccess(_ =>
@@ -124,6 +198,7 @@ namespace CreateAR.Spire
         private IAsyncToken<Void> LoadScene(AppData app, string id)
         {
             var token = new AsyncToken<Void>();
+            var list = List<SceneData>();
 
             var uri = FileProtocols.APP + app.Name + "/SceneData/" + id;
             _files
@@ -132,7 +207,7 @@ namespace CreateAR.Spire
                 {
                     var scene = file.Data;
 
-                    _scenes.Add(scene);
+                    list.Add(scene);
 
                     // load all content before succeeding token
                     LoadContent(app, scene)
@@ -153,6 +228,7 @@ namespace CreateAR.Spire
         private IAsyncToken<Void> LoadContent(AppData app, SceneData scene)
         {
             var token = new AsyncToken<Void>();
+            var list = List<ContentData>();
 
             // load and save each piece
             var content = scene.Content;
@@ -165,10 +241,7 @@ namespace CreateAR.Spire
 
                 tokens[i] = _files
                     .Get<ContentData>(uri)
-                    .OnSuccess(file =>
-                    {
-                        _content.Add(file.Data);
-                    });
+                    .OnSuccess(file => list.Add(file.Data));
             }
 
             // listen for all of them
@@ -178,6 +251,22 @@ namespace CreateAR.Spire
                 .OnFailure(token.Fail);
 
             return token;
+        }
+
+        /// <summary>
+        /// Retrieves list for type.
+        /// </summary>
+        /// <typeparam name="T">Type.</typeparam>
+        /// <returns></returns>
+        private List<StaticData> List<T>()
+        {
+            List<StaticData> list;
+            if (!_dataByType.TryGetValue(typeof(T), out list))
+            {
+                list = _dataByType[typeof(T)] = new List<StaticData>();
+            }
+
+            return list;
         }
     }
 }

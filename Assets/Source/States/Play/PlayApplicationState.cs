@@ -44,7 +44,7 @@ namespace CreateAR.SpirePlayer
                 new SystemXmlSerializer(),
                 new LocalFileSystem("Assets/StreamingAssets/App"));
             
-            // TODO: pull off of state
+            // TODO: pull off of ApplicationState
             var appName = "StaticContentDemo";
 
             // load data

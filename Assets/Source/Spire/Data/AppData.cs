@@ -4,13 +4,8 @@ using System.Collections.Generic;
 namespace CreateAR.Spire
 {
     [Serializable]
-    public class AppData
+    public class AppData : StaticData
     {
-        /// <summary>
-        /// UUID of this App.
-        /// </summary>
-        public string Id;
-
         /// <summary>
         /// Name.
         /// </summary>

@@ -6,13 +6,8 @@ namespace CreateAR.Spire
     /// Associates AssetData, AnchorData, and some data about the Content.
     /// </summary>
     [Serializable]
-    public class ContentData
+    public class ContentData : StaticData
     {
-        /// <summary>
-        /// Unique identifier.
-        /// </summary>
-        public string Id;
-
         /// <summary>
         /// Readable name.
         /// </summary>

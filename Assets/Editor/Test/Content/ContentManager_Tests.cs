@@ -26,17 +26,22 @@ namespace CreateAR.Spire.Test
             }
         };
 
-        public T Get<T>(string id) where T : class
+        public T Get<T>(string id) where T : StaticData
         {
             return _content.FirstOrDefault(content => content.Id == id) as T;
         }
 
-        public T[] GetAll<T>() where T : class
+        public T[] GetAll<T>() where T : StaticData
         {
             return _content.Cast<T>().ToArray();
         }
 
         public IAsyncToken<Void> Load(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncToken<Void> Unload()
         {
             throw new NotImplementedException();
         }

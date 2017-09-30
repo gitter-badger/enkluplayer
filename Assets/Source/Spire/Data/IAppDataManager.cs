@@ -13,14 +13,14 @@ namespace CreateAR.Spire
         /// <typeparam name="T">The type of data to retrieve.</typeparam>
         /// <param name="id">The id of the data.</param>
         /// <returns></returns>
-        T Get<T>(string id) where T : class;
+        T Get<T>(string id) where T : StaticData;
 
         /// <summary>
         /// Retrieves all of a type of data.
         /// </summary>
         /// <typeparam name="T">The type of data to retrieve.</typeparam>
         /// <returns></returns>
-        T[] GetAll<T>() where T : class;
+        T[] GetAll<T>() where T : StaticData;
 
         /// <summary>
         /// Loads all data for an app by name.
@@ -30,5 +30,11 @@ namespace CreateAR.Spire
         /// <param name="name">Readable name.</param>
         /// <returns></returns>
         IAsyncToken<Void> Load(string name);
+
+        /// <summary>
+        /// Unloads currently loaded scene.
+        /// </summary>
+        /// <returns></returns>
+        IAsyncToken<Void> Unload();
     }
 }

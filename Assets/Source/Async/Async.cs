@@ -21,7 +21,7 @@ namespace CreateAR.Commons.Unity.Async
         /// <typeparam name="T"></typeparam>
         /// <param name="tokens"></param>
         /// <returns></returns>
-        public static IAsyncToken<T[]> All<T>(IAsyncToken<T>[] tokens)
+        public static IAsyncToken<T[]> All<T>(params IAsyncToken<T>[] tokens)
         {
             var len = tokens.Length;
             if (0 == len)

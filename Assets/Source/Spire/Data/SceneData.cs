@@ -7,13 +7,8 @@ namespace CreateAR.Spire
     /// Data that describes a scene.
     /// </summary>
     [Serializable]
-    public class SceneData
+    public class SceneData : StaticData
     {
-        /// <summary>
-        /// Unique scene identifier.
-        /// </summary>
-        public string Id;
-
         /// <summary>
         /// Readable name.
         /// </summary>

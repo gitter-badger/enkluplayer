@@ -198,6 +198,7 @@
     <Compile Include="Assets\Editor\Test\Content\DummyContentFactory.cs" />
     <Compile Include="Assets\Editor\Test\Data\FileManager_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Util\StandardQueryResolver_Tests.cs" />
+    <Compile Include="Assets\Editor\Tools\Asset\AssetManifestEditor.cs" />
     <Compile Include="Assets\Editor\Tools\DataMigration\SpireDataMigrator.cs" />
   </ItemGroup>
   <ItemGroup>
