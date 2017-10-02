@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.VR.WSA.Input;
 
 namespace CreateAR.Spire
 {
@@ -22,7 +21,9 @@ namespace CreateAR.Spire
         /// <summary>
         /// Interaction source states.
         /// </summary>
-        private readonly InteractionSourceState[] _interactionSourceStates = new InteractionSourceState[10];
+#if UNITY_WSA
+        private readonly UnityEngine.VR.WSA.Input.InteractionSourceState[] _interactionSourceStates = new UnityEngine.VR.WSA.Input.InteractionSourceState[10];
+#endif
 
         /// <summary>
         /// Current sample index.
@@ -157,9 +158,12 @@ namespace CreateAR.Spire
 
         /// <summary>
         /// Update the hand.
+        /// 
+        /// TODO: pull out into separate class.
         /// </summary>
         private void UpdateHands()
         {
+#if UNITY_WSA
             var mainCamera = Camera.main;
             if (mainCamera == null)
             {
@@ -168,12 +172,12 @@ namespace CreateAR.Spire
 
             var cameraTransform = mainCamera.transform;
 
-            var count = InteractionManager.GetCurrentReading(_interactionSourceStates);
+            var count = UnityEngine.VR.WSA.Input.InteractionManager.GetCurrentReading(_interactionSourceStates);
             for (var i = 0; i < count; ++i)
             {
                 Vector3 handPosition;
                 var interactionSourceState = _interactionSourceStates[i];
-                if (interactionSourceState.source.kind == InteractionSourceKind.Hand
+                if (interactionSourceState.source.kind == UnityEngine.VR.WSA.Input.InteractionSourceKind.Hand
                     && interactionSourceState.properties.location.TryGetPosition(out handPosition))
                 {
                     handPosition += cameraTransform.forward * LocalHandOffset.z
@@ -185,6 +189,7 @@ namespace CreateAR.Spire
                     break;
                 }
             }
+#endif
         }
 
         /// <summary>
