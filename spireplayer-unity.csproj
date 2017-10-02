@@ -122,6 +122,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Jint\Jint.Unity\Loader\IScriptLoader.cs" />
+    <Compile Include="Assets\Jint\Jint.Unity\Loader\ResourcesScriptLoader.cs" />
+    <Compile Include="Assets\Jint\Jint.Unity\MonoBehaviourScriptingHost.cs" />
+    <Compile Include="Assets\Jint\Jint.Unity\Resolver\IScriptDependencyResolver.cs" />
+    <Compile Include="Assets\Jint\Jint.Unity\Resolver\NullScriptingDependencyResolver.cs" />
+    <Compile Include="Assets\Jint\Jint.Unity\Resolver\TypeScriptingDependencyResolver.cs" />
+    <Compile Include="Assets\Jint\Jint.Unity\ScriptReference.cs" />
+    <Compile Include="Assets\Jint\Jint.Unity\Serialization\ScriptingPropertyBucket.cs" />
+    <Compile Include="Assets\Jint\Jint.Unity\UnityLogWrapper.cs" />
+    <Compile Include="Assets\Jint\Jint.Unity\UnityScriptingHost.cs" />
+    <Compile Include="Assets\Jint\Jint.Unity\UQL\UnitySceneManager.cs" />
+    <Compile Include="Assets\Jint\Jint.Unity\UQL\UnitySceneQuery.cs" />
     <Compile Include="Assets\Jint\Jint\DeclarationBindingType.cs" />
     <Compile Include="Assets\Jint\Jint\Engine.cs" />
     <Compile Include="Assets\Jint\Jint\EvalCodeScope.cs" />
@@ -272,6 +284,7 @@
     <Compile Include="Assets\Jint\Jint\Runtime\StatementsCountOverflowException.cs" />
     <Compile Include="Assets\Jint\Jint\Runtime\TypeConverter.cs" />
     <Compile Include="Assets\Jint\Jint\StrictModeScope.cs" />
+    <Compile Include="Assets\Scenes\Test\Jint\JintMain.cs" />
     <Compile Include="Assets\Source\Application\Injection\IInjectionModule.cs" />
     <Compile Include="Assets\Source\Application\Injection\InjectableMonoBehaviour.cs" />
     <Compile Include="Assets\Source\Application\Injection\InjectionExtensions.cs" />
@@ -394,8 +407,6 @@
     <Compile Include="Assets\Source\Util\TypeUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Jint\CREDITS.txt" />
-    <None Include="Assets\Jint\LICENSE.txt" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\AOT\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Windows\Newtonsoft.Json.XML" />

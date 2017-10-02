@@ -200,8 +200,6 @@
     <Compile Include="Assets\Editor\Tools\DataMigration\SpireDataMigrator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Jint\CREDITS.txt" />
-    <None Include="Assets\Jint\LICENSE.txt" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\AOT\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Windows\Newtonsoft.Json.XML" />
