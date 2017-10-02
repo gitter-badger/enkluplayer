@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Editor:5</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -138,26 +136,17 @@
     <Reference Include="UnityEditor.iOS.Extensions.Common">
       <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Common.dll</HintPath>
     </Reference>
-    <Reference Include="CreateAR.Commons.Unity.DataStructures">
-      <HintPath>Assets\Plugins\CreateAR\Commons\CreateAR.Commons.Unity.DataStructures.dll</HintPath>
+    <Reference Include="CreateAR.Commons.Unity.Editor.UI">
+      <HintPath>Assets\Editor\Assemblies\CreateAR.Commons.Unity.Editor.UI.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="CreateAR.Commons.Unity.Storage">
-      <HintPath>Assets\Plugins\CreateAR\Commons\CreateAR.Commons.Unity.Storage.dll</HintPath>
-    </Reference>
-    <Reference Include="CreateAR.Commons.Unity.Messaging">
-      <HintPath>Assets\Plugins\CreateAR\Commons\CreateAR.Commons.Unity.Messaging.dll</HintPath>
-    </Reference>
-    <Reference Include="Strange.Net35">
-      <HintPath>Assets\Plugins\ThirdParty\Strange\net35\Strange.Net35.dll</HintPath>
-    </Reference>
-    <Reference Include="websocket-sharp">
-      <HintPath>Assets\Plugins\ThirdParty\WebSocket-Sharp\websocket-sharp.dll</HintPath>
+    <Reference Include="CreateAR.Commons.Unity.Nuget">
+      <HintPath>Assets\Editor\Assemblies\CreateAR.Commons.Unity.Nuget.dll</HintPath>
     </Reference>
     <Reference Include="CreateAR.Commons.Unity.Async">
       <HintPath>Assets\Plugins\CreateAR\Commons\CreateAR.Commons.Unity.Async.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.DataStructures">
+      <HintPath>Assets\Plugins\CreateAR\Commons\CreateAR.Commons.Unity.DataStructures.dll</HintPath>
     </Reference>
     <Reference Include="CreateAR.Commons.Unity.Http">
       <HintPath>Assets\Plugins\CreateAR\Commons\CreateAR.Commons.Unity.Http.dll</HintPath>
@@ -165,17 +154,26 @@
     <Reference Include="CreateAR.Commons.Unity.Logging">
       <HintPath>Assets\Plugins\CreateAR\Commons\CreateAR.Commons.Unity.Logging.dll</HintPath>
     </Reference>
+    <Reference Include="CreateAR.Commons.Unity.Messaging">
+      <HintPath>Assets\Plugins\CreateAR\Commons\CreateAR.Commons.Unity.Messaging.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.Storage">
+      <HintPath>Assets\Plugins\CreateAR\Commons\CreateAR.Commons.Unity.Storage.dll</HintPath>
+    </Reference>
     <Reference Include="CreateAR.Trellis.Messages">
       <HintPath>Assets\Plugins\CreateAR\Commons\CreateAR.Trellis.Messages.dll</HintPath>
     </Reference>
-    <Reference Include="CreateAR.Commons.Unity.Editor.UI">
-      <HintPath>Assets\Editor\Assemblies\CreateAR.Commons.Unity.Editor.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="CreateAR.Commons.Unity.Nuget">
-      <HintPath>Assets\Editor\Assemblies\CreateAR.Commons.Unity.Nuget.dll</HintPath>
-    </Reference>
     <Reference Include="Polenter.SharpSerializer">
       <HintPath>Assets\Plugins\ThirdParty\Polenter.SharpSerializer.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Strange.Net35">
+      <HintPath>Assets\Plugins\ThirdParty\Strange\net35\Strange.Net35.dll</HintPath>
+    </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>Assets\Plugins\ThirdParty\WebSocket-Sharp\websocket-sharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -202,6 +200,8 @@
     <Compile Include="Assets\Editor\Tools\DataMigration\SpireDataMigrator.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Jint\CREDITS.txt" />
+    <None Include="Assets\Jint\LICENSE.txt" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\AOT\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Windows\Newtonsoft.Json.XML" />
