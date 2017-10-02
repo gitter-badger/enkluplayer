@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.Spire;
 
 namespace CreateAR.SpirePlayer
 {
@@ -44,17 +45,20 @@ namespace CreateAR.SpirePlayer
             _http.UrlBuilder.Version = "v1";
 
             // setup assets
+            var loader = UnityEngine.Application.isEditor
+                ? (IAssetLoader) new EditorAssetLoader()
+                : new StandardAssetLoader(
+                    _bootstrapper,
+                    new UrlBuilder
+                    {
+                        BaseUrl = "ec2-54-202-152-140.us-west-2.compute.amazonaws.com",
+                        Port = 9091,
+                        Protocol = "http"
+                    });
             _assets
                 .Initialize(new AssetManagerConfiguration
                 {
-                    Loader = new StandardAssetLoader(
-                        _bootstrapper,
-                        new UrlBuilder
-                        {
-                            BaseUrl = "ec2-54-202-152-140.us-west-2.compute.amazonaws.com",
-                            Port = 9091,
-                            Protocol = "http"
-                        }),
+                    Loader = loader,
                     Queries = new StandardQueryResolver(),
                     Service = _assetUpdater
                 })
