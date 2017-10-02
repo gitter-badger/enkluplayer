@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CreateAR.SpirePlayer;
 using UnityEditor;
 using UnityEngine;
@@ -79,7 +80,15 @@ namespace CreateAR.Spire.Editor
 
             var manifest = new AssetInfoManifest
             {
-                Assets = _infos.ToArray()
+                Assets = _infos
+                    .Select(info =>
+                    {
+                        var assetPath = AssetDatabase.GUIDToAssetPath(info.Guid);
+                        Debug.Log(string.Format("{0} : {1}", info.Guid, assetPath));
+                        info.Uri = assetPath;
+                        return info;
+                    })
+                    .ToArray()
             };
 
             byte[] bytes;
