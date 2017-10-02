@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.VR.WSA;
 
 namespace CreateAR.Spire
 {
@@ -45,10 +44,12 @@ namespace CreateAR.Spire
 
             if (Data.Spatial)
             {
-                if (null == GetComponent<WorldAnchor>())
+#if UNITY_WSA
+                if (null == GetComponent<UnityEngine.VR.WSA.WorldAnchor>())
                 {
-                    gameObject.AddComponent<WorldAnchor>();
+                    gameObject.AddComponent<UnityEngine.VR.WSA.WorldAnchor>();
                 }
+#endif
             }
         }
 
