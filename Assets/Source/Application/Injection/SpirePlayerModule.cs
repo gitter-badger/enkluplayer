@@ -110,7 +110,6 @@ namespace CreateAR.SpirePlayer
             binder.Bind<AppController>().To<AppController>();
             binder.Bind<IAppDataManager>().To<AppDataManager>().ToSingleton();
             binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
-            binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
 
             // factory
             {
@@ -129,6 +128,8 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<ElementManager>().ToValue(LookupComponent<ElementManager>());
                 binder.Bind<IntentionManager>().ToValue(LookupComponent<IntentionManager>());
+                binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
+                binder.Bind<LayerManager>().ToValue(LookupComponent<LayerManager>());
             }
         }
 

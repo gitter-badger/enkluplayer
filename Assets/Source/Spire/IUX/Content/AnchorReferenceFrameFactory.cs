@@ -23,9 +23,10 @@ namespace CreateAR.Spire
         /// <inheritdoc cref="IAnchorReferenceFrameFactory"/>
         public IAnchorReferenceFrame Instance(
             IContentManager content,
-            Anchor anchor)
+            Anchor anchor,
+            AnchorType type)
         {
-            switch (anchor.Data.Type)
+            switch (type)
             {
                 case AnchorType.Floor:
                 {

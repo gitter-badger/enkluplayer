@@ -32,7 +32,7 @@ namespace CreateAR.Spire
 
             // setup the Anchor
             var anchor = instance.AddComponent<Anchor>();
-            var frame = _frames.Instance(content, anchor);
+            var frame = _frames.Instance(content, anchor, data.Anchor.Type);
             anchor.Initialize(frame, data.Anchor);
 
             // setup the content
