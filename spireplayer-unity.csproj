@@ -117,12 +117,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="spireplayer-unity.Plugins.csproj">
-      <Project>{53930814-9EC8-FEBF-DC68-610C5017B975}</Project>
-      <Name>spireplayer-unity.Plugins</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Assets\Jint\Jint.Unity\Loader\IScriptLoader.cs" />
     <Compile Include="Assets\Jint\Jint.Unity\Loader\ResourcesScriptLoader.cs" />
     <Compile Include="Assets\Jint\Jint.Unity\MonoBehaviourScriptingHost.cs" />
@@ -406,6 +400,40 @@
     <Compile Include="Assets\Source\Util\StandardQueryResolver.cs" />
     <Compile Include="Assets\Source\Util\SystemXmlSerializer.cs" />
     <Compile Include="Assets\Source\Util\TypeUtil.cs" />
+    <Compile Include="Assets\Strange\compat\UwpTypeExtensions.cs" />
+    <Compile Include="Assets\Strange\framework\api\BinderExceptionType.cs" />
+    <Compile Include="Assets\Strange\framework\api\BindingConst.cs" />
+    <Compile Include="Assets\Strange\framework\api\BindingConstraintType.cs" />
+    <Compile Include="Assets\Strange\framework\api\IBinder.cs" />
+    <Compile Include="Assets\Strange\framework\api\IBinding.cs" />
+    <Compile Include="Assets\Strange\framework\api\IInstanceProvider.cs" />
+    <Compile Include="Assets\Strange\framework\api\IManagedList.cs" />
+    <Compile Include="Assets\Strange\framework\api\ISemiBinding.cs" />
+    <Compile Include="Assets\Strange\framework\impl\Binder.cs" />
+    <Compile Include="Assets\Strange\framework\impl\BinderException.cs" />
+    <Compile Include="Assets\Strange\framework\impl\Binding.cs" />
+    <Compile Include="Assets\Strange\framework\impl\SemiBinding.cs" />
+    <Compile Include="Assets\Strange\injector\api\ICrossContextInjectionBinder.cs" />
+    <Compile Include="Assets\Strange\injector\api\IInjectionBinder.cs" />
+    <Compile Include="Assets\Strange\injector\api\IInjectionBinding.cs" />
+    <Compile Include="Assets\Strange\injector\api\IInjector.cs" />
+    <Compile Include="Assets\Strange\injector\api\IInjectorFactory.cs" />
+    <Compile Include="Assets\Strange\injector\api\InjectionBindingScope.cs" />
+    <Compile Include="Assets\Strange\injector\api\InjectionBindingType.cs" />
+    <Compile Include="Assets\Strange\injector\api\InjectionExceptionType.cs" />
+    <Compile Include="Assets\Strange\injector\impl\CrossContextInjectionBinder.cs" />
+    <Compile Include="Assets\Strange\injector\impl\InjectionBinder.cs" />
+    <Compile Include="Assets\Strange\injector\impl\InjectionBinding.cs" />
+    <Compile Include="Assets\Strange\injector\impl\InjectionException.cs" />
+    <Compile Include="Assets\Strange\injector\impl\Injector.cs" />
+    <Compile Include="Assets\Strange\injector\impl\InjectorFactory.cs" />
+    <Compile Include="Assets\Strange\injector\InjectAttribute.cs" />
+    <Compile Include="Assets\Strange\reflector\api\IReflectedClass.cs" />
+    <Compile Include="Assets\Strange\reflector\api\IReflectionBinder.cs" />
+    <Compile Include="Assets\Strange\reflector\api\ReflectionExceptionType.cs" />
+    <Compile Include="Assets\Strange\reflector\impl\ReflectedClass.cs" />
+    <Compile Include="Assets\Strange\reflector\impl\ReflectionBinder.cs" />
+    <Compile Include="Assets\Strange\reflector\impl\ReflectionException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\AOT\Newtonsoft.Json.XML" />

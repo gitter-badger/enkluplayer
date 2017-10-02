@@ -91,8 +91,13 @@ namespace Jint.Runtime.Interop
             foreach (var methodInfo in methodInfos)
             {
                 var parameters = methodInfo.GetParameters();
+#if NETFX_CORE
+                if (!parameters.Any(p => p.IsDefined(typeof(ParamArrayAttribute))))
+                    continue;
+#else
                 if (!parameters.Any(p => Attribute.IsDefined(p, typeof(ParamArrayAttribute))))
                     continue;
+#endif
 
                 var nonParamsArgumentsCount = parameters.Length - 1;
                 if (jsArguments.Length < nonParamsArgumentsCount)

@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using Jint.Native;
 using Jint.Native.Function;
 
@@ -21,9 +22,16 @@ namespace Jint.Runtime.Interop
 
         public override JsValue Call(JsValue thisObject, JsValue[] jsArguments)
         {
-            var parameterInfos = _d.Method.GetParameters();
+            ParameterInfo[] parameterInfos;
+            bool delegateContainsParamsArgument;
+#if NETFX_CORE
+            parameterInfos = _d.GetMethodInfo().GetParameters();
+            delegateContainsParamsArgument = parameterInfos.Any(p => p.IsDefined(typeof(ParamArrayAttribute)));
+#else
+            parameterInfos = _d.Method.GetParameters();
+            delegateContainsParamsArgument = parameterInfos.Any(p => Attribute.IsDefined(p, typeof(ParamArrayAttribute)));
+#endif
 
-            bool delegateContainsParamsArgument = parameterInfos.Any(p => Attribute.IsDefined(p, typeof(ParamArrayAttribute)));
             int delegateArgumentsCount = parameterInfos.Length;
             int delegateNonParamsArgumentsCount = delegateContainsParamsArgument ? delegateArgumentsCount - 1 : delegateArgumentsCount;
 
@@ -51,7 +59,7 @@ namespace Jint.Runtime.Interop
             // assign null to parameters not provided
             for (var i = jsArguments.Length; i < delegateNonParamsArgumentsCount; i++)
             {
-                if (parameterInfos[i].ParameterType.IsValueType)
+                if (parameterInfos[i].ParameterType.GetTypeInfo().IsValueType)
                 {
                     parameters[i] = Activator.CreateInstance(parameterInfos[i].ParameterType);
                 }

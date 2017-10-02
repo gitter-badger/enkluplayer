@@ -178,10 +178,6 @@
       <Project>{EACC8403-073E-7D2C-6C33-59D57AD9A04B}</Project>
       <Name>spireplayer-unity</Name>
     </ProjectReference>
-    <ProjectReference Include="spireplayer-unity.Plugins.csproj">
-      <Project>{53930814-9EC8-FEBF-DC68-610C5017B975}</Project>
-      <Name>spireplayer-unity.Plugins</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Editor\Application\EditorApplicationHostEditorWindow.cs" />

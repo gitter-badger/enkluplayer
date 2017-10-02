@@ -91,7 +91,11 @@ namespace Jint.Runtime.Interop
                         var callExpresion = Expression.Call(
                                                 Expression.Call(
                                                     Expression.Constant(function.Target),
+#if NETFX_CORE
+                                                    function.GetMethodInfo(),
+#else
                                                     function.Method,
+#endif
                                                     Expression.Constant(JsValue.Undefined, typeof(JsValue)),
                                                     @vars),
                                                 jsValueToObject);
@@ -129,7 +133,11 @@ namespace Jint.Runtime.Interop
                                                     convertChangeType,
                                                     Expression.Call(
                                                             Expression.Call(Expression.Constant(function.Target),
+#if NETFX_CORE
+                                                                    function.GetMethodInfo(),
+#else
                                                                     function.Method,
+#endif
                                                                     Expression.Constant(JsValue.Undefined, typeof(JsValue)),
                                                                     @vars),
                                                             jsValueToObject),
@@ -174,7 +182,11 @@ namespace Jint.Runtime.Interop
                                                 Expression.Empty());*/
                         var callExpression = Expression.Call(
                             Expression.Call(Expression.Constant(function.Target),
+#if NETFX_CORE
+                                function.GetMethodInfo(),
+#else
                                 function.Method,
+#endif
                                 Expression.Constant(JsValue.Undefined, typeof(JsValue)),
                                 @vars),
                             typeof(JsValue).GetMethod("ToObject"));

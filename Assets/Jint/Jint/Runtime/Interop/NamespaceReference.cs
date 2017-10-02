@@ -100,6 +100,7 @@ namespace Jint.Runtime.Interop
                 return TypeReference.CreateTypeReference(Engine, type);
             }
 
+#if !NETFX_CORE
             // search in loaded assemblies
             foreach (var assembly in new[] { Assembly.GetCallingAssembly(), Assembly.GetExecutingAssembly() }.Distinct())
             {
@@ -110,6 +111,7 @@ namespace Jint.Runtime.Interop
                     return TypeReference.CreateTypeReference(Engine, type);
                 }
             }
+#endif
 
             // search in lookup assemblies
             var assemblies = Engine.Options.LookupAssemblies;

@@ -1,7 +1,7 @@
 ﻿using System;
 
 using System.Collections.Generic;
-
+using System.Reflection;
 using Jint.Native.Array;
 using Jint.Native.Boolean;
 using Jint.Native.Date;
@@ -266,7 +266,7 @@ namespace Jint.Native
                 }
             }
 
-            var typeCode = System.Type.GetTypeCode(value.GetType());
+            var typeCode = Convert.GetTypeCode(value);
             switch (typeCode)
             {
                 case TypeCode.Boolean:
