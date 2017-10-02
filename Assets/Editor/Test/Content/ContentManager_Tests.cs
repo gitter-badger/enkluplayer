@@ -36,6 +36,11 @@ namespace CreateAR.Spire.Test
             return _content.Cast<T>().ToArray();
         }
 
+        public T GetByName<T>(string name) where T : StaticData
+        {
+            throw new NotImplementedException();
+        }
+
         public IAsyncToken<Void> Load(string name)
         {
             throw new NotImplementedException();

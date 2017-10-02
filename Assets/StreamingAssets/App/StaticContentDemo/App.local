@@ -3,6 +3,6 @@
 	<Id>0f9154de-83c8-405e-85d6-e78aa5af54f0</Id>
 	<Name>StaticContentDemo</Name>
 	<Scenes>
-		<string>StaticContent</string>
+		<string>main</string>
 	</Scenes>
 </AppData>

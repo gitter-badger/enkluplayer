@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <SceneData>
-   <Id>StaticContent</Id>
+   <Id>main</Id>
+   <Name>main</Name>
    <Content>
       <string>Floor</string>
    </Content>

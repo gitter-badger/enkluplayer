@@ -10,12 +10,12 @@ namespace CreateAR.Spire
     public class SceneData : StaticData
     {
         /// <summary>
-        /// Readable name.
+        /// Scene scripts.
         /// </summary>
-        public string Name;
-        
+        public List<ScriptData> Scripts = new List<ScriptData>();
+
         /// <summary>
-        /// Content within this scene.
+        /// Content GUIDs within this scene.
         /// </summary>
         public List<string> Content = new List<string>();
     }

@@ -9,11 +9,6 @@ namespace CreateAR.Spire
     public class ContentData : StaticData
     {
         /// <summary>
-        /// Readable name.
-        /// </summary>
-        public string Name;
-
-        /// <summary>
         /// If true, each request from the IContentManager will create a new
         /// <c>Content</c> instance.
         /// </summary>

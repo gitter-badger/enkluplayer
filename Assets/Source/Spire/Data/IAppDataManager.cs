@@ -23,6 +23,14 @@ namespace CreateAR.Spire
         T[] GetAll<T>() where T : StaticData;
 
         /// <summary>
+        /// Retrieves the first data object with a matching name and type.
+        /// </summary>
+        /// <typeparam name="T">The type of data to retrieve.</typeparam>
+        /// <param name="name">The name of the data.</param>
+        /// <returns></returns>
+        T GetByName<T>(string name) where T : StaticData;
+
+        /// <summary>
         /// Loads all data for an app by name.
         /// 
         /// TODO: Transition to id.

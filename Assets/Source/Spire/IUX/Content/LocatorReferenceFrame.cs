@@ -13,7 +13,7 @@ namespace CreateAR.Spire
         /// </summary>
         private readonly IntentionManager _intention;
         private readonly IContentManager _content;
-
+        
         /// <summary>
         /// The <c>Anchor</c> this is the frame of reference for.
         /// </summary>
@@ -31,9 +31,6 @@ namespace CreateAR.Spire
         /// <summary>
         /// Creates a new <c>LocatorReferenceFrame</c>.
         /// </summary>
-        /// <param name="intention">Manages intentions.</param>
-        /// <param name="content">Manages content.</param>
-        /// <param name="anchor">The anchor this reference frame is for.</param>
         public LocatorReferenceFrame(
             IntentionManager intention,
             IContentManager content,
@@ -52,8 +49,8 @@ namespace CreateAR.Spire
             var parentTransform = transform;
             if (!string.IsNullOrEmpty(data.ContentId))
             {
-                var content = _content.Request(data.ContentId);
-                if (_content == null)
+                var requestedContent = _content.Request(data.ContentId);
+                if (requestedContent == null)
                 {
                     Log.Error(this, "Missing Content [id={0}]!", data.ContentId);
                     return;
@@ -61,10 +58,10 @@ namespace CreateAR.Spire
 
                 if (!data.Reference)
                 {
-                    _content.Release(content);
+                    _content.Release(requestedContent);
                 }
 
-                parentTransform = content.Transform;
+                parentTransform = requestedContent.Transform;
             }
 
             if (!string.IsNullOrEmpty(data.LocatorId))

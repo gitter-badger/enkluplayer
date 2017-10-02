@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WSAPlayer:21</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -187,6 +189,11 @@
     <Compile Include="Assets\Source\Patterns\StateMachine\FiniteStateMachine.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\IState.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\StateMachine.cs" />
+    <Compile Include="Assets\Source\Spire\App\AppController.cs" />
+    <Compile Include="Assets\Source\Spire\App\AppExecutionConfiguration.cs" />
+    <Compile Include="Assets\Source\Spire\App\ISceneManager.cs" />
+    <Compile Include="Assets\Source\Spire\App\Scene.cs" />
+    <Compile Include="Assets\Source\Spire\App\SceneManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\AnchorData.cs" />
     <Compile Include="Assets\Source\Spire\Data\AppData.cs" />
     <Compile Include="Assets\Source\Spire\Data\AppDataManager.cs" />
@@ -197,6 +204,8 @@
     <Compile Include="Assets\Source\Spire\Data\IAppDataManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\PoolData.cs" />
     <Compile Include="Assets\Source\Spire\Data\SceneData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\ScriptData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\ScriptInfo.cs" />
     <Compile Include="Assets\Source\Spire\Data\StaticData.cs" />
     <Compile Include="Assets\Source\Spire\IUX\ColorConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Anchor.cs" />
@@ -223,6 +232,7 @@
     <Compile Include="Assets\Source\Spire\IUX\Widget\TweenConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\Widget.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\WidgetConfig.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\IScriptManager.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\Edit\EditApplicationState.cs" />
     <Compile Include="Assets\Source\States\Initialize\InitializeApplicationState.cs" />

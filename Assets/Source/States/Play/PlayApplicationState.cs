@@ -1,6 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Spire;
 using UnityEngine.SceneManagement;
+using SceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace CreateAR.SpirePlayer
 {
@@ -17,19 +18,19 @@ namespace CreateAR.SpirePlayer
         private readonly IFileManager _files;
 
         /// <summary>
-        /// Manages App data.
+        /// Manages App.
         /// </summary>
-        private readonly IAppDataManager _appDataManager;
+        private readonly AppController _app;
 
         /// <summary>
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
             IFileManager files,
-            IAppDataManager appDataManager)
+            AppController app)
         {
             _files = files;
-            _appDataManager = appDataManager;
+            _app = app;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -47,23 +48,20 @@ namespace CreateAR.SpirePlayer
             // TODO: pull off of ApplicationState
             var appName = "StaticContentDemo";
 
-            // load data
-            _appDataManager
-                .Load(appName)
-                .OnSuccess(data =>
+            // start app
+            _app
+                .Startup(new AppExecutionConfiguration
                 {
-                    Log.Info(this, "Loaded App.");
+                    AppName = appName
                 })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this, "Could not load {0} : {1}.", appName, exception);
-                });
+                .OnSuccess(_ => Log.Info(this, "App successfully started."))
+                .OnFailure(exception => Log.Error(this, "Could not start app : {0}.", exception));
         }
 
         /// <inheritdoc cref="IState"/>
         public void Update(float dt)
         {
-            
+            _app.Update(dt);
         }
 
         /// <inheritdoc cref="IState"/>

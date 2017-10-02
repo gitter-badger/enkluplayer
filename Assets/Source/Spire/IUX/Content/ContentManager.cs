@@ -223,7 +223,7 @@ namespace CreateAR.Spire
         /// <returns></returns>
         private ContentRecord CreateRecord(ContentData data)
         {
-            var content = _factory.Instance(data);
+            var content = _factory.Instance(this, data);
             if (null == content)
             {
                 return null;

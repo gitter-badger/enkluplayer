@@ -26,20 +26,20 @@ namespace CreateAR.Spire
         }
 
         /// <inheritdoc cref="IContentFactory"/>
-        public Content Instance(ContentData data)
+        public Content Instance(IContentManager content, ContentData data)
         {
             var instance = new GameObject(data.Name);
 
             // setup the Anchor
             var anchor = instance.AddComponent<Anchor>();
-            var frame = _frames.Instance(anchor);
+            var frame = _frames.Instance(content, anchor);
             anchor.Initialize(frame, data.Anchor);
 
             // setup the content
-            var content = instance.AddComponent<Content>();
-            content.Setup(_assets, data);
+            var newContent = instance.AddComponent<Content>();
+            newContent.Setup(_assets, data);
 
-            return content;
+            return newContent;
         }
     }
 }

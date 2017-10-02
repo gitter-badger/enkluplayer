@@ -11,21 +11,19 @@ namespace CreateAR.Spire
         /// Dependencies.
         /// </summary>
         private readonly IntentionManager _intention;
-        private readonly IContentManager _content;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
-        public AnchorReferenceFrameFactory(
-            IntentionManager intention,
-            IContentManager content)
+        public AnchorReferenceFrameFactory(IntentionManager intention)
         {
             _intention = intention;
-            _content = content;
         }
 
         /// <inheritdoc cref="IAnchorReferenceFrameFactory"/>
-        public IAnchorReferenceFrame Instance(Anchor anchor)
+        public IAnchorReferenceFrame Instance(
+            IContentManager content,
+            Anchor anchor)
         {
             switch (anchor.Data.Type)
             {
@@ -39,7 +37,7 @@ namespace CreateAR.Spire
                 {
                     return new LocatorReferenceFrame(
                         _intention,
-                        _content,
+                        content,
                         anchor);
                 }
             }

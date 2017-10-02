@@ -68,13 +68,28 @@ namespace CreateAR.Spire
         }
 
         /// <inheritdoc cref="IAppDataManager"/>
+        public T GetByName<T>(string name) where T : StaticData
+        {
+            var list = List<T>();
+            for (int i = 0, len = list.Count; i < len; i++)
+            {
+                if (list[i].Name == name)
+                {
+                    return (T) list[i];
+                }
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc cref="IAppDataManager"/>
         public IAsyncToken<Void> Load(string name)
         {
             var token = new AsyncToken<Void>();
 
             Async
                 .All(
-                    LoadAssets(name),
+                    LoadAssetManifest(name),
                     LoadApp(name))
                 .OnSuccess(_ => token.Succeed(Void.Instance))
                 .OnFailure(token.Fail);
@@ -93,7 +108,7 @@ namespace CreateAR.Spire
         /// </summary>
         /// <param name="name">Name of the app.</param>
         /// <returns></returns>
-        private IAsyncToken<Void> LoadAssets(string name)
+        private IAsyncToken<Void> LoadAssetManifest(string name)
         {
             var token = new AsyncToken<Void>();
 
@@ -122,7 +137,7 @@ namespace CreateAR.Spire
 
             return token;
         }
-
+        
         /// <summary>
         /// Loads all app data.
         /// </summary>
@@ -218,7 +233,7 @@ namespace CreateAR.Spire
 
             return token;
         }
-
+        
         /// <summary>
         /// Loads all content for a scene.
         /// </summary>

@@ -7,11 +7,6 @@ namespace CreateAR.Spire
     public class AppData : StaticData
     {
         /// <summary>
-        /// Name.
-        /// </summary>
-        public string Name;
-        
-        /// <summary>
         /// Scenes.
         /// </summary>
         public List<string> Scenes = new List<string>();

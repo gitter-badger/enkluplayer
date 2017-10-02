@@ -72,7 +72,7 @@ namespace CreateAR.Spire
         }
 
         /// <summary>
-        /// Destroes this instance. Should not be called directly, but through
+        /// Destroyes this instance. Should not be called directly, but through
         /// <c>IContentManager</c> Release flow.
         /// </summary>
         public void Destroy()
