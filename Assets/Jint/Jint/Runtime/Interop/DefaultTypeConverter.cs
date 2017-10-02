@@ -41,7 +41,7 @@ namespace Jint.Runtime.Interop
                 return value;
             }
 
-            if (type.IsEnum)
+            if (type.GetTypeInfo().IsEnum)
             {
                 var integer = System.Convert.ChangeType(value, typeof(int), formatProvider);
                 if (integer == null)
@@ -58,7 +58,7 @@ namespace Jint.Runtime.Interop
             {
                 var function = (Func<JsValue, JsValue[], JsValue>)value;
 
-                if (type.IsGenericType)
+                if (type.GetTypeInfo().IsGenericType)
                 {
                     var genericType = type.GetGenericTypeDefinition();
 
@@ -148,7 +148,7 @@ namespace Jint.Runtime.Interop
                     {
                         return (Action)(() => function(JsValue.Undefined, new JsValue[0]));
                     }
-                    else if (type.IsSubclassOf(typeof(System.MulticastDelegate)))
+                    else if (type.GetTypeInfo().IsSubclassOf(typeof(System.MulticastDelegate)))
                     {
                         var method = type.GetMethod("Invoke");
                         var arguments = method.GetParameters();
