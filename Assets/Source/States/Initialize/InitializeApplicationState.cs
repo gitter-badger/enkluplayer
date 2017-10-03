@@ -45,9 +45,14 @@ namespace CreateAR.SpirePlayer
             _http.UrlBuilder.Version = "v1";
 
             // setup assets
-            var loader = UnityEngine.Application.isEditor
-                ? (IAssetLoader) new EditorAssetLoader()
-                : new StandardAssetLoader(
+            IAssetLoader loader;
+            if (UnityEngine.Application.isEditor)
+            {
+                loader = new EditorAssetLoader();
+            }
+            else
+            {
+                loader = new StandardAssetLoader(
                     _bootstrapper,
                     new UrlBuilder
                     {
@@ -55,6 +60,8 @@ namespace CreateAR.SpirePlayer
                         Port = 9091,
                         Protocol = "http"
                     });
+            }
+            
             _assets
                 .Initialize(new AssetManagerConfiguration
                 {

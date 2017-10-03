@@ -25,7 +25,7 @@ namespace CreateAR.Spire
         /// <summary>
         /// Attaches to frame.
         /// </summary>
-        void Attach();
+        void Attach(Anchor anchor);
 
         /// <summary>
         /// Called every frame.

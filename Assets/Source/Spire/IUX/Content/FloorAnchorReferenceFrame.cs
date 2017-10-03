@@ -17,12 +17,7 @@ namespace CreateAR.Spire
         /// Dependencies.
         /// </summary>
         private readonly IntentionManager _intention;
-
-        /// <summary>
-        /// The <c>Anchor</c> this frame of reference is for.
-        /// </summary>
-        private readonly Anchor _anchor;
-
+        
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
         public Vector3 Forward { get { return _intention.Forward; } }
 
@@ -35,20 +30,17 @@ namespace CreateAR.Spire
         /// <summary>
         /// Constructor.
         /// </summary>
-        public FloorAnchorReferenceFrame(
-            IntentionManager intention,
-            Anchor anchor)
+        public FloorAnchorReferenceFrame(IntentionManager intention)
         {
             _intention = intention;
-            _anchor = anchor;
         }
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
-        public void Attach()
+        public void Attach(Anchor anchor)
         {
             var origin = _intention.Origin;
 
-            var transform = _anchor.transform;
+            var transform = anchor.transform;
             transform.SetParent(null);
             transform.position = origin;
         }

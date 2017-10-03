@@ -14,11 +14,6 @@ namespace CreateAR.Spire
         private readonly IntentionManager _intention;
         private readonly IContentManager _content;
         
-        /// <summary>
-        /// The <c>Anchor</c> this is the frame of reference for.
-        /// </summary>
-        private readonly Anchor _anchor;
-
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
         public Vector3 Forward { get { return _intention.Forward; } }
 
@@ -33,19 +28,17 @@ namespace CreateAR.Spire
         /// </summary>
         public LocatorReferenceFrame(
             IntentionManager intention,
-            IContentManager content,
-            Anchor anchor)
+            IContentManager content)
         {
             _intention = intention;
             _content = content;
-            _anchor = anchor;
         }
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
-        public void Attach()
+        public void Attach(Anchor anchor)
         {
-            var data = _anchor.Data;
-            var transform = _anchor.transform;
+            var data = anchor.Data;
+            var transform = anchor.transform;
             var parentTransform = transform;
             if (!string.IsNullOrEmpty(data.ContentId))
             {

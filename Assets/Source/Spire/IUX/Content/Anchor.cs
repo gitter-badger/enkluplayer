@@ -36,7 +36,7 @@ namespace CreateAR.Spire
             _referenceFrame = referenceFrame;
             Data = data;
 
-            _referenceFrame.Attach();
+            _referenceFrame.Attach(this);
 
             RefreshLocalTransform();
 
