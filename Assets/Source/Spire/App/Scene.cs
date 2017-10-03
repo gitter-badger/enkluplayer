@@ -4,6 +4,8 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
+using Void = CreateAR.Commons.Unity.Async.Void;
+
 namespace CreateAR.Spire
 {
     /// <summary>
@@ -12,8 +14,9 @@ namespace CreateAR.Spire
     public class Scene : MonoBehaviour
     {
         /// <summary>
-        /// Manages content.
+        /// Dependencies.
         /// </summary>
+        private IScriptManager _scripts;
         private IContentManager _contentManager;
         
         /// <summary>
@@ -27,16 +30,20 @@ namespace CreateAR.Spire
         /// <returns></returns>
         public override string ToString()
         {
-            return String.Format("[Scene Data={0}]", Data);
+            return string.Format("[Scene Data={0}]", Data);
         }
 
         /// <summary>
         /// Initializes the scene separately from loading, in case we which to
         /// pool.
         /// </summary>
+        /// <param name="scripts">Manages scripts.</param>
         /// <param name="content">Finds content.</param>
-        public void Initialize(IContentManager content)
+        public void Initialize(
+            IScriptManager scripts,
+            IContentManager content)
         {
+            _scripts = scripts;
             _contentManager = content;
         }
 
@@ -52,27 +59,15 @@ namespace CreateAR.Spire
                 throw new Exception("Scene already loaded.");
             }
 
-            Log.Info(this, "Loading scene {0}.", data);
-
-            var token = new AsyncToken<Scene>();
-
             Data = data;
 
-            LoadContent(Data.Content)
-                .OnSuccess(content =>
-                {
-                    Log.Info(this, "Loaded all Scene content.");
+            Log.Info(this, "Loading scene {0}.", Data);
 
-                    token.Succeed(this);
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this, "Could not load content : {0}.", exception);
-
-                    token.Fail(exception);
-                });
-
-            return token;
+            return Async.Map(
+                Async.All(
+                    Async.Map(LoadContent(Data.Content), _ => Void.Instance),
+                    Async.Map(LoadScripts(Data.Scripts).OnSuccess(ProcessScripts), _ => Void.Instance)),
+                _ => this);
         }
 
         /// <summary>
@@ -90,26 +85,48 @@ namespace CreateAR.Spire
             return new AsyncToken<Scene>(this);
         }
 
-        private IAsyncToken<SpireScript[]> LoadScripts(
-            List<ScriptInfo> scriptInfos)
+        /// <summary>
+        /// Starts up a scene, post load.
+        /// </summary>
+        public void Startup()
         {
-            var loads = new IAsyncToken<SpireScript>[scriptInfos.Count];
-            /*
-            for (int i = 0, len = scriptInfos.Count; i < len; i++)
+            
+        }
+
+        /// <summary>
+        /// Tears down a scene.
+        /// </summary>
+        public void Teardown()
+        {
+            
+        }
+
+        /// <summary>
+        /// Loads all <c>SpireScript</c>.
+        /// </summary>
+        /// <param name="scriptIds">Ids of <c>ScriptData</c> to load.</param>
+        /// <returns></returns>
+        private IAsyncToken<SpireScript[]> LoadScripts(
+            List<string> scriptIds)
+        {
+            var len = scriptIds.Count;
+            var loads = new IAsyncToken<SpireScript>[len];
+            for (var i = 0; i < len; i++)
             {
-                var info = scriptInfos[i];
-                var script = _scripts.Request(info, Data.Id);
+                var scriptId = scriptIds[i];
+                var script = _scripts.Create(scriptId, Data.Id);
                 loads[i] = script.OnReady;
 
-                Log.Debug(this, "Loading {0}.", info);
+                Log.Debug(this, "Loading {0}.", script);
             }
-            */
+
             return Async.All(loads);
         }
 
         /// <summary>
         /// Loads all <c>Content</c>.
         /// </summary>
+        /// <param name="contentIds">Ids of <c>Content</c> to load.</param>
         /// <returns></returns>
         private IAsyncToken<Content[]> LoadContent(List<string> contentIds)
         {
@@ -134,6 +151,16 @@ namespace CreateAR.Spire
         {
             // release tagged content
             _contentManager.ReleaseAll(Data.Id);
+        }
+
+        /// <summary>
+        /// Called when all scripts have been loaded, before we resolve the
+        /// external token.
+        /// </summary>
+        /// <param name="scripts">All preloaded scripts.</param>
+        private void ProcessScripts(SpireScript[] scripts)
+        {
+
         }
     }
 }

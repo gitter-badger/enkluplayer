@@ -12,6 +12,6 @@ namespace CreateAR.Spire
         /// <summary>
         /// Assets.
         /// </summary>
-        public SpirePlayer.AssetData[] Assets;
+        public AssetData[] Assets;
     }
 }

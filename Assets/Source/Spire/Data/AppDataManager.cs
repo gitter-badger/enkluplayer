@@ -104,7 +104,7 @@ namespace CreateAR.Spire
         }
 
         /// <summary>
-        /// Loads AssetInfoManifest for app into <c>IAssetManager</c>.
+        /// Loads AssetDataManifest for app into <c>IAssetManager</c>.
         /// </summary>
         /// <param name="name">Name of the app.</param>
         /// <returns></returns>
@@ -129,7 +129,7 @@ namespace CreateAR.Spire
                 .OnFailure(exception =>
                 {
                     Log.Error(this,
-                        "Could not load AssetInfoManifest : {0}.",
+                        "Could not load AssetDataManifest : {0}.",
                         exception);
 
                     token.Fail(exception);

@@ -10,9 +10,9 @@ namespace CreateAR.Spire
     public class SceneData : StaticData
     {
         /// <summary>
-        /// Scene scripts.
+        /// Script GUIDs withing this scene.
         /// </summary>
-        public List<ScriptData> Scripts = new List<ScriptData>();
+        public List<string> Scripts = new List<string>();
 
         /// <summary>
         /// Content GUIDs within this scene.

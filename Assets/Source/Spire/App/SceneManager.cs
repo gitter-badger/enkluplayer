@@ -25,6 +25,8 @@ namespace CreateAR.Spire
         public IAppDataManager AppData { get; set; }
         [Inject]
         public IContentManager Content { get; set; }
+        [Inject]
+        public IScriptManager Scripts { get; set; }
 
         /// <summary>
         /// Useful ToString.
@@ -94,7 +96,7 @@ namespace CreateAR.Spire
 
             // initialize scene
             var newScene = newSceneGameObject.AddComponent<Scene>();
-            newScene.Initialize(Content);
+            newScene.Initialize(Scripts, Content);
             ActiveScenes.Add(newScene);
 
             return newScene.Load(data);

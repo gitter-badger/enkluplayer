@@ -46,7 +46,7 @@ namespace CreateAR.SpirePlayer
         /// Adds a set of assets. Throws an <c>ArgumentException</c> if an <c>AssetInfo</c>
         /// instance has a guid that matches an existing instance.
         /// </summary>
-        /// <param name="assets>One or more <c>AssetInfo</c> instances to add.</param>
+        /// <param name="assets">One or more <c>AssetInfo</c> instances to add.</param>
         public void Add(params AssetData[] assets)
         {
             if (null == assets)
@@ -82,7 +82,7 @@ namespace CreateAR.SpirePlayer
         /// Updates a set of <c>AssetInfo</c> instances. Throws an <c>ArgumentException</c>
         /// if an <c>AssetInfo</c> does not exist.
         /// </summary>
-        /// <param name="assets></param>
+        /// <param name="assets">Assets to update.</param>
         public void Update(params AssetData[] assets)
         {
             if (null == assets)

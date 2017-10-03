@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
-<AssetInfoManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<AssetDataManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Assets>
-    <AssetInfo>
+    <AssetData>
       <Guid>e7486a2343925db4a9350a726d1b1585</Guid>
       <Uri>Assets/Prefabs/Streaming/Cube.prefab</Uri>
       <Version>0</Version>
-    </AssetInfo>
+    </AssetData>
   </Assets>
-</AssetInfoManifest>
+</AssetDataManifest>

@@ -3,6 +3,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Spire;
+using Jint.Parser;
 using strange.extensions.injector.impl;
 using Object = UnityEngine.Object;
 
@@ -130,6 +131,18 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IntentionManager>().ToValue(LookupComponent<IntentionManager>());
                 binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
                 binder.Bind<LayerManager>().ToValue(LookupComponent<LayerManager>());
+            }
+
+            // scripting
+            {
+                binder.Bind<JavaScriptParser>().ToValue(new JavaScriptParser(false));
+                binder.Bind<IScriptParser>().To<DefaultScriptParser>().ToSingleton();
+                binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
+            }
+
+            // misc
+            {
+                binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
             }
         }
 

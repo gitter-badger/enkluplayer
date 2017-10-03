@@ -20,6 +20,11 @@ namespace CreateAR.Spire
         public bool PreserveColor;
 
         /// <summary>
+        /// Tags associated with this piece of content.
+        /// </summary>
+        public string[] Tags;
+
+        /// <summary>
         /// Data about the asset.
         /// </summary>
         public AssetReference Asset;

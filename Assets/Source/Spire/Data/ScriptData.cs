@@ -1,25 +1,18 @@
-using System;
-
-namespace CreateAR.Spire
+﻿namespace CreateAR.Spire
 {
     /// <summary>
-    /// Data about a script.
+    /// Describes a script.
     /// </summary>
-    [Serializable]
-    public class ScriptData
+    public class ScriptData : StaticData
     {
         /// <summary>
-        /// Unique id of the script to load.
+        /// Reference to asset.
         /// </summary>
-        public string ScriptId;
+        public AssetReference Asset;
 
         /// <summary>
-        /// Useful ToString.
+        /// Tags associated with this script.
         /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return string.Format("[ScriptData ScriptId={0}]", ScriptId);
-        }
+        public string[] Tags;
     }
 }

@@ -5,7 +5,7 @@
 	<Unique>false</Unique>
     <PreserveColor>false</PreserveColor>
     <Asset>
-		<AssetInfoId>e7486a2343925db4a9350a726d1b1585</AssetInfoId>
+		<AssetDataId>e7486a2343925db4a9350a726d1b1585</AssetDataId>
 		<Pooling>
 			<Enabled>false</Enabled>
 			<Priority>0</Priority>

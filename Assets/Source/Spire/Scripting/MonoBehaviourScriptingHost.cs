@@ -1,31 +1,30 @@
-﻿/*using System;
+﻿using System;
+using Jint;
 using Jint.Native;
+using Jint.Unity;
 using UnityEngine;
 
-namespace Jint.Unity
+namespace CreateAR.Spire
 {
     /// <summary>
-    /// This object is able to run a JS script as if it were a MonoBehaviour,
-    /// calling lifecycle methods.
+    /// This object is able to run a JS script as if it were a MonoBehaviour.
     /// </summary>
     public class MonoBehaviourScriptingHost : MonoBehaviour
     {
-        /// <summary>
-        /// A reference to the script to execute.
-        /// </summary>
-        public SpireScript Script;
-
         /// <summary>
         /// Properties that need to be serialized for the script.
         /// </summary>
         public ScriptingPropertyBucket Properties;
 
         /// <summary>
-        /// An engine to run the tests with.
+        /// An engine to run the scripts with.
         /// </summary>
-        protected readonly UnityScriptingHost _host = new UnityScriptingHost(
-            new ResourcesScriptLoader(),
-            new NullScriptingDependencyResolver());
+        protected Engine _engine;
+
+        /// <summary>
+        /// The script to execute.
+        /// </summary>
+        private SpireScript _script;
 
         /// <summary>
         /// References to JS functions.
@@ -45,13 +44,20 @@ namespace Jint.Unity
         protected JsValue _this;
 
         /// <summary>
-        /// Called by Unity.
+        /// Initializes the host.
         /// </summary>
-        protected virtual void Awake()
+        /// <param name="engine">JS Engine.</param>
+        /// <param name="script">The script to execute.</param>
+        public void Initialize(
+            Engine engine,
+            SpireScript script)
         {
+            _engine = engine;
+            _script = script;
+
             try
             {
-                _host.Execute(Script.String());
+                _engine.Execute(_script.Program);
             }
             catch (Exception exception)
             {
@@ -60,16 +66,16 @@ namespace Jint.Unity
                 return;
             }
 
-            _this = JsValue.FromObject(_host, this);
+            _this = JsValue.FromObject(_engine, this);
 
-            _update = _host.GetFunction("Update");
-            _fixedUpdate = _host.GetFunction("FixedUpdate");
-            _lateUpdate = _host.GetFunction("LateUpdate");
-            _awake = _host.GetFunction("Awake");
-            _start = _host.GetFunction("Start");
-            _onEnable = _host.GetFunction("OnEnable");
-            _onDisable = _host.GetFunction("OnDisable");
-            _onDestroy = _host.GetFunction("OnDestroy");
+            _update = _engine.GetFunction("Update");
+            _fixedUpdate = _engine.GetFunction("FixedUpdate");
+            _lateUpdate = _engine.GetFunction("LateUpdate");
+            _awake = _engine.GetFunction("Awake");
+            _start = _engine.GetFunction("Start");
+            _onEnable = _engine.GetFunction("OnEnable");
+            _onDisable = _engine.GetFunction("OnDisable");
+            _onDestroy = _engine.GetFunction("OnDestroy");
 
             if (null != _awake)
             {
@@ -77,9 +83,7 @@ namespace Jint.Unity
             }
         }
 
-        /// <summary>
-        /// Called by Unity.
-        /// </summary>
+        /// <inheritdoc cref="MonoBehaviour"/>
         protected virtual void Update()
         {
             if (null != _update)
@@ -88,9 +92,7 @@ namespace Jint.Unity
             }
         }
 
-        /// <summary>
-        /// Called by Unity.
-        /// </summary>
+        /// <inheritdoc cref="MonoBehaviour"/>
         protected virtual void FixedUpdate()
         {
             if (null != _fixedUpdate)
@@ -99,9 +101,7 @@ namespace Jint.Unity
             }
         }
 
-        /// <summary>
-        /// Called by Unity.
-        /// </summary>
+        /// <inheritdoc cref="MonoBehaviour"/>
         protected virtual void LateUpdate()
         {
             if (null != _lateUpdate)
@@ -110,9 +110,7 @@ namespace Jint.Unity
             }
         }
 
-        /// <summary>
-        /// Called by Unity.
-        /// </summary>
+        /// <inheritdoc cref="MonoBehaviour"/>
         protected virtual void Start()
         {
             if (null != _start)
@@ -121,9 +119,7 @@ namespace Jint.Unity
             }
         }
 
-        /// <summary>
-        /// Called by Unity.
-        /// </summary>
+        /// <inheritdoc cref="MonoBehaviour"/>
         protected virtual void OnEnable()
         {
             if (null != _onEnable)
@@ -132,9 +128,7 @@ namespace Jint.Unity
             }
         }
 
-        /// <summary>
-        /// Called by Unity.
-        /// </summary>
+        /// <inheritdoc cref="MonoBehaviour"/>
         protected virtual void OnDisable()
         {
             if (null != _onDisable)
@@ -143,9 +137,7 @@ namespace Jint.Unity
             }
         }
 
-        /// <summary>
-        /// Called by Unity.
-        /// </summary>
+        /// <inheritdoc cref="MonoBehaviour"/>
         protected virtual void OnDestroy()
         {
             if (null != _onDestroy)
@@ -154,4 +146,4 @@ namespace Jint.Unity
             }
         }
     }
-}*/
+}
