@@ -7,11 +7,11 @@ namespace CreateAR.Spire
     /// Manifest of all assets needed for an app.
     /// </summary>
     [Serializable]
-    public class AssetInfoManifest
+    public class AssetDataManifest
     {
         /// <summary>
         /// Assets.
         /// </summary>
-        public AssetInfo[] Assets;
+        public SpirePlayer.AssetData[] Assets;
     }
 }

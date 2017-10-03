@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Spire;
 
 namespace CreateAR.SpirePlayer
 {
@@ -11,7 +12,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// A lookup from guid to AssetReference.
         /// </summary>
-        private readonly Dictionary<string, AssetReference> _guidToReference = new Dictionary<string, AssetReference>();
+        private readonly Dictionary<string, Asset> _guidToReference = new Dictionary<string, Asset>();
 
         /// <summary>
         /// Resolves queries against tags.
@@ -26,12 +27,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when an asset has been added.
         /// </summary>
-        public event Action<AssetReference> OnAssetAdded;
+        public event Action<Asset> OnAssetAdded;
 
         /// <summary>
         /// Called when an asset has been updated.
         /// </summary>
-        public event Action<AssetReference> OnAssetUpdated;
+        public event Action<Asset> OnAssetUpdated;
 
         public AssetManifest(
             IQueryResolver resolver,
@@ -45,28 +46,28 @@ namespace CreateAR.SpirePlayer
         /// Adds a set of assets. Throws an <c>ArgumentException</c> if an <c>AssetInfo</c>
         /// instance has a guid that matches an existing instance.
         /// </summary>
-        /// <param name="infos">One or more <c>AssetInfo</c> instances to add.</param>
-        public void Add(params AssetInfo[] infos)
+        /// <param name="assets>One or more <c>AssetInfo</c> instances to add.</param>
+        public void Add(params AssetData[] assets)
         {
-            if (null == infos)
+            if (null == assets)
             {
                 throw new ArgumentException("Cannot add null.");
             }
 
             // validate
-            for (int i = 0, len = infos.Length; i < len; i++)
+            for (int i = 0, len = assets.Length; i < len; i++)
             {
-                if (_guidToReference.ContainsKey(infos[i].Guid))
+                if (_guidToReference.ContainsKey(assets[i].Guid))
                 {
-                    throw new ArgumentException("Cannot add AssetInfo with same Guid as previous asset : " + infos[i].Guid);
+                    throw new ArgumentException("Cannot add AssetInfo with same Guid as previous asset : " + assets[i].Guid);
                 }
             }
 
             // add
-            for (int i = 0, len = infos.Length; i < len; i++)
+            for (int i = 0, len = assets.Length; i < len; i++)
             {
-                var info = infos[i];
-                var reference = new AssetReference(_loader, info);
+                var info = assets[i];
+                var reference = new Asset(_loader, info);
 
                 _guidToReference[info.Guid] = reference;
 
@@ -81,17 +82,17 @@ namespace CreateAR.SpirePlayer
         /// Updates a set of <c>AssetInfo</c> instances. Throws an <c>ArgumentException</c>
         /// if an <c>AssetInfo</c> does not exist.
         /// </summary>
-        /// <param name="infos"></param>
-        public void Update(params AssetInfo[] infos)
+        /// <param name="assets></param>
+        public void Update(params AssetData[] assets)
         {
-            if (null == infos)
+            if (null == assets)
             {
                 throw new ArgumentException("Cannot update null.");
             }
 
-            for (int i = 0, len = infos.Length; i < len; i++)
+            for (int i = 0, len = assets.Length; i < len; i++)
             {
-                var guid = infos[i].Guid;
+                var guid = assets[i].Guid;
                 if (string.IsNullOrEmpty(guid))
                 {
                     throw new ArgumentException("Cannot update with null or empty Guid.");
@@ -103,9 +104,9 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
-            for (int i = 0, len = infos.Length; i < len; i++)
+            for (int i = 0, len = assets.Length; i < len; i++)
             {
-                var info = infos[i];
+                var info = assets[i];
                 var reference = Reference(info.Guid);
                 if (null == reference)
                 {
@@ -126,13 +127,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="guid">The guid for a particular asset.</param>
         /// <returns></returns>
-        public AssetInfo Info(string guid)
+        public AssetData Info(string guid)
         {
             var reference = Reference(guid);
 
             return null == reference
                 ? null
-                : reference.Info;
+                : reference.Data;
         }
 
         /// <summary>
@@ -140,9 +141,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="guid">The guid for a particular asset.</param>
         /// <returns></returns>
-        public AssetReference Reference(string guid)
+        public Asset Reference(string guid)
         {
-            AssetReference reference;
+            Asset reference;
             _guidToReference.TryGetValue(guid, out reference);
 
             return reference;
@@ -157,13 +158,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="query">The query to resolve.</param>
         /// <returns></returns>
-        public AssetReference FindOne(string query)
+        public Asset FindOne(string query)
         {
             foreach (var pair in _guidToReference)
             {
                 if (_resolver.Resolve(
                     query,
-                    ref pair.Value.Info.Tags))
+                    ref pair.Value.Data.Tags))
                 {
                     return pair.Value;
                 }
@@ -181,14 +182,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="query">The query to resolve.</param>
         /// <returns></returns>
-        public AssetReference[] Find(string query)
+        public Asset[] Find(string query)
         {
-            var references = new List<AssetReference>();
+            var references = new List<Asset>();
             foreach (var pair in _guidToReference)
             {
                 if (_resolver.Resolve(
                     query,
-                    ref pair.Value.Info.Tags))
+                    ref pair.Value.Data.Tags))
                 {
                     references.Add(pair.Value);
                 }

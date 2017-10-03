@@ -11,18 +11,18 @@ namespace CreateAR.Spire
     public class EditorAssetLoader : IAssetLoader
     {
         /// <inheritdoc cref="IAssetLoader"/>
-        public IAsyncToken<Object> Load(AssetInfo info, out LoadProgress progress)
+        public IAsyncToken<Object> Load(SpirePlayer.AssetData data, out LoadProgress progress)
         {
             progress = new LoadProgress();
 
 #if UNITY_EDITOR
-            var path = UnityEditor.AssetDatabase.GUIDToAssetPath(info.Guid);
+            var path = UnityEditor.AssetDatabase.GUIDToAssetPath(data.Guid);
             var asset = UnityEditor.AssetDatabase.LoadAssetAtPath(path, typeof(Object));
             if (null == asset)
             {
                 return new AsyncToken<Object>(new Exception(string.Format(
                     "Could not find asset {0}",
-                    info)));
+                    data)));
             }
 
             return new AsyncToken<Object>(asset);

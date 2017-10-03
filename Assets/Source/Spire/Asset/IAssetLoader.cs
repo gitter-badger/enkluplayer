@@ -11,10 +11,10 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Loads an asset.
         /// </summary>
-        /// <param name="info">The <c>AssetInfo</c> to load the accompanying
+        /// <param name="data">The <c>AssetInfo</c> to load the accompanying
         /// asset for.</param>
         /// <param name="progress">Progress on the load.</param>
         /// <returns></returns>
-        IAsyncToken<Object> Load(AssetInfo info, out LoadProgress progress);
+        IAsyncToken<Object> Load(AssetData data, out LoadProgress progress);
     }
 }

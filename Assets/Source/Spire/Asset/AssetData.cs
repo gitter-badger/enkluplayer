@@ -5,7 +5,7 @@
     /// 
     /// Note: This should NOT be manipulated directly.
     /// </summary>
-    public class AssetInfo
+    public class AssetData
     {
         /// <summary>
         /// Identifier unique to this asset.

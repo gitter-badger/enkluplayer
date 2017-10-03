@@ -113,7 +113,7 @@ namespace CreateAR.Spire
             var token = new AsyncToken<Void>();
 
             _files
-                .Get<AssetInfoManifest>(FileProtocols.APP + name + "/Assets")
+                .Get<AssetDataManifest>(FileProtocols.APP + name + "/Assets")
                 .OnSuccess(file =>
                 {
                     var assets = file.Data.Assets;

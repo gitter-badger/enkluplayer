@@ -11,9 +11,9 @@ namespace CreateAR.SpirePlayer
     {
         private readonly IHttpService _http;
 
-        public event Action<AssetInfo[]> OnAdded;
-        public event Action<AssetInfo[]> OnUpdated;
-        public event Action<AssetInfo[]> OnRemoved;
+        public event Action<AssetData[]> OnAdded;
+        public event Action<AssetData[]> OnUpdated;
+        public event Action<AssetData[]> OnRemoved;
 
         public EditorAssetUpdateService(IHttpService http)
         {
@@ -45,7 +45,7 @@ namespace CreateAR.SpirePlayer
                     {
                         var assetInfos = response.Payload.Body
                             .Assets
-                            .Select(asset => new AssetInfo
+                            .Select(asset => new AssetData
                             {
                                 Guid = asset.Id,
                                 Uri = ""

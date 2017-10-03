@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.SpirePlayer;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.Spire
 {
     /// <summary>
     /// An object that represents a reference to a Unity asset.
     /// </summary>
-    public class AssetReference
+    public class Asset
     {
         /// <summary>
         /// The <c>IAssetLoader</c> implementation with which to load assets.
@@ -39,7 +40,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// The data object describing the object.
         /// </summary>
-        public AssetInfo Info { get; private set; }
+        public SpirePlayer.AssetData Data { get; private set; }
 
         /// <summary>
         /// True iff the asset that is currently loaded is not the most recent
@@ -78,28 +79,41 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="loader">An <c>IAssetLoader</c> implementation with which
         /// to load assets.</param>
-        /// <param name="info">The data object this pertains to.</param>
-        public AssetReference(
+        /// <param name="data">The data object this pertains to.</param>
+        public Asset(
             IAssetLoader loader,
-            AssetInfo info)
+            SpirePlayer.AssetData data)
         {
             _loader = loader;
 
-            Info = info;
+            Data = data;
             IsAssetDirty = true;
         }
 
         /// <summary>
         /// Retrieves the asset cast to a <c>T</c>.
-        /// 
-        /// If <c>T</c> is a <c>Component</c>, the component will be pulled off
-        /// of the main <c>GameObject</c>.
         /// </summary>
-        /// <typeparam name="T">The type to cast the asset as.</typeparam>
+        /// <typeparam name="T">The type.</typeparam>
         /// <returns></returns>
-        public T Asset<T>() where T : Object
+        public T As<T>() where T : Object
         {
-            return As<T>();
+            if (null == _asset)
+            {
+                return null;
+            }
+
+            if (typeof(Component).IsAssignableFrom(typeof(T)))
+            {
+                var gameObject = _asset as GameObject;
+                if (gameObject != null)
+                {
+                    return gameObject.GetComponent<T>();
+                }
+
+                return null;
+            }
+
+            return _asset as T;
         }
 
         /// <summary>
@@ -125,13 +139,13 @@ namespace CreateAR.SpirePlayer
 
             if (IsAssetDirty)
             {
-                var info = Info;
+                var info = Data;
                 _loader
                     .Load(info, out progress)
                     .OnSuccess(asset =>
                     {
                         _asset = asset;
-                        IsAssetDirty = info != Info;
+                        IsAssetDirty = info != Data;
 
                         token.Succeed(As<T>());
 
@@ -162,20 +176,20 @@ namespace CreateAR.SpirePlayer
         /// This will force the asset to be dirty. If <c>AutoReload</c> is set
         /// to true, the asset will be reloaded.
         /// </summary>
-        /// <param name="info">The updated <c>AssetInfo</c> object.</param>
-        public void Update(AssetInfo info)
+        /// <param name="data">The updated <c>AssetInfo</c> object.</param>
+        public void Update(SpirePlayer.AssetData data)
         {
-            if (Info.Guid != info.Guid)
+            if (Data.Guid != data.Guid)
             {
                 throw new ArgumentException("Cannot change AssetReference guid.");
             }
 
-            if (info == Info)
+            if (data == Data)
             {
                 return;
             }
 
-            Info = info;
+            Data = data;
 
             IsAssetDirty = true;
 
@@ -197,7 +211,7 @@ namespace CreateAR.SpirePlayer
         /// The callback's first parameter is a delegate to unsubscribe.
         /// </summary>
         /// <param name="callback">A callback to call.</param>
-        public void Watch(Action<Action, AssetReference> callback)
+        public void Watch(Action<Action, Asset> callback)
         {
             Action watcher = null;
             // ReSharper disable once AccessToModifiedClosure
@@ -214,7 +228,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="callback">The callback to call.</param>
         /// <returns></returns>
-        public Action Watch(Action<AssetReference> callback)
+        public Action Watch(Action<Asset> callback)
         {
             Action watcher = () => callback(this);
             _refWatchers.Add(watcher);
@@ -264,33 +278,7 @@ namespace CreateAR.SpirePlayer
         {
             return string.Format(
                 "[AssetReference Info={0}]",
-                Info);
-        }
-
-        /// <summary>
-        /// Retrieves the asset cast to a <c>T</c>.
-        /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
-        /// <returns></returns>
-        private T As<T>() where T : Object
-        {
-            if (null == _asset)
-            {
-                return null;
-            }
-
-            if (typeof(Component).IsAssignableFrom(typeof(T)))
-            {
-                var gameObject = _asset as GameObject;
-                if (gameObject != null)
-                {
-                    return gameObject.GetComponent<T>();
-                }
-
-                return null;
-            }
-
-            return _asset as T;
+                Data);
         }
     }
 }

@@ -39,14 +39,14 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Loads an asset.
         /// </summary>
-        /// <param name="info">The info to load.</param>
+        /// <param name="data">The info to load.</param>
         /// <param name="progress">Outputs the load progress.</param>
         /// <returns></returns>
         public IAsyncToken<Object> Load(
-            AssetInfo info,
+            AssetData data,
             out LoadProgress progress)
         {
-            var url = _urls.Url(info.Uri);
+            var url = _urls.Url(data.Uri);
 
             AssetBundleLoader loader;
             if (!_bundles.TryGetValue(url, out loader))
@@ -57,7 +57,7 @@ namespace CreateAR.SpirePlayer
                 loader.Load();
             }
 
-            return loader.Asset(info.AssetName, out progress);
+            return loader.Asset(data.AssetName, out progress);
         }
     }
 }

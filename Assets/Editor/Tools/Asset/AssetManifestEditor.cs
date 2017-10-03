@@ -9,7 +9,7 @@ namespace CreateAR.Spire.Editor
 {
     public class AssetManifestEditor : EditorWindow
     {
-        private readonly List<AssetInfo> _infos = new List<AssetInfo>();
+        private readonly List<SpirePlayer.AssetData> _infos = new List<SpirePlayer.AssetData>();
 
         private Vector2 _scrollPosition;
 
@@ -30,7 +30,7 @@ namespace CreateAR.Spire.Editor
 
                 if (GUILayout.Button("Add"))
                 {
-                    _infos.Add(new AssetInfo());
+                    _infos.Add(new SpirePlayer.AssetData());
                 }
 
                 _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
@@ -45,11 +45,11 @@ namespace CreateAR.Spire.Editor
             EditorGUILayout.EndVertical();
         }
 
-        private void DrawAssetInfo(AssetInfo info)
+        private void DrawAssetInfo(SpirePlayer.AssetData data)
         {
             EditorGUILayout.BeginVertical("box");
             {
-                var path = AssetDatabase.GUIDToAssetPath(info.Guid);
+                var path = AssetDatabase.GUIDToAssetPath(data.Guid);
                 var asset = AssetDatabase.LoadAssetAtPath(path, typeof(GameObject));
                 var selectedAsset = (GameObject) EditorGUILayout.ObjectField(
                     new GUIContent("Asset"),
@@ -60,7 +60,7 @@ namespace CreateAR.Spire.Editor
                 if (asset != selectedAsset)
                 {
                     path = AssetDatabase.GetAssetPath(selectedAsset);
-                    info.Guid = AssetDatabase.AssetPathToGUID(path);
+                    data.Guid = AssetDatabase.AssetPathToGUID(path);
                 }
             }
             EditorGUILayout.EndVertical();
@@ -78,7 +78,7 @@ namespace CreateAR.Spire.Editor
                 return;
             }
 
-            var manifest = new AssetInfoManifest
+            var manifest = new AssetDataManifest
             {
                 Assets = _infos
                     .Select(info =>

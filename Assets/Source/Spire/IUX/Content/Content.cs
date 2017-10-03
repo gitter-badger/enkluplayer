@@ -86,7 +86,7 @@ namespace CreateAR.Spire
         /// <param name="data"></param>
         private void LoadAsset(ContentData data)
         {
-            var info = _assets.Manifest.Info(data.Asset.AssetInfoId);
+            var info = _assets.Manifest.Info(data.Asset.AssetDataId);
             if (null == info)
             {
                 var error = string.Format(
@@ -114,7 +114,7 @@ namespace CreateAR.Spire
                     }
 
                     // parent + orient
-                    _asset.name = Data.Asset.AssetInfoId;
+                    _asset.name = Data.Asset.AssetDataId;
                     _asset.transform.SetParent(transform);
                     _asset.transform.localPosition = assetPrefab.transform.localPosition;
                     _asset.transform.localRotation = assetPrefab.transform.localRotation;

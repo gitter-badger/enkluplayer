@@ -6,12 +6,12 @@ namespace CreateAR.Spire
     /// Data describing how to use an Asset.
     /// </summary>
     [Serializable]
-    public class AssetData
+    public class AssetReference
     {
         /// <summary>
-        /// Unique id of the AssetInfo.
+        /// Unique id of the AssetData.
         /// </summary>
-        public string AssetInfoId;
+        public string AssetDataId;
         
         /// <summary>
         /// Describes how this asset should be pooled.
@@ -25,8 +25,8 @@ namespace CreateAR.Spire
         public override string ToString()
         {
             return string.Format(
-                "[AssetData AssetInfoId={0}]",
-                AssetInfoId);
+                "[AssetData AssetDataId={0}]",
+                AssetDataId);
         }
     }
 }

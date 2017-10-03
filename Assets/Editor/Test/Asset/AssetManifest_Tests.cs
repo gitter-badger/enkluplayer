@@ -6,24 +6,24 @@ namespace CreateAR.SpirePlayer.Test
     [TestFixture]
     public class AssetManifest_Tests
     {
-        private readonly AssetInfo[] _infos = new[]
+        private readonly AssetData[] _assets = new[]
         {
-            new AssetInfo
+            new AssetData
             {
                 Guid = "a",
                 Tags = new[] { "a", "b", "c" }
             },
-            new AssetInfo
+            new AssetData
             {
                 Guid = "b",
                 Tags = new[]{ "a", "b" }
             },
-            new AssetInfo
+            new AssetData
             {
                 Guid = "c",
                 Tags = new[]{ "c" }
             },
-            new AssetInfo
+            new AssetData
             {
                 Guid = "d",
                 Tags = new[]{ "d" }
@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer.Test
             _manifest = new AssetManifest(
                 new StandardQueryResolver(),
                 new DummyAssetLoader());
-            _manifest.Add(_infos);
+            _manifest.Add(_assets);
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void Get()
         {
-            Assert.AreSame("a", _manifest.Reference("a").Info.Guid);
+            Assert.AreSame("a", _manifest.Reference("a").Data.Guid);
 
             // case sensitive
             Assert.IsNull(_manifest.Reference("A"));
@@ -59,16 +59,16 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void FindOne()
         {
-            Assert.AreSame("a", _manifest.FindOne("a").Info.Guid);
+            Assert.AreSame("a", _manifest.FindOne("a").Data.Guid);
 
             // case insensitive
-            Assert.AreSame("a", _manifest.FindOne("A").Info.Guid);
+            Assert.AreSame("a", _manifest.FindOne("A").Data.Guid);
         }
 
         [Test]
         public void Find()
         {
-            Assert.AreSame("d", _manifest.Find("d")[0].Info.Guid);
+            Assert.AreSame("d", _manifest.Find("d")[0].Data.Guid);
             
             Assert.AreEqual(2, _manifest.Find("a,b").Length);
             Assert.AreEqual(1, _manifest.Find("a,c").Length);
@@ -80,7 +80,7 @@ namespace CreateAR.SpirePlayer.Test
         public void AddEvent()
         {
             var called = false;
-            var asset = new AssetInfo
+            var asset = new AssetData
             {
                 Guid = "meh"
             };
@@ -89,7 +89,7 @@ namespace CreateAR.SpirePlayer.Test
             {
                 called = true;
 
-                Assert.AreSame(asset, added.Info);
+                Assert.AreSame(asset, added.Data);
             };
             _manifest.Add(asset);
 
@@ -102,7 +102,7 @@ namespace CreateAR.SpirePlayer.Test
             Assert.Throws<ArgumentException>(
                 delegate
                 {
-                    _manifest.Add(new AssetInfo
+                    _manifest.Add(new AssetData
                     {
                         Guid = "a"
                     });
@@ -117,7 +117,7 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.Throws<ArgumentException>(delegate
             {
-                _manifest.Update(new AssetInfo
+                _manifest.Update(new AssetData
                 {
                     Guid = "nonexistent"
                 });
@@ -134,7 +134,7 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.Throws<ArgumentException>(delegate
             {
-                _manifest.Update(new AssetInfo());
+                _manifest.Update(new AssetData());
             });
 
             Assert.IsFalse(eventCalled);
@@ -144,7 +144,7 @@ namespace CreateAR.SpirePlayer.Test
         public void UpdateEvent()
         {
             var eventCalled = false;
-            var info = new AssetInfo
+            var info = new AssetData
             {
                 Guid = "a"
             };
@@ -153,7 +153,7 @@ namespace CreateAR.SpirePlayer.Test
             {
                 eventCalled = true;
 
-                Assert.AreSame(info, reference.Info);
+                Assert.AreSame(info, reference.Data);
             };
 
             _manifest.Update(info);

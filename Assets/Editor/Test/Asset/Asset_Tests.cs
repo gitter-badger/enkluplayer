@@ -1,4 +1,5 @@
 using System;
+using CreateAR.Spire;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -6,12 +7,12 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer.Test
 {
     [TestFixture]
-    public class AssetReference_Tests
+    public class Asset_Tests
     {
         public const string TEST_PREFAB_PATH = "Assets/Editor/Test/TestAsset.prefab";
         public const string TEST_PREFAB_UPDATE_PATH = "Assets/Editor/Test/TestAsset2.prefab";
 
-        public static readonly AssetInfo Info = new AssetInfo
+        public static readonly AssetData Data = new AssetData
         {
             Guid = "guid",
             Crc = "crc",
@@ -20,7 +21,7 @@ namespace CreateAR.SpirePlayer.Test
             Version = 10
         };
 
-        public static readonly AssetInfo InfoUpdate = new AssetInfo
+        public static readonly AssetData DataUpdate = new AssetData
         {
             Guid = "guid",
             Crc = "crc",
@@ -29,14 +30,14 @@ namespace CreateAR.SpirePlayer.Test
             Version = 11
         };
 
-        private AssetReference _reference;
+        private Asset _reference;
         private GameObject _testAsset;
         private GameObject _testAssetUpdate;
 
         [SetUp]
         public void Setup()
         {
-            _reference = new AssetReference(new DummyAssetLoader(), Info);
+            _reference = new Asset(new DummyAssetLoader(), Data);
             _testAsset = AssetDatabase.LoadAssetAtPath<GameObject>(TEST_PREFAB_PATH);
             _testAssetUpdate = AssetDatabase.LoadAssetAtPath<GameObject>(TEST_PREFAB_UPDATE_PATH);
 
@@ -76,7 +77,7 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void AssetNullWithoutLoad()
         {
-            Assert.IsNull(_reference.Asset<GameObject>());
+            Assert.IsNull(_reference.As<GameObject>());
         }
 
         [Test]
@@ -91,7 +92,7 @@ namespace CreateAR.SpirePlayer.Test
                 {
                     Assert.AreEqual(
                         _testAsset.GetInstanceID(),
-                        _reference.Asset<GameObject>().GetInstanceID());
+                        _reference.As<GameObject>().GetInstanceID());
 
                     successCalled = true;
                 })
@@ -125,12 +126,12 @@ namespace CreateAR.SpirePlayer.Test
         public void UpdateLeaveLoadedAsset()
         {
             _reference.Load<GameObject>();
-            _reference.Update(InfoUpdate);
+            _reference.Update(DataUpdate);
 
             // check that we still have the old asset
             Assert.AreEqual(
                 _testAsset.GetInstanceID(),
-                _reference.Asset<GameObject>().GetInstanceID());
+                _reference.As<GameObject>().GetInstanceID());
         }
         
         [Test]
@@ -142,7 +143,7 @@ namespace CreateAR.SpirePlayer.Test
             _reference.Load<GameObject>();
 
             // update to invalidate loaded asset
-            _reference.Update(InfoUpdate);
+            _reference.Update(DataUpdate);
 
             // reload
             _reference
@@ -163,7 +164,7 @@ namespace CreateAR.SpirePlayer.Test
         public void UpdateChangeGuidFail()
         {
             Assert.Throws<ArgumentException>(delegate {
-                _reference.Update(new AssetInfo
+                _reference.Update(new AssetData
                 {
                     Guid = "Different Guid"
                 });
@@ -182,7 +183,7 @@ namespace CreateAR.SpirePlayer.Test
                 Assert.AreSame(_reference, reference);
             });
 
-            _reference.Update(InfoUpdate);
+            _reference.Update(DataUpdate);
 
             Assert.IsTrue(watchCalled);
         }
@@ -197,7 +198,7 @@ namespace CreateAR.SpirePlayer.Test
                 watchCalled = true;
             });
 
-            _reference.Update(Info);
+            _reference.Update(Data);
 
             Assert.IsFalse(watchCalled);
         }
@@ -214,8 +215,8 @@ namespace CreateAR.SpirePlayer.Test
                 unwatch();
             });
 
-            _reference.Update(InfoUpdate);
-            _reference.Update(InfoUpdate);
+            _reference.Update(DataUpdate);
+            _reference.Update(DataUpdate);
 
             Assert.AreEqual(1, watchCalled);
         }
@@ -225,14 +226,14 @@ namespace CreateAR.SpirePlayer.Test
         {
             var watchCalled = false;
 
-            var unwatch = _reference.Watch(reference =>
+            _reference.Watch(reference =>
             {
                 watchCalled = true;
 
                 Assert.AreSame(_reference, reference);
             });
 
-            _reference.Update(InfoUpdate);
+            _reference.Update(DataUpdate);
 
             Assert.IsTrue(watchCalled);
         }
@@ -249,11 +250,11 @@ namespace CreateAR.SpirePlayer.Test
                 Assert.AreSame(_reference, reference);
             });
 
-            _reference.Update(InfoUpdate);
+            _reference.Update(DataUpdate);
 
             unwatch();
 
-            _reference.Update(InfoUpdate);
+            _reference.Update(DataUpdate);
 
             Assert.AreEqual(1, watchCalled);
         }
@@ -290,7 +291,7 @@ namespace CreateAR.SpirePlayer.Test
             });
 
             _reference.Load<GameObject>();
-            _reference.Update(InfoUpdate);
+            _reference.Update(DataUpdate);
             _reference.Load<GameObject>();
 
             Assert.AreEqual(1, watchCalled);
@@ -301,7 +302,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             var watchCalled = false;
 
-            var unwatch = _reference.WatchAsset<GameObject>(asset =>
+            _reference.WatchAsset<GameObject>(asset =>
             {
                 watchCalled = true;
 
@@ -329,7 +330,7 @@ namespace CreateAR.SpirePlayer.Test
 
             unwatch();
 
-            _reference.Update(InfoUpdate);
+            _reference.Update(DataUpdate);
             _reference.Load<GameObject>();
 
             Assert.AreEqual(1, watchCalled);
@@ -353,7 +354,7 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.AreEqual(0, watches);
 
-            _reference.Update(InfoUpdate);
+            _reference.Update(DataUpdate);
 
             Assert.AreEqual(1, watches);
         }

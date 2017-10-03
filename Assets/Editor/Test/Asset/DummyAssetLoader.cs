@@ -7,11 +7,11 @@ namespace CreateAR.SpirePlayer.Test
 {
     public class DummyAssetLoader : IAssetLoader
     {
-        public IAsyncToken<Object> Load(AssetInfo info, out LoadProgress progress)
+        public IAsyncToken<Object> Load(AssetData data, out LoadProgress progress)
         {
             var token = new AsyncToken<Object>();
 
-            var asset = AssetDatabase.LoadAssetAtPath<Object>(info.Uri);
+            var asset = AssetDatabase.LoadAssetAtPath<Object>(data.Uri);
             if (null == asset)
             {
                 progress = new LoadProgress
@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer.Test
                     Value = 0f
                 };
 
-                token.Fail(new Exception("Could not load asset at " + info.Uri + "."));
+                token.Fail(new Exception("Could not load asset at " + data.Uri + "."));
             }
             else
             {

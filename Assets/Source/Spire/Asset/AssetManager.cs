@@ -79,26 +79,26 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called by the <c>IAssetUpdateService</c> when an asset has been added.
         /// </summary>
-        /// <param name="assetInfos">The asset that has been added.</param>
-        private void Service_OnAdded(AssetInfo[] assetInfos)
+        /// <param name="assetsnfos">The asset that has been added.</param>
+        private void Service_OnAdded(AssetData[] assets)
         {
-            Manifest.Add(assetInfos);
+            Manifest.Add(assets);
         }
 
         /// <summary>
         /// Called by the <c>IAssetUpdateService</c> when an asset has been updated
         /// </summary>
-        /// <param name="assetInfos">The asset that has been updated.</param>
-        private void Service_OnUpdated(AssetInfo[] assetInfos)
+        /// <param name="assetsnfos">The asset that has been updated.</param>
+        private void Service_OnUpdated(AssetData[] assets)
         {
-            Manifest.Update(assetInfos);
+            Manifest.Update(assets);
         }
 
         /// <summary>
         /// Called by the <c>IAssetUpdateService</c> when an asset has been removed.
         /// </summary>
-        /// <param name="assetInfos">The asset that has been removed.</param>
-        private void Service_OnRemoved(AssetInfo[] assetInfos)
+        /// <param name="assetsnfos">The asset that has been removed.</param>
+        private void Service_OnRemoved(AssetData[] assets)
         {
             throw new NotImplementedException();
         }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using Jint.Native;
 using UnityEngine;
 
@@ -13,7 +13,7 @@ namespace Jint.Unity
         /// <summary>
         /// A reference to the script to execute.
         /// </summary>
-        public ScriptReference Script;
+        public SpireScript Script;
 
         /// <summary>
         /// Properties that need to be serialized for the script.
@@ -154,4 +154,4 @@ namespace Jint.Unity
             }
         }
     }
-}
+}*/

@@ -90,6 +90,23 @@ namespace CreateAR.Spire
             return new AsyncToken<Scene>(this);
         }
 
+        private IAsyncToken<SpireScript[]> LoadScripts(
+            List<ScriptInfo> scriptInfos)
+        {
+            var loads = new IAsyncToken<SpireScript>[scriptInfos.Count];
+            /*
+            for (int i = 0, len = scriptInfos.Count; i < len; i++)
+            {
+                var info = scriptInfos[i];
+                var script = _scripts.Request(info, Data.Id);
+                loads[i] = script.OnReady;
+
+                Log.Debug(this, "Loading {0}.", info);
+            }
+            */
+            return Async.All(loads);
+        }
+
         /// <summary>
         /// Loads all <c>Content</c>.
         /// </summary>

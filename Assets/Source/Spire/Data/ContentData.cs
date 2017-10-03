@@ -22,7 +22,7 @@ namespace CreateAR.Spire
         /// <summary>
         /// Data about the asset.
         /// </summary>
-        public AssetData Asset;
+        public AssetReference Asset;
 
         /// <summary>
         /// Anchoring Data

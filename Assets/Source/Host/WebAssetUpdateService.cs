@@ -7,9 +7,9 @@ namespace CreateAR.SpirePlayer
     public class WebAssetUpdateService : IAssetUpdateService
     {
         
-        public event Action<AssetInfo[]> OnAdded;
-        public event Action<AssetInfo[]> OnUpdated;
-        public event Action<AssetInfo[]> OnRemoved;
+        public event Action<AssetData[]> OnAdded;
+        public event Action<AssetData[]> OnUpdated;
+        public event Action<AssetData[]> OnRemoved;
 
         public IAsyncToken<Void> Initialize()
         {

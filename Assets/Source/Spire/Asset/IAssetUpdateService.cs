@@ -13,17 +13,17 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when assets have been added.
         /// </summary>
-        event Action<AssetInfo[]> OnAdded;
+        event Action<AssetData[]> OnAdded;
 
         /// <summary>
         /// Called when assets have bee updated.
         /// </summary>
-        event Action<AssetInfo[]> OnUpdated;
+        event Action<AssetData[]> OnUpdated;
 
         /// <summary>
         /// Called when assets have been removed.
         /// </summary>
-        event Action<AssetInfo[]> OnRemoved;
+        event Action<AssetData[]> OnRemoved;
 
         /// <summary>
         /// Initializes service.

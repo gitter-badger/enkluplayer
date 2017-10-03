@@ -84,7 +84,7 @@ namespace CreateAR.SpirePlayer
                 
             // add it to manifest
             // TODO: This should be builtin.
-            _assets.Manifest.Add(new AssetInfo
+            _assets.Manifest.Add(new AssetData
             {
                 Guid = guid,
                 Uri = uri,
