@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using Jint;
 using UnityEngine;
 
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -18,6 +19,11 @@ namespace CreateAR.Spire
         /// </summary>
         private IScriptManager _scripts;
         private IContentManager _contentManager;
+
+        /// <summary>
+        /// Hosts!
+        /// </summary>
+        private readonly List<MonoBehaviourScriptingHost> _hosts = new List<MonoBehaviourScriptingHost>();
         
         /// <summary>
         /// Data for this <c>Scene</c>.
@@ -78,6 +84,7 @@ namespace CreateAR.Spire
         {
             Log.Info(this, "Unloading scene {0}.", Data);
 
+            UnloadScripts();
             UnloadContent();
 
             Data = null;
@@ -90,7 +97,11 @@ namespace CreateAR.Spire
         /// </summary>
         public void Startup()
         {
-            
+            // start scripts
+            for (int i = 0, len = _hosts.Count; i < len; i++)
+            {
+                _hosts[i].Enter();
+            }
         }
 
         /// <summary>
@@ -98,7 +109,11 @@ namespace CreateAR.Spire
         /// </summary>
         public void Teardown()
         {
-            
+            // stop scripts
+            for (int i = 0, len = _hosts.Count; i < len; i++)
+            {
+                _hosts[i].Exit();
+            }
         }
 
         /// <summary>
@@ -110,6 +125,9 @@ namespace CreateAR.Spire
             List<string> scriptIds)
         {
             var len = scriptIds.Count;
+
+            Log.Info(this, "Loading {0} scripts.", len);
+
             var loads = new IAsyncToken<SpireScript>[len];
             for (var i = 0; i < len; i++)
             {
@@ -130,9 +148,12 @@ namespace CreateAR.Spire
         /// <returns></returns>
         private IAsyncToken<Content[]> LoadContent(List<string> contentIds)
         {
-            var loads = new IAsyncToken<Content>[contentIds.Count];
+            var len = contentIds.Count;
+            var loads = new IAsyncToken<Content>[len];
 
-            for (int i = 0, count = contentIds.Count; i < count; ++i)
+            Log.Info(this, "Loading {0} piece of Content.", len);
+
+            for (var i = 0; i < len; ++i)
             {
                 var contentId = contentIds[i];
                 var content = _contentManager.Request(contentId, Data.Id);
@@ -154,13 +175,48 @@ namespace CreateAR.Spire
         }
 
         /// <summary>
+        /// Unloads scripts.
+        /// </summary>
+        private void UnloadScripts()
+        {
+            _scripts.ReleaseAll(Data.Id);
+
+            // destroy scripts
+            for (int i = 0, len = _hosts.Count; i < len; i++)
+            {
+                var host = _hosts[i];
+
+                Destroy(host.gameObject);
+            }
+            _hosts.Clear();
+        }
+
+        /// <summary>
         /// Called when all scripts have been loaded, before we resolve the
         /// external token.
         /// </summary>
         /// <param name="scripts">All preloaded scripts.</param>
         private void ProcessScripts(SpireScript[] scripts)
         {
+            for (int i = 0, len = scripts.Length; i < len; i++)
+            {
+                var script = scripts[i];
+                var obj = new GameObject(script.Data.Id);
+                obj.transform.SetParent(transform);
+                obj.transform.localPosition = Vector3.zero;
+                obj.transform.localRotation = Quaternion.identity;
 
+                var host = obj.AddComponent<MonoBehaviourScriptingHost>();
+                host.Initialize(
+                    // TODO: Reuse engines or share them.
+                    new Engine(options =>
+                    {
+                        options.AllowClr();
+                    }),
+                    script);
+
+                _hosts.Add(host);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using Jint;
 using Jint.Native;
 using Jint.Unity;
@@ -19,7 +20,7 @@ namespace CreateAR.Spire
         /// <summary>
         /// An engine to run the scripts with.
         /// </summary>
-        protected Engine _engine;
+        private Engine _engine;
 
         /// <summary>
         /// The script to execute.
@@ -27,21 +28,21 @@ namespace CreateAR.Spire
         private SpireScript _script;
 
         /// <summary>
+        /// True iff has been started.
+        /// </summary>
+        private bool _isStarted;
+
+        /// <summary>
         /// References to JS functions.
         /// </summary>
-        protected ICallable _update;
-        protected ICallable _fixedUpdate;
-        protected ICallable _lateUpdate;
-        protected ICallable _awake;
-        protected ICallable _start;
-        protected ICallable _onEnable;
-        protected ICallable _onDisable;
-        protected ICallable _onDestroy;
+        private ICallable _enter;
+        private ICallable _update;
+        private ICallable _exit;
 
         /// <summary>
         /// A JS reference to this, passed to every ICallable.
         /// </summary>
-        protected JsValue _this;
+        private JsValue _this;
 
         /// <summary>
         /// Initializes the host.
@@ -52,6 +53,11 @@ namespace CreateAR.Spire
             Engine engine,
             SpireScript script)
         {
+            if (_isStarted)
+            {
+                throw new Exception("Script is already running.");
+            }
+
             _engine = engine;
             _script = script;
 
@@ -68,81 +74,57 @@ namespace CreateAR.Spire
 
             _this = JsValue.FromObject(_engine, this);
 
-            _update = _engine.GetFunction("Update");
-            _fixedUpdate = _engine.GetFunction("FixedUpdate");
-            _lateUpdate = _engine.GetFunction("LateUpdate");
-            _awake = _engine.GetFunction("Awake");
-            _start = _engine.GetFunction("Start");
-            _onEnable = _engine.GetFunction("OnEnable");
-            _onDisable = _engine.GetFunction("OnDisable");
-            _onDestroy = _engine.GetFunction("OnDestroy");
+            _enter = _engine.GetFunction("enter");
+            _update = _engine.GetFunction("update");
+            _exit = _engine.GetFunction("exit");
+        }
 
-            if (null != _awake)
+        /// <summary>
+        /// Enters the script.
+        /// </summary>
+        public void Enter()
+        {
+            if (_isStarted)
             {
-                _awake.Call(_this, null);
+                throw new Exception("Script already started.");
+            }
+
+            Log.Info(this, "Entering script {0}.", _script.Data);
+
+            _isStarted = true;
+
+            if (null != _enter)
+            {
+                _enter.Call(_this, null);
+            }
+        }
+
+        /// <summary>
+        /// Exits the script.
+        /// </summary>
+        public void Exit()
+        {
+            if (!_isStarted)
+            {
+                throw new Exception("Script hasn't been started.");
+            }
+
+            Log.Info(this, "Exiting script {0}.", _script.Data);
+
+            _isStarted = false;
+
+            if (null != _exit)
+            {
+                _exit.Call(_this, null);
             }
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>
-        protected virtual void Update()
+        private void Update()
         {
-            if (null != _update)
+            if (_isStarted && null != _update)
             {
                 _update.Call(_this, null);
-            }
-        }
-
-        /// <inheritdoc cref="MonoBehaviour"/>
-        protected virtual void FixedUpdate()
-        {
-            if (null != _fixedUpdate)
-            {
-                _fixedUpdate.Call(_this, null);
-            }
-        }
-
-        /// <inheritdoc cref="MonoBehaviour"/>
-        protected virtual void LateUpdate()
-        {
-            if (null != _lateUpdate)
-            {
-                _lateUpdate.Call(_this, null);
-            }
-        }
-
-        /// <inheritdoc cref="MonoBehaviour"/>
-        protected virtual void Start()
-        {
-            if (null != _start)
-            {
-                _start.Call(_this, null);
-            }
-        }
-
-        /// <inheritdoc cref="MonoBehaviour"/>
-        protected virtual void OnEnable()
-        {
-            if (null != _onEnable)
-            {
-                _onEnable.Call(_this, null);
-            }
-        }
-
-        /// <inheritdoc cref="MonoBehaviour"/>
-        protected virtual void OnDisable()
-        {
-            if (null != _onDisable)
-            {
-                _onDisable.Call(_this, null);
-            }
-        }
-
-        /// <inheritdoc cref="MonoBehaviour"/>
-        protected virtual void OnDestroy()
-        {
-            if (null != _onDestroy)
-            {
-                _onDestroy.Call(_this, null);
             }
         }
     }

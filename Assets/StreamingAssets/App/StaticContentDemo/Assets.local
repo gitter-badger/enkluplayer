@@ -6,5 +6,10 @@
       <Uri>Assets/Prefabs/Streaming/Cube.prefab</Uri>
       <Version>0</Version>
     </AssetData>
+	<AssetData>
+      <Guid>eda05f82def58cc40b6150cc0d007aa5</Guid>
+      <Uri>Assets/StreamingAssets/App/StaticContentDemo/Scripts/Startup.txt</Uri>
+      <Version>0</Version>
+    </AssetData>
   </Assets>
 </AssetDataManifest>

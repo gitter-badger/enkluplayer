@@ -62,7 +62,7 @@ namespace CreateAR.Spire
             Asset = asset;
 
             // watch for updates to the underlying asset
-            _unsubscribe = Asset.WatchAsset<TextAsset>(Reference_OnAssetUpdated);
+            _unsubscribe = Asset.WatchAsset<TextAsset>(Asset_OnAssetUpdated);
 
             // set to true!
             Asset.AutoReload = true;
@@ -80,13 +80,17 @@ namespace CreateAR.Spire
         /// Called when the underlying asset has been updated.
         /// </summary>
         /// <param name="asset">The asset.</param>
-        private void Reference_OnAssetUpdated(TextAsset asset)
+        private void Asset_OnAssetUpdated(TextAsset asset)
         {
+            Log.Info(this, "Script updated, parsing asset.");
+
             // parse!
             _parser
                 .Parse(asset.text)
                 .OnSuccess(program =>
                 {
+                    Log.Info(this, "Script parsed and ready.");
+
                     Program = program;
 
                     _onReady.Succeed(this);

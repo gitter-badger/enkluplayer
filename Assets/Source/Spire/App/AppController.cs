@@ -44,6 +44,9 @@ namespace CreateAR.Spire
                         .Load("main")
                         .OnSuccess(scene =>
                         {
+                            // start scene
+                            scene.Startup();
+
                             token.Succeed(Void.Instance);
                         })
                         .OnFailure(token.Fail);

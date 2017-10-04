@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <SceneData>
-   <Id>main</Id>
-   <Name>main</Name>
-   <Content>
-      <string>Floor</string>
-   </Content>
+	<Id>main</Id>
+	<Name>main</Name>
+	<Content>
+		<string>Floor</string>
+	</Content>
+	<Scripts>
+		<string>4e49c85e-252b-4e5b-a7c2-388cf8f20f97</string>
+	</Scripts>
 </SceneData>

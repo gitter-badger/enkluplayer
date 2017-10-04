@@ -1,0 +1,11 @@
+function enter() {
+    
+}
+
+function update() {
+	
+}
+
+function exit() {
+	
+}

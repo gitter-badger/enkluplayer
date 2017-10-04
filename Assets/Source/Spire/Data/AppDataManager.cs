@@ -224,38 +224,45 @@ namespace CreateAR.Spire
 
                     list.Add(scene);
 
-                    // load all content before succeeding token
-                    LoadContent(app, scene)
-                        .OnSuccess(token.Succeed)
+                    // load all scripts + content before succeeding token
+                    Async
+                        .All(
+                            LoadData<ScriptData>(app, scene.Scripts),
+                            LoadData<ContentData>(app, scene.Content))
+                        .OnSuccess(_ => token.Succeed(Void.Instance))
                         .OnFailure(token.Fail);
                 })
                 .OnFailure(token.Fail);
 
             return token;
         }
-        
         /// <summary>
-        /// Loads all content for a scene.
+        /// Loads all scripts for a scene.
         /// </summary>
         /// <param name="app">The container app.</param>
-        /// <param name="scene">The scene to load content for.</param>
+        /// <param name="ids">The ids of data to load.</param>
         /// <returns></returns>
-        private IAsyncToken<Void> LoadContent(AppData app, SceneData scene)
+        private IAsyncToken<Void> LoadData<T>(AppData app, List<string> ids)
+            where T : StaticData
         {
             var token = new AsyncToken<Void>();
-            var list = List<ContentData>();
+            var list = List<T>();
 
             // load and save each piece
-            var content = scene.Content;
-            var len = content.Count;
-            var tokens = new IAsyncToken<File<ContentData>>[len];
+            var len = ids.Count;
+            var tokens = new IAsyncToken<File<T>>[len];
+
             for (var i = 0; i < len; i++)
             {
-                var id = content[i];
-                var uri = FileProtocols.APP + app.Name + "/ContentData/" + id;
+                var id = ids[i];
+                var uri = string.Format(
+                    "{0}/{1}/{2}",
+                    FileProtocols.APP + app.Name,
+                    typeof(T).Name,
+                    id);
 
                 tokens[i] = _files
-                    .Get<ContentData>(uri)
+                    .Get<T>(uri)
                     .OnSuccess(file => list.Add(file.Data));
             }
 
@@ -267,7 +274,7 @@ namespace CreateAR.Spire
 
             return token;
         }
-
+        
         /// <summary>
         /// Retrieves list for type.
         /// </summary>
