@@ -28,19 +28,19 @@ namespace CreateAR.Spire
         private bool _autoReload;
 
         /// <summary>
-        /// A list of callbacks subscribed through Watch().
+        /// A list of callbacks watching AssetData.
         /// </summary>
-        private readonly List<Action> _refWatchers = new List<Action>();
+        private readonly List<Action> _dataWatchers = new List<Action>();
 
         /// <summary>
-        /// A list of callbacks subscribed through WatchAsset().
+        /// A list of callbacks watching the loaded asset.
         /// </summary>
-        private readonly List<Action> _assetWatchers = new List<Action>();
+        private readonly List<Action> _watch = new List<Action>();
 
         /// <summary>
         /// The data object describing the object.
         /// </summary>
-        public SpirePlayer.AssetData Data { get; private set; }
+        public AssetData Data { get; private set; }
 
         /// <summary>
         /// True iff the asset that is currently loaded is not the most recent
@@ -82,7 +82,7 @@ namespace CreateAR.Spire
         /// <param name="data">The data object this pertains to.</param>
         public Asset(
             IAssetLoader loader,
-            SpirePlayer.AssetData data)
+            AssetData data)
         {
             _loader = loader;
 
@@ -149,7 +149,7 @@ namespace CreateAR.Spire
 
                         token.Succeed(As<T>());
 
-                        var watchers = _assetWatchers.ToArray();
+                        var watchers = _watch.ToArray();
                         for (int i = 0, len = watchers.Length; i < len; i++)
                         {
                             watchers[i]();
@@ -177,7 +177,7 @@ namespace CreateAR.Spire
         /// to true, the asset will be reloaded.
         /// </summary>
         /// <param name="data">The updated <c>AssetInfo</c> object.</param>
-        public void Update(SpirePlayer.AssetData data)
+        public void Update(AssetData data)
         {
             if (Data.Guid != data.Guid)
             {
@@ -193,7 +193,7 @@ namespace CreateAR.Spire
 
             IsAssetDirty = true;
 
-            var watchers = _refWatchers.ToArray();
+            var watchers = _dataWatchers.ToArray();
             for (int i = 0, len = watchers.Length; i < len; i++)
             {
                 watchers[i]();
@@ -211,14 +211,14 @@ namespace CreateAR.Spire
         /// The callback's first parameter is a delegate to unsubscribe.
         /// </summary>
         /// <param name="callback">A callback to call.</param>
-        public void Watch(Action<Action, Asset> callback)
+        public void WatchData(Action<Action, Asset> callback)
         {
             Action watcher = null;
             // ReSharper disable once AccessToModifiedClosure
-            Action unwatcher = () => _refWatchers.Remove(watcher);
+            Action unwatcher = () => _dataWatchers.Remove(watcher);
             watcher = () => callback(unwatcher, this);
 
-            _refWatchers.Add(watcher);
+            _dataWatchers.Add(watcher);
         }
 
         /// <summary>
@@ -228,12 +228,12 @@ namespace CreateAR.Spire
         /// </summary>
         /// <param name="callback">The callback to call.</param>
         /// <returns></returns>
-        public Action Watch(Action<Asset> callback)
+        public Action WatchData(Action<Asset> callback)
         {
             Action watcher = () => callback(this);
-            _refWatchers.Add(watcher);
+            _dataWatchers.Add(watcher);
 
-            return () => _refWatchers.Remove(watcher);
+            return () => _dataWatchers.Remove(watcher);
         }
 
         /// <summary>
@@ -244,14 +244,14 @@ namespace CreateAR.Spire
         /// <typeparam name="T">The type of asset. This is effectively the same
         /// as calling Asset().</typeparam>
         /// <param name="callback">The callback to call.</param>
-        public void WatchAsset<T>(Action<Action, T> callback) where T : Object
+        public void Watch<T>(Action<Action, T> callback) where T : Object
         {
             Action watcher = null;
             // ReSharper disable once AccessToModifiedClosure
-            Action unwatcher = () => _assetWatchers.Remove(watcher);
+            Action unwatcher = () => _watch.Remove(watcher);
             watcher = () => callback(unwatcher, As<T>());
 
-            _assetWatchers.Add(watcher);
+            _watch.Add(watcher);
         }
 
         /// <summary>
@@ -262,12 +262,12 @@ namespace CreateAR.Spire
         /// <typeparam name="T">The type to cast the asset to.</typeparam>
         /// <param name="callback">The callback to call.</param>
         /// <returns></returns>
-        public Action WatchAsset<T>(Action<T> callback) where T : Object
+        public Action Watch<T>(Action<T> callback) where T : Object
         {
             Action watcher = () => callback(As<T>());
-            _assetWatchers.Add(watcher);
+            _watch.Add(watcher);
 
-            return () => _assetWatchers.Remove(watcher);
+            return () => _watch.Remove(watcher);
         }
 
         /// <summary>

@@ -176,7 +176,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             var watchCalled = false;
 
-            _reference.Watch((unwatch, reference) =>
+            _reference.WatchData((unwatch, reference) =>
             {
                 watchCalled = true;
 
@@ -193,7 +193,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             var watchCalled = false;
 
-            _reference.Watch((unwatch, reference) =>
+            _reference.WatchData((unwatch, reference) =>
             {
                 watchCalled = true;
             });
@@ -208,7 +208,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             var watchCalled = 0;
 
-            _reference.Watch((unwatch, reference) =>
+            _reference.WatchData((unwatch, reference) =>
             {
                 watchCalled++;
 
@@ -226,7 +226,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             var watchCalled = false;
 
-            _reference.Watch(reference =>
+            _reference.WatchData(reference =>
             {
                 watchCalled = true;
 
@@ -243,7 +243,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             var watchCalled = 0;
 
-            var unwatch = _reference.Watch(reference =>
+            var unwatch = _reference.WatchData(reference =>
             {
                 watchCalled++;
 
@@ -264,7 +264,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             var watchCalled = false;
 
-            _reference.WatchAsset<GameObject>((unwatch, asset) =>
+            _reference.Watch<GameObject>((unwatch, asset) =>
             {
                 watchCalled = true;
 
@@ -283,7 +283,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             var watchCalled = 0;
 
-            _reference.WatchAsset<GameObject>((unwatch, asset) =>
+            _reference.Watch<GameObject>((unwatch, asset) =>
             {
                 watchCalled++;
 
@@ -302,7 +302,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             var watchCalled = false;
 
-            _reference.WatchAsset<GameObject>(asset =>
+            _reference.Watch<GameObject>(asset =>
             {
                 watchCalled = true;
 
@@ -321,7 +321,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             var watchCalled = 0;
 
-            var unwatch = _reference.WatchAsset<GameObject>(asset =>
+            var unwatch = _reference.Watch<GameObject>(asset =>
             {
                 watchCalled++;
             });
@@ -343,7 +343,7 @@ namespace CreateAR.SpirePlayer.Test
 
             _reference.Load<GameObject>();
 
-            _reference.WatchAsset<GameObject>(asset =>
+            _reference.Watch<GameObject>(asset =>
             {
                 watches++;
             });

@@ -45,7 +45,7 @@ namespace CreateAR.Spire
         /// Program that can be executed.
         /// </summary>
         public Program Program { get; private set; }
-
+        
         /// <summary>
         /// Creates a new SpireScript.
         /// </summary>
@@ -62,7 +62,7 @@ namespace CreateAR.Spire
             Asset = asset;
 
             // watch for updates to the underlying asset
-            _unsubscribe = Asset.WatchAsset<TextAsset>(Asset_OnAssetUpdated);
+            _unsubscribe = Asset.Watch<TextAsset>(Asset_OnAssetUpdated);
 
             // set to true!
             Asset.AutoReload = true;
@@ -82,7 +82,8 @@ namespace CreateAR.Spire
         /// <param name="asset">The asset.</param>
         private void Asset_OnAssetUpdated(TextAsset asset)
         {
-            Log.Info(this, "Script updated, parsing asset.");
+            Log.Info(this, "Script updated, parsing Program : {0}.",
+                Data);
 
             // parse!
             _parser

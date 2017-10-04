@@ -469,7 +469,6 @@
     <None Include="Assets\StreamingAssets\App\SpireDemo\TuneVarData\UITuneVars.xml" />
     <None Include="Assets\StreamingAssets\App\SpireDemo\UIElementData\TeslaUIElements.xml" />
     <None Include="Assets\StreamingAssets\App\SpireDemo\UserExperienceData\Tutorials.xml" />
-    <None Include="Assets\StreamingAssets\App\StaticContentDemo\Scripts\Startup.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

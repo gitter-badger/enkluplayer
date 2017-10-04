@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using Jint;
+using Jint.Unity;
 using UnityEngine;
 
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -135,7 +136,7 @@ namespace CreateAR.Spire
                 var script = _scripts.Create(scriptId, Data.Id);
                 loads[i] = script.OnReady;
 
-                Log.Debug(this, "Loading {0}.", script);
+                Log.Debug(this, "Loading {0}.", script.Data);
             }
 
             return Async.All(loads);
@@ -209,10 +210,7 @@ namespace CreateAR.Spire
                 var host = obj.AddComponent<MonoBehaviourScriptingHost>();
                 host.Initialize(
                     // TODO: Reuse engines or share them.
-                    new Engine(options =>
-                    {
-                        options.AllowClr();
-                    }),
+                    new UnityScriptingHost(null, null), 
                     script);
 
                 _hosts.Add(host);

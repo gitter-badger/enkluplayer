@@ -20,7 +20,7 @@ namespace CreateAR.Spire
         /// <summary>
         /// An engine to run the scripts with.
         /// </summary>
-        private Engine _engine;
+        private UnityScriptingHost _engine;
 
         /// <summary>
         /// The script to execute.
@@ -45,12 +45,17 @@ namespace CreateAR.Spire
         private JsValue _this;
 
         /// <summary>
+        /// Arguments.
+        /// </summary>
+        private readonly JsValue[] _arguments = new JsValue[0];
+
+        /// <summary>
         /// Initializes the host.
         /// </summary>
         /// <param name="engine">JS Engine.</param>
         /// <param name="script">The script to execute.</param>
         public void Initialize(
-            Engine engine,
+            UnityScriptingHost engine,
             SpireScript script)
         {
             if (_isStarted)
@@ -95,7 +100,7 @@ namespace CreateAR.Spire
 
             if (null != _enter)
             {
-                _enter.Call(_this, null);
+                _enter.Call(_this, _arguments);
             }
         }
 
@@ -115,7 +120,7 @@ namespace CreateAR.Spire
 
             if (null != _exit)
             {
-                _exit.Call(_this, null);
+                _exit.Call(_this, _arguments);
             }
         }
 
@@ -124,7 +129,7 @@ namespace CreateAR.Spire
         {
             if (_isStarted && null != _update)
             {
-                _update.Call(_this, null);
+                _update.Call(_this, _arguments);
             }
         }
     }

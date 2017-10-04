@@ -101,7 +101,7 @@ namespace CreateAR.SpirePlayer.Test
             Assert.IsNotNull(reference);
             Assert.AreSame(info, reference.Data);
 
-            reference.Watch(_ =>
+            reference.WatchData(_ =>
             {
                 watchCalled = true;
 
@@ -131,7 +131,7 @@ namespace CreateAR.SpirePlayer.Test
             var loaded = reference.As<GameObject>();
             Assert.IsNotNull(loaded);
 
-            reference.WatchAsset<GameObject>(asset =>
+            reference.Watch<GameObject>(asset =>
             {
                 watchCalled = true;
 
