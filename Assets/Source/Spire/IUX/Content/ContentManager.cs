@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace CreateAR.Spire
 {
@@ -84,6 +85,11 @@ namespace CreateAR.Spire
         private readonly List<ContentRecord> _shared = new List<ContentRecord>();
 
         /// <summary>
+        /// Parent to all content.
+        /// </summary>
+        private readonly Transform _parent;
+
+        /// <summary>
         /// Creates a new <c>ContentManager</c>.
         /// </summary>
         public ContentManager(
@@ -92,6 +98,8 @@ namespace CreateAR.Spire
         {
             _factory = factory;
             _appData = appData;
+
+            _parent = new GameObject("Content").transform;
         }
         
         /// <inheritdoc cref="IContentManager"/>
@@ -228,6 +236,8 @@ namespace CreateAR.Spire
             {
                 return null;
             }
+
+            content.transform.SetParent(_parent);
 
             return new ContentRecord(content);
         }

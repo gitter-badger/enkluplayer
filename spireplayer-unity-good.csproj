@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WSAPlayer:21</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -117,7 +119,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scenes\Test\Jint\JintMain.cs" />
     <Compile Include="Assets\Source\Application\Injection\IInjectionModule.cs" />
     <Compile Include="Assets\Source\Application\Injection\InjectableMonoBehaviour.cs" />
     <Compile Include="Assets\Source\Application\Injection\InjectionExtensions.cs" />
@@ -257,8 +258,8 @@
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Resolver\NullScriptingDependencyResolver.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Resolver\TypeScriptingDependencyResolver.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Serialization\ScriptingPropertyBucket.cs" />
-    <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\UnityLogWrapper.cs" />
-    <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\UnityScriptingHost.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\JsLogWrapper.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\UnityScriptingHost.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\UQL\UnitySceneManager.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\UQL\UnitySceneQuery.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\DeclarationBindingType.cs" />

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using Jint;
 using Jint.Unity;
 using UnityEngine;
 
@@ -26,6 +25,11 @@ namespace CreateAR.Spire
         /// </summary>
         private readonly List<MonoBehaviourScriptingHost> _hosts = new List<MonoBehaviourScriptingHost>();
         
+        /// <summary>
+        /// Parent to all scripts.
+        /// </summary>
+        private GameObject _scriptParent;
+
         /// <summary>
         /// Data for this <c>Scene</c>.
         /// </summary>
@@ -190,6 +194,9 @@ namespace CreateAR.Spire
                 Destroy(host.gameObject);
             }
             _hosts.Clear();
+
+            // destroy parent
+            Destroy(_scriptParent);
         }
 
         /// <summary>
@@ -199,18 +206,24 @@ namespace CreateAR.Spire
         /// <param name="scripts">All preloaded scripts.</param>
         private void ProcessScripts(SpireScript[] scripts)
         {
+            _scriptParent = new GameObject("Scripts");
+            _scriptParent.transform.SetParent(transform);
+
             for (int i = 0, len = scripts.Length; i < len; i++)
             {
                 var script = scripts[i];
                 var obj = new GameObject(script.Data.Id);
-                obj.transform.SetParent(transform);
+                obj.transform.SetParent(_scriptParent.transform);
                 obj.transform.localPosition = Vector3.zero;
                 obj.transform.localRotation = Quaternion.identity;
 
                 var host = obj.AddComponent<MonoBehaviourScriptingHost>();
                 host.Initialize(
                     // TODO: Reuse engines or share them.
-                    new UnityScriptingHost(null, null), 
+                    new UnityScriptingHost(
+                        script,
+                        new ResourcesScriptLoader(),
+                        new NullScriptingDependencyResolver()), 
                     script);
 
                 _hosts.Add(host);

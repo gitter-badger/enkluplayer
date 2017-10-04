@@ -1,6 +1,5 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
-using Jint;
 using Jint.Native;
 using Jint.Unity;
 using UnityEngine;

@@ -90,7 +90,7 @@ namespace CreateAR.Spire
             }
 
             // create GameObject parented to this
-            var newSceneGameObject = new GameObject("Scene " + id);
+            var newSceneGameObject = new GameObject(id);
             newSceneGameObject.transform.SetParent(transform);
             newSceneGameObject.transform.localPosition = Vector3.zero;
 

@@ -1,8 +1,11 @@
 ﻿using System;
+using Jint;
 using Jint.Native;
+using Jint.Unity;
 using UnityEngine;
+using Object = System.Object;
 
-namespace Jint.Unity
+namespace CreateAR.Spire
 {
     /// <summary>
     /// Hosts scripts and provides a default Unity API.
@@ -48,6 +51,7 @@ module = null;
         /// Constructor.
         /// </summary>
         public UnityScriptingHost(
+            Object context,
             IScriptLoader loader,
             IScriptDependencyResolver resolver)
             : base(options => options.AllowClr())
@@ -55,8 +59,8 @@ module = null;
             Loader = loader;
             Resolver = resolver;
 
-            SetValue("Log", new UnityLogWrapper());
-            SetValue("Scene", new UnitySceneManager());
+            SetValue("log", new JsLogWrapper(context));
+            SetValue("scene", new UnitySceneManager());
             
             SetValue("require", new Func<string, JsValue>(Require));
             SetValue("inject", new Func<string, object>(Inject));
