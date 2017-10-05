@@ -9,5 +9,9 @@
 		<string>Startup</string>
 		<string>Booting</string>
 		<string>Updating</string>
+		<string>Calibrating</string>
+		<string>Scanning</string>
+		<string>Loading</string>
+		<string>Final</string>
 	</Scripts>
 </SceneData>

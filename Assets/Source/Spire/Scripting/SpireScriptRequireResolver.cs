@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using CreateAR.Commons.Unity.Logging;
 using Jint;
 using Jint.Native;
 using Jint.Unity;
+using strange.extensions.injector.api;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -16,6 +18,18 @@ namespace CreateAR.SpirePlayer
             public readonly JsValue Value;
 
             public RequireRecord(string id, JsValue value)
+            {
+                Id = id;
+                Value = value;
+            }
+        }
+
+        private class JsInterfaceRecord
+        {
+            public readonly string Id;
+            public readonly object Value;
+
+            public JsInterfaceRecord(string id, object value)
             {
                 Id = id;
                 Value = value;
@@ -47,39 +61,84 @@ module = null;
         /// </summary>
         private int _ids = 0;
 
-        private readonly IScriptManager _scripts;
-        private readonly Engine _engine;
-        
-        private readonly List<RequireRecord> _records = new List<RequireRecord>();
+        /// <summary>
+        /// True iff Initialize() has been called.
+        /// </summary>
+        private bool _isInitialized = false;
 
-        public SpireScriptRequireResolver(
-            IScriptManager scripts,
-            Engine engine)
+        private readonly IInjectionBinder _binder;
+        
+        private readonly List<JsInterfaceRecord> _global = new List<JsInterfaceRecord>();
+        private readonly Dictionary<Engine, List<RequireRecord>> _records = new Dictionary<Engine, List<RequireRecord>>();
+
+        public SpireScriptRequireResolver(IInjectionBinder binder)
         {
-            _scripts = scripts;
-            _engine = engine;
+            _binder = binder;
         }
 
-        public JsValue Resolve(string require)
+        public void Initialize(params Assembly[] assemblies)
+        {
+            if (_isInitialized)
+            {
+                return;
+            }
+
+            _isInitialized = true;
+
+            // peek through assemblies
+            // TODO: this will be expensive.
+            for (int i = 0, iLen = assemblies.Length; i < iLen; i++)
+            {
+                var types = assemblies[i].GetTypes();
+                for (int j = 0, jlen = types.Length; j < jlen; j++)
+                {
+                    var type = types[j];
+                    var attributes = type.GetCustomAttributes(typeof(JsInterfaceAttribute), false);
+                    if (1 == attributes.Length)
+                    {
+                        var attribute = (JsInterfaceAttribute) attributes[0];
+                        Log.Info(this, "Adding JS interface for {0}.", attribute.Name);
+                        _global.Add(new JsInterfaceRecord(
+                            attribute.Name,
+                            _binder.GetInstance(type)));
+                    }
+                }
+            }
+        }
+        
+        public JsValue Resolve(
+            IScriptManager scripts,
+            Engine engine,
+            string require)
         {
             // retrieve already existing records
-            for (int i = 0, len = _records.Count; i < len; i++)
+            var records = Records(engine);
+            for (int i = 0, len = records.Count; i < len; i++)
             {
-                var record = _records[i];
+                var record = records[i];
                 if (record.Id == require)
                 {
                     return record.Value;
                 }
             }
-
-            // retrieve from engine directly
-            var value = _engine.GetValue(require);
-            if (!value.IsNull() && !value.IsUndefined())
+            
+            // peek through globals
+            for (int i = 0, len = _global.Count; i < len; i++)
             {
-                _records.Add(new RequireRecord(
-                    require,
-                    value));
-                return value;
+                var jsInterface = _global[i];
+                if (jsInterface.Id == require)
+                {
+                    var id = "__global_" + _ids++;
+                    engine.SetValue(id, jsInterface.Value);
+
+                    var value = engine.GetValue(id);
+
+                    records.Add(new RequireRecord(
+                        require,
+                        value));
+
+                    return value;
+                }
             }
 
             // see if we can find the source of the missing module
@@ -103,7 +162,7 @@ module = null;
             // find script
             else
             {
-                var script = _scripts.FindOne(require);
+                var script = scripts.FindOne(require);
                 if (null == script)
                 {
                     throw new Exception(string.Format(
@@ -123,8 +182,8 @@ module = null;
             JsValue module;
             try
             {
-                _engine.Execute(moduleCode);
-                module = _engine.GetValue(variableName);
+                engine.Execute(moduleCode);
+                module = engine.GetValue(variableName);
             }
             catch (Exception exception)
             {
@@ -134,9 +193,25 @@ module = null;
                     exception));
             }
 
-            _records.Add(new RequireRecord(require, module));
+            records.Add(new RequireRecord(require, module));
 
             return module;
+        }
+
+        /// <summary>
+        /// Finds or creates a list of records for an <c>Engine</c>.
+        /// </summary>
+        /// <param name="engine">The engine.</param>
+        /// <returns></returns>
+        private List<RequireRecord> Records(Engine engine)
+        {
+            List<RequireRecord> records;
+            if (!_records.TryGetValue(engine, out records))
+            {
+                records = _records[engine] = new List<RequireRecord>();
+            }
+
+            return records;
         }
     }
 }

@@ -15,6 +15,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public UnityScriptingHost(
             object context,
+            IScriptRequireResolver resolver,
             IScriptManager scripts)
             : base(options =>
             {
@@ -26,9 +27,9 @@ namespace CreateAR.SpirePlayer
             })
         {
             SetValue("log", new JsLogWrapper(context));
-            SetValue("scene", new UnitySceneManager());   
+            SetValue("scene", new UnitySceneManager());
             SetValue("require", new Func<string, JsValue>(
-                new SpireScriptRequireResolver(scripts, this).Resolve));
+                value => resolver.Resolve(scripts, this, value)));
         }
     }
 }

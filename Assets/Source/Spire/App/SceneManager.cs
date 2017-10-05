@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using Jint.Unity;
 using UnityEngine;
 
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -27,6 +28,8 @@ namespace CreateAR.SpirePlayer
         public IContentManager Content { get; set; }
         [Inject]
         public IScriptManager Scripts { get; set; }
+        [Inject]
+        public IScriptRequireResolver Resolver { get; set; }
         
         /// <summary>
         /// Useful ToString.
@@ -96,7 +99,7 @@ namespace CreateAR.SpirePlayer
 
             // initialize scene
             var newScene = newSceneGameObject.AddComponent<Scene>();
-            newScene.Initialize(Scripts, Content);
+            newScene.Initialize(Resolver, Scripts, Content);
             ActiveScenes.Add(newScene);
 
             return newScene.Load(data);

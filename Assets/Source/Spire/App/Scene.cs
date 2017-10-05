@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using Jint.Unity;
 using UnityEngine;
 
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -21,6 +22,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
+        private IScriptRequireResolver _resolver;
         private IScriptManager _scriptManager;
         private IContentManager _contentManager;
 
@@ -52,12 +54,15 @@ namespace CreateAR.SpirePlayer
         /// Initializes the scene separately from loading, in case we which to
         /// pool.
         /// </summary>
+        /// <param name="resolver">Resolves script require()s.</param>
         /// <param name="scripts">Manages scripts.</param>
         /// <param name="content">Finds content.</param>
         public void Initialize(
+            IScriptRequireResolver resolver,
             IScriptManager scripts,
             IContentManager content)
         {
+            _resolver = resolver;
             _scriptManager = scripts;
             _contentManager = content;
         }
@@ -76,7 +81,7 @@ namespace CreateAR.SpirePlayer
 
             Data = data;
 
-            _host = new UnityScriptingHost(this, _scriptManager);
+            _host = new UnityScriptingHost(this, _resolver, _scriptManager);
 
             Log.Info(this, "Loading scene {0}.", Data);
 

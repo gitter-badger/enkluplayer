@@ -138,7 +138,13 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<JavaScriptParser>().ToValue(new JavaScriptParser(false));
                 binder.Bind<IScriptParser>().To<DefaultScriptParser>().ToSingleton();
+                binder.Bind<IScriptRequireResolver>().ToValue(new SpireScriptRequireResolver(binder));
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
+
+                // scripting interfaces
+                {
+                    binder.Bind<AppDataScriptingInterface>().To<AppDataScriptingInterface>().ToSingleton();
+                }
             }
 
             // misc

@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -7,6 +9,23 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public interface IAppDataManager
     {
+        /// <summary>
+        /// This is called when loaded.
+        /// </summary>
+        event Action OnLoaded;
+
+        /// <summary>
+        /// This is called when unloaded.
+        /// </summary>
+        event Action OnUnloaded;
+
+        /// <summary>
+        /// Id of the currently loaded app.
+        /// 
+        /// Only non null between OnLoaded + OnUnloaded.
+        /// </summary>
+        string LoadedApp { get; }
+
         /// <summary>
         /// Retrieves a type of data.
         /// </summary>
@@ -31,13 +50,11 @@ namespace CreateAR.SpirePlayer
         T GetByName<T>(string name) where T : StaticData;
 
         /// <summary>
-        /// Loads all data for an app by name.
-        /// 
-        /// TODO: Transition to id.
+        /// Loads all data for an app by id.
         /// </summary>
-        /// <param name="name">Readable name.</param>
+        /// <param name="id">Unique id.</param>
         /// <returns></returns>
-        IAsyncToken<Void> Load(string name);
+        IAsyncToken<Void> Load(string id);
 
         /// <summary>
         /// Unloads currently loaded scene.

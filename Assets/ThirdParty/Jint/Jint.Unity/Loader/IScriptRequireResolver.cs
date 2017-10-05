@@ -1,3 +1,5 @@
+using System.Reflection;
+using CreateAR.SpirePlayer;
 using Jint.Native;
 
 namespace Jint.Unity
@@ -8,8 +10,13 @@ namespace Jint.Unity
     public interface IScriptRequireResolver
     {
         /// <summary>
+        /// Readies the resolver.
+        /// </summary>
+        void Initialize(params Assembly[] assemblies);
+
+        /// <summary>
         /// Retrieves a JsValue for a string.
         /// </summary>
-        JsValue Resolve(string require);
+        JsValue Resolve(IScriptManager scripts, Engine engine, string require);
     }
 }

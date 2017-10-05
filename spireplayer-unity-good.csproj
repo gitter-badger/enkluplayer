@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WSAPlayer:21</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -231,6 +233,8 @@
     <Compile Include="Assets\Source\Spire\IUX\Widget\Widget.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\WidgetConfig.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\DefaultScriptParser.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\Interop\AppDataScriptingInterface.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\Interop\JsInterface.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\IScriptManager.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\IScriptParser.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\JsLogWrapper.cs" />

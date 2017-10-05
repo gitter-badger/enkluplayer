@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
+using Jint.Unity;
 using UnityEngine.SceneManagement;
 
 namespace CreateAR.SpirePlayer
@@ -16,6 +18,11 @@ namespace CreateAR.SpirePlayer
         private readonly IFileManager _files;
 
         /// <summary>
+        /// Resolves script requires.
+        /// </summary>
+        private readonly IScriptRequireResolver _resolver;
+
+        /// <summary>
         /// Manages App.
         /// </summary>
         private readonly AppController _app;
@@ -25,15 +32,25 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public PlayApplicationState(
             IFileManager files,
+            IScriptRequireResolver resolver,
             AppController app)
         {
             _files = files;
+            _resolver = resolver;
             _app = app;
         }
 
         /// <inheritdoc cref="IState"/>
         public void Enter()
         {
+            _resolver.Initialize(
+#if NETFX_CORE
+                // reference by hand
+#else
+                AppDomain.CurrentDomain.GetAssemblies()
+#endif
+            );
+
             // load playmode scene
             UnityEngine.SceneManagement.SceneManager.LoadScene(SCENE_NAME, LoadSceneMode.Additive);
 

@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -60,7 +62,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Generates ScriptData XML for all objects in directory.
+        /// Generates ScriptData XML for all objects in directory, recursively.
         /// </summary>
         [MenuItem("Assets/Data/Generate ScriptData Xml", false, 0)]
         private static void GenerateScriptDataXml()
@@ -70,34 +72,46 @@ namespace CreateAR.SpirePlayer
             // ScriptData path
             var scriptDataPath = Path.Combine(path, "../ScriptData");
 
-            Directory
-                .GetFiles(path)
-                .Select(AssetDatabase.LoadAssetAtPath<TextAsset>)
-                .Where(asset => null != asset)
-                .Select(asset => new ScriptData
-                {
-                    Asset = new AssetReference
+            Action<string> processDir = null;
+            processDir = dir =>
+            {
+                Directory
+                    .GetFiles(dir)
+                    .Select(AssetDatabase.LoadAssetAtPath<TextAsset>)
+                    .Where(asset => null != asset)
+                    .Select(asset => new ScriptData
                     {
-                        AssetDataId = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset))
-                    },
-                    Name = asset.name,
-                    Id = asset.name
-                })
-                .ToList()
-                .ForEach(scriptData =>
-                {
-                    var documentPath = Path.Combine(scriptDataPath, scriptData.Id + ".local");
-                    if (File.Exists(documentPath))
+                        Asset = new AssetReference
+                        {
+                            AssetDataId = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset))
+                        },
+                        Name = asset.name,
+                        Id = asset.name
+                    })
+                    .ToList()
+                    .ForEach(scriptData =>
                     {
-                        return;
-                    }
+                        var documentPath = Path.Combine(scriptDataPath, scriptData.Id + ".local");
+                        if (File.Exists(documentPath))
+                        {
+                            return;
+                        }
 
-                    var serializer = new SystemXmlSerializer();
-                    byte[] bytes;
-                    serializer.Serialize(scriptData, out bytes);
+                        var serializer = new SystemXmlSerializer();
+                        byte[] bytes;
+                        serializer.Serialize(scriptData, out bytes);
 
-                    File.WriteAllBytes(documentPath, bytes);
-                });
+                        File.WriteAllBytes(documentPath, bytes);
+                    });
+
+                // recursive
+                Directory
+                    .GetDirectories(dir)
+                    .ToList()
+                    .ForEach(processDir);
+            };
+
+            processDir(path);
 
             AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
         }

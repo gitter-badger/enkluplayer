@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -32,6 +31,15 @@ namespace CreateAR.SpirePlayer
         /// Type to list of data.
         /// </summary>
         private readonly Dictionary<Type, List<StaticData>> _dataByType = new Dictionary<Type, List<StaticData>>();
+
+        /// <inheritdoc cref="IAppDataManager"/>
+        public event Action OnLoaded;
+
+        /// <inheritdoc cref="IAppDataManager"/>
+        public event Action OnUnloaded;
+
+        /// <inheritdoc cref="IAppDataManager"/>
+        public string LoadedApp { get; private set; }
 
         /// <summary>
         /// Creates a new AppDataManager.
@@ -83,15 +91,25 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IAppDataManager"/>
-        public IAsyncToken<Void> Load(string name)
+        public IAsyncToken<Void> Load(string id)
         {
             var token = new AsyncToken<Void>();
 
             Async
                 .All(
-                    LoadAssetManifest(name),
-                    LoadApp(name))
-                .OnSuccess(_ => token.Succeed(Void.Instance))
+                    LoadAssetManifest(id),
+                    LoadApp(id))
+                .OnSuccess(_ =>
+                {
+                    LoadedApp = id;
+
+                    if (null != OnLoaded)
+                    {
+                        OnLoaded();
+                    }
+
+                    token.Succeed(Void.Instance);
+                })
                 .OnFailure(token.Fail);
 
             return token;

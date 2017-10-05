@@ -26,6 +26,11 @@ namespace CreateAR.SpirePlayer.Test
             }
         };
 
+        public event Action OnLoaded;
+        public event Action OnUnloaded;
+
+        public string LoadedApp { get; private set; }
+
         public T Get<T>(string id) where T : StaticData
         {
             return _content.FirstOrDefault(content => content.Id == id) as T;
@@ -41,7 +46,7 @@ namespace CreateAR.SpirePlayer.Test
             throw new NotImplementedException();
         }
 
-        public IAsyncToken<Void> Load(string name)
+        public IAsyncToken<Void> Load(string id)
         {
             throw new NotImplementedException();
         }
