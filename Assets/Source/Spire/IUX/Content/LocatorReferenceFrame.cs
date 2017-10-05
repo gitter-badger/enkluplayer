@@ -1,7 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Frame of reference for a locator.

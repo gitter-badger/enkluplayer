@@ -2,7 +2,7 @@
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Acts as the glue between the webpage and Unity.

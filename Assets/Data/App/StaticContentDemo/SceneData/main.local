@@ -6,6 +6,6 @@
 		<string>Floor</string>
 	</Content>
 	<Scripts>
-		
+		<string>Startup</string>
 	</Scripts>
 </SceneData>

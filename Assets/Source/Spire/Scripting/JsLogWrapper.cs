@@ -1,6 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Wraps logging interface for Js.

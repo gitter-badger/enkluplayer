@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CreateAR.Spire.Test
+namespace CreateAR.SpirePlayer.Test
 {
     public class DummyContentFactory : IContentFactory
     {

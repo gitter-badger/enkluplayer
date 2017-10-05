@@ -2,7 +2,7 @@
 using System.Xml.Serialization;
 using UnityEditor;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     public static class SpireDataMigrator
     {

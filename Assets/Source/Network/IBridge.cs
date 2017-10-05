@@ -1,6 +1,6 @@
 ﻿using CreateAR.SpirePlayer;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Bridge between Unity and hosting application.

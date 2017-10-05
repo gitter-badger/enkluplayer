@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
-using CreateAR.Spire;
 using UnityEditor;
 using UnityEngine;
 

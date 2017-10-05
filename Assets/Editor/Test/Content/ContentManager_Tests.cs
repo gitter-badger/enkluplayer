@@ -5,7 +5,7 @@ using CreateAR.Commons.Unity.Async;
 using NUnit.Framework;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.Spire.Test
+namespace CreateAR.SpirePlayer.Test
 {
     public class DummyAppDataManager : IAppDataManager
     {

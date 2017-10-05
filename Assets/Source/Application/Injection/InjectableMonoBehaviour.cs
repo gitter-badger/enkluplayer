@@ -1,7 +1,7 @@
 using CreateAR.SpirePlayer;
 using UnityEngine;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Base class for MonoBehaviours that need to have bindings injected into

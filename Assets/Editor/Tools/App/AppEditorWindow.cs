@@ -8,7 +8,7 @@ using UnityEngine;
 using Application = UnityEngine.Application;
 using PlayMode = CreateAR.SpirePlayer.PlayMode;
 
-namespace CreateAR.Spire.Editor
+namespace CreateAR.SpirePlayer.Editor
 {
     public class AppEditorWindow : EditorWindow
     {
@@ -118,7 +118,7 @@ namespace CreateAR.Spire.Editor
         {
             var appPath = EditorUtility.OpenFilePanel(
                 "App",
-                Path.Combine(Application.dataPath, "Data/App"),
+                Path.Combine(UnityEngine.Application.dataPath, "Data/App"),
                 "local");
             if (string.IsNullOrEmpty(appPath))
             {

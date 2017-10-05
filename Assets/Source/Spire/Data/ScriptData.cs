@@ -1,4 +1,4 @@
-﻿namespace CreateAR.Spire
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Describes a script.

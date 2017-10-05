@@ -6,7 +6,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Default implementation of <c>IAppDataManager</c>.

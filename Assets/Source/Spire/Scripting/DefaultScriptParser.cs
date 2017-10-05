@@ -2,7 +2,7 @@
 using Jint.Parser;
 using Jint.Parser.Ast;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Default implementation simple parses synchronously.

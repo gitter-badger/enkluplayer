@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Associates AssetData, AnchorData, and some data about the Content.

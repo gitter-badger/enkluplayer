@@ -2,7 +2,7 @@ using CreateAR.Commons.Unity.Async;
 using Jint.Parser;
 using Jint.Parser.Ast;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Interface for parsing.

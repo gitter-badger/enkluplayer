@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.Spire;
+using CreateAR.SpirePlayer;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using Void = CreateAR.Commons.Unity.Async.Void;

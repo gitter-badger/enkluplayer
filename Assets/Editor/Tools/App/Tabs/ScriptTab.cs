@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using CreateAR.Commons.Unity.Editor;
 
-namespace CreateAR.Spire.Editor
+namespace CreateAR.SpirePlayer.Editor
 {
     public class ScriptTab : TabComponent
     {

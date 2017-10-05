@@ -4,7 +4,7 @@ using Jint.Native;
 using Jint.Unity;
 using UnityEngine;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// This object is able to run a JS script as if it were a MonoBehaviour.
@@ -76,7 +76,7 @@ namespace CreateAR.Spire
             }
             catch (Exception exception)
             {
-                Debug.LogWarning("Could not execute script: " + exception.Message);
+                Debug.LogWarning("Could not execute script: " + exception);
 
                 return;
             }

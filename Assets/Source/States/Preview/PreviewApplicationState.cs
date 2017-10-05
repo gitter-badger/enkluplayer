@@ -57,7 +57,9 @@ namespace CreateAR.SpirePlayer
         public void Enter()
         {
             // load scene
-            SceneManager.LoadScene(SCENE_NAME, LoadSceneMode.Additive);
+            UnityEngine.SceneManagement.SceneManager.LoadScene(
+                SCENE_NAME,
+                LoadSceneMode.Additive);
 
             // input
             _input.ChangeState(InputState);
@@ -138,7 +140,8 @@ namespace CreateAR.SpirePlayer
             }
 
             // unload scene
-            SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(SCENE_NAME));
+            UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
+                UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
         }
     }
 }

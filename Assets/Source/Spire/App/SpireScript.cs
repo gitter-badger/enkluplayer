@@ -4,7 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using Jint.Parser.Ast;
 using UnityEngine;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// A dynamically executable script. 

@@ -4,7 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     public class AppController
     {

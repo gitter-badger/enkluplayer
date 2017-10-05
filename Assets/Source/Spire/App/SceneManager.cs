@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using Jint.Unity;
 using UnityEngine;
 
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Creates, destroys, and queries scenes.
@@ -27,6 +28,10 @@ namespace CreateAR.Spire
         public IContentManager Content { get; set; }
         [Inject]
         public IScriptManager Scripts { get; set; }
+        [Inject]
+        public IScriptLoader Loader { get; set; }
+        [Inject]
+        public IScriptDependencyResolver Resolver { get; set; }
 
         /// <summary>
         /// Useful ToString.
@@ -96,7 +101,7 @@ namespace CreateAR.Spire
 
             // initialize scene
             var newScene = newSceneGameObject.AddComponent<Scene>();
-            newScene.Initialize(Scripts, Content);
+            newScene.Initialize(Resolver, Loader, Scripts, Content);
             ActiveScenes.Add(newScene);
 
             return newScene.Load(data);

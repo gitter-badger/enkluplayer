@@ -3,7 +3,7 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.SpirePlayer;
 using Object = UnityEngine.Object;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Unity Editor implementation.

@@ -1,11 +1,12 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using Jint;
 using Jint.Native;
 using Jint.Unity;
 using UnityEngine;
 using Object = System.Object;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Hosts scripts and provides a default Unity API.
@@ -17,7 +18,7 @@ namespace CreateAR.Spire
         /// </summary>
         private const string REQUIRE_TEMPLATE = @"
 // prep modules
-var module = {
+var module = module || {
     exports : {
         //
     }
@@ -74,12 +75,14 @@ module = null;
         {
             if (null == Loader)
             {
+                Log.Info(this, "require() failed: no IScriptLoader.");
                 return JsValue.Undefined;
             }
 
             string script;
             if (!Loader.Load(scriptName, out script))
             {
+                Log.Info(this, "require() failed: could not load {0}.", scriptName);
                 return JsValue.Undefined;
             }
             

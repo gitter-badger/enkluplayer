@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     [Serializable]
     public class AppData : StaticData

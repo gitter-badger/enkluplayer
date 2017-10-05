@@ -1,7 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Logging;
-using CreateAR.Spire;
 using UnityEngine.SceneManagement;
-using SceneManager = UnityEngine.SceneManagement.SceneManager;
 
 namespace CreateAR.SpirePlayer
 {
@@ -37,13 +35,13 @@ namespace CreateAR.SpirePlayer
         public void Enter()
         {
             // load playmode scene
-            SceneManager.LoadScene(SCENE_NAME, LoadSceneMode.Additive);
+            UnityEngine.SceneManagement.SceneManager.LoadScene(SCENE_NAME, LoadSceneMode.Additive);
 
             // configure
             _files.Register(
                 FileProtocols.APP,
                 new SystemXmlSerializer(),
-                new LocalFileSystem("Assets/StreamingAssets/App"));
+                new LocalFileSystem("Assets/Data/App"));
             
             // TODO: pull off of ApplicationState
             var appName = "StaticContentDemo";
@@ -70,7 +68,8 @@ namespace CreateAR.SpirePlayer
             _files.Unregister(FileProtocols.APP);
 
             // unload playmode scene
-            SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(SCENE_NAME));
+            UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
+                UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
         }
     }
 }

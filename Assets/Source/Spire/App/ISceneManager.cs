@@ -1,6 +1,6 @@
 using CreateAR.Commons.Unity.Async;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Describes an interface for creating, querying, and destroying

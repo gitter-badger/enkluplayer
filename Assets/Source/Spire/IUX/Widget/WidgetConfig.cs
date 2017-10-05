@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Configuration for all widgets.

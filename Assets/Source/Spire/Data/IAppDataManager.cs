@@ -1,6 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Async;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Loads <c>AppData</c> and provides mechanisms for querying it.

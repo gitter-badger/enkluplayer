@@ -6,7 +6,7 @@ using CreateAR.SpirePlayer;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Defines how a widget determines its color

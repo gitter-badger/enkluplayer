@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Data describing how to use an Asset.

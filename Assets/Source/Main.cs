@@ -1,5 +1,5 @@
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Spire;
+using CreateAR.SpirePlayer;
 using strange.extensions.injector.impl;
 using UnityEngine;
 using Object = UnityEngine.Object;

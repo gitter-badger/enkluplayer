@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Interface for <c>SpireScript</c> management.

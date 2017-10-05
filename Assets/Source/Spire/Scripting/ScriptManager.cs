@@ -2,7 +2,7 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Creates, queries, and destroys <c>SpireScript</c> instances.

@@ -2,8 +2,9 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.Spire;
+using CreateAR.SpirePlayer;
 using Jint.Parser;
+using Jint.Unity;
 using strange.extensions.injector.impl;
 using Object = UnityEngine.Object;
 
@@ -137,6 +138,8 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<JavaScriptParser>().ToValue(new JavaScriptParser(false));
                 binder.Bind<IScriptParser>().To<DefaultScriptParser>().ToSingleton();
+                binder.Bind<IScriptDependencyResolver>().ToValue(new SpireScriptInjector(binder));
+                binder.Bind<IScriptLoader>().To<ResourcesScriptLoader>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
             }
 

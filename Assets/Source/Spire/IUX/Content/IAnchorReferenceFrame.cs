@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Describes a frame of reference for an <c>Anchor</c>.

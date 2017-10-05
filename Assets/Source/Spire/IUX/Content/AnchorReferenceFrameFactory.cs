@@ -1,6 +1,6 @@
 using System;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Creates <c>IAnchorReferenceFrame</c> implementations.

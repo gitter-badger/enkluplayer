@@ -1,7 +1,7 @@
 ﻿using System;
 using CreateAR.SpirePlayer;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Manifest of all assets needed for an app.

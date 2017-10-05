@@ -1,6 +1,6 @@
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.Spire;
+using CreateAR.SpirePlayer;
 
 namespace CreateAR.SpirePlayer
 {

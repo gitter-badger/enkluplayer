@@ -5,7 +5,7 @@ using CreateAR.SpirePlayer;
 using UnityEditor;
 using UnityEngine;
 
-namespace CreateAR.Spire.Editor
+namespace CreateAR.SpirePlayer.Editor
 {
     public class AssetManifestEditor : EditorWindow
     {

@@ -1,5 +1,5 @@
 using System;
-using CreateAR.Spire;
+using CreateAR.SpirePlayer;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;

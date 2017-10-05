@@ -7,7 +7,7 @@ using UnityEngine;
 
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Manages scene content + scripts.
@@ -17,6 +17,8 @@ namespace CreateAR.Spire
         /// <summary>
         /// Dependencies.
         /// </summary>
+        private IScriptDependencyResolver _resolver;
+        private IScriptLoader _loader;
         private IScriptManager _scripts;
         private IContentManager _contentManager;
 
@@ -48,12 +50,18 @@ namespace CreateAR.Spire
         /// Initializes the scene separately from loading, in case we which to
         /// pool.
         /// </summary>
+        /// <param name="resolver">Resolves script dependencies.</param>
+        /// <param name="loader">Loads scripts.</param>
         /// <param name="scripts">Manages scripts.</param>
         /// <param name="content">Finds content.</param>
         public void Initialize(
+            IScriptDependencyResolver resolver,
+            IScriptLoader loader,
             IScriptManager scripts,
             IContentManager content)
         {
+            _resolver = resolver;
+            _loader = loader;
             _scripts = scripts;
             _contentManager = content;
         }
@@ -226,8 +234,8 @@ namespace CreateAR.Spire
                     // TODO: Reuse engines or share them.
                     new UnityScriptingHost(
                         script,
-                        new ResourcesScriptLoader(),
-                        new NullScriptingDependencyResolver()), 
+                        _loader,
+                        _resolver), 
                     script);
 
                 _hosts.Add(host);

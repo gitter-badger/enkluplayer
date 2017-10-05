@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Base class for all Data classes.

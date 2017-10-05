@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// An interface for objects that can be focused upon.

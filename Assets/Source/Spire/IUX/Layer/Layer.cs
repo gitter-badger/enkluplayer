@@ -1,4 +1,4 @@
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Defines how an ILayerable assigns its layer.

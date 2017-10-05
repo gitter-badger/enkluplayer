@@ -4,7 +4,7 @@ using CreateAR.Commons.Unity.Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace CreateAR.Spire.Editor
+namespace CreateAR.SpirePlayer.Editor
 {
     public class AppView : IEditorView
     {

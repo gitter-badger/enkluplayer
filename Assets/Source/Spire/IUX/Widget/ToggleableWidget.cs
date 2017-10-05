@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// A widget that toggles another widget on or off depending on highlight.

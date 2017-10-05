@@ -1,4 +1,4 @@
-﻿namespace CreateAR.Spire
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// An interface for objects that need to be layered.

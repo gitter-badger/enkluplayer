@@ -1,4 +1,4 @@
-namespace CreateAR.Spire
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Configuration for running an App.
