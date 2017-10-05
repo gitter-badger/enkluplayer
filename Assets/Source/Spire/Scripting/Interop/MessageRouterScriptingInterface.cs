@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 using Jint;
 using Jint.Native;
@@ -8,7 +9,20 @@ namespace CreateAR.SpirePlayer
     [JsInterface("events")]
     public class MessageRouterScriptingInterface
     {
+        private class SubscribeRecord
+        {
+            public readonly string Id;
+            public readonly Action Unsubscribe;
+
+            public SubscribeRecord(Action unsub)
+            {
+                Id = Guid.NewGuid().ToString();
+                Unsubscribe = unsub;
+            }
+        }
+
         private readonly IMessageRouter _messages;
+        private readonly List<SubscribeRecord> _records = new List<SubscribeRecord>();
 
         public MessageRouterScriptingInterface(IMessageRouter messages)
         {
@@ -20,12 +34,12 @@ namespace CreateAR.SpirePlayer
             _messages.Publish(type, value);
         }
 
-        public void Subscribe(
+        public string Subscribe(
             Engine engine,
             int type,
             Func<JsValue, JsValue[], JsValue> callback)
         {
-            _messages.Subscribe(
+            var unsub = _messages.Subscribe(
                 type,
                 message =>
                 {
@@ -36,6 +50,25 @@ namespace CreateAR.SpirePlayer
                             JsValue.FromObject(engine, message)
                         });
                 });
+
+            var record = new SubscribeRecord(unsub);
+            _records.Add(record);
+            return record.Id;
+        }
+
+        public void Unsubscribe(string id)
+        {
+            for (int i = 0, len = _records.Count; i < len; i++)
+            {
+                var record = _records[i];
+                if (record.Id == id)
+                {
+                    _records.RemoveAt(i);
+
+                    record.Unsubscribe();
+                    break;
+                }
+            }
         }
     }
 }
