@@ -10,13 +10,29 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Resolves objects from calls to require().
+    /// </summary>
     public class SpireScriptRequireResolver : IScriptRequireResolver
     {
+        /// <summary>
+        /// Tracks require.
+        /// </summary>
         private class RequireRecord
         {
+            /// <summary>
+            /// Value passed to require().
+            /// </summary>
             public readonly string Id;
+
+            /// <summary>
+            /// Value to return.
+            /// </summary>
             public readonly JsValue Value;
 
+            /// <summary>
+            /// Constructor.
+            /// </summary>
             public RequireRecord(string id, JsValue value)
             {
                 Id = id;
@@ -24,11 +40,24 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Tracks JsInterface implementations.
+        /// </summary>
         private class JsInterfaceRecord
         {
+            /// <summary>
+            /// Value passed to require().
+            /// </summary>
             public readonly string Id;
+
+            /// <summary>
+            /// C# value.
+            /// </summary>
             public readonly object Value;
 
+            /// <summary>
+            /// Constructor.
+            /// </summary>
             public JsInterfaceRecord(string id, object value)
             {
                 Id = id;
@@ -66,16 +95,31 @@ module = null;
         /// </summary>
         private bool _isInitialized = false;
 
+        /// <summary>
+        /// Binder for JsInterfaces.
+        /// </summary>
         private readonly IInjectionBinder _binder;
         
+        /// <summary>
+        /// List of global C# objects that are shared across hosts.
+        /// </summary>
         private readonly List<JsInterfaceRecord> _global = new List<JsInterfaceRecord>();
+
+        /// <summary>
+        /// Lists of objects by engine.
+        /// </summary>
         private readonly Dictionary<Engine, List<RequireRecord>> _records = new Dictionary<Engine, List<RequireRecord>>();
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="binder">Requires the binder to resolve JsInterfaces.</param>
         public SpireScriptRequireResolver(IInjectionBinder binder)
         {
             _binder = binder;
         }
 
+        /// <inheritdoc cref="IScriptRequireResolver"/>
         public void Initialize(params Assembly[] assemblies)
         {
             if (_isInitialized)
@@ -105,7 +149,8 @@ module = null;
                 }
             }
         }
-        
+
+        /// <inheritdoc cref="IScriptRequireResolver"/>
         public JsValue Resolve(
             IScriptManager scripts,
             Engine engine,

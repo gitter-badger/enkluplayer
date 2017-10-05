@@ -7,6 +7,9 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class JsLogWrapper
     {
+        /// <summary>
+        /// Context to pass to each method.
+        /// </summary>
         private readonly object _context;
 
         /// <summary>
