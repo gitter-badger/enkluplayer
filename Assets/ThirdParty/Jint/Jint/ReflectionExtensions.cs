@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD1_3
+﻿#if NETFX_CORE
 using System;
 using System.Linq;
 using System.Reflection;
@@ -25,6 +25,11 @@ namespace Jint
         internal static bool HasAttribute<T>(this ParameterInfo member) where T : Attribute
         {
             return member.GetCustomAttributes<T>().Any();
+        }
+
+        internal static object[] GetCustomAttributes(this Type @this, Type attributeType, bool inherit)
+        {
+            return @this.GetTypeInfo().GetCustomAttributes(attributeType, inherit).ToArray();
         }
     }
 }

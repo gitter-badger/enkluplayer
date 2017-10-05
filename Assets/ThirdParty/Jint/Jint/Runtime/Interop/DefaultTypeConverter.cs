@@ -98,7 +98,7 @@ namespace Jint.Runtime.Interop
                         var callExpresion = Expression.Call(
                             Expression.Call(
                                 Expression.Constant(function.Target),
-                                function.Method,
+                                function.GetMethodInfo(),
                                 Expression.Constant(JsValue.Undefined, typeof(JsValue)),
                                 @vars),
                             jsValueToObject);
@@ -181,7 +181,7 @@ namespace Jint.Runtime.Interop
 
                         var callExpression = Expression.Call(
                             Expression.Call(Expression.Constant(function.Target),
-                                function.Method,
+                                function.GetMethodInfo(),
                                 Expression.Constant(JsValue.Undefined, typeof(JsValue)),
                                 @vars),
                             typeof(JsValue).GetMethod("ToObject"));

@@ -1,5 +1,4 @@
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer;
 using strange.extensions.injector.impl;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -54,13 +53,15 @@ namespace CreateAR.SpirePlayer
 	            Level = false,
 	            Timestamp = false
 	        }));
-	        Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
+	        
 	        Log.Filter = LogLevel.Debug;
-
+            
 #if NETFX_CORE
             Log.AddLogTarget(new UwpSocketLogger(
                 "Spire",
-                new Uri("ws://127.0.0.1:9999")));
+                new System.Uri("ws://127.0.0.1:9999")));
+#else       
+            Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
 #endif
 
             // setup debug renderer
@@ -124,7 +125,7 @@ namespace CreateAR.SpirePlayer
 #if NETFX_CORE
 	        foreach (var target in Log.Targets)
 	        {
-	            var disposable = target as IDisposable;
+	            var disposable = target as System.IDisposable;
 	            if (null != disposable)
 	            {
 	                disposable.Dispose();
