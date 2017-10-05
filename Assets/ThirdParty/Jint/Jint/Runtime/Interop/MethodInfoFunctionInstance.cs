@@ -12,13 +12,16 @@ namespace Jint.Runtime.Interop
 {
     public sealed class MethodInfoFunctionInstance : FunctionInstance
     {
+        private readonly Engine _engine;
         private readonly MethodInfo[] _methods;
 
         public MethodInfoFunctionInstance(Engine engine, MethodInfo[] methods)
             : base(engine, null, null, false)
         {
+            _engine = engine;
             _methods = methods;
-            Prototype = engine.Function.PrototypeObject;
+
+            Prototype = _engine.Function.PrototypeObject;
         }
 
         public override JsValue Call(JsValue thisObject, JsValue[] arguments)
@@ -30,6 +33,15 @@ namespace Jint.Runtime.Interop
         {
             var arguments = ProcessParamsArrays(jsArguments, methodInfos);
             var methods = TypeConverter.FindBestMatch(Engine, methodInfos, arguments).ToList();
+            if (0 == methods.Count)
+            {
+                var argumentList = arguments.ToList();
+                argumentList.Insert(0, JsValue.FromObject(_engine, _engine));
+                arguments = argumentList.ToArray();
+
+                methods = TypeConverter.FindBestMatch(_engine, methodInfos, arguments).ToList();
+            }
+
             var converter = Engine.ClrTypeConverter;
 
             foreach (var method in methods)

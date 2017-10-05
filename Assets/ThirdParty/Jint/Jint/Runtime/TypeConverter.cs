@@ -381,15 +381,14 @@ namespace Jint.Runtime
                 yield return methods[0];
                 yield break;
             }
-
-            var objectArguments = arguments.Select(x => x.ToObject()).ToArray();
+            
             foreach (var method in methods)
             {
                 var perfectMatch = true;
                 var parameters = method.GetParameters();
                 for (var i = 0; i < arguments.Length; i++)
                 {
-                    var arg = objectArguments[i];
+                    var arg = arguments[i].ToObject();
                     var paramType = parameters[i].ParameterType;
                     
                     if (arg == null)
@@ -419,7 +418,7 @@ namespace Jint.Runtime
                 yield return method;
             }
         }
-
+        
         public static bool TypeIsNullable(Type type)
         {
             return !type.IsValueType() || Nullable.GetUnderlyingType(type) != null;

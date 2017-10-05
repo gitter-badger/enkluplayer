@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Messaging;
+﻿using System;
+using CreateAR.Commons.Unity.Messaging;
+using Jint;
 using Jint.Native;
 
 namespace CreateAR.SpirePlayer
@@ -18,13 +20,21 @@ namespace CreateAR.SpirePlayer
             _messages.Publish(type, value);
         }
 
-        public void Subscribe(int type, ICallable callback)
+        public void Subscribe(
+            Engine engine,
+            int type,
+            Func<JsValue, JsValue[], JsValue> callback)
         {
             _messages.Subscribe(
                 type,
                 message =>
                 {
-                    // ?
+                    callback(
+                        JsValue.FromObject(engine, engine),
+                        new []
+                        {
+                            JsValue.FromObject(engine, message)
+                        });
                 });
         }
     }

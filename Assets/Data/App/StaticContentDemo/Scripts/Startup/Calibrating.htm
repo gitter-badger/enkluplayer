@@ -8,6 +8,10 @@ module.exports = function(stateMachine, id) {
 		enter: function() {
 		    log.debug("Calibrating...");
 
+		    events.Subscribe(3010, function(message) {
+		    	log.info("Receieved!");
+		    });
+		    
 		    events.Publish(3010, "Tycho - Source");
 		},
 
