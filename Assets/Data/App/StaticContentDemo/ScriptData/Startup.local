@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ScriptData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Id>Startup</Id>
+  <Name>Startup</Name>
+  <Asset>
+    <AssetDataId>5652b11f3e991914fa8c486b0c09245d</AssetDataId>
+  </Asset>
+  <AutoPlay>false</AutoPlay>
+</ScriptData>

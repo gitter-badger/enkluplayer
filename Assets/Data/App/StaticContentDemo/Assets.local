@@ -13,17 +13,20 @@
     </AssetData>
 	<AssetData>
       <Guid>792084861d49d424b9f9380edfb097dc</Guid>
-      <Uri>Assets/SpireScripts/StaticContentDemo/Booting.htm</Uri>
+      <Uri>Assets/Data/App/StaticContentDemo/Scripts/Booting.htm</Uri>
+      <AssetName>Booting</AssetName>
       <Version>0</Version>
     </AssetData>
-	<AssetData>
+    <AssetData>
       <Guid>5652b11f3e991914fa8c486b0c09245d</Guid>
-      <Uri>Assets/SpireScripts/StaticContentDemo/Startup.htm</Uri>
+      <Uri>Assets/Data/App/StaticContentDemo/Scripts/Startup.htm</Uri>
+      <AssetName>Startup</AssetName>
       <Version>0</Version>
     </AssetData>
-	<AssetData>
+    <AssetData>
       <Guid>73d505776c8fe484cb84723b7ed0cdc8</Guid>
-      <Uri>Assets/SpireScripts/StaticContentDemo/Updating.htm</Uri>
+      <Uri>Assets/Data/App/StaticContentDemo/Scripts/Updating.htm</Uri>
+      <AssetName>Updating</AssetName>
       <Version>0</Version>
     </AssetData>
   </Assets>
