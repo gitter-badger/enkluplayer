@@ -45,6 +45,11 @@ namespace CreateAR.SpirePlayer
         /// Program that can be executed.
         /// </summary>
         public Program Program { get; private set; }
+
+        /// <summary>
+        /// Source code.
+        /// </summary>
+        public string Source { get; private set; }
         
         /// <summary>
         /// Creates a new SpireScript.
@@ -85,9 +90,11 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Script updated, parsing Program : {0}.",
                 Data);
 
+            Source = asset.text;
+
             // parse!
             _parser
-                .Parse(asset.text)
+                .Parse(Source)
                 .OnSuccess(program =>
                 {
                     Log.Info(this, "Script parsed and ready.");

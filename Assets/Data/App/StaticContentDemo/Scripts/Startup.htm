@@ -1,4 +1,22 @@
-var fsm = require("Resources/Commons/StateMachine")();
+var fsm = require("Resources/Common/StateMachine")();
+
+fsm.initialize([
+	{
+		id: "main",
+		enter: function() {
+			log.info("enter");
+		},
+		update: function() {
+
+		},
+		exit: function() {
+			log.info("exit");
+		}
+	}]);
+
+fsm.changeState("main");
+//fsm.update();
+
 /*var booting = require("Booting")(fsm, "Booting");
 var updating = require("Updating")(fsm, "Updating");
 

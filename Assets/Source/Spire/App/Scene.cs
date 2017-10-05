@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using Jint.Unity;
 using UnityEngine;
 
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -15,18 +14,21 @@ namespace CreateAR.SpirePlayer
     public class Scene : MonoBehaviour
     {
         /// <summary>
+        /// Hosts!
+        /// </summary>
+        private readonly List<MonoBehaviourSpireScript> _scripts = new List<MonoBehaviourSpireScript>();
+
+        /// <summary>
         /// Dependencies.
         /// </summary>
-        private IScriptDependencyResolver _resolver;
-        private IScriptLoader _loader;
-        private IScriptManager _scripts;
+        private IScriptManager _scriptManager;
         private IContentManager _contentManager;
 
         /// <summary>
-        /// Hosts!
+        /// Underlying host for all scripts in this scene.
         /// </summary>
-        private readonly List<MonoBehaviourScriptingHost> _hosts = new List<MonoBehaviourScriptingHost>();
-        
+        private UnityScriptingHost _host;
+
         /// <summary>
         /// Parent to all scripts.
         /// </summary>
@@ -50,19 +52,13 @@ namespace CreateAR.SpirePlayer
         /// Initializes the scene separately from loading, in case we which to
         /// pool.
         /// </summary>
-        /// <param name="resolver">Resolves script dependencies.</param>
-        /// <param name="loader">Loads scripts.</param>
         /// <param name="scripts">Manages scripts.</param>
         /// <param name="content">Finds content.</param>
         public void Initialize(
-            IScriptDependencyResolver resolver,
-            IScriptLoader loader,
             IScriptManager scripts,
             IContentManager content)
         {
-            _resolver = resolver;
-            _loader = loader;
-            _scripts = scripts;
+            _scriptManager = scripts;
             _contentManager = content;
         }
 
@@ -79,6 +75,8 @@ namespace CreateAR.SpirePlayer
             }
 
             Data = data;
+
+            _host = new UnityScriptingHost(this, _scriptManager);
 
             Log.Info(this, "Loading scene {0}.", Data);
 
@@ -100,6 +98,8 @@ namespace CreateAR.SpirePlayer
             UnloadScripts();
             UnloadContent();
 
+            _host = null;
+
             Data = null;
 
             return new AsyncToken<Scene>(this);
@@ -111,12 +111,12 @@ namespace CreateAR.SpirePlayer
         public void Startup()
         {
             // start scripts
-            for (int i = 0, len = _hosts.Count; i < len; i++)
+            for (int i = 0, len = _scripts.Count; i < len; i++)
             {
-                var host = _hosts[i];
+                var host = _scripts[i];
                 if (host.Script.Data.AutoPlay)
                 {
-                    _hosts[i].Enter();
+                    _scripts[i].Enter();
                 }
             }
         }
@@ -127,9 +127,9 @@ namespace CreateAR.SpirePlayer
         public void Teardown()
         {
             // stop scripts
-            for (int i = 0, len = _hosts.Count; i < len; i++)
+            for (int i = 0, len = _scripts.Count; i < len; i++)
             {
-                _hosts[i].Exit();
+                _scripts[i].Exit();
             }
         }
 
@@ -149,7 +149,7 @@ namespace CreateAR.SpirePlayer
             for (var i = 0; i < len; i++)
             {
                 var scriptId = scriptIds[i];
-                var script = _scripts.Create(scriptId, Data.Id);
+                var script = _scriptManager.Create(scriptId, Data.Id);
                 loads[i] = script.OnReady;
 
                 Log.Debug(this, "Loading {0}.", script.Data);
@@ -196,16 +196,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UnloadScripts()
         {
-            _scripts.ReleaseAll(Data.Id);
+            _scriptManager.ReleaseAll(Data.Id);
 
             // destroy scripts
-            for (int i = 0, len = _hosts.Count; i < len; i++)
+            for (int i = 0, len = _scripts.Count; i < len; i++)
             {
-                var host = _hosts[i];
+                var host = _scripts[i];
 
                 Destroy(host.gameObject);
             }
-            _hosts.Clear();
+            _scripts.Clear();
 
             // destroy parent
             Destroy(_scriptParent);
@@ -229,16 +229,12 @@ namespace CreateAR.SpirePlayer
                 obj.transform.localPosition = Vector3.zero;
                 obj.transform.localRotation = Quaternion.identity;
 
-                var host = obj.AddComponent<MonoBehaviourScriptingHost>();
+                var host = obj.AddComponent<MonoBehaviourSpireScript>();
                 host.Initialize(
-                    // TODO: Reuse engines or share them.
-                    new UnityScriptingHost(
-                        script,
-                        _loader,
-                        _resolver), 
+                    _host,
                     script);
 
-                _hosts.Add(host);
+                _scripts.Add(host);
             }
         }
     }

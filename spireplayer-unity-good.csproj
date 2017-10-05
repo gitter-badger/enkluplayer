@@ -236,10 +236,9 @@
     <Compile Include="Assets\Source\Spire\Scripting\IScriptManager.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\IScriptParser.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\JsLogWrapper.cs" />
-    <Compile Include="Assets\Source\Spire\Scripting\MonoBehaviourScriptingHost.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\MonoBehaviourSpireScript.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\ScriptManager.cs" />
-    <Compile Include="Assets\Source\Spire\Scripting\SpireScriptInjector.cs" />
-    <Compile Include="Assets\Source\Spire\Scripting\SpireScriptLoader.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\SpireScriptRequireResolver.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\UnityScriptingHost.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\Edit\EditApplicationState.cs" />
@@ -256,11 +255,7 @@
     <Compile Include="Assets\Source\Util\StandardQueryResolver.cs" />
     <Compile Include="Assets\Source\Util\SystemXmlSerializer.cs" />
     <Compile Include="Assets\Source\Util\TypeUtil.cs" />
-    <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Loader\IScriptLoader.cs" />
-    <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Loader\ResourcesScriptLoader.cs" />
-    <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Resolver\IScriptDependencyResolver.cs" />
-    <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Resolver\NullScriptingDependencyResolver.cs" />
-    <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Resolver\TypeScriptingDependencyResolver.cs" />
+    <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Loader\IScriptRequireResolver.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Serialization\ScriptingPropertyBucket.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\UQL\UnitySceneManager.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\UQL\UnitySceneQuery.cs" />

@@ -138,8 +138,6 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<JavaScriptParser>().ToValue(new JavaScriptParser(false));
                 binder.Bind<IScriptParser>().To<DefaultScriptParser>().ToSingleton();
-                binder.Bind<IScriptDependencyResolver>().ToValue(new SpireScriptInjector(binder));
-                binder.Bind<IScriptLoader>().To<ResourcesScriptLoader>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
             }
 
