@@ -2,20 +2,20 @@ using System.Collections.Generic;
 
 namespace Jint.Parser.Ast
 {
-    public class Program : Statement, IFunctionScope
+    public class Program : Statement, IVariableScope, IFunctionScope
     {
         public Program()
         {
             VariableDeclarations = new List<VariableDeclaration>();
         }
-        public List<Statement> Body;
+        public ICollection<Statement> Body;
 
         public List<Comment> Comments;
         public List<Token> Tokens;
         public List<ParserException> Errors;
         public bool Strict;
 
-        public List<VariableDeclaration> VariableDeclarations { get; set; }
-        public List<FunctionDeclaration> FunctionDeclarations { get; set; }
+        public IList<VariableDeclaration> VariableDeclarations { get; set; }
+        public IList<FunctionDeclaration> FunctionDeclarations { get; set; }
     }
 }

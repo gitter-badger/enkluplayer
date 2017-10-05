@@ -28,6 +28,8 @@
 // Ported to Java from Mozilla's version of V8-dtoa by Hannes Wallnoefer.
 // The original revision was 67d1049b0bf9 from the mozilla-central tree.
 
+using System.Diagnostics;
+
 namespace Jint.Native.Number.Dtoa
 {
 
@@ -41,6 +43,7 @@ namespace Jint.Native.Number.Dtoa
 
         private static DiyFp AsDiyFp(long d64)
         {
+            Debug.Assert(!IsSpecial(d64));
             return new DiyFp(Significand(d64), Exponent(d64));
         }
 
@@ -49,6 +52,8 @@ namespace Jint.Native.Number.Dtoa
         {
             long f = Significand(d64);
             int e = Exponent(d64);
+
+            Debug.Assert(f != 0);
 
             // The current double could be a denormal.
             while ((f & KHiddenBit) == 0)

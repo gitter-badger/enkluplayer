@@ -5,6 +5,6 @@ namespace Jint.Parser.Ast
     public class SwitchStatement : Statement
     {
         public Expression Discriminant;
-        public List<SwitchCase> Cases;
+        public IEnumerable<SwitchCase> Cases;
     }
 }

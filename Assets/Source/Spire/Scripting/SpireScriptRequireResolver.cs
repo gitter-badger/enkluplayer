@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using Jint;
 using Jint.Native;
 using Jint.Unity;
@@ -127,9 +128,10 @@ module = null;
             }
             catch (Exception exception)
             {
-                Debug.LogError(exception.Message);
-
-                return JsValue.Undefined;
+                throw new Exception(string.Format(
+                    "Could not execute {0} : {1}.",
+                    require,
+                    exception));
             }
 
             _records.Add(new RequireRecord(require, module));

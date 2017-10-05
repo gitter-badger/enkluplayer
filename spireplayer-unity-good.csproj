@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WSAPlayer:21</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -262,7 +260,7 @@
     <Compile Include="Assets\ThirdParty\Jint\Jint\DeclarationBindingType.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Engine.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\EvalCodeScope.cs" />
-    <Compile Include="Assets\ThirdParty\Jint\Jint\Native\ArgumentsObject.cs" />
+    <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Argument\ArgumentsInstance.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Array\ArrayConstructor.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Array\ArrayInstance.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Array\ArrayPrototype.cs" />
@@ -372,11 +370,16 @@
     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Position.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\State.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Token.cs" />
+    <Compile Include="Assets\ThirdParty\Jint\Jint\ReflectionExtensions.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Arguments.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\CallStack\CallStackElement.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\CallStack\CallStackElementComparer.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\CallStack\JintCallStack.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Completion.cs" />
+    <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Debugger\BreakPoint.cs" />
+    <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Debugger\DebugHandler.cs" />
+    <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Debugger\DebugInformation.cs" />
+    <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Debugger\StepMode.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Descriptors\PropertyDescriptor.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Descriptors\Specialized\ClrAccessDescriptor.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Descriptors\Specialized\FieldInfoDescriptor.cs" />
@@ -395,6 +398,7 @@
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\GetterFunctionInstance.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\IObjectConverter.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\IObjectWrapper.cs" />
+    <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\IReferenceResolver.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\ITypeConverter.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\MethodInfoFunctionInstance.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\NamespaceReference.cs" />
@@ -403,6 +407,8 @@
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\TypeReference.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\TypeReferencePrototype.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\JavaScriptException.cs" />
+    <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\MruPropertyCache.cs" />
+    <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\MruPropertyCache2.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\RecursionDepthOverflowException.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\References\Reference.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\StatementInterpreter.cs" />

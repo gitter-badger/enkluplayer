@@ -4,6 +4,6 @@ namespace Jint.Parser.Ast
 {
     public class ObjectExpression : Expression
     {
-        public List<Property> Properties;
+        public IEnumerable<Property> Properties;
     }
 }

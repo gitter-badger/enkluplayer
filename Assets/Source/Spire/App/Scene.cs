@@ -224,6 +224,11 @@ namespace CreateAR.SpirePlayer
             for (int i = 0, len = scripts.Length; i < len; i++)
             {
                 var script = scripts[i];
+                if (!script.Data.AutoPlay)
+                {
+                    continue;
+                }
+
                 var obj = new GameObject(script.Data.Id);
                 obj.transform.SetParent(_scriptParent.transform);
                 obj.transform.localPosition = Vector3.zero;

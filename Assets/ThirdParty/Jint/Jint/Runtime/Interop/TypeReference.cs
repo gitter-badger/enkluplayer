@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Jint.Native;
 using Jint.Native.Function;
 using Jint.Native.Object;
@@ -26,7 +25,7 @@ namespace Jint.Runtime.Interop
             obj.Extensible = false;
             obj.Type = type;
 
-            // The value of the [[Prototype]] internal property of the TypeReference constructor is the Function prototype object 
+            // The value of the [[Prototype]] internal property of the TypeReference constructor is the Function prototype object
             obj.Prototype = engine.Function.PrototypeObject;
 
             obj.FastAddProperty("length", 0, false, false, false);
@@ -39,24 +38,32 @@ namespace Jint.Runtime.Interop
 
         public override JsValue Call(JsValue thisObject, JsValue[] arguments)
         {
-            // direct calls on a TypeReference constructor object is equivalent to the new operator 
+            // direct calls on a TypeReference constructor object is equivalent to the new operator
             return Construct(arguments);
         }
 
         public ObjectInstance Construct(JsValue[] arguments)
         {
+            if (arguments.Length == 0 && Type.IsValueType())
+            {
+                var instance = Activator.CreateInstance(Type);
+                var result = TypeConverter.ToObject(Engine, JsValue.FromObject(Engine, instance));
+
+                return result;
+            }
+
             var constructors = Type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
-            
+
             var methods = TypeConverter.FindBestMatch(Engine, constructors, arguments).ToList();
 
-            var parameters = new object[arguments.Length];
             foreach (var method in methods)
             {
+                var parameters = new object[arguments.Length];
                 try
                 {
                     for (var i = 0; i < arguments.Length; i++)
                     {
-                        var parameterType =  method.GetParameters()[i].ParameterType;
+                        var parameterType = method.GetParameters()[i].ParameterType;
 
                         if (parameterType == typeof(JsValue))
                         {
@@ -72,7 +79,8 @@ namespace Jint.Runtime.Interop
                     }
 
                     var constructor = (ConstructorInfo)method;
-                    var result = TypeConverter.ToObject(Engine, JsValue.FromObject(Engine, constructor.Invoke(parameters.ToArray())));
+                    var instance = constructor.Invoke(parameters.ToArray());
+                    var result = TypeConverter.ToObject(Engine, JsValue.FromObject(Engine, instance));
 
                     // todo: cache method info
 
@@ -84,18 +92,20 @@ namespace Jint.Runtime.Interop
                 }
             }
 
-            StringBuilder argumentLog = new StringBuilder(arguments.Length);
-            for (int i = 0, len = arguments.Length; i < len; i++)
+            throw new JavaScriptException(Engine.TypeError, "No public methods with the specified arguments were found.");
+
+        }
+
+        public override bool HasInstance(JsValue v)
+        {
+            ObjectWrapper wrapper = v.As<ObjectWrapper>();
+
+            if (wrapper == null)
             {
-                argumentLog.AppendLine(arguments[i].ToString());
+                return base.HasInstance(v);
             }
 
-            throw new JavaScriptException(
-                Engine.TypeError,
-                string.Format("No public constructors with the specified arguments found on {0}:\n{1}",
-                Type.Name,
-                argumentLog));
-            
+            return wrapper.Target.GetType() == this.Type;
         }
 
         public override bool DefineOwnProperty(string propertyName, PropertyDescriptor desc, bool throwOnError)
@@ -151,7 +161,7 @@ namespace Jint.Runtime.Interop
         {
             // todo: cache members locally
 
-            if (Type.GetTypeInfo().IsEnum)
+            if (Type.IsEnum())
             {
                 Array enumValues = Enum.GetValues(Type);
                 Array enumNames = Enum.GetNames(Type);
@@ -196,7 +206,7 @@ namespace Jint.Runtime.Interop
             get
             {
                 return Type;
-            } 
+            }
         }
 
         public override string Class

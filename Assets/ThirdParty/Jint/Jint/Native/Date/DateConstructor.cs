@@ -56,6 +56,12 @@ namespace Jint.Native.Date
             {
                 if (!DateTime.TryParseExact(date, new[]
                 {
+                    // Formats used in DatePrototype toString methods
+                    "ddd MMM dd yyyy HH:mm:ss 'GMT'K",
+                    "ddd MMM dd yyyy",
+                    "HH:mm:ss 'GMT'K",
+
+                    // standard formats
                     "yyyy-M-dTH:m:s.FFFK",
                     "yyyy/M/dTH:m:s.FFFK",
                     "yyyy-M-dTH:m:sK",
@@ -79,10 +85,13 @@ namespace Jint.Native.Date
                     "THHK"
                 }, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out result))
                 {
-                    if (!DateTime.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal,out result))
+                    if (!DateTime.TryParse(date, Engine.Options._Culture, DateTimeStyles.AdjustToUniversal, out result))
                     {
-                        // unrecognized dates should return NaN (15.9.4.2)
-                        return double.NaN;
+                        if (!DateTime.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out result))
+                        {
+                            // unrecognized dates should return NaN (15.9.4.2)
+                            return double.NaN;
+                        }
                     }
                 }
             }
@@ -92,12 +101,12 @@ namespace Jint.Native.Date
 
         private JsValue Utc(JsValue thisObj, JsValue[] arguments)
         {
-            return TimeClip(ConstructTimeValue(arguments, true));
+            return TimeClip(ConstructTimeValue(arguments, useUtc: true));
         }
 
         private JsValue Now(JsValue thisObj, JsValue[] arguments)
         {
-            return (DateTime.UtcNow - Epoch).TotalMilliseconds;
+            return System.Math.Floor((DateTime.UtcNow - Epoch).TotalMilliseconds);
         }
 
         public override JsValue Call(JsValue thisObject, JsValue[] arguments)
@@ -128,7 +137,7 @@ namespace Jint.Native.Date
             }
             else
             {
-                return Construct(ConstructTimeValue(arguments, false));
+                return Construct(ConstructTimeValue(arguments, useUtc: false));
             }
         }
 

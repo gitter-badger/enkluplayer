@@ -4,6 +4,6 @@ namespace Jint.Parser.Ast
 {
     public class ArrayExpression : Expression
     {
-        public List<Expression> Elements;
+        public IEnumerable<Expression> Elements;
     }
 }

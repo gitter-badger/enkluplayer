@@ -13,11 +13,9 @@ namespace Jint.Runtime.Descriptors.Specialized
 
         public ClrAccessDescriptor(Engine engine, Func<JsValue, JsValue> get, Action<JsValue, JsValue> set)
             : base(
-                true,
-                new GetterFunctionInstance(engine, get),
-                set == null
-                    ? Native.Undefined.Instance
-                    : new SetterFunctionInstance(engine, set))
+                get: new GetterFunctionInstance(engine, get),
+                set: set == null ? Native.Undefined.Instance : new SetterFunctionInstance(engine, set)
+                )
         {
         }
     }

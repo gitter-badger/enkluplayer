@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using Jint.Native.Object;
 using Jint.Parser;
-using Jint.Parser.Ast;
 using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Environments;
@@ -22,12 +21,8 @@ namespace Jint.Native.Function
         /// <param name="functionDeclaration"></param>
         /// <param name="scope"></param>
         /// <param name="strict"></param>
-        public ScriptFunctionInstance(
-            Engine engine,
-            IFunctionDeclaration functionDeclaration,
-            LexicalEnvironment scope,
-            bool strict)
-            : base(engine, Names(functionDeclaration.Parameters), scope, strict)
+        public ScriptFunctionInstance(Engine engine, IFunctionDeclaration functionDeclaration, LexicalEnvironment scope, bool strict)
+            : base(engine, functionDeclaration.Parameters.Select(x => x.Name).ToArray(), scope, strict)
         {
             _functionDeclaration = functionDeclaration;
 
@@ -48,8 +43,8 @@ namespace Jint.Native.Function
             if (strict)
             {
                 var thrower = engine.Function.ThrowTypeError;
-                DefineOwnProperty("caller", new PropertyDescriptor(true, thrower, thrower, false, false), false);
-                DefineOwnProperty("arguments", new PropertyDescriptor(true, thrower, thrower, false, false), false);
+                DefineOwnProperty("caller", new PropertyDescriptor(thrower, thrower, false, false), false);
+                DefineOwnProperty("arguments", new PropertyDescriptor(thrower, thrower, false, false), false);
             }
         }
 
@@ -99,7 +94,9 @@ namespace Jint.Native.Function
 
                     if (result.Type == Completion.Throw)
                     {
-                        throw new JavaScriptException(result.GetValueOrDefault());
+                        JavaScriptException ex = new JavaScriptException(result.GetValueOrDefault())
+                            .SetCallstack(Engine, result.Location);
+                        throw ex;
                     }
 
                     if (result.Type == Completion.Return)
@@ -138,16 +135,5 @@ namespace Jint.Native.Function
         }
 
         public ObjectInstance PrototypeObject { get; private set; }
-
-        private static string[] Names(List<Identifier> identifiers)
-        {
-            var names = new string[identifiers.Count];
-            for (int i = 0, len = identifiers.Count; i < len; i++)
-            {
-                names[i] = identifiers[i].Name;
-            }
-
-            return names;
-        }
     }
 }

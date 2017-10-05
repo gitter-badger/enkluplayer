@@ -7,5 +7,7 @@
 	</Content>
 	<Scripts>
 		<string>Startup</string>
+		<string>Booting</string>
+		<string>Updating</string>
 	</Scripts>
 </SceneData>

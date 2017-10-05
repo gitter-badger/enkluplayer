@@ -28,6 +28,8 @@
 // Ported to Java from Mozilla's version of V8-dtoa by Hannes Wallnoefer.
 // The original revision was 67d1049b0bf9 from the mozilla-central tree.
 
+using System.Diagnostics;
+
 namespace Jint.Native.Number.Dtoa
 {
 
@@ -68,6 +70,9 @@ namespace Jint.Native.Number.Dtoa
         // The result will not be normalized.
         private void Subtract(DiyFp other)
         {
+            Debug.Assert(E == other.E);
+            Debug.Assert(Uint64Gte(F, other.F));
+
             F -= other.F;
         }
 

@@ -1,29 +1,18 @@
+log.info("Here.");
+
 var fsm = require("Resources/Common/StateMachine")();
 
-fsm.initialize([
-	{
-		id: "main",
-		enter: function() {
-			log.info("enter");
-		},
-		update: function() {
-
-		},
-		exit: function() {
-			log.info("exit");
-		}
-	}]);
-
-fsm.changeState("main");
-//fsm.update();
-
-/*var booting = require("Booting")(fsm, "Booting");
+var booting = require("Booting")(fsm, "Booting");
 var updating = require("Updating")(fsm, "Updating");
 
+fsm.initialize([booting, updating]);
+
 function enter() {
+	log.info("Startup.");
+
 	fsm.changeState("Booting");
 }
 
 function update() {
 	fsm.update();
-}*/
+}

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Jint.Native;
 
 namespace Jint.Runtime.Environments
@@ -10,7 +11,7 @@ namespace Jint.Runtime.Environments
     public sealed class DeclarativeEnvironmentRecord : EnvironmentRecord
     {
         private readonly Engine _engine;
-        private readonly Dictionary<string, Binding> _bindings = new Dictionary<string, Binding>();
+        private readonly IDictionary<string, Binding> _bindings = new Dictionary<string, Binding>();
 
         public DeclarativeEnvironmentRecord(Engine engine) : base(engine)
         {
@@ -111,6 +112,15 @@ namespace Jint.Runtime.Environments
         {
             var binding = _bindings[name];
             binding.Value = value;
+        }
+
+        /// <summary>
+        /// Returns an array of all the defined binding names
+        /// </summary>
+        /// <returns>The array of all defined bindings</returns>
+        public override string[] GetAllBindingNames()
+        {
+            return _bindings.Keys.ToArray();
         }
     }
 }

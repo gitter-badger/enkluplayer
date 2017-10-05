@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-
+using System.Linq;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Jint.Runtime.Descriptors;
@@ -49,7 +49,7 @@ namespace Jint.Native.Function
             var f = new BindFunctionInstance(Engine) {Extensible = true};
             f.TargetFunction = thisObj;
             f.BoundThis = thisArg;
-            f.BoundArgs = PrepArguments(arguments);
+            f.BoundArgs = arguments.Skip(1).ToArray();
             f.Prototype = Engine.Function.PrototypeObject;
 
             var o = target as FunctionInstance;
@@ -65,24 +65,11 @@ namespace Jint.Native.Function
             
 
             var thrower = Engine.Function.ThrowTypeError;
-            f.DefineOwnProperty("caller", new PropertyDescriptor(true, thrower, thrower, false, false), false);
-            f.DefineOwnProperty("arguments", new PropertyDescriptor(true, thrower, thrower, false, false), false);
+            f.DefineOwnProperty("caller", new PropertyDescriptor(thrower, thrower, false, false), false);
+            f.DefineOwnProperty("arguments", new PropertyDescriptor(thrower, thrower, false, false), false);
 
 
             return f;
-        }
-
-        private JsValue[] PrepArguments(JsValue[] arguments)
-        {
-            var len = arguments.Length;
-            if (len <= 1)
-            {
-                return new JsValue[0];
-            }
-
-            var returnArguments = new JsValue[len - 1];
-            System.Array.Copy(arguments, 1, returnArguments, 0, len - 1);
-            return returnArguments;
         }
 
         private JsValue ToString(JsValue thisObj, JsValue[] arguments)
@@ -94,7 +81,7 @@ namespace Jint.Native.Function
                 throw new JavaScriptException(Engine.TypeError, "Function object expected.");       
             }
 
-            return "function() { ... }";
+            return System.String.Format("function() {{ ... }}");
         }
 
         public JsValue Apply(JsValue thisObject, JsValue[] arguments)
@@ -139,11 +126,7 @@ namespace Jint.Native.Function
                 throw new JavaScriptException(Engine.TypeError);
             }
 
-            return func.Call(
-                arguments.At(0),
-                arguments.Length == 0
-                    ? arguments
-                    : PrepArguments(arguments));
+            return func.Call(arguments.At(0), arguments.Length == 0 ? arguments : arguments.Skip(1).ToArray());
         }
 
         public override JsValue Call(JsValue thisObject, JsValue[] arguments)

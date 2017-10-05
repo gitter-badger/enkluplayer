@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Jint.Native.String;
 using Jint.Parser.Ast;
 
 namespace Jint.Parser
@@ -887,7 +889,7 @@ namespace Jint.Parser
             }
             catch (OverflowException)
             {
-                n = number.Trim().StartsWith("-") ? double.NegativeInfinity : double.PositiveInfinity;
+                n = StringPrototype.TrimEx(number).StartsWith("-") ? double.NegativeInfinity : double.PositiveInfinity;
             }
             catch (Exception)
             {
@@ -910,6 +912,9 @@ namespace Jint.Parser
         {
             var str = new StringBuilder();
             bool octal = false;
+            var startLineStart = _lineStart;
+            var startLineNumber = _lineNumber;
+
             char quote = _source.CharCodeAt(_index);
 
             int start = _index;
@@ -1222,7 +1227,7 @@ namespace Jint.Parser
             char ch = _source.CharCodeAt(_index);
 
             // Very common: ( and ) and ;
-            if (ch == 40 || ch == 41 || ch == 58)
+            if (ch == 40 || ch == 41 || ch == 59)
             {
                 return ScanPunctuator();
             }
@@ -1389,7 +1394,7 @@ namespace Jint.Parser
             return node;
         }
 
-        public ArrayExpression CreateArrayExpression(List<Expression> elements)
+        public ArrayExpression CreateArrayExpression(IEnumerable<Expression> elements)
         {
             return new ArrayExpression
                 {
@@ -1429,7 +1434,7 @@ namespace Jint.Parser
                            };
         }
 
-        public BlockStatement CreateBlockStatement(List<Statement> body)
+        public BlockStatement CreateBlockStatement(IEnumerable<Statement> body)
         {
             return new BlockStatement
                 {
@@ -1447,7 +1452,7 @@ namespace Jint.Parser
                 };
         }
 
-        public CallExpression CreateCallExpression(Expression callee, List<Expression> args)
+        public CallExpression CreateCallExpression(Expression callee, IList<Expression> args)
         {
             return new CallExpression
                 {
@@ -1547,8 +1552,8 @@ namespace Jint.Parser
                 };
         }
 
-        public FunctionDeclaration CreateFunctionDeclaration(Identifier id, List<Identifier> parameters,
-                                                             List<Expression> defaults, Statement body, bool strict)
+        public FunctionDeclaration CreateFunctionDeclaration(Identifier id, IEnumerable<Identifier> parameters,
+                                                             IEnumerable<Expression> defaults, Statement body, bool strict)
         {
             var functionDeclaration = new FunctionDeclaration
                 {
@@ -1570,8 +1575,8 @@ namespace Jint.Parser
             return functionDeclaration;
         }
 
-        public FunctionExpression CreateFunctionExpression(Identifier id, List<Identifier> parameters,
-                                                           List<Expression> defaults, Statement body, bool strict)
+        public FunctionExpression CreateFunctionExpression(Identifier id, IEnumerable<Identifier> parameters,
+                                                           IEnumerable<Expression> defaults, Statement body, bool strict)
         {
             return new FunctionExpression
                 {
@@ -1650,7 +1655,7 @@ namespace Jint.Parser
                 };
         }
 
-        public NewExpression CreateNewExpression(Expression callee, List<Expression> args)
+        public NewExpression CreateNewExpression(Expression callee, IEnumerable<Expression> args)
         {
             return new NewExpression
                 {
@@ -1660,7 +1665,7 @@ namespace Jint.Parser
                 };
         }
 
-        public ObjectExpression CreateObjectExpression(List<Property> properties)
+        public ObjectExpression CreateObjectExpression(IEnumerable<Property> properties)
         {
             return new ObjectExpression
                 {
@@ -1680,7 +1685,7 @@ namespace Jint.Parser
                 };
         }
 
-        public Program CreateProgram(List<Statement> body, bool strict)
+        public Program CreateProgram(ICollection<Statement> body, bool strict)
         {
             return new Program
                 {
@@ -1712,7 +1717,7 @@ namespace Jint.Parser
                 };
         }
 
-        public SequenceExpression CreateSequenceExpression(List<Expression> expressions)
+        public SequenceExpression CreateSequenceExpression(IList<Expression> expressions)
         {
             return new SequenceExpression
                 {
@@ -1721,17 +1726,17 @@ namespace Jint.Parser
                 };
         }
 
-        public SwitchCase CreateSwitchCase(Expression test, List<Statement> consequent)
+        public SwitchCase CreateSwitchCase(Expression test, IEnumerable<Statement> consequent)
         {
             return new SwitchCase
-            {
-                Type = SyntaxNodes.SwitchCase,
-                Test = test,
-                Consequent = consequent
-            };
+                {
+                    Type = SyntaxNodes.SwitchCase,
+                    Test = test,
+                    Consequent = consequent
+                };
         }
 
-        public SwitchStatement CreateSwitchStatement(Expression discriminant, List<SwitchCase> cases)
+        public SwitchStatement CreateSwitchStatement(Expression discriminant, IEnumerable<SwitchCase> cases)
         {
             return new SwitchStatement
                 {
@@ -1758,8 +1763,8 @@ namespace Jint.Parser
                 };
         }
 
-        public TryStatement CreateTryStatement(Statement block, List<Statement> guardedHandlers,
-                                               List<CatchClause> handlers, Statement finalizer)
+        public TryStatement CreateTryStatement(Statement block, IEnumerable<Statement> guardedHandlers,
+                                               IEnumerable<CatchClause> handlers, Statement finalizer)
         {
             return new TryStatement
                 {
@@ -1794,7 +1799,7 @@ namespace Jint.Parser
         }
 
 
-        public VariableDeclaration CreateVariableDeclaration(List<VariableDeclarator> declarations, string kind)
+        public VariableDeclaration CreateVariableDeclaration(IEnumerable<VariableDeclarator> declarations, string kind)
         {
             var variableDeclaration = new VariableDeclaration
                 {
@@ -2079,7 +2084,7 @@ namespace Jint.Parser
 
         // 11.1.5 Object Initialiser
 
-        private FunctionExpression ParsePropertyFunction(List<Identifier> parameters, Token first = null)
+        private FunctionExpression ParsePropertyFunction(Identifier[] parameters, Token first = null)
         {
             EnterVariableScope();
             EnterFunctionScope();
@@ -2093,7 +2098,7 @@ namespace Jint.Parser
             }
             bool functionStrict = _strict;
             _strict = previousStrict;
-            return MarkEnd(CreateFunctionExpression(null, parameters, new List<Expression>(), body, functionStrict));
+            return MarkEnd(CreateFunctionExpression(null, parameters, new Expression[0], body, functionStrict));
         }
 
         private IPropertyKeyExpression ParseObjectPropertyKey()
@@ -2134,7 +2139,7 @@ namespace Jint.Parser
                     var key = ParseObjectPropertyKey();
                     Expect("(");
                     Expect(")");
-                    value = ParsePropertyFunction(new List<Identifier>());
+                    value = ParsePropertyFunction(new Identifier[0]);
                     return MarkEnd(CreateProperty(PropertyKind.Get, key, value));
                 }
                 if ("set".Equals(token.Value) && !Match(":"))
@@ -2146,11 +2151,11 @@ namespace Jint.Parser
                     {
                         Expect(")");
                         ThrowErrorTolerant(token, Messages.UnexpectedToken, (string) token.Value);
-                        value = ParsePropertyFunction(new List<Identifier>());
+                        value = ParsePropertyFunction(new Identifier[0]);
                     }
                     else
                     {
-                        var param = new List<Identifier>{ParseVariableIdentifier()};
+                        var param = new[] {ParseVariableIdentifier()};
                         Expect(")");
                         value = ParsePropertyFunction(param, token);
                     }
@@ -2323,7 +2328,7 @@ namespace Jint.Parser
 
         // 11.2 Left-Hand-Side Expressions
 
-        private List<Expression> ParseArguments()
+        private IList<Expression> ParseArguments()
         {
             var args = new List<Expression>();
 
@@ -2383,7 +2388,7 @@ namespace Jint.Parser
             MarkStart();
             ExpectKeyword("new");
             Expression callee = ParseLeftHandSideExpression();
-            List<Expression> args = Match("(") ? ParseArguments() : new List<Expression>();
+            IEnumerable<Expression> args = Match("(") ? ParseArguments() : new AssignmentExpression[0];
 
             return MarkEnd(CreateNewExpression(callee, args));
         }
@@ -2401,7 +2406,7 @@ namespace Jint.Parser
             {
                 if (Match("("))
                 {
-                    List<Expression> args = ParseArguments();
+                    IList<Expression> args = ParseArguments();
                     expr = CreateCallExpression(expr, args);
                 }
                 else if (Match("["))
@@ -2775,7 +2780,7 @@ namespace Jint.Parser
 
         // 12.1 Block
 
-        private List<Statement> ParseStatementList()
+        private IEnumerable<Statement> ParseStatementList()
         {
             var list = new List<Statement>();
 
@@ -2801,7 +2806,7 @@ namespace Jint.Parser
             MarkStart();
             Expect("{");
 
-            List<Statement> block = ParseStatementList();
+            IEnumerable<Statement> block = ParseStatementList();
 
             Expect("}");
 
@@ -2850,7 +2855,7 @@ namespace Jint.Parser
             return MarkEnd(CreateVariableDeclarator(id, init));
         }
 
-        private List<VariableDeclarator> ParseVariableDeclarationList(string kind)
+        private IEnumerable<VariableDeclarator> ParseVariableDeclarationList(string kind)
         {
             var list = new List<VariableDeclarator>();
 
@@ -2871,7 +2876,7 @@ namespace Jint.Parser
         {
             ExpectKeyword("var");
 
-            List<VariableDeclarator> declarations = ParseVariableDeclarationList(null);
+            IEnumerable<VariableDeclarator> declarations = ParseVariableDeclarationList(null);
 
             ConsumeSemicolon();
 
@@ -2888,7 +2893,7 @@ namespace Jint.Parser
 
             ExpectKeyword(kind);
 
-            List<VariableDeclarator> declarations = ParseVariableDeclarationList(kind);
+            IEnumerable<VariableDeclarator> declarations = ParseVariableDeclarationList(kind);
 
             ConsumeSemicolon();
 
@@ -2994,7 +2999,7 @@ namespace Jint.Parser
         {
             MarkStart();
             Token token = Lex();
-            List<VariableDeclarator> declarations = ParseVariableDeclarationList(null);
+            IEnumerable<VariableDeclarator> declarations = ParseVariableDeclarationList(null);
 
             return MarkEnd(CreateVariableDeclaration(declarations, (string) token.Value));
         }
@@ -3021,7 +3026,7 @@ namespace Jint.Parser
                     init = ParseForVariableDeclaration();
                     _state.AllowIn = true;
 
-                    if (init.As<VariableDeclaration>().Declarations.Count == 1 && MatchKeyword("in"))
+                    if (init.As<VariableDeclaration>().Declarations.Count() == 1 && MatchKeyword("in"))
                     {
                         Lex();
                         left = init;
@@ -3402,7 +3407,7 @@ namespace Jint.Parser
                 ThrowError(Token.Empty, Messages.NoCatchOrFinally);
             }
 
-            return CreateTryStatement(block, new List<Statement>(), handlers, finalizer);
+            return CreateTryStatement(block, new Statement[0], handlers, finalizer);
         }
 
         // 12.15 The debugger statement
@@ -3682,7 +3687,7 @@ namespace Jint.Parser
             }
 
             ParsedParameters tmp = ParseParams(firstRestricted);
-            List<Identifier> parameters = tmp.Parameters;
+            IEnumerable<Identifier> parameters = tmp.Parameters;
             Token stricted = tmp.Stricted;
             firstRestricted = tmp.FirstRestricted;
             if (tmp.Message != null)
@@ -3703,7 +3708,7 @@ namespace Jint.Parser
             bool functionStrict = _strict;
             _strict = previousStrict;
 
-            return MarkEnd(CreateFunctionDeclaration(id, parameters, new List<Expression>(), body, functionStrict));
+            return MarkEnd(CreateFunctionDeclaration(id, parameters, new Expression[0], body, functionStrict));
         }
 
         private void EnterVariableScope()
@@ -3711,7 +3716,7 @@ namespace Jint.Parser
             _variableScopes.Push(new VariableScope());
         }
 
-        private List<VariableDeclaration> LeaveVariableScope()
+        private IList<VariableDeclaration> LeaveVariableScope()
         {
             return _variableScopes.Pop().VariableDeclarations;
         }
@@ -3721,7 +3726,7 @@ namespace Jint.Parser
             _functionScopes.Push(new FunctionScope());
         }
 
-        private List<FunctionDeclaration> LeaveFunctionScope()
+        private IList<FunctionDeclaration> LeaveFunctionScope()
         {
             return _functionScopes.Pop().FunctionDeclarations;
         }
@@ -3765,7 +3770,7 @@ namespace Jint.Parser
             }
 
             ParsedParameters tmp = ParseParams(firstRestricted);
-            List<Identifier> parameters = tmp.Parameters;
+            IEnumerable<Identifier> parameters = tmp.Parameters;
             Token stricted = tmp.Stricted;
             firstRestricted = tmp.FirstRestricted;
             if (tmp.Message != null)
@@ -3786,7 +3791,7 @@ namespace Jint.Parser
             bool functionStrict = _strict;
             _strict = previousStrict;
 
-            return MarkEnd(CreateFunctionExpression(id, parameters, new List<Expression>(), body, functionStrict));
+            return MarkEnd(CreateFunctionExpression(id, parameters, new Expression[0], body, functionStrict));
         }
 
         // 14 Program
@@ -3815,7 +3820,7 @@ namespace Jint.Parser
             return null;
         }
 
-        private List<Statement> ParseSourceElements()
+        private ICollection<Statement> ParseSourceElements()
         {
             var sourceElements = new List<Statement>();
             Token firstRestricted = Token.Empty;
@@ -3873,7 +3878,7 @@ namespace Jint.Parser
             
             MarkStart();
             Peek();
-            List<Statement> body = ParseSourceElements();
+            ICollection<Statement> body = ParseSourceElements();
             return MarkEnd(CreateProgram(body, _strict));
         }
 
@@ -4061,7 +4066,7 @@ namespace Jint.Parser
         {
             public Token FirstRestricted;
             public string Message;
-            public List<Identifier> Parameters;
+            public IEnumerable<Identifier> Parameters;
             public Token Stricted;
         }
 

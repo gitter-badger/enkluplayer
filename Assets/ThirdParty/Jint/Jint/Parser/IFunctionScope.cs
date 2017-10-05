@@ -8,7 +8,7 @@ namespace Jint.Parser
     /// </summary>
     public interface IFunctionScope: IVariableScope
     {
-        List<FunctionDeclaration> FunctionDeclarations { get; set; }
+        IList<FunctionDeclaration> FunctionDeclarations { get; set; }
     }
 
     public class FunctionScope : IFunctionScope
@@ -18,7 +18,7 @@ namespace Jint.Parser
             FunctionDeclarations = new List<FunctionDeclaration>();
         }
 
-        public List<FunctionDeclaration> FunctionDeclarations { get; set; }
-        public List<VariableDeclaration> VariableDeclarations { get; set; }
+        public IList<FunctionDeclaration> FunctionDeclarations { get; set; }
+        public IList<VariableDeclaration> VariableDeclarations { get; set; }
     }
 }

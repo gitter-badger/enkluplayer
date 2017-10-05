@@ -5,5 +5,5 @@
   <Asset>
     <AssetDataId>5652b11f3e991914fa8c486b0c09245d</AssetDataId>
   </Asset>
-  <AutoPlay>false</AutoPlay>
+  <AutoPlay>true</AutoPlay>
 </ScriptData>

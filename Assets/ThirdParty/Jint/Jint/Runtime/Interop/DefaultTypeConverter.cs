@@ -14,7 +14,7 @@ namespace Jint.Runtime.Interop
         private static readonly Dictionary<string, bool> _knownConversions = new Dictionary<string, bool>();
         private static readonly object _lockObject = new object();
 
-        private static MethodInfo convertChangeType = typeof(Convert).GetMethod("ChangeType", new Type[] { typeof(object), typeof(Type), typeof(IFormatProvider) } );
+        private static MethodInfo convertChangeType = typeof(System.Convert).GetMethod("ChangeType", new Type[] { typeof(object), typeof(Type), typeof(IFormatProvider) });
         private static MethodInfo jsValueFromObject = typeof(JsValue).GetMethod("FromObject");
         private static MethodInfo jsValueToObject = typeof(JsValue).GetMethod("ToObject");
 
@@ -41,7 +41,7 @@ namespace Jint.Runtime.Interop
                 return value;
             }
 
-            if (type.GetTypeInfo().IsEnum)
+            if (type.IsEnum())
             {
                 var integer = System.Convert.ChangeType(value, typeof(int), formatProvider);
                 if (integer == null)
@@ -58,7 +58,7 @@ namespace Jint.Runtime.Interop
             {
                 var function = (Func<JsValue, JsValue[], JsValue>)value;
 
-                if (type.GetTypeInfo().IsGenericType)
+                if (type.IsGenericType())
                 {
                     var genericType = type.GetGenericTypeDefinition();
 
@@ -72,36 +72,38 @@ namespace Jint.Runtime.Interop
                         {
                             @params[i] = Expression.Parameter(genericArguments[i], genericArguments[i].Name + i);
                         }
-                        var @vars = Expression.NewArrayInit(
-                            typeof(JsValue),
-                            @params
-                                .Select(p => Expression.Call(
-                                    null,
-                                    jsValueFromObject,
-                                    Expression.Constant(_engine, typeof(Engine)),
-                                    p))
-                                .ToArray());
+                        var tmpVars = new Expression[@params.Length];
+                        for (var i = 0; i < @params.Count(); i++)
+                        {
+                            var param = @params[i];
+                            if (param.Type.IsValueType())
+                            {
+                                var boxing = Expression.Convert(param, typeof(object));
+                                tmpVars[i] = Expression.Call(null, jsValueFromObject, Expression.Constant(_engine, typeof(Engine)), boxing);
+                            }
+                            else
+                            {
+                                tmpVars[i] = Expression.Call(null, jsValueFromObject, Expression.Constant(_engine, typeof(Engine)), param);
+                            }
+                        }
+                        var @vars = Expression.NewArrayInit(typeof(JsValue), tmpVars);
 
                         /*var callExpresion = Expression.Block(Expression.Call(
                                                 Expression.Call(Expression.Constant(function.Target),
-                                                    function.Method,
+                                                    function.GetMethodInfo(),
                                                     Expression.Constant(JsValue.Undefined, typeof(JsValue)),
                                                     @vars),
                                                 jsValueToObject), Expression.Empty());*/
-                        var callExpresion = Expression.Call(
-                                                Expression.Call(
-                                                    Expression.Constant(function.Target),
-#if NETFX_CORE
-                                                    function.GetMethodInfo(),
-#else
-                                                    function.Method,
-#endif
-                                                    Expression.Constant(JsValue.Undefined, typeof(JsValue)),
-                                                    @vars),
-                                                jsValueToObject);
 
-                        //return Expression.Lambda(callExpresion, new ReadOnlyCollection<ParameterExpression>(@params));
-                        return Expression.Lambda(genericType, callExpresion, new ReadOnlyCollection<ParameterExpression>(@params));
+                        var callExpresion = Expression.Call(
+                            Expression.Call(
+                                Expression.Constant(function.Target),
+                                function.Method,
+                                Expression.Constant(JsValue.Undefined, typeof(JsValue)),
+                                @vars),
+                            jsValueToObject);
+
+                        return Expression.Lambda(callExpresion, @params).Compile();
                     }
                     else if (genericType.Name.StartsWith("Func"))
                     {
@@ -114,17 +116,17 @@ namespace Jint.Runtime.Interop
                             @params[i] = Expression.Parameter(genericArguments[i], genericArguments[i].Name + i);
                         }
 
-                        var @vars = 
+                        var @vars =
                             Expression.NewArrayInit(
-                                typeof(JsValue), 
+                                typeof(JsValue),
                                 @params
                                     .Select(p => {
                                         var boxingExpression = Expression.Convert(p, typeof(object));
                                         return Expression.Call(null, jsValueFromObject, Expression.Constant(_engine, typeof(Engine)), boxingExpression);
-                                        })
+                                    })
                                     .ToArray()
                             );
-
+                        
                         // the final result's type needs to be changed before casting,
                         // for instance when a function returns a number (double) but C# expects an integer
 
@@ -133,21 +135,16 @@ namespace Jint.Runtime.Interop
                                                     convertChangeType,
                                                     Expression.Call(
                                                             Expression.Call(Expression.Constant(function.Target),
-#if NETFX_CORE
                                                                     function.GetMethodInfo(),
-#else
-                                                                    function.Method,
-#endif
                                                                     Expression.Constant(JsValue.Undefined, typeof(JsValue)),
                                                                     @vars),
                                                             jsValueToObject),
                                                         Expression.Constant(returnType, typeof(Type)),
                                                         Expression.Constant(System.Globalization.CultureInfo.InvariantCulture, typeof(IFormatProvider))
-                                                        ),                            
+                                                        ),
                                                     returnType);
 
-                        //return Expression.Lambda(callExpresion, new ReadOnlyCollection<ParameterExpression>(@params));
-                        return Expression.Lambda(genericType, callExpresion, new ReadOnlyCollection<ParameterExpression>(@params));
+                        return Expression.Lambda(callExpresion, @params).Compile();
                     }
                 }
                 else
@@ -156,7 +153,7 @@ namespace Jint.Runtime.Interop
                     {
                         return (Action)(() => function(JsValue.Undefined, new JsValue[0]));
                     }
-                    else if (type.GetTypeInfo().IsSubclassOf(typeof(System.MulticastDelegate)))
+                    else if (typeof(MulticastDelegate).IsAssignableFrom(type))
                     {
                         var method = type.GetMethod("Invoke");
                         var arguments = method.GetParameters();
@@ -170,23 +167,21 @@ namespace Jint.Runtime.Interop
                             typeof(JsValue),
                             @params
                                 .Select(p => Expression.Call(null, typeof(JsValue).GetMethod("FromObject"), Expression.Constant(_engine, typeof(Engine)), p))
+                                .Cast<Expression>()
                                 .ToArray());
 
                         /*var callExpression = Expression.Block(
                                                 Expression.Call(
                                                     Expression.Call(Expression.Constant(function.Target),
-                                                        function.Method,
+                                                        function.GetMethodInfo(),
                                                         Expression.Constant(JsValue.Undefined, typeof(JsValue)),
                                                         @vars),
                                                     typeof(JsValue).GetMethod("ToObject")),
                                                 Expression.Empty());*/
+
                         var callExpression = Expression.Call(
                             Expression.Call(Expression.Constant(function.Target),
-#if NETFX_CORE
-                                function.GetMethodInfo(),
-#else
                                 function.Method,
-#endif
                                 Expression.Constant(JsValue.Undefined, typeof(JsValue)),
                                 @vars),
                             typeof(JsValue).GetMethod("ToObject"));
@@ -195,9 +190,9 @@ namespace Jint.Runtime.Interop
                             //Expression.Lambda(callExpression, new ReadOnlyCollection<ParameterExpression>(@params)),
                             Expression.Lambda(type, callExpression, new ReadOnlyCollection<ParameterExpression>(@params)),
                             //new ReadOnlyCollection<ParameterExpression>(@params));
-                            new ReadOnlyCollection<ParameterExpression>(@params).ToArray());
+                            @params.Cast<Expression>().ToArray());
 
-                        return Expression.Lambda(type, dynamicExpression, new ReadOnlyCollection<ParameterExpression>(@params));
+                        return Expression.Lambda(type, dynamicExpression, new ReadOnlyCollection<ParameterExpression>(@params)).Compile();
                     }
                 }
 
@@ -216,6 +211,11 @@ namespace Jint.Runtime.Interop
                 return result;
             }
 
+            if (type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                type = Nullable.GetUnderlyingType(type);
+            }
+
             return System.Convert.ChangeType(value, type, formatProvider);
         }
 
@@ -224,29 +224,40 @@ namespace Jint.Runtime.Interop
             bool canConvert;
             var key = value == null ? String.Format("Null->{0}", type) : String.Format("{0}->{1}", value.GetType(), type);
 
-            lock (_lockObject)
+            if (!_knownConversions.TryGetValue(key, out canConvert))
             {
-                if (!_knownConversions.TryGetValue(key, out canConvert))
+                lock (_lockObject)
                 {
-                    try
+                    if (!_knownConversions.TryGetValue(key, out canConvert))
                     {
-                        converted = Convert(value, type, formatProvider);
-                        _knownConversions.Add(key, true);
-                        return true;
-                    }
-                    catch
-                    {
-                        converted = null;
-                        _knownConversions.Add(key, false);
-                        return false;
+                        try
+                        {
+                            converted = Convert(value, type, formatProvider);
+                            _knownConversions.Add(key, true);
+                            return true;
+                        }
+                        catch
+                        {
+                            converted = null;
+                            _knownConversions.Add(key, false);
+                            return false;
+                        }
                     }
                 }
             }
 
             if (canConvert)
             {
-                converted = Convert(value, type, formatProvider);
-                return true;
+                try
+                {
+                    converted = Convert(value, type, formatProvider);
+                    return true;
+                }
+                catch
+                {
+                    converted = null;
+                    return false;
+                }
             }
 
             converted = null;

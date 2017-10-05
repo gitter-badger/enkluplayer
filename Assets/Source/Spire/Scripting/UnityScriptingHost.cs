@@ -16,11 +16,17 @@ namespace CreateAR.SpirePlayer
         public UnityScriptingHost(
             object context,
             IScriptManager scripts)
-            : base(options => options.AllowClr())
+            : base(options =>
+            {
+                options.AllowClr();
+                options.CatchClrExceptions(exception =>
+                {
+                    throw exception;
+                });
+            })
         {
             SetValue("log", new JsLogWrapper(context));
-            SetValue("scene", new UnitySceneManager());
-            
+            SetValue("scene", new UnitySceneManager());   
             SetValue("require", new Func<string, JsValue>(
                 new SpireScriptRequireResolver(scripts, this).Resolve));
         }
