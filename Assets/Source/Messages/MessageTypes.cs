@@ -40,5 +40,6 @@
         // Play State
         ///////////////////////////////////////////////////////////////////////
         public const int PLAY = 3000;
+        public const int MUSIC = 3010;
     }
 }

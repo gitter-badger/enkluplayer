@@ -195,6 +195,7 @@
     <Compile Include="Assets\Source\Spire\Asset\IAssetUpdateService.cs" />
     <Compile Include="Assets\Source\Spire\Asset\Services\EditorAssetUpdateService.cs" />
     <Compile Include="Assets\Source\Spire\Asset\StandardAssetLoader.cs" />
+    <Compile Include="Assets\Source\Spire\Audio\MusicManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\AnchorData.cs" />
     <Compile Include="Assets\Source\Spire\Data\AppData.cs" />
     <Compile Include="Assets\Source\Spire\Data\AppDataManager.cs" />
@@ -235,6 +236,7 @@
     <Compile Include="Assets\Source\Spire\Scripting\DefaultScriptParser.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\Interop\AppDataScriptingInterface.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\Interop\JsInterface.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\Interop\MessageRouterScriptingInterface.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\IScriptManager.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\IScriptParser.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\JsLogWrapper.cs" />

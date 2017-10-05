@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer;
 using Jint.Parser;
 using Jint.Unity;
 using strange.extensions.injector.impl;
@@ -132,6 +131,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IntentionManager>().ToValue(LookupComponent<IntentionManager>());
                 binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
                 binder.Bind<LayerManager>().ToValue(LookupComponent<LayerManager>());
+                binder.Bind<MusicManager>().ToValue(LookupComponent<MusicManager>());
             }
 
             // scripting
@@ -144,6 +144,7 @@ namespace CreateAR.SpirePlayer
                 // scripting interfaces
                 {
                     binder.Bind<AppDataScriptingInterface>().To<AppDataScriptingInterface>().ToSingleton();
+                    binder.Bind<MessageRouterScriptingInterface>().To<MessageRouterScriptingInterface>().ToSingleton();
                 }
             }
 

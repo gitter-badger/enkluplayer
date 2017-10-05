@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using Jint.Unity;
 using UnityEngine.SceneManagement;
 
@@ -47,7 +46,7 @@ namespace CreateAR.SpirePlayer
 #if NETFX_CORE
                 // reference by hand
 #else
-                AppDomain.CurrentDomain.GetAssemblies()
+                System.AppDomain.CurrentDomain.GetAssemblies()
 #endif
             );
 
