@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WSAPlayer:21</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -235,8 +233,10 @@
     <Compile Include="Assets\Source\Spire\Scripting\DefaultScriptParser.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\IScriptManager.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\IScriptParser.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\JsLogWrapper.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\MonoBehaviourScriptingHost.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\ScriptManager.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\UnityScriptingHost.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\Edit\EditApplicationState.cs" />
     <Compile Include="Assets\Source\States\Initialize\InitializeApplicationState.cs" />
@@ -258,8 +258,6 @@
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Resolver\NullScriptingDependencyResolver.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Resolver\TypeScriptingDependencyResolver.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Serialization\ScriptingPropertyBucket.cs" />
-    <Compile Include="Assets\Source\Spire\Scripting\JsLogWrapper.cs" />
-    <Compile Include="Assets\Source\Spire\Scripting\UnityScriptingHost.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\UQL\UnitySceneManager.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\UQL\UnitySceneQuery.cs" />
     <Compile Include="Assets\ThirdParty\Jint\Jint\DeclarationBindingType.cs" />
@@ -448,28 +446,28 @@
     <Compile Include="Assets\ThirdParty\Strange\reflector\impl\ReflectionException.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Data\App\SpireDemo\AssetData\TeslaAssets.xml" />
+    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryArchitecture.xml" />
+    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryComponents.xml" />
+    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryIntroduction.xml" />
+    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryPenthouse.xml" />
+    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatterySafetyConcerns.xml" />
+    <None Include="Assets\Data\App\SpireDemo\ModuleData\SpireDemo.xml" />
+    <None Include="Assets\Data\App\SpireDemo\PartData\HVBatteryParts.xml" />
+    <None Include="Assets\Data\App\SpireDemo\PartGroupData\HVBatteryPartGroups.xml" />
+    <None Include="Assets\Data\App\SpireDemo\SceneData\TeslaScenes.xml" />
+    <None Include="Assets\Data\App\SpireDemo\ScriptData\TeslaScripts.xml" />
+    <None Include="Assets\Data\App\SpireDemo\StateData\TeslaStates.xml" />
+    <None Include="Assets\Data\App\SpireDemo\TuneVarData\GuideTuneVars.xml" />
+    <None Include="Assets\Data\App\SpireDemo\TuneVarData\UITuneVars.xml" />
+    <None Include="Assets\Data\App\SpireDemo\UIElementData\TeslaUIElements.xml" />
+    <None Include="Assets\Data\App\SpireDemo\UserExperienceData\Tutorials.xml" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\AOT\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Windows\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\link.xml" />
     <None Include="Assets\Plugins\ThirdParty\WebSocket-Sharp\websocket-sharp.xml" />
     <None Include="Assets\Plugins\link.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\AssetData\TeslaAssets.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\HVBatteryArchitecture.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\HVBatteryComponents.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\HVBatteryIntroduction.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\HVBatteryPenthouse.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\HVBatterySafetyConcerns.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\ModuleData\SpireDemo.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\PartData\HVBatteryParts.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\PartGroupData\HVBatteryPartGroups.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\SceneData\TeslaScenes.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\ScriptData\TeslaScripts.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\StateData\TeslaStates.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\TuneVarData\GuideTuneVars.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\TuneVarData\UITuneVars.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\UIElementData\TeslaUIElements.xml" />
-    <None Include="Assets\StreamingAssets\App\SpireDemo\UserExperienceData\Tutorials.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

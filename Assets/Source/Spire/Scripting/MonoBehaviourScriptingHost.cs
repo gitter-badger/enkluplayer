@@ -49,6 +49,11 @@ namespace CreateAR.Spire
         private readonly JsValue[] _arguments = new JsValue[0];
 
         /// <summary>
+        /// Retrieves the <c>SpireScript</c> instance.
+        /// </summary>
+        public SpireScript Script { get { return _script; } }
+
+        /// <summary>
         /// Initializes the host.
         /// </summary>
         /// <param name="engine">JS Engine.</param>

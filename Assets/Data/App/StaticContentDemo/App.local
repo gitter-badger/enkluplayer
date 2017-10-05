@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <AppData>
-	<Id>0f9154de-83c8-405e-85d6-e78aa5af54f0</Id>
+	<Id>StaticContentDemo</Id>
 	<Name>StaticContentDemo</Name>
 	<Scenes>
 		<string>main</string>

@@ -1,4 +1,3 @@
-using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Spire;
 using strange.extensions.injector.impl;

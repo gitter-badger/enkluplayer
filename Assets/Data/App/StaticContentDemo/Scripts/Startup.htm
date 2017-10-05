@@ -1,0 +1,12 @@
+var fsm = require("Common/StateMachine")();
+
+var booting = require("Booting")(fsm, "Booting");
+var updating = require("Updating")(fsm, "Updating");
+
+function enter() {
+	fsm.changeState("Booting");
+}
+
+function update() {
+	fsm.update();
+}

@@ -105,7 +105,11 @@ namespace CreateAR.Spire
             // start scripts
             for (int i = 0, len = _hosts.Count; i < len; i++)
             {
-                _hosts[i].Enter();
+                var host = _hosts[i];
+                if (host.Script.Data.AutoPlay)
+                {
+                    _hosts[i].Enter();
+                }
             }
         }
 
