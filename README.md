@@ -5,3 +5,4 @@
 ### Systems of Interest
 
 * [AssetManager](docs/assets.md)
+* [Scripting](docs/scripting.overview.md)
