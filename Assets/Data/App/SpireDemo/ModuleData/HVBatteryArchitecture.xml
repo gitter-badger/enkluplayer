@@ -1,0 +1,138 @@
+﻿<ArrayOfModuleData>
+
+  <!-- 4. Architecture -->
+  <ModuleData>
+    <Id>Architecture</Id>
+    <CourseId>HV Battery DISABLED</CourseId>
+    <Anchor>
+      <Type>Locator</Type>
+      <LocatorId>Section 4</LocatorId>
+    </Anchor>
+    <LinkRootLocatorId>Section 4 Root</LinkRootLocatorId>
+ 
+    <Requirements>
+      <Modules>
+        <string>Penthouse</string>
+      </Modules>
+    </Requirements>
+
+    <Instructions>
+
+      <!-- Step 1 -->
+      <InstructionData>
+        <Text>Let’s continue our look inside of the battery. Next we will check out the cells, bricks and modules of the battery as well as how voltage builds through the battery and branches out to the various high voltage components of Model 3. Get excited people! This is how the magic of Model 3 HAPPENS!!!</Text>
+      </InstructionData>
+      
+      <!-- Step 2 -->
+      <InstructionData>
+        <Text>With a basic understanding of the battery components, now let’s look at how those components come together to make up the high voltage battery.</Text>
+      </InstructionData>
+
+      <!-- Step 3 -->
+      <InstructionData>
+        <Text>First, let’s look at the battery cells that make up each brick. The battery uses 2170 cells that are made in the Gigafactory. They are larger than the cells found in previous Tesla high voltage batteries. The center of the cell is the positive terminal and the outer edge (or can) is the negative terminal. Just like in Model S and X, cells are linked together in parallel to form a brick.</Text>
+      </InstructionData>
+
+      <!-- Step 4 -->
+      <InstructionData>
+        <Text>Both versions of the battery for Model 3 contain 96 bricks. However, the bricks in the 50kWh battery have 31 cells each, whereas the bricks in the 74kWh battery have 46 cells each. In both batteries, the bricks are tied together in series and are organized into four modules.</Text>
+      </InstructionData>
+
+      <!-- Step 5 -->
+      <InstructionData>
+        <Text>In Model S and X, there are many modules that run widthwise in the enclosure. Model 3 just has four modules, and they run lengthwise. The two, shorter, outer modules contain 23 bricks, and the two, longer, inner modules contain 25 bricks.</Text>
+      </InstructionData>
+
+      <!-- Step 6 -->
+      <InstructionData>
+        <Text>The battery management board (BMB) for each module can be found here. Each BMB has four processors. These Tesla designed processors go by the names of Batman and Robin. Each BMB has two batman processors and two robin processors. Both are responsible for measuring cell voltage and the temperature of the high voltage battery over time, but Batman measures these more frequently and accurately than Robin. Additionally, Batman communicates with the battery management system and Robin communicates with the high voltage processor. Model 3 utilizes daisy chain communication between batman, robin and the high voltage controller. Unlike S and X, this communication chain is bi-directional meaning that if there is a break somewhere in the chain, we can still reach all of the BMBs.</Text>
+      </InstructionData>
+
+      <!-- Step 7 -->
+      <InstructionData>
+        <Text>Moving underneath the modules, wire bonds connect the positive and negative terminals of the battery cells to the collector plates. The positive and negative terminals of the collector plates in Model 3 are found on opposite ends of the module, not side by side like Model S and X.</Text>
+      </InstructionData>
+
+      <!-- Step 8 -->
+      <InstructionData>
+        <Text>Alrighty, are you ready to see exactly how the voltage builds through the high voltage battery?? This has changed pretty significantly from Model S and X. Luckily, engineering was kind and kept things simple. Before we get started, I’d like to remind you that the overall voltage depends on the state of charge in the battery. This example assumes that the battery has a fairly high state of charge. All set? Ok, let’s get to it!</Text>
+      </InstructionData>
+
+      <!-- Step 9 -->
+      <InstructionData>
+        <Text>The journey starts at the most negative point in the battery, the negative terminal of module 1. This terminal connects to the first collector plate of the battery. Here, the voltage is 0 volts since we haven’t traced through any bricks yet. Voltage builds through the first brick, increasing from 0 volts to approximately 4 volts. After tracing through brick 2, voltage increases by another 4 volts, bringing us to roughly 8 volts. Then 12, then 16. This continues on through each brick of module 1.</Text>
+      </InstructionData>
+
+      <!-- Step 10 -->
+      <InstructionData>
+        <Text>Pop Quiz!</Text>
+        <Assessment>
+          <Numeric>
+            <Score>40</Score>
+            <Prompt>Knowing that there are 23 bricks in module 1, how many volts are present at the positive terminal of module 1?</Prompt>
+            <Min>0</Min>
+            <Max>100</Max>
+            <Correct>65</Correct>
+          </Numeric>
+        </Assessment>
+      </InstructionData>
+
+      <!-- Step 11 -->
+      <InstructionData>
+        <Text>How does voltage get from one module to another? It takes a bus…. bar. Get it?</Text>
+      </InstructionData>
+
+      <!-- Step 12 -->
+      <InstructionData>
+        <Text>Voltage travels across a bus bar from the positive terminal of module 1 to the negative terminal of module 2.</Text>
+      </InstructionData>
+
+      <!-- Step 13 -->
+      <InstructionData>
+        <Text>Continuing this pattern, voltage builds through all the bricks of module 2, building from 92 volts at the negative terminal to 192 volts at the positive terminal.</Text>
+      </InstructionData>
+
+      <!-- Step 14 -->
+      <InstructionData>
+        <Text>Notice that in module 1, voltage built to 92 volts. In module 2, another 100 volts was picked up, making the total 192. Why did more voltage build in module 2? Remember, modules 2 and 3 have 25 bricks each, whereas modules 1 and 4 only have 23. The extra voltage comes from the extra bricks.</Text>
+      </InstructionData>
+
+      <!-- Step 15 -->
+      <InstructionData>
+        <Text>Here it travels across bus bars, through the high voltage shunt and pyro disconnect in the penthouse, to the negative terminal of module 3. As it travels through the bricks of module 3, voltage continues to build. 292 volts exit module 3 via the positive terminal and take a bus bar to the negative terminal of module 4. By the time voltage reaches the positive terminal of module 4, the most positive terminal in the battery, it has built to roughly 384 volts.</Text>
+      </InstructionData>
+
+      <!-- Step 16 -->
+      <InstructionData>
+        <Text>This means that if you touch the negative terminal of module 1 and the positive terminal of module 4 at the same time, you could have as much as 384 volts running through your body, YIKES! The good news is that, as you may have noticed, these two terminals are pretty far apart in Model 3; much farther apart than they were in Models S and X. But, like always, follow proper procedures and wear appropriate PPE.</Text>
+      </InstructionData>
+
+      <!-- Step 17 -->
+      <InstructionData>
+        <Text>Once the current travels through the positive power switch at module 4 it splits into two branches.</Text>
+      </InstructionData>
+
+      <!-- Step 18 -->
+      <InstructionData>
+        <Text>The first branch carries the current across three fuses. The first fuse feeds power to the high voltage connector for the power conversion system. The second and third fuses feed power to the connector for the PTC heater and compressor.</Text>
+      </InstructionData>
+
+      <!-- Step 19 -->
+      <InstructionData>
+        <Text>The second branch goes to the high voltage connectors for the fast charge contactors, rear drive unit and front drive unit (if equipped).</Text>
+      </InstructionData>
+
+      <!-- Step 20 -->
+      <InstructionData>
+        <Text>Six cables carry the current from the connectors at the penthouse to the front drive unit, PTC heater, and compressor. The cables run through the small tunnel under the center ski to the front of the vehicle, to connect to their respective components.</Text>
+      </InstructionData>
+
+      <!-- Step 21 -->
+      <InstructionData>
+        <Text>Did you catch that there are two cables for each component? Any guess as to why? One cable is to carry current to the component and the other is to carry current from the component back to the penthouse. In the penthouse, current returns to the negative power switch, then to the negative terminal of module 1, and the journey begins again!</Text>
+      </InstructionData>
+
+    </Instructions>
+  </ModuleData>
+
+</ArrayOfModuleData>

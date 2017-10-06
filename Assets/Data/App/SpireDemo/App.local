@@ -1,0 +1,17 @@
+<AppData>
+	<Id>ed2c03be-7887-4a98-9bff-3f9f11237f85</Id>
+	<Name>SpireDemo</Name>
+	<Scenes>
+		<string>Authentication</string>
+		<string>Certification</string>
+		<string>Explore</string>
+		<string>Home</string>
+		<string>Login</string>
+		<string>Module</string>
+		<string>Modules</string>
+		<string>Options</string>
+		<string>Review</string>
+		<string>Startup</string>
+		<string>Trophy</string>
+	</Scenes>
+</AppData>

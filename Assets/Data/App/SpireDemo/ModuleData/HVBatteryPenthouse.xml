@@ -1,0 +1,231 @@
+﻿<ArrayOfModuleData>
+
+  <!-- 3. Penthouse -->
+  <ModuleData>
+    <Id>Penthouse</Id>
+    <CourseId>HV Battery DISABLED</CourseId>
+    <Anchor>
+      <Type>Locator</Type>
+      <LocatorId>Section 3</LocatorId>
+    </Anchor>
+    <LinkRootLocatorId>Section 3 Root</LinkRootLocatorId>
+    <Requirements>
+      <Modules>
+        <string>Components</string>
+      </Modules>
+    </Requirements>
+    <Instructions>
+
+      <!-- Step 6 -->
+      <InstructionData>
+        <Text>The Model 3 battery has two main compartments, the Platter, and the Penthouse. The platter is the large area of the battery inside of the enclosure that holds the modules and thermal elements of the battery. The enclosure is the bottom shell that connects with the platter cover to complete the protective casing of the battery. The penthouse sits on top of the modules at the rear of the battery. It contains the components responsible for taking in AC and DC power, charging the battery cells, disbursing 12V and high voltage power to the rest of the vehicle, and communicating via CAN to electronic control units. With so many functions, you might assume that the penthouse contains many components. And you would be correct! We will go into greater depth on the penthouse and its components later in this course. The platter cover acts as a sort of lid for the battery. The penthouse is permanently attached to the platter cover and can be accessed through an opening in the platter cover after removing the penthouse cover. The battery enclosure is the bottom shell that connects with the platter cover to complete the protective casing of the battery.</Text>
+        <Content>
+          <string>HVBatteryComponentsStep6</string>
+        </Content>
+      </InstructionData>
+
+      <!-- Step 7 -->
+      <InstructionData>
+        <Text>The penthouse sits on top of the modules at the rear of the battery. It contains the components responsible for taking in AC and DC power, charging the battery cells, disbursing 12V and high voltage power to the rest of the vehicle, and communicating via CAN to electronic control units. With so many functions, you might assume that the penthouse contains many components. And you would be correct! We will go into greater depth on the penthouse and its components later in this course. The main high voltage battery cover completes the protective shell around the battery. The penthouse can be accessed through an opening in the platter cover after removing the penthouse cover.</Text>
+        <Content>
+          <string>HVBatteryComponentsStep7</string>
+        </Content>
+      </InstructionData>
+
+      <!-- Step 8 -->
+      <InstructionData>
+        <Text>For further protection 5 skis run lengthwise along the underside of the battery. The four side skis are spot welded to the battery enclosure and protect the underbody from damage. The two outer skis also serve as lift points for Model 3. Because the 4 skis on Model 3 do not protect an umbrella valve, like the skis on Model S and X do, you do not have to worry about removing and replacing these skis if they are showing wear. If there is sufficient damage to the skis to compromise the sealing of the battery, the entire high voltage battery needs to be removed so the enclosure can be replaced.</Text>
+      </InstructionData>
+
+      <!-- Step 8 -->
+      <InstructionData>
+        <Text>The center ski protects a tunnel that routes high voltage cables from the rear of the battery to the high voltage components at the front of the vehicle. This is the only ski that can be removed and replaced during service.</Text>
+      </InstructionData>
+
+      <!-- Step 9-->
+      <InstructionData>
+        <Text>High voltage connectors connect the battery to the charge port, rear drive unit, front drive unit (if equipped), the compressor and PTC heater, and a second charge port connector (for markets that use 3-phase charging). These connectors have strong latches that improve reliability and safety, as well as providing super strong sealing to protect from water ingress.</Text>
+      </InstructionData>
+      
+      <!-- Step 7 -->
+      <InstructionData>
+        <Text>Pop Quiz!</Text>
+        <Assessment>
+          <MultipleChoice>
+            <Score>30</Score>
+            <Prompt>Which battery configration is being offered with the Model 3?</Prompt>
+            <Correct>
+              <int>0</int>
+            </Correct>
+            <Options>
+              <ButtonData>
+                <Caption>50 kWh</Caption>
+              </ButtonData>
+              <ButtonData>
+                <Caption>55 kWh</Caption>
+              </ButtonData>
+              <ButtonData>
+                <Caption>70 kWh</Caption>
+              </ButtonData>
+            </Options>
+          </MultipleChoice>
+        </Assessment>
+      </InstructionData>
+      
+      <!-- Step 1 -->
+      <InstructionData>
+        <Text>The penthouse is a brand new component and a huge change that comes with Model 3! It contains many high and low voltage electronic components to control most of the high voltage powertrain system. Let’s go inside and take a look!</Text>
+        <Highlights>
+          <HighlightData>
+            <DisplayName>Penthouse</DisplayName>
+            <ContentId>Model3</ContentId>
+            <LocatorId>Penthouse</LocatorId>
+            <AssetId>PartPlaceholder</AssetId>
+            <Delay>2</Delay>
+          </HighlightData>
+        </Highlights>
+      </InstructionData>
+
+      <!-- Step 2 -->
+      <InstructionData>
+        <Text>The power conversion system (PCS) combines the DCDC and charger. It converts AC to DC when charging using a fused DC link with a 63-amp fuse. The PCS also converts DC to DC to support the 12 volt system and supports pre-charge of the high voltage bus prior to closing power switches. The PCS differs slightly depending on the battery configuration. The PCS for the 75kWh battery converts up to 48 amps or 16 amps per phase. The PCS for the 50 kWh in single phase markets can handle up to 32 amps. Note that the 50kWh battery in 3 phase markets will be equipped with a 48 amp PCS. One thing both power conversion systems have in common is that they can convert up to 2.5 kW of power for 12 volt output.</Text>
+        <Highlights>
+          <HighlightData>
+            <DisplayName>PCS - Power Conversion System</DisplayName>
+            <ContentId>Model3</ContentId>
+            <LocatorId>PCS</LocatorId>
+            <AssetId>PartPlaceholder</AssetId>
+            <Delay>2</Delay>
+          </HighlightData>
+          <HighlightData>
+            <DisplayName>12V output from PCS</DisplayName>
+            <ContentId>Model3</ContentId>
+            <LocatorId>12V_Output</LocatorId>
+            <AssetId>PartPlaceholder</AssetId>
+            <Delay>2</Delay>
+          </HighlightData>
+        </Highlights>
+        <HighlightData>
+          <DisplayName>Positive HV power switch</DisplayName>
+          <ContentId>Model3</ContentId>
+          <LocatorId>Positive_HV_Power_Switch</LocatorId>
+          <AssetId>PartPlaceholder</AssetId>
+          <Delay>2</Delay>
+        </HighlightData>
+      </InstructionData>
+
+      <!-- Step 4 -->
+      <InstructionData>
+        <Text>The high voltage controller processes data and controls high voltage components. It contains a large printed circuit board assembly which is composed of the battery management system and the high voltage processor. The battery management system and high voltage processor have different firmware, responsibilities, inputs, and outputs. To keep it simple, the battery management system handles tasks related to the cells in the battery, and the high voltage controller handles tasks related to everything outside of the cells. The high voltage controller also has built in hardware circuitry that triggers the pyro disconnect independently from the battery management system. Just like the power conversion system, the high voltage controller for the 75kWh battery is different than the one for the 50kWh battery. So, make sure you order the correct one if you need to replace it.</Text>
+        <Highlights>
+          <HighlightData>
+            <DisplayName>HVC - High Voltage Controller</DisplayName>
+            <ContentId>Model3</ContentId>
+            <LocatorId>HVC</LocatorId>
+            <AssetId>PartPlaceholder</AssetId>
+            <Delay>2</Delay>
+          </HighlightData>
+        </Highlights>
+      </InstructionData>
+
+      <!-- Step 7 -->
+      <InstructionData>
+        <Text>The fast charge contactors connect the battery to the charge port when DC charging. In Model X and S refresh these contactors were in the charger. In Legacy Model S vehicles, the fast charge contactors were found in the high voltage junction box. In Model 3 the two fast charge contactors are integrated into a single assembly which is bolted directly onto bus bars within the penthouse.</Text>
+        <Highlights>
+          <HighlightData>
+            <DisplayName>Fast charge contactor assembly</DisplayName>
+            <ContentId>Model3</ContentId>
+            <LocatorId>Fast_Charge_Contactor_Assembly</LocatorId>
+            <AssetId>PartPlaceholder</AssetId>
+            <Delay>2</Delay>
+          </HighlightData>
+          <HighlightData>
+            <DisplayName>Charge port connector</DisplayName>
+            <ContentId>Model3</ContentId>
+            <LocatorId>Charge_Port_Connector</LocatorId>
+            <AssetId>PartPlaceholder</AssetId>
+            <Delay>2</Delay>
+          </HighlightData>
+        </Highlights>
+      </InstructionData>
+
+      <!-- Step 8 -->
+      <InstructionData>
+        <Text>The pyro disconnect is bolted directly onto the bus bar between modules 2 and 3. It shares a bolt with the high voltage shunt, which measures current. The shunt is also bolted directly onto a bus bar.</Text>
+      </InstructionData>
+
+      <!-- Step 9 -->
+      <InstructionData>
+        <Text>Power switches bolted onto bus bars in the penthouse enable energy to flow from modules, to the bus bars, high voltage connectors and powertrain. Although these switches handle the same task as contactors in Model S and X, their design is fundamentally different; which is why we gave them a new name! The new design allows for greater heat dissipation than before, so the temperature in Model 3 doesn’t increase as much under load as it does in Model S and X. The new design also means that power switches do NOT open under load. Instead, if a high current fault occurs, the system triggers the pyro disconnect to de-energize the high voltage bus by breaking the high voltage loop. Then, the system opens the high voltage power switches.</Text>
+      </InstructionData>
+
+      <!-- Step 10 -->
+      <InstructionData>
+        <Text>The charge connector connects the power conversion system output to the charge port via bus bars.</Text>
+      </InstructionData>
+
+      <!-- Step 11 -->
+      <InstructionData>
+        <Text>High voltage connectors allow current to travel to and from the high voltage battery and the rear drive unit, front drive unit (if equipped) and ancillary system.</Text>
+        <Highlights>
+          <HighlightData>
+            <DisplayName>HV connector to cabin heater and compressor</DisplayName>
+            <ContentId>Model3</ContentId>
+            <LocatorId>HV_Connector_To_Cabin_Heater</LocatorId>
+            <AssetId>PartPlaceholder</AssetId>
+            <Delay>2</Delay>
+          </HighlightData>
+        </Highlights>
+      </InstructionData>
+
+      <!-- Step 12 -->
+      <InstructionData>
+        <Text>There are three 63 amp fuses within the penthouse. One for the cabin heater, one for the power conversion system DCDC input and output, and a third for the compressor.</Text>
+        <Highlights>
+          <HighlightData>
+            <DisplayName>Cabin heater, compressor and PCS DC output fuse (on positive  DC Link)</DisplayName>
+            <ContentId>Model3</ContentId>
+            <LocatorId>Cabin_Heater</LocatorId>
+            <AssetId>PartPlaceholder</AssetId>
+            <Delay>2</Delay>
+          </HighlightData>
+          <HighlightData>
+            <DisplayName>Compressor</DisplayName>
+            <ContentId>Model3</ContentId>
+            <LocatorId>Compressor</LocatorId>
+            <AssetId>PartPlaceholder</AssetId>
+            <Delay>2</Delay>
+          </HighlightData>
+          <HighlightData>
+            <DisplayName>PCS DC output fuse (on positive  DC Link)</DisplayName>
+            <ContentId>Model3</ContentId>
+            <LocatorId>PCS_DC_Output_Fuse</LocatorId>
+            <AssetId>PartPlaceholder</AssetId>
+            <Delay>2</Delay>
+          </HighlightData>
+        </Highlights>
+      </InstructionData>
+
+      <!-- Step 13 -->
+      <InstructionData>
+        <Text>In the event of a coolant leak, two flood switches (one on each side of the rear of the battery) open to allow the liquid to drain. Want to hear something interesting?? This is the same technology that is used in airplane life jackets- as soon as the switch senses liquid it opens automatically. In life jackets this allows it to inflate instantly in water, for Model 3 this means instantaneous drainage to prevent the penthouse from flooding.</Text>
+        <Highlights>
+          <HighlightData>
+            <DisplayName>Coolant line to PCS</DisplayName>
+            <ContentId>Model3</ContentId>
+            <LocatorId>PCS_Coolant_Line</LocatorId>
+            <AssetId>PartPlaceholder</AssetId>
+            <Delay>2</Delay>
+          </HighlightData>
+        </Highlights>
+      </InstructionData>
+
+      <!-- Step 15 -->
+      <InstructionData>
+        <Text>That wraps up the components inside of the penthouse, but before we move on I want to show you a snazzy addition to the penthouse cover, the cover probes! Now accessing the DC link plus and minus is incredibly simple. Just remove the cover and insert the probes into their respective guides to determine if the power switches are open prior to diagnosis or repair of the high voltage system. The penthouse probe cover lid also includes a breather valve to allow for pressure equalization within the battery. How thoughtful!</Text>
+      </InstructionData>
+
+    </Instructions>
+  </ModuleData>
+
+</ArrayOfModuleData>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Trophy -->
+<SceneData>
+   <Id>Trophy</Id>
+   <Content>
+      <string>Floor</string>
+      <!--<string>TrophyController</string>-->
+   </Content>
+</SceneData>

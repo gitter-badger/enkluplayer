@@ -3,6 +3,7 @@
 [Oo]bj/
 [Bb]uild/
 [Bb]uild_*/
+[Bb]uild.Jint.*/
 .Packages/
 
 # Visual Studio 2015 cache directory

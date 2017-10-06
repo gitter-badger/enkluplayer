@@ -10,24 +10,24 @@ namespace CreateAR.SpirePlayer.Test
         private DummyAssetUpdateService _service;
         private AssetManager _assets;
 
-        private readonly AssetInfo[] _infos = new[]
+        private readonly AssetData[] _infos = new[]
         {
-            new AssetInfo
+            new AssetData
             {
                 Guid = "a",
                 Tags = new[] { "a", "b", "c" }
             },
-            new AssetInfo
+            new AssetData
             {
                 Guid = "b",
                 Tags = new[]{ "a", "b" }
             },
-            new AssetInfo
+            new AssetData
             {
                 Guid = "c",
                 Tags = new[]{ "c" }
             },
-            new AssetInfo
+            new AssetData
             {
                 Guid = "d",
                 Tags = new[]{ "d" }
@@ -54,7 +54,7 @@ namespace CreateAR.SpirePlayer.Test
         public void ServiceAddUpdate()
         {
             var addedCalled = false;
-            var info = new AssetInfo
+            var info = new AssetData
             {
                 Guid = "This is a test"
             };
@@ -63,7 +63,7 @@ namespace CreateAR.SpirePlayer.Test
             {
                 addedCalled = true;
 
-                Assert.AreSame(info, reference.Info);
+                Assert.AreSame(info, reference.Data);
             };
 
             _service.Added(info);
@@ -71,7 +71,7 @@ namespace CreateAR.SpirePlayer.Test
             Assert.IsTrue(addedCalled);
 
             var updatedCalled = false;
-            info = new AssetInfo
+            info = new AssetData
             {
                 Guid = info.Guid
             };
@@ -79,7 +79,7 @@ namespace CreateAR.SpirePlayer.Test
             {
                 updatedCalled = true;
 
-                Assert.AreSame(info, reference.Info);
+                Assert.AreSame(info, reference.Data);
             };
 
             _service.Updated(info);
@@ -91,21 +91,21 @@ namespace CreateAR.SpirePlayer.Test
         public void ServiceUpdateAssetRef()
         {
             var watchCalled = false;
-            var info = AssetReference_Tests.Info;
-            var infoUpdate = AssetReference_Tests.InfoUpdate;
+            var info = Asset_Tests.Data;
+            var infoUpdate = Asset_Tests.DataUpdate;
 
             _assets.Manifest.Add(info);
 
             var reference = _assets.Manifest.Reference(info.Guid);
 
             Assert.IsNotNull(reference);
-            Assert.AreSame(info, reference.Info);
+            Assert.AreSame(info, reference.Data);
 
-            reference.Watch(_ =>
+            reference.WatchData(_ =>
             {
                 watchCalled = true;
 
-                Assert.AreSame(infoUpdate, reference.Info);
+                Assert.AreSame(infoUpdate, reference.Data);
             });
 
             _service.Updated(infoUpdate);
@@ -117,21 +117,21 @@ namespace CreateAR.SpirePlayer.Test
         public void ServiceUpdateAsset()
         {
             var watchCalled = false;
-            var info = AssetReference_Tests.Info;
-            var infoUpdate = AssetReference_Tests.InfoUpdate;
+            var info = Asset_Tests.Data;
+            var infoUpdate = Asset_Tests.DataUpdate;
 
             _assets.Manifest.Add(info);
 
             var reference = _assets.Manifest.Reference(info.Guid);
 
-            Assert.IsNull(reference.Asset<GameObject>());
+            Assert.IsNull(reference.As<GameObject>());
 
             reference.AutoReload = true;
 
-            var loaded = reference.Asset<GameObject>();
+            var loaded = reference.As<GameObject>();
             Assert.IsNotNull(loaded);
 
-            reference.WatchAsset<GameObject>(asset =>
+            reference.Watch<GameObject>(asset =>
             {
                 watchCalled = true;
 

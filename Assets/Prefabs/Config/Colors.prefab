@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1293020088539512}
+  m_IsPrefabParent: 1
+--- !u!1 &1293020088539512
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4361649499768248}
+  - component: {fileID: 114508356384317732}
+  m_Layer: 0
+  m_Name: Colors
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4361649499768248
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1293020088539512}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114508356384317732
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1293020088539512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1123ffcdebab6ce41a2bf38d0e93f318, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CurrentProfileName: 
+  Profiles:
+  - Name: Default
+    VirtualColors:
+    - VirtualColor: 1
+      Color: {r: 0.34901962, g: 0.8, b: 1, a: 0.6156863}
+    - VirtualColor: 2
+      Color: {r: 1, g: 1, b: 1, a: 1}
+    - VirtualColor: 3
+      Color: {r: 0.49803922, g: 0.49803922, b: 0.49803922, a: 0.5764706}
+    - VirtualColor: 4
+      Color: {r: 0.8784314, g: 0.92941177, b: 1, a: 1}
+    - VirtualColor: 5
+      Color: {r: 0.34901962, g: 0.8, b: 1, a: 1}
+    - VirtualColor: 6
+      Color: {r: 1, g: 0.22745098, b: 0.22745098, a: 1}
+    - VirtualColor: 7
+      Color: {r: 0.30588236, g: 1, b: 0.22745098, a: 1}
+    - VirtualColor: 8
+      Color: {r: 1, g: 0.22745098, b: 0.22745098, a: 1}
+    - VirtualColor: 9
+      Color: {r: 1, g: 0.6901961, b: 0.40784317, a: 1}
+    - VirtualColor: 10
+      Color: {r: 1, g: 0.378, b: 0.69, a: 1}
+    - VirtualColor: 11
+      Color: {r: 1, g: 0.459, b: 0.961, a: 1}
+    - VirtualColor: 12
+      Color: {r: 0.459, g: 0.503, b: 1, a: 1}
+    - VirtualColor: 13
+      Color: {r: 0.32156864, g: 1, b: 0.68235296, a: 1}

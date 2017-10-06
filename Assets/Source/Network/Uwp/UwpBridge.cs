@@ -1,6 +1,4 @@
 ﻿#if NETFX_CORE
-using CreateAR.Spire;
-
 namespace CreateAR.SpirePlayer
 {
     public class UwpBridge : IBridge, IUwpWebsocketService

@@ -2,7 +2,8 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.Spire;
+using Jint.Parser;
+using Jint.Unity;
 using strange.extensions.injector.impl;
 using Object = UnityEngine.Object;
 
@@ -13,6 +14,20 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class SpirePlayerModule : IInjectionModule
     {
+        /// <summary>
+        /// Mode.
+        /// </summary>
+        private readonly PlayMode _mode;
+
+        /// <summary>
+        /// Crates a module.
+        /// </summary>
+        /// <param name="mode">The mode this module should use to advise bindings.</param>
+        public SpirePlayerModule(PlayMode mode)
+        {
+            _mode = mode;
+        }
+
         /// <inheritdoc cref="IInjectionModule"/>
         public void Load(InjectionBinder binder)
         {
@@ -24,17 +39,23 @@ namespace CreateAR.SpirePlayer
 
             // application
             {
+                if (_mode == PlayMode.Release)
+                {
+                    binder.Bind<IBridge>().To<ReleaseBridge>().ToSingleton();
+                }
+                else
+                {
 #if UNITY_EDITOR
-                binder.Bind<IBridge>().To<EditorBridge>().ToSingleton();
+                    binder.Bind<IBridge>().To<EditorBridge>().ToSingleton();
 #elif UNITY_WEBGL
-                binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
+                    binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
 #elif NETFX_CORE
-                binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
-#endif
+                    binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
+#endif   
+                }
 
                 binder.Bind<IApplicationHost>().To<ApplicationHost>().ToSingleton();
                 binder.Bind<IApplicationState>().To<ApplicationState>().ToSingleton();
-
                 binder.Bind<Application>().To<Application>().ToSingleton();
 
                 // application states
@@ -42,6 +63,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                     binder.Bind<EditApplicationState>().To<EditApplicationState>();
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
+                    binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                 }
                 
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
@@ -51,8 +73,9 @@ namespace CreateAR.SpirePlayer
                             LookupComponent<MonoBehaviourBootstrapper>()))
                     .ToSingleton();
                 binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
+                binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
 
-                // TODO: These should just be events from the bridge.
+                // TODO: These could just be events from the bridge.
 #if UNITY_EDITOR
                 binder.Bind<IAssetUpdateService>().To<EditorAssetUpdateService>();
 #else
@@ -73,6 +96,62 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<InputConfig>().ToValue(LookupComponent<InputConfig>());
                 binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
                 binder.Bind<WebBridge>().ToValue(LookupComponent<WebBridge>());
+            }
+
+            // spire-specific bindings
+            AddSpireBindings(binder);
+        }
+
+        /// <summary>
+        /// Adds bindings for spire.
+        /// </summary>
+        /// <param name="binder">Object to add bindings to.</param>
+        private void AddSpireBindings(InjectionBinder binder)
+        {
+            binder.Bind<AppController>().To<AppController>();
+            binder.Bind<IAppDataManager>().To<AppDataManager>().ToSingleton();
+            binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
+
+            // factory
+            {
+                binder.Bind<IContentFactory>().To<ContentFactory>();
+                binder.Bind<IAnchorReferenceFrameFactory>().To<AnchorReferenceFrameFactory>();
+            }
+
+            // configs
+            {
+                binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
+                binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfig>());
+                binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfig>());
+            }
+
+            // manager monobehaviours
+            {
+                binder.Bind<ElementManager>().ToValue(LookupComponent<ElementManager>());
+                binder.Bind<IntentionManager>().ToValue(LookupComponent<IntentionManager>());
+                binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
+                binder.Bind<LayerManager>().ToValue(LookupComponent<LayerManager>());
+                binder.Bind<MusicManager>().ToValue(LookupComponent<MusicManager>());
+            }
+
+            // scripting
+            {
+                binder.Bind<JavaScriptParser>().ToValue(new JavaScriptParser(false));
+                binder.Bind<IScriptParser>().To<DefaultScriptParser>().ToSingleton();
+                binder.Bind<IScriptRequireResolver>().ToValue(new SpireScriptRequireResolver(binder));
+                binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
+
+                // scripting interfaces
+                {
+                    binder.Bind<AppDataScriptingInterface>().To<AppDataScriptingInterface>().ToSingleton();
+                    binder.Bind<MessageRouterScriptingInterface>().To<MessageRouterScriptingInterface>().ToSingleton();
+                    binder.Bind<WidgetsScriptingInterface>().To<WidgetsScriptingInterface>().ToSingleton();
+                }
+            }
+
+            // misc
+            {
+                binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
             }
         }
 

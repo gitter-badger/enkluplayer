@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ContentData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Id>AuthenticationController</Id>
+  <AssetId>AuthenticationController</AssetId>
+  <Unique>false</Unique>
+  <CacheDuration>0</CacheDuration>
+  <Pool>false</Pool>
+  <PreserveColor>false</PreserveColor>
+</ContentData>

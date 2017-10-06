@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<SceneData>
+	<Id>main</Id>
+	<Name>main</Name>
+	<Content>
+		<string>Floor</string>
+	</Content>
+	<Scripts>
+		<string>Startup</string>
+		<string>Booting</string>
+		<string>Updating</string>
+		<string>Calibrating</string>
+		<string>Scanning</string>
+		<string>Loading</string>
+		<string>Final</string>
+	</Scripts>
+</SceneData>

@@ -1,0 +1,35 @@
+﻿<ArrayOfTuneVarData>
+  
+  <TuneVarData>
+    <Id>SpeakSlowly</Id>
+    <Value>0.8</Value>
+  </TuneVarData>
+  <TuneVarData>
+    <Id>SpeakNormal</Id>
+    <Value>1.0</Value>
+  </TuneVarData>
+  <TuneVarData>
+    <Id>SpeakQuickly</Id>
+    <Value>1.2</Value>
+  </TuneVarData>
+
+  <TuneVarData>
+    <Id>VoiceFxOff</Id>
+    <Value>0</Value>
+  </TuneVarData>
+  <TuneVarData>
+    <Id>VoiceFxOn</Id>
+    <Value>0.15</Value>
+  </TuneVarData>
+
+  <TuneVarData>
+    <Id>ScanNotificationTimeThreshold</Id>
+    <Value>10.0</Value>
+  </TuneVarData>
+
+  <TuneVarData>
+    <Id>ScanNotificationAreaThreshold</Id>
+    <Value>5.0</Value>
+  </TuneVarData>
+
+</ArrayOfTuneVarData>

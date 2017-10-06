@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<ContentData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Id>Floor</Id>
+  <AssetId>Floor</AssetId>
+  <Anchor>
+    <Type>Floor</Type>
+    <WorldOffset>
+      <x>0</x>
+      <y>0</y>
+      <z>0</z>
+    </WorldOffset>
+    <ViewOffset>
+      <x>0</x>
+      <y>0</y>
+      <z>2.5</z>
+    </ViewOffset>
+    <Offset>
+      <x>0</x>
+      <y>0</y>
+      <z>0</z>
+    </Offset>
+    <Rotation>Orient</Rotation>
+    <Scale>Preserve</Scale>
+    <Spatial>true</Spatial>
+    <Reference>true</Reference>
+  </Anchor>
+  <Unique>false</Unique>
+  <CacheDuration>3000</CacheDuration>
+  <Pool>false</Pool>
+  <PreserveColor>false</PreserveColor>
+</ContentData>

@@ -1,6 +1,4 @@
-using System;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Spire;
 using strange.extensions.injector.impl;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -8,11 +6,20 @@ using Object = UnityEngine.Object;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
+    /// Potential modes.
+    /// </summary>
+    public enum PlayMode
+    {
+        Player,
+        Release
+    }
+
+    /// <summary>
     /// Entry point of the application.
     /// </summary>
 	public class Main : MonoBehaviour
 	{
-        /// <summary>
+	    /// <summary>
         /// IoC container.
         /// </summary>
         private static readonly InjectionBinder _binder = new InjectionBinder();
@@ -21,7 +28,12 @@ namespace CreateAR.SpirePlayer
 	    /// The application to run.
 	    /// </summary>
 	    private Application _app;
-        
+
+        /// <summary>
+        /// 
+        /// </summary>
+	    public PlayMode Mode;
+
         /// <summary>
         /// Injects bindings into an object.
         /// </summary>
@@ -41,13 +53,15 @@ namespace CreateAR.SpirePlayer
 	            Level = false,
 	            Timestamp = false
 	        }));
-	        Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
+	        
 	        Log.Filter = LogLevel.Debug;
-
+            
 #if NETFX_CORE
             Log.AddLogTarget(new UwpSocketLogger(
                 "Spire",
-                new Uri("ws://127.0.0.1:9999")));
+                new System.Uri("ws://127.0.0.1:9999")));
+#else       
+            Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
 #endif
 
             // setup debug renderer
@@ -62,7 +76,7 @@ namespace CreateAR.SpirePlayer
 	        }
 
             // load bindings
-            _binder.Load(new SpirePlayerModule());
+            _binder.Load(new SpirePlayerModule(Mode));
 
             // create application!
             _app = _binder.GetInstance<Application>();
@@ -111,7 +125,7 @@ namespace CreateAR.SpirePlayer
 #if NETFX_CORE
 	        foreach (var target in Log.Targets)
 	        {
-	            var disposable = target as IDisposable;
+	            var disposable = target as System.IDisposable;
 	            if (null != disposable)
 	            {
 	                disposable.Dispose();

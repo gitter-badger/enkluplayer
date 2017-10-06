@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.Spire;
+using CreateAR.SpirePlayer;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -25,19 +25,17 @@ namespace CreateAR.SpirePlayer
             /// <summary>
             /// Name of the method.
             /// </summary>
+#pragma warning disable 414
+            // ReSharper disable once InconsistentNaming
             public string methodName;
+#pragma warning restore 414
         }
 
         /// <summary>
         /// Serializes.
         /// </summary>
         private readonly JsonSerializer _serializer = new JsonSerializer();
-
-        /// <summary>
-        /// Bootstraps coroutines.
-        /// </summary>
-        private readonly IBootstrapper _bootstrapper;
-
+        
         /// <summary>
         /// Handles messages.
         /// </summary>
@@ -73,10 +71,9 @@ namespace CreateAR.SpirePlayer
             BridgeMessageHandler handler)
         {
             _handler = handler;
-            _bootstrapper = bootstrapper;
-
+            
             // start watcher "thread"
-            _bootstrapper.BootstrapCoroutine(ConsumeMessages());
+            bootstrapper.BootstrapCoroutine(ConsumeMessages());
 
             // listen for connections
             _server = new WebSocketServer("ws://localhost:4649");

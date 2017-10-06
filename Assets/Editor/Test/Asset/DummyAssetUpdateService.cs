@@ -6,16 +6,21 @@ namespace CreateAR.SpirePlayer.Test
 {
     public class DummyAssetUpdateService : IAssetUpdateService
     {
-        public event Action<AssetInfo[]> OnAdded;
-        public event Action<AssetInfo[]> OnUpdated;
-        public event Action<AssetInfo[]> OnRemoved;
+        public event Action<AssetData[]> OnAdded;
+        public event Action<AssetData[]> OnUpdated;
+        public event Action<AssetData[]> OnRemoved;
 
         public IAsyncToken<Void> Initialize()
         {
             return new AsyncToken<Void>(Void.Instance);
         }
 
-        public void Added(params AssetInfo[] assets)
+        public IAsyncToken<Void> Uninitialize()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Added(params AssetData[] assets)
         {
             if (null != OnAdded)
             {
@@ -23,7 +28,7 @@ namespace CreateAR.SpirePlayer.Test
             }
         }
 
-        public void Updated(params AssetInfo[] assets)
+        public void Updated(params AssetData[] assets)
         {
             if (null != OnUpdated)
             {
@@ -31,7 +36,7 @@ namespace CreateAR.SpirePlayer.Test
             }
         }
 
-        public void Removed(params AssetInfo[] assets)
+        public void Removed(params AssetData[] assets)
         {
             if (null != OnRemoved)
             {

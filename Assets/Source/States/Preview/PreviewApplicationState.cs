@@ -2,6 +2,7 @@
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
@@ -11,6 +12,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class PreviewApplicationState : IState
     {
+        /// <summary>
+        /// Name of the scene to load.
+        /// </summary>
+        private const string SCENE_NAME = "PreviewMode";
+
         /// <summary>
         /// Dependencies.
         /// </summary>
@@ -50,68 +56,67 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Enter()
         {
-            try { 
-                // input
-                _input.ChangeState(InputState);
+            // load scene
+            UnityEngine.SceneManagement.SceneManager.LoadScene(
+                SCENE_NAME,
+                LoadSceneMode.Additive);
 
-                // get guid
-                string guid;
-                if (!_state.Get(
-                    "webgl.preview.asset.id",
-                    out guid))
-                {
-                    Log.Error(this, "Could not find assetId.");
-                    return;
-                }
+            // input
+            _input.ChangeState(InputState);
 
-                // get uri
-                string uri;
-                if (!_state.Get(
-                    "webgl.preview.asset.uri",
-                    out uri))
-                {
-                    Log.Error(this, "Could not find asset uri.");
-                    return;
-                }
-                
-                // add it to manifest
-                // TODO: This should be builtin.
-                _assets.Manifest.Add(new AssetInfo
-                {
-                    Guid = guid,
-                    Uri = uri,
-                    AssetName = "Asset"
-                });
-                
-                // retrieve reference
-                var reference = _assets.Manifest.Reference(guid);
-                if (null == reference)
-                {
-                    Log.Warning(
-                        this,
-                        "Could not find AssetReference with guid " + guid);
-                    return;
-                }
-
-                Log.Info(this, "Loading asset.");
-
-                // load!
-                _load = reference.Load<GameObject>();
-                _load.OnSuccess(instance =>
-                    {
-                        Log.Info(this, "Successfully loaded.");
-
-                        _instance = Object.Instantiate(instance, Vector3.zero, Quaternion.identity);
-                    })
-                    .OnFailure(exception =>
-                    {
-                        Log.Error(this, "Could not load asset : {0}.", exception);
-                    });
-            }
-            catch (Exception exception)
+            // get guid
+            string guid;
+            if (!_state.Get(
+                "webgl.preview.asset.id",
+                out guid))
             {
-                Log.Error(this, "Exception: " + exception);
+                Log.Error(this, "Could not find assetId.");
+                return;
             }
+
+            // get uri
+            string uri;
+            if (!_state.Get(
+                "webgl.preview.asset.uri",
+                out uri))
+            {
+                Log.Error(this, "Could not find asset uri.");
+                return;
+            }
+                
+            // add it to manifest
+            // TODO: This should be builtin.
+            _assets.Manifest.Add(new AssetData
+            {
+                Guid = guid,
+                Uri = uri,
+                AssetName = "Asset"
+            });
+                
+            // retrieve reference
+            var reference = _assets.Manifest.Reference(guid);
+            if (null == reference)
+            {
+                Log.Warning(
+                    this,
+                    "Could not find AssetReference with guid " + guid);
+                return;
+            }
+
+            Log.Info(this, "Loading asset.");
+
+            // load!
+            _load = reference.Load<GameObject>();
+            _load.OnSuccess(instance =>
+                {
+                    Log.Info(this, "Successfully loaded.");
+
+                    _instance = Object.Instantiate(instance, Vector3.zero, Quaternion.identity);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not load asset : {0}.", exception);
+                });
         }
 
         /// <inheritdoc cref="IState"/>
@@ -133,6 +138,10 @@ namespace CreateAR.SpirePlayer
                 Object.Destroy(_instance);
                 _instance = null;
             }
+
+            // unload scene
+            UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
+                UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
         }
     }
 }
