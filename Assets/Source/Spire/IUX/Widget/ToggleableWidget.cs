@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer
                     var highlightWidget = Elements.Highlighted;
                     if (highlightWidget != null)
                     {
-                        if (this == highlightWidget)
+                        if (this == (ToggleableWidget) highlightWidget)
                         {
                             if (IsDescendant(highlightWidget.Transform, transform)
                                 || IsDescendant(transform, highlightWidget.Transform))

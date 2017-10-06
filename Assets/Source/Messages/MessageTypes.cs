@@ -35,6 +35,9 @@
         // Edit State
         ///////////////////////////////////////////////////////////////////////
         public const int EDIT = 2000;
+        public const int ASSET_ADDED = 2010;
+        public const int ASSET_UPDATED = 2011;
+        public const int ASSET_REMOVED = 2012;
 
         /// ///////////////////////////////////////////////////////////////////////
         // Play State

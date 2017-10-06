@@ -237,6 +237,7 @@
     <Compile Include="Assets\Source\Spire\Scripting\Interop\AppDataScriptingInterface.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\Interop\JsInterface.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\Interop\MessageRouterScriptingInterface.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\Interop\WidgetsScriptingInterface.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\IScriptManager.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\IScriptParser.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\JsLogWrapper.cs" />

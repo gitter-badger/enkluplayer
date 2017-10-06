@@ -47,7 +47,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Lazily constructed Regex object for filtering.
         /// </summary>
-        private Regex _filterRegex;
+        public Regex FilterRegex { get; private set; }
 
         /// <summary>
         /// Gets/sets the category filter.
@@ -65,7 +65,7 @@ namespace CreateAR.SpirePlayer
                 }
 
                 _filter = value;
-                _filterRegex = new Regex(_filter);
+                FilterRegex = new Regex(_filter);
             }
         }
 
@@ -107,14 +107,13 @@ namespace CreateAR.SpirePlayer
         {
 #if !DEBUG_RENDERING
             return null;
-#endif
-
+#else
             if (!Enabled)
             {
                 return null;
             }
 
-            if (_filterRegex.IsMatch(category))
+            if (FilterRegex.IsMatch(category))
             {
                 var renderer = new FilteredRendererHandle();
                 _renderers.Add(renderer);
@@ -123,6 +122,7 @@ namespace CreateAR.SpirePlayer
             }
 
             return null;
+#endif
         }
 
         /// <summary>
@@ -134,14 +134,13 @@ namespace CreateAR.SpirePlayer
         {
 #if !DEBUG_RENDERING
             return null;
-#endif
-
+#else
             if (!Enabled)
             {
                 return null;
             }
 
-            if (_filterRegex.IsMatch(category))
+            if (FilterRegex.IsMatch(category))
             {
                 var renderer = new FilteredRendererHandle2D();
                 _renderers2D.Add(renderer);
@@ -150,6 +149,7 @@ namespace CreateAR.SpirePlayer
             }
 
             return null;
+#endif
         }
 
         /// <summary>

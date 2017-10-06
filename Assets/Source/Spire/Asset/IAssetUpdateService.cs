@@ -30,5 +30,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <returns></returns>
         IAsyncToken<Void> Initialize();
+
+        /// <summary>
+        /// Uninitializes the service.
+        /// </summary>
+        /// <returns></returns>
+        IAsyncToken<Void> Uninitialize();
     }
 }

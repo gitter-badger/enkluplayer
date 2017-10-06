@@ -145,6 +145,7 @@ namespace CreateAR.SpirePlayer
                 {
                     binder.Bind<AppDataScriptingInterface>().To<AppDataScriptingInterface>().ToSingleton();
                     binder.Bind<MessageRouterScriptingInterface>().To<MessageRouterScriptingInterface>().ToSingleton();
+                    binder.Bind<WidgetsScriptingInterface>().To<WidgetsScriptingInterface>().ToSingleton();
                 }
             }
 

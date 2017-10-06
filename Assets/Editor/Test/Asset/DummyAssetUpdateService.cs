@@ -15,6 +15,11 @@ namespace CreateAR.SpirePlayer.Test
             return new AsyncToken<Void>(Void.Instance);
         }
 
+        public IAsyncToken<Void> Uninitialize()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Added(params AssetData[] assets)
         {
             if (null != OnAdded)

@@ -912,9 +912,7 @@ namespace Jint.Parser
         {
             var str = new StringBuilder();
             bool octal = false;
-            var startLineStart = _lineStart;
-            var startLineNumber = _lineNumber;
-
+            
             char quote = _source.CharCodeAt(_index);
 
             int start = _index;

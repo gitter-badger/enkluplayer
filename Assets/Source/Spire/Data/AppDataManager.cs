@@ -118,6 +118,11 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IAppDataManager"/>
         public IAsyncToken<Void> Unload()
         {
+            if (null != OnUnloaded)
+            {
+                OnUnloaded();
+            }
+
             return new AsyncToken<Void>(new NotImplementedException());
         }
 
