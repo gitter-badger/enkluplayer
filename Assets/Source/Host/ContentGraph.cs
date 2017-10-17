@@ -3,26 +3,71 @@ using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// A composite data structure with content as each node.
+    /// </summary>
     public class ContentGraph
     {
+        /// <summary>
+        /// Graph node within the graph.
+        /// </summary>
         public class ContentGraphNode
         {
+            /// <summary>
+            /// Id unique to the graph.
+            /// </summary>
             public string Id { get; private set; }
+
+            /// <summary>
+            /// Id of the content to reference.
+            /// </summary>
             public string ContentId { get; private set; }
+
+            /// <summary>
+            /// Child nodes.
+            /// </summary>
             public List<ContentGraphNode> Children { get; private set; }
 
+            /// <summary>
+            /// Called when this node has been updated.
+            /// </summary>
             public event Action<ContentGraphNode> OnUpdated;
+
+            /// <summary>
+            /// Called when this node has been removed from the graph.
+            /// </summary>
             public event Action<ContentGraphNode> OnRemoved;
 
+            /// <summary>
+            /// Called when a child, at any depth, has been removed from the graph.
+            /// </summary>
             public event Action<ContentGraphNode, ContentGraphNode> OnChildRemoved;
+
+            /// <summary>
+            /// Called when a child, at any depth, has been added to the graph.
+            /// </summary>
             public event Action<ContentGraphNode, ContentGraphNode> OnChildAdded;
+
+            /// <summary>
+            /// Called when a child, at any depth, has been updated.
+            /// </summary>
             public event Action<ContentGraphNode, ContentGraphNode> OnChildUpdated;
 
+            /// <summary>
+            /// Finds a node by unique id.
+            /// </summary>
+            /// <param name="id">The id of the node in question.</param>
+            /// <returns></returns>
             public ContentGraphNode FindOne(string id)
             {
                 return FindOne(id, this);
             }
 
+            /// <summary>
+            /// Same as FindOne, but only searches immediate children.
+            /// </summary>
+            /// <param name="id">The unique id of the node.</param>
+            /// <returns></returns>
             public ContentGraphNode Child(string id)
             {
                 for (int i = 0, len = Children.Count; i < len; i++)
@@ -37,6 +82,9 @@ namespace CreateAR.SpirePlayer
                 return null;
             }
 
+            /// <summary>
+            /// Calls the OnUpdated event.
+            /// </summary>
             internal void Updated()
             {
                 if (null != OnUpdated)
@@ -45,6 +93,12 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
+            /// <summary>
+            /// Creates a new node.
+            /// </summary>
+            /// <param name="id">Unique id of this node.</param>
+            /// <param name="contentId">Unique id of the Content to reference.</param>
+            /// <param name="children">All child nodes.</param>
             internal ContentGraphNode(
                 string id,
                 string contentId,
@@ -60,6 +114,10 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
+            /// <summary>
+            /// Adds a child node.
+            /// </summary>
+            /// <param name="node">The node to add.</param>
             internal void AddChild(ContentGraphNode node)
             {
                 AddPropagationHandlers(node);
@@ -73,6 +131,10 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
+            /// <summary>
+            /// Removes a child node.
+            /// </summary>
+            /// <param name="node">Thenode to remove.</param>
             internal void RemoveChild(ContentGraphNode node)
             {
                 Children.Remove(node);
@@ -84,6 +146,10 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
+            /// <summary>
+            /// Adds handlers to proagate events up the graph.
+            /// </summary>
+            /// <param name="node">The node that has been added.</param>
             private void AddPropagationHandlers(ContentGraphNode node)
             {
                 node.OnChildAdded += (_, child) =>
@@ -127,6 +193,12 @@ namespace CreateAR.SpirePlayer
                 };
             }
 
+            /// <summary>
+            /// Recursive search method.
+            /// </summary>
+            /// <param name="id">Unique id of the node.</param>
+            /// <param name="node">The node to start the search from.</param>
+            /// <returns></returns>
             private ContentGraphNode FindOne(string id, ContentGraphNode node)
             {
                 if (id == node.Id)
@@ -148,10 +220,21 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// The root node.
+        /// </summary>
         public ContentGraphNode Root { get; private set; }
 
+        /// <summary>
+        /// Called when the root has been replaced.
+        /// </summary>
         public event Action<ContentGraphNode> OnLoaded;
 
+        /// <summary>
+        /// Loads a root into the graph. This completely replaces the current
+        /// nodes, without event propagation.
+        /// </summary>
+        /// <param name="data">The data for the root node.</param>
         public void Load(HierarchyNodeData data)
         {
             if (null == data)
@@ -167,16 +250,29 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Clears the root node without firing any events.
+        /// </summary>
         public void Clear()
         {
             Root = null;
         }
 
+        /// <summary>
+        /// Retrieves a node by unique id.
+        /// </summary>
+        /// <param name="id">Unique id of the node.</param>
+        /// <returns></returns>
         public ContentGraphNode FindOne(string id)
         {
             return FindOne(id, Root);
         }
 
+        /// <summary>
+        /// Updates a portion of the graph.
+        /// </summary>
+        /// <param name="data">The data to update.</param>
+        /// <returns></returns>
         public bool Update(HierarchyNodeData data)
         {
             var node = FindOne(data.Id);
@@ -190,6 +286,11 @@ namespace CreateAR.SpirePlayer
             return true;
         }
 
+        /// <summary>
+        /// Reconciles changes in data with a node.
+        /// </summary>
+        /// <param name="data">The authoritative data.</param>
+        /// <param name="node">The node needing updated.</param>
         private void Reconcile(HierarchyNodeData data, ContentGraphNode node)
         {
             // add or update children
@@ -237,6 +338,11 @@ namespace CreateAR.SpirePlayer
             node.Updated();
         }
 
+        /// <summary>
+        /// Creates a node, recusively.
+        /// </summary>
+        /// <param name="data">The data to create a node from.</param>
+        /// <returns></returns>
         private ContentGraphNode Create(HierarchyNodeData data)
         {
             // build out children first
@@ -254,6 +360,12 @@ namespace CreateAR.SpirePlayer
                 childNodes);
         }
 
+        /// <summary>
+        /// Recursive query method using a depth first search.
+        /// </summary>
+        /// <param name="id">Unique id of the node to find.</param>
+        /// <param name="start">Start position.</param>
+        /// <returns></returns>
         private ContentGraphNode FindOne(string id, ContentGraphNode start)
         {
             if (start.Id == id)
