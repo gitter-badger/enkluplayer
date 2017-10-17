@@ -166,7 +166,7 @@ namespace CreateAR.SpirePlayer
 
             // create new server
             _server = new WebSocketServer("ws://localhost:4649");
-            _server.Log.Level = LogLevel.Trace;
+            _server.Log.Level = LogLevel.Warn;
             _server.Log.Output = (data, message) =>
             {
                 Debug.Log(string.Format("WS[{0}] = {1}", message, data));

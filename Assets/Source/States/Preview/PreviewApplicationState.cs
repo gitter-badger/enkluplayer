@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Async;
+﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,10 +16,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private const string SCENE_NAME = "PreviewMode";
 
-        /// <summary>
-        /// Dependencies.
-        /// </summary>
-        private readonly IApplicationState _state;
         private readonly IAssetManager _assets;
         private readonly IInputManager _input;
 
@@ -44,17 +39,15 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public PreviewApplicationState(
-            IApplicationState state,
             IAssetManager assets,
             IInputManager input)
         {
-            _state = state;
             _assets = assets;
             _input = input;
         }
 
         /// <inheritdoc cref="IState"/>
-        public void Enter()
+        public void Enter(object context)
         {
             // load scene
             UnityEngine.SceneManagement.SceneManager.LoadScene(
@@ -64,42 +57,24 @@ namespace CreateAR.SpirePlayer
             // input
             _input.ChangeState(InputState);
 
-            // get guid
-            string guid;
-            if (!_state.Get(
-                "webgl.preview.asset.id",
-                out guid))
-            {
-                Log.Error(this, "Could not find assetId.");
-                return;
-            }
+            var @event = (PreviewEvent) context;
 
-            // get uri
-            string uri;
-            if (!_state.Get(
-                "webgl.preview.asset.uri",
-                out uri))
-            {
-                Log.Error(this, "Could not find asset uri.");
-                return;
-            }
-                
             // add it to manifest
             // TODO: This should be builtin.
             _assets.Manifest.Add(new AssetData
             {
-                Guid = guid,
-                Uri = uri,
+                Guid = @event.id,
+                Uri = @event.uri,
                 AssetName = "Asset"
             });
                 
             // retrieve reference
-            var reference = _assets.Manifest.Reference(guid);
+            var reference = _assets.Manifest.Reference(@event.id);
             if (null == reference)
             {
                 Log.Warning(
                     this,
-                    "Could not find AssetReference with guid " + guid);
+                    "Could not find AssetReference with guid " + @event.id);
                 return;
             }
 

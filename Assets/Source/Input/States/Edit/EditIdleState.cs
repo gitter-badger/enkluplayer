@@ -26,7 +26,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IState"/>
-        public void Enter()
+        public void Enter(object context)
         {
             //
         }

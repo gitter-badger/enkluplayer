@@ -39,7 +39,7 @@
         }
 
         /// <inheritdoc cref="IState"/>
-        public void Enter()
+        public void Enter(object context)
         {
             var idle = new EditIdleState(_input);
             idle.OnTransition += type => _states.Change(type);

@@ -1,4 +1,7 @@
-﻿using UnityEngine.SceneManagement;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
+using UnityEngine.SceneManagement;
 
 namespace CreateAR.SpirePlayer
 {
@@ -18,6 +21,12 @@ namespace CreateAR.SpirePlayer
         private readonly IApplicationState _state;
         private readonly IAssetManager _assets;
         private readonly IInputManager _input;
+        private readonly IMessageRouter _router;
+
+        /// <summary>
+        /// Unsubscribe.
+        /// </summary>
+        private Action _unsub;
         
         /// <summary>
         /// Input state.
@@ -31,15 +40,17 @@ namespace CreateAR.SpirePlayer
         public HierarchyApplicationState(
             IApplicationState state,
             IAssetManager assets,
-            IInputManager input)
+            IInputManager input,
+            IMessageRouter router)
         {
             _state = state;
             _assets = assets;
             _input = input;
+            _router = router;
         }
 
         /// <inheritdoc cref="IState"/>
-        public void Enter()
+        public void Enter(object context)
         {
             // load scene
             UnityEngine.SceneManagement.SceneManager.LoadScene(
@@ -48,7 +59,11 @@ namespace CreateAR.SpirePlayer
 
             // input
             _input.ChangeState(InputState);
-            
+
+            // select!
+            _unsub = _router.Subscribe(
+                MessageTypes.SELECT_CONTENT,
+                Messages_OnSelectContent);
         }
 
         /// <inheritdoc cref="IState"/>
@@ -60,9 +75,20 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Exit()
         {
+            _unsub();
+
             // unload scene
             UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
                 UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
+        }
+
+        /// <summary>
+        /// Called when content has been selected.
+        /// </summary>
+        /// <param name="o">Event.</param>
+        private void Messages_OnSelectContent(object o)
+        {
+            Log.Info(this, "Select content!");
         }
     }
 }

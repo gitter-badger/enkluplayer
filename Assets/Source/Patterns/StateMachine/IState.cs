@@ -8,7 +8,8 @@
         /// <summary>
         /// Called when the state is transitioned to.
         /// </summary>
-        void Enter();
+        /// <param name="context">Optionally passed in to state.</param>
+        void Enter(object context);
 
         /// <summary>
         /// Called every frame.

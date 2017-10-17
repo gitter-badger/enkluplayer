@@ -40,7 +40,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IState"/>
-        public void Enter()
+        public void Enter(object context)
         {
             _resolver.Initialize(
 #if NETFX_CORE

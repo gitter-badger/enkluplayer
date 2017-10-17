@@ -44,7 +44,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the state is entered.
         /// </summary>
-        public void Enter()
+        public void Enter(object context)
         {
             // load scene
             UnityEngine.SceneManagement.SceneManager.LoadScene(SCENE_NAME, LoadSceneMode.Additive);

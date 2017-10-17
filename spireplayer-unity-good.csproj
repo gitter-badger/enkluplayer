@@ -166,6 +166,7 @@
     <Compile Include="Assets\Source\Messages\MessageTypes.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\AuthorizedEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\FatalErrorEvent.cs" />
+    <Compile Include="Assets\Source\Messages\ToApplication\HierarchyEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\PreviewEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToHost\ApplicationReadyEvent.cs" />
     <Compile Include="Assets\Source\Network\IBridge.cs" />

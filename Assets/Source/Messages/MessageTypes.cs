@@ -49,5 +49,6 @@
         // Hierarchy State
         ///////////////////////////////////////////////////////////////////////
         public const int HIERARCHY = 4000;
+        public const int SELECT_CONTENT = 4001;
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -32,29 +31,19 @@ namespace CreateAR.SpirePlayer
             
             messages.Subscribe(
                 MessageTypes.AUTHORIZED,
-                _ =>
+                @event =>
                 {
+                    var message = (AuthorizedEvent) @event;
+
                     Log.Info(this, "Application authorized.");
 
                     // setup http service
-                    string userId;
-                    if (!state.Get("user.profile.id", out userId))
-                    {
-                        throw new Exception("Could not get user id.");
-                    }
-
-                    string token;
-                    if (!state.Get("user.credentials.token", out token))
-                    {
-                        throw new Exception("Could not get token.");
-                    }
-
                     http.UrlBuilder.Replacements.Add(Commons.Unity.DataStructures.Tuple.Create(
                         "userId",
-                        userId));
+                        message.profile.id));
                     http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
                         "Authorization",
-                        string.Format("Bearer {0}", token)));
+                        string.Format("Bearer {0}", message.credentials.token)));
                 });
         }
 
@@ -64,10 +53,10 @@ namespace CreateAR.SpirePlayer
             _bridge.Initialize();
 
             // bind to events from web bridge
-            _bridge.Binder.Add("state", MessageTypes.STATE);
-            _bridge.Binder.Add("authorized", MessageTypes.AUTHORIZED);
-            _bridge.Binder.Add("preview", MessageTypes.PREVIEW);
-            _bridge.Binder.Add("hierarchy", MessageTypes.HIERARCHY);
+            _bridge.Binder.Add<string>(MessageTypes.STATE);
+            _bridge.Binder.Add<AuthorizedEvent>(MessageTypes.AUTHORIZED);
+            _bridge.Binder.Add<PreviewEvent>(MessageTypes.PREVIEW);
+            _bridge.Binder.Add<HierarchyEvent>(MessageTypes.HIERARCHY);
 
             // tell the webpage
             _bridge.BroadcastReady();

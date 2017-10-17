@@ -104,11 +104,11 @@ namespace CreateAR.SpirePlayer
 
             _unsubscribeList.Add(_messages.Subscribe(
                 MessageTypes.PREVIEW,
-                _ =>
+                @event =>
                 {
                     Log.Info(this, "Preview requested.");
 
-                    _states.Change<PreviewApplicationState>();
+                    _states.Change<PreviewApplicationState>((PreviewEvent) @event);
                 }));
 
             _unsubscribeList.Add(_messages.Subscribe(
@@ -131,11 +131,11 @@ namespace CreateAR.SpirePlayer
 
             _unsubscribeList.Add(_messages.Subscribe(
                 MessageTypes.HIERARCHY,
-                _ =>
+                @event =>
                 {
                     Log.Info(this, "Hierarchy requested.");
 
-                    _states.Change<HierarchyApplicationState>();
+                    _states.Change<HierarchyApplicationState>((HierarchyEvent) @event);
                 }));
         }
 
