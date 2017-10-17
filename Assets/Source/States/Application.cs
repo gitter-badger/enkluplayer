@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
@@ -24,6 +26,11 @@ namespace CreateAR.SpirePlayer
         private readonly FiniteStateMachine _states;
 
         /// <summary>
+        /// List of methods to unsubscribe.
+        /// </summary>
+        private readonly List<Action> _unsubscribeList = new List<Action>();
+
+        /// <summary>
         /// Creates a new Application.
         /// </summary>
         public Application(
@@ -33,7 +40,8 @@ namespace CreateAR.SpirePlayer
             InitializeApplicationState initialize,
             EditApplicationState edit,
             PreviewApplicationState preview,
-            PlayApplicationState play)
+            PlayApplicationState play,
+            HierarchyApplicationState hierarchy)
         {
             _host = host;
             _messages = messages;
@@ -43,7 +51,8 @@ namespace CreateAR.SpirePlayer
                 initialize,
                 edit,
                 preview,
-                play
+                play,
+                hierarchy
             });
         }
 
@@ -58,7 +67,17 @@ namespace CreateAR.SpirePlayer
             // move to the default application state
             _states.Change<InitializeApplicationState>();
         }
-        
+
+        /// <summary>
+        /// Uninitializes the application.
+        /// </summary>
+        public void Uninitialize()
+        {
+            Unsubscribe();
+
+            _host.Stop();
+        }
+
         /// <summary>
         /// Called every frame.
         /// </summary>
@@ -73,41 +92,70 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Subscribe()
         {
-            _messages.SubscribeOnce(
+            _unsubscribeList.Add(_messages.Subscribe(
+                MessageTypes.RESET,
+                _ =>
+                {
+                    Log.Info(this, "Reset requested.");
+
+                    Uninitialize();
+                    Initialize();
+                }));
+
+            _unsubscribeList.Add(_messages.SubscribeOnce(
                 MessageTypes.READY,
                 _ =>
                 {
                     Log.Info(this, "Application ready.");
 
-                    _host.Ready();
-                });
+                    // now that the Application is ready, make ready the host
+                    _host.Start();
+                }));
 
-            _messages.Subscribe(
+            _unsubscribeList.Add(_messages.Subscribe(
                 MessageTypes.PREVIEW,
                 _ =>
                 {
                     Log.Info(this, "Preview requested.");
 
                     _states.Change<PreviewApplicationState>();
-                });
+                }));
 
-            _messages.Subscribe(
+            _unsubscribeList.Add(_messages.Subscribe(
                 MessageTypes.EDIT,
                 _ =>
                 {
                     Log.Info(this, "Edit requested.");
 
                     _states.Change<EditApplicationState>();
-                });
+                }));
 
-            _messages.Subscribe(
+            _unsubscribeList.Add(_messages.Subscribe(
                 MessageTypes.PLAY,
                 _ =>
                 {
                     Log.Info(this, "Play requested.");
 
                     _states.Change<PlayApplicationState>();
-                });
+                }));
+
+            _unsubscribeList.Add(_messages.Subscribe(
+                MessageTypes.HIERARCHY,
+                _ =>
+                {
+                    Log.Info(this, "Hierarchy requested.");
+
+                    _states.Change<HierarchyApplicationState>();
+                }));
+        }
+
+        private void Unsubscribe()
+        {
+            for (int i = 0, len = _unsubscribeList.Count; i < len; i++)
+            {
+                _unsubscribeList[i]();
+            }
+            _unsubscribeList.Clear();
         }
     }
 }

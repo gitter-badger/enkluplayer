@@ -31,6 +31,6 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// The maximum size of the pool.
         /// </summary>
-        public int MaxSize = 2;
+        public int MaxSize = 0;
     }
 }

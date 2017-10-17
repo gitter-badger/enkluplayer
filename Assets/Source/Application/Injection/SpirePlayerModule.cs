@@ -64,6 +64,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<EditApplicationState>().To<EditApplicationState>();
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
+                    binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                 }
                 
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();

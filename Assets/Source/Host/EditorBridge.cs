@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.SpirePlayer;
+using CreateAR.Commons.Unity.Messaging;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -40,16 +40,21 @@ namespace CreateAR.SpirePlayer
         /// Handles messages.
         /// </summary>
         private readonly BridgeMessageHandler _handler;
-        
+
         /// <summary>
-        /// WebSocket server.
+        /// For message passing.
         /// </summary>
-        private readonly WebSocketServer _server;
+        private readonly IMessageRouter _router;
 
         /// <summary>
         /// Token for init.
         /// </summary>
-        private readonly AsyncToken<Void> _initToken = new AsyncToken<Void>();
+        private AsyncToken<Void> _initToken;
+
+        /// <summary>
+        /// WebSocket server.
+        /// </summary>
+        private WebSocketServer _server;
 
         /// <summary>
         /// Messages received but not yet processed.
@@ -65,22 +70,45 @@ namespace CreateAR.SpirePlayer
         /// Creates a new <c>EditorBridge</c>.
         /// </summary>
         /// <param name="bootstrapper">Bootstraps coroutines.</param>
+        /// <param name="router">Routes messages.</param>
         /// <param name="handler">Object to handle messages.</param>
         public EditorBridge(
             IBootstrapper bootstrapper,
+            IMessageRouter router,
             BridgeMessageHandler handler)
         {
             _handler = handler;
-            
-            // start watcher "thread"
-            bootstrapper.BootstrapCoroutine(ConsumeMessages());
+            _router = router;
 
+            // start watcher "thread" -- can persiste between goes
+            bootstrapper.BootstrapCoroutine(ConsumeMessages());
+        }
+
+        /// <inheritdoc cref="IBridge"/>
+        public void Initialize()
+        {
             // listen for connections
+            _initToken = new AsyncToken<Void>();
             _server = new WebSocketServer("ws://localhost:4649");
             _server.AddWebSocketService(
                 "/bridge",
                 () => this);
             _server.Start();
+        }
+
+        /// <inheritdoc cref="IBridge"/>
+        public void Uninitialize()
+        {
+            _initToken.Abort();
+            _initToken = null;
+
+            _server.Stop(CloseStatusCode.Normal, "Application reset requested.");
+            _server = null;
+
+            lock (_messages)
+            {
+                _messages.Clear();
+            }
         }
 
         /// <inheritdoc cref="IBridge"/>
@@ -127,7 +155,12 @@ namespace CreateAR.SpirePlayer
         {
             base.OnClose(@event);
 
+            Sessions.Sweep();
+
             Commons.Unity.Logging.Log.Info(this, "WebSocket client left.");
+
+            // reset entire application
+            _router.Publish(MessageTypes.RESET, Void.Instance);
         }
 
         /// <summary>

@@ -112,6 +112,8 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Successfully loaded.");
 
                     _instance = Object.Instantiate(instance, Vector3.zero, Quaternion.identity);
+
+                    Camera.main.transform.LookAt(_instance.transform);
                 })
                 .OnFailure(exception =>
                 {

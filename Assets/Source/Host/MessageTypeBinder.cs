@@ -14,6 +14,14 @@ namespace CreateAR.SpirePlayer
         private readonly List<Commons.Unity.DataStructures.Tuple<string, int>> _messageMap = new List<Commons.Unity.DataStructures.Tuple<string, int>>();
 
         /// <summary>
+        /// Clears the binder.
+        /// </summary>
+        public void Clear()
+        {
+            _messageMap.Clear();
+        }
+
+        /// <summary>
         /// Retrieves binding by message type.
         /// </summary>
         /// <param name="messageTypeString">Message type to retrieve binding for.</param>

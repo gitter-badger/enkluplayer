@@ -2,8 +2,6 @@ using System;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -57,15 +55,14 @@ namespace CreateAR.SpirePlayer
                     http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
                         "Authorization",
                         string.Format("Bearer {0}", token)));
-
-                    // ready
-                    messages.Publish(MessageTypes.EDIT, Void.Instance);
                 });
         }
 
         /// <inheritdoc cref="IApplicationHost"/>
-        public void Ready()
+        public void Start()
         {
+            _bridge.Initialize();
+
             // bind to events from web bridge
             _bridge.Binder.Add("state", MessageTypes.STATE);
             _bridge.Binder.Add("authorized", MessageTypes.AUTHORIZED);
@@ -73,6 +70,13 @@ namespace CreateAR.SpirePlayer
 
             // tell the webpage
             _bridge.BroadcastReady();
+        }
+
+        /// <inheritdoc cref="IApplicationHost"/>
+        public void Stop()
+        {
+            _bridge.Binder.Clear();
+            _bridge.Uninitialize();
         }
     }
 }
