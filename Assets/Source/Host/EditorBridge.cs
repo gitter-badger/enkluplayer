@@ -2,15 +2,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
-using Logger = WebSocketSharp.Logger;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -19,10 +15,24 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class EditorBridge : IBridge, IDisposable
     {
+        /// <summary>
+        /// Service for connected clients.
+        /// </summary>
         private class BridgeService : WebSocketBehavior
         {
+            /// <summary>
+            /// Called when a client joins.
+            /// </summary>
             public event Action<BridgeService> OnClientJoined;
+
+            /// <summary>
+            /// Called when a client sends a message.
+            /// </summary>
             public event Action<BridgeService, MessageEventArgs> OnMessageReceived;
+
+            /// <summary>
+            /// Called when a client leaves.
+            /// </summary>
             public event Action<BridgeService> OnClientLeft;
 
             /// <summary>
@@ -216,6 +226,10 @@ namespace CreateAR.SpirePlayer
             _joinedServices.Clear();
         }
 
+        /// <summary>
+        /// Called when a client joins a service.
+        /// </summary>
+        /// <param name="service">The service associated with the user.</param>
         private void Service_OnClientJoined(BridgeService service)
         {
             CallMethod("init", service);
@@ -230,6 +244,11 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Called when a message has been received by a service.
+        /// </summary>
+        /// <param name="service">The service associated with the user.</param>
+        /// <param name="event">The message receieved.</param>
         private void Service_OnMessageReceived(BridgeService service, MessageEventArgs @event)
         {
             lock (_messages)
@@ -238,6 +257,10 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Called when a user has left a service.
+        /// </summary>
+        /// <param name="service">The service associated with the user.</param>
         private void Service_OnClientLeft(BridgeService service)
         {
             _joinedServices.Add(service);
