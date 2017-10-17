@@ -180,7 +180,7 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void ReleaseWithTags()
         {
-            var a = _content.Request("A", "Tag1");
+            _content.Request("A", "Tag1");
             var b = _content.Request("B", "Tag1", "Tag2");
             var c = _content.Request("Unique", "Tag1", "Tag2");
 

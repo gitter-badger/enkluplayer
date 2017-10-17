@@ -18,12 +18,10 @@ namespace CreateAR.SpirePlayer
         /// Creates a new WebApplicationHost.
         /// </summary>
         /// <param name="bridge">The WebBridge.</param>
-        /// <param name="state"></param>
         /// <param name="http">Http service.</param>
         /// <param name="messages">The message router.</param>
         public ApplicationHost(
             IBridge bridge,
-            IApplicationState state,
             IHttpService http,
             IMessageRouter messages)
         {
@@ -53,7 +51,8 @@ namespace CreateAR.SpirePlayer
             _bridge.Initialize();
 
             // bind to events from web bridge
-            _bridge.Binder.Add<string>(MessageTypes.STATE);
+            _bridge.Binder.Add<AssetUpdateEvent>(MessageTypes.ASSET_UPDATE);
+            _bridge.Binder.Add<ContentUpdateEvent>(MessageTypes.CONTENT_UPDATE);
             _bridge.Binder.Add<AuthorizedEvent>(MessageTypes.AUTHORIZED);
             _bridge.Binder.Add<PreviewEvent>(MessageTypes.PREVIEW);
             _bridge.Binder.Add<HierarchyEvent>(MessageTypes.HIERARCHY);

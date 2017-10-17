@@ -165,7 +165,9 @@
     <Compile Include="Assets\Source\Main.cs" />
     <Compile Include="Assets\Source\Messages\Internal\LoadProgressEvent.cs" />
     <Compile Include="Assets\Source\Messages\MessageTypes.cs" />
+    <Compile Include="Assets\Source\Messages\ToApplication\AssetUpdateEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\AuthorizedEvent.cs" />
+    <Compile Include="Assets\Source\Messages\ToApplication\ContentUpdateEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\FatalErrorEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\HierarchyEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\HierarchyNodeData.cs" />

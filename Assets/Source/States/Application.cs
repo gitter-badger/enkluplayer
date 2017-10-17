@@ -137,6 +137,24 @@ namespace CreateAR.SpirePlayer
 
                     _states.Change<HierarchyApplicationState>((HierarchyEvent) @event);
                 }));
+
+            _unsubscribeList.Add(_messages.Subscribe(
+                MessageTypes.ASSET_UPDATE,
+                @event =>
+                {
+                    Log.Info(this, "Assets updated.");
+
+                    var message = (AssetUpdateEvent) @event;
+                }));
+
+            _unsubscribeList.Add(_messages.Subscribe(
+                MessageTypes.CONTENT_UPDATE,
+                @event =>
+                {
+                    Log.Info(this, "Content updated.");
+
+                    var message = (ContentUpdateEvent)@event;
+                }));
         }
 
         private void Unsubscribe()

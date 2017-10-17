@@ -20,6 +20,8 @@
         ///////////////////////////////////////////////////////////////////////
         public const int READY = 1;
         public const int AUTHORIZED = 2;
+        public const int ASSET_UPDATE = 10;
+        public const int CONTENT_UPDATE = 20;
 
         ///////////////////////////////////////////////////////////////////////
         // Global

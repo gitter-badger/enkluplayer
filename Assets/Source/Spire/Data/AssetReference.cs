@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace CreateAR.SpirePlayer
 {
@@ -11,11 +12,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Unique id of the AssetData.
         /// </summary>
+        [JsonProperty("id")]
         public string AssetDataId;
-        
+
         /// <summary>
         /// Describes how this asset should be pooled.
         /// </summary>
+        [JsonProperty("pooling")]
         public PoolData Pooling;
 
         /// <summary>

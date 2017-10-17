@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using CreateAR.SpirePlayer;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,7 +8,7 @@ namespace CreateAR.SpirePlayer.Editor
 {
     public class AssetManifestEditor : EditorWindow
     {
-        private readonly List<SpirePlayer.AssetData> _infos = new List<SpirePlayer.AssetData>();
+        private readonly List<AssetData> _infos = new List<AssetData>();
 
         private Vector2 _scrollPosition;
 
@@ -30,7 +29,7 @@ namespace CreateAR.SpirePlayer.Editor
 
                 if (GUILayout.Button("Add"))
                 {
-                    _infos.Add(new SpirePlayer.AssetData());
+                    _infos.Add(new AssetData());
                 }
 
                 _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
@@ -45,7 +44,7 @@ namespace CreateAR.SpirePlayer.Editor
             EditorGUILayout.EndVertical();
         }
 
-        private void DrawAssetInfo(SpirePlayer.AssetData data)
+        private void DrawAssetInfo(AssetData data)
         {
             EditorGUILayout.BeginVertical("box");
             {

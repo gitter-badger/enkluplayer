@@ -1,5 +1,4 @@
 using System;
-using CreateAR.SpirePlayer;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -16,7 +15,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             Guid = "guid",
             Crc = "crc",
-            Tags = new []{"test"},
+            Tags = "test",
             Uri = TEST_PREFAB_PATH,
             Version = 10
         };
@@ -25,7 +24,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             Guid = "guid",
             Crc = "crc",
-            Tags = new[] { "test" },
+            Tags = "test",
             Uri = TEST_PREFAB_UPDATE_PATH,
             Version = 11
         };

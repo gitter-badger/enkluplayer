@@ -22,6 +22,7 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
         private readonly IInputManager _input;
         private readonly IMessageRouter _router;
+        private readonly ContentGraph _graph = new ContentGraph();
 
         /// <summary>
         /// Unsubscribe.
@@ -60,7 +61,10 @@ namespace CreateAR.SpirePlayer
             // input
             _input.ChangeState(InputState);
 
-            // select!
+            // load graph full of goodies
+            _graph.Load(((HierarchyEvent) context).Root);
+
+            // listen for selection
             _unsub = _router.Subscribe(
                 MessageTypes.SELECT_CONTENT,
                 Messages_OnSelectContent);
@@ -75,6 +79,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Exit()
         {
+            _graph.Clear();
+
             _unsub();
 
             // unload scene

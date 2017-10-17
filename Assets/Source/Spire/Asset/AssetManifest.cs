@@ -162,9 +162,10 @@ namespace CreateAR.SpirePlayer
         {
             foreach (var pair in _guidToReference)
             {
+                var tagsArray = pair.Value.Data.Tags.Split(',');
                 if (_resolver.Resolve(
                     query,
-                    ref pair.Value.Data.Tags))
+                    ref tagsArray))
                 {
                     return pair.Value;
                 }
@@ -187,9 +188,10 @@ namespace CreateAR.SpirePlayer
             var references = new List<Asset>();
             foreach (var pair in _guidToReference)
             {
+                var tagsArray = pair.Value.Data.Tags.Split(',');
                 if (_resolver.Resolve(
                     query,
-                    ref pair.Value.Data.Tags))
+                    ref tagsArray))
                 {
                     references.Add(pair.Value);
                 }

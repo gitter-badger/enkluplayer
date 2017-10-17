@@ -6,27 +6,26 @@ namespace CreateAR.SpirePlayer.Test
     [TestFixture]
     public class AssetManifest_Tests
     {
-        private readonly AssetData[] _assets = new[]
-        {
+        private readonly AssetData[] _assets = {
             new AssetData
             {
                 Guid = "a",
-                Tags = new[] { "a", "b", "c" }
+                Tags = "a,b,c"
             },
             new AssetData
             {
                 Guid = "b",
-                Tags = new[]{ "a", "b" }
+                Tags = "a,b"
             },
             new AssetData
             {
                 Guid = "c",
-                Tags = new[]{ "c" }
+                Tags = "c"
             },
             new AssetData
             {
                 Guid = "d",
-                Tags = new[]{ "d" }
+                Tags = "d"
             }
         };
         private AssetManifest _manifest;
