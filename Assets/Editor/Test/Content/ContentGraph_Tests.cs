@@ -150,5 +150,78 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.IsTrue(called);
         }
+
+        [Test]
+        public void WatchNodeChildUpdate()
+        {
+            var called = false;
+            var a = _graph.FindOne("a");
+            a.OnChildUpdated += (node, child) =>
+            {
+                called = true;
+
+                Assert.AreSame(a, node);
+                Assert.AreEqual("b", child.Id);
+            };
+
+            _graph.Update(new HierarchyNodeData
+            {
+                Id = "b",
+                ContentId = "B"
+            });
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void WatchNodeChildRemoved()
+        {
+            var called = 0;
+            var a = _graph.FindOne("a");
+            a.OnChildRemoved += (node, child) =>
+            {
+                called++;
+
+                Assert.AreSame(a, node);
+            };
+
+            _graph.Update(new HierarchyNodeData
+            {
+                Id = "b",
+                ContentId = "B"
+            });
+
+            Assert.AreEqual(2, called);
+        }
+
+        [Test]
+        public void WatchNodeChildAdded()
+        {
+            var called = false;
+            var a = _graph.FindOne("a");
+            a.OnChildAdded += (node, child) =>
+            {
+                called = true;
+
+                Assert.AreSame(a, node);
+                Assert.AreSame("q", child.Id);
+            };
+
+            _graph.Update(new HierarchyNodeData
+            {
+                Id = "c",
+                ContentId = "C",
+                Children = new []
+                {
+                    new HierarchyNodeData
+                    {
+                        Id = "q",
+                        ContentId = "Q"
+                    }
+                }
+            });
+
+            Assert.IsTrue(called);
+        }
     }
 }

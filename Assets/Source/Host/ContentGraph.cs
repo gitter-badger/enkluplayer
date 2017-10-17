@@ -53,18 +53,16 @@ namespace CreateAR.SpirePlayer
                 Id = id;
                 ContentId = contentId;
                 Children = new List<ContentGraphNode>(children);
+
+                for (int i = 0, len = Children.Count; i < len; i++)
+                {
+                    AddPropagationHandlers(Children[i]);
+                }
             }
 
             internal void AddChild(ContentGraphNode node)
             {
-                // propagate
-                node.OnChildAdded += (_, child) =>
-                {
-                    if (null != OnChildAdded)
-                    {
-                        OnChildAdded(this, child);
-                    }
-                };
+                AddPropagationHandlers(node);
 
                 Children.Add(node);
 
@@ -77,7 +75,25 @@ namespace CreateAR.SpirePlayer
 
             internal void RemoveChild(ContentGraphNode node)
             {
-                // propagate
+                Children.Remove(node);
+
+                // call event on node
+                if (null != node.OnRemoved)
+                {
+                    node.OnRemoved(node);
+                }
+            }
+
+            private void AddPropagationHandlers(ContentGraphNode node)
+            {
+                node.OnChildAdded += (_, child) =>
+                {
+                    if (null != OnChildAdded)
+                    {
+                        OnChildAdded(this, child);
+                    }
+                };
+
                 node.OnChildRemoved += (_, child) =>
                 {
                     if (null != OnChildRemoved)
@@ -86,19 +102,29 @@ namespace CreateAR.SpirePlayer
                     }
                 };
 
-                Children.Remove(node);
-
-                // call event on node
-                if (null != node.OnRemoved)
+                node.OnChildUpdated += (_, child) =>
                 {
-                    node.OnRemoved(node);
-                }
+                    if (null != OnChildUpdated)
+                    {
+                        OnChildUpdated(this, child);
+                    }
+                };
 
-                // call event on self
-                if (null != OnChildRemoved)
+                node.OnUpdated += _ =>
                 {
-                    OnChildRemoved(this, node);
-                }
+                    if (null != OnChildUpdated)
+                    {
+                        OnChildUpdated(this, node);
+                    }
+                };
+
+                node.OnRemoved += _ =>
+                {
+                    if (null != OnChildRemoved)
+                    {
+                        OnChildRemoved(this, node);
+                    }
+                };
             }
 
             private ContentGraphNode FindOne(string id, ContentGraphNode node)
