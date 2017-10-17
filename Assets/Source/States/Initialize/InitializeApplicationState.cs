@@ -54,6 +54,7 @@ namespace CreateAR.SpirePlayer
                     Protocol = "http"
                 });
 
+            _assets.Uninitialize();
             _assets
                 .Initialize(new AssetManagerConfiguration
                 {

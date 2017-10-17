@@ -92,16 +92,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Subscribe()
         {
-            _unsubscribeList.Add(_messages.Subscribe(
-                MessageTypes.RESET,
-                _ =>
-                {
-                    Log.Info(this, "Reset requested.");
-
-                    Uninitialize();
-                    Initialize();
-                }));
-
             _unsubscribeList.Add(_messages.SubscribeOnce(
                 MessageTypes.READY,
                 _ =>
