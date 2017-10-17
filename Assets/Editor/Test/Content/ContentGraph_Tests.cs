@@ -109,61 +109,18 @@ namespace CreateAR.SpirePlayer.Test
             
             Assert.IsTrue(called);
         }
-
+        
         [Test]
         public void WatchNodeUpdate()
         {
             var called = false;
             var b = _graph.FindOne("b");
-
-            b.OnUpdate += node =>
+            b.OnUpdated += node =>
             {
                 called = true;
 
                 Assert.AreSame(b, node);
-
-                // make sure the update actually updated
-                Assert.AreEqual(1, node.Children.Count);
-                Assert.AreEqual("bb", node.Children[0].Id);
-                Assert.AreEqual("d", node.Children[0].Children[0].Id);
-            };
-
-            _graph.Update(new HierarchyNodeData
-            {
-                Id = "b",
-                ContentId = "B",
-                Children = new []
-                {
-                    new HierarchyNodeData
-                    {
-                        Id = "bb",
-                        ContentId = "BB",
-                        Children = new []
-                        {
-                            new HierarchyNodeData
-                            {
-                                Id = "d",
-                                ContentId = "D"
-                            }
-                        }
-                    }
-                }
-            });
-
-            Assert.IsTrue(called);
-        }
-
-        [Test]
-        public void WatchNodeRemovedUpdate()
-        {
-            var called = false;
-            var bbb = _graph.FindOne("bbb");
-
-            bbb.OnRemove += node =>
-            {
-                called = true;
-
-                Assert.AreSame(bbb, node);
+                Assert.AreEqual(0, node.Children.Count);
             };
 
             _graph.Update(new HierarchyNodeData
@@ -176,9 +133,22 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         [Test]
-        public void WatchNodePropogate()
+        public void WatchNodeRemoved()
         {
-            throw new NotImplementedException();
+            var called = false;
+            var b = _graph.FindOne("b");
+            b.OnRemoved += node =>
+            {
+                called = true;
+            };
+
+            _graph.Update(new HierarchyNodeData
+            {
+                Id = "a",
+                ContentId = "A"
+            });
+
+            Assert.IsTrue(called);
         }
     }
 }

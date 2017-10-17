@@ -11,8 +11,12 @@ namespace CreateAR.SpirePlayer
             public string ContentId { get; private set; }
             public List<ContentGraphNode> Children { get; private set; }
 
-            public event Action<ContentGraphNode> OnUpdate;
-            public event Action<ContentGraphNode> OnRemove;
+            public event Action<ContentGraphNode> OnUpdated;
+            public event Action<ContentGraphNode> OnRemoved;
+
+            public event Action<ContentGraphNode, ContentGraphNode> OnChildRemoved;
+            public event Action<ContentGraphNode, ContentGraphNode> OnChildAdded;
+            public event Action<ContentGraphNode, ContentGraphNode> OnChildUpdated;
 
             public ContentGraphNode FindOne(string id)
             {
@@ -33,6 +37,14 @@ namespace CreateAR.SpirePlayer
                 return null;
             }
 
+            internal void Updated()
+            {
+                if (null != OnUpdated)
+                {
+                    OnUpdated(this);
+                }
+            }
+
             internal ContentGraphNode(
                 string id,
                 string contentId,
@@ -45,21 +57,47 @@ namespace CreateAR.SpirePlayer
 
             internal void AddChild(ContentGraphNode node)
             {
+                // propagate
+                node.OnChildAdded += (_, child) =>
+                {
+                    if (null != OnChildAdded)
+                    {
+                        OnChildAdded(this, child);
+                    }
+                };
+
                 Children.Add(node);
 
-                if (null != OnUpdate)
+                // call event on self
+                if (null != OnChildAdded)
                 {
-                    OnUpdate(this);
+                    OnChildAdded(this, node);
                 }
             }
 
             internal void RemoveChild(ContentGraphNode node)
             {
+                // propagate
+                node.OnChildRemoved += (_, child) =>
+                {
+                    if (null != OnChildRemoved)
+                    {
+                        OnChildRemoved(this, child);
+                    }
+                };
+
                 Children.Remove(node);
 
-                if (null != OnUpdate)
+                // call event on node
+                if (null != node.OnRemoved)
                 {
-                    OnUpdate(this);
+                    node.OnRemoved(node);
+                }
+
+                // call event on self
+                if (null != OnChildRemoved)
+                {
+                    OnChildRemoved(this, node);
                 }
             }
 
@@ -146,7 +184,7 @@ namespace CreateAR.SpirePlayer
 
             // remove children
             var nodeChildren = node.Children;
-            for (int i = 0, ilen = nodeChildren.Count; i < ilen; i++)
+            for (var i = nodeChildren.Count - 1; i >= 0; i--)
             {
                 var childNode = nodeChildren[i];
 
@@ -168,6 +206,9 @@ namespace CreateAR.SpirePlayer
                     node.RemoveChild(childNode);
                 }
             }
+
+            // fire event on node
+            node.Updated();
         }
 
         private ContentGraphNode Create(HierarchyNodeData data)
