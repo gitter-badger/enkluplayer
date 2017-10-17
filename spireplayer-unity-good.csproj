@@ -145,6 +145,7 @@
     <Compile Include="Assets\Source\Host\ApplicationHost.cs" />
     <Compile Include="Assets\Source\Host\ApplicationState.cs" />
     <Compile Include="Assets\Source\Host\BridgeMessageHandler.cs" />
+    <Compile Include="Assets\Source\Host\ContentGraph.cs" />
     <Compile Include="Assets\Source\Host\EditorBridge.cs" />
     <Compile Include="Assets\Source\Host\IApplicationHost.cs" />
     <Compile Include="Assets\Source\Host\IApplicationState.cs" />
@@ -167,6 +168,7 @@
     <Compile Include="Assets\Source\Messages\ToApplication\AuthorizedEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\FatalErrorEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\HierarchyEvent.cs" />
+    <Compile Include="Assets\Source\Messages\ToApplication\HierarchyNodeData.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\PreviewEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToHost\ApplicationReadyEvent.cs" />
     <Compile Include="Assets\Source\Network\IBridge.cs" />

@@ -57,6 +57,7 @@ namespace CreateAR.SpirePlayer
             _bridge.Binder.Add<AuthorizedEvent>(MessageTypes.AUTHORIZED);
             _bridge.Binder.Add<PreviewEvent>(MessageTypes.PREVIEW);
             _bridge.Binder.Add<HierarchyEvent>(MessageTypes.HIERARCHY);
+            _bridge.Binder.Add<SelectContentEvent>(MessageTypes.SELECT_CONTENT);
 
             // tell the webpage
             _bridge.BroadcastReady();

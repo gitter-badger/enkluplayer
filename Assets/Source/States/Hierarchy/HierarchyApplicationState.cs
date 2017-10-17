@@ -85,10 +85,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when content has been selected.
         /// </summary>
-        /// <param name="o">Event.</param>
-        private void Messages_OnSelectContent(object o)
+        /// <param name="message">Event.</param>
+        private void Messages_OnSelectContent(object message)
         {
-            Log.Info(this, "Select content!");
+            var @event = (SelectContentEvent) message;
+
+            Log.Info(this, "Select content : {0}.", @event.ContentId);
         }
     }
 }
