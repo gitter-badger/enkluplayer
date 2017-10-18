@@ -111,7 +111,6 @@ namespace CreateAR.SpirePlayer
         private void AddSpireBindings(InjectionBinder binder)
         {
             binder.Bind<AppController>().To<AppController>();
-            binder.Bind<IAppDataManager>().To<AppDataManager>().ToSingleton();
             binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
 
             // factory
@@ -154,6 +153,14 @@ namespace CreateAR.SpirePlayer
             // misc
             {
                 binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
+            }
+
+            // dependant on previous bindings
+            {
+                binder.Bind<IAdminAppDataManager>().To<AppDataManager>().ToSingleton();
+
+                var appData = binder.GetInstance<IAdminAppDataManager>();
+                binder.Bind<IAppDataManager>().ToValue(appData);
             }
         }
 

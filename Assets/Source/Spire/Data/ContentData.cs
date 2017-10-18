@@ -26,7 +26,7 @@ namespace CreateAR.SpirePlayer
         /// Tags associated with this piece of content.
         /// </summary>
         [JsonProperty("tags")]
-        public string[] Tags;
+        public string Tags;
 
         /// <summary>
         /// Data about the asset.

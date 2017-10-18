@@ -22,6 +22,11 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        /// Application data.
+        /// </summary>
+        private readonly IAdminAppDataManager _appData;
+
+        /// <summary>
         /// List of methods to unsubscribe.
         /// </summary>
         private readonly List<Action> _unsubscribeList = new List<Action>();
@@ -32,13 +37,16 @@ namespace CreateAR.SpirePlayer
         /// <param name="bridge">The WebBridge.</param>
         /// <param name="http">Http service.</param>
         /// <param name="messages">The message router.</param>
+        /// <param name="appData">Application data.</param>
         public ApplicationHost(
             IBridge bridge,
             IHttpService http,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            IAdminAppDataManager appData)
         {
             _bridge = bridge;
             _messages = messages;
+            _appData = appData;
             
             // TODO: Move to Application.
             _messages.Subscribe(
@@ -127,21 +135,37 @@ namespace CreateAR.SpirePlayer
             Subscribe<ContentListEvent>(MessageTypes.CONTENT_LIST, @event =>
             {
                 Log.Info(this, "Content list updated.");
+
+                _appData.Set(@event.Content);
             });
 
             Subscribe<ContentAddEvent>(MessageTypes.CONTENT_ADD, @event =>
             {
                 Log.Info(this, "Add content.");
+
+                _appData.Add(@event.Content);
             });
 
             Subscribe<ContentRemoveEvent>(MessageTypes.CONTENT_REMOVE, @event =>
             {
                 Log.Info(this, "Remove content.");
+
+                var content = _appData.Get<ContentData>(@event.Id);
+                if (null != content)
+                {
+                    _appData.Remove(content);
+                }
+                else
+                {
+                    Log.Warning(this, "Remove content request was for content of unknown id.");
+                }
             });
 
             Subscribe<ContentUpdateEvent>(MessageTypes.CONTENT_UPDATE, @event =>
             {
                 Log.Info(this, "Update content.");
+
+                _appData.Update(@event.Content);
             });
         }
 

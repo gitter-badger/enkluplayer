@@ -10,7 +10,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Default implementation of <c>IAppDataManager</c>.
     /// </summary>
-    public class AppDataManager : IAppDataManager
+    public class AppDataManager : IAdminAppDataManager
     {
         /// <summary>
         /// For getting/setting files.
@@ -124,6 +124,30 @@ namespace CreateAR.SpirePlayer
             }
 
             return new AsyncToken<Void>(new NotImplementedException());
+        }
+
+        /// <inheritdoc cref="IAdminAppDataManager"/>
+        public void Set<T>(params T[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc cref="IAdminAppDataManager"/>
+        public void Add<T>(params T[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc cref="IAdminAppDataManager"/>
+        public void Remove<T>(params T[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc cref="IAdminAppDataManager"/>
+        public void Update<T>(params T[] data)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
