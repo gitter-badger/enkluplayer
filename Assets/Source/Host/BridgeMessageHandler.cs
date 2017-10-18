@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Text;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -41,6 +42,8 @@ namespace CreateAR.SpirePlayer
             // no body means void message
             if (!message.Contains(":"))
             {
+                DebugLog("Received : {0}", message);
+
                 HandleVoidMessage(message);
                 return;
             }
@@ -80,11 +83,11 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            DebugLog("Received : {0} : {1}", message, payloadString);
+
             // handle strings
             if (typeof(string) == payloadType)
             {
-                Log.Info(this, "Received [{0}].", messageType);
-
                 _router.Publish(messageType, payloadString);
                 return;
             }
@@ -159,6 +162,17 @@ namespace CreateAR.SpirePlayer
             }
 
             return value;
+        }
+
+        /// <summary>
+        /// Debug logging.
+        /// </summary>
+        /// <param name="message">Message.</param>
+        /// <param name="replacements">Replacements.</param>
+        [Conditional("DEBUG_LOGGING")]
+        private void DebugLog(object message, params object[] replacements)
+        {
+            Log.Debug(this, message, replacements);
         }
     }
 }

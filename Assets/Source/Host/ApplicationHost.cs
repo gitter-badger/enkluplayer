@@ -132,7 +132,9 @@ namespace CreateAR.SpirePlayer
         {
             Subscribe<AssetListEvent>(MessageTypes.ASSET_LIST, @event =>
             {
-                Log.Info(this, "Asset list updated.");
+                Log.Info(this,
+                    "Updating AssetManifest with {0} assets.",
+                    @event.Assets.Length);
 
                 _assets.Manifest.Add(@event.Assets);
             });
@@ -163,7 +165,9 @@ namespace CreateAR.SpirePlayer
         {
             Subscribe<ContentListEvent>(MessageTypes.CONTENT_LIST, @event =>
             {
-                Log.Info(this, "Content list updated.");
+                Log.Info(this,
+                    "Updating ContentData with {0} instances.",
+                    @event.Content.Length);
 
                 _appData.Set(@event.Content);
             });
@@ -200,11 +204,17 @@ namespace CreateAR.SpirePlayer
 
         private void AddHierarchySubscriptions()
         {
+            _bridge.Binder.Add<HierarchySelectEvent>(MessageTypes.HIERARCHY_SELECT);
+
             Subscribe<HierarchyListEvent>(MessageTypes.HIERARCHY_LIST, @event =>
             {
                 Log.Info(this, "Hierarchy list updated.");
+                
+                _contentGraph.Add(
+                    _contentGraph.Root.Id,
+                    @event.Children);
 
-                _contentGraph.Load(@event.Root);
+                Log.Info(this, "New Hierarchy Root : " + _contentGraph.Root);
             });
             
             Subscribe<HierarchyAddEvent>(MessageTypes.HIERARCHY_ADD, @event =>

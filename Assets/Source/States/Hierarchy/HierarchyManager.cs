@@ -32,14 +32,12 @@ namespace CreateAR.SpirePlayer
 
             _root = new GameObject("Hierarchy");
 
-            _graph.OnLoaded += Graph_OnLoaded;
+            foreach (var child in _graph.Root.Children)
+            {
+                Create(_root.transform, child);
+            }
         }
-
-        private void Graph_OnLoaded(ContentGraph.ContentGraphNode node)
-        {
-            Create(_root.transform, node);
-        }
-
+        
         public void Select(string contentId)
         {
             Log.Error(this, "Select({0}) is not implemented yet.", contentId);

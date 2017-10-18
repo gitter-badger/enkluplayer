@@ -43,7 +43,7 @@ namespace CreateAR.SpirePlayer.Test
         public void Setup()
         {
             _graph = new ContentGraph();
-            _graph.Load(_root);
+            _graph.Add("root", _root);
         }
 
         [Test]
@@ -90,23 +90,6 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.AreSame("b", b.Id);
             Assert.IsNull(bbb);
-        }
-
-        [Test]
-        public void WatchEvents()
-        {
-            var called = false;
-
-            _graph.OnLoaded += root =>
-            {
-                called = true;
-
-                Assert.AreSame("a", root.Id);
-            };
-
-            _graph.Load(_root);
-            
-            Assert.IsTrue(called);
         }
         
         [Test]

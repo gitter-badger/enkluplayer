@@ -55,6 +55,15 @@ namespace CreateAR.SpirePlayer
             public event Action<ContentGraphNode, ContentGraphNode> OnChildUpdated;
 
             /// <summary>
+            /// Useful ToString.
+            /// </summary>
+            /// <returns></returns>
+            public override string ToString()
+            {
+                return string.Format("[ContentGraphNode Id={0}]", Id);
+            }
+
+            /// <summary>
             /// Finds a node by unique id.
             /// </summary>
             /// <param name="id">The id of the node in question.</param>
@@ -124,6 +133,14 @@ namespace CreateAR.SpirePlayer
                 {
                     AddPropagationHandlers(Children[i]);
                 }
+            }
+
+            /// <summary>
+            /// Clears children, but does not fire events.
+            /// </summary>
+            internal void ClearChildren()
+            {
+                Children.Clear();
             }
 
             /// <summary>
@@ -236,38 +253,21 @@ namespace CreateAR.SpirePlayer
         /// The root node.
         /// </summary>
         public ContentGraphNode Root { get; private set; }
-
+        
         /// <summary>
-        /// Called when the root has been replaced.
+        /// Constructor.
         /// </summary>
-        public event Action<ContentGraphNode> OnLoaded;
-
-        /// <summary>
-        /// Loads a root into the graph. This completely replaces the current
-        /// nodes, without event propagation.
-        /// </summary>
-        /// <param name="data">The data for the root node.</param>
-        public void Load(HierarchyNodeData data)
+        public ContentGraph()
         {
-            if (null == data)
-            {
-                throw new Exception("ContentGraph provided with null data.");
-            }
-
-            Root = Create(data);
-
-            if (null != OnLoaded)
-            {
-                OnLoaded(Root);
-            }
+            Root = new ContentGraphNode("root", "root", new ContentGraphNode[0]);
         }
-
+        
         /// <summary>
         /// Clears the root node without firing any events.
         /// </summary>
         public void Clear()
         {
-            Root = null;
+            Root.ClearChildren();
         }
 
         /// <summary>
@@ -286,7 +286,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="parentId">Id of the parent node.</param>
         /// <param name="data">Data to construct more of the graph.</param>
         /// <returns></returns>
-        public bool Add(string parentId, HierarchyNodeData data)
+        public bool Add(string parentId, params HierarchyNodeData[] data)
         {
             var parent = FindOne(parentId);
             if (null == parent)
@@ -294,7 +294,10 @@ namespace CreateAR.SpirePlayer
                 return false;
             }
 
-            parent.AddChild(Create(data));
+            foreach (var child in data)
+            {
+                parent.AddChild(Create(child));
+            }
 
             return true;
         }

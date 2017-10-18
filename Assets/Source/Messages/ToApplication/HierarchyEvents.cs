@@ -4,8 +4,8 @@ namespace CreateAR.SpirePlayer
 {
     public class HierarchyListEvent
     {
-        [JsonProperty("root")]
-        public HierarchyNodeData Root;
+        [JsonProperty("children")]
+        public HierarchyNodeData[] Children;
     }
 
     public class HierarchySelectEvent
