@@ -6,3 +6,4 @@
 
 * [AssetManager](docs/assets.md)
 * [Scripting](docs/scripting.overview.md)
+* [ContentGraph](docs/contentgraph.md)
