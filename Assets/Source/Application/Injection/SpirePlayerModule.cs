@@ -74,6 +74,7 @@ namespace CreateAR.SpirePlayer
                             LookupComponent<MonoBehaviourBootstrapper>()))
                     .ToSingleton();
                 binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
+                binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
 
                 // TODO: These could just be events from the bridge.

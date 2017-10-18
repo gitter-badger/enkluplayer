@@ -203,11 +203,11 @@ namespace CreateAR.SpirePlayer
             _input.ChangeState(InputState);
 
             // load graph full of goodies
-            _graph.Load(((HierarchyEvent) context).Root);
+            _graph.Load(((HierarchyListEvent) context).Root);
 
             // listen for selection
             _unsub = _router.Subscribe(
-                MessageTypes.SELECT_CONTENT,
+                MessageTypes.HIERARCHY_SELECT,
                 Messages_OnSelectContent);
         }
 
@@ -236,7 +236,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="message">Event.</param>
         private void Messages_OnSelectContent(object message)
         {
-            var @event = (SelectContentEvent) message;
+            var @event = (HierarchySelectEvent) message;
 
             Log.Info(this, "Select content : {0}.", @event.ContentId);
 

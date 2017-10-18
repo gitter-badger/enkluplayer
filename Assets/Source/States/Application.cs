@@ -130,30 +130,21 @@ namespace CreateAR.SpirePlayer
                 }));
 
             _unsubscribeList.Add(_messages.Subscribe(
+                MessageTypes.PLAY,
+                _ =>
+                {
+                    Log.Info(this, "Play requested.");
+
+                    _states.Change<PlayApplicationState>();
+                }));
+
+            _unsubscribeList.Add(_messages.Subscribe(
                 MessageTypes.HIERARCHY,
-                @event =>
+                _ =>
                 {
                     Log.Info(this, "Hierarchy requested.");
 
-                    _states.Change<HierarchyApplicationState>((HierarchyEvent) @event);
-                }));
-
-            _unsubscribeList.Add(_messages.Subscribe(
-                MessageTypes.ASSET_UPDATE,
-                @event =>
-                {
-                    Log.Info(this, "Assets updated.");
-
-                    var message = (AssetUpdateEvent) @event;
-                }));
-
-            _unsubscribeList.Add(_messages.Subscribe(
-                MessageTypes.CONTENT_UPDATE,
-                @event =>
-                {
-                    Log.Info(this, "Content updated.");
-
-                    var message = (ContentUpdateEvent)@event;
+                    _states.Change<HierarchyApplicationState>();
                 }));
         }
 

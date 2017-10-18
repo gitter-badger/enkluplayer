@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -15,6 +17,16 @@ namespace CreateAR.SpirePlayer
         private readonly IBridge _bridge;
 
         /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
+        /// <summary>
+        /// List of methods to unsubscribe.
+        /// </summary>
+        private readonly List<Action> _unsubscribeList = new List<Action>();
+
+        /// <summary>
         /// Creates a new WebApplicationHost.
         /// </summary>
         /// <param name="bridge">The WebBridge.</param>
@@ -26,8 +38,10 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages)
         {
             _bridge = bridge;
+            _messages = messages;
             
-            messages.Subscribe(
+            // TODO: Move to Application.
+            _messages.Subscribe(
                 MessageTypes.AUTHORIZED,
                 @event =>
                 {
@@ -51,12 +65,13 @@ namespace CreateAR.SpirePlayer
             _bridge.Initialize();
 
             // bind to events from web bridge
-            _bridge.Binder.Add<AssetUpdateEvent>(MessageTypes.ASSET_UPDATE);
-            _bridge.Binder.Add<ContentUpdateEvent>(MessageTypes.CONTENT_UPDATE);
             _bridge.Binder.Add<AuthorizedEvent>(MessageTypes.AUTHORIZED);
             _bridge.Binder.Add<PreviewEvent>(MessageTypes.PREVIEW);
-            _bridge.Binder.Add<HierarchyEvent>(MessageTypes.HIERARCHY);
-            _bridge.Binder.Add<SelectContentEvent>(MessageTypes.SELECT_CONTENT);
+
+            // subscribe
+            AddAssetSubscriptions();
+            AddContentSubscriptions();
+            AddHierarchySubscriptions();
 
             // tell the webpage
             _bridge.BroadcastReady();
@@ -65,8 +80,97 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IApplicationHost"/>
         public void Stop()
         {
+            for (int i = 0, len = _unsubscribeList.Count; i < len; i++)
+            {
+                _unsubscribeList[i]();
+            }
+            _unsubscribeList.Clear();
+
             _bridge.Binder.Clear();
             _bridge.Uninitialize();
+        }
+
+        private void Subscribe<T>(int messageType, Action<T> handler)
+        {
+            _bridge.Binder.Add<T>(messageType);
+
+            _unsubscribeList.Add(_messages.Subscribe(
+                messageType,
+                @event => handler((T) @event)));
+        }
+
+        private void AddAssetSubscriptions()
+        {
+            Subscribe<AssetListEvent>(MessageTypes.ASSET_LIST, @event =>
+            {
+                Log.Info(this, "Asset list updated.");
+            });
+
+            Subscribe<AssetAddEvent>(MessageTypes.ASSET_ADD, @event =>
+            {
+                Log.Info(this, "Add asset.");
+            });
+
+            Subscribe<AssetRemoveEvent>(MessageTypes.ASSET_REMOVE, @event =>
+            {
+                Log.Info(this, "Remove asset.");
+            });
+
+            Subscribe<AssetUpdateEvent>(MessageTypes.ASSET_UPDATE, @event =>
+            {
+                Log.Info(this, "Update asset.");
+            });
+        }
+
+        private void AddContentSubscriptions()
+        {
+            Subscribe<ContentListEvent>(MessageTypes.CONTENT_LIST, @event =>
+            {
+                Log.Info(this, "Content list updated.");
+            });
+
+            Subscribe<ContentAddEvent>(MessageTypes.CONTENT_ADD, @event =>
+            {
+                Log.Info(this, "Add content.");
+            });
+
+            Subscribe<ContentRemoveEvent>(MessageTypes.CONTENT_REMOVE, @event =>
+            {
+                Log.Info(this, "Remove content.");
+            });
+
+            Subscribe<ContentUpdateEvent>(MessageTypes.CONTENT_UPDATE, @event =>
+            {
+                Log.Info(this, "Update content.");
+            });
+        }
+
+        private void AddHierarchySubscriptions()
+        {
+            Subscribe<HierarchySelectEvent>(MessageTypes.HIERARCHY_SELECT, @event =>
+            {
+                Log.Info(this, "Select hierarchy event.");
+            });
+
+            Subscribe<HierarchyAddEvent>(MessageTypes.HIERARCHY_ADD, @event =>
+            {
+                Log.Info(this, "Add node to hierarchy.");
+            });
+
+            Subscribe<HierarchyRemoveEvent>(MessageTypes.HIERARCHY_REMOVE, @event =>
+            {
+                Log.Info(this, "Remove node from hierarchy.");
+            });
+
+            Subscribe<HierarchyUpdateEvent>(MessageTypes.HIERARCHY_UPDATE, @event =>
+            {
+                Log.Info(this, "Hierarchy node updated.");
+            });
+
+            Subscribe<HierarchyListEvent>(MessageTypes.HIERARCHY_LIST, @event =>
+            {
+                Log.Info(this, "Hierarchy list updated.");
+            });
         }
     }
 }

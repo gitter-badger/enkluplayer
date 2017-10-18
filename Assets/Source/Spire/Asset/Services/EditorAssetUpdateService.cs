@@ -54,13 +54,13 @@ namespace CreateAR.SpirePlayer
             var token = new AsyncToken<Void>();
 
             _addedUnsub = _messages.Subscribe(
-                MessageTypes.ASSET_ADDED,
+                MessageTypes.ASSET_ADD,
                 Messages_OnAssetAdded);
             _updatedUnsub = _messages.Subscribe(
-                MessageTypes.ASSET_UPDATED,
+                MessageTypes.ASSET_UPDATE,
                 Messages_OnAssetUpdated);
             _removedUnsub = _messages.Subscribe(
-                MessageTypes.ASSET_REMOVED,
+                MessageTypes.ASSET_REMOVE,
                 Messages_OnAssetRemoved);
 
             Log.Info(this, "Get Asset Manifest.");
