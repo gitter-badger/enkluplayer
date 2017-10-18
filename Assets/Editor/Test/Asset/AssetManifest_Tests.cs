@@ -49,10 +49,10 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void Get()
         {
-            Assert.AreSame("a", _manifest.Reference("a").Data.Guid);
+            Assert.AreSame("a", _manifest.Asset("a").Data.Guid);
 
             // case sensitive
-            Assert.IsNull(_manifest.Reference("A"));
+            Assert.IsNull(_manifest.Asset("A"));
         }
 
         [Test]
@@ -91,6 +91,39 @@ namespace CreateAR.SpirePlayer.Test
                 Assert.AreSame(asset, added.Data);
             };
             _manifest.Add(asset);
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void RemoveEvent()
+        {
+            var called = 0;
+
+            _manifest.OnAssetRemoved += removed =>
+            {
+                called++;
+            };
+
+            _manifest.Remove("a", "b");
+
+            Assert.AreEqual(2, called);
+        }
+
+        [Test]
+        public void RemoveAssetEvent()
+        {
+            var called = false;
+
+            var reference = _manifest.Asset("a");
+            reference.OnRemoved += r =>
+            {
+                called = true;
+
+                Assert.AreSame(reference, r);
+            };
+
+            _manifest.Remove("a");
 
             Assert.IsTrue(called);
         }

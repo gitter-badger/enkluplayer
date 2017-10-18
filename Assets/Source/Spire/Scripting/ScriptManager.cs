@@ -161,7 +161,7 @@ namespace CreateAR.SpirePlayer
                 return null;
             }
 
-            var asset = _assets.Manifest.Reference(data.Asset.AssetDataId);
+            var asset = _assets.Manifest.Asset(data.Asset.AssetDataId);
             if (null == asset)
             {
                 return null;

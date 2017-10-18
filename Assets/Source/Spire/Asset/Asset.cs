@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.SpirePlayer;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -73,6 +72,11 @@ namespace CreateAR.SpirePlayer
                 }
             }
         }
+
+        /// <summary>
+        /// Called if the asset is removed from the manifest.
+        /// </summary>
+        public event Action<Asset> OnRemoved;
 
         /// <summary>
         /// Creates an <c>AssetReference</c>.
@@ -268,6 +272,17 @@ namespace CreateAR.SpirePlayer
             _watch.Add(watcher);
 
             return () => _watch.Remove(watcher);
+        }
+
+        /// <summary>
+        /// Called when the asset has been removed from the manifest.
+        /// </summary>
+        public void Remove()
+        {
+            if (null != OnRemoved)
+            {
+                OnRemoved(this);
+            }
         }
 
         /// <summary>

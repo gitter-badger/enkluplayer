@@ -29,6 +29,16 @@ namespace CreateAR.SpirePlayer
         private readonly IAdminAppDataManager _appData;
 
         /// <summary>
+        /// Manages assets.
+        /// </summary>
+        private readonly IAssetManager _assets;
+
+        /// <summary>
+        /// Graphs relationships between content.
+        /// </summary>
+        private readonly ContentGraph _contentGraph;
+
+        /// <summary>
         /// List of methods to unsubscribe.
         /// </summary>
         private readonly List<Action> _unsubscribeList = new List<Action>();
@@ -40,16 +50,22 @@ namespace CreateAR.SpirePlayer
         /// <param name="http">Http service.</param>
         /// <param name="messages">The message router.</param>
         /// <param name="appData">Application data.</param>
+        /// <param name="assets">Manages assets.</param>
+        /// <param name="contentGraph">Graph of content.</param>
         public ApplicationHost(
             IBridge bridge,
             IHttpService http,
             IMessageRouter messages,
-            IAdminAppDataManager appData)
+            IAdminAppDataManager appData,
+            IAssetManager assets,
+            ContentGraph contentGraph)
         {
             _bridge = bridge;
             _messages = messages;
             _appData = appData;
-            
+            _assets = assets;
+            _contentGraph = contentGraph;
+
             // TODO: Move to Application.
             _messages.Subscribe(
                 MessageTypes.AUTHORIZED,
@@ -117,21 +133,29 @@ namespace CreateAR.SpirePlayer
             Subscribe<AssetListEvent>(MessageTypes.ASSET_LIST, @event =>
             {
                 Log.Info(this, "Asset list updated.");
+
+                _assets.Manifest.Add(@event.Assets);
             });
 
             Subscribe<AssetAddEvent>(MessageTypes.ASSET_ADD, @event =>
             {
                 Log.Info(this, "Add asset.");
+
+                _assets.Manifest.Add(@event.Asset);
             });
 
             Subscribe<AssetRemoveEvent>(MessageTypes.ASSET_REMOVE, @event =>
             {
                 Log.Info(this, "Remove asset.");
+
+                _assets.Manifest.Remove(@event.Id);
             });
 
             Subscribe<AssetUpdateEvent>(MessageTypes.ASSET_UPDATE, @event =>
             {
                 Log.Info(this, "Update asset.");
+
+                _assets.Manifest.Update(@event.Asset);
             });
         }
 
@@ -176,29 +200,32 @@ namespace CreateAR.SpirePlayer
 
         private void AddHierarchySubscriptions()
         {
-            Subscribe<HierarchySelectEvent>(MessageTypes.HIERARCHY_SELECT, @event =>
+            Subscribe<HierarchyListEvent>(MessageTypes.HIERARCHY_LIST, @event =>
             {
-                Log.Info(this, "Select hierarchy event.");
-            });
+                Log.Info(this, "Hierarchy list updated.");
 
+                _contentGraph.Load(@event.Root);
+            });
+            
             Subscribe<HierarchyAddEvent>(MessageTypes.HIERARCHY_ADD, @event =>
             {
                 Log.Info(this, "Add node to hierarchy.");
+                
+                _contentGraph.Add(@event.Parent, @event.Node);
             });
 
             Subscribe<HierarchyRemoveEvent>(MessageTypes.HIERARCHY_REMOVE, @event =>
             {
                 Log.Info(this, "Remove node from hierarchy.");
+
+                _contentGraph.Remove(@event.ContentId);
             });
 
             Subscribe<HierarchyUpdateEvent>(MessageTypes.HIERARCHY_UPDATE, @event =>
             {
                 Log.Info(this, "Hierarchy node updated.");
-            });
 
-            Subscribe<HierarchyListEvent>(MessageTypes.HIERARCHY_LIST, @event =>
-            {
-                Log.Info(this, "Hierarchy list updated.");
+                _contentGraph.Update(@event.Node);
             });
         }
     }

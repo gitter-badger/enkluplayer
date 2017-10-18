@@ -96,7 +96,7 @@ namespace CreateAR.SpirePlayer.Test
 
             _assets.Manifest.Add(info);
 
-            var reference = _assets.Manifest.Reference(info.Guid);
+            var reference = _assets.Manifest.Asset(info.Guid);
 
             Assert.IsNotNull(reference);
             Assert.AreSame(info, reference.Data);
@@ -122,7 +122,7 @@ namespace CreateAR.SpirePlayer.Test
 
             _assets.Manifest.Add(info);
 
-            var reference = _assets.Manifest.Reference(info.Guid);
+            var reference = _assets.Manifest.Asset(info.Guid);
 
             Assert.IsNull(reference.As<GameObject>());
 

@@ -135,6 +135,12 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<MusicManager>().ToValue(LookupComponent<MusicManager>());
             }
 
+            // hierarchy
+            {
+                binder.Bind<ContentGraph>().To<ContentGraph>().ToSingleton();
+                binder.Bind<HierarchyManager>().To<HierarchyManager>().ToSingleton();
+            }
+
             // scripting
             {
                 binder.Bind<JavaScriptParser>().ToValue(new JavaScriptParser(false));

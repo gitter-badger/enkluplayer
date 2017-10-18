@@ -253,6 +253,10 @@
     <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\Edit\EditApplicationState.cs" />
     <Compile Include="Assets\Source\States\Hierarchy\HierarchyApplicationState.cs" />
+    <Compile Include="Assets\Source\Pooling\IAssetPoolManager.cs" />
+    <Compile Include="Assets\Source\Pooling\LazyAssetPoolManager.cs" />
+    <Compile Include="Assets\Source\States\Hierarchy\HierarchyManager.cs" />
+    <Compile Include="Assets\Source\States\Hierarchy\HierarchyNodeMonoBehaviour.cs" />
     <Compile Include="Assets\Source\States\Initialize\InitializeApplicationState.cs" />
     <Compile Include="Assets\Source\States\Play\PlayApplicationState.cs" />
     <Compile Include="Assets\Source\States\Preview\PreviewApplicationState.cs" />

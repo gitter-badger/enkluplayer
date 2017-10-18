@@ -69,7 +69,7 @@ namespace CreateAR.SpirePlayer
             });
                 
             // retrieve reference
-            var reference = _assets.Manifest.Reference(@event.id);
+            var reference = _assets.Manifest.Asset(@event.id);
             if (null == reference)
             {
                 Log.Warning(

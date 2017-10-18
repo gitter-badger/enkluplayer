@@ -29,7 +29,8 @@ namespace CreateAR.SpirePlayer
             public List<ContentGraphNode> Children { get; private set; }
 
             /// <summary>
-            /// Called when this node has been updated.
+            /// Called when this node has been updated. Not called for child
+            /// add/removes.
             /// </summary>
             public event Action<ContentGraphNode> OnUpdated;
 
@@ -94,6 +95,17 @@ namespace CreateAR.SpirePlayer
             }
 
             /// <summary>
+            /// Calls the OnRemoved event.
+            /// </summary>
+            internal void Removed()
+            {
+                if (null != OnRemoved)
+                {
+                    OnRemoved(this);
+                }
+            }
+
+            /// <summary>
             /// Creates a new node.
             /// </summary>
             /// <param name="id">Unique id of this node.</param>
@@ -123,8 +135,8 @@ namespace CreateAR.SpirePlayer
                 AddPropagationHandlers(node);
 
                 Children.Add(node);
-
-                // call event on self
+                
+                // call events on self
                 if (null != OnChildAdded)
                 {
                     OnChildAdded(this, node);
@@ -138,7 +150,7 @@ namespace CreateAR.SpirePlayer
             internal void RemoveChild(ContentGraphNode node)
             {
                 Children.Remove(node);
-
+                
                 // call event on node
                 if (null != node.OnRemoved)
                 {
@@ -269,6 +281,58 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Adds a node to the graph.
+        /// </summary>
+        /// <param name="parentId">Id of the parent node.</param>
+        /// <param name="data">Data to construct more of the graph.</param>
+        /// <returns></returns>
+        public bool Add(string parentId, HierarchyNodeData data)
+        {
+            var parent = FindOne(parentId);
+            if (null == parent)
+            {
+                return false;
+            }
+
+            parent.AddChild(Create(data));
+
+            return true;
+        }
+
+        /// <summary>
+        /// Removes a node.
+        /// </summary>
+        /// <param name="id">Id of the node to remove.</param>
+        /// <returns></returns>
+        public bool Remove(string id)
+        {
+            ContentGraphNode child;
+
+            // trivial case
+            if (Root.Id == id)
+            {
+                child = Root;
+
+                Root = null;
+
+                child.Removed();
+
+                return true;
+            }
+            
+            // find node's parent
+            var parent = FindParent(id, Root, out child);
+            if (null == parent)
+            {
+                return false;
+            }
+
+            parent.RemoveChild(child);
+
+            return true;
+        }
+
+        /// <summary>
         /// Updates a portion of the graph.
         /// </summary>
         /// <param name="data">The data to update.</param>
@@ -383,6 +447,43 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
+            return null;
+        }
+
+        /// <summary>
+        /// Recursive method to find the parent of a particular node.
+        /// </summary>
+        /// <param name="id">Id of the child.</param>
+        /// <param name="start">Start node for the search.</param>
+        /// <param name="child">Returns the child.</param>
+        /// <returns></returns>
+        private ContentGraphNode FindParent(
+            string id,
+            ContentGraphNode start,
+            out ContentGraphNode child)
+        {
+            // search all children first
+            var children = start.Children;
+            for (int i = 0, len = children.Count; i < len; i++)
+            {
+                if (children[i].Id == id)
+                {
+                    child = children[i];
+                    return start;
+                }
+            }
+
+            // recurse
+            for (int i = 0, len = children.Count; i < len; i++)
+            {
+                var match = FindParent(id, children[i], out child);
+                if (null != match)
+                {
+                    return match;
+                }
+            }
+
+            child = null;
             return null;
         }
     }

@@ -222,5 +222,97 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.IsTrue(called);
         }
+
+        [Test]
+        public void Add()
+        {
+            Assert.IsTrue(_graph.Add("a", new HierarchyNodeData
+            {
+                Id = "qq"
+            }));
+
+            Assert.IsNotNull(_graph.FindOne("qq"));
+        }
+
+        [Test]
+        public void AddBad()
+        {
+            Assert.IsFalse(_graph.Add("foo", new HierarchyNodeData
+            {
+                Id = "qq"
+            }));
+
+            Assert.IsNull(_graph.FindOne("qq"));
+        }
+        
+        [Test]
+        public void AddChildAddedEvent()
+        {
+            var called = false;
+            var a = _graph.FindOne("a");
+            a.OnChildAdded += (node, child) =>
+            {
+                called = true;
+
+                Assert.AreSame(a, node);
+                Assert.AreEqual("qq", child.Id);
+            };
+
+            _graph.Add("a", new HierarchyNodeData
+            {
+                Id = "qq"
+            });
+
+            Assert.IsNotNull(_graph.FindOne("qq"));
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void Remove()
+        {
+            Assert.IsTrue(_graph.Remove("b"));
+            Assert.IsNull(_graph.FindOne("b"));
+        }
+
+        [Test]
+        public void RemoveRoot()
+        {
+            var called = false;
+            var root = _graph.Root;
+            root.OnRemoved += node =>
+            {
+                called = true;
+
+                Assert.AreSame(root, node);
+            };
+
+            Assert.IsTrue(_graph.Remove(root.Id));
+            Assert.IsNull(_graph.Root);
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void RemoveBad()
+        {
+            Assert.IsFalse(_graph.Remove("foo"));
+        }
+
+        [Test]
+        public void RemoveChildRemovedEvent()
+        {
+            var called = false;
+            var a = _graph.FindOne("a");
+            a.OnChildRemoved += (node, child) =>
+            {
+                called = true;
+
+                Assert.AreSame(a, node);
+                Assert.AreSame("bb", child.Id);
+            };
+
+            _graph.Remove("bb");
+
+            Assert.IsTrue(called);
+        }
     }
 }

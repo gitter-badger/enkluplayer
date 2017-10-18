@@ -22,6 +22,9 @@ namespace CreateAR.SpirePlayer
 
     public class HierarchyAddEvent
     {
+        [JsonProperty("parent")]
+        public string Parent { get; set; }
+
         [JsonProperty("node")]
         public HierarchyNodeData Node { get; set; }
     }
