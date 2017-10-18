@@ -57,7 +57,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IAppDataManager"/>
         public T Get<T>(string id) where T : StaticData
         {
-            var list = List<T>();
+            var list = GetList<T>();
             foreach (var element in list)
             {
                 if (element.Id == id)
@@ -72,13 +72,13 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IAppDataManager"/>
         public T[] GetAll<T>() where T : StaticData
         {
-            return List<T>().Cast<T>().ToArray();
+            return GetList<T>().Cast<T>().ToArray();
         }
 
         /// <inheritdoc cref="IAppDataManager"/>
         public T GetByName<T>(string name) where T : StaticData
         {
-            var list = List<T>();
+            var list = GetList<T>();
             for (int i = 0, len = list.Count; i < len; i++)
             {
                 if (list[i].Name == name)
@@ -127,27 +127,58 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IAdminAppDataManager"/>
-        public void Set<T>(params T[] data)
+        public void Set<T>(params T[] data) where T : StaticData
         {
-            throw new NotImplementedException();
+            var list = GetList<T>();
+            list.Clear();
+
+            list.AddRange(data);
         }
 
         /// <inheritdoc cref="IAdminAppDataManager"/>
-        public void Add<T>(params T[] data)
+        public void Add<T>(params T[] data) where T : StaticData
         {
-            throw new NotImplementedException();
+            GetList<T>().AddRange(data);
         }
 
         /// <inheritdoc cref="IAdminAppDataManager"/>
-        public void Remove<T>(params T[] data)
+        public void Remove<T>(params T[] data) where T : StaticData
         {
-            throw new NotImplementedException();
+            var list = GetList<T>();
+            for (int i = 0, len = data.Length; i < len; i++)
+            {
+                list.Remove(data[i]);
+            }
         }
 
         /// <inheritdoc cref="IAdminAppDataManager"/>
-        public void Update<T>(params T[] data)
+        public void Update<T>(params T[] data) where T : StaticData
         {
-            throw new NotImplementedException();
+            var list = GetList<T>();
+            for (int i = 0, ilen = data.Length; i < ilen; i++)
+            {
+                var instance = data[i];
+
+                var found = false;
+                for (int j = 0, jlen = list.Count; j < jlen; j++)
+                {
+                    var existing = list[j];
+                    if (instance.Id == existing.Id)
+                    {
+                        found = true;
+
+                        list[j] = instance;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    Log.Error(this,
+                        "Received update for unknown StaticData : {0}.",
+                        instance);
+                }
+            }
         }
 
         /// <summary>
@@ -260,7 +291,7 @@ namespace CreateAR.SpirePlayer
         private IAsyncToken<Void> LoadScene(AppData app, string id)
         {
             var token = new AsyncToken<Void>();
-            var list = List<SceneData>();
+            var list = GetList<SceneData>();
 
             var uri = FileProtocols.APP + app.Name + "/SceneData/" + id;
             _files
@@ -293,7 +324,7 @@ namespace CreateAR.SpirePlayer
             where T : StaticData
         {
             var token = new AsyncToken<Void>();
-            var list = List<T>();
+            var list = GetList<T>();
 
             // load and save each piece
             var len = ids.Count;
@@ -327,7 +358,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <typeparam name="T">Type.</typeparam>
         /// <returns></returns>
-        private List<StaticData> List<T>()
+        private List<StaticData> GetList<T>()
         {
             List<StaticData> list;
             if (!_dataByType.TryGetValue(typeof(T), out list))

@@ -4,6 +4,8 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
+using Void = CreateAR.Commons.Unity.Async.Void;
+
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
@@ -74,7 +76,10 @@ namespace CreateAR.SpirePlayer
 
             // bind to events from web bridge
             _bridge.Binder.Add<AuthorizedEvent>(MessageTypes.AUTHORIZED);
+
+            // states
             _bridge.Binder.Add<PreviewEvent>(MessageTypes.PREVIEW);
+            _bridge.Binder.Add<Void>(MessageTypes.HIERARCHY);
 
             // subscribe
             AddAssetSubscriptions();

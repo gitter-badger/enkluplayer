@@ -15,28 +15,28 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <typeparam name="T">The type of data to replace.</typeparam>
         /// <param name="data">The data to replace with.</param>
-        void Set<T>(params T[] data);
+        void Set<T>(params T[] data) where T : StaticData;
 
         /// <summary>
         /// Adds data.
         /// </summary>
         /// <typeparam name="T">The type of data to add.</typeparam>
         /// <param name="data">The data to add.</param>
-        void Add<T>(params T[] data);
+        void Add<T>(params T[] data) where T : StaticData;
 
         /// <summary>
         /// Removes data.
         /// </summary>
         /// <typeparam name="T">The type of data to remove.</typeparam>
         /// <param name="data">The data to remove.</param>
-        void Remove<T>(params T[] data);
+        void Remove<T>(params T[] data) where T : StaticData;
 
         /// <summary>
         /// Updates data.
         /// </summary>
         /// <typeparam name="T">The type of data to update.</typeparam>
         /// <param name="data">The data to update.</param>
-        void Update<T>(params T[] data);
+        void Update<T>(params T[] data) where T : StaticData;
     }
 
     /// <summary>
