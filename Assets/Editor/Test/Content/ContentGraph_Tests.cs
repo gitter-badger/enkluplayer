@@ -49,11 +49,9 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void Clear()
         {
-            Assert.IsNotNull(_graph.Root);
-
             _graph.Clear();
 
-            Assert.IsNull(_graph.Root);
+            Assert.AreEqual(0, _graph.Root.Children.Count);
         }
 
         [Test]
@@ -260,18 +258,7 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void RemoveRoot()
         {
-            var called = false;
-            var root = _graph.Root;
-            root.OnRemoved += node =>
-            {
-                called = true;
-
-                Assert.AreSame(root, node);
-            };
-
-            Assert.IsTrue(_graph.Remove(root.Id));
-            Assert.IsNull(_graph.Root);
-            Assert.IsTrue(called);
+            Assert.IsFalse(_graph.Remove(_graph.Root.Id));
         }
 
         [Test]

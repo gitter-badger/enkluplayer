@@ -57,6 +57,7 @@ namespace CreateAR.SpirePlayer
             // input
             _input.ChangeState(InputState);
             
+            // create asset representation
             _gameObjects.Create();
 
             // listen for selection

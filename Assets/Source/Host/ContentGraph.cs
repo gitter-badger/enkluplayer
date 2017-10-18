@@ -24,6 +24,11 @@ namespace CreateAR.SpirePlayer
             public string ContentId { get; private set; }
 
             /// <summary>
+            /// Parent of this node.
+            /// </summary>
+            public ContentGraphNode Parent { get; private set; }
+
+            /// <summary>
             /// Child nodes.
             /// </summary>
             public List<ContentGraphNode> Children { get; private set; }
@@ -93,6 +98,37 @@ namespace CreateAR.SpirePlayer
             }
 
             /// <summary>
+            /// Creates a new node.
+            /// </summary>
+            /// <param name="id">Unique id of this node.</param>
+            /// <param name="contentId">Unique id of the Content to reference.</param>
+            /// <param name="parent">The parent of this node.</param>
+            internal ContentGraphNode(
+                string id,
+                string contentId,
+                ContentGraphNode parent)
+            {
+                Id = id;
+                ContentId = contentId;
+                Parent = parent;
+                Children = new List<ContentGraphNode>();
+            }
+
+            /// <summary>
+            /// Sets children.
+            /// </summary>
+            /// <param name="children">Children of this node.</param>
+            internal void SetChildren(ContentGraphNode[] children)
+            {
+                Children = new List<ContentGraphNode>(children);
+
+                for (int i = 0, len = Children.Count; i < len; i++)
+                {
+                    AddPropagationHandlers(Children[i]);
+                }
+            }
+
+            /// <summary>
             /// Calls the OnUpdated event.
             /// </summary>
             internal void Updated()
@@ -111,27 +147,6 @@ namespace CreateAR.SpirePlayer
                 if (null != OnRemoved)
                 {
                     OnRemoved(this);
-                }
-            }
-
-            /// <summary>
-            /// Creates a new node.
-            /// </summary>
-            /// <param name="id">Unique id of this node.</param>
-            /// <param name="contentId">Unique id of the Content to reference.</param>
-            /// <param name="children">All child nodes.</param>
-            internal ContentGraphNode(
-                string id,
-                string contentId,
-                ContentGraphNode[] children)
-            {
-                Id = id;
-                ContentId = contentId;
-                Children = new List<ContentGraphNode>(children);
-
-                for (int i = 0, len = Children.Count; i < len; i++)
-                {
-                    AddPropagationHandlers(Children[i]);
                 }
             }
 
@@ -259,7 +274,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public ContentGraph()
         {
-            Root = new ContentGraphNode("root", "root", new ContentGraphNode[0]);
+            Root = new ContentGraphNode(
+                "root",
+                "root",
+                null);
         }
 
         /// <summary>
@@ -305,7 +323,7 @@ namespace CreateAR.SpirePlayer
 
             foreach (var child in data)
             {
-                parent.AddChild(Create(child));
+                parent.AddChild(Create(parent, child));
             }
 
             return true;
@@ -318,28 +336,21 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public bool Remove(string id)
         {
-            ContentGraphNode child;
-
-            // trivial case
+            // cannot remove root
             if (Root.Id == id)
-            {
-                child = Root;
-
-                Root = null;
-
-                child.Removed();
-
-                return true;
-            }
-            
-            // find node's parent
-            var parent = FindParent(id, Root, out child);
-            if (null == parent)
             {
                 return false;
             }
 
-            parent.RemoveChild(child);
+            // find node's parent
+            var child = FindOne(id);
+            if (null == child)
+            {
+                return false;
+            }
+            
+            // only root is allowed to not have a parent
+            child.Parent.RemoveChild(child);
 
             return true;
         }
@@ -381,7 +392,7 @@ namespace CreateAR.SpirePlayer
                 }
                 else
                 {
-                    node.AddChild(Create(childData));
+                    node.AddChild(Create(node, childData));
                 }
             }
 
@@ -417,23 +428,28 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates a node, recusively.
         /// </summary>
+        /// <param name="parent">Parent node of this data.</param>
         /// <param name="data">The data to create a node from.</param>
         /// <returns></returns>
-        private ContentGraphNode Create(HierarchyNodeData data)
+        private ContentGraphNode Create(
+            ContentGraphNode parent,
+            HierarchyNodeData data)
         {
+            var node = new ContentGraphNode(
+                data.Id,
+                data.ContentId,
+                parent);
+
             // build out children first
             var children = data.Children;
             var childNodes = new ContentGraphNode[children.Length];
             for (int i = 0, len = children.Length; i < len; i++)
             {
-                childNodes[i] = Create(children[i]);
+                childNodes[i] = Create(node, children[i]);
             }
-
-            // build out graph node
-            return new ContentGraphNode(
-                data.Id,
-                data.ContentId,
-                childNodes);
+            
+            node.SetChildren(childNodes);
+            return node;
         }
 
         /// <summary>
@@ -459,43 +475,6 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
-            return null;
-        }
-
-        /// <summary>
-        /// Recursive method to find the parent of a particular node.
-        /// </summary>
-        /// <param name="id">Id of the child.</param>
-        /// <param name="start">Start node for the search.</param>
-        /// <param name="child">Returns the child.</param>
-        /// <returns></returns>
-        private ContentGraphNode FindParent(
-            string id,
-            ContentGraphNode start,
-            out ContentGraphNode child)
-        {
-            // search all children first
-            var children = start.Children;
-            for (int i = 0, len = children.Count; i < len; i++)
-            {
-                if (children[i].Id == id)
-                {
-                    child = children[i];
-                    return start;
-                }
-            }
-
-            // recurse
-            for (int i = 0, len = children.Count; i < len; i++)
-            {
-                var match = FindParent(id, children[i], out child);
-                if (null != match)
-                {
-                    return match;
-                }
-            }
-
-            child = null;
             return null;
         }
 

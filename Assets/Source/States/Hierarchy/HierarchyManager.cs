@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
+using ContentGraphNode = CreateAR.SpirePlayer.ContentGraph.ContentGraphNode;
+
 namespace CreateAR.SpirePlayer
 {
     public class HierarchyManager
@@ -39,6 +41,8 @@ namespace CreateAR.SpirePlayer
             {
                 Create(_root.transform, child);
             }
+
+            _graph.Root.OnChildAdded += Graph_OnChildAdded;
         }
 
         public void Select(string contentId)
@@ -53,7 +57,14 @@ namespace CreateAR.SpirePlayer
             throw new NotImplementedException();
         }
 
-        private void Create(Transform parent, ContentGraph.ContentGraphNode node)
+        private void Graph_OnChildAdded(
+            ContentGraphNode root,
+            ContentGraphNode child)
+        {
+            var parent = child.Parent;
+        }
+
+        private void Create(Transform parent, ContentGraphNode node)
         {
             var contentData = _appData.Get<ContentData>(node.ContentId);
             if (null == contentData)
