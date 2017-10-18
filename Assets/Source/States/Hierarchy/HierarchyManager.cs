@@ -31,13 +31,16 @@ namespace CreateAR.SpirePlayer
             _graph = graph;
 
             _root = new GameObject("Hierarchy");
+        }
 
+        public void Create()
+        {
             foreach (var child in _graph.Root.Children)
             {
                 Create(_root.transform, child);
             }
         }
-        
+
         public void Select(string contentId)
         {
             Log.Error(this, "Select({0}) is not implemented yet.", contentId);

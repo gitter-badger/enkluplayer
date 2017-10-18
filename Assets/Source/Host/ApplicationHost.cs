@@ -214,7 +214,10 @@ namespace CreateAR.SpirePlayer
                     _contentGraph.Root.Id,
                     @event.Children);
 
-                Log.Info(this, "New Hierarchy Root : " + _contentGraph.Root);
+                _contentGraph.Walk(node =>
+                {
+                    Log.Info(this, node);
+                });
             });
             
             Subscribe<HierarchyAddEvent>(MessageTypes.HIERARCHY_ADD, @event =>
@@ -222,6 +225,11 @@ namespace CreateAR.SpirePlayer
                 Log.Info(this, "Add node to hierarchy.");
                 
                 _contentGraph.Add(@event.Parent, @event.Node);
+
+                _contentGraph.Walk(node =>
+                {
+                    Log.Info(this, node);
+                });
             });
 
             Subscribe<HierarchyRemoveEvent>(MessageTypes.HIERARCHY_REMOVE, @event =>

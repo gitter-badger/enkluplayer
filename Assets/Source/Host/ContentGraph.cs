@@ -261,7 +261,16 @@ namespace CreateAR.SpirePlayer
         {
             Root = new ContentGraphNode("root", "root", new ContentGraphNode[0]);
         }
-        
+
+        /// <summary>
+        /// Walks all nodes.
+        /// </summary>
+        /// <param name="action">Action to call!</param>
+        public void Walk(Action<ContentGraphNode> action)
+        {
+            Walk(action, Root);
+        }
+
         /// <summary>
         /// Clears the root node without firing any events.
         /// </summary>
@@ -488,6 +497,22 @@ namespace CreateAR.SpirePlayer
 
             child = null;
             return null;
+        }
+
+        /// <summary>
+        /// Walk graph.
+        /// </summary>
+        /// <param name="action">Action to call on each.</param>
+        /// <param name="node">Node to start on.</param>
+        private void Walk(Action<ContentGraphNode> action, ContentGraphNode node)
+        {
+            action(node);
+
+            var children = node.Children;
+            for (int i = 0, len = children.Count; i < len; i++)
+            {
+                Walk(action, children[i]);
+            }
         }
     }
 }

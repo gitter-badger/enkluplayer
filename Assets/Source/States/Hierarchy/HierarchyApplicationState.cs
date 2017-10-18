@@ -56,9 +56,8 @@ namespace CreateAR.SpirePlayer
 
             // input
             _input.ChangeState(InputState);
-
-            // load graph full of goodies
-            //_graph.Load();
+            
+            _gameObjects.Create();
 
             // listen for selection
             _unsub = _router.Subscribe(
