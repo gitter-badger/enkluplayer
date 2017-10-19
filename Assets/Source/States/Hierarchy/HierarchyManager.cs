@@ -14,7 +14,7 @@ namespace CreateAR.SpirePlayer
         private readonly IAppDataManager _appData;
         private readonly ContentGraph _graph;
         private readonly GameObject _root;
-        private readonly Dictionary<string, HierarchyNodeMonoBehaviour> _gameObjects = new Dictionary<string, HierarchyNodeMonoBehaviour>();
+        private readonly Dictionary<string, GameObject> _gameObjects = new Dictionary<string, GameObject>();
 
         public ContentGraph Graph
         {
@@ -37,12 +37,10 @@ namespace CreateAR.SpirePlayer
 
         public void Create()
         {
-            foreach (var child in _graph.Root.Children)
-            {
-                Create(_root.transform, child);
-            }
+            Create(_root.transform, _graph.Root);
 
             _graph.Root.OnChildAdded += Graph_OnChildAdded;
+            _graph.Root.OnChildRemoved += Graph_OnChildRemoved;
         }
 
         public void Select(string contentId)
@@ -62,36 +60,76 @@ namespace CreateAR.SpirePlayer
             ContentGraphNode child)
         {
             var parent = child.Parent;
+
+            GameObject gameObject;
+            if (!_gameObjects.TryGetValue(parent.Id, out gameObject))
+            {
+                Log.Error(this,
+                    "Child added to a node HierarchyManager has not created : {0}.",
+                    parent.Id);
+                return;
+            }
+
+            Create(gameObject.transform, child);
+        }
+
+        private void Graph_OnChildRemoved(
+            ContentGraphNode root,
+            ContentGraphNode child)
+        {
+            GameObject gameObject;
+            if (!_gameObjects.TryGetValue(child.Id, out gameObject))
+            {
+                Log.Error(this,
+                    "Child removed that HierarchyManager has not created : {0}.",
+                    child.Id);
+                return;
+            }
+
+            _gameObjects.Remove(child.Id);
+
+            UnityEngine.Object.Destroy(gameObject);
         }
 
         private void Create(Transform parent, ContentGraphNode node)
         {
-            var contentData = _appData.Get<ContentData>(node.ContentId);
-            if (null == contentData)
+            Transform transform;
+            if (node.Id == "root")
             {
-                Log.Error(this,
-                    "Could not create HierarchyNodeMonoBehaviour for {0} : No content by that id.",
-                    node.ContentId);
-                return;
+                var root = _gameObjects[node.Id] = new GameObject("Root");
+
+                transform = root.transform;
             }
+            else
+            {
+                var contentData = _appData.Get<ContentData>(node.ContentId);
+                if (null == contentData)
+                {
+                    Log.Error(this,
+                        "Could not create HierarchyNodeMonoBehaviour for {0} : No content by that id.",
+                        node.ContentId);
+                    return;
+                }
 
-            // TODO: pool
-            var gameObject = new GameObject(contentData.Name);
-            gameObject.transform.SetParent(parent);
-            gameObject.transform.localPosition = Vector3.zero;
-            gameObject.transform.localRotation = Quaternion.identity;
+                // TODO: pool
+                var gameObject = new GameObject(contentData.Name);
+                gameObject.transform.SetParent(parent);
+                gameObject.transform.localPosition = Vector3.zero;
+                gameObject.transform.localRotation = Quaternion.identity;
 
-            var behavior = gameObject.AddComponent<HierarchyNodeMonoBehaviour>();
-            behavior.Initialize(
-                _assets,
-                _pools,
-                contentData);
+                var behavior = gameObject.AddComponent<HierarchyNodeMonoBehaviour>();
+                behavior.Initialize(
+                    _assets,
+                    _pools,
+                    contentData);
 
-            _gameObjects[contentData.Id] = behavior;
+                _gameObjects[contentData.Id] = gameObject;
+
+                transform = gameObject.transform;
+            }
 
             // children
             var children = node.Children;
-            var transform = gameObject.transform;
             for (int i = 0, len = children.Count; i < len; i++)
             {
                 Create(transform, children[i]);
