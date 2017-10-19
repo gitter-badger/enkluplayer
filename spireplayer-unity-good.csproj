@@ -214,7 +214,6 @@
     <Compile Include="Assets\Source\Spire\Data\SceneData.cs" />
     <Compile Include="Assets\Source\Spire\Data\ScriptData.cs" />
     <Compile Include="Assets\Source\Spire\Data\StaticData.cs" />
-    <Compile Include="Assets\Source\Spire\Data\StaticDataWatcher.cs" />
     <Compile Include="Assets\Source\Spire\IUX\ColorConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Anchor.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\AnchorReferenceFrameFactory.cs" />

@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     {
         private IAssetManager _assets;
         private IAssetPoolManager _pools;
-        private StaticDataWatcher<ContentData> _data;
+        private ContentData _data;
 
         private Asset _asset;
         private Action _unwatch;
@@ -18,29 +18,46 @@ namespace CreateAR.SpirePlayer
         public void Initialize(
             IAssetManager assets,
             IAssetPoolManager pools,
-            StaticDataWatcher<ContentData> data)
+            ContentData data)
         {
             _assets = assets;
             _pools = pools;
             _data = data;
 
-            PrepAsset();
-
-            // watch for content update
-            _data.OnUpdated += ContentData_OnUpdated;
+            SetupAsset();
         }
 
         public void Uninitialize()
         {
-            UnprepAsset();
-
-            _data.Destroy();
+            TeardownAsset();
         }
 
-        private void PrepAsset()
+        public void ContentUpdate(ContentData data)
+        {
+            _data = data;
+
+            // check for asset changes
+            if (null != _asset)
+            {
+                if (null != data.Asset
+                    && data.Asset.AssetDataId == _asset.Data.Guid)
+                {
+                    return;
+                }
+
+                RefreshAsset();
+            }
+            else if (null != data.Asset
+                && !string.IsNullOrEmpty(data.Asset.AssetDataId))
+            {
+                RefreshAsset();
+            }
+        }
+
+        private void SetupAsset()
         {
             // get the corresponding asset
-            _asset = Asset(_data.Value);
+            _asset = Asset(_data);
             if (null == _asset)
             {
                 Log.Warning(this,
@@ -54,6 +71,8 @@ namespace CreateAR.SpirePlayer
             // watch for asset reloads
             _unwatch = _asset.Watch<GameObject>(value =>
             {
+                Log.Info(this, "Asset loaded.");
+
                 if (null != _instance)
                 {
                     _pools.Put(_instance);
@@ -69,7 +88,7 @@ namespace CreateAR.SpirePlayer
             _asset.AutoReload = true;
         }
 
-        private void UnprepAsset()
+        private void TeardownAsset()
         {
             if (null != _instance)
             {
@@ -93,8 +112,8 @@ namespace CreateAR.SpirePlayer
 
         private void RefreshAsset()
         {
-            UnprepAsset();
-            PrepAsset();
+            TeardownAsset();
+            SetupAsset();
         }
 
         private Asset Asset(ContentData data)
@@ -113,25 +132,6 @@ namespace CreateAR.SpirePlayer
         private void Asset_OnRemoved(Asset asset)
         {
             Uninitialize();
-        }
-
-        private void ContentData_OnUpdated(ContentData contentData)
-        {
-            // check for asset changes
-            if (null != _asset)
-            {
-                if (null != contentData.Asset
-                    && contentData.Asset.AssetDataId == _asset.Data.Guid)
-                {
-                    return;
-                }
-
-                RefreshAsset();
-            }
-            else if (null != contentData.Asset && !string.IsNullOrEmpty(contentData.Asset.AssetDataId))
-            {
-                RefreshAsset();
-            }
         }
     }
 }

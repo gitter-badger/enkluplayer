@@ -135,14 +135,21 @@ namespace CreateAR.SpirePlayer
                 Log.Info(this,
                     "Updating AssetManifest with {0} assets.",
                     @event.Assets.Length);
+                
+                // adjust
+                foreach (var asset in @event.Assets)
+                {
+                    asset.AssetName = "Asset";
 
-                _assets.Manifest.Add(@event.Assets);
+                    _assets.Manifest.Add(asset);
+                }
             });
 
             Subscribe<AssetAddEvent>(MessageTypes.ASSET_ADD, @event =>
             {
                 Log.Info(this, "Add asset.");
 
+                @event.Asset.AssetName = "Asset";
                 _assets.Manifest.Add(@event.Asset);
             });
 
@@ -157,6 +164,7 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Info(this, "Update asset.");
 
+                @event.Asset.AssetName = "Asset";
                 _assets.Manifest.Update(@event.Asset);
             });
         }
@@ -198,20 +206,8 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Info(this, "Update content.");
 
-                // 
+                // update app data (the hierarchy is listening for updates)
                 _appData.Update(@event.Content);
-
-                // update graph
-                var node = _contentGraph.FindOne(@event.Content.Id);
-
-                // node cannot be null-- all content is in the graph
-                if (null == node)
-                {
-                    Log.Error(this,
-                        "Could not find ContentGraphNode for {0}.",
-                        @event.Content);
-                    return;
-                }
             });
         }
 

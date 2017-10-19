@@ -33,6 +33,8 @@ namespace CreateAR.SpirePlayer
             _graph = graph;
 
             _root = new GameObject("Hierarchy");
+
+            _appData.OnUpdated += AppData_OnUpdated;
         }
 
         public void Create()
@@ -121,7 +123,7 @@ namespace CreateAR.SpirePlayer
                 behavior.Initialize(
                     _assets,
                     _pools,
-                    new StaticDataWatcher<ContentData>(_appData, contentData));
+                    contentData);
 
                 _gameObjects[contentData.Id] = gameObject;
 
@@ -133,6 +135,17 @@ namespace CreateAR.SpirePlayer
             for (int i = 0, len = children.Count; i < len; i++)
             {
                 Create(transform, children[i]);
+            }
+        }
+        
+        private void AppData_OnUpdated(StaticData staticData)
+        {
+            GameObject gameObject;
+            if (_gameObjects.TryGetValue(staticData.Id, out gameObject))
+            {
+                gameObject
+                    .GetComponent<HierarchyNodeMonoBehaviour>()
+                    .ContentUpdate((ContentData)staticData);
             }
         }
     }
