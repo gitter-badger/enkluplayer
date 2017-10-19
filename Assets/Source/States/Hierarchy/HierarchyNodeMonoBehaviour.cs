@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     {
         private IAssetManager _assets;
         private IAssetPoolManager _pools;
-        private ContentData _data;
+        private StaticDataWatcher<ContentData> _data;
 
         private Asset _asset;
         private Action _unwatch;
@@ -18,14 +18,29 @@ namespace CreateAR.SpirePlayer
         public void Initialize(
             IAssetManager assets,
             IAssetPoolManager pools,
-            ContentData data)
+            StaticDataWatcher<ContentData> data)
         {
             _assets = assets;
             _pools = pools;
             _data = data;
 
+            PrepAsset();
+
+            // watch for content update
+            _data.OnUpdated += ContentData_OnUpdated;
+        }
+
+        public void Uninitialize()
+        {
+            UnprepAsset();
+
+            _data.Destroy();
+        }
+
+        private void PrepAsset()
+        {
             // get the corresponding asset
-            _asset = Asset(_data);
+            _asset = Asset(_data.Value);
             if (null == _asset)
             {
                 Log.Warning(this,
@@ -54,7 +69,7 @@ namespace CreateAR.SpirePlayer
             _asset.AutoReload = true;
         }
 
-        public void Uninitialize()
+        private void UnprepAsset()
         {
             if (null != _instance)
             {
@@ -76,6 +91,12 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        private void RefreshAsset()
+        {
+            UnprepAsset();
+            PrepAsset();
+        }
+
         private Asset Asset(ContentData data)
         {
             var assetId = null != data.Asset
@@ -92,6 +113,25 @@ namespace CreateAR.SpirePlayer
         private void Asset_OnRemoved(Asset asset)
         {
             Uninitialize();
+        }
+
+        private void ContentData_OnUpdated(ContentData contentData)
+        {
+            // check for asset changes
+            if (null != _asset)
+            {
+                if (null != contentData.Asset
+                    && contentData.Asset.AssetDataId == _asset.Data.Guid)
+                {
+                    return;
+                }
+
+                RefreshAsset();
+            }
+            else if (null != contentData.Asset && !string.IsNullOrEmpty(contentData.Asset.AssetDataId))
+            {
+                RefreshAsset();
+            }
         }
     }
 }

@@ -121,7 +121,7 @@ namespace CreateAR.SpirePlayer
                 behavior.Initialize(
                     _assets,
                     _pools,
-                    contentData);
+                    new StaticDataWatcher<ContentData>(_appData, contentData));
 
                 _gameObjects[contentData.Id] = gameObject;
 

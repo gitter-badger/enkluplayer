@@ -28,7 +28,7 @@ namespace CreateAR.SpirePlayer
         public override string ToString()
         {
             return string.Format(
-                "[AssetData AssetDataId={0}]",
+                "[AssetReference AssetDataId={0}]",
                 AssetDataId);
         }
     }

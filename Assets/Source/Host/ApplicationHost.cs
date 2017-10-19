@@ -198,7 +198,20 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Info(this, "Update content.");
 
+                // 
                 _appData.Update(@event.Content);
+
+                // update graph
+                var node = _contentGraph.FindOne(@event.Content.Id);
+
+                // node cannot be null-- all content is in the graph
+                if (null == node)
+                {
+                    Log.Error(this,
+                        "Could not find ContentGraphNode for {0}.",
+                        @event.Content);
+                    return;
+                }
             });
         }
 

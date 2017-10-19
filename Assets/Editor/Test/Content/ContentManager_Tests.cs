@@ -28,6 +28,8 @@ namespace CreateAR.SpirePlayer.Test
 
         public event Action OnLoaded;
         public event Action OnUnloaded;
+        public event Action<StaticData> OnRemoved;
+        public event Action<StaticData> OnUpdated;
 
         public string LoadedApp { get; private set; }
 

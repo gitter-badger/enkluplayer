@@ -39,6 +39,12 @@ namespace CreateAR.SpirePlayer
         public event Action OnUnloaded;
 
         /// <inheritdoc cref="IAppDataManager"/>
+        public event Action<StaticData> OnRemoved;
+
+        /// <inheritdoc cref="IAppDataManager"/>
+        public event Action<StaticData> OnUpdated;
+
+        /// <inheritdoc cref="IAppDataManager"/>
         public string LoadedApp { get; private set; }
 
         /// <summary>
@@ -145,9 +151,15 @@ namespace CreateAR.SpirePlayer
         public void Remove<T>(params T[] data) where T : StaticData
         {
             var list = GetList<T>();
-            for (int i = 0, len = data.Length; i < len; i++)
+            for (var i = data.Length - 1; i >= 0; i--)
             {
-                list.Remove(data[i]);
+                var datum = data[i];
+                list.Remove(datum);
+
+                if (null != OnRemoved)
+                {
+                    OnRemoved(datum);
+                }
             }
         }
 
@@ -168,6 +180,11 @@ namespace CreateAR.SpirePlayer
                         found = true;
 
                         list[j] = instance;
+
+                        if (null != OnUpdated)
+                        {
+                            OnUpdated(instance);
+                        }
                         break;
                     }
                 }

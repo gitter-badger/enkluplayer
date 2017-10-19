@@ -5,41 +5,6 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Provides additional methods for edit mode.
-    /// </summary>
-    public interface IAdminAppDataManager : IAppDataManager
-    {
-        /// <summary>
-        /// Removes all previous data for a type and replaces it with the passed
-        /// in data.
-        /// </summary>
-        /// <typeparam name="T">The type of data to replace.</typeparam>
-        /// <param name="data">The data to replace with.</param>
-        void Set<T>(params T[] data) where T : StaticData;
-
-        /// <summary>
-        /// Adds data.
-        /// </summary>
-        /// <typeparam name="T">The type of data to add.</typeparam>
-        /// <param name="data">The data to add.</param>
-        void Add<T>(params T[] data) where T : StaticData;
-
-        /// <summary>
-        /// Removes data.
-        /// </summary>
-        /// <typeparam name="T">The type of data to remove.</typeparam>
-        /// <param name="data">The data to remove.</param>
-        void Remove<T>(params T[] data) where T : StaticData;
-
-        /// <summary>
-        /// Updates data.
-        /// </summary>
-        /// <typeparam name="T">The type of data to update.</typeparam>
-        /// <param name="data">The data to update.</param>
-        void Update<T>(params T[] data) where T : StaticData;
-    }
-
-    /// <summary>
     /// Loads <c>AppData</c> and provides mechanisms for querying it.
     /// </summary>
     public interface IAppDataManager
@@ -53,6 +18,16 @@ namespace CreateAR.SpirePlayer
         /// This is called when unloaded.
         /// </summary>
         event Action OnUnloaded;
+
+        /// <summary>
+        /// Called when a piece of <c>StaticData</c> has been removed.
+        /// </summary>
+        event Action<StaticData> OnRemoved;
+
+        /// <summary>
+        /// Called when a piece of <c>StaticData</c> has been updated.
+        /// </summary>
+        event Action<StaticData> OnUpdated;
 
         /// <summary>
         /// Id of the currently loaded app.

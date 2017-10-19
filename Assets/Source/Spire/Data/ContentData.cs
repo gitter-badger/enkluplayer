@@ -39,5 +39,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonProperty("anchor")]
         public AnchorData Anchor;
+
+        /// <summary>
+        /// Useful ToString.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[ContentData Id={0} Asset={1}]",
+                Id,
+                Asset);
+        }
     }
 }

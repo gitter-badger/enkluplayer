@@ -96,7 +96,7 @@ namespace CreateAR.SpirePlayer
 
                 return null;
             }
-
+            
             /// <summary>
             /// Creates a new node.
             /// </summary>
