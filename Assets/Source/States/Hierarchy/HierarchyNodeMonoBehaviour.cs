@@ -4,17 +4,40 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// A specific GameObject representation of a Content node.
+    /// </summary>
     public class HierarchyNodeMonoBehaviour : MonoBehaviour
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private IAssetManager _assets;
         private IAssetPoolManager _pools;
+
+        /// <summary>
+        /// The data of this node.
+        /// </summary>
         private ContentData _data;
 
+        /// <summary>
+        /// The <c>Asset</c> this node displays.
+        /// </summary>
         private Asset _asset;
+
+        /// <summary>
+        /// An action to unsubscribe from <c>Asset</c> updates.
+        /// </summary>
         private Action _unwatch;
         private bool _originalAutoLoad;
         private GameObject _instance;
 
+        /// <summary>
+        /// Initializes the object.
+        /// </summary>
+        /// <param name="assets"></param>
+        /// <param name="pools"></param>
+        /// <param name="data"></param>
         public void Initialize(
             IAssetManager assets,
             IAssetPoolManager pools,

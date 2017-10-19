@@ -7,20 +7,44 @@ using ContentGraphNode = CreateAR.SpirePlayer.ContentGraph.ContentGraphNode;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Manages the mapping between Unity objects and the ContentGraph.
+    /// </summary>
     public class HierarchyManager
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly IAssetManager _assets;
         private readonly IAssetPoolManager _pools;
         private readonly IAppDataManager _appData;
+
+        /// <summary>
+        /// Backing variable for Graph property.
+        /// </summary>
         private readonly ContentGraph _graph;
+
+        /// <summary>
+        /// GameObject to attach everything to.
+        /// </summary>
         private readonly GameObject _root;
+
+        /// <summary>
+        /// Lookup from ContentData id to GameObject.
+        /// </summary>
         private readonly Dictionary<string, GameObject> _gameObjects = new Dictionary<string, GameObject>();
 
+        /// <summary>
+        /// Holds relationships between Content.
+        /// </summary>
         public ContentGraph Graph
         {
             get { return _graph; }
         }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public HierarchyManager(
             IAssetManager assets,
             IAssetPoolManager pools,
@@ -37,6 +61,9 @@ namespace CreateAR.SpirePlayer
             _appData.OnUpdated += AppData_OnUpdated;
         }
 
+        /// <summary>
+        /// Creates the GameObject hierarchy from the <c>ContentGraph</c>.
+        /// </summary>
         public void Create()
         {
             Create(_root.transform, _graph.Root);
@@ -45,11 +72,18 @@ namespace CreateAR.SpirePlayer
             _graph.Root.OnChildRemoved += Graph_OnChildRemoved;
         }
 
+        /// <summary>
+        /// Selects a specific piece of content.
+        /// </summary>
+        /// <param name="contentId">Id of the <c>Content</c> to select.</param>
         public void Select(string contentId)
         {
             Log.Error(this, "Select({0}) is not implemented yet.", contentId);
         }
 
+        /// <summary>
+        /// Clears the GameObjects.
+        /// </summary>
         public void Clear()
         {
             _graph.Clear();
@@ -57,6 +91,11 @@ namespace CreateAR.SpirePlayer
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Called when a child is added somewhere beneath the Root.
+        /// </summary>
+        /// <param name="root">The root node.</param>
+        /// <param name="child">The child that has been added.</param>
         private void Graph_OnChildAdded(
             ContentGraphNode root,
             ContentGraphNode child)
@@ -75,6 +114,11 @@ namespace CreateAR.SpirePlayer
             Create(gameObject.transform, child);
         }
 
+        /// <summary>
+        /// Called when a child has been removed from the graph.
+        /// </summary>
+        /// <param name="root">The root node.</param>
+        /// <param name="child">The child node.</param>
         private void Graph_OnChildRemoved(
             ContentGraphNode root,
             ContentGraphNode child)
@@ -93,6 +137,11 @@ namespace CreateAR.SpirePlayer
             UnityEngine.Object.Destroy(gameObject);
         }
 
+        /// <summary>
+        /// Recursive method that creates nodes.
+        /// </summary>
+        /// <param name="parent">Parent to attach to.</param>
+        /// <param name="node">Node to create.</param>
         private void Create(Transform parent, ContentGraphNode node)
         {
             Transform transform;
@@ -138,6 +187,10 @@ namespace CreateAR.SpirePlayer
             }
         }
         
+        /// <summary>
+        /// Called when AppData has an update.
+        /// </summary>
+        /// <param name="staticData">The StaticData that was updated.</param>
         private void AppData_OnUpdated(StaticData staticData)
         {
             GameObject gameObject;
