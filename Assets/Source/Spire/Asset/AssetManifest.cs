@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CreateAR.SpirePlayer
 {
@@ -22,6 +23,21 @@ namespace CreateAR.SpirePlayer
         /// Loads assets.
         /// </summary>
         private readonly IAssetLoader _loader;
+
+        /// <summary>
+        /// Retrieves all asset data. Creates a copy of the internal data structure,
+        /// thus-- this should be treated with care.
+        /// </summary>
+        public AssetData[] All
+        {
+            get
+            {
+                return _guidToReference
+                    .Values
+                    .Select(asset => asset.Data)
+                    .ToArray();
+            }
+        }
 
         /// <summary>
         /// Called when an asset has been added.
@@ -165,7 +181,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="guid">The guid for a particular asset.</param>
         /// <returns></returns>
-        public AssetData Info(string guid)
+        public AssetData Data(string guid)
         {
             var reference = Asset(guid);
 

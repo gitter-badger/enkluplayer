@@ -85,7 +85,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="data"></param>
         private void LoadAsset(ContentData data)
         {
-            var info = _assets.Manifest.Info(data.Asset.AssetDataId);
+            var info = _assets.Manifest.Data(data.Asset.AssetDataId);
             if (null == info)
             {
                 var error = string.Format(

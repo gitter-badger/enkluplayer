@@ -42,8 +42,8 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void Info()
         {
-            Assert.AreSame("a", _manifest.Info("a").Guid);
-            Assert.IsNull(_manifest.Info("e"));
+            Assert.AreSame("a", _manifest.Data("a").Guid);
+            Assert.IsNull(_manifest.Data("e"));
         }
 
         [Test]

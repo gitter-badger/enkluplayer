@@ -119,6 +119,12 @@ namespace CreateAR.SpirePlayer
             _bridge.Uninitialize();
         }
 
+        /// <summary>
+        /// Adds a binding + a message handler for a messagetype.
+        /// </summary>
+        /// <typeparam name="T">Type to deserialize the message into.</typeparam>
+        /// <param name="messageType">Type of message.</param>
+        /// <param name="handler">Handler to handle the message.</param>
         private void Subscribe<T>(int messageType, Action<T> handler)
         {
             _bridge.Binder.Add<T>(messageType);
@@ -128,47 +134,24 @@ namespace CreateAR.SpirePlayer
                 @event => handler((T) @event)));
         }
 
+        /// <summary>
+        /// Adds subscriptions for Asset events.
+        /// 
+        /// TODO: Move?
+        /// </summary>
         private void AddAssetSubscriptions()
         {
-            Subscribe<AssetListEvent>(MessageTypes.ASSET_LIST, @event =>
-            {
-                Log.Info(this,
-                    "Updating AssetManifest with {0} assets.",
-                    @event.Assets.Length);
-                
-                // adjust
-                foreach (var asset in @event.Assets)
-                {
-                    asset.AssetName = "Asset";
-
-                    _assets.Manifest.Add(asset);
-                }
-            });
-
-            Subscribe<AssetAddEvent>(MessageTypes.ASSET_ADD, @event =>
-            {
-                Log.Info(this, "Add asset.");
-
-                @event.Asset.AssetName = "Asset";
-                _assets.Manifest.Add(@event.Asset);
-            });
-
-            Subscribe<AssetRemoveEvent>(MessageTypes.ASSET_REMOVE, @event =>
-            {
-                Log.Info(this, "Remove asset.");
-
-                _assets.Manifest.Remove(@event.Id);
-            });
-
-            Subscribe<AssetUpdateEvent>(MessageTypes.ASSET_UPDATE, @event =>
-            {
-                Log.Info(this, "Update asset.");
-
-                @event.Asset.AssetName = "Asset";
-                _assets.Manifest.Update(@event.Asset);
-            });
+            Subscribe<AssetListEvent>(MessageTypes.ASSET_LIST, Messages_OnAssetList);
+            Subscribe<AssetAddEvent>(MessageTypes.ASSET_ADD, Messages_OnAssetAdd);
+            Subscribe<AssetRemoveEvent>(MessageTypes.ASSET_REMOVE, Messages_OnAssetRemove);
+            Subscribe<AssetUpdateEvent>(MessageTypes.ASSET_UPDATE, Messages_OnAssetUpdate);
         }
 
+        /// <summary>
+        /// Adds subscriptions for Content events.
+        /// 
+        /// TODO: Move?
+        /// </summary>
         private void AddContentSubscriptions()
         {
             Subscribe<ContentListEvent>(MessageTypes.CONTENT_LIST, @event =>
@@ -211,6 +194,11 @@ namespace CreateAR.SpirePlayer
             });
         }
 
+        /// <summary>
+        /// Adds subscriptions for Hierarchy events.
+        /// 
+        /// TODO: Move?
+        /// </summary>
         private void AddHierarchySubscriptions()
         {
             _bridge.Binder.Add<HierarchySelectEvent>(MessageTypes.HIERARCHY_SELECT);
@@ -254,6 +242,96 @@ namespace CreateAR.SpirePlayer
 
                 _contentGraph.Update(@event.Node);
             });
+        }
+
+        /// <summary>
+        /// Called when an <c>Asset</c> has been updated.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void Messages_OnAssetUpdate(AssetUpdateEvent @event)
+        {
+            Log.Info(this, "Update asset.");
+
+            @event.Asset.AssetName = "Asset";
+            _assets.Manifest.Update(@event.Asset);
+        }
+
+        /// <summary>
+        /// Called when an <c>Asset</c> has been removed.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void Messages_OnAssetRemove(AssetRemoveEvent @event)
+        {
+            Log.Info(this, "Remove asset.");
+
+            _assets.Manifest.Remove(@event.Id);
+        }
+
+        /// <summary>
+        /// Called when an <c>Asset</c> has been added.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void Messages_OnAssetAdd(AssetAddEvent @event)
+        {
+            Log.Info(this, "Add asset.");
+
+            @event.Asset.AssetName = "Asset";
+            _assets.Manifest.Add(@event.Asset);
+        }
+
+        /// <summary>
+        /// Called when a complete manifest of assets has been sent over.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void Messages_OnAssetList(AssetListEvent @event)
+        {
+            Log.Info(this,
+                "Updating AssetManifest with {0} assets.",
+                @event.Assets.Length);
+
+            // handle adds + updates
+            var manifest = _assets.Manifest;
+            var assets = @event.Assets;
+            for (int i = 0, len = assets.Length; i < len; i++)
+            {
+                var asset = assets[i];
+
+                // ImportService marks all AssetNames as "Asset"
+                asset.AssetName = "Asset";
+
+                var info = manifest.Data(asset.Guid);
+                if (null == info)
+                {
+                    _assets.Manifest.Add(asset);
+                }
+                else
+                {
+                    manifest.Update(asset);
+                }
+            }
+
+            // handle removes
+            var all = manifest.All;
+            for (int i = 0, ilen = all.Length; i < ilen; i++)
+            {
+                var data = all[i];
+
+                var found = false;
+                for (int j = 0, jlen = assets.Length; j < jlen; j++)
+                {
+                    var asset = assets[i];
+                    if (data.Guid == asset.Guid)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    manifest.Remove(data.Guid);
+                }
+            }
         }
     }
 }
