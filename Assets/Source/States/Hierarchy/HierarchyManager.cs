@@ -179,7 +179,8 @@ namespace CreateAR.SpirePlayer
                 behavior.Initialize(
                     _assets,
                     _pools,
-                    contentData);
+                    contentData,
+                    node);
 
                 _gameObjects[contentData.Id] = gameObject;
 
@@ -205,7 +206,7 @@ namespace CreateAR.SpirePlayer
             {
                 gameObject
                     .GetComponent<HierarchyNodeMonoBehaviour>()
-                    .ContentUpdate((ContentData)staticData);
+                    .ContentUpdate((ContentData) staticData);
             }
         }
     }

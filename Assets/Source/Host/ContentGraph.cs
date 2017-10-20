@@ -22,7 +22,7 @@ namespace CreateAR.SpirePlayer
             /// Id of the content to reference.
             /// </summary>
             public string ContentId { get; private set; }
-
+            
             /// <summary>
             /// Parent of this node.
             /// </summary>
@@ -32,6 +32,19 @@ namespace CreateAR.SpirePlayer
             /// Child nodes.
             /// </summary>
             public List<ContentGraphNode> Children { get; private set; }
+
+            /// <summary>
+            /// Locators associated with this node.
+            /// </summary>
+            public List<HierarchyNodeLocatorData> Locators { get; private set; }
+
+            /// <summary>
+            /// Returns the self locator.
+            /// </summary>
+            public HierarchyNodeLocatorData SelfLocator
+            {
+                get { return Locator("__self__"); }
+            }
 
             /// <summary>
             /// Called when this node has been updated. Not called for child
@@ -96,22 +109,48 @@ namespace CreateAR.SpirePlayer
 
                 return null;
             }
-            
+
+            /// <summary>
+            /// Retrieves a locator by name.
+            /// </summary>
+            /// <param name="name">Name of the locator.</param>
+            /// <returns></returns>
+            public HierarchyNodeLocatorData Locator(string name)
+            {
+                for (int i = 0, len = Locators.Count; i < len; i++)
+                {
+                    var locator = Locators[i];
+                    if (locator.Name == name)
+                    {
+                        return locator;
+                    }
+                }
+
+                return null;
+            }
+
             /// <summary>
             /// Creates a new node.
             /// </summary>
-            /// <param name="id">Unique id of this node.</param>
-            /// <param name="contentId">Unique id of the Content to reference.</param>
+            /// <param name="data">Data.</param>
             /// <param name="parent">The parent of this node.</param>
             internal ContentGraphNode(
-                string id,
-                string contentId,
+                HierarchyNodeData data,
                 ContentGraphNode parent)
             {
-                Id = id;
-                ContentId = contentId;
+                Id = data.Id;
+                ContentId = data.ContentId;
                 Parent = parent;
                 Children = new List<ContentGraphNode>();
+                Locators = new List<HierarchyNodeLocatorData>();
+            }
+
+            /// <summary>
+            /// Sets locators.
+            /// </summary>
+            internal void SetLocators(HierarchyNodeLocatorData[] locators)
+            {
+                Locators = new List<HierarchyNodeLocatorData>(locators);
             }
 
             /// <summary>
@@ -275,8 +314,10 @@ namespace CreateAR.SpirePlayer
         public ContentGraph()
         {
             Root = new ContentGraphNode(
-                "root",
-                "root",
+                new HierarchyNodeData
+                {
+                    Id = "root"
+                },
                 null);
         }
 
@@ -421,6 +462,9 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
+            // reconcile locators
+            node.SetLocators(data.Locators);
+
             // fire event on node
             node.Updated();
         }
@@ -436,8 +480,7 @@ namespace CreateAR.SpirePlayer
             HierarchyNodeData data)
         {
             var node = new ContentGraphNode(
-                data.Id,
-                data.ContentId,
+                data,
                 parent);
 
             // build out children first

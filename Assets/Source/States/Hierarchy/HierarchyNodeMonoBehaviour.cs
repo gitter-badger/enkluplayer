@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
+using ContentGraphNode = CreateAR.SpirePlayer.ContentGraph.ContentGraphNode;
 
 namespace CreateAR.SpirePlayer
 {
@@ -19,6 +20,11 @@ namespace CreateAR.SpirePlayer
         /// The data of this node.
         /// </summary>
         private ContentData _data;
+
+        /// <summary>
+        /// Node in ContentGraph.
+        /// </summary>
+        private ContentGraphNode _node;
 
         /// <summary>
         /// The <c>Asset</c> this node displays.
@@ -40,23 +46,30 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes the object.
         /// </summary>
-        /// <param name="assets"></param>
-        /// <param name="pools"></param>
-        /// <param name="data"></param>
+        /// <param name="assets">Loads assets.</param>
+        /// <param name="pools">Pools objects.</param>
+        /// <param name="data">Data for this piece of content.</param>
+        /// <param name="node">Node in ContentGraph for this content.</param>
         public void Initialize(
             IAssetManager assets,
             IAssetPoolManager pools,
-            ContentData data)
+            ContentData data,
+            ContentGraphNode node)
         {
             _assets = assets;
             _pools = pools;
             _data = data;
+            _node = node;
+
+            _node.OnUpdated += Node_OnUpdate;
 
             SetupAsset();
         }
 
         public void Uninitialize()
         {
+            _node.OnUpdated -= Node_OnUpdate;
+
             TeardownAsset();
         }
 
@@ -109,6 +122,8 @@ namespace CreateAR.SpirePlayer
 
                 _instance = _pools.Get<GameObject>(value);
                 _instance.transform.SetParent(transform, false);
+
+                UpdateInstancePosition();
 
                 if (null != OnAssetUpdated)
                 {
@@ -174,12 +189,44 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Updates the instance's position based on the self locator.
+        /// </summary>
+        private void UpdateInstancePosition()
+        {
+            if (null == _instance)
+            {
+                return;
+            }
+
+            var selfLocator = _node.SelfLocator;
+            if (null == selfLocator)
+            {
+                Log.Warning(this, "Node {0} has no self locator.", _node);
+            }
+            else
+            {
+                _instance.transform.localPosition = selfLocator.Position;
+                _instance.transform.localRotation = Quaternion.Euler(selfLocator.Rotation);
+                _instance.transform.localScale = selfLocator.Scale;
+            }
+        }
+
+        /// <summary>
         /// Called when the asset has been removed from the manifest.
         /// </summary>
         /// <param name="asset">The asset that has been removed.</param>
         private void Asset_OnRemoved(Asset asset)
         {
             Uninitialize();
+        }
+
+        /// <summary>
+        /// Called when the node is updated.
+        /// </summary>
+        /// <param name="node">The node.</param>
+        private void Node_OnUpdate(ContentGraphNode node)
+        {
+            UpdateInstancePosition();
         }
     }
 }

@@ -252,7 +252,8 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Update asset.");
 
-            @event.Asset.AssetName = "Asset";
+            // ImportService marks AssetNames with guid
+            @event.Asset.AssetName = @event.Asset.Guid;
             _assets.Manifest.Update(@event.Asset);
         }
 
@@ -275,7 +276,8 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Add asset.");
 
-            @event.Asset.AssetName = "Asset";
+            // ImportService marks AssetNames with guid
+            @event.Asset.AssetName = @event.Asset.Guid;
             _assets.Manifest.Add(@event.Asset);
         }
 
@@ -296,8 +298,8 @@ namespace CreateAR.SpirePlayer
             {
                 var asset = assets[i];
 
-                // ImportService marks all AssetNames as "Asset"
-                asset.AssetName = "Asset";
+                // ImportService marks AssetNames with guid
+                asset.AssetName = asset.Guid;
 
                 var info = manifest.Data(asset.Guid);
                 if (null == info)
