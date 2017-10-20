@@ -33,6 +33,11 @@ namespace CreateAR.SpirePlayer
         private GameObject _instance;
 
         /// <summary>
+        /// Called when the asset has been updated.
+        /// </summary>
+        public event Action<HierarchyNodeMonoBehaviour> OnAssetUpdated;
+
+        /// <summary>
         /// Initializes the object.
         /// </summary>
         /// <param name="assets"></param>
@@ -104,6 +109,11 @@ namespace CreateAR.SpirePlayer
 
                 _instance = _pools.Get<GameObject>(value);
                 _instance.transform.SetParent(transform, false);
+
+                if (null != OnAssetUpdated)
+                {
+                    OnAssetUpdated(this);
+                }
             });
 
             // automatically reload
@@ -111,6 +121,9 @@ namespace CreateAR.SpirePlayer
             _asset.AutoReload = true;
         }
 
+        /// <summary>
+        /// Destroys the asset and stops watching it.
+        /// </summary>
         private void TeardownAsset()
         {
             if (null != _instance)
@@ -133,12 +146,20 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Tears down the asset and sets it back up.
+        /// </summary>
         private void RefreshAsset()
         {
             TeardownAsset();
             SetupAsset();
         }
 
+        /// <summary>
+        /// Retrieves the asset corresponding to the input <c>ContentData</c>.
+        /// </summary>
+        /// <param name="data">The <c>ContentData</c> to find <c>Asset</c> for.</param>
+        /// <returns></returns>
         private Asset Asset(ContentData data)
         {
             var assetId = null != data.Asset
@@ -152,6 +173,10 @@ namespace CreateAR.SpirePlayer
             return _assets.Manifest.Asset(assetId);
         }
 
+        /// <summary>
+        /// Called when the asset has been removed from the manifest.
+        /// </summary>
+        /// <param name="asset">The asset that has been removed.</param>
         private void Asset_OnRemoved(Asset asset)
         {
             Uninitialize();

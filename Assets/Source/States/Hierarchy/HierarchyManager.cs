@@ -18,6 +18,7 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
         private readonly IAssetPoolManager _pools;
         private readonly IAppDataManager _appData;
+        private readonly HierarchyFocusManager _focus;
 
         /// <summary>
         /// Backing variable for Graph property.
@@ -33,7 +34,7 @@ namespace CreateAR.SpirePlayer
         /// Lookup from ContentData id to GameObject.
         /// </summary>
         private readonly Dictionary<string, GameObject> _gameObjects = new Dictionary<string, GameObject>();
-
+        
         /// <summary>
         /// Holds relationships between Content.
         /// </summary>
@@ -49,11 +50,13 @@ namespace CreateAR.SpirePlayer
             IAssetManager assets,
             IAssetPoolManager pools,
             IAppDataManager appData,
+            HierarchyFocusManager focus,
             ContentGraph graph)
         {
             _assets = assets;
             _pools = pools;
             _appData = appData;
+            _focus = focus;
             _graph = graph;
 
             _root = new GameObject("Hierarchy");
@@ -78,7 +81,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="contentId">Id of the <c>Content</c> to select.</param>
         public void Select(string contentId)
         {
-            Log.Error(this, "Select({0}) is not implemented yet.", contentId);
+            GameObject selection;
+            if (_gameObjects.TryGetValue(contentId, out selection))
+            {
+                _focus.Focus(selection.GetComponent<HierarchyNodeMonoBehaviour>());
+            }
         }
 
         /// <summary>
@@ -90,7 +97,7 @@ namespace CreateAR.SpirePlayer
 
             throw new NotImplementedException();
         }
-
+        
         /// <summary>
         /// Called when a child is added somewhere beneath the Root.
         /// </summary>

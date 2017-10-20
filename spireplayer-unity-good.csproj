@@ -256,6 +256,7 @@
     <Compile Include="Assets\Source\States\Hierarchy\HierarchyApplicationState.cs" />
     <Compile Include="Assets\Source\Pooling\IAssetPoolManager.cs" />
     <Compile Include="Assets\Source\Pooling\LazyAssetPoolManager.cs" />
+    <Compile Include="Assets\Source\States\Hierarchy\HierarchyFocusManager.cs" />
     <Compile Include="Assets\Source\States\Hierarchy\HierarchyManager.cs" />
     <Compile Include="Assets\Source\States\Hierarchy\HierarchyNodeMonoBehaviour.cs" />
     <Compile Include="Assets\Source\States\Initialize\InitializeApplicationState.cs" />
