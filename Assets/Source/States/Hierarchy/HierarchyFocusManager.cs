@@ -39,6 +39,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="target">The target to focus on.</param>
         public void Focus(HierarchyNodeMonoBehaviour target)
         {
+            if (_target == target)
+            {
+                return;
+            }
+
             if (null != _target)
             {
                 _target.OnAssetUpdated -= Target_OnAssetUpdated;
