@@ -1,6 +1,5 @@
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer;
 
 namespace CreateAR.SpirePlayer
 {
@@ -26,6 +25,18 @@ namespace CreateAR.SpirePlayer
             _messages = messages;
 
             Binder = new MessageTypeBinder();
+        }
+
+        /// <inheritdoc cref="IBridge"/>
+        public void Initialize()
+        {
+            // nothing
+        }
+
+        /// <inheritdoc cref="IBridge"/>
+        public void Uninitialize()
+        {
+            // nothing
         }
 
         /// <inheritdoc cref="IBridge"/>

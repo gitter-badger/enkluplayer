@@ -14,13 +14,21 @@ mergeInto(
 			window.bridge.log.info("WebBridge.jslib::init()");
 
 			// add method to bridge for sending events to Unity
-			window.bridge.send = function(message) {
-					window.bridge.log.info("Sending [" + message + "] to Unity.");
+			window.bridge.send = function(messageType, message) {
+					// stringify
+					messageType = "" + messageType;
+
+					window.bridge.log.info("Sending [" + messageType + "] to Unity.");
 					
+					var compressedMessage = messageType;
+					if (message) {
+						compressedMessage += ":" + btoa(JSON.stringify(message));
+					}
+
 					SendMessage(
 						"Network",
 						"OnNetworkEvent",
-						message);
+						compressedMessage);
 				};
 		},
 

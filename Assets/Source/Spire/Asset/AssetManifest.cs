@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CreateAR.SpirePlayer;
+using System.Linq;
 
 namespace CreateAR.SpirePlayer
 {
@@ -25,6 +25,21 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetLoader _loader;
 
         /// <summary>
+        /// Retrieves all asset data. Creates a copy of the internal data structure,
+        /// thus-- this should be treated with care.
+        /// </summary>
+        public AssetData[] All
+        {
+            get
+            {
+                return _guidToReference
+                    .Values
+                    .Select(asset => asset.Data)
+                    .ToArray();
+            }
+        }
+
+        /// <summary>
         /// Called when an asset has been added.
         /// </summary>
         public event Action<Asset> OnAssetAdded;
@@ -34,6 +49,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public event Action<Asset> OnAssetUpdated;
 
+        /// <summary>
+        /// Called when an asset has been removed.
+        /// </summary>
+        public event Action<Asset> OnAssetRemoved;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="resolver">Resolves tag queries.</param>
+        /// <param name="loader">Loads assets.</param>
         public AssetManifest(
             IQueryResolver resolver,
             IAssetLoader loader)
@@ -79,6 +104,35 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Removes assets from manifest.
+        /// </summary>
+        /// <param name="assetIds">The ids of assets to remove.</param>
+        public void Remove(params string[] assetIds)
+        {
+            if (null == assetIds)
+            {
+                throw new Exception("Cannot remove null.");
+            }
+
+            for (int i = 0, len = assetIds.Length; i < len; i++)
+            {
+                var assetId = assetIds[i];
+                var asset = Asset(assetId);
+                if (null != asset)
+                {
+                    _guidToReference.Remove(assetId);
+
+                    asset.Remove();
+
+                    if (null != OnAssetRemoved)
+                    {
+                        OnAssetRemoved(asset);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Updates a set of <c>AssetInfo</c> instances. Throws an <c>ArgumentException</c>
         /// if an <c>AssetInfo</c> does not exist.
         /// </summary>
@@ -107,7 +161,7 @@ namespace CreateAR.SpirePlayer
             for (int i = 0, len = assets.Length; i < len; i++)
             {
                 var info = assets[i];
-                var reference = Reference(info.Guid);
+                var reference = Asset(info.Guid);
                 if (null == reference)
                 {
                     throw new ArgumentException("Invalid AssetInfo.");
@@ -127,9 +181,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="guid">The guid for a particular asset.</param>
         /// <returns></returns>
-        public AssetData Info(string guid)
+        public AssetData Data(string guid)
         {
-            var reference = Reference(guid);
+            var reference = Asset(guid);
 
             return null == reference
                 ? null
@@ -141,7 +195,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="guid">The guid for a particular asset.</param>
         /// <returns></returns>
-        public Asset Reference(string guid)
+        public Asset Asset(string guid)
         {
             Asset reference;
             _guidToReference.TryGetValue(guid, out reference);
@@ -162,9 +216,10 @@ namespace CreateAR.SpirePlayer
         {
             foreach (var pair in _guidToReference)
             {
+                var tagsArray = pair.Value.Data.Tags.Split(',');
                 if (_resolver.Resolve(
                     query,
-                    ref pair.Value.Data.Tags))
+                    ref tagsArray))
                 {
                     return pair.Value;
                 }
@@ -187,9 +242,10 @@ namespace CreateAR.SpirePlayer
             var references = new List<Asset>();
             foreach (var pair in _guidToReference)
             {
+                var tagsArray = pair.Value.Data.Tags.Split(',');
                 if (_resolver.Resolve(
                     query,
-                    ref pair.Value.Data.Tags))
+                    ref tagsArray))
                 {
                     references.Add(pair.Value);
                 }

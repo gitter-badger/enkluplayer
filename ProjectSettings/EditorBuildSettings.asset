@@ -17,6 +17,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PreviewMode.unity
     guid: 4cfe3125ec3363e4581f7f49c8c23abf
-  - enabled: 0
-    path: Assets/Scenes/Test/Jint/Jint.unity
-    guid: f30668f023d552a4fa75b55a1bfdf47d
+  - enabled: 1
+    path: Assets/Scenes/HierarchyMode.unity
+    guid: 275448d136b055c4596fefe103d2e821

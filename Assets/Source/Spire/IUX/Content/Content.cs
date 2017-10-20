@@ -1,7 +1,6 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -86,7 +85,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="data"></param>
         private void LoadAsset(ContentData data)
         {
-            var info = _assets.Manifest.Info(data.Asset.AssetDataId);
+            var info = _assets.Manifest.Data(data.Asset.AssetDataId);
             if (null == info)
             {
                 var error = string.Format(
@@ -98,7 +97,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            var reference = _assets.Manifest.Reference(info.Guid);
+            var reference = _assets.Manifest.Asset(info.Guid);
             reference
                 .Load<GameObject>()
                 .OnSuccess(assetPrefab =>

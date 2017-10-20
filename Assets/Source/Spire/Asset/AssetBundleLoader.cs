@@ -102,20 +102,12 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Completed bundle load successfully.");
 
                     Bundle = bundle;
-
-                    try
-                    {
-                        var request = Bundle.LoadAssetAsync(assetName);
-                        _bootstrapper.BootstrapCoroutine(WaitForLoadAsset(
-                            request,
-                            token,
-                            load));
-                    }
-                    catch (Exception exception)
-                    {
-                        Log.Error(this, exception);
-                    }
-
+                    
+                    var request = Bundle.LoadAssetAsync(assetName);
+                    _bootstrapper.BootstrapCoroutine(WaitForLoadAsset(
+                        request,
+                        token,
+                        load));
                 })
                 .OnFailure(token.Fail);
 
@@ -186,6 +178,8 @@ namespace CreateAR.SpirePlayer
             AsyncToken<Object> token,
             LoadProgress progress)
         {
+            Log.Info(this, "Loading asset from bundle.");
+
             while (!request.isDone)
             {
                 progress.Value = request.progress;
@@ -199,10 +193,14 @@ namespace CreateAR.SpirePlayer
             var asset = request.asset;
             if (null == asset)
             {
+                Log.Error(this, "Could not find asset in bundle.");
+
                 token.Fail(new Exception("Could not find asset."));
             }
             else
             {
+                Log.Info(this, "Found asset in bundle.");
+
                 token.Succeed(asset);
             }
         }

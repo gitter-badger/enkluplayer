@@ -64,6 +64,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<EditApplicationState>().To<EditApplicationState>();
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
+                    binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                 }
                 
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
@@ -73,6 +74,7 @@ namespace CreateAR.SpirePlayer
                             LookupComponent<MonoBehaviourBootstrapper>()))
                     .ToSingleton();
                 binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
+                binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
 
                 // TODO: These could just be events from the bridge.
@@ -109,7 +111,6 @@ namespace CreateAR.SpirePlayer
         private void AddSpireBindings(InjectionBinder binder)
         {
             binder.Bind<AppController>().To<AppController>();
-            binder.Bind<IAppDataManager>().To<AppDataManager>().ToSingleton();
             binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
 
             // factory
@@ -123,6 +124,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
                 binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfig>());
                 binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfig>());
+                binder.Bind<HierarchyFocusManager>().ToValue(LookupComponent<HierarchyFocusManager>());
             }
 
             // manager monobehaviours
@@ -132,6 +134,12 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
                 binder.Bind<LayerManager>().ToValue(LookupComponent<LayerManager>());
                 binder.Bind<MusicManager>().ToValue(LookupComponent<MusicManager>());
+            }
+
+            // hierarchy
+            {
+                binder.Bind<ContentGraph>().To<ContentGraph>().ToSingleton();
+                binder.Bind<HierarchyManager>().To<HierarchyManager>().ToSingleton();
             }
 
             // scripting
@@ -152,6 +160,14 @@ namespace CreateAR.SpirePlayer
             // misc
             {
                 binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
+            }
+
+            // dependant on previous bindings
+            {
+                binder.Bind<IAdminAppDataManager>().To<AppDataManager>().ToSingleton();
+
+                var appData = binder.GetInstance<IAdminAppDataManager>();
+                binder.Bind<IAppDataManager>().ToValue(appData);
             }
         }
 

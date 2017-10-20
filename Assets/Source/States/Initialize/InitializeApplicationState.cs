@@ -36,7 +36,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IState"/>
-        public void Enter()
+        public void Enter(object context)
         {
             // setup http
             _http.UrlBuilder.Protocol = "http";
@@ -45,23 +45,16 @@ namespace CreateAR.SpirePlayer
             _http.UrlBuilder.Version = "v1";
 
             // setup assets
-            IAssetLoader loader;
-            if (UnityEngine.Application.isEditor)
-            {
-                loader = new EditorAssetLoader();
-            }
-            else
-            {
-                loader = new StandardAssetLoader(
-                    _bootstrapper,
-                    new UrlBuilder
-                    {
-                        BaseUrl = "ec2-54-202-152-140.us-west-2.compute.amazonaws.com",
-                        Port = 9091,
-                        Protocol = "http"
-                    });
-            }
-            
+            var loader = new StandardAssetLoader(
+                _bootstrapper,
+                new UrlBuilder
+                {
+                    BaseUrl = "ec2-54-202-152-140.us-west-2.compute.amazonaws.com",
+                    Port = 9091,
+                    Protocol = "http"
+                });
+
+            _assets.Uninitialize();
             _assets
                 .Initialize(new AssetManagerConfiguration
                 {

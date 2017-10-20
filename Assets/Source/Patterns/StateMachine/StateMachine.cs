@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
@@ -18,6 +19,16 @@ namespace CreateAR.SpirePlayer
         /// <param name="state">The state to transition to.</param>
         public void Change(IState state)
         {
+            Change(state, Void.Instance);
+        }
+
+        /// <summary>
+        /// Changes state.
+        /// </summary>
+        /// <param name="state">The state to transition to.</param>
+        /// <param name="context">Object parameter to pass to state enter.</param>
+        public void Change(IState state, object context)
+        {
             if (state == _state)
             {
                 return;
@@ -36,7 +47,7 @@ namespace CreateAR.SpirePlayer
 
             if (null != _state)
             {
-                _state.Enter();
+                _state.Enter(context);
             }
         }
 

@@ -6,27 +6,26 @@ namespace CreateAR.SpirePlayer.Test
     [TestFixture]
     public class AssetManifest_Tests
     {
-        private readonly AssetData[] _assets = new[]
-        {
+        private readonly AssetData[] _assets = {
             new AssetData
             {
                 Guid = "a",
-                Tags = new[] { "a", "b", "c" }
+                Tags = "a,b,c"
             },
             new AssetData
             {
                 Guid = "b",
-                Tags = new[]{ "a", "b" }
+                Tags = "a,b"
             },
             new AssetData
             {
                 Guid = "c",
-                Tags = new[]{ "c" }
+                Tags = "c"
             },
             new AssetData
             {
                 Guid = "d",
-                Tags = new[]{ "d" }
+                Tags = "d"
             }
         };
         private AssetManifest _manifest;
@@ -43,17 +42,17 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void Info()
         {
-            Assert.AreSame("a", _manifest.Info("a").Guid);
-            Assert.IsNull(_manifest.Info("e"));
+            Assert.AreSame("a", _manifest.Data("a").Guid);
+            Assert.IsNull(_manifest.Data("e"));
         }
 
         [Test]
         public void Get()
         {
-            Assert.AreSame("a", _manifest.Reference("a").Data.Guid);
+            Assert.AreSame("a", _manifest.Asset("a").Data.Guid);
 
             // case sensitive
-            Assert.IsNull(_manifest.Reference("A"));
+            Assert.IsNull(_manifest.Asset("A"));
         }
 
         [Test]
@@ -92,6 +91,39 @@ namespace CreateAR.SpirePlayer.Test
                 Assert.AreSame(asset, added.Data);
             };
             _manifest.Add(asset);
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void RemoveEvent()
+        {
+            var called = 0;
+
+            _manifest.OnAssetRemoved += removed =>
+            {
+                called++;
+            };
+
+            _manifest.Remove("a", "b");
+
+            Assert.AreEqual(2, called);
+        }
+
+        [Test]
+        public void RemoveAssetEvent()
+        {
+            var called = false;
+
+            var reference = _manifest.Asset("a");
+            reference.OnRemoved += r =>
+            {
+                called = true;
+
+                Assert.AreSame(reference, r);
+            };
+
+            _manifest.Remove("a");
 
             Assert.IsTrue(called);
         }

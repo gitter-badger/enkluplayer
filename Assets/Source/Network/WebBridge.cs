@@ -1,6 +1,5 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer;
 
 namespace CreateAR.SpirePlayer
 {
@@ -34,18 +33,20 @@ namespace CreateAR.SpirePlayer
         public static extern void ready();
 #endif
         
-        /// <summary>
-        /// Initializes the bridge.
-        /// </summary>
-        protected override void Awake()
+        /// <inheritdoc cref="IBridge"/>
+        public void Initialize()
         {
-            base.Awake();
-
 #if !UNITY_EDITOR && UNITY_WEBGL
             UnityEngine.WebGLInput.captureAllKeyboardInput = false;
 
             init();
 #endif
+        }
+
+        /// <inheritdoc cref="IBridge"/>
+        public void Uninitialize()
+        {
+            // nothing to do
         }
 
         /// <summary>

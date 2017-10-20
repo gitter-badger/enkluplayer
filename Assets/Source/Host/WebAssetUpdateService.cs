@@ -44,13 +44,13 @@ namespace CreateAR.SpirePlayer
         public IAsyncToken<Void> Initialize()
         {
             _addedUnsub = _messages.Subscribe(
-                MessageTypes.ASSET_ADDED,
+                MessageTypes.ASSET_ADD,
                 Messages_OnAssetAdded);
             _updatedUnsub = _messages.Subscribe(
-                MessageTypes.ASSET_UPDATED,
+                MessageTypes.ASSET_UPDATE,
                 Messages_OnAssetUpdated);
             _removedUnsub = _messages.Subscribe(
-                MessageTypes.ASSET_REMOVED,
+                MessageTypes.ASSET_REMOVE,
                 Messages_OnAssetRemoved);
 
             return new AsyncToken<Void>(Void.Instance);

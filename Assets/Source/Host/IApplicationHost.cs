@@ -9,6 +9,11 @@
         /// Call when the application is ready. Before this point, the application
         /// will not receive any events from the host.
         /// </summary>
-        void Ready();
+        void Start();
+
+        /// <summary>
+        /// Call when the application is being shutdown.
+        /// </summary>
+        void Stop();
     }
 }

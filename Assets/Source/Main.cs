@@ -47,11 +47,15 @@ namespace CreateAR.SpirePlayer
         /// </summary>
 	    private void Awake()
 	    {
+            // for AOT platforms
+            AotGenericTypeIncludes.Include();
+
             // setup logging
 	        Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
 	        {
 	            Level = false,
-	            Timestamp = false
+	            Timestamp = false,
+                TypeName = true
 	        }));
 	        
 	        Log.Filter = LogLevel.Debug;

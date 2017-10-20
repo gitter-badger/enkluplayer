@@ -1,4 +1,6 @@
 ﻿#if NETFX_CORE
+using System;
+
 namespace CreateAR.SpirePlayer
 {
     public class UwpBridge : IBridge, IUwpWebsocketService
@@ -33,6 +35,16 @@ namespace CreateAR.SpirePlayer
         }
 
         public void OnClose()
+        {
+            
+        }
+
+        public void Initialize()
+        {
+            
+        }
+
+        public void Uninitialize()
         {
             
         }

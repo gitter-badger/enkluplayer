@@ -3,20 +3,104 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.SpirePlayer;
+using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// <c>IBridge</c> implementation in the Unity Editor.
     /// </summary>
-    public class EditorBridge : WebSocketBehavior, IBridge, IDisposable
+    public class EditorBridge : IBridge, IDisposable
     {
+        /// <summary>
+        /// Service for connected clients.
+        /// </summary>
+        private class BridgeService : WebSocketBehavior
+        {
+            /// <summary>
+            /// Called when a client joins.
+            /// </summary>
+            public event Action<BridgeService> OnClientJoined;
+
+            /// <summary>
+            /// Called when a client sends a message.
+            /// </summary>
+            public event Action<BridgeService, MessageEventArgs> OnMessageReceived;
+
+            /// <summary>
+            /// Called when a client leaves.
+            /// </summary>
+            public event Action<BridgeService> OnClientLeft;
+
+            /// <summary>
+            /// Sends a payload.
+            /// </summary>
+            /// <param name="payload">Payload to send.</param>
+            public void SendMessage(string payload)
+            {
+                SendAsync(
+                    payload,
+                    success =>
+                    {
+                        if (!success)
+                        {
+                            Commons.Unity.Logging.Log.Error(this,
+                                "Could not send message.");
+                        }
+                    });
+            }
+
+            /// <summary>
+            /// Called when a client joins.
+            /// </summary>
+            protected override void OnOpen()
+            {
+                base.OnOpen();
+
+                Commons.Unity.Logging.Log.Info(this, "WebSocket client joined.");
+
+                if (null != OnClientJoined)
+                {
+                    OnClientJoined(this);
+                }
+            }
+
+            /// <summary>
+            /// Called when we receieve a message.
+            /// 
+            /// NOTE: This is called in a worker thread, so it is put on a queue.
+            /// </summary>
+            /// <param name="event"></param>
+            protected override void OnMessage(MessageEventArgs @event)
+            {
+                base.OnMessage(@event);
+
+                if (null != OnMessageReceived)
+                {
+                    OnMessageReceived(this, @event);
+                }
+            }
+
+            /// <summary>
+            /// Called when a client leaves.
+            /// </summary>
+            /// <param name="event"></param>
+            protected override void OnClose(CloseEventArgs @event)
+            {
+                base.OnClose(@event);
+                
+                Commons.Unity.Logging.Log.Info(this, "WebSocket client left.");
+
+                if (null != OnClientLeft)
+                {
+                    OnClientLeft(this);
+                }
+            }
+        }
+
         /// <summary>
         /// Represents a method on the webpage.
         /// </summary>
@@ -47,14 +131,19 @@ namespace CreateAR.SpirePlayer
         private readonly WebSocketServer _server;
 
         /// <summary>
-        /// Token for init.
+        /// True iff we should broadcast ready.
         /// </summary>
-        private readonly AsyncToken<Void> _initToken = new AsyncToken<Void>();
-
+        private bool _broadcastReady = false;
+        
         /// <summary>
         /// Messages received but not yet processed.
         /// </summary>
         private readonly List<string> _messages = new List<string>();
+
+        /// <summary>
+        /// List of joined services.
+        /// </summary>
+        private readonly List<BridgeService> _joinedServices = new List<BridgeService>();
 
         /// <summary>
         /// Allows binding between message type and C# type.
@@ -72,47 +161,96 @@ namespace CreateAR.SpirePlayer
         {
             _handler = handler;
             
-            // start watcher "thread"
+            // start watcher "thread" -- can persiste between goes
             bootstrapper.BootstrapCoroutine(ConsumeMessages());
 
-            // listen for connections
+            // create new server
             _server = new WebSocketServer("ws://localhost:4649");
+            _server.Log.Level = LogLevel.Warn;
+            _server.Log.Output = (data, message) =>
+            {
+                Debug.Log(string.Format("WS[{0}] = {1}", message, data));
+            };
+
+            // create service factory
             _server.AddWebSocketService(
                 "/bridge",
-                () => this);
+                () =>
+                {
+                    var service = new BridgeService();
+                    service.OnClientJoined += Service_OnClientJoined;
+                    service.OnMessageReceived += Service_OnMessageReceived;
+                    service.OnClientLeft += Service_OnClientLeft;
+                    
+                    return service;
+                });
             _server.Start();
+        }
+
+        /// <summary>
+        /// IDisposable implementation.
+        /// </summary>
+        public void Dispose()
+        {
+            ReleaseUnmanagedResources();
+            GC.SuppressFinalize(this);
+        }
+
+        /// <inheritdoc cref="IBridge"/>
+        public void Initialize()
+        {
+            
+        }
+
+        /// <inheritdoc cref="IBridge"/>
+        public void Uninitialize()
+        {
+            _broadcastReady = false;
+            
+            lock (_messages)
+            {
+                _messages.Clear();
+            }
         }
 
         /// <inheritdoc cref="IBridge"/>
         public void BroadcastReady()
         {
-            _initToken.OnSuccess(_ => CallMethod("ready"));
-        }
-            
-        /// <summary>
-        /// Called when a client joins.
-        /// </summary>
-        protected override void OnOpen()
-        {
-            base.OnOpen();
-                
-            Commons.Unity.Logging.Log.Info(this, "WebSocket client joined.");
+            _broadcastReady = true;
 
-            CallMethod("init");
-
-            _initToken.Succeed(Void.Instance);
+            // send to ready services
+            foreach (var service in _joinedServices)
+            {
+                CallMethod("ready", service);
+            }
+            _joinedServices.Clear();
         }
 
         /// <summary>
-        /// Called when we receieve a message.
-        /// 
-        /// NOTE: This is called in a worker thread, so it is put on a queue.
+        /// Called when a client joins a service.
         /// </summary>
-        /// <param name="event"></param>
-        protected override void OnMessage(MessageEventArgs @event)
+        /// <param name="service">The service associated with the user.</param>
+        private void Service_OnClientJoined(BridgeService service)
         {
-            base.OnMessage(@event);
+            CallMethod("init", service);
 
+            if (_broadcastReady)
+            {
+                CallMethod("ready", service);
+            }
+            else
+            {
+                _joinedServices.Add(service);
+            }
+        }
+
+        /// <summary>
+        /// Called when a message has been received by a service.
+        /// </summary>
+        /// <param name="service">The service associated with the user.</param>
+        /// <param name="event">The message receieved.</param>
+        private void Service_OnMessageReceived(BridgeService service, MessageEventArgs @event)
+        {
             lock (_messages)
             {
                 _messages.Add(@event.Data);
@@ -120,14 +258,12 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when a client leaves.
+        /// Called when a user has left a service.
         /// </summary>
-        /// <param name="event"></param>
-        protected override void OnClose(CloseEventArgs @event)
+        /// <param name="service">The service associated with the user.</param>
+        private void Service_OnClientLeft(BridgeService service)
         {
-            base.OnClose(@event);
-
-            Commons.Unity.Logging.Log.Info(this, "WebSocket client left.");
+            _joinedServices.Add(service);
         }
 
         /// <summary>
@@ -164,7 +300,8 @@ namespace CreateAR.SpirePlayer
         /// Sends a message to connected hosts.
         /// </summary>
         /// <param name="methodName">The message type to send.</param>
-        private void CallMethod(string methodName)
+        /// <param name="service">Optional service to send to.</param>
+        private void CallMethod(string methodName, BridgeService service = null)
         {
             byte[] bytes;
             _serializer.Serialize(
@@ -175,16 +312,20 @@ namespace CreateAR.SpirePlayer
                 out bytes);
 
             var payload = Encoding.UTF8.GetString(bytes);
-            
-            SendAsync(
-                payload,
-                result =>
-                {
-                    if (!result)
+
+            if (null == service)
+            {
+                _server.WebSocketServices.BroadcastAsync(
+                    payload,
+                    () =>
                     {
-                        Commons.Unity.Logging.Log.Error(this, "Could not send message.");
-                    }
-                });
+                        //
+                    });
+            }
+            else
+            {
+                service.SendMessage(payload);
+            }
         }
 
         /// <summary>
@@ -193,15 +334,6 @@ namespace CreateAR.SpirePlayer
         private void ReleaseUnmanagedResources()
         {
             _server.Stop();
-        }
-
-        /// <summary>
-        /// IDisposable implementation.
-        /// </summary>
-        public void Dispose()
-        {
-            ReleaseUnmanagedResources();
-            GC.SuppressFinalize(this);
         }
 
         /// <summary>

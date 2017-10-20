@@ -1,6 +1,4 @@
-﻿using CreateAR.SpirePlayer;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Bridge between Unity and hosting application.
@@ -13,7 +11,18 @@ namespace CreateAR.SpirePlayer
         MessageTypeBinder Binder { get; }
 
         /// <summary>
-        /// Tells the hosting application that Unity application is ready.
+        /// Initializes the bridge.
+        /// </summary>
+        void Initialize();
+
+        /// <summary>
+        /// Uninitializes the bridge.
+        /// </summary>
+        void Uninitialize();
+
+        /// <summary>
+        /// Tells the hosting application that Unity application is ready. This
+        /// must be called between Initialize and Uninitialize.
         /// </summary>
         void BroadcastReady();
     }

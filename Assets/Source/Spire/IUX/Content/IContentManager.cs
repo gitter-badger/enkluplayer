@@ -23,7 +23,7 @@ namespace CreateAR.SpirePlayer
         Content FindShared(string contentId);
 
         /// <summary>
-        /// Requests a <c>Conten</c> instance by id.
+        /// Requests a <c>Content</c> instance by id.
         /// </summary>
         /// <param name="contentId">Unique id of <c>ContenData</c>.</param>
         /// <param name="tags">Associated meta. These are kept with the instance

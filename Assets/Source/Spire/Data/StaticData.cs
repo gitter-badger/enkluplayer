@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace CreateAR.SpirePlayer
 {
@@ -11,16 +12,19 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Unique identifier.
         /// </summary>
+        [JsonProperty("id")]
         public string Id;
 
         /// <summary>
         /// Human readable name. Non-unique.
         /// </summary>
+        [JsonProperty("name")]
         public string Name;
 
         /// <summary>
         /// Optional description.
         /// </summary>
+        [JsonProperty("description")]
         public string Description;
 
         /// <summary>

@@ -20,6 +20,16 @@ namespace CreateAR.SpirePlayer
         event Action OnUnloaded;
 
         /// <summary>
+        /// Called when a piece of <c>StaticData</c> has been removed.
+        /// </summary>
+        event Action<StaticData> OnRemoved;
+
+        /// <summary>
+        /// Called when a piece of <c>StaticData</c> has been updated.
+        /// </summary>
+        event Action<StaticData> OnUpdated;
+
+        /// <summary>
         /// Id of the currently loaded app.
         /// 
         /// Only non null between OnLoaded + OnUnloaded.

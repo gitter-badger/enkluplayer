@@ -1,6 +1,8 @@
 using System;
 using CreateAR.Commons.Unity.Logging;
 
+using Void = CreateAR.Commons.Unity.Async.Void;
+
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
@@ -33,7 +35,17 @@ namespace CreateAR.SpirePlayer
         /// <typeparam name="T">The type of the state to transition to.</typeparam>
         public void Change<T>() where T : IState
         {
-            Change(typeof(T));
+            Change(typeof(T), Void.Instance);
+        }
+
+        /// <summary>
+        /// Changes to the state of type T.
+        /// </summary>
+        /// <typeparam name="T">The type of the state to transition to.</typeparam>
+        /// <param name="context">Parameter to pass to enter method.</param>
+        public void Change<T>(object context) where T : IState
+        {
+            Change(typeof(T), context);
         }
 
         /// <summary>
@@ -41,6 +53,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="type">The type of the state to transition to.</param>
         public void Change(Type type)
+        {
+            Change(type, Void.Instance);
+        }
+
+        /// <summary>
+        /// Changes to the state of the given type.
+        /// </summary>
+        /// <param name="type">The type of the state to transition to.</param>
+        /// <param name="context">Parameter to pass to enter method.</param>
+        public void Change(Type type, object context)
         {
             IState newState = null;
 
@@ -67,7 +89,7 @@ namespace CreateAR.SpirePlayer
 
             if (null != _state)
             {
-                _state.Enter();
+                _state.Enter(context);
             }
         }
 
