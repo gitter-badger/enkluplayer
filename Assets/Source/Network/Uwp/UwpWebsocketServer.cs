@@ -1,9 +1,7 @@
 ﻿#if NETFX_CORE
-using System;
-using System.Collections.Generic;
-using Windows.Networking.Sockets;
-using Windows.Storage.Streams;
 using CreateAR.Commons.Unity.Logging;
+using IotWeb.Common.Http;
+using IotWeb.Server;
 
 namespace CreateAR.SpirePlayer
 {
@@ -14,84 +12,50 @@ namespace CreateAR.SpirePlayer
         void OnClose();
     }
 
-    public class UwpWebsocketServer
+    public class UwpWebsocketServer : IWebSocketRequestHandler
     {
-        private StreamSocketListener _listener;
+        private readonly IUwpWebsocketService _service;
+        private HttpServer _server;
 
         public int Port { get; set; }
 
-        public UwpWebsocketServer()
+        public UwpWebsocketServer(IUwpWebsocketService service)
         {
             Port = 4649;
+
+            _service = service;
         }
 
         public void Listen()
         {
-            _listener = new StreamSocketListener();
-            _listener.Control.NoDelay = true;
-            _listener.ConnectionReceived += Listener_OnConnectionReceived;
-
-            Start();
+            _server = new HttpServer(Port);
+            _server.AddWebSocketRequestHandler(
+                "/bridge",
+                this);
+            _server.Start();
         }
 
-        public UwpWebsocketServer AddService(
-            string prefix,
-            IUwpWebsocketService service)
+        public bool WillAcceptRequest(string uri, string protocol)
         {
-            //
-            return this;
+            return true;
         }
 
-        private async void Start()
+        public void Connected(WebSocket socket)
         {
-            await _listener.BindServiceNameAsync(Port.ToString());
+            socket.ConnectionClosed += Socket_OnConnectionClosed;
+            socket.DataReceived += Socket_OnDataReceived;
 
-            // listening!
-            Log.Info(this,
-                "Listening on port {0}.",
-                _listener.Information.LocalPort);
+            _service.OnOpen();
         }
 
-        private readonly List<StreamSocket> _controllers = new List<StreamSocket>();
-
-        private void Listener_OnConnectionReceived(
-            StreamSocketListener sender,
-            StreamSocketListenerConnectionReceivedEventArgs args)
+        private void Socket_OnConnectionClosed(WebSocket socket)
         {
-            var socket = args.Socket;
-            _controllers.Add(socket);
-
-            Log.Info(this,
-                "Connection received from {0}.",
-                socket.Information.RemoteHostName.DisplayName);
-
-            WaitForData(socket);
+            _service.OnClose();
         }
 
-        private async void WaitForData(StreamSocket socket)
+        private void Socket_OnDataReceived(WebSocket socket, string frame)
         {
-            var reader = new DataReader(socket.InputStream);
-            var stringHeader = await reader.LoadAsync(4);
-
-            if (stringHeader == 0)
-            {
-                Log.Info(this,
-                    "Disconnected from {0}.",
-                    socket.Information.RemoteHostName.DisplayName);
-                return;
-            }
-
-            var length = reader.ReadInt32();
-            var numBytes = await reader.LoadAsync((uint)length);
-            var message = reader.ReadString(numBytes);
-
-            Log.Info(this,
-                "Received from {0}: {1}.",
-                socket.Information.RemoteHostName.DisplayName,
-                message);
-            
-            // wait for more data
-            WaitForData(socket);
+            _service.OnMessage(frame);
         }
     }
 }
