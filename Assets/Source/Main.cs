@@ -61,9 +61,10 @@ namespace CreateAR.SpirePlayer
 	        Log.Filter = LogLevel.Debug;
             
 #if NETFX_CORE
+            /*
             Log.AddLogTarget(new UwpSocketLogger(
                 "Spire",
-                new System.Uri("ws://127.0.0.1:9999")));
+                new System.Uri("ws://127.0.0.1:9999")));*/
 #else       
             Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
 #endif

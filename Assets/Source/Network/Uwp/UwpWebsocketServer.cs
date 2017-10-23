@@ -1,97 +1,161 @@
 ﻿#if NETFX_CORE
-using System;
+using System.Collections;
 using System.Collections.Generic;
-using Windows.Networking.Sockets;
-using Windows.Storage.Streams;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using IotWeb.Common.Http;
+using IotWeb.Server;
 
 namespace CreateAR.SpirePlayer
 {
-    public interface IUwpWebsocketService
+    /// <summary>
+    /// Sets up a websocket server to listen for clients.
+    /// </summary>
+    public class UwpWebsocketServer : IWebSocketRequestHandler
     {
-        void OnOpen();
-        void OnMessage(string message);
-        void OnClose();
-    }
+        /// <summary>
+        /// service to receive messages.
+        /// </summary>
+        private readonly IUwpWebsocketService _service;
 
-    public class UwpWebsocketServer
-    {
-        private StreamSocketListener _listener;
+        /// <summary>
+        /// Underlying server.
+        /// </summary>
+        private HttpServer _server;
 
+        /// <summary>
+        /// Connection with client.
+        /// </summary>
+        private WebSocket _socket;
+
+        /// <summary>
+        /// Messages received but not yet processed.
+        /// </summary>
+        private readonly List<string> _messages = new List<string>();
+
+        /// <summary>
+        /// Port to start service on.
+        /// </summary>
         public int Port { get; set; }
 
-        public UwpWebsocketServer()
-        {
-            Port = 4649;
-        }
-
-        public void Listen()
-        {
-            _listener = new StreamSocketListener();
-            _listener.Control.NoDelay = true;
-            _listener.ConnectionReceived += Listener_OnConnectionReceived;
-
-            Start();
-        }
-
-        public UwpWebsocketServer AddService(
-            string prefix,
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="bootstrapper">Bootstraps coroutines\.</param>
+        /// <param name="service">Object to listen to events.</param>
+        public UwpWebsocketServer(
+            IBootstrapper bootstrapper,
             IUwpWebsocketService service)
         {
-            //
-            return this;
+            Port = 4649;
+
+            _service = service;
+
+            bootstrapper.BootstrapCoroutine(ConsumeMessages());
         }
 
-        private async void Start()
+        /// <summary>
+        /// Starts listening.
+        /// </summary>
+        public void Listen()
         {
-            await _listener.BindServiceNameAsync(Port.ToString());
-
-            // listening!
-            Log.Info(this,
-                "Listening on port {0}.",
-                _listener.Information.LocalPort);
+            _server = new HttpServer(Port);
+            _server.AddWebSocketRequestHandler(
+                "/bridge",
+                this);
+            _server.Start();
         }
 
-        private readonly List<StreamSocket> _controllers = new List<StreamSocket>();
-
-        private void Listener_OnConnectionReceived(
-            StreamSocketListener sender,
-            StreamSocketListenerConnectionReceivedEventArgs args)
+        /// <inheritdoc cref="IWebSocketRequestHandler"/>
+        public bool WillAcceptRequest(string uri, string protocol)
         {
-            var socket = args.Socket;
-            _controllers.Add(socket);
-
-            Log.Info(this,
-                "Connection received from {0}.",
-                socket.Information.RemoteHostName.DisplayName);
-
-            WaitForData(socket);
+            return true;
         }
 
-        private async void WaitForData(StreamSocket socket)
+        /// <summary>
+        /// Sends a message.
+        /// </summary>
+        /// <param name="payload">The payload to send.</param>
+        public void Send(string payload)
         {
-            var reader = new DataReader(socket.InputStream);
-            var stringHeader = await reader.LoadAsync(4);
-
-            if (stringHeader == 0)
+            if (null == _socket)
             {
-                Log.Info(this,
-                    "Disconnected from {0}.",
-                    socket.Information.RemoteHostName.DisplayName);
                 return;
             }
 
-            var length = reader.ReadInt32();
-            var numBytes = await reader.LoadAsync((uint)length);
-            var message = reader.ReadString(numBytes);
+            _socket.Send(payload);
+        }
 
-            Log.Info(this,
-                "Received from {0}: {1}.",
-                socket.Information.RemoteHostName.DisplayName,
-                message);
-            
-            // wait for more data
-            WaitForData(socket);
+        /// <inheritdoc cref="IWebSocketRequestHandler"/>
+        public void Connected(WebSocket socket)
+        {
+            if (null != _socket)
+            {
+                Log.Warning(this, "Refusing connection: we are already connected.");
+                socket.Close();
+                return;
+            }
+
+            _socket = socket;
+            _socket.ConnectionClosed += Socket_OnConnectionClosed;
+            _socket.DataReceived += Socket_OnDataReceived;
+
+            _service.OnOpen();
+        }
+
+        /// <summary>
+        /// Generator that consumes messages off the queue.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator ConsumeMessages()
+        {
+            while (true)
+            {
+                string[] messages = null;
+                lock (_messages)
+                {
+                    if (_messages.Count > 0)
+                    {
+                        messages = _messages.ToArray();
+                        _messages.Clear();
+                    }
+                }
+
+                if (null != messages)
+                {
+                    for (int i = 0, len = messages.Length; i < len; i++)
+                    {
+                        _service.OnMessage(messages[i]);
+                    }
+                }
+
+                yield return null;
+            }
+        }
+
+        /// <summary>
+        /// Called when the socket disconnects.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        private void Socket_OnConnectionClosed(WebSocket socket)
+        {
+            _socket = null;
+            _service.OnClose();
+        }
+
+        /// <summary>
+        /// Called when the socket receives data.
+        /// 
+        /// Note: This is called in a different thread.
+        /// </summary>
+        /// <param name="socket">The socket the data was received on.</param>
+        /// <param name="frame">The data received.</param>
+        private void Socket_OnDataReceived(WebSocket socket, string frame)
+        {
+            lock (_messages)
+            {
+                _messages.Add(frame);
+            }
         }
     }
 }
