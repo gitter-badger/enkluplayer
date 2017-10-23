@@ -5,6 +5,9 @@ using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// IBridge implementation for UWP.
+    /// </summary>
     public class UwpBridge : IBridge, IUwpWebsocketService
     {
         /// <summary>
@@ -21,9 +24,19 @@ namespace CreateAR.SpirePlayer
 #pragma warning restore 414
         }
 
+        /// <summary>
+        /// Handles connections from the web editor.
+        /// </summary>
         private readonly UwpWebsocketServer _server;
+
+        /// <summary>
+        /// Handles messages from the client.
+        /// </summary>
         private readonly BridgeMessageHandler _handler;
 
+        /// <summary>
+        /// Set to true when <c>BroadcastReady</c> is called.
+        /// </summary>
         private bool _broadcastReady = false;
 
         /// <summary>
@@ -31,8 +44,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly JsonSerializer _serializer = new JsonSerializer();
 
+        /// <inheritdoc cref="IBridge"/>
         public MessageTypeBinder Binder { get { return _handler.Binder; } }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="bootstrapper">Bootstraps coroutines.</param>
+        /// <param name="handler">Handles messages.</param>
         public UwpBridge(
             IBootstrapper bootstrapper,
             BridgeMessageHandler handler)
@@ -45,6 +64,7 @@ namespace CreateAR.SpirePlayer
             LogNetworkInfo();
         }
 
+        /// <inheritdoc cref="IBridge"/>
         public void BroadcastReady()
         {
             _broadcastReady = true;
@@ -52,6 +72,7 @@ namespace CreateAR.SpirePlayer
             CallMethod("ready");
         }
 
+        /// <inheritdoc cref="IUwpWebsocketService"/>
         public void OnOpen()
         {
             Log.Info(this, "WebSocket connection opened.");
@@ -64,24 +85,28 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc cref="IUwpWebsocketService"/>
         public void OnMessage(string message)
         {
             _handler.OnMessage(message);
         }
 
+        /// <inheritdoc cref="IUwpWebsocketService"/>
         public void OnClose()
         {
             Log.Info(this, "WebSocket connection closed.");
         }
 
+        /// <inheritdoc cref="IBridge"/>
         public void Initialize()
         {
-            
+            //
         }
 
+        /// <inheritdoc cref="IBridge"/>
         public void Uninitialize()
         {
-            
+            //
         }
 
         /// <summary>

@@ -8,17 +8,24 @@ using IotWeb.Server;
 
 namespace CreateAR.SpirePlayer
 {
-    public interface IUwpWebsocketService
-    {
-        void OnOpen();
-        void OnMessage(string message);
-        void OnClose();
-    }
-
+    /// <summary>
+    /// Sets up a websocket server to listen for clients.
+    /// </summary>
     public class UwpWebsocketServer : IWebSocketRequestHandler
     {
+        /// <summary>
+        /// service to receive messages.
+        /// </summary>
         private readonly IUwpWebsocketService _service;
+
+        /// <summary>
+        /// Underlying server.
+        /// </summary>
         private HttpServer _server;
+
+        /// <summary>
+        /// Connection with client.
+        /// </summary>
         private WebSocket _socket;
 
         /// <summary>
@@ -26,8 +33,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly List<string> _messages = new List<string>();
 
+        /// <summary>
+        /// Port to start service on.
+        /// </summary>
         public int Port { get; set; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="bootstrapper">Bootstraps coroutines\.</param>
+        /// <param name="service">Object to listen to events.</param>
         public UwpWebsocketServer(
             IBootstrapper bootstrapper,
             IUwpWebsocketService service)
@@ -39,6 +54,9 @@ namespace CreateAR.SpirePlayer
             bootstrapper.BootstrapCoroutine(ConsumeMessages());
         }
 
+        /// <summary>
+        /// Starts listening.
+        /// </summary>
         public void Listen()
         {
             _server = new HttpServer(Port);
@@ -48,11 +66,16 @@ namespace CreateAR.SpirePlayer
             _server.Start();
         }
 
+        /// <inheritdoc cref="IWebSocketRequestHandler"/>
         public bool WillAcceptRequest(string uri, string protocol)
         {
             return true;
         }
 
+        /// <summary>
+        /// Sends a message.
+        /// </summary>
+        /// <param name="payload">The payload to send.</param>
         public void Send(string payload)
         {
             if (null == _socket)
@@ -63,6 +86,7 @@ namespace CreateAR.SpirePlayer
             _socket.Send(payload);
         }
 
+        /// <inheritdoc cref="IWebSocketRequestHandler"/>
         public void Connected(WebSocket socket)
         {
             if (null != _socket)
@@ -109,12 +133,23 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Called when the socket disconnects.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
         private void Socket_OnConnectionClosed(WebSocket socket)
         {
             _socket = null;
             _service.OnClose();
         }
 
+        /// <summary>
+        /// Called when the socket receives data.
+        /// 
+        /// Note: This is called in a different thread.
+        /// </summary>
+        /// <param name="socket">The socket the data was received on.</param>
+        /// <param name="frame">The data received.</param>
         private void Socket_OnDataReceived(WebSocket socket, string frame)
         {
             lock (_messages)
