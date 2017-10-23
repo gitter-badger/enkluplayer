@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-
+using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -276,9 +276,11 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Add asset.");
 
-            // ImportService marks AssetNames with guid
-            @event.Asset.AssetName = @event.Asset.Guid;
-            _assets.Manifest.Add(@event.Asset);
+            var asset = @event.Asset;
+
+            FormatAssetData(asset);
+
+            _assets.Manifest.Add(asset);
         }
 
         /// <summary>
@@ -298,8 +300,7 @@ namespace CreateAR.SpirePlayer
             {
                 var asset = assets[i];
 
-                // ImportService marks AssetNames with guid
-                asset.AssetName = asset.Guid;
+                FormatAssetData(asset);
 
                 var info = manifest.Data(asset.Guid);
                 if (null == info)
@@ -332,6 +333,54 @@ namespace CreateAR.SpirePlayer
                 if (!found)
                 {
                     manifest.Remove(data.Guid);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Makes some modifications to <c>AssetData</c> passed in.
+        /// </summary>
+        /// <param name="asset">The asset received.</param>
+        private void FormatAssetData(AssetData asset)
+        {
+            // ImportService marks AssetNames with guid
+            asset.AssetName = asset.Guid;
+
+            // append build target to URI
+            var index = asset.Uri.IndexOf(".bundle", StringComparison.Ordinal);
+            asset.Uri = string.Format(
+                "{0}_{1}.bundle",
+                asset.Uri.Substring(0, index),
+                GetBuildTarget());
+        }
+
+        /// <summary>
+        /// Retrieves the build target we wish to download bundles for.
+        /// </summary>
+        /// <returns></returns>
+        private string GetBuildTarget()
+        {
+            switch (UnityEngine.Application.platform)
+            {
+                case RuntimePlatform.WebGLPlayer:
+                {
+                    return "webgl";
+                }
+                case RuntimePlatform.WSAPlayerX86:
+                case RuntimePlatform.WSAPlayerX64:
+                case RuntimePlatform.WSAPlayerARM:
+                {
+                    return "wsaplayer";
+                }
+                case RuntimePlatform.WindowsEditor:
+                case RuntimePlatform.OSXEditor:
+                case RuntimePlatform.LinuxEditor:
+                {
+                    return "webgl";
+                }
+                default:
+                {
+                    return "UNKNOWN";
                 }
             }
         }
