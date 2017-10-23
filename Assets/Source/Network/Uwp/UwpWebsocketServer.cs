@@ -1,4 +1,7 @@
 ﻿#if NETFX_CORE
+using System.Collections;
+using System.Collections.Generic;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using IotWeb.Common.Http;
 using IotWeb.Server;
@@ -16,14 +19,24 @@ namespace CreateAR.SpirePlayer
     {
         private readonly IUwpWebsocketService _service;
         private HttpServer _server;
+        private WebSocket _socket;
+
+        /// <summary>
+        /// Messages received but not yet processed.
+        /// </summary>
+        private readonly List<string> _messages = new List<string>();
 
         public int Port { get; set; }
 
-        public UwpWebsocketServer(IUwpWebsocketService service)
+        public UwpWebsocketServer(
+            IBootstrapper bootstrapper,
+            IUwpWebsocketService service)
         {
             Port = 4649;
 
             _service = service;
+
+            bootstrapper.BootstrapCoroutine(ConsumeMessages());
         }
 
         public void Listen()
@@ -40,22 +53,74 @@ namespace CreateAR.SpirePlayer
             return true;
         }
 
+        public void Send(string payload)
+        {
+            if (null == _socket)
+            {
+                return;
+            }
+
+            _socket.Send(payload);
+        }
+
         public void Connected(WebSocket socket)
         {
-            socket.ConnectionClosed += Socket_OnConnectionClosed;
-            socket.DataReceived += Socket_OnDataReceived;
+            if (null != _socket)
+            {
+                Log.Warning(this, "Refusing connection: we are already connected.");
+                socket.Close();
+                return;
+            }
+
+            _socket = socket;
+            _socket.ConnectionClosed += Socket_OnConnectionClosed;
+            _socket.DataReceived += Socket_OnDataReceived;
 
             _service.OnOpen();
         }
 
+        /// <summary>
+        /// Generator that consumes messages off the queue.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator ConsumeMessages()
+        {
+            while (true)
+            {
+                string[] messages = null;
+                lock (_messages)
+                {
+                    if (_messages.Count > 0)
+                    {
+                        messages = _messages.ToArray();
+                        _messages.Clear();
+                    }
+                }
+
+                if (null != messages)
+                {
+                    for (int i = 0, len = messages.Length; i < len; i++)
+                    {
+                        _service.OnMessage(messages[i]);
+                    }
+                }
+
+                yield return null;
+            }
+        }
+
         private void Socket_OnConnectionClosed(WebSocket socket)
         {
+            _socket = null;
             _service.OnClose();
         }
 
         private void Socket_OnDataReceived(WebSocket socket, string frame)
         {
-            _service.OnMessage(frame);
+            lock (_messages)
+            {
+                _messages.Add(frame);
+            }
         }
     }
 }
