@@ -33,6 +33,12 @@
         public const int CONTENT_REMOVE = 22;
         public const int CONTENT_UPDATE = 23;
 
+        // Scripts
+        public const int SCRIPT_LIST = 30;
+        public const int SCRIPT_ADD = 31;
+        public const int SCRIPT_REMOVE = 32;
+        public const int SCRIPT_UPDATE = 33;
+
         ///////////////////////////////////////////////////////////////////////
         // Global
         ///////////////////////////////////////////////////////////////////////

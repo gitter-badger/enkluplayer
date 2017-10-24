@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
@@ -14,6 +15,11 @@ namespace CreateAR.SpirePlayer
         /// Loads assets.
         /// </summary>
         private IAssetManager _assets;
+
+        /// <summary>
+        /// Loads and executes scripts.
+        /// </summary>
+        private IScriptManager _scripts;
 
         /// <summary>
         /// True iff Setup has been called.
@@ -49,10 +55,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called to setup the content.
         /// </summary>
-        /// <param name="assets">Dependency.</param>
+        /// <param name="assets">Loads assets.</param>
+        /// <param name="scripts">Loads + executes scripts.</param>
         /// <param name="data">Data to setup with.</param>
         public void Setup(
             IAssetManager assets,
+            IScriptManager scripts,
             ContentData data)
         {
             if (_setup)
@@ -65,9 +73,12 @@ namespace CreateAR.SpirePlayer
             _setup = true;
 
             _assets = assets;
+            _scripts = scripts;
+
             Data = data;
 
-            LoadAsset(data);
+            LoadAsset(Data);
+            LoadScripts(Data.Scripts);
         }
 
         /// <summary>
@@ -76,6 +87,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Destroy()
         {
+            _scripts.ReleaseAll(Data.Tags);
+
             Destroy(gameObject);
         }
 
@@ -132,6 +145,21 @@ namespace CreateAR.SpirePlayer
 
                     _onReady.Fail(new Exception(error));
                 });
+        }
+
+        /// <summary>
+        /// Loads all scripts.
+        /// </summary>
+        /// <param name="scripts">Scripts to load.</param>
+        private void LoadScripts(List<ScriptReference> scripts)
+        {
+            for (int i = 0, len = scripts.Count; i < len; i++)
+            {
+                var data = scripts[i];
+
+                var script = _scripts.Create(data.ScriptDataId, Data.Tags);
+                
+            }
         }
     }
 }

@@ -34,6 +34,11 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
 
         /// <summary>
+        /// Manages scripts.
+        /// </summary>
+        private readonly IScriptManager _scripts;
+
+        /// <summary>
         /// Graphs relationships between content.
         /// </summary>
         private readonly ContentGraph _contentGraph;
@@ -51,6 +56,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="messages">The message router.</param>
         /// <param name="appData">Application data.</param>
         /// <param name="assets">Manages assets.</param>
+        /// <param name="scripts">Manages scripts.</param>
         /// <param name="contentGraph">Graph of content.</param>
         public ApplicationHost(
             IBridge bridge,
@@ -58,12 +64,14 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IAdminAppDataManager appData,
             IAssetManager assets,
+            IScriptManager scripts,
             ContentGraph contentGraph)
         {
             _bridge = bridge;
             _messages = messages;
             _appData = appData;
             _assets = assets;
+            _scripts = scripts;
             _contentGraph = contentGraph;
 
             // TODO: Move to Application.
@@ -100,6 +108,7 @@ namespace CreateAR.SpirePlayer
             // subscribe
             AddAssetSubscriptions();
             AddContentSubscriptions();
+            AddScriptSubscriptions();
             AddHierarchySubscriptions();
 
             // tell the webpage
@@ -137,7 +146,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Adds subscriptions for Asset events.
         /// 
-        /// TODO: Move?
+        /// TODO: Move into an IAssetUpdateService!
         /// </summary>
         private void AddAssetSubscriptions()
         {
@@ -191,6 +200,49 @@ namespace CreateAR.SpirePlayer
 
                 // update app data (the hierarchy is listening for updates)
                 _appData.Update(@event.Content);
+            });
+        }
+
+        /// <summary>
+        /// Adds subscriptions for script updates.
+        /// </summary>
+        private void AddScriptSubscriptions()
+        {
+            Subscribe<ScriptListEvent>(MessageTypes.SCRIPT_LIST, @event =>
+            {
+                Log.Info(this, "Script list updated.");
+
+                _appData.Add(@event.Scripts);
+            });
+
+            Subscribe<ScriptAddEvent>(MessageTypes.SCRIPT_ADD, @event =>
+            {
+                Log.Info(this, "Script added.");
+
+                _appData.Add(@event.Script);
+            });
+
+            Subscribe<ScriptUpdateEvent>(MessageTypes.SCRIPT_UPDATE, @event =>
+            {
+                Log.Info(this, "Script updated.");
+
+                _appData.Update(@event.Script);
+            });
+
+            Subscribe<ScriptRemoveEvent>(MessageTypes.SCRIPT_REMOVE, @event =>
+            {
+                Log.Info(this, "Script removed.");
+
+                var data = _appData.Get<ScriptData>(@event.Id);
+                if (null == data)
+                {
+                    Log.Warning(this,
+                        "Received ScriptRemoveEvent for unknown script id {0}.",
+                        @event.Id);
+                    return;
+                }
+
+                _appData.Remove(data);
             });
         }
 

@@ -1,7 +1,5 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.SpirePlayer;
-using CreateAR.SpirePlayer.Test;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer.Test
@@ -24,7 +22,7 @@ namespace CreateAR.SpirePlayer.Test
 
         public void Uninitialize()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }
