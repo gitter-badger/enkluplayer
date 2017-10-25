@@ -189,8 +189,10 @@
     <Compile Include="Assets\Source\Spire\App\AppController.cs" />
     <Compile Include="Assets\Source\Spire\App\AppExecutionConfiguration.cs" />
     <Compile Include="Assets\Source\Spire\App\ISceneManager.cs" />
+    <Compile Include="Assets\Source\Spire\App\IScriptLoader.cs" />
     <Compile Include="Assets\Source\Spire\App\Scene.cs" />
     <Compile Include="Assets\Source\Spire\App\SceneManager.cs" />
+    <Compile Include="Assets\Source\Spire\App\ScriptLoader.cs" />
     <Compile Include="Assets\Source\Spire\App\SpireScript.cs" />
     <Compile Include="Assets\Source\Spire\Asset\Asset.cs" />
     <Compile Include="Assets\Source\Spire\Asset\AssetBundleLoader.cs" />

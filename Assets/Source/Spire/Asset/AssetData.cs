@@ -14,7 +14,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonProperty("id")]
         public string Guid;
-
+        
         /// <summary>
         /// The URI at which to download the asset. This is not a complete URI
         /// but used to create a complete URI.
