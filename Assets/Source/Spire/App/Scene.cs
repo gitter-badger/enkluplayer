@@ -155,7 +155,7 @@ namespace CreateAR.SpirePlayer
             {
                 var scriptId = scriptIds[i];
                 var script = _scriptManager.Create(scriptId, Data.Id);
-                loads[i] = script.OnReady;
+                loads[i] = Async.ToImmutable(script.OnReady);
 
                 Log.Debug(this, "Loading {0}.", script.Data);
             }
@@ -179,7 +179,7 @@ namespace CreateAR.SpirePlayer
             {
                 var contentId = contentIds[i];
                 var content = _contentManager.Request(contentId, Data.Id);
-                //loads[i] = content.OnReady;
+                loads[i] = Async.ToImmutable(content.OnLoaded);
 
                 Log.Debug(this, "Loading {0}.", content);
             }

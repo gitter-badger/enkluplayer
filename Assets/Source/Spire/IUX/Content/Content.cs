@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
@@ -10,6 +11,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class Content : Widget
     {
+        /// <summary>
+        /// Unique tag for this piece of <c>Content</c>.
+        /// </summary>
+        private readonly string _scriptTag = Guid.NewGuid().ToString();
+
         /// <summary>
         /// Loads assets.
         /// </summary>
@@ -29,17 +35,27 @@ namespace CreateAR.SpirePlayer
         /// True iff Setup has been called.
         /// </summary>
         private bool _setup;
-
+        
         /// <summary>
         /// Token for asset readiness.
         /// </summary>
-        private readonly AsyncToken<Content> _onAssetReady = new AsyncToken<Content>();
+        private readonly MutableAsyncToken<Content> _onAssetLoaded = new MutableAsyncToken<Content>();
 
         /// <summary>
         /// Token for script readiness.
         /// </summary>
-        private readonly AsyncToken<Content> _onScriptsReady = new AsyncToken<Content>();
-        
+        private readonly MutableAsyncToken<Content> _onScriptsLoaded = new MutableAsyncToken<Content>();
+
+        /// <summary>
+        /// Scripts.
+        /// </summary>
+        private readonly List<MonoBehaviourSpireScript> _scriptComponents = new List<MonoBehaviourSpireScript>();
+
+        /// <summary>
+        /// Scripting host.
+        /// </summary>
+        private UnityScriptingHost _host;
+
         /// <summary>
         /// The Asset.
         /// </summary>
@@ -56,11 +72,32 @@ namespace CreateAR.SpirePlayer
         private Action _unwatch;
 
         /// <summary>
+        /// Token, lazily created through property OnLoaded.
+        /// </summary>
+        private IMutableAsyncToken<Content> _onLoaded;
+
+        /// <summary>
         /// Content data.
         /// </summary>
         public ContentData Data { get; private set; }
-        
 
+        /// <summary>
+        /// A token that is fired whenever the content has loaded.
+        /// </summary>
+        public IMutableAsyncToken<Content> OnLoaded
+        {
+            get
+            {
+                if (null == _onLoaded)
+                {
+                    _onLoaded = Async.Map(
+                        Async.All(_onScriptsLoaded, _onAssetLoaded),
+                        _ => this);
+                }
+
+                return _onLoaded;
+            }
+        }
 
         /// <summary>
         /// Called to setup the content.
@@ -88,6 +125,11 @@ namespace CreateAR.SpirePlayer
             _scripts = scripts;
             _pools = pools;
 
+            _host = new UnityScriptingHost(
+                this,
+                null,
+                _scripts);
+
             UpdateData(data);
         }
 
@@ -97,7 +139,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Destroy()
         {
-            _scripts.ReleaseAll(Data.Tags);
+            TeardownAsset();
+            TeardownScripts();
 
             Destroy(gameObject);
         }
@@ -144,6 +187,7 @@ namespace CreateAR.SpirePlayer
             _asset.OnRemoved += Asset_OnRemoved;
 
             // watch for asset reloads
+            // TODO: No way to see if asset load failed!
             _unwatch = _asset.Watch<GameObject>(value =>
             {
                 Log.Info(this, "Asset loaded.");
@@ -159,7 +203,7 @@ namespace CreateAR.SpirePlayer
 
                 UpdateInstancePosition();
 
-                _onAssetReady.Succeed(this);
+                _onAssetLoaded.Succeed(this);
             });
 
             // automatically reload
@@ -199,22 +243,48 @@ namespace CreateAR.SpirePlayer
             var len = scripts.Count;
             if (0 == len)
             {
-                _onScriptsReady.Succeed(this);
+                _onScriptsLoaded.Succeed(this);
                 return;
             }
 
+            var tokens = new IMutableAsyncToken<SpireScript>[len];
             for (var i = 0; i < len; i++)
             {
                 var data = scripts[i];
+                var script = _scripts.Create(data.ScriptDataId, _scriptTag);
+                var token = tokens[i] = script.OnReady;
+                token
+                    .OnSuccess(_ =>
+                    {
+                        // start script
+                        var host = gameObject.AddComponent<MonoBehaviourSpireScript>();
+                        host.Initialize(_host, script);
 
-                var script = _scripts.Create(data.ScriptDataId, Data.Tags);
-//                script.OnReady
+                        _scriptComponents.Add(host);
+                    });
             }
+
+            // when all scripts are loaded, resolve the mutable token
+            Async
+                .All(tokens)
+                .OnSuccess(_ => _onScriptsLoaded.Succeed(this))
+                .OnFailure(_onScriptsLoaded.Fail);
         }
 
+        /// <summary>
+        /// Stop all the scripts.
+        /// </summary>
         private void TeardownScripts()
         {
-            
+            // release scripts we created
+            _scripts.ReleaseAll(_scriptTag);
+
+            // destroy components
+            for (int i = 0, len = _scriptComponents.Count; i < len; i++)
+            {
+                Destroy(_scriptComponents[i]);
+            }
+            _scriptComponents.Clear();
         }
 
         /// <summary>
@@ -235,6 +305,9 @@ namespace CreateAR.SpirePlayer
             return _assets.Manifest.Asset(assetId);
         }
 
+        /// <summary>
+        /// Updates the position of the asset instance.
+        /// </summary>
         private void UpdateInstancePosition()
         {
             // configure

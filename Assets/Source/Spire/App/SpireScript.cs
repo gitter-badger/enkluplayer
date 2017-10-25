@@ -24,7 +24,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Backing variable for OnReady.
         /// </summary>
-        private readonly AsyncToken<SpireScript> _onReady = new AsyncToken<SpireScript>();
+        private readonly MutableAsyncToken<SpireScript> _onReady = new MutableAsyncToken<SpireScript>();
 
         /// <summary>
         /// Underlying asset we load from.
@@ -37,9 +37,9 @@ namespace CreateAR.SpirePlayer
         public readonly ScriptData Data;
 
         /// <summary>
-        /// Token when script is first available to execute.
+        /// Token when script is available to execute.
         /// </summary>
-        public IAsyncToken<SpireScript> OnReady { get { return _onReady; } }
+        public IMutableAsyncToken<SpireScript> OnReady { get { return _onReady; } }
 
         /// <summary>
         /// Program that can be executed.

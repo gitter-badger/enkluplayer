@@ -34,11 +34,6 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
 
         /// <summary>
-        /// Manages scripts.
-        /// </summary>
-        private readonly IScriptManager _scripts;
-
-        /// <summary>
         /// Graphs relationships between content.
         /// </summary>
         private readonly ContentGraph _contentGraph;
@@ -56,7 +51,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="messages">The message router.</param>
         /// <param name="appData">Application data.</param>
         /// <param name="assets">Manages assets.</param>
-        /// <param name="scripts">Manages scripts.</param>
         /// <param name="contentGraph">Graph of content.</param>
         public ApplicationHost(
             IBridge bridge,
@@ -64,14 +58,12 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IAdminAppDataManager appData,
             IAssetManager assets,
-            IScriptManager scripts,
             ContentGraph contentGraph)
         {
             _bridge = bridge;
             _messages = messages;
             _appData = appData;
             _assets = assets;
-            _scripts = scripts;
             _contentGraph = contentGraph;
 
             // TODO: Move to Application.
