@@ -179,7 +179,7 @@ namespace CreateAR.SpirePlayer
             {
                 var contentId = contentIds[i];
                 var content = _contentManager.Request(contentId, Data.Id);
-                loads[i] = content.OnReady;
+                //loads[i] = content.OnReady;
 
                 Log.Debug(this, "Loading {0}.", content);
             }

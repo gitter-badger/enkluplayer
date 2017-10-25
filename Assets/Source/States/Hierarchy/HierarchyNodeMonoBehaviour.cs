@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using ContentGraphNode = CreateAR.SpirePlayer.ContentGraph.ContentGraphNode;
@@ -7,6 +7,8 @@ namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// A specific GameObject representation of a Content node.
+    /// 
+    /// TODO: Just switch to Content?
     /// </summary>
     public class HierarchyNodeMonoBehaviour : MonoBehaviour
     {
@@ -15,6 +17,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private IAssetManager _assets;
         private IAssetPoolManager _pools;
+        private IScriptManager _scripts;
 
         /// <summary>
         /// The data of this node.
@@ -48,11 +51,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="assets">Loads assets.</param>
         /// <param name="pools">Pools objects.</param>
+        /// <param name="scripts">Loads scripts.</param>
         /// <param name="data">Data for this piece of content.</param>
         /// <param name="node">Node in ContentGraph for this content.</param>
         public void Initialize(
             IAssetManager assets,
             IAssetPoolManager pools,
+            IScriptManager scripts,
             ContentData data,
             ContentGraphNode node)
         {
@@ -226,7 +231,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="node">The node.</param>
         private void Node_OnUpdate(ContentGraphNode node)
         {
+            // position
             UpdateInstancePosition();
+
+            // scripts
+
         }
     }
-}
+}*/

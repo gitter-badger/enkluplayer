@@ -39,7 +39,7 @@ namespace CreateAR.SpirePlayer
         /// Describes how to anchor this content.
         /// </summary>
         [JsonProperty("anchor")]
-        public AnchorData Anchor;
+        public AnchorData Anchor = new AnchorData();
 
         /// <summary>
         /// Scripts that execute on this piece of content.

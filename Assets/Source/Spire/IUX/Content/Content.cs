@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
@@ -22,45 +21,58 @@ namespace CreateAR.SpirePlayer
         private IScriptManager _scripts;
 
         /// <summary>
+        /// Manages pooling.
+        /// </summary>
+        private IAssetPoolManager _pools;
+
+        /// <summary>
         /// True iff Setup has been called.
         /// </summary>
         private bool _setup;
 
         /// <summary>
-        /// Backing variable for property.
+        /// Token for asset readiness.
         /// </summary>
-        private readonly AsyncToken<Content> _onReady = new AsyncToken<Content>();
+        private readonly AsyncToken<Content> _onAssetReady = new AsyncToken<Content>();
 
         /// <summary>
-        /// The instanced asset.
+        /// Token for script readiness.
         /// </summary>
-        private GameObject _asset;
+        private readonly AsyncToken<Content> _onScriptsReady = new AsyncToken<Content>();
         
+        /// <summary>
+        /// The Asset.
+        /// </summary>
+        private Asset _asset;
+
+        /// <summary>
+        /// Instance of Asset's prefab.
+        /// </summary>
+        private GameObject _instance;
+
+        /// <summary>
+        /// An action to unsubscribe from <c>Asset</c> updates.
+        /// </summary>
+        private Action _unwatch;
+
         /// <summary>
         /// Content data.
         /// </summary>
         public ContentData Data { get; private set; }
         
-        /// <summary>
-        /// AsyncToken fired when content is ready.
-        /// </summary>
-        public IAsyncToken<Content> OnReady
-        {
-            get
-            {
-                return _onReady;
-            }
-        }
+
 
         /// <summary>
         /// Called to setup the content.
         /// </summary>
         /// <param name="assets">Loads assets.</param>
         /// <param name="scripts">Loads + executes scripts.</param>
+        /// <param name="pools">Manages pooling.</param>
         /// <param name="data">Data to setup with.</param>
         public void Setup(
             IAssetManager assets,
             IScriptManager scripts,
+            IAssetPoolManager pools,
             ContentData data)
         {
             if (_setup)
@@ -74,11 +86,9 @@ namespace CreateAR.SpirePlayer
 
             _assets = assets;
             _scripts = scripts;
+            _pools = pools;
 
-            Data = data;
-
-            LoadAsset(Data);
-            LoadScripts(Data.Scripts);
+            UpdateData(data);
         }
 
         /// <summary>
@@ -93,73 +103,165 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Loads the asset + resolves the OnReady token.
+        /// Updates <c>ContentData</c> for this instance.
         /// </summary>
-        /// <param name="data"></param>
-        private void LoadAsset(ContentData data)
+        public void UpdateData(ContentData data)
         {
-            var info = _assets.Manifest.Data(data.Asset.AssetDataId);
-            if (null == info)
-            {
-                var error = string.Format(
-                    "AssetInfoId does not correspond to any known AssetInfo : {0}",
-                    data.Asset);
-                Log.Error(this, error);
+            Data = data;
 
-                _onReady.Fail(new Exception(error));
+            RefreshAsset();
+            RefreshScripts();
+        }
+
+        /// <summary>
+        /// Tears down the asset and sets it back up.
+        /// </summary>
+        private void RefreshAsset()
+        {
+            TeardownAsset();
+            SetupAsset();
+        }
+
+        private void RefreshScripts()
+        {
+            TeardownScripts();
+            SetupScripts();
+        }
+
+        private void SetupAsset()
+        {
+            // get the corresponding asset
+            _asset = Asset(Data);
+            if (null == _asset)
+            {
+                Log.Warning(this,
+                    "Could not find Asset for content {0}.",
+                    Data);
+                
                 return;
             }
 
-            var reference = _assets.Manifest.Asset(info.Guid);
-            reference
-                .Load<GameObject>()
-                .OnSuccess(assetPrefab =>
+            _asset.OnRemoved += Asset_OnRemoved;
+
+            // watch for asset reloads
+            _unwatch = _asset.Watch<GameObject>(value =>
+            {
+                Log.Info(this, "Asset loaded.");
+
+                if (null != _instance)
                 {
-                    // disable before we instantiate, so it's invisible
-                    assetPrefab.SetActive(false);
-                    _asset = Instantiate(assetPrefab);
-                    
-                    // configure
-                    if (Data.PreserveColor)
-                    {
-                        ColorMode = ColorMode.InheritAlpha;
-                    }
+                    _pools.Put(_instance);
+                    _instance = null;
+                }
 
-                    // parent + orient
-                    _asset.name = Data.Asset.AssetDataId;
-                    _asset.transform.SetParent(transform);
-                    _asset.transform.localPosition = assetPrefab.transform.localPosition;
-                    _asset.transform.localRotation = assetPrefab.transform.localRotation;
-                    _asset.transform.localScale = assetPrefab.transform.localScale;
-                    _asset.gameObject.SetActive(true);
+                _instance = _pools.Get<GameObject>(value);
+                _instance.transform.SetParent(transform, false);
 
-                    LocalVisible = true;
+                UpdateInstancePosition();
 
-                    // success!
-                    _onReady.Succeed(this);
-                })
-                .OnFailure(exception =>
-                {
-                    var error = string.Format("Could not load asset {0}.", reference);
-                    Log.Error(this, error);
+                _onAssetReady.Succeed(this);
+            });
 
-                    _onReady.Fail(new Exception(error));
-                });
+            // automatically reload
+            _asset.AutoReload = true;
+        }
+
+        /// <summary>
+        /// Destroys the asset and stops watching it.
+        /// </summary>
+        private void TeardownAsset()
+        {
+            if (null != _instance)
+            {
+                _pools.Put(_instance);
+                _instance = null;
+            }
+
+            if (null != _unwatch)
+            {
+                _unwatch();
+                _unwatch = null;
+            }
+
+            if (null != _asset)
+            {
+                _asset.OnRemoved -= Asset_OnRemoved;
+                _asset = null;
+            }
         }
 
         /// <summary>
         /// Loads all scripts.
         /// </summary>
-        /// <param name="scripts">Scripts to load.</param>
-        private void LoadScripts(List<ScriptReference> scripts)
+        private void SetupScripts()
         {
-            for (int i = 0, len = scripts.Count; i < len; i++)
+            var scripts = Data.Scripts;
+            var len = scripts.Count;
+            if (0 == len)
+            {
+                _onScriptsReady.Succeed(this);
+                return;
+            }
+
+            for (var i = 0; i < len; i++)
             {
                 var data = scripts[i];
 
                 var script = _scripts.Create(data.ScriptDataId, Data.Tags);
-                
+//                script.OnReady
             }
+        }
+
+        private void TeardownScripts()
+        {
+            
+        }
+
+        /// <summary>
+        /// Retrieves the asset corresponding to the input <c>ContentData</c>.
+        /// </summary>
+        /// <param name="data">The <c>ContentData</c> to find <c>Asset</c> for.</param>
+        /// <returns></returns>
+        private Asset Asset(ContentData data)
+        {
+            var assetId = null != data.Asset
+                ? data.Asset.AssetDataId
+                : string.Empty;
+            if (string.IsNullOrEmpty(assetId))
+            {
+                return null;
+            }
+
+            return _assets.Manifest.Asset(assetId);
+        }
+
+        private void UpdateInstancePosition()
+        {
+            // configure
+            if (Data.PreserveColor)
+            {
+                ColorMode = ColorMode.InheritAlpha;
+            }
+
+            // parent + orient
+            _instance.name = Data.Asset.AssetDataId;
+            _instance.transform.SetParent(transform);
+            /*
+            _instance.transform.localPosition = assetPrefab.transform.localPosition;
+            _instance.transform.localRotation = assetPrefab.transform.localRotation;
+            _instance.transform.localScale = assetPrefab.transform.localScale;*/
+            _instance.SetActive(true);
+
+            LocalVisible = true;
+        }
+
+        /// <summary>
+        /// Called when the asset has been removed from the manifest.
+        /// </summary>
+        /// <param name="asset">The asset that has been removed.</param>
+        private void Asset_OnRemoved(Asset asset)
+        {
+            TeardownAsset();
         }
     }
 }

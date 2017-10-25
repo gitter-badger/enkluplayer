@@ -15,9 +15,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
-        private readonly IAssetManager _assets;
-        private readonly IAssetPoolManager _pools;
-        private readonly IAppDataManager _appData;
+        private readonly IContentManager _content;
         private readonly HierarchyFocusManager _focus;
 
         /// <summary>
@@ -26,14 +24,9 @@ namespace CreateAR.SpirePlayer
         private readonly ContentGraph _graph;
 
         /// <summary>
-        /// GameObject to attach everything to.
+        /// Lookup from ContentData id to GameObject instance.
         /// </summary>
-        private readonly GameObject _root;
-
-        /// <summary>
-        /// Lookup from ContentData id to GameObject.
-        /// </summary>
-        private readonly Dictionary<string, GameObject> _gameObjects = new Dictionary<string, GameObject>();
+        private readonly Dictionary<string, Content> _contentMap = new Dictionary<string, Content>();
         
         /// <summary>
         /// Holds relationships between Content.
@@ -47,21 +40,18 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public HierarchyManager(
-            IAssetManager assets,
-            IAssetPoolManager pools,
+            IContentManager content,
             IAppDataManager appData,
             HierarchyFocusManager focus,
             ContentGraph graph)
         {
-            _assets = assets;
-            _pools = pools;
-            _appData = appData;
+            _content = content;
             _focus = focus;
             _graph = graph;
 
-            _root = new GameObject("Hierarchy");
+            new GameObject("Hierarchy");
 
-            _appData.OnUpdated += AppData_OnUpdated;
+            appData.OnUpdated += AppData_OnUpdated;
         }
 
         /// <summary>
@@ -69,7 +59,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Create()
         {
-            Create(_root.transform, _graph.Root);
+            Create(_graph.Root);
 
             _graph.Root.OnChildAdded += Graph_OnChildAdded;
             _graph.Root.OnChildRemoved += Graph_OnChildRemoved;
@@ -81,10 +71,10 @@ namespace CreateAR.SpirePlayer
         /// <param name="contentId">Id of the <c>Content</c> to select.</param>
         public void Select(string contentId)
         {
-            GameObject selection;
-            if (_gameObjects.TryGetValue(contentId, out selection))
+            Content selection;
+            if (_contentMap.TryGetValue(contentId, out selection))
             {
-                _focus.Focus(selection.GetComponent<HierarchyNodeMonoBehaviour>());
+                //_focus.Focus(selection.GetComponent<HierarchyNodeMonoBehaviour>());
             }
         }
 
@@ -109,8 +99,9 @@ namespace CreateAR.SpirePlayer
         {
             var parent = child.Parent;
 
-            GameObject gameObject;
-            if (!_gameObjects.TryGetValue(parent.Id, out gameObject))
+            // check that parent exists first
+            Content content;
+            if (!_contentMap.TryGetValue(parent.Id, out content))
             {
                 Log.Error(this,
                     "Child added to a node HierarchyManager has not created : {0}.",
@@ -118,7 +109,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            Create(gameObject.transform, child);
+            Create(child);
         }
 
         /// <summary>
@@ -130,8 +121,9 @@ namespace CreateAR.SpirePlayer
             ContentGraphNode root,
             ContentGraphNode child)
         {
-            GameObject gameObject;
-            if (!_gameObjects.TryGetValue(child.Id, out gameObject))
+            // check that child exists first
+            Content content;
+            if (!_contentMap.TryGetValue(child.Id, out content))
             {
                 Log.Error(this,
                     "Child removed that HierarchyManager has not created : {0}.",
@@ -139,59 +131,33 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            _gameObjects.Remove(child.Id);
+            _contentMap.Remove(child.Id);
 
-            UnityEngine.Object.Destroy(gameObject);
+            _content.Release(content);
         }
 
         /// <summary>
         /// Recursive method that creates nodes.
         /// </summary>
-        /// <param name="parent">Parent to attach to.</param>
         /// <param name="node">Node to create.</param>
-        private void Create(Transform parent, ContentGraphNode node)
+        private void Create(ContentGraphNode node)
         {
-            Transform transform;
             if (node.Id == "root")
             {
-                var root = _gameObjects[node.Id] = new GameObject("Root");
-
-                transform = root.transform;
+                // ignore
             }
             else
             {
-                var contentData = _appData.Get<ContentData>(node.ContentId);
-                if (null == contentData)
-                {
-                    Log.Error(this,
-                        "Could not create HierarchyNodeMonoBehaviour for {0} : No content by that id.",
-                        node.ContentId);
-                    return;
-                }
-
-                // TODO: pool
-                var gameObject = new GameObject(contentData.Name);
-                gameObject.transform.SetParent(parent);
-                gameObject.transform.localPosition = Vector3.zero;
-                gameObject.transform.localRotation = Quaternion.identity;
-
-                var behavior = gameObject.AddComponent<HierarchyNodeMonoBehaviour>();
-                behavior.Initialize(
-                    _assets,
-                    _pools,
-                    contentData,
-                    node);
-
-                _gameObjects[contentData.Id] = gameObject;
-
-                transform = gameObject.transform;
+                var contentId = node.ContentId;
+                var content = _content.Request(contentId);
+                _contentMap[contentId] = content;
             }
 
             // children
             var children = node.Children;
             for (int i = 0, len = children.Count; i < len; i++)
             {
-                Create(transform, children[i]);
+                Create(children[i]);
             }
         }
         
@@ -201,12 +167,12 @@ namespace CreateAR.SpirePlayer
         /// <param name="staticData">The StaticData that was updated.</param>
         private void AppData_OnUpdated(StaticData staticData)
         {
-            GameObject gameObject;
-            if (_gameObjects.TryGetValue(staticData.Id, out gameObject))
+            Content content;
+            if (_contentMap.TryGetValue(staticData.Id, out content))
             {
-                gameObject
-                    .GetComponent<HierarchyNodeMonoBehaviour>()
-                    .ContentUpdate((ContentData) staticData);
+                Log.Info(this, "Pushing ContentData update to Content.");
+
+                content.UpdateData((ContentData) staticData);
             }
         }
     }

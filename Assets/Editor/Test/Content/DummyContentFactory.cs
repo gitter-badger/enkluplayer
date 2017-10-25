@@ -8,7 +8,11 @@ namespace CreateAR.SpirePlayer.Test
         {
             var go = new GameObject();
             var comp = go.AddComponent<Content>();
-            comp.Setup(new DummyAssetManager(), new DummyScriptManager(), data);
+            comp.Setup(
+                new DummyAssetManager(),
+                new DummyScriptManager(),
+                new DummyPoolManager(), 
+                data);
             return comp;
         }
     }

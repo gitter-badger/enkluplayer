@@ -230,7 +230,8 @@
     <Compile Include="Assets\Source\Spire\IUX\Content\IAnchorReferenceFrameFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IContentFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IContentManager.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Content\LocatorReferenceFrame.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\LocatorAnchorReferenceFrame.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\NoneAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\HsbColor.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\ElementManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\IElement.cs" />

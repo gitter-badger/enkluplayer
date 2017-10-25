@@ -50,6 +50,9 @@ namespace CreateAR.SpirePlayer
             // for AOT platforms
             AotGenericTypeIncludes.Include();
 
+            // always run
+	        UnityEngine.Application.runInBackground = true;
+
             // setup logging
 	        Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
 	        {
