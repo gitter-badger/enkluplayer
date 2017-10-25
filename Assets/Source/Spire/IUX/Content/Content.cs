@@ -290,6 +290,7 @@ namespace CreateAR.SpirePlayer
                         // start script
                         var host = gameObject.AddComponent<MonoBehaviourSpireScript>();
                         host.Initialize(_host, script);
+                        host.Enter();
 
                         _scriptComponents.Add(host);
                     });
@@ -309,15 +310,17 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "\t-Destroying {0} scripts.", _scriptComponents.Count);
 
-            // release scripts we created
-            _scripts.ReleaseAll(_scriptTag);
-
             // destroy components
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
             {
-                Destroy(_scriptComponents[i]);
+                var component = _scriptComponents[i];
+                component.Exit();
+                Destroy(component);
             }
             _scriptComponents.Clear();
+
+            // release scripts we created
+            _scripts.ReleaseAll(_scriptTag);
         }
 
         /// <summary>
