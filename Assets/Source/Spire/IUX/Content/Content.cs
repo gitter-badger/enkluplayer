@@ -150,6 +150,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void UpdateData(ContentData data)
         {
+            Log.Info(this, "Data updated for content {0}.", data);
+
             var assetRefresh = null == Data
                 || Data.Asset.AssetDataId != data.Asset.AssetDataId;
             var scriptRefresh = ScriptRefreshRequired(data);
@@ -285,14 +287,32 @@ namespace CreateAR.SpirePlayer
 
                 var token = tokens[i] = script.OnReady;
                 token
-                    .OnSuccess(_ =>
+                    .OnSuccess(spireScript =>
                     {
-                        // start script
-                        var host = gameObject.AddComponent<MonoBehaviourSpireScript>();
-                        host.Initialize(_host, script);
-                        host.Enter();
+                        // restart or create new component
+                        MonoBehaviourSpireScript component = null;
 
-                        _scriptComponents.Add(host);
+                        var found = false;
+                        for (int j = 0, jlen = _scriptComponents.Count; j < jlen; j++)
+                        {
+                            component = _scriptComponents[j];
+                            if (component.Script == spireScript)
+                            {
+                                component.Exit();
+
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            component = gameObject.AddComponent<MonoBehaviourSpireScript>();
+                            _scriptComponents.Add(component);
+                        }
+
+                        component.Initialize(_host, script);
+                        component.Enter();
                     });
             }
 
