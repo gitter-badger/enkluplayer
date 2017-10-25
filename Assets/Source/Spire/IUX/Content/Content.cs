@@ -150,10 +150,21 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void UpdateData(ContentData data)
         {
+            var assetRefresh = null == Data
+                || Data.Asset.AssetDataId != data.Asset.AssetDataId;
+            var scriptRefresh = ScriptRefreshRequired(data);
+            
             Data = data;
 
-            RefreshAsset();
-            RefreshScripts();
+            if (assetRefresh)
+            {
+                RefreshAsset();
+            }
+
+            if (scriptRefresh)
+            {
+                RefreshScripts();
+            }
         }
 
         /// <summary>
@@ -161,12 +172,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void RefreshAsset()
         {
+            Log.Info(this, "Refresh asset for {0}.", Data);
+
             TeardownAsset();
             SetupAsset();
         }
 
         private void RefreshScripts()
         {
+            Log.Info(this, "Refresh scripts for {0}.", Data);
+
             TeardownScripts();
             SetupScripts();
         }
@@ -241,6 +256,9 @@ namespace CreateAR.SpirePlayer
         {
             var scripts = Data.Scripts;
             var len = scripts.Count;
+
+            Log.Info(this, "\t-Loading {0} scripts.", len);
+
             if (0 == len)
             {
                 _onScriptsLoaded.Succeed(this);
@@ -252,6 +270,15 @@ namespace CreateAR.SpirePlayer
             {
                 var data = scripts[i];
                 var script = _scripts.Create(data.ScriptDataId, _scriptTag);
+                if (null == script)
+                {
+                    tokens[i] = new MutableAsyncToken<SpireScript>(new Exception(
+                        string.Format(
+                            "Could not create script from id {0}.",
+                            data.ScriptDataId)));
+                    continue;
+                }
+
                 var token = tokens[i] = script.OnReady;
                 token
                     .OnSuccess(_ =>
@@ -276,6 +303,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void TeardownScripts()
         {
+            Log.Info(this, "\t-Destroying {0} scripts.", _scriptComponents.Count);
+
             // release scripts we created
             _scripts.ReleaseAll(_scriptTag);
 
@@ -326,6 +355,36 @@ namespace CreateAR.SpirePlayer
             _instance.SetActive(true);
 
             LocalVisible = true;
+        }
+
+        /// <summary>
+        /// True iff scripts need to be torn down and setup.
+        /// </summary>
+        /// <param name="data">New data.</param>
+        /// <returns></returns>
+        private bool ScriptRefreshRequired(ContentData data)
+        {
+            if (null == Data)
+            {
+                return true;
+            }
+
+            var currentScripts = Data.Scripts;
+            var newScripts = data.Scripts;
+            if (currentScripts.Count != newScripts.Count)
+            {
+                return true;
+            }
+
+            for (int i = 0, len = currentScripts.Count; i < len; i++)
+            {
+                if (currentScripts[i].ScriptDataId != newScripts[i].ScriptDataId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

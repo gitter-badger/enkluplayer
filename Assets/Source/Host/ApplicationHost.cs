@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -203,6 +204,11 @@ namespace CreateAR.SpirePlayer
             Subscribe<ScriptListEvent>(MessageTypes.SCRIPT_LIST, @event =>
             {
                 Log.Info(this, "Script list updated.");
+
+                foreach (var script in @event.Scripts)
+                {
+                    Silly("\t-{0}", script);
+                }
 
                 _appData.Add(@event.Scripts);
             });
@@ -427,6 +433,15 @@ namespace CreateAR.SpirePlayer
                     return "UNKNOWN";
                 }
             }
+        }
+
+        /// <summary>
+        /// Silly level logging.
+        /// </summary>
+        [Conditional("UNITY_EDITOR")]
+        private void Silly(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }
