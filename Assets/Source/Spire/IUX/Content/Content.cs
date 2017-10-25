@@ -272,10 +272,14 @@ namespace CreateAR.SpirePlayer
                 var script = _scripts.Create(data.ScriptDataId, _scriptTag);
                 if (null == script)
                 {
+                    var error = string.Format(
+                        "Could not create script from id {0}.",
+                        data.ScriptDataId);
+
+                    Log.Error(this, error);
+
                     tokens[i] = new MutableAsyncToken<SpireScript>(new Exception(
-                        string.Format(
-                            "Could not create script from id {0}.",
-                            data.ScriptDataId)));
+                        error));
                     continue;
                 }
 

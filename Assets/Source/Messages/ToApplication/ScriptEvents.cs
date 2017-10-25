@@ -2,22 +2,31 @@
 
 namespace CreateAR.SpirePlayer
 {
+    public class ScriptRecord
+    {
+        [JsonProperty("data")]
+        public ScriptData Data;
+
+        [JsonProperty("asset")]
+        public AssetData Asset;
+    }
+
     public class ScriptListEvent
     {
         [JsonProperty("scripts")]
-        public ScriptData[] Scripts;
+        public ScriptRecord[] Scripts;
     }
 
     public class ScriptAddEvent
     {
         [JsonProperty("script")]
-        public ScriptData Script;
+        public ScriptRecord Script;
     }
 
     public class ScriptUpdateEvent
     {
         [JsonProperty("Script")]
-        public ScriptData Script;
+        public ScriptRecord Script;
     }
 
     public class ScriptRemoveEvent

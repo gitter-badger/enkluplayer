@@ -164,6 +164,8 @@ namespace CreateAR.SpirePlayer
             var asset = _assets.Manifest.Asset(data.Asset.AssetDataId);
             if (null == asset)
             {
+                Log.Warning(this,
+                    "Could not find asset by id {0}.", data.Asset.AssetDataId);
                 return null;
             }
 

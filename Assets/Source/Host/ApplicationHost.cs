@@ -205,26 +205,34 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Info(this, "Script list updated.");
 
-                foreach (var script in @event.Scripts)
+                foreach (var record in @event.Scripts)
                 {
-                    Silly("\t-{0}", script);
-                }
+                    Silly("\t-{0}, {1}", record.Data, record.Asset);
 
-                _appData.Add(@event.Scripts);
+                    _assets.Manifest.Add(record.Asset);
+                    _appData.Add(record.Data);
+                }
             });
 
             Subscribe<ScriptAddEvent>(MessageTypes.SCRIPT_ADD, @event =>
             {
                 Log.Info(this, "Script added.");
 
-                _appData.Add(@event.Script);
+                var script = @event.Script.Data;
+                var asset = @event.Script.Asset;
+
+                Silly("\t-Script: {0}", script);
+                Silly("\t-Adding AssetData: {0}.", asset);
+
+                _assets.Manifest.Add(asset);
+                _appData.Add(script);
             });
 
             Subscribe<ScriptUpdateEvent>(MessageTypes.SCRIPT_UPDATE, @event =>
             {
                 Log.Info(this, "Script updated.");
 
-                _appData.Update(@event.Script);
+                _appData.Update(@event.Script.Data);
             });
 
             Subscribe<ScriptRemoveEvent>(MessageTypes.SCRIPT_REMOVE, @event =>
