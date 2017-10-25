@@ -111,8 +111,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="text">Text of the script.</param>
         private void OnLoaded(string text)
         {
-            Log.Info(this, "Script loaded, parsing Program : {0}.",
-                Data);
+            Log.Info(this, "Script loaded, parsing Program : {0} :\n{1}.",
+                Data,
+                text);
 
             Source = text;
 
