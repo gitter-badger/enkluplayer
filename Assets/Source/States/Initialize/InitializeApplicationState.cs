@@ -15,8 +15,7 @@ namespace CreateAR.SpirePlayer
         private readonly IHttpService _http;
         private readonly IBootstrapper _bootstrapper;
         private readonly IAssetManager _assets;
-        private readonly IAssetUpdateService _assetUpdater;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -24,14 +23,12 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IHttpService http,
             IBootstrapper bootstrapper,
-            IAssetManager assets,
-            IAssetUpdateService assetUpdater)
+            IAssetManager assets)
         {
             _messages = messages;
             _http = http;
             _bootstrapper = bootstrapper;
             _assets = assets;
-            _assetUpdater = assetUpdater;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -58,8 +55,7 @@ namespace CreateAR.SpirePlayer
                 .Initialize(new AssetManagerConfiguration
                 {
                     Loader = loader,
-                    Queries = new StandardQueryResolver(),
-                    Service = _assetUpdater
+                    Queries = new StandardQueryResolver()
                 })
                 .OnSuccess(_ =>
                 {

@@ -108,13 +108,6 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                 }
-                
-                // TODO: Remove in favor of ApplicationHostService.
-#if UNITY_EDITOR
-                binder.Bind<IAssetUpdateService>().To<EditorAssetUpdateService>();
-#else
-                binder.Bind<IAssetUpdateService>().To<WebAssetUpdateService>();
-#endif
             }
         }
 

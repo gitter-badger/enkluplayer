@@ -7,11 +7,9 @@ namespace CreateAR.SpirePlayer.Test
     public class AssetManager_IntegrationTests
     {
         private AssetManagerConfiguration _configuration;
-        private DummyAssetUpdateService _service;
         private AssetManager _assets;
 
-        private readonly AssetData[] _infos = new[]
-        {
+        private readonly AssetData[] _infos = {
             new AssetData
             {
                 Guid = "a",
@@ -37,12 +35,10 @@ namespace CreateAR.SpirePlayer.Test
         [SetUp]
         public void Setup()
         {
-            _service = new DummyAssetUpdateService();
             _configuration = new AssetManagerConfiguration
             {
                 Loader = new DummyAssetLoader(),
-                Queries = new StandardQueryResolver(),
-                Service = _service
+                Queries = new StandardQueryResolver()
             };
 
             _assets = new AssetManager();
@@ -66,7 +62,7 @@ namespace CreateAR.SpirePlayer.Test
                 Assert.AreSame(info, reference.Data);
             };
 
-            _service.Added(info);
+            _assets.Manifest.Add(info);
 
             Assert.IsTrue(addedCalled);
 
@@ -82,7 +78,7 @@ namespace CreateAR.SpirePlayer.Test
                 Assert.AreSame(info, reference.Data);
             };
 
-            _service.Updated(info);
+            _assets.Manifest.Update(info);
 
             Assert.IsTrue(updatedCalled);
         }
@@ -108,7 +104,7 @@ namespace CreateAR.SpirePlayer.Test
                 Assert.AreSame(infoUpdate, reference.Data);
             });
 
-            _service.Updated(infoUpdate);
+            _assets.Manifest.Update(infoUpdate);
 
             Assert.IsTrue(watchCalled);
         }
@@ -138,7 +134,7 @@ namespace CreateAR.SpirePlayer.Test
                 Assert.AreNotSame(loaded, asset);
             });
 
-            _service.Updated(infoUpdate);
+            _assets.Manifest.Update(infoUpdate);
 
             Assert.IsTrue(watchCalled);
         }

@@ -16,11 +16,6 @@
         public IQueryResolver Queries;
 
         /// <summary>
-        /// Optional service that automatically updates asset manifest.
-        /// </summary>
-        public IAssetUpdateService Service;
-
-        /// <summary>
         /// True iff configuration is valid.
         /// </summary>
         /// <returns></returns>

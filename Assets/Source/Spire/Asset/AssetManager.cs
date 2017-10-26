@@ -42,14 +42,7 @@ namespace CreateAR.SpirePlayer
             Manifest = new AssetManifest(
                 _config.Queries,
                 _config.Loader);
-
-            if (null != _config.Service)
-            {
-                _config.Service.OnAdded += Service_OnAdded;
-                _config.Service.OnUpdated += Service_OnUpdated;
-                _config.Service.OnRemoved += Service_OnRemoved;
-            }
-
+            
             _initializeToken.Succeed(Void.Instance);
 
             return _initializeToken.Token();
@@ -65,42 +58,8 @@ namespace CreateAR.SpirePlayer
 
             _initializeToken.Fail(new Exception("Uninitialized."));
             _initializeToken = null;
-
-            if (null != _config.Service)
-            {
-                _config.Service.OnAdded -= Service_OnAdded;
-                _config.Service.OnUpdated -= Service_OnUpdated;
-                _config.Service.OnRemoved -= Service_OnRemoved;
-            }
-
+            
             _config = null;
-        }
-
-        /// <summary>
-        /// Called by the <c>IAssetUpdateService</c> when an asset has been added.
-        /// </summary>
-        /// <param name="assets">The asset that has been added.</param>
-        private void Service_OnAdded(AssetData[] assets)
-        {
-            Manifest.Add(assets);
-        }
-
-        /// <summary>
-        /// Called by the <c>IAssetUpdateService</c> when an asset has been updated
-        /// </summary>
-        /// <param name="assets">The asset that has been updated.</param>
-        private void Service_OnUpdated(AssetData[] assets)
-        {
-            Manifest.Update(assets);
-        }
-
-        /// <summary>
-        /// Called by the <c>IAssetUpdateService</c> when an asset has been removed.
-        /// </summary>
-        /// <param name="assets">The asset that has been removed.</param>
-        private void Service_OnRemoved(AssetData[] assets)
-        {
-            throw new NotImplementedException();
         }
     }
 }

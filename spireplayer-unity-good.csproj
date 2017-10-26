@@ -202,8 +202,6 @@
     <Compile Include="Assets\Source\Spire\Asset\EditorAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Asset\IAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Asset\IAssetManager.cs" />
-    <Compile Include="Assets\Source\Spire\Asset\IAssetUpdateService.cs" />
-    <Compile Include="Assets\Source\Spire\Asset\Services\EditorAssetUpdateService.cs" />
     <Compile Include="Assets\Source\Spire\Asset\StandardAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Audio\MusicManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\AnchorData.cs" />

@@ -188,7 +188,6 @@
     <Compile Include="Assets\Editor\Test\Asset\AssetManager_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Asset\AssetManifest_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Asset\DummyAssetLoader.cs" />
-    <Compile Include="Assets\Editor\Test\Asset\DummyAssetUpdateService.cs" />
     <Compile Include="Assets\Editor\Test\Content\ContentGraph_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Content\ContentManager_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Content\DummyAssetManager.cs" />
@@ -198,7 +197,6 @@
     <Compile Include="Assets\Editor\Test\Data\FileManager_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Scripting\Vector3Js_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Util\StandardQueryResolver_Tests.cs" />
-    <Compile Include="Assets\Editor\Tools\App\AppEditorWindow.cs" />
     <Compile Include="Assets\Editor\Tools\App\AppPublisher.cs" />
     <Compile Include="Assets\Editor\Tools\App\AppView.cs" />
     <Compile Include="Assets\Editor\Tools\App\Tabs\ScriptTab.cs" />
