@@ -30,7 +30,7 @@ namespace CreateAR.SpirePlayer
         {
             return new Vector3(x, y, z);
         }
-
+        
         public override string ToString()
         {
             return string.Format(
