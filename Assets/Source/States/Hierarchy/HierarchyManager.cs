@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
-using UnityEngine;
-
 using ContentGraphNode = CreateAR.SpirePlayer.ContentGraph.ContentGraphNode;
 
 namespace CreateAR.SpirePlayer
@@ -27,7 +25,12 @@ namespace CreateAR.SpirePlayer
         /// Lookup from ContentData id to GameObject instance.
         /// </summary>
         private readonly Dictionary<string, Content> _contentMap = new Dictionary<string, Content>();
-        
+
+        /// <summary>
+        /// Current selection.
+        /// </summary>
+        private Content _selection;
+
         /// <summary>
         /// Holds relationships between Content.
         /// </summary>
@@ -48,9 +51,7 @@ namespace CreateAR.SpirePlayer
             _content = content;
             _focus = focus;
             _graph = graph;
-
-            new GameObject("Hierarchy");
-
+            
             appData.OnUpdated += AppData_OnUpdated;
         }
 
@@ -74,7 +75,15 @@ namespace CreateAR.SpirePlayer
             Content selection;
             if (_contentMap.TryGetValue(contentId, out selection))
             {
-                //_focus.Focus(selection.GetComponent<HierarchyNodeMonoBehaviour>());
+                if (null != _selection)
+                {
+                    _selection.OnLoaded.Remove(OnSelectionLoaded);
+                }
+
+                _selection = selection;
+                _selection
+                    .OnLoaded
+                    .OnSuccess(OnSelectionLoaded);
             }
         }
 
@@ -174,6 +183,15 @@ namespace CreateAR.SpirePlayer
 
                 content.UpdateData((ContentData) staticData);
             }
+        }
+
+        /// <summary>
+        /// Called when the current selection has been reloaded.
+        /// </summary>
+        /// <param name="content">Content.</param>
+        private void OnSelectionLoaded(Content content)
+        {
+            _focus.Focus(content.gameObject);
         }
     }
 }
