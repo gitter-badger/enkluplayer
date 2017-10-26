@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
@@ -21,6 +22,11 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        /// Http service.
+        /// </summary>
+        private readonly IHttpService _http;
+
+        /// <summary>
         /// Controls application states.
         /// </summary>
         private readonly FiniteStateMachine _states;
@@ -36,6 +42,7 @@ namespace CreateAR.SpirePlayer
         public Application(
             IApplicationHost host,
             IMessageRouter messages,
+            IHttpService http,
 
             InitializeApplicationState initialize,
             EditApplicationState edit,
@@ -45,6 +52,7 @@ namespace CreateAR.SpirePlayer
         {
             _host = host;
             _messages = messages;
+            _http = http;
 
             _states = new FiniteStateMachine(new IState[]
             {
@@ -92,6 +100,24 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Subscribe()
         {
+            // TODO: move into Initialize state?
+            _messages.Subscribe(
+                MessageTypes.AUTHORIZED,
+                @event =>
+                {
+                    var message = (AuthorizedEvent)@event;
+
+                    Log.Info(this, "Application authorized.");
+
+                    // setup http service
+                    _http.UrlBuilder.Replacements.Add(Commons.Unity.DataStructures.Tuple.Create(
+                        "userId",
+                        message.profile.id));
+                    _http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
+                        "Authorization",
+                        string.Format("Bearer {0}", message.credentials.token)));
+                });
+
             _unsubscribeList.Add(_messages.SubscribeOnce(
                 MessageTypes.READY,
                 _ =>

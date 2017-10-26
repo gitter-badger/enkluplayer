@@ -182,7 +182,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Editor\Application\EditorApplicationHostEditorWindow.cs" />
     <Compile Include="Assets\Editor\Build\UnityBuilder.cs" />
     <Compile Include="Assets\Editor\Test\Asset\Asset_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Asset\AssetManager_IntegrationTests.cs" />

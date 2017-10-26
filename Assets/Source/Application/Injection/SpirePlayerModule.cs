@@ -31,10 +31,34 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IInjectionModule"/>
         public void Load(InjectionBinder binder)
         {
-            // dependencies
+            // misc dependencies
             {
                 binder.Bind<ISerializer>().To<JsonSerializer>();
                 binder.Bind<BridgeMessageHandler>().To<BridgeMessageHandler>().ToSingleton();
+                binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
+                binder.Bind<IHttpService>()
+                    .To(new HttpService(
+                        new JsonSerializer(),
+                        LookupComponent<MonoBehaviourBootstrapper>()))
+                    .ToSingleton();
+                binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
+                binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
+                binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
+
+                // input
+                {
+                    binder.Bind<IState>().To<EditModeInputState>().ToName(NamedInjections.INPUT_STATE_DEFAULT);
+                    binder.Bind<IInputManager>().To<InputManager>().ToSingleton();
+                    binder.Bind<IMultiInput>().To<MultiInput>().ToSingleton();
+                }
+
+                // tagged components
+                {
+                    binder.Bind<MainCamera>().ToValue(LookupComponent<MainCamera>());
+                    binder.Bind<InputConfig>().ToValue(LookupComponent<InputConfig>());
+                    binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
+                    binder.Bind<WebBridge>().ToValue(LookupComponent<WebBridge>());
+                }
             }
 
             // application
@@ -54,8 +78,26 @@ namespace CreateAR.SpirePlayer
 #endif   
                 }
 
-                binder.Bind<IApplicationHost>().To<ApplicationHost>().ToSingleton();
-                binder.Bind<IApplicationState>().To<ApplicationState>().ToSingleton();
+                // spire-specific bindings
+                AddSpireBindings(binder);
+
+                // host
+                {
+                    binder.Bind<AssetUpdateService>().To<AssetUpdateService>().ToSingleton();
+                    binder.Bind<ContentGraphUpdateService>().To<ContentGraphUpdateService>().ToSingleton();
+                    binder.Bind<ContentUpdateService>().To<ContentUpdateService>().ToSingleton();
+                    binder.Bind<ScriptUpdateService>().To<ScriptUpdateService>().ToSingleton();
+                    binder.Bind<IApplicationHost>().ToValue(new ApplicationHost(
+                        binder.GetInstance<IBridge>(),
+                        new ApplicationHostService[]
+                        {
+                            binder.GetInstance<AssetUpdateService>(),
+                            binder.GetInstance<ContentGraphUpdateService>(),
+                            binder.GetInstance<ContentUpdateService>(),
+                            binder.GetInstance<ScriptUpdateService>()
+                        }));
+                }
+
                 binder.Bind<Application>().To<Application>().ToSingleton();
 
                 // application states
@@ -67,41 +109,13 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                 }
                 
-                binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
-                binder.Bind<IHttpService>()
-                    .To(new HttpService(
-                            new JsonSerializer(),
-                            LookupComponent<MonoBehaviourBootstrapper>()))
-                    .ToSingleton();
-                binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
-                binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
-                binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
-
-                // TODO: These could just be events from the bridge.
+                // TODO: Remove in favor of ApplicationHostService.
 #if UNITY_EDITOR
                 binder.Bind<IAssetUpdateService>().To<EditorAssetUpdateService>();
 #else
                 binder.Bind<IAssetUpdateService>().To<WebAssetUpdateService>();
 #endif
             }
-
-            // input
-            {
-                binder.Bind<IState>().To<EditModeInputState>().ToName(NamedInjections.INPUT_STATE_DEFAULT);
-                binder.Bind<IInputManager>().To<InputManager>().ToSingleton();
-                binder.Bind<IMultiInput>().To<MultiInput>().ToSingleton();
-            }
-
-            // tagged components
-            {
-                binder.Bind<MainCamera>().ToValue(LookupComponent<MainCamera>());
-                binder.Bind<InputConfig>().ToValue(LookupComponent<InputConfig>());
-                binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
-                binder.Bind<WebBridge>().ToValue(LookupComponent<WebBridge>());
-            }
-
-            // spire-specific bindings
-            AddSpireBindings(binder);
         }
 
         /// <summary>

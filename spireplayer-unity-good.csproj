@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -120,6 +118,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Source\AotGenericTypeIncludes.cs" />
+    <Compile Include="Assets\Source\Application\Bridge\BridgeMessageHandler.cs" />
+    <Compile Include="Assets\Source\Application\Bridge\EditorBridge.cs" />
+    <Compile Include="Assets\Source\Application\Bridge\IBridge.cs" />
+    <Compile Include="Assets\Source\Application\Bridge\MessageTypeBinder.cs" />
+    <Compile Include="Assets\Source\Application\Bridge\ReleaseBridge.cs" />
+    <Compile Include="Assets\Source\Application\Bridge\WebBridge.cs" />
+    <Compile Include="Assets\Source\Application\Host\ApplicationHost.cs" />
+    <Compile Include="Assets\Source\Application\Host\IApplicationHost.cs" />
+    <Compile Include="Assets\Source\Application\Host\Services\ApplicationHostService.cs" />
+    <Compile Include="Assets\Source\Application\Host\Services\AssetUpdateService.cs" />
+    <Compile Include="Assets\Source\Application\Host\Services\ContentGraphUpdateService.cs" />
+    <Compile Include="Assets\Source\Application\Host\Services\ContentUpdateService.cs" />
+    <Compile Include="Assets\Source\Application\Host\Services\ScriptUpdateService.cs" />
     <Compile Include="Assets\Source\Application\Injection\IInjectionModule.cs" />
     <Compile Include="Assets\Source\Application\Injection\InjectableMonoBehaviour.cs" />
     <Compile Include="Assets\Source\Application\Injection\InjectionExtensions.cs" />
@@ -143,16 +154,6 @@
     <Compile Include="Assets\Source\File\NullFileSystem.cs" />
     <Compile Include="Assets\Source\File\NullSerializer.cs" />
     <Compile Include="Assets\Source\Graphics\Grid.cs" />
-    <Compile Include="Assets\Source\Host\ApplicationHost.cs" />
-    <Compile Include="Assets\Source\Host\ApplicationState.cs" />
-    <Compile Include="Assets\Source\Host\BridgeMessageHandler.cs" />
-    <Compile Include="Assets\Source\Host\ContentGraph.cs" />
-    <Compile Include="Assets\Source\Host\EditorBridge.cs" />
-    <Compile Include="Assets\Source\Host\IApplicationHost.cs" />
-    <Compile Include="Assets\Source\Host\IApplicationState.cs" />
-    <Compile Include="Assets\Source\Host\MessageTypeBinder.cs" />
-    <Compile Include="Assets\Source\Host\ReleaseBridge.cs" />
-    <Compile Include="Assets\Source\Host\WebAssetUpdateService.cs" />
     <Compile Include="Assets\Source\Input\IInputManager.cs" />
     <Compile Include="Assets\Source\Input\InputConfig.cs" />
     <Compile Include="Assets\Source\Input\InputManager.cs" />
@@ -175,12 +176,10 @@
     <Compile Include="Assets\Source\Messages\ToApplication\PreviewEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\ScriptEvents.cs" />
     <Compile Include="Assets\Source\Messages\ToHost\ApplicationReadyEvent.cs" />
-    <Compile Include="Assets\Source\Network\IBridge.cs" />
     <Compile Include="Assets\Source\Network\Model\AssetModel.cs" />
     <Compile Include="Assets\Source\Network\Model\UserModel.cs" />
     <Compile Include="Assets\Source\Network\Uwp\UwpBridge.cs" />
     <Compile Include="Assets\Source\Network\Uwp\UwpWebsocketServer.cs" />
-    <Compile Include="Assets\Source\Network\WebBridge.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\FiniteStateMachine.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\IState.cs" />
     <Compile Include="Assets\Source\Patterns\StateMachine\StateMachine.cs" />
@@ -226,6 +225,7 @@
     <Compile Include="Assets\Source\Spire\IUX\Content\AnchorReferenceFrameFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Content.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\ContentFactory.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\ContentGraph.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\ContentManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\FloorAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IAnchorReferenceFrame.cs" />
