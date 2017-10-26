@@ -197,6 +197,7 @@
     <Compile Include="Assets\Editor\Test\Content\DummyPoolManager.cs" />
     <Compile Include="Assets\Editor\Test\Content\DummyScriptManager.cs" />
     <Compile Include="Assets\Editor\Test\Data\FileManager_Tests.cs" />
+    <Compile Include="Assets\Editor\Test\Scripting\Vector3Js_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Util\StandardQueryResolver_Tests.cs" />
     <Compile Include="Assets\Editor\Tools\App\AppEditorWindow.cs" />
     <Compile Include="Assets\Editor\Tools\App\AppPublisher.cs" />

@@ -6,59 +6,6 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
-    public class Vector3Js
-    {
-        public float x;
-        public float y;
-        public float z;
-
-        public Vector3Js(Vector3 vector)
-        {
-            x = vector.x;
-            y = vector.y;
-            z = vector.z;
-        }
-
-        public Vector3Js(float x, float y, float z)
-        {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
-        public Vector3 ToVector3()
-        {
-            return new Vector3(x, y, z);
-        }
-        
-        public override string ToString()
-        {
-            return string.Format(
-                "<{0}, {1}, {2}>",
-                x, y, z);
-        }
-    }
-
-    public class TransformJsApi
-    {
-        private readonly Transform _transform;
-
-        public TransformJsApi(Transform transform)
-        {
-            _transform = transform;
-        }
-
-        public Vector3Js getPosition()
-        {
-            return new Vector3Js(_transform.position);
-        }
-
-        public void setPosition(Vector3Js vec)
-        {
-            _transform.position = vec.ToVector3();
-        }
-    }
-
     /// <summary>
     /// This object is able to run a JS script as if it were a MonoBehaviour.
     /// </summary>

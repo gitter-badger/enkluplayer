@@ -256,9 +256,13 @@
     <Compile Include="Assets\Source\Spire\Scripting\IScriptParser.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\JsLogWrapper.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\MonoBehaviourSpireScript.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\QuatJs.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\ScriptManager.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\SpireScriptRequireResolver.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\TimeJsApi.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\TransformJsApi.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\UnityScriptingHost.cs" />
+    <Compile Include="Assets\Source\Spire\Scripting\Vector3Js.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
     <Compile Include="Assets\Source\States\Edit\EditApplicationState.cs" />
     <Compile Include="Assets\Source\States\Hierarchy\HierarchyApplicationState.cs" />

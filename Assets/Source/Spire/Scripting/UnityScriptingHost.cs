@@ -2,23 +2,9 @@
 using Jint;
 using Jint.Native;
 using Jint.Unity;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
-    public class TimeJsApi
-    {
-        public float now()
-        {
-            return Time.time;
-        }
-
-        public float dt()
-        {
-            return Time.deltaTime;
-        }
-    }
-
     /// <summary>
     /// Hosts scripts and provides a default Unity API.
     /// </summary>
