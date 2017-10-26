@@ -1,13 +1,8 @@
-﻿using System;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Provides additional methods for edit mode.
-    /// 
-    /// TODO: REMOVE.
+    /// Provides additional methods for editing data.
     /// </summary>
-    [Obsolete("This should not be used.")]
     public interface IAdminAppDataManager : IAppDataManager
     {
         /// <summary>
