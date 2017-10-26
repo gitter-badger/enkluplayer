@@ -70,6 +70,9 @@ namespace CreateAR.SpirePlayer
             _engine = engine;
             _script = script;
 
+            _engine.SetValue("transform", new TransformJsApi(transform));
+            _engine.SetValue("vec3", new Func<float, float, float, Vector3Js>((x, y, z) => new Vector3Js(x, y, z)));
+
             try
             {
                 _engine.Execute(_script.Program);

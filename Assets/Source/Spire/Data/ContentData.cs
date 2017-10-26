@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace CreateAR.SpirePlayer
@@ -35,10 +36,16 @@ namespace CreateAR.SpirePlayer
         public AssetReference Asset;
 
         /// <summary>
-        /// Anchoring Data
+        /// Describes how to anchor this content.
         /// </summary>
         [JsonProperty("anchor")]
-        public AnchorData Anchor;
+        public AnchorData Anchor = new AnchorData();
+
+        /// <summary>
+        /// Scripts that execute on this piece of content.
+        /// </summary>
+        [JsonProperty("scripts")]
+        public List<ScriptReference> Scripts = new List<ScriptReference>();
 
         /// <summary>
         /// Useful ToString.

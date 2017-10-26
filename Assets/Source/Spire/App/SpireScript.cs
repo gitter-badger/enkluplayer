@@ -1,8 +1,6 @@
-using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using Jint.Parser.Ast;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -17,29 +15,29 @@ namespace CreateAR.SpirePlayer
         private readonly IScriptParser _parser;
 
         /// <summary>
-        /// To unsubscribe from asset updates.
+        /// For loading scripts.
         /// </summary>
-        private readonly Action _unsubscribe;
-
+        private readonly IScriptLoader _loader;
+        
         /// <summary>
         /// Backing variable for OnReady.
         /// </summary>
-        private readonly AsyncToken<SpireScript> _onReady = new AsyncToken<SpireScript>();
+        private readonly MutableAsyncToken<SpireScript> _onReady = new MutableAsyncToken<SpireScript>();
 
         /// <summary>
-        /// Underlying asset we load from.
+        /// Ongoing load.
         /// </summary>
-        public readonly Asset Asset;
+        private IAsyncToken<string> _load;
 
         /// <summary>
         /// Data about the script.
         /// </summary>
-        public readonly ScriptData Data;
+        public ScriptData Data { get; private set; }
 
         /// <summary>
-        /// Token when script is first available to execute.
+        /// Token when script is available to execute.
         /// </summary>
-        public IAsyncToken<SpireScript> OnReady { get { return _onReady; } }
+        public IMutableAsyncToken<SpireScript> OnReady { get { return _onReady; } }
 
         /// <summary>
         /// Program that can be executed.
@@ -50,27 +48,22 @@ namespace CreateAR.SpirePlayer
         /// Source code.
         /// </summary>
         public string Source { get; private set; }
-        
+
         /// <summary>
         /// Creates a new SpireScript.
         /// </summary>
         /// <param name="parser">Parses JS.</param>
+        /// <param name="loader">Loads scripts.</param>
         /// <param name="data">Information about the script.</param>
-        /// <param name="asset">The AssetReference to load.</param>
         public SpireScript(
             IScriptParser parser,
-            ScriptData data,
-            Asset asset)
+            IScriptLoader loader,
+            ScriptData data)
         {
             _parser = parser;
-            Data = data;
-            Asset = asset;
+            _loader = loader;
 
-            // watch for updates to the underlying asset
-            _unsubscribe = Asset.Watch<TextAsset>(Asset_OnAssetUpdated);
-
-            // set to true!
-            Asset.AutoReload = true;
+            UpdateData(data);
         }
         
         /// <summary>
@@ -78,19 +71,53 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Release()
         {
-            _unsubscribe();
+            if (null != _load)
+            {
+                _load.Abort();
+                _load = null;
+            }
         }
 
         /// <summary>
-        /// Called when the underlying asset has been updated.
+        /// Updates the script.
         /// </summary>
-        /// <param name="asset">The asset.</param>
-        private void Asset_OnAssetUpdated(TextAsset asset)
+        /// <param name="data">Data to update.</param>
+        public void UpdateData(ScriptData data)
         {
-            Log.Info(this, "Script updated, parsing Program : {0}.",
-                Data);
+            Log.Info(this, "Spire script data updated.");
 
-            Source = asset.text;
+            Data = data;
+
+            if (null != _load)
+            {
+                _load.Abort();
+                _load = null;
+            }
+            
+            _load = _loader
+                .Load(Data)
+                .OnSuccess(OnLoaded)
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not load script {0} : {1}.",
+                        Data,
+                        exception);
+
+                    _onReady.Fail(exception);
+                });
+        }
+
+        /// <summary>
+        /// Called when the script has been downloaded.
+        /// </summary>
+        /// <param name="text">Text of the script.</param>
+        private void OnLoaded(string text)
+        {
+            Log.Info(this, "Script loaded, parsing Program : {0} :\n{1}.",
+                Data,
+                text);
+
+            Source = text;
 
             // parse!
             _parser

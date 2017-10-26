@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer;
 using UnityEngine;
 using UnityEngine.UI;
 

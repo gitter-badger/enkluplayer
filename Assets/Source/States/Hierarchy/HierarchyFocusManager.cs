@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Target of focus.
         /// </summary>
-        private HierarchyNodeMonoBehaviour _target;
+        private GameObject _target;
 
         /// <summary>
         /// The Theta we used to find the camera's current position. This is
@@ -37,25 +37,19 @@ namespace CreateAR.SpirePlayer
         /// Focuses on a target.
         /// </summary>
         /// <param name="target">The target to focus on.</param>
-        public void Focus(HierarchyNodeMonoBehaviour target)
+        public void Focus(GameObject target)
         {
             if (_target == target)
             {
                 return;
             }
-
-            if (null != _target)
-            {
-                _target.OnAssetUpdated -= Target_OnAssetUpdated;
-            }
-
+            
             _target = target;
 
             if (null != _target)
             {
                 Log.Info(this, "Focus on {0}.", _target.name);
-
-                _target.OnAssetUpdated += Target_OnAssetUpdated;
+                
                 UpdateCameraPosition();
             }
         }
@@ -171,22 +165,6 @@ namespace CreateAR.SpirePlayer
                     ctx.Prism(_bounds);
                 });
             }
-        }
-
-        /// <summary>
-        /// Called when the target's asset has been updated.
-        /// </summary>
-        /// <param name="node">The target node.</param>
-        private void Target_OnAssetUpdated(HierarchyNodeMonoBehaviour node)
-        {
-            // double check it's the same node
-            if (_target != node)
-            {
-                Log.Warning(this, "Still receiving events for a node we are not targeting.");
-                return;
-            }
-
-            UpdateCameraPosition();
         }
     }
 }

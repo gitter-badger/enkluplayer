@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer;
 
 namespace CreateAR.SpirePlayer
 {
@@ -65,8 +65,8 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly IAppDataManager _appData;
-        private readonly IAssetManager _assets;
         private readonly IScriptParser _parser;
+        private readonly IScriptLoader _loader;
         private readonly IQueryResolver _resolver;
 
         /// <summary>
@@ -78,19 +78,23 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         /// <param name="appData">App data.</param>
-        /// <param name="assets">Assets.</param>
         /// <param name="parser">For parsing scripts, asynchronously.</param>
+        /// <param name="loader">For loading scripts, asynchronously.</param>
         /// <param name="resolver">Resolves queries.</param>
         public ScriptManager(
             IAppDataManager appData,
-            IAssetManager assets,
             IScriptParser parser,
+            IScriptLoader loader,
             IQueryResolver resolver)
         {
             _appData = appData;
-            _assets = assets;
             _parser = parser;
+            _loader = loader;
             _resolver = resolver;
+
+            _appData.OnUpdated += AppData_OnUpdated;
+            _appData.OnRemoved += AppData_OnRemoved;
+            _appData.OnUpdated += AppData_OnUpdated;
         }
 
         /// <inheritdoc cref="IScriptManager"/>
@@ -160,14 +164,8 @@ namespace CreateAR.SpirePlayer
                     scriptId);
                 return null;
             }
-
-            var asset = _assets.Manifest.Asset(data.Asset.AssetDataId);
-            if (null == asset)
-            {
-                return null;
-            }
-
-            var script = new SpireScript(_parser, data, asset);
+            
+            var script = new SpireScript(_parser, _loader, data);
 
             _records.Add(new ScriptRecord(script, tags));
 
@@ -203,6 +201,37 @@ namespace CreateAR.SpirePlayer
                     record.Script.Release();
 
                     _records.RemoveAt(i);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when a piece of data has been removed.
+        /// </summary>
+        /// <param name="staticData">Static data that was removed.</param>
+        private void AppData_OnRemoved(StaticData staticData)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Called when a piece of data has been updated.
+        /// </summary>
+        /// <param name="staticData">Static data that was updated.</param>
+        private void AppData_OnUpdated(StaticData staticData)
+        {
+            var data = staticData as ScriptData;
+            if (null == data)
+            {
+                return;
+            }
+
+            for (int i = 0, len = _records.Count; i < len; i++)
+            {
+                var record = _records[i];
+                if (record.Script.Data.Id == data.Id)
+                {
+                    record.Script.UpdateData(data);
                 }
             }
         }

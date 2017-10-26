@@ -33,9 +33,13 @@ namespace CreateAR.SpirePlayer
                 }
                 case AnchorType.Locator:
                 {
-                    return new LocatorReferenceFrame(
+                    return new LocatorAnchorReferenceFrame(
                         _intention,
                         content);
+                }
+                case AnchorType.None:
+                {
+                    return new NoneAnchorReferenceFrame();
                 }
             }
 

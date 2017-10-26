@@ -30,6 +30,7 @@ namespace CreateAR.SpirePlayer
             SetValue("scene", new UnitySceneManager());
             SetValue("require", new Func<string, JsValue>(
                 value => resolver.Resolve(scripts, this, value)));
+            SetValue("time", new TimeJsApi());
         }
     }
 }

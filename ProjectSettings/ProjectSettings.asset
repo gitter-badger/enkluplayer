@@ -497,14 +497,14 @@ PlayerSettings:
   webGLExceptionSupport: 1
   webGLNameFilesAsHashes: 0
   webGLDataCaching: 0
-  webGLDebugSymbols: 0
+  webGLDebugSymbols: 1
   webGLEmscriptenArgs: 
   webGLModulesDirectory: 
   webGLTemplate: PROJECT:Editor
   webGLAnalyzeBuildSize: 0
   webGLUseEmbeddedResources: 0
   webGLUseWasm: 0
-  webGLCompressionFormat: 1
+  webGLCompressionFormat: 2
   scriptingDefineSymbols:
     13: DEBUG_RENDERING
   platformArchitecture: {}

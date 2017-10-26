@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -100,6 +101,7 @@ namespace CreateAR.SpirePlayer
             // subscribe
             AddAssetSubscriptions();
             AddContentSubscriptions();
+            AddScriptSubscriptions();
             AddHierarchySubscriptions();
 
             // tell the webpage
@@ -137,7 +139,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Adds subscriptions for Asset events.
         /// 
-        /// TODO: Move?
+        /// TODO: Move into an IAssetUpdateService!
         /// </summary>
         private void AddAssetSubscriptions()
         {
@@ -191,6 +193,58 @@ namespace CreateAR.SpirePlayer
 
                 // update app data (the hierarchy is listening for updates)
                 _appData.Update(@event.Content);
+            });
+        }
+
+        /// <summary>
+        /// Adds subscriptions for script updates.
+        /// </summary>
+        private void AddScriptSubscriptions()
+        {
+            Subscribe<ScriptListEvent>(MessageTypes.SCRIPT_LIST, @event =>
+            {
+                Log.Info(this, "Script list updated.");
+
+                foreach (var script in @event.Scripts)
+                {
+                    Silly("\t-{0}", script);
+
+                    _appData.Add(script);
+                }
+            });
+
+            Subscribe<ScriptAddEvent>(MessageTypes.SCRIPT_ADD, @event =>
+            {
+                Log.Info(this, "Script added.");
+
+                var script = @event.Script;
+                
+                Silly("\t-Script: {0}", script);
+
+                _appData.Add(script);
+            });
+
+            Subscribe<ScriptUpdateEvent>(MessageTypes.SCRIPT_UPDATE, @event =>
+            {
+                Log.Info(this, "Script updated.");
+
+                _appData.Update(@event.Script);
+            });
+
+            Subscribe<ScriptRemoveEvent>(MessageTypes.SCRIPT_REMOVE, @event =>
+            {
+                Log.Info(this, "Script removed.");
+
+                var data = _appData.Get<ScriptData>(@event.Id);
+                if (null == data)
+                {
+                    Log.Warning(this,
+                        "Received ScriptRemoveEvent for unknown script id {0}.",
+                        @event.Id);
+                    return;
+                }
+
+                _appData.Remove(data);
             });
         }
 
@@ -383,6 +437,15 @@ namespace CreateAR.SpirePlayer
                     return "UNKNOWN";
                 }
             }
+        }
+
+        /// <summary>
+        /// Silly level logging.
+        /// </summary>
+        [Conditional("UNITY_EDITOR")]
+        private void Silly(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

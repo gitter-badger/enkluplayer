@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Frame of reference for a locator.
     /// </summary>
-    public class LocatorReferenceFrame : IAnchorReferenceFrame
+    public class LocatorAnchorReferenceFrame : IAnchorReferenceFrame
     {
         /// <summary>
         /// Dependencies.
@@ -26,7 +26,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates a new <c>LocatorReferenceFrame</c>.
         /// </summary>
-        public LocatorReferenceFrame(
+        public LocatorAnchorReferenceFrame(
             IntentionManager intention,
             IContentManager content)
         {
