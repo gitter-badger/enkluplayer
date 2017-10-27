@@ -42,7 +42,7 @@ namespace CreateAR.SpirePlayer
             // no body means void message
             if (!message.Contains(":"))
             {
-                DebugLog("Received : {0}", message);
+                Silly("Received : {0}", message);
 
                 HandleVoidMessage(message);
                 return;
@@ -83,7 +83,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            DebugLog("Received : {0} : {1}", message, payloadString);
+            Silly("Received : {0} : {1}", message, payloadString);
 
             // handle strings
             if (typeof(string) == payloadType)
@@ -142,9 +142,7 @@ namespace CreateAR.SpirePlayer
                     payloadType);
                 return;
             }
-
-            Log.Debug(this, "Received [{0}]", messageType);
-
+            
             _router.Publish(messageType, Void.Instance);
         }
 
@@ -169,10 +167,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="message">Message.</param>
         /// <param name="replacements">Replacements.</param>
-        [Conditional("DEBUG_LOGGING")]
-        private void DebugLog(object message, params object[] replacements)
+        [Conditional("UNITY_EDITOR")]
+        private void Silly(object message, params object[] replacements)
         {
-            Log.Debug(this, message, replacements);
+            Log.Debug(this, "<color=green>" +  message + "</color>", replacements);
         }
     }
 }

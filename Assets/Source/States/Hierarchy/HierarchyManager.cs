@@ -75,11 +75,13 @@ namespace CreateAR.SpirePlayer
             Content selection;
             if (_contentMap.TryGetValue(contentId, out selection))
             {
+                // stop listening to the old one (which starts as null)
                 if (null != _selection)
                 {
                     _selection.OnLoaded.Remove(OnSelectionLoaded);
                 }
 
+                // listen to the new one
                 _selection = selection;
                 _selection
                     .OnLoaded

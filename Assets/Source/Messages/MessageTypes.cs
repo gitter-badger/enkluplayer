@@ -27,17 +27,17 @@
         public const int ASSET_REMOVE = 12;
         public const int ASSET_UPDATE = 13;
 
-        // Content
-        public const int CONTENT_LIST = 20;
-        public const int CONTENT_ADD = 21;
-        public const int CONTENT_REMOVE = 22;
-        public const int CONTENT_UPDATE = 23;
-
         // Scripts
-        public const int SCRIPT_LIST = 30;
-        public const int SCRIPT_ADD = 31;
-        public const int SCRIPT_REMOVE = 32;
-        public const int SCRIPT_UPDATE = 33;
+        public const int SCRIPT_LIST = 20;
+        public const int SCRIPT_ADD = 21;
+        public const int SCRIPT_REMOVE = 22;
+        public const int SCRIPT_UPDATE = 23;
+
+        // Content
+        public const int CONTENT_LIST = 30;
+        public const int CONTENT_ADD = 31;
+        public const int CONTENT_REMOVE = 32;
+        public const int CONTENT_UPDATE = 33;
 
         ///////////////////////////////////////////////////////////////////////
         // Global

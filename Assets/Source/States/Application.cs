@@ -63,6 +63,7 @@ namespace CreateAR.SpirePlayer
                 hierarchy
             });
         }
+       
 
         /// <summary>
         /// Initializes the application.
@@ -108,6 +109,9 @@ namespace CreateAR.SpirePlayer
                     var message = (AuthorizedEvent)@event;
 
                     Log.Info(this, "Application authorized.");
+
+                    // DEMO
+                    _http.UrlBuilder.BaseUrl = "192.168.1.2";
 
                     // setup http service
                     _http.UrlBuilder.Replacements.Add(Commons.Unity.DataStructures.Tuple.Create(
@@ -174,6 +178,9 @@ namespace CreateAR.SpirePlayer
                 }));
         }
 
+        /// <summary>
+        /// Unsubscribes from all subscriptions.
+        /// </summary>
         private void Unsubscribe()
         {
             for (int i = 0, len = _unsubscribeList.Count; i < len; i++)

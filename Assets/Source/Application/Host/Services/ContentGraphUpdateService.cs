@@ -47,7 +47,7 @@ namespace CreateAR.SpirePlayer
 
             _graph.Add(_graph.Root.Id, @event.Children);
 
-            _graph.Walk(node => { Log.Info(this, node); });
+            _graph.Walk(node => { Silly("\t{0}", node); });
         }
 
         /// <summary>
@@ -59,8 +59,6 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Add node to hierarchy.");
 
             _graph.Add(@event.Parent, @event.Node);
-
-            _graph.Walk(node => { Log.Info(this, node); });
         }
 
         /// <summary>
