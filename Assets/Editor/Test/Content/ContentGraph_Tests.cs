@@ -7,34 +7,49 @@ namespace CreateAR.SpirePlayer.Test
     {
         private ContentGraph _graph;
 
+        private static HierarchyNodeLocatorData[] Locators()
+        {
+            return new [] {
+                new HierarchyNodeLocatorData
+                {
+                    Name = "__self__"
+                }
+            };
+        }
+
         private readonly HierarchyNodeData _root = new HierarchyNodeData
         {
             Id = "a",
             ContentId = "A",
+            Locators = Locators(),
             Children = new []
             {
                 new HierarchyNodeData
                 {
                     Id = "b",
                     ContentId = "B",
+                    Locators = Locators(),
                     Children = new []
                     {
                         new HierarchyNodeData
                         {
                             Id = "bb",
-                            ContentId = "BB"
+                            ContentId = "BB",
+                            Locators = Locators()
                         },
                         new HierarchyNodeData
                         {
                             Id = "bbb",
-                            ContentId = "BBB"
+                            ContentId = "BBB",
+                            Locators = Locators()
                         }
                     }
                 },
                 new HierarchyNodeData
                 {
                     Id = "c",
-                    ContentId = "C"
+                    ContentId = "C",
+                    Locators = Locators()
                 }
             }
         };
@@ -196,7 +211,8 @@ namespace CreateAR.SpirePlayer.Test
                     new HierarchyNodeData
                     {
                         Id = "q",
-                        ContentId = "Q"
+                        ContentId = "Q",
+                        Locators = Locators()
                     }
                 }
             });
@@ -209,7 +225,8 @@ namespace CreateAR.SpirePlayer.Test
         {
             Assert.IsTrue(_graph.Add("a", new HierarchyNodeData
             {
-                Id = "qq"
+                Id = "qq",
+                Locators = Locators()
             }));
 
             Assert.IsNotNull(_graph.FindOne("qq"));
@@ -220,7 +237,8 @@ namespace CreateAR.SpirePlayer.Test
         {
             Assert.IsFalse(_graph.Add("foo", new HierarchyNodeData
             {
-                Id = "qq"
+                Id = "qq",
+                Locators = Locators()
             }));
 
             Assert.IsNull(_graph.FindOne("qq"));
@@ -241,7 +259,8 @@ namespace CreateAR.SpirePlayer.Test
 
             _graph.Add("a", new HierarchyNodeData
             {
-                Id = "qq"
+                Id = "qq",
+                Locators = Locators()
             });
 
             Assert.IsNotNull(_graph.FindOne("qq"));
