@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.Assertions;
 
 namespace CreateAR.SpirePlayer
 {
@@ -27,10 +28,7 @@ namespace CreateAR.SpirePlayer
         {
             Update(locators);
 
-            if (null == Self())
-            {
-                throw new ArgumentException("Cannot create LocatorSet without self locator!");
-            }
+            Assert.IsNotNull(Self(), "Created LocatorSet without self locator!");
         }
 
         /// <summary>

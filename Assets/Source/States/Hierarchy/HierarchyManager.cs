@@ -35,7 +35,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Current selection.
         /// </summary>
-        private Content _selection;
+        private Content _selectedContent;
 
         /// <summary>
         /// Holds relationships between Content.
@@ -83,16 +83,27 @@ namespace CreateAR.SpirePlayer
             if (_contentMap.TryGetValue(contentId, out selection))
             {
                 // stop listening to the old one (which starts as null)
-                if (null != _selection)
+                if (null != _selectedContent)
                 {
-                    _selection.OnLoaded.Remove(Selection_OnLoaded);
+                    _selectedContent.OnLoaded.Remove(Selection_OnLoaded);
                 }
 
                 // listen to the new one
-                _selection = selection;
-                _selection
+                _selectedContent = selection;
+
+                // select now
+                _focus.Focus(_selectedContent.gameObject);
+
+                // listen for future selections
+                _selectedContent
                     .OnLoaded
                     .OnSuccess(Selection_OnLoaded);
+            }
+            else
+            {
+                Log.Error(this,
+                    "Request to select Content that HierarchyManager has not created : {0}.",
+                    contentId);
             }
         }
 
@@ -195,8 +206,9 @@ namespace CreateAR.SpirePlayer
                 _contentMap[contentId] = content;
 
                 // locators enforce Self() to be non-null
-                // we don't need to remove this handler, so use a closure
-                node.Locators.Self().OnUpdated += locator => Locator_OnUpdated(locator, content);
+                // TODO: This should go through the Anchor system.
+                var self = node.Locators.Self();
+                self.OnUpdated += locator => Locator_OnUpdated(locator, content);
             }
 
             // children

@@ -201,7 +201,15 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            // watch to unload
             _asset.OnRemoved += Asset_OnRemoved;
+
+            // asset might already be loaded!
+            var prefab = _asset.As<GameObject>();
+            if (null != prefab)
+            {
+                ReplaceInstance(prefab);
+            }
 
             // watch for asset reloads
             // TODO: No way to see if asset load failed!
@@ -209,22 +217,34 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Info(this, "Asset loaded.");
 
-                if (null != _instance)
-                {
-                    _pools.Put(_instance);
-                    _instance = null;
-                }
-
-                _instance = _pools.Get<GameObject>(value);
-                _instance.transform.SetParent(transform, false);
-
-                UpdateInstancePosition();
+                ReplaceInstance(value);
 
                 _onAssetLoaded.Succeed(this);
             });
 
             // automatically reload
             _asset.AutoReload = true;
+        }
+
+        /// <summary>
+        /// Creates an instance of the loaded asset and replaces the existing
+        /// instance, if there is one.
+        /// </summary>
+        /// <param name="value">The GameObject that was loaded.</param>
+        private void ReplaceInstance(GameObject value)
+        {
+            // put existing instance back
+            if (null != _instance)
+            {
+                _pools.Put(_instance);
+                _instance = null;
+            }
+
+            // get a new one
+            _instance = _pools.Get<GameObject>(value);
+            _instance.transform.SetParent(transform, false);
+
+            UpdateInstancePosition();
         }
 
         /// <summary>

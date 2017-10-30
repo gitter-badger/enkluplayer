@@ -39,11 +39,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="target">The target to focus on.</param>
         public void Focus(GameObject target)
         {
-            if (_target == target)
-            {
-                return;
-            }
-            
             _target = target;
 
             if (null != _target)
