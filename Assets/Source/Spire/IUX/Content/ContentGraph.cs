@@ -36,16 +36,8 @@ namespace CreateAR.SpirePlayer
             /// <summary>
             /// Locators associated with this node.
             /// </summary>
-            public List<HierarchyNodeLocatorData> Locators { get; private set; }
-
-            /// <summary>
-            /// Returns the self locator.
-            /// </summary>
-            public HierarchyNodeLocatorData SelfLocator
-            {
-                get { return Locator("__self__"); }
-            }
-
+            public LocatorSet Locators { get; private set; }
+            
             /// <summary>
             /// Called when this node has been updated. Not called for child
             /// add/removes.
@@ -109,26 +101,7 @@ namespace CreateAR.SpirePlayer
 
                 return null;
             }
-
-            /// <summary>
-            /// Retrieves a locator by name.
-            /// </summary>
-            /// <param name="name">Name of the locator.</param>
-            /// <returns></returns>
-            public HierarchyNodeLocatorData Locator(string name)
-            {
-                for (int i = 0, len = Locators.Count; i < len; i++)
-                {
-                    var locator = Locators[i];
-                    if (locator.Name == name)
-                    {
-                        return locator;
-                    }
-                }
-
-                return null;
-            }
-
+            
             /// <summary>
             /// Creates a new node.
             /// </summary>
@@ -142,17 +115,9 @@ namespace CreateAR.SpirePlayer
                 ContentId = data.ContentId;
                 Parent = parent;
                 Children = new List<ContentGraphNode>();
-                Locators = new List<HierarchyNodeLocatorData>();
+                Locators = new LocatorSet(data.Locators);
             }
-
-            /// <summary>
-            /// Sets locators.
-            /// </summary>
-            internal void SetLocators(HierarchyNodeLocatorData[] locators)
-            {
-                Locators = new List<HierarchyNodeLocatorData>(locators);
-            }
-
+            
             /// <summary>
             /// Sets children.
             /// </summary>
@@ -316,7 +281,17 @@ namespace CreateAR.SpirePlayer
             Root = new ContentGraphNode(
                 new HierarchyNodeData
                 {
-                    Id = "root"
+                    Id = "root",
+                    Locators = new []
+                    {
+                        new HierarchyNodeLocatorData
+                        {
+                            Name = "__self__",
+                            PositionArray = new []{ 0f, 0f, 0f },
+                            RotationArray = new []{ 0f, 0f, 0f },
+                            ScaleArray = new []{ 1f, 1f, 1f }
+                        }
+                    }
                 },
                 null);
         }
@@ -463,7 +438,7 @@ namespace CreateAR.SpirePlayer
             }
 
             // reconcile locators
-            node.SetLocators(data.Locators);
+            node.Locators.Update(data.Locators);
 
             // fire event on node
             node.Updated();

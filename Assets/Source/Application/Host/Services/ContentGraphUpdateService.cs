@@ -78,8 +78,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="event">The event.</param>
         private void OnHierarchyUpdateEvent(HierarchyUpdateEvent @event)
         {
-            Log.Info(this, "Hierarchy node updated.");
-
             _graph.Update(@event.Node);
         }
     }

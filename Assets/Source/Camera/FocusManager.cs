@@ -60,6 +60,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateCameraPosition()
         {
+            Log.Info(this, "Update camera focus.");
+
             /**
              * General approach:
              * 

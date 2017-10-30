@@ -80,7 +80,7 @@ namespace CreateAR.SpirePlayer
         /// Content data.
         /// </summary>
         public ContentData Data { get; private set; }
-
+        
         /// <summary>
         /// A token that is fired whenever the content has loaded.
         /// </summary>
@@ -129,7 +129,7 @@ namespace CreateAR.SpirePlayer
                 this,
                 null,
                 _scripts);
-
+            
             UpdateData(data);
         }
 

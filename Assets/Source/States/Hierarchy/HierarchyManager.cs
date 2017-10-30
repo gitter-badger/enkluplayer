@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
+using UnityEngine;
 using ContentGraphNode = CreateAR.SpirePlayer.ContentGraph.ContentGraphNode;
 
 namespace CreateAR.SpirePlayer
@@ -64,6 +65,7 @@ namespace CreateAR.SpirePlayer
 
             _graph.Root.OnChildAdded += Graph_OnChildAdded;
             _graph.Root.OnChildRemoved += Graph_OnChildRemoved;
+            _graph.Root.OnChildUpdated += Graph_OnUpdated;
         }
 
         /// <summary>
@@ -78,14 +80,14 @@ namespace CreateAR.SpirePlayer
                 // stop listening to the old one (which starts as null)
                 if (null != _selection)
                 {
-                    _selection.OnLoaded.Remove(OnSelectionLoaded);
+                    _selection.OnLoaded.Remove(Selection_OnLoaded);
                 }
 
                 // listen to the new one
                 _selection = selection;
                 _selection
                     .OnLoaded
-                    .OnSuccess(OnSelectionLoaded);
+                    .OnSuccess(Selection_OnLoaded);
             }
         }
 
@@ -148,6 +150,25 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called when a node has been updated.
+        /// </summary>
+        /// <param name="root">Root node.</param>
+        /// <param name="node">Node that was updated.</param>
+        private void Graph_OnUpdated(ContentGraphNode root, ContentGraphNode node)
+        {
+            Content content;
+            if (!_contentMap.TryGetValue(node.Id, out content))
+            {
+                Log.Error(this,
+                    "Node updated that HierarchyManager has not created : {0}.",
+                    node.Id);
+                return;
+            }
+
+            Log.Info(this, "Hierarchy node updated.");
+        }
+
+        /// <summary>
         /// Recursive method that creates nodes.
         /// </summary>
         /// <param name="node">Node to create.</param>
@@ -162,6 +183,10 @@ namespace CreateAR.SpirePlayer
                 var contentId = node.ContentId;
                 var content = _content.Request(contentId);
                 _contentMap[contentId] = content;
+
+                // locators enforce Self() to be non-null
+                // we don't need to remove this handler, so use a closure
+                node.Locators.Self().OnUpdated += locator => Locator_OnUpdated(locator, content);
             }
 
             // children
@@ -171,7 +196,7 @@ namespace CreateAR.SpirePlayer
                 Create(children[i]);
             }
         }
-        
+
         /// <summary>
         /// Called when AppData has an update.
         /// </summary>
@@ -188,10 +213,24 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called when a locator is updated.
+        /// </summary>
+        /// <param name="locator">Locator in question.</param>
+        /// <param name="content">Content associated with this locator.</param>
+        private void Locator_OnUpdated(Locator locator, Content content)
+        {
+            Log.Info(this, "Locator updatd.");
+
+            content.transform.localPosition = locator.Data.Position;
+            content.transform.localRotation = Quaternion.Euler(locator.Data.Rotation);
+            content.transform.localScale = locator.Data.Scale;
+        }
+
+        /// <summary>
         /// Called when the current selection has been reloaded.
         /// </summary>
         /// <param name="content">Content.</param>
-        private void OnSelectionLoaded(Content content)
+        private void Selection_OnLoaded(Content content)
         {
             _focus.Focus(content.gameObject);
         }
