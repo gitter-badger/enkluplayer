@@ -7,10 +7,9 @@ using CreateAR.Commons.Unity.Messaging;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Describes a long-running service that listens to the <c>IApplicationHost</c>
-    /// implementation.
+    /// Describes an interface for long-running services.
     /// </summary>
-    public abstract class ApplicationHostService
+    public abstract class ApplicationService
     {
         /// <summary>
         /// <c>IBridge</c> implementation.
@@ -30,7 +29,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        protected ApplicationHostService(
+        protected ApplicationService(
             IBridge bridge,
             IMessageRouter messages)
         {
@@ -41,12 +40,24 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the <c>IApplicationHost</c> starts the application.
         /// </summary>
-        public abstract void Start();
+        public virtual void Start()
+        {
+            //
+        }
+
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
+        /// <param name="dt"></param>
+        public virtual void Update(float dt)
+        {
+            //
+        }
 
         /// <summary>
         /// Called when the <c>IApplicationHost</c> stops the application.
         /// </summary>
-        public void Stop()
+        public virtual void Stop()
         {
             for (int i = 0, len = _unsubscribeList.Count; i < len; i++)
             {

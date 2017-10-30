@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Http;
+﻿using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
@@ -59,10 +60,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnSuccess(_ =>
                 {
-
-                    _messages.Publish(
-                        MessageTypes.READY,
-                        new ApplicationReadyEvent());
+                    _messages.Publish(MessageTypes.READY, Void.Instance);
                 })
                 .OnFailure(exception =>
                 {
