@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Manages <c>ContentGraph</c> related events.
     /// </summary>
-    public class ContentGraphUpdateService : ApplicationHostService
+    public class ContentGraphUpdateService : ApplicationService
     {
         /// <summary>
         /// The <c>ContentGraph</c>.
@@ -25,7 +25,7 @@ namespace CreateAR.SpirePlayer
             _graph = graph;
         }
 
-        /// <inheritdoc cref="ApplicationHostService"/>
+        /// <inheritdoc cref="ApplicationService"/>
         public override void Start()
         {
             // TODO: REMOVE

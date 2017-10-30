@@ -81,24 +81,15 @@ namespace CreateAR.SpirePlayer
                 // spire-specific bindings
                 AddSpireBindings(binder);
 
-                // host
+                // services
                 {
+                    binder.Bind<ApplicationStateService>().To<ApplicationStateService>().ToSingleton();
+                    binder.Bind<AuthorizationService>().To<AuthorizationService>().ToSingleton();
                     binder.Bind<AssetUpdateService>().To<AssetUpdateService>().ToSingleton();
                     binder.Bind<ContentGraphUpdateService>().To<ContentGraphUpdateService>().ToSingleton();
                     binder.Bind<ContentUpdateService>().To<ContentUpdateService>().ToSingleton();
                     binder.Bind<ScriptUpdateService>().To<ScriptUpdateService>().ToSingleton();
-                    binder.Bind<IApplicationHost>().ToValue(new ApplicationHost(
-                        binder.GetInstance<IBridge>(),
-                        new ApplicationHostService[]
-                        {
-                            binder.GetInstance<AssetUpdateService>(),
-                            binder.GetInstance<ContentGraphUpdateService>(),
-                            binder.GetInstance<ContentUpdateService>(),
-                            binder.GetInstance<ScriptUpdateService>()
-                        }));
                 }
-
-                binder.Bind<Application>().To<Application>().ToSingleton();
 
                 // application states
                 {
@@ -109,6 +100,20 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                 }
+
+                // service manager + appplication
+                binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
+                    binder.GetInstance<IBridge>(),
+                    new ApplicationService[]
+                    {
+                        binder.GetInstance<ApplicationStateService>(),
+                        binder.GetInstance<AuthorizationService>(),
+                        binder.GetInstance<AssetUpdateService>(),
+                        binder.GetInstance<ContentGraphUpdateService>(),
+                        binder.GetInstance<ContentUpdateService>(),
+                        binder.GetInstance<ScriptUpdateService>()
+                    }));
+                binder.Bind<Application>().To<Application>().ToSingleton();
             }
         }
 

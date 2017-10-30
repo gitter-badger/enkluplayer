@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Handles <c>Asset</c> related updates.
     /// </summary>
-    public class AssetUpdateService : ApplicationHostService
+    public class AssetUpdateService : ApplicationService
     {
         /// <summary>
         /// Manages assets.
@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer
             _assets = assets;
         }
 
-        /// <inheritdoc cref="ApplicationHostService"/>
+        /// <inheritdoc cref="ApplicationService"/>
         public override void Start()
         {
             Subscribe<AssetListEvent>(MessageTypes.ASSET_LIST, Messages_OnAssetList);

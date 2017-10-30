@@ -126,9 +126,10 @@
     <Compile Include="Assets\Source\Application\Bridge\MessageTypeBinder.cs" />
     <Compile Include="Assets\Source\Application\Bridge\ReleaseBridge.cs" />
     <Compile Include="Assets\Source\Application\Bridge\WebBridge.cs" />
-    <Compile Include="Assets\Source\Application\Host\ApplicationHost.cs" />
-    <Compile Include="Assets\Source\Application\Host\IApplicationHost.cs" />
-    <Compile Include="Assets\Source\Application\Host\Services\ApplicationHostService.cs" />
+    <Compile Include="Assets\Source\Application\Host\ApplicationServiceManager.cs" />
+    <Compile Include="Assets\Source\Application\Host\IApplicationServiceManager.cs" />
+    <Compile Include="Assets\Source\Application\Host\Services\ApplicationService.cs" />
+    <Compile Include="Assets\Source\Application\Host\Services\ApplicationStateService.cs" />
     <Compile Include="Assets\Source\Application\Host\Services\AssetUpdateService.cs" />
     <Compile Include="Assets\Source\Application\Host\Services\ContentGraphUpdateService.cs" />
     <Compile Include="Assets\Source\Application\Host\Services\ContentUpdateService.cs" />
@@ -178,7 +179,6 @@
     <Compile Include="Assets\Source\Messages\ToApplication\HierarchyNodeData.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\PreviewEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\ScriptEvents.cs" />
-    <Compile Include="Assets\Source\Messages\ToHost\ApplicationReadyEvent.cs" />
     <Compile Include="Assets\Source\Network\Model\AssetModel.cs" />
     <Compile Include="Assets\Source\Network\Model\UserModel.cs" />
     <Compile Include="Assets\Source\Network\Uwp\IUwpWebsocketService.cs" />
@@ -268,6 +268,7 @@
     <Compile Include="Assets\Source\Spire\Scripting\UnityScriptingHost.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\Vector3Js.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
+    <Compile Include="Assets\Source\States\AuthorizationService.cs" />
     <Compile Include="Assets\Source\States\Edit\EditApplicationState.cs" />
     <Compile Include="Assets\Source\States\Hierarchy\HierarchyApplicationState.cs" />
     <Compile Include="Assets\Source\States\Hierarchy\HierarchyManager.cs" />

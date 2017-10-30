@@ -1,11 +1,9 @@
-using Void = CreateAR.Commons.Unity.Async.Void;
-
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// <c>IApplicationHost</c> implementation for webpages.
+    /// <c>IApplicationServiceManager</c> implementation.
     /// </summary>
-    public class ApplicationHost : IApplicationHost
+    public class ApplicationServiceManager : IApplicationServiceManager
     {
         /// <summary>
         /// The bridge into the web world.
@@ -15,47 +13,50 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Services to monitor host.
         /// </summary>
-        private readonly ApplicationHostService[] _services;
+        private readonly ApplicationService[] _services;
 
         /// <summary>
         /// Creates a new WebApplicationHost.
         /// </summary>
         /// <param name="bridge">The WebBridge.</param>
         /// <param name="services">Services to monitor host.</param>
-        public ApplicationHost(
+        public ApplicationServiceManager(
             IBridge bridge,
-            ApplicationHostService[] services)
+            ApplicationService[] services)
         {
             _bridge = bridge;
             _services = services;
         }
 
-        /// <inheritdoc cref="IApplicationHost"/>
+        /// <inheritdoc cref="IApplicationServiceManager"/>
         public void Start()
         {
             _bridge.Initialize();
 
-            foreach (var service in _services)
+            for (int i = 0, len = _services.Length; i < len; i++)
             {
-                service.Start();
+                _services[i].Start();
             }
-
-            // bind to events from web bridge
-            // TODO: Move somewhere else?
-            _bridge.Binder.Add<AuthorizedEvent>(MessageTypes.AUTHORIZED);
-            _bridge.Binder.Add<PreviewEvent>(MessageTypes.PREVIEW);
-            _bridge.Binder.Add<Void>(MessageTypes.HIERARCHY);
             
             // tell the webpage
             _bridge.BroadcastReady();
         }
 
-        /// <inheritdoc cref="IApplicationHost"/>
+        /// <inheritdoc cref="IApplicationServiceManager"/>
+        public void Update(float dt)
+        {
+            for (int i = 0, len = _services.Length; i < len; i++)
+            {
+                _services[i].Update(dt);
+            }
+        }
+
+        /// <inheritdoc cref="IApplicationServiceManager"/>
         public void Stop()
         {
-            foreach (var service in _services)
+            for (int i = 0, len = _services.Length; i < len; i++)
             {
-                service.Stop();
+                _services[i].Stop();
             }
 
             _bridge.Binder.Clear();

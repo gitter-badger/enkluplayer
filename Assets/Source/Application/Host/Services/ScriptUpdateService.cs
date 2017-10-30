@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Handles <c>Script</c> updates.
     /// </summary>
-    public class ScriptUpdateService : ApplicationHostService
+    public class ScriptUpdateService : ApplicationService
     {
         /// <summary>
         /// Manages application data.
@@ -25,7 +25,7 @@ namespace CreateAR.SpirePlayer
             _appData = appData;
         }
 
-        /// <inheritdoc cref="ApplicationHostService"/>
+        /// <inheritdoc cref="ApplicationService"/>
         public override void Start()
         {
             Subscribe<ScriptListEvent>(MessageTypes.SCRIPT_LIST, OnScriptListEvent);
