@@ -370,7 +370,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Filter: .*
-  Enabled: 1
+  Enabled: 0
 --- !u!114 &142035200
 MonoBehaviour:
   m_ObjectHideFlags: 0
