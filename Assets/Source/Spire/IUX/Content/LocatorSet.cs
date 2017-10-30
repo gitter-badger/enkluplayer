@@ -3,12 +3,26 @@ using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Manages a set of locators.
+    /// </summary>
     public class LocatorSet
     {
+        /// <summary>
+        /// List of locators.
+        /// </summary>
         private readonly List<Locator> _locators = new List<Locator>();
 
+        /// <summary>
+        /// Called when a locator has been added. Update and Remove events on
+        /// are locators themselves.
+        /// </summary>
         public event Action<Locator> OnAdded;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="locators">List of locators.</param>
         public LocatorSet(IList<HierarchyNodeLocatorData> locators)
         {
             Update(locators);
@@ -19,11 +33,20 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Retrieves the self locator.
+        /// </summary>
+        /// <returns></returns>
         public Locator Self()
         {
             return ByName("__self__");
         }
 
+        /// <summary>
+        /// Retrieves a locator by name.
+        /// </summary>
+        /// <param name="name">The name of the locator.</param>
+        /// <returns></returns>
         public Locator ByName(string name)
         {
             for (int i = 0, len = _locators.Count; i < len; i++)
@@ -38,6 +61,10 @@ namespace CreateAR.SpirePlayer
             return null;
         }
 
+        /// <summary>
+        /// Adds/Updates/Removes locators.
+        /// </summary>
+        /// <param name="locators">The locators to reconcile with.</param>
         public void Update(IList<HierarchyNodeLocatorData> locators)
         {
             // add or update
