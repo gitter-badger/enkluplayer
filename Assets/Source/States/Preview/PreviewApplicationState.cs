@@ -18,6 +18,7 @@ namespace CreateAR.SpirePlayer
 
         private readonly IAssetManager _assets;
         private readonly IInputManager _input;
+        private readonly FocusManager _focus;
 
         /// <summary>
         /// The token for AssetReference load.
@@ -40,10 +41,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public PreviewApplicationState(
             IAssetManager assets,
-            IInputManager input)
+            IInputManager input,
+            FocusManager focus)
         {
             _assets = assets;
             _input = input;
+            _focus = focus;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -58,16 +61,7 @@ namespace CreateAR.SpirePlayer
             _input.ChangeState(InputState);
 
             var @event = (PreviewEvent) context;
-
-            // add it to manifest
-            // TODO: This should be builtin.
-            _assets.Manifest.Add(new AssetData
-            {
-                Guid = @event.id,
-                Uri = @event.uri,
-                AssetName = "Asset"
-            });
-                
+            
             // retrieve reference
             var reference = _assets.Manifest.Asset(@event.id);
             if (null == reference)
@@ -88,7 +82,7 @@ namespace CreateAR.SpirePlayer
 
                     _instance = Object.Instantiate(instance, Vector3.zero, Quaternion.identity);
 
-                    Camera.main.transform.LookAt(_instance.transform);
+                    _focus.Focus(_instance);
                 })
                 .OnFailure(exception =>
                 {
@@ -109,6 +103,8 @@ namespace CreateAR.SpirePlayer
             {
                 _load.Abort();
             }
+
+            _focus.Focus(null);
 
             if (null != _instance)
             {

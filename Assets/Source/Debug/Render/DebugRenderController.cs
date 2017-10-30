@@ -105,7 +105,7 @@ namespace CreateAR.SpirePlayer
         /// <returns>A handle, or null if the current category is filtered out.</returns>
         public IFilteredRendererHandle Handle(string category)
         {
-#if !DEBUG_RENDERING
+#if DEBUG_RENDERING_OFF
             return null;
 #else
             if (!Enabled)
@@ -132,7 +132,7 @@ namespace CreateAR.SpirePlayer
         /// <returns>A handle, or null if the current category is filtered out.</returns>
         public IFilteredRendererHandle2D Handle2D(string category)
         {
-#if !DEBUG_RENDERING
+#if DEBUG_RENDERING_OFF
             return null;
 #else
             if (!Enabled)

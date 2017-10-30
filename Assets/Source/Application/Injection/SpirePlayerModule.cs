@@ -103,6 +103,7 @@ namespace CreateAR.SpirePlayer
                 // application states
                 {
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
+                    binder.Bind<WaitingForConnectionApplicationState>().To<WaitingForConnectionApplicationState>();
                     binder.Bind<EditApplicationState>().To<EditApplicationState>();
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
@@ -131,7 +132,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
                 binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfig>());
                 binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfig>());
-                binder.Bind<HierarchyFocusManager>().ToValue(LookupComponent<HierarchyFocusManager>());
+                binder.Bind<FocusManager>().ToValue(LookupComponent<FocusManager>());
             }
 
             // manager monobehaviours

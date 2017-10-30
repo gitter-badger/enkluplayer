@@ -4,9 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -119,7 +121,12 @@ namespace CreateAR.SpirePlayer
         /// Serializes.
         /// </summary>
         private readonly JsonSerializer _serializer = new JsonSerializer();
-        
+
+        /// <summary>
+        /// Routes messages.
+        /// </summary>
+        private readonly IMessageRouter _router;
+
         /// <summary>
         /// Handles messages.
         /// </summary>
@@ -141,9 +148,9 @@ namespace CreateAR.SpirePlayer
         private readonly List<string> _messages = new List<string>();
 
         /// <summary>
-        /// List of joined services.
+        /// Joined service.
         /// </summary>
-        private readonly List<BridgeService> _joinedServices = new List<BridgeService>();
+        private BridgeService _service = null;
 
         /// <summary>
         /// Allows binding between message type and C# type.
@@ -153,12 +160,15 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates a new <c>EditorBridge</c>.
         /// </summary>
+        /// <param name="router">Routes messages.</param>
         /// <param name="bootstrapper">Bootstraps coroutines.</param>
         /// <param name="handler">Object to handle messages.</param>
         public EditorBridge(
+            IMessageRouter router,
             IBootstrapper bootstrapper,
             BridgeMessageHandler handler)
         {
+            _router = router;
             _handler = handler;
             
             // start watcher "thread" -- can persiste between goes
@@ -219,11 +229,10 @@ namespace CreateAR.SpirePlayer
             _broadcastReady = true;
 
             // send to ready services
-            foreach (var service in _joinedServices)
+            if (null != _service)
             {
-                CallMethod("ready", service);
+                CallMethod("ready", _service);
             }
-            _joinedServices.Clear();
         }
 
         /// <summary>
@@ -240,12 +249,14 @@ namespace CreateAR.SpirePlayer
             }
             else
             {
-                _joinedServices.Add(service);
+                _service = service;
             }
         }
 
         /// <summary>
         /// Called when a message has been received by a service.
+        /// 
+        /// This is called from a different thread.
         /// </summary>
         /// <param name="service">The service associated with the user.</param>
         /// <param name="event">The message receieved.</param>
@@ -263,7 +274,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="service">The service associated with the user.</param>
         private void Service_OnClientLeft(BridgeService service)
         {
-            _joinedServices.Add(service);
+            _router.Publish(MessageTypes.DISCONNECTED, Void.Instance);
         }
 
         /// <summary>

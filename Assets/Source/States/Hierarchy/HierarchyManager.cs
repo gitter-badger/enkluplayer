@@ -14,7 +14,7 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly IContentManager _content;
-        private readonly HierarchyFocusManager _focus;
+        private readonly FocusManager _focus;
 
         /// <summary>
         /// Backing variable for Graph property.
@@ -45,7 +45,7 @@ namespace CreateAR.SpirePlayer
         public HierarchyManager(
             IContentManager content,
             IAppDataManager appData,
-            HierarchyFocusManager focus,
+            FocusManager focus,
             ContentGraph graph)
         {
             _content = content;
