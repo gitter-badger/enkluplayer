@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Manages camera focus.
     /// </summary>
-    public class HierarchyFocusManager : MonoBehaviour
+    public class FocusManager : MonoBehaviour
     {
         /// <summary>
         /// Defines the target angle between the camera and the points defining
@@ -32,7 +32,7 @@ namespace CreateAR.SpirePlayer
         /// Saved off bounds so we can render them.
         /// </summary>
         private Bounds _bounds;
-
+        
         /// <summary>
         /// Focuses on a target.
         /// </summary>
@@ -49,7 +49,7 @@ namespace CreateAR.SpirePlayer
             if (null != _target)
             {
                 Log.Info(this, "Focus on {0}.", _target.name);
-                
+
                 UpdateCameraPosition();
             }
         }
@@ -74,8 +74,16 @@ namespace CreateAR.SpirePlayer
 
             // construct a bounding box of the target
             var renderers = _target.GetComponentsInChildren<Renderer>(true);
-            _bounds = new Bounds(_target.transform.position, Vector3.one);
-            for (int i = 0, len = renderers.Length; i < len; i++)
+            if (0 == renderers.Length)
+            {
+                _bounds = new Bounds(_target.transform.position, Vector3.one);
+            }
+            else
+            {
+                _bounds = renderers[0].bounds;
+            }
+
+            for (int i = 1, len = renderers.Length; i < len; i++)
             {
                 _bounds.Encapsulate(renderers[i].bounds);
             }
@@ -87,8 +95,7 @@ namespace CreateAR.SpirePlayer
             // knowns
             var O = cameraTransform.position;
             var d = (_bounds.center - cameraTransform.position).normalized;
-            var theta = Theta;
-
+            
             // collect verts of the Bounds object
             var size = _bounds.size;
             var P = new Vector3[8];
@@ -103,12 +110,12 @@ namespace CreateAR.SpirePlayer
             P[7] = _bounds.min + new Vector3(0, size.y, size.z);
 
             // find vert with max theta delta
-            Vector3 P_max = Vector3.zero;
-            float theta_max = float.MinValue;
+            var P_max = Vector3.zero;
+            var theta_max = float.MinValue;
             for (var i = 0; i < 8; i++)
             {
                 var dir = (P[i] - O).normalized;
-                var theta_p = Vector3.Angle(d, dir);
+                var theta_p = Mathf.Deg2Rad * Vector3.Angle(d, dir);
                 if (theta_p > theta_max)
                 {
                     theta_max = theta_p;
@@ -121,12 +128,12 @@ namespace CreateAR.SpirePlayer
             var OP_max = Vector3.Dot(d, a) * d;
             var P_perpP_max = P_max - (O + OP_max);
             var P_perp = O + a.magnitude * Mathf.Cos(theta_max) * d;
-            var b = P_perpP_max.magnitude / Mathf.Tan(theta);
+            var b = P_perpP_max.magnitude / Mathf.Tan(Theta);
             var R = P_perp - b * d;
             
             // TODO: Animate camera to R.
             cameraTransform.position = R;
-            cameraTransform.LookAt(targetTransform.position);
+            cameraTransform.forward = d;
 
             // save state
             _bakedTheta = Theta;
@@ -159,8 +166,18 @@ namespace CreateAR.SpirePlayer
             var handle = Render.Handle("Hierarchy");
             if (null != handle)
             {
+                var position = _bounds.center;
                 handle.Draw(ctx =>
                 {
+                    ctx.Color(Color.white);
+                    ctx.Cube(position, 1f);
+                    ctx.Color(Color.green);
+                    ctx.Cube(position, 10f);
+                    ctx.Color(Color.blue);
+                    ctx.Cube(position, 100f);
+                    ctx.Color(Color.yellow);
+                    ctx.Cube(position, 1000f);
+
                     ctx.Color(Color.red);
                     ctx.Prism(_bounds);
                 });

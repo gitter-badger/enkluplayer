@@ -132,7 +132,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
                 binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfig>());
                 binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfig>());
-                binder.Bind<HierarchyFocusManager>().ToValue(LookupComponent<HierarchyFocusManager>());
+                binder.Bind<FocusManager>().ToValue(LookupComponent<FocusManager>());
             }
 
             // manager monobehaviours
