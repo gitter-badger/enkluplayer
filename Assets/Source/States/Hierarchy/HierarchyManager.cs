@@ -12,6 +12,11 @@ namespace CreateAR.SpirePlayer
     public class HierarchyManager
     {
         /// <summary>
+        /// Tags for requesting <c>Content</c>.
+        /// </summary>
+        private const string CONTENT_TAGS = "hierarchymanager";
+
+        /// <summary>
         /// Dependencies.
         /// </summary>
         private readonly IContentManager _content;
@@ -96,9 +101,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Clear()
         {
-            _graph.Clear();
+            _graph.Root.OnChildAdded -= Graph_OnChildAdded;
+            _graph.Root.OnChildRemoved -= Graph_OnChildRemoved;
+            _graph.Root.OnChildUpdated -= Graph_OnUpdated;
+            
+            _contentMap.Clear();
 
-            throw new NotImplementedException();
+            // kill content
+            _content.ReleaseAll(CONTENT_TAGS);
         }
         
         /// <summary>
@@ -181,7 +191,7 @@ namespace CreateAR.SpirePlayer
             else
             {
                 var contentId = node.ContentId;
-                var content = _content.Request(contentId);
+                var content = _content.Request(contentId, CONTENT_TAGS);
                 _contentMap[contentId] = content;
 
                 // locators enforce Self() to be non-null
