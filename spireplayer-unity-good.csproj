@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -120,27 +118,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Source\AotGenericTypeIncludes.cs" />
+    <Compile Include="Assets\Source\Application\ApplicationServiceManager.cs" />
     <Compile Include="Assets\Source\Application\Bridge\BridgeMessageHandler.cs" />
     <Compile Include="Assets\Source\Application\Bridge\EditorBridge.cs" />
     <Compile Include="Assets\Source\Application\Bridge\IBridge.cs" />
     <Compile Include="Assets\Source\Application\Bridge\MessageTypeBinder.cs" />
     <Compile Include="Assets\Source\Application\Bridge\ReleaseBridge.cs" />
     <Compile Include="Assets\Source\Application\Bridge\WebBridge.cs" />
-    <Compile Include="Assets\Source\Application\Host\ApplicationServiceManager.cs" />
-    <Compile Include="Assets\Source\Application\Host\IApplicationServiceManager.cs" />
-    <Compile Include="Assets\Source\Application\Host\Services\ApplicationService.cs" />
-    <Compile Include="Assets\Source\Application\Host\Services\ApplicationStateService.cs" />
-    <Compile Include="Assets\Source\Application\Host\Services\AssetUpdateService.cs" />
-    <Compile Include="Assets\Source\Application\Host\Services\ContentGraphUpdateService.cs" />
-    <Compile Include="Assets\Source\Application\Host\Services\ContentUpdateService.cs" />
-    <Compile Include="Assets\Source\Application\Host\Services\ScriptUpdateService.cs" />
+    <Compile Include="Assets\Source\Application\IApplicationServiceManager.cs" />
     <Compile Include="Assets\Source\Application\Injection\IInjectionModule.cs" />
     <Compile Include="Assets\Source\Application\Injection\InjectableMonoBehaviour.cs" />
     <Compile Include="Assets\Source\Application\Injection\InjectionExtensions.cs" />
     <Compile Include="Assets\Source\Application\Injection\NamedInjections.cs" />
     <Compile Include="Assets\Source\Application\Injection\SpirePlayerModule.cs" />
     <Compile Include="Assets\Source\Application\Injection\Tags\MainCamera.cs" />
-    <Compile Include="Assets\Source\ApplicationStateData\ApplicationStateData.cs" />
+    <Compile Include="Assets\Source\Application\Services\ApplicationService.cs" />
+    <Compile Include="Assets\Source\Application\Services\ApplicationStateService.cs" />
+    <Compile Include="Assets\Source\Application\Services\AssetUpdateService.cs" />
+    <Compile Include="Assets\Source\Application\Services\AuthorizationService.cs" />
+    <Compile Include="Assets\Source\Application\Services\ContentGraphUpdateService.cs" />
+    <Compile Include="Assets\Source\Application\Services\ContentUpdateService.cs" />
+    <Compile Include="Assets\Source\Application\Services\ScriptUpdateService.cs" />
     <Compile Include="Assets\Source\Async\Async.cs" />
     <Compile Include="Assets\Source\Camera\FocusManager.cs" />
     <Compile Include="Assets\Source\Debug\Log\UwpSocketLogger.cs" />
@@ -268,7 +266,6 @@
     <Compile Include="Assets\Source\Spire\Scripting\UnityScriptingHost.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\Vector3Js.cs" />
     <Compile Include="Assets\Source\States\Application.cs" />
-    <Compile Include="Assets\Source\States\AuthorizationService.cs" />
     <Compile Include="Assets\Source\States\Edit\EditApplicationState.cs" />
     <Compile Include="Assets\Source\States\Hierarchy\HierarchyApplicationState.cs" />
     <Compile Include="Assets\Source\States\Hierarchy\HierarchyManager.cs" />
