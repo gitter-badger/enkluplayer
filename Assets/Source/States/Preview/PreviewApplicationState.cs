@@ -58,16 +58,7 @@ namespace CreateAR.SpirePlayer
             _input.ChangeState(InputState);
 
             var @event = (PreviewEvent) context;
-
-            // add it to manifest
-            // TODO: This should be builtin.
-            _assets.Manifest.Add(new AssetData
-            {
-                Guid = @event.id,
-                Uri = @event.uri,
-                AssetName = "Asset"
-            });
-                
+            
             // retrieve reference
             var reference = _assets.Manifest.Asset(@event.id);
             if (null == reference)

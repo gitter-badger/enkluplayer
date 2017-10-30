@@ -20,6 +20,7 @@
         ///////////////////////////////////////////////////////////////////////
         public const int READY = 1;
         public const int AUTHORIZED = 2;
+        public const int DISCONNECTED = 3;
 
         // Assets
         public const int ASSET_LIST = 10;

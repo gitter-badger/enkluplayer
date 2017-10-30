@@ -45,6 +45,7 @@ namespace CreateAR.SpirePlayer
             IHttpService http,
 
             InitializeApplicationState initialize,
+            WaitingForConnectionApplicationState wait,
             EditApplicationState edit,
             PreviewApplicationState preview,
             PlayApplicationState play,
@@ -57,6 +58,7 @@ namespace CreateAR.SpirePlayer
             _states = new FiniteStateMachine(new IState[]
             {
                 initialize,
+                wait,
                 edit,
                 preview,
                 play,
@@ -73,7 +75,6 @@ namespace CreateAR.SpirePlayer
             // application-wide messages
             Subscribe();
 
-            // move to the default application state
             _states.Change<InitializeApplicationState>();
         }
 
@@ -102,7 +103,7 @@ namespace CreateAR.SpirePlayer
         private void Subscribe()
         {
             // TODO: move into Initialize state?
-            _messages.Subscribe(
+            _unsubscribeList.Add(_messages.Subscribe(
                 MessageTypes.AUTHORIZED,
                 @event =>
                 {
@@ -120,7 +121,16 @@ namespace CreateAR.SpirePlayer
                     _http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
                         "Authorization",
                         string.Format("Bearer {0}", message.credentials.token)));
-                });
+                }));
+
+            _unsubscribeList.Add(_messages.Subscribe(
+                MessageTypes.DISCONNECTED,
+                _ =>
+                {
+                    Log.Info(this, "Disconnected.");
+
+                    _states.Change<WaitingForConnectionApplicationState>();
+                }));
 
             _unsubscribeList.Add(_messages.SubscribeOnce(
                 MessageTypes.READY,
@@ -130,6 +140,8 @@ namespace CreateAR.SpirePlayer
 
                     // now that the Application is ready, make ready the host
                     _host.Start();
+
+                    _states.Change<WaitingForConnectionApplicationState>();
                 }));
 
             _unsubscribeList.Add(_messages.Subscribe(

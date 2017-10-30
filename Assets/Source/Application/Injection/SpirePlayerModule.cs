@@ -103,6 +103,7 @@ namespace CreateAR.SpirePlayer
                 // application states
                 {
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
+                    binder.Bind<WaitingForConnectionApplicationState>().To<WaitingForConnectionApplicationState>();
                     binder.Bind<EditApplicationState>().To<EditApplicationState>();
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
