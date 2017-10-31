@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -43,17 +42,17 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Absolute offset.
         /// </summary>
-        public Vector3 WorldOffset;
+        public Vec3 WorldOffset;
 
         /// <summary>
         /// View relative offset.
         /// </summary>
-        public Vector3 ViewOffset;
+        public Vec3 ViewOffset;
 
         /// <summary>
         /// Local anchor offset.
         /// </summary>
-        public Vector3 Offset;
+        public Vec3 Offset;
 
         /// <summary>
         /// Content id.

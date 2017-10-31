@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Describes a frame of reference for an <c>Anchor</c>.
@@ -10,17 +8,17 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Forward.
         /// </summary>
-        Vector3 Forward { get; }
+        Vec3 Forward { get; }
 
         /// <summary>
         /// Up.
         /// </summary>
-        Vector3 Up { get; }
+        Vec3 Up { get; }
 
         /// <summary>
         /// Right.
         /// </summary>
-        Vector3 Right { get; }
+        Vec3 Right { get; }
 
         /// <summary>
         /// Attaches to frame.

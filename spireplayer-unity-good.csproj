@@ -167,6 +167,7 @@
     <Compile Include="Assets\Source\Input\States\Edit\EditRotateState.cs" />
     <Compile Include="Assets\Source\Input\States\EditModeInputState.cs" />
     <Compile Include="Assets\Source\Main.cs" />
+    <Compile Include="Assets\Source\Math\Vec3.cs" />
     <Compile Include="Assets\Source\Messages\Internal\LoadProgressEvent.cs" />
     <Compile Include="Assets\Source\Messages\MessageTypes.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\AssetEvents.cs" />
@@ -240,6 +241,7 @@
     <Compile Include="Assets\Source\Spire\IUX\Intention\ElementManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\IElement.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\IFocusable.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Intention\IIntentionManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\IntentionManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\ILayerable.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\Layer.cs" />
@@ -481,22 +483,6 @@
     <Compile Include="Assets\ThirdParty\Strange\reflector\impl\ReflectionException.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Data\App\SpireDemo\AssetData\TeslaAssets.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryArchitecture.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryComponents.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryIntroduction.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryPenthouse.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatterySafetyConcerns.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\SpireDemo.xml" />
-    <None Include="Assets\Data\App\SpireDemo\PartData\HVBatteryParts.xml" />
-    <None Include="Assets\Data\App\SpireDemo\PartGroupData\HVBatteryPartGroups.xml" />
-    <None Include="Assets\Data\App\SpireDemo\SceneData\TeslaScenes.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ScriptData\TeslaScripts.xml" />
-    <None Include="Assets\Data\App\SpireDemo\StateData\TeslaStates.xml" />
-    <None Include="Assets\Data\App\SpireDemo\TuneVarData\GuideTuneVars.xml" />
-    <None Include="Assets\Data\App\SpireDemo\TuneVarData\UITuneVars.xml" />
-    <None Include="Assets\Data\App\SpireDemo\UIElementData\TeslaUIElements.xml" />
-    <None Include="Assets\Data\App\SpireDemo\UserExperienceData\Tutorials.xml" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\AOT\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Windows\Newtonsoft.Json.XML" />

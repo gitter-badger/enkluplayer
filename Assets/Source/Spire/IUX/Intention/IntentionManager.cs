@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer
     /// Tracks intention of the user, i.e. view direction and what they are
     /// intending by their view direction.
     /// </summary>
-    public class IntentionManager : MonoBehaviour
+    public class IntentionManager : MonoBehaviour, IIntentionManager
     {
         /// <summary>
         /// Window for calculating steadiness.
@@ -58,17 +58,17 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Forward direction.
         /// </summary>
-        public Vector3 Forward { get; private set; }
+        public Vec3 Forward { get; private set; }
 
         /// <summary>
         /// Up direction.
         /// </summary>
-        public Vector3 Up { get; private set; }
+        public Vec3 Up { get; private set; }
 
         /// <summary>
         /// Right direction.
         /// </summary>
-        public Vector3 Right { get; private set; }
+        public Vec3 Right { get; private set; }
 
         /// <summary>
         /// Focus origin.
@@ -78,7 +78,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Focus ray.
         /// </summary>
-        public Ray Ray { get { return new Ray(Origin, Forward); } }
+        public Ray Ray { get { return new Ray(Origin, Forward.ToVector()); } }
 
         /// <summary>
         /// Tracks average angular velocity in degrees.
@@ -100,7 +100,7 @@ namespace CreateAR.SpirePlayer
             var deltaDirection = delta.normalized;
             var lookCosTheta = Vector3.Dot(
                 deltaDirection,
-                Forward);
+                Forward.ToVector());
             var lookThetaDegrees = Mathf.Approximately(lookCosTheta, 1.0f)
                 ? 0.0f
                 : Mathf.Acos(lookCosTheta) * Mathf.Rad2Deg;
@@ -137,9 +137,9 @@ namespace CreateAR.SpirePlayer
 
             var cameraTransform = perspectiveCamera.transform;
             Origin = cameraTransform.position;
-            Forward = cameraTransform.forward;
-            Up = cameraTransform.up;
-            Right = cameraTransform.right;
+            Forward = cameraTransform.forward.ToVec();
+            Up = cameraTransform.up.ToVec();
+            Right = cameraTransform.right.ToVec();
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace CreateAR.SpirePlayer
                 var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
                 Origin = mouseRay.origin;
-                Forward = mouseRay.direction;
+                Forward = mouseRay.direction.ToVec();
             }
         }
 
@@ -199,7 +199,7 @@ namespace CreateAR.SpirePlayer
         {
             if (!Mathf.Approximately(deltaTime, 0))
             {
-                var deltaCosTheta = Vector3.Dot(Forward, _lastForward);
+                var deltaCosTheta = Vector3.Dot(Forward.ToVector(), _lastForward);
                 var deltaThetaRadians = Mathf.Approximately(deltaCosTheta, 1.0f)
                     ? 0.0f
                     : Mathf.Acos(deltaCosTheta);
@@ -212,7 +212,7 @@ namespace CreateAR.SpirePlayer
                     _angularVelocityDegreesSampleIndex = 0;
                 }
 
-                _lastForward = Forward;
+                _lastForward = Forward.ToVector();
             }
 
             var count = _angularVelocityDegreesSamples.Length;
@@ -243,7 +243,7 @@ namespace CreateAR.SpirePlayer
             RaycastHit raycastHit;
             if (Physics.Raycast(
                 Origin,
-                Forward,
+                Forward.ToVector(),
                 out raycastHit,
                 Mathf.Infinity,
                 layerMask))

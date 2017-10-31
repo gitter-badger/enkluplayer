@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="Windows-1252"?>
-<ScriptData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Id>Updating</Id>
-  <Name>Updating</Name>
-  <Asset>
-    <AssetDataId>73d505776c8fe484cb84723b7ed0cdc8</AssetDataId>
-  </Asset>
-  <AutoPlay>false</AutoPlay>
-</ScriptData>

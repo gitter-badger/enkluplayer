@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="Windows-1252"?>
-<ScriptData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Id>Scanning</Id>
-  <Name>Scanning</Name>
-  <Asset>
-    <AssetDataId>0c8e11f9931af9d4ebb8db7e9ea18a04</AssetDataId>
-  </Asset>
-  <AutoPlay>false</AutoPlay>
-</ScriptData>

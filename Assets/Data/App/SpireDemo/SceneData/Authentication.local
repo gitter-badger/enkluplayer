@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Authentication -->
-<SceneData>
-   <Id>Authentication</Id>
-   <Content>
-      <string>Floor</string>
-      <string>AuthenticationController</string>
-   </Content>
-</SceneData>

@@ -11,23 +11,23 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
-        private readonly IntentionManager _intention;
+        private readonly IIntentionManager _intention;
         private readonly IContentManager _content;
         
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
-        public Vector3 Forward { get { return _intention.Forward; } }
+        public Vec3 Forward { get { return _intention.Forward; } }
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
-        public Vector3 Up { get { return _intention.Up; } }
+        public Vec3 Up { get { return _intention.Up; } }
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
-        public Vector3 Right { get { return _intention.Right; } }
+        public Vec3 Right { get { return _intention.Right; } }
 
         /// <summary>
         /// Creates a new <c>LocatorReferenceFrame</c>.
         /// </summary>
         public LocatorAnchorReferenceFrame(
-            IntentionManager intention,
+            IIntentionManager intention,
             IContentManager content)
         {
             _intention = intention;

@@ -71,7 +71,7 @@ namespace CreateAR.SpirePlayer
         {
             if (Data.Rotation == RotationType.Orient)
             {
-                var forward = _referenceFrame.Forward;
+                var forward = _referenceFrame.Forward.ToVector();
                 forward.y = 0;
                 forward.Normalize();
                 transform.forward = forward;
@@ -92,15 +92,15 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ApplyOffset()
         {
-            transform.position += Data.WorldOffset;
+            transform.position += Data.WorldOffset.ToVector();
 
-            if (!Data.ViewOffset.Approximately(Vector3.zero))
+            if (!Data.ViewOffset.ToVector().Approximately(Vector3.zero))
             {
-                var viewForward = _referenceFrame.Forward;
+                var viewForward = _referenceFrame.Forward.ToVector();
                 viewForward.y = 0.0f;
                 viewForward.Normalize();
                 
-                var viewRight = _referenceFrame.Right;
+                var viewRight = _referenceFrame.Right.ToVector();
                 var viewUp = Vector3.Cross(viewForward, viewRight).normalized;
                 viewRight = Vector3.Cross(viewUp, viewForward).normalized;
 
@@ -110,7 +110,7 @@ namespace CreateAR.SpirePlayer
                        + Data.ViewOffset.z * viewForward;
             }
 
-            transform.localPosition += Data.Offset;
+            transform.localPosition += Data.Offset.ToVector();
         }
     }
 }

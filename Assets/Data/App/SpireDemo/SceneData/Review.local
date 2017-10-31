@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Review -->
-<SceneData>
-	<Id>Review</Id>
-	<Content>
-		<string>Floor</string>
-		<!--<string>ReviewController</string>-->
-	</Content>
-</SceneData>

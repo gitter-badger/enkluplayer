@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<!-- Certification -->
-<SceneData>
-	<Id>Certification</Id>
-	<Content>
-		<string>Floor</string>
-		<!--<string>CertificationController</string>-->
-	</Content>
-</SceneData>

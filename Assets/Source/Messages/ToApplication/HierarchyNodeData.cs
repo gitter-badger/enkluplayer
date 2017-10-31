@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -23,33 +22,33 @@ namespace CreateAR.SpirePlayer
         [JsonProperty("scale")]
         public float[] ScaleArray;
 
-        public Vector3 Position
+        public Vec3 Position
         {
             get
             {
-                return new Vector3(
+                return new Vec3(
                     PositionArray[0],
                     PositionArray[1],
                     PositionArray[2]);
             }
         }
 
-        public Vector3 Rotation
+        public Vec3 Rotation
         {
             get
             {
-                return new Vector3(
+                return new Vec3(
                     RotationArray[0],
                     RotationArray[1],
                     RotationArray[2]);
             }
         }
 
-        public Vector3 Scale
+        public Vec3 Scale
         {
             get
             {
-                return new Vector3(
+                return new Vec3(
                     ScaleArray[0],
                     ScaleArray[1],
                     ScaleArray[2]);
