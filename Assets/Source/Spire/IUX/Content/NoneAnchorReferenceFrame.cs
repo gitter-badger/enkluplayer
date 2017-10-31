@@ -13,13 +13,13 @@ namespace CreateAR.SpirePlayer
         private Transform _transform;
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
-        public Vector3 Forward { get { return _transform.forward; } }
+        public Vec3 Forward { get { return _transform.forward.ToVec(); } }
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
-        public Vector3 Up { get { return _transform.up; } }
+        public Vec3 Up { get { return _transform.up.ToVec(); } }
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
-        public Vector3 Right { get { return _transform.right; } }
+        public Vec3 Right { get { return _transform.right.ToVec(); } }
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
         public void Attach(Anchor anchor)

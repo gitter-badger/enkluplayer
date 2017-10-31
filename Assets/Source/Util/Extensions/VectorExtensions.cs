@@ -18,6 +18,16 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Creates a Vec3 from a Unity Vector.
+        /// </summary>
+        /// <param name="this">The vector.</param>
+        /// <returns></returns>
+        public static Vec3 ToVec(this Vector3 @this)
+        {
+            return new Vec3(@this.x, @this.y, @this.z);
+        }
+
+        /// <summary>
         /// Checks two vectors for equality.
         /// </summary>
         public static bool Approximately(this Vector3 lhs, Vector3 rhs)

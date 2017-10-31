@@ -243,6 +243,7 @@
     <Compile Include="Assets\Source\Spire\IUX\Intention\ElementManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\IElement.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\IFocusable.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Intention\IIntentionManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\IntentionManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\ILayerable.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\Layer.cs" />

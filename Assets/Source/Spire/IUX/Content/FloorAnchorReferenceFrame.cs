@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
@@ -8,24 +6,18 @@ namespace CreateAR.SpirePlayer
     public class FloorAnchorReferenceFrame : IAnchorReferenceFrame
     {
         /// <summary>
-        /// TODO: What are these?
-        /// </summary>
-        public const float FloorY = -1.15f;
-        public static bool UsedDefaultFloorY = true;
-
-        /// <summary>
         /// Dependencies.
         /// </summary>
         private readonly IntentionManager _intention;
         
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
-        public Vector3 Forward { get { return _intention.Forward; } }
+        public Vec3 Forward { get { return _intention.Forward; } }
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
-        public Vector3 Up { get { return _intention.Up; } }
+        public Vec3 Up { get { return _intention.Up; } }
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
-        public Vector3 Right { get { return _intention.Right; } }
+        public Vec3 Right { get { return _intention.Right; } }
 
         /// <summary>
         /// Constructor.
