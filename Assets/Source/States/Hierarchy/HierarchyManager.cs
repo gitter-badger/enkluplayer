@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using ContentGraphNode = CreateAR.SpirePlayer.ContentGraph.ContentGraphNode;
@@ -243,9 +242,9 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Locator updatd.");
 
-            content.transform.localPosition = locator.Data.Position;
-            content.transform.localRotation = Quaternion.Euler(locator.Data.Rotation);
-            content.transform.localScale = locator.Data.Scale;
+            content.transform.localPosition = locator.Data.Position.ToVector();
+            content.transform.localRotation = Quaternion.Euler(locator.Data.Rotation.ToVector());
+            content.transform.localScale = locator.Data.Scale.ToVector();
         }
 
         /// <summary>

@@ -8,6 +8,16 @@ namespace CreateAR.SpirePlayer
     public static class VectorExtensions
     {
         /// <summary>
+        /// Creates a Unity vector from a Vec3.
+        /// </summary>
+        /// <param name="this">The vec3.</param>
+        /// <returns></returns>
+        public static Vector3 ToVector(this Vec3 @this)
+        {
+            return new Vector3(@this.x, @this.y, @this.z);
+        }
+
+        /// <summary>
         /// Checks two vectors for equality.
         /// </summary>
         public static bool Approximately(this Vector3 lhs, Vector3 rhs)
