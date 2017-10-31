@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="Windows-1252"?>
-<ScriptData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Id>Calibrating</Id>
-  <Name>Calibrating</Name>
-  <Asset>
-    <AssetDataId>d5eb196d10dbda84ca477be0760f21c1</AssetDataId>
-  </Asset>
-  <AutoPlay>false</AutoPlay>
-</ScriptData>

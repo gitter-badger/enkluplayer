@@ -136,12 +136,6 @@
     <Reference Include="UnityEditor.iOS.Extensions.Common">
       <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Common.dll</HintPath>
     </Reference>
-    <Reference Include="CreateAR.Commons.Unity.Editor.UI">
-      <HintPath>Assets\Editor\Assemblies\CreateAR.Commons.Unity.Editor.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="CreateAR.Commons.Unity.Nuget">
-      <HintPath>Assets\Editor\Assemblies\CreateAR.Commons.Unity.Nuget.dll</HintPath>
-    </Reference>
     <Reference Include="CreateAR.Commons.Unity.Async">
       <HintPath>Assets\Plugins\CreateAR\Commons\CreateAR.Commons.Unity.Async.dll</HintPath>
     </Reference>
@@ -195,30 +189,9 @@
     <Compile Include="Assets\Editor\Test\Data\FileManager_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Scripting\Vector3Js_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Util\StandardQueryResolver_Tests.cs" />
-    <Compile Include="Assets\Editor\Tools\App\AppPublisher.cs" />
-    <Compile Include="Assets\Editor\Tools\App\AppView.cs" />
-    <Compile Include="Assets\Editor\Tools\App\Tabs\ScriptTab.cs" />
-    <Compile Include="Assets\Editor\Tools\Asset\AssetManifestEditor.cs" />
     <Compile Include="Assets\Editor\Tools\ContextMenuHooks.cs" />
-    <Compile Include="Assets\Editor\Tools\DataMigration\SpireDataMigrator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Data\App\SpireDemo\AssetData\TeslaAssets.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryArchitecture.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryComponents.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryIntroduction.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatteryPenthouse.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\HVBatterySafetyConcerns.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ModuleData\SpireDemo.xml" />
-    <None Include="Assets\Data\App\SpireDemo\PartData\HVBatteryParts.xml" />
-    <None Include="Assets\Data\App\SpireDemo\PartGroupData\HVBatteryPartGroups.xml" />
-    <None Include="Assets\Data\App\SpireDemo\SceneData\TeslaScenes.xml" />
-    <None Include="Assets\Data\App\SpireDemo\ScriptData\TeslaScripts.xml" />
-    <None Include="Assets\Data\App\SpireDemo\StateData\TeslaStates.xml" />
-    <None Include="Assets\Data\App\SpireDemo\TuneVarData\GuideTuneVars.xml" />
-    <None Include="Assets\Data\App\SpireDemo\TuneVarData\UITuneVars.xml" />
-    <None Include="Assets\Data\App\SpireDemo\UIElementData\TeslaUIElements.xml" />
-    <None Include="Assets\Data\App\SpireDemo\UserExperienceData\Tutorials.xml" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\AOT\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Standalone\Newtonsoft.Json.XML" />
     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\Assemblies\Windows\Newtonsoft.Json.XML" />
