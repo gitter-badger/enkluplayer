@@ -87,7 +87,6 @@ namespace CreateAR.SpirePlayer
 
             // calculate target position of camera
             var cameraTransform = Camera.main.transform;
-            var targetTransform = _target.transform;
 
             // knowns
             var O = cameraTransform.position;
