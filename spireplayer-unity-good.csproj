@@ -240,8 +240,10 @@
     <Compile Include="Assets\Source\Spire\IUX\Content\LocatorSet.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\NoneAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\Element.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Element\ElementData.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementDescription.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementFactory.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Element\ElementRef.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementSchema.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementSchemaProp.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\IElementFactory.cs" />
