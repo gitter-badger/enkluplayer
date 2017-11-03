@@ -1,82 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.SpirePlayer.UI
 {
-    public interface IElementFactory
+    public class ElementState
     {
-        Element Element(ElementDescription description);
-    }
-
-    public class ElementFactory : IElementFactory
-    {
-        public Element Element(ElementDescription description)
-        {
-            return Element(
-                description.Root,
-                description);
-        }
-
-        private Element Element(
-            ElementRef reference,
-            ElementDescription description)
-        {
-            // children first
-            var referencedChildren = reference.Children;
-            var children = new Element[referencedChildren.Length];
-            for (int i = 0, len = referencedChildren.Length; i < len; i++)
-            {
-                children[i] = Element(
-                    referencedChildren[i],
-                    description);
-            }
-
-            // parent
-            var id = reference.Id;
-            var data = description.ById(id);
-            var element = new Element();
-            element.Load(data, children);
-
-            return element;
-        }
-    }
-
-    public class ElementDescription
-    {
-        public ElementRef Root;
-        public ElementData[] Elements;
-
-        public ElementData ById(string id)
-        {
-            var elements = Elements;
-            for (int i = 0, len = elements.Length; i < len; i++)
-            {
-                var element = elements[i];
-                if (element.Id == id)
-                {
-                    return element;
-                }
-            }
-
-            return null;
-        }
+        
     }
 
     public class ElementRef
     {
         public string Id;
         public ElementRef[] Children = new ElementRef[0];
+
+        public override string ToString()
+        {
+            return string.Format("[ElementRef Id={0}, ChildCount={1}]",
+                Id,
+                Children.Length);
+        }
     }
 
     public class ElementData
     {
         public string Id;
         public ElementData[] Children = new ElementData[0];
+
+        public ElementData()
+        {
+            
+        }
+
+        public ElementData(ElementData data)
+        {
+            Id = data.Id;
+            Children = data.Children.ToArray();
+        }
     }
 
     public class Element
     {
-        private readonly List<Element> _elements = new List<Element>();
+        private readonly List<Element> _children = new List<Element>();
 
         public string Guid { get; private set;  }
         public string Id { get; private set; }
@@ -85,7 +50,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             get
             {
-                return _elements.ToArray();
+                return _children.ToArray();
             }
         }
         
@@ -94,7 +59,7 @@ namespace CreateAR.SpirePlayer.Test
             Guid = System.Guid.NewGuid().ToString();
             Id = data.Id;
 
-            _elements.AddRange(children);
+            _children.AddRange(children);
 
             LoadInternal();
         }
@@ -105,12 +70,12 @@ namespace CreateAR.SpirePlayer.Test
 
             Id = string.Empty;
 
-            _elements.Clear();
+            _children.Clear();
         }
 
         public void AddChild(Element child)
         {
-            _elements.Add(child);
+            throw new NotImplementedException();
         }
 
         public bool RemoveChild(Element child)
