@@ -2,11 +2,28 @@
 
 namespace CreateAR.SpirePlayer.UI
 {
+    /// <summary>
+    /// Describes a single <c>Element</c>, which may have many decendants. This
+    /// data structure supports templates, i.e. sets of elements that can be
+    /// used many times.
+    /// </summary>
     public class ElementDescription
     {
+        /// <summary>
+        /// Root reference.
+        /// </summary>
         public ElementRef Root;
+        
+        /// <summary>
+        /// Collection of all elements.
+        /// </summary>
         public ElementData[] Elements = new ElementData[0];
         
+        /// <summary>
+        /// Retrieves an element's data by id.
+        /// </summary>
+        /// <param name="id">Unique id of the element.</param>
+        /// <returns></returns>
         public ElementData ById(string id)
         {
             var elements = Elements;
@@ -22,11 +39,21 @@ namespace CreateAR.SpirePlayer.UI
             return null;
         }
 
+        /// <summary>
+        /// Collapses the data structure into a single <c>ElementData</c>. This
+        /// creates instances out of templates.
+        /// </summary>
+        /// <returns></returns>
         public ElementData Collapsed()
         {
             return Data(Root);
         }
         
+        /// <summary>
+        /// Creates an <c>ElementData</c> from an <c>ElementRef</c>, recursively.
+        /// </summary>
+        /// <param name="reference">The root reference.</param>
+        /// <returns></returns>
         private ElementData Data(ElementRef reference)
         {
             var source = ById(reference.Id);

@@ -1,12 +1,21 @@
 namespace CreateAR.SpirePlayer.UI
 {
+    /// <summary>
+    /// <c>IElementFactory</c> implementation.
+    /// </summary>
     public class ElementFactory : IElementFactory
     {
+        /// <inheritdoc cref="IElementFactory"/>
         public Element Element(ElementDescription description)
         {
             return Element(description.Collapsed());
         }
         
+        /// <summary>
+        /// Recursive method that creates an <c>Element</c> from data.
+        /// </summary>
+        /// <param name="data">Data to create the element from.</param>
+        /// <returns></returns>
         private Element Element(ElementData data)
         {
             // create element from data
