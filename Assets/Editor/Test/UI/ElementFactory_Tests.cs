@@ -4,11 +4,6 @@ using NUnit.Framework;
 
 namespace CreateAR.SpirePlayer.Test
 {
-    public class ElementState_Tests
-    {
-        
-    }
-
     [TestFixture]
     public class ElementFactory_Tests
     {
@@ -228,6 +223,47 @@ namespace CreateAR.SpirePlayer.Test
                     }
                 });
             });
+        }
+
+        [Test]
+        public void CreateElementMultiData()
+        {
+            var a = Guid.NewGuid().ToString();
+            var element = _elements.Element(new ElementDescription
+            {
+                Root = new ElementRef
+                {
+                    Id = a,
+                    Children = new[]
+                    {
+                        new ElementRef
+                        {
+                            Id = a
+                        }
+                    }
+                },
+                Elements = new[]
+                {
+                    new ElementData
+                    {
+                        Id = a,
+                        Children = new []
+                        {
+                            new ElementData
+                            {
+                                Id = "foo"
+                            }
+                        }
+                    },
+                    new ElementData
+                    {
+                        Id = a
+                    }
+                }
+            });
+
+            Assert.AreSame(a, element.Id);
+            Assert.AreSame("foo", element.Children[0].Id);
         }
     }
 }

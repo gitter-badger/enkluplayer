@@ -4,9 +4,50 @@ using System.Linq;
 
 namespace CreateAR.SpirePlayer.UI
 {
-    public class ElementState
+    public class ElementStateProp
     {
         
+    }
+
+    public class ElementStateProp<T> : ElementStateProp
+    {
+        public T Value { get; private set; }
+    }
+
+    public class ElementState
+    {
+        private readonly List<string> _names = new List<string>();
+        private readonly List<ElementStateProp> _props = new List<ElementStateProp>();
+
+        public ElementState()
+        {
+            
+        }
+
+        public void Set<T>(string name, T value)
+        {
+            var index = _names.IndexOf(name);
+            if (-1 == index)
+            {
+
+            }
+            else
+            {
+                
+            }
+            throw new NotImplementedException();
+        }
+
+        public ElementStateProp<T> Get<T>(string name)
+        {
+            return _props[0] as ElementStateProp<T>;
+            throw new NotImplementedException();
+        }
+
+        public void Wrap(ElementState state)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class ElementRef
@@ -54,7 +95,7 @@ namespace CreateAR.SpirePlayer.UI
             }
         }
         
-        public void Load(ElementData data, Element[] children)
+        internal void Load(ElementData data, Element[] children)
         {
             Guid = System.Guid.NewGuid().ToString();
             Id = data.Id;
@@ -64,7 +105,7 @@ namespace CreateAR.SpirePlayer.UI
             LoadInternal();
         }
 
-        public void Unload()
+        internal void Unload()
         {
             UnloadInternal();
 

@@ -191,6 +191,7 @@
     <Compile Include="Assets\Editor\Test\Data\FileManager_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Scripting\Vector3Js_Tests.cs" />
     <Compile Include="Assets\Editor\Test\UI\ElementFactory_Tests.cs" />
+    <Compile Include="Assets\Editor\Test\UI\ElementState_Tests.cs" />
     <Compile Include="Assets\Editor\Test\UI\Element_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Util\StandardQueryResolver_Tests.cs" />
     <Compile Include="Assets\Editor\Tools\ContextMenuHooks.cs" />
