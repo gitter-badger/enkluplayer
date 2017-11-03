@@ -242,6 +242,8 @@
     <Compile Include="Assets\Source\Spire\IUX\Element\Element.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementDescription.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementFactory.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Element\ElementSchema.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Element\ElementSchemaProp.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\IElementFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\HsbColor.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Intention\ElementManager.cs" />
