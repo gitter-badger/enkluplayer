@@ -4,22 +4,22 @@ using System.Linq;
 
 namespace CreateAR.SpirePlayer.UI
 {
-    public class ElementStateProp
+    public class ElementSchemaProp
     {
         
     }
 
-    public class ElementStateProp<T> : ElementStateProp
+    public class ElementSchemaProp<T> : ElementSchemaProp
     {
         public T Value { get; private set; }
     }
 
-    public class ElementState
+    public class ElementSchema
     {
         private readonly List<string> _names = new List<string>();
-        private readonly List<ElementStateProp> _props = new List<ElementStateProp>();
+        private readonly List<ElementSchemaProp> _props = new List<ElementSchemaProp>();
 
-        public ElementState()
+        public ElementSchema()
         {
             
         }
@@ -38,13 +38,13 @@ namespace CreateAR.SpirePlayer.UI
             throw new NotImplementedException();
         }
 
-        public ElementStateProp<T> Get<T>(string name)
+        public ElementSchemaProp<T> Get<T>(string name)
         {
-            return _props[0] as ElementStateProp<T>;
+            return _props[0] as ElementSchemaProp<T>;
             throw new NotImplementedException();
         }
 
-        public void Wrap(ElementState state)
+        public void Wrap(ElementSchema state)
         {
             throw new NotImplementedException();
         }

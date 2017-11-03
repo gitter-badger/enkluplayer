@@ -4,30 +4,30 @@ using NUnit.Framework;
 namespace CreateAR.SpirePlayer.Test
 {
     [TestFixture]
-    public class ElementState_Tests
+    public class ElementSchema_Tests
     {
-        private ElementState _state;
+        private ElementSchema _schema;
 
         [SetUp]
         public void SetUp()
         {
-            _state = new ElementState();
-            _state.Set("foo", 5);
+            _schema = new ElementSchema();
+            _schema.Set("foo", 5);
         }
         
         [Test]
         public void GetPropInt()
         {
-            Assert.AreEqual(5, _state.Get<int>("foo").Value);
+            Assert.AreEqual(5, _schema.Get<int>("foo").Value);
         }
 
         [Test]
         public void SetPropInt()
         {
-            var prop = _state.Get<int>("foo");
+            var prop = _schema.Get<int>("foo");
             Assert.AreEqual(5, prop.Value);
 
-            _state.Set("foo", 12);
+            _schema.Set("foo", 12);
 
             Assert.AreEqual(12, prop.Value);
         }
@@ -38,34 +38,34 @@ namespace CreateAR.SpirePlayer.Test
         [Test]
         public void GetPropChangeType()
         {
-            Assert.AreEqual(false, _state.Get<bool>("foo").Value);
+            Assert.AreEqual(false, _schema.Get<bool>("foo").Value);
 
-            _state.Set("foo", true);
+            _schema.Set("foo", true);
 
-            Assert.AreEqual(false, _state.Get<bool>("foo").Value);
+            Assert.AreEqual(false, _schema.Get<bool>("foo").Value);
         }
 
         [Test]
         public void WrapInt()
         {
-            var state = new ElementState();
+            var state = new ElementSchema();
             state.Set("bar", 17);
 
-            _state.Wrap(state);
+            _schema.Wrap(state);
 
-            Assert.AreEqual(17, _state.Get<int>("bar").Value);
+            Assert.AreEqual(17, _schema.Get<int>("bar").Value);
         }
 
         [Test]
         public void WrapIntSet()
         {
-            var state = new ElementState();
+            var state = new ElementSchema();
             state.Set("bar", 17);
 
-            _state.Wrap(state);
-            _state.Set("bar", 4);
+            _schema.Wrap(state);
+            _schema.Set("bar", 4);
 
-            Assert.AreEqual(4, _state.Get<int>("bar").Value);
+            Assert.AreEqual(4, _schema.Get<int>("bar").Value);
             Assert.AreEqual(17, state.Get<int>("bar").Value);
         }
     }
