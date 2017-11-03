@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.UI;
+﻿using System;
+using CreateAR.SpirePlayer.UI;
 using NUnit.Framework;
 
 namespace CreateAR.SpirePlayer.Test.UI
@@ -21,6 +22,12 @@ namespace CreateAR.SpirePlayer.Test.UI
             _root.AddChild(element);
 
             Assert.AreSame(element, _root.Children[0]);
+        }
+
+        [Test]
+        public void AddChildNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => _root.AddChild(null));
         }
 
         [Test]
@@ -76,6 +83,27 @@ namespace CreateAR.SpirePlayer.Test.UI
         }
 
         [Test]
+        public void AddChildEventDeep()
+        {
+            var isCalled = false;
+            var child = new Element();
+            _root.AddChild(child);
+
+            var grandchild = new Element();
+
+            _root.OnChildAdded += (root, value) =>
+            {
+                isCalled = true;
+
+                Assert.AreSame(_root, root);
+                Assert.AreSame(grandchild, value);
+            };
+            child.AddChild(grandchild);
+
+            Assert.IsTrue(isCalled);
+        }
+
+        [Test]
         public void RemoveChild()
         {
             var element = new Element();
@@ -83,6 +111,12 @@ namespace CreateAR.SpirePlayer.Test.UI
 
             Assert.IsTrue(_root.RemoveChild(element));
             Assert.AreEqual(0, _root.Children.Length);
+        }
+
+        [Test]
+        public void RemoveChildNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => _root.RemoveChild(null));
         }
 
         [Test]
@@ -111,6 +145,47 @@ namespace CreateAR.SpirePlayer.Test.UI
             _root.AddChild(child);
 
             _root.OnChildRemoved += (root, value) =>
+            {
+                isCalled = true;
+
+                Assert.AreSame(child, value);
+            };
+
+            _root.RemoveChild(child);
+
+            Assert.IsTrue(isCalled);
+        }
+
+        [Test]
+        public void RemoveChildEventDeep()
+        {
+            var isCalled = false;
+            var child = new Element();
+            _root.AddChild(child);
+
+            var grandchild = new Element();
+            child.AddChild(grandchild);
+
+            _root.OnChildRemoved += (root, value) =>
+            {
+                isCalled = true;
+
+                Assert.AreSame(_root, root);
+                Assert.AreSame(grandchild, value);
+            };
+            child.RemoveChild(grandchild);
+
+            Assert.IsTrue(isCalled);
+        }
+
+        [Test]
+        public void RemoveChildChildEvent()
+        {
+            var isCalled = false;
+            var child = new Element();
+            _root.AddChild(child);
+
+            child.OnRemoved += value =>
             {
                 isCalled = true;
 

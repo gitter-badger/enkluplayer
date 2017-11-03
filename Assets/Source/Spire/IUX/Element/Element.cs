@@ -70,13 +70,23 @@ namespace CreateAR.SpirePlayer.UI
 
         public void AddChild(Element child)
         {
+            if (null == child)
+            {
+                throw new ArgumentNullException("child");
+            }
+
             var index = _children.IndexOf(child);
             if (-1 != index)
             {
+                child.OnChildAdded -= Child_OnChildAdded;
+                child.OnChildRemoved -= Child_OnChildRemoved;
                 _children.RemoveAt(index);
             }
 
             _children.Add(child);
+
+            child.OnChildAdded += Child_OnChildAdded;
+            child.OnChildRemoved += Child_OnChildRemoved;
 
             if (null != OnChildAdded)
             {
@@ -86,9 +96,22 @@ namespace CreateAR.SpirePlayer.UI
 
         public bool RemoveChild(Element child)
         {
+            if (null == child)
+            {
+                throw new ArgumentNullException("child");
+            }
+
             var removed = _children.Remove(child);
             if (removed)
             {
+                child.OnChildAdded -= Child_OnChildAdded;
+                child.OnChildRemoved -= Child_OnChildRemoved;
+
+                if (null != child.OnRemoved)
+                {
+                    child.OnRemoved(child);
+                }
+
                 if (null != OnChildRemoved)
                 {
                     OnChildRemoved(this, child);
@@ -106,6 +129,22 @@ namespace CreateAR.SpirePlayer.UI
         protected virtual void UnloadInternal()
         {
 
+        }
+
+        private void Child_OnChildAdded(Element _, Element child)
+        {
+            if (null != OnChildAdded)
+            {
+                OnChildAdded(this, child);
+            }
+        }
+
+        private void Child_OnChildRemoved(Element _, Element child)
+        {
+            if (null != OnChildRemoved)
+            {
+                OnChildRemoved(this, child);
+            }
         }
     }
 }
