@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using CreateAR.SpirePlayer.UI;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.SpirePlayer.Test.UI
 {
     [TestFixture]
     public class ElementSchema_Tests
@@ -76,6 +77,44 @@ namespace CreateAR.SpirePlayer.Test
             _schema.Wrap(new ElementSchema());
 
             Assert.Throws<ArgumentException>(() => _schema.Wrap(new ElementSchema()));
+        }
+
+        [Test]
+        public void LoadData()
+        {
+            _schema.Load(new ElementSchemaData
+            {
+                Ints = new Dictionary<string, int>
+                {
+                    {"int", 5}
+                },
+                Floats = new Dictionary<string, float>
+                {
+                    {"float", 5f}
+                },
+                Bools = new Dictionary<string, bool>
+                {
+                    {"bool", true}
+                },
+                Strings = new Dictionary<string, string>
+                {
+                    {"string", "foo"}
+                },
+                Vectors = new Dictionary<string, Vec3>
+                {
+                    {"vec", new Vec3(1, 2, 3)}
+                }
+            });
+
+            Assert.AreEqual(5, _schema.Get<int>("int").Value);
+            Assert.AreEqual(5f, _schema.Get<float>("float").Value);
+            Assert.AreEqual(true, _schema.Get<bool>("bool").Value);
+            Assert.AreEqual("foo", _schema.Get<string>("string").Value);
+
+            var vec = _schema.Get<Vec3>("vec").Value;
+            Assert.AreEqual(1, vec.x);
+            Assert.AreEqual(2, vec.y);
+            Assert.AreEqual(3, vec.z);
         }
     }
 }

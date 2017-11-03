@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using CreateAR.SpirePlayer.UI;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.SpirePlayer.Test.UI
 {
     [TestFixture]
     public class ElementFactory_Tests
@@ -264,6 +265,100 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.AreSame(a, element.Id);
             Assert.AreSame("foo", element.Children[0].Id);
+        }
+
+        [Test]
+        public void CreateElementWithSchema()
+        {
+            var id = Guid.NewGuid().ToString();
+            var element = _elements.Element(new ElementDescription
+            {
+                Root = new ElementRef
+                {
+                    Id = id
+                },
+                Elements = new[]
+                {
+                    new ElementData
+                    {
+                        Id = id,
+                        Schema = new ElementSchemaData
+                        {
+                            Ints = new Dictionary<string, int>
+                            {
+                                { "foo", 5 }
+                            }
+                        }
+                    }
+                 }
+            });
+
+            Assert.AreEqual(5, element.Schema.Get<int>("foo").Value);
+        }
+
+        [Test]
+        public void CreateElementWithRefSchema()
+        {
+            var id = Guid.NewGuid().ToString();
+            var element = _elements.Element(new ElementDescription
+            {
+                Root = new ElementRef
+                {
+                    Id = id,
+                    Schema = new ElementSchemaData
+                    {
+                        Ints = new Dictionary<string, int>
+                        {
+                            { "foo", 5 }
+                        }
+                    }
+                },
+                Elements = new[]
+                {
+                    new ElementData
+                    {
+                        Id = id
+                    }
+                }
+            });
+
+            Assert.AreEqual(5, element.Schema.Get<int>("foo").Value);
+        }
+
+        [Test]
+        public void CreateElementWithRefOverwriteSchema()
+        {
+            var id = Guid.NewGuid().ToString();
+            var element = _elements.Element(new ElementDescription
+            {
+                Root = new ElementRef
+                {
+                    Id = id,
+                    Schema = new ElementSchemaData
+                    {
+                        Ints = new Dictionary<string, int>
+                        {
+                            { "foo", 6 }
+                        }
+                    }
+                },
+                Elements = new[]
+                {
+                    new ElementData
+                    {
+                        Id = id,
+                        Schema = new ElementSchemaData
+                        {
+                            Ints = new Dictionary<string, int>
+                            {
+                                { "foo", 5 }
+                            }
+                        }
+                    }
+                }
+            });
+
+            Assert.AreEqual(6, element.Schema.Get<int>("foo").Value);
         }
     }
 }
