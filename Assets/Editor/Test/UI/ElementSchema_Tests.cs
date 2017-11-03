@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.UI;
+﻿using System;
+using CreateAR.SpirePlayer.UI;
 using NUnit.Framework;
 
 namespace CreateAR.SpirePlayer.Test
@@ -67,6 +68,14 @@ namespace CreateAR.SpirePlayer.Test
 
             Assert.AreEqual(4, _schema.Get<int>("bar").Value);
             Assert.AreEqual(17, state.Get<int>("bar").Value);
+        }
+
+        [Test]
+        public void WrapOnce()
+        {
+            _schema.Wrap(new ElementSchema());
+
+            Assert.Throws<ArgumentException>(() => _schema.Wrap(new ElementSchema()));
         }
     }
 }
