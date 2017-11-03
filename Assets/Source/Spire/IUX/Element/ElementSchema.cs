@@ -18,6 +18,54 @@ namespace CreateAR.SpirePlayer.UI
             //
         }
 
+        public void Load(ElementSchemaData data)
+        {
+            if (null != data.Ints)
+            {
+                foreach (var prop in data.Ints)
+                {
+                    _names.Add(prop.Key);
+                    _props.Add(new ElementSchemaProp<int>(prop.Value));
+                }
+            }
+
+            if (null != data.Floats)
+            {
+                foreach (var prop in data.Floats)
+                {
+                    _names.Add(prop.Key);
+                    _props.Add(new ElementSchemaProp<float>(prop.Value));
+                }
+            }
+
+            if (null != data.Bools)
+            {
+                foreach (var prop in data.Bools)
+                {
+                    _names.Add(prop.Key);
+                    _props.Add(new ElementSchemaProp<bool>(prop.Value));
+                }
+            }
+
+            if (null != data.Strings)
+            {
+                foreach (var prop in data.Strings)
+                {
+                    _names.Add(prop.Key);
+                    _props.Add(new ElementSchemaProp<string>(prop.Value));
+                }
+            }
+
+            if (null != data.Vectors)
+            {
+                foreach (var prop in data.Vectors)
+                {
+                    _names.Add(prop.Key);
+                    _props.Add(new ElementSchemaProp<Vec3>(prop.Value));
+                }
+            }
+        }
+
         public void Set<T>(string name, T value)
         {
             var index = _names.IndexOf(name);

@@ -4,6 +4,7 @@
     {
         public string Id;
         public ElementRef[] Children = new ElementRef[0];
+        public ElementSchemaData Schema = new ElementSchemaData();
 
         public override string ToString()
         {

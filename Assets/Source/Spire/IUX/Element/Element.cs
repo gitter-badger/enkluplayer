@@ -9,6 +9,7 @@ namespace CreateAR.SpirePlayer.UI
 
         public string Guid { get; private set;  }
         public string Id { get; private set; }
+        public ElementSchema Schema { get; private set; }
 
         public Element[] Children
         {
@@ -20,10 +21,12 @@ namespace CreateAR.SpirePlayer.UI
         
         internal void Load(
             ElementData data,
+            ElementSchema schema,
             Element[] children)
         {
             Guid = System.Guid.NewGuid().ToString();
             Id = data.Id;
+            Schema = schema;
 
             _children.AddRange(children);
 

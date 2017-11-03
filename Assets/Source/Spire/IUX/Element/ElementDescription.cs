@@ -40,6 +40,9 @@ namespace CreateAR.SpirePlayer.UI
             // create new data with copy constructor
             var data = new ElementData(source);
 
+            // combine ref schema
+            data.Schema.Compose(reference.Schema);
+
             // add ref children
             var refChildrenRefs = reference.Children;
             var refChildrenData = new ElementData[refChildrenRefs.Length];
@@ -59,7 +62,7 @@ namespace CreateAR.SpirePlayer.UI
 
                 data.Children = children;
             }
-
+            
             return data;
         }
     }

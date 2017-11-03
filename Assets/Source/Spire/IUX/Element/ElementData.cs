@@ -6,16 +6,18 @@ namespace CreateAR.SpirePlayer.UI
     {
         public string Id;
         public ElementData[] Children = new ElementData[0];
-
+        public ElementSchemaData Schema = new ElementSchemaData();
+        
         public ElementData()
         {
             
         }
 
-        public ElementData(ElementData data)
+        internal ElementData(ElementData data)
         {
             Id = data.Id;
             Children = data.Children.ToArray();
+            Schema = new ElementSchemaData(data.Schema);
         }
     }
 }
