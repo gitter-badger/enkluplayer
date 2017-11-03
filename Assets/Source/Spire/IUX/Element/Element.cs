@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer.UI
 {
@@ -17,7 +18,33 @@ namespace CreateAR.SpirePlayer.UI
                 return _children.ToArray();
             }
         }
-        
+
+        /// <summary>
+        /// Called when this node has been updated. Not called for child
+        /// add/removes.
+        /// </summary>
+        public event Action<Element> OnUpdated;
+
+        /// <summary>
+        /// Called when this node has been removed from the graph.
+        /// </summary>
+        public event Action<Element> OnRemoved;
+
+        /// <summary>
+        /// Called when a child, at any depth, has been removed from the graph.
+        /// </summary>
+        public event Action<Element, Element> OnChildRemoved;
+
+        /// <summary>
+        /// Called when a child, at any depth, has been added to the graph.
+        /// </summary>
+        public event Action<Element, Element> OnChildAdded;
+
+        /// <summary>
+        /// Called when a child, at any depth, has been updated.
+        /// </summary>
+        public event Action<Element, Element> OnChildUpdated;
+
         internal void Load(
             ElementData data,
             ElementSchema schema,
@@ -50,11 +77,25 @@ namespace CreateAR.SpirePlayer.UI
             }
 
             _children.Add(child);
+
+            if (null != OnChildAdded)
+            {
+                OnChildAdded(this, child);
+            }
         }
 
         public bool RemoveChild(Element child)
         {
-            return _children.Remove(child);
+            var removed = _children.Remove(child);
+            if (removed)
+            {
+                if (null != OnChildRemoved)
+                {
+                    OnChildRemoved(this, child);
+                }
+            }
+
+            return removed;
         }
 
         protected virtual void LoadInternal()

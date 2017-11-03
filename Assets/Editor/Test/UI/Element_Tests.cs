@@ -60,13 +60,66 @@ namespace CreateAR.SpirePlayer.Test.UI
         }
 
         [Test]
+        public void AddChildEvent()
+        {
+            var isCalled = false;
+            var child = new Element();
+
+            _root.OnChildAdded += (root, value) =>
+            {
+                isCalled = true;
+                Assert.AreSame(child, value);
+            };
+            _root.AddChild(child);
+
+            Assert.IsTrue(isCalled);
+        }
+
+        [Test]
         public void RemoveChild()
         {
             var element = new Element();
             _root.AddChild(element);
-            _root.RemoveChild(element);
 
+            Assert.IsTrue(_root.RemoveChild(element));
             Assert.AreEqual(0, _root.Children.Length);
+        }
+
+        [Test]
+        public void RemoveChildTwice()
+        {
+            var element = new Element();
+            _root.AddChild(element);
+
+            Assert.IsTrue(_root.RemoveChild(element));
+            Assert.IsFalse(_root.RemoveChild(element));
+        }
+
+        [Test]
+        public void RemoveNonChild()
+        {
+            var element = new Element();
+
+            Assert.IsFalse(_root.RemoveChild(element));
+        }
+
+        [Test]
+        public void RemoveChildEvent()
+        {
+            var isCalled = false;
+            var child = new Element();
+            _root.AddChild(child);
+
+            _root.OnChildRemoved += (root, value) =>
+            {
+                isCalled = true;
+
+                Assert.AreSame(child, value);
+            };
+
+            _root.RemoveChild(child);
+
+            Assert.IsTrue(isCalled);
         }
     }
 }
