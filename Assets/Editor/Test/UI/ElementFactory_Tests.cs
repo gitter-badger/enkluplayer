@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using CreateAR.SpirePlayer.UI;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.SpirePlayer.Test.UI
 {
     [TestFixture]
     public class ElementFactory_Tests

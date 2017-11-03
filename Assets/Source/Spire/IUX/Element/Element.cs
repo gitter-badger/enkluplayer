@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer.UI
 {
@@ -44,12 +43,18 @@ namespace CreateAR.SpirePlayer.UI
 
         public void AddChild(Element child)
         {
-            throw new NotImplementedException();
+            var index = _children.IndexOf(child);
+            if (-1 != index)
+            {
+                _children.RemoveAt(index);
+            }
+
+            _children.Add(child);
         }
 
         public bool RemoveChild(Element child)
         {
-            throw new NotImplementedException();
+            return _children.Remove(child);
         }
 
         protected virtual void LoadInternal()
