@@ -21,5 +21,10 @@ namespace CreateAR.SpirePlayer
         /// Collider for unfocusing.
         /// </summary>
         Collider UnfocusCollider { get; }
+
+        /// <summary>
+        /// Focal radius
+        /// </summary>
+        float Radius { get; }
     }
 }

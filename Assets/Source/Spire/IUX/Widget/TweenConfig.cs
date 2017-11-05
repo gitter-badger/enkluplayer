@@ -4,7 +4,7 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Consistent set of tween durations
+    /// Consistent set of tween durations.
     /// </summary>
     public enum TweenType
     {

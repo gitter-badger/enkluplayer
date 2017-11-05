@@ -5,13 +5,23 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// A widget that toggles another widget on or off depending on highlight.
     /// </summary>
-    public class ToggleableWidget : Widget
+    public class InteractableWidget : Widget
     {
+        /// <summary>
+        /// Interaction Locked to a Specific Widget.
+        /// </summary>
+        public static bool OnRails = false;
+
         /// <summary>
         /// If true, the widget starts highlighted.
         /// </summary>
         public bool IsHighlighted = false;
-        
+
+        /// <summary>
+        /// If true, is locked and cannot be interacted with.
+        /// </summary>
+        public bool IsInteractionEnabled = true;
+
         /// <summary>
         /// Hides the highlight widget.
         /// </summary>
@@ -21,6 +31,29 @@ namespace CreateAR.SpirePlayer
         /// Shows if highlighted.
         /// </summary>
         public Widget ShowIfHighlightedWidget;
+
+        /// <summary>
+        /// Returns true if interactable.
+        /// </summary>
+        public bool IsInteractable
+        {
+            get
+            {
+                return
+                    IsInteractionEnabled
+                && (!OnRails || IsHighlighted);
+            }
+        }
+
+        /// <summary>
+        /// Initializes the InteractableWidget.
+        /// </summary>
+        /// <param name="schema"></param>
+        public virtual void SetSchema(InteractableSchema schema)
+        {
+            IsHighlighted |= schema.Highlight;
+            HighlightPriority = schema.HighlightPriority;
+        }
 
         /// <summary>
         /// Updates visibility of ShowIfHighlightedWidget.
@@ -37,7 +70,7 @@ namespace CreateAR.SpirePlayer
                     var highlightWidget = Elements.Highlighted;
                     if (highlightWidget != null)
                     {
-                        if (this == (ToggleableWidget) highlightWidget)
+                        if (this == (InteractableWidget) highlightWidget)
                         {
                             if (IsDescendant(highlightWidget.Transform, transform)
                                 || IsDescendant(transform, highlightWidget.Transform))

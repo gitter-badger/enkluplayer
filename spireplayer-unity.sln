@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spireplayer-unity", "spireplayer-unity.csproj", "{EACC8403-073E-7D2C-6C33-59D57AD9A04B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spireplayer-unity.Editor", "spireplayer-unity.Editor.csproj", "{57A419CE-AF09-3B5C-C545-EE391D44676F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EACC8403-073E-7D2C-6C33-59D57AD9A04B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EACC8403-073E-7D2C-6C33-59D57AD9A04B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EACC8403-073E-7D2C-6C33-59D57AD9A04B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EACC8403-073E-7D2C-6C33-59D57AD9A04B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57A419CE-AF09-3B5C-C545-EE391D44676F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57A419CE-AF09-3B5C-C545-EE391D44676F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57A419CE-AF09-3B5C-C545-EE391D44676F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57A419CE-AF09-3B5C-C545-EE391D44676F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -34,7 +34,7 @@ namespace CreateAR.SpirePlayer
 
             var transform = anchor.transform;
             transform.SetParent(null);
-            transform.position = origin;
+            transform.position = origin.ToVector();
         }
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>

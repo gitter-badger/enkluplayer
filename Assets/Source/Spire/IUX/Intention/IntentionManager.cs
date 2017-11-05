@@ -39,7 +39,7 @@ namespace CreateAR.SpirePlayer
         /// Maximum angular velocity.
         /// </summary>
         public float MaxAngularVelocity = 40.0f;
-
+        
         /// <summary>
         /// Returns steadiness of the view.
         /// </summary>
@@ -73,12 +73,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Focus origin.
         /// </summary>
-        public Vector3 Origin { get; private set; }
+        public Vec3 Origin { get; private set; }
 
         /// <summary>
         /// Focus ray.
         /// </summary>
-        public Ray Ray { get { return new Ray(Origin, Forward.ToVector()); } }
+        public Ray Ray { get { return new Ray(Origin.ToVector(), Forward.ToVector()); } }
 
         /// <summary>
         /// Tracks average angular velocity in degrees.
@@ -88,7 +88,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Return if the supplied position is visible to the user.
         /// </summary>
-        public bool IsVisible(Vector3 position, float fovScale = 1.0f)
+        public bool IsVisible(Vec3 position, float fovScale = 1.0f)
         {
             var mainCamera = Camera.main;
             if (mainCamera == null)
@@ -97,14 +97,16 @@ namespace CreateAR.SpirePlayer
             }
 
             var delta = position - Origin;
-            var deltaDirection = delta.normalized;
+            var deltaDirection = delta.ToVector().normalized;
             var lookCosTheta = Vector3.Dot(
                 deltaDirection,
                 Forward.ToVector());
             var lookThetaDegrees = Mathf.Approximately(lookCosTheta, 1.0f)
                 ? 0.0f
                 : Mathf.Acos(lookCosTheta) * Mathf.Rad2Deg;
-            var maxLookThetaDegrees = mainCamera.fieldOfView * fovScale;
+            var maxLookThetaDegrees 
+                = mainCamera.fieldOfView 
+                * fovScale;
 
             var isLooking = lookThetaDegrees < maxLookThetaDegrees;
             return isLooking;
@@ -136,7 +138,7 @@ namespace CreateAR.SpirePlayer
             }
 
             var cameraTransform = perspectiveCamera.transform;
-            Origin = cameraTransform.position;
+            Origin = cameraTransform.position.ToVec();
             Forward = cameraTransform.forward.ToVec();
             Up = cameraTransform.up.ToVec();
             Right = cameraTransform.right.ToVec();
@@ -151,7 +153,7 @@ namespace CreateAR.SpirePlayer
             {
                 var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-                Origin = mouseRay.origin;
+                Origin = mouseRay.origin.ToVec();
                 Forward = mouseRay.direction.ToVec();
             }
         }
@@ -242,7 +244,7 @@ namespace CreateAR.SpirePlayer
 
             RaycastHit raycastHit;
             if (Physics.Raycast(
-                Origin,
+                Origin.ToVector(),
                 Forward.ToVector(),
                 out raycastHit,
                 Mathf.Infinity,

@@ -21,6 +21,11 @@ namespace CreateAR.SpirePlayer
         private IState _state;
 
         /// <summary>
+        /// Current state.
+        /// </summary>
+        public Type StateType { get { return _state != null ? _state.GetType() : typeof(void); } }
+
+        /// <summary>
         /// Creates a new FSM that can only transition between these states.
         /// </summary>
         /// <param name="states">The states to transition between.</param>

@@ -115,7 +115,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Shows/Hides w/ Focus
         /// </summary>
-        public Widget FocusWidget;
+        public Widget ShowIfFocusedWidget;
 
         /// <summary>
         /// Graphic for the widget
@@ -246,9 +246,9 @@ namespace CreateAR.SpirePlayer
                 {
                     _isFocused = value;
 
-                    if (FocusWidget != null)
+                    if (ShowIfFocusedWidget != null)
                     {
-                        FocusWidget.LocalVisible = _isFocused;
+                        ShowIfFocusedWidget.LocalVisible = _isFocused;
                     }
 
                     OnFocus(this, _isFocused);
@@ -385,7 +385,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Highlight priority.
         /// </summary>
-        public int HighlightPriority { get; private set; }
+        public int HighlightPriority { get; protected set; }
 
         /// <summary>
         /// Retrieves the transform.
@@ -578,9 +578,9 @@ namespace CreateAR.SpirePlayer
         {
             RefreshIsVisible();
 
-            if (FocusWidget != null)
+            if (ShowIfFocusedWidget != null)
             {
-                FocusWidget.LocalVisible = _isFocused;
+                ShowIfFocusedWidget.LocalVisible = _isFocused;
             }
         }
 
