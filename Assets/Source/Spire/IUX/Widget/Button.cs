@@ -1,6 +1,4 @@
-﻿
-using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Windows.Speech;
 
@@ -84,6 +82,12 @@ namespace CreateAR.SpirePlayer
 
             if (Caption != null)
             {
+                if (Anchors != null)
+                {
+                    // TODO: this should be part of Element creation
+                    Anchors.Anchor(Caption.transform, schema.Caption.AnchorPosition);
+                }
+
                 Caption.SetSchema(schema.Caption);
             }
 
@@ -131,7 +135,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Frame based update
         /// </summary>
-        public override void Update()
+        protected override void Update()
         {
             base.Update();
 

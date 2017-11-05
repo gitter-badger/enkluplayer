@@ -38,11 +38,6 @@ namespace CreateAR.SpirePlayer
         private readonly WatchedValue<bool> _isVisible = new WatchedValue<bool>();
 
         /// <summary>
-        /// Cached list of materials
-        /// </summary>
-        private Material[] _cachedMaterials;
-
-        /// <summary>
         /// Special code path for first visbility refresh
         /// </summary>
         private bool _firstVisbilityRefresh = true;
@@ -69,7 +64,7 @@ namespace CreateAR.SpirePlayer
 
         /// <summary>
         /// Parent of this widget
-        /// </summary>
+        /// </summary>C
         protected Widget _parent;
 
         /// <summary>
@@ -83,24 +78,24 @@ namespace CreateAR.SpirePlayer
         protected bool _initialized = false;
 
         /// <summary>
-        /// If true, destroys the widget when tween reaches 0
+        /// Color
         /// </summary>
-        public bool AutoDestroy;
+        public Color LocalColor = Color.white;
 
         /// <summary>
-        /// If true, auto generates the buffer collider
+        /// Tween type for transitions in
         /// </summary>
-        public bool AutoGenerateBufferCollider;
+        public TweenType TweenIn = TweenType.Responsive;
 
         /// <summary>
-        /// For losing focus
+        /// Tween type for transitions out
         /// </summary>
-        public BoxCollider BufferCollider;
+        public TweenType TweenOut = TweenType.Responsive;
 
         /// <summary>
         /// Colorize to a specific color
         /// </summary>
-        public VirtualColor Colorized = VirtualColor.None;
+        public VirtualColor VirtualColor = VirtualColor.None;
 
         /// <summary>
         /// Defines the widget color mode
@@ -108,9 +103,24 @@ namespace CreateAR.SpirePlayer
         public ColorMode ColorMode = ColorMode.InheritColor;
 
         /// <summary>
+        /// Default mode is to inherit visibility
+        /// </summary>
+        public VisibilityMode VisibilityMode = VisibilityMode.Inherit;
+
+        /// <summary>
         /// For gaining focus
         /// </summary>
         public BoxCollider FocusCollider;
+
+        /// <summary>
+        /// For losing focus
+        /// </summary>
+        public BoxCollider BufferCollider;
+
+        /// <summary>
+        /// If true, auto generates the buffer collider
+        /// </summary>
+        public bool AutoGenBufferCollider;
 
         /// <summary>
         /// Shows/Hides w/ Focus
@@ -118,49 +128,19 @@ namespace CreateAR.SpirePlayer
         public Widget ShowIfFocusedWidget;
 
         /// <summary>
-        /// Graphic for the widget
+        /// Anchors for children widgets
         /// </summary>
-        public Graphic Graphic;
-
-        /// <summary>
-        /// Integration with IAM
-        /// </summary>
-        public GameObject InterfaceAnimManagerGameObject;
-
-        /// <summary>
-        /// Color
-        /// </summary>
-        public Color LocalColor = Color.white;
-
-        /// <summary>
-        /// Renderer for the widget
-        /// </summary>
-        public Renderer Renderer;
-
-        /// <summary>
-        /// Name of shader color for renderers
-        /// </summary>
-        public string RendererColorName;
+        public WidgetAnchors Anchors;
 
         /// <summary>
         /// True if should start visible
         /// </summary>
-        public bool StartsVisible = true;
+        public bool StartVisible = true;
 
         /// <summary>
-        /// Tween type for transitions in
+        /// If true, destroys the widget when tween reaches 0
         /// </summary>
-        public TweenType TweenIn = TweenType.Fast;
-
-        /// <summary>
-        /// Tween type for transitions out
-        /// </summary>
-        public TweenType TweenOut = TweenType.Fast;
-
-        /// <summary>
-        /// Default mode is to inherit visibility
-        /// </summary>
-        public VisibilityMode VisibilityMode = VisibilityMode.Inherit;
+        public bool AutoDestroy;
 
         /// <summary>
         /// Manages intentions.
@@ -250,14 +230,12 @@ namespace CreateAR.SpirePlayer
                     {
                         ShowIfFocusedWidget.LocalVisible = _isFocused;
                     }
-
-                    OnFocus(this, _isFocused);
                 }
             }
         }
 
         /// <summary>
-        /// Tween for the widget
+        /// Tween for the widget.
         /// </summary>
         public float Tween
         {
@@ -319,7 +297,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Returns the radius of the widget
+        /// Returns the radius of the widget.
         /// </summary>
         public virtual float Radius
         {
@@ -342,7 +320,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Layer accessor
+        /// Layer accessor.
         /// </summary>
         public Layer Layer
         {
@@ -361,7 +339,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Returns true if the layer is interactive
+        /// Returns true if the layer is interactive.
         /// </summary>
         public bool LayerInteractive
         {
@@ -375,7 +353,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Is Visible Modification
+        /// Is Visible Modification.
         /// </summary>
         public bool IsVisible
         {
@@ -396,13 +374,6 @@ namespace CreateAR.SpirePlayer
         /// Layer mode.
         /// </summary>
         public LayerMode LayerMode { get; private set; }
-
-        /// <summary>
-        /// Invoked when focus is gained or lost
-        /// 
-        /// TODO: Check this out.
-        /// </summary>
-        public event Action<Widget, bool> OnFocus = delegate { };
 
         /// <summary>
         /// Invoked when destroyed
@@ -435,34 +406,6 @@ namespace CreateAR.SpirePlayer
         {
             LocalVisible = false;
         }
-
-        /// <summary>
-        /// Frame based update
-        /// </summary>
-        public virtual void Update()
-        {
-            var deltaTime = Time.smoothDeltaTime;
-
-            FrameUpdate(deltaTime);
-        }
-
-        /// <summary>
-        /// Invoked when the widget is destroyed
-        /// </summary>
-        public virtual void OnDestroy()
-        {
-            if (_layer != null)
-            {
-                Layers.Release(_layer);
-            }
-
-            if (OnDestroyed != null)
-            {
-                OnDestroyed(this);
-            }
-            
-            LocalVisible = false;
-        }
         
         /// <summary>
         /// Brings the layer to the foreground
@@ -478,6 +421,26 @@ namespace CreateAR.SpirePlayer
             }
 
             _layer = Layers.Request(this);
+        }
+
+        /// <summary>
+        /// Updates the visibility chain
+        /// </summary>
+        /// <param name="visible"></param>
+        public void SetLocalVisible(bool visible)
+        {
+            LocalVisible = visible;
+        }
+
+        /// <summary>
+        /// Initialization
+        /// </summary>
+        protected override void Awake()
+        {
+            base.Awake();
+
+            // track this element
+            Elements.Add(this);
         }
 
         /// <summary>
@@ -504,7 +467,7 @@ namespace CreateAR.SpirePlayer
                 BringToTop();
             }
 
-            if (StartsVisible)
+            if (StartVisible)
             {
                 Show();
             }
@@ -513,23 +476,47 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Updates the visibility chain
+        /// Frame based update
         /// </summary>
-        /// <param name="visible"></param>
-        public void SetLocalVisible(bool visible)
+        protected virtual void Update()
         {
-            LocalVisible = visible;
+            var deltaTime = Time.smoothDeltaTime;
+
+            Initialize();
+
+            UpdateVisibility();
+            UpdateTween(deltaTime);
+            UpdateColor(deltaTime);
+            UpdateAutoDestroy();
         }
 
         /// <summary>
-        /// Initialization
+        /// Invoked when the widget is destroyed
         /// </summary>
-        protected override void Awake()
+        public virtual void OnDestroy()
         {
-            base.Awake();
+            if (_layer != null)
+            {
+                Layers.Release(_layer);
+            }
 
-            // track this element
-            Elements.Add(this);
+            if (OnDestroyed != null)
+            {
+                OnDestroyed(this);
+            }
+
+            LocalVisible = false;
+        }
+
+        /// <summary>
+        /// Initializes the buffer collider for the widget
+        /// </summary>
+        private void InitializeBufferCollider()
+        {
+            if (AutoGenBufferCollider)
+            {
+                GenerateBufferCollider();
+            }
         }
 
         /// <summary>
@@ -561,17 +548,6 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Initializes the buffer collider for the widget
-        /// </summary>
-        private void InitializeBufferCollider()
-        {
-            if (AutoGenerateBufferCollider)
-            {
-                GenerateBufferCollider();
-            }
-        }
-
-        /// <summary>
         /// Updates the visibility
         /// </summary>
         private void UpdateVisibility()
@@ -589,7 +565,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateColor(float deltaTime)
         {
-            var colorized = Colorized;
+            var colorized = VirtualColor;
 
             if (colorized != VirtualColor.None)
             {
@@ -599,13 +575,6 @@ namespace CreateAR.SpirePlayer
                     ? Color.Lerp(LocalColor, newColor, deltaTime * 5.0f)
                     : newColor;
             }
-
-            if (Graphic != null)
-            {
-                Graphic.color = Color;
-            }
-
-            UpdateRenderers();
         }
 
         /// <summary>
@@ -623,49 +592,7 @@ namespace CreateAR.SpirePlayer
                 }
             }
         }
-
-        /// <summary>
-        /// Updates the renderer
-        /// </summary>
-        private void UpdateRenderers()
-        {
-            if (string.IsNullOrEmpty(RendererColorName))
-            {
-                return;
-            }
-
-            if (Renderer == null)
-            {
-                Renderer = GetComponent<Renderer>();
-            }
-
-            if (Renderer == null)
-            {
-                Log.Warning(this, "Missing Renderer!");
-                return;
-            }
-
-            if (_cachedMaterials == null)
-            {
-                _cachedMaterials = Renderer.materials;
-            }
-
-            if (_cachedMaterials.Length > 0)
-            {
-                var color = Color;
-                for (int j = 0, jCount = _cachedMaterials.Length; j < jCount; ++j)
-                {
-                    var material = _cachedMaterials[j];
-                    if (material != null)
-                    {
-                        material.SetColor(
-                            RendererColorName,
-                            color);
-                    }
-                }
-            }
-        }
-
+        
         /// <summary>
         /// Invoked when children have been changed
         /// </summary>
@@ -677,23 +604,10 @@ namespace CreateAR.SpirePlayer
 
             if (_parent != null)
             {
-                FrameUpdate(0);
+                Update();
             }
         }
-
-        /// <summary>
-        /// Frame based update
-        /// </summary>
-        /// <param name="deltaTime"></param>
-        private void FrameUpdate(float deltaTime)
-        {
-            Initialize();
-            UpdateVisibility();
-            UpdateTween(deltaTime);
-            UpdateColor(deltaTime);
-            UpdateAutoDestroy();
-        }
-
+        
         /// <summary>
         /// Updates the fade for the control
         /// </summary>
@@ -775,27 +689,7 @@ namespace CreateAR.SpirePlayer
             {
                 _hasBeenVisible = true;
 
-                // TODO: REMOVE ASAP
-                if (InterfaceAnimManagerGameObject != null)
-                {
-                    InterfaceAnimManagerGameObject.SendMessage("UpdateAnimClips");
-                    InterfaceAnimManagerGameObject.SendMessage("startAppear", false,
-                        SendMessageOptions.DontRequireReceiver);
-                }
-
                 gameObject.SetActive(true);
-            }
-            else
-            {
-                if (_hasBeenVisible)
-                {
-                    // TODO: REMOVE ASAP
-                    if (InterfaceAnimManagerGameObject != null)
-                    {
-                        InterfaceAnimManagerGameObject.SendMessage("startDisappear", false,
-                            SendMessageOptions.DontRequireReceiver);
-                    }
-                }
             }
         }
 

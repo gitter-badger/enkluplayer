@@ -8,6 +8,11 @@ namespace CreateAR.SpirePlayer
     public class InteractableWidget : Widget
     {
         /// <summary>
+        /// True if the interactable can be interacted with
+        /// </summary>
+        private bool _isInteractionEnabled = true;
+
+        /// <summary>
         /// Interaction Locked to a Specific Widget.
         /// </summary>
         public static bool OnRails = false;
@@ -19,13 +24,13 @@ namespace CreateAR.SpirePlayer
 
         /// <summary>
         /// If true, is locked and cannot be interacted with.
+        /// TODO: Replace with a "locking-ref-count"
         /// </summary>
-        public bool IsInteractionEnabled = true;
-
-        /// <summary>
-        /// Hides the highlight widget.
-        /// </summary>
-        public bool HideHighlightWidget;
+        public bool IsInteractionEnabled
+        {
+            get { return _isInteractionEnabled; }
+            set { _isInteractionEnabled = value; }
+        }
 
         /// <summary>
         /// Shows if highlighted.
@@ -58,7 +63,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Updates visibility of ShowIfHighlightedWidget.
         /// </summary>
-        public override void Update()
+        protected override void Update()
         {
             base.Update();
 
@@ -80,7 +85,7 @@ namespace CreateAR.SpirePlayer
                         }
                     }
 
-                    ShowIfHighlightedWidget.LocalVisible = isHighlighted && !HideHighlightWidget;
+                    ShowIfHighlightedWidget.LocalVisible = isHighlighted;
                 }
             }
         }

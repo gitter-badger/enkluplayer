@@ -10,7 +10,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// TODO: Refactor with new Element Schema pipeline.
     /// </summary>
-    public class TextSchema
+    public class TextSchema : WidgetSchema
     {
         /// <summary>
         /// Button data.
@@ -21,11 +21,6 @@ namespace CreateAR.SpirePlayer
         /// Size of the text's font.
         /// </summary>
         public int FontSize;
-
-        /// <summary>
-        /// Widget anchor position.
-        /// </summary>
-        public WidgetAnchorPosition AnchorPosition;
     }
 
     /// <summary>
@@ -37,11 +32,6 @@ namespace CreateAR.SpirePlayer
         /// Display text.
         /// </summary>
         public Text Text;
-
-        /// <summary>
-        /// Anchor position.
-        /// </summary>
-        public WidgetAnchor Anchor;
 
         /// <summary>
         /// Sets up the caption based upon the schema.
@@ -61,11 +51,6 @@ namespace CreateAR.SpirePlayer
                 if (schema.FontSize != 0)
                 {
                     Text.fontSize = schema.FontSize;
-                }
-
-                if (Anchor != null)
-                {
-                    Anchor.Refresh(schema.AnchorPosition);
                 }
 
                 Text.alignment = GetTextAnchor(schema.AnchorPosition);

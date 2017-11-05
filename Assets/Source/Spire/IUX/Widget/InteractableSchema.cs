@@ -3,7 +3,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// TODO: Refactor with new Element Schema pipeline.
     /// </summary>
-    public class InteractableSchema
+    public class InteractableSchema : WidgetSchema
     {
         /// <summary>
         /// True if highlighted.

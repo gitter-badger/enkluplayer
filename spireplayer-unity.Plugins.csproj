@@ -5,16 +5,16 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{57A419CE-AF09-3B5C-C545-EE391D44676F}</ProjectGuid>
+    <ProjectGuid>{53930814-9EC8-FEBF-DC68-610C5017B975}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AssemblyName>Assembly-CSharp-Editor</AssemblyName>
+    <AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
     <CompilerResponseFile></CompilerResponseFile>
-    <UnityProjectType>Editor:5</UnityProjectType>
+    <UnityProjectType>GamePlugins:3</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
     <RootNamespace></RootNamespace>
@@ -55,23 +55,11 @@
     <Reference Include="UnityEngine">
       <HintPath>Library\UnityAssemblies\UnityEngine.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.Advertisements">
-      <HintPath>Library\UnityAssemblies\UnityEditor.Advertisements.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\UnityAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.UI">
-      <HintPath>Library\UnityAssemblies\UnityEditor.UI.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.Networking">
-      <HintPath>Library\UnityAssemblies\UnityEditor.Networking.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.TestRunner">
-      <HintPath>Library\UnityAssemblies\UnityEditor.TestRunner.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TestRunner">
       <HintPath>Library\UnityAssemblies\UnityEngine.TestRunner.dll</HintPath>
@@ -82,41 +70,11 @@
     <Reference Include="UnityEngine.Timeline">
       <HintPath>Library\UnityAssemblies\UnityEngine.Timeline.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.Timeline">
-      <HintPath>Library\UnityAssemblies\UnityEditor.Timeline.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.TreeEditor">
-      <HintPath>Library\UnityAssemblies\UnityEditor.TreeEditor.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.Analytics">
       <HintPath>Library\UnityAssemblies\UnityEngine.Analytics.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.Analytics">
-      <HintPath>Library\UnityAssemblies\UnityEditor.Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.HoloLens">
-      <HintPath>Library\UnityAssemblies\UnityEditor.HoloLens.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.HoloLens">
       <HintPath>Library\UnityAssemblies\UnityEngine.HoloLens.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.Purchasing">
-      <HintPath>Library\UnityAssemblies\UnityEditor.Purchasing.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.VR">
-      <HintPath>Library\UnityAssemblies\UnityEditor.VR.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.Graphs">
-      <HintPath>Library\UnityAssemblies\UnityEditor.Graphs.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.WSA.Extensions">
-      <HintPath>Library\UnityAssemblies\UnityEditor.WSA.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor.WindowsStandalone.Extensions">
-      <HintPath>Library\UnityAssemblies\UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
-      <HintPath>Library\UnityAssemblies\SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>Library\UnityAssemblies\Mono.Cecil.dll</HintPath>
@@ -153,35 +111,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="spireplayer-unity.csproj">
-      <Project>{EACC8403-073E-7D2C-6C33-59D57AD9A04B}</Project>
-      <Name>spireplayer-unity</Name>
-    </ProjectReference>
-    <ProjectReference Include="spireplayer-unity.Plugins.csproj">
-      <Project>{53930814-9EC8-FEBF-DC68-610C5017B975}</Project>
-      <Name>spireplayer-unity.Plugins</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Assets\Editor\Build\UnityBuilder.cs" />
-    <Compile Include="Assets\Editor\Test\Asset\Asset_Tests.cs" />
-    <Compile Include="Assets\Editor\Test\Asset\AssetManager_IntegrationTests.cs" />
-    <Compile Include="Assets\Editor\Test\Asset\AssetManager_Tests.cs" />
-    <Compile Include="Assets\Editor\Test\Asset\AssetManifest_Tests.cs" />
-    <Compile Include="Assets\Editor\Test\Asset\DummyAssetLoader.cs" />
-    <Compile Include="Assets\Editor\Test\Content\ContentGraph_Tests.cs" />
-    <Compile Include="Assets\Editor\Test\Content\ContentManager_Tests.cs" />
-    <Compile Include="Assets\Editor\Test\Content\DummyAssetManager.cs" />
-    <Compile Include="Assets\Editor\Test\Content\DummyContentFactory.cs" />
-    <Compile Include="Assets\Editor\Test\Content\DummyPoolManager.cs" />
-    <Compile Include="Assets\Editor\Test\Content\DummyScriptManager.cs" />
-    <Compile Include="Assets\Editor\Test\Data\FileManager_Tests.cs" />
-    <Compile Include="Assets\Editor\Test\Scripting\Vector3Js_Tests.cs" />
-    <Compile Include="Assets\Editor\Test\UI\Element_Tests.cs" />
-    <Compile Include="Assets\Editor\Test\UI\ElementFactory_Tests.cs" />
-    <Compile Include="Assets\Editor\Test\UI\ElementSchema_Tests.cs" />
-    <Compile Include="Assets\Editor\Test\Util\StandardQueryResolver_Tests.cs" />
-    <Compile Include="Assets\Editor\Tools\ContextMenuHooks.cs" />
+    <Compile Include="Assets\Plugins\ThirdParty\HoloToolkit\Utilities\Scripts\ManualCameraControl.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Art\UI\Shaders\Rim UI.shader" />

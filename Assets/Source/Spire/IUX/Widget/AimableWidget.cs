@@ -44,7 +44,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Updates the aim of the activation.
         /// </summary>
-        public override void Update()
+        protected override void Update()
         {
             base.Update();
 

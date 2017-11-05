@@ -18,7 +18,7 @@ namespace CreateAR.SpirePlayer
     /// Dynamically adjusts widget position by setting parent
     /// to pre-defined relative offset transform
     /// </summary>
-    public class WidgetAnchor : MonoBehaviour
+    public class WidgetAnchors : MonoBehaviour
     {
         /// <summary>
         /// Transform above the widget
@@ -48,15 +48,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Refresh the relative parent
         /// </summary>
-        public void Refresh(WidgetAnchorPosition widgetAnchorPosition)
+        public void Anchor(Transform targetTransform, WidgetAnchorPosition widgetAnchorPosition)
         {
             var parentTransform = GetParentTransform(widgetAnchorPosition);
-            if (transform.parent != parentTransform)
+            if (targetTransform.parent != parentTransform)
             {
-                transform
-                    .SetParent(
-                        parentTransform,
-                        false);
+                targetTransform.parent = parentTransform;
+                targetTransform.localPosition = Vector3.zero;
             }
         }
 

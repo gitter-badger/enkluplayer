@@ -47,17 +47,17 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// How fast does the cursor state change
         /// </summary>
-        public TweenType AimTweenType = TweenType.VeryFast;
+        public TweenType AimTweenType = TweenType.Instant;
 
         /// <summary>
         /// Tween for gaining focus
         /// </summary>
-        public TweenType GainFocusTween = TweenType.Fast;
+        public TweenType GainFocusTween = TweenType.Responsive;
 
         /// <summary>
         /// Tween for losing focus
         /// </summary>
-        public TweenType LostFocusTween = TweenType.Slow;
+        public TweenType LostFocusTween = TweenType.Deliberate;
 
         /// <summary>
         /// Spread when activating
@@ -135,10 +135,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateVisibility()
         {
-            // LocalVisible
-            //    = !WidgetManager.InputDisabled
-            //      && InteractableWidget.GetVisibleCount() > 0;
-            LocalVisible = true;
+            LocalVisible
+                = !Intention.InputDisabled
+               && Elements.GetVisibleCount<InteractableWidget>() > 0;
         }
 
         /// <summary>
