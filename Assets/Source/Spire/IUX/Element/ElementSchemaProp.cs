@@ -31,7 +31,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Parent prop.
         /// </summary>
-        private ElementSchemaProp<T> _parent;
+        private readonly ElementSchemaProp<T> _parent;
 
         /// <summary>
         /// Backing variable for <c>Value</c> property.
