@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer.Test.UI
     public class Element_Tests
     {
         private Element _root;
-
+        
         [SetUp]
         public void Setup()
         {

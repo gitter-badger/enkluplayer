@@ -55,6 +55,14 @@ namespace CreateAR.SpirePlayer.UI
         public event Action<Element, Element> OnChildAdded;
 
         /// <summary>
+        /// Creates an element.
+        /// </summary>
+        public Element()
+        {
+            Schema = new ElementSchema();
+        }
+
+        /// <summary>
         /// Prepares an element for use.
         /// </summary>
         /// <param name="data">Associated saved data.</param>
@@ -111,6 +119,9 @@ namespace CreateAR.SpirePlayer.UI
 
             element.OnChildAdded += Child_OnChildAdded;
             element.OnChildRemoved += Child_OnChildRemoved;
+
+            // hook up schema
+            element.Schema.Wrap(Schema);
 
             if (null != OnChildAdded)
             {

@@ -5,8 +5,13 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Base class used to track type.
     /// </summary>
-    public class ElementSchemaProp
+    public abstract class ElementSchemaProp
     {
+        /// <summary>
+        /// Name of the prop. Can be null for shared, default value props.
+        /// </summary>
+        internal readonly string Name;
+
         /// <summary>
         /// The type of the prop.
         /// </summary>
@@ -15,11 +20,19 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Internal constructor.
         /// </summary>
+        /// <param name="name">The name of the prop.</param>
         /// <param name="type">The type of prop.</param>
-        internal ElementSchemaProp(Type type)
+        internal ElementSchemaProp(string name, Type type)
         {
+            Name = name;
             Type = type;
         }
+
+        /// <summary>
+        /// Reparents the prop.
+        /// </summary>
+        /// <param name="parent">The new parent.</param>
+        internal abstract void Reparent(ElementSchemaProp parent);
     }
 
     /// <summary>
@@ -31,12 +44,17 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Parent prop.
         /// </summary>
-        private readonly ElementSchemaProp<T> _parent;
+        private ElementSchemaProp<T> _parent;
 
         /// <summary>
         /// Backing variable for <c>Value</c> property.
         /// </summary>
         private T _value;
+
+        /// <summary>
+        /// True iff the link has been broken between parent and child.
+        /// </summary>
+        private bool _linkBroken;
 
         /// <summary>
         /// The value of the prop.
@@ -53,6 +71,9 @@ namespace CreateAR.SpirePlayer.UI
                 if (null != _parent)
                 {
                     _parent.OnChanged -= Parent_OnChanged;
+                    _parent = null;
+
+                    _linkBroken = true;
                 }
 
                 var prev = _value;
@@ -64,7 +85,7 @@ namespace CreateAR.SpirePlayer.UI
                 }
             }
         }
-
+        
         /// <summary>
         /// Called when the element has been changed.
         /// </summary>
@@ -73,9 +94,10 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Constructor.
         /// </summary>
+        /// <param name="name">Name.</param>
         /// <param name="value">Value.</param>
-        internal ElementSchemaProp(T value)
-            : base(typeof(T))
+        internal ElementSchemaProp(string name, T value)
+            : base(name, typeof(T))
         {
             _value = value;
         }
@@ -83,15 +105,34 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Constructor.
         /// </summary>
+        /// <param name="name">Name.</param>
         /// <param name="parent">Parent prop, if any.</param>
-        internal ElementSchemaProp(ElementSchemaProp<T> parent)
-            : base(typeof(T))
+        internal ElementSchemaProp(
+            string name,
+            ElementSchemaProp<T> parent)
+            : base(name, typeof(T))
         {
-            _parent = parent;
-            _value = _parent.Value;
+            Reparent(parent);
+        }
+
+        /// <inheritdoc cref="ElementSchemaProp"/>
+        internal sealed override void Reparent(ElementSchemaProp parent)
+        {
+            if (_linkBroken)
+            {
+                return;
+            }
 
             if (null != _parent)
             {
+                _parent.OnChanged -= Parent_OnChanged;
+            }
+
+            _parent = (ElementSchemaProp<T>) parent;
+
+            if (null != _parent)
+            {
+                _value = _parent.Value;
                 _parent.OnChanged += Parent_OnChanged;
             }
         }

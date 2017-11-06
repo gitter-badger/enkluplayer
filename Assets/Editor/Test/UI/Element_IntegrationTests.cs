@@ -7,9 +7,13 @@ namespace CreateAR.SpirePlayer.Test.UI
     [TestFixture]
     public class Element_IntegrationTests
     {
+        private const int FOO = 12;
+        private const int FUZZ = 73;
+        private const int BAR = 1443;
+
         private ElementFactory _factory;
 
-        private ElementDescription _data = new ElementDescription
+        private readonly ElementDescription _data = new ElementDescription
         {
             Elements = new[]
             {
@@ -20,12 +24,74 @@ namespace CreateAR.SpirePlayer.Test.UI
                     {
                         Ints = new Dictionary<string, int>
                         {
-                            {"foo", 12}
+                            {"foo", FOO}
                         }
                     }
+                },
+                new ElementData
+                {
+                    Id = "a.a",
+                    Schema = new ElementSchemaData
+                    {
+                        Ints = new Dictionary<string, int>
+                        {
+                            {"fuzz", FUZZ}
+                        }
+                    }
+                },
+                new ElementData
+                {
+                    Id = "a.b"
+                },
+                new ElementData
+                {
+                    Id = "a.a.a"
                 }
             },
-            Root = new ElementRef()
+            Root = new ElementRef
+            {
+                Id = "a",
+                Children = new[]
+                {
+                    new ElementRef
+                    {
+                        Id = "a.a",
+                        Children = new []
+                        {
+                            new ElementRef
+                            {
+                                Id = "a.a.a"
+                            }
+                        }
+                    },
+                    new ElementRef
+                    {
+                        Id = "a.b"
+                    }
+                }
+            }
+        };
+
+        private readonly ElementDescription _newElement = new ElementDescription
+        {
+            Elements = new[]
+            {
+                new ElementData
+                {
+                    Id = "new"
+                }
+            },
+            Root = new ElementRef
+            {
+                Id = "new",
+                Schema = new ElementSchemaData
+                {
+                    Ints = new Dictionary<string, int>
+                    {
+                        { "bar", BAR }
+                    }
+                }
+            }
         };
 
         [SetUp]
@@ -37,7 +103,14 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void SchemaGraphUpdate()
         {
-            
+            var element = _factory.Element(_data);
+            var newElement = _factory.Element(_newElement);
+
+            var aa = element.Children[0];
+            aa.AddChild(newElement);
+
+            Assert.AreEqual(FOO, newElement.Schema.Get<int>("foo").Value);
+            Assert.AreEqual(FUZZ, newElement.Schema.Get<int>("buzz").Value);
         }
     }
 }

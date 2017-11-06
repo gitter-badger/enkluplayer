@@ -167,11 +167,26 @@ namespace CreateAR.SpirePlayer.Test.UI
         }
         
         [Test]
-        public void WrapOnce()
+        public void WrapMulti()
         {
-            _schema.Wrap(new ElementSchema());
+            var prop = _schema.Get<int>("foo");
 
-            Assert.Throws<ArgumentException>(() => _schema.Wrap(new ElementSchema()));
+            var a = new ElementSchema();
+            a.Set("foo", 15);
+
+            var b = new ElementSchema();
+            b.Set("foo", 43);
+
+            _schema.Wrap(a);
+            Assert.AreEqual(15, prop.Value);
+
+            _schema.Wrap(b);
+            Assert.AreEqual(43, prop.Value);
+
+            // break connection
+            prop.Value = 20;
+            _schema.Wrap(a);
+            Assert.AreEqual(20, prop.Value);
         }
 
         [Test]

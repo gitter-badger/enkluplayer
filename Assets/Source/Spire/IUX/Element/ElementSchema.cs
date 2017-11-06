@@ -9,29 +9,19 @@ namespace CreateAR.SpirePlayer.UI
     public class ElementSchema
     {
         /// <summary>
-        /// Parallel arrays that keeps name + prop aligned.
+        /// List of all props.
         /// </summary>
-        private readonly List<string> _names = new List<string>();
         private readonly List<ElementSchemaProp> _props = new List<ElementSchemaProp>();
 
         /// <summary>
-        /// Parallel arrays that keep name + static, default value props aligned.
+        /// List of default value props.
         /// </summary>
-        private readonly List<Type> _defaultValueTypes = new List<Type>();
         private readonly List<ElementSchemaProp> _defaultValueProps = new List<ElementSchemaProp>();
 
         /// <summary>
         /// Parent schema.
         /// </summary>
         private ElementSchema _parent;
-
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-        public ElementSchema()
-        {
-            //
-        }
 
         /// <summary>
         /// Loads data, which contains all properties.
@@ -43,8 +33,9 @@ namespace CreateAR.SpirePlayer.UI
             {
                 foreach (var prop in data.Ints)
                 {
-                    _names.Add(prop.Key);
-                    _props.Add(new ElementSchemaProp<int>(prop.Value));
+                    _props.Add(new ElementSchemaProp<int>(
+                        prop.Key,
+                        prop.Value));
                 }
             }
 
@@ -52,8 +43,9 @@ namespace CreateAR.SpirePlayer.UI
             {
                 foreach (var prop in data.Floats)
                 {
-                    _names.Add(prop.Key);
-                    _props.Add(new ElementSchemaProp<float>(prop.Value));
+                    _props.Add(new ElementSchemaProp<float>(
+                        prop.Key,
+                        prop.Value));
                 }
             }
 
@@ -61,8 +53,9 @@ namespace CreateAR.SpirePlayer.UI
             {
                 foreach (var prop in data.Bools)
                 {
-                    _names.Add(prop.Key);
-                    _props.Add(new ElementSchemaProp<bool>(prop.Value));
+                    _props.Add(new ElementSchemaProp<bool>(
+                        prop.Key,
+                        prop.Value));
                 }
             }
 
@@ -70,8 +63,9 @@ namespace CreateAR.SpirePlayer.UI
             {
                 foreach (var prop in data.Strings)
                 {
-                    _names.Add(prop.Key);
-                    _props.Add(new ElementSchemaProp<string>(prop.Value));
+                    _props.Add(new ElementSchemaProp<string>(
+                        prop.Key,
+                        prop.Value));
                 }
             }
 
@@ -79,8 +73,9 @@ namespace CreateAR.SpirePlayer.UI
             {
                 foreach (var prop in data.Vectors)
                 {
-                    _names.Add(prop.Key);
-                    _props.Add(new ElementSchemaProp<Vec3>(prop.Value));
+                    _props.Add(new ElementSchemaProp<Vec3>(
+                        prop.Key,
+                        prop.Value));
                 }
             }
         }
@@ -91,12 +86,25 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="schema">The schema to wrap.</param>
         public void Wrap(ElementSchema schema)
         {
-            if (null != _parent)
-            {
-                throw new ArgumentException("Cannot wrap more than one schema.");
-            }
-
             _parent = schema;
+
+            var parentProps = schema._props;
+            for (int i = 0, ilen = _props.Count; i < ilen; i++)
+            {
+                var prop = _props[i];
+                var name = prop.Name;
+                var type = prop.Type;
+
+                for (int j = 0, jlen = parentProps.Count; j < jlen; j++)
+                {
+                    var parentProp = parentProps[j];
+                    if (parentProp.Name == name && parentProp.Type == type)
+                    {
+                        prop.Reparent(parentProp);
+                        break;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -107,16 +115,13 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="value">The value.</param>
         public void Set<T>(string name, T value)
         {
-            var index = _names.IndexOf(name);
-            if (-1 == index)
+            var prop = Prop(name);
+            if (null == prop)
             {
-                var prop = new ElementSchemaProp<T>(value);
-                _names.Add(name);
-                _props.Add(prop);
+                _props.Add(new ElementSchemaProp<T>(name, value));
             }
             else
             {
-                var prop = _props[index];
                 if (typeof(T) == prop.Type)
                 {
                     ((ElementSchemaProp<T>) prop).Value = value;
@@ -134,30 +139,26 @@ namespace CreateAR.SpirePlayer.UI
         /// <returns></returns>
         public ElementSchemaProp<T> Get<T>(string name)
         {
-            ElementSchemaProp prop;
-            var index = _names.IndexOf(name);
-            if (-1 == index)
+            var type = typeof(T);
+            var prop = Prop(name);
+            if (null == prop)
             {
                 // check parent
                 if (null == _parent)
                 {
-                    prop = new ElementSchemaProp<T>(default(T));
+                    prop = new ElementSchemaProp<T>(name, default(T));
                 }
                 else
                 {
-                    prop = new ElementSchemaProp<T>(_parent.Get<T>(name));
+                    prop = new ElementSchemaProp<T>(name, _parent.Get<T>(name));
                 }
 
-                _names.Add(name);
-                _props.Add(prop);
-            }
-            else
-            {
-                prop = _props[index];
+                if (type == prop.Type)
+                {
+                    _props.Add(prop);
+                }
             }
 
-            // TODO: Memory leak: prop may be added to list but not used.
-            var type = typeof(T);
             if (type == prop.Type)
             {
                 return (ElementSchemaProp<T>) prop;
@@ -174,19 +175,41 @@ namespace CreateAR.SpirePlayer.UI
         private ElementSchemaProp<T> Default<T>()
         {
             var type = typeof(T);
-            for (int i = 0, len = _defaultValueTypes.Count; i < len; i++)
+            for (int i = 0, len = _defaultValueProps.Count; i < len; i++)
             {
-                if (type == _defaultValueTypes[i])
+                var prop = _defaultValueProps[i];
+                if (type == prop.Type)
                 {
                     return (ElementSchemaProp<T>) _defaultValueProps[i];
                 }
             }
 
-            var prop = new ElementSchemaProp<T>(default(T));
-            _defaultValueTypes.Add(type);
-            _defaultValueProps.Add(prop);
+            var defaultProp = new ElementSchemaProp<T>(
+                string.Empty,
+                default(T));
+            _defaultValueProps.Add(defaultProp);
 
-            return prop;
+            return defaultProp;
+        }
+
+        /// <summary>
+        /// Retrieves the prop with matching name. Does not return a default
+        /// value prop.
+        /// </summary>
+        /// <param name="name">Name of the prop.</param>
+        /// <returns></returns>
+        private ElementSchemaProp Prop(string name)
+        {
+            for (int i = 0, len = _props.Count; i < len; i++)
+            {
+                var prop = _props[i];
+                if (prop.Name == name)
+                {
+                    return prop;
+                }
+            }
+
+            return null;
         }
     }
 }
