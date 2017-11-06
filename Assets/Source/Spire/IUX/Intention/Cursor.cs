@@ -291,23 +291,23 @@ namespace CreateAR.SpirePlayer
         {
             _aim = 0.0f;
             var focusable = Intention.Focus;
-            var focusButton
+            var aimableWidget
                 = focusable != null 
                && focusable.FocusCollider.transform != null
-                    ? focusable.FocusCollider.transform.GetComponent<Button>()
+                    ? focusable.FocusCollider.transform.GetComponent<AimableWidget>()
                     : null;
-            if (focusButton != null)
+            if (aimableWidget != null)
             {
-                _aim = focusButton.Aim;
+                _aim = aimableWidget.Aim;
             }
 
-            const float MAGIC_ACTIVATOR_NUMBER_FACTOR = 0.138f;
+            const float ACTIVATOR_SCALE_FACTOR = 0.138f;
             var buttonScale
-                = (focusButton != null)
-                    ? focusButton.transform.lossyScale.x / MAGIC_ACTIVATOR_NUMBER_FACTOR
+                = (aimableWidget != null)
+                    ? aimableWidget.transform.lossyScale.x / ACTIVATOR_SCALE_FACTOR
                     : 1.0f;
             if (float.IsNaN(buttonScale)
-                || float.IsInfinity(buttonScale))
+             || float.IsInfinity(buttonScale))
             {
                 Log.Error(this, "Invalid Button Scale[{0}], resetting...", buttonScale);
                 buttonScale = 1.0f;

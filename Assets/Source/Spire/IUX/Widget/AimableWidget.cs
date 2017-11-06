@@ -15,6 +15,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Displayed when aiming at the button.
         /// </summary>
+        [Header("Aim")]
         public Widget AimFeedbackWidget;
 
         /// <summary>

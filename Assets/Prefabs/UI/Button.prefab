@@ -52,7 +52,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4784058866031742}
   - component: {fileID: 114541498173983578}
-  m_Layer: 0
+  - component: {fileID: 65158696494696142}
+  m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -67,7 +68,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4147211454790798}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -82,7 +83,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4708576925543694}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Cursor_04_8x4-32
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +102,7 @@ GameObject:
   - component: {fileID: 33047655348244714}
   - component: {fileID: 23569088692755140}
   - component: {fileID: 95782261113394510}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Octahedron
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -118,9 +119,7 @@ GameObject:
   - component: {fileID: 4734873947403904}
   - component: {fileID: 114326472778240924}
   - component: {fileID: 33545101286107502}
-  - component: {fileID: 135719134355413626}
   - component: {fileID: 23850276908988352}
-  - component: {fileID: 65244837507317284}
   m_Layer: 5
   m_Name: Frame
   m_TagString: Untagged
@@ -157,7 +156,7 @@ GameObject:
   - component: {fileID: 33771819345252594}
   - component: {fileID: 23034579339090444}
   - component: {fileID: 95294089996508676}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Octahedron
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -190,7 +189,7 @@ GameObject:
   - component: {fileID: 212146381574072550}
   - component: {fileID: 95603863453869516}
   - component: {fileID: 114431678707653740}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Arrows
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -210,7 +209,7 @@ GameObject:
   - component: {fileID: 23138686869704458}
   - component: {fileID: 33615354543543788}
   m_Layer: 5
-  m_Name: Aim Widget
+  m_Name: Aim
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -226,7 +225,7 @@ GameObject:
   - component: {fileID: 4958089995565528}
   - component: {fileID: 114912972571513270}
   - component: {fileID: 82957666814535184}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Play Activate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -242,7 +241,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4392743820866240}
   - component: {fileID: 114121125933670962}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Instantiate VFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -308,7 +307,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4988211199831474}
   - component: {fileID: 114044703588264926}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: On Activate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -340,7 +339,7 @@ GameObject:
   - component: {fileID: 224769732559475702}
   - component: {fileID: 114260060652956852}
   - component: {fileID: 223905242365871844}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Caption
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -374,7 +373,7 @@ GameObject:
   - component: {fileID: 4671683913822206}
   - component: {fileID: 114885532461831564}
   - component: {fileID: 82124910958683678}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Play Select
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -389,7 +388,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4452967794521976}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -425,7 +424,7 @@ GameObject:
   - component: {fileID: 114017027548857146}
   - component: {fileID: 114147911092589888}
   - component: {fileID: 114365725235418270}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Activate VFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -442,7 +441,7 @@ GameObject:
   - component: {fileID: 4151685253871140}
   - component: {fileID: 198448612126077788}
   - component: {fileID: 199052564117908840}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -478,8 +477,8 @@ GameObject:
   - component: {fileID: 4762435138135348}
   - component: {fileID: 114223934892903586}
   - component: {fileID: 114067497107831522}
-  m_Layer: 0
-  m_Name: Activation Widget
+  m_Layer: 5
+  m_Name: Activation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -895,17 +894,17 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1301944864670924}
   m_Mesh: {fileID: 4300000, guid: b02f5bb6013a56a4d9cccc269b87bbf3, type: 3}
---- !u!65 &65244837507317284
+--- !u!65 &65158696494696142
 BoxCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1266588103508466}
+  m_GameObject: {fileID: 1024727648454038}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.06, y: 0.06, z: 0.06}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!82 &82124910958683678
 AudioSource:
@@ -1262,10 +1261,6 @@ MonoBehaviour:
   VirtualColor: 0
   ColorMode: 0
   VisibilityMode: 0
-  FocusCollider: {fileID: 0}
-  BufferCollider: {fileID: 0}
-  AutoGenBufferCollider: 0
-  ShowIfFocusedWidget: {fileID: 0}
   Anchors: {fileID: 0}
   StartVisible: 0
   AutoDestroy: 0
@@ -1303,10 +1298,6 @@ MonoBehaviour:
   VirtualColor: 0
   ColorMode: 0
   VisibilityMode: 0
-  FocusCollider: {fileID: 0}
-  BufferCollider: {fileID: 0}
-  AutoGenBufferCollider: 0
-  ShowIfFocusedWidget: {fileID: 0}
   Anchors: {fileID: 0}
   StartVisible: 1
   AutoDestroy: 0
@@ -1403,10 +1394,6 @@ MonoBehaviour:
   VirtualColor: 0
   ColorMode: 0
   VisibilityMode: 0
-  FocusCollider: {fileID: 0}
-  BufferCollider: {fileID: 0}
-  AutoGenBufferCollider: 0
-  ShowIfFocusedWidget: {fileID: 0}
   Anchors: {fileID: 0}
   StartVisible: 1
   AutoDestroy: 0
@@ -1427,14 +1414,15 @@ MonoBehaviour:
   VirtualColor: 0
   ColorMode: 0
   VisibilityMode: 0
-  FocusCollider: {fileID: 65244837507317284}
-  BufferCollider: {fileID: 0}
-  AutoGenBufferCollider: 1
-  ShowIfFocusedWidget: {fileID: 0}
   Anchors: {fileID: 114710997407359356}
   StartVisible: 1
   AutoDestroy: 0
   IsHighlighted: 0
+  _FocusCollider: {fileID: 65158696494696142}
+  _BufferCollider: {fileID: 0}
+  AutoGenBufferCollider: 1
+  ShowIfFocusedWidget: {fileID: 114223934892903586}
+  EnableIfFocusedGameObject: {fileID: 0}
   ShowIfHighlightedWidget: {fileID: 0}
   AimFeedbackWidget: {fileID: 114517216487231708}
   AimFeedbackWidgetScaleMin: 0.4
@@ -1472,7 +1460,6 @@ MonoBehaviour:
   SteadinessTransform: {fileID: 224178359406873816}
   SteadinessRotation: -180
   ActivationImage: {fileID: 0}
-  FocusedAudioSource: {fileID: 0}
   FillDecay:
     serializedVersion: 2
     m_Curve:
@@ -1541,10 +1528,6 @@ MonoBehaviour:
   VirtualColor: 0
   ColorMode: 0
   VisibilityMode: 0
-  FocusCollider: {fileID: 0}
-  BufferCollider: {fileID: 0}
-  AutoGenBufferCollider: 0
-  ShowIfFocusedWidget: {fileID: 0}
   Anchors: {fileID: 0}
   StartVisible: 1
   AutoDestroy: 0
@@ -1662,18 +1645,6 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!135 &135719134355413626
-SphereCollider:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1266588103508466}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!198 &198448612126077788
 ParticleSystem:
   m_ObjectHideFlags: 1

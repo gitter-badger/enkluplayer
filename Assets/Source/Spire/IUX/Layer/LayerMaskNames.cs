@@ -5,6 +5,6 @@
     /// </summary>
     public static class LayerMaskNames
     {
-        public const string UI = "ui";
+        public const string UI = "UI";
     }
 }

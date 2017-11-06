@@ -32,6 +32,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Display text
         /// </summary>
+        [Header("Button")]
         public Caption Caption;
 
         /// <summary>
@@ -48,12 +49,7 @@ namespace CreateAR.SpirePlayer
         /// Fills with activation percentage
         /// </summary>
         public Image ActivationImage;
-
-        /// <summary>
-        /// Activates when the button is focused
-        /// </summary>
-        public AudioSource FocusedAudioSource;
-
+        
         /// <summary>
         /// Fill Rate Multiplier
         /// </summary>
@@ -141,17 +137,10 @@ namespace CreateAR.SpirePlayer
 
             var deltaTime = Time.deltaTime;
 
-            UpdateColliders();
-
             _states.Update(deltaTime);
 
             UpdateActivation();
-
-            if (FocusedAudioSource != null)
-            {
-                FocusedAudioSource.gameObject.SetActive(IsFocused);
-            }
-
+            
             if (float.IsInfinity(_activation)
              || float.IsNaN(_activation))
             {
@@ -191,28 +180,6 @@ namespace CreateAR.SpirePlayer
                 var focusTween = ShowIfFocusedWidget != null ? ShowIfFocusedWidget.Tween : 1.0f;
                 SteadinessTransform.localRotation = Quaternion.Euler(0, 0, _steadinessThetaDegress);
                 SteadinessTransform.localScale = Vector3.one * focusTween;
-            }
-        }
-
-        /// <summary>
-        /// Updates the colliders
-        /// </summary>
-        private void UpdateColliders()
-        {
-            if (FocusCollider == null)
-            {
-                return;
-            }
-
-            FocusCollider.enabled
-                = IsInteractable
-                  && IsVisible
-                  && Tween > 0.99f;
-
-            if (BufferCollider != null)
-            {
-                BufferCollider.enabled
-                    = FocusCollider.enabled;
             }
         }
         

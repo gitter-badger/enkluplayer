@@ -29,7 +29,12 @@ namespace CreateAR.SpirePlayer
         /// Current sample index.
         /// </summary>
         private int _angularVelocityDegreesSampleIndex;
-        
+
+        /// <summary>
+        /// Widget which is currently focused
+        /// </summary>
+        private IFocusable _focusWidget;
+
         /// <summary>
         /// For aiming with a hand.
         /// </summary>
@@ -53,7 +58,27 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Current focus.
         /// </summary>
-        public IFocusable Focus { get; private set; }
+        public IFocusable Focus
+        {
+            get { return _focusWidget; }
+            set
+            {
+                if (_focusWidget != value)
+                {
+                    if (_focusWidget != null)
+                    {
+                        _focusWidget.IsFocused = false;
+                    }
+
+                    _focusWidget = value;
+
+                    if (_focusWidget != null)
+                    {
+                        _focusWidget.IsFocused = true;
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Forward direction.

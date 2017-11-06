@@ -13,6 +13,11 @@ namespace CreateAR.SpirePlayer
         bool IsVisible { get; }
 
         /// <summary>
+        /// True iff the object is visible.
+        /// </summary>
+        bool IsFocused { get; set; }
+
+        /// <summary>
         /// Collider for receiving focus.
         /// </summary>
         Collider FocusCollider { get; }
