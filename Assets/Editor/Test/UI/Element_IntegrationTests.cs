@@ -103,11 +103,26 @@ namespace CreateAR.SpirePlayer.Test.UI
         }
 
         [Test]
-        public void SchemaGraphUpdate()
+        public void SchemaGraphAddChildUpdate()
         {
             var element = _factory.Element(_data);
             var newElement = _factory.Element(_newElement);
             
+            var aa = element.Children[0];
+            aa.AddChild(newElement);
+
+            Log(element);
+
+            Assert.AreEqual(FUZZ, newElement.Schema.Get<int>("fuzz").Value);
+            Assert.AreEqual(FOO, newElement.Schema.Get<int>("foo").Value);
+        }
+
+        [Test]
+        public void SchemaGraphRemoveChildUpdate()
+        {
+            var element = _factory.Element(_data);
+            var newElement = _factory.Element(_newElement);
+
             var aa = element.Children[0];
             aa.AddChild(newElement);
 
