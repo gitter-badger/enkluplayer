@@ -29,9 +29,46 @@ namespace CreateAR.SpirePlayer.UI
     public class ElementSchemaProp<T> : ElementSchemaProp
     {
         /// <summary>
+        /// Parent prop.
+        /// </summary>
+        private ElementSchemaProp<T> _parent;
+
+        /// <summary>
+        /// Backing variable for <c>Value</c> property.
+        /// </summary>
+        private T _value;
+
+        /// <summary>
         /// The value of the prop.
         /// </summary>
-        public T Value { get; internal set; }
+        public T Value
+        {
+            get
+            {
+                return _value;
+            }
+            set
+            {
+                // break connection
+                if (null != _parent)
+                {
+                    _parent.OnChanged -= Parent_OnChanged;
+                }
+
+                var prev = _value;
+                _value = value;
+
+                if (null != OnChanged)
+                {
+                    OnChanged(this, prev, _value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when the element has been changed.
+        /// </summary>
+        public event Action<ElementSchemaProp<T>, T, T> OnChanged;
 
         /// <summary>
         /// Constructor.
@@ -40,7 +77,42 @@ namespace CreateAR.SpirePlayer.UI
         internal ElementSchemaProp(T value)
             : base(typeof(T))
         {
-            Value = value;
+            _value = value;
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="parent">Parent prop, if any.</param>
+        internal ElementSchemaProp(ElementSchemaProp<T> parent)
+            : base(typeof(T))
+        {
+            _parent = parent;
+            _value = _parent.Value;
+
+            if (null != _parent)
+            {
+                _parent.OnChanged += Parent_OnChanged;
+            }
+        }
+
+        /// <summary>
+        /// Called when the parent value has changed.
+        /// </summary>
+        /// <param name="parent">Parent prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Parent_OnChanged(
+            ElementSchemaProp<T> parent,
+            T prev,
+            T next)
+        {
+            _value = next;
+
+            if (null != OnChanged)
+            {
+                OnChanged(this, prev, next);
+            }
         }
     }
 }

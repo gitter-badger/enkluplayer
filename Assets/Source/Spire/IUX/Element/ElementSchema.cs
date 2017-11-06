@@ -138,11 +138,15 @@ namespace CreateAR.SpirePlayer.UI
             var index = _names.IndexOf(name);
             if (-1 == index)
             {
-                // get value from parent
-                var value = null == _parent
-                    ? default(T)
-                    : _parent.Get<T>(name).Value;
-                prop = new ElementSchemaProp<T>(value);
+                // check parent
+                if (null == _parent)
+                {
+                    prop = new ElementSchemaProp<T>(default(T));
+                }
+                else
+                {
+                    prop = new ElementSchemaProp<T>(_parent.Get<T>(name));
+                }
 
                 _names.Add(name);
                 _props.Add(prop);
@@ -152,6 +156,7 @@ namespace CreateAR.SpirePlayer.UI
                 prop = _props[index];
             }
 
+            // TODO: Memory leak: prop may be added to list but not used.
             var type = typeof(T);
             if (type == prop.Type)
             {
