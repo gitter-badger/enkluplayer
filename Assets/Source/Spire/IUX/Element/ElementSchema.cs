@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace CreateAR.SpirePlayer.UI
 {
@@ -22,6 +23,24 @@ namespace CreateAR.SpirePlayer.UI
         /// Parent schema.
         /// </summary>
         private ElementSchema _parent;
+
+        /// <summary>
+        /// Useful ToString.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            builder.Append("{");
+            for (int i = 0, len = _props.Count; i < len; i++)
+            {
+                var prop = _props[i];
+                builder.Append(string.Format(" {0} ", prop.Name));
+            }
+            builder.Append("}");
+
+            return builder.ToString();
+        }
 
         /// <summary>
         /// Loads data, which contains all properties.

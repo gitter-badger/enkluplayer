@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using CreateAR.SpirePlayer.UI;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Test.UI
 {
@@ -105,12 +107,38 @@ namespace CreateAR.SpirePlayer.Test.UI
         {
             var element = _factory.Element(_data);
             var newElement = _factory.Element(_newElement);
-
+            
             var aa = element.Children[0];
             aa.AddChild(newElement);
 
+            Log(element);
+
+            Assert.AreEqual(FUZZ, newElement.Schema.Get<int>("fuzz").Value);
             Assert.AreEqual(FOO, newElement.Schema.Get<int>("foo").Value);
-            Assert.AreEqual(FUZZ, newElement.Schema.Get<int>("buzz").Value);
+        }
+
+        private void Log(Element element)
+        {
+            var builder = new StringBuilder();
+            Append(builder, element);
+
+            Debug.Log(builder);
+        }
+
+        private void Append(StringBuilder builder, Element element, int tabs = 0)
+        {
+            for (var i = 0; i < tabs; i++)
+            {
+                builder.Append("\t");
+            }
+
+            builder.AppendFormat("{0}\n", element);
+
+            var children = element.Children;
+            for (int i = 0, len = children.Length; i < len; i++)
+            {
+                Append(builder, children[i], tabs + 1);
+            }
         }
     }
 }

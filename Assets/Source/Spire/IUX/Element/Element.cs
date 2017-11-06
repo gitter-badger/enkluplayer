@@ -63,6 +63,18 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
+        /// Useful ToString;
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format(
+                "[Element Id={0}, Schema={1}]",
+                Id,
+                Schema);
+        }
+
+        /// <summary>
         /// Prepares an element for use.
         /// </summary>
         /// <param name="data">Associated saved data.</param>
@@ -76,6 +88,12 @@ namespace CreateAR.SpirePlayer.UI
             Guid = System.Guid.NewGuid().ToString();
             Id = data.Id;
             Schema = schema;
+
+            // child schemas wrap parent
+            for (int i = 0, len = children.Length; i < len; i++)
+            {
+                children[i].Schema.Wrap(Schema);
+            }
 
             _children.AddRange(children);
 
