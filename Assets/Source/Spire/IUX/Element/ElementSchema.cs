@@ -107,6 +107,16 @@ namespace CreateAR.SpirePlayer.UI
         {
             _parent = schema;
 
+            if (null == schema)
+            {
+                for (int i = 0, ilen = _props.Count; i < ilen; i++)
+                {
+                    _props[i].Reparent(null);
+                }
+
+                return;
+            }
+
             var parentProps = schema._props;
             for (int i = 0, ilen = _props.Count; i < ilen; i++)
             {

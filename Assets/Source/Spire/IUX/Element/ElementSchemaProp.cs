@@ -118,11 +118,13 @@ namespace CreateAR.SpirePlayer.UI
         /// <inheritdoc cref="ElementSchemaProp"/>
         internal sealed override void Reparent(ElementSchemaProp parent)
         {
+            // the parent-link has been broken
             if (_linkBroken)
             {
                 return;
             }
 
+            // parent link is alive! swap parent!
             if (null != _parent)
             {
                 _parent.OnChanged -= Parent_OnChanged;
@@ -134,6 +136,11 @@ namespace CreateAR.SpirePlayer.UI
             {
                 _value = _parent.Value;
                 _parent.OnChanged += Parent_OnChanged;
+            }
+            // when set to null
+            else
+            {
+                _value = default(T);
             }
         }
 

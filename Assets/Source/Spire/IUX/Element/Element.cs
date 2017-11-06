@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace CreateAR.SpirePlayer.UI
 {
@@ -72,6 +73,19 @@ namespace CreateAR.SpirePlayer.UI
                 "[Element Id={0}, Schema={1}]",
                 Id,
                 Schema);
+        }
+
+        /// <summary>
+        /// Outputs a string of the entire graph.
+        /// </summary>
+        /// <returns></returns>
+        public string ToTreeString()
+        {
+            var builder = new StringBuilder();
+
+            Append(builder, this);
+
+            return builder.ToString();
         }
 
         /// <summary>
@@ -165,6 +179,9 @@ namespace CreateAR.SpirePlayer.UI
                 element.OnChildAdded -= Child_OnChildAdded;
                 element.OnChildRemoved -= Child_OnChildRemoved;
 
+                // unwrap schema
+                element.Schema.Wrap(null);
+
                 if (null != element.OnRemoved)
                 {
                     element.OnRemoved(element);
@@ -218,6 +235,31 @@ namespace CreateAR.SpirePlayer.UI
             if (null != OnChildRemoved)
             {
                 OnChildRemoved(this, child);
+            }
+        }
+
+        /// <summary>
+        /// Recursive append method.
+        /// </summary>
+        /// <param name="builder">Constructs strings.</param>
+        /// <param name="element">The element at which to start.</param>
+        /// <param name="tabs">Indentation</param>
+        private void Append(
+            StringBuilder builder,
+            Element element,
+            int tabs = 0)
+        {
+            for (var i = 0; i < tabs; i++)
+            {
+                builder.Append("\t");
+            }
+
+            builder.AppendFormat("{0}\n", element);
+
+            var children = element.Children;
+            for (int i = 0, len = children.Length; i < len; i++)
+            {
+                Append(builder, children[i], tabs + 1);
             }
         }
     }
