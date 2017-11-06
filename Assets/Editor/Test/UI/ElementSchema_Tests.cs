@@ -167,7 +167,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         }
         
         [Test]
-        public void WrapMulti()
+        public void WrapReparent()
         {
             var prop = _schema.Get<int>("foo");
 

@@ -4,10 +4,10 @@ namespace CreateAR.SpirePlayer.Test
 {
     public class DummyContentFactory : IContentFactory
     {
-        public Content Instance(IContentManager content, ContentData data)
+        public SpirePlayer.Content Instance(IContentManager content, ContentData data)
         {
             var go = new GameObject();
-            var comp = go.AddComponent<Content>();
+            var comp = go.AddComponent<SpirePlayer.Content>();
             comp.Setup(
                 new DummyAssetManager(),
                 new DummyScriptManager(),

@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.SpirePlayer.Test.Content
 {
     [TestFixture]
     public class ContentGraph_Tests
