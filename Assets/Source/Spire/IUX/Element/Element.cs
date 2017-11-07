@@ -247,6 +247,10 @@ namespace CreateAR.SpirePlayer.UI
 
                     // create query
                     var elementQuery = new ElementQuery(recursiveQueryString);
+                    if (!elementQuery.IsValid)
+                    {
+                        return new List<Element>();
+                    }
 
                     // execute query on each of the current nodes
                     var results = new List<Element>();
@@ -275,6 +279,10 @@ namespace CreateAR.SpirePlayer.UI
 
                     // create query
                     var elementQuery = new ElementQuery(shallowQueryString);
+                    if (!elementQuery.IsValid)
+                    {
+                        return new List<Element>();
+                    }
 
                     // execute query on each of the current nodes
                     var results = new List<Element>();

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using CreateAR.SpirePlayer.UI;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Test.UI
 {
@@ -42,9 +43,21 @@ namespace CreateAR.SpirePlayer.Test.UI
             var elements = new List<ElementData>();
             for (int i = 0, len = _letters.Length; i < len; i++)
             {
+                var id = _letters[i].ToString();
                 elements.Add(new ElementData
                 {
-                    Id = _letters[i].ToString()
+                    Id = id,
+                    Schema = new ElementSchemaData
+                    {
+                        Ints = new Dictionary<string, int>
+                        {
+                            { "Foo", i }
+                        },
+                        Strings = new Dictionary<string, string>
+                        {
+                            { "Letter", id }
+                        }
+                    }
                 });
             }
 
@@ -104,6 +117,22 @@ namespace CreateAR.SpirePlayer.Test.UI
         {
             Assert.AreEqual("f", _element.FindOne("a..c..f").Id);
             Assert.IsNull(_element.FindOne("a..c..a"));
+        }
+
+        [Test]
+        public void FindOnePropString()
+        {
+            Assert.AreEqual("f", _element.FindOne("..(@Letter=f)").Id);
+            Assert.IsNull(_element.FindOne("..(@Letter=zebra)"));
+        }
+
+        [Test]
+        public void FindOnePropInt()
+        {
+            Debug.Log(_element.ToTreeString());
+
+            Assert.AreEqual("d", _element.FindOne("..(@Foo=3)").Id);
+            Assert.IsNull(_element.FindOne("..(@Foo=34)"));
         }
     }
 }

@@ -10,12 +10,12 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Regex for name matches.
         /// </summary>
-        private static readonly Regex NAME_QUERY = new Regex(@"(\w+)");
+        private static readonly Regex NAME_QUERY = new Regex(@"^(\w+)$");
 
         /// <summary>
         /// Regex for property matches.
         /// </summary>
-        private static readonly Regex PROPERTY_QUERY = new Regex(@"\((@|(@@))([\w]+)\s*(([<>]=?)|==)\s*([\w]+)\)((\[(\d)?:(\d)?\])|$)");
+        private static readonly Regex PROPERTY_QUERY = new Regex(@"^\(@(\w+)=(\w+)\)$");
 
         /// <summary>
         /// Property to look for.
@@ -43,9 +43,9 @@ namespace CreateAR.SpirePlayer.UI
         private int _endIndex;
 
         /// <summary>
-        /// True iff valid query.
+        /// True iff this is a valid query.
         /// </summary>
-        private bool _isValid;
+        public bool IsValid { get; private set; }
 
         /// <summary>
         /// Creates a new query.
@@ -63,21 +63,29 @@ namespace CreateAR.SpirePlayer.UI
         /// <returns></returns>
         public bool Execute(Element element)
         {
-            switch (_operator)
+            if (_propName == "id")
             {
-                case "==":
-                {
-                    if (_propName == "id")
-                    {
-                        return element.Id == _propValue;
-                    }
-
-                    var prop = element.Schema.Get<string>(_propName);
-                    return prop.Value == _propValue;
-                }
+                return element.Id == _propValue;
             }
 
-            return false;
+            // cast
+
+            // bool
+            if (_propValue == "true" || _propValue == "false")
+            {
+                var boolValue = _propValue == "true";
+                return boolValue == element.Schema.Get<bool>(_propName).Value;
+            }
+
+            // int
+            int intValue;
+            if (int.TryParse(_propValue, out intValue))
+            {
+                return intValue == element.Schema.Get<int>(_propName).Value;
+            }
+
+            // string
+            return _propValue == element.Schema.Get<string>(_propName).Value;
         }
 
         /// <summary>
@@ -95,32 +103,18 @@ namespace CreateAR.SpirePlayer.UI
                 _startIndex = 0;
                 _endIndex = 0;
 
-                _isValid = true;
+                IsValid = true;
             }
             else
             {
                 match = PROPERTY_QUERY.Match(value);
                 if (match.Success)
                 {
-                    _propName = match.Groups[3].Value;
-                    _operator = match.Groups[4].Value;
-                    _propValue = match.Groups[6].Value;
-
-                    if (!int.TryParse(match.Groups[9].Value, out _startIndex))
-                    {
-                        _isValid = false;
-
-                        return;
-                    }
-
-                    if (!int.TryParse(match.Groups[10].Value, out _endIndex))
-                    {
-                        _isValid = false;
-
-                        return;
-                    }
-
-                    _isValid = true;
+                    _propName = match.Groups[1].Value;
+                    _operator = "==";
+                    _propValue = match.Groups[2].Value;
+                    
+                    IsValid = true;
                 }
             }
         }

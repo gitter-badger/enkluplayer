@@ -169,13 +169,13 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void WrapReparent()
         {
-            var prop = _schema.Get<int>("foo");
+            var prop = _schema.Get<int>("bar");
 
             var a = new ElementSchema();
-            a.Set("foo", 15);
+            a.Set("bar", 15);
 
             var b = new ElementSchema();
-            b.Set("foo", 43);
+            b.Set("bar", 43);
 
             _schema.Wrap(a);
             Assert.AreEqual(15, prop.Value);
