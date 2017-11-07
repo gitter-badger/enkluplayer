@@ -3,7 +3,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.SpirePlayer.Test.Assets
 {
     [TestFixture]
     public class Asset_Tests

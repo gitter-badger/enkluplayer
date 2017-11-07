@@ -18,10 +18,6 @@ namespace CreateAR.SpirePlayer.UI
         /// <returns></returns>
         private Element Element(ElementData data)
         {
-            // create element from data
-            var element = new Element();
-            var schema = new ElementSchema();
-
             // children first
             var childData = data.Children;
             var childDataLen = childData.Length;
@@ -32,6 +28,8 @@ namespace CreateAR.SpirePlayer.UI
             }
 
             // element
+            var element = new Element();
+            var schema = new ElementSchema();
             schema.Load(data.Schema);
             element.Load(data, schema, children);
 

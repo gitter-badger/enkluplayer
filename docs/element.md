@@ -80,7 +80,75 @@ var val = _greatgrandchild.Get<int>("foo");	// 12
 val = _root.Get<int>("foo");				// 5
 ```
 
+A property value may also be set directly on the property object.
+
+```csharp
+var prop = element.Get<int>("foo");
+prop.Value = 12; // same as element.Set("foo", 12);
+```
+
 ### Events
+
+##### Schema Update Events
+
+As discussed, queries against schema search _up_ the graph. That is, if an element doesn't have a property, it searches up the graph. Changes to these values are propagated _down_ the graph. This happens through `OnChanged` events.
+
+```csharp
+// listen for changes
+var foo = element.Get<int>("foo");
+foo.OnChanged += (prop, prev, next) => {
+  // prop == foo
+  // prev == previous value
+  // next == next value
+};
+```
+
+`OnChanged` events will be fired if a schema up the graph has changed.
+
+```csharp
+var root = ...;
+root.Set("foo", 5);
+
+var decendant = ...;
+var foo = decendant.Get<int>("foo");	// decendant has no "foo", gets it from root
+foo.OnChanged += (prop, prev, next) => {
+  ...
+};
+
+root.Set("foo", 12);	// foo.OnChanged is called
+```
+
+This property link, between parent and child, can be broken however.
+
+```csharp
+var root = ...;
+
+// root property
+var rootFoo = root.Get<int>("foo");
+rootFoo.Value = 5;
+
+// get a node from the graph
+var decendant = ...;
+var decendantFoo = decendant.Schema.Get<int>("foo");
+
+// decendantFoo.Value == 5
+// rootFoo.Value == 5
+
+// setting the root "foo" will propagate down to the decendant
+root.Schema.Set("foo", 12);
+
+// decendantFoo.Value == 12
+// rootFoo.Value == 12
+
+// setting the value on a decendant breaks this connection
+decendantFoo.Value = 43;
+
+// rootFoo.Value == 12
+// decendantFoo.Value == 43
+
+```
+
+##### Element Events
 
 Adding children dynamically is possible and will fire associated events up the graph.
 
@@ -91,3 +159,13 @@ _root.OnChildAdded += (root, child) => {
 
 _greatgrandchild.AddChild(_factory.Element(description));
 ```
+Removing children will do the same.
+
+```csharp
+_root.OnChildRemoved += (root, child) => {
+  ...
+}
+
+_root.RemoveChild(_greatgrandchild);
+```
+

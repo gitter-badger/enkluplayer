@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.SpirePlayer.Test.Assets
 {
     [TestFixture]
     public class AssetManifest_Tests
