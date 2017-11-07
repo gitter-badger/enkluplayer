@@ -10,6 +10,47 @@ namespace CreateAR.SpirePlayer.Test.UI
     {
         private ElementFactory _elements;
 
+        private static readonly char[] _letters = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+
+        private ElementRef GenerateRefs(int index)
+        {
+            var children = index == _letters.Length - 1
+                ? new ElementRef[0]
+                : new[] { GenerateRefs(index + 1) };
+
+            return new ElementRef
+            {
+                Id = _letters[index].ToString(),
+                Children = children
+            };
+        }
+
+        private List<ElementData> GenerateElements()
+        {
+            var elements = new List<ElementData>();
+            for (int i = 0, len = _letters.Length; i < len; i++)
+            {
+                var id = _letters[i].ToString();
+                elements.Add(new ElementData
+                {
+                    Id = id,
+                    Schema = new ElementSchemaData
+                    {
+                        Ints = new Dictionary<string, int>
+                        {
+                            { "Foo", i }
+                        },
+                        Strings = new Dictionary<string, string>
+                        {
+                            { "Letter", id }
+                        }
+                    }
+                });
+            }
+
+            return elements;
+        }
+
         [SetUp]
         public void Setup()
         {
@@ -359,6 +400,25 @@ namespace CreateAR.SpirePlayer.Test.UI
             });
 
             Assert.AreEqual(6, element.Schema.Get<int>("foo").Value);
+        }
+
+        [Test]
+        public void GenerateAZ()
+        {
+            var description = new ElementDescription
+            {
+                Elements = GenerateElements().ToArray(),
+                Root = GenerateRefs(0)
+            };
+
+            var element = _elements.Element(description);
+
+            Assert.AreEqual("a", element.Id);
+            Assert.AreEqual("c", element.Children[0].Children[0].Id);
+
+            Assert.AreEqual(
+                "c",
+                element.Children[0].Children[0].Schema.Get<string>("Letter").Value);
         }
     }
 }

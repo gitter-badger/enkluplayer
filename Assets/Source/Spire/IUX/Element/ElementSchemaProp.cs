@@ -92,14 +92,25 @@ namespace CreateAR.SpirePlayer.UI
         public event Action<ElementSchemaProp<T>, T, T> OnChanged;
 
         /// <summary>
+        /// Useful ToString.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return _value.ToString();
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="name">Name.</param>
         /// <param name="value">Value.</param>
-        internal ElementSchemaProp(string name, T value)
+        /// <param name="allowInherit">If true, allows inherit from parents.</param>
+        internal ElementSchemaProp(string name, T value, bool allowInherit)
             : base(name, typeof(T))
         {
             _value = value;
+            _linkBroken = !allowInherit;
         }
 
         /// <summary>

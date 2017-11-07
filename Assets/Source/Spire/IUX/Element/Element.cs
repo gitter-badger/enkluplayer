@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CreateAR.SpirePlayer.UI
@@ -197,6 +198,119 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
+        /// Finds a single element.
+        /// </summary>
+        /// <param name="query">Query.</param>
+        /// <returns></returns>
+        public Element FindOne(string query)
+        {
+            return Find(query).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Queries for a set of elements.
+        /// </summary>
+        /// <param name="query">The query in question.</param>
+        public List<Element> Find(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return new List<Element>();
+            }
+
+            // split at recursive queries
+            var current = new List<Element>{ this };
+            var recur = false;
+            if (query.StartsWith(".."))
+            {
+                recur = true;
+
+                query = query.Substring(2);
+            }
+
+            var recursiveQueries = query.Split(
+                new[] { ".." },
+                StringSplitOptions.None).ToList();
+            
+            for (int i = 0, len = recursiveQueries.Count; i < len; i++)
+            {
+                var recursiveQuery = recursiveQueries[i];
+                
+                // split into shallow queries
+                var shallowQueries = recursiveQuery.Split('.').ToList();
+
+                // recursive queries
+                if (recur)
+                {
+                    var recursiveQueryString = shallowQueries[0];
+                    shallowQueries.RemoveAt(0);
+
+                    // create query
+                    var elementQuery = new ElementQuery(recursiveQueryString);
+                    if (!elementQuery.IsValid)
+                    {
+                        return new List<Element>();
+                    }
+
+                    // execute query on each of the current nodes
+                    var results = new List<Element>();
+                    for (int j = 0, jlen = current.Count; j < jlen; j++)
+                    {
+                        ExecuteQueryRecursive(
+                            current[j],
+                            elementQuery,
+                            results);
+                    }
+
+                    if (0 != results.Count)
+                    {
+                        current = results;
+                    }
+                    else
+                    {
+                        return new List<Element>();
+                    }
+                }
+
+                // perform shallow searches
+                for (int k = 0, klen = shallowQueries.Count; k < klen; k++)
+                {
+                    var shallowQueryString = shallowQueries[k];
+
+                    // create query
+                    var elementQuery = new ElementQuery(shallowQueryString);
+                    if (!elementQuery.IsValid)
+                    {
+                        return new List<Element>();
+                    }
+
+                    // execute query on each of the current nodes
+                    var results = new List<Element>();
+                    for (int l = 0, llen = current.Count; l < llen; l++)
+                    {
+                        ExecuteQuery(
+                            current[l],
+                            elementQuery,
+                            results);
+                    }
+
+                    if (0 != results.Count)
+                    {
+                        current = results;
+                    }
+                    else
+                    {
+                        return new List<Element>();
+                    }
+                }
+
+                recur = true;
+            }
+
+            return current;
+        }
+
+        /// <summary>
         /// For base classes to override.
         /// </summary>
         protected virtual void LoadInternal()
@@ -210,6 +324,53 @@ namespace CreateAR.SpirePlayer.UI
         protected virtual void UnloadInternal()
         {
 
+        }
+
+        /// <summary>
+        /// Executes a query on an element.
+        /// </summary>
+        /// <param name="element">Element in question.</param>
+        /// <param name="query">The query object.</param>
+        /// <param name="results">Results of the query.</param>
+        private void ExecuteQuery(Element element, ElementQuery query, List<Element> results)
+        {
+            // test self
+            if (query.Execute(element))
+            {
+                results.Add(element);
+            }
+
+            // test children
+            var children = element._children;
+            for (int i = 0, len = children.Count; i < len; i++)
+            {
+                var child = children[i];
+                if (query.Execute(child))
+                {
+                    results.Add(child);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Executes a query recursively.
+        /// </summary>
+        /// <param name="element">The element to search.</param>
+        /// <param name="query">Query object.</param>
+        /// <param name="results">Result list.</param>
+        private void ExecuteQueryRecursive(Element element, ElementQuery query, List<Element> results)
+        {
+            var children = element._children;
+            for (int i = 0, len = children.Count; i < len; i++)
+            {
+                var child = children[i];
+                if (query.Execute(child))
+                {
+                    results.Add(child);
+                }
+
+                ExecuteQueryRecursive(child, query, results);
+            }
         }
 
         /// <summary>

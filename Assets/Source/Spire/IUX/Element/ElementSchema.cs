@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -35,7 +34,9 @@ namespace CreateAR.SpirePlayer.UI
             for (int i = 0, len = _props.Count; i < len; i++)
             {
                 var prop = _props[i];
-                builder.Append(string.Format(" {0} ", prop.Name));
+                builder.Append(string.Format(" {0}={1} ",
+                    prop.Name,
+                    prop));
             }
             builder.Append("}");
 
@@ -54,7 +55,8 @@ namespace CreateAR.SpirePlayer.UI
                 {
                     _props.Add(new ElementSchemaProp<int>(
                         prop.Key,
-                        prop.Value));
+                        prop.Value,
+                        false));
                 }
             }
 
@@ -64,7 +66,8 @@ namespace CreateAR.SpirePlayer.UI
                 {
                     _props.Add(new ElementSchemaProp<float>(
                         prop.Key,
-                        prop.Value));
+                        prop.Value,
+                        false));
                 }
             }
 
@@ -74,7 +77,8 @@ namespace CreateAR.SpirePlayer.UI
                 {
                     _props.Add(new ElementSchemaProp<bool>(
                         prop.Key,
-                        prop.Value));
+                        prop.Value,
+                        false));
                 }
             }
 
@@ -84,7 +88,8 @@ namespace CreateAR.SpirePlayer.UI
                 {
                     _props.Add(new ElementSchemaProp<string>(
                         prop.Key,
-                        prop.Value));
+                        prop.Value,
+                        false));
                 }
             }
 
@@ -94,7 +99,8 @@ namespace CreateAR.SpirePlayer.UI
                 {
                     _props.Add(new ElementSchemaProp<Vec3>(
                         prop.Key,
-                        prop.Value));
+                        prop.Value,
+                        false));
                 }
             }
         }
@@ -147,7 +153,7 @@ namespace CreateAR.SpirePlayer.UI
             var prop = Prop(name);
             if (null == prop)
             {
-                _props.Add(new ElementSchemaProp<T>(name, value));
+                _props.Add(new ElementSchemaProp<T>(name, value, false));
             }
             else
             {
@@ -175,7 +181,7 @@ namespace CreateAR.SpirePlayer.UI
                 // check parent
                 if (null == _parent)
                 {
-                    prop = new ElementSchemaProp<T>(name, default(T));
+                    prop = new ElementSchemaProp<T>(name, default(T), true);
                 }
                 else
                 {
@@ -215,7 +221,8 @@ namespace CreateAR.SpirePlayer.UI
 
             var defaultProp = new ElementSchemaProp<T>(
                 string.Empty,
-                default(T));
+                default(T),
+                false);
             _defaultValueProps.Add(defaultProp);
 
             return defaultProp;
