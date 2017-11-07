@@ -302,6 +302,28 @@ namespace CreateAR.SpirePlayer.UI
             return current;
         }
 
+        /// <summary>
+        /// For base classes to override.
+        /// </summary>
+        protected virtual void LoadInternal()
+        {
+            
+        }
+
+        /// <summary>
+        /// For base classes to override.
+        /// </summary>
+        protected virtual void UnloadInternal()
+        {
+
+        }
+
+        /// <summary>
+        /// Executes a query on an element.
+        /// </summary>
+        /// <param name="element">Element in question.</param>
+        /// <param name="query">The query object.</param>
+        /// <param name="results">Results of the query.</param>
         private void ExecuteQuery(Element element, ElementQuery query, List<Element> results)
         {
             // test self
@@ -322,6 +344,12 @@ namespace CreateAR.SpirePlayer.UI
             }
         }
 
+        /// <summary>
+        /// Executes a query recursively.
+        /// </summary>
+        /// <param name="element">The element to search.</param>
+        /// <param name="query">Query object.</param>
+        /// <param name="results">Result list.</param>
         private void ExecuteQueryRecursive(Element element, ElementQuery query, List<Element> results)
         {
             var children = element._children;
@@ -335,22 +363,6 @@ namespace CreateAR.SpirePlayer.UI
 
                 ExecuteQueryRecursive(child, query, results);
             }
-        }
-
-        /// <summary>
-        /// For base classes to override.
-        /// </summary>
-        protected virtual void LoadInternal()
-        {
-            
-        }
-
-        /// <summary>
-        /// For base classes to override.
-        /// </summary>
-        protected virtual void UnloadInternal()
-        {
-
         }
 
         /// <summary>
