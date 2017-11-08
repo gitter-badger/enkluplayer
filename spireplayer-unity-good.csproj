@@ -241,6 +241,7 @@
     <Compile Include="Assets\Source\Spire\IUX\Content\FloorAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IAnchorReferenceFrameFactory.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\IContentAssembler.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IContentFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IContentManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Locator.cs" />
@@ -510,6 +511,7 @@
     <None Include="Assets\Plugins\ThirdParty\WebSocket-Sharp\websocket-sharp.xml" />
     <None Include="Assets\Plugins\link.xml" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
 </Project>
