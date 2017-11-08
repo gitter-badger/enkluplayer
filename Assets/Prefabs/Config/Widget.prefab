@@ -65,12 +65,12 @@ MonoBehaviour:
       time: 0.79999995
       value: 2.506551
       inSlope: 1.8831888
-      outSlope: 2.9218197
-      tangentMode: 1
+      outSlope: 12.467242
+      tangentMode: 65
     - serializedVersion: 2
       time: 1
-      value: 4
-      inSlope: 7.467243
+      value: 5
+      inSlope: 12.467242
       outSlope: 0
       tangentMode: 5
     m_PreInfinity: 2

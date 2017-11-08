@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -152,6 +153,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [Inject]
         public TweenConfig Tweens { get; set; }
+
+        /// <summary>
+        /// Manages messages.
+        /// </summary>
+        [Inject]
+        public IMessageRouter Messages { get; set; }
 
         /// <summary>
         /// Controls local GameObject visibility, not parent.

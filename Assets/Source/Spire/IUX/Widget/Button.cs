@@ -49,6 +49,16 @@ namespace CreateAR.SpirePlayer
         /// Fills with activation percentage
         /// </summary>
         public Image ActivationImage;
+
+        /// <summary>
+        /// Shows/Hides w/ Focus
+        /// </summary>
+        public Widget ActivationWidget;
+
+        /// <summary>
+        /// Spawns the effect on activation
+        /// </summary>
+        public GameObject ActivationSpawnGameObject;
         
         /// <summary>
         /// Fill Rate Multiplier
@@ -177,7 +187,7 @@ namespace CreateAR.SpirePlayer
             {
                 var targetRotation = IsFocused ? SteadinessRotation * Intention.Steadiness : 0.0f;
                 _steadinessThetaDegress = Mathf.Lerp(_steadinessThetaDegress, targetRotation, deltaTime * STEADINESS_LERP_RATE_MAGIC_NUMBER);
-                var focusTween = ShowIfFocusedWidget != null ? ShowIfFocusedWidget.Tween : 1.0f;
+                var focusTween = ActivationWidget != null ? ActivationWidget.Tween : 1.0f;
                 SteadinessTransform.localRotation = Quaternion.Euler(0, 0, _steadinessThetaDegress);
                 SteadinessTransform.localScale = Vector3.one * focusTween;
             }

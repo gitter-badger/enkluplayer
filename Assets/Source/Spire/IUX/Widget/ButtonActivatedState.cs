@@ -34,9 +34,27 @@ namespace CreateAR.SpirePlayer
         public void Enter(object context)
         {
             InteractableWidget.OnRails = false;
-            _button.IsInteractionEnabled = false;
 
-            // TODO: Send button activation messages
+            _button.IsAimEnabled = false;
+
+            if (_button != null
+             && _button.ActivationSpawnGameObject != null)
+            {
+                var spawnGameObject 
+                    = UnityEngine
+                        .Object
+                        .Instantiate(_button.ActivationSpawnGameObject, 
+                        _button.transform.position,
+                        _button.transform.rotation);
+                spawnGameObject.SetActive(true);
+            }
+
+            var buttonActivateMessage = new ButtonActivateEvent()
+            {
+                // TODO: Add Data
+            };
+
+            _button.Messages.Publish(MessageTypes.BUTTON_ACTIVATE, buttonActivateMessage);
         }
 
         /// <summary>
@@ -56,8 +74,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Exit()
         {
+            _button.IsAimEnabled = true;
+
             _button.Activation = 0.0f;
-            _button.IsInteractionEnabled = true;
         }
     }
 }

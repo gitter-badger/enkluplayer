@@ -70,5 +70,12 @@
         public const int HIERARCHY_REMOVE = 4003;
         public const int HIERARCHY_UPDATE = 4004;
         public const int HIERARCHY_SELECT = 4005;
+
+        ///////////////////////////////////////////////////////////////////////
+        // User Interface
+        ///////////////////////////////////////////////////////////////////////
+        public const int WIDGET_FOCUS = 10100;
+        public const int WIDGET_UNFOCUS = 10101;
+        public const int BUTTON_ACTIVATE = 10102;
     }
 }

@@ -502,29 +502,26 @@ MonoBehaviour:
   VirtualColor: 0
   ColorMode: 0
   VisibilityMode: 0
-  FocusCollider: {fileID: 0}
-  BufferCollider: {fileID: 0}
-  AutoGenBufferCollider: 0
-  ShowIfFocusedWidget: {fileID: 0}
+  Anchors: {fileID: 0}
   StartVisible: 1
   AutoDestroy: 0
   DefaultFocalDistance: 3
-  AimTweenType: 0
-  GainFocusTween: 1
-  LostFocusTween: 2
+  AimTweenType: 1
+  GainFocusTween: 2
+  LostFocusTween: 3
   AimSpread:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 2
       time: 0
-      value: 0
+      value: 0.025
       inSlope: 1
-      outSlope: 0.29999924
+      outSlope: 0.125
       tangentMode: 65
     - serializedVersion: 2
       time: 1
-      value: 0.29999924
-      inSlope: 0.29999924
+      value: 0.15
+      inSlope: 0.125
       outSlope: 1
       tangentMode: 69
     m_PreInfinity: 2
@@ -620,10 +617,7 @@ MonoBehaviour:
   VirtualColor: 0
   ColorMode: 0
   VisibilityMode: 0
-  FocusCollider: {fileID: 0}
-  BufferCollider: {fileID: 0}
-  AutoGenBufferCollider: 0
-  ShowIfFocusedWidget: {fileID: 0}
+  Anchors: {fileID: 0}
   StartVisible: 1
   AutoDestroy: 0
 --- !u!114 &114357163730298842
@@ -643,10 +637,7 @@ MonoBehaviour:
   VirtualColor: 0
   ColorMode: 0
   VisibilityMode: 0
-  FocusCollider: {fileID: 0}
-  BufferCollider: {fileID: 0}
-  AutoGenBufferCollider: 0
-  ShowIfFocusedWidget: {fileID: 0}
+  Anchors: {fileID: 0}
   StartVisible: 1
   AutoDestroy: 0
 --- !u!114 &114410747575362270
@@ -700,10 +691,7 @@ MonoBehaviour:
   VirtualColor: 0
   ColorMode: 0
   VisibilityMode: 0
-  FocusCollider: {fileID: 0}
-  BufferCollider: {fileID: 0}
-  AutoGenBufferCollider: 0
-  ShowIfFocusedWidget: {fileID: 0}
+  Anchors: {fileID: 0}
   StartVisible: 1
   AutoDestroy: 0
 --- !u!114 &114724606256840780
@@ -723,10 +711,7 @@ MonoBehaviour:
   VirtualColor: 0
   ColorMode: 0
   VisibilityMode: 0
-  FocusCollider: {fileID: 0}
-  BufferCollider: {fileID: 0}
-  AutoGenBufferCollider: 0
-  ShowIfFocusedWidget: {fileID: 0}
+  Anchors: {fileID: 0}
   StartVisible: 1
   AutoDestroy: 0
 --- !u!114 &114746649682493808

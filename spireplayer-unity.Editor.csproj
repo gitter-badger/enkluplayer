@@ -177,8 +177,10 @@
     <Compile Include="Assets\Editor\Test\Content\DummyScriptManager.cs" />
     <Compile Include="Assets\Editor\Test\Data\FileManager_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Scripting\Vector3Js_Tests.cs" />
+    <Compile Include="Assets\Editor\Test\UI\Element_IntegrationTests.cs" />
     <Compile Include="Assets\Editor\Test\UI\Element_Tests.cs" />
     <Compile Include="Assets\Editor\Test\UI\ElementFactory_Tests.cs" />
+    <Compile Include="Assets\Editor\Test\UI\ElementQuery_Tests.cs" />
     <Compile Include="Assets\Editor\Test\UI\ElementSchema_Tests.cs" />
     <Compile Include="Assets\Editor\Test\Util\StandardQueryResolver_Tests.cs" />
     <Compile Include="Assets\Editor\Tools\ContextMenuHooks.cs" />

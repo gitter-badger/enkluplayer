@@ -33,7 +33,10 @@ namespace CreateAR.SpirePlayer
         /// <param name="context"></param>
         public void Enter(object context)
         {
-            
+            if (_button.ActivationWidget != null)
+            {
+                _button.ActivationWidget.LocalVisible = true;
+            }
         }
 
         /// <summary>
@@ -70,7 +73,7 @@ namespace CreateAR.SpirePlayer
             if (activation > 1.0f
                 || Mathf.Approximately(activation, 1.0f))
             { 
-                _button.Activation = 1.0f;
+                _button.Activation = 0.0f;
 
                 OnTransition(typeof(ButtonActivatedState));
             }
@@ -85,7 +88,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Exit()
         {
-
+            if (_button.ActivationWidget != null)
+            {
+                _button.ActivationWidget.LocalVisible = false;
+            }
         }
     }
 }

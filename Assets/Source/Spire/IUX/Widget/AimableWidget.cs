@@ -13,6 +13,11 @@ namespace CreateAR.SpirePlayer
         private float _aim;
 
         /// <summary>
+        /// True if aim is enabled
+        /// </summary>
+        private bool _isAimEnabled = true;
+
+        /// <summary>
         /// Displayed when aiming at the button.
         /// </summary>
         [Header("Aim")]
@@ -34,6 +39,15 @@ namespace CreateAR.SpirePlayer
         public Gradient AimFeedbackWidgetColor;
 
         /// <summary>
+        /// True if aim is enabled
+        /// </summary>
+        public bool IsAimEnabled
+        {
+            get { return _isAimEnabled; }
+            set { _isAimEnabled = value; }
+        }
+
+        /// <summary>
         /// Aim percentage.
         /// </summary>
         public float Aim
@@ -50,7 +64,8 @@ namespace CreateAR.SpirePlayer
             base.Update();
 
             if (!IsFocused
-             || !IsInteractable)
+             || !IsInteractable
+             || !IsAimEnabled)
             {
                 _aim = 0.0f;
             }

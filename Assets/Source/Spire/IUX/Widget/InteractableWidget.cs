@@ -128,7 +128,7 @@ namespace CreateAR.SpirePlayer
                         size.x * scale.x,
                         size.y * scale.y,
                         size.z * scale.z);
-                    radius = (scaledSize.x + scaledSize.y + scaledSize.z) / 3f;
+                    radius = 0.5f * (scaledSize.x + scaledSize.y + scaledSize.z) / 3f;
                 }
 
                 return radius;
@@ -153,6 +153,15 @@ namespace CreateAR.SpirePlayer
                     if (ShowIfFocusedWidget != null)
                     {
                         ShowIfFocusedWidget.LocalVisible = _isFocused;
+                    }
+
+                    if (_isFocused)
+                    {
+                        Messages.Publish(MessageTypes.WIDGET_FOCUS, new WidgetFocusEvent());
+                    }
+                    else
+                    {
+                        Messages.Publish(MessageTypes.WIDGET_UNFOCUS, new WidgetUnfocusEvent());
                     }
                 }
             }

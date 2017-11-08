@@ -301,10 +301,9 @@ namespace CreateAR.SpirePlayer
                 _aim = aimableWidget.Aim;
             }
 
-            const float ACTIVATOR_SCALE_FACTOR = 0.138f;
             var buttonScale
                 = (aimableWidget != null)
-                    ? aimableWidget.transform.lossyScale.x / ACTIVATOR_SCALE_FACTOR
+                    ? aimableWidget.transform.lossyScale.x
                     : 1.0f;
             if (float.IsNaN(buttonScale)
              || float.IsInfinity(buttonScale))
@@ -404,19 +403,19 @@ namespace CreateAR.SpirePlayer
                             0.0f);
 
                     point
-                            .transform
-                            .localPosition
+                        .transform
+                        .localPosition
                         = pointLocalPosition;
 
                     point
-                            .transform
-                            .localScale
+                        .transform
+                        .localScale
                         = Vector3.one
                           * _scale;
 
                     point
-                            .transform
-                            .localRotation
+                        .transform
+                        .localRotation
                         = Quaternion.AngleAxis(Mathf.Rad2Deg * -theta, Vector3.forward);
                 }
             }
