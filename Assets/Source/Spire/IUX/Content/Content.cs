@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -107,7 +108,8 @@ namespace CreateAR.SpirePlayer
             _assembler = new ModelContentAssembler(
                 assets,
                 pools);
-            _assembler.Initialize(this);
+            
+            _assembler.OnSetupComplete += Assembler_OnSetupComplete;
             
             _host = new UnityScriptingHost(
                 this,
@@ -116,7 +118,7 @@ namespace CreateAR.SpirePlayer
             
             UpdateData(data);
         }
-
+        
         /// <summary>
         /// Destroys this instance. Should not be called directly, but through
         /// <c>IContentManager</c> Release flow.
@@ -295,6 +297,19 @@ namespace CreateAR.SpirePlayer
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Called when the assembler has completed seting up the asset.
+        /// </summary>
+        private void Assembler_OnSetupComplete(GameObject instance)
+        {
+            // parent + orient
+            instance.name = Data.Asset.AssetDataId;
+            instance.transform.SetParent(transform, false);
+            instance.SetActive(true);
+
+            _onAssetLoaded.Succeed(this);
         }
     }
 }

@@ -7,11 +7,8 @@ namespace CreateAR.SpirePlayer
 {
     public interface IContentAssembler
     {
-        event Action OnSetupComplete;
-        event Action OnTeardownComplete;
-
-        void Initialize(Content content);
-
+        event Action<GameObject> OnSetupComplete;
+        
         void Setup(ContentData data);
         void Teardown();
     }
@@ -42,20 +39,17 @@ namespace CreateAR.SpirePlayer
         /// An action to unsubscribe from <c>Asset</c> updates.
         /// </summary>
         private Action _unwatch;
-
-        /// <summary>
-        /// Content.
-        /// </summary>
-        private Content _content;
-
+        
         /// <summary>
         /// Data.
         /// </summary>
         private ContentData _data;
 
-        public event Action OnSetupComplete;
-        public event Action OnTeardownComplete;
-
+        /// <summary>
+        /// Called when asset is setup.
+        /// </summary>
+        public event Action<GameObject> OnSetupComplete;
+        
         public ModelContentAssembler(
             IAssetManager assets,
             IAssetPoolManager pools)
@@ -63,12 +57,7 @@ namespace CreateAR.SpirePlayer
             _assets = assets;
             _pools = pools;
         }
-
-        public void Initialize(Content content)
-        {
-            _content = content;
-        }
-
+        
         public void Setup(ContentData data)
         {
             _data = data;
@@ -91,7 +80,7 @@ namespace CreateAR.SpirePlayer
             var prefab = _asset.As<GameObject>();
             if (null != prefab)
             {
-                ReplaceInstance(prefab);
+                SetupInstance(prefab);
             }
 
             // watch for asset reloads
@@ -100,12 +89,7 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Info(this, "Asset loaded.");
 
-                ReplaceInstance(value);
-
-                if (null != OnSetupComplete)
-                {
-                    OnSetupComplete();
-                }
+                SetupInstance(value);
             });
 
             // automatically reload
@@ -138,7 +122,7 @@ namespace CreateAR.SpirePlayer
         /// instance, if there is one.
         /// </summary>
         /// <param name="value">The GameObject that was loaded.</param>
-        private void ReplaceInstance(GameObject value)
+        private void SetupInstance(GameObject value)
         {
             // put existing instance back
             if (null != _instance)
@@ -149,11 +133,12 @@ namespace CreateAR.SpirePlayer
 
             // get a new one
             _instance = _pools.Get<GameObject>(value);
-            _instance.transform.SetParent(
-                _content.transform,
-                false);
 
-            UpdateInstancePosition();
+            // asset is loaded
+            if (null != OnSetupComplete)
+            {
+                OnSetupComplete(_instance);
+            }
         }
 
         /// <summary>
@@ -172,21 +157,6 @@ namespace CreateAR.SpirePlayer
             }
 
             return _assets.Manifest.Asset(assetId);
-        }
-
-        /// <summary>
-        /// Updates the position of the asset instance.
-        /// </summary>
-        private void UpdateInstancePosition()
-        {
-            // parent + orient
-            _instance.name = _data.Asset.AssetDataId;
-            _instance.transform.SetParent(_content.transform);
-            /*
-            _instance.transform.localPosition = assetPrefab.transform.localPosition;
-            _instance.transform.localRotation = assetPrefab.transform.localRotation;
-            _instance.transform.localScale = assetPrefab.transform.localScale;*/
-            _instance.SetActive(true);
         }
         
         /// <summary>
