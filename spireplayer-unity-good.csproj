@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -138,7 +140,9 @@
     <Compile Include="Assets\Source\Application\Services\AuthorizationService.cs" />
     <Compile Include="Assets\Source\Application\Services\ContentGraphUpdateService.cs" />
     <Compile Include="Assets\Source\Application\Services\ContentUpdateService.cs" />
+    <Compile Include="Assets\Source\Application\Services\MaterialUpdateService.cs" />
     <Compile Include="Assets\Source\Application\Services\ScriptUpdateService.cs" />
+    <Compile Include="Assets\Source\Application\Services\ShaderUpdateService.cs" />
     <Compile Include="Assets\Source\Async\Async.cs" />
     <Compile Include="Assets\Source\Camera\FocusManager.cs" />
     <Compile Include="Assets\Source\Debug\Log\UwpSocketLogger.cs" />
@@ -176,8 +180,10 @@
     <Compile Include="Assets\Source\Messages\ToApplication\FatalErrorEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\HierarchyEvents.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\HierarchyNodeData.cs" />
+    <Compile Include="Assets\Source\Messages\ToApplication\MaterialEvents.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\PreviewEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\ScriptEvents.cs" />
+    <Compile Include="Assets\Source\Messages\ToApplication\ShaderEvents.cs" />
     <Compile Include="Assets\Source\Network\Model\AssetModel.cs" />
     <Compile Include="Assets\Source\Network\Model\UserModel.cs" />
     <Compile Include="Assets\Source\Network\Uwp\IUwpWebsocketService.cs" />
@@ -204,6 +210,7 @@
     <Compile Include="Assets\Source\Spire\Asset\EditorAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Asset\IAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Asset\IAssetManager.cs" />
+    <Compile Include="Assets\Source\Spire\Asset\Render\MaterialManager.cs" />
     <Compile Include="Assets\Source\Spire\Asset\Render\ShaderCache.cs" />
     <Compile Include="Assets\Source\Spire\Asset\StandardAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Audio\MusicManager.cs" />

@@ -40,6 +40,18 @@
         public const int CONTENT_REMOVE = 32;
         public const int CONTENT_UPDATE = 33;
 
+        // Materials
+        public const int MATERIAL_LIST = 40;
+        public const int MATERIAL_ADD = 41;
+        public const int MATERIAL_REMOVE = 42;
+        public const int MATERIAL_UPDATE = 43;
+
+        // Shaders
+        public const int SHADER_LIST = 50;
+        public const int SHADER_ADD = 51;
+        public const int SHADER_REMOVE = 52;
+        public const int SHADER_UPDATE = 53;
+
         ///////////////////////////////////////////////////////////////////////
         // Global
         ///////////////////////////////////////////////////////////////////////
