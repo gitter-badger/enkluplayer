@@ -27,3 +27,5 @@ A detailed diagram can be found [here](https://www.lucidchart.com/documents/view
 * [Scripting](docs/scripting.overview.md)
 * [ContentGraph](docs/contentgraph.md)
 * [Element](docs/element.md)
+  * [Queries](docs/element.query.md)
+
