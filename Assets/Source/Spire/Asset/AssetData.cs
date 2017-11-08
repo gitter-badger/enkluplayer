@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// Data for an asset.

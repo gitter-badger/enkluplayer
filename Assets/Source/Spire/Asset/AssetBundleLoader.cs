@@ -8,7 +8,7 @@ using UnityEngine.Networking;
 
 using Object = UnityEngine.Object;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// Communicates progress of a load.

@@ -3,7 +3,7 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using Object = UnityEngine.Object;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// Standard implementation of <c>IAssetLoader</c>.

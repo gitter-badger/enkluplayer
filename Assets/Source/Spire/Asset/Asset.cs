@@ -4,7 +4,7 @@ using CreateAR.Commons.Unity.Async;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// An object that represents a reference to a Unity asset.

@@ -208,6 +208,7 @@
     <Compile Include="Assets\Source\Spire\Asset\IAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Asset\IAssetManager.cs" />
     <Compile Include="Assets\Source\Spire\Asset\Render\MaterialData.cs" />
+    <Compile Include="Assets\Source\Spire\Asset\Render\ShaderCache.cs" />
     <Compile Include="Assets\Source\Spire\Asset\Render\ShaderData.cs" />
     <Compile Include="Assets\Source\Spire\Asset\StandardAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Audio\MusicManager.cs" />

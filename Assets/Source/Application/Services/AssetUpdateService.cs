@@ -1,6 +1,7 @@
 using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.Assets;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer

@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.SpirePlayer.Assets;
 using NUnit.Framework;
 
 namespace CreateAR.SpirePlayer.Test.Assets

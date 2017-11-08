@@ -2,7 +2,7 @@
 using CreateAR.Commons.Unity.Async;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// Entry point into the asset system.

@@ -1,7 +1,7 @@
 using CreateAR.Commons.Unity.Async;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// Describes an interface for loading assets.

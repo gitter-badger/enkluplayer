@@ -32,17 +32,8 @@ namespace CreateAR.SpirePlayer
         public ShaderFormTextureData[] Textures { get; set; }
     }
 
-    public class ShaderData
+    public class ShaderData : StaticData
     {
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("description")]
-        public string Description { get; set; }
-
         [JsonProperty("tags")]
         public string Tags { get; set; }
 

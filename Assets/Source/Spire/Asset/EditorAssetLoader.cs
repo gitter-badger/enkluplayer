@@ -1,9 +1,8 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.SpirePlayer;
 using Object = UnityEngine.Object;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// Unity Editor implementation.
@@ -11,7 +10,7 @@ namespace CreateAR.SpirePlayer
     public class EditorAssetLoader : IAssetLoader
     {
         /// <inheritdoc cref="IAssetLoader"/>
-        public IAsyncToken<Object> Load(SpirePlayer.AssetData data, out LoadProgress progress)
+        public IAsyncToken<Object> Load(AssetData data, out LoadProgress progress)
         {
             progress = new LoadProgress();
 
