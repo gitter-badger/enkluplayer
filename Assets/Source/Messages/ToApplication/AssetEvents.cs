@@ -1,5 +1,4 @@
-﻿using CreateAR.SpirePlayer.Assets;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.SpirePlayer
 {

@@ -1,11 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using CreateAR.Commons.Unity.Async;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Assets
 {
-    class ShaderCache
+    public class ShaderCache
     {
+        public IAsyncToken<Shader> Get()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

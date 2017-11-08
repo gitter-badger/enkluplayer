@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>2017.1.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -200,32 +198,32 @@
     <Compile Include="Assets\Source\Spire\App\SpireScript.cs" />
     <Compile Include="Assets\Source\Spire\Asset\Asset.cs" />
     <Compile Include="Assets\Source\Spire\Asset\AssetBundleLoader.cs" />
-    <Compile Include="Assets\Source\Spire\Asset\AssetData.cs" />
     <Compile Include="Assets\Source\Spire\Asset\AssetManager.cs" />
     <Compile Include="Assets\Source\Spire\Asset\AssetManagerConfiguration.cs" />
     <Compile Include="Assets\Source\Spire\Asset\AssetManifest.cs" />
     <Compile Include="Assets\Source\Spire\Asset\EditorAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Asset\IAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Asset\IAssetManager.cs" />
-    <Compile Include="Assets\Source\Spire\Asset\Render\MaterialData.cs" />
     <Compile Include="Assets\Source\Spire\Asset\Render\ShaderCache.cs" />
-    <Compile Include="Assets\Source\Spire\Asset\Render\ShaderData.cs" />
     <Compile Include="Assets\Source\Spire\Asset\StandardAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Audio\MusicManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\AnchorData.cs" />
-    <Compile Include="Assets\Source\Spire\Data\AppData.cs" />
     <Compile Include="Assets\Source\Spire\Data\AppDataManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\AssetDataManifest.cs" />
     <Compile Include="Assets\Source\Spire\Data\AssetReference.cs" />
-    <Compile Include="Assets\Source\Spire\Data\ContentData.cs" />
     <Compile Include="Assets\Source\Spire\Data\FileProtocols.cs" />
     <Compile Include="Assets\Source\Spire\Data\IAdminAppDataManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\IAppDataManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\PoolData.cs" />
-    <Compile Include="Assets\Source\Spire\Data\SceneData.cs" />
-    <Compile Include="Assets\Source\Spire\Data\ScriptData.cs" />
     <Compile Include="Assets\Source\Spire\Data\ScriptReference.cs" />
-    <Compile Include="Assets\Source\Spire\Data\StaticData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\AppData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\AssetData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\ContentData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\MaterialData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\SceneData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\ScriptData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\ShaderData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\StaticData.cs" />
     <Compile Include="Assets\Source\Spire\IUX\ColorConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Anchor.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\AnchorReferenceFrameFactory.cs" />
