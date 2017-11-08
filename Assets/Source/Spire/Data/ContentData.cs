@@ -34,7 +34,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonProperty("asset")]
         public AssetReference Asset;
-
+        
         /// <summary>
         /// Describes how to anchor this content.
         /// </summary>

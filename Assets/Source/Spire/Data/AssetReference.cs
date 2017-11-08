@@ -14,7 +14,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonProperty("id")]
         public string AssetDataId;
-
+        
         /// <summary>
         /// Describes how this asset should be pooled.
         /// </summary>
