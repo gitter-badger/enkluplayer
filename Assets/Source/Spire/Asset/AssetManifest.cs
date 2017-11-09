@@ -68,6 +68,19 @@ namespace CreateAR.SpirePlayer.Assets
         }
 
         /// <summary>
+        /// Destroys the <c>AssetManifest</c>.
+        /// </summary>
+        public void Destroy()
+        {
+            // destroy
+            foreach (var pair in _guidToReference)
+            {
+                pair.Value.Unload();
+            }
+            _guidToReference.Clear();
+        }
+
+        /// <summary>
         /// Adds a set of assets. Throws an <c>ArgumentException</c> if an <c>AssetInfo</c>
         /// instance has a guid that matches an existing instance.
         /// </summary>

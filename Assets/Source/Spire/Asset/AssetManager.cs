@@ -59,6 +59,8 @@ namespace CreateAR.SpirePlayer.Assets
             _initializeToken.Fail(new Exception("Uninitialized."));
             _initializeToken = null;
             
+            Manifest.Destroy();
+            _config.Loader.Destroy();
             _config = null;
         }
     }

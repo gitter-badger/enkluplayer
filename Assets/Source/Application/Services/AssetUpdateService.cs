@@ -37,6 +37,14 @@ namespace CreateAR.SpirePlayer
             Subscribe<AssetUpdateEvent>(MessageTypes.ASSET_UPDATE, Messages_OnAssetUpdate);
         }
 
+        /// <inheritdoc cref="ApplicationService"/>
+        public override void Stop()
+        {
+            base.Stop();
+
+            _assets.Uninitialize();
+        }
+
         /// <summary>
         /// Called when an <c>Asset</c> has been updated.
         /// </summary>

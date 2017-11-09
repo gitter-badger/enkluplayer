@@ -37,6 +37,11 @@ namespace CreateAR.SpirePlayer.Assets
         private readonly List<Action> _watch = new List<Action>();
 
         /// <summary>
+        /// Token returned from loader.
+        /// </summary>
+        private IAsyncToken<Object> _loadToken;
+
+        /// <summary>
         /// The data object describing the object.
         /// </summary>
         public AssetData Data { get; private set; }
@@ -144,8 +149,8 @@ namespace CreateAR.SpirePlayer.Assets
             if (IsAssetDirty)
             {
                 var info = Data;
-                _loader
-                    .Load(info, out progress)
+                _loadToken = _loader.Load(info, out progress);
+                _loadToken
                     .OnSuccess(asset =>
                     {
                         _asset = asset;
@@ -153,6 +158,7 @@ namespace CreateAR.SpirePlayer.Assets
 
                         token.Succeed(As<T>());
 
+                        // create copy
                         var watchers = _watch.ToArray();
                         for (int i = 0, len = watchers.Length; i < len; i++)
                         {
@@ -173,6 +179,19 @@ namespace CreateAR.SpirePlayer.Assets
             }
 
             return token;
+        }
+
+        /// <summary>
+        /// Unloads the asset.
+        /// </summary>
+        public void Unload()
+        {
+            if (null != _loadToken)
+            {
+                _loadToken.Abort();
+            }
+
+            _asset = null;
         }
         
         /// <summary>

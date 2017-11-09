@@ -16,5 +16,10 @@ namespace CreateAR.SpirePlayer.Assets
         /// <param name="progress">Progress on the load.</param>
         /// <returns></returns>
         IAsyncToken<Object> Load(AssetData data, out LoadProgress progress);
+
+        /// <summary>
+        /// Destroys the loader and everything in it.
+        /// </summary>
+        void Destroy();
     }
 }

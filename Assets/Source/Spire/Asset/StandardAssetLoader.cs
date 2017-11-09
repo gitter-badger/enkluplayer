@@ -35,13 +35,8 @@ namespace CreateAR.SpirePlayer.Assets
             _bootstrapper = bootstrapper;
             _urls = urls;
         }
-        
-        /// <summary>
-        /// Loads an asset.
-        /// </summary>
-        /// <param name="data">The info to load.</param>
-        /// <param name="progress">Outputs the load progress.</param>
-        /// <returns></returns>
+
+        /// <inheritdoc cref="IAssetLoader"/>
         public IAsyncToken<Object> Load(
             AssetData data,
             out LoadProgress progress)
@@ -58,6 +53,16 @@ namespace CreateAR.SpirePlayer.Assets
             }
 
             return loader.Asset(data.AssetName, out progress);
+        }
+
+        /// <inheritdoc cref="IAssetLoader"/>
+        public void Destroy()
+        {
+            foreach (var pair in _bundles)
+            {
+                pair.Value.Destroy();
+            }
+            _bundles.Clear();
         }
     }
 }

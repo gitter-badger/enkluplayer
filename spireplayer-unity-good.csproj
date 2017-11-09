@@ -207,7 +207,6 @@
     <Compile Include="Assets\Source\Spire\Asset\AssetManager.cs" />
     <Compile Include="Assets\Source\Spire\Asset\AssetManagerConfiguration.cs" />
     <Compile Include="Assets\Source\Spire\Asset\AssetManifest.cs" />
-    <Compile Include="Assets\Source\Spire\Asset\EditorAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Asset\IAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Asset\IAssetManager.cs" />
     <Compile Include="Assets\Source\Spire\Asset\Render\MaterialManager.cs" />

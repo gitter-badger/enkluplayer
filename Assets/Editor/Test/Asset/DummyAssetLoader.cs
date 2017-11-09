@@ -34,5 +34,10 @@ namespace CreateAR.SpirePlayer.Test.Assets
 
             return token;
         }
+
+        public void Destroy()
+        {
+            //
+        }
     }
 }

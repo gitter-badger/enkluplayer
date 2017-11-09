@@ -45,6 +45,11 @@ namespace CreateAR.SpirePlayer.Assets
         private readonly string _url;
 
         /// <summary>
+        /// True iff the loader has been destroyed.
+        /// </summary>
+        private bool _destroy = false;
+
+        /// <summary>
         /// The load.
         /// </summary>
         private IAsyncToken<AssetBundle> _bundleLoad;
@@ -68,6 +73,19 @@ namespace CreateAR.SpirePlayer.Assets
         {
             _bootstrapper = bootstrapper;
             _url = url;
+        }
+
+        /// <summary>
+        /// Frees resources.
+        /// </summary>
+        public void Destroy()
+        {
+            _destroy = true;
+
+            if (null != Bundle)
+            {
+                Bundle.Unload(true);
+            }
         }
 
         /// <summary>
@@ -147,6 +165,12 @@ namespace CreateAR.SpirePlayer.Assets
                 yield return null;
             }
 
+            if (_destroy)
+            {
+                request.Dispose();
+                yield break;
+            }
+
             if (request.isNetworkError || request.isHttpError)
             {
                 token.Fail(new Exception(request.error));
@@ -164,6 +188,8 @@ namespace CreateAR.SpirePlayer.Assets
                     token.Succeed(bundle);
                 }
             }
+
+            request.Dispose();
         }
 
         /// <summary>
