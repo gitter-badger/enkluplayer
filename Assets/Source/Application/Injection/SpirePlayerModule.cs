@@ -72,6 +72,8 @@ namespace CreateAR.SpirePlayer
                 {
 #if UNITY_EDITOR
                     binder.Bind<IBridge>().To<EditorBridge>().ToSingleton();
+#elif UNITY_IOS
+                    binder.Bind<IBridge>().To<IosBridge>().ToSingleton();
 #elif UNITY_WEBGL
                     binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
 #elif NETFX_CORE

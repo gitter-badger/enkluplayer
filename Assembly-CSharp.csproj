@@ -1,0 +1,503 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <LangVersion>4</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <RootNamespace></RootNamespace>
+    <ProjectGuid>{8FE9DA85-1891-001D-5BCD-2435EE0BE7E2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>Assembly-CSharp</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseDirectory>Assets</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_1_0;UNITY_2017_1;UNITY_2017;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_GENERICS;ENABLE_PVR_GI;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_RUNTIME_NAVMESH_BUILDING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_DIRECTOR;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_COLLAB_SOFTLOCKS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_DIRECTOR_AUDIO;ENABLE_TIMELINE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;ENABLE_NATIVE_ARRAY;ENABLE_SPRITE_MASKING;INCLUDE_DYNAMIC_GI;INCLUDE_GI;ENABLE_MONO_BDWGC;PLATFORM_SUPPORTS_MONO;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_VIDEO;ENABLE_RMGUI;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_STYLE_SHEETS;ENABLE_RUNTIME_GI;ENABLE_SUBSTANCE;ENABLE_GAMECENTER;ENABLE_NETWORK;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_IOS_NATIVE_CRASH_REPORTING;PLAYERCONNECTION_LISTENS_FIXED_PORT;DEBUGGER_LISTENS_FIXED_PORT;PLATFORM_SUPPORTS_ADS_ID;SUPPORT_ENVIRONMENT_VARIABLES;PLATFORM_SUPPORTS_PROFILER;PLATFORM_HAS_NO_SUPPORT_FOR_BUCKET_ALLOCATOR;STRICTCPP_NEW_DELETE_SIGNATURES;HAS_NEON_SKINNIG;UNITY_GFX_USE_PLATFORM_VSYNC;UNITY_INPUT_SIMULATE_EVENTS;PLATFORM_ALWAYS_USES_STDOUT_FOR_LOG;ENABLE_VR;ENABLE_UNITYADS_RUNTIME;UNITY_UNITYADS_API;PLATFORM_IOS;UNITY_IOS;PLATFORM_IPHONE;UNITY_IPHONE;UNITY_IPHONE_API;SUPPORT_MULTIPLE_DISPLAYS;ENABLE_IL2CPP;NET_2_0_SUBSET;DEVELOPMENT_BUILD;ENABLE_PROFILER;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_OSX;ENABLE_NATIVE_ARRAY_CHECKS;UNITY_TEAM_LICENSE;UNITY_PRO_LICENSE;ENABLE_IOS_ON_DEMAND_RESOURCES;ENABLE_IOS_APP_SLICING;UNITY_HAS_GOOGLEVR;ENABLE_MONO</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="UnityEngine">
+      <HintPath>/Applications/Unity/Unity.app/Contents/Managed/UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>/Applications/Unity/Unity.app/Contents/Managed/UnityEditor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\Source\AotGenericTypeIncludes.cs" />
+     <Compile Include="Assets\Source\Application\ApplicationServiceManager.cs" />
+     <Compile Include="Assets\Source\Application\Bridge\BridgeMessageHandler.cs" />
+     <Compile Include="Assets\Source\Application\Bridge\EditorBridge.cs" />
+     <Compile Include="Assets\Source\Application\Bridge\IBridge.cs" />
+     <Compile Include="Assets\Source\Application\Bridge\IosBridge.cs" />
+     <Compile Include="Assets\Source\Application\Bridge\MessageTypeBinder.cs" />
+     <Compile Include="Assets\Source\Application\Bridge\ReleaseBridge.cs" />
+     <Compile Include="Assets\Source\Application\Bridge\WebBridge.cs" />
+     <Compile Include="Assets\Source\Application\IApplicationServiceManager.cs" />
+     <Compile Include="Assets\Source\Application\Injection\IInjectionModule.cs" />
+     <Compile Include="Assets\Source\Application\Injection\InjectableMonoBehaviour.cs" />
+     <Compile Include="Assets\Source\Application\Injection\InjectionExtensions.cs" />
+     <Compile Include="Assets\Source\Application\Injection\NamedInjections.cs" />
+     <Compile Include="Assets\Source\Application\Injection\SpirePlayerModule.cs" />
+     <Compile Include="Assets\Source\Application\Injection\Tags\MainCamera.cs" />
+     <Compile Include="Assets\Source\Application\Services\ApplicationService.cs" />
+     <Compile Include="Assets\Source\Application\Services\ApplicationStateService.cs" />
+     <Compile Include="Assets\Source\Application\Services\AssetUpdateService.cs" />
+     <Compile Include="Assets\Source\Application\Services\AuthorizationService.cs" />
+     <Compile Include="Assets\Source\Application\Services\ContentGraphUpdateService.cs" />
+     <Compile Include="Assets\Source\Application\Services\ContentUpdateService.cs" />
+     <Compile Include="Assets\Source\Application\Services\MaterialUpdateService.cs" />
+     <Compile Include="Assets\Source\Application\Services\ScriptUpdateService.cs" />
+     <Compile Include="Assets\Source\Application\Services\ShaderUpdateService.cs" />
+     <Compile Include="Assets\Source\Async\Async.cs" />
+     <Compile Include="Assets\Source\Camera\FocusManager.cs" />
+     <Compile Include="Assets\Source\Debug\Log\UwpSocketLogger.cs" />
+     <Compile Include="Assets\Source\Debug\Render\DebugRenderController.cs" />
+     <Compile Include="Assets\Source\Debug\Render\DebugRendererMonoBehaviour.cs" />
+     <Compile Include="Assets\Source\Debug\Render\FilteredRendererHandle.cs" />
+     <Compile Include="Assets\Source\Debug\Render\RenderContext.cs" />
+     <Compile Include="Assets\Source\Debug\Render\RenderContext2d.cs" />
+     <Compile Include="Assets\Source\File\File.cs" />
+     <Compile Include="Assets\Source\File\FileManager.cs" />
+     <Compile Include="Assets\Source\File\IFileManager.cs" />
+     <Compile Include="Assets\Source\File\IFileSystem.cs" />
+     <Compile Include="Assets\Source\File\LocalFileSystem.cs" />
+     <Compile Include="Assets\Source\File\MemoryFileSystem.cs" />
+     <Compile Include="Assets\Source\File\NullFileSystem.cs" />
+     <Compile Include="Assets\Source\File\NullSerializer.cs" />
+     <Compile Include="Assets\Source\Graphics\Grid.cs" />
+     <Compile Include="Assets\Source\Input\IInputManager.cs" />
+     <Compile Include="Assets\Source\Input\InputConfig.cs" />
+     <Compile Include="Assets\Source\Input\InputManager.cs" />
+     <Compile Include="Assets\Source\Input\MultiInput\IMultiInput.cs" />
+     <Compile Include="Assets\Source\Input\MultiInput\InputPoint.cs" />
+     <Compile Include="Assets\Source\Input\MultiInput\MultiInput.cs" />
+     <Compile Include="Assets\Source\Input\States\Edit\EditIdleState.cs" />
+     <Compile Include="Assets\Source\Input\States\Edit\EditPanState.cs" />
+     <Compile Include="Assets\Source\Input\States\Edit\EditRotateState.cs" />
+     <Compile Include="Assets\Source\Input\States\EditModeInputState.cs" />
+     <Compile Include="Assets\Source\Main.cs" />
+     <Compile Include="Assets\Source\Math\Vec3.cs" />
+     <Compile Include="Assets\Source\Messages\Internal\LoadProgressEvent.cs" />
+     <Compile Include="Assets\Source\Messages\MessageTypes.cs" />
+     <Compile Include="Assets\Source\Messages\ToApplication\AssetEvents.cs" />
+     <Compile Include="Assets\Source\Messages\ToApplication\AuthorizedEvent.cs" />
+     <Compile Include="Assets\Source\Messages\ToApplication\ContentEvents.cs" />
+     <Compile Include="Assets\Source\Messages\ToApplication\FatalErrorEvent.cs" />
+     <Compile Include="Assets\Source\Messages\ToApplication\HierarchyEvents.cs" />
+     <Compile Include="Assets\Source\Messages\ToApplication\HierarchyNodeData.cs" />
+     <Compile Include="Assets\Source\Messages\ToApplication\MaterialEvents.cs" />
+     <Compile Include="Assets\Source\Messages\ToApplication\PreviewEvent.cs" />
+     <Compile Include="Assets\Source\Messages\ToApplication\ScriptEvents.cs" />
+     <Compile Include="Assets\Source\Messages\ToApplication\ShaderEvents.cs" />
+     <Compile Include="Assets\Source\Network\Model\AssetModel.cs" />
+     <Compile Include="Assets\Source\Network\Model\UserModel.cs" />
+     <Compile Include="Assets\Source\Network\Uwp\IUwpWebsocketService.cs" />
+     <Compile Include="Assets\Source\Network\Uwp\UwpBridge.cs" />
+     <Compile Include="Assets\Source\Network\Uwp\UwpWebsocketServer.cs" />
+     <Compile Include="Assets\Source\Patterns\StateMachine\FiniteStateMachine.cs" />
+     <Compile Include="Assets\Source\Patterns\StateMachine\IState.cs" />
+     <Compile Include="Assets\Source\Patterns\StateMachine\StateMachine.cs" />
+     <Compile Include="Assets\Source\Pooling\IAssetPoolManager.cs" />
+     <Compile Include="Assets\Source\Pooling\LazyAssetPoolManager.cs" />
+     <Compile Include="Assets\Source\Spire\App\AppController.cs" />
+     <Compile Include="Assets\Source\Spire\App\AppExecutionConfiguration.cs" />
+     <Compile Include="Assets\Source\Spire\App\ISceneManager.cs" />
+     <Compile Include="Assets\Source\Spire\App\IScriptLoader.cs" />
+     <Compile Include="Assets\Source\Spire\App\Scene.cs" />
+     <Compile Include="Assets\Source\Spire\App\SceneManager.cs" />
+     <Compile Include="Assets\Source\Spire\App\ScriptLoader.cs" />
+     <Compile Include="Assets\Source\Spire\App\SpireScript.cs" />
+     <Compile Include="Assets\Source\Spire\Asset\Asset.cs" />
+     <Compile Include="Assets\Source\Spire\Asset\AssetBundleLoader.cs" />
+     <Compile Include="Assets\Source\Spire\Asset\AssetManager.cs" />
+     <Compile Include="Assets\Source\Spire\Asset\AssetManagerConfiguration.cs" />
+     <Compile Include="Assets\Source\Spire\Asset\AssetManifest.cs" />
+     <Compile Include="Assets\Source\Spire\Asset\IAssetLoader.cs" />
+     <Compile Include="Assets\Source\Spire\Asset\IAssetManager.cs" />
+     <Compile Include="Assets\Source\Spire\Asset\Render\MaterialManager.cs" />
+     <Compile Include="Assets\Source\Spire\Asset\Render\ShaderCache.cs" />
+     <Compile Include="Assets\Source\Spire\Asset\StandardAssetLoader.cs" />
+     <Compile Include="Assets\Source\Spire\Audio\MusicManager.cs" />
+     <Compile Include="Assets\Source\Spire\Data\AnchorData.cs" />
+     <Compile Include="Assets\Source\Spire\Data\AppDataManager.cs" />
+     <Compile Include="Assets\Source\Spire\Data\AssetDataManifest.cs" />
+     <Compile Include="Assets\Source\Spire\Data\AssetReference.cs" />
+     <Compile Include="Assets\Source\Spire\Data\FileProtocols.cs" />
+     <Compile Include="Assets\Source\Spire\Data\IAdminAppDataManager.cs" />
+     <Compile Include="Assets\Source\Spire\Data\IAppDataManager.cs" />
+     <Compile Include="Assets\Source\Spire\Data\PoolData.cs" />
+     <Compile Include="Assets\Source\Spire\Data\ScriptReference.cs" />
+     <Compile Include="Assets\Source\Spire\Data\Static\AppData.cs" />
+     <Compile Include="Assets\Source\Spire\Data\Static\AssetData.cs" />
+     <Compile Include="Assets\Source\Spire\Data\Static\ContentData.cs" />
+     <Compile Include="Assets\Source\Spire\Data\Static\MaterialData.cs" />
+     <Compile Include="Assets\Source\Spire\Data\Static\SceneData.cs" />
+     <Compile Include="Assets\Source\Spire\Data\Static\ScriptData.cs" />
+     <Compile Include="Assets\Source\Spire\Data\Static\ShaderData.cs" />
+     <Compile Include="Assets\Source\Spire\Data\Static\StaticData.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\ColorConfig.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\Anchor.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\AnchorReferenceFrameFactory.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\Content.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\ContentFactory.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\ContentGraph.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\ContentManager.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\FloorAnchorReferenceFrame.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\IAnchorReferenceFrame.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\IAnchorReferenceFrameFactory.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\IContentAssembler.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\IContentFactory.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\IContentManager.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\Locator.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\LocatorAnchorReferenceFrame.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\LocatorSet.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\MaterialLoader.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\ModelContentAssembler.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Content\NoneAnchorReferenceFrame.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Element\Element.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Element\ElementData.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Element\ElementDescription.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Element\ElementFactory.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Element\ElementQuery.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Element\ElementRef.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Element\ElementSchema.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Element\ElementSchemaData.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Element\ElementSchemaProp.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Element\IElementFactory.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\HsbColor.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Intention\ElementManager.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Intention\IElement.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Intention\IFocusable.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Intention\IIntentionManager.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Intention\IntentionManager.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Layer\ILayerable.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Layer\Layer.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Layer\LayerManager.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Layer\LayerMaskNames.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Widget\ToggleableWidget.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Widget\TweenConfig.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Widget\Widget.cs" />
+     <Compile Include="Assets\Source\Spire\IUX\Widget\WidgetConfig.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\DefaultScriptParser.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\Interop\AppDataScriptingInterface.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\Interop\JsInterface.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\Interop\MessageRouterScriptingInterface.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\Interop\WidgetsScriptingInterface.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\IScriptManager.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\IScriptParser.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\JsLogWrapper.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\MonoBehaviourSpireScript.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\QuatJs.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\ScriptManager.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\SpireScriptRequireResolver.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\TimeJsApi.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\TransformJsApi.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\UnityScriptingHost.cs" />
+     <Compile Include="Assets\Source\Spire\Scripting\Vector3Js.cs" />
+     <Compile Include="Assets\Source\States\Application.cs" />
+     <Compile Include="Assets\Source\States\Edit\EditApplicationState.cs" />
+     <Compile Include="Assets\Source\States\Hierarchy\HierarchyApplicationState.cs" />
+     <Compile Include="Assets\Source\States\Hierarchy\HierarchyManager.cs" />
+     <Compile Include="Assets\Source\States\Initialize\InitializeApplicationState.cs" />
+     <Compile Include="Assets\Source\States\Play\PlayApplicationState.cs" />
+     <Compile Include="Assets\Source\States\Preview\PreviewApplicationState.cs" />
+     <Compile Include="Assets\Source\States\WaitingForConnectionApplicationState.cs" />
+     <Compile Include="Assets\Source\UI\Effects\Spinner.cs" />
+     <Compile Include="Assets\Source\Util\CameraUtil.cs" />
+     <Compile Include="Assets\Source\Util\Extensions\VectorExtensions.cs" />
+     <Compile Include="Assets\Source\Util\IQueryResolver.cs" />
+     <Compile Include="Assets\Source\Util\JsonSerializer.cs" />
+     <Compile Include="Assets\Source\Util\MonoBehaviourBootstrapper.cs" />
+     <Compile Include="Assets\Source\Util\Render.cs" />
+     <Compile Include="Assets\Source\Util\StandardQueryResolver.cs" />
+     <Compile Include="Assets\Source\Util\SystemXmlSerializer.cs" />
+     <Compile Include="Assets\Source\Util\TypeUtil.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Loader\IScriptRequireResolver.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\Serialization\ScriptingPropertyBucket.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\UQL\UnitySceneManager.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint.Unity\UQL\UnitySceneQuery.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\DeclarationBindingType.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Engine.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\EvalCodeScope.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Argument\ArgumentsInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Array\ArrayConstructor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Array\ArrayInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Array\ArrayPrototype.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Boolean\BooleanConstructor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Boolean\BooleanInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Boolean\BooleanPrototype.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Date\DateConstructor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Date\DateInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Date\DatePrototype.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Error\ErrorConstructor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Error\ErrorInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Error\ErrorPrototype.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Function\BindFunctionInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Function\EvalFunctionInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Function\FunctionConstructor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Function\FunctionInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Function\FunctionPrototype.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Function\FunctionShim.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Function\ScriptFunctionInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Function\ThrowTypeError.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Global\GlobalObject.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\ICallable.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\IConstructor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\IPrimitiveInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Json\JsonInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Json\JsonParser.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Json\JsonSerializer.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\JsValue.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Math\MathInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Null.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Number\Dtoa\CachePowers.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Number\Dtoa\DiyFp.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Number\Dtoa\DoubleHelper.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Number\Dtoa\FastDtoa.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Number\Dtoa\FastDtoaBuilder.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Number\Dtoa\NumberExtensions.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Number\NumberConstructor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Number\NumberInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Number\NumberPrototype.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Object\ObjectConstructor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Object\ObjectInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Object\ObjectPrototype.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\RegExp\RegExpConstructor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\RegExp\RegExpInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\RegExp\RegExpPrototype.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\String\StringConstructor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\String\StringInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\String\StringPrototype.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Native\Undefined.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Options.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\ArrayExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\AssignmentExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\BinaryExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\BlockStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\BreakStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\CallExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\CatchClause.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\ConditionalExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\ContinueStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\DebuggerStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\DoWhileStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\EmptyStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\Expression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\ExpressionStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\ForInStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\ForStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\FunctionDeclaration.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\FunctionExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\Identifier.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\IfStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\IPropertyKeyExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\LabeledStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\Literal.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\LogicalExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\MemberExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\NewExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\ObjectExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\Program.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\Property.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\RegExpLiteral.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\ReturnStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\SequenceExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\Statement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\SwitchCase.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\SwitchStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\SyntaxNode.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\SyntaxNodes.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\ThisExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\ThrowStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\TryStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\UnaryExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\UpdateExpression.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\VariableDeclaration.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\VariableDeclarator.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\WhileStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Ast\WithStatement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Comment.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\IFunctionDeclaration.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\IFunctionScope.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\IVariableScope.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\JavascriptParser.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Loc.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Messages.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\ParserException.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\ParserExtensions.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\ParserOptions.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Position.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\State.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Parser\Token.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\ReflectionExtensions.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Arguments.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\CallStack\CallStackElement.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\CallStack\CallStackElementComparer.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\CallStack\JintCallStack.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Completion.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Debugger\BreakPoint.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Debugger\DebugHandler.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Debugger\DebugInformation.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Debugger\StepMode.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Descriptors\PropertyDescriptor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Descriptors\Specialized\ClrAccessDescriptor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Descriptors\Specialized\FieldInfoDescriptor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Descriptors\Specialized\IndexDescriptor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Descriptors\Specialized\PropertyInfoDescriptor.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Environments\Binding.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Environments\DeclarativeEnvironmentRecord.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Environments\EnvironmentRecord.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Environments\ExecutionContext.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Environments\LexicalEnvironment.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Environments\ObjectEnvironmentRecord.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\ExpressionIntepreter.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\ClrFunctionInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\DefaultTypeConverter.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\DelegateWrapper.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\GetterFunctionInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\IObjectConverter.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\IObjectWrapper.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\IReferenceResolver.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\ITypeConverter.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\MethodInfoFunctionInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\NamespaceReference.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\ObjectWrapper.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\SetterFunctionInstance.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\TypeReference.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\Interop\TypeReferencePrototype.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\JavaScriptException.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\MruPropertyCache.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\MruPropertyCache2.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\RecursionDepthOverflowException.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\References\Reference.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\StatementInterpreter.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\StatementsCountOverflowException.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\Runtime\TypeConverter.cs" />
+     <Compile Include="Assets\ThirdParty\Jint\Jint\StrictModeScope.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\compat\UwpTypeExtensions.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\api\BinderExceptionType.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\api\BindingConst.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\api\BindingConstraintType.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\api\IBinder.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\api\IBinding.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\api\IInstanceProvider.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\api\IManagedList.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\api\ISemiBinding.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\impl\Binder.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\impl\BinderException.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\impl\Binding.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\framework\impl\SemiBinding.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\api\ICrossContextInjectionBinder.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\api\IInjectionBinder.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\api\IInjectionBinding.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\api\IInjector.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\api\IInjectorFactory.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\api\InjectionBindingScope.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\api\InjectionBindingType.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\api\InjectionExceptionType.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\impl\CrossContextInjectionBinder.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\impl\InjectionBinder.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\impl\InjectionBinding.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\impl\InjectionException.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\impl\Injector.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\impl\InjectorFactory.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\injector\InjectAttribute.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\reflector\api\IReflectedClass.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\reflector\api\IReflectionBinder.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\reflector\api\ReflectionExceptionType.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\reflector\impl\ReflectedClass.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\reflector\impl\ReflectionBinder.cs" />
+     <Compile Include="Assets\ThirdParty\Strange\reflector\impl\ReflectionException.cs" />
+     <None Include="Assets\Plugins\link.xml" />
+     <None Include="Assets\Plugins\ThirdParty\WebSocket-Sharp\websocket-sharp.xml" />
+     <None Include="Assets\Plugins\ThirdParty\JsonDotNet\link.xml" />
+ <Reference Include="UnityEngine.Analytics">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.TestRunner">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/UnityEngine.TestRunner.dll</HintPath>
+ </Reference>
+ <Reference Include="nunit.framework">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/net35/unity-custom/nunit.framework.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Networking">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.UI">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.Timeline">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Timeline/RuntimeEditor/UnityEngine.Timeline.dll</HintPath>
+ </Reference>
+ <Reference Include="UnityEngine.HoloLens">
+ <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
+ </Reference>
+ <Reference Include="CreateAR.Commons.Unity.Async">
+ <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/CreateAR/Commons/CreateAR.Commons.Unity.Async.dll</HintPath>
+ </Reference>
+ <Reference Include="CreateAR.Commons.Unity.DataStructures">
+ <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/CreateAR/Commons/CreateAR.Commons.Unity.DataStructures.dll</HintPath>
+ </Reference>
+ <Reference Include="CreateAR.Commons.Unity.Http">
+ <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/CreateAR/Commons/CreateAR.Commons.Unity.Http.dll</HintPath>
+ </Reference>
+ <Reference Include="CreateAR.Commons.Unity.Logging">
+ <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/CreateAR/Commons/CreateAR.Commons.Unity.Logging.dll</HintPath>
+ </Reference>
+ <Reference Include="CreateAR.Commons.Unity.Messaging">
+ <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/CreateAR/Commons/CreateAR.Commons.Unity.Messaging.dll</HintPath>
+ </Reference>
+ <Reference Include="CreateAR.Commons.Unity.Storage">
+ <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/CreateAR/Commons/CreateAR.Commons.Unity.Storage.dll</HintPath>
+ </Reference>
+ <Reference Include="CreateAR.Trellis.Messages">
+ <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/CreateAR/Commons/CreateAR.Trellis.Messages.dll</HintPath>
+ </Reference>
+ <Reference Include="Polenter.SharpSerializer">
+ <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/ThirdParty/Polenter.SharpSerializer.dll</HintPath>
+ </Reference>
+ <Reference Include="Newtonsoft.Json">
+ <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/ThirdParty/JsonDotNet/Assemblies/Standalone/Newtonsoft.Json.dll</HintPath>
+ </Reference>
+ <Reference Include="websocket-sharp">
+ <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/ThirdParty/WebSocket-Sharp/websocket-sharp.dll</HintPath>
+ </Reference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>
