@@ -20,6 +20,12 @@ namespace CreateAR.SpirePlayer
         void Setup(ContentData data);
 
         /// <summary>
+        /// Updates the material.
+        /// </summary>
+        /// <param name="material">Updated material data.</param>
+        void UpdateMaterialData(MaterialData material);
+
+        /// <summary>
         /// Tears down any internal structures.
         /// </summary>
         void Teardown();

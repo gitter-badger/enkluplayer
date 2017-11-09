@@ -159,6 +159,15 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Updates the underlying material data.
+        /// </summary>
+        /// <param name="data">Material data to update with.</param>
+        public void UpdateMaterialData(MaterialData data)
+        {
+            _assembler.UpdateMaterialData(data);
+        }
+        
+        /// <summary>
         /// Tears down the asset and sets it back up.
         /// </summary>
         private void RefreshAsset()

@@ -89,9 +89,17 @@ namespace CreateAR.SpirePlayer
                 }
                 else
                 {
+                    // watch for future updates
                     _unwatchShaderAsset = asset.Watch<Shader>(ShaderAsset_OnUpdate);
 
-                    // triggers reload automatically
+                    // might already be loaded
+                    var shader = asset.As<Shader>();
+                    if (null != shader)
+                    {
+                        ShaderAsset_OnUpdate(shader);
+                    }
+
+                    // reload updates automatically
                     asset.AutoReload = true;
                 }
             }
@@ -110,8 +118,19 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Load texture {0}.", assetId);
 
-                    var unwatch = textureAsset.Watch(TextureAsset_OnUpdate(uniform));
+                    // watch for future updates
+                    var handler = TextureAsset_OnUpdate(uniform);
+                    var unwatch = textureAsset.Watch(handler);
                     _unwatchTextureAssets.Add(unwatch);
+
+                    // might already be loaded
+                    var texture = textureAsset.As<Texture2D>();
+                    if (null != texture)
+                    {
+                        handler(texture);
+                    }
+
+                    // reload updates automatically
                     textureAsset.AutoReload = true;
                 }
             }

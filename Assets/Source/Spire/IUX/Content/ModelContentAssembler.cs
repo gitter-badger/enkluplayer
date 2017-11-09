@@ -86,6 +86,12 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IContentAssembler"/>
+        public void UpdateMaterialData(MaterialData data)
+        {
+            _materialLoader.Update(data);
+        }
+
+        /// <inheritdoc cref="IContentAssembler"/>
         public void Teardown()
         {
             _materialLoader.OnLoaded -= Material_OnLoaded;
