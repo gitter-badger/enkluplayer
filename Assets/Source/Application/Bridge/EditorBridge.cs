@@ -3,11 +3,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
+using LogLevel = WebSocketSharp.LogLevel;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -88,6 +91,8 @@ namespace CreateAR.SpirePlayer
 
             /// <summary>
             /// Called when a client leaves.
+            /// 
+            /// NOTE: This is called in a worker thread, so it is put on a queue.
             /// </summary>
             /// <param name="event"></param>
             protected override void OnClose(CloseEventArgs @event)
@@ -146,6 +151,11 @@ namespace CreateAR.SpirePlayer
         /// Messages received but not yet processed.
         /// </summary>
         private readonly List<string> _messages = new List<string>();
+
+        /// <summary>
+        /// True iff client left.
+        /// </summary>
+        private bool _clientLeft = false;
 
         /// <summary>
         /// Joined service.
@@ -215,12 +225,16 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IBridge"/>
         public void Uninitialize()
         {
+            _service = null;
             _broadcastReady = false;
+            _clientLeft = false;
             
             lock (_messages)
             {
                 _messages.Clear();
             }
+
+            Binder.Clear();
         }
 
         /// <inheritdoc cref="IBridge"/>
@@ -274,7 +288,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="service">The service associated with the user.</param>
         private void Service_OnClientLeft(BridgeService service)
         {
-            _router.Publish(MessageTypes.DISCONNECTED, Void.Instance);
+            _clientLeft = true;
         }
 
         /// <summary>
@@ -303,6 +317,11 @@ namespace CreateAR.SpirePlayer
                     }
                 }
 
+                if (_clientLeft)
+                {
+                    _router.Publish(MessageTypes.RESTART, Void.Instance);
+                }
+
                 yield return null;
             }
         }
@@ -312,8 +331,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="methodName">The message type to send.</param>
         /// <param name="service">Optional service to send to.</param>
-        private void CallMethod(string methodName, BridgeService service = null)
+        private void CallMethod(string methodName, BridgeService service)
         {
+            Log.Info(this, "{0}()", methodName);
+
             byte[] bytes;
             _serializer.Serialize(
                 new Method
@@ -323,20 +344,8 @@ namespace CreateAR.SpirePlayer
                 out bytes);
 
             var payload = Encoding.UTF8.GetString(bytes);
-
-            if (null == service)
-            {
-                _server.WebSocketServices.BroadcastAsync(
-                    payload,
-                    () =>
-                    {
-                        //
-                    });
-            }
-            else
-            {
-                service.SendMessage(payload);
-            }
+            
+            service.SendMessage(payload);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using strange.extensions.injector.impl;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -103,7 +104,16 @@ namespace CreateAR.SpirePlayer
         /// Starts the application.
         /// </summary>
 	    private void Start()
-	    {
+        {
+            // handle restarts
+            _binder.GetInstance<IMessageRouter>().Subscribe(
+                MessageTypes.RESTART,
+                _ =>
+                {
+                    _app.Uninitialize();
+                    _app.Initialize();
+                });
+
             _app.Initialize();
         }
 

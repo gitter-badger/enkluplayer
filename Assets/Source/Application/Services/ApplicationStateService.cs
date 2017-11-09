@@ -44,15 +44,6 @@ namespace CreateAR.SpirePlayer
         public override void Start()
         {
             Subscribe<Void>(
-                MessageTypes.DISCONNECTED,
-                _ =>
-                {
-                    Log.Info(this, "Disconnected.");
-
-                    _states.Change<WaitingForConnectionApplicationState>();
-                });
-
-            Subscribe<Void>(
                 MessageTypes.READY,
                 _ =>
                 {
@@ -106,6 +97,14 @@ namespace CreateAR.SpirePlayer
             base.Update(dt);
 
             _states.Update(dt);
+        }
+
+        /// <inheritdoc cref="ApplicationService"/>
+        public override void Stop()
+        {
+            base.Stop();
+
+            _states.Change(null);
         }
     }
 }
