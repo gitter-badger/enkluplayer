@@ -41,11 +41,6 @@ namespace CreateAR.SpirePlayer
         public Transform SteadinessTransform;
 
         /// <summary>
-        /// The rotation in degrees of the steadiness transform
-        /// </summary>
-        public float SteadinessRotation;
-
-        /// <summary>
         /// Fills with activation percentage
         /// </summary>
         public Image ActivationImage;
@@ -54,16 +49,6 @@ namespace CreateAR.SpirePlayer
         /// Shows/Hides w/ Focus
         /// </summary>
         public Widget ActivationWidget;
-
-        /// <summary>
-        /// Spawns the effect on activation
-        /// </summary>
-        public GameObject ActivationSpawnGameObject;
-        
-        /// <summary>
-        /// Fill Rate Multiplier
-        /// </summary>
-        public AnimationCurve FillDecay = AnimationCurve.EaseInOut(0, 1, 1, 0);
         
         /// <summary>
         /// Activation percentage
@@ -185,7 +170,7 @@ namespace CreateAR.SpirePlayer
 
             if (SteadinessTransform != null)
             {
-                var targetRotation = IsFocused ? SteadinessRotation * Intention.Steadiness : 0.0f;
+                var targetRotation = IsFocused ? Config.SteadinessRotation * Intention.Steadiness : 0.0f;
                 _steadinessThetaDegress = Mathf.Lerp(_steadinessThetaDegress, targetRotation, deltaTime * STEADINESS_LERP_RATE_MAGIC_NUMBER);
                 var focusTween = ActivationWidget != null ? ActivationWidget.Tween : 1.0f;
                 SteadinessTransform.localRotation = Quaternion.Euler(0, 0, _steadinessThetaDegress);

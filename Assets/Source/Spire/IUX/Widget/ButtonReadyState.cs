@@ -68,6 +68,7 @@ namespace CreateAR.SpirePlayer
                 _button.Activation
                     = _initialActivation
                       * _button
+                          .Config
                           .FillDecay
                           .Evaluate(_elapsed);
             }

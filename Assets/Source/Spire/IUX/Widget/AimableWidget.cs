@@ -16,27 +16,11 @@ namespace CreateAR.SpirePlayer
         /// True if aim is enabled
         /// </summary>
         private bool _isAimEnabled = true;
-
+        
         /// <summary>
         /// Displayed when aiming at the button.
         /// </summary>
-        [Header("Aim")]
         public Widget AimFeedbackWidget;
-
-        /// <summary>
-        /// Minimum scale of the Aim Widget.
-        /// </summary>
-        public float AimFeedbackWidgetScaleMin = 0.4f;
-
-        /// <summary>
-        /// Maximum scale of the Aim Widget.
-        /// </summary>
-        public float AimFeedbackWidgetScaleMax = 0.6f;
-
-        /// <summary>
-        /// Color of the aim widget as a function of aim percentage.
-        /// </summary>
-        public Gradient AimFeedbackWidgetColor;
 
         /// <summary>
         /// True if aim is enabled
@@ -76,13 +60,11 @@ namespace CreateAR.SpirePlayer
 
             if (AimFeedbackWidget != null)
             {
-                var aimFeedbackWidgetScale
-                    = Mathf.Lerp(AimFeedbackWidgetScaleMin, AimFeedbackWidgetScaleMax, _aim);
                 AimFeedbackWidget.transform.localScale 
                     = Vector3.one 
-                    * aimFeedbackWidgetScale;
+                    * Config.AimFeedbackScale.Evaluate(_aim);
                 AimFeedbackWidget.LocalColor 
-                    = AimFeedbackWidgetColor.Evaluate(_aim);
+                    = Config.AimFeedbackColor.Evaluate(_aim);
             }
         }
 
