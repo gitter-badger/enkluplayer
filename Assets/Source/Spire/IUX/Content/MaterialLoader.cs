@@ -209,34 +209,45 @@ namespace CreateAR.SpirePlayer
                 var name = prop.Key;
                 var value = (JObject) prop.Value;
 
-                JToken r, g, b, a;
-                if (value.TryGetValue("r", out r))
-                {
-                    if (value.TryGetValue("g", out g))
-                    {
-                        if (value.TryGetValue("b", out b))
-                        {
-                            if (value.TryGetValue("a", out a))
-                            {
-                                Material.SetColor(
-                                    name,
-                                    new Color(
-                                        r.Value<int>() / 255f,
-                                        g.Value<int>() / 255f,
-                                        b.Value<int>() / 255f,
-                                        a.Value<int>() / 255f));
-                            }
-                        }
-                    }
-                }
-
-                Log.Info(this, "\tApply {0}={1}", name, value.GetType());
+                TrySetColor(value, name);
             }
 
             if (null != OnLoaded)
             {
                 OnLoaded();
             }
+        }
+
+        /// <summary>
+        /// Tried to set a color.
+        /// </summary>
+        /// <param name="value"><c>JObject</c> value.</param>
+        /// <param name="name">Name of the uniform.</param>
+        private bool TrySetColor(JObject value, string name)
+        {
+            JToken r, g, b, a;
+            if (value.TryGetValue("r", out r))
+            {
+                if (value.TryGetValue("g", out g))
+                {
+                    if (value.TryGetValue("b", out b))
+                    {
+                        if (value.TryGetValue("a", out a))
+                        {
+                            Material.SetColor(
+                                name,
+                                new Color(
+                                    r.Value<int>() / 255f,
+                                    g.Value<int>() / 255f,
+                                    b.Value<int>() / 255f,
+                                    a.Value<int>() / 255f));
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }
