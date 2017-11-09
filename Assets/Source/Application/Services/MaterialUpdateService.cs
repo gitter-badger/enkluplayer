@@ -37,9 +37,7 @@ namespace CreateAR.SpirePlayer
         public override void Start()
         {
             base.Start();
-
-            _appData.OnUpdated += AppData_OnUpdated;
-
+            
             Subscribe<MaterialListEvent>(MessageTypes.MATERIAL_LIST, Messages_OnListEvent);
             Subscribe<MaterialAddEvent>(MessageTypes.MATERIAL_ADD, Messages_OnAddEvent);
             Subscribe<MaterialUpdateEvent>(MessageTypes.MATERIAL_UPDATE, Messages_OnUpdateEvent);
@@ -64,9 +62,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="event">The event.</param>
         private void Messages_OnAddEvent(MaterialAddEvent @event)
         {
-            Log.Info(this, "Add Material {0}.", @event.Material);
+            var material = @event.Material;
 
-            _appData.Add(@event.Material);
+            Log.Info(this, "Add Material {0}.", material);
+
+            _appData.Add(material);
         }
 
         /// <summary>
@@ -75,9 +75,13 @@ namespace CreateAR.SpirePlayer
         /// <param name="event">The event.</param>
         private void Messages_OnUpdateEvent(MaterialUpdateEvent @event)
         {
-            Log.Info(this, "Update Material {0}.", @event.Material);
+            var material = @event.Material;
 
-            _appData.Update(@event.Material);
+            Log.Info(this, "Update Material {0}.", material);
+
+            _appData.Update(material);
+
+            UpdateContent(material);
         }
 
         /// <summary>
@@ -93,17 +97,11 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when a piece of app data has been updated.
+        /// Updates all active content with matching material.
         /// </summary>
-        /// <param name="staticData">App data that has been updated.</param>
-        private void AppData_OnUpdated(StaticData staticData)
+        /// <param name="materialData">Material to update.</param>
+        private void UpdateContent(MaterialData materialData)
         {
-            var materialData = staticData as MaterialData;
-            if (null == materialData)
-            {
-                return;
-            }
-
             // find content using this material + update
             var materialId = materialData.Id;
             var matches = new List<Content>();
@@ -113,9 +111,9 @@ namespace CreateAR.SpirePlayer
                 var contentData = allContentData[i];
                 if (contentData.MaterialId == materialId)
                 {
-                    // find related content
+                    // find active content
                     _content.FindAll(contentData.Id, matches);
-
+                    
                     // send update to all related content
                     var jlen = matches.Count;
                     if (jlen > 0)

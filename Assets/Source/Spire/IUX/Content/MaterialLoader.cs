@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -30,6 +31,11 @@ namespace CreateAR.SpirePlayer
         /// Actions for unwatching texture assets.
         /// </summary>
         private readonly List<Action> _unwatchTextureAssets = new List<Action>();
+
+        /// <summary>
+        /// Data to apply to <c>Material</c>.
+        /// </summary>
+        private MaterialData _materialData;
 
         /// <summary>
         /// The <c>Material</c> to apply.
@@ -71,7 +77,18 @@ namespace CreateAR.SpirePlayer
         /// <param name="material">Material data.</param>
         private void Setup(MaterialData material)
         {
-            // shader
+            _materialData = material;
+            
+            SetupShader(material);
+            SetupTextures(material);
+        }
+
+        /// <summary>
+        /// Sets up the shader.
+        /// </summary>
+        /// <param name="material">Data to use to setup material.</param>
+        private void SetupShader(MaterialData material)
+        {
             var shaderData = _appData.Get<ShaderData>(material.ShaderId);
             if (null != shaderData)
             {
@@ -107,8 +124,14 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Warning(this, "No shader found for id {0}.", material.ShaderId);
             }
+        }
 
-            // textures
+        /// <summary>
+        /// Sets up textures.
+        /// </summary>
+        /// <param name="material">Data to use to setup textures.</param>
+        private void SetupTextures(MaterialData material)
+        {
             foreach (var pair in material.Textures)
             {
                 var uniform = pair.Key;
@@ -141,6 +164,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Teardown()
         {
+            _materialData = null;
+
             if (null != _unwatchShaderAsset)
             {
                 _unwatchShaderAsset();
@@ -176,11 +201,37 @@ namespace CreateAR.SpirePlayer
         /// <param name="shader">The shader to apply to the <c>Material</c>.</param>
         private void ShaderAsset_OnUpdate(Shader shader)
         {
-            Log.Info(this, "Shader updated.");
-
             Material.shader = shader;
 
             // TODO: set properties
+            foreach (var prop in _materialData.Properties)
+            {
+                var name = prop.Key;
+                var value = (JObject) prop.Value;
+
+                JToken r, g, b, a;
+                if (value.TryGetValue("r", out r))
+                {
+                    if (value.TryGetValue("g", out g))
+                    {
+                        if (value.TryGetValue("b", out b))
+                        {
+                            if (value.TryGetValue("a", out a))
+                            {
+                                Material.SetColor(
+                                    name,
+                                    new Color(
+                                        r.Value<int>() / 255f,
+                                        g.Value<int>() / 255f,
+                                        b.Value<int>() / 255f,
+                                        a.Value<int>() / 255f));
+                            }
+                        }
+                    }
+                }
+
+                Log.Info(this, "\tApply {0}={1}", name, value.GetType());
+            }
 
             if (null != OnLoaded)
             {
