@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// Configuration object for <c>AssetManager</c>.

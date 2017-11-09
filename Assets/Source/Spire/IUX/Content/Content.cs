@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.Assets;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -17,19 +18,14 @@ namespace CreateAR.SpirePlayer
         private readonly string _scriptTag = Guid.NewGuid().ToString();
 
         /// <summary>
-        /// Loads assets.
-        /// </summary>
-        private IAssetManager _assets;
-
-        /// <summary>
         /// Loads and executes scripts.
         /// </summary>
         private IScriptManager _scripts;
 
         /// <summary>
-        /// Manages pooling.
+        /// Assembles <c>Content</c>.
         /// </summary>
-        private IAssetPoolManager _pools;
+        private IContentAssembler _assembler;
 
         /// <summary>
         /// True iff Setup has been called.
@@ -55,22 +51,7 @@ namespace CreateAR.SpirePlayer
         /// Scripting host.
         /// </summary>
         private UnityScriptingHost _host;
-
-        /// <summary>
-        /// The Asset.
-        /// </summary>
-        private Asset _asset;
-
-        /// <summary>
-        /// Instance of Asset's prefab.
-        /// </summary>
-        private GameObject _instance;
-
-        /// <summary>
-        /// An action to unsubscribe from <c>Asset</c> updates.
-        /// </summary>
-        private Action _unwatch;
-
+        
         /// <summary>
         /// Token, lazily created through property OnLoaded.
         /// </summary>
@@ -102,11 +83,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called to setup the content.
         /// </summary>
+        /// <param name="appData">Application data.</param>
         /// <param name="assets">Loads assets.</param>
         /// <param name="scripts">Loads + executes scripts.</param>
         /// <param name="pools">Manages pooling.</param>
         /// <param name="data">Data to setup with.</param>
         public void Setup(
+            IAppDataManager appData,
             IAssetManager assets,
             IScriptManager scripts,
             IAssetPoolManager pools,
@@ -120,11 +103,17 @@ namespace CreateAR.SpirePlayer
                     data.Name));
             }
             _setup = true;
-
-            _assets = assets;
+            
             _scripts = scripts;
-            _pools = pools;
-
+            
+            // TODO: Pull out of Content, obvi
+            _assembler = new ModelContentAssembler(
+                appData,
+                assets,
+                pools);
+            
+            _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
+            
             _host = new UnityScriptingHost(
                 this,
                 null,
@@ -132,14 +121,14 @@ namespace CreateAR.SpirePlayer
             
             UpdateData(data);
         }
-
+        
         /// <summary>
-        /// Destroyes this instance. Should not be called directly, but through
+        /// Destroys this instance. Should not be called directly, but through
         /// <c>IContentManager</c> Release flow.
         /// </summary>
         public void Destroy()
         {
-            TeardownAsset();
+            _assembler.Teardown();
             TeardownScripts();
 
             Destroy(gameObject);
@@ -170,16 +159,28 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Updates the underlying material data.
+        /// </summary>
+        /// <param name="data">Material data to update with.</param>
+        public void UpdateMaterialData(MaterialData data)
+        {
+            _assembler.UpdateMaterialData(data);
+        }
+        
+        /// <summary>
         /// Tears down the asset and sets it back up.
         /// </summary>
         private void RefreshAsset()
         {
             Log.Info(this, "Refresh asset for {0}.", Data);
 
-            TeardownAsset();
-            SetupAsset();
+            _assembler.Teardown();
+            _assembler.Setup(Data);
         }
 
+        /// <summary>
+        /// Tears down scripts and sets them back up.
+        /// </summary>
         private void RefreshScripts()
         {
             Log.Info(this, "Refresh scripts for {0}.", Data);
@@ -187,90 +188,7 @@ namespace CreateAR.SpirePlayer
             TeardownScripts();
             SetupScripts();
         }
-
-        private void SetupAsset()
-        {
-            // get the corresponding asset
-            _asset = Asset(Data);
-            if (null == _asset)
-            {
-                Log.Warning(this,
-                    "Could not find Asset for content {0}.",
-                    Data);
-                
-                return;
-            }
-
-            // watch to unload
-            _asset.OnRemoved += Asset_OnRemoved;
-
-            // asset might already be loaded!
-            var prefab = _asset.As<GameObject>();
-            if (null != prefab)
-            {
-                ReplaceInstance(prefab);
-            }
-
-            // watch for asset reloads
-            // TODO: No way to see if asset load failed!
-            _unwatch = _asset.Watch<GameObject>(value =>
-            {
-                Log.Info(this, "Asset loaded.");
-
-                ReplaceInstance(value);
-
-                _onAssetLoaded.Succeed(this);
-            });
-
-            // automatically reload
-            _asset.AutoReload = true;
-        }
-
-        /// <summary>
-        /// Creates an instance of the loaded asset and replaces the existing
-        /// instance, if there is one.
-        /// </summary>
-        /// <param name="value">The GameObject that was loaded.</param>
-        private void ReplaceInstance(GameObject value)
-        {
-            // put existing instance back
-            if (null != _instance)
-            {
-                _pools.Put(_instance);
-                _instance = null;
-            }
-
-            // get a new one
-            _instance = _pools.Get<GameObject>(value);
-            _instance.transform.SetParent(transform, false);
-
-            UpdateInstancePosition();
-        }
-
-        /// <summary>
-        /// Destroys the asset and stops watching it.
-        /// </summary>
-        private void TeardownAsset()
-        {
-            if (null != _instance)
-            {
-                _pools.Put(_instance);
-                _instance = null;
-            }
-
-            if (null != _unwatch)
-            {
-                _unwatch();
-                _unwatch = null;
-            }
-
-            if (null != _asset)
-            {
-                _asset.OnRemoved -= Asset_OnRemoved;
-                _asset = null;
-            }
-        }
-
+        
         /// <summary>
         /// Loads all scripts.
         /// </summary>
@@ -362,48 +280,7 @@ namespace CreateAR.SpirePlayer
             // release scripts we created
             _scripts.ReleaseAll(_scriptTag);
         }
-
-        /// <summary>
-        /// Retrieves the asset corresponding to the input <c>ContentData</c>.
-        /// </summary>
-        /// <param name="data">The <c>ContentData</c> to find <c>Asset</c> for.</param>
-        /// <returns></returns>
-        private Asset Asset(ContentData data)
-        {
-            var assetId = null != data.Asset
-                ? data.Asset.AssetDataId
-                : string.Empty;
-            if (string.IsNullOrEmpty(assetId))
-            {
-                return null;
-            }
-
-            return _assets.Manifest.Asset(assetId);
-        }
-
-        /// <summary>
-        /// Updates the position of the asset instance.
-        /// </summary>
-        private void UpdateInstancePosition()
-        {
-            // configure
-            if (Data.PreserveColor)
-            {
-                ColorMode = ColorMode.InheritAlpha;
-            }
-
-            // parent + orient
-            _instance.name = Data.Asset.AssetDataId;
-            _instance.transform.SetParent(transform);
-            /*
-            _instance.transform.localPosition = assetPrefab.transform.localPosition;
-            _instance.transform.localRotation = assetPrefab.transform.localRotation;
-            _instance.transform.localScale = assetPrefab.transform.localScale;*/
-            _instance.SetActive(true);
-
-            LocalVisible = true;
-        }
-
+        
         /// <summary>
         /// True iff scripts need to be torn down and setup.
         /// </summary>
@@ -435,12 +312,16 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when the asset has been removed from the manifest.
+        /// Called when the assembler has completed seting up the asset.
         /// </summary>
-        /// <param name="asset">The asset that has been removed.</param>
-        private void Asset_OnRemoved(Asset asset)
+        private void Assembler_OnAssemblyComplete(GameObject instance)
         {
-            TeardownAsset();
+            // parent + orient
+            instance.name = Data.Asset.AssetDataId;
+            instance.transform.SetParent(transform, false);
+            instance.SetActive(true);
+
+            _onAssetLoaded.Succeed(this);
         }
     }
 }

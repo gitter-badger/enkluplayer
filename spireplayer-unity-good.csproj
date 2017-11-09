@@ -140,7 +140,9 @@
     <Compile Include="Assets\Source\Application\Services\AuthorizationService.cs" />
     <Compile Include="Assets\Source\Application\Services\ContentGraphUpdateService.cs" />
     <Compile Include="Assets\Source\Application\Services\ContentUpdateService.cs" />
+    <Compile Include="Assets\Source\Application\Services\MaterialUpdateService.cs" />
     <Compile Include="Assets\Source\Application\Services\ScriptUpdateService.cs" />
+    <Compile Include="Assets\Source\Application\Services\ShaderUpdateService.cs" />
     <Compile Include="Assets\Source\Async\Async.cs" />
     <Compile Include="Assets\Source\Camera\FocusManager.cs" />
     <Compile Include="Assets\Source\Debug\Log\UwpSocketLogger.cs" />
@@ -178,8 +180,10 @@
     <Compile Include="Assets\Source\Messages\ToApplication\FatalErrorEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\HierarchyEvents.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\HierarchyNodeData.cs" />
+    <Compile Include="Assets\Source\Messages\ToApplication\MaterialEvents.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\PreviewEvent.cs" />
     <Compile Include="Assets\Source\Messages\ToApplication\ScriptEvents.cs" />
+    <Compile Include="Assets\Source\Messages\ToApplication\ShaderEvents.cs" />
     <Compile Include="Assets\Source\Network\Model\AssetModel.cs" />
     <Compile Include="Assets\Source\Network\Model\UserModel.cs" />
     <Compile Include="Assets\Source\Network\Uwp\IUwpWebsocketService.cs" />
@@ -200,29 +204,32 @@
     <Compile Include="Assets\Source\Spire\App\SpireScript.cs" />
     <Compile Include="Assets\Source\Spire\Asset\Asset.cs" />
     <Compile Include="Assets\Source\Spire\Asset\AssetBundleLoader.cs" />
-    <Compile Include="Assets\Source\Spire\Asset\AssetData.cs" />
     <Compile Include="Assets\Source\Spire\Asset\AssetManager.cs" />
     <Compile Include="Assets\Source\Spire\Asset\AssetManagerConfiguration.cs" />
     <Compile Include="Assets\Source\Spire\Asset\AssetManifest.cs" />
-    <Compile Include="Assets\Source\Spire\Asset\EditorAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Asset\IAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Asset\IAssetManager.cs" />
+    <Compile Include="Assets\Source\Spire\Asset\Render\MaterialManager.cs" />
+    <Compile Include="Assets\Source\Spire\Asset\Render\ShaderCache.cs" />
     <Compile Include="Assets\Source\Spire\Asset\StandardAssetLoader.cs" />
     <Compile Include="Assets\Source\Spire\Audio\MusicManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\AnchorData.cs" />
-    <Compile Include="Assets\Source\Spire\Data\AppData.cs" />
     <Compile Include="Assets\Source\Spire\Data\AppDataManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\AssetDataManifest.cs" />
     <Compile Include="Assets\Source\Spire\Data\AssetReference.cs" />
-    <Compile Include="Assets\Source\Spire\Data\ContentData.cs" />
     <Compile Include="Assets\Source\Spire\Data\FileProtocols.cs" />
     <Compile Include="Assets\Source\Spire\Data\IAdminAppDataManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\IAppDataManager.cs" />
     <Compile Include="Assets\Source\Spire\Data\PoolData.cs" />
-    <Compile Include="Assets\Source\Spire\Data\SceneData.cs" />
-    <Compile Include="Assets\Source\Spire\Data\ScriptData.cs" />
     <Compile Include="Assets\Source\Spire\Data\ScriptReference.cs" />
-    <Compile Include="Assets\Source\Spire\Data\StaticData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\AppData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\AssetData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\ContentData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\MaterialData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\SceneData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\ScriptData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\ShaderData.cs" />
+    <Compile Include="Assets\Source\Spire\Data\Static\StaticData.cs" />
     <Compile Include="Assets\Source\Spire\IUX\ColorConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Anchor.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\AnchorReferenceFrameFactory.cs" />
@@ -233,11 +240,14 @@
     <Compile Include="Assets\Source\Spire\IUX\Content\FloorAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IAnchorReferenceFrameFactory.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\IContentAssembler.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IContentFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\IContentManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Locator.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\LocatorAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\LocatorSet.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\MaterialLoader.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\ModelContentAssembler.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\NoneAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\Element.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementData.cs" />
@@ -502,6 +512,7 @@
     <None Include="Assets\Plugins\ThirdParty\WebSocket-Sharp\websocket-sharp.xml" />
     <None Include="Assets\Plugins\link.xml" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
 </Project>

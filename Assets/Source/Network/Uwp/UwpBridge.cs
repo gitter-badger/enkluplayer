@@ -106,7 +106,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IBridge"/>
         public void Uninitialize()
         {
-            //
+            Binder.Clear();
         }
 
         /// <summary>

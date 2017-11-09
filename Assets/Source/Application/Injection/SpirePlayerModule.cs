@@ -2,6 +2,7 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.Assets;
 using Jint.Parser;
 using Jint.Unity;
 using strange.extensions.injector.impl;
@@ -89,6 +90,8 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ContentGraphUpdateService>().To<ContentGraphUpdateService>().ToSingleton();
                     binder.Bind<ContentUpdateService>().To<ContentUpdateService>().ToSingleton();
                     binder.Bind<ScriptUpdateService>().To<ScriptUpdateService>().ToSingleton();
+                    binder.Bind<MaterialUpdateService>().To<MaterialUpdateService>().ToSingleton();
+                    binder.Bind<ShaderUpdateService>().To<ShaderUpdateService>().ToSingleton();
                 }
 
                 // application states
@@ -111,7 +114,9 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<AssetUpdateService>(),
                         binder.GetInstance<ContentGraphUpdateService>(),
                         binder.GetInstance<ContentUpdateService>(),
-                        binder.GetInstance<ScriptUpdateService>()
+                        binder.GetInstance<ScriptUpdateService>(),
+                        binder.GetInstance<MaterialUpdateService>(),
+                        binder.GetInstance<ShaderUpdateService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }
