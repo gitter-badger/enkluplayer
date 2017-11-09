@@ -10,7 +10,7 @@ namespace CreateAR.SpirePlayer.Assets
     public class AssetManifest
     {
         /// <summary>
-        /// A lookup from guid to AssetReference.
+        /// A lookup from guid to Asset.
         /// </summary>
         private readonly Dictionary<string, Asset> _guidToReference = new Dictionary<string, Asset>();
 
@@ -191,7 +191,7 @@ namespace CreateAR.SpirePlayer.Assets
         }
 
         /// <summary>
-        /// Retrieves the <c>AssetReference</c> for a particular guid.
+        /// Retrieves the <c>Asset</c> for a particular guid.
         /// </summary>
         /// <param name="guid">The guid for a particular asset.</param>
         /// <returns></returns>
@@ -204,9 +204,9 @@ namespace CreateAR.SpirePlayer.Assets
         }
 
         /// <summary>
-        /// Finds a single <c>AssetReference</c> by some query.
+        /// Finds a single <c>Asset</c> by some query.
         /// 
-        /// Queries are resolved against <c>AssetReference</c> tags via the
+        /// Queries are resolved against <c>Asset</c> tags via the
         /// <c>IQueryResolver</c> object passed into the
         /// <c>AssetManagerConfiguration.</c>
         /// </summary>
@@ -229,9 +229,9 @@ namespace CreateAR.SpirePlayer.Assets
         }
 
         /// <summary>
-        /// Finds all <c>AssetReference</c> instances that match the given query.
+        /// Finds all <c>Asset</c> instances that match the given query.
         /// 
-        /// Queries are resolved against <c>AssetReference</c> tags via the
+        /// Queries are resolved against <c>Asset</c> tags via the
         /// <c>IQueryResolver</c> object passed into the
         /// <c>AssetManagerConfiguration.</c>
         /// </summary>

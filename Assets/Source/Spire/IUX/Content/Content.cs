@@ -83,11 +83,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called to setup the content.
         /// </summary>
+        /// <param name="appData">Application data.</param>
         /// <param name="assets">Loads assets.</param>
         /// <param name="scripts">Loads + executes scripts.</param>
         /// <param name="pools">Manages pooling.</param>
         /// <param name="data">Data to setup with.</param>
         public void Setup(
+            IAppDataManager appData,
             IAssetManager assets,
             IScriptManager scripts,
             IAssetPoolManager pools,
@@ -106,10 +108,11 @@ namespace CreateAR.SpirePlayer
             
             // TODO: Pull out of Content, obvi
             _assembler = new ModelContentAssembler(
+                appData,
                 assets,
                 pools);
             
-            _assembler.OnSetupComplete += Assembler_OnSetupComplete;
+            _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
             
             _host = new UnityScriptingHost(
                 this,
@@ -302,7 +305,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the assembler has completed seting up the asset.
         /// </summary>
-        private void Assembler_OnSetupComplete(GameObject instance)
+        private void Assembler_OnAssemblyComplete(GameObject instance)
         {
             // parent + orient
             instance.name = Data.Asset.AssetDataId;

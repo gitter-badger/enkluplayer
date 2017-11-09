@@ -12,6 +12,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
+        private readonly IAppDataManager _appData;
         private readonly IAssetManager _assets;
         private readonly IScriptManager _scripts;
         private readonly IAssetPoolManager _pools;
@@ -21,11 +22,13 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public ContentFactory(
+            IAppDataManager appData,
             IAssetManager assets,
             IScriptManager scripts,
             IAssetPoolManager pools,
             IAnchorReferenceFrameFactory frames)
         {
+            _appData = appData;
             _assets = assets;
             _scripts = scripts;
             _pools = pools;
@@ -46,7 +49,7 @@ namespace CreateAR.SpirePlayer
 
             // setup the content
             var newContent = instance.AddComponent<Content>();
-            newContent.Setup(_assets, _scripts, _pools, data);
+            newContent.Setup(_appData, _assets, _scripts, _pools, data);
 
             return newContent;
         }

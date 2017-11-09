@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.Assets;
 
 namespace CreateAR.SpirePlayer
 {
@@ -12,7 +13,7 @@ namespace CreateAR.SpirePlayer
         /// AppData.
         /// </summary>
         private readonly IAdminAppDataManager _appData;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>

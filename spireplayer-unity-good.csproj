@@ -247,6 +247,8 @@
     <Compile Include="Assets\Source\Spire\IUX\Content\Locator.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\LocatorAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\LocatorSet.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\MaterialLoader.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Content\ModelContentAssembler.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\NoneAnchorReferenceFrame.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\Element.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementData.cs" />

@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.Assets;
 
 namespace CreateAR.SpirePlayer
 {
@@ -44,6 +45,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Set material list.");
 
+            // set app id
             _appData.Set(@event.Materials);
         }
 

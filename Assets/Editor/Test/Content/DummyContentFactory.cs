@@ -10,6 +10,7 @@ namespace CreateAR.SpirePlayer.Test
             var go = new GameObject();
             var comp = go.AddComponent<SpirePlayer.Content>();
             comp.Setup(
+                null,
                 new DummyAssetManager(),
                 new DummyScriptManager(),
                 new DummyPoolManager(), 
