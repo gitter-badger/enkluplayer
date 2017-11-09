@@ -20,12 +20,7 @@ namespace CreateAR.SpirePlayer
         /// Manages assets.
         /// </summary>
         private readonly IAssetManager _assets;
-
-        /// <summary>
-        /// Asset for the shader.
-        /// </summary>
-        private Asset _shaderAsset;
-
+        
         /// <summary>
         /// Action to unwatch shaderAsset.
         /// </summary>
@@ -56,7 +51,8 @@ namespace CreateAR.SpirePlayer
             _appData = appData;
             _assets = assets;
 
-            Material = new Material(new Shader());
+            Material = new Material(Shader.Find("Unlit/Color"));
+            Material.SetColor("_Color", Color.magenta);
         }
         
         /// <summary>
@@ -79,13 +75,29 @@ namespace CreateAR.SpirePlayer
             var shaderData = _appData.Get<ShaderData>(material.ShaderId);
             if (null != shaderData)
             {
-                Log.Info(this, "Load shader {0}.", shaderData.Name);
+                Log.Info(this, "Load shader {0}.", shaderData);
 
-                _shaderAsset = _assets.Manifest.Asset(shaderData.Id);
-                _unwatchShaderAsset = _shaderAsset.Watch<Shader>(ShaderAsset_OnUpdate);
+                var asset = _assets.Manifest.Asset(shaderData.Id);
+                if (null == asset)
+                {
+                    // might be baked in
+                    var shader = Shader.Find(shaderData.Name);
+                    if (null != shader)
+                    {
+                        ShaderAsset_OnUpdate(shader);
+                    }
+                }
+                else
+                {
+                    _unwatchShaderAsset = asset.Watch<Shader>(ShaderAsset_OnUpdate);
 
-                // triggers reload automatically
-                _shaderAsset.AutoReload = true;
+                    // triggers reload automatically
+                    asset.AutoReload = true;
+                }
+            }
+            else
+            {
+                Log.Warning(this, "No shader found for id {0}.", material.ShaderId);
             }
 
             // textures
@@ -100,6 +112,7 @@ namespace CreateAR.SpirePlayer
 
                     var unwatch = textureAsset.Watch(TextureAsset_OnUpdate(uniform));
                     _unwatchTextureAssets.Add(unwatch);
+                    textureAsset.AutoReload = true;
                 }
             }
         }
@@ -109,10 +122,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Teardown()
         {
-            if (null != _shaderAsset)
+            if (null != _unwatchShaderAsset)
             {
                 _unwatchShaderAsset();
-                _shaderAsset = null;
+                _unwatchShaderAsset = null;
             }
 
             for (int i = 0, len = _unwatchTextureAssets.Count; i < len; i++)
