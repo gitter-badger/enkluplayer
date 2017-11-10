@@ -179,6 +179,10 @@ namespace CreateAR.SpirePlayer
                 {
                     return "webgl";
                 }
+                case RuntimePlatform.IPhonePlayer:
+                {
+                    return "ios";
+                }
                 default:
                 {
                     return "UNKNOWN";
