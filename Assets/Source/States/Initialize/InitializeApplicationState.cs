@@ -6,7 +6,6 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
-using UnityEditor;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -171,7 +170,7 @@ namespace CreateAR.SpirePlayer
                     // floor found!
                     if (null != lowest)
                     {
-                        Log.Info(this, "Floor found.");
+                        Log.Info(this, "Floor found : {0}.", lowest);
                     
                         // tag it
                         lowest.Tag(ArAnchorTags.FLOOR);

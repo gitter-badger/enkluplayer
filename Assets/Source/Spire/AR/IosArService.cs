@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.XR.iOS;
 using Object = UnityEngine.Object;

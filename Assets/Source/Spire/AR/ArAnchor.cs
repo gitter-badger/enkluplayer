@@ -50,7 +50,20 @@ namespace CreateAR.SpirePlayer.AR
         {
             Id = id;
         }
-        
+
+        /// <summary>
+        /// ToString override.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[ArAnchor Id={0}, Position=({1:0.0}, {2:0.0}, {3:0.0})]",
+                Id,
+                Position.x,
+                Position.y,
+                Position.z);
+        }
+
         /// <summary>
         /// Tag to add.
         /// </summary>
