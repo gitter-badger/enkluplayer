@@ -69,8 +69,12 @@ namespace CreateAR.SpirePlayer
             Log.AddLogTarget(new UwpSocketLogger(
                 "Spire",
                 new System.Uri("ws://127.0.0.1:9999")));*/
-#else       
-            Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
+#else
+            Log.AddLogTarget(new FileLogTarget(
+				new DefaultLogFormatter(),
+                System.IO.Path.Combine(
+                    UnityEngine.Application.persistentDataPath,
+                    "Application.log")));
 #endif
 
             // setup debug renderer

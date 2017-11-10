@@ -4,7 +4,9 @@
 [Bb]uild/
 [Bb]uild_*/
 [Bb]uild.Jint.*/
+builds/
 .Packages/
+.idea/
 
 # Visual Studio 2015 cache directory
 /.vs/
@@ -22,6 +24,7 @@ ExportedObj/
 *.booproj
 *.svd
 *.log
+*.csproj
 
 # Unity3D generated meta files
 *.pidb.meta
