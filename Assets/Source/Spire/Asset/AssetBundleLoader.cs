@@ -156,7 +156,7 @@ namespace CreateAR.SpirePlayer.Assets
             Log.Info(this, "Downloading bundle {0}.", _url);
 
             var request = UnityWebRequest.GetAssetBundle(_url);
-            request.Send();
+            request.SendWebRequest();
 
             while (!request.isDone)
             {

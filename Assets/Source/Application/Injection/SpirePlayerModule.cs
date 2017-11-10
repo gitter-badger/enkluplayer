@@ -152,7 +152,6 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IIntentionManager>().ToValue(LookupComponent<IntentionManager>());
                 binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
                 binder.Bind<LayerManager>().ToValue(LookupComponent<LayerManager>());
-                binder.Bind<MusicManager>().ToValue(LookupComponent<MusicManager>());
             }
 
             // hierarchy
