@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.AR
 {
@@ -7,6 +8,16 @@ namespace CreateAR.SpirePlayer.AR
     /// </summary>
     public class ArAnchor
     {
+        /// <summary>
+        /// Backing variable for <c>Tags</c>.
+        /// </summary>
+        private readonly List<string> _tags = new List<string>();
+        
+        /// <summary>
+        /// Tags.
+        /// </summary>
+        public string[] Tags { get { return _tags.ToArray(); } }
+        
         /// <summary>
         /// Unique id of the anchor.
         /// </summary>
@@ -38,6 +49,35 @@ namespace CreateAR.SpirePlayer.AR
         public ArAnchor(string id)
         {
             Id = id;
+        }
+        
+        /// <summary>
+        /// Tag to add.
+        /// </summary>
+        /// <param name="tag">The tag to add.</param>
+        public void Tag(string tag)
+        {
+            if (!_tags.Contains(tag))
+            {
+                _tags.Add(tag);
+            }
+        }
+
+        /// <summary>
+        /// Removes a tag.
+        /// </summary>
+        /// <param name="tag">Tag to remove./</param>
+        public void Untag(string tag)
+        {
+            _tags.Remove(tag);
+        }
+
+        /// <summary>
+        /// Clears all tags.
+        /// </summary>
+        public void ClearTags()
+        {
+            _tags.Clear();
         }
     }
 }

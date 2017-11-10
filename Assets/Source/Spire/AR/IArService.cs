@@ -4,10 +4,10 @@ namespace CreateAR.SpirePlayer.AR
 {
     public interface IArService
     {
-        Camera Camera { get; set;}
+        Camera Camera { get; }
         ArAnchor[] Anchors { get; }
         
-        void Setup(ArServiceConfiguration config);
+        void Setup(Camera camera, ArServiceConfiguration config);
         void Teardown();
     }
 }

@@ -21,7 +21,7 @@ namespace CreateAR.SpirePlayer.AR
             {
                 return _camera;
             }
-            set
+            private set
             {
                 if (value == _camera)
                 {
@@ -43,9 +43,11 @@ namespace CreateAR.SpirePlayer.AR
             _interface = @interface;
         }
 
-        public void Setup(ArServiceConfiguration config)
+        public void Setup(Camera camera, ArServiceConfiguration config)
         {
             _config = config;
+
+            Camera = camera;
             
             UnityARSessionNativeInterface.ARAnchorAddedEvent += Interface_OnAnchorAdded;
             UnityARSessionNativeInterface.ARAnchorUpdatedEvent += Interface_OnAnchorUpdated;

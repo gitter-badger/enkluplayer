@@ -5,7 +5,7 @@ namespace CreateAR.SpirePlayer.AR
 {
     public class EditorArService : IArService
     {
-        public Camera Camera { get; set; }
+        public Camera Camera { get; private set; }
 
         public ArAnchor[] Anchors
         {
@@ -24,9 +24,9 @@ namespace CreateAR.SpirePlayer.AR
             }
         }
 
-        public void Setup(ArServiceConfiguration config)
+        public void Setup(Camera camera, ArServiceConfiguration config)
         {
-            
+            Camera = camera;
         }
 
         public void Teardown()
