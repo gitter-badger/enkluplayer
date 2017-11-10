@@ -9,30 +9,17 @@ public class UnityARCameraManager : MonoBehaviour {
     private UnityARSessionNativeInterface m_session;
 	private Material savedClearMaterial;
 
-	[Header("AR Config Options")]
-	public UnityARAlignment startAlignment = UnityARAlignment.UnityARAlignmentGravity;
-	public UnityARPlaneDetection planeDetection = UnityARPlaneDetection.Horizontal;
-	public bool getPointCloud = true;
-	public bool enableLightEstimation = true;
-
 	// Use this for initialization
 	void Start () {
 
 		m_session = UnityARSessionNativeInterface.GetARSessionNativeInterface();
 
 #if !UNITY_EDITOR
-		Application.targetFrameRate = 60;
-        ARKitWorldTrackingSessionConfiguration config = new ARKitWorldTrackingSessionConfiguration();
-		config.planeDetection = planeDetection;
-		config.alignment = startAlignment;
-		config.getPointCloudData = getPointCloud;
-		config.enableLightEstimation = enableLightEstimation;
-        m_session.RunWithConfig(config);
-
 		if (m_camera == null) {
-			m_camera = Camera.main;
+			m_camera = GetComponent<Camera>() ?? Camera.main;
 		}
 #else
+		
 		//put some defaults so that it doesnt complain
 		UnityARCamera scamera = new UnityARCamera ();
 		scamera.worldTransform = new UnityARMatrix4x4 (new Vector4 (1, 0, 0, 0), new Vector4 (0, 1, 0, 0), new Vector4 (0, 0, 1, 0), new Vector4 (0, 0, 0, 1));

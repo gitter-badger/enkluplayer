@@ -1,7 +1,9 @@
 ﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -17,6 +19,8 @@ namespace CreateAR.SpirePlayer
         private readonly IHttpService _http;
         private readonly IBootstrapper _bootstrapper;
         private readonly IAssetManager _assets;
+        private readonly ArServiceConfiguration _config;
+        private readonly IArService _ar;
         
         /// <summary>
         /// Constructor.
@@ -25,17 +29,25 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IHttpService http,
             IBootstrapper bootstrapper,
-            IAssetManager assets)
+            IAssetManager assets,
+            ArServiceConfiguration config,
+            IArService ar)
         {
             _messages = messages;
             _http = http;
             _bootstrapper = bootstrapper;
             _assets = assets;
+            _config = config;
+            _ar = ar;
         }
 
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
+            // ar
+            _ar.Setup(_config);
+            _ar.Camera = Camera.main;
+            
             // setup http
             _http.UrlBuilder.Protocol = "http";
             _http.UrlBuilder.BaseUrl = "localhost";
