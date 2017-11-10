@@ -2,12 +2,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using LogLevel = WebSocketSharp.LogLevel;
@@ -185,12 +183,14 @@ namespace CreateAR.SpirePlayer
 			bootstrapper.BootstrapCoroutine(ConsumeMessages());
 
 			// create new server
-			_server = new WebSocketServer("ws://localhost:4649");
-			_server.Log.Level = LogLevel.Warn;
+			_server = new WebSocketServer(4649);
+			_server.Log.Level = LogLevel.Trace;
 			_server.Log.Output = (data, message) =>
 			{
-				Debug.Log(string.Format("WS[{0}] = {1}", message, data));
+				Log.Info(this, "WS[{0}] = {1}", message, data);
 			};
+			
+			Log.Info(this, "Started server at {0}. IsListening: {1}.", _server.Address, _server.IsListening);
 
 			// create service factory
 			_server.AddWebSocketService(
@@ -205,8 +205,6 @@ namespace CreateAR.SpirePlayer
 					return service;
 				});
 			_server.Start();
-
-            LogNetworkInfo();
 		}
 
 		/// <summary>
@@ -349,29 +347,6 @@ namespace CreateAR.SpirePlayer
 
 			service.SendMessage(payload);
 		}
-
-        /// <summary>
-        /// Logs networking information.
-        /// </summary>
-        private void LogNetworkInfo()
-        {
-            Log.Info(this, "Networking information:");
-
-            foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                if (nic.NetworkInterfaceType == NetworkInterfaceType.Wireless80211
-                    || nic.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
-                {
-                    foreach (var ip in nic.GetIPProperties().UnicastAddresses)
-                    {
-                        if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                        {
-                            Log.Info(this, "\t{0}", ip.Address);
-                        }
-                    }
-                }
-            }
-        }
 
 		/// <summary>
 		/// Kills server.

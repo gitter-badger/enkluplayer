@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 6a17b305d4e8c164db70258cf2ff34f9
-timeCreated: 1505762007
+guid: a6e991b2f4d184ffabcb43a1cf9b6c7a
+timeCreated: 1510272068
 licenseType: Pro
 PluginImporter:
   serializedVersion: 2
@@ -16,7 +16,7 @@ PluginImporter:
         enabled: 0
         settings:
           Exclude Android: 1
-          Exclude Editor: 0
+          Exclude Editor: 1
           Exclude Linux: 1
           Exclude Linux64: 1
           Exclude LinuxUniversal: 1
@@ -45,7 +45,7 @@ PluginImporter:
       first:
         Editor: Editor
       second:
-        enabled: 1
+        enabled: 0
         settings:
           CPU: AnyCPU
           DefaultValueInitialized: true
@@ -80,6 +80,13 @@ PluginImporter:
           CPU: x86_64
     data:
       first:
+        Standalone: LinuxUniversal
+      second:
+        enabled: 0
+        settings:
+          CPU: None
+    data:
+      first:
         Standalone: OSXIntel
       second:
         enabled: 0
@@ -92,6 +99,13 @@ PluginImporter:
         enabled: 0
         settings:
           CPU: AnyCPU
+    data:
+      first:
+        Standalone: OSXUniversal
+      second:
+        enabled: 0
+        settings:
+          CPU: None
     data:
       first:
         Standalone: Win
