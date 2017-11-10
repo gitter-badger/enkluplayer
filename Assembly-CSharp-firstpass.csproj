@@ -8,12 +8,13 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{786A29AF-44D3-69EA-54E2-124E2320E12F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseDirectory>Assets</BaseDirectory>
   </PropertyGroup>
@@ -39,7 +40,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.XML" />
+    <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
@@ -51,47 +52,47 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Plugins\CreateAR\Debug\DebugRenderer.cs" />
-     <Compile Include="Assets\Plugins\CreateAR\Debug\DebugRendererMonoBehaviour.cs" />
-     <Compile Include="Assets\Plugins\CreateAR\Debug\FilteredRendererHandle.cs" />
-     <Compile Include="Assets\Plugins\CreateAR\Debug\RenderContext.cs" />
-     <Compile Include="Assets\Plugins\CreateAR\Debug\RenderContext2d.cs" />
- <Reference Include="UnityEngine.Analytics">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.TestRunner">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/UnityEngine.TestRunner.dll</HintPath>
- </Reference>
- <Reference Include="nunit.framework">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/net35/unity-custom/nunit.framework.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.Networking">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.UI">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.Timeline">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Timeline/RuntimeEditor/UnityEngine.Timeline.dll</HintPath>
- </Reference>
- <Reference Include="UnityEngine.HoloLens">
- <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
- </Reference>
- <Reference Include="Strange.Net35">
- <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/Lib/Strange/net35/Strange.Net35.dll</HintPath>
- </Reference>
- <Reference Include="CreateAR.Commons.Unity.Async">
- <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/Nuget/CreateAR.Commons.Unity.Async.0.4.0/lib/net35/CreateAR.Commons.Unity.Async.dll</HintPath>
- </Reference>
- <Reference Include="CreateAR.Commons.Unity.DataStructures">
- <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/Nuget/CreateAR.Commons.Unity.DataStructures.0.1.0/lib/net35/CreateAR.Commons.Unity.DataStructures.dll</HintPath>
- </Reference>
- <Reference Include="CreateAR.Commons.Unity.Http">
- <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/Nuget/CreateAR.Commons.Unity.Http.0.5.1/lib/net35/CreateAR.Commons.Unity.Http.dll</HintPath>
- </Reference>
- <Reference Include="CreateAR.Commons.Unity.Logging">
- <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/Nuget/CreateAR.Commons.Unity.Logging.0.4.5/lib/net35/CreateAR.Commons.Unity.Logging.dll</HintPath>
- </Reference>
+    <Compile Include="Assets\Plugins\CreateAR\Debug\DebugRenderer.cs" />
+    <Compile Include="Assets\Plugins\CreateAR\Debug\DebugRendererMonoBehaviour.cs" />
+    <Compile Include="Assets\Plugins\CreateAR\Debug\FilteredRendererHandle.cs" />
+    <Compile Include="Assets\Plugins\CreateAR\Debug\RenderContext.cs" />
+    <Compile Include="Assets\Plugins\CreateAR\Debug\RenderContext2d.cs" />
+    <Reference Include="UnityEngine.Analytics">
+      <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityAnalytics/UnityEngine.Analytics.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TestRunner">
+      <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/UnityEngine.TestRunner.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TestRunner/net35/unity-custom/nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Networking">
+      <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Timeline">
+      <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Timeline/RuntimeEditor/UnityEngine.Timeline.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.HoloLens">
+      <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/UnityHoloLens/RuntimeEditor/UnityEngine.HoloLens.dll</HintPath>
+    </Reference>
+    <Reference Include="Strange.Net35">
+      <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/Lib/Strange/net35/Strange.Net35.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.Async">
+      <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/Nuget/CreateAR.Commons.Unity.Async.0.4.0/lib/net35/CreateAR.Commons.Unity.Async.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.DataStructures">
+      <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/Nuget/CreateAR.Commons.Unity.DataStructures.0.1.0/lib/net35/CreateAR.Commons.Unity.DataStructures.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.Http">
+      <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/Nuget/CreateAR.Commons.Unity.Http.0.5.1/lib/net35/CreateAR.Commons.Unity.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="CreateAR.Commons.Unity.Logging">
+      <HintPath>/Users/benjaminjordan/Projects/Work/spireplayer-unity/Assets/Plugins/Nuget/CreateAR.Commons.Unity.Logging.0.4.5/lib/net35/CreateAR.Commons.Unity.Logging.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -101,5 +102,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  
 </Project>

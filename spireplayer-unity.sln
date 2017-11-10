@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spireplayer-unity", "Assemb
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spireplayer-unity", "Assembly-CSharp-Editor.csproj", "{D7E904BF-D45F-FCBA-A8F2-525DDC98FB98}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spireplayer-unity", "Assembly-CSharp-Editor-firstpass.csproj", "{A18C9B3B-3D0D-29B0-1716-FF04AAECB431}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{D7E904BF-D45F-FCBA-A8F2-525DDC98FB98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7E904BF-D45F-FCBA-A8F2-525DDC98FB98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7E904BF-D45F-FCBA-A8F2-525DDC98FB98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A18C9B3B-3D0D-29B0-1716-FF04AAECB431}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A18C9B3B-3D0D-29B0-1716-FF04AAECB431}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A18C9B3B-3D0D-29B0-1716-FF04AAECB431}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A18C9B3B-3D0D-29B0-1716-FF04AAECB431}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

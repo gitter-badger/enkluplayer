@@ -134,8 +134,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
 	    private void OnApplicationQuit()
 	    {
-#if UNITY_EDITOR
-	        var bridge = _binder.GetInstance<IBridge>() as EditorBridge;
+#if UNITY_EDITOR || UNITY_IOS
+	        var bridge = _binder.GetInstance<IBridge>() as WebSocketBridge;
 	        if (null != bridge)
 	        {
                 Log.Info(this, "Disposing websocket server.");

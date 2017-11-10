@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_IOS
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,9 +15,9 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// <c>IBridge</c> implementation in the Unity Editor.
+    /// <c>IBridge</c> implementation over a websocket.
     /// </summary>
-    public class EditorBridge : IBridge, IDisposable
+    public class WebSocketBridge : IBridge, IDisposable
     {
         /// <summary>
         /// Service for connected clients.
@@ -172,7 +172,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="router">Routes messages.</param>
         /// <param name="bootstrapper">Bootstraps coroutines.</param>
         /// <param name="handler">Object to handle messages.</param>
-        public EditorBridge(
+        public WebSocketBridge(
             IMessageRouter router,
             IBootstrapper bootstrapper,
             BridgeMessageHandler handler)
@@ -358,7 +358,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Destructor.
         /// </summary>
-        ~EditorBridge()
+        ~WebSocketBridge()
         {
             ReleaseUnmanagedResources();
         }
