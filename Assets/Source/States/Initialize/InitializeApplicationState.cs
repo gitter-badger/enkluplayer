@@ -64,7 +64,7 @@ namespace CreateAR.SpirePlayer
         public void Enter(object context)
         {
             // ar
-            _ar.Setup(Camera.main, _config);
+            _ar.Setup(_config);
             
             // setup http
             _http.UrlBuilder.Protocol = "http";
@@ -92,7 +92,7 @@ namespace CreateAR.SpirePlayer
                         Loader = loader,
                         Queries = new StandardQueryResolver()
                     }),
-                    TagFloor())
+                    FindFloor())
                 .OnSuccess(_ =>
                 {
                     _messages.Publish(MessageTypes.READY, Void.Instance);
@@ -124,7 +124,7 @@ namespace CreateAR.SpirePlayer
         /// Finds the floor, tags it, then resolves the token.
         /// </summary>
         /// <returns></returns>
-        private IAsyncToken<Void> TagFloor()
+        private IAsyncToken<Void> FindFloor()
         {
             var token = new AsyncToken<Void>();
 
@@ -174,6 +174,9 @@ namespace CreateAR.SpirePlayer
                     
                         // tag it
                         lowest.Tag(ArAnchorTags.FLOOR);
+                        
+                        // set camera rig
+                        _config.Rig.SetFloor(lowest);
                     
                         token.Succeed(Void.Instance);
                         yield break;

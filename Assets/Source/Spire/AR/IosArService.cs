@@ -11,42 +11,20 @@ namespace CreateAR.SpirePlayer.AR
         private readonly UnityARSessionNativeInterface _interface;
         private readonly List<ArAnchor> _anchors = new List<ArAnchor>();
         
-        private ArServiceConfiguration _config;
-        private Camera _camera;
-        
-        public Camera Camera
-        {
-            get
-            {
-                return _camera;
-            }
-            private set
-            {
-                if (value == _camera)
-                {
-                    return;
-                }
-
-                UninitializeCamera();
-
-                _camera = value;
-
-                InitializeCamera();
-            }
-        }
+        private ArCameraRig _rig;
         
         public ArAnchor[] Anchors { get { return _anchors.ToArray(); }}
+        public ArServiceConfiguration Config { get; private set; }
 
         public IosArService(UnityARSessionNativeInterface @interface)
         {
             _interface = @interface;
         }
 
-        public void Setup(Camera camera, ArServiceConfiguration config)
+        public void Setup(ArServiceConfiguration config)
         {
-            _config = config;
-
-            Camera = camera;
+            Config = config;
+            _rig = config.Rig;
             
             UnityARSessionNativeInterface.ARAnchorAddedEvent += Interface_OnAnchorAdded;
             UnityARSessionNativeInterface.ARAnchorUpdatedEvent += Interface_OnAnchorUpdated;
@@ -55,18 +33,22 @@ namespace CreateAR.SpirePlayer.AR
             _interface.RunWithConfigAndOptions(
                 new ARKitWorldTrackingSessionConfiguration
                 {
-                    planeDetection = _config.EnablePlaneDetection
+                    planeDetection = Config.EnablePlaneDetection
                         ? UnityARPlaneDetection.Horizontal
                         : UnityARPlaneDetection.None,
                     alignment = UnityARAlignment.UnityARAlignmentGravityAndHeading,
-                    enableLightEstimation = _config.EnableLightEstimation,
-                    getPointCloudData = _config.EnablePointCloud
+                    enableLightEstimation = Config.EnableLightEstimation,
+                    getPointCloudData = Config.EnablePointCloud
                 },
                 UnityARSessionRunOption.ARSessionRunOptionResetTracking);
+            
+            InitializeCameraRig();
         }
 
         public void Teardown()
         {
+            UninitializeCameraRig();
+            
             UnityARSessionNativeInterface.ARAnchorAddedEvent -= Interface_OnAnchorAdded;
             UnityARSessionNativeInterface.ARAnchorUpdatedEvent -= Interface_OnAnchorUpdated;
             UnityARSessionNativeInterface.ARAnchorRemovedEvent -= Interface_OnAnchorRemoved;
@@ -74,39 +56,41 @@ namespace CreateAR.SpirePlayer.AR
             _interface.Pause();
         }
 
-        private void UninitializeCamera()
+        private void UninitializeCameraRig()
         {
-            if (null == _camera)
+            if (null == _rig)
             {
                 return;
             }
 
-            var manager = _camera.GetComponent<UnityARCameraManager>();
+            var manager = _rig.GetComponent<IosCameraUpdater>();
             if (null != manager)
             {
                 Object.Destroy(manager);
             }
 
-            var video = _camera.GetComponent<UnityARVideo>();
+            var video = _rig.Camera.GetComponent<UnityARVideo>();
             if (null != video)
             {
                 Object.Destroy(video);
             }
         }
 
-        private void InitializeCamera()
+        private void InitializeCameraRig()
         {
-            if (null == _camera)
+            if (null == _rig)
             {
                 return;
             }
 
-            _camera.gameObject.AddComponent<UnityARCameraManager>();
+            _rig.gameObject
+                .AddComponent<IosCameraUpdater>()
+                .Initialize(Camera.main, _interface);
             
-            if (_config.ShowCameraFeed)
+            if (Config.ShowCameraFeed)
             {
-                var video = _camera.gameObject.AddComponent<UnityARVideo>();
-                video.m_ClearMaterial = _config.CameraMaterial;
+                var video = _rig.Camera.gameObject.AddComponent<UnityARVideo>();
+                video.m_ClearMaterial = Config.CameraMaterial;
             }
         }
         
@@ -128,7 +112,10 @@ namespace CreateAR.SpirePlayer.AR
             var anchor = Anchor(data.identifier);
             if (null != anchor)
             {
-                anchor.Center = data.center;
+                anchor.Center = new Vector3(
+                    data.center.x,
+                    data.center.y,
+                    -data.center.z);
                 anchor.Extents = data.extent;
                 
                 UpdateAnchorTransform(anchor, data.transform);

@@ -5,8 +5,6 @@ namespace CreateAR.SpirePlayer.AR
 {
     public class EditorArService : IArService
     {
-        public Camera Camera { get; private set; }
-
         public ArAnchor[] Anchors
         {
             get
@@ -16,7 +14,7 @@ namespace CreateAR.SpirePlayer.AR
                     new ArAnchor("floor")
                     {
                         Center = Vector3.zero,
-                        Extents = new Vector3(float.MaxValue, 0, float.MaxValue),
+                        Extents = new Vector3(100, 0, 100),
                         Position = Vector3.zero,
                         Rotation = Quaternion.identity
                     }, 
@@ -24,9 +22,11 @@ namespace CreateAR.SpirePlayer.AR
             }
         }
 
-        public void Setup(Camera camera, ArServiceConfiguration config)
+        public ArServiceConfiguration Config { get; private set; }
+
+        public void Setup(ArServiceConfiguration config)
         {
-            Camera = camera;
+            Config = config;
         }
 
         public void Teardown()

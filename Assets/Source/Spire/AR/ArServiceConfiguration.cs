@@ -8,7 +8,9 @@ namespace CreateAR.SpirePlayer.AR
         public bool EnablePlaneDetection;
         public bool EnableLightEstimation;
         public bool EnablePointCloud;
+        public bool DrawPlanes;
 
+        public ArCameraRig Rig;
         public Material CameraMaterial;
     }
 }

@@ -21,6 +21,12 @@ namespace CreateAR.SpirePlayer
 
         [Tooltip("The material to render with. Auto generated and only useful for viewing at runtime.")]
         public Material Material;
+
+        [Tooltip("Offset in world space.")]
+        public Vector3 Offset;
+
+        [Tooltip("Enables/disables rendering.")]
+        public bool Enabled;
         
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Awake()
@@ -42,6 +48,11 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="MonoBehaviour"/>
         private void OnPostRender()
         {
+            if (!Enabled)
+            {
+                return;
+            }
+            
             DrawGrid(GridSize, CellSize, SecondaryColor);
             DrawGrid(GridSize, CellSize * 4, PrimaryColor);
         }
@@ -63,10 +74,10 @@ namespace CreateAR.SpirePlayer
             GL.Begin(GL.LINES);
             GL.Color(color);
 
-            var startX = -worldSize.x / 2;
-            var startZ = -worldSize.y / 2;
-            var endX = worldSize.x / 2;
-            var endZ = worldSize.y / 2;
+            var startX = Offset.x + -worldSize.x / 2;
+            var startZ = Offset.z + -worldSize.y / 2;
+            var endX = Offset.x + worldSize.x / 2;
+            var endZ = Offset.z + worldSize.y / 2;
 
             var numCellsX = worldSize.x / cellSize;
             var numCellsZ = worldSize.y / cellSize;

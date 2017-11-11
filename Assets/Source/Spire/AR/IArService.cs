@@ -1,13 +1,11 @@
-﻿using UnityEngine;
-
-namespace CreateAR.SpirePlayer.AR
+﻿namespace CreateAR.SpirePlayer.AR
 {
     public interface IArService
     {
-        Camera Camera { get; }
         ArAnchor[] Anchors { get; }
+        ArServiceConfiguration Config { get; }
         
-        void Setup(Camera camera, ArServiceConfiguration config);
+        void Setup(ArServiceConfiguration config);
         void Teardown();
     }
 }
