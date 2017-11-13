@@ -25,7 +25,12 @@ namespace CreateAR.SpirePlayer.AR
         {
             transform.position = -anchor.Position;
 
-            //Grid.Offset = anchor.Position;
+            // setup grid!
+            Grid.CellSize = 0.5f;
+            Grid.GridSize = new Vector2(
+                anchor.Extents.x,
+                anchor.Extents.z);
+            Grid.Enabled = true;
         }
     }
 }

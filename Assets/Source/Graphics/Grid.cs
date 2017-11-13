@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     public class Grid : MonoBehaviour
     {
         [Tooltip("The size of each cell, in world space.")]
-        public int CellSize = 1;
+        public float CellSize = 1f;
 
         [Tooltip("The worldspace size of the grid.")]
         public Vector2 GridSize = new Vector2(10, 10);
@@ -21,9 +21,6 @@ namespace CreateAR.SpirePlayer
 
         [Tooltip("The material to render with. Auto generated and only useful for viewing at runtime.")]
         public Material Material;
-
-        [Tooltip("Offset in world space.")]
-        public Vector3 Offset;
 
         [Tooltip("Enables/disables rendering.")]
         public bool Enabled;
@@ -65,7 +62,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="color">Color of the grid.</param>
         private void DrawGrid(
             Vector2 worldSize,
-            int cellSize,
+            float cellSize,
             Color color)
         {
             Material.SetPass(0);
@@ -74,10 +71,10 @@ namespace CreateAR.SpirePlayer
             GL.Begin(GL.LINES);
             GL.Color(color);
 
-            var startX = Offset.x + -worldSize.x / 2;
-            var startZ = Offset.z + -worldSize.y / 2;
-            var endX = Offset.x + worldSize.x / 2;
-            var endZ = Offset.z + worldSize.y / 2;
+            var startX = -worldSize.x / 2;
+            var startZ = -worldSize.y / 2;
+            var endX = worldSize.x / 2;
+            var endZ = worldSize.y / 2;
 
             var numCellsX = worldSize.x / cellSize;
             var numCellsZ = worldSize.y / cellSize;

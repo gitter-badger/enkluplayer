@@ -350,10 +350,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CellSize: 1
   GridSize: {x: 52, y: 52}
-  PrimaryColor: {r: 0, g: 1, b: 0.616, a: 1}
-  SecondaryColor: {r: 0, g: 1, b: 0.616, a: 0.353}
+  PrimaryColor: {r: 0, g: 0.50735295, b: 0.31252939, a: 1}
+  SecondaryColor: {r: 0, g: 0.75735295, b: 0.46652937, a: 0.353}
   Material: {fileID: 0}
-  Offset: {x: 0, y: 0, z: 0}
   Enabled: 0
 --- !u!114 &142035199
 MonoBehaviour:
@@ -1320,7 +1319,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1630144639}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2d543a351bca46ffabc2d103d49582c3, type: 3}
   m_Name: 
