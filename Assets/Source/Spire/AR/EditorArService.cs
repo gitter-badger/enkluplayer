@@ -13,7 +13,6 @@ namespace CreateAR.SpirePlayer.AR
                 {
                     new ArAnchor("floor")
                     {
-                        Center = Vector3.zero,
                         Extents = new Vector3(100, 0, 100),
                         Position = Vector3.zero,
                         Rotation = Quaternion.identity

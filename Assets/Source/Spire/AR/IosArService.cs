@@ -2,6 +2,7 @@
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.XR.iOS;
+using WebSocketSharp;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.AR
@@ -98,11 +99,10 @@ namespace CreateAR.SpirePlayer.AR
         {
             var anchor = new ArAnchor(data.identifier)
             {
-                Center = data.center,
                 Extents = data.extent
             };
             
-            UpdateAnchorTransform(anchor, data.transform);
+            UpdateAnchorTransform(anchor, data);
             
             _anchors.Add(anchor);
         }
@@ -112,13 +112,9 @@ namespace CreateAR.SpirePlayer.AR
             var anchor = Anchor(data.identifier);
             if (null != anchor)
             {
-                anchor.Center = new Vector3(
-                    data.center.x,
-                    data.center.y,
-                    -data.center.z);
                 anchor.Extents = data.extent;
                 
-                UpdateAnchorTransform(anchor, data.transform);
+                UpdateAnchorTransform(anchor, data);
             }
             else
             {
@@ -151,14 +147,24 @@ namespace CreateAR.SpirePlayer.AR
             return null;
         }
         
-        private void UpdateAnchorTransform(ArAnchor anchor, Matrix4x4 transform)
+        private void UpdateAnchorTransform(
+            ArAnchor anchor,
+            ARPlaneAnchor data)
         {
-            var position = transform.GetColumn(3);
-            position.z = -position.z;
-            anchor.Position = position;
-            
             // Convert from ARKit's right-handed coordinate system to Unity's left-handed
-            var rotation = QuaternionFromMatrix(transform);
+            
+            // position
+            var position = (Vector3) data.transform.GetColumn(3); 
+            position.z = -position.z;
+            
+            // offset position by center
+            anchor.Position = position + new Vector3(
+                  data.center.x,
+                  data.center.y,
+                  -data.center.z);
+            
+            // set rotation
+            var rotation = QuaternionFromMatrix(data.transform);
             rotation.z = -rotation.z;
             rotation.w = -rotation.w;
             anchor.Rotation = rotation;

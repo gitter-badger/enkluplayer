@@ -24,11 +24,6 @@ namespace CreateAR.SpirePlayer.AR
         public string Id { get; private set; }
 
         /// <summary>
-        /// Center of the anchor in world space.
-        /// </summary>
-        public Vector3 Center { get; internal set; }
-
-        /// <summary>
         /// Extents of the anchor in world space.
         /// </summary>
         public Vector3 Extents { get; internal set; }
