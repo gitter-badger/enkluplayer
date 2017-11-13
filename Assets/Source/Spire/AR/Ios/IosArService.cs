@@ -7,21 +7,45 @@ using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.AR
 {
+    /// <summary>
+    /// Provides AR implementation for iOS.
+    /// </summary>
     public class IosArService : IArService
     {
+        /// <summary>
+        /// Native interface, provided by Unity.
+        /// </summary>
         private readonly UnityARSessionNativeInterface _interface;
+        
+        /// <summary>
+        /// List of all anchors.
+        /// </summary>
         private readonly List<ArAnchor> _anchors = new List<ArAnchor>();
         
+        /// <summary>
+        /// The camera rig.
+        /// </summary>
         private ArCameraRig _rig;
         
+        /// <summary>
+        /// A set of anchors.
+        /// </summary>
         public ArAnchor[] Anchors { get { return _anchors.ToArray(); }}
+        
+        /// <summary>
+        /// Configuration for the service.
+        /// </summary>
         public ArServiceConfiguration Config { get; private set; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public IosArService(UnityARSessionNativeInterface @interface)
         {
             _interface = @interface;
         }
-
+    
+        /// <inheritdoc cref="IArService"/>
         public void Setup(ArServiceConfiguration config)
         {
             Config = config;
@@ -51,6 +75,7 @@ namespace CreateAR.SpirePlayer.AR
             InitializeCameraRig();
         }
 
+        /// <inheritdoc cref="IArService"/>
         public void Teardown()
         {
             UninitializeCameraRig();
@@ -62,6 +87,9 @@ namespace CreateAR.SpirePlayer.AR
             _interface.Pause();
         }
 
+        /// <summary>
+        /// Uninitializes all the stuff we did to the camera.
+        /// </summary>
         private void UninitializeCameraRig()
         {
             if (null == _rig)
@@ -82,6 +110,9 @@ namespace CreateAR.SpirePlayer.AR
             }
         }
 
+        /// <summary>
+        /// Sets up the camera.
+        /// </summary>
         private void InitializeCameraRig()
         {
             if (null == _rig)
@@ -100,6 +131,10 @@ namespace CreateAR.SpirePlayer.AR
             }
         }
         
+        /// <summary>
+        /// Called when an anchor has been added.
+        /// </summary>
+        /// <param name="data">The native data.</param>
         private void Interface_OnAnchorAdded(ARPlaneAnchor data)
         {
             var anchor = new ArAnchor(data.identifier)
@@ -112,6 +147,10 @@ namespace CreateAR.SpirePlayer.AR
             _anchors.Add(anchor);
         }
         
+        /// <summary>
+        /// Called when an anchor has been updated.
+        /// </summary>
+        /// <param name="data">The native data.</param>
         private void Interface_OnAnchorUpdated(ARPlaneAnchor data)
         {
             var anchor = Anchor(data.identifier);
@@ -129,6 +168,10 @@ namespace CreateAR.SpirePlayer.AR
             }
         }
         
+        /// <summary>
+        /// Called when an anchor has been removed.
+        /// </summary>
+        /// <param name="data">The native data.</param>
         private void Interface_OnAnchorRemoved(ARPlaneAnchor data)
         {
             var anchor = Anchor(data.identifier);
@@ -137,7 +180,12 @@ namespace CreateAR.SpirePlayer.AR
                 _anchors.Remove(anchor);
             }
         }
-
+    
+        /// <summary>
+        /// Finds an anchor by id.
+        /// </summary>
+        /// <param name="id">Unique identifier for an id.</param>
+        /// <returns></returns>
         private ArAnchor Anchor(string id)
         {
             for (int i = 0, len = _anchors.Count; i < len; i++)
@@ -152,6 +200,11 @@ namespace CreateAR.SpirePlayer.AR
             return null;
         }
         
+        /// <summary>
+        /// Updates an anchor's transform based on the underlying native data.
+        /// </summary>
+        /// <param name="anchor">The Spire anchor.</param>
+        /// <param name="data">Native data.</param>
         private void UpdateAnchorTransform(
             ArAnchor anchor,
             ARPlaneAnchor data)
@@ -175,6 +228,11 @@ namespace CreateAR.SpirePlayer.AR
             anchor.Rotation = rotation;
         }
         
+        /// <summary>
+        /// Creates a <c>Quaternion</c> from a matrix.
+        /// </summary>
+        /// <param name="matrix">The input matrix.</param>
+        /// <returns></returns>
         private static Quaternion QuaternionFromMatrix(Matrix4x4 matrix)
         {
             // Adapted from: http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm

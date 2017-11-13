@@ -3,18 +3,34 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer.AR
 {
+    /// <summary>
+    /// Renders Ar planes.
+    /// </summary>
     public class ArDebugRenderer : InjectableMonoBehaviour
     {
+        /// <summary>
+        /// Lookup from plane to gameobject representing that plane.
+        /// </summary>
         private readonly Dictionary<string, GameObject> _debugPlanes = new Dictionary<string, GameObject>();
         
+        /// <summary>
+        /// Provides AR implementation.
+        /// </summary>
         [Inject]
         public IArService Ar { get; set; }
 
+        /// <summary>
+        /// Camnera rig.
+        /// </summary>
         [Inject]
         public ArCameraRig Rig { get; set; }
         
+        /// <summary>
+        /// Prefab to render with.
+        /// </summary>
         public GameObject Prefab;
         
+        /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
         {
             if (null == Ar.Config || !Ar.Config.DrawPlanes)

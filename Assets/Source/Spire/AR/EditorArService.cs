@@ -2,8 +2,12 @@
 
 namespace CreateAR.SpirePlayer.AR
 {
+    /// <summary>
+    /// Editor implementation of <c>IArService</c> that provides a floor.
+    /// </summary>
     public class EditorArService : IArService
     {
+        /// <inheritdoc cref="IArService"/>
         public ArAnchor[] Anchors
         {
             get
@@ -20,16 +24,19 @@ namespace CreateAR.SpirePlayer.AR
             }
         }
 
+        /// <inheritdoc cref="IArService"/>
         public ArServiceConfiguration Config { get; private set; }
 
+        /// <inheritdoc cref="IArService"/>
         public void Setup(ArServiceConfiguration config)
         {
             Config = config;
         }
 
+        /// <inheritdoc cref="IArService"/>
         public void Teardown()
         {
-            
+            //
         }
     }
 }
