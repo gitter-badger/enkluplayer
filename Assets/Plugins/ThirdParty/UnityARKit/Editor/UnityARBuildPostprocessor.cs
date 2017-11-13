@@ -20,7 +20,6 @@ public class UnityARBuildPostprocessor
 		#if UNITY_IOS
 
 		string projPath = pathToBuiltProject + "/Unity-iPhone.xcodeproj/project.pbxproj";
-
 		UnityEditor.iOS.Xcode.PBXProject proj = new UnityEditor.iOS.Xcode.PBXProject();
 		proj.ReadFromString(File.ReadAllText(projPath));
         proj.AddFrameworkToProject(proj.TargetGuidByName("Unity-iPhone"), "ARKit.framework", false);

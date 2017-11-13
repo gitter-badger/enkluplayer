@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.XR.iOS;
-using WebSocketSharp;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.AR
@@ -139,7 +138,7 @@ namespace CreateAR.SpirePlayer.AR
         {
             var anchor = new ArAnchor(data.identifier)
             {
-                Extents = data.extent
+                Extents = data.extent.ToVec()
             };
             
             UpdateAnchorTransform(anchor, data);
@@ -156,7 +155,7 @@ namespace CreateAR.SpirePlayer.AR
             var anchor = Anchor(data.identifier);
             if (null != anchor)
             {
-                anchor.Extents = data.extent;
+                anchor.Extents = data.extent.ToVec();
                 
                 UpdateAnchorTransform(anchor, data);
             }
@@ -212,17 +211,17 @@ namespace CreateAR.SpirePlayer.AR
             // Convert from ARKit's right-handed coordinate system to Unity's left-handed
             
             // position
-            var position = (Vector3) data.transform.GetColumn(3); 
+            var position = ((Vector3) data.transform.GetColumn(3)).ToVec(); 
             position.z = -position.z;
             
             // offset position by center
-            anchor.Position = position + new Vector3(
+            anchor.Position = position + new Vec3(
                   data.center.x,
                   data.center.y,
                   -data.center.z);
             
             // set rotation
-            var rotation = QuaternionFromMatrix(data.transform);
+            var rotation = QuaternionFromMatrix(data.transform).ToQuat();
             rotation.z = -rotation.z;
             rotation.w = -rotation.w;
             anchor.Rotation = rotation;

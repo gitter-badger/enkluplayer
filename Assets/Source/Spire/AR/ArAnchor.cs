@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer.AR
 {
@@ -12,6 +12,21 @@ namespace CreateAR.SpirePlayer.AR
         /// Backing variable for <c>Tags</c>.
         /// </summary>
         private readonly List<string> _tags = new List<string>();
+
+        /// <summary>
+        /// Backing variable for property.
+        /// </summary>
+        private Vec3 _extents;
+        
+        /// <summary>
+        /// Backing variable for property.
+        /// </summary>
+        private Vec3 _position;
+        
+        /// <summary>
+        /// Backing variable for property.
+        /// </summary>
+        private Quat _rotation;
         
         /// <summary>
         /// Tags.
@@ -26,17 +41,73 @@ namespace CreateAR.SpirePlayer.AR
         /// <summary>
         /// Extents of the anchor in world space.
         /// </summary>
-        public Vector3 Extents { get; internal set; }
+        public Vec3 Extents
+        {
+            get
+            {
+                return _extents;
+            }
+            internal set
+            {
+                if (value.Approximately(_extents))
+                {
+                    return;
+                }
+
+                _extents = value;
+
+                Changed();
+            }
+        }
 
         /// <summary>
         /// World space position.
         /// </summary>
-        public Vector3 Position { get; internal set; }
+        public Vec3 Position
+        {
+            get
+            {
+                return _position;
+            }
+            internal set
+            {
+                if (value.Approximately(_position))
+                {
+                    return;
+                }
+
+                _position = value;
+
+                Changed();
+            }
+        }
         
         /// <summary>
         /// Worldspace rotation.
         /// </summary>
-        public Quaternion Rotation { get; internal set; }
+        public Quat Rotation
+        {
+            get
+            {
+                return _rotation;
+            }
+            internal set
+            {
+                if (value.Approximately(_rotation))
+                {
+                    return;
+                }
+
+                _rotation = value;
+
+                Changed();
+            }
+        }
+
+        /// <summary>
+        /// Called when the anchor has changed.
+        /// </summary>
+        public event Action<ArAnchor> OnChange;
         
         /// <summary>
         /// Constructor.
@@ -68,6 +139,8 @@ namespace CreateAR.SpirePlayer.AR
             if (!_tags.Contains(tag))
             {
                 _tags.Add(tag);
+
+                Changed();
             }
         }
 
@@ -77,7 +150,10 @@ namespace CreateAR.SpirePlayer.AR
         /// <param name="tag">Tag to remove./</param>
         public void Untag(string tag)
         {
-            _tags.Remove(tag);
+            if (_tags.Remove(tag))
+            {
+                Changed();
+            }
         }
 
         /// <summary>
@@ -85,7 +161,23 @@ namespace CreateAR.SpirePlayer.AR
         /// </summary>
         public void ClearTags()
         {
-            _tags.Clear();
+            if (_tags.Count > 0)
+            {
+                _tags.Clear();
+
+                Changed();
+            }
+        }
+
+        /// <summary>
+        /// Safely calls the OnChange event.
+        /// </summary>
+        private void Changed()
+        {
+            if (null != OnChange)
+            {
+                OnChange(this);
+            }
         }
     }
 }

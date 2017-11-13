@@ -59,9 +59,9 @@ namespace CreateAR.SpirePlayer.AR
                 }
 
                 var planeTransform = @object.transform;
-                planeTransform.localPosition = anchor.Position;
-                planeTransform.localRotation = anchor.Rotation;
-                planeTransform.localScale = anchor.Extents;
+                planeTransform.localPosition = anchor.Position.ToVector();
+                planeTransform.localRotation = anchor.Rotation.ToQuaternion();
+                planeTransform.localScale = anchor.Extents.ToVector();
             }
         }
     }

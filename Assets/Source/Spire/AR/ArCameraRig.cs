@@ -16,14 +16,23 @@ namespace CreateAR.SpirePlayer.AR
         /// Grid.
         /// </summary>
         public Grid Grid;
-
+        
         /// <summary>
         /// Sets the floor anchor.
         /// </summary>
         /// <param name="anchor">Floor anchor.</param>
         public void SetFloor(ArAnchor anchor)
         {
-            transform.position = -anchor.Position;
+            UpdateFromAnchor(anchor);
+        }
+
+        /// <summary>
+        /// Updates camera and grid from floor.
+        /// </summary>
+        /// <param name="anchor">The anchor!</param>
+        private void UpdateFromAnchor(ArAnchor anchor)
+        {
+            transform.position = -anchor.Position.ToVector();
 
             // setup grid!
             Grid.CellSize = 0.5f;
