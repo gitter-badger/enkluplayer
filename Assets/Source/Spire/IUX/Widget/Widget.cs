@@ -1,12 +1,10 @@
-﻿using System;
-using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using System.Diagnostics;
 using UnityEngine;
-using UnityEngine.UI;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Defines how a widget determines its color
@@ -31,8 +29,18 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Base class for IUX elements.
     /// </summary>
-    public class Widget : InjectableMonoBehaviour, ILayerable, IElement
+    public class Widget : Element, ILayerable
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
+        public ILayerManager Layers { get; private set; }
+        public IColorConfig Colors { get; private set; }
+        public ITweenConfig Tweens { get; private set; }
+        public IPrimitiveFactory Primitives { get; private set; }
+        public IWidgetConfig Config { get; private set; }
+        public IMessageRouter Messages { get; private set; }
+
         /// <summary>
         /// True if the widget is currently visible
         /// </summary>
@@ -59,19 +67,14 @@ namespace CreateAR.SpirePlayer
         private bool _localVisible;
 
         /// <summary>
-        /// Parent of this widget
-        /// </summary>C
-        protected Widget _parent;
-
-        /// <summary>
         /// True if the window has been visible
         /// </summary>
         protected bool _hasBeenVisible;
 
         /// <summary>
-        /// True for first call
+        /// Associated game object
         /// </summary>
-        protected bool _initialized = false;
+        private GameObject _gameObject;
 
         /// <summary>
         /// Color
@@ -117,49 +120,7 @@ namespace CreateAR.SpirePlayer
         /// If true, destroys the widget when tween reaches 0
         /// </summary>
         public bool AutoDestroy;
-
-        /// <summary>
-        /// Manages intentions.
-        /// </summary>
-        [Inject]
-        public IntentionManager Intention { get; set; }
-
-        /// <summary>
-        /// Manages elements.
-        /// </summary>
-        [Inject]
-        public ElementManager Elements { get; set; }
-
-        /// <summary>
-        /// Manages layers.
-        /// </summary>
-        [Inject]
-        public LayerManager Layers { get; set; }
-
-        /// <summary>
-        /// Color configuration.
-        /// </summary>
-        [Inject]
-        public ColorConfig Colors { get; set; }
-
-        /// <summary>
-        /// App-wide widget configuration.
-        /// </summary>
-        [Inject]
-        public WidgetConfig Config { get; set; }
-
-        /// <summary>
-        /// Tween configuration.
-        /// </summary>
-        [Inject]
-        public TweenConfig Tweens { get; set; }
-
-        /// <summary>
-        /// Manages messages.
-        /// </summary>
-        [Inject]
-        public IMessageRouter Messages { get; set; }
-
+        
         /// <summary>
         /// Controls local GameObject visibility, not parent.
         /// </summary>
@@ -175,12 +136,12 @@ namespace CreateAR.SpirePlayer
                 {
                     _localVisible = value;
 
-                    RefreshIsVisible();
+                    UpdateVisibility();
                 }
 
                 if (_localVisible)
                 {
-                    gameObject.SetActive(true);
+                    GameObject.SetActive(true);
                 }
             }
         }
@@ -192,6 +153,14 @@ namespace CreateAR.SpirePlayer
         {
             get { return _isVisible; }
         }
+
+        /// <summary>
+        /// Parent accessor
+        /// </summary>
+        public new Widget Parent
+        {
+            get { return base.Parent as Widget; }
+        }
         
         /// <summary>
         /// Tween for the widget.
@@ -200,16 +169,11 @@ namespace CreateAR.SpirePlayer
         {
             get
             {
-                if (!_initialized)
-                {
-                    _localTween = 0.0f;
-                }
-
                 var tween = _localTween;
 
-                if (_parent != null)
+                if (Parent != null)
                 {
-                    tween *= _parent.Tween;
+                    tween *= Parent.Tween;
                 }
 
                 return tween;
@@ -230,9 +194,9 @@ namespace CreateAR.SpirePlayer
                 if (ColorMode == ColorMode.InheritColor)
                 {
                     var parentColor = Color.white;
-                    if (_parent != null)
+                    if (Parent != null)
                     {
-                        parentColor = _parent.Color;
+                        parentColor = Parent.Color;
                     }
 
                     finalColor *= parentColor;
@@ -241,9 +205,9 @@ namespace CreateAR.SpirePlayer
                 if (ColorMode == ColorMode.InheritAlpha)
                 {
                     var parentAlpha = 1.0f;
-                    if (_parent != null)
+                    if (Parent != null)
                     {
-                        parentAlpha = _parent.Color.a;
+                        parentAlpha = Parent.Color.a;
                     }
 
                     var color = finalColor;
@@ -264,9 +228,9 @@ namespace CreateAR.SpirePlayer
             {
                 if (_layer == null)
                 {
-                    if (_parent != null)
+                    if (Parent != null)
                     {
-                        return _parent.Layer;
+                        return Parent.Layer;
                     }
                 }
 
@@ -304,7 +268,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Retrieves the transform.
         /// </summary>
-        public Transform Transform { get { return transform; } }
+        public GameObject GameObject { get { return _gameObject; } }
 
         /// <summary>
         /// Layer mode.
@@ -312,9 +276,67 @@ namespace CreateAR.SpirePlayer
         public LayerMode LayerMode { get; private set; }
 
         /// <summary>
-        /// Invoked when destroyed
+        /// Initialization
         /// </summary>
-        public event Action<Widget> OnDestroyed;
+        internal void Initialize (
+            IWidgetConfig config,
+            ILayerManager layers,
+            ITweenConfig tweens,
+            IColorConfig colors,
+            IPrimitiveFactory primitives,
+            IMessageRouter messages)
+        {
+            Config = config;
+            Layers = layers;
+            Tweens = tweens;
+            Colors = colors;
+            Primitives = primitives;
+            Messages = messages;
+        }
+
+        /// <summary>
+        /// Initialization
+        /// </summary>
+        protected override void LoadInternal()
+        {
+            base.LoadInternal();
+
+            var name = Schema.Get<string>("name");
+            _gameObject = new GameObject(name.Value);
+
+            OnVisible.OnChanged += IsVisible_OnUpdate;
+
+            UpdateVisibility();
+
+            if (LayerMode == LayerMode.Modal)
+            {
+                BringToTop();
+            }
+
+            if (StartVisible)
+            {
+                Show();
+            }
+        }
+
+        /// <summary>
+        /// Invoked when the widget is destroyed
+        /// </summary>
+        protected override void UnloadInternal()
+        {
+            if (_gameObject != null)
+            {
+                UnityEngine.Object.Destroy(_gameObject);
+                _gameObject = null;
+            }
+
+            if (_layer != null)
+            {
+                Layers.Release(_layer);
+            }
+
+            LocalVisible = false;
+        }
 
         /// <summary>
         /// String override
@@ -322,13 +344,12 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("Widget[{0}]", name);
+            return string.Format("Widget[{0}]", GameObject.name);
         }
 
         /// <summary>
         /// Shows the widget
         /// </summary>
-        [ContextMenu("Show")]
         public void Show()
         {
             LocalVisible = true;
@@ -337,7 +358,6 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Hides the widget
         /// </summary>
-        [ContextMenu("Hide")]
         public void Hide()
         {
             LocalVisible = false;
@@ -369,77 +389,15 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Initialization
-        /// </summary>
-        protected override void Awake()
-        {
-            base.Awake();
-
-            // track this element
-            Elements.Add(this);
-        }
-
-        /// <summary>
-        /// Initializes the widget
-        /// </summary>
-        public virtual void Initialize()
-        {
-            if (_initialized)
-            {
-                return;
-            }
-
-            OnVisible.OnChanged += IsVisible_OnUpdate;
-
-            if (_parent == null)
-            {
-                OnTransformParentChanged();
-            }
-
-            if (LayerMode == LayerMode.Modal)
-            {
-                BringToTop();
-            }
-
-            if (StartVisible)
-            {
-                Show();
-            }
-
-            _initialized = true;
-        }
-
-        /// <summary>
         /// Frame based update
         /// </summary>
-        protected virtual void Update()
+        protected override void UpdateInternal()
         {
-            var deltaTime = Time.smoothDeltaTime;
-
-            Initialize();
-
+            var deltaTime = Time.deltaTime;
             UpdateVisibility();
             UpdateTween(deltaTime);
             UpdateColor(deltaTime);
             UpdateAutoDestroy();
-        }
-
-        /// <summary>
-        /// Invoked when the widget is destroyed
-        /// </summary>
-        public virtual void OnDestroy()
-        {
-            if (_layer != null)
-            {
-                Layers.Release(_layer);
-            }
-
-            if (OnDestroyed != null)
-            {
-                OnDestroyed(this);
-            }
-
-            LocalVisible = false;
         }
         
         /// <summary>
@@ -447,7 +405,18 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateVisibility()
         {
-            RefreshIsVisible();
+            var parentVisible = VisibilityMode != VisibilityMode.Inherit
+                || Parent == null
+                || Parent.IsVisible;
+
+            var layerIsVisible = !(LayerMode == LayerMode.Hide && !LayerInteractive);
+
+            var isVisible = LocalVisible && parentVisible && layerIsVisible;
+            if (_firstVisbilityRefresh || isVisible != _isVisible.Value)
+            {
+                _firstVisbilityRefresh = false;
+                _isVisible.Value = isVisible;
+            }
         }
 
         /// <summary>
@@ -455,11 +424,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateColor(float deltaTime)
         {
-            var colorized = VirtualColor;
+            var virtualColor = VirtualColor;
 
-            if (colorized != VirtualColor.None)
+            if (virtualColor != VirtualColor.None)
             {
-                var newColor = Colors.GetColor(colorized);
+                var newColor = Colors.GetColor(virtualColor);
                 newColor.a = LocalColor.a;
                 LocalColor = IsVisible
                     ? Color.Lerp(LocalColor, newColor, deltaTime * 5.0f)
@@ -475,26 +444,11 @@ namespace CreateAR.SpirePlayer
             if (AutoDestroy)
             {
                 if (_hasBeenVisible
-                    && !LocalVisible
-                    && Mathf.Approximately(0, Tween))
+                 && !LocalVisible
+                 && Mathf.Approximately(0, Tween))
                 {
-                    Destroy(gameObject);
+                    Destroy();
                 }
-            }
-        }
-        
-        /// <summary>
-        /// Invoked when children have been changed
-        /// </summary>
-        private void OnTransformParentChanged()
-        {
-            FindParentWidget(transform);
-
-            RefreshIsVisible();
-
-            if (_parent != null)
-            {
-                Update();
             }
         }
         
@@ -524,49 +478,7 @@ namespace CreateAR.SpirePlayer
                 _localTween = Mathf.Clamp01(_localTween + tweenDelta);
             }
         }
-
-        /// <summary>
-        /// Finds the parent transform
-        /// </summary>
-        /// <param name="child"></param>
-        private void FindParentWidget(Transform child)
-        {
-            var parentTransform = child.parent;
-            if (parentTransform == null)
-            {
-                return;
-            }
-
-            var parentWidget = parentTransform.GetComponent<Widget>();
-            if (parentWidget != null)
-            {
-                _parent = parentWidget;
-            }
-            else
-            {
-                FindParentWidget(parentTransform);
-            }
-        }
-
-        /// <summary>
-        /// Refreshes the status of the global visibility of this widget
-        /// </summary>
-        private void RefreshIsVisible()
-        {
-            var parentVisible = VisibilityMode != VisibilityMode.Inherit
-                || _parent == null
-                || _parent.IsVisible;
-
-            var layerIsVisible = !(LayerMode == LayerMode.Hide && !LayerInteractive);
-
-            var isVisible = LocalVisible && parentVisible && layerIsVisible;
-            if (_firstVisbilityRefresh || isVisible != _isVisible.Value)
-            {
-                _firstVisbilityRefresh = false;
-                _isVisible.Value = isVisible;
-            }
-        }
-
+        
         /// <summary>
         /// Invoked when visibility changes
         /// </summary>
@@ -578,8 +490,6 @@ namespace CreateAR.SpirePlayer
             if (isVisible)
             {
                 _hasBeenVisible = true;
-
-                gameObject.SetActive(true);
             }
         }
 

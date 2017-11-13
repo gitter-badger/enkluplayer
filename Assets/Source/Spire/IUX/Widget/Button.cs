@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using CreateAR.Commons.Unity.Messaging;
+using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Windows.Speech;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Button
@@ -10,12 +11,12 @@ namespace CreateAR.SpirePlayer
     public class Button : AimableWidget
     {
         /// <summary>
-        /// Current theta as a result of intention's steadiness
+        /// Reflection of intention stability
         /// </summary>
-        private float _steadinessThetaDegress;
+        private float _stabilityDegrees;
 
         /// <summary>
-        /// Current activation percentage
+        /// Reflection of intention duration
         /// </summary>
         private float _activation;
 
@@ -30,26 +31,15 @@ namespace CreateAR.SpirePlayer
         private FiniteStateMachine _states;
 
         /// <summary>
-        /// Display text
+        /// Activator primitive
         /// </summary>
-        [Header("Button")]
-        public Caption Caption;
+        private IActivatorPrimitive _activator;
 
         /// <summary>
-        /// Transform affected by the steadiness of intention
+        /// Activator primitive
         /// </summary>
-        public Transform SteadinessTransform;
+        private IPrimitive _text;
 
-        /// <summary>
-        /// Fills with activation percentage
-        /// </summary>
-        public Image ActivationImage;
-
-        /// <summary>
-        /// Shows/Hides w/ Focus
-        /// </summary>
-        public Widget ActivationWidget;
-        
         /// <summary>
         /// Activation percentage
         /// </summary>
@@ -60,52 +50,10 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Initialization
+        /// Constructor.
         /// </summary>
-        public void SetSchema(ButtonSchema schema)
+        public Button()
         {
-            if (schema == null)
-            {
-                return;
-            }
-
-            base.SetSchema(schema);
-
-            if (Caption != null)
-            {
-                if (Anchors != null)
-                {
-                    // TODO: this should be part of Element creation
-                    Anchors.Anchor(Caption.transform, schema.Caption.AnchorPosition);
-                }
-
-                Caption.SetSchema(schema.Caption);
-            }
-
-            var voiceActivator = schema.VoiceActivator;
-            if (string.IsNullOrEmpty(voiceActivator))
-            {
-                if (schema.Caption != null
-                && !string.IsNullOrEmpty(schema.Caption.Text))
-                {
-                    // default to the caption text if there is no voice activator specified
-                    voiceActivator = schema.Caption.Text;
-                }
-            }
-
-            if (!string.IsNullOrEmpty(voiceActivator))
-            {
-                StartKeywordRecognizer(voiceActivator);
-            }
-        }
-
-        /// <summary>
-        /// Initialization
-        /// </summary>
-        protected override void Awake()
-        {
-            base.Awake();
-
             var ready = new ButtonReadyState(this);
             ready.OnTransition += type => _states.Change(type);
 
@@ -124,14 +72,51 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Initialization
+        /// </summary>
+        protected override void LoadInternal()
+        {
+            base.LoadInternal();
+
+            _activator = Primitives.RequestActivator(GameObject.transform);
+            _text = Primitives.RequestText(GameObject.transform);
+
+            var voiceActivator = Schema.Get<string>("voiceActivator").Value;
+            /*if (Caption != null)
+            {
+                if (Anchors != null)
+                {
+                    // TODO: this should be part of Element creation
+                    Anchors.Anchor(Caption.GameObject.transform, schema.Caption.AnchorPosition);
+                }
+
+                Caption.SetSchema(schema.Caption);
+            }
+
+            if (string.IsNullOrEmpty(voiceActivator))
+            {
+                if (schema.Caption != null
+                && !string.IsNullOrEmpty(schema.Caption.Text))
+                {
+                    // default to the caption text if there is no voice activator specified
+                    voiceActivator = schema.Caption.Text;
+                }
+            }*/
+
+            if (!string.IsNullOrEmpty(voiceActivator))
+            {
+                StartKeywordRecognizer(voiceActivator);
+            }
+        }
+
+        /// <summary>
         /// Frame based update
         /// </summary>
-        protected override void Update()
+        protected override void UpdateInternal()
         {
-            base.Update();
+            UpdateInternal();
 
-            var deltaTime = Time.deltaTime;
-
+            var deltaTime = Time.smoothDeltaTime;
             _states.Update(deltaTime);
 
             UpdateActivation();
@@ -143,15 +128,15 @@ namespace CreateAR.SpirePlayer
                 _states.Change<ButtonReadyState>();
             }
 
-            UpdateSteadiness(deltaTime);
+            UpdateStability(deltaTime);
         }
 
         /// <summary>
         /// Destroy necessary items here
         /// </summary>
-        public override void OnDestroy()
+        protected override void UnloadInternal()
         {
-            base.OnDestroy();
+            base.UnloadInternal();
 
             if (_keywordRecognizer != null)
             {
@@ -164,18 +149,22 @@ namespace CreateAR.SpirePlayer
         /// Updates the steadiness feedback
         /// </summary>
         /// <param name="deltaTime"></param>
-        private void UpdateSteadiness(float deltaTime)
+        private void UpdateStability(float deltaTime)
         {
-            const float STEADINESS_LERP_RATE_MAGIC_NUMBER = 8.0f;
+            var targetStabilityDegrees 
+                = IsFocused 
+                ? Config.StabilityRotation * Intention.Stability 
+                : 0.0f;
 
-            if (SteadinessTransform != null)
-            {
-                var targetRotation = IsFocused ? Config.SteadinessRotation * Intention.Steadiness : 0.0f;
-                _steadinessThetaDegress = Mathf.Lerp(_steadinessThetaDegress, targetRotation, deltaTime * STEADINESS_LERP_RATE_MAGIC_NUMBER);
-                var focusTween = ActivationWidget != null ? ActivationWidget.Tween : 1.0f;
-                SteadinessTransform.localRotation = Quaternion.Euler(0, 0, _steadinessThetaDegress);
-                SteadinessTransform.localScale = Vector3.one * focusTween;
-            }
+            const float STABILITY_LERP_RATE_MAGIC_NUMBER = 8.0f;
+            var lerp = deltaTime * STABILITY_LERP_RATE_MAGIC_NUMBER;
+            _stabilityDegrees
+                = Mathf.Lerp(
+                    _stabilityDegrees, 
+                    targetStabilityDegrees,
+                    lerp);
+
+            _activator.SetStabilityRotation(_stabilityDegrees);
         }
         
         /// <summary>
@@ -183,10 +172,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateActivation()
         {
-            if (ActivationImage != null)
-            {
-                ActivationImage.fillAmount = _activation;
-            }
+            _activator.SetActivationFill(_activation);
         }
         
         /// <summary>

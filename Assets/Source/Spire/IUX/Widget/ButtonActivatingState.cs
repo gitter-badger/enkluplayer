@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Input state for controlling rotation.
@@ -33,10 +33,10 @@ namespace CreateAR.SpirePlayer
         /// <param name="context"></param>
         public void Enter(object context)
         {
-            if (_button.ActivationWidget != null)
-            {
-                _button.ActivationWidget.LocalVisible = true;
-            }
+            //if (_button.ActivationWidget != null)
+            //{
+            //    _button.ActivationWidget.LocalVisible = true;
+            //}
         }
 
         /// <summary>
@@ -53,18 +53,12 @@ namespace CreateAR.SpirePlayer
 
             // aim affects fill rate.
             var aim = _button.Aim;
-            var steadiness = _button.Intention.Steadiness;
-            var fillDuration = _button.Config.FillDuration;
+            var stability = _button.Intention.Stability;
+            var fillDuration = _button.Config.GetFillDuration();
             var fillRate
-                = _button
-                        .Config
-                        .AimFillMultiplier
-                        .Evaluate(aim)
-                    * _button
-                        .Config
-                        .SteadinessFillMultiplier
-                        .Evaluate(steadiness)
-                    / fillDuration;
+                = _button.Config.GetFillRateMultiplierFromAim(aim)
+                * _button.Config.GetFillRateMultiplierFromStability(stability)
+                / fillDuration;
             var deltaFill
                 = deltaTime
                     * fillRate;
@@ -88,10 +82,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Exit()
         {
-            if (_button.ActivationWidget != null)
-            {
-                _button.ActivationWidget.LocalVisible = false;
-            }
+            //if (_button.ActivationWidget != null)
+            //{
+            //    _button.ActivationWidget.LocalVisible = false;
+            //}
         }
     }
 }

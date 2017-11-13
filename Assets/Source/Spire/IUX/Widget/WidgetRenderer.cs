@@ -1,5 +1,6 @@
 ﻿
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -51,7 +52,7 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("WidgetRenderer[{0}]", Widget != null ? Widget.name : name);
+            return string.Format("WidgetRenderer[{0}]", Widget != null ? Widget.GameObject.name : name);
         }
 
         /// <summary>

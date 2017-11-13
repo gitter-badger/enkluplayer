@@ -1,9 +1,11 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using System.Collections.Generic;
+using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /*
     /// <summary>
     /// Manages the cursor rendering
     /// </summary>
@@ -137,7 +139,7 @@ namespace CreateAR.SpirePlayer
         {
             LocalVisible
                 = !Intention.InputDisabled
-               && Elements.GetVisibleCount<InteractableWidget>() > 0;
+               && Widgets.GetVisibleCount<InteractableWidget>() > 0;
         }
 
         /// <summary>
@@ -432,5 +434,5 @@ namespace CreateAR.SpirePlayer
                       * _scale;
             }
         }
-    }
+    }*/
 }

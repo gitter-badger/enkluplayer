@@ -237,7 +237,7 @@ namespace CreateAR.SpirePlayer
                 return null;
             }
 
-            content.transform.SetParent(_parent);
+            content.GameObject.transform.SetParent(_parent);
 
             return new ContentRecord(content);
         }

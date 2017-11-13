@@ -1,105 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
-using UnityEngine.UI;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
-    /// TODO: Refactor with new Element Schema pipeline.
-    /// </summary>
-    public class TextSchema : WidgetSchema
-    {
-        /// <summary>
-        /// Button data.
-        /// </summary>
-        public string Text;
-
-        /// <summary>
-        /// Size of the text's font.
-        /// </summary>
-        public int FontSize;
-    }
-
-    /// <summary>
-    /// Displays a caption.
+    /// Text Element
     /// </summary>
     public class Caption : Widget
     {
         /// <summary>
-        /// Display text.
+        /// Handles rendering from unity's perspective
         /// </summary>
-        public Text Text;
+        private ITextPrimitive _primitive;
 
         /// <summary>
-        /// Sets up the caption based upon the schema.
+        /// Initialization
         /// </summary>
-        /// <param name="schema"></param>
-        public void SetSchema(TextSchema schema)
+        protected override void LoadInternal()
         {
-            if (schema == null)
+            base.LoadInternal();
+
+            _primitive = Primitives.RequestText(GameObject.transform);
+            _primitive.Text = Schema.Get<string>("text").Value;
+
+            var fontSize = Schema.Get<int>("fontSize").Value;
+            if (fontSize > 0)
             {
-                return;
+                _primitive.FontSize = fontSize;
             }
-
-            if (Text != null)
-            {
-                Text.text = schema.Text;
-
-                if (schema.FontSize != 0)
-                {
-                    Text.fontSize = schema.FontSize;
-                }
-
-                Text.alignment = GetTextAnchor(schema.AnchorPosition);
-                Text.rectTransform.pivot = GetPivot(schema.AnchorPosition);
-            }
-
-            LocalVisible = !string.IsNullOrEmpty(schema.Text);
         }
 
         /// <summary>
-        /// Translates from widgetAnchor to TextAnchor.
+        /// Shutdown
         /// </summary>
-        /// <returns></returns>
-        private static TextAnchor GetTextAnchor(WidgetAnchorPosition widgetAnchorPosition)
+        protected override void UnloadInternal()
         {
-            switch (widgetAnchorPosition)
-            {
-                case WidgetAnchorPosition.Bottom:
-                    return TextAnchor.UpperCenter;
-                case WidgetAnchorPosition.Top:
-                    return TextAnchor.LowerCenter;
-                case WidgetAnchorPosition.Right:
-                    return TextAnchor.MiddleLeft;
-                case WidgetAnchorPosition.Left:
-                    return TextAnchor.MiddleRight;
-            }
-
-            return TextAnchor.MiddleCenter;
-        }
-
-        /// <summary>
-        /// Get Caption Parent.
-        /// </summary>
-        /// <returns></returns>
-        private static Vector2 GetPivot(WidgetAnchorPosition widgetAnchorPosition)
-        {
-            switch (widgetAnchorPosition)
-            {
-                case WidgetAnchorPosition.Bottom:
-                    return new Vector2(0.5f, 1.0f);
-                case WidgetAnchorPosition.Top:
-                    return new Vector2(0.5f, 0.0f);
-                case WidgetAnchorPosition.Right:
-                    return new Vector2(0.0f, 0.5f);
-                case WidgetAnchorPosition.Left:
-                    return new Vector2(1.0f, 0.5f);
-            }
-
-            return new Vector2(0.5f, 0.5f);
+            Primitives.Release(_primitive);
+            _primitive = null;
         }
     }
 }

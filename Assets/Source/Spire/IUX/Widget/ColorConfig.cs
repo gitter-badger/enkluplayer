@@ -5,37 +5,9 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Virtual color lookup.
-    /// </summary>
-    public enum VirtualColor
-    {
-        None,
-
-        Ready,
-        Interacting,
-        Disabled,
-
-        Primary,
-        Secondary,
-        Tertiary,
-
-        Positive,
-        Negative,
-
-        Highlight,
-        Highlight1,
-        Highlight2,
-        Highlight3,
-        Highlight4,
-        Highlight5,
-
-        Count
-    }
-
-    /// <summary>
     /// Manages colors.
     /// </summary>
-    public class ColorConfig : MonoBehaviour
+    public class ColorConfig : MonoBehaviour, IColorConfig
     {
         /// <summary>
         /// Maps a VirtualColor to a Color.

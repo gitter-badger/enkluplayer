@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Input state for controlling rotation.
@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer
 
             _button.IsAimEnabled = false;
 
-            if (_button != null
+            /*if (_button != null
              && _button.Config.ActivationVFX != null)
             {
                 // TODO: Replace with pooled instantiation
@@ -45,10 +45,10 @@ namespace CreateAR.SpirePlayer
                     = UnityEngine
                         .Object
                         .Instantiate(_button.Config.ActivationVFX, 
-                        _button.transform.position,
-                        _button.transform.rotation);
+                        _button.GameObject.transform.position,
+                        _button.GameObject.transform.rotation);
                 spawnGameObject.SetActive(true);
-            }
+            }*/
 
             var buttonActivateMessage = new ButtonActivateEvent()
             {

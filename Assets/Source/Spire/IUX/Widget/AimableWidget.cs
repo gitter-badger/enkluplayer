@@ -1,12 +1,18 @@
-﻿using UnityEngine;
+﻿using CreateAR.Commons.Unity.Messaging;
+using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// 
     /// </summary>
     public class AimableWidget : InteractableWidget
     {
+        /// <summary>
+        /// Dependencies
+        /// </summary>
+        public IIntentionManager Intention { get; private set; }
+
         /// <summary>
         /// Current aim percentage.
         /// </summary>
@@ -41,11 +47,28 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Constructor.
+        /// </summary>
+        public void Initialize(
+            WidgetConfig config,
+            LayerManager layers,
+            TweenConfig tweens,
+            ColorConfig colors,
+            IPrimitiveFactory primitives,
+            IMessageRouter messages,
+            IIntentionManager intention,
+            HighlightManager highlights)
+        {
+            Intention = intention;
+            Initialize(config, layers, tweens, colors, primitives, messages, highlights);
+        }
+
+        /// <summary>
         /// Updates the aim of the activation.
         /// </summary>
-        protected override void Update()
+        protected override void UpdateInternal()
         {
-            base.Update();
+            base.UpdateInternal();
 
             if (!IsFocused
              || !IsInteractable
@@ -60,11 +83,8 @@ namespace CreateAR.SpirePlayer
 
             if (AimFeedbackWidget != null)
             {
-                AimFeedbackWidget.transform.localScale 
-                    = Vector3.one 
-                    * Config.AimFeedbackScale.Evaluate(_aim);
-                AimFeedbackWidget.LocalColor 
-                    = Config.AimFeedbackColor.Evaluate(_aim);
+                AimFeedbackWidget.GameObject.transform.localScale = Vector3.one * Config.GetAimScale(_aim);
+                AimFeedbackWidget.LocalColor = Config.GetAimColor(_aim);
             }
         }
 
@@ -80,8 +100,9 @@ namespace CreateAR.SpirePlayer
                 = Intention
                     .Forward;
             var delta
-                = transform
-                      .position.ToVec() - eyePosition;
+                = GameObject
+                    .transform
+                    .position.ToVec() - eyePosition;
             var directionToButton
                 = delta
                     .Normalized;
@@ -116,4 +137,5 @@ namespace CreateAR.SpirePlayer
                                       theta / maxTheta));
         }
     }
+   
 }

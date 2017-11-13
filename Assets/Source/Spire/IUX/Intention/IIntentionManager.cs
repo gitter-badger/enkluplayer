@@ -19,6 +19,11 @@
         /// <summary>
         /// Forward direction.
         /// </summary>
+        Vec3 Origin { get; }
+
+        /// <summary>
+        /// Forward direction.
+        /// </summary>
         Vec3 Forward { get; }
 
         /// <summary>
@@ -30,5 +35,10 @@
         /// Right direction.
         /// </summary>
         Vec3 Right { get; }
+
+        /// <summary>
+        /// Measure of stability;
+        /// </summary>
+        float Stability { get; }
     }
 }

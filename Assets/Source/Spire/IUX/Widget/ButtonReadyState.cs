@@ -1,6 +1,6 @@
 using System;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// State the button takes when it is ready for activation 
@@ -69,8 +69,7 @@ namespace CreateAR.SpirePlayer
                     = _initialActivation
                       * _button
                           .Config
-                          .FillDecay
-                          .Evaluate(_elapsed);
+                          .GetFillDelay(_elapsed);
             }
         }
 

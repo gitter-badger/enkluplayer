@@ -16,6 +16,11 @@ namespace CreateAR.SpirePlayer.UI
         private readonly List<Element> _children = new List<Element>();
 
         /// <summary>
+        /// Parent widget.
+        /// </summary>
+        private Element _parent;
+
+        /// <summary>
         /// Unique internal id for this element.
         /// </summary>
         public string Guid { get; private set;  }
@@ -40,7 +45,20 @@ namespace CreateAR.SpirePlayer.UI
                 return _children.ToArray();
             }
         }
-        
+
+        /// <summary>
+        /// Parent element.
+        /// </summary>
+        public Element Parent
+        {
+            get { return _parent; }
+        }
+
+        /// <summary>
+        /// Invoked when element is destroyed
+        /// </summary>
+        internal event Action<Element> OnDestroy;
+
         /// <summary>
         /// Called when this node has been removed from the graph.
         /// </summary>
@@ -107,6 +125,7 @@ namespace CreateAR.SpirePlayer.UI
             // child schemas wrap parent
             for (int i = 0, len = children.Length; i < len; i++)
             {
+                children[i]._parent = this;
                 children[i].Schema.Wrap(Schema);
             }
 
@@ -125,7 +144,36 @@ namespace CreateAR.SpirePlayer.UI
             Id = string.Empty;
             Schema = new ElementSchema();
 
+            for (int i = 0, len = _children.Count; i < len; i++)
+            {
+                _children[i]._parent = null;
+            }
             _children.Clear();
+        }
+
+        /// <summary>
+        /// Frame based update.
+        /// </summary>
+        internal void Update()
+        {
+            UpdateInternal();
+        }
+
+        /// <summary>
+        /// Destroys the widget
+        /// </summary>
+        public void Destroy()
+        {
+            if (OnDestroy != null)
+            {
+                Unload();
+
+                if (OnDestroy != null)
+                {
+                    OnDestroy(this);
+                    OnDestroy = null;
+                }
+            }
         }
 
         /// <summary>
@@ -148,6 +196,7 @@ namespace CreateAR.SpirePlayer.UI
                 _children.RemoveAt(index);
             }
 
+            element._parent = this;
             _children.Add(element);
 
             element.OnChildAdded += Child_OnChildAdded;
@@ -177,6 +226,7 @@ namespace CreateAR.SpirePlayer.UI
             var removed = _children.Remove(element);
             if (removed)
             {
+                element._parent = null;
                 element.OnChildAdded -= Child_OnChildAdded;
                 element.OnChildRemoved -= Child_OnChildRemoved;
 
@@ -324,6 +374,14 @@ namespace CreateAR.SpirePlayer.UI
         protected virtual void UnloadInternal()
         {
 
+        }
+
+        /// <summary>
+        /// Invoked once per frame.
+        /// </summary>
+        protected virtual void UpdateInternal()
+        {
+            
         }
 
         /// <summary>

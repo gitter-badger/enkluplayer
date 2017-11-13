@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -14,7 +15,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Unique tag for this piece of <c>Content</c>.
         /// </summary>
-        private readonly string _scriptTag = Guid.NewGuid().ToString();
+        private readonly string _scriptTag = System.Guid.NewGuid().ToString();
 
         /// <summary>
         /// Loads assets.
@@ -137,12 +138,10 @@ namespace CreateAR.SpirePlayer
         /// Destroyes this instance. Should not be called directly, but through
         /// <c>IContentManager</c> Release flow.
         /// </summary>
-        public void Destroy()
+        protected override void UnloadInternal()
         {
             TeardownAsset();
             TeardownScripts();
-
-            Destroy(gameObject);
         }
 
         /// <summary>
@@ -242,7 +241,7 @@ namespace CreateAR.SpirePlayer
 
             // get a new one
             _instance = _pools.Get<GameObject>(value);
-            _instance.transform.SetParent(transform, false);
+            _instance.transform.SetParent(GameObject.transform, false);
 
             UpdateInstancePosition();
         }
@@ -327,7 +326,7 @@ namespace CreateAR.SpirePlayer
 
                         if (!found)
                         {
-                            component = gameObject.AddComponent<MonoBehaviourSpireScript>();
+                            component = GameObject.AddComponent<MonoBehaviourSpireScript>();
                             _scriptComponents.Add(component);
                         }
 
@@ -355,7 +354,7 @@ namespace CreateAR.SpirePlayer
             {
                 var component = _scriptComponents[i];
                 component.Exit();
-                Destroy(component);
+                UnityEngine.Object.Destroy(component);
             }
             _scriptComponents.Clear();
 
@@ -394,7 +393,7 @@ namespace CreateAR.SpirePlayer
 
             // parent + orient
             _instance.name = Data.Asset.AssetDataId;
-            _instance.transform.SetParent(transform);
+            _instance.transform.SetParent(GameObject.transform);
             /*
             _instance.transform.localPosition = assetPrefab.transform.localPosition;
             _instance.transform.localRotation = assetPrefab.transform.localRotation;

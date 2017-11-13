@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Returns steadiness of the view.
         /// </summary>
-        public float Steadiness;
+        public float Stability { get; private set; }
 
         /// <summary>
         /// If true, input is not updated.
@@ -251,7 +251,7 @@ namespace CreateAR.SpirePlayer
             }
 
             AverageAngularVelocity = totalAngularVelocity / count;
-            Steadiness = 1.0f - Mathf.Clamp01(AverageAngularVelocity / MaxAngularVelocity);
+            Stability = 1.0f - Mathf.Clamp01(AverageAngularVelocity / MaxAngularVelocity);
         }
 
         /// <summary>

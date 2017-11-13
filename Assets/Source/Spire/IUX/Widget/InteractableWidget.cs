@@ -1,4 +1,6 @@
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -8,6 +10,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class InteractableWidget : Widget, IFocusable
     {
+        /// <summary>
+        /// Dependencies
+        /// </summary>
+        public HighlightManager Highlights { get; private set; }
+
         /// <summary>
         /// True if the widget is currently focused
         /// </summary>
@@ -168,6 +175,22 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Dependency initialization.
+        /// </summary>
+        public void Initialize(
+            WidgetConfig config,
+            LayerManager layers,
+            TweenConfig tweens,
+            ColorConfig colors,
+            IPrimitiveFactory primitives,
+            IMessageRouter messages,
+            HighlightManager highlights)
+        {
+            Highlights = highlights;
+            Initialize(config, layers, tweens, colors, primitives, messages);
+        }
+
+        /// <summary>
         /// Initializes the InteractableWidget.
         /// </summary>
         /// <param name="schema"></param>
@@ -180,9 +203,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Updates visibility of ShowIfHighlightedWidget.
         /// </summary>
-        protected override void Update()
+        protected override void UpdateInternal()
         {
-            base.Update();
+            base.UpdateInternal();
 
             if (!IsVisible)
             {
@@ -231,12 +254,13 @@ namespace CreateAR.SpirePlayer
 
             if (_BufferCollider == null)
             {
-                _BufferCollider = gameObject.AddComponent<BoxCollider>();
+                _BufferCollider = GameObject.AddComponent<BoxCollider>();
             }
 
-            _BufferCollider.size = _FocusCollider.size * Config.AutoGenBufferFactor;
+            const float AUTO_GEN_BUFFER_FACTOR = 1.5f;
+            _BufferCollider.size = _FocusCollider.size * AUTO_GEN_BUFFER_FACTOR;
 
-            if (FocusCollider.transform != transform)
+            if (FocusCollider.transform != GameObject.transform)
             {
                 var size = _BufferCollider.size;
                 size.x *= FocusCollider.transform.localScale.x;
@@ -270,13 +294,13 @@ namespace CreateAR.SpirePlayer
             if (ShowIfHighlightedWidget != null)
             {
                 var isHighlighted = false;
-                var highlightWidget = Elements.Highlighted;
+                var highlightWidget = Highlights.Highlighted;
                 if (highlightWidget != null)
                 {
                     if (this == (InteractableWidget)highlightWidget)
                     {
-                        if (IsDescendant(highlightWidget.Transform, transform)
-                            || IsDescendant(transform, highlightWidget.Transform))
+                        if (IsDescendant(highlightWidget.GameObject.transform, GameObject.transform)
+                         || IsDescendant(GameObject.transform, highlightWidget.GameObject.transform))
                         {
                             isHighlighted = true;
                         }

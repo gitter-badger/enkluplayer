@@ -1,16 +1,18 @@
 ﻿
 
-using UnityEngine;
+using CreateAR.SpirePlayer.UI;
+using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer
 {
     public class IUXTest : InjectableMonoBehaviour
     {
         /// <summary>
-        /// Test button
+        /// Element Creation
         /// </summary>
-        public Button Button;
-
+        [Inject]
+        public IElementFactory ElementFactory { get; set; } 
+        
         /// <summary>
         /// Initialization
         /// </summary>
@@ -18,20 +20,42 @@ namespace CreateAR.SpirePlayer
         {
             base.Awake();
 
-            var buttonSchema = new ButtonSchema()
+            var elementPrefabs = new[]
             {
-                Caption = new TextSchema()
+                new ElementData()
                 {
-                    Text = "Hello World",
-                    FontSize = 42,
-                    AnchorPosition = WidgetAnchorPosition.Right
-                },
-
-                Highlight = true,
-                VoiceActivator = "Banana"
+                    Id = "caption",
+                    Schema = new ElementSchemaData()
+                    {
+                        Ints = new Dictionary<string, int>()
+                        {
+                            {"type", ElementTypes.CAPTION}
+                        }
+                    }
+                }
             };
 
-            Button.SetSchema(buttonSchema);
+            var elementDescription
+                = new ElementDescription()
+                {
+                    Elements = elementPrefabs,
+
+                    Root = new ElementRef()
+                    {
+                        Id = "caption",
+                        Schema = new ElementSchemaData()
+                        {
+                            Strings = new Dictionary<string, string>()
+                            {
+                                { "name", "New Caption" },
+                                { "text", "Hello World!" },
+                                { "fontSize", "12" }
+                            }
+                        }
+                    }
+                };
+
+            var element = ElementFactory.Element(elementDescription);
         }
     }
 }
