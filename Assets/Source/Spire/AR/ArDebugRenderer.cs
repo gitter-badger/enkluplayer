@@ -10,6 +10,9 @@ namespace CreateAR.SpirePlayer.AR
         [Inject]
         public IArService Ar { get; set; }
 
+        [Inject]
+        public ArCameraRig Rig { get; set; }
+        
         public GameObject Prefab;
         
         private void Update()
@@ -35,11 +38,13 @@ namespace CreateAR.SpirePlayer.AR
                 if (!_debugPlanes.TryGetValue(anchor.Id, out @object))
                 {
                     @object = _debugPlanes[anchor.Id] = Instantiate(Prefab);
+
+                    @object.transform.parent = Rig.transform;
                 }
 
                 var planeTransform = @object.transform;
-                planeTransform.position = anchor.Position;
-                planeTransform.rotation = anchor.Rotation;
+                planeTransform.localPosition = anchor.Position;
+                planeTransform.localRotation = anchor.Rotation;
                 planeTransform.localScale = anchor.Extents;
             }
         }

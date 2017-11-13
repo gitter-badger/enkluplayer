@@ -23,7 +23,7 @@ namespace CreateAR.SpirePlayer.AR
         /// <param name="anchor">Floor anchor.</param>
         public void SetFloor(ArAnchor anchor)
         {
-            //Camera.transform.localPosition = -anchor.Position;
+            transform.position = -anchor.Position;
 
             //Grid.Offset = anchor.Position;
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CreateAR.SpirePlayer.AR
 {
@@ -13,9 +12,9 @@ namespace CreateAR.SpirePlayer.AR
                 {
                     new ArAnchor("floor")
                     {
-                        Extents = new Vector3(100, 0, 100),
-                        Position = Vector3.zero,
-                        Rotation = Quaternion.identity
+                        Extents = new Vector3(1, 0, 1),
+                        Position = new Vector3(3, -2, 6.4f),
+                        Rotation = Quaternion.Euler(0, 45, 0)
                     }, 
                 };
             }

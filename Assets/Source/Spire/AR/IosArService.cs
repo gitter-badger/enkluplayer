@@ -27,10 +27,15 @@ namespace CreateAR.SpirePlayer.AR
             Config = config;
             _rig = config.Rig;
             
+            // setup camera
+            Camera.main.clearFlags = CameraClearFlags.Depth;
+            
+            // listen to the native interface
             UnityARSessionNativeInterface.ARAnchorAddedEvent += Interface_OnAnchorAdded;
             UnityARSessionNativeInterface.ARAnchorUpdatedEvent += Interface_OnAnchorUpdated;
             UnityARSessionNativeInterface.ARAnchorRemovedEvent += Interface_OnAnchorRemoved;
             
+            // startup!
             _interface.RunWithConfigAndOptions(
                 new ARKitWorldTrackingSessionConfiguration
                 {

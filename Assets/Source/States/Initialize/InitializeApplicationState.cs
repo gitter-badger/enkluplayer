@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Minimum amount of time to search for the floor.
         /// </summary>
-        private const int MIN_SEC_SEARCH = 2;
+        private const int MIN_SEC_SEARCH = 5;
 
         /// <summary>
         /// Maximum amount of time to search for the floor.
