@@ -29,7 +29,7 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Base class for IUX elements.
     /// </summary>
-    public class Widget : Element, ILayerable
+    public class Widget : Element, IWidget, ILayerable
     {
         /// <summary>
         /// Dependencies.

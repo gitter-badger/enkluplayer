@@ -21,15 +21,6 @@ namespace CreateAR.SpirePlayer.UI
         public Widget ActivationWidget;
 
         /// <summary>
-        /// Initialization
-        /// </summary>
-        /// <param name="schema"></param>
-        public override void Load(ElementSchema schema)
-        {
-            
-        }
-
-        /// <summary>
         /// Updates the rotation and scale of the stability transform
         /// </summary>
         /// <param name="degress"></param>

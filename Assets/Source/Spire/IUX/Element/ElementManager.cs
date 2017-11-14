@@ -63,6 +63,18 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Updates highlighted elements based on visibility.
+        /// </summary>
+        private void LateUpdate()
+        {
+            for (int i = _all.Count - 1; i >= 0 && i < _all.Count; --i)
+            {
+                var element = _all[i];
+                element.LateUpdate();
+            }
+        }
+
+        /// <summary>
         /// Invoked when a widget is destroyed
         /// </summary>
         /// <param name="element"></param>

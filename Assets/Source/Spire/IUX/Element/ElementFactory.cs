@@ -18,6 +18,12 @@ namespace CreateAR.SpirePlayer.UI
         private readonly IWidgetConfig _config;
         private readonly ITweenConfig _tweens;
         private readonly IMessageRouter _messages;
+        private readonly IHighlightManager _highlights;
+
+        /// <summary>
+        /// All widgets inherit this base schema
+        /// </summary>
+        private ElementSchema _baseSchema = new ElementSchema();
 
         /// <summary>
         /// Constructor.
@@ -30,7 +36,8 @@ namespace CreateAR.SpirePlayer.UI
             IColorConfig colors,
             IWidgetConfig config,
             ITweenConfig tweens,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            IHighlightManager highlights)
         {
             _primitives = primitives;
             _intention = intention;
@@ -40,6 +47,11 @@ namespace CreateAR.SpirePlayer.UI
             _config = config;
             _tweens = tweens;
             _messages = messages;
+            _highlights = highlights;
+
+            /// TODO: Load this all from data
+            _baseSchema.Set("gainFocusTween", TweenType.Responsive);
+            _baseSchema.Set("lostFocusTween", TweenType.Deliberate);
         }
 
         /// <inheritdoc cref="IElementFactory"/>
@@ -63,10 +75,11 @@ namespace CreateAR.SpirePlayer.UI
             {
                 children[i] = Element(childData[i]);
             }
-
+            
             // element
             var schema = new ElementSchema();
             schema.Load(data.Schema);
+            schema.Wrap(_baseSchema);
 
             var element = Element(data.Schema);
             if (element != null)
@@ -97,6 +110,18 @@ namespace CreateAR.SpirePlayer.UI
                             var newCaption = new Caption();
                             newCaption.Initialize(_config, _layers, _tweens, _colors, _primitives, _messages);
                             newElement = newCaption;
+                            break;
+
+                        case ElementTypes.BUTTON:
+                            var newButton = new Button();
+                            newButton.Initialize(_config, _layers, _tweens, _colors, _primitives, _messages, _intention, _highlights);
+                            newElement = newButton;
+                            break;
+
+                        case ElementTypes.CURSOR:
+                            var newCursor = new Cursor();
+                            newCursor.Initialize(_config, _layers, _tweens, _colors, _primitives, _messages, _intention);
+                            newElement = newCursor;
                             break;
                     }
 

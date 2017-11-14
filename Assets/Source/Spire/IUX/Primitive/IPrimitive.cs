@@ -8,14 +8,19 @@ namespace CreateAR.SpirePlayer.UI
     public interface IPrimitive
     {
         /// <summary>
-        /// Initialization
-        /// </summary>
-        /// <param name="schema"></param>
-        void Load(ElementSchema schema);
-
-        /// <summary>
         /// Positioning
         /// </summary>
-        Transform Transform { get; }
+        IWidget Widget { get; }
+
+        /// <summary>
+        /// Loads the primitive
+        /// </summary>
+        /// <param name="widget"></param>
+        void Load(IWidget widget);
+
+        /// <summary>
+        /// Unloads the primitive
+        /// </summary>
+        void Unload();
     }
 }

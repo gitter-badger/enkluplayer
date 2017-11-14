@@ -28,7 +28,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// State management for the button
         /// </summary>
-        private FiniteStateMachine _states;
+        private readonly FiniteStateMachine _states;
 
         /// <summary>
         /// Activator primitive
@@ -78,8 +78,8 @@ namespace CreateAR.SpirePlayer.UI
         {
             base.LoadInternal();
 
-            _activator = Primitives.RequestActivator(GameObject.transform);
-            _text = Primitives.RequestText(GameObject.transform);
+            _activator = Primitives.LoadActivator(this);
+            _text = Primitives.LoadText(this);
 
             var voiceActivator = Schema.Get<string>("voiceActivator").Value;
             /*if (Caption != null)
@@ -114,13 +114,14 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         protected override void UpdateInternal()
         {
-            UpdateInternal();
+            base.UpdateInternal();
 
             var deltaTime = Time.smoothDeltaTime;
             _states.Update(deltaTime);
 
             UpdateActivation();
             
+            // TODO: this was from a bug, remove this code, find the bug
             if (float.IsInfinity(_activation)
              || float.IsNaN(_activation))
             {

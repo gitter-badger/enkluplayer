@@ -147,6 +147,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IElementManager>().ToValue(LookupComponent<ElementManager>());
                 binder.Bind<IPrimitiveFactory>().ToValue(LookupComponent<PrimitiveFactory>());
                 binder.Bind<IIntentionManager>().ToValue(LookupComponent<IntentionManager>());
+                binder.Bind<IHighlightManager>().ToValue(LookupComponent<HighlightManager>());
                 binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
                 binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
                 binder.Bind<MusicManager>().ToValue(LookupComponent<MusicManager>());

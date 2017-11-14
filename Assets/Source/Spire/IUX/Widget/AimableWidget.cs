@@ -50,14 +50,14 @@ namespace CreateAR.SpirePlayer.UI
         /// Constructor.
         /// </summary>
         public void Initialize(
-            WidgetConfig config,
-            LayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            IWidgetConfig config,
+            ILayerManager layers,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IPrimitiveFactory primitives,
             IMessageRouter messages,
             IIntentionManager intention,
-            HighlightManager highlights)
+            IHighlightManager highlights)
         {
             Intention = intention;
             Initialize(config, layers, tweens, colors, primitives, messages, highlights);

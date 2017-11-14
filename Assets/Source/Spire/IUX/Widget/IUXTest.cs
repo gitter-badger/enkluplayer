@@ -1,5 +1,4 @@
 ﻿
-
 using CreateAR.SpirePlayer.UI;
 using System.Collections.Generic;
 
@@ -24,6 +23,17 @@ namespace CreateAR.SpirePlayer
             {
                 new ElementData()
                 {
+                    Id = "cursor",
+                    Schema = new ElementSchemaData()
+                    {
+                        Ints = new Dictionary<string, int>()
+                        {
+                            {"type", ElementTypes.CURSOR}
+                        }
+                    }
+                },
+                new ElementData()
+                {
                     Id = "caption",
                     Schema = new ElementSchemaData()
                     {
@@ -32,8 +42,39 @@ namespace CreateAR.SpirePlayer
                             {"type", ElementTypes.CAPTION}
                         }
                     }
+                },
+                new ElementData()
+                {
+                    Id = "button",
+                    Schema = new ElementSchemaData()
+                    {
+                        Ints = new Dictionary<string, int>()
+                        {
+                            {"type", ElementTypes.BUTTON}
+                        }
+                    }
                 }
             };
+
+            var cursorDescription
+                = new ElementDescription()
+                {
+                    Elements = elementPrefabs,
+
+                    Root = new ElementRef()
+                    {
+                        Id = "cursor",
+                        Schema = new ElementSchemaData()
+                        {
+                            Strings = new Dictionary<string, string>()
+                            {
+                                {"name", "Cursor"},
+                            }
+                        }
+                    }
+                };
+
+            var cursor = ElementFactory.Element(cursorDescription);
 
             var elementDescription
                 = new ElementDescription()
@@ -42,12 +83,12 @@ namespace CreateAR.SpirePlayer
 
                     Root = new ElementRef()
                     {
-                        Id = "caption",
+                        Id = "button",
                         Schema = new ElementSchemaData()
                         {
                             Strings = new Dictionary<string, string>()
                             {
-                                { "name", "New Caption" },
+                                { "name", "New Button" },
                                 { "text", "Hello World!" },
                                 { "fontSize", "12" }
                             }

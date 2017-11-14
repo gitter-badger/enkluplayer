@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Updates the visual components related to a widget
     /// </summary>
-    public class WidgetRenderer : MonoBehaviour
+    public class PrimitiveRenderer : MonoBehaviour
     {
         /// <summary>
         /// Cached list of materials
@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Source widget.
         /// </summary>
-        public Widget Widget;
+        public WidgetPrimitive Source;
 
         /// <summary>
         /// Target graphic (Unity UI rendering system).
@@ -52,7 +52,7 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("WidgetRenderer[{0}]", Widget != null ? Widget.GameObject.name : name);
+            return string.Format("WidgetRenderer[{0}]", Source != null ? Source.Widget.GameObject.name : name);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         protected virtual void Awake()
         {
-            if (Widget == null)
+            if (Source == null)
             {
                 Log.Warning(this, "Missing source 'Widget' for {0}!", this);
             }
@@ -71,26 +71,27 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         protected virtual void LateUpdate()
         {
-            if (Widget == null)
+            if (Source == null
+             || Source.Widget == null)
             {
                 return;
             }
 
             if (Graphic != null)
             {
-                Graphic.color = Widget.Color;
+                Graphic.color = Source.Widget.Color;
             }
 
             if (CanvasRenderer != null)
             {
-                CanvasRenderer.SetAlpha(Widget.Color.a);
+                CanvasRenderer.SetAlpha(Source.Widget.Color.a);
             }
 
             UpdateRenderer();
 
             if (Material != null)
             {
-                Material.SetColor(MaterialColorName, Widget.Color);
+                Material.SetColor(MaterialColorName, Source.Widget.Color);
             }
         }
 
@@ -112,7 +113,7 @@ namespace CreateAR.SpirePlayer
 
             if (_cachedRendererMaterials.Length > 0)
             {
-                var color = Widget.Color;
+                var color = Source.Widget.Color;
                 for (int j = 0, jCount = _cachedRendererMaterials.Length; j < jCount; ++j)
                 {
                     var material = _cachedRendererMaterials[j];

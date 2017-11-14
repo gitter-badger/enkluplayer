@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.UI
 {
@@ -157,6 +158,14 @@ namespace CreateAR.SpirePlayer.UI
         internal void Update()
         {
             UpdateInternal();
+        }
+
+        /// <summary>
+        /// Frame based update.
+        /// </summary>
+        internal void LateUpdate()
+        {
+            LateUpdateInternal();
         }
 
         /// <summary>
@@ -382,6 +391,14 @@ namespace CreateAR.SpirePlayer.UI
         protected virtual void UpdateInternal()
         {
             
+        }
+
+        /// <summary>
+        /// Invoked once per frame.
+        /// </summary>
+        protected virtual void LateUpdateInternal()
+        {
+
         }
 
         /// <summary>

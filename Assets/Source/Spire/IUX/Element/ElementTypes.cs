@@ -15,6 +15,7 @@
         ///////////////////////////////////////////////////////////////////////
         public const int CAPTION = 1;
         public const int BUTTON = 2;
+        public const int CURSOR = 3;
     }
 }
 

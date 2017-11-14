@@ -22,7 +22,7 @@ namespace CreateAR.SpirePlayer.Test.UI
                 Root = GenerateRefs(0)
             };
 
-            _element = new ElementFactory(null, null, null, null, null, null, null, null).Element(description);
+            _element = new ElementFactory(null, null, null, null, null, null, null, null, null).Element(description);
         }
         
         private ElementRef GenerateRefs(int index)

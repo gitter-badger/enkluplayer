@@ -122,5 +122,109 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [Header("Activation")]
         public GameObject ActivationVFX;
+
+        /// <summary>
+        /// Default Cursor Distance
+        /// </summary>
+        [Header("Cursor")]
+        public float DefaultFocalDistance = 2.0f;
+
+        /// <summary>
+        /// How fast does the cursor state change
+        /// </summary>
+        public TweenType AimTweenType = TweenType.Instant;
+
+        /// <summary>
+        /// Tween for gaining focus
+        /// </summary>
+        public TweenType GainFocusTween = TweenType.Responsive;
+
+        /// <summary>
+        /// Tween for losing focus
+        /// </summary>
+        public TweenType LostFocusTween = TweenType.Deliberate;
+
+        /// <summary>
+        /// Spread when activating
+        /// </summary>
+        public AnimationCurve AimSpread = new AnimationCurve();
+
+        /// <summary>
+        /// Modifies Aim Scale
+        /// </summary>
+        public float AimSpreadMultiplier = 1.0f;
+
+        /// <summary>
+        /// Defines how magnetty the cursor is
+        /// </summary>
+        public AnimationCurve AimMagnet = new AnimationCurve();
+
+        /// <summary>
+        /// How aim affects the scale of points
+        /// </summary>
+        public AnimationCurve AimScale = new AnimationCurve();
+
+        /// <summary>
+        /// Modifies Aim Scale
+        /// </summary>
+        public float AimScaleMultiplier = 1.0f;
+
+        /// <summary>
+        /// How aim affects color of points
+        /// </summary>
+        public Gradient AimColor = new Gradient();
+
+        /// <summary>
+        /// Spins per second.
+        /// </summary>
+        public float SpinSpeed = 2.0f;
+
+        /// <summary>
+        /// Spins per second.
+        /// </summary>
+        public float GetDefaultDistanceForCursor()
+        {
+            return DefaultFocalDistance;
+        }
+
+        /// <summary>
+        /// Spins per second.
+        /// </summary>
+        public float GetReticleSpinRateForCursor()
+        {
+            return SpinSpeed;
+        }
+
+        /// <summary>
+        /// Spins per second.
+        /// </summary>
+        public float GetMagnetFromAim(float aim)
+        {
+            return AimMagnet.Evaluate(aim);
+        }
+
+        /// <summary>
+        /// Spins per second.
+        /// </summary>
+        public float GetReticleSpreadFromAim(float aim)
+        {
+            return AimSpread.Evaluate(aim) * AimSpreadMultiplier;
+        }
+
+        /// <summary>
+        /// Spins per second.
+        /// </summary>
+        public Color GetReticleColorFromAim(float aim)
+        {
+            return AimColor.Evaluate(aim);
+        }
+
+        /// <summary>
+        /// Spins per second.
+        /// </summary>
+        public float GetReticleScaleFromAim(float aim)
+        {
+            return AimScale.Evaluate(aim) * AimScaleMultiplier;
+        }
     }
 }

@@ -1,10 +1,7 @@
-﻿using CreateAR.Commons.Unity.Messaging;
-using UnityEngine;
-
-namespace CreateAR.SpirePlayer.UI
+﻿namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
-    /// Text Element
+    /// Basic text rendering widget.
     /// </summary>
     public class Caption : Widget
     {
@@ -20,7 +17,8 @@ namespace CreateAR.SpirePlayer.UI
         {
             base.LoadInternal();
 
-            _primitive = Primitives.RequestText(GameObject.transform);
+            _primitive = Primitives.LoadText(this);
+
             _primitive.Text = Schema.Get<string>("text").Value;
 
             var fontSize = Schema.Get<int>("fontSize").Value;
@@ -35,8 +33,11 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         protected override void UnloadInternal()
         {
-            Primitives.Release(_primitive);
-            _primitive = null;
+            if (_primitive != null)
+            {
+                _primitive.Unload();
+                _primitive = null;
+            }
         }
     }
 }

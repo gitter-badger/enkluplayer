@@ -8,17 +8,28 @@ namespace CreateAR.SpirePlayer.UI
     public class WidgetPrimitive : MonoBehaviour, IPrimitive
     {
         /// <summary>
-        /// Transform accessor.
+        /// Parent widget.
         /// </summary>
-        public Transform Transform { get { return transform; } }
+        public IWidget Widget { get; private set; }
+       
+        /// <summary>
+        /// Loads using the specified widget.
+        /// </summary>
+        /// <param name="widget"></param>
+        public void Load(IWidget widget)
+        {
+            Widget = widget;
+
+            transform.SetParent(Widget.GameObject.transform, false);
+            transform.gameObject.SetActive(true);
+        }
 
         /// <summary>
-        /// Initialization.
+        /// Unloads the primitive.
         /// </summary>
-        /// <param name="schema"></param>
-        public virtual void Load(ElementSchema schema)
+        public void Unload()
         {
-            // empty
+            Destroy(this);
         }
     }
 }

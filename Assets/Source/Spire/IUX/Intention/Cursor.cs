@@ -1,33 +1,43 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
-    /*
     /// <summary>
     /// Manages the cursor rendering
     /// </summary>
     public class Cursor : Widget
     {
         /// <summary>
-        /// Spread 
+        /// Dependencies
         /// </summary>
-        private float _spread = 0.0f;
+        public IIntentionManager Intention { get; private set; }
 
         /// <summary>
-        /// Scale of the points
+        /// Activator primitive
         /// </summary>
-        private float _scale = 1.0f;
+        private IReticlePrimitive _reticle;
 
         /// <summary>
-        /// How well is the user aiming
+        /// A measure of aim over time. 
+        /// </summary>
+        private float _spread;
+
+        /// <summary>
+        /// How well is the user aiming.
         /// </summary>
         private float _aim;
 
         /// <summary>
-        /// Measured in theta/second
+        /// Scale of the points.
+        /// </summary>
+        private float _scale = 1.0f;
+
+        /// <summary>
+        /// Measured in theta/second.
         /// </summary>
         private float _angularVelocityRadians;
 
@@ -42,85 +52,53 @@ namespace CreateAR.SpirePlayer
         private float _cursorDistance;
 
         /// <summary>
-        /// Default Cursor Distance
+        /// The speed at which the element tweens when it gains focus
         /// </summary>
-        public float DefaultFocalDistance = 2.0f;
+        private ElementSchemaProp<TweenType> _gainFocusTween;
 
         /// <summary>
-        /// How fast does the cursor state change
+        /// The speed at which the element tweens when it gains focus
         /// </summary>
-        public TweenType AimTweenType = TweenType.Instant;
+        private ElementSchemaProp<TweenType> _lostFocusTween;
 
         /// <summary>
-        /// Tween for gaining focus
+        /// Constructor.
         /// </summary>
-        public TweenType GainFocusTween = TweenType.Responsive;
-
-        /// <summary>
-        /// Tween for losing focus
-        /// </summary>
-        public TweenType LostFocusTween = TweenType.Deliberate;
-
-        /// <summary>
-        /// Spread when activating
-        /// </summary>
-        public AnimationCurve AimSpread = new AnimationCurve();
-        
-        /// <summary>
-        /// Modifies Aim Scale
-        /// </summary>
-        public float AimSpreadMultiplier = 1.0f;
-
-        /// <summary>
-        /// Defines how magnetty the cursor is
-        /// </summary>
-        public AnimationCurve AimMagnet = new AnimationCurve();
-
-        /// <summary>
-        /// How aim affects the scale of points
-        /// </summary>
-        public AnimationCurve AimScale = new AnimationCurve();
-
-        /// <summary>
-        /// Modifies Aim Scale
-        /// </summary>
-        public float AimScaleMultiplier = 1.0f;
-
-        /// <summary>
-        /// How aim affects color of points
-        /// </summary>
-        public Gradient AimColor = new Gradient();
-
-        /// <summary>
-        /// Spins per second
-        /// </summary>
-        public float SpinSpeed = 2.0f;
-
-        /// <summary>
-        /// Widgets
-        /// </summary>
-        public List<Widget> Points = new List<Widget>();
-
-        /// <summary>
-        /// Center point
-        /// </summary>
-        public Widget CenterPoint;
+        public void Initialize(
+            IWidgetConfig config,
+            ILayerManager layers,
+            ITweenConfig tweens,
+            IColorConfig colors,
+            IPrimitiveFactory primitives,
+            IMessageRouter messages,
+            IIntentionManager intention)
+        {
+            Intention = intention;
+            Initialize(config, layers, tweens, colors, primitives, messages);
+        }
 
         /// <summary>
         /// Initialization
         /// </summary>
-        protected override void Awake()
+        protected override void LoadInternal()
         {
-            base.Awake();
+            base.LoadInternal();
 
-            _cursorDistance = DefaultFocalDistance;
+            _reticle = Primitives.LoadReticle(this);
+
+            _gainFocusTween = Schema.Get<TweenType>("gainFocusTween");
+            _lostFocusTween = Schema.Get<TweenType>("lostFocusTween");
+
+            _cursorDistance = Config.GetDefaultDistanceForCursor();
         }
 
         /// <summary>
         /// Frame based update
         /// </summary>
-        public void LateUpdate()
+        protected override void LateUpdateInternal()
         {
+            base.LateUpdateInternal();
+
             var deltaTime
                 = Time
                     .smoothDeltaTime;
@@ -128,8 +106,8 @@ namespace CreateAR.SpirePlayer
             UpdateAim(deltaTime);
             UpdatePosition(deltaTime);
             UpdateSpin(deltaTime);
-            UpdatePoints(deltaTime);
             UpdateVisibility();
+            UpdateReticle();
         }
         
         /// <summary>
@@ -138,8 +116,8 @@ namespace CreateAR.SpirePlayer
         private void UpdateVisibility()
         {
             LocalVisible
-                = !Intention.InputDisabled
-               && Widgets.GetVisibleCount<InteractableWidget>() > 0;
+                = !Intention.InputDisabled;
+            // && Widgets.GetVisibleCount<InteractableWidget>() > 0;
         }
 
         /// <summary>
@@ -158,13 +136,9 @@ namespace CreateAR.SpirePlayer
 
             var targetAngularVelocityRadians
                 = _aim > Mathf.Epsilon
-                    ? Config
-                          .AimFillMultiplier
-                          .Evaluate(_aim)
-                      * Config
-                          .SteadinessFillMultiplier
-                          .Evaluate(Intention.Steadiness)
-                      * SpinSpeed
+                    ? Config.GetFillRateMultiplierFromAim(_aim)
+                      * Config.GetFillRateMultiplierFromStability(Intention.Stability)
+                      * Config.GetReticleSpinRateForCursor()
                       * Mathf.PI
                       * 2.0f
                     : 0.0f;
@@ -173,8 +147,8 @@ namespace CreateAR.SpirePlayer
                 = Tweens
                     .DurationSeconds(
                         _aim > Mathf.Epsilon
-                            ? GainFocusTween
-                            : LostFocusTween);
+                            ? _gainFocusTween.Value
+                            : _lostFocusTween.Value);
 
             var tweenLerp
                 = tweenDuration > Mathf.Epsilon
@@ -220,8 +194,7 @@ namespace CreateAR.SpirePlayer
              && focusable.FocusCollider != null)
             {
                 var aimMagnet
-                    = AimMagnet
-                        .Evaluate(_aim);
+                    = Config.GetMagnetFromAim(_aim);
 
                 cursorPosition
                     = Vec3.Lerp(
@@ -230,8 +203,8 @@ namespace CreateAR.SpirePlayer
                         aimMagnet);
             }
 
-            transform.position = cursorPosition.ToVector();
-            transform.forward = -eyeDirection.ToVector();
+            GameObject.transform.position = cursorPosition.ToVector();
+            GameObject.transform.forward = -eyeDirection.ToVector();
         }
 
         /// <summary>
@@ -241,8 +214,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="eyePosition"></param>
         private void UpdateCursorDistance(float deltaTime, Vec3 eyePosition)
         {
-            var targetFocusDistance
-                = DefaultFocalDistance;
+            var targetFocusDistance = Config.GetDefaultDistanceForCursor();
 
             var focusable = Intention.Focus;
             if (focusable != null
@@ -269,8 +241,8 @@ namespace CreateAR.SpirePlayer
                 = Tweens
                     .DurationSeconds(
                         focusable != null
-                            ? GainFocusTween
-                            : LostFocusTween);
+                            ? _gainFocusTween.Value
+                            : _lostFocusTween.Value);
 
             var tweenLerp
                 = tweenDuration > Mathf.Epsilon
@@ -305,7 +277,7 @@ namespace CreateAR.SpirePlayer
 
             var buttonScale
                 = (aimableWidget != null)
-                    ? aimableWidget.transform.lossyScale.x
+                    ? aimableWidget.GameObject.transform.lossyScale.x
                     : 1.0f;
             if (float.IsNaN(buttonScale)
              || float.IsInfinity(buttonScale))
@@ -314,125 +286,24 @@ namespace CreateAR.SpirePlayer
                 buttonScale = 1.0f;
             }
 
-            var tweenDuration
-                = Tweens
-                    .DurationSeconds(AimTweenType);
+            _spread 
+                = Config.GetReticleSpreadFromAim(_aim)
+                * buttonScale;
 
-            var tweenLerp
-                = tweenDuration > Mathf.Epsilon
-                    ? deltaTime / tweenDuration
-                    : 1.0f;
+            LocalColor = Config.GetReticleColorFromAim(_aim);
 
-            var targetSpread
-                = AimSpreadMultiplier
-                  * AimSpread
-                      .Evaluate(_aim)
-                  * buttonScale;
-            if (float.IsNaN(targetSpread)
-                || float.IsInfinity(targetSpread))
-            {
-                Log.Error(this, "Invalid targetSpread[{0}], resetting...", targetSpread);
-                targetSpread = 1.0f;
-            }
-
-            _spread
-                = Mathf
-                    .Lerp(
-                        _spread,
-                        targetSpread,
-                        tweenLerp);
-
-            if (float.IsNaN(_spread)
-                || float.IsInfinity(_spread))
-            {
-                Log.Error(this, "Invalid _spread[{0}], resetting...", _spread);
-                _spread = 1.0f;
-            }
-
-            var targetColor
-                = AimColor
-                    .Evaluate(_aim);
-
-            LocalColor
-                = Color
-                    .Lerp(
-                        LocalColor,
-                        targetColor,
-                        tweenLerp);
-
-            var targetScale
-                = AimScaleMultiplier
-                  * AimScale
-                      .Evaluate(_aim)
-                  * buttonScale;
-
-            _scale
-                = Mathf.Lerp(
-                    _scale,
-                    targetScale,
-                    tweenLerp);
-
-            if (float.IsNaN(_scale)
-             || _scale < Mathf.Epsilon)
-            {
-                _scale = 1.0f;
-            }
+            _scale = Config.GetReticleScaleFromAim(_aim)
+                   * buttonScale;
         }
 
         /// <summary>
-        /// Updates the point widgets
+        /// Updates the renderer
         /// </summary>
-        /// <param name="deltaTime"></param>
-        private void UpdatePoints(float deltaTime)
+        private void UpdateReticle()
         {
-            for (int i = 0, count = Points.Count; i < count; ++i)
-            {
-                var point
-                    = Points[i];
-                if (point != null)
-                {
-                    var theta
-                        = Mathf.PI
-                          * 2.0f
-                          * i
-                          / count
-                          + _thetaRadians;
-
-                    var pointLocalPosition
-                        = new Vector3(
-                            Mathf.Sin(theta) * _spread,
-                            Mathf.Cos(theta) * _spread,
-                            0.0f);
-
-                    point
-                        .transform
-                        .localPosition
-                        = pointLocalPosition;
-
-                    point
-                        .transform
-                        .localScale
-                        = Vector3.one
-                          * _scale;
-
-                    point
-                        .transform
-                        .localRotation
-                        = Quaternion.AngleAxis(Mathf.Rad2Deg * -theta, Vector3.forward);
-                }
-            }
-
-            if (CenterPoint != null)
-            {
-                CenterPoint
-                    .LocalVisible = Intention.Focus == null;
-
-                CenterPoint
-                        .transform
-                        .localScale
-                    = Vector3.one
-                      * _scale;
-            }
+            _reticle.Scale = _scale;
+            _reticle.Rotation = _thetaRadians;
+            _reticle.Spread = _spread;
         }
-    }*/
+    }
 }

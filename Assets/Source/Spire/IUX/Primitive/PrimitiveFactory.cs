@@ -8,55 +8,50 @@ namespace CreateAR.SpirePlayer.UI
     public class PrimitiveFactory : MonoBehaviour, IPrimitiveFactory
     {
         /// <summary>
-        /// Basic text rendering primitive
+        /// Basic text rendering primitive.
         /// </summary>
         public TextPrimitive TextPrimitive;
         public ActivatorPrimitive ActivatorPrimitive;
+        public ReticlePrimitive ReticlePrimitive;
 
         /// <summary>
         /// Creates a text primitive.
         /// </summary>
-        /// <param name="parentTransform"></param>
+        /// <param name="widget"></param>
         /// <returns></returns>
-        public ITextPrimitive RequestText(Transform parentTransform)
+        public ITextPrimitive LoadText(IWidget widget)
         {
-            return (ITextPrimitive)Load(Instantiate(TextPrimitive), parentTransform);
+            return (ITextPrimitive)Load(Instantiate(TextPrimitive), widget);
         }
 
         /// <summary>
         /// Creates a text primitive.
         /// </summary>
-        /// <param name="parentTransform"></param>
+        /// <param name="widget"></param>
         /// <returns></returns>
-        public IActivatorPrimitive RequestActivator(Transform parentTransform)
+        public IActivatorPrimitive LoadActivator(IWidget widget)
         {
-            return (IActivatorPrimitive)Load(Instantiate(ActivatorPrimitive), parentTransform);
+            return (IActivatorPrimitive)Load(Instantiate(ActivatorPrimitive), widget);
         }
 
         /// <summary>
-        /// TODO: pooling of primitive resources for reuse.
+        /// Creates a text primitive.
         /// </summary>
-        /// <param name="primitive"></param>
-        public void Release(IPrimitive primitive)
+        /// <param name="widget"></param>
+        /// <returns></returns>
+        public IReticlePrimitive LoadReticle(IWidget widget)
         {
-            if (primitive != null
-             && primitive.Transform != null)
-            {
-                Object.Destroy(primitive.Transform.gameObject);
-            }
+            return (IReticlePrimitive)Load(Instantiate(ReticlePrimitive), widget);
         }
 
         /// <summary>
-        /// Loads the prefab's scheme and 
+        /// Initialization
         /// </summary>
-        /// <param name="instance"></param>
-        /// <param name="parentTransform"></param>
         /// <returns></returns>
-        private IPrimitive Load(IPrimitive instance, Transform parentTransform)
+        private IPrimitive Load(IPrimitive primitive, IWidget widget)
         {
-            instance.Transform.SetParent(parentTransform, false);
-            instance.Transform.gameObject.SetActive(true);
-            return instance;
+            primitive.Load(widget);
+            return primitive;
         }
     }
 }

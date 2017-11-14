@@ -13,7 +13,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies
         /// </summary>
-        public HighlightManager Highlights { get; private set; }
+        public IHighlightManager Highlights { get; private set; }
 
         /// <summary>
         /// True if the widget is currently focused
@@ -50,11 +50,6 @@ namespace CreateAR.SpirePlayer
         /// If true, auto generates the buffer collider
         /// </summary>
         public bool AutoGenBufferCollider;
-
-        /// <summary>
-        /// Shows/Hides w/ Focus
-        /// </summary>
-        public Widget ShowIfFocusedWidget;
 
         /// <summary>
         /// Activates when the button is focused
@@ -157,11 +152,6 @@ namespace CreateAR.SpirePlayer
                 {
                     _isFocused = value;
 
-                    if (ShowIfFocusedWidget != null)
-                    {
-                        ShowIfFocusedWidget.LocalVisible = _isFocused;
-                    }
-
                     if (_isFocused)
                     {
                         Messages.Publish(MessageTypes.WIDGET_FOCUS, new WidgetFocusEvent());
@@ -178,13 +168,13 @@ namespace CreateAR.SpirePlayer
         /// Dependency initialization.
         /// </summary>
         public void Initialize(
-            WidgetConfig config,
-            LayerManager layers,
-            TweenConfig tweens,
-            ColorConfig colors,
+            IWidgetConfig config,
+            ILayerManager layers,
+            ITweenConfig tweens,
+            IColorConfig colors,
             IPrimitiveFactory primitives,
             IMessageRouter messages,
-            HighlightManager highlights)
+            IHighlightManager highlights)
         {
             Highlights = highlights;
             Initialize(config, layers, tweens, colors, primitives, messages);
@@ -275,11 +265,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateFocus()
         {
-            if (ShowIfFocusedWidget != null)
-            {
-                ShowIfFocusedWidget.LocalVisible = IsFocused;
-            }
-
             if (EnableIfFocusedGameObject != null)
             {
                 EnableIfFocusedGameObject.SetActive(IsFocused);

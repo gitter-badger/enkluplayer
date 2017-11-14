@@ -7,8 +7,8 @@ namespace CreateAR.SpirePlayer.UI
     /// </summary>
     public interface IPrimitiveFactory
     {
-        ITextPrimitive RequestText(Transform parent);
-        IActivatorPrimitive RequestActivator(Transform parent);
-        void Release(IPrimitive primitive);
+        ITextPrimitive LoadText(IWidget widget);
+        IActivatorPrimitive LoadActivator(IWidget widget);
+        IReticlePrimitive LoadReticle(IWidget widget);
     }
 }

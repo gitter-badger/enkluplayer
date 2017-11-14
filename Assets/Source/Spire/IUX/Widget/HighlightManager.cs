@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Manages IUX elements.
     /// </summary>
-    public class HighlightManager : MonoBehaviour
+    public class HighlightManager : MonoBehaviour, IHighlightManager
     {
         /// <summary>
         /// Collection of only the highlighted elements.
