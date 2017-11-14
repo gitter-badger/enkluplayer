@@ -265,5 +265,63 @@ namespace CreateAR.SpirePlayer.Test.UI
 
             Assert.IsTrue(isCalled);
         }
+
+        [Test]
+        public void HasProp()
+        {
+            Assert.IsTrue(_schema.HasProp("foo"));
+            
+            Assert.IsFalse(_schema.HasProp("bar"));
+            _schema.Set("bar", 100);
+            Assert.IsTrue(_schema.HasProp("bar"));
+        }
+        
+        [Test]
+        public void HasPropChild()
+        {
+            var schema = new ElementSchema();
+            schema.Wrap(_schema);
+            
+            Assert.IsTrue(schema.HasProp("foo"));
+            
+            Assert.IsFalse(schema.HasProp("bar"));
+            _schema.Set("bar", 100);
+            Assert.IsTrue(schema.HasProp("bar"));
+        }
+
+        [Test]
+        public void HasOwnProp()
+        {
+            var schema = new ElementSchema();
+            schema.Wrap(_schema);
+            
+            Assert.IsTrue(_schema.HasOwnProp("foo"));
+            Assert.IsFalse(schema.HasOwnProp("foo"));
+        }
+
+        [Test]
+        public void HasOwnPropLinked()
+        {
+            var schema = new ElementSchema();
+            schema.Wrap(_schema);
+
+            schema.Get<int>("foo");
+            
+            Assert.IsTrue(_schema.HasOwnProp("foo"));
+            Assert.IsFalse(schema.HasOwnProp("foo"));
+        }
+        
+        [Test]
+        public void HasOwnPropUnLinked()
+        {
+            var schema = new ElementSchema();
+            schema.Wrap(_schema);
+
+            var prop = schema.Get<int>("foo");
+            prop.Value = 12;
+            
+            Assert.IsTrue(_schema.HasOwnProp("foo"));
+            Assert.IsTrue(schema.HasOwnProp("foo"));
+        }
     }
 }

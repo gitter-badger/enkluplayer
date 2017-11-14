@@ -16,6 +16,11 @@ namespace CreateAR.SpirePlayer.UI
         /// The type of the prop.
         /// </summary>
         internal readonly Type Type;
+        
+        /// <summary>
+        /// True iff the link has been broken between parent and child.
+        /// </summary>
+        internal bool LinkBroken;
 
         /// <summary>
         /// Internal constructor.
@@ -52,11 +57,6 @@ namespace CreateAR.SpirePlayer.UI
         private T _value;
 
         /// <summary>
-        /// True iff the link has been broken between parent and child.
-        /// </summary>
-        private bool _linkBroken;
-
-        /// <summary>
         /// The value of the prop.
         /// </summary>
         public T Value
@@ -73,7 +73,7 @@ namespace CreateAR.SpirePlayer.UI
                     _parent.OnChanged -= Parent_OnChanged;
                     _parent = null;
 
-                    _linkBroken = true;
+                    LinkBroken = true;
                 }
 
                 var prev = _value;
@@ -110,7 +110,7 @@ namespace CreateAR.SpirePlayer.UI
             : base(name, typeof(T))
         {
             _value = value;
-            _linkBroken = !allowInherit;
+            LinkBroken = !allowInherit;
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace CreateAR.SpirePlayer.UI
         internal sealed override void Reparent(ElementSchemaProp parent)
         {
             // the parent-link has been broken
-            if (_linkBroken)
+            if (LinkBroken)
             {
                 return;
             }
