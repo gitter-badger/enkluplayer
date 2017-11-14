@@ -33,7 +33,7 @@ namespace CreateAR.SpirePlayer.Assets
         /// <summary>
         /// True iff the loader has been destroyed.
         /// </summary>
-        private bool _destroy = false;
+        private bool _destroy;
 
         /// <summary>
         /// The load.
@@ -158,7 +158,11 @@ namespace CreateAR.SpirePlayer.Assets
             var token = new AsyncToken<AssetBundle>();
             _bundleLoad = token;
 
-            var request = UnityWebRequest.GetAssetBundle(_url);
+            var request = new UnityWebRequest(
+                _url,
+                "GET",
+                new AssetBundleDownloadHandler(_bootstrapper),
+                null);
             request.SendWebRequest();
 
             while (!request.isDone)
@@ -180,19 +184,18 @@ namespace CreateAR.SpirePlayer.Assets
             }
             else
             {
-                var handler = (DownloadHandlerAssetBundle) request.downloadHandler;
-                var bundle = handler.assetBundle;
+                var handler = (AssetBundleDownloadHandler) request.downloadHandler;
+                
+                // wait for bundle to complete
+                handler
+                    .OnReady
+                    .OnSuccess(bundle =>
+                    {
+                        _cache.Save(_url, handler.data);
 
-                if (null == bundle)
-                {
-                    token.Fail(new Exception("Could not create bundle."));
-                }
-                else
-                {
-                    _cache.Save(_url, handler.data);
-                    
-                    token.Succeed(bundle);
-                }
+                        token.Succeed(bundle);
+                    })
+                    .OnFailure(token.Fail);
             }
 
             request.Dispose();

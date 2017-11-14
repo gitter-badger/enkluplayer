@@ -105,8 +105,14 @@ namespace CreateAR.SpirePlayer.Assets
             {
                 return;
             }
+
+            var dir = Path.GetDirectoryName(path);
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
             
-            Log.Info(this, "Writing bundle to disk for {0}.", uri);
+            Log.Info(this, "Writing bundle to disk. [{0}, {1}].", uri, path);
 
             using (var stream = File.OpenWrite(path))
             {
