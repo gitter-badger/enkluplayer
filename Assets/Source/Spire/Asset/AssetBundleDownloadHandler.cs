@@ -7,40 +7,72 @@ using UnityEngine.Networking;
 
 namespace CreateAR.SpirePlayer.Assets
 {
+    /// <summary>
+    /// Custom download handler which keeps asset bundle bytes.
+    /// </summary>
     public class AssetBundleDownloadHandler : DownloadHandlerScript
     {
+        /// <summary>
+        /// Bootstraps coroutines.
+        /// </summary>
         private readonly IBootstrapper _bootstrapper;
+        
+        /// <summary>
+        /// Raw bytes.
+        /// </summary>
         private byte[] _bytes;
+        
+        /// <summary>
+        /// Download progress.
+        /// </summary>
         private float _progress;
 
+        /// <summary>
+        /// Index into byte array.
+        /// </summary>
         private int _index;
+        
+        /// <summary>
+        /// Backing variable for OnReady property.
+        /// </summary>
         private readonly AsyncToken<AssetBundle> _onReady = new AsyncToken<AssetBundle>();
 
+        /// <summary>
+        /// Called when bundle is ready.
+        /// </summary>
         public IAsyncToken<AssetBundle> OnReady
         {
             get { return _onReady; }
         }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="bootstrapper">For courintes.</param>
         public AssetBundleDownloadHandler(IBootstrapper bootstrapper)
         {
             _bootstrapper = bootstrapper;
         }
         
+        /// <inheritdoc cref="DownloadHandlerScript"/>
         protected override byte[] GetData()
         {
             return _bytes;
         }
 
+        /// <inheritdoc cref="DownloadHandlerScript"/>
         protected override float GetProgress()
         {
             return _progress;
         }
 
+        /// <inheritdoc cref="DownloadHandlerScript"/>
         protected override void ReceiveContentLength(int contentLength)
         {
             _bytes = new byte[contentLength];
         }
-
+        
+        /// <inheritdoc cref="DownloadHandlerScript"/>
         protected override bool ReceiveData(byte[] data, int dataLength)
         {
             var delta = _bytes.Length - _index;
@@ -59,6 +91,7 @@ namespace CreateAR.SpirePlayer.Assets
             return true;
         }
 
+        /// <inheritdoc cref="DownloadHandlerScript"/>
         protected override void CompleteContent()
         {
             _progress = 1;
@@ -67,6 +100,11 @@ namespace CreateAR.SpirePlayer.Assets
             _bootstrapper.BootstrapCoroutine(Wait(AssetBundle.LoadFromMemoryAsync(_bytes)));
         }
 
+        /// <summary>
+        /// Waits on the AssetBundle to build.
+        /// </summary>
+        /// <param name="request">The asset bundle request.</param>
+        /// <returns></returns>
         private IEnumerator Wait(AssetBundleCreateRequest request)
         {
             while (!request.isDone)
