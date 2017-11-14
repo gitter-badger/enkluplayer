@@ -1,36 +1,10 @@
 ﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.Assets
 {
-    public interface IAssetBundleCache
-    {
-        bool Contains(string uri);
-        IAsyncToken<AssetBundle> Load(string uri);
-        void Save(string uri, AssetBundle bundle);
-    }
-
-    public class StandardAssetBundleCache : IAssetBundleCache
-    {
-        public bool Contains(string uri)
-        {
-            return false;
-        }
-
-        public IAsyncToken<AssetBundle> Load(string uri)
-        {
-            throw new System.NotImplementedException();
-        }
-        
-        public void Save(string uri, AssetBundle bundle)
-        {
-            
-        }
-    }
-    
     /// <summary>
     /// Standard implementation of <c>IAssetLoader</c>.
     /// </summary>
@@ -40,6 +14,11 @@ namespace CreateAR.SpirePlayer.Assets
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Cache for bundles.
+        /// </summary>
+        private readonly IAssetBundleCache _cache;
 
         /// <summary>
         /// Builds URL.
@@ -56,9 +35,11 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         public StandardAssetLoader(
             IBootstrapper bootstrapper,
+            IAssetBundleCache cache,
             UrlBuilder urls)
         {
             _bootstrapper = bootstrapper;
+            _cache = cache;
             _urls = urls;
         }
 
@@ -74,7 +55,7 @@ namespace CreateAR.SpirePlayer.Assets
             {
                 loader = _bundles[url] = new AssetBundleLoader(
                     _bootstrapper,
-                    new StandardAssetBundleCache(),
+                    _cache,
                     url);
                 loader.Load();
             }

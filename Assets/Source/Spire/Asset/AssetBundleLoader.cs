@@ -11,25 +11,6 @@ using Object = UnityEngine.Object;
 namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
-    /// Communicates progress of a load.
-    /// </summary>
-    public class LoadProgress
-    {
-        /// <summary>
-        /// Normalized load percentage, between 0 and 1.
-        /// </summary>
-        public float Value;
-
-        /// <summary>
-        /// True iff the load is complete.
-        /// </summary>
-        public bool IsComplete
-        {
-            get { return Math.Abs(Value - 1f) < Mathf.Epsilon; }
-        }
-    }
-
-    /// <summary>
     /// Loads asset bundles.
     /// </summary>
     public class AssetBundleLoader
@@ -107,7 +88,10 @@ namespace CreateAR.SpirePlayer.Assets
             {
                 Log.Info(this, "Cache hit. Loading from cache.");
 
-                _bundleLoad = _cache.Load(_url);
+                LoadProgress progress;
+                _bundleLoad = _cache.Load(_url, out progress);
+                
+                progress.Chain(Progress);
             }
             else
             {
@@ -175,7 +159,7 @@ namespace CreateAR.SpirePlayer.Assets
             _bundleLoad = token;
 
             var request = UnityWebRequest.GetAssetBundle(_url);
-            request.Send();
+            request.SendWebRequest();
 
             while (!request.isDone)
             {
@@ -196,7 +180,8 @@ namespace CreateAR.SpirePlayer.Assets
             }
             else
             {
-                var bundle = ((DownloadHandlerAssetBundle) request.downloadHandler).assetBundle;
+                var handler = (DownloadHandlerAssetBundle) request.downloadHandler;
+                var bundle = handler.assetBundle;
 
                 if (null == bundle)
                 {
@@ -204,7 +189,7 @@ namespace CreateAR.SpirePlayer.Assets
                 }
                 else
                 {
-                    _cache.Save(_url, bundle);
+                    _cache.Save(_url, handler.data);
                     
                     token.Succeed(bundle);
                 }
