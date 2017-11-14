@@ -40,6 +40,11 @@ namespace CreateAR.SpirePlayer.Assets
         private readonly IBootstrapper _bootstrapper;
 
         /// <summary>
+        /// Caches bundles.
+        /// </summary>
+        private readonly IAssetBundleCache _cache;
+
+        /// <summary>
         /// The URL being loaded.
         /// </summary>
         private readonly string _url;
@@ -69,9 +74,11 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         public AssetBundleLoader(
             IBootstrapper bootstrapper,
+            IAssetBundleCache cache,
             string url)
         {
             _bootstrapper = bootstrapper;
+            _cache = cache;
             _url = url;
         }
 
@@ -93,7 +100,21 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         public void Load()
         {
-            _bootstrapper.BootstrapCoroutine(LoadBundle());
+            // check cache
+            Log.Info(this, "Checking cache for bundle {0}.", _url);
+
+            if (_cache.Contains(_url))
+            {
+                Log.Info(this, "Cache hit. Loading from cache.");
+
+                _bundleLoad = _cache.Load(_url);
+            }
+            else
+            {
+                Log.Info(this, "Cache miss. Downloading bundle {0}.", _url);
+                
+                _bootstrapper.BootstrapCoroutine(DownloadBundle());
+            }
         }
 
         /// <summary>
@@ -148,12 +169,10 @@ namespace CreateAR.SpirePlayer.Assets
         /// Loads the asset bundle.
         /// </summary>
         /// <returns></returns>
-        private IEnumerator LoadBundle()
+        private IEnumerator DownloadBundle()
         {
             var token = new AsyncToken<AssetBundle>();
             _bundleLoad = token;
-
-            Log.Info(this, "Downloading bundle {0}.", _url);
 
             var request = UnityWebRequest.GetAssetBundle(_url);
             request.Send();
@@ -185,6 +204,8 @@ namespace CreateAR.SpirePlayer.Assets
                 }
                 else
                 {
+                    _cache.Save(_url, bundle);
+                    
                     token.Succeed(bundle);
                 }
             }
