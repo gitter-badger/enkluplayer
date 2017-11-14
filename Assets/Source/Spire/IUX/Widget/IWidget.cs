@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Render color (composition of local and parent colors).
         /// </summary>
-        Color Color { get; }
+        SpirePlayer.Col4 Color { get; }
 
         /// <summary>
         /// Visibility Accessor/Mutator

@@ -20,7 +20,7 @@ namespace CreateAR.SpirePlayer
         /// Enables or disables interaction.
         /// </summary>
         /// <param name="isInteractable"></param>
-        void SetInteractionEnabled(bool isInteractable);
+        void SetInteractionEnabled(bool isInteractable, bool isFocused);
 
         /// <summary>
         /// Gets the bounding radius for interactions

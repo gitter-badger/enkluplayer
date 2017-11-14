@@ -45,6 +45,14 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
+        /// Activator Accessor
+        /// </summary>
+        public IActivatorPrimitive Activator
+        {
+            get { return _activator; }
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public Button()
@@ -140,9 +148,7 @@ namespace CreateAR.SpirePlayer.UI
         private void UpdateAim()
         {
             _activator.SetAimScale(Config.GetAimScale(Aim));
-
-            // TODO: Fix the color hierarchy
-            // AimFeedbackWidget.LocalColor = Config.GetAimColor(_aim);
+            _activator.SetAimColor(Config.GetAimColor(Aim));
         }
 
         /// <summary>

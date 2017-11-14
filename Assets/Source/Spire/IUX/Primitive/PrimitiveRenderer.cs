@@ -77,28 +77,29 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            var color = Source.Color;
             if (Graphic != null)
             {
-                Graphic.color = Source.Widget.Color;
+                Graphic.color = color.ToColor();
             }
 
             if (CanvasRenderer != null)
             {
-                CanvasRenderer.SetAlpha(Source.Widget.Color.a);
+                CanvasRenderer.SetAlpha(color.a);
             }
 
-            UpdateRenderer();
+            UpdateRenderer(color);
 
             if (Material != null)
             {
-                Material.SetColor(MaterialColorName, Source.Widget.Color);
+                Material.SetColor(MaterialColorName, color.ToColor());
             }
         }
 
         /// <summary>
         /// Updates the renderer.
         /// </summary>
-        private void UpdateRenderer()
+        private void UpdateRenderer(Col4 color)
         {
             if (string.IsNullOrEmpty(MaterialColorName)
              || Renderer == null)
@@ -113,7 +114,6 @@ namespace CreateAR.SpirePlayer
 
             if (_cachedRendererMaterials.Length > 0)
             {
-                var color = Source.Widget.Color;
                 for (int j = 0, jCount = _cachedRendererMaterials.Length; j < jCount; ++j)
                 {
                     var material = _cachedRendererMaterials[j];
@@ -121,7 +121,7 @@ namespace CreateAR.SpirePlayer
                     {
                         material.SetColor(
                             MaterialColorName,
-                            color);
+                            color.ToColor());
                     }
                 }
             }

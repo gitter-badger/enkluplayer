@@ -12,6 +12,7 @@ namespace CreateAR.SpirePlayer
         private float _rotation;
         private float _scale;
         private float _spread;
+        private float _centerAlpha;
 
         /// <summary>
         /// Widgets
@@ -21,7 +22,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Center point
         /// </summary>
-        public Transform Center;
+        public WidgetPrimitive Center;
 
         /// <summary>
         /// The visible text on the primitive.
@@ -48,6 +49,15 @@ namespace CreateAR.SpirePlayer
         {
             get { return _spread; }
             set { _spread = value; Refresh(); }
+        }
+
+        /// <summary>
+        /// The visible text on the primitive.
+        /// </summary>
+        public float CenterAlpha
+        {
+            get { return _centerAlpha; }
+            set { _centerAlpha = value; Refresh(); }
         }
 
         /// <summary>
@@ -93,8 +103,7 @@ namespace CreateAR.SpirePlayer
 
             if (Center != null)
             {
-                // TODO: Figure out how to do this better
-                // Center.LocalVisible = Intention.Focus == null;
+                Center.LocalColor = new Col4(1,1,1, _centerAlpha);
 
                 Center
                         .transform

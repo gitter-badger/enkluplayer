@@ -148,7 +148,7 @@ namespace CreateAR.SpirePlayer
 
             if (IsVisible)
             {
-                InteractivePrimitive.SetInteractionEnabled(IsInteractable);
+                InteractivePrimitive.SetInteractionEnabled(IsInteractable, IsFocused);
             }
         }
         

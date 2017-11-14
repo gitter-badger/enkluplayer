@@ -77,49 +77,95 @@ namespace CreateAR.SpirePlayer.UI
         private GameObject _gameObject;
 
         /// <summary>
-        /// Color
+        /// Props.
         /// </summary>
-        public Color LocalColor = Color.white;
+        private ElementSchemaProp<string> _name;
+        private ElementSchemaProp<Col4> _localColor;
+        private ElementSchemaProp<Vec3> _localPosition;
+        private ElementSchemaProp<TweenType> _tweenIn;
+        private ElementSchemaProp<TweenType> _tweenOut;
+        private ElementSchemaProp<VirtualColor> _virtualColor;
+        private ElementSchemaProp<ColorMode> _colorMode;
+        private ElementSchemaProp<VisibilityMode> _visibilityMode;
+        private ElementSchemaProp<LayerMode> _layerMode;
+        private ElementSchemaProp<bool> _autoDestroy;
+
+        /// <summary>
+        /// Color accessor.
+        /// </summary>
+        public Col4 LocalColor
+        {
+            get { return _localColor.Value; }
+            set { _localColor.Value = value; }
+        }
 
         /// <summary>
         /// Tween type for transitions in
         /// </summary>
-        public TweenType TweenIn = TweenType.Responsive;
+        public TweenType TweenIn
+        {
+            get { return _tweenIn.Value; }
+            set { _tweenIn.Value = value; }
+        }
 
         /// <summary>
-        /// Tween type for transitions out
+        /// Tween type for transitions in
         /// </summary>
-        public TweenType TweenOut = TweenType.Responsive;
+        public TweenType TweenOut
+        {
+            get { return _tweenOut.Value; }
+            set { _tweenOut.Value = value; }
+        }
 
         /// <summary>
         /// Colorize to a specific color
         /// </summary>
-        public VirtualColor VirtualColor = VirtualColor.None;
+        public VirtualColor VirtualColor
+        {
+            get { return _virtualColor.Value; }
+            set { _virtualColor.Value = value; }
+        }
 
         /// <summary>
         /// Defines the widget color mode
         /// </summary>
-        public ColorMode ColorMode = ColorMode.InheritColor;
+        public ColorMode ColorMode
+        {
+            get { return _colorMode.Value; }
+            set { _colorMode.Value = value; }
+        }
 
         /// <summary>
         /// Default mode is to inherit visibility
         /// </summary>
-        public VisibilityMode VisibilityMode = VisibilityMode.Inherit;
-        
+        public VisibilityMode VisibilityMode
+        {
+            get { return _visibilityMode.Value; }
+            set { _visibilityMode.Value = value; }
+        }
+
         /// <summary>
-        /// Anchors for children widgets
+        /// Layer mode.
         /// </summary>
-        public WidgetAnchors Anchors;
+        public LayerMode LayerMode
+        {
+            get { return _layerMode.Value; }
+            set { _layerMode.Value = value; }
+        }
+
+        /// <summary>
+        /// If true, destroys the widget when tween reaches 0
+        /// </summary>
+        public bool AutoDestroy
+        {
+            get { return _autoDestroy.Value; }
+            set { _autoDestroy.Value = value; }
+        }
 
         /// <summary>
         /// True if should start visible
         /// </summary>
         public bool StartVisible = true;
-
-        /// <summary>
-        /// If true, destroys the widget when tween reaches 0
-        /// </summary>
-        public bool AutoDestroy;
         
         /// <summary>
         /// Controls local GameObject visibility, not parent.
@@ -183,7 +229,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Color Accessor
         /// </summary>
-        public Color Color
+        public Col4 Color
         {
             get
             {
@@ -193,7 +239,7 @@ namespace CreateAR.SpirePlayer.UI
 
                 if (ColorMode == ColorMode.InheritColor)
                 {
-                    var parentColor = Color.white;
+                    var parentColor = Col4.White;
                     if (Parent != null)
                     {
                         parentColor = Parent.Color;
@@ -266,11 +312,6 @@ namespace CreateAR.SpirePlayer.UI
         public GameObject GameObject { get { return _gameObject; } }
 
         /// <summary>
-        /// Layer mode.
-        /// </summary>
-        public LayerMode LayerMode { get; private set; }
-
-        /// <summary>
         /// Initialization
         /// </summary>
         internal void Initialize (
@@ -289,9 +330,6 @@ namespace CreateAR.SpirePlayer.UI
             Messages = messages;
         }
 
-        private ElementSchemaProp<string> _propName;
-        private ElementSchemaProp<Vec3> _localPosition;
-
         /// <summary>
         /// Initialization
         /// </summary>
@@ -299,10 +337,19 @@ namespace CreateAR.SpirePlayer.UI
         {
             base.LoadInternal();
 
-            _propName = Schema.Get<string>("name");
-            _localPosition = Schema.Get<Vec3>("localPosition");
+            _name = Schema.Get<string>("name");
+            _localColor = Schema.Get<Col4>("color");
+            _localPosition = Schema.Get<Vec3>("position");
 
-            _gameObject = new GameObject(_propName.Value);
+            _tweenIn = Schema.Get<TweenType>("tweenIn");
+            _tweenOut = Schema.Get<TweenType>("tweenOut");
+            _virtualColor = Schema.Get<VirtualColor>("virtualColor");
+            _colorMode = Schema.Get<ColorMode>("colorMode");
+            _visibilityMode = Schema.Get<VisibilityMode>("visibilityMode");
+            _layerMode = Schema.Get<LayerMode>("layerMode");
+            _autoDestroy = Schema.Get<bool>("autoDestroy");
+
+            _gameObject = new GameObject(_name.Value);
             _gameObject.transform.localPosition = _localPosition.Value.ToVector();
 
             OnVisible.OnChanged += IsVisible_OnUpdate;
@@ -394,7 +441,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         protected override void UpdateInternal()
         {
-            var deltaTime = Time.deltaTime;
+            var deltaTime = Time.smoothDeltaTime;
             UpdateVisibility();
             UpdateTween(deltaTime);
             UpdateColor(deltaTime);
@@ -432,7 +479,7 @@ namespace CreateAR.SpirePlayer.UI
                 var newColor = Colors.GetColor(virtualColor);
                 newColor.a = LocalColor.a;
                 LocalColor = IsVisible
-                    ? Color.Lerp(LocalColor, newColor, deltaTime * 5.0f)
+                    ? Col4.Lerp(LocalColor, newColor, deltaTime * 5.0f)
                     : newColor;
             }
         }

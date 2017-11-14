@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
             /// <param name="virtualColor">The VirtualColor to retrieve a Color for.</param>
             /// <param name="color">The color.</param>
             /// <returns>True iff a corresponding Color was found.</returns>
-            public bool TryGetColor(VirtualColor virtualColor, out Color color)
+            public bool TryGetColor(VirtualColor virtualColor, out Col4 color)
             {
                 for (int i = 0, count = VirtualColors.Count; i < count; ++i)
                 {
@@ -56,12 +56,12 @@ namespace CreateAR.SpirePlayer
                     if (checkVirtualColor != null
                         && checkVirtualColor.VirtualColor == virtualColor)
                     {
-                        color = checkVirtualColor.Color;
+                        color = checkVirtualColor.Color.ToCol();
                         return true;
                     }
                 }
 
-                color = Color.white;
+                color = Col4.White;
                 return false;
             }
         }
@@ -109,12 +109,12 @@ namespace CreateAR.SpirePlayer
         /// <param name="virtualColor">The <c>VirtualColor</c> to get a Color for.</param>
         /// <param name="color">The color.</param>
         /// <returns>True iff a corresponding Color was found.</returns>
-        public bool TryGetColor(VirtualColor virtualColor, out Color color)
+        public bool TryGetColor(VirtualColor virtualColor, out Col4 color)
         {
             var currentProfile = CurrentProfile;
             if (currentProfile == null)
             {
-                color = Color.white;
+                color = Col4.White;
                 return false;
             }
 
@@ -130,7 +130,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="color">Color output.</param>
         /// <returns>True iff the enum could be parsed and there was a corresponding
         /// Color.</returns>
-        public bool TryGetColor(string virtualColorStr, out Color color)
+        public bool TryGetColor(string virtualColorStr, out Col4 color)
         {
             VirtualColor virtualColor;
             try
@@ -139,7 +139,7 @@ namespace CreateAR.SpirePlayer
             }
             catch
             {
-                color = Color.white;
+                color = Col4.White;
                 return false;
             }
             
@@ -151,12 +151,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="virtualColor">The <c>VirtualColor</c> to lookup.</param>
         /// <returns></returns>
-        public Color GetColor(VirtualColor virtualColor)
+        public Col4 GetColor(VirtualColor virtualColor)
         {
-            Color color;
+            Col4 color;
             if (!TryGetColor(virtualColor, out color))
             {
-                color = Color.white;
+                color = Col4.White;
             }
 
             return color;
@@ -165,13 +165,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Colorize a given color.
         /// </summary>
-        public Color Colorize(
-            Color targetColor,
+        public Col4 Colorize(
+            Col4 targetColor,
             VirtualColor virtualColor)
         {
             if (virtualColor != VirtualColor.None)
             {
-                Color sourceColor;
+                Col4 sourceColor;
                 if (TryGetColor(virtualColor, out sourceColor))
                 {
                     return Colorize(sourceColor, targetColor);
@@ -184,7 +184,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Colorizes a color.
         /// </summary>
-        public static Color Colorize(Color sourceColor, Color targetColor)
+        public static Col4 Colorize(Col4 sourceColor, Col4 targetColor)
         {
             var sourceHsbColor = HsbColor.FromColor(sourceColor);
             var targetHsbColor = HsbColor.FromColor(targetColor);

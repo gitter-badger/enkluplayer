@@ -35,18 +35,11 @@ namespace CreateAR.SpirePlayer.UI
         {
             _button.IsAimEnabled = false;
 
-            /*if (_button != null
-             && _button.Config.ActivationVFX != null)
+            if (_button != null
+             && _button.Activator != null)
             {
-                // TODO: Replace with pooled instantiation
-                var spawnGameObject 
-                    = UnityEngine
-                        .Object
-                        .Instantiate(_button.Config.ActivationVFX, 
-                        _button.GameObject.transform.position,
-                        _button.GameObject.transform.rotation);
-                spawnGameObject.SetActive(true);
-            }*/
+                _button.Activator.Activate();
+            }
 
             var buttonActivateMessage = new ButtonActivateEvent()
             {

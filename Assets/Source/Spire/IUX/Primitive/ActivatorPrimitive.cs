@@ -16,6 +16,11 @@ namespace CreateAR.SpirePlayer.UI
         public Image FillImage;
 
         /// <summary>
+        /// Fill Widget
+        /// </summary>
+        public WidgetPrimitive FillWidget;
+
+        /// <summary>
         /// Shows/Hides w/ Focus.
         /// </summary>
         public Widget ActivationWidget;
@@ -23,10 +28,24 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Aim Scale Transform.
         /// </summary>
-        public Transform AimTransform;
+        public WidgetPrimitive AimPrimitive;
 
         /// <summary>
-        /// Updates the rotation and scale of the stability transform
+        /// Spawns when activated
+        /// </summary>
+        public GameObject ActivationVFX;
+
+        /// <summary>
+        /// Fill image visibility
+        /// </summary>
+        public bool FillImageVisible
+        {
+            get { return FillWidget.LocalVisible; }
+            set { FillWidget.LocalVisible = value; }
+        }
+
+        /// <summary>
+        /// Updates the rotation and scale of the stability transform.
         /// </summary>
         /// <param name="degress"></param>
         public void SetStabilityRotation(float degress)
@@ -41,7 +60,7 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
-        /// Updates the fill for the activation
+        /// Updates the fill for the activation.
         /// </summary>
         /// <param name="percent"></param>
         public void SetActivationFill(float percent)
@@ -53,14 +72,43 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
-        /// Sets the aim scale
+        /// Sets the aim scale.
         /// </summary>
         /// <param name="aimScale"></param>
         public void SetAimScale(float aimScale)
         {
-            if (AimTransform != null)
+            if (AimPrimitive != null)
             {
-                AimTransform.localScale = Vector3.one * aimScale;
+                AimPrimitive.transform.localScale = Vector3.one * aimScale;
+            }
+        }
+
+        /// <summary>
+        /// Sets the aim color.
+        /// </summary>
+        /// <param name="aimColor"></param>
+        public void SetAimColor(Col4 aimColor)
+        {
+            if (AimPrimitive != null)
+            {
+                AimPrimitive.LocalColor = aimColor;
+            }
+        }
+
+        /// <summary>
+        /// Activates the spawn VFX
+        /// </summary>
+        public void Activate()
+        {
+            if (ActivationVFX != null)
+            {
+                var spawnGameObject
+                    = UnityEngine
+                        .Object
+                        .Instantiate(ActivationVFX,
+                            gameObject.transform.position,
+                            gameObject.transform.rotation);
+                spawnGameObject.SetActive(true);
             }
         }
     }

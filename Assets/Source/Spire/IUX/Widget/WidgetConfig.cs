@@ -44,9 +44,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="aim"></param>
         /// <returns></returns>
-        public Color GetAimColor(float aim)
+        public Col4 GetAimColor(float aim)
         {
-            return AimFeedbackColor.Evaluate(aim);
+            return AimFeedbackColor.Evaluate(aim).ToCol();
         }
 
         /// <summary>
@@ -116,13 +116,7 @@ namespace CreateAR.SpirePlayer
         {
             return FillDecay.Evaluate(elapsed);
         }
-
-        /// <summary>
-        /// Spawns the effect on activation
-        /// </summary>
-        [Header("Activation")]
-        public GameObject ActivationVFX;
-
+        
         /// <summary>
         /// Default Cursor Distance
         /// </summary>
@@ -214,9 +208,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Spins per second.
         /// </summary>
-        public Color GetReticleColorFromAim(float aim)
+        public Col4 GetReticleColorFromAim(float aim)
         {
-            return AimColor.Evaluate(aim);
+            return AimColor.Evaluate(aim).ToCol();
         }
 
         /// <summary>

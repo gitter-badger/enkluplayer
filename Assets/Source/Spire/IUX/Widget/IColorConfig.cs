@@ -41,7 +41,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="virtualColor">The <c>VirtualColor</c> to get a Color for.</param>
         /// <returns>True iff a corresponding Color was found.</returns>
-        Color GetColor(VirtualColor virtualColor);
+        Col4 GetColor(VirtualColor virtualColor);
     }
 }
 

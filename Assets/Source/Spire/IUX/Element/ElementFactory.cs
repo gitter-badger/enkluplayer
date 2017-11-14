@@ -50,8 +50,14 @@ namespace CreateAR.SpirePlayer.UI
             _interactions = interactions;
 
             /// TODO: Load this all from data
-            _baseSchema.Set("gainFocusTween", TweenType.Responsive);
-            _baseSchema.Set("lostFocusTween", TweenType.Deliberate);
+            _baseSchema.Set("tweenIn", TweenType.Responsive);
+            _baseSchema.Set("tweenOut", TweenType.Deliberate);
+            _baseSchema.Set("color", Col4.White);
+            _baseSchema.Set("virtualColor", VirtualColor.None);
+            _baseSchema.Set("colorMode", ColorMode.InheritColor);
+            _baseSchema.Set("visibilityMode", VisibilityMode.Inherit);
+            _baseSchema.Set("layerMode", LayerMode.Default);
+            _baseSchema.Set("autoDestroy", false);
         }
 
         /// <inheritdoc cref="IElementFactory"/>

@@ -97,7 +97,11 @@ namespace CreateAR.SpirePlayer
                             },
                             Vectors = new Dictionary<string, Vec3>()
                             { 
-                                { "localPosition", new Vec3(0,0,3) }
+                                { "position", new Vec3(0,0,3) }
+                            },
+                            Colors = new Dictionary<string, Col4>()
+                            {
+                                { "color" , new Col4(1, 1, 1, 1) }
                             }
                         }
                     }

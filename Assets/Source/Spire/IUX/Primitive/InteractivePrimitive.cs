@@ -63,7 +63,7 @@ namespace CreateAR.SpirePlayer
                 BufferCollider = gameObject.AddComponent<BoxCollider>();
             }
 
-            const float AUTO_GEN_BUFFER_FACTOR = 1.5f;
+            const float AUTO_GEN_BUFFER_FACTOR = 2.0f;
             BufferCollider.size = FocusCollider.size * AUTO_GEN_BUFFER_FACTOR;
         }
 
@@ -90,7 +90,7 @@ namespace CreateAR.SpirePlayer
         /// Enables/disables interaction on the primitive.
         /// </summary>
         /// <param name="enable"></param>
-        public void SetInteractionEnabled(bool enable)
+        public void SetInteractionEnabled(bool enable, bool bufferEnabled)
         {
             if (FocusCollider != null)
             {
@@ -99,7 +99,7 @@ namespace CreateAR.SpirePlayer
 
             if (BufferCollider != null)
             {
-                BufferCollider.enabled = enable;
+                BufferCollider.enabled = bufferEnabled;
             }
         }
     }

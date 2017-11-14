@@ -52,16 +52,6 @@ namespace CreateAR.SpirePlayer
         private float _cursorDistance;
 
         /// <summary>
-        /// The speed at which the element tweens when it gains focus
-        /// </summary>
-        private ElementSchemaProp<TweenType> _gainFocusTween;
-
-        /// <summary>
-        /// The speed at which the element tweens when it gains focus
-        /// </summary>
-        private ElementSchemaProp<TweenType> _lostFocusTween;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         public void Initialize(
@@ -86,9 +76,6 @@ namespace CreateAR.SpirePlayer
 
             _reticle = Primitives.LoadReticle(this);
 
-            _gainFocusTween = Schema.Get<TweenType>("gainFocusTween");
-            _lostFocusTween = Schema.Get<TweenType>("lostFocusTween");
-
             _cursorDistance = Config.GetDefaultDistanceForCursor();
         }
 
@@ -107,7 +94,7 @@ namespace CreateAR.SpirePlayer
             UpdatePosition(deltaTime);
             UpdateSpin(deltaTime);
             UpdateVisibility();
-            UpdateReticle();
+            UpdateReticle(deltaTime);
         }
         
         /// <summary>
@@ -147,8 +134,8 @@ namespace CreateAR.SpirePlayer
                 = Tweens
                     .DurationSeconds(
                         _aim > Mathf.Epsilon
-                            ? _gainFocusTween.Value
-                            : _lostFocusTween.Value);
+                            ? TweenIn
+                            : TweenOut);
 
             var tweenLerp
                 = tweenDuration > Mathf.Epsilon
@@ -237,8 +224,8 @@ namespace CreateAR.SpirePlayer
                 = Tweens
                     .DurationSeconds(
                         interactive != null
-                            ? _gainFocusTween.Value
-                            : _lostFocusTween.Value);
+                            ? TweenIn
+                            : TweenOut);
 
             var tweenLerp
                 = tweenDuration > Mathf.Epsilon
@@ -291,11 +278,31 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Updates the renderer
         /// </summary>
-        private void UpdateReticle()
+        private void UpdateReticle(float deltaTime)
         {
             _reticle.Scale = _scale;
             _reticle.Rotation = _thetaRadians;
             _reticle.Spread = _spread;
+
+            var isAiming = Intention.Focus != null;
+            var tweenDuration
+                = Tweens
+                    .DurationSeconds(
+                        isAiming
+                            ? TweenType.Instant
+                            : TweenOut);
+
+            var tweenLerp
+                = tweenDuration > Mathf.Epsilon
+                    ? deltaTime / tweenDuration
+                    : 1.0f;
+
+            _reticle.CenterAlpha
+                = Mathf
+                    .Lerp(
+                        _reticle.CenterAlpha,
+                        isAiming ? 0.0f : 1.0f,
+                        tweenLerp);
         }
     }
 }

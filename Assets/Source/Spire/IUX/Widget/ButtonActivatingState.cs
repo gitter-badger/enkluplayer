@@ -33,10 +33,10 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="context"></param>
         public void Enter(object context)
         {
-            //if (_button.ActivationWidget != null)
-            //{
-            //    _button.ActivationWidget.LocalVisible = true;
-            //}
+            if (_button.Activator != null)
+            {
+                _button.Activator.FillImageVisible = true;
+            }
         }
 
         /// <summary>
@@ -66,8 +66,8 @@ namespace CreateAR.SpirePlayer.UI
             var activation = _button.Activation + deltaFill;
             if (activation > 1.0f
                 || Mathf.Approximately(activation, 1.0f))
-            { 
-                _button.Activation = 0.0f;
+            {
+                _button.Activation = 0;
 
                 OnTransition(typeof(ButtonActivatedState));
             }
@@ -82,10 +82,10 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         public void Exit()
         {
-            //if (_button.ActivationWidget != null)
-            //{
-            //    _button.ActivationWidget.LocalVisible = false;
-            //}
+            if (_button.Activator != null)
+            {
+                _button.Activator.FillImageVisible = false;
+            }
         }
     }
 }

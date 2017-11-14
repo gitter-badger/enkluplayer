@@ -52,7 +52,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="aim"></param>
         /// <returns></returns>
-        Color GetAimColor(float aim);
+        Col4 GetAimColor(float aim);
 
         /// <summary>
         /// Returns the default custor distance in meters.
@@ -85,7 +85,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="aim"></param>
         /// <returns></returns>
-        Color GetReticleColorFromAim(float aim);
+        Col4 GetReticleColorFromAim(float aim);
 
         /// <summary>
         /// Returns the desired reticle scale as a function of aim.

@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2017.2.0f3</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -309,6 +311,7 @@
     <Compile Include="Assets\Source\Input\States\Edit\EditRotateState.cs" />
     <Compile Include="Assets\Source\Input\States\EditModeInputState.cs" />
     <Compile Include="Assets\Source\Main.cs" />
+    <Compile Include="Assets\Source\Math\Col4.cs" />
     <Compile Include="Assets\Source\Math\Vec3.cs" />
     <Compile Include="Assets\Source\Messages\Internal\LoadProgressEvent.cs" />
     <Compile Include="Assets\Source\Messages\MessageTypes.cs" />
@@ -427,7 +430,7 @@
     <Compile Include="Assets\Source\Spire\IUX\Widget\ColorConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\IColorConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\ITweenConfig.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Widget\IUXTest.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\IUXTest.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\IWidget.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\IWidgetConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\TweenConfig.cs" />
@@ -461,6 +464,7 @@
     <Compile Include="Assets\Source\States\WaitingForConnectionApplicationState.cs" />
     <Compile Include="Assets\Source\UI\Effects\Spinner.cs" />
     <Compile Include="Assets\Source\Util\CameraUtil.cs" />
+    <Compile Include="Assets\Source\Util\Extensions\ColorExtensions.cs" />
     <Compile Include="Assets\Source\Util\Extensions\VectorExtensions.cs" />
     <Compile Include="Assets\Source\Util\IQueryResolver.cs" />
     <Compile Include="Assets\Source\Util\JsonSerializer.cs" />

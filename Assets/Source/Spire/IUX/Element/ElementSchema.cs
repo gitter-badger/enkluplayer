@@ -103,6 +103,17 @@ namespace CreateAR.SpirePlayer.UI
                         false));
                 }
             }
+
+            if (null != data.Colors)
+            {
+                foreach (var prop in data.Colors)
+                {
+                    _props.Add(new ElementSchemaProp<Col4>(
+                        prop.Key,
+                        prop.Value,
+                        false));
+                }
+            }
         }
 
         /// <summary>
