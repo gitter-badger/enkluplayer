@@ -11,25 +11,6 @@ using Object = UnityEngine.Object;
 namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
-    /// Communicates progress of a load.
-    /// </summary>
-    public class LoadProgress
-    {
-        /// <summary>
-        /// Normalized load percentage, between 0 and 1.
-        /// </summary>
-        public float Value;
-
-        /// <summary>
-        /// True iff the load is complete.
-        /// </summary>
-        public bool IsComplete
-        {
-            get { return Math.Abs(Value - 1f) < Mathf.Epsilon; }
-        }
-    }
-
-    /// <summary>
     /// Loads asset bundles.
     /// </summary>
     public class AssetBundleLoader
@@ -40,6 +21,11 @@ namespace CreateAR.SpirePlayer.Assets
         private readonly IBootstrapper _bootstrapper;
 
         /// <summary>
+        /// Caches bundles.
+        /// </summary>
+        private readonly IAssetBundleCache _cache;
+
+        /// <summary>
         /// The URL being loaded.
         /// </summary>
         private readonly string _url;
@@ -47,7 +33,7 @@ namespace CreateAR.SpirePlayer.Assets
         /// <summary>
         /// True iff the loader has been destroyed.
         /// </summary>
-        private bool _destroy = false;
+        private bool _destroy;
 
         /// <summary>
         /// The load.
@@ -69,9 +55,11 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         public AssetBundleLoader(
             IBootstrapper bootstrapper,
+            IAssetBundleCache cache,
             string url)
         {
             _bootstrapper = bootstrapper;
+            _cache = cache;
             _url = url;
         }
 
@@ -93,7 +81,24 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         public void Load()
         {
-            _bootstrapper.BootstrapCoroutine(LoadBundle());
+            // check cache
+            Log.Info(this, "Checking cache for bundle {0}.", _url);
+
+            if (_cache.Contains(_url))
+            {
+                Log.Info(this, "Cache hit. Loading from cache.");
+
+                LoadProgress progress;
+                _bundleLoad = _cache.Load(_url, out progress);
+                
+                progress.Chain(Progress);
+            }
+            else
+            {
+                Log.Info(this, "Cache miss. Downloading bundle {0}.", _url);
+                
+                _bootstrapper.BootstrapCoroutine(DownloadBundle());
+            }
         }
 
         /// <summary>
@@ -148,14 +153,16 @@ namespace CreateAR.SpirePlayer.Assets
         /// Loads the asset bundle.
         /// </summary>
         /// <returns></returns>
-        private IEnumerator LoadBundle()
+        private IEnumerator DownloadBundle()
         {
             var token = new AsyncToken<AssetBundle>();
             _bundleLoad = token;
 
-            Log.Info(this, "Downloading bundle {0}.", _url);
-
-            var request = UnityWebRequest.GetAssetBundle(_url);
+            var request = new UnityWebRequest(
+                _url,
+                "GET",
+                new AssetBundleDownloadHandler(_bootstrapper),
+                null);
             request.SendWebRequest();
 
             while (!request.isDone)
@@ -177,16 +184,18 @@ namespace CreateAR.SpirePlayer.Assets
             }
             else
             {
-                var bundle = ((DownloadHandlerAssetBundle) request.downloadHandler).assetBundle;
+                var handler = (AssetBundleDownloadHandler) request.downloadHandler;
+                
+                // wait for bundle to complete
+                handler
+                    .OnReady
+                    .OnSuccess(bundle =>
+                    {
+                        _cache.Save(_url, handler.data);
 
-                if (null == bundle)
-                {
-                    token.Fail(new Exception("Could not create bundle."));
-                }
-                else
-                {
-                    token.Succeed(bundle);
-                }
+                        token.Succeed(bundle);
+                    })
+                    .OnFailure(token.Fail);
             }
 
             request.Dispose();

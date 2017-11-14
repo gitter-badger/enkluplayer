@@ -203,6 +203,54 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
+        /// Returns true iff the schema or parent schemas have a property with
+        /// matching name.
+        /// </summary>
+        /// <param name="name">The name of the property.</param>
+        /// <returns></returns>
+        public bool HasProp(string name)
+        {
+            if (HasOwnProp(name))
+            {
+                return true;
+            }
+
+            var parent = _parent;
+            while (null != parent)
+            {
+                if (parent.HasOwnProp(name))
+                {
+                    return true;
+                }
+
+                parent = _parent._parent;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true iff this object has a non-linked prop with matching name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public bool HasOwnProp(string name)
+        {
+            var prop = Prop(name);
+            if (null == prop)
+            {
+                return false;
+            }
+
+            if (prop.LinkBroken)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Retrieves a property with a default value.
         /// </summary>
         /// <typeparam name="T">The type to return a prop for.</typeparam>
