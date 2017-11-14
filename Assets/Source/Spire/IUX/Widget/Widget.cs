@@ -261,11 +261,6 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
-        /// Highlight priority.
-        /// </summary>
-        public int HighlightPriority { get; protected set; }
-
-        /// <summary>
         /// Retrieves the transform.
         /// </summary>
         public GameObject GameObject { get { return _gameObject; } }
@@ -294,6 +289,9 @@ namespace CreateAR.SpirePlayer.UI
             Messages = messages;
         }
 
+        private ElementSchemaProp<string> _propName;
+        private ElementSchemaProp<Vec3> _localPosition;
+
         /// <summary>
         /// Initialization
         /// </summary>
@@ -301,8 +299,11 @@ namespace CreateAR.SpirePlayer.UI
         {
             base.LoadInternal();
 
-            var name = Schema.Get<string>("name");
-            _gameObject = new GameObject(name.Value);
+            _propName = Schema.Get<string>("name");
+            _localPosition = Schema.Get<Vec3>("localPosition");
+
+            _gameObject = new GameObject(_propName.Value);
+            _gameObject.transform.localPosition = _localPosition.Value.ToVector();
 
             OnVisible.OnChanged += IsVisible_OnUpdate;
 

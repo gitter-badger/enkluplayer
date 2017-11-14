@@ -188,18 +188,15 @@ namespace CreateAR.SpirePlayer
                   + _cursorDistance
                   * eyeDirection;
 
-            var focusable = Intention.Focus;
-            if (_aim > Mathf.Epsilon
-             && focusable != null
-             && focusable.FocusCollider != null)
+            var interactive = Intention.Focus;
+            if (_aim > Mathf.Epsilon)
             {
-                var aimMagnet
-                    = Config.GetMagnetFromAim(_aim);
+                var aimMagnet = Config.GetMagnetFromAim(_aim);
 
                 cursorPosition
                     = Vec3.Lerp(
                         cursorPosition,
-                        focusable.FocusCollider.transform.position.ToVec(),
+                        interactive.GameObject.transform.position.ToVec(),
                         aimMagnet);
             }
 
@@ -216,31 +213,30 @@ namespace CreateAR.SpirePlayer
         {
             var targetFocusDistance = Config.GetDefaultDistanceForCursor();
 
-            var focusable = Intention.Focus;
-            if (focusable != null
-             && focusable.FocusCollider != null)
+            var interactive = Intention.Focus;
+            if (interactive != null
+             && interactive.InteractivePrimitive != null)
             {
                 // focus on the focus widget
                 var eyeDeltaToFocusWidget
-                    = focusable
-                          .FocusCollider
-                          .transform
-                          .position
-                          .ToVec()
-                      - eyePosition;
+                    = interactive.GameObject.transform.position.ToVec()
+                    - eyePosition;
                 var eyeDistanceToFocusWidget
                     = eyeDeltaToFocusWidget
                         .Magnitude;
+                var radius
+                    = interactive
+                        .InteractivePrimitive
+                        .GetBoundingRadius();
                 targetFocusDistance
                     = eyeDistanceToFocusWidget
-                      - focusable
-                          .Radius;
+                    - radius;
             }
 
             var tweenDuration
                 = Tweens
                     .DurationSeconds(
-                        focusable != null
+                        interactive != null
                             ? _gainFocusTween.Value
                             : _lostFocusTween.Value);
 
@@ -264,12 +260,8 @@ namespace CreateAR.SpirePlayer
         private void UpdateAim(float deltaTime)
         {
             _aim = 0.0f;
-            var focusable = Intention.Focus;
-            var aimableWidget
-                = focusable != null 
-               && focusable.FocusCollider.transform != null
-                    ? focusable.FocusCollider.transform.GetComponent<AimableWidget>()
-                    : null;
+            var interactive = Intention.Focus;
+            var aimableWidget = (interactive as InteractiveWidget) as AimableWidget;
             if (aimableWidget != null)
             {
                 _aim = aimableWidget.Aim;

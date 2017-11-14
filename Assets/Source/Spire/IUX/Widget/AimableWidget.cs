@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// 
     /// </summary>
-    public class AimableWidget : InteractableWidget
+    public class AimableWidget : InteractiveWidget
     {
         /// <summary>
         /// Dependencies
@@ -22,11 +22,6 @@ namespace CreateAR.SpirePlayer.UI
         /// True if aim is enabled
         /// </summary>
         private bool _isAimEnabled = true;
-        
-        /// <summary>
-        /// Displayed when aiming at the button.
-        /// </summary>
-        public Widget AimFeedbackWidget;
 
         /// <summary>
         /// True if aim is enabled
@@ -57,10 +52,10 @@ namespace CreateAR.SpirePlayer.UI
             IPrimitiveFactory primitives,
             IMessageRouter messages,
             IIntentionManager intention,
-            IHighlightManager highlights)
+            IInteractionManager interactions)
         {
             Intention = intention;
-            Initialize(config, layers, tweens, colors, primitives, messages, highlights);
+            Initialize(config, layers, tweens, colors, primitives, messages, interactions);
         }
 
         /// <summary>
@@ -79,12 +74,6 @@ namespace CreateAR.SpirePlayer.UI
             else
             {
                 UpdateAim();
-            }
-
-            if (AimFeedbackWidget != null)
-            {
-                AimFeedbackWidget.GameObject.transform.localScale = Vector3.one * Config.GetAimScale(_aim);
-                AimFeedbackWidget.LocalColor = Config.GetAimColor(_aim);
             }
         }
 
@@ -111,7 +100,7 @@ namespace CreateAR.SpirePlayer.UI
                 = delta
                     .Magnitude;
             var radius
-                = Radius;
+                = InteractivePrimitive.GetBoundingRadius();
 
             var maxTheta
                 = Mathf.Atan2(radius, eyeDistance);

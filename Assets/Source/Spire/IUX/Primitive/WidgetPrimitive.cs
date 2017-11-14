@@ -16,7 +16,7 @@ namespace CreateAR.SpirePlayer.UI
         /// Loads using the specified widget.
         /// </summary>
         /// <param name="widget"></param>
-        public void Load(IWidget widget)
+        public virtual void Load(IWidget widget)
         {
             Widget = widget;
 
@@ -27,9 +27,18 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Unloads the primitive.
         /// </summary>
-        public void Unload()
+        public virtual void Unload()
         {
             Destroy(this);
+        }
+
+        /// <summary>
+        /// Toggles Widget Visibility
+        /// </summary>
+        [ContextMenu("Show")]
+        public void ToggleVisibility()
+        {
+            Widget.LocalVisible = !Widget.LocalVisible;
         }
     }
 }

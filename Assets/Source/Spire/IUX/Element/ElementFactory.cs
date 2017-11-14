@@ -18,7 +18,7 @@ namespace CreateAR.SpirePlayer.UI
         private readonly IWidgetConfig _config;
         private readonly ITweenConfig _tweens;
         private readonly IMessageRouter _messages;
-        private readonly IHighlightManager _highlights;
+        private readonly IInteractionManager _interactions;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer.UI
             IWidgetConfig config,
             ITweenConfig tweens,
             IMessageRouter messages,
-            IHighlightManager highlights)
+            IInteractionManager interactions)
         {
             _primitives = primitives;
             _intention = intention;
@@ -47,7 +47,7 @@ namespace CreateAR.SpirePlayer.UI
             _config = config;
             _tweens = tweens;
             _messages = messages;
-            _highlights = highlights;
+            _interactions = interactions;
 
             /// TODO: Load this all from data
             _baseSchema.Set("gainFocusTween", TweenType.Responsive);
@@ -114,7 +114,7 @@ namespace CreateAR.SpirePlayer.UI
 
                         case ElementTypes.BUTTON:
                             var newButton = new Button();
-                            newButton.Initialize(_config, _layers, _tweens, _colors, _primitives, _messages, _intention, _highlights);
+                            newButton.Initialize(_config, _layers, _tweens, _colors, _primitives, _messages, _intention, _interactions);
                             newElement = newButton;
                             break;
 

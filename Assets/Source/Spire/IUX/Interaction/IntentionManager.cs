@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using CreateAR.SpirePlayer.UI;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -33,7 +34,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Widget which is currently focused
         /// </summary>
-        private IFocusable _focusWidget;
+        private IInteractive _focusWidget;
 
         /// <summary>
         /// For aiming with a hand.
@@ -58,7 +59,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Current focus.
         /// </summary>
-        public IFocusable Focus
+        public IInteractive Focus
         {
             get { return _focusWidget; }
             set
@@ -253,7 +254,7 @@ namespace CreateAR.SpirePlayer
             AverageAngularVelocity = totalAngularVelocity / count;
             Stability = 1.0f - Mathf.Clamp01(AverageAngularVelocity / MaxAngularVelocity);
         }
-
+        
         /// <summary>
         /// Updates the current IFocusable that is considered focused.
         /// </summary>
@@ -277,38 +278,31 @@ namespace CreateAR.SpirePlayer
             {
                 if (raycastHit.collider != null)
                 {
-                    var focusable = raycastHit
-                        .collider
-                        .GetComponent<IFocusable>();
-                    if (focusable != null
-                        && focusable.IsVisible
-                        && focusable.FocusCollider != null
-                        && focusable.FocusCollider.enabled)
+                    var interactablePrimitive 
+                        = raycastHit
+                            .collider
+                            .GetComponent<InteractivePrimitive>();
+                    if (interactablePrimitive != null)
                     {
-                        Focus = focusable;
-                        return;
+                        var interactableWidget = interactablePrimitive.Widget as InteractiveWidget;
+                        if (interactableWidget != null
+                         && interactableWidget.IsInteractable)
+                        {
+                            Focus = interactableWidget;
+                            return;
+                        }
                     }
                 }
             }
 
-            // determine if the current IFocusable should lose focus
+            // determine if the current interactable should lose focuse
             if (Focus != null)
             {
-                if (Focus.UnfocusCollider == null)
+                var interactablePrimitive = Focus.InteractivePrimitive;
+                if (interactablePrimitive == null
+                || !interactablePrimitive.IsTargeted(Ray))
                 {
                     Focus = null;
-                }
-                else
-                {
-                    if (!Focus
-                        .UnfocusCollider
-                        .Raycast(
-                            Ray,
-                            out raycastHit,
-                            Mathf.Infinity))
-                    {
-                        Focus = null;
-                    }
                 }
             }
         }

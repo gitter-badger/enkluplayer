@@ -34,12 +34,7 @@ namespace CreateAR.SpirePlayer.UI
         /// Activator primitive
         /// </summary>
         private IActivatorPrimitive _activator;
-
-        /// <summary>
-        /// Activator primitive
-        /// </summary>
-        private IPrimitive _text;
-
+        
         /// <summary>
         /// Activation percentage
         /// </summary>
@@ -79,9 +74,10 @@ namespace CreateAR.SpirePlayer.UI
             base.LoadInternal();
 
             _activator = Primitives.LoadActivator(this);
-            _text = Primitives.LoadText(this);
+            InteractivePrimitive = _activator;
 
             var voiceActivator = Schema.Get<string>("voiceActivator").Value;
+
             /*if (Caption != null)
             {
                 if (Anchors != null)
@@ -119,16 +115,8 @@ namespace CreateAR.SpirePlayer.UI
             var deltaTime = Time.smoothDeltaTime;
             _states.Update(deltaTime);
 
+            UpdateAim();
             UpdateActivation();
-            
-            // TODO: this was from a bug, remove this code, find the bug
-            if (float.IsInfinity(_activation)
-             || float.IsNaN(_activation))
-            {
-                _activation = 0.0f;
-                _states.Change<ButtonReadyState>();
-            }
-
             UpdateStability(deltaTime);
         }
 
@@ -144,6 +132,17 @@ namespace CreateAR.SpirePlayer.UI
                 _keywordRecognizer.Stop();
                 _keywordRecognizer.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Updates the aim visual
+        /// </summary>
+        private void UpdateAim()
+        {
+            _activator.SetAimScale(Config.GetAimScale(Aim));
+
+            // TODO: Fix the color hierarchy
+            // AimFeedbackWidget.LocalColor = Config.GetAimColor(_aim);
         }
 
         /// <summary>

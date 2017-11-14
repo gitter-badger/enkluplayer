@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2017.2.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -366,11 +364,6 @@
     <Compile Include="Assets\Source\Spire\Data\ScriptData.cs" />
     <Compile Include="Assets\Source\Spire\Data\ScriptReference.cs" />
     <Compile Include="Assets\Source\Spire\Data\StaticData.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Element\IElementManager.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Layer\ILayerManager.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Primitive\IReticlePrimitive.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Primitive\ReticlePrimitive.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Widget\ColorConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Anchor.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\AnchorReferenceFrameFactory.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Content\Content.cs" />
@@ -390,8 +383,7 @@
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementData.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementDescription.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementFactory.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Primitive\ITextPrimitive.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Widget\HighlightManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Element\ElementManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementQuery.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementRef.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementSchema.cs" />
@@ -399,43 +391,49 @@
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementSchemaProp.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\ElementTypes.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Element\IElementFactory.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Element\IElementManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\HsbColor.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Intention\Cursor.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Primitive\ActivatorPrimitive.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Primitive\IActivatorPrimitive.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Primitive\IPrimitive.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Primitive\IPrimitiveFactory.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Primitive\TextPrimitive.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Primitive\PrimitiveFactory.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Primitive\WidgetPrimitive.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Element\ElementManager.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Intention\IFocusable.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Intention\IIntentionManager.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Intention\IntentionManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Interaction\Cursor.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Interaction\IIntentionManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Interaction\IInteractionManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Interaction\IInteractive.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Interaction\IntentionManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Interaction\InteractionManager.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Interaction\InteractiveWidget.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\ILayerable.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Layer\ILayerManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\Layer.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\LayerManager.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Layer\LayerMaskNames.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\ActivatorPrimitive.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\IActivatorPrimitive.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\IInteractivePrimitive.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\InteractivePrimitive.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\IPrimitive.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\IPrimitiveFactory.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\IReticlePrimitive.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\ITextPrimitive.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\PrimitiveFactory.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\PrimitiveRenderer.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\ReticlePrimitive.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\TextPrimitive.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Primitive\WidgetPrimitive.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\AimableWidget.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\Button.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\ButtonActivatedState.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\ButtonActivatingState.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\ButtonReadyState.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Widget\ButtonSchema.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Widget\Caption.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Widget\ColorConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\IColorConfig.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Widget\IHighlightManager.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Widget\InteractableSchema.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Widget\InteractableWidget.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\ITweenConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\IUXTest.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Widget\Caption.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\IWidget.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\IWidgetConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\TweenConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\Widget.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\WidgetAnchors.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\WidgetConfig.cs" />
-    <Compile Include="Assets\Source\Spire\IUX\Primitive\PrimitiveRenderer.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\WidgetSchema.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\DefaultScriptParser.cs" />
     <Compile Include="Assets\Source\Spire\Scripting\Interop\AppDataScriptingInterface.cs" />

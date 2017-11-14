@@ -3,22 +3,27 @@ using UnityEngine.UI;
 
 namespace CreateAR.SpirePlayer.UI
 {
-    public class ActivatorPrimitive : WidgetPrimitive, IActivatorPrimitive
+    public class ActivatorPrimitive : InteractivePrimitive, IActivatorPrimitive
     {
         /// <summary>
-        /// Transform affected by the steadiness of intention
+        /// Transform affected by the steadiness of intention.
         /// </summary>
         public Transform StabilityTransform;
 
         /// <summary>
-        /// Fills with activation percentage
+        /// Fills with activation percentage.
         /// </summary>
         public Image FillImage;
 
         /// <summary>
-        /// Shows/Hides w/ Focus
+        /// Shows/Hides w/ Focus.
         /// </summary>
         public Widget ActivationWidget;
+
+        /// <summary>
+        /// Aim Scale Transform.
+        /// </summary>
+        public Transform AimTransform;
 
         /// <summary>
         /// Updates the rotation and scale of the stability transform
@@ -44,6 +49,18 @@ namespace CreateAR.SpirePlayer.UI
             if (FillImage != null)
             {
                 FillImage.fillAmount = percent;
+            }
+        }
+
+        /// <summary>
+        /// Sets the aim scale
+        /// </summary>
+        /// <param name="aimScale"></param>
+        public void SetAimScale(float aimScale)
+        {
+            if (AimTransform != null)
+            {
+                AimTransform.localScale = Vector3.one * aimScale;
             }
         }
     }

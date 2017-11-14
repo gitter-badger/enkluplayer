@@ -76,7 +76,7 @@ namespace CreateAR.SpirePlayer
 
             var cursor = ElementFactory.Element(cursorDescription);
 
-            var elementDescription
+            var buttonDescription
                 = new ElementDescription()
                 {
                     Elements = elementPrefabs,
@@ -90,13 +90,20 @@ namespace CreateAR.SpirePlayer
                             {
                                 { "name", "New Button" },
                                 { "text", "Hello World!" },
-                                { "fontSize", "12" }
+                            },
+                            Ints = new Dictionary<string, int>()
+                            { 
+                                { "fontSize", 12 },
+                            },
+                            Vectors = new Dictionary<string, Vec3>()
+                            { 
+                                { "localPosition", new Vec3(0,0,3) }
                             }
                         }
                     }
                 };
 
-            var element = ElementFactory.Element(elementDescription);
+            var button = ElementFactory.Element(buttonDescription);
         }
     }
 }

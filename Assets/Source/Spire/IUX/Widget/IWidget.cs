@@ -13,5 +13,10 @@ namespace CreateAR.SpirePlayer
         /// Render color (composition of local and parent colors).
         /// </summary>
         Color Color { get; }
+
+        /// <summary>
+        /// Visibility Accessor/Mutator
+        /// </summary>
+        bool LocalVisible { get; set; }
     }
 }

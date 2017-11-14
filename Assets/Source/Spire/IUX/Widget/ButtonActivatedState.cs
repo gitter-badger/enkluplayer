@@ -33,8 +33,6 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="context"></param>
         public void Enter(object context)
         {
-            InteractableWidget.OnRails = false;
-
             _button.IsAimEnabled = false;
 
             /*if (_button != null
