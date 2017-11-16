@@ -6,35 +6,26 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Visual characteristics common to all buttons.
     /// </summary>
-    public class ButtonState : Element, IState
+    public class ActivatorState : Element, IState
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
+        public IColorConfig Colors { get; private set; }
+        public ITweenConfig Tweens { get; private set; }
+        public IActivator Activator { get; set; }
+
         /// <summary>
         /// Props.
         /// </summary>
         private ElementSchemaProp<float> _propFrameScale;
         private ElementSchemaProp<int> _propFrameColor;
-        private ElementSchemaProp<int> _propCaptionColor;
         private ElementSchemaProp<int> _propTween;
-
-        /// <summary>
-        /// Affected button.
-        /// </summary>
-        private Button _button;
-
-        /// <summary>
-        /// Affected button.
-        /// </summary>
-        public Button Button { get { return _button; } }
 
         /// <summary>
         /// Color of the button during this state.
         /// </summary>
         public VirtualColor FrameColor { get { return (VirtualColor)_propFrameScale.Value; } }
-
-        /// <summary>
-        /// Color of the button during this state.
-        /// </summary>
-        public VirtualColor CaptionColor { get { return (VirtualColor)_propCaptionColor.Value; } }
 
         /// <summary>
         /// Color of the button during this state.
@@ -47,23 +38,22 @@ namespace CreateAR.SpirePlayer
         public TweenType Tween { get { return (TweenType)_propTween.Value; } }
 
         /// <summary>
-        /// Setup.
+        /// Dependency initialization.
         /// </summary>
-        /// <param name="button"></param>
-        public void Initialize(Button button)
+        public void Initialize(IColorConfig colors, ITweenConfig tweens)
         {
-            _button = button;
+            Colors = colors;
+            Tweens = tweens;
         }
 
         /// <summary>
-        /// Prop Initialization
+        /// Prop initialization.
         /// </summary>
         protected override void LoadInternal()
         {
             base.LoadInternal();
 
             _propFrameColor = Schema.Get<int>("frameColor");
-            _propCaptionColor = Schema.Get<int>("captionColor");
             _propTween = Schema.Get<int>("tween");
             _propFrameScale = Schema.Get<float>("frameScale");
         }
@@ -83,15 +73,15 @@ namespace CreateAR.SpirePlayer
         /// <param name="deltaTime"></param>
         public virtual void Update(float deltaTime)
         {
-            var tweenDuration = Button.Tweens.DurationSeconds(Tween);
+            var tweenDuration = Tweens.DurationSeconds(Tween);
             var tweenLerp
                 = tweenDuration > Mathf.Epsilon
                     ? deltaTime / tweenDuration
                     : 1.0f;
 
             // blend the frame's color.
-            var frame = Button.Activator.Frame;
-            var frameColor = Button.Colors.GetColor(FrameColor);
+            var frame = Activator.Frame;
+            var frameColor = Colors.GetColor(FrameColor);
             frame.LocalColor 
                 = Col4.Lerp(
                     frame.LocalColor,
@@ -104,18 +94,6 @@ namespace CreateAR.SpirePlayer
                     frame.GameObject.transform.localScale,
                     Vector3.one * FrameScale,
                     tweenLerp);
-
-            // blend the caption's color.
-            var captionColor = Button.Colors.GetColor(CaptionColor);
-            var caption = Button.Caption;
-            if (caption != null)
-            {
-                caption.LocalColor
-                    = Col4.Lerp(
-                        caption.LocalColor,
-                        captionColor,
-                        tweenLerp);
-            }
         }
 
         /// <summary>

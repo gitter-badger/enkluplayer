@@ -68,14 +68,14 @@ namespace CreateAR.SpirePlayer
                 {
                     if (_focusWidget != null)
                     {
-                        _focusWidget.IsFocused = false;
+                        _focusWidget.Focused = false;
                     }
 
                     _focusWidget = value;
 
                     if (_focusWidget != null)
                     {
-                        _focusWidget.IsFocused = true;
+                        _focusWidget.Focused = true;
                     }
                 }
             }
@@ -148,7 +148,7 @@ namespace CreateAR.SpirePlayer
             UpdatePerspective();
             UpdatePeripherals();
             UpdateHands();
-            UpdateSteadiness(deltaTime);
+            UpdateStability(deltaTime);
             UpdateFocus();
         }
 
@@ -223,7 +223,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Updates the steadiness of the intention.
         /// </summary>
-        private void UpdateSteadiness(float deltaTime)
+        private void UpdateStability(float deltaTime)
         {
             if (!Mathf.Approximately(deltaTime, 0))
             {
@@ -278,17 +278,17 @@ namespace CreateAR.SpirePlayer
             {
                 if (raycastHit.collider != null)
                 {
-                    var interactablePrimitive 
+                    var activator 
                         = raycastHit
                             .collider
-                            .GetComponent<InteractivePrimitive>();
-                    if (interactablePrimitive != null)
+                            .GetComponent<ActivatorMonoBehaviour>();
+                    if (activator != null)
                     {
-                        var interactableWidget = interactablePrimitive.Widget as InteractiveWidget;
-                        if (interactableWidget != null
-                         && interactableWidget.IsInteractable)
+                        var button = activator.Parent as Button;
+                        if (button != null
+                         && button.Interactable)
                         {
-                            Focus = interactableWidget;
+                            Focus = button;
                             return;
                         }
                     }
@@ -298,9 +298,7 @@ namespace CreateAR.SpirePlayer
             // determine if the current interactable should lose focuse
             if (Focus != null)
             {
-                var interactablePrimitive = Focus.InteractivePrimitive;
-                if (interactablePrimitive == null
-                || !interactablePrimitive.IsTargeted(Ray))
+                if (!Focus.Cast(Ray))
                 {
                     Focus = null;
                 }

@@ -5,7 +5,7 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Basic text rendering primitive.
     /// </summary>
-    public class TextPrimitive : WidgetPrimitive, ITextPrimitive
+    public class TextMonoBehaviour : WidgetMonoBehaviour, IText
     {
         /// <summary>
         /// Text Hookup

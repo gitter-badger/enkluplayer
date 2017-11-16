@@ -14,12 +14,12 @@
         /// <summary>
         /// Text rendering primitive.
         /// </summary>
-        private ITextPrimitive _primitive;
+        private IText _primitive;
 
         /// <summary>
         /// Text rendering primitive.
         /// </summary>
-        public ITextPrimitive Text { get { return _primitive; } }
+        public IText Text { get { return _primitive; } }
 
         /// <summary>
         /// Initialization

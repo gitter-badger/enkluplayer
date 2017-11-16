@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Input state for controlling rotation.
     /// </summary>
-    public class ButtonActivatingState : ButtonState
+    public class ActivatorActivatingState : ActivatorState
     {
         /// <summary>
         /// Invoked when the state is begun.
@@ -14,9 +14,9 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="context"></param>
         public override void Enter(object context)
         {
-            if (Button.Activator != null)
+            if (Activator != null)
             {
-                Button.Activator.FillImageVisible = true;
+                Activator.FillImageVisible = true;
             }
         }
 
@@ -26,34 +26,34 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="deltaTime"></param>
         public override void Update(float deltaTime)
         {
-            if (!Button.IsFocused)
+            if (!Activator.Focused)
             {
-                Button.ChangeState<ButtonReadyState>();
+                Activator.ChangeState<ActivatorReadyState>();
                 return;
             }
 
             // aim affects fill rate.
-            var aim = Button.Aim;
-            var stability = Button.Intention.Stability;
-            var fillDuration = Button.Config.GetFillDuration();
+            var aim = Activator.Aim;
+            var stability = Activator.Intention.Stability;
+            var fillDuration = Activator.Config.GetFillDuration();
             var fillRate
-                = Button.Config.GetFillRateMultiplierFromAim(aim)
-                * Button.Config.GetFillRateMultiplierFromStability(stability)
+                = Activator.Config.GetFillRateMultiplierFromAim(aim)
+                * Activator.Config.GetFillRateMultiplierFromStability(stability)
                 / fillDuration;
             var deltaFill
                 = deltaTime
                     * fillRate;
 
-            var activation = Button.Activation + deltaFill;
+            var activation = Activator.Activation + deltaFill;
             if (activation > 1.0f
              || Mathf.Approximately(activation, 1.0f))
             {
-                Button.Activation = 0;
-                Button.ChangeState <ButtonActivatedState>();
+                Activator.Activation = 0;
+                Activator.ChangeState <ActivatorActivatedState>();
             }
             else
             {
-                Button.Activation = activation;
+                Activator.Activation = activation;
             }
         }
 
@@ -62,9 +62,9 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         public override void Exit()
         {
-            if (Button.Activator != null)
+            if (Activator.Activator != null)
             {
-                Button.Activator.FillImageVisible = false;
+                Activator.Activator.FillImageVisible = false;
             }
         }
     }

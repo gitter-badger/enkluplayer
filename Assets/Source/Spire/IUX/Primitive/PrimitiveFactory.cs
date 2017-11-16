@@ -10,18 +10,18 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Basic text rendering primitive.
         /// </summary>
-        public TextPrimitive TextPrimitive;
-        public ActivatorPrimitive ActivatorPrimitive;
-        public ReticlePrimitive ReticlePrimitive;
+        public TextMonoBehaviour TextMonoBehaviour;
+        public ActivatorMonoBehaviour ActivatorMonoBehaviour;
+        public ReticleMonoBehaviour ReticleMonoBehaviour;
 
         /// <summary>
         /// Creates a text primitive.
         /// </summary>
         /// <param name="widget"></param>
         /// <returns></returns>
-        public ITextPrimitive LoadText(IWidget widget)
+        public IText LoadText(IWidget widget)
         {
-            return (ITextPrimitive)Load(Instantiate(TextPrimitive), widget);
+            return (IText)Load(Instantiate(TextMonoBehaviour), widget);
         }
 
         /// <summary>
@@ -29,9 +29,9 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="widget"></param>
         /// <returns></returns>
-        public IActivatorPrimitive LoadActivator(IWidget widget)
+        public IActivator LoadActivator(IWidget widget)
         {
-            return (IActivatorPrimitive)Load(Instantiate(ActivatorPrimitive), widget);
+            return (IActivator)Load(Instantiate(ActivatorMonoBehaviour), widget);
         }
 
         /// <summary>
@@ -39,9 +39,9 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="widget"></param>
         /// <returns></returns>
-        public IReticlePrimitive LoadReticle(IWidget widget)
+        public IReticle LoadReticle(IWidget widget)
         {
-            return (IReticlePrimitive)Load(Instantiate(ReticlePrimitive), widget);
+            return (IReticle)Load(Instantiate(ReticleMonoBehaviour), widget);
         }
 
         /// <summary>

@@ -106,5 +106,53 @@ namespace CreateAR.SpirePlayer
         {
             IsOnRails = false;
         }
+
+        /*/// <summary>
+        /// Updates the highlight widget.
+        /// </summary>
+        private void UpdateHighlight()
+        {
+            if (ShowIfHighlightedWidget != null)
+            {
+                var isHighlighted = false;
+                var highlightWidget = Interactions.Highlighted;
+                if (highlightWidget != null)
+                {
+                    if (this == (InteractiveWidget)highlightWidget)
+                    {
+                        if (IsDescendant(highlightWidget.GameObject.transform, GameObject.transform)
+                         || IsDescendant(GameObject.transform, highlightWidget.GameObject.transform))
+                        {
+                            isHighlighted = true;
+                        }
+                    }
+                }
+
+                ShowIfHighlightedWidget.LocalVisible = isHighlighted;
+            }
+        }
+
+        /// <summary>
+        /// Checks if there is a child/parent relationship.
+        /// </summary>
+        private static bool IsDescendant(Transform ancestor, Transform descendant)
+        {
+            if (descendant == ancestor)
+            {
+                return true;
+            }
+
+            if (descendant.IsChildOf(ancestor))
+            {
+                return true;
+            }
+
+            if (descendant.parent != null)
+            {
+                return IsDescendant(ancestor, descendant.parent);
+            }
+
+            return false;
+        }*/
     }
 }

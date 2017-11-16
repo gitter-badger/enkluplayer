@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Activator primitive
         /// </summary>
-        private IReticlePrimitive _reticle;
+        private IReticle _reticle;
 
         /// <summary>
         /// A measure of aim over time. 

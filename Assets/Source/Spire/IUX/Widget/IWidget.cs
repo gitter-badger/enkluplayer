@@ -1,6 +1,8 @@
-﻿namespace CreateAR.SpirePlayer
+﻿using CreateAR.SpirePlayer.UI;
+
+namespace CreateAR.SpirePlayer
 {
-    public interface IWidget
+    public interface IWidget : IElement
     {
         /// <summary>
         /// Associated Game Object in the Unity Hierarchy.

@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Source widget.
         /// </summary>
-        public WidgetPrimitive Source;
+        public WidgetMonoBehaviour Source;
 
         /// <summary>
         /// Target graphic (Unity UI rendering system).

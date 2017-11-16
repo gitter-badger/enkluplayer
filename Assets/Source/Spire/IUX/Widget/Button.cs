@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using UnityEngine.Windows.Speech;
 
@@ -7,17 +8,12 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Button
     /// </summary>
-    public class Button : AimableWidget
+    public class Button : Widget, IInteractive
     {
         /// <summary>
         /// Props.
         /// </summary>
         private ElementSchemaProp<string> _propVoiceActivator;
-
-        /// <summary>
-        /// Reflection of intention duration
-        /// </summary>
-        private float _activation;
 
         /// <summary>
         /// Caption to the button.
@@ -30,28 +26,14 @@ namespace CreateAR.SpirePlayer.UI
         private KeywordRecognizer _keywordRecognizer;
 
         /// <summary>
-        /// State management for the button
-        /// </summary>
-        private FiniteStateMachine _states;
-
-        /// <summary>
         /// Activator primitive
         /// </summary>
-        private IActivatorPrimitive _activator;
-        
-        /// <summary>
-        /// Activation percentage
-        /// </summary>
-        public float Activation
-        {
-            get { return _activation; }
-            set { _activation = value; }
-        }
+        private IActivator _activator;
 
         /// <summary>
         /// Activator Accessor
         /// </summary>
-        public IActivatorPrimitive Activator
+        public IActivator Activator
         {
             get { return _activator; }
         }
@@ -63,6 +45,22 @@ namespace CreateAR.SpirePlayer.UI
         {
             get { return _caption; }
         }
+        
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public void Initialize(
+            IWidgetConfig config,
+            ILayerManager layers,
+            ITweenConfig tweens,
+            IColorConfig colors,
+            IPrimitiveFactory primitives,
+            IMessageRouter messages,
+            IIntentionManager intention,
+            IInteractionManager interaction)
+        {
+            Initialize(config, layers, tweens, colors, primitives, messages);
+        }
 
         /// <summary>
         /// Initialization
@@ -71,12 +69,14 @@ namespace CreateAR.SpirePlayer.UI
         {
             base.LoadInternal();
 
-            _activator = Primitives.LoadActivator(this);
-            InteractivePrimitive = _activator;
+            // Activator
+            {
+                _activator = FindOne("activator") as IActivator;
+            }
 
             // Caption
             {
-                _caption = Find("caption").FirstOrDefault() as Caption;
+                _caption = FindOne("caption") as Caption;
             }
 
             // Voice Activator
@@ -96,35 +96,9 @@ namespace CreateAR.SpirePlayer.UI
                     StartKeywordRecognizer(voiceActivator);
                 }
             }
-
-            // States
-            {
-                var buttonStates
-                    = Find("states.*")
-                        .Cast<IState>()
-                        .ToArray();
-                for (int i = 0, count = buttonStates.Length; i < count; ++i)
-                {
-                    var buttonState = buttonStates[i] as ButtonState;
-                    if (buttonState != null)
-                    {
-                        buttonState.Initialize(this);
-                    }
-                }
-
-                _states = new FiniteStateMachine(buttonStates);
-                _states.Change<ButtonReadyState>();
-            }
         }
 
-        /// <summary>
-        /// Changes the state
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        internal void ChangeState<T>() where T : ButtonState
-        {
-            _states.Change<T>();
-        }
+        
 
         /// <summary>
         /// Frame based update
@@ -134,6 +108,20 @@ namespace CreateAR.SpirePlayer.UI
             base.UpdateInternal();
 
             var deltaTime = Time.smoothDeltaTime;
+
+            if (!Focused
+             || !Interactable
+             || !AimEnabled)
+            {
+                _aim = 0.0f;
+                _stability = 0.0f;
+            }
+            else
+            {
+                UpdateAim();
+                UpdateStability(deltaTime);
+            }
+
             _states.Update(deltaTime);
 
             UpdateActivator();
@@ -162,6 +150,7 @@ namespace CreateAR.SpirePlayer.UI
             _activator.SetAimColor(Config.GetAimColor(Aim));
             _activator.SetStabilityRotation(Stability * Config.StabilityRotation);
             _activator.SetActivationFill(_activation);
+            _activator.SetInteractionEnabled(Interactable, Focused);
         }
         
         /// <summary>
@@ -187,12 +176,11 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="args"></param>
         private void OnPhraseRecognized(PhraseRecognizedEventArgs args)
         {
-            if (IsInteractable 
-            && _states.StateType != typeof(ButtonActivatingState))
+            if (Activator.Interactable)
             {
                 _keywordRecognizer.Stop();
                 _keywordRecognizer.Dispose();
-                _states.Change<ButtonActivatedState>();
+                Activator.ChangeState<ActivatorActivatedState>();
             }
         }
     }

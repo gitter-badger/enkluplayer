@@ -13,14 +13,18 @@
         ///////////////////////////////////////////////////////////////////////
         // Primitive Types.
         ///////////////////////////////////////////////////////////////////////
-        public const int CAPTION = 1;
-        public const int CURSOR = 3;
+        public const int ACTIVATOR = 1;
+        public const int TEXT = 2;
+        public const int RETICLE = 3;
 
         public const int BUTTON = 10;
         public const int BUTTON_READY_STATE = 11;
         public const int BUTTON_ACTIVATING_STATE = 12;
         public const int BUTTON_ACTIVATED_STATE = 13;
 
+        public const int CURSOR = 20;
+
+        public const int CAPTION = 30;
     }
 }
 

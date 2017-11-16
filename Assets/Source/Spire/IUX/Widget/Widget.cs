@@ -203,10 +203,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Parent accessor
         /// </summary>
-        public new IWidget Parent
-        {
-            get { return base.Parent as IWidget; }
-        }
+        public IWidget Parent { get; set; }
         
         /// <summary>
         /// Tween for the widget.

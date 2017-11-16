@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Center point surrounded by spokes.
     /// </summary>
-    public class ReticlePrimitive : WidgetPrimitive, IReticlePrimitive
+    public class ReticleMonoBehaviour : WidgetMonoBehaviour, IReticle
     {
         private float _rotation;
         private float _scale;
@@ -22,7 +22,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Center point
         /// </summary>
-        public WidgetPrimitive Center;
+        public WidgetMonoBehaviour Center;
 
         /// <summary>
         /// The visible text on the primitive.

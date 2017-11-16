@@ -61,7 +61,7 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <inheritdoc cref="IElementFactory"/>
-        public Element Element(ElementDescription description)
+        public IElement Element(ElementDescription description)
         {
             return Element(description.Collapsed());
         }
@@ -71,12 +71,12 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="data">Data to create the element from.</param>
         /// <returns></returns>
-        private Element Element(ElementData data)
+        private IElement Element(ElementData data)
         {
             // children first
             var childData = data.Children;
             var childDataLen = childData.Length;
-            var children = new Element[childDataLen];
+            var children = new IElement[childDataLen];
             for (int i = 0, len = childData.Length; i < len; i++)
             {
                 children[i] = Element(childData[i]);
@@ -102,16 +102,28 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="schemaData"></param>
         /// <returns></returns>
-        private Element Element(ElementSchemaData schemaData)
+        private IElement Element(ElementSchemaData schemaData)
         {
             if (null != schemaData.Ints)
             {
                 int elementType;
                 if (schemaData.Ints.TryGetValue("type", out elementType))
                 {
-                    Element newElement = null;
+                    IElement newElement = null;
                     switch (elementType)
                     {
+                        case ElementTypes.ACTIVATOR:
+                            newElement = _primitives.LoadActivator();
+                            break;
+
+                        case ElementTypes.RETICLE:
+                            newElement = _primitives.LoadReticle();
+                            break;
+
+                        case ElementTypes.TEXT:
+                            newElement = _primitives.LoadText();
+                            break;
+
                         case ElementTypes.CAPTION:
                             var newCaption = new Caption();
                             newCaption.Initialize(_config, _layers, _tweens, _colors, _primitives, _messages);
@@ -125,15 +137,15 @@ namespace CreateAR.SpirePlayer.UI
                             break;
 
                         case ElementTypes.BUTTON_READY_STATE:
-                            newElement = new ButtonReadyState();
+                            newElement = new ActivatorReadyState();
                             break;
 
                         case ElementTypes.BUTTON_ACTIVATING_STATE:
-                            newElement = new ButtonActivatingState();
+                            newElement = new ActivatorActivatingState();
                             break;
 
                         case ElementTypes.BUTTON_ACTIVATED_STATE:
-                            newElement = new ButtonActivatedState();
+                            newElement = new ActivatorActivatedState();
                             break;
 
                         case ElementTypes.CURSOR:

@@ -18,18 +18,25 @@ namespace CreateAR.SpirePlayer
         bool Visible { get; }
 
         /// <summary>
-        /// True if the object is visible.
+        /// True if the object is focused.
         /// </summary>
-        bool IsFocused { get; set; }
+        bool Focused { get; }
 
         /// <summary>
-        /// Highlight Priority
+        /// True if the object can be interacted with.
+        /// </summary>
+        bool Interactable { get; }
+
+        /// <summary>
+        /// Highlight Priority.
         /// </summary>
         int HighlightPriority { get; set; }
 
         /// <summary>
-        /// Handles the engine level interactions.
+        /// Casts a ray at the interactive object
         /// </summary>
-        IInteractivePrimitive InteractivePrimitive { get; }
+        /// <param name="ray"></param>
+        /// <returns></returns>
+        bool Cast(Ray ray);
     }
 }

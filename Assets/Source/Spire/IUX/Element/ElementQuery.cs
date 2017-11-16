@@ -61,7 +61,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="element">Element in question.</param>
         /// <returns></returns>
-        public bool Execute(Element element)
+        public bool Execute(IElement element)
         {
             if (_propName == "id")
             {

@@ -1,6 +1,6 @@
 ﻿namespace CreateAR.SpirePlayer.UI
 {
-    public interface ITextPrimitive : IPrimitive
+    public interface IText : IElement
     {
         string Text { get; set; }
         int FontSize { get; set; }

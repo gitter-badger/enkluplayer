@@ -3,7 +3,7 @@
     /// <summary>
     /// Input state for controlling rotation.
     /// </summary>
-    public class ButtonActivatedState : ButtonState
+    public class ActivatorActivatedState : ActivatorState
     {
         /// <summary>
         /// Invoked when the state is entered.
@@ -11,16 +11,16 @@
         /// <param name="context"></param>
         public override void Enter(object context)
         {
-            Button.IsAimEnabled = false;
+            Activator.AimEnabled = false;
 
-            Button.Activator.ShowActivateVFX();
+            Activator.Activator.ShowActivateVFX();
 
             var buttonActivateMessage = new ButtonActivateEvent()
             {
                 // TODO: Add Data
             };
 
-            Button.Messages.Publish(MessageTypes.BUTTON_ACTIVATE, buttonActivateMessage);
+            Activator.Messages.Publish(MessageTypes.BUTTON_ACTIVATE, buttonActivateMessage);
         }
 
         /// <summary>
@@ -31,9 +31,9 @@
         {
             base.Update(deltaTime);
 
-            if (!Button.IsFocused)
+            if (!Activator.Focused)
             {
-                Button.ChangeState<ButtonReadyState>();
+                Activator.ChangeState<ActivatorReadyState>();
             }
         }
 
@@ -42,8 +42,8 @@
         /// </summary>
         public override void Exit()
         {
-            Button.IsAimEnabled = true;
-            Button.Activation = 0.0f;
+            Activator.AimEnabled = true;
+            Activator.Activation = 0.0f;
         }
     }
 }
