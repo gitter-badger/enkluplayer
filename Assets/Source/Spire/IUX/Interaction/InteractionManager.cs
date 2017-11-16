@@ -53,7 +53,7 @@ namespace CreateAR.SpirePlayer
             for (int i = 0, count = _highlighted.Count; i < count; ++i)
             {
                 var interactive = _highlighted[i];
-                if (!interactive.IsVisible)
+                if (!interactive.Visible)
                 {
                     continue;
                 }

@@ -1,73 +1,49 @@
-﻿using System;
-using UnityEngine;
-
-namespace CreateAR.SpirePlayer.UI
+﻿namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Input state for controlling rotation.
     /// </summary>
-    public class ButtonActivatedState : IState
+    public class ButtonActivatedState : ButtonState
     {
-        /// <summary>
-        /// Affected button.
-        /// </summary>
-        private readonly Button _button;
-
-        /// <summary>
-        /// Called when this state requests a transition.
-        /// </summary>
-        public event Action<Type> OnTransition;
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="button"></param>
-        public ButtonActivatedState(Button button)
-        {
-            _button = button;
-        }
-
         /// <summary>
         /// Invoked when the state is entered.
         /// </summary>
         /// <param name="context"></param>
-        public void Enter(object context)
+        public override void Enter(object context)
         {
-            _button.IsAimEnabled = false;
+            Button.IsAimEnabled = false;
 
-            if (_button != null
-             && _button.Activator != null)
-            {
-                _button.Activator.Activate();
-            }
+            Button.Activator.ShowActivateVFX();
 
             var buttonActivateMessage = new ButtonActivateEvent()
             {
                 // TODO: Add Data
             };
 
-            _button.Messages.Publish(MessageTypes.BUTTON_ACTIVATE, buttonActivateMessage);
+            Button.Messages.Publish(MessageTypes.BUTTON_ACTIVATE, buttonActivateMessage);
         }
 
         /// <summary>
         /// Invoked when the state is updated.
         /// </summary>
         /// <param name="deltaTime"></param>
-        public void Update(float deltaTime)
+        public override void Update(float deltaTime)
         {
-            if (!_button.IsFocused)
+            base.Update(deltaTime);
+
+            if (!Button.IsFocused)
             {
-                OnTransition(typeof(ButtonReadyState));
+                Button.ChangeState<ButtonReadyState>();
             }
         }
 
         /// <summary>
         /// Invoked when the state is exited.
         /// </summary>
-        public void Exit()
+        public override void Exit()
         {
-            _button.IsAimEnabled = true;
-            _button.Activation = 0.0f;
+            Button.IsAimEnabled = true;
+            Button.Activation = 0.0f;
         }
     }
 }

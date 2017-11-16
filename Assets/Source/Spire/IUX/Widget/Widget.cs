@@ -203,9 +203,9 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Parent accessor
         /// </summary>
-        public new Widget Parent
+        public new IWidget Parent
         {
-            get { return base.Parent as Widget; }
+            get { return base.Parent as IWidget; }
         }
         
         /// <summary>
@@ -301,7 +301,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Is Visible Modification.
         /// </summary>
-        public bool IsVisible
+        public bool Visible
         {
             get { return _isVisible.Value; }
         }
@@ -464,7 +464,7 @@ namespace CreateAR.SpirePlayer.UI
         {
             var parentVisible = VisibilityMode != VisibilityMode.Inherit
                 || Parent == null
-                || Parent.IsVisible;
+                || Parent.Visible;
 
             var layerIsVisible = !(LayerMode == LayerMode.Hide && !LayerInteractive);
 
@@ -487,7 +487,7 @@ namespace CreateAR.SpirePlayer.UI
             {
                 var newColor = Colors.GetColor(virtualColor);
                 newColor.a = LocalColor.a;
-                LocalColor = IsVisible
+                LocalColor = Visible
                     ? Col4.Lerp(LocalColor, newColor, deltaTime * 5.0f)
                     : newColor;
             }
@@ -514,20 +514,20 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         private void UpdateTween(float deltaTime)
         {
-            var tweenType = IsVisible
+            var tweenType = Visible
                 ? TweenIn
                 : TweenOut;
 
             var tweenDuration = Tweens.DurationSeconds(tweenType);
             if (tweenDuration < Mathf.Epsilon)
             {
-                _localTween = IsVisible
+                _localTween = Visible
                     ? 1.0f
                     : 0.0f;
             }
             else
             {
-                var multiplier = IsVisible
+                var multiplier = Visible
                     ? 1.0f
                     : -1.0f;
                 var tweenDelta = deltaTime / tweenDuration * multiplier;

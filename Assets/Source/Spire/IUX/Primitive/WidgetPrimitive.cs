@@ -15,7 +15,12 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// For manual parenting in the hierarchy.
         /// </summary>
-        public WidgetPrimitive Parent;
+        public WidgetPrimitive _parent;
+
+        /// <summary>
+        /// Parent Accessor
+        /// </summary>
+        public IWidget Parent { get { return _parent; } }
 
         /// <summary>
         /// Parent widget.
@@ -25,7 +30,32 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Local Color.
         /// </summary>
-        public Col4 LocalColor = Col4.White;
+        public Col4 _localColor = Col4.White;
+
+        /// <summary>
+        /// LocalColor Accessor/Mutator.
+        /// </summary>
+        public Col4 LocalColor
+        {
+            get { return _localColor; }
+            set { _localColor = value; }
+        }
+
+        /// <summary>
+        /// Current fade of the widget.
+        /// </summary>
+        public float Tween
+        {
+            get { return _tween; }
+        }
+
+        /// <summary>
+        /// Current fade of the widget.
+        /// </summary>
+        public Layer Layer
+        {
+            get { return null; }
+        }
 
         /// <summary>
         /// Game Object Accessor
@@ -58,15 +88,23 @@ namespace CreateAR.SpirePlayer.UI
         public bool LocalVisible { get; set; }
 
         /// <summary>
+        /// TODO: Refactor me
+        /// </summary>
+        public bool Visible
+        {
+            get { return LocalVisible; }
+        }
+
+        /// <summary>
         /// Uses the parent as the widget for visibility and color.
         /// </summary>
         public void Awake()
         {
             LocalVisible = true;
 
-            if (Parent != null)
+            if (_parent != null)
             {
-                Widget = Parent;
+                Widget = _parent;
             }
         }
 

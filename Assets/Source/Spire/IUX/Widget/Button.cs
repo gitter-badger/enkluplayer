@@ -1,6 +1,5 @@
-﻿using CreateAR.Commons.Unity.Messaging;
+﻿using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Windows.Speech;
 
 namespace CreateAR.SpirePlayer.UI
@@ -11,14 +10,19 @@ namespace CreateAR.SpirePlayer.UI
     public class Button : AimableWidget
     {
         /// <summary>
-        /// Reflection of intention stability
+        /// Props.
         /// </summary>
-        private float _stabilityDegrees;
+        private ElementSchemaProp<string> _propVoiceActivator;
 
         /// <summary>
         /// Reflection of intention duration
         /// </summary>
         private float _activation;
+
+        /// <summary>
+        /// Caption to the button.
+        /// </summary>
+        private Caption _caption;
 
         /// <summary>
         /// Keyword recognizer for voice activation
@@ -28,7 +32,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// State management for the button
         /// </summary>
-        private readonly FiniteStateMachine _states;
+        private FiniteStateMachine _states;
 
         /// <summary>
         /// Activator primitive
@@ -53,25 +57,11 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
-        /// Constructor.
+        /// Activator Accessor
         /// </summary>
-        public Button()
+        public Caption Caption
         {
-            var ready = new ButtonReadyState(this);
-            ready.OnTransition += type => _states.Change(type);
-
-            var activating = new ButtonActivatingState(this);
-            activating.OnTransition += type => _states.Change(type);
-
-            var activated = new ButtonActivatedState(this);
-            activated.OnTransition += type => _states.Change(type);
-
-            _states = new FiniteStateMachine(new IState[]
-            {
-                ready, activating, activated
-            });
-
-            _states.Change<ButtonReadyState>();
+            get { return _caption; }
         }
 
         /// <summary>
@@ -84,33 +74,56 @@ namespace CreateAR.SpirePlayer.UI
             _activator = Primitives.LoadActivator(this);
             InteractivePrimitive = _activator;
 
-            var voiceActivator = Schema.Get<string>("voiceActivator").Value;
-
-            /*if (Caption != null)
+            // Caption
             {
-                if (Anchors != null)
-                {
-                    // TODO: this should be part of Element creation
-                    Anchors.Anchor(Caption.GameObject.transform, schema.Caption.AnchorPosition);
-                }
-
-                Caption.SetSchema(schema.Caption);
+                _caption = Find("caption").FirstOrDefault() as Caption;
             }
 
-            if (string.IsNullOrEmpty(voiceActivator))
+            // Voice Activator
             {
-                if (schema.Caption != null
-                && !string.IsNullOrEmpty(schema.Caption.Text))
+                _propVoiceActivator = Schema.Get<string>("voiceActivator");
+                var voiceActivator = _propVoiceActivator.Value;
+                if (string.IsNullOrEmpty(voiceActivator))
                 {
-                    // default to the caption text if there is no voice activator specified
-                    voiceActivator = schema.Caption.Text;
+                    if (_caption != null)
+                    {
+                        voiceActivator = _caption.Text.Text;
+                    }
                 }
-            }*/
 
-            if (!string.IsNullOrEmpty(voiceActivator))
-            {
-                StartKeywordRecognizer(voiceActivator);
+                if (!string.IsNullOrEmpty(voiceActivator))
+                {
+                    StartKeywordRecognizer(voiceActivator);
+                }
             }
+
+            // States
+            {
+                var buttonStates
+                    = Find("states.*")
+                        .Cast<IState>()
+                        .ToArray();
+                for (int i = 0, count = buttonStates.Length; i < count; ++i)
+                {
+                    var buttonState = buttonStates[i] as ButtonState;
+                    if (buttonState != null)
+                    {
+                        buttonState.Initialize(this);
+                    }
+                }
+
+                _states = new FiniteStateMachine(buttonStates);
+                _states.Change<ButtonReadyState>();
+            }
+        }
+
+        /// <summary>
+        /// Changes the state
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        internal void ChangeState<T>() where T : ButtonState
+        {
+            _states.Change<T>();
         }
 
         /// <summary>
@@ -123,9 +136,7 @@ namespace CreateAR.SpirePlayer.UI
             var deltaTime = Time.smoothDeltaTime;
             _states.Update(deltaTime);
 
-            UpdateAim();
-            UpdateActivation();
-            UpdateStability(deltaTime);
+            UpdateActivator();
         }
 
         /// <summary>
@@ -145,39 +156,11 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Updates the aim visual
         /// </summary>
-        private void UpdateAim()
+        private void UpdateActivator()
         {
             _activator.SetAimScale(Config.GetAimScale(Aim));
             _activator.SetAimColor(Config.GetAimColor(Aim));
-        }
-
-        /// <summary>
-        /// Updates the steadiness feedback
-        /// </summary>
-        /// <param name="deltaTime"></param>
-        private void UpdateStability(float deltaTime)
-        {
-            var targetStabilityDegrees 
-                = IsFocused 
-                ? Config.StabilityRotation * Intention.Stability 
-                : 0.0f;
-
-            const float STABILITY_LERP_RATE_MAGIC_NUMBER = 8.0f;
-            var lerp = deltaTime * STABILITY_LERP_RATE_MAGIC_NUMBER;
-            _stabilityDegrees
-                = Mathf.Lerp(
-                    _stabilityDegrees, 
-                    targetStabilityDegrees,
-                    lerp);
-
-            _activator.SetStabilityRotation(_stabilityDegrees);
-        }
-        
-        /// <summary>
-        /// Updates visual activation feedback.
-        /// </summary>
-        private void UpdateActivation()
-        {
+            _activator.SetStabilityRotation(Stability * Config.StabilityRotation);
             _activator.SetActivationFill(_activation);
         }
         

@@ -6,9 +6,20 @@
     public class Caption : Widget
     {
         /// <summary>
-        /// Handles rendering from unity's perspective
+        /// Props.
+        /// </summary>
+        private ElementSchemaProp<string> _propText;
+        private ElementSchemaProp<int> _propFontSize;
+
+        /// <summary>
+        /// Text rendering primitive.
         /// </summary>
         private ITextPrimitive _primitive;
+
+        /// <summary>
+        /// Text rendering primitive.
+        /// </summary>
+        public ITextPrimitive Text { get { return _primitive; } }
 
         /// <summary>
         /// Initialization
@@ -19,12 +30,13 @@
 
             _primitive = Primitives.LoadText(this);
 
-            _primitive.Text = Schema.Get<string>("text").Value;
+            _propText = Schema.Get<string>("text");
+            _primitive.Text = _propText.Value;
 
-            var fontSize = Schema.Get<int>("fontSize").Value;
-            if (fontSize > 0)
+            _propFontSize = Schema.Get<int>("fontSize");
+            if (_propFontSize.Value > 0)
             {
-                _primitive.FontSize = fontSize;
+                _primitive.FontSize = _propFontSize.Value;
             }
         }
 

@@ -410,10 +410,12 @@ namespace CreateAR.SpirePlayer.UI
         private void ExecuteQuery(Element element, ElementQuery query, List<Element> results)
         {
             // test self
-            if (query.Execute(element))
-            {
-                results.Add(element);
-            }
+            // TODO: THIS DOESN'T SEEM RIGHT, called from hierarchy of shallow queries seperated by "."
+            // WOULD EXPECT BASED ON USAGE THAT THIS SHOULD ONLY BE CHECKING CHILDREN
+            //if (query.Execute(element))
+            //{
+            //    results.Add(element);
+            //}
 
             // test children
             var children = element._children;

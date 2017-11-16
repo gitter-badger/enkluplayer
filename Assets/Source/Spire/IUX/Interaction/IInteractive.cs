@@ -13,9 +13,9 @@ namespace CreateAR.SpirePlayer
         GameObject GameObject { get; }
 
         /// <summary>
-        /// True iff the object is visible.
+        /// True if the object is visible.
         /// </summary>
-        bool IsVisible { get; }
+        bool Visible { get; }
 
         /// <summary>
         /// True if the object is visible.

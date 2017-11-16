@@ -426,6 +426,7 @@
     <Compile Include="Assets\Source\Spire\IUX\Widget\ButtonActivatedState.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\ButtonActivatingState.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\ButtonReadyState.cs" />
+    <Compile Include="Assets\Source\Spire\IUX\Widget\ButtonState.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\Caption.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\ColorConfig.cs" />
     <Compile Include="Assets\Source\Spire\IUX\Widget\IColorConfig.cs" />

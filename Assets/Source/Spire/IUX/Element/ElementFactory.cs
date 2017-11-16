@@ -124,6 +124,18 @@ namespace CreateAR.SpirePlayer.UI
                             newElement = newButton;
                             break;
 
+                        case ElementTypes.BUTTON_READY_STATE:
+                            newElement = new ButtonReadyState();
+                            break;
+
+                        case ElementTypes.BUTTON_ACTIVATING_STATE:
+                            newElement = new ButtonActivatingState();
+                            break;
+
+                        case ElementTypes.BUTTON_ACTIVATED_STATE:
+                            newElement = new ButtonActivatedState();
+                            break;
+
                         case ElementTypes.CURSOR:
                             var newCursor = new Cursor();
                             newCursor.Initialize(_config, _layers, _tweens, _colors, _primitives, _messages, _intention);
@@ -135,7 +147,7 @@ namespace CreateAR.SpirePlayer.UI
                 }
             }
 
-            return null;
+            return new Element();
         }
     }
 }

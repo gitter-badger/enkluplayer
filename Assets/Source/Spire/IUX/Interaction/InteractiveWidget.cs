@@ -75,7 +75,7 @@ namespace CreateAR.SpirePlayer
             get
             {
                 const float FOCUSABLE_THRESHOLD = 0.99f;
-                return IsVisible && Tween > FOCUSABLE_THRESHOLD
+                return Visible && Tween > FOCUSABLE_THRESHOLD
                     && IsInteractionEnabled
                     && (!Interactions.IsOnRails || IsHighlighted);
             }
@@ -146,7 +146,7 @@ namespace CreateAR.SpirePlayer
         {
             base.UpdateInternal();
 
-            if (IsVisible)
+            if (Visible)
             {
                 InteractivePrimitive.SetInteractionEnabled(IsInteractable, IsFocused);
             }

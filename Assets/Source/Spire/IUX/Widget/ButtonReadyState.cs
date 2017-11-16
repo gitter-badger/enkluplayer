@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer.UI
     /// State the button takes when it is ready for activation 
     /// but not currently activating.
     /// </summary>
-    public class ButtonReadyState : IState
+    public class ButtonReadyState : ButtonState
     {
         /// <summary>
         /// Activation as the state is entered.
@@ -19,66 +19,36 @@ namespace CreateAR.SpirePlayer.UI
         private float _elapsed;
 
         /// <summary>
-        /// Parent button.
-        /// </summary>
-        private readonly Button _button;
-
-        /// <summary>
-        /// Called when this state requests a transition.
-        /// </summary>
-        public event Action<Type> OnTransition;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="button"></param>
-        public ButtonReadyState(Button button)
-        {
-            _button = button;
-        }
-
-        /// <summary>
         /// Invoked when the state is begun.
         /// </summary>
         /// <param name="context"></param>
-        public void Enter(object context)
+        public override void Enter(object context)
         {
             _elapsed = 0.0f;
-            _initialActivation = _button.Activation;
+            _initialActivation = Button.Activation;
         }
 
         /// <summary>
         /// Invoked every frame.
         /// </summary>
         /// <param name="deltaTime"></param>
-        public void Update(float deltaTime)
+        public override void Update(float deltaTime)
         {
-            if (_button.IsFocused)
+            if (Button.IsFocused)
             {
-                if (OnTransition != null)
-                {
-                    OnTransition(typeof(ButtonActivatingState));
-                }
+                Button.ChangeState<ButtonActivatingState>();
             }
             else
             {
                 _elapsed += deltaTime;
 
                 // recede the activation percentage over time
-                _button.Activation
+                Button.Activation
                     = _initialActivation
-                      * _button
+                      * Button
                           .Config
                           .GetFillDelay(_elapsed);
             }
-        }
-
-        /// <summary>
-        /// Invoked upon exit.
-        /// </summary>
-        public void Exit()
-        {
-            
         }
     }
 }

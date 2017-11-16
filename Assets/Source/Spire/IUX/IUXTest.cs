@@ -73,6 +73,71 @@ namespace CreateAR.SpirePlayer
                                     { "position", new Vec3(0.2f,0,0) }
                                 }
                             }
+                        },
+
+                        new ElementData()
+                        {
+                            Id = "states",
+                            Children = new[]
+                            {
+                                new ElementData()
+                                {
+                                    Id = "ready",
+                                    Schema = new ElementSchemaData()
+                                    {
+                                        Ints = new Dictionary<string, int>()
+                                        {
+                                            {"type", ElementTypes.BUTTON_READY_STATE },
+                                            {"color", (int)VirtualColor.Ready },
+                                            {"captionColor", (int)VirtualColor.Primary },
+                                            {"tween", (int)TweenType.Responsive },
+                                        },
+                                        Vectors = new Dictionary<string, Vec3>()
+                                        {
+                                            { "scale", new Vec3(1,1,1) }
+                                        }
+                                    }
+                                },
+
+                                new ElementData()
+                                {
+                                    Id = "activating",
+                                    Schema = new ElementSchemaData()
+                                    {
+                                        Ints = new Dictionary<string, int>()
+                                        {
+                                            {"type", ElementTypes.BUTTON_ACTIVATING_STATE },
+                                            {"color", (int)VirtualColor.Interacting },
+                                            {"captionColor", (int)VirtualColor.Interacting },
+                                            {"tween", (int)TweenType.Responsive },
+                                        },
+                                        Vectors = new Dictionary<string, Vec3>()
+                                        {
+                                            { "scale", new Vec3(1.1f,1.1f,1.1f) }
+                                        }
+                                    }
+                                },
+
+                                new ElementData()
+                                {
+                                    Id = "activated",
+                                    Schema = new ElementSchemaData()
+                                    {
+                                        Ints = new Dictionary<string, int>()
+                                        {
+                                            {"type", ElementTypes.BUTTON_ACTIVATED_STATE },
+                                            {"color", (int)VirtualColor.Interacting },
+                                            {"captionColor", (int)VirtualColor.Interacting },
+                                            {"tween", (int)TweenType.Instant },
+                                        },
+                                        Vectors = new Dictionary<string, Vec3>()
+                                        {
+                                            { "scale", new Vec3(1,1,1) }
+                                        }
+                                    }
+                                },
+
+                            }
                         }
                     }
                 }

@@ -46,7 +46,7 @@ namespace CreateAR.SpirePlayer
             {
                 var layer = _layers[i];
                 if (layer.Owner != null
-                    && layer.Owner.IsVisible
+                    && layer.Owner.Visible
                     && layer.Owner.LayerMode == LayerMode.Modal)
                 {
                     ModalLayer = layer;

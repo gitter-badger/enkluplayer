@@ -19,6 +19,11 @@ namespace CreateAR.SpirePlayer.UI
         private float _aim;
 
         /// <summary>
+        /// Reflection of intention stability
+        /// </summary>
+        private float _stability;
+
+        /// <summary>
         /// True if aim is enabled
         /// </summary>
         private bool _isAimEnabled = true;
@@ -39,6 +44,15 @@ namespace CreateAR.SpirePlayer.UI
         {
             get { return _aim; }
             set { _aim = value; }
+        }
+
+        /// <summary>
+        /// Aim percentage.
+        /// </summary>
+        public float Stability
+        {
+            get { return _stability; }
+            set { _stability = value; }
         }
 
         /// <summary>
@@ -70,10 +84,12 @@ namespace CreateAR.SpirePlayer.UI
              || !IsAimEnabled)
             {
                 _aim = 0.0f;
+                _stability = 0.0f;
             }
             else
             {
                 UpdateAim();
+                UpdateStability(Time.smoothDeltaTime);
             }
         }
 
@@ -124,6 +140,26 @@ namespace CreateAR.SpirePlayer.UI
                               Mathf
                                   .Abs(
                                       theta / maxTheta));
+        }
+
+        /// <summary>
+        /// Updates the steadiness feedback
+        /// </summary>
+        /// <param name="deltaTime"></param>
+        private void UpdateStability(float deltaTime)
+        {
+            var targetStability
+                = IsFocused
+                    ? Intention.Stability
+                    : 0.0f;
+
+            const float STABILITY_LERP_RATE_MAGIC_NUMBER = 8.0f;
+            var lerp = deltaTime * STABILITY_LERP_RATE_MAGIC_NUMBER;
+            _stability
+                = Mathf.Lerp(
+                    _stability,
+                    targetStability,
+                    lerp);
         }
     }
    

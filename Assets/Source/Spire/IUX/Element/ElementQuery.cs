@@ -68,6 +68,11 @@ namespace CreateAR.SpirePlayer.UI
                 return element.Id == _propValue;
             }
 
+            if (_propName == "*")
+            {
+                return true;
+            }
+
             // cast
 
             // bool
@@ -114,6 +119,12 @@ namespace CreateAR.SpirePlayer.UI
                     _operator = "==";
                     _propValue = match.Groups[2].Value;
                     
+                    IsValid = true;
+                }
+                else if (value == "*")
+                {
+                    // TODO: Replace with a Regex solution
+                    _propName = "*";
                     IsValid = true;
                 }
             }

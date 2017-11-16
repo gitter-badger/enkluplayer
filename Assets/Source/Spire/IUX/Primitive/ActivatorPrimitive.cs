@@ -44,6 +44,11 @@ namespace CreateAR.SpirePlayer.UI
             set { FillWidget.LocalVisible = value; }
         }
 
+        public IWidget Frame
+        {
+            get { return null; }
+        }
+
         /// <summary>
         /// Updates the rotation and scale of the stability transform.
         /// </summary>
@@ -98,7 +103,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Activates the spawn VFX
         /// </summary>
-        public void Activate()
+        public void ShowActivateVFX()
         {
             if (ActivationVFX != null)
             {

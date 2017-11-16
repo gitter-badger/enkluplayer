@@ -6,36 +6,17 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Input state for controlling rotation.
     /// </summary>
-    public class ButtonActivatingState : IState
+    public class ButtonActivatingState : ButtonState
     {
-        /// <summary>
-        /// Affected button.
-        /// </summary>
-        private readonly Button _button;
-
-        /// <summary>
-        /// Called when this state requests a transition.
-        /// </summary>
-        public event Action<Type> OnTransition;
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="button"></param>
-        public ButtonActivatingState(Button button)
-        {
-            _button = button;
-        }
-
         /// <summary>
         /// Invoked when the state is begun.
         /// </summary>
         /// <param name="context"></param>
-        public void Enter(object context)
+        public override void Enter(object context)
         {
-            if (_button.Activator != null)
+            if (Button.Activator != null)
             {
-                _button.Activator.FillImageVisible = true;
+                Button.Activator.FillImageVisible = true;
             }
         }
 
@@ -43,48 +24,47 @@ namespace CreateAR.SpirePlayer.UI
         /// Invoked every frame.
         /// </summary>
         /// <param name="deltaTime"></param>
-        public void Update(float deltaTime)
+        public override void Update(float deltaTime)
         {
-            if (!_button.IsFocused)
+            if (!Button.IsFocused)
             {
-                OnTransition(typeof(ButtonReadyState));
+                Button.ChangeState<ButtonReadyState>();
                 return;
             }
 
             // aim affects fill rate.
-            var aim = _button.Aim;
-            var stability = _button.Intention.Stability;
-            var fillDuration = _button.Config.GetFillDuration();
+            var aim = Button.Aim;
+            var stability = Button.Intention.Stability;
+            var fillDuration = Button.Config.GetFillDuration();
             var fillRate
-                = _button.Config.GetFillRateMultiplierFromAim(aim)
-                * _button.Config.GetFillRateMultiplierFromStability(stability)
+                = Button.Config.GetFillRateMultiplierFromAim(aim)
+                * Button.Config.GetFillRateMultiplierFromStability(stability)
                 / fillDuration;
             var deltaFill
                 = deltaTime
                     * fillRate;
 
-            var activation = _button.Activation + deltaFill;
+            var activation = Button.Activation + deltaFill;
             if (activation > 1.0f
-                || Mathf.Approximately(activation, 1.0f))
+             || Mathf.Approximately(activation, 1.0f))
             {
-                _button.Activation = 0;
-
-                OnTransition(typeof(ButtonActivatedState));
+                Button.Activation = 0;
+                Button.ChangeState <ButtonActivatedState>();
             }
             else
             {
-                _button.Activation = activation;
+                Button.Activation = activation;
             }
         }
 
         /// <summary>
         /// Invoked upon exit
         /// </summary>
-        public void Exit()
+        public override void Exit()
         {
-            if (_button.Activator != null)
+            if (Button.Activator != null)
             {
-                _button.Activator.FillImageVisible = false;
+                Button.Activator.FillImageVisible = false;
             }
         }
     }
