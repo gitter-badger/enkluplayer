@@ -352,6 +352,15 @@ namespace CreateAR.SpirePlayer.UI
             _gameObject = new GameObject(_name.Value);
             _gameObject.transform.localPosition = _localPosition.Value.ToVector();
 
+            for (int i = 0; i < Children.Length; ++i)
+            {
+                var child = Children[i] as Widget;
+                if (child != null)
+                {
+                    child.GameObject.transform.SetParent(_gameObject.transform, false);
+                }
+            }
+
             OnVisible.OnChanged += IsVisible_OnUpdate;
 
             UpdateVisibility();

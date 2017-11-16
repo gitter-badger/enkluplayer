@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CreateAR.SpirePlayer.UI
 {
@@ -24,9 +26,8 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="id">Unique id of the element.</param>
         /// <returns></returns>
-        public ElementData ById(string id)
+        public ElementData ById(string id, ElementData[] elements)
         {
-            var elements = Elements;
             for (int i = 0, len = elements.Length; i < len; i++)
             {
                 var element = elements[i];
@@ -46,17 +47,34 @@ namespace CreateAR.SpirePlayer.UI
         /// <returns></returns>
         public ElementData Collapsed()
         {
-            return Data(Root);
+            return Data(Root, Elements);
         }
-        
+
+        /// <summary>
+        /// Compares equality between element datas
+        /// </summary>
+        public class ElementDataEqualityComparer : IEqualityComparer<ElementData>
+        {
+            public bool Equals(ElementData x, ElementData y)
+            {
+                return x.Id == y.Id;
+            }
+
+            public int GetHashCode(ElementData elementData)
+            {
+                return elementData.Id.GetHashCode();
+            }
+        }
+
         /// <summary>
         /// Creates an <c>ElementData</c> from an <c>ElementRef</c>, recursively.
         /// </summary>
         /// <param name="reference">The root reference.</param>
+        /// <param name="elements"></param>
         /// <returns></returns>
-        private ElementData Data(ElementRef reference)
+        private ElementData Data(ElementRef reference, ElementData[] elements)
         {
-            var source = ById(reference.Id);
+            var source = ById(reference.Id, elements); // this needs to be searching first through the Children under the parent's ElementData
             if (null == source)
             {
                 throw new Exception(string.Format(
@@ -75,12 +93,13 @@ namespace CreateAR.SpirePlayer.UI
             var refChildrenData = new ElementData[refChildrenRefs.Length];
             for (int i = 0, len = refChildrenRefs.Length; i < len; i++)
             {
-                refChildrenData[i] = Data(refChildrenRefs[i]);
+                refChildrenData[i] = Data(refChildrenRefs[i], source.Children);
             }
 
-            // combine child lists
-            if (refChildrenRefs.Length > 0)
+            // union child lists
+            if (refChildrenData.Length > 0)
             {
+                /* COMBINING CREATES TWO COPIES OF REFERENCED CHILDREN
                 var totalChildren = refChildrenRefs.Length + data.Children.Length;
                 var children = new ElementData[totalChildren];
 
@@ -88,6 +107,14 @@ namespace CreateAR.SpirePlayer.UI
                 Array.Copy(refChildrenData, 0, children, data.Children.Length, refChildrenData.Length);
 
                 data.Children = children;
+                */
+
+                data.Children 
+                    = data
+                        .Children
+                        .Union(
+                            refChildrenData, 
+                            new ElementDataEqualityComparer()).ToArray();
             }
             
             return data;

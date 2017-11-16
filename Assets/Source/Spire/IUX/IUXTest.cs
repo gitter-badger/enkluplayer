@@ -52,6 +52,28 @@ namespace CreateAR.SpirePlayer
                         {
                             {"type", ElementTypes.BUTTON}
                         }
+                    },
+                    Children = new ElementData[]
+                    {
+                        new ElementData()
+                        {
+                            Id = "caption",
+                            Schema = new ElementSchemaData()
+                            {
+                                Ints = new Dictionary<string, int>()
+                                {
+                                    {"type", ElementTypes.CAPTION}
+                                },
+                                Strings = new Dictionary<string, string>()
+                                {
+                                    { "name", "Button Caption" },
+                                },
+                                Vectors = new Dictionary<string, Vec3>()
+                                {
+                                    { "position", new Vec3(0.2f,0,0) }
+                                }
+                            }
+                        }
                     }
                 }
             };
@@ -89,7 +111,6 @@ namespace CreateAR.SpirePlayer
                             Strings = new Dictionary<string, string>()
                             {
                                 { "name", "New Button" },
-                                { "text", "Hello World!" },
                             },
                             Ints = new Dictionary<string, int>()
                             { 
@@ -98,10 +119,20 @@ namespace CreateAR.SpirePlayer
                             Vectors = new Dictionary<string, Vec3>()
                             { 
                                 { "position", new Vec3(0,0,3) }
-                            },
-                            Colors = new Dictionary<string, Col4>()
+                            }
+                        },
+                        Children = new ElementRef[]
+                        {
+                            new ElementRef()
                             {
-                                { "color" , new Col4(1, 1, 1, 1) }
+                                Id = "caption",
+                                Schema = new ElementSchemaData()
+                                {
+                                    Strings = new Dictionary<string, string>()
+                                    {
+                                        { "text", "Hello World!" },
+                                    }
+                                },
                             }
                         }
                     }

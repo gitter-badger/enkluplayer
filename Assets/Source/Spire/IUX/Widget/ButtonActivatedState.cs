@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Affected button.
         /// </summary>
-        private Button _button;
+        private readonly Button _button;
 
         /// <summary>
         /// Called when this state requests a transition.
@@ -67,7 +67,6 @@ namespace CreateAR.SpirePlayer.UI
         public void Exit()
         {
             _button.IsAimEnabled = true;
-
             _button.Activation = 0.0f;
         }
     }

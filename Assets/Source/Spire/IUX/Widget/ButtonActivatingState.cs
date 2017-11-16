@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Affected button.
         /// </summary>
-        private Button _button;
+        private readonly Button _button;
 
         /// <summary>
         /// Called when this state requests a transition.
