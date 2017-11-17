@@ -45,9 +45,9 @@ namespace CreateAR.SpirePlayer
             if (Data.Spatial)
             {
 #if UNITY_WSA
-                if (null == GetComponent<UnityEngine.VR.WSA.WorldAnchor>())
+                if (null == GetComponent<UnityEngine.XR.WSA.WorldAnchor>())
                 {
-                    gameObject.AddComponent<UnityEngine.VR.WSA.WorldAnchor>();
+                    gameObject.AddComponent<UnityEngine.XR.WSA.WorldAnchor>();
                 }
 #endif
             }

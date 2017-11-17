@@ -225,7 +225,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="name">Name of the uniform.</param>
         private bool TrySetColor(JObject value, string name)
         {
-            JToken r, g, b, a;
+            return false;
+            /*JToken r, g, b, a;
             if (value.TryGetValue("r", out r))
             {
                 if (value.TryGetValue("g", out g))
@@ -247,7 +248,7 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
-            return false;
+            return false;*/
         }
     }
 }

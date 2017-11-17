@@ -52,7 +52,8 @@ namespace CreateAR.SpirePlayer
 			var builder = new StringBuilder();
 			builder.AppendLine("Networking information:");
 
-			foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
+#if UNITY_EDITOR
+            foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
 			{
 				if (nic.NetworkInterfaceType == NetworkInterfaceType.Wireless80211
 					|| nic.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
@@ -66,8 +67,22 @@ namespace CreateAR.SpirePlayer
 					}
 				}
 			}
+#endif
 
-			return builder.ToString();
+#if NETFX_CORE
+            foreach (var localHostName in Windows.Networking.Connectivity.NetworkInformation.GetHostNames())
+            {
+                if (localHostName.IPInformation != null)
+                {
+                    if (localHostName.Type == Windows.Networking.HostNameType.Ipv4)
+                    {
+                        builder.AppendFormat("IP : {0}\n", localHostName.ToString());
+                    }
+                }
+            }
+#endif
+
+            return builder.ToString();
 		}
     }
 }
