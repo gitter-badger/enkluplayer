@@ -13,8 +13,6 @@
         {
             Activator.AimEnabled = false;
 
-            Activator.Activator.ShowActivateVFX();
-
             var buttonActivateMessage = new ButtonActivateEvent()
             {
                 // TODO: Add Data

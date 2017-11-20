@@ -45,7 +45,19 @@ namespace CreateAR.SpirePlayer.UI
         {
             get { return _caption; }
         }
-        
+
+        /// <summary>
+        /// IInteractive interfaces.
+        /// </summary>
+        public bool Focused { get { return _activator.Focused; } }
+        public bool Interactable { get { return _activator.Interactable; } }
+        public bool Cast(Ray ray) { return _activator.Cast(ray); }
+        public int HighlightPriority
+        {
+            get { return _activator.HighlightPriority; }
+            set { _activator.HighlightPriority = value; }
+        }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -98,35 +110,6 @@ namespace CreateAR.SpirePlayer.UI
             }
         }
 
-        
-
-        /// <summary>
-        /// Frame based update
-        /// </summary>
-        protected override void UpdateInternal()
-        {
-            base.UpdateInternal();
-
-            var deltaTime = Time.smoothDeltaTime;
-
-            if (!Focused
-             || !Interactable
-             || !AimEnabled)
-            {
-                _aim = 0.0f;
-                _stability = 0.0f;
-            }
-            else
-            {
-                UpdateAim();
-                UpdateStability(deltaTime);
-            }
-
-            _states.Update(deltaTime);
-
-            UpdateActivator();
-        }
-
         /// <summary>
         /// Destroy necessary items here
         /// </summary>
@@ -139,18 +122,6 @@ namespace CreateAR.SpirePlayer.UI
                 _keywordRecognizer.Stop();
                 _keywordRecognizer.Dispose();
             }
-        }
-
-        /// <summary>
-        /// Updates the aim visual
-        /// </summary>
-        private void UpdateActivator()
-        {
-            _activator.SetAimScale(Config.GetAimScale(Aim));
-            _activator.SetAimColor(Config.GetAimColor(Aim));
-            _activator.SetStabilityRotation(Stability * Config.StabilityRotation);
-            _activator.SetActivationFill(_activation);
-            _activator.SetInteractionEnabled(Interactable, Focused);
         }
         
         /// <summary>
@@ -176,12 +147,14 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="args"></param>
         private void OnPhraseRecognized(PhraseRecognizedEventArgs args)
         {
-            if (Activator.Interactable)
+            if (_activator.Interactable)
             {
                 _keywordRecognizer.Stop();
                 _keywordRecognizer.Dispose();
-                Activator.ChangeState<ActivatorActivatedState>();
+
+                _activator.Activate();
             }
         }
+
     }
 }

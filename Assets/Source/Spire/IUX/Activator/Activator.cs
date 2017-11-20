@@ -1,10 +1,15 @@
-﻿using CreateAR.SpirePlayer;
+﻿using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.UI;
+using System;
 using System.Linq;
 using UnityEngine;
 
-namespace CreateAR.SpireSplayer
-{
+namespace CreateAR.SpirePlayer
+{ 
+    /// <summary>
+    /// (IUX Patent)
+    /// Logic for activator.
+    /// </summary>
     public class Activator : Widget, IActivator
     {
         /// <summary>
@@ -49,6 +54,11 @@ namespace CreateAR.SpireSplayer
         /// True if the widget is currently focused
         /// </summary>
         private bool _focused;
+
+        /// <summary>
+        /// See comments in constructor.
+        /// </summary>
+        private readonly Func<Ray, bool> _cast;
 
         /// <summary>
         /// True if aim is enabled
@@ -114,6 +124,11 @@ namespace CreateAR.SpireSplayer
         }
 
         /// <summary>
+        /// Bounding radius of the activator.
+        /// </summary>
+        public float Radius { get; private set; }
+
+        /// <summary>
         /// Returns true if interactable.
         /// </summary>
         public bool Interactable
@@ -155,14 +170,41 @@ namespace CreateAR.SpireSplayer
         }
 
         /// <summary>
+        /// Current State Accessor.
+        /// </summary>
+        public ActivatorState CurrentState { get { return _states.Current as ActivatorState; } }
+
+        /// <summary>
+        /// Invoked when the widget is activated
+        /// </summary>
+        public event Action<IActivator> OnActivated = delegate { };
+
+        /// <summary>
         /// Dependency initialization.
         /// </summary>
-        /// <param name="intention"></param>
-        /// <param name="interaction"></param>
-        public void Initialize(IIntentionManager intention, IInteractionManager interaction)
+        public Activator(
+            IWidgetConfig config,
+            ILayerManager layers,
+            ITweenConfig tweens,
+            IColorConfig colors,
+            IPrimitiveFactory primitives,
+            IMessageRouter messages,
+            IIntentionManager intention, 
+            IInteractionManager interaction,
+            float radius,
+            Func<Ray, bool> cast)
         {
+            Initialize(config, layers, tweens, colors, primitives, messages);
+
             Intention = intention;
             Interaction = interaction;
+
+            Radius = radius;
+
+            // TODO: this paradigm creates odd dependencies
+            //       difficult to escape with Unity handling physics
+            //       but should be removed eventually
+            _cast = cast;
         }
 
         /// <summary>
@@ -200,6 +242,14 @@ namespace CreateAR.SpireSplayer
                 // TODO: fix this once "hasProp" is implemented
                 _propInteractionEnabled.Value = true;
             }
+        }
+
+        /// <summary>
+        /// Forced activation.
+        /// </summary>
+        public void Activate()
+        {
+            _states.Change<ActivatorActivatedState>();
         }
 
         /// <summary>
@@ -259,7 +309,7 @@ namespace CreateAR.SpireSplayer
                 = delta
                     .Magnitude;
             var radius
-                = GetBoundingRadius();
+                = Radius;
 
             var maxTheta
                 = Mathf.Atan2(radius, eyeDistance);
@@ -303,6 +353,16 @@ namespace CreateAR.SpireSplayer
                     _stability,
                     targetStability,
                     lerp);
+        }
+
+        /// <summary>
+        /// Forwards cast request to unity 
+        /// </summary>
+        /// <param name="ray"></param>
+        /// <returns></returns>
+        public bool Cast(Ray ray)
+        {
+            return _cast(ray);
         }
     }
 }

@@ -28,7 +28,7 @@
         {
             base.LoadInternal();
 
-            _primitive = Primitives.LoadText(this);
+            _primitive = Primitives.Text();
 
             _propText = Schema.Get<string>("text");
             _primitive.Text = _propText.Value;

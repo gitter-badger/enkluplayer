@@ -9,18 +9,6 @@ namespace CreateAR.SpirePlayer.UI
     public class ActivatorActivatingState : ActivatorState
     {
         /// <summary>
-        /// Invoked when the state is begun.
-        /// </summary>
-        /// <param name="context"></param>
-        public override void Enter(object context)
-        {
-            if (Activator != null)
-            {
-                Activator.FillImageVisible = true;
-            }
-        }
-
-        /// <summary>
         /// Invoked every frame.
         /// </summary>
         /// <param name="deltaTime"></param>
@@ -54,17 +42,6 @@ namespace CreateAR.SpirePlayer.UI
             else
             {
                 Activator.Activation = activation;
-            }
-        }
-
-        /// <summary>
-        /// Invoked upon exit
-        /// </summary>
-        public override void Exit()
-        {
-            if (Activator.Activator != null)
-            {
-                Activator.Activator.FillImageVisible = false;
             }
         }
     }

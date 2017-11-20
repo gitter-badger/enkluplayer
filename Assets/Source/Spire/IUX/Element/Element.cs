@@ -43,9 +43,9 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
-        /// Invoked when element is destroyed
+        /// Invoked when element is destroyed.
         /// </summary>
-        internal event Action<IElement> OnDestroy;
+        public event Action<IElement> OnDestroy;
 
         /// <summary>
         /// Called when this node has been removed from the graph.
@@ -137,7 +137,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Frame based update.
         /// </summary>
-        internal void Update()
+        public void Update()
         {
             UpdateInternal();
         }
@@ -145,7 +145,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Frame based update.
         /// </summary>
-        internal void LateUpdate()
+        public void LateUpdate()
         {
             LateUpdateInternal();
         }

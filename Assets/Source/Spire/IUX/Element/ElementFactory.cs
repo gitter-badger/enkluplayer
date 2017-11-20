@@ -113,15 +113,15 @@ namespace CreateAR.SpirePlayer.UI
                     switch (elementType)
                     {
                         case ElementTypes.ACTIVATOR:
-                            newElement = _primitives.LoadActivator();
+                            newElement = _primitives.Activator();
                             break;
 
                         case ElementTypes.RETICLE:
-                            newElement = _primitives.LoadReticle();
+                            newElement = _primitives.Reticle();
                             break;
 
                         case ElementTypes.TEXT:
-                            newElement = _primitives.LoadText();
+                            newElement = _primitives.Text();
                             break;
 
                         case ElementTypes.CAPTION:

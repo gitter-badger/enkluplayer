@@ -20,6 +20,7 @@ namespace CreateAR.SpirePlayer.UI
         public IElement[] Children { get { return _widget.Children; } }
         public event Action<IElement, IElement> OnChildRemoved;
         public event Action<IElement, IElement> OnChildAdded;
+        public event Action<IElement> OnDestroy;
 
         /// <summary>
         /// IWidget properties.
@@ -64,6 +65,22 @@ namespace CreateAR.SpirePlayer.UI
         public void Load(ElementData data, ElementSchema schema, IElement[] children)
         {
             _widget.Load(data, schema, children);
+        }
+
+        /// <summary>
+        /// Frame based update.
+        /// </summary>
+        public void Update()
+        {
+            // empty, IElement's should override 'UpdateInternal'
+        }
+
+        /// <summary>
+        /// Frame based update.
+        /// </summary>
+        public void LateUpdate()
+        {
+            // empty, IElement's should override 'LateUpdateInternal'
         }
     }
 }

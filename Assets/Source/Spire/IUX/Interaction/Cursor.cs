@@ -74,7 +74,7 @@ namespace CreateAR.SpirePlayer
         {
             base.LoadInternal();
 
-            _reticle = Primitives.LoadReticle(this);
+            _reticle = Primitives.Reticle();
 
             _cursorDistance = Config.GetDefaultDistanceForCursor();
         }

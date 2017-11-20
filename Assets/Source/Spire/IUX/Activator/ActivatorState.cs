@@ -13,7 +13,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public IColorConfig Colors { get; private set; }
         public ITweenConfig Tweens { get; private set; }
-        public IActivator Activator { get; set; }
+        public Activator Activator { get; set; }
 
         /// <summary>
         /// Props.
@@ -64,7 +64,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="context"></param>
         public virtual void Enter(object context)
         {
-            
+            // empty.
         }
 
         /// <summary>
@@ -73,27 +73,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="deltaTime"></param>
         public virtual void Update(float deltaTime)
         {
-            var tweenDuration = Tweens.DurationSeconds(Tween);
-            var tweenLerp
-                = tweenDuration > Mathf.Epsilon
-                    ? deltaTime / tweenDuration
-                    : 1.0f;
-
-            // blend the frame's color.
-            var frame = Activator.Frame;
-            var frameColor = Colors.GetColor(FrameColor);
-            frame.LocalColor 
-                = Col4.Lerp(
-                    frame.LocalColor,
-                    frameColor,
-                    tweenLerp);
-
-            // blend the frame's scale.
-            frame.GameObject.transform.localScale
-                = Vector3.Lerp(
-                    frame.GameObject.transform.localScale,
-                    Vector3.one * FrameScale,
-                    tweenLerp);
+            // empty.
         }
 
         /// <summary>
@@ -101,7 +81,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public virtual void Exit()
         {
-            
+            // empty.
         }
     }
 }

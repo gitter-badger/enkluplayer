@@ -12,13 +12,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Collection of all elements.
         /// </summary>
-        private readonly List<Element> _all = new List<Element>();
+        private readonly List<IElement> _all = new List<IElement>();
 
         /// <summary>
         /// Adds an element. Should be called when object is created.
         /// </summary>
         /// <param name="element">The element to add.</param>
-        public void Add(Element element)
+        public void Add(IElement element)
         {
             if (_all.Contains(element))
             {
@@ -53,19 +53,19 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Updates highlighted elements based on visibility.
         /// </summary>
-        private void Update()
+        protected void Update()
         {
             for (int i = _all.Count - 1; i >= 0 && i < _all.Count; --i)
             {
                 var element = _all[i];
-                element.Update();
+                element.UpdateInternal();
             }
         }
 
         /// <summary>
         /// Updates highlighted elements based on visibility.
         /// </summary>
-        private void LateUpdate()
+        protected void LateUpdate()
         {
             for (int i = _all.Count - 1; i >= 0 && i < _all.Count; --i)
             {
@@ -78,7 +78,7 @@ namespace CreateAR.SpirePlayer
         /// Invoked when a widget is destroyed
         /// </summary>
         /// <param name="element"></param>
-        private void Element_OnDestroy(Element element)
+        private void Element_OnDestroy(IElement element)
         {
             _all.Remove(element);
         }

@@ -17,41 +17,28 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Creates a text primitive.
         /// </summary>
-        /// <param name="widget"></param>
         /// <returns></returns>
-        public IText LoadText(IWidget widget)
+        public IText Text()
         {
-            return (IText)Load(Instantiate(TextMonoBehaviour), widget);
+            return Instantiate(TextMonoBehaviour);
         }
 
         /// <summary>
         /// Creates a text primitive.
         /// </summary>
-        /// <param name="widget"></param>
         /// <returns></returns>
-        public IActivator LoadActivator(IWidget widget)
+        public IActivator Activator()
         {
-            return (IActivator)Load(Instantiate(ActivatorMonoBehaviour), widget);
+            return Instantiate(ActivatorMonoBehaviour);
         }
 
         /// <summary>
         /// Creates a text primitive.
         /// </summary>
-        /// <param name="widget"></param>
         /// <returns></returns>
-        public IReticle LoadReticle(IWidget widget)
+        public IReticle Reticle()
         {
-            return (IReticle)Load(Instantiate(ReticleMonoBehaviour), widget);
-        }
-
-        /// <summary>
-        /// Initialization
-        /// </summary>
-        /// <returns></returns>
-        private IPrimitive Load(IPrimitive primitive, IWidget widget)
-        {
-            primitive.Load(widget);
-            return primitive;
-        }
+            return Instantiate(ReticleMonoBehaviour);
+        }        
     }
 }
