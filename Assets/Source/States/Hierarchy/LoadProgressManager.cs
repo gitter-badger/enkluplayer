@@ -154,9 +154,9 @@ namespace CreateAR.SpirePlayer
         {
             return new Bounds(
                 new Vector3(
-                    max.x - min.x,
-                    max.y - min.y,
-                    max.z - min.z) / 2f,
+                    min.x + (max.x - min.x) / 2f,
+                    min.y + (max.y - min.y) / 2f,
+                    min.z + (max.z - min.z) / 2f),
                 new Vector3(
                     max.x - min.x,
                     max.y - min.y,

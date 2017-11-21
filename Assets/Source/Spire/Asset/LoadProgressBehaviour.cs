@@ -45,10 +45,15 @@ namespace CreateAR.SpirePlayer
             transform.position = Bounds.center;
             transform.localScale = Bounds.size;
 
+            var scale = Mathf.Min(
+                1,
+                Bounds.size.x,
+                Bounds.size.y,
+                Bounds.size.z);
             Container.localScale = new Vector3(
-                1 / Bounds.size.x,
-                1 / Bounds.size.y,
-                1 / Bounds.size.z);
+                scale / Bounds.size.x,
+                scale / Bounds.size.y,
+                scale / Bounds.size.z);
 
             var value = Mathf.Lerp(
                 MinSpeed,
