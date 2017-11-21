@@ -45,11 +45,38 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Invoked every frame.
         /// </summary>
-        void Update();
+        void FrameUpdate();
 
         /// <summary>
         /// Invoked one every frame after all Element's have been updated.
         /// </summary>
-        void LateUpdate();
+        void LateFrameUpdate();
+
+        /// <summary>
+        /// Adds an element as a child of this element. If the element is
+        /// already a child, moves it to the end of the list.
+        /// </summary>
+        /// <param name="element">Element to add as a child.</param>
+        void AddChild(IElement element);
+
+        /// <summary>
+        /// Removes an element as a child.
+        /// </summary>
+        /// <param name="element">The element to remove.</param>
+        /// <returns></returns>
+        bool RemoveChild(IElement element);
+
+        /// <summary>
+        /// Finds a single element.
+        /// </summary>
+        /// <param name="query">Query.</param>
+        /// <returns></returns>
+        IElement FindOne(string query);
+
+        /// <summary>
+        /// Readable string generation.
+        /// </summary>
+        /// <returns></returns>
+        string ToTreeString();
     }
 }

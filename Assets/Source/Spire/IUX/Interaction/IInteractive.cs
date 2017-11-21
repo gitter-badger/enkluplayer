@@ -20,7 +20,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// True if the object is focused.
         /// </summary>
-        bool Focused { get; }
+        bool Focused { get; set; }
 
         /// <summary>
         /// True if the object can be interacted with.

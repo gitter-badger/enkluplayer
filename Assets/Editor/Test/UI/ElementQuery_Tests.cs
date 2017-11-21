@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer.Test.UI
     [TestFixture]
     public class ElementQuery_Tests
     {
-        private Element _element;
+        private IElement _element;
 
         private static readonly char[] _letters = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 

@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4546186044094806}
   - component: {fileID: 33716420073091588}
   - component: {fileID: 23783786043124592}
+  - component: {fileID: 114023162042580760}
   - component: {fileID: 114483403237086000}
   m_Layer: 5
   m_Name: Frame
@@ -1310,6 +1311,17 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!114 &114023162042580760
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1090911382614468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba97985184650954199ddf50e383b4b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114073546529633034
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1338,7 +1350,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba97985184650954199ddf50e383b4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Parent: {fileID: 114832486337894022}
 --- !u!114 &114233107578105252
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1350,7 +1361,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba97985184650954199ddf50e383b4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Parent: {fileID: 114832486337894022}
 --- !u!114 &114307482913494272
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1396,7 +1406,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Source: {fileID: 114832486337894022}
+  Source: {fileID: 114023162042580760}
   Graphic: {fileID: 0}
   CanvasRenderer: {fileID: 0}
   Renderer: {fileID: 23783786043124592}
@@ -1481,7 +1491,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e86e0a1cce558394289870e7b7420e3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Parent: {fileID: 0}
   Spokes:
   - {fileID: 4044371290808182}
   - {fileID: 4323098320190878}
@@ -1498,7 +1507,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7848af55d3f821429f47b1a88fa0c9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Parent: {fileID: 0}
   UIText: {fileID: 114991884571283392}
 --- !u!114 &114832486337894022
 MonoBehaviour:
@@ -1511,14 +1519,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a98cf550337d8a4a9936df666b42ef4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Parent: {fileID: 0}
-  FocusCollider: {fileID: 65237238720329496}
-  BufferCollider: {fileID: 0}
+  FrameWidget: {fileID: 114023162042580760}
   StabilityTransform: {fileID: 224577746427423982}
   FillImage: {fileID: 114876877605519772}
   FillWidget: {fileID: 114110645589541092}
-  AimPrimitive: {fileID: 114233107578105252}
+  AimWidget: {fileID: 114233107578105252}
   ActivationVFX: {fileID: 1387970206012616}
+  FocusCollider: {fileID: 65237238720329496}
 --- !u!114 &114876877605519772
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1557,9 +1564,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e56aa2662bec7c4eb159dbfcec6fd72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TextPrimitive: {fileID: 114806156407395152}
-  ActivatorPrimitive: {fileID: 114832486337894022}
-  ReticlePrimitive: {fileID: 114775832231368806}
+  TextMonoBehaviour: {fileID: 114806156407395152}
+  ActivatorMonoBehaviour: {fileID: 114832486337894022}
+  ReticleMonoBehaviour: {fileID: 114775832231368806}
 --- !u!114 &114928845383582898
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1571,7 +1578,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba97985184650954199ddf50e383b4b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Parent: {fileID: 114775832231368806}
 --- !u!114 &114971836640506488
 MonoBehaviour:
   m_ObjectHideFlags: 1

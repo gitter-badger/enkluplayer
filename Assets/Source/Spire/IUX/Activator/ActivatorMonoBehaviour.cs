@@ -23,10 +23,19 @@ namespace CreateAR.SpirePlayer
         private Activator _activator;
 
         /// <summary>
+        /// For losing focus.
+        /// </summary>
+        private BoxCollider _bufferCollider;
+
+        /// <summary>
         /// IInteractive interface.
         /// </summary>
-        public bool Focused { get { return _activator.Focused; } }
         public bool Interactable { get { return _activator.Interactable; } }
+        public bool Focused
+        {
+            get { return _activator.Focused; }
+            set { _activator.Focused = value; }
+        }
         public int HighlightPriority
         {
             get { return _activator.HighlightPriority; }
@@ -64,11 +73,6 @@ namespace CreateAR.SpirePlayer
         public WidgetMonoBehaviour FillWidget;
 
         /// <summary>
-        /// Shows/Hides w/ Focus.
-        /// </summary>
-        public WidgetMonoBehaviour ActivationWidget;
-
-        /// <summary>
         /// Aim Scale Transform.
         /// </summary>
         public WidgetMonoBehaviour AimWidget;
@@ -82,21 +86,15 @@ namespace CreateAR.SpirePlayer
         /// For gaining focus.
         /// </summary>
         public BoxCollider FocusCollider;
-
-        /// <summary>
-        /// For losing focus.
-        /// </summary>
-        public BoxCollider BufferCollider;
        
         /// <summary>
-        /// Initialization
+        /// Initialization.
         /// </summary>
         internal void Initialize(
             IWidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
-            IPrimitiveFactory primitives,
             IMessageRouter messages,
             IIntentionManager intention, 
             IInteractionManager interaction)
@@ -111,13 +109,13 @@ namespace CreateAR.SpirePlayer
                     layers, 
                     tweens, 
                     colors, 
-                    primitives, 
                     messages, 
                     intention, 
                     interaction, 
                     CalculateRadius(),
                     Cast);
             _activator.OnActivated += Activator_OnActivated;
+            SetWidget(_activator);
         }
 
         /// <summary>
@@ -186,13 +184,13 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            if (BufferCollider == null)
+            if (_bufferCollider == null)
             {
-                BufferCollider = gameObject.AddComponent<BoxCollider>();
+                _bufferCollider = gameObject.AddComponent<BoxCollider>();
             }
 
             const float AUTO_GEN_BUFFER_FACTOR = 2.0f;
-            BufferCollider.size = FocusCollider.size * AUTO_GEN_BUFFER_FACTOR;
+            _bufferCollider.size = FocusCollider.size * AUTO_GEN_BUFFER_FACTOR;
         }
 
         /// <summary>
@@ -202,10 +200,10 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public bool Cast(Ray ray)
         {
-            if (BufferCollider != null)
+            if (_bufferCollider != null)
             {
                 RaycastHit hitInfo;
-                if (BufferCollider.Raycast(ray, out hitInfo, float.PositiveInfinity))
+                if (_bufferCollider.Raycast(ray, out hitInfo, float.PositiveInfinity))
                 {
                     return true;
                 }
@@ -224,9 +222,9 @@ namespace CreateAR.SpirePlayer
                 FocusCollider.enabled = Interactable;
             }
 
-            if (BufferCollider != null)
+            if (_bufferCollider != null)
             {
-                BufferCollider.enabled = Focused;
+                _bufferCollider.enabled = Focused;
             }
         }
 
@@ -242,8 +240,8 @@ namespace CreateAR.SpirePlayer
             }
 
             var focusTween
-                = ActivationWidget != null
-                    ? ActivationWidget.Tween
+                = FillWidget != null
+                    ? FillWidget.Tween
                     : 1.0f;
 
             var degrees

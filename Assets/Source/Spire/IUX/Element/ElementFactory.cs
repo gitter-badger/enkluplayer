@@ -126,13 +126,13 @@ namespace CreateAR.SpirePlayer.UI
 
                         case ElementTypes.CAPTION:
                             var newCaption = new Caption();
-                            newCaption.Initialize(_config, _layers, _tweens, _colors, _primitives, _messages);
+                            newCaption.Initialize(_config, _layers, _tweens, _colors, _messages);
                             newElement = newCaption;
                             break;
 
                         case ElementTypes.BUTTON:
                             var newButton = new Button();
-                            newButton.Initialize(_config, _layers, _tweens, _colors, _primitives, _messages, _intention, _interactions);
+                            newButton.Initialize(_config, _layers, _tweens, _colors, _messages, _intention, _interactions);
                             newElement = newButton;
                             break;
 
@@ -150,7 +150,7 @@ namespace CreateAR.SpirePlayer.UI
 
                         case ElementTypes.CURSOR:
                             var newCursor = new Cursor();
-                            newCursor.Initialize(_config, _layers, _tweens, _colors, _primitives, _messages, _intention);
+                            newCursor.Initialize(_config, _layers, _tweens, _colors, _messages, _intention);
                             newElement = newCursor;
                             break;
                     }

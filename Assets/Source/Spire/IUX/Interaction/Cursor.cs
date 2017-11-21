@@ -59,12 +59,11 @@ namespace CreateAR.SpirePlayer
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
-            IPrimitiveFactory primitives,
             IMessageRouter messages,
             IIntentionManager intention)
         {
             Intention = intention;
-            Initialize(config, layers, tweens, colors, primitives, messages);
+            Initialize(config, layers, tweens, colors, messages);
         }
 
         /// <summary>
@@ -74,7 +73,7 @@ namespace CreateAR.SpirePlayer
         {
             base.LoadInternal();
 
-            _reticle = Primitives.Reticle();
+            _reticle = FindOne("reticle") as IReticle;
 
             _cursorDistance = Config.GetDefaultDistanceForCursor();
         }
@@ -202,22 +201,24 @@ namespace CreateAR.SpirePlayer
 
             var interactive = Intention.Focus;
             if (interactive != null
-             && interactive.InteractivePrimitive != null)
+             && interactive.GameObject != null)
             {
                 // focus on the focus widget
                 var eyeDeltaToFocusWidget
                     = interactive.GameObject.transform.position.ToVec()
                     - eyePosition;
-                var eyeDistanceToFocusWidget
+                targetFocusDistance
                     = eyeDeltaToFocusWidget
                         .Magnitude;
-                var radius
-                    = interactive
-                        .InteractivePrimitive
-                        .GetBoundingRadius();
-                targetFocusDistance
-                    = eyeDistanceToFocusWidget
-                    - radius;
+                var activator
+                    = interactive as IActivator;
+                if (activator != null)
+                {
+                    targetFocusDistance
+                        = targetFocusDistance
+                          - activator.Radius;
+                }
+                
             }
 
             var tweenDuration
@@ -247,23 +248,19 @@ namespace CreateAR.SpirePlayer
         private void UpdateAim(float deltaTime)
         {
             _aim = 0.0f;
+
             var interactive = Intention.Focus;
-            var aimableWidget = (interactive as InteractiveWidget) as AimableWidget;
-            if (aimableWidget != null)
+            var activator = (interactive as IActivator);
+            if (activator != null)
             {
-                _aim = aimableWidget.Aim;
+                _aim = activator.Aim;
             }
 
             var buttonScale
-                = (aimableWidget != null)
-                    ? aimableWidget.GameObject.transform.lossyScale.x
+                = (interactive != null 
+                && interactive.GameObject != null)
+                    ? interactive.GameObject.transform.lossyScale.x
                     : 1.0f;
-            if (float.IsNaN(buttonScale)
-             || float.IsInfinity(buttonScale))
-            {
-                Log.Error(this, "Invalid Button Scale[{0}], resetting...", buttonScale);
-                buttonScale = 1.0f;
-            }
 
             _spread 
                 = Config.GetReticleSpreadFromAim(_aim)

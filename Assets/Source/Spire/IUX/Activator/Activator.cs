@@ -187,14 +187,13 @@ namespace CreateAR.SpirePlayer
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
-            IPrimitiveFactory primitives,
             IMessageRouter messages,
             IIntentionManager intention, 
             IInteractionManager interaction,
             float radius,
             Func<Ray, bool> cast)
         {
-            Initialize(config, layers, tweens, colors, primitives, messages);
+            Initialize(config, layers, tweens, colors, messages);
 
             Intention = intention;
             Interaction = interaction;
@@ -242,6 +241,14 @@ namespace CreateAR.SpirePlayer
                 // TODO: fix this once "hasProp" is implemented
                 _propInteractionEnabled.Value = true;
             }
+        }
+
+        /// <summary>
+        /// Shutdown.
+        /// </summary>
+        public void Unload()
+        {
+            
         }
 
         /// <summary>

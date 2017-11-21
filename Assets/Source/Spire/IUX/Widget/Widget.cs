@@ -37,7 +37,6 @@ namespace CreateAR.SpirePlayer.UI
         public ILayerManager Layers { get; private set; }
         public IColorConfig Colors { get; private set; }
         public ITweenConfig Tweens { get; private set; }
-        public IPrimitiveFactory Primitives { get; private set; }
         public IWidgetConfig Config { get; private set; }
         public IMessageRouter Messages { get; private set; }
 
@@ -52,17 +51,22 @@ namespace CreateAR.SpirePlayer.UI
         private bool _firstVisbilityRefresh = true;
 
         /// <summary>
-        /// Layer this widget belongs to (Only root widgets need this set)
+        /// Layer this widget belongs to (Only root widgets need this set).
         /// </summary>
         private Layer _layer;
 
         /// <summary>
-        /// Tween Value
+        /// Widget hierarchy.
+        /// </summary>
+        private IWidget _parent;
+
+        /// <summary>
+        /// Current tween Value.
         /// </summary>
         private float _localTween = 0.0f;
 
         /// <summary>
-        /// True if the widget is currently visible
+        /// True if the widget is currently visible.
         /// </summary>
         private bool _localVisible;
 
@@ -203,7 +207,26 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Parent accessor
         /// </summary>
-        public IWidget Parent { get; set; }
+        public IWidget Parent
+        {
+            get { return _parent; }
+            set
+            {
+                if (_parent != null)
+                {
+                    GameObject.transform.SetParent(null);
+                }
+
+                _parent = value;
+
+                if (_parent != null)
+                {
+                    GameObject
+                        .transform
+                        .SetParent(_parent.GameObject.transform, false);
+                }
+            }
+        }
         
         /// <summary>
         /// Tween for the widget.
@@ -309,6 +332,15 @@ namespace CreateAR.SpirePlayer.UI
         public GameObject GameObject { get { return _gameObject; } }
 
         /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="gameObject"></param>
+        public Widget(GameObject gameObject = null)
+        {
+            _gameObject = gameObject ?? new GameObject("Widget");
+        }
+
+        /// <summary>
         /// Initialization
         /// </summary>
         internal void Initialize (
@@ -316,15 +348,15 @@ namespace CreateAR.SpirePlayer.UI
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
-            IPrimitiveFactory primitives,
             IMessageRouter messages)
         {
             Config = config;
             Layers = layers;
             Tweens = tweens;
             Colors = colors;
-            Primitives = primitives;
             Messages = messages;
+
+            OnChildAdded += Element_OnChildAdded;
         }
 
         /// <summary>
@@ -346,7 +378,10 @@ namespace CreateAR.SpirePlayer.UI
             _layerMode = Schema.Get<LayerMode>("layerMode");
             _autoDestroy = Schema.Get<bool>("autoDestroy");
 
-            _gameObject = new GameObject(_name.Value);
+            if (!string.IsNullOrEmpty(_name.Value))
+            {
+                _gameObject.name = _name.Value;
+            }
             _gameObject.transform.localPosition = _localPosition.Value.ToVector();
 
             for (int i = 0; i < Children.Length; ++i)
@@ -544,6 +579,23 @@ namespace CreateAR.SpirePlayer.UI
             if (isVisible)
             {
                 _hasBeenVisible = true;
+            }
+        }
+
+        /// <summary>
+        /// Invoked when a child is added
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="child"></param>
+        private void Element_OnChildAdded(IElement parent, IElement child)
+        {
+            if (parent == this)
+            {
+                var childWidget = child as IWidget;
+                if (childWidget != null)
+                {
+                    childWidget.Parent = this;
+                }
             }
         }
 

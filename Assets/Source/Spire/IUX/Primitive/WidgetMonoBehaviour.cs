@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.UI
@@ -14,19 +15,25 @@ namespace CreateAR.SpirePlayer.UI
         private Widget _widget;
 
         /// <summary>
-        /// IElement properties.
+        /// IElement interface.
         /// </summary>
         public ElementSchema Schema { get { return _widget.Schema; } }
         public IElement[] Children { get { return _widget.Children; } }
         public event Action<IElement, IElement> OnChildRemoved;
         public event Action<IElement, IElement> OnChildAdded;
         public event Action<IElement> OnDestroy;
+        public void AddChild(IElement child) { _widget.AddChild(child); }
+        public bool RemoveChild(IElement child) { return _widget.RemoveChild(child); }
+        public virtual void Load(ElementData data, ElementSchema schema, IElement[] children) { _widget.Load(data, schema, children); }
+        public virtual void FrameUpdate() { _widget.FrameUpdate(); }
+        public virtual void LateFrameUpdate() { _widget.LateFrameUpdate(); }
+        public IElement FindOne(string query) { return _widget.FindOne(query); }
+        public string ToTreeString() {  return _widget.ToTreeString(); }
 
         /// <summary>
-        /// IWidget properties.
+        /// IWidget interface.
         /// </summary>
         public GameObject GameObject { get { return gameObject; } }
-        public IWidget Parent { get { return _widget.Parent; } }
         public Col4 Color { get { return _widget.Color; } }
         public bool Visible { get { return _widget.Visible; } }
         public float Tween { get { return _widget.Tween; } }
@@ -42,29 +49,38 @@ namespace CreateAR.SpirePlayer.UI
             get { return _widget.LocalVisible; }
             set { _widget.LocalVisible = value; }
         }
-        
+        public IWidget Parent
+        {
+            get { return _widget.Parent; }
+            set { _widget.Parent = value; }
+        }
+
         /// <summary>
         /// Underlying driver that powers the widget monobehavior.
         /// </summary>
         public Widget Widget { get { return _widget; } }
 
         /// <summary>
-        /// Initialization
+        /// Initializes the widget.
         /// </summary>
-        protected virtual void Awake()
+        /// <param name="widget"></param>
+        public void SetWidget(Widget widget)
         {
-            _widget = new Widget();
+            _widget = widget; 
         }
 
         /// <summary>
-        /// Widget initialization.
+        /// Initialization
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="schema"></param>
-        /// <param name="children"></param>
-        public void Load(ElementData data, ElementSchema schema, IElement[] children)
+        public void Initialize(
+            IWidgetConfig config,
+            ILayerManager layers,
+            ITweenConfig tweens,
+            IColorConfig colors,
+            IMessageRouter messages)
         {
-            _widget.Load(data, schema, children);
+            _widget = new Widget(gameObject);
+            _widget.Initialize(config, layers, tweens, colors, messages);
         }
 
         /// <summary>

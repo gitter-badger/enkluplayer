@@ -30,6 +30,20 @@ namespace CreateAR.SpirePlayer
                         {
                             {"type", ElementTypes.CURSOR}
                         }
+                    },
+                    Children = new ElementData[]
+                    {
+                        new ElementData()
+                        {
+                            Id = "reticle",
+                            Schema = new ElementSchemaData()
+                            {
+                                Ints = new Dictionary<string, int>()
+                                {
+                                    {"type", ElementTypes.RETICLE}
+                                }
+                            },
+                        }
                     }
                 },
                 new ElementData()
@@ -40,6 +54,20 @@ namespace CreateAR.SpirePlayer
                         Ints = new Dictionary<string, int>()
                         {
                             {"type", ElementTypes.CAPTION}
+                        }
+                    },
+                    Children = new ElementData[]
+                    {
+                        new ElementData()
+                        {
+                            Id = "text",
+                            Schema = new ElementSchemaData()
+                            {
+                                Ints = new Dictionary<string, int>()
+                                {
+                                    {"type", ElementTypes.TEXT}
+                                }
+                            },
                         }
                     }
                 },
@@ -57,6 +85,17 @@ namespace CreateAR.SpirePlayer
                     {
                         new ElementData()
                         {
+                            Id = "activator",
+                            Schema = new ElementSchemaData()
+                            {
+                                Ints = new Dictionary<string, int>()
+                                {
+                                    {"type", ElementTypes.ACTIVATOR}
+                                }
+                            }
+                        },
+                        new ElementData()
+                        {
                             Id = "caption",
                             Schema = new ElementSchemaData()
                             {
@@ -71,6 +110,20 @@ namespace CreateAR.SpirePlayer
                                 Vectors = new Dictionary<string, Vec3>()
                                 {
                                     { "position", new Vec3(0.2f,0,0) }
+                                }
+                            },
+                            Children = new ElementData[]
+                            {
+                                new ElementData()
+                                {
+                                    Id = "text",
+                                    Schema = new ElementSchemaData()
+                                    {
+                                        Ints = new Dictionary<string, int>()
+                                        {
+                                            {"type", ElementTypes.TEXT}
+                                        }
+                                    },
                                 }
                             }
                         },
@@ -136,7 +189,6 @@ namespace CreateAR.SpirePlayer
                                         }
                                     }
                                 },
-
                             }
                         }
                     }
@@ -185,7 +237,7 @@ namespace CreateAR.SpirePlayer
                             { 
                                 { "position", new Vec3(0,0,3) }
                             }
-                        },
+                        }/*,
                         Children = new ElementRef[]
                         {
                             new ElementRef()
@@ -199,7 +251,7 @@ namespace CreateAR.SpirePlayer
                                     }
                                 },
                             }
-                        }
+                        }*/
                     }
                 };
 

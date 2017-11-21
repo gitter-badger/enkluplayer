@@ -28,7 +28,7 @@
         {
             base.LoadInternal();
 
-            _primitive = Primitives.Text();
+            _primitive = FindOne("text") as IText;
 
             _propText = Schema.Get<string>("text");
             _primitive.Text = _propText.Value;
@@ -45,11 +45,7 @@
         /// </summary>
         protected override void UnloadInternal()
         {
-            if (_primitive != null)
-            {
-                _primitive.Unload();
-                _primitive = null;
-            }
+            // TODO: cleanup
         }
     }
 }

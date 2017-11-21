@@ -113,10 +113,13 @@ namespace CreateAR.SpirePlayer.UI
             // child schemas wrap parent
             for (int i = 0, len = children.Length; i < len; i++)
             {
-                children[i].Schema.Wrap(Schema);
+                var child = children[i];
+                if (child != null)
+                {
+                    child.Schema.Wrap(Schema);
+                    AddChild(child);
+                }
             }
-
-            _children.AddRange(children);
 
             LoadInternal();
         }
@@ -137,7 +140,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Frame based update.
         /// </summary>
-        public void Update()
+        public void FrameUpdate()
         {
             UpdateInternal();
         }
@@ -145,7 +148,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Frame based update.
         /// </summary>
-        public void LateUpdate()
+        public void LateFrameUpdate()
         {
             LateUpdateInternal();
         }

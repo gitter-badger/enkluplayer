@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Parent widget.
         /// </summary>
-        IWidget Parent { get; }
+        IWidget Parent { get; set; }
 
         /// <summary>
         /// Render color (composition of local and parent colors).

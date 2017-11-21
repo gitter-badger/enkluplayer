@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Updates the visual components related to a widget
     /// </summary>
-    public class PrimitiveRenderer : MonoBehaviour
+    public class WidgetRenderer : MonoBehaviour
     {
         /// <summary>
         /// Cached list of materials

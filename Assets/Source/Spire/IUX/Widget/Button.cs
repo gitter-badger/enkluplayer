@@ -49,9 +49,13 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// IInteractive interfaces.
         /// </summary>
-        public bool Focused { get { return _activator.Focused; } }
         public bool Interactable { get { return _activator.Interactable; } }
         public bool Cast(Ray ray) { return _activator.Cast(ray); }
+        public bool Focused
+        {
+            get { return _activator.Focused; }
+            set { _activator.Focused = value; }
+        }
         public int HighlightPriority
         {
             get { return _activator.HighlightPriority; }
@@ -66,12 +70,11 @@ namespace CreateAR.SpirePlayer.UI
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
-            IPrimitiveFactory primitives,
             IMessageRouter messages,
             IIntentionManager intention,
             IInteractionManager interaction)
         {
-            Initialize(config, layers, tweens, colors, primitives, messages);
+            Initialize(config, layers, tweens, colors, messages);
         }
 
         /// <summary>

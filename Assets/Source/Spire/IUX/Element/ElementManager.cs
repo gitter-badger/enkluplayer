@@ -58,7 +58,7 @@ namespace CreateAR.SpirePlayer
             for (int i = _all.Count - 1; i >= 0 && i < _all.Count; --i)
             {
                 var element = _all[i];
-                element.UpdateInternal();
+                element.FrameUpdate();
             }
         }
 
@@ -70,7 +70,7 @@ namespace CreateAR.SpirePlayer
             for (int i = _all.Count - 1; i >= 0 && i < _all.Count; --i)
             {
                 var element = _all[i];
-                element.LateUpdate();
+                element.LateFrameUpdate();
             }
         }
 
