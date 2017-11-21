@@ -20,7 +20,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly IContentManager _content;
         private readonly FocusManager _focus;
-        private readonly ApplicationConfig _config;
 
         /// <summary>
         /// Backing variable for Graph property.
@@ -51,15 +50,13 @@ namespace CreateAR.SpirePlayer
         public HierarchyManager(
             IContentManager content,
             IAppDataManager appData,
-            ApplicationConfig config,
             FocusManager focus,
             ContentGraph graph)
         {
             _content = content;
             _focus = focus;
             _graph = graph;
-            _config = config;
-            
+
             appData.OnUpdated += AppData_OnUpdated;
         }
 
@@ -206,7 +203,7 @@ namespace CreateAR.SpirePlayer
                 var contentId = node.ContentId;
                 var content = _content.Request(contentId, CONTENT_TAGS);
                 _contentMap[contentId] = content;
-
+                
                 // locators enforce Self() to be non-null
                 // TODO: This should go through the Anchor system.
                 var self = node.Locators.Self();
@@ -220,7 +217,7 @@ namespace CreateAR.SpirePlayer
                 Create(children[i]);
             }
         }
-
+        
         /// <summary>
         /// Called when AppData has an update.
         /// </summary>

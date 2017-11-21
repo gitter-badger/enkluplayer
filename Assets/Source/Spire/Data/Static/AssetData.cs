@@ -36,6 +36,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonProperty("triCount")]
         public int TriCount;
+
+        /// <summary>
+        /// Bounds.
+        /// </summary>
+        [JsonProperty("bounds")]
+        public AssetStatsBounds Bounds;
     }
 
     /// <summary>
@@ -86,7 +92,7 @@ namespace CreateAR.SpirePlayer
         /// Stats associated with this asset, if any.
         /// </summary>
         [JsonProperty("stats")]
-        public AssetStats Stats;
+        public AssetStats Stats = new AssetStats();
         
         /// <summary>
         /// Useful ToString.

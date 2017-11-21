@@ -16,14 +16,19 @@ namespace CreateAR.SpirePlayer
         private readonly IAppDataManager _appData;
 
         /// <summary>
+        /// Loads assets.
+        /// </summary>
+        private readonly IAssetManager _assets;
+
+        /// <summary>
         /// Manages pooling.
         /// </summary>
         private readonly IAssetPoolManager _pools;
 
         /// <summary>
-        /// Loads assets.
+        /// Displays load progress.
         /// </summary>
-        private readonly IAssetManager _assets;
+        private readonly ILoadProgressManager _progress;
 
         /// <summary>
         /// Instance of Asset's prefab.
@@ -61,7 +66,8 @@ namespace CreateAR.SpirePlayer
         public ModelContentAssembler(
             IAppDataManager appData,
             IAssetManager assets,
-            IAssetPoolManager pools)
+            IAssetPoolManager pools,
+            ILoadProgressManager progress)
         {
             _appData = appData;
             _assets = assets;
@@ -136,6 +142,21 @@ namespace CreateAR.SpirePlayer
             if (null != prefab)
             {
                 SetupInstance(prefab);
+            }
+            // otherwise, show a load indicator
+            else
+            {
+                var assetData = _assets.Manifest.Data(_data.Asset.AssetDataId);
+                if (null == assetData)
+                {
+                    Log.Warning(this, "Could not find AssetData for {0}.", _data);
+                }
+                else
+                {
+                    /*_progress.ShowIndicator(
+                        assetData.Stats.Bounds.Min,
+                        assetData.Stats.Bounds.Max)*/
+                }
             }
 
             // watch for asset reloads
