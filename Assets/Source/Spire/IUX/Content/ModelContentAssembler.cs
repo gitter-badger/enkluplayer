@@ -46,6 +46,11 @@ namespace CreateAR.SpirePlayer
         private Action _unwatch;
 
         /// <summary>
+        /// Id for load progress indicator.
+        /// </summary>
+        private uint _progressIndicatorId;
+
+        /// <summary>
         /// Loads materials.
         /// </summary>
         private readonly MaterialLoader _materialLoader;
@@ -72,6 +77,7 @@ namespace CreateAR.SpirePlayer
             _appData = appData;
             _assets = assets;
             _pools = pools;
+            _progress = progress;
 
             _materialLoader = new MaterialLoader(appData, assets);
         }
@@ -119,6 +125,8 @@ namespace CreateAR.SpirePlayer
                 _asset.OnRemoved -= Asset_OnRemoved;
                 _asset = null;
             }
+
+            _progress.HideIndicator(_progressIndicatorId);
         }
 
         private void WatchMainAsset()
@@ -153,9 +161,10 @@ namespace CreateAR.SpirePlayer
                 }
                 else
                 {
-                    /*_progress.ShowIndicator(
+                    _progressIndicatorId = _progress.ShowIndicator(
                         assetData.Stats.Bounds.Min,
-                        assetData.Stats.Bounds.Max)*/
+                        assetData.Stats.Bounds.Max,
+                        _asset.Progress);
                 }
             }
 
@@ -245,7 +254,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Material_OnLoaded()
         {
-            // ?
+            // do nothing at the moment
         }
     }
 }

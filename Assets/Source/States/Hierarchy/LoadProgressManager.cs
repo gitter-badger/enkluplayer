@@ -78,6 +78,8 @@ namespace CreateAR.SpirePlayer
 
             _records.Add(record);
 
+            Log.Info(this, "Show load progress indicator. [id={0}]", record.Id);
+
             return record.Id;
         }
 
@@ -88,6 +90,8 @@ namespace CreateAR.SpirePlayer
             if (null != record)
             {
                 record.Behaviour.Bounds = Bounds(min, max);
+
+                Log.Info(this, "Update load progress indicator. [id={0}]", record.Id);
             }
         }
 
@@ -100,6 +104,8 @@ namespace CreateAR.SpirePlayer
                 _records.Remove(record);
 
                 Pools.Put(record.Behaviour.gameObject);
+
+                Log.Info(this, "Hide load progress indicator. [id={0}]", record.Id);
             }
         }
 
@@ -120,6 +126,22 @@ namespace CreateAR.SpirePlayer
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
+        private void Update()
+        {
+            // cull complete indicators
+            for (var i = _records.Count - 1; i >= 0; i--)
+            {
+                var record = _records[i];
+                if (record.Behaviour.Progress.IsComplete)
+                {
+                    HideIndicator(record.Id);
+                }
+            }
         }
 
         /// <summary>
