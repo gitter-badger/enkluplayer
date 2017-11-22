@@ -112,9 +112,9 @@ namespace CreateAR.SpirePlayer
                                                     {"captionColor", (int)VirtualColor.Primary },
                                                     {"tween", (int)TweenType.Responsive },
                                                 },
-                                                Vectors = new Dictionary<string, Vec3>()
+                                                Floats = new Dictionary<string, float>()
                                                 {
-                                                    { "scale", new Vec3(1,1,1) }
+                                                    { "frameScale", 1.0f }
                                                 }
                                             }
                                         },
@@ -131,9 +131,9 @@ namespace CreateAR.SpirePlayer
                                                     {"captionColor", (int)VirtualColor.Interacting },
                                                     {"tween", (int)TweenType.Responsive },
                                                 },
-                                                Vectors = new Dictionary<string, Vec3>()
+                                                Floats = new Dictionary<string, float>()
                                                 {
-                                                    { "scale", new Vec3(1.1f,1.1f,1.1f) }
+                                                    { "frameScale", 1.1f }
                                                 }
                                             }
                                         },
@@ -150,9 +150,9 @@ namespace CreateAR.SpirePlayer
                                                     {"captionColor", (int)VirtualColor.Interacting },
                                                     {"tween", (int)TweenType.Instant },
                                                 },
-                                                Vectors = new Dictionary<string, Vec3>()
+                                                Floats = new Dictionary<string, float>()
                                                 {
-                                                    { "scale", new Vec3(1,1,1) }
+                                                    { "frameScale", 1.0f }
                                                 }
                                             }
                                         },

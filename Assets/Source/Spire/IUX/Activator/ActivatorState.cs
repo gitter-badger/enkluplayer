@@ -25,12 +25,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Color of the button during this state.
         /// </summary>
-        public VirtualColor FrameColor { get { return (VirtualColor)_propFrameScale.Value; } }
+        public VirtualColor FrameColor { get { return (VirtualColor)_propFrameColor.Value; } }
 
         /// <summary>
         /// Color of the button during this state.
         /// </summary>
-        public float FrameScale { get { return _propFrameColor.Value; } }
+        public float FrameScale { get { return _propFrameScale.Value; } }
 
         /// <summary>
         /// Tween into this state.

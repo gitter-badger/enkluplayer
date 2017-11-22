@@ -36,8 +36,7 @@ namespace CreateAR.SpirePlayer.UI
             if (activation > 1.0f
              || Mathf.Approximately(activation, 1.0f))
             {
-                Activator.Activation = 0;
-                Activator.ChangeState <ActivatorActivatedState>();
+                Activator.Activate();
             }
             else
             {

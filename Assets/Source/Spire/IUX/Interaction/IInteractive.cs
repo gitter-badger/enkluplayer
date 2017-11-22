@@ -33,6 +33,14 @@ namespace CreateAR.SpirePlayer
         int HighlightPriority { get; set; }
 
         /// <summary>
+        /// (IUX PATENT)
+        /// A scalar percentage [0..1] representing targeting clarity.
+        /// 0 = low clarity - may be aiming at the edge of this.
+        /// 1 = high clarity - definitely targeting at center of this.
+        /// </summary>
+        float Aim { get; }
+
+        /// <summary>
         /// Casts a ray at the interactive object
         /// </summary>
         /// <param name="ray"></param>

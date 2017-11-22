@@ -50,6 +50,7 @@ namespace CreateAR.SpirePlayer.UI
         /// IInteractive interfaces.
         /// </summary>
         public bool Interactable { get { return _activator.Interactable; } }
+        public float Aim { get { return _activator.Aim; } }
         public bool Cast(Ray ray) { return _activator.Cast(ray); }
         public bool Focused
         {

@@ -250,7 +250,7 @@ namespace CreateAR.SpirePlayer
             _aim = 0.0f;
 
             var interactive = Intention.Focus;
-            var activator = (interactive as IActivator);
+            var activator = (interactive);
             if (activator != null)
             {
                 _aim = activator.Aim;

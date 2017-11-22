@@ -268,6 +268,13 @@ namespace CreateAR.SpirePlayer
         public void Activate()
         {
             _states.Change<ActivatorActivatedState>();
+
+            Activation = 0;
+
+            if (OnActivated != null)
+            {
+                OnActivated(this);
+            }
         }
 
         /// <summary>
