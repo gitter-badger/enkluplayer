@@ -183,6 +183,7 @@ namespace CreateAR.SpirePlayer
         /// Dependency initialization.
         /// </summary>
         public Activator(
+            GameObject gameObject,
             IWidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
@@ -192,6 +193,7 @@ namespace CreateAR.SpirePlayer
             IInteractionManager interaction,
             float radius,
             Func<Ray, bool> cast)
+            : base(gameObject)
         {
             Initialize(config, layers, tweens, colors, messages);
 
@@ -204,6 +206,15 @@ namespace CreateAR.SpirePlayer
             //       difficult to escape with Unity handling physics
             //       but should be removed eventually
             _cast = cast;
+        }
+
+        /// <summary>
+        /// String representation.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("Activator[{0}]", GameObject.name);
         }
 
         /// <summary>
@@ -273,7 +284,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         protected override void UpdateInternal()
         {
-            base.UnloadInternal();
+            base.UpdateInternal();
 
             var deltaTime = Time.smoothDeltaTime;
 

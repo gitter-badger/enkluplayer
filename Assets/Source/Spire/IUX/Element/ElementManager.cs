@@ -25,7 +25,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
             
-            element.OnDestroy += Element_OnDestroy;
+            element.OnDestroyed += ElementOnDestroyed;
 
             _all.Add(element);
         }
@@ -78,7 +78,7 @@ namespace CreateAR.SpirePlayer
         /// Invoked when a widget is destroyed
         /// </summary>
         /// <param name="element"></param>
-        private void Element_OnDestroy(IElement element)
+        private void ElementOnDestroyed(IElement element)
         {
             _all.Remove(element);
         }

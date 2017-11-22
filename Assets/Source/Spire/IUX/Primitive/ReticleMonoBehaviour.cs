@@ -72,24 +72,7 @@ namespace CreateAR.SpirePlayer
 
             if (Center != null)
             {
-                // TODO: the center should eventually defined in data as well.
-                Center.SetWidget(new Widget(GameObject));
-                Center.Initialize(Widget.Config, Widget.Layers, Widget.Tweens, Widget.Colors, Widget.Messages);
-                Center.Load(data, schema, children);
-                Center.Parent = this;
-            }
-        }
-
-        /// <summary>
-        /// Frame based update.
-        /// </summary>
-        public override void FrameUpdate()
-        {
-            base.FrameUpdate();
-
-            if (Center != null)
-            {
-                Center.FrameUpdate();
+                Center.LoadFromMonoBehaviour(this);
             }
         }
 

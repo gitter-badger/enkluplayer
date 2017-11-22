@@ -15,13 +15,18 @@ namespace CreateAR.SpirePlayer.UI
         private Widget _widget;
 
         /// <summary>
+        /// TODO: the monobehavior update flow needs refactor, this is gross.
+        /// </summary>
+        private bool _unityUpdate;
+
+        /// <summary>
         /// IElement interface.
         /// </summary>
         public ElementSchema Schema { get { return _widget.Schema; } }
         public IElement[] Children { get { return _widget.Children; } }
         public event Action<IElement, IElement> OnChildRemoved;
         public event Action<IElement, IElement> OnChildAdded;
-        public event Action<IElement> OnDestroy;
+        public event Action<IElement> OnDestroyed;
         public void AddChild(IElement child) { _widget.AddChild(child); }
         public bool RemoveChild(IElement child) { return _widget.RemoveChild(child); }
         public virtual void Load(ElementData data, ElementSchema schema, IElement[] children) { _widget.Load(data, schema, children); }
@@ -84,11 +89,47 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
+        /// Loads through the Unity Hierarchy.
+        /// TODO: This code path should be removed once we can transition
+        /// all primitives to data.
+        /// </summary>
+        /// <param name="parent"></param>
+        public void LoadFromMonoBehaviour(WidgetMonoBehaviour parent)
+        {
+            var newWidget = new Widget(gameObject);
+
+            SetWidget(newWidget);
+
+            Initialize(
+                parent.Widget.Config, 
+                parent.Widget.Layers, 
+                parent.Widget.Tweens, 
+                parent.Widget.Colors, 
+                parent.Widget.Messages);
+
+            var data = new ElementData()
+            {
+                Id = gameObject.name,
+            };
+
+            Load(data, new ElementSchema(), new IElement[] { });
+
+            parent.AddChild(this);
+
+            Parent = parent;
+
+            _unityUpdate = true;
+        }
+
+        /// <summary>
         /// Frame based update.
         /// </summary>
         public void Update()
         {
-            // empty, IElement's should override 'UpdateInternal'
+            if (_unityUpdate)
+            {
+                FrameUpdate();
+            }
         }
 
         /// <summary>
@@ -96,7 +137,10 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         public void LateUpdate()
         {
-            // empty, IElement's should override 'LateUpdateInternal'
+            if (_unityUpdate)
+            {
+                LateFrameUpdate();
+            }
         }
     }
 }

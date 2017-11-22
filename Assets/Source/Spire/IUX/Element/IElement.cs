@@ -32,7 +32,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Invoked when element is destroyed.
         /// </summary>
-        event Action<IElement> OnDestroy;
+        event Action<IElement> OnDestroyed;
 
         /// <summary>
         /// Initialization method.

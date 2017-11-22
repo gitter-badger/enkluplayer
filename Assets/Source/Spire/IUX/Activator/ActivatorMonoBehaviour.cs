@@ -105,6 +105,7 @@ namespace CreateAR.SpirePlayer
 
             _activator 
                 = new Activator(
+                    gameObject,
                     config, 
                     layers, 
                     tweens, 
@@ -119,10 +120,38 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Initialization.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="schema"></param>
+        /// <param name="children"></param>
+        public override void Load(ElementData data, ElementSchema schema, IElement[] children)
+        {
+            base.Load(data, schema, children);
+
+            if (AimWidget != null)
+            {
+                AimWidget.LoadFromMonoBehaviour(this);
+            }
+
+            if (FillWidget != null)
+            {
+                FillWidget.LoadFromMonoBehaviour(this);
+            }
+
+            if (FrameWidget != null)
+            {
+                FrameWidget.LoadFromMonoBehaviour(this);
+            }
+        }
+
+        /// <summary>
         /// Frame based update.
         /// </summary>
-        public void UpdateInternal()
+        public override void FrameUpdate()
         {
+            base.FrameUpdate();
+
             var deltaTime = Time.smoothDeltaTime;
 
             UpdateAimWidget();
@@ -131,7 +160,7 @@ namespace CreateAR.SpirePlayer
             UpdateFrameWidget(deltaTime);
             UpdateColliders();
         }
-
+        
         /// <summary>
         /// Activates the spawn VFX
         /// </summary>
@@ -227,8 +256,7 @@ namespace CreateAR.SpirePlayer
                 _bufferCollider.enabled = Focused;
             }
         }
-
-
+        
         /// <summary>
         /// Updates the rotation and scale of the stability transform.
         /// </summary>
@@ -263,13 +291,6 @@ namespace CreateAR.SpirePlayer
             }
 
             FillImage.fillAmount = Activation;
-
-
-            if (FillWidget == null)
-            {
-                return;
-            }
-
             FillWidget.LocalVisible = _activator.CurrentState is ActivatorActivatingState;
         }
 

@@ -45,7 +45,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Invoked when element is destroyed.
         /// </summary>
-        public event Action<IElement> OnDestroy;
+        public event Action<IElement> OnDestroyed;
 
         /// <summary>
         /// Called when this node has been removed from the graph.
@@ -158,14 +158,14 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         public void Destroy()
         {
-            if (OnDestroy != null)
+            if (OnDestroyed != null)
             {
                 Unload();
 
-                if (OnDestroy != null)
+                if (OnDestroyed != null)
                 {
-                    OnDestroy(this);
-                    OnDestroy = null;
+                    OnDestroyed(this);
+                    OnDestroyed = null;
                 }
             }
         }
