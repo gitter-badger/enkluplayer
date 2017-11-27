@@ -32,26 +32,6 @@ namespace CreateAR.SpirePlayer
         private FiniteStateMachine _states;
 
         /// <summary>
-        /// Current aim percentage.
-        /// </summary>
-        private float _aim;
-
-        /// <summary>
-        /// True if aim is enabled
-        /// </summary>
-        private bool _aimEnabled = true;
-
-        /// <summary>
-        /// Reflection of intention stability
-        /// </summary>
-        private float _stability;
-
-        /// <summary>
-        /// Reflection of intention duration
-        /// </summary>
-        private float _activation;
-
-        /// <summary>
         /// True if the widget is currently focused
         /// </summary>
         private bool _focused;
@@ -64,11 +44,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// True if aim is enabled
         /// </summary>
-        public bool AimEnabled
-        {
-            get { return _aimEnabled; }
-            set { _aimEnabled = value; }
-        }
+        public bool AimEnabled { get; set; }
 
         /// <summary>
         /// Highligted Accessor/Mutator
@@ -100,29 +76,17 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Activation percentage
         /// </summary>
-        public float Activation
-        {
-            get { return _activation; }
-            set { _activation = value; }
-        }
+        public float Activation { get; set; }
 
         /// <summary>
         /// Aim percentage.
         /// </summary>
-        public float Aim
-        {
-            get { return _aim; }
-            set { _aim = value; }
-        }
+        public float Aim { get; set; }
 
         /// <summary>
         /// Aim percentage.
         /// </summary>
-        public float Stability
-        {
-            get { return _stability; }
-            set { _stability = value; }
-        }
+        public float Stability { get; set; }
 
         /// <summary>
         /// Bounding radius of the activator.
@@ -202,6 +166,7 @@ namespace CreateAR.SpirePlayer
             Func<Ray, bool> cast)
             : base(gameObject)
         {
+            AimEnabled = true;
             Initialize(config, layers, tweens, colors, messages);
 
             Intention = intention;
@@ -300,8 +265,8 @@ namespace CreateAR.SpirePlayer
              || !Interactable
              || !AimEnabled)
             {
-                _aim = 0.0f;
-                _stability = 0.0f;
+                Aim = 0.0f;
+                Stability = 0.0f;
             }
             else
             {
@@ -317,48 +282,26 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateAim()
         {
-            var eyePosition
-                = Intention
-                    .Origin;
-            var eyeDirection
-                = Intention
-                    .Forward;
-            var delta
-                = GameObject
-                      .transform
-                      .position.ToVec() - eyePosition;
-            var directionToButton
-                = delta
-                    .Normalized;
+            var eyePosition = Intention.Origin;
+            var eyeDirection = Intention.Forward;
+            var delta = GameObject.transform.position.ToVec() - eyePosition;
+            var directionToButton = delta.Normalized;
 
-            var eyeDistance
-                = delta
-                    .Magnitude;
-            var radius
-                = Radius;
+            var eyeDistance = delta.Magnitude;
+            var radius = Radius;
 
-            var maxTheta
-                = Mathf.Atan2(radius, eyeDistance);
+            var maxTheta = Mathf.Atan2(radius, eyeDistance);
 
-            var cosTheta
-                = Vec3
-                    .Dot(
-                        directionToButton,
-                        eyeDirection);
-            var theta
-                = Mathf.Approximately(cosTheta, 1.0f)
-                    ? 0.0f
-                    : Mathf.Acos(cosTheta);
+            var cosTheta = Vec3.Dot(
+                directionToButton,
+                eyeDirection);
+            var theta = Mathf.Approximately(cosTheta, 1.0f)
+                ? 0.0f
+                : Mathf.Acos(cosTheta);
 
-            _aim
-                = Mathf.Approximately(maxTheta, 0.0f)
-                    ? 0.0f
-                    : 1.0f
-                      - Mathf
-                          .Clamp01(
-                              Mathf
-                                  .Abs(
-                                      theta / maxTheta));
+            Aim = Mathf.Approximately(maxTheta, 0.0f)
+                ? 0.0f
+                : 1.0f - Mathf.Clamp01(Mathf.Abs(theta / maxTheta));
         }
 
         /// <summary>
@@ -367,18 +310,16 @@ namespace CreateAR.SpirePlayer
         /// <param name="deltaTime"></param>
         private void UpdateStability(float deltaTime)
         {
-            var targetStability
-                = Focused
-                    ? Intention.Stability
-                    : 0.0f;
+            var targetStability = Focused
+                ? Intention.Stability
+                : 0.0f;
 
             const float STABILITY_LERP_RATE_MAGIC_NUMBER = 8.0f;
             var lerp = deltaTime * STABILITY_LERP_RATE_MAGIC_NUMBER;
-            _stability
-                = Mathf.Lerp(
-                    _stability,
-                    targetStability,
-                    lerp);
+            Stability = Mathf.Lerp(
+                Stability,
+                targetStability,
+                lerp);
         }
 
         /// <summary>
