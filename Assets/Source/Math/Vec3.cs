@@ -8,6 +8,16 @@ namespace CreateAR.SpirePlayer
     public struct Vec3
     {
         /// <summary>
+        /// Default vector.
+        /// </summary>
+        public static readonly Vec3 Zero = new Vec3();
+
+        /// <summary>
+        /// Identity vector.
+        /// </summary>
+        public static readonly Vec3 One = new Vec3(1, 1, 1);
+
+        /// <summary>
         /// X component.
         /// </summary>
         public float x;
@@ -169,15 +179,5 @@ namespace CreateAR.SpirePlayer
                 from.y + (to.y - from.y) * t,
                 from.z + (to.z - from.z) * t);
         }
-
-        /// <summary>
-        /// Default vector.
-        /// </summary>
-        public static readonly Vec3 Zero = new Vec3();
-
-        /// <summary>
-        /// Identity vector.
-        /// </summary>
-        public static readonly Vec3 One = new Vec3(1,1,1);
     }
 }
