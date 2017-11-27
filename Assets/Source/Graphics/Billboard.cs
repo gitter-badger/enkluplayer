@@ -2,19 +2,19 @@
 
 namespace CreateAR.SpirePlayer
 {
-    public enum BillboardType
-    {
-        Horizontal, // faces the camera without pitching forward or backward
-        Absolute,   // takes no rotation (effectively nulls parent's rotation)
-        Camera      // faces the camera
-    }
-
     /// <summary>
     /// Dynamically orients a gameobect,
     /// </summary>
     [ExecuteInEditMode]
     public class Billboard : MonoBehaviour
     {
+        public enum BillboardType
+        {
+            Horizontal, // faces the camera without pitching forward or backward
+            Absolute,   // takes no rotation (effectively nulls parent's rotation)
+            Camera      // faces the camera
+        }
+
         /// <summary>
         /// Defines the calculations used to orient the gameobject
         /// </summary>
@@ -37,14 +37,12 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            var up 
-                = Type == BillboardType.Horizontal
+            var up = Type == BillboardType.Horizontal
                 ? Vector3.up
                 : mainCamera.transform.up;
             
-            var forward
-                = transform.position
-                - mainCamera.transform.position;
+            var forward = transform.position - mainCamera.transform.position;
+
             forward.y = 0;
             forward.Normalize();
             transform.LookAt(
