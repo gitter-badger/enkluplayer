@@ -8,7 +8,7 @@
         /// <summary>
         /// True iff the object is visible.
         /// </summary>
-        bool IsVisible { get; }
+        bool Visible { get; }
 
         /// <summary>
         /// Describes how the layering affects the object.

@@ -59,7 +59,7 @@ namespace CreateAR.SpirePlayer
         /// Creates a new color from an RGB color.
         /// </summary>
         /// <param name="col">Color.</param>
-        public HsbColor(Color col)
+        public HsbColor(Col4 col)
         {
             var temp = FromColor(col);
             H = temp.H;
@@ -72,7 +72,7 @@ namespace CreateAR.SpirePlayer
         /// Creates an Rgb color.
         /// </summary>
         /// <returns></returns>
-        public Color ToColor()
+        public Col4 ToColor()
         {
             return ToColor(this);
         }
@@ -91,7 +91,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="color">The color.</param>
         /// <returns></returns>
-        public static HsbColor FromColor(Color color)
+        public static HsbColor FromColor(Col4 color)
         {
             var ret = new HsbColor(0f, 0f, 0f, color.a);
 
@@ -137,7 +137,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="hsbColor">The HsbColor.</param>
         /// <returns></returns>
-        public static Color ToColor(HsbColor hsbColor)
+        public static Col4 ToColor(HsbColor hsbColor)
         {
             var r = hsbColor.B;
             var g = hsbColor.B;
@@ -194,7 +194,7 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
-            return new Color(Mathf.Clamp01(r), Mathf.Clamp01(g), Mathf.Clamp01(b), hsbColor.A);
+            return new Col4(Mathf.Clamp01(r), Mathf.Clamp01(g), Mathf.Clamp01(b), hsbColor.A);
         }
 
         /// <summary>

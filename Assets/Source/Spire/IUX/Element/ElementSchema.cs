@@ -103,6 +103,17 @@ namespace CreateAR.SpirePlayer.UI
                         false));
                 }
             }
+
+            if (null != data.Colors)
+            {
+                foreach (var prop in data.Colors)
+                {
+                    _props.Add(new ElementSchemaProp<Col4>(
+                        prop.Key,
+                        prop.Value,
+                        false));
+                }
+            }
         }
 
         /// <summary>
@@ -197,6 +208,36 @@ namespace CreateAR.SpirePlayer.UI
             if (type == prop.Type)
             {
                 return (ElementSchemaProp<T>) prop;
+            }
+
+            return Default<T>();
+        }
+
+        /// <summary>
+        /// Returns the a prop if locally defined, or adds the default.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <param name="default"></param>
+        /// <returns></returns>
+        public ElementSchemaProp<T> GetOwn<T>(string name, T @default)
+        {
+            var type = typeof(T);
+            var prop = Prop(name);
+            if (null == prop)
+            {
+                // add the default
+                prop = new ElementSchemaProp<T>(name, @default, true);
+
+                if (type == prop.Type)
+                {
+                    _props.Add(prop);
+                }
+            }
+
+            if (type == prop.Type)
+            {
+                return (ElementSchemaProp<T>)prop;
             }
 
             return Default<T>();

@@ -33,6 +33,11 @@ namespace CreateAR.SpirePlayer.UI
         public Dictionary<string, Vec3> Vectors;
 
         /// <summary>
+        /// Name to Vec3 value.
+        /// </summary>
+        public Dictionary<string, Col4> Colors;
+
+        /// <summary>
         /// Default constructor.
         /// </summary>
         public ElementSchemaData()
@@ -51,6 +56,7 @@ namespace CreateAR.SpirePlayer.UI
             Floats = data.Floats;
             Bools = data.Bools;
             Vectors = data.Vectors;
+            Colors = data.Colors;
         }
 
         /// <summary>
@@ -122,6 +128,19 @@ namespace CreateAR.SpirePlayer.UI
                 foreach (var prop in data.Vectors)
                 {
                     Vectors[prop.Key] = prop.Value;
+                }
+            }
+
+            if (null != data.Colors)
+            {
+                if (null == Colors)
+                {
+                    Colors = new Dictionary<string, Col4>();
+                }
+
+                foreach (var prop in data.Colors)
+                {
+                    Colors[prop.Key] = prop.Value;
                 }
             }
         }

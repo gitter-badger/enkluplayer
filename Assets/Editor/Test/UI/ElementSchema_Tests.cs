@@ -213,6 +213,10 @@ namespace CreateAR.SpirePlayer.Test.UI
                 Vectors = new Dictionary<string, Vec3>
                 {
                     {"vec", new Vec3(1, 2, 3)}
+                },
+                Colors = new Dictionary<string, Col4>
+                {
+                    {"col", new Col4(4, 3, 2, 1)}
                 }
             });
 
@@ -225,6 +229,12 @@ namespace CreateAR.SpirePlayer.Test.UI
             Assert.AreEqual(1, vec.x);
             Assert.AreEqual(2, vec.y);
             Assert.AreEqual(3, vec.z);
+
+            var color = _schema.Get<Col4>("col").Value;
+            Assert.AreEqual(4, color.r);
+            Assert.AreEqual(3, color.g);
+            Assert.AreEqual(2, color.b);
+            Assert.AreEqual(1, color.a);
         }
 
         [Test]

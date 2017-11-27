@@ -38,7 +38,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Injects bindings into an object.
         /// </summary>
-	    public static void Inject(Object @object)
+	    public static void Inject(object @object)
 	    {
 	        _binder.injector.Inject(@object);
 	    }

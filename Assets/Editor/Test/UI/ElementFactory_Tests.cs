@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.UI;
 using NUnit.Framework;
 
@@ -54,7 +55,16 @@ namespace CreateAR.SpirePlayer.Test.UI
         [SetUp]
         public void Setup()
         {
-            _elements = new ElementFactory();
+            _elements = new ElementFactory(
+                new DummyPrimitiveFactory(), 
+                null,
+                new DummyElementManager(),
+                null,
+                null,
+                null,
+                null,
+                new MessageRouter(),
+                null);
         }
 
         [Test]
