@@ -1,23 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Newtonsoft.Json;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Fired when a widget has been focused on.
+    /// </summary>
     public class WidgetFocusEvent
     {
-        // TODO: Add Data
+        
     }
 
+    /// <summary>
+    /// Fired when a widget has been unfocused.
+    /// </summary>
     public class WidgetUnfocusEvent
     {
-        // TODO: Add Data
+        
     }
 
+    /// <summary>
+    /// Fired when a button has been activated.
+    /// </summary>
     public class ButtonActivateEvent
     {
-        // TODO: Add Data
+        
     }
 }
