@@ -14,36 +14,36 @@
 		Cull Back
 		ZTest Always
 		ZWrite Off
-		
-		// Render Pass
-		Pass
-		{
-			CGPROGRAM
+
+		CGINCLUDE
 			#include "UnityCG.cginc"
 			#include "RimCG.cginc"	
-			#pragma target 3.0
 			
-			#pragma fragmentoption ARB_precision_hint_fastest
-			#pragma vertex vert
-			#pragma fragment frag
-	
-			////// Uniform user variable definition
+			// Uniform user variable definition
 			uniform fixed4 _Color;
 			uniform fixed _Strength;
 			uniform fixed _RimStrength;
 
-			////// Vertex shader
+			// Vertex shader
 			Vert2Frag vert(VertexInput vertIn)
 			{
 				return vertRim(vertIn);
 			}
 
-			////// Fragment shader
+			// Fragment shader
 			float4 frag(Vert2Frag fragIn) : SV_Target
 			{
 				return fragRim(fragIn, _Color, _Strength, _RimStrength);
 			}
-
+		ENDCG
+		
+		// Render Pass
+		Pass
+		{
+			CGPROGRAM
+				#pragma fragmentoption ARB_precision_hint_fastest
+				#pragma vertex vert
+				#pragma fragment frag
 			ENDCG
 		}
 	}
