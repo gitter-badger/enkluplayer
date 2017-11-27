@@ -211,7 +211,7 @@ namespace CreateAR.SpirePlayer
                     handPosition += cameraTransform.forward * LocalHandOffset.z
                         + cameraTransform.up * LocalHandOffset.y
                         + cameraTransform.right * LocalHandOffset.x;
-                    Forward = (handPosition - Origin).ToVec();
+                    Forward = handPosition.ToVec() - Origin;
                     Forward = Forward.ToVector().normalized.ToVec();
 
                     break;

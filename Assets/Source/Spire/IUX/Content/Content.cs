@@ -317,7 +317,7 @@ namespace CreateAR.SpirePlayer
         {
             // parent + orient
             instance.name = Data.Asset.AssetDataId;
-            instance.transform.SetParent(transform, false);
+            instance.transform.SetParent(GameObject.transform, false);
             instance.SetActive(true);
 
             _onAssetLoaded.Succeed(this);
