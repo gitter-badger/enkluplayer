@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-
-namespace CreateAR.SpirePlayer
-﻿using System;
+﻿﻿using System;
 
 namespace CreateAR.SpirePlayer
 {
@@ -73,7 +70,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public float Magnitude
         {
-            get { return Mathf.Sqrt(x * x + y * y + z * z); }
+            get { return (float) Math.Sqrt(x * x + y * y + z * z); }
         }
 
         /// <summary>
@@ -84,9 +81,9 @@ namespace CreateAR.SpirePlayer
             get
             {
                 var magnitude = Magnitude;
-                if (magnitude < Mathf.Epsilon)
+                if (magnitude < Math.E)
                 {
-                    return Vec3.Zero;
+                    return Zero;
                 }
 
                 var magnitudeReciprical = 1.0f / magnitude;
@@ -97,35 +94,7 @@ namespace CreateAR.SpirePlayer
                     z * magnitudeReciprical);
             }
         }
-
-        /// <summary>
-        /// Adds a vector to another vector.
-        /// </summary>
-        /// <param name="lhs">Left hand side of the addition.</param>
-        /// <param name="rhs">Right hand side of the addition.</param>
-        /// <returns></returns>
-        public static Vec3 operator+(Vec3 lhs, Vec3 rhs)
-        {
-            return new Vec3(
-                lhs.x + rhs.x,
-                lhs.y + rhs.y,
-                lhs.z + rhs.z);
-        }
-
-        /// <summary>
-        /// Subtracts a vector from another vector.
-        /// </summary>
-        /// <param name="lhs">Left hand side of the subtraction.</param>
-        /// <param name="rhs">Right hand side of the subtraction.</param>
-        /// <returns></returns>
-        public static Vec3 operator -(Vec3 lhs, Vec3 rhs)
-        {
-            return new Vec3(
-                lhs.x - rhs.x,
-                lhs.y - rhs.y,
-                lhs.z - rhs.z);
-        }
-
+        
         /// <summary>
         /// Multiplies a vector by a scalar.
         /// </summary>
