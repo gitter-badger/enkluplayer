@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
@@ -50,7 +51,12 @@ namespace CreateAR.SpirePlayer.Assets
         /// Base path on disk.
         /// </summary>
         private readonly string _basePath;
-        
+
+        /// <summary>
+        /// SHA implementation.
+        /// </summary>
+        private readonly SHA256 _sha = SHA256.Create();
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -107,6 +113,12 @@ namespace CreateAR.SpirePlayer.Assets
             }
 
             var dir = Path.GetDirectoryName(path);
+            if (string.IsNullOrEmpty(dir))
+            {
+                Log.Warning(this, "Invalid path has no directory : {0}.", path);
+                return;
+            }
+
             if (!Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
@@ -114,14 +126,23 @@ namespace CreateAR.SpirePlayer.Assets
             
             Log.Info(this, "Writing bundle to disk. [{0}, {1}].", uri, path);
 
-            using (var stream = File.OpenWrite(path))
+            try
             {
-                stream.BeginWrite(
-                    bytes,
-                    0, 
-                    bytes.Length,
-                    EndWrite,
-                    new WriteState(stream, uri));
+                using (var stream = File.OpenWrite(path))
+                {
+                    stream.BeginWrite(
+                        bytes,
+                        0,
+                        bytes.Length,
+                        EndWrite,
+                        new WriteState(stream, uri));
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not write bundle to disk : [{0}, {1}].",
+                    uri,
+                    exception);
             }
         }
 
@@ -180,9 +201,11 @@ namespace CreateAR.SpirePlayer.Assets
         /// <returns></returns>
         private string FilePath(string uri)
         {
+            var hash = _sha.ComputeHash(Encoding.UTF8.GetBytes(uri));
+            
             return Path.Combine(
                 _basePath,
-                Convert.ToBase64String(Encoding.UTF8.GetBytes(uri)));
+                Convert.ToBase64String(hash));
         }
     }
 }

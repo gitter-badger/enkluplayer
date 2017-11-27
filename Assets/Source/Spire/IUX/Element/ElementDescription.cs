@@ -13,12 +13,12 @@ namespace CreateAR.SpirePlayer.UI
         /// Root reference.
         /// </summary>
         public ElementRef Root;
-        
+
         /// <summary>
         /// Collection of all elements.
         /// </summary>
         public ElementData[] Elements = new ElementData[0];
-        
+
         /// <summary>
         /// Retrieves an element's data by id.
         /// </summary>
@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer.UI
         {
             return Data(Root);
         }
-        
+
         /// <summary>
         /// Creates an <c>ElementData</c> from an <c>ElementRef</c>, recursively.
         /// </summary>
@@ -89,7 +89,7 @@ namespace CreateAR.SpirePlayer.UI
 
                 data.Children = children;
             }
-            
+
             return data;
         }
     }

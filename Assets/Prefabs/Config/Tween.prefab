@@ -55,12 +55,8 @@ MonoBehaviour:
   - Type: 0
     DurationSeconds: 0
   - Type: 1
-    DurationSeconds: 0.2
+    DurationSeconds: 0.25
   - Type: 2
-    DurationSeconds: 0.4
+    DurationSeconds: 0.5
   - Type: 3
     DurationSeconds: 1
-  - Type: 4
-    DurationSeconds: 2
-  - Type: 5
-    DurationSeconds: 5

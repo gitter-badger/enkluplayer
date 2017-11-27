@@ -4,19 +4,6 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Consistent set of tween durations
-    /// </summary>
-    public enum TweenType
-    {
-        Immediate,
-        VeryFast,
-        Fast,
-        Slow,
-        VerySlow,
-        UltraSlow
-    }
-
-    /// <summary>
     /// Maps a tween to a duration.
     /// </summary>
     [Serializable]
@@ -32,11 +19,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public float DurationSeconds = 0.2f;
     }
-
+    
     /// <summary>
-    /// Contains configuration for each <c>TweenType</c>.
-    /// </summary>
-    public class TweenConfig : MonoBehaviour
+     /// Contains configuration for each <c>TweenType</c>.
+     /// </summary>
+    public class TweenConfig : MonoBehaviour, ITweenConfig
     {
         /// <summary>
         /// All profiles.

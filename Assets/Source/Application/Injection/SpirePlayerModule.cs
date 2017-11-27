@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
+using CreateAR.SpirePlayer.UI;
 using Jint.Parser;
 using Jint.Unity;
 using strange.extensions.injector.impl;
@@ -47,6 +48,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
                 binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
+                binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
 
                 // input
                 {
@@ -153,19 +155,21 @@ namespace CreateAR.SpirePlayer
 
             // configs
             {
-                binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
-                binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfig>());
-                binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfig>());
+                binder.Bind<IWidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
+                binder.Bind<ITweenConfig>().ToValue(LookupComponent<TweenConfig>());
+                binder.Bind<IColorConfig>().ToValue(LookupComponent<ColorConfig>());
                 binder.Bind<FocusManager>().ToValue(LookupComponent<FocusManager>());
             }
 
             // manager monobehaviours
             {
-                binder.Bind<ElementManager>().ToValue(LookupComponent<ElementManager>());
-                binder.Bind<IntentionManager>().ToValue(LookupComponent<IntentionManager>());
+                binder.Bind<IElementManager>().ToValue(LookupComponent<ElementManager>());
+                binder.Bind<IPrimitiveFactory>().ToValue(LookupComponent<PrimitiveFactory>());
                 binder.Bind<IIntentionManager>().ToValue(LookupComponent<IntentionManager>());
+                binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
                 binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
-                binder.Bind<LayerManager>().ToValue(LookupComponent<LayerManager>());
+                binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
+                binder.Bind<MusicManager>().ToValue(LookupComponent<MusicManager>());
             }
 
             // hierarchy

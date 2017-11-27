@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -6,22 +7,17 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Manages layers.
     /// </summary>
-    public class LayerManager : MonoBehaviour
+    public class LayerManager : MonoBehaviour, ILayerManager
     {
         /// <summary>
         /// List of created layers.
         /// </summary>
         private readonly List<Layer> _layers = new List<Layer>();
 
-        /// <summary>
-        /// Top-most layer which is set to Modal.
-        /// </summary>
+        /// <inheritdoc cref="ILayerManager"/>
         public Layer ModalLayer { get; private set; }
 
-        /// <summary>
-        /// Creates a new layer, 
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc cref="ILayerManager"/>
         public Layer Request(ILayerable owner)
         {
             var newLayer = new Layer(owner);
@@ -33,10 +29,7 @@ namespace CreateAR.SpirePlayer
             return newLayer;
         }
 
-        /// <summary>
-        /// Release an existing layer.
-        /// </summary>
-        /// <param name="layer">The Layer to remove.</param>
+        /// <inheritdoc cref="ILayerManager"/>
         public void Release(Layer layer)
         {
             _layers.Remove(layer);
@@ -53,7 +46,7 @@ namespace CreateAR.SpirePlayer
             {
                 var layer = _layers[i];
                 if (layer.Owner != null
-                    && layer.Owner.IsVisible
+                    && layer.Owner.Visible
                     && layer.Owner.LayerMode == LayerMode.Modal)
                 {
                     ModalLayer = layer;
