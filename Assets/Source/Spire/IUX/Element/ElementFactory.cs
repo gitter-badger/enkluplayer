@@ -49,7 +49,7 @@ namespace CreateAR.SpirePlayer.UI
             _messages = messages;
             _interactions = interactions;
 
-            /// TODO: Load this all from data
+            // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
             _baseSchema.Set("tweenOut", TweenType.Deliberate);
             _baseSchema.Set("color", Col4.White);
@@ -109,53 +109,56 @@ namespace CreateAR.SpirePlayer.UI
                 int elementType;
                 if (schemaData.Ints.TryGetValue("type", out elementType))
                 {
-                    IElement newElement = null;
                     switch (elementType)
                     {
+                        case ElementTypes.CONTAINER:
+                        {
+                            return new Element();
+                        }
                         case ElementTypes.ACTIVATOR:
-                            newElement = _primitives.Activator();
-                            break;
-
+                        {
+                            return _primitives.Activator();
+                        }
                         case ElementTypes.RETICLE:
-                            newElement = _primitives.Reticle();
-                            break;
-
+                        {
+                            return _primitives.Reticle();
+                        }
                         case ElementTypes.TEXT:
-                            newElement = _primitives.Text();
-                            break;
-
+                        {
+                            return _primitives.Text();
+                        }
                         case ElementTypes.CAPTION:
+                        {
                             var newCaption = new Caption();
                             newCaption.Initialize(_config, _layers, _tweens, _colors, _messages);
-                            newElement = newCaption;
-                            break;
-
+                            return newCaption;
+                        }
                         case ElementTypes.BUTTON:
+                        {
                             var newButton = new Button();
-                            newButton.Initialize(_config, _layers, _tweens, _colors, _messages, _intention, _interactions);
-                            newElement = newButton;
-                            break;
-
+                            newButton.Initialize(_config, _layers, _tweens, _colors, _messages, _intention,
+                                _interactions);
+                            return newButton;
+                        }
                         case ElementTypes.BUTTON_READY_STATE:
-                            newElement = new ActivatorReadyState();
-                            break;
-
+                        {
+                            return new ActivatorReadyState();
+                        }
                         case ElementTypes.BUTTON_ACTIVATING_STATE:
-                            newElement = new ActivatorActivatingState();
-                            break;
-
+                        {
+                            return new ActivatorActivatingState();
+                        }
                         case ElementTypes.BUTTON_ACTIVATED_STATE:
-                            newElement = new ActivatorActivatedState();
-                            break;
-
+                        {
+                            return new ActivatorActivatedState();
+                        }
                         case ElementTypes.CURSOR:
+                        {
                             var newCursor = new Cursor();
                             newCursor.Initialize(_config, _layers, _tweens, _colors, _messages, _intention);
-                            newElement = newCursor;
-                            break;
+                            return newCursor;
+                        }
                     }
-
-                    return newElement;
                 }
             }
 

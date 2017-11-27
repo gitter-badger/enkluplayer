@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer.UI
 {
@@ -15,6 +14,11 @@ namespace CreateAR.SpirePlayer.UI
         /// Internal list of children.
         /// </summary>
         private readonly List<IElement> _children = new List<IElement>();
+
+        /// <summary>
+        /// Scratch list for FindAll.
+        /// </summary>
+        private readonly List<IElement> _findAllScratch = new List<IElement>();
 
         /// <summary>
         /// Unique internal id for this element.
@@ -191,7 +195,7 @@ namespace CreateAR.SpirePlayer.UI
             }
 
             _children.Add(element);
-
+            
             element.OnChildAdded += Child_OnChildAdded;
             element.OnChildRemoved += Child_OnChildRemoved;
 
@@ -203,7 +207,7 @@ namespace CreateAR.SpirePlayer.UI
                 OnChildAdded(this, element);
             }
         }
-
+        
         /// <summary>
         /// Removes an element as a child.
         /// </summary>
@@ -225,12 +229,13 @@ namespace CreateAR.SpirePlayer.UI
                 // unwrap schema
                 element.Schema.Wrap(null);
 
-                var Element = element as Element;
-                if (null != Element.OnRemoved)
+                // TODO: remove this evil
+                var cast = element as Element;
+                if (null != cast && null != cast.OnRemoved)
                 {
-                    Element.OnRemoved(element);
+                    cast.OnRemoved(cast);
                 }
-
+                
                 if (null != OnChildRemoved)
                 {
                     OnChildRemoved(this, element);
@@ -247,22 +252,26 @@ namespace CreateAR.SpirePlayer.UI
         /// <returns></returns>
         public IElement FindOne(string query)
         {
-            return Find(query).FirstOrDefault();
+            _findAllScratch.Clear();
+            Find(query, _findAllScratch);
+            
+            return _findAllScratch.FirstOrDefault();
         }
 
         /// <summary>
-        /// Queries for a set of elements.
+        /// Finds a list of elements.
         /// </summary>
-        /// <param name="query">The query in question.</param>
-        public List<IElement> Find(string query)
+        /// <param name="query">Query.</param>
+        /// <param name="results">Results passed in.</param>
+        public void Find(string query, IList<IElement> results)
         {
             if (string.IsNullOrEmpty(query))
             {
-                return new List<IElement>();
+                return;
             }
 
             // split at recursive queries
-            var current = new List<IElement>{ this };
+            var current = new List<IElement> { this };
             var recur = false;
             if (query.StartsWith(".."))
             {
@@ -274,11 +283,11 @@ namespace CreateAR.SpirePlayer.UI
             var recursiveQueries = query.Split(
                 new[] { ".." },
                 StringSplitOptions.None).ToList();
-            
+
             for (int i = 0, len = recursiveQueries.Count; i < len; i++)
             {
                 var recursiveQuery = recursiveQueries[i];
-                
+
                 // split into shallow queries
                 var shallowQueries = recursiveQuery.Split('.').ToList();
 
@@ -292,26 +301,27 @@ namespace CreateAR.SpirePlayer.UI
                     var elementQuery = new ElementQuery(recursiveQueryString);
                     if (!elementQuery.IsValid)
                     {
-                        return new List<IElement>();
+                        return;
                     }
 
                     // execute query on each of the current nodes
-                    var results = new List<IElement>();
+                    var matches = new List<IElement>();
                     for (int j = 0, jlen = current.Count; j < jlen; j++)
                     {
                         ExecuteQueryRecursive(
                             current[j],
                             elementQuery,
-                            results);
+                            matches);
                     }
 
-                    if (0 != results.Count)
+                    if (0 != matches.Count)
                     {
-                        current = results;
+                        current = matches;
                     }
                     else
                     {
-                        return new List<IElement>();
+                        results.Clear();
+                        return;
                     }
                 }
 
@@ -324,35 +334,41 @@ namespace CreateAR.SpirePlayer.UI
                     var elementQuery = new ElementQuery(shallowQueryString);
                     if (!elementQuery.IsValid)
                     {
-                        return new List<IElement>();
+                        results.Clear();
+                        return;
                     }
 
                     // execute query on each of the current nodes
-                    var results = new List<IElement>();
+                    var matches = new List<IElement>();
                     for (int l = 0, llen = current.Count; l < llen; l++)
                     {
                         ExecuteQuery(
                             current[l],
                             elementQuery,
-                            results);
+                            matches);
                     }
 
-                    if (0 != results.Count)
+                    if (0 != matches.Count)
                     {
-                        current = results;
+                        current = matches;
                     }
                     else
                     {
-                        return new List<IElement>();
+                        results.Clear();
+                        return;
                     }
                 }
 
                 recur = true;
             }
-
-            return current;
+            
+            // add
+            for (int i = 0, len = current.Count; i < len; i++)
+            {
+                results.Add(current[i]);
+            }
         }
-
+        
         /// <summary>
         /// For base classes to override.
         /// </summary>
@@ -393,14 +409,6 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="results">Results of the query.</param>
         private void ExecuteQuery(IElement element, ElementQuery query, List<IElement> results)
         {
-            // test self
-            // TODO: THIS DOESN'T SEEM RIGHT, called from hierarchy of shallow queries seperated by "."
-            // WOULD EXPECT BASED ON USAGE THAT THIS SHOULD ONLY BE CHECKING CHILDREN
-            //if (query.Execute(element))
-            //{
-            //    results.Add(element);
-            //}
-
             // test children
             var children = element.Children;
             for (int i = 0, len = children.Length; i < len; i++)

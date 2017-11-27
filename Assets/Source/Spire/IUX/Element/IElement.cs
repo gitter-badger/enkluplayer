@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer.UI
 {
@@ -18,6 +19,11 @@ namespace CreateAR.SpirePlayer.UI
         /// Copy of children collection.
         /// </summary>
         IElement[] Children { get; }
+
+        /// <summary>
+        /// Called when this node has been removed from the graph.
+        /// </summary>
+        event Action<IElement> OnRemoved;
 
         /// <summary>
         /// Called when a child, at any depth, has been removed from the graph.
@@ -72,6 +78,14 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="query">Query.</param>
         /// <returns></returns>
         IElement FindOne(string query);
+
+        /// <summary>
+        /// Finds a single element.
+        /// </summary>
+        /// <param name="query">Query.</param>
+        /// <param name="results">Result list.</param>
+        /// <returns></returns>
+        void Find(string query, IList<IElement> results);
 
         /// <summary>
         /// Readable string generation.

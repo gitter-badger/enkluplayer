@@ -1,6 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.UI;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -226,10 +227,12 @@ namespace CreateAR.SpirePlayer
 
             // States
             {
-                var activatorState
-                    = Find("states.*")
-                        .Cast<IState>()
-                        .ToArray();
+                // find all children of states
+                var results = new List<IElement>();
+                Find("states.*", results);
+                var activatorState = results
+                    .Cast<IState>() // TODO: switch to OfType + Handling.
+                    .ToArray();
                 for (int i = 0, count = activatorState.Length; i < count; ++i)
                 {
                     var buttonState = activatorState[i] as ActivatorState;

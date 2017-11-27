@@ -63,18 +63,16 @@ namespace CreateAR.SpirePlayer.UI
         /// <returns></returns>
         public bool Execute(IElement element)
         {
-            if (_propName == "id")
-            {
-                return element.Id == _propValue;
-            }
-
             if (_propName == "*")
             {
                 return true;
             }
 
-            // cast
-
+            if (_propName == "id")
+            {
+                return element.Id == _propValue;
+            }
+            
             // bool
             if (_propValue == "true" || _propValue == "false")
             {
@@ -99,6 +97,15 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="value">Value of the query.</param>
         private void Parse(string value)
         {
+            if (value == "*")
+            {
+                IsValid = true;
+
+                _propName = "*";
+
+                return;
+            }
+
             var match = NAME_QUERY.Match(value);
             if (match.Success)
             {
@@ -113,18 +120,13 @@ namespace CreateAR.SpirePlayer.UI
             else
             {
                 match = PROPERTY_QUERY.Match(value);
+
                 if (match.Success)
                 {
                     _propName = match.Groups[1].Value;
                     _operator = "==";
                     _propValue = match.Groups[2].Value;
                     
-                    IsValid = true;
-                }
-                else if (value == "*")
-                {
-                    // TODO: Replace with a Regex solution
-                    _propName = "*";
                     IsValid = true;
                 }
             }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.UI;
 using NUnit.Framework;
 using UnityEngine;
@@ -22,7 +23,13 @@ namespace CreateAR.SpirePlayer.Test.UI
                 Root = GenerateRefs(0)
             };
 
-            _element = new ElementFactory(null, null, null, null, null, null, null, null, null).Element(description);
+            _element = new ElementFactory(
+                new DummyPrimitiveFactory(),
+                null,
+                new DummyElementManager(),
+                null, null, null, null,
+                new MessageRouter(),
+                null).Element(description);
         }
         
         private ElementRef GenerateRefs(int index)
@@ -74,22 +81,23 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void FindOneShallow()
         {
-            Assert.AreEqual("a", _element.FindOne("a").Id);
+            Debug.Log(_element.ToTreeString());
+            Assert.AreEqual("b", _element.FindOne("b").Id);
             Assert.IsNull(_element.FindOne("h"));
         }
 
         [Test]
         public void FindOneAbsPath()
         {
-            Assert.AreEqual("z", _element.FindOne("a.b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z").Id);
+            Assert.AreEqual("z", _element.FindOne("b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z").Id);
             Assert.IsNull(_element.FindOne("a.b.d"));
         }
 
         [Test]
         public void FindOneRecurPath()
         {
-            Assert.AreEqual("f", _element.FindOne("a..f").Id);
-            Assert.IsNull(_element.FindOne("a..a"));
+            Assert.AreEqual("f", _element.FindOne("b..f").Id);
+            Assert.IsNull(_element.FindOne("b..b"));
         }
 
         [Test]
@@ -102,21 +110,21 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void FindOneRecurPathTrivial()
         {
-            Assert.AreEqual("b", _element.FindOne("a..b").Id);
+            Assert.AreEqual("c", _element.FindOne("b..c").Id);
         }
 
         [Test]
         public void FindOneAbsAndRecurPath()
         {
-            Assert.AreEqual("f", _element.FindOne("a.b..f").Id);
-            Assert.IsNull(_element.FindOne("a.b..a"));
+            Assert.AreEqual("f", _element.FindOne("b.c..f").Id);
+            Assert.IsNull(_element.FindOne("b..a"));
         }
 
         [Test]
         public void FindOneMultiRecurPath()
         {
-            Assert.AreEqual("f", _element.FindOne("a..c..f").Id);
-            Assert.IsNull(_element.FindOne("a..c..a"));
+            Assert.AreEqual("f", _element.FindOne("b..c..f").Id);
+            Assert.IsNull(_element.FindOne("b..c..a"));
         }
 
         [Test]
@@ -129,10 +137,46 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void FindOnePropInt()
         {
-            Debug.Log(_element.ToTreeString());
-
             Assert.AreEqual("d", _element.FindOne("..(@Foo=3)").Id);
             Assert.IsNull(_element.FindOne("..(@Foo=34)"));
+        }
+
+        [Test]
+        public void FindAll()
+        {
+            var elements = new List<IElement>();
+            _element.Find("*", elements);
+
+            Assert.AreEqual(1, elements.Count);
+            Assert.AreEqual("b", elements[0].Id);
+        }
+        
+        [Test]
+        public void FindAllDeeper()
+        {
+            var elements = new List<IElement>();
+            _element.Find("..d.*", elements);
+
+            Assert.AreEqual(1, elements.Count);
+            Assert.AreEqual("e", elements[0].Id);
+        }
+
+        [Test]
+        public void FindAllRecursive()
+        {
+            var elements = new List<IElement>();
+            _element.Find("..*", elements);
+
+            Assert.AreEqual(25, elements.Count);
+        }
+
+        [Test]
+        public void FindAllRecursiveDeeper()
+        {
+            var elements = new List<IElement>();
+            _element.Find("..d..*", elements);
+
+            Assert.AreEqual(22, elements.Count);
         }
     }
 }

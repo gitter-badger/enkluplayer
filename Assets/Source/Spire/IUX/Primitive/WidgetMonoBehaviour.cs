@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -24,6 +25,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         public ElementSchema Schema { get { return _widget.Schema; } }
         public IElement[] Children { get { return _widget.Children; } }
+        public event Action<IElement> OnRemoved;
         public event Action<IElement, IElement> OnChildRemoved;
         public event Action<IElement, IElement> OnChildAdded;
         public event Action<IElement> OnDestroyed;
@@ -33,6 +35,8 @@ namespace CreateAR.SpirePlayer.UI
         public virtual void FrameUpdate() { _widget.FrameUpdate(); }
         public virtual void LateFrameUpdate() { _widget.LateFrameUpdate(); }
         public IElement FindOne(string query) { return _widget.FindOne(query); }
+        public void Find(string query, IList<IElement> results) { _widget.Find(query, results); }
+
         public string ToTreeString() {  return _widget.ToTreeString(); }
 
         /// <summary>
