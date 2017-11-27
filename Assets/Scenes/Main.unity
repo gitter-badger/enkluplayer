@@ -457,7 +457,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4361649499768248, guid: 3295d79719838b241b312bbb40a04c17, type: 2}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 3295d79719838b241b312bbb40a04c17, type: 2}
@@ -578,16 +578,17 @@ Transform:
   m_Children:
   - {fileID: 948112011}
   - {fileID: 388939355}
-  - {fileID: 732042749}
   - {fileID: 1322888684}
+  - {fileID: 732042749}
   - {fileID: 1762127962}
   - {fileID: 1135421043}
   - {fileID: 1901624166}
   - {fileID: 1005321636}
   - {fileID: 2098322289}
-  - {fileID: 971299433}
-  - {fileID: 115797462}
   - {fileID: 1541775437}
+  - {fileID: 115797462}
+  - {fileID: 971299433}
+  - {fileID: 871239359}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -820,11 +821,58 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4806941493528534, guid: 7af591af75f6af9479f3c4f743039865, type: 2}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7af591af75f6af9479f3c4f743039865, type: 2}
   m_IsPrefabParent: 0
+--- !u!1001 &871239358
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 615226715}
+    m_Modifications:
+    - target: {fileID: 4549753898056956, guid: dcc18d38746d2a646a03c7d86e50304a, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4549753898056956, guid: dcc18d38746d2a646a03c7d86e50304a, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4549753898056956, guid: dcc18d38746d2a646a03c7d86e50304a, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4549753898056956, guid: dcc18d38746d2a646a03c7d86e50304a, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4549753898056956, guid: dcc18d38746d2a646a03c7d86e50304a, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4549753898056956, guid: dcc18d38746d2a646a03c7d86e50304a, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4549753898056956, guid: dcc18d38746d2a646a03c7d86e50304a, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4549753898056956, guid: dcc18d38746d2a646a03c7d86e50304a, type: 2}
+      propertyPath: m_RootOrder
+      value: 12
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: dcc18d38746d2a646a03c7d86e50304a, type: 2}
+  m_IsPrefabParent: 0
+--- !u!4 &871239359 stripped
+Transform:
+  m_PrefabParentObject: {fileID: 4549753898056956, guid: dcc18d38746d2a646a03c7d86e50304a,
+    type: 2}
+  m_PrefabInternal: {fileID: 871239358}
 --- !u!4 &948112011 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4814219665126690, guid: 6fafe99eb96a8824bab4dd7e7929edf5,
@@ -1200,7 +1248,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4220564631578050, guid: f8948e1bf2bf74e53b3768a959cc4477, type: 2}
       propertyPath: m_RootOrder
-      value: 10
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 114956097500628726, guid: f8948e1bf2bf74e53b3768a959cc4477,
         type: 2}
@@ -1436,7 +1484,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4715281965144934, guid: 900ed37dbd28b424689b57930ad5808c, type: 2}
       propertyPath: m_RootOrder
-      value: 9
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 900ed37dbd28b424689b57930ad5808c, type: 2}

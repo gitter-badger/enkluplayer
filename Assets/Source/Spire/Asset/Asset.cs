@@ -37,6 +37,11 @@ namespace CreateAR.SpirePlayer.Assets
         private readonly List<Action> _watch = new List<Action>();
 
         /// <summary>
+        /// Backing variable for <c>Progress</c> property.
+        /// </summary>
+        private readonly LoadProgress _progress = new LoadProgress();
+
+        /// <summary>
         /// Token returned from loader.
         /// </summary>
         private IAsyncToken<Object> _loadToken;
@@ -51,6 +56,11 @@ namespace CreateAR.SpirePlayer.Assets
         /// version.
         /// </summary>
         public bool IsAssetDirty { get; private set; }
+
+        /// <summary>
+        /// Progress of the load.
+        /// </summary>
+        public LoadProgress Progress { get { return _progress; } }
 
         /// <summary>
         /// When set to true, <c>AssetInfo</c> updates will cause this object
@@ -150,6 +160,10 @@ namespace CreateAR.SpirePlayer.Assets
             {
                 var info = Data;
                 _loadToken = _loader.Load(info, out progress);
+
+                // chain to class instance
+                progress.Chain(Progress);
+
                 _loadToken
                     .OnSuccess(asset =>
                     {
@@ -190,6 +204,8 @@ namespace CreateAR.SpirePlayer.Assets
             {
                 _loadToken.Abort();
             }
+
+            Progress.Value = 0;
 
             _asset = null;
         }

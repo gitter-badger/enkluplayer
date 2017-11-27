@@ -84,16 +84,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called to setup the content.
         /// </summary>
-        /// <param name="appData">Application data.</param>
-        /// <param name="assets">Loads assets.</param>
         /// <param name="scripts">Loads + executes scripts.</param>
-        /// <param name="pools">Manages pooling.</param>
+        /// <param name="assembler">Assembles content.</param>
         /// <param name="data">Data to setup with.</param>
         public void Setup(
-            IAppDataManager appData,
-            IAssetManager assets,
             IScriptManager scripts,
-            IAssetPoolManager pools,
+            IContentAssembler assembler,
             ContentData data)
         {
             if (_setup)
@@ -106,13 +102,7 @@ namespace CreateAR.SpirePlayer
             _setup = true;
             
             _scripts = scripts;
-            
-            // TODO: Pull out of Content, obvi
-            _assembler = new ModelContentAssembler(
-                appData,
-                assets,
-                pools);
-            
+            _assembler = assembler;
             _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
             
             _host = new UnityScriptingHost(

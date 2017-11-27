@@ -56,7 +56,7 @@ namespace CreateAR.SpirePlayer
             _content = content;
             _focus = focus;
             _graph = graph;
-            
+
             appData.OnUpdated += AppData_OnUpdated;
         }
 
@@ -203,7 +203,7 @@ namespace CreateAR.SpirePlayer
                 var contentId = node.ContentId;
                 var content = _content.Request(contentId, CONTENT_TAGS);
                 _contentMap[contentId] = content;
-
+                
                 // locators enforce Self() to be non-null
                 // TODO: This should go through the Anchor system.
                 var self = node.Locators.Self();
@@ -217,7 +217,7 @@ namespace CreateAR.SpirePlayer
                 Create(children[i]);
             }
         }
-
+        
         /// <summary>
         /// Called when AppData has an update.
         /// </summary>

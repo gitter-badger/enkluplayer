@@ -3,6 +3,48 @@
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
+    /// Bounds object used internally to <c>AssetData</c>.
+    /// </summary>
+    public class AssetStatsBounds
+    {
+        /// <summary>
+        /// Minumum.
+        /// </summary>
+        [JsonProperty("min")]
+        public Vec3 Min;
+
+        /// <summary>
+        /// Maximum.
+        /// </summary>
+        [JsonProperty("max")]
+        public Vec3 Max;
+    }
+
+    /// <summary>
+    /// Stats for an asset.
+    /// </summary>
+    public class AssetStats
+    {
+        /// <summary>
+        /// Vert count.
+        /// </summary>
+        [JsonProperty("vertCount")]
+        public int VertCount;
+
+        /// <summary>
+        /// Tri count.
+        /// </summary>
+        [JsonProperty("triCount")]
+        public int TriCount;
+
+        /// <summary>
+        /// Bounds.
+        /// </summary>
+        [JsonProperty("bounds")]
+        public AssetStatsBounds Bounds;
+    }
+
+    /// <summary>
     /// Data for an asset.
     /// 
     /// Note: This should NOT be manipulated directly.
@@ -46,6 +88,12 @@ namespace CreateAR.SpirePlayer
         [JsonProperty("tags")]
         public string Tags;
 
+        /// <summary>
+        /// Stats associated with this asset, if any.
+        /// </summary>
+        [JsonProperty("stats")]
+        public AssetStats Stats = new AssetStats();
+        
         /// <summary>
         /// Useful ToString.
         /// </summary>

@@ -5,6 +5,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Simple Vector class.
     /// </summary>
+    [Serializable]
     public struct Vec3
     {
         /// <summary>
