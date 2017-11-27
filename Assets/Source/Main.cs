@@ -1,4 +1,5 @@
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using strange.extensions.injector.impl;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -68,8 +69,12 @@ namespace CreateAR.SpirePlayer
             Log.AddLogTarget(new UwpSocketLogger(
                 "Spire",
                 new System.Uri("ws://127.0.0.1:9999")));*/
-#else       
-            Log.AddLogTarget(new FileLogTarget(new DefaultLogFormatter(), "Application.log"));
+#else
+            Log.AddLogTarget(new FileLogTarget(
+				new DefaultLogFormatter(),
+                System.IO.Path.Combine(
+                    UnityEngine.Application.persistentDataPath,
+                    "Application.log")));
 #endif
 
             // setup debug renderer
@@ -103,7 +108,16 @@ namespace CreateAR.SpirePlayer
         /// Starts the application.
         /// </summary>
 	    private void Start()
-	    {
+        {
+            // handle restarts
+            _binder.GetInstance<IMessageRouter>().Subscribe(
+                MessageTypes.RESTART,
+                _ =>
+                {
+                    _app.Uninitialize();
+                    _app.Initialize();
+                });
+
             _app.Initialize();
         }
 
@@ -120,8 +134,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
 	    private void OnApplicationQuit()
 	    {
-#if UNITY_EDITOR
-	        var bridge = _binder.GetInstance<IBridge>() as EditorBridge;
+#if UNITY_EDITOR || UNITY_IOS
+	        var bridge = _binder.GetInstance<IBridge>() as WebSocketBridge;
 	        if (null != bridge)
 	        {
                 Log.Info(this, "Disposing websocket server.");

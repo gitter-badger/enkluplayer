@@ -1,6 +1,6 @@
 using CreateAR.Commons.Unity.Async;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// Interface for asset management.

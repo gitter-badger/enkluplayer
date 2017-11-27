@@ -2,6 +2,7 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.UI;
 using Jint.Parser;
 using Jint.Unity;
@@ -71,8 +72,8 @@ namespace CreateAR.SpirePlayer
                 }
                 else
                 {
-#if UNITY_EDITOR
-                    binder.Bind<IBridge>().To<EditorBridge>().ToSingleton();
+#if UNITY_EDITOR || UNITY_IOS
+                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
                     binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
 #elif NETFX_CORE
@@ -91,6 +92,8 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ContentGraphUpdateService>().To<ContentGraphUpdateService>().ToSingleton();
                     binder.Bind<ContentUpdateService>().To<ContentUpdateService>().ToSingleton();
                     binder.Bind<ScriptUpdateService>().To<ScriptUpdateService>().ToSingleton();
+                    binder.Bind<MaterialUpdateService>().To<MaterialUpdateService>().ToSingleton();
+                    binder.Bind<ShaderUpdateService>().To<ShaderUpdateService>().ToSingleton();
                 }
 
                 // application states
@@ -113,7 +116,9 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<AssetUpdateService>(),
                         binder.GetInstance<ContentGraphUpdateService>(),
                         binder.GetInstance<ContentUpdateService>(),
-                        binder.GetInstance<ScriptUpdateService>()
+                        binder.GetInstance<ScriptUpdateService>(),
+                        binder.GetInstance<MaterialUpdateService>(),
+                        binder.GetInstance<ShaderUpdateService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }

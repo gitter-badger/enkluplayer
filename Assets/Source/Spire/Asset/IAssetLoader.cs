@@ -1,7 +1,7 @@
 using CreateAR.Commons.Unity.Async;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// Describes an interface for loading assets.
@@ -16,5 +16,10 @@ namespace CreateAR.SpirePlayer
         /// <param name="progress">Progress on the load.</param>
         /// <returns></returns>
         IAsyncToken<Object> Load(AssetData data, out LoadProgress progress);
+
+        /// <summary>
+        /// Destroys the loader and everything in it.
+        /// </summary>
+        void Destroy();
     }
 }

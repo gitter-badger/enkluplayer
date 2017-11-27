@@ -4,7 +4,10 @@
 [Bb]uild/
 [Bb]uild_*/
 [Bb]uild.Jint.*/
+builds/
 .Packages/
+.idea/
+Uwp/
 
 # Visual Studio 2015 cache directory
 /.vs/

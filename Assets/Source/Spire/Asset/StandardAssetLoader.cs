@@ -3,7 +3,7 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using Object = UnityEngine.Object;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// Standard implementation of <c>IAssetLoader</c>.
@@ -14,6 +14,11 @@ namespace CreateAR.SpirePlayer
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Cache for bundles.
+        /// </summary>
+        private readonly IAssetBundleCache _cache;
 
         /// <summary>
         /// Builds URL.
@@ -30,18 +35,15 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public StandardAssetLoader(
             IBootstrapper bootstrapper,
+            IAssetBundleCache cache,
             UrlBuilder urls)
         {
             _bootstrapper = bootstrapper;
+            _cache = cache;
             _urls = urls;
         }
-        
-        /// <summary>
-        /// Loads an asset.
-        /// </summary>
-        /// <param name="data">The info to load.</param>
-        /// <param name="progress">Outputs the load progress.</param>
-        /// <returns></returns>
+
+        /// <inheritdoc cref="IAssetLoader"/>
         public IAsyncToken<Object> Load(
             AssetData data,
             out LoadProgress progress)
@@ -53,11 +55,22 @@ namespace CreateAR.SpirePlayer
             {
                 loader = _bundles[url] = new AssetBundleLoader(
                     _bootstrapper,
+                    _cache,
                     url);
                 loader.Load();
             }
 
             return loader.Asset(data.AssetName, out progress);
+        }
+
+        /// <inheritdoc cref="IAssetLoader"/>
+        public void Destroy()
+        {
+            foreach (var pair in _bundles)
+            {
+                pair.Value.Destroy();
+            }
+            _bundles.Clear();
         }
     }
 }

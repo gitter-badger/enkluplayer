@@ -38,7 +38,7 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Application authorized.");
 
                     // DEMO
-                    _http.UrlBuilder.BaseUrl = "192.168.1.2";
+                    _http.UrlBuilder.BaseUrl = "192.168.130.212";
 
                     // setup http service
                     _http.UrlBuilder.Replacements.Add(Commons.Unity.DataStructures.Tuple.Create(

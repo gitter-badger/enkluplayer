@@ -6,23 +6,33 @@ using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Implementation of <c>IScriptLoader</c>.
+    /// </summary>
     public class ScriptLoader : IScriptLoader
     {
+        /// <summary>
+        /// Makes Http reqs.
+        /// </summary>
         private readonly IHttpService _http;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public ScriptLoader(IHttpService http)
         {
             _http = http;
         }
 
+        /// <inheritdoc cref="IScriptLoader"/>
         public IAsyncToken<string> Load(ScriptData script)
         {
             var token = new AsyncToken<string>();
 
-            var url = script.Uri;
-
+            var url = _http.UrlBuilder.Url(script.Uri);
+            
             _http
-                .Download(_http.UrlBuilder.Url(url))
+                .Download(url)
                 .OnSuccess(response =>
                 {
                     if (response.NetworkSuccess)
@@ -31,6 +41,10 @@ namespace CreateAR.SpirePlayer
                     }
                     else
                     {
+                        Log.Error(this, "Could not download script at {0} : {1}.",
+                            url,
+                            response.NetworkError);
+
                         token.Fail(new Exception(response.NetworkError));
                     }
                 })

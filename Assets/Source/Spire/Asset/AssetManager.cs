@@ -2,7 +2,7 @@
 using CreateAR.Commons.Unity.Async;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
     /// Entry point into the asset system.
@@ -59,6 +59,8 @@ namespace CreateAR.SpirePlayer
             _initializeToken.Fail(new Exception("Uninitialized."));
             _initializeToken = null;
             
+            Manifest.Destroy();
+            _config.Loader.Destroy();
             _config = null;
         }
     }

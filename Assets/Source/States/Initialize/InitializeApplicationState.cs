@@ -1,6 +1,8 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System.IO;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.Assets;
 
 namespace CreateAR.SpirePlayer
 {
@@ -44,6 +46,11 @@ namespace CreateAR.SpirePlayer
             // setup assets
             var loader = new StandardAssetLoader(
                 _bootstrapper,
+                new StandardAssetBundleCache(
+                    _bootstrapper,
+                    Path.Combine(
+                        UnityEngine.Application.persistentDataPath,
+                        "Bundles")), 
                 new UrlBuilder
                 {
                     BaseUrl = "ec2-54-202-152-140.us-west-2.compute.amazonaws.com",

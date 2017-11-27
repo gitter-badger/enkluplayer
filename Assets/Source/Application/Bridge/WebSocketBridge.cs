@@ -1,21 +1,23 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_IOS
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
+using LogLevel = WebSocketSharp.LogLevel;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// <c>IBridge</c> implementation in the Unity Editor.
+    /// <c>IBridge</c> implementation over a websocket.
     /// </summary>
-    public class EditorBridge : IBridge, IDisposable
+    public class WebSocketBridge : IBridge, IDisposable
     {
         /// <summary>
         /// Service for connected clients.
@@ -88,6 +90,8 @@ namespace CreateAR.SpirePlayer
 
             /// <summary>
             /// Called when a client leaves.
+            /// 
+            /// NOTE: This is called in a worker thread, so it is put on a queue.
             /// </summary>
             /// <param name="event"></param>
             protected override void OnClose(CloseEventArgs @event)
@@ -148,6 +152,11 @@ namespace CreateAR.SpirePlayer
         private readonly List<string> _messages = new List<string>();
 
         /// <summary>
+        /// True iff client left.
+        /// </summary>
+        private bool _clientLeft = false;
+
+        /// <summary>
         /// Joined service.
         /// </summary>
         private BridgeService _service = null;
@@ -163,7 +172,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="router">Routes messages.</param>
         /// <param name="bootstrapper">Bootstraps coroutines.</param>
         /// <param name="handler">Object to handle messages.</param>
-        public EditorBridge(
+        public WebSocketBridge(
             IMessageRouter router,
             IBootstrapper bootstrapper,
             BridgeMessageHandler handler)
@@ -175,13 +184,13 @@ namespace CreateAR.SpirePlayer
             bootstrapper.BootstrapCoroutine(ConsumeMessages());
 
             // create new server
-            _server = new WebSocketServer("ws://localhost:4649");
-            _server.Log.Level = LogLevel.Warn;
+            _server = new WebSocketServer(4649);
+            _server.Log.Level = LogLevel.Trace;
             _server.Log.Output = (data, message) =>
             {
                 Debug.Log(string.Format("WS[{0}] = {1}", message, data));
             };
-
+            
             // create service factory
             _server.AddWebSocketService(
                 "/bridge",
@@ -215,12 +224,16 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IBridge"/>
         public void Uninitialize()
         {
+            _service = null;
             _broadcastReady = false;
+            _clientLeft = false;
             
             lock (_messages)
             {
                 _messages.Clear();
             }
+
+            Binder.Clear();
         }
 
         /// <inheritdoc cref="IBridge"/>
@@ -274,7 +287,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="service">The service associated with the user.</param>
         private void Service_OnClientLeft(BridgeService service)
         {
-            _router.Publish(MessageTypes.DISCONNECTED, Void.Instance);
+            _clientLeft = true;
         }
 
         /// <summary>
@@ -303,6 +316,11 @@ namespace CreateAR.SpirePlayer
                     }
                 }
 
+                if (_clientLeft)
+                {
+                    _router.Publish(MessageTypes.RESTART, Void.Instance);
+                }
+
                 yield return null;
             }
         }
@@ -312,8 +330,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="methodName">The message type to send.</param>
         /// <param name="service">Optional service to send to.</param>
-        private void CallMethod(string methodName, BridgeService service = null)
+        private void CallMethod(string methodName, BridgeService service)
         {
+            Log.Info(this, "{0}()", methodName);
+
             byte[] bytes;
             _serializer.Serialize(
                 new Method
@@ -323,20 +343,8 @@ namespace CreateAR.SpirePlayer
                 out bytes);
 
             var payload = Encoding.UTF8.GetString(bytes);
-
-            if (null == service)
-            {
-                _server.WebSocketServices.BroadcastAsync(
-                    payload,
-                    () =>
-                    {
-                        //
-                    });
-            }
-            else
-            {
-                service.SendMessage(payload);
-            }
+            
+            service.SendMessage(payload);
         }
 
         /// <summary>
@@ -350,7 +358,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Destructor.
         /// </summary>
-        ~EditorBridge()
+        ~WebSocketBridge()
         {
             ReleaseUnmanagedResources();
         }

@@ -59,7 +59,6 @@ namespace CreateAR.SpirePlayer
                 _services[i].Stop();
             }
 
-            _bridge.Binder.Clear();
             _bridge.Uninitialize();
         }
     }

@@ -23,7 +23,7 @@ namespace CreateAR.SpirePlayer
         /// Interaction source states.
         /// </summary>
 #if UNITY_WSA
-        private readonly UnityEngine.VR.WSA.Input.InteractionSourceState[] _interactionSourceStates = new UnityEngine.VR.WSA.Input.InteractionSourceState[10];
+        private readonly UnityEngine.XR.WSA.Input.InteractionSourceState[] _interactionSourceStates = new UnityEngine.XR.WSA.Input.InteractionSourceState[10];
 #endif
 
         /// <summary>
@@ -200,19 +200,19 @@ namespace CreateAR.SpirePlayer
 
             var cameraTransform = mainCamera.transform;
 
-            var count = UnityEngine.VR.WSA.Input.InteractionManager.GetCurrentReading(_interactionSourceStates);
+            var count = UnityEngine.XR.WSA.Input.InteractionManager.GetCurrentReading(_interactionSourceStates);
             for (var i = 0; i < count; ++i)
             {
                 Vector3 handPosition;
                 var interactionSourceState = _interactionSourceStates[i];
-                if (interactionSourceState.source.kind == UnityEngine.VR.WSA.Input.InteractionSourceKind.Hand
-                    && interactionSourceState.properties.location.TryGetPosition(out handPosition))
+                if (interactionSourceState.source.kind == UnityEngine.XR.WSA.Input.InteractionSourceKind.Hand
+                    && interactionSourceState.sourcePose.TryGetPosition(out handPosition))
                 {
                     handPosition += cameraTransform.forward * LocalHandOffset.z
                         + cameraTransform.up * LocalHandOffset.y
                         + cameraTransform.right * LocalHandOffset.x;
-                    Forward = handPosition - Origin;
-                    Forward.Normalize();
+                    Forward = (handPosition - Origin).ToVec();
+                    Forward = Forward.ToVector().normalized.ToVec();
 
                     break;
                 }

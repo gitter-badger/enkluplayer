@@ -1,6 +1,7 @@
 using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.Assets;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -34,6 +35,14 @@ namespace CreateAR.SpirePlayer
             Subscribe<AssetAddEvent>(MessageTypes.ASSET_ADD, Messages_OnAssetAdd);
             Subscribe<AssetRemoveEvent>(MessageTypes.ASSET_REMOVE, Messages_OnAssetRemove);
             Subscribe<AssetUpdateEvent>(MessageTypes.ASSET_UPDATE, Messages_OnAssetUpdate);
+        }
+
+        /// <inheritdoc cref="ApplicationService"/>
+        public override void Stop()
+        {
+            base.Stop();
+
+            _assets.Uninitialize();
         }
 
         /// <summary>
@@ -169,6 +178,10 @@ namespace CreateAR.SpirePlayer
                 case RuntimePlatform.LinuxEditor:
                 {
                     return "webgl";
+                }
+                case RuntimePlatform.IPhonePlayer:
+                {
+                    return "ios";
                 }
                 default:
                 {

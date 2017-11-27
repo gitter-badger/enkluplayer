@@ -1,9 +1,10 @@
 using System;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.SpirePlayer.Assets;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.SpirePlayer.Test.Assets
 {
     public class DummyAssetLoader : IAssetLoader
     {
@@ -32,6 +33,11 @@ namespace CreateAR.SpirePlayer.Test
             }
 
             return token;
+        }
+
+        public void Destroy()
+        {
+            //
         }
     }
 }

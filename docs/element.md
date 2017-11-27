@@ -87,6 +87,50 @@ var prop = element.Get<int>("foo");
 prop.Value = 12; // same as element.Set("foo", 12);
 ```
 
+In some cases, it's necessary to know whether a property has already been set or not. In this case, the `HasProp` mnethod may be used.
+
+```
+element.Set("foo", 5);
+
+...
+
+element.HasProp("foo"); // true
+```
+
+This method looks up the parent graph as well.
+
+```
+parent.Set("foo", 5);
+
+...
+
+decendent.HasProp("foo"); // true
+```
+
+In the case where we want to look at only an element's props and not inherited props, we can use `HasOwnProp`.
+
+```
+parent.Set("foo", 5);
+
+...
+
+decendent.HasOwnProp("foo"); // false
+
+```
+
+This will flip if the decendent's property is then set.
+
+```
+parent.Set("foo", 5);
+
+...
+
+decendent.HasOwnProp("foo"); // false
+decendent.Set("foo", 12);
+decendent.HasOwnProp("foo"); // true
+
+```
+
 ### Events
 
 ##### Schema Update Events
