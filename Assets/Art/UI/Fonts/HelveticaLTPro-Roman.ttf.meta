@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: b26b749475a335b4cba1d4754ff85b60
+timeCreated: 1505262866
+licenseType: Pro
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Helvetica LT Pro
+  fontNames:
+  - Helvetica LT Pro
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

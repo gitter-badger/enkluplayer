@@ -54,7 +54,7 @@ namespace CreateAR.SpirePlayer
                     _content.Release(requestedContent);
                 }
 
-                parentTransform = requestedContent.Transform;
+                parentTransform = requestedContent.GameObject.transform;
             }
 
             if (!string.IsNullOrEmpty(data.LocatorId))

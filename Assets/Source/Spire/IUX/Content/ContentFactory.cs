@@ -43,6 +43,9 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "New content from {0}.", data);
 
+            // TODO: Refactor Content
+            return null;
+            /*
             var instance = new GameObject(data.Name);
 
             // setup the Anchor
@@ -62,6 +65,7 @@ namespace CreateAR.SpirePlayer
                 data);
 
             return newContent;
+            */
         }
     }
 }

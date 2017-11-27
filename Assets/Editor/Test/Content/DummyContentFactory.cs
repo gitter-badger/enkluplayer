@@ -6,6 +6,8 @@ namespace CreateAR.SpirePlayer.Test
     {
         public SpirePlayer.Content Instance(IContentManager content, ContentData data)
         {
+            return null;
+            /*
             var go = new GameObject();
             var comp = go.AddComponent<SpirePlayer.Content>();
             comp.Setup(
@@ -13,6 +15,7 @@ namespace CreateAR.SpirePlayer.Test
                 new DummyContentAssembler(),
                 data);
             return comp;
+            */
         }
     }
 }

@@ -91,7 +91,7 @@ namespace CreateAR.SpirePlayer
                 _selectedContent = selection;
 
                 // select now
-                _focus.Focus(_selectedContent.gameObject);
+                _focus.Focus(_selectedContent.GameObject);
 
                 // listen for future selections
                 _selectedContent
@@ -242,9 +242,9 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Locator updatd.");
 
-            content.transform.localPosition = locator.Data.Position.ToVector();
-            content.transform.localRotation = Quaternion.Euler(locator.Data.Rotation.ToVector());
-            content.transform.localScale = locator.Data.Scale.ToVector();
+            content.GameObject.transform.localPosition = locator.Data.Position.ToVector();
+            content.GameObject.transform.localRotation = Quaternion.Euler(locator.Data.Rotation.ToVector());
+            content.GameObject.transform.localScale = locator.Data.Scale.ToVector();
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="content">Content.</param>
         private void Selection_OnLoaded(Content content)
         {
-            _focus.Focus(content.gameObject);
+            _focus.Focus(content.GameObject);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Current state.
         /// </summary>
-        private IState _state;
+        public IState Current { get; private set; }
 
         /// <summary>
         /// Creates a new FSM that can only transition between these states.
@@ -77,19 +77,19 @@ namespace CreateAR.SpirePlayer
             }
 
             Log.Info(this, "Change({0} -> {1})",
-                null == _state ? "[Null]" : _state.ToString(),
+                null == Current ? "[Null]" : Current.ToString(),
                 null == newState ? "[Null]" : newState.ToString());
 
-            if (null != _state)
+            if (null != Current)
             {
-                _state.Exit();
+                Current.Exit();
             }
 
-            _state = newState;
+            Current = newState;
 
-            if (null != _state)
+            if (null != Current)
             {
-                _state.Enter(context);
+                Current.Enter(context);
             }
         }
 
@@ -99,9 +99,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="dt">The time that has elapsed since the last Update.</param>
         public void Update(float dt)
         {
-            if (null != _state)
+            if (null != Current)
             {
-                _state.Update(dt);
+                Current.Update(dt);
             }
         }
     }

@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
-        private readonly IntentionManager _intention;
+        private readonly IIntentionManager _intention;
         
         /// <inheritdoc cref="IAnchorReferenceFrame"/>
         public Vec3 Forward { get { return _intention.Forward; } }
@@ -22,7 +22,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public FloorAnchorReferenceFrame(IntentionManager intention)
+        public FloorAnchorReferenceFrame(IIntentionManager intention)
         {
             _intention = intention;
         }
@@ -34,7 +34,7 @@ namespace CreateAR.SpirePlayer
 
             var transform = anchor.transform;
             transform.SetParent(null);
-            transform.position = origin;
+            transform.position = origin.ToVector();
         }
 
         /// <inheritdoc cref="IAnchorReferenceFrame"/>

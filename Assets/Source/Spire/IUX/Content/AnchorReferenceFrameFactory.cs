@@ -10,12 +10,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
-        private readonly IntentionManager _intention;
+        private readonly IIntentionManager _intention;
         
         /// <summary>
         /// Constructor.
         /// </summary>
-        public AnchorReferenceFrameFactory(IntentionManager intention)
+        public AnchorReferenceFrameFactory(IIntentionManager intention)
         {
             _intention = intention;
         }

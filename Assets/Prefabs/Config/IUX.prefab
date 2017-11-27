@@ -19,9 +19,10 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4806941493528534}
-  - component: {fileID: 114893721414513510}
   - component: {fileID: 114919105245345344}
+  - component: {fileID: 114893721414513510}
   - component: {fileID: 114844777624392520}
+  - component: {fileID: 114906811028345466}
   m_Layer: 0
   m_Name: IUX
   m_TagString: Untagged
@@ -64,6 +65,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e93d6334d2349f4da746438042d7a2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114906811028345466
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1933817679622306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1dd93fb07c9cdd4b9fc7bfccdc6660a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114919105245345344
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -77,4 +89,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LocalHandOffset: {x: 0, y: 0, z: 0}
   MaxAngularVelocity: 20
-  Steadiness: 0

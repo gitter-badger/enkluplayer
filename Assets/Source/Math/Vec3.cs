@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 
 namespace CreateAR.SpirePlayer
 {
@@ -8,6 +8,16 @@ namespace CreateAR.SpirePlayer
     [Serializable]
     public struct Vec3
     {
+        /// <summary>
+        /// Default vector.
+        /// </summary>
+        public static readonly Vec3 Zero = new Vec3();
+
+        /// <summary>
+        /// Identity vector.
+        /// </summary>
+        public static readonly Vec3 One = new Vec3(1, 1, 1);
+
         /// <summary>
         /// X component.
         /// </summary>
@@ -35,7 +45,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Crates a Vec3 from components.
+        /// Creates a Vec3 from components.
         /// </summary>
         /// <param name="x">X component.</param>
         /// <param name="y">Y component.</param>
@@ -45,6 +55,142 @@ namespace CreateAR.SpirePlayer
             this.x = x;
             this.y = y;
             this.z = z;
+        }
+
+        /// <summary>
+        /// Vector string representation.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("{0:0.00}, {1:0.00}, {2:0.00}", x, y, z);
+        }
+
+        /// <summary>
+        /// Scalar magnitude of the vector.
+        /// </summary>
+        public float Magnitude
+        {
+            get { return (float) Math.Sqrt(x * x + y * y + z * z); }
+        }
+
+        /// <summary>
+        /// Returns the same vector with magnitude of 1.
+        /// </summary>
+        public Vec3 Normalized
+        {
+            get
+            {
+                var magnitude = Magnitude;
+                if (magnitude < Math.E)
+                {
+                    return Zero;
+                }
+
+                var magnitudeReciprical = 1.0f / magnitude;
+
+                return new Vec3(
+                    x * magnitudeReciprical, 
+                    y * magnitudeReciprical, 
+                    z * magnitudeReciprical);
+            }
+        }
+        
+        /// <summary>
+        /// Multiplies a vector by a scalar.
+        /// </summary>
+        /// <param name="vector">Multiplicand.</param>
+        /// <param name="multiplier">Scalar multiplier.</param>
+        /// <returns></returns>
+        public static Vec3 operator*(Vec3 vector, float multiplier)
+        {
+            return new Vec3(
+                vector.x * multiplier,
+                vector.y * multiplier,
+                vector.z * multiplier);
+        }
+
+        /// <summary>
+        /// Multiplies a vector by a scalar.
+        /// </summary>
+        /// <param name="multiplier">Scalar multiplier.</param>
+        /// <param name="vector">Multiplicand.</param>
+        /// <returns></returns>
+        public static Vec3 operator*(float multiplier, Vec3 vector)
+        {
+            return new Vec3(
+                vector.x * multiplier,
+                vector.y * multiplier,
+                vector.z * multiplier);
+        }
+
+        /// <summary>
+        /// Returns the dot product for two vectors.
+        /// </summary>
+        /// <param name="lhs">Left hand side of the dot product.</param>
+        /// <param name="rhs">Right hand side of the dot product.</param>
+        /// <returns></returns>
+        public static float Dot(Vec3 lhs, Vec3 rhs)
+        {
+            return
+                lhs.x * rhs.x
+              + lhs.y * rhs.y
+              + lhs.z * rhs.z;
+        }
+
+        /// <summary>
+        /// Interpolates from one vector to another.
+        /// </summary>
+        /// <param name="from">Source vector</param>
+        /// <param name="to">Target vector</param>
+        /// <param name="t">Factor of interpolation [0..1]</param>
+        /// <returns></returns>
+        public static Vec3 Lerp(Vec3 from, Vec3 to, float t)
+        {
+            return new Vec3(
+                from.x + (to.x - from.x) * t,
+                from.y + (to.y - from.y) * t,
+                from.z + (to.z - from.z) * t);
+        }
+
+        /// <summary>
+        /// Returns true when component-wise approximately equal.
+        /// </summary>
+        /// <param name="lhs">Another vec3.</param>
+        /// <returns></returns>
+        public bool Approximately(Vec3 lhs)
+        {
+            return Math.Abs(x - lhs.x) < float.Epsilon
+                && Math.Abs(y - lhs.y) < float.Epsilon
+                && Math.Abs(z - lhs.z) < float.Epsilon;
+        }
+    
+        /// <summary>
+        /// Component-wise addition.
+        /// </summary>
+        /// <param name="lhs">Right hand side.</param>
+        /// <param name="rhs">Left hand side.</param>
+        /// <returns></returns>
+        public static Vec3 operator +(Vec3 lhs, Vec3 rhs)
+        {
+            return new Vec3(
+                lhs.x + rhs.x,
+                lhs.y + rhs.y,
+                lhs.z + rhs.z);
+        }
+        
+        /// <summary>
+        /// Component-wise subtraction.
+        /// </summary>
+        /// <param name="lhs">Right hand side.</param>
+        /// <param name="rhs">Left hand side.</param>
+        /// <returns></returns>
+        public static Vec3 operator -(Vec3 lhs, Vec3 rhs)
+        {
+            return new Vec3(
+                lhs.x - rhs.x,
+                lhs.y - rhs.y,
+                lhs.z - rhs.z);
         }
     }
 }

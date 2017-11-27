@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.Assets;
+using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -14,7 +16,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Unique tag for this piece of <c>Content</c>.
         /// </summary>
-        private readonly string _scriptTag = Guid.NewGuid().ToString();
+        private readonly string _scriptTag = System.Guid.NewGuid().ToString();
 
         /// <summary>
         /// Loads and executes scripts.
@@ -115,12 +117,10 @@ namespace CreateAR.SpirePlayer
         /// Destroys this instance. Should not be called directly, but through
         /// <c>IContentManager</c> Release flow.
         /// </summary>
-        public void Destroy()
+        protected override void UnloadInternal()
         {
             _assembler.Teardown();
             TeardownScripts();
-
-            Destroy(gameObject);
         }
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace CreateAR.SpirePlayer
 
                         if (!found)
                         {
-                            component = gameObject.AddComponent<MonoBehaviourSpireScript>();
+                            component = GameObject.AddComponent<MonoBehaviourSpireScript>();
                             _scriptComponents.Add(component);
                         }
 
@@ -262,7 +262,7 @@ namespace CreateAR.SpirePlayer
             {
                 var component = _scriptComponents[i];
                 component.Exit();
-                Destroy(component);
+                UnityEngine.Object.Destroy(component);
             }
             _scriptComponents.Clear();
 
@@ -307,7 +307,7 @@ namespace CreateAR.SpirePlayer
         {
             // parent + orient
             instance.name = Data.Asset.AssetDataId;
-            instance.transform.SetParent(transform, false);
+            instance.transform.SetParent(GameObject.transform, false);
             instance.SetActive(true);
 
             _onAssetLoaded.Succeed(this);

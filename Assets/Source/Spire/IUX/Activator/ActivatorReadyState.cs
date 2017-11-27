@@ -1,0 +1,50 @@
+namespace CreateAR.SpirePlayer.UI
+{
+    /// <summary>
+    /// State the button takes when it is ready for activation 
+    /// but not currently activating.
+    /// </summary>
+    public class ActivatorReadyState : ActivatorState
+    {
+        /// <summary>
+        /// Activation as the state is entered.
+        /// </summary>
+        private float _initialActivation;
+
+        /// <summary>
+        /// Elapsed time in the state.
+        /// </summary>
+        private float _elapsed;
+
+        /// <summary>
+        /// Invoked when the state is begun.
+        /// </summary>
+        /// <param name="context"></param>
+        public override void Enter(object context)
+        {
+            _elapsed = 0.0f;
+            _initialActivation = Activator.Activation;
+        }
+
+        /// <summary>
+        /// Invoked every frame.
+        /// </summary>
+        /// <param name="deltaTime"></param>
+        public override void Update(float deltaTime)
+        {
+            if (Activator.Focused)
+            {
+                Activator.ChangeState<ActivatorActivatingState>();
+            }
+            else
+            {
+                _elapsed += deltaTime;
+
+                // recede the activation percentage over time
+                Activator.Activation = _initialActivation * Activator
+                    .Config
+                    .GetFillDelay(_elapsed);
+            }
+        }
+    }
+}
