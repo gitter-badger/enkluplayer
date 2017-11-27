@@ -9,8 +9,8 @@ namespace CreateAR.SpirePlayer.UI
     {
         /// <summary>
         /// Bounding radius of the activator.
-        /// TODO: Spherical bounds are an implementation detail
-        ///       Refractor out of interface
+        /// TODO: Spherical bounds are an implementation detail.
+        /// TODO: Refactor out of interface.
         /// </summary>
         float Radius { get; } 
 
