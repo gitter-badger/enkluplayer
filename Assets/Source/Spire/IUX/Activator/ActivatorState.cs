@@ -1,5 +1,4 @@
 ﻿using CreateAR.SpirePlayer.UI;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
