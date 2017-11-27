@@ -2,11 +2,13 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.UI;
 using Jint.Parser;
 using Jint.Unity;
 using strange.extensions.injector.impl;
+using UnityEngine.XR.iOS;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
@@ -131,10 +133,22 @@ namespace CreateAR.SpirePlayer
         private void AddSpireBindings(InjectionBinder binder)
         {
             binder.Bind<AppController>().To<AppController>();
-            binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
 
-            // factory
+            // AR
             {
+                binder.Bind<ArCameraRig>().ToValue(LookupComponent<ArCameraRig>());
+                binder.Bind<ArServiceConfiguration>().ToValue(LookupComponent<ArServiceConfiguration>());
+                binder.Bind<UnityARSessionNativeInterface>().ToValue(UnityARSessionNativeInterface.GetARSessionNativeInterface());
+#if UNITY_EDITOR
+                binder.Bind<IArService>().To<EditorArService>().ToSingleton();
+#elif UNITY_IOS
+                binder.Bind<IArService>().To<IosArService>().ToSingleton();
+#endif   
+            }
+
+            // content
+            {
+                binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
                 binder.Bind<IContentFactory>().To<ContentFactory>();
                 binder.Bind<IAnchorReferenceFrameFactory>().To<AnchorReferenceFrameFactory>();
             }
@@ -155,7 +169,6 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
                 binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
                 binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
-                binder.Bind<MusicManager>().ToValue(LookupComponent<MusicManager>());
             }
 
             // hierarchy

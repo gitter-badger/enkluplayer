@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿﻿using System;
 
 namespace CreateAR.SpirePlayer
 {
@@ -70,7 +70,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public float Magnitude
         {
-            get { return Mathf.Sqrt(x * x + y * y + z * z); }
+            get { return (float) Math.Sqrt(x * x + y * y + z * z); }
         }
 
         /// <summary>
@@ -81,9 +81,9 @@ namespace CreateAR.SpirePlayer
             get
             {
                 var magnitude = Magnitude;
-                if (magnitude < Mathf.Epsilon)
+                if (magnitude < Math.E)
                 {
-                    return Vec3.Zero;
+                    return Zero;
                 }
 
                 var magnitudeReciprical = 1.0f / magnitude;
@@ -94,35 +94,7 @@ namespace CreateAR.SpirePlayer
                     z * magnitudeReciprical);
             }
         }
-
-        /// <summary>
-        /// Adds a vector to another vector.
-        /// </summary>
-        /// <param name="lhs">Left hand side of the addition.</param>
-        /// <param name="rhs">Right hand side of the addition.</param>
-        /// <returns></returns>
-        public static Vec3 operator+(Vec3 lhs, Vec3 rhs)
-        {
-            return new Vec3(
-                lhs.x + rhs.x,
-                lhs.y + rhs.y,
-                lhs.z + rhs.z);
-        }
-
-        /// <summary>
-        /// Subtracts a vector from another vector.
-        /// </summary>
-        /// <param name="lhs">Left hand side of the subtraction.</param>
-        /// <param name="rhs">Right hand side of the subtraction.</param>
-        /// <returns></returns>
-        public static Vec3 operator -(Vec3 lhs, Vec3 rhs)
-        {
-            return new Vec3(
-                lhs.x - rhs.x,
-                lhs.y - rhs.y,
-                lhs.z - rhs.z);
-        }
-
+        
         /// <summary>
         /// Multiplies a vector by a scalar.
         /// </summary>
@@ -178,6 +150,46 @@ namespace CreateAR.SpirePlayer
                 from.x + (to.x - from.x) * t,
                 from.y + (to.y - from.y) * t,
                 from.z + (to.z - from.z) * t);
+        }
+
+        /// <summary>
+        /// Returns true when component-wise approximately equal.
+        /// </summary>
+        /// <param name="lhs">Another vec3.</param>
+        /// <returns></returns>
+        public bool Approximately(Vec3 lhs)
+        {
+            return Math.Abs(x - lhs.x) < float.Epsilon
+                && Math.Abs(y - lhs.y) < float.Epsilon
+                && Math.Abs(z - lhs.z) < float.Epsilon;
+        }
+    
+        /// <summary>
+        /// Component-wise addition.
+        /// </summary>
+        /// <param name="lhs">Right hand side.</param>
+        /// <param name="rhs">Left hand side.</param>
+        /// <returns></returns>
+        public static Vec3 operator +(Vec3 lhs, Vec3 rhs)
+        {
+            return new Vec3(
+                lhs.x + rhs.x,
+                lhs.y + rhs.y,
+                lhs.z + rhs.z);
+        }
+        
+        /// <summary>
+        /// Component-wise subtraction.
+        /// </summary>
+        /// <param name="lhs">Right hand side.</param>
+        /// <param name="rhs">Left hand side.</param>
+        /// <returns></returns>
+        public static Vec3 operator -(Vec3 lhs, Vec3 rhs)
+        {
+            return new Vec3(
+                lhs.x - rhs.x,
+                lhs.y - rhs.y,
+                lhs.z - rhs.z);
         }
     }
 }

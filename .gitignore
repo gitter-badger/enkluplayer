@@ -8,6 +8,7 @@ builds/
 .Packages/
 .idea/
 Uwp/
+.DS_Store
 
 # Visual Studio 2015 cache directory
 /.vs/

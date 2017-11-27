@@ -1,8 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections;
+using System.IO;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -12,12 +17,29 @@ namespace CreateAR.SpirePlayer
     public class InitializeApplicationState : IState
     {
         /// <summary>
+        /// Minimum amount of time to search for the floor.
+        /// </summary>
+        private const int MIN_SEC_SEARCH = 5;
+
+        /// <summary>
+        /// Maximum amount of time to search for the floor.
+        /// </summary>
+        private const int MAX_SEC_SEARCH = 10;
+        
+        /// <summary>
         /// Dependencies.
         /// </summary>
         private readonly IMessageRouter _messages;
         private readonly IHttpService _http;
         private readonly IBootstrapper _bootstrapper;
         private readonly IAssetManager _assets;
+        private readonly ArServiceConfiguration _config;
+        private readonly IArService _ar;
+
+        /// <summary>
+        /// Time at which we started looking for the floor.
+        /// </summary>
+        private DateTime _startFloorSearch;
         
         /// <summary>
         /// Constructor.
@@ -26,17 +48,24 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IHttpService http,
             IBootstrapper bootstrapper,
-            IAssetManager assets)
+            IAssetManager assets,
+            ArServiceConfiguration config,
+            IArService ar)
         {
             _messages = messages;
             _http = http;
             _bootstrapper = bootstrapper;
             _assets = assets;
+            _config = config;
+            _ar = ar;
         }
 
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
+            // ar
+            _ar.Setup(_config);
+            
             // setup http
             _http.UrlBuilder.Protocol = "http";
             _http.UrlBuilder.BaseUrl = "localhost";
@@ -59,12 +88,16 @@ namespace CreateAR.SpirePlayer
                 });
 
             _assets.Uninitialize();
-            _assets
-                .Initialize(new AssetManagerConfiguration
-                {
-                    Loader = loader,
-                    Queries = new StandardQueryResolver()
-                })
+            
+            // wait for assets to initialize and for the floor to be recognized
+            Async
+                .All(
+                    _assets.Initialize(new AssetManagerConfiguration
+                    {
+                        Loader = loader,
+                        Queries = new StandardQueryResolver()
+                    }),
+                    FindFloor())
                 .OnSuccess(_ =>
                 {
                     _messages.Publish(MessageTypes.READY, Void.Instance);
@@ -85,7 +118,85 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Exit()
         {
+            // untag all anchors
+            foreach (var anchor in _ar.Anchors)
+            {
+                anchor.ClearTags();
+            }
+        }
+
+        /// <summary>
+        /// Finds the floor, tags it, then resolves the token.
+        /// </summary>
+        /// <returns></returns>
+        private IAsyncToken<Void> FindFloor()
+        {
+            var token = new AsyncToken<Void>();
+
+            Log.Info(this, "Attempting to find the floor.");
             
+            _startFloorSearch = DateTime.Now;
+            _bootstrapper.BootstrapCoroutine(PollAnchors(token));
+
+            return token;
+        }
+
+        /// <summary>
+        /// Polls the list of anchors for a floor. 
+        /// </summary>
+        /// <param name="token">The token to resolve when found.</param>
+        /// <returns></returns>
+        private IEnumerator PollAnchors(AsyncToken<Void> token)
+        {
+            while (true)
+            {
+                var deltaSec = (DateTime.Now.Subtract(_startFloorSearch).TotalSeconds);
+                
+                // wait at least min
+                if (deltaSec < MIN_SEC_SEARCH)
+                {
+                    //
+                }
+                else
+                {
+                    // look for lowest anchor to call floor
+                    var anchors = _ar.Anchors;
+                    ArAnchor lowest = null;
+                    for (int i = 0, len = anchors.Length; i < len; i++)
+                    {
+                        var anchor = anchors[i];
+                        if (null == lowest
+                            || anchor.Position.y < lowest.Position.y)
+                        {
+                            lowest = anchor;
+                        }
+                    }
+                
+                    // floor found!
+                    if (null != lowest)
+                    {
+                        Log.Info(this, "Floor found : {0}.", lowest);
+                    
+                        // tag it
+                        lowest.Tag(ArAnchorTags.FLOOR);
+                        
+                        // set camera rig
+                        _config.Rig.SetFloor(lowest);
+                    
+                        token.Succeed(Void.Instance);
+                        yield break;
+                    }
+                
+                    // waited too long!
+                    if (deltaSec > MAX_SEC_SEARCH)
+                    {
+                        token.Fail(new Exception("Timeout."));
+                        yield break;
+                    }
+                }
+                
+                yield return null;
+            }
         }
     }
 }

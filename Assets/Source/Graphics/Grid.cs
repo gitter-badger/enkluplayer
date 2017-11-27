@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     public class Grid : MonoBehaviour
     {
         [Tooltip("The size of each cell, in world space.")]
-        public int CellSize = 1;
+        public float CellSize = 1f;
 
         [Tooltip("The worldspace size of the grid.")]
         public Vector2 GridSize = new Vector2(10, 10);
@@ -21,6 +21,9 @@ namespace CreateAR.SpirePlayer
 
         [Tooltip("The material to render with. Auto generated and only useful for viewing at runtime.")]
         public Material Material;
+
+        [Tooltip("Enables/disables rendering.")]
+        public bool Enabled;
         
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Awake()
@@ -42,6 +45,11 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="MonoBehaviour"/>
         private void OnPostRender()
         {
+            if (!Enabled)
+            {
+                return;
+            }
+            
             DrawGrid(GridSize, CellSize, SecondaryColor);
             DrawGrid(GridSize, CellSize * 4, PrimaryColor);
         }
@@ -54,7 +62,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="color">Color of the grid.</param>
         private void DrawGrid(
             Vector2 worldSize,
-            int cellSize,
+            float cellSize,
             Color color)
         {
             Material.SetPass(0);

@@ -44,7 +44,7 @@ namespace CreateAR.SpirePlayer
 
             return this;
         }
-
+        
         /// <summary>
         /// Draws a line segment.
         /// </summary>
