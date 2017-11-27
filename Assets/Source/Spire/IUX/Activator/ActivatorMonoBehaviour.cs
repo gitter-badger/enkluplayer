@@ -13,6 +13,11 @@ namespace CreateAR.SpirePlayer
     public class ActivatorMonoBehaviour : WidgetMonoBehaviour, IActivator
     {
         /// <summary>
+        /// Factor for buffer.
+        /// </summary>
+        private const float AUTO_GEN_BUFFER_FACTOR = 2.0f;
+
+        /// <summary>
         /// Dependencies.
         /// </summary>
         public IWidgetConfig Config { get; set; }
@@ -27,29 +32,39 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private BoxCollider _bufferCollider;
 
-        /// <summary>
-        /// IInteractive interface.
-        /// </summary>
+        /// <inheritdoc cref="IInteractive"/>
         public bool Interactable { get { return _activator.Interactable; } }
+
+        /// <inheritdoc cref="IInteractive"/>
         public bool Focused
         {
             get { return _activator.Focused; }
             set { _activator.Focused = value; }
         }
+
+        /// <inheritdoc cref="IInteractive"/>
         public int HighlightPriority
         {
             get { return _activator.HighlightPriority; }
             set { _activator.HighlightPriority = value; }
         }
 
-        /// <summary>
-        /// IActivator interface.
-        /// </summary>
+        /// <inheritdoc cref="IActivator"/>
         public float Radius { get { return _activator.Radius; } }
+
+        /// <inheritdoc cref="IActivator"/>
         public float Aim { get { return _activator.Aim; } }
+
+        /// <inheritdoc cref="IActivator"/>
         public float Stability { get { return _activator.Stability; } }
+
+        /// <inheritdoc cref="IActivator"/>
         public float Activation { get { return _activator.Activation; } }
+
+        /// <inheritdoc cref="IActivator"/>
         public void Activate() { _activator.Activate(); }
+
+        /// <inheritdoc cref="IActivator"/>
         public event Action<IActivator> OnActivated;
 
         /// <summary>
@@ -103,18 +118,17 @@ namespace CreateAR.SpirePlayer
 
             GenerateBufferCollider();
 
-            _activator 
-                = new Activator(
-                    gameObject,
-                    config, 
-                    layers, 
-                    tweens, 
-                    colors, 
-                    messages, 
-                    intention, 
-                    interaction, 
-                    CalculateRadius(),
-                    Cast);
+            _activator = new Activator(
+                gameObject,
+                config, 
+                layers, 
+                tweens, 
+                colors, 
+                messages, 
+                intention, 
+                interaction, 
+                CalculateRadius(),
+                Cast);
             _activator.OnActivated += Activator_OnActivated;
             SetWidget(_activator);
         }
@@ -168,11 +182,10 @@ namespace CreateAR.SpirePlayer
         {
             if (ActivationVFX != null)
             {
-                /// TODO: ActivationVFX Pooling.
-                var spawnGameObject
-                    = Instantiate(ActivationVFX,
-                            gameObject.transform.position,
-                            gameObject.transform.rotation);
+                // TODO: ActivationVFX Pooling.
+                var spawnGameObject = Instantiate(ActivationVFX,
+                    gameObject.transform.position,
+                    gameObject.transform.rotation);
                 spawnGameObject.SetActive(true);
             }
 
@@ -218,7 +231,6 @@ namespace CreateAR.SpirePlayer
                 _bufferCollider = gameObject.AddComponent<BoxCollider>();
             }
 
-            const float AUTO_GEN_BUFFER_FACTOR = 2.0f;
             _bufferCollider.size = FocusCollider.size * AUTO_GEN_BUFFER_FACTOR;
         }
 
@@ -267,14 +279,11 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            var focusTween
-                = FillWidget != null
-                    ? FillWidget.Tween
-                    : 1.0f;
+            var focusTween = FillWidget != null
+                ? FillWidget.Tween
+                : 1.0f;
 
-            var degrees
-                = Stability
-                  * Config.StabilityRotation;
+            var degrees = Stability * Config.StabilityRotation;
 
             StabilityTransform.localRotation = Quaternion.Euler(0, 0, degrees);
             StabilityTransform.localScale = Vector3.one * focusTween;
@@ -320,25 +329,22 @@ namespace CreateAR.SpirePlayer
             var activatorState = _activator.CurrentState;
 
             var tweenDuration = _activator.Tweens.DurationSeconds(activatorState.Tween);
-            var tweenLerp
-                = tweenDuration > Mathf.Epsilon
-                    ? deltaTime / tweenDuration
-                    : 1.0f;
+            var tweenLerp = tweenDuration > Mathf.Epsilon
+                ? deltaTime / tweenDuration
+                : 1.0f;
 
             // blend the frame's color.
             var frameColor = _activator.Colors.GetColor(activatorState.FrameColor);
-            FrameWidget.LocalColor
-                = Col4.Lerp(
-                    FrameWidget.LocalColor,
-                    frameColor,
-                    tweenLerp);
+            FrameWidget.LocalColor = Col4.Lerp(
+                FrameWidget.LocalColor,
+                frameColor,
+                tweenLerp);
 
             // blend the frame's scale.
-            FrameWidget.GameObject.transform.localScale
-                = Vector3.Lerp(
-                    FrameWidget.GameObject.transform.localScale,
-                    Vector3.one * activatorState.FrameScale,
-                    tweenLerp);
+            FrameWidget.GameObject.transform.localScale = Vector3.Lerp(
+                FrameWidget.GameObject.transform.localScale,
+                Vector3.one * activatorState.FrameScale,
+                tweenLerp);
         }
     }
 }
