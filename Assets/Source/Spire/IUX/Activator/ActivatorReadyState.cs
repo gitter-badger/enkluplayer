@@ -1,5 +1,3 @@
-using System;
-
 namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
@@ -43,11 +41,9 @@ namespace CreateAR.SpirePlayer.UI
                 _elapsed += deltaTime;
 
                 // recede the activation percentage over time
-                Activator.Activation
-                    = _initialActivation
-                      * Activator
-                          .Config
-                          .GetFillDelay(_elapsed);
+                Activator.Activation = _initialActivation * Activator
+                    .Config
+                    .GetFillDelay(_elapsed);
             }
         }
     }
