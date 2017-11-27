@@ -12,13 +12,9 @@
         public override void Enter(object context)
         {
             Activator.AimEnabled = false;
-
-            var buttonActivateMessage = new ButtonActivateEvent()
-            {
-                // TODO: Add Data
-            };
-
-            Activator.Messages.Publish(MessageTypes.BUTTON_ACTIVATE, buttonActivateMessage);
+            Activator.Messages.Publish(
+                MessageTypes.BUTTON_ACTIVATE,
+                new ButtonActivateEvent());
         }
 
         /// <summary>

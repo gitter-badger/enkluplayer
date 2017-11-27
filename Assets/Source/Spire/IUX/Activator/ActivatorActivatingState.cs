@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.UI
@@ -24,17 +23,13 @@ namespace CreateAR.SpirePlayer.UI
             var aim = Activator.Aim;
             var stability = Activator.Intention.Stability;
             var fillDuration = Activator.Config.GetFillDuration();
-            var fillRate
-                = Activator.Config.GetFillRateMultiplierFromAim(aim)
-                * Activator.Config.GetFillRateMultiplierFromStability(stability)
-                / fillDuration;
-            var deltaFill
-                = deltaTime
-                    * fillRate;
+            var aimMultiplier = Activator.Config.GetFillRateMultiplierFromAim(aim);
+            var stabilityMultiplier = Activator.Config.GetFillRateMultiplierFromStability(stability);
+            var fillRate = aimMultiplier * stabilityMultiplier / fillDuration;
+            var deltaFill = deltaTime * fillRate;
 
             var activation = Activator.Activation + deltaFill;
-            if (activation > 1.0f
-             || Mathf.Approximately(activation, 1.0f))
+            if (activation > 1.0f || Mathf.Approximately(activation, 1.0f))
             {
                 Activator.Activate();
             }
