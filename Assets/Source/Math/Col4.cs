@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Simple color class.
@@ -53,16 +51,7 @@ namespace CreateAR.SpirePlayer
             this.b = b;
             this.a = a;
         }
-
-        /// <summary>
-        /// Creates a Vector3.
-        /// </summary>
-        /// <returns></returns>
-        public Color ToColor()
-        {
-            return new Color(r, g, b, a);
-        }
-
+        
         /// <summary>
         /// Interpolates two colors
         /// </summary>
