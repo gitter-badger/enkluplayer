@@ -173,7 +173,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Current State Accessor.
         /// </summary>
-        public ActivatorState CurrentState { get { return _states.Current as ActivatorState; } }
+        public ActivatorState CurrentState
+        {
+            get
+            {
+                return (ActivatorState) _states.Current;
+            }
+        }
 
         /// <summary>
         /// Invoked when the widget is activated
@@ -256,15 +262,7 @@ namespace CreateAR.SpirePlayer
                 _propInteractionEnabled.Value = true;
             }
         }
-
-        /// <summary>
-        /// Shutdown.
-        /// </summary>
-        public void Unload()
-        {
-            
-        }
-
+        
         /// <summary>
         /// Forced activation.
         /// </summary>
