@@ -47,3 +47,10 @@ b @extends a {
 ```
 
 In the above example, all elements matching `b` will have both `foo` and `bar` properties.
+
+
+
+#### Further Reading
+
+* https://css-tricks.com/multiple-class-id-selectors/
+* https://css-tricks.com/the-extend-concept/
