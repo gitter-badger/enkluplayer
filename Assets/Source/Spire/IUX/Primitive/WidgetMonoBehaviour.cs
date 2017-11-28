@@ -34,7 +34,7 @@ namespace CreateAR.SpirePlayer.UI
         public virtual void Load(ElementData data, ElementSchema schema, IElement[] children) { _widget.Load(data, schema, children); }
         public virtual void FrameUpdate() { _widget.FrameUpdate(); }
         public virtual void LateFrameUpdate() { _widget.LateFrameUpdate(); }
-        public IElement FindOne(string query) { return _widget.FindOne(query); }
+        public T FindOne<T>(string query) where T : IElement { return _widget.FindOne<T>(query); }
         public void Find(string query, IList<IElement> results) { _widget.Find(query, results); }
 
         public string ToTreeString() {  return _widget.ToTreeString(); }

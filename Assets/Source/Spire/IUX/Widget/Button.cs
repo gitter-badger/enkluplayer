@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using UnityEngine.Windows.Speech;
 
@@ -87,12 +86,12 @@ namespace CreateAR.SpirePlayer.UI
 
             // Activator
             {
-                _activator = FindOne("activator") as IActivator;
+                _activator = FindOne<IActivator>("activator");
             }
 
             // Caption
             {
-                _caption = FindOne("caption") as Caption;
+                _caption = FindOne<Caption>("caption");
             }
 
             // Voice Activator

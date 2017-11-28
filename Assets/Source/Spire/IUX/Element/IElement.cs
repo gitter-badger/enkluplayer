@@ -77,7 +77,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="query">Query.</param>
         /// <returns></returns>
-        IElement FindOne(string query);
+        T FindOne<T>(string query) where T : IElement;
 
         /// <summary>
         /// Finds a single element.

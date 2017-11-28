@@ -28,7 +28,7 @@
         {
             base.LoadInternal();
 
-            _primitive = FindOne("text") as IText;
+            _primitive = FindOne<IText>("text");
 
             _propText = Schema.Get<string>("text");
             _primitive.Text = _propText.Value;

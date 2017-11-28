@@ -73,7 +73,7 @@ namespace CreateAR.SpirePlayer
         {
             base.LoadInternal();
 
-            _reticle = FindOne("reticle") as IReticle;
+            _reticle = FindOne<IReticle>("reticle");
 
             _cursorDistance = Config.GetDefaultDistanceForCursor();
         }
@@ -85,9 +85,7 @@ namespace CreateAR.SpirePlayer
         {
             base.LateUpdateInternal();
 
-            var deltaTime
-                = Time
-                    .smoothDeltaTime;
+            var deltaTime = Time.smoothDeltaTime;
 
             UpdateAim(deltaTime);
             UpdatePosition(deltaTime);
@@ -101,8 +99,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateVisibility()
         {
-            LocalVisible
-                = !Intention.InputDisabled;
+            LocalVisible = !Intention.InputDisabled;
             // && Widgets.GetVisibleCount<InteractableWidget>() > 0;
         }
 
@@ -120,36 +117,29 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            var targetAngularVelocityRadians
-                = _aim > Mathf.Epsilon
-                    ? Config.GetFillRateMultiplierFromAim(_aim)
-                      * Config.GetFillRateMultiplierFromStability(Intention.Stability)
-                      * Config.GetReticleSpinRateForCursor()
-                      * Mathf.PI
-                      * 2.0f
-                    : 0.0f;
+            var targetAngularVelocityRadians = _aim > Mathf.Epsilon
+                ? Config.GetFillRateMultiplierFromAim(_aim)
+                    * Config.GetFillRateMultiplierFromStability(Intention.Stability)
+                    * Config.GetReticleSpinRateForCursor()
+                    * Mathf.PI
+                    * 2.0f
+                : 0.0f;
 
-            var tweenDuration
-                = Tweens
-                    .DurationSeconds(
-                        _aim > Mathf.Epsilon
-                            ? TweenIn
-                            : TweenOut);
+            var tweenDuration = Tweens.DurationSeconds(
+                _aim > Mathf.Epsilon
+                    ? TweenIn
+                    : TweenOut);
 
-            var tweenLerp
-                = tweenDuration > Mathf.Epsilon
-                    ? deltaTime / tweenDuration
-                    : 1.0f;
+            var tweenLerp = tweenDuration > Mathf.Epsilon
+                ? deltaTime / tweenDuration
+                : 1.0f;
 
-            _angularVelocityRadians
-                = Mathf.Lerp(
-                    _angularVelocityRadians,
-                    targetAngularVelocityRadians,
-                    tweenLerp);
+            _angularVelocityRadians = Mathf.Lerp(
+                _angularVelocityRadians,
+                targetAngularVelocityRadians,
+                tweenLerp);
 
-            _thetaRadians
-                += _angularVelocityRadians
-                   * deltaTime;
+            _thetaRadians += _angularVelocityRadians * deltaTime;
         }
 
         /// <summary>
@@ -157,33 +147,24 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdatePosition(float deltaTime)
         {
-            var eyePosition
-                = Intention
-                    .Origin;
-
-            var eyeDirection
-                = Intention
-                    .Forward;
+            var eyePosition = Intention.Origin;
+            var eyeDirection = Intention.Forward;
 
             UpdateCursorDistance(
                 deltaTime,
                 eyePosition);
 
-            var cursorPosition
-                = eyePosition
-                  + _cursorDistance
-                  * eyeDirection;
+            var cursorPosition = eyePosition + _cursorDistance * eyeDirection;
 
             var interactive = Intention.Focus;
             if (_aim > Mathf.Epsilon)
             {
                 var aimMagnet = Config.GetMagnetFromAim(_aim);
 
-                cursorPosition
-                    = Vec3.Lerp(
-                        cursorPosition,
-                        interactive.GameObject.transform.position.ToVec(),
-                        aimMagnet);
+                cursorPosition = Vec3.Lerp(
+                    cursorPosition,
+                    interactive.GameObject.transform.position.ToVec(),
+                    aimMagnet);
             }
 
             GameObject.transform.position = cursorPosition.ToVector();
@@ -200,45 +181,32 @@ namespace CreateAR.SpirePlayer
             var targetFocusDistance = Config.GetDefaultDistanceForCursor();
 
             var interactive = Intention.Focus;
-            if (interactive != null
-             && interactive.GameObject != null)
+            if (interactive != null && interactive.GameObject != null)
             {
                 // focus on the focus widget
-                var eyeDeltaToFocusWidget
-                    = interactive.GameObject.transform.position.ToVec()
-                    - eyePosition;
-                targetFocusDistance
-                    = eyeDeltaToFocusWidget
-                        .Magnitude;
-                var activator
-                    = interactive as IActivator;
+                var pos = interactive.GameObject.transform.position.ToVec();
+                var eyeDeltaToFocusWidget = pos - eyePosition;
+                targetFocusDistance = eyeDeltaToFocusWidget.Magnitude;
+                var activator = interactive as IActivator;
                 if (activator != null)
                 {
-                    targetFocusDistance
-                        = targetFocusDistance
-                          - activator.Radius;
+                    targetFocusDistance = targetFocusDistance - activator.Radius;
                 }
-                
             }
 
-            var tweenDuration
-                = Tweens
-                    .DurationSeconds(
-                        interactive != null
-                            ? TweenIn
-                            : TweenOut);
+            var tweenDuration = Tweens.DurationSeconds(
+                interactive != null
+                    ? TweenIn
+                    : TweenOut);
 
-            var tweenLerp
-                = tweenDuration > Mathf.Epsilon
-                    ? deltaTime / tweenDuration
-                    : 1.0f;
+            var tweenLerp = tweenDuration > Mathf.Epsilon
+                ? deltaTime / tweenDuration
+                : 1.0f;
 
-            _cursorDistance
-                = Mathf
-                    .Lerp(
-                        _cursorDistance,
-                        targetFocusDistance,
-                        tweenLerp);
+            _cursorDistance = Mathf.Lerp(
+                _cursorDistance,
+                targetFocusDistance,
+                tweenLerp);
         }
 
         /// <summary>
@@ -256,20 +224,15 @@ namespace CreateAR.SpirePlayer
                 _aim = activator.Aim;
             }
 
-            var buttonScale
-                = (interactive != null 
-                && interactive.GameObject != null)
-                    ? interactive.GameObject.transform.lossyScale.x
-                    : 1.0f;
+            var buttonScale = interactive != null && interactive.GameObject != null
+                ? interactive.GameObject.transform.lossyScale.x
+                : 1.0f;
 
-            _spread 
-                = Config.GetReticleSpreadFromAim(_aim)
-                * buttonScale;
+            _spread = Config.GetReticleSpreadFromAim(_aim) * buttonScale;
 
             LocalColor = Config.GetReticleColorFromAim(_aim);
 
-            _scale = Config.GetReticleScaleFromAim(_aim)
-                   * buttonScale;
+            _scale = Config.GetReticleScaleFromAim(_aim) * buttonScale;
         }
 
         /// <summary>
@@ -282,24 +245,19 @@ namespace CreateAR.SpirePlayer
             _reticle.Spread = _spread;
 
             var isAiming = Intention.Focus != null;
-            var tweenDuration
-                = Tweens
-                    .DurationSeconds(
-                        isAiming
-                            ? TweenType.Instant
-                            : TweenOut);
+            var tweenDuration = Tweens.DurationSeconds(
+                isAiming
+                    ? TweenType.Instant
+                    : TweenOut);
 
-            var tweenLerp
-                = tweenDuration > Mathf.Epsilon
-                    ? deltaTime / tweenDuration
-                    : 1.0f;
+            var tweenLerp = tweenDuration > Mathf.Epsilon
+                ? deltaTime / tweenDuration
+                : 1.0f;
 
-            _reticle.CenterAlpha
-                = Mathf
-                    .Lerp(
-                        _reticle.CenterAlpha,
-                        isAiming ? 0.0f : 1.0f,
-                        tweenLerp);
+            _reticle.CenterAlpha = Mathf.Lerp(
+                _reticle.CenterAlpha,
+                isAiming ? 0.0f : 1.0f,
+                tweenLerp);
         }
     }
 }

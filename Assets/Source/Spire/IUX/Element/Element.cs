@@ -250,12 +250,14 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="query">Query.</param>
         /// <returns></returns>
-        public IElement FindOne(string query)
+        public T FindOne<T>(string query) where T : IElement
         {
             _findAllScratch.Clear();
             Find(query, _findAllScratch);
             
-            return _findAllScratch.FirstOrDefault();
+            return _findAllScratch
+                .OfType<T>()
+                .FirstOrDefault();
         }
 
         /// <summary>
