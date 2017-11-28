@@ -367,16 +367,16 @@ namespace CreateAR.SpirePlayer.UI
             base.LoadInternal();
 
             _name = Schema.GetOwn("name", _gameObject.name);
-            _localColor = Schema.GetOwn<Col4>("color", Col4.White);
-            _localPosition = Schema.GetOwn<Vec3>("position", Vec3.Zero);
+            _localColor = Schema.GetOwn("color", Col4.White);
+            _localPosition = Schema.GetOwn("position", Vec3.Zero);
 
-            _tweenIn = Schema.GetOwn<TweenType>("tweenIn", TweenType.Responsive);
-            _tweenOut = Schema.GetOwn<TweenType>("tweenOut", TweenType.Responsive);
-            _virtualColor = Schema.GetOwn<VirtualColor>("virtualColor", VirtualColor.None);
-            _colorMode = Schema.GetOwn<ColorMode>("colorMode", ColorMode.InheritColor);
-            _visibilityMode = Schema.GetOwn<VisibilityMode>("visibilityMode", VisibilityMode.Inherit);
-            _layerMode = Schema.GetOwn<LayerMode>("layerMode", LayerMode.Default);
-            _autoDestroy = Schema.GetOwn<bool>("autoDestroy", false);
+            _tweenIn = Schema.GetOwn("tweenIn", TweenType.Responsive);
+            _tweenOut = Schema.GetOwn("tweenOut", TweenType.Responsive);
+            _virtualColor = Schema.GetOwn("virtualColor", VirtualColor.None);
+            _colorMode = Schema.GetOwn("colorMode", ColorMode.InheritColor);
+            _visibilityMode = Schema.GetOwn("visibilityMode", VisibilityMode.Inherit);
+            _layerMode = Schema.GetOwn("layerMode", LayerMode.Default);
+            _autoDestroy = Schema.GetOwn("autoDestroy", false);
 
             _gameObject.name = _name.Value;
             _gameObject.transform.localPosition = _localPosition.Value.ToVector();
@@ -412,7 +412,7 @@ namespace CreateAR.SpirePlayer.UI
         {
             if (_gameObject != null)
             {
-                UnityEngine.Object.Destroy(_gameObject);
+                Object.Destroy(_gameObject);
                 _gameObject = null;
             }
 

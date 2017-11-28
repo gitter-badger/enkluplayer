@@ -60,17 +60,17 @@ namespace CreateAR.SpirePlayer
             Material = new Material(Shader.Find("Unlit/Color"));
             Material.SetColor("_Color", Color.magenta);
         }
-        
+
         /// <summary>
-        /// Updates the material properties.
+        /// Updates material.
         /// </summary>
-        /// <param name="material">Data to update material with.</param>
+        /// <param name="material">The material</param>
         public void Update(MaterialData material)
         {
             Teardown();
             Setup(material);
         }
-
+        
         /// <summary>
         /// Sets up asset watching.
         /// </summary>
@@ -84,12 +84,37 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Stops watching assets.
+        /// </summary>
+        private void Teardown()
+        {
+            _materialData = null;
+
+            if (null != _unwatchShaderAsset)
+            {
+                _unwatchShaderAsset();
+                _unwatchShaderAsset = null;
+            }
+
+            for (int i = 0, len = _unwatchTextureAssets.Count; i < len; i++)
+            {
+                _unwatchTextureAssets[i]();
+            }
+
+            _unwatchTextureAssets.Clear();
+        }
+
+        /// <summary>
         /// Sets up the shader.
         /// </summary>
         /// <param name="material">Data to use to setup material.</param>
         private void SetupShader(MaterialData material)
         {
-            var shaderData = _appData.Get<ShaderData>(material.ShaderId);
+            var shaderId = null == material
+                ? string.Empty
+                : material.ShaderId;
+
+            var shaderData = _appData.Get<ShaderData>(shaderId);
             if (null != shaderData)
             {
                 Log.Info(this, "Load shader {0}.", shaderData);
@@ -132,6 +157,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="material">Data to use to setup textures.</param>
         private void SetupTextures(MaterialData material)
         {
+            if (null == material)
+            {
+                return;
+            }
+
             foreach (var pair in material.Textures)
             {
                 var uniform = pair.Key;
@@ -157,27 +187,6 @@ namespace CreateAR.SpirePlayer
                     textureAsset.AutoReload = true;
                 }
             }
-        }
-
-        /// <summary>
-        /// Stops watching assets.
-        /// </summary>
-        private void Teardown()
-        {
-            _materialData = null;
-
-            if (null != _unwatchShaderAsset)
-            {
-                _unwatchShaderAsset();
-                _unwatchShaderAsset = null;
-            }
-
-            for (int i = 0, len = _unwatchTextureAssets.Count; i < len; i++)
-            {
-                _unwatchTextureAssets[i]();
-            }
-
-            _unwatchTextureAssets.Clear();
         }
 
         /// <summary>
