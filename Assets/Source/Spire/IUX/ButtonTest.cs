@@ -36,36 +36,21 @@ namespace CreateAR.SpirePlayer
                     new ElementData
                     {
                         Id = "button",
-                        Schema =
-                        {
-                            Ints = new Dictionary<string, int>
-                            {
-                                {"type", ElementTypes.BUTTON}
-                            }
-                        },
+                        Type = ElementTypes.BUTTON,
                         Children = new []
                         {
                             new ElementData
                             {
                                 Id = "activator",
-                                Schema = new ElementSchemaData
-                                {
-                                    Ints = new Dictionary<string, int>
-                                    {
-                                        {"type", ElementTypes.ACTIVATOR}
-                                    }
-                                },
+                                Type = ElementTypes.ACTIVATOR,
                                 Children = new []
                                 {
                                     new ElementData
                                     {
                                         Id = "caption",
+                                        Type = ElementTypes.CAPTION,
                                         Schema = new ElementSchemaData
                                         {
-                                            Ints = new Dictionary<string, int>
-                                            {
-                                                {"type", ElementTypes.CAPTION}
-                                            },
                                             Strings = new Dictionary<string, string>
                                             {
                                                 { "name", "Button Caption" },
@@ -84,11 +69,11 @@ namespace CreateAR.SpirePlayer
                                             new ElementData
                                             {
                                                 Id = "ready",
+                                                Type = ElementTypes.BUTTON_READY_STATE,
                                                 Schema = new ElementSchemaData
                                                 {
                                                     Ints = new Dictionary<string, int>
                                                     {
-                                                        {"type", ElementTypes.BUTTON_READY_STATE },
                                                         {"color", (int)VirtualColor.Ready },
                                                         {"captionColor", (int)VirtualColor.Primary },
                                                         {"tween", (int)TweenType.Responsive }
@@ -103,11 +88,11 @@ namespace CreateAR.SpirePlayer
                                             new ElementData
                                             {
                                                 Id = "activating",
+                                                Type = ElementTypes.BUTTON_ACTIVATING_STATE,
                                                 Schema = new ElementSchemaData
                                                 {
                                                     Ints = new Dictionary<string, int>
                                                     {
-                                                        {"type", ElementTypes.BUTTON_ACTIVATING_STATE },
                                                         {"color", (int)VirtualColor.Interacting },
                                                         {"captionColor", (int)VirtualColor.Interacting },
                                                         {"tween", (int)TweenType.Responsive },
@@ -122,11 +107,11 @@ namespace CreateAR.SpirePlayer
                                             new ElementData
                                             {
                                                 Id = "activated",
+                                                Type = ElementTypes.BUTTON_ACTIVATED_STATE,
                                                 Schema = new ElementSchemaData
                                                 {
                                                     Ints = new Dictionary<string, int>
                                                     {
-                                                        {"type", ElementTypes.BUTTON_ACTIVATED_STATE },
                                                         {"color", (int)VirtualColor.Interacting },
                                                         {"captionColor", (int)VirtualColor.Interacting },
                                                         {"tween", (int)TweenType.Instant },

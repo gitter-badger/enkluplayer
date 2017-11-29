@@ -36,13 +36,7 @@ namespace CreateAR.SpirePlayer
                     new ElementData
                     {
                         Id = "caption",
-                        Schema =
-                        {
-                            Ints = new Dictionary<string, int>()
-                            {
-                                {"type", ElementTypes.CAPTION}
-                            }
-                        }
+                        Type = ElementTypes.CAPTION,
                     } 
                 }
             });

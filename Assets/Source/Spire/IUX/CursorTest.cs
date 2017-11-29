@@ -17,25 +17,13 @@ namespace CreateAR.SpirePlayer
                     new ElementData
                     {
                         Id = "cursor",
-                        Schema = new ElementSchemaData
-                        {
-                            Ints = new Dictionary<string, int>
-                            {
-                                {"type", ElementTypes.CURSOR}
-                            }
-                        },
+                        Type = ElementTypes.CURSOR,
                         Children = new[]
                         {
                             new ElementData
                             {
                                 Id = "reticle",
-                                Schema = new ElementSchemaData
-                                {
-                                    Ints = new Dictionary<string, int>
-                                    {
-                                        {"type", ElementTypes.RETICLE}
-                                    }
-                                },
+                                Type = ElementTypes.RETICLE,
                             }
                         }
                     },
