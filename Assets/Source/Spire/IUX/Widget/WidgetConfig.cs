@@ -181,6 +181,11 @@ namespace CreateAR.SpirePlayer
         public Text Text;
 
         /// <summary>
+        /// Reticle.
+        /// </summary>
+        public ReticleRenderer Reticle;
+
+        /// <summary>
         /// Spins per second.
         /// </summary>
         public float GetDefaultDistanceForCursor()

@@ -7,6 +7,6 @@
     {
         TextPrimitive Text();
         IActivator Activator();
-        IReticle Reticle();
+        ReticlePrimitive Reticle();
     }
 }

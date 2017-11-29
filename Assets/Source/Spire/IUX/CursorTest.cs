@@ -17,15 +17,7 @@ namespace CreateAR.SpirePlayer
                     new ElementData
                     {
                         Id = "cursor",
-                        Type = ElementTypes.CURSOR,
-                        Children = new[]
-                        {
-                            new ElementData
-                            {
-                                Id = "reticle",
-                                Type = ElementTypes.RETICLE,
-                            }
-                        }
+                        Type = ElementTypes.CURSOR
                     },
                 },
 

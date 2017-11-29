@@ -10,14 +10,15 @@ namespace CreateAR.SpirePlayer
     public class Cursor : Widget
     {
         /// <summary>
-        /// Dependencies
+        /// Dependencies.
         /// </summary>
-        public IIntentionManager Intention { get; private set; }
+        private readonly IIntentionManager _intention;
+        private readonly IPrimitiveFactory _primitives;
 
         /// <summary>
-        /// Activator primitive
+        /// Reticle primitive.
         /// </summary>
-        private IReticle _reticle;
+        private ReticlePrimitive _reticle;
 
         /// <summary>
         /// A measure of aim over time. 
@@ -50,17 +51,24 @@ namespace CreateAR.SpirePlayer
         private float _cursorDistance;
 
         /// <summary>
+        /// Center alpha of reticle.
+        /// </summary>
+        private float _reticleCenterAlpha = 0f;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public Cursor(
             WidgetConfig config,
+            IPrimitiveFactory primitives,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages,
             IIntentionManager intention)
         {
-            Intention = intention;
+            _intention = intention;
+            _primitives = primitives;
 
             Initialize(config, layers, tweens, colors, messages);
         }
@@ -72,7 +80,8 @@ namespace CreateAR.SpirePlayer
         {
             base.LoadInternal();
 
-            _reticle = FindOne<IReticle>("reticle");
+            _reticle = _primitives.Reticle();
+            _reticle.Parent = this;
 
             _cursorDistance = Config.GetDefaultDistanceForCursor();
         }
@@ -98,7 +107,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateVisibility()
         {
-            LocalVisible = !Intention.InputDisabled;
+            LocalVisible = !_intention.InputDisabled;
             // && Widgets.GetVisibleCount<InteractableWidget>() > 0;
         }
 
@@ -118,7 +127,7 @@ namespace CreateAR.SpirePlayer
 
             var targetAngularVelocityRadians = _aim > Mathf.Epsilon
                 ? Config.GetFillRateMultiplierFromAim(_aim)
-                    * Config.GetFillRateMultiplierFromStability(Intention.Stability)
+                    * Config.GetFillRateMultiplierFromStability(_intention.Stability)
                     * Config.GetReticleSpinRateForCursor()
                     * Mathf.PI
                     * 2.0f
@@ -146,8 +155,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdatePosition(float deltaTime)
         {
-            var eyePosition = Intention.Origin;
-            var eyeDirection = Intention.Forward;
+            var eyePosition = _intention.Origin;
+            var eyeDirection = _intention.Forward;
 
             UpdateCursorDistance(
                 deltaTime,
@@ -155,7 +164,7 @@ namespace CreateAR.SpirePlayer
 
             var cursorPosition = eyePosition + _cursorDistance * eyeDirection;
 
-            var interactive = Intention.Focus;
+            var interactive = _intention.Focus;
             if (_aim > Mathf.Epsilon)
             {
                 var aimMagnet = Config.GetMagnetFromAim(_aim);
@@ -179,7 +188,7 @@ namespace CreateAR.SpirePlayer
         {
             var targetFocusDistance = Config.GetDefaultDistanceForCursor();
 
-            var interactive = Intention.Focus;
+            var interactive = _intention.Focus;
             if (interactive != null && interactive.GameObject != null)
             {
                 // focus on the focus widget
@@ -215,7 +224,7 @@ namespace CreateAR.SpirePlayer
         {
             _aim = 0.0f;
 
-            var interactive = Intention.Focus;
+            var interactive = _intention.Focus;
             var activator = (interactive);
             if (activator != null)
             {
@@ -238,11 +247,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateReticle(float deltaTime)
         {
-            _reticle.Scale = _scale;
-            _reticle.Rotation = _thetaRadians;
-            _reticle.Spread = _spread;
-
-            var isAiming = Intention.Focus != null;
+            var isAiming = _intention.Focus != null;
             var tweenDuration = Tweens.DurationSeconds(
                 isAiming
                     ? TweenType.Instant
@@ -252,10 +257,12 @@ namespace CreateAR.SpirePlayer
                 ? deltaTime / tweenDuration
                 : 1.0f;
 
-            _reticle.CenterAlpha = Mathf.Lerp(
-                _reticle.CenterAlpha,
+            _reticleCenterAlpha = Mathf.Lerp(
+                _reticleCenterAlpha,
                 isAiming ? 0.0f : 1.0f,
                 tweenLerp);
+
+            _reticle.Update(_thetaRadians, _spread, _scale, _reticleCenterAlpha);
         }
     }
 }

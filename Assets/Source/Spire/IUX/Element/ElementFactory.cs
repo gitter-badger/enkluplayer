@@ -17,7 +17,6 @@ namespace CreateAR.SpirePlayer.UI
         private readonly IColorConfig _colors;
         private readonly ITweenConfig _tweens;
         private readonly IMessageRouter _messages;
-        private readonly IInteractionManager _interactions;
         private readonly WidgetConfig _config;
 
         /// <summary>
@@ -36,7 +35,6 @@ namespace CreateAR.SpirePlayer.UI
             IColorConfig colors,
             ITweenConfig tweens,
             IMessageRouter messages,
-            IInteractionManager interactions,
             WidgetConfig config)
         {
             _primitives = primitives;
@@ -46,7 +44,6 @@ namespace CreateAR.SpirePlayer.UI
             _colors = colors;
             _tweens = tweens;
             _messages = messages;
-            _interactions = interactions;
             _config = config;
 
             // TODO: Load this all from data
@@ -114,10 +111,6 @@ namespace CreateAR.SpirePlayer.UI
                 {
                     return _primitives.Activator();
                 }
-                case ElementTypes.RETICLE:
-                {
-                    return _primitives.Reticle();
-                }
                 case ElementTypes.CAPTION:
                 {
                     return new Caption(_primitives, _config, _layers, _tweens, _colors, _messages);
@@ -140,7 +133,7 @@ namespace CreateAR.SpirePlayer.UI
                 }
                 case ElementTypes.CURSOR:
                 {
-                    return new Cursor(_config, _layers, _tweens, _colors, _messages, _intention);
+                    return new Cursor(_config, _primitives, _layers, _tweens, _colors, _messages, _intention);
                 }
                 default:
                 {

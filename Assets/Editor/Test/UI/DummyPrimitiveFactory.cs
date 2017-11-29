@@ -14,7 +14,7 @@ namespace CreateAR.SpirePlayer.Test.UI
             return null;
         }
 
-        public IReticle Reticle()
+        public ReticlePrimitive Reticle()
         {
             return null;
         }

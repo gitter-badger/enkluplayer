@@ -23,9 +23,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Basic text rendering primitive.
         /// </summary>
-        public TextMonoBehaviour TextMonoBehaviour;
         public ActivatorMonoBehaviour ActivatorMonoBehaviour;
-        public ReticleMonoBehaviour ReticleMonoBehaviour;
 
         /// <summary>
         /// Creates a text primitive.
@@ -51,28 +49,9 @@ namespace CreateAR.SpirePlayer.UI
         /// Creates a text primitive.
         /// </summary>
         /// <returns></returns>
-        public IReticle Reticle()
+        public ReticlePrimitive Reticle()
         {
-            return Initialize<IReticle>(Instantiate(ReticleMonoBehaviour));
-        }
-
-        /// <summary>
-        /// Initializes the new monobehaviour.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="widgetMonoBehaviour"></param>
-        /// <returns></returns>
-        private T Initialize<T>(WidgetMonoBehaviour widgetMonoBehaviour) where T : class
-        {
-            widgetMonoBehaviour
-                .Initialize(
-                    Config, 
-                    Layers, 
-                    Tweens, 
-                    Colors, 
-                    Messages);
-
-            return widgetMonoBehaviour as T;
+            return new ReticlePrimitive(Config);
         }
     }
 }
