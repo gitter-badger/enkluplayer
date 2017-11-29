@@ -62,21 +62,16 @@ namespace CreateAR.SpirePlayer.UI
             set { _activator.HighlightPriority = value; }
         }
 
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        public void Initialize(
+        public Button(
             WidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
-            IMessageRouter messages,
-            IIntentionManager intention,
-            IInteractionManager interaction)
+            IMessageRouter messages)
         {
             Initialize(config, layers, tweens, colors, messages);
         }
-
+        
         /// <summary>
         /// Initialization
         /// </summary>

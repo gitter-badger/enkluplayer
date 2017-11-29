@@ -126,10 +126,7 @@ namespace CreateAR.SpirePlayer.UI
                 }
                 case ElementTypes.BUTTON:
                 {
-                    var newButton = new Button();
-                    newButton.Initialize(_config, _layers, _tweens, _colors, _messages, _intention,
-                        _interactions);
-                    return newButton;
+                    return new Button(_config, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.BUTTON_READY_STATE:
                 {
