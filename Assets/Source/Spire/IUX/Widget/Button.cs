@@ -66,7 +66,7 @@ namespace CreateAR.SpirePlayer.UI
         /// Constructor.
         /// </summary>
         public void Initialize(
-            IWidgetConfig config,
+            WidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
@@ -102,7 +102,7 @@ namespace CreateAR.SpirePlayer.UI
                 {
                     if (_caption != null)
                     {
-                        voiceActivator = _caption.Text.Text;
+                        //voiceActivator = _caption.Text.Text;
                     }
                 }
 

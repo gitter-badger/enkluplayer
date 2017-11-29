@@ -1,13 +1,11 @@
-﻿using UnityEngine;
-
-namespace CreateAR.SpirePlayer.UI
+﻿namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Creates basic UI primitives
     /// </summary>
     public interface IPrimitiveFactory
     {
-        IText Text();
+        TextPrimitive Text();
         IActivator Activator();
         IReticle Reticle();
     }

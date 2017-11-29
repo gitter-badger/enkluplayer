@@ -15,15 +15,15 @@ namespace CreateAR.SpirePlayer.UI
         private readonly IElementManager _elements;
         private readonly ILayerManager _layers;
         private readonly IColorConfig _colors;
-        private readonly IWidgetConfig _config;
         private readonly ITweenConfig _tweens;
         private readonly IMessageRouter _messages;
         private readonly IInteractionManager _interactions;
+        private readonly WidgetConfig _config;
 
         /// <summary>
         /// All widgets inherit this base schema
         /// </summary>
-        private ElementSchema _baseSchema = new ElementSchema();
+        private readonly ElementSchema _baseSchema = new ElementSchema();
 
         /// <summary>
         /// Constructor.
@@ -34,20 +34,20 @@ namespace CreateAR.SpirePlayer.UI
             IElementManager elements,
             ILayerManager layers,
             IColorConfig colors,
-            IWidgetConfig config,
             ITweenConfig tweens,
             IMessageRouter messages,
-            IInteractionManager interactions)
+            IInteractionManager interactions,
+            WidgetConfig config)
         {
             _primitives = primitives;
             _intention = intention;
             _elements = elements;
             _layers = layers;
             _colors = colors;
-            _config = config;
             _tweens = tweens;
             _messages = messages;
             _interactions = interactions;
+            _config = config;
 
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -123,13 +123,9 @@ namespace CreateAR.SpirePlayer.UI
                         {
                             return _primitives.Reticle();
                         }
-                        case ElementTypes.TEXT:
-                        {
-                            return _primitives.Text();
-                        }
                         case ElementTypes.CAPTION:
                         {
-                            var newCaption = new Caption();
+                            var newCaption = new Caption(_primitives);
                             newCaption.Initialize(_config, _layers, _tweens, _colors, _messages);
                             return newCaption;
                         }

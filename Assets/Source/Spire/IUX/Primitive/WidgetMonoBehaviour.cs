@@ -82,7 +82,7 @@ namespace CreateAR.SpirePlayer.UI
         /// Initialization
         /// </summary>
         public void Initialize(
-            IWidgetConfig config,
+            WidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,

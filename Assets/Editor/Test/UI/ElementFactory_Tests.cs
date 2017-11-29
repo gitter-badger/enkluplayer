@@ -62,8 +62,8 @@ namespace CreateAR.SpirePlayer.Test.UI
                 null,
                 null,
                 null,
-                null,
                 new MessageRouter(),
+                null,
                 null);
         }
 

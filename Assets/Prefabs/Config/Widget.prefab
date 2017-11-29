@@ -256,3 +256,4 @@ MonoBehaviour:
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
   SpinSpeed: -0.25
+  Text: {fileID: 114784742494333742, guid: 501ef06376b78954e9f6d81bcec3af57, type: 2}

@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer.UI
         public ILayerManager Layers { get; private set; }
         public IColorConfig Colors { get; private set; }
         public ITweenConfig Tweens { get; private set; }
-        public IWidgetConfig Config { get; private set; }
+        public WidgetConfig Config { get; private set; }
         public IMessageRouter Messages { get; private set; }
 
         /// <summary>
@@ -344,7 +344,7 @@ namespace CreateAR.SpirePlayer.UI
         /// Initialization
         /// </summary>
         internal void Initialize (
-            IWidgetConfig config,
+            WidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
@@ -423,7 +423,7 @@ namespace CreateAR.SpirePlayer.UI
 
             LocalVisible = false;
         }
-
+        
         /// <summary>
         /// String override
         /// </summary>

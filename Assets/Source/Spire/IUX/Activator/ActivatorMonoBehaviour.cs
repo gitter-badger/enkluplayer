@@ -20,7 +20,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
-        public IWidgetConfig Config { get; set; }
+        public WidgetConfig Config { get; set; }
 
         /// <summary>
         /// Internal driver.
@@ -106,7 +106,7 @@ namespace CreateAR.SpirePlayer
         /// Initialization.
         /// </summary>
         internal void Initialize(
-            IWidgetConfig config,
+            WidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,

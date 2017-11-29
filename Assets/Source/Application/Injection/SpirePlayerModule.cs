@@ -156,7 +156,7 @@ namespace CreateAR.SpirePlayer
 
             // configs
             {
-                binder.Bind<IWidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
+                binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
                 binder.Bind<ITweenConfig>().ToValue(LookupComponent<TweenConfig>());
                 binder.Bind<IColorConfig>().ToValue(LookupComponent<ColorConfig>());
                 binder.Bind<FocusManager>().ToValue(LookupComponent<FocusManager>());

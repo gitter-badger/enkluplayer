@@ -155,7 +155,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public Activator(
             GameObject gameObject,
-            IWidgetConfig config,
+            WidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,

@@ -15,7 +15,6 @@
         ///////////////////////////////////////////////////////////////////////
         public const int CONTAINER = 0;
         public const int ACTIVATOR = 1;
-        public const int TEXT = 2;
         public const int RETICLE = 3;
 
         public const int BUTTON = 10;

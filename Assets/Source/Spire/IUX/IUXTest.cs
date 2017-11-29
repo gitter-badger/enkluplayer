@@ -55,20 +55,6 @@ namespace CreateAR.SpirePlayer
                         {
                             {"type", ElementTypes.CAPTION}
                         }
-                    },
-                    Children = new ElementData[]
-                    {
-                        new ElementData()
-                        {
-                            Id = "text",
-                            Schema = new ElementSchemaData()
-                            {
-                                Ints = new Dictionary<string, int>()
-                                {
-                                    {"type", ElementTypes.TEXT}
-                                }
-                            },
-                        }
                     }
                 },
                 new ElementData()
@@ -177,20 +163,6 @@ namespace CreateAR.SpirePlayer
                                 {
                                     { "position", new Vec3(0.2f,0,0) }
                                 }
-                            },
-                            Children = new ElementData[]
-                            {
-                                new ElementData()
-                                {
-                                    Id = "text",
-                                    Schema = new ElementSchemaData()
-                                    {
-                                        Ints = new Dictionary<string, int>()
-                                        {
-                                            {"type", ElementTypes.TEXT}
-                                        }
-                                    },
-                                }
                             }
                         }
                     }
@@ -215,7 +187,7 @@ namespace CreateAR.SpirePlayer
                     }
                 };
 
-            var cursor = ElementFactory.Element(cursorDescription);
+            //var cursor = ElementFactory.Element(cursorDescription);
 
             var buttonDescription
                 = new ElementDescription()
@@ -231,10 +203,6 @@ namespace CreateAR.SpirePlayer
                             {
                                 { "name", "New Button" },
                             },
-                            Ints = new Dictionary<string, int>()
-                            { 
-                                { "fontSize", 12 },
-                            },
                             Vectors = new Dictionary<string, Vec3>()
                             { 
                                 { "position", new Vec3(0,0,3) }
@@ -245,11 +213,15 @@ namespace CreateAR.SpirePlayer
                             new ElementRef()
                             {
                                 Id = "caption",
-                                Schema = new ElementSchemaData()
+                                Schema = new ElementSchemaData
                                 {
                                     Strings = new Dictionary<string, string>()
                                     {
                                         { "text", "Hello World!" },
+                                    },
+                                    Ints = new Dictionary<string, int>()
+                                    {
+                                        { "fontSize", 12 },
                                     }
                                 },
                             }
@@ -257,7 +229,7 @@ namespace CreateAR.SpirePlayer
                     }
                 };
 
-            var button = ElementFactory.Element(buttonDescription);
+            //var button = ElementFactory.Element(buttonDescription);
         }
     }
 }

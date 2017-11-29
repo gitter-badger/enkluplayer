@@ -1,5 +1,4 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer.UI
 {
@@ -14,11 +13,12 @@ namespace CreateAR.SpirePlayer.UI
         [Inject] public IElementManager Elements { get; set; }
         [Inject] public ILayerManager Layers { get; set; }
         [Inject] public IColorConfig Colors { get; set; }
-        [Inject] public IWidgetConfig Config { get; set; }
         [Inject] public ITweenConfig Tweens { get; set; }
         [Inject] public IMessageRouter Messages { get; set; }
         [Inject] public IIntentionManager Intention { get; set; }
         [Inject] public IInteractionManager Interactions { get; set; }
+        [Inject] public IAssetPoolManager Pools { get; set; }
+        [Inject] public WidgetConfig Config { get; set; }
 
         /// <summary>
         /// Basic text rendering primitive.
@@ -31,9 +31,9 @@ namespace CreateAR.SpirePlayer.UI
         /// Creates a text primitive.
         /// </summary>
         /// <returns></returns>
-        public IText Text()
+        public TextPrimitive Text()
         {
-            return Initialize<IText>(Instantiate(TextMonoBehaviour));
+            return new TextPrimitive(Config, Pools);
         }
 
         /// <summary>

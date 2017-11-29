@@ -4,7 +4,7 @@ namespace CreateAR.SpirePlayer.Test.UI
 {
     public class DummyPrimitiveFactory : IPrimitiveFactory
     {
-        public IText Text()
+        public TextPrimitive Text()
         {
             return null;
         }

@@ -1,6 +1,4 @@
-﻿using CreateAR.Commons.Unity.Logging;
-using System.Collections.Generic;
-using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
@@ -55,7 +53,7 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public void Initialize(
-            IWidgetConfig config,
+            WidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
