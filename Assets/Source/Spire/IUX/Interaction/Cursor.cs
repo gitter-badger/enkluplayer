@@ -52,7 +52,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public void Initialize(
+        public Cursor(
             WidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
@@ -61,6 +61,7 @@ namespace CreateAR.SpirePlayer
             IIntentionManager intention)
         {
             Intention = intention;
+
             Initialize(config, layers, tweens, colors, messages);
         }
 
@@ -85,7 +86,7 @@ namespace CreateAR.SpirePlayer
 
             var deltaTime = Time.smoothDeltaTime;
 
-            UpdateAim(deltaTime);
+            UpdateAim();
             UpdatePosition(deltaTime);
             UpdateSpin(deltaTime);
             UpdateVisibility();
@@ -210,8 +211,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Updates the spread of the cursor
         /// </summary>
-        /// <param name="deltaTime"></param>
-        private void UpdateAim(float deltaTime)
+        private void UpdateAim()
         {
             _aim = 0.0f;
 

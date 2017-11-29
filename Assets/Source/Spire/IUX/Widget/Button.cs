@@ -62,6 +62,9 @@ namespace CreateAR.SpirePlayer.UI
             set { _activator.HighlightPriority = value; }
         }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public Button(
             WidgetConfig config,
             ILayerManager layers,

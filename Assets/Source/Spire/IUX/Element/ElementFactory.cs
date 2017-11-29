@@ -140,9 +140,7 @@ namespace CreateAR.SpirePlayer.UI
                 }
                 case ElementTypes.CURSOR:
                 {
-                    var newCursor = new Cursor();
-                    newCursor.Initialize(_config, _layers, _tweens, _colors, _messages, _intention);
-                    return newCursor;
+                    return new Cursor(_config, _layers, _tweens, _colors, _messages, _intention);
                 }
                 default:
                 {
