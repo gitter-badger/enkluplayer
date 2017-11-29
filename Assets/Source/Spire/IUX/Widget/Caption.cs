@@ -31,8 +31,8 @@ namespace CreateAR.SpirePlayer.UI
         /// Constructor.
         /// </summary>
         public Caption(
-            IPrimitiveFactory primitives,
             WidgetConfig config,
+            IPrimitiveFactory primitives,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,

@@ -113,11 +113,11 @@ namespace CreateAR.SpirePlayer.UI
                 }
                 case ElementTypes.CAPTION:
                 {
-                    return new Caption(_primitives, _config, _layers, _tweens, _colors, _messages);
+                    return new Caption(_config, _primitives, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.BUTTON:
                 {
-                    return new Button(_config, _layers, _tweens, _colors, _messages);
+                    return new Button(_config, _primitives, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.CURSOR:
                 {

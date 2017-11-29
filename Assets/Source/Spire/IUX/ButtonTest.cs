@@ -37,6 +37,17 @@ namespace CreateAR.SpirePlayer
                     {
                         Id = "button",
                         Type = ElementTypes.BUTTON,
+                        Schema = new ElementSchemaData
+                        {
+                            Strings = new Dictionary<string, string>
+                            {
+                                {"label", "Hello World"}
+                            },
+                            Ints = new Dictionary<string, int>
+                            {
+                                {"fontSize", 80}
+                            }
+                        },
                         Children = new []
                         {
                             new ElementData
@@ -61,30 +72,11 @@ namespace CreateAR.SpirePlayer
                                     },
                                     Floats = new Dictionary<string, float>
                                     {
-                                        { "ready.frameScale", 1.0f },
+                                        {"ready.frameScale", 1.0f},
 
-                                        { "activating.frameScale", 1.1f },
+                                        {"activating.frameScale", 1.1f},
 
-                                        { "activated.frameScale", 1.0f },
-                                    }
-                                },
-                                Children = new []
-                                {
-                                    new ElementData
-                                    {
-                                        Id = "caption",
-                                        Type = ElementTypes.CAPTION,
-                                        Schema = new ElementSchemaData
-                                        {
-                                            Strings = new Dictionary<string, string>
-                                            {
-                                                { "name", "Button Caption" },
-                                            },
-                                            Vectors = new Dictionary<string, Vec3>
-                                            {
-                                                { "position", new Vec3(0.2f,0,0) }
-                                            }
-                                        }
+                                        {"activated.frameScale", 1.0f},
                                     },
                                 }
                             }

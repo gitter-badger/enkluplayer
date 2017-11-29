@@ -10,14 +10,21 @@ namespace CreateAR.SpirePlayer.UI
     public class Button : Widget, IInteractive
     {
         /// <summary>
+        /// For primitives.
+        /// </summary>
+        private readonly IPrimitiveFactory _primitives;
+
+        /// <summary>
         /// Props.
         /// </summary>
         private ElementSchemaProp<string> _propVoiceActivator;
+        private ElementSchemaProp<string> _labelProp;
+        private ElementSchemaProp<int> _fontSizeProp;
 
         /// <summary>
-        /// Caption to the button.
+        /// Text primitive.
         /// </summary>
-        private Caption _caption;
+        private TextPrimitive _text;
 
         /// <summary>
         /// Keyword recognizer for voice activation
@@ -36,15 +43,7 @@ namespace CreateAR.SpirePlayer.UI
         {
             get { return _activator; }
         }
-
-        /// <summary>
-        /// Activator Accessor
-        /// </summary>
-        public Caption Caption
-        {
-            get { return _caption; }
-        }
-
+        
         /// <summary>
         /// IInteractive interfaces.
         /// </summary>
@@ -67,11 +66,14 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         public Button(
             WidgetConfig config,
+            IPrimitiveFactory primitives,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages)
         {
+            _primitives = primitives;
+
             Initialize(config, layers, tweens, colors, messages);
         }
         
@@ -87,9 +89,17 @@ namespace CreateAR.SpirePlayer.UI
                 _activator = FindOne<IActivator>("activator");
             }
 
-            // Caption
+            // create label
             {
-                _caption = FindOne<Caption>("caption");
+                _labelProp = Schema.Get<string>("label");
+                _labelProp.OnChanged += Label_OnChange;
+
+                _fontSizeProp = Schema.Get<int>("fontSize");
+                _fontSizeProp.OnChanged += FontSize_OnChanged;
+
+                _text = _primitives.Text();
+                _text.Parent = this;
+                _text.Text = _labelProp.Value;
             }
 
             // Voice Activator
@@ -98,10 +108,7 @@ namespace CreateAR.SpirePlayer.UI
                 var voiceActivator = _propVoiceActivator.Value;
                 if (string.IsNullOrEmpty(voiceActivator))
                 {
-                    if (_caption != null)
-                    {
-                        //voiceActivator = _caption.Text.Text;
-                    }
+                    voiceActivator = _labelProp.Value;
                 }
 
                 if (!string.IsNullOrEmpty(voiceActivator))
@@ -117,6 +124,15 @@ namespace CreateAR.SpirePlayer.UI
         protected override void UnloadInternal()
         {
             base.UnloadInternal();
+
+            // cleanup label
+            {
+                _fontSizeProp.OnChanged -= FontSize_OnChanged;
+                _fontSizeProp = null;
+
+                _labelProp.OnChanged -= Label_OnChange;
+                _labelProp = null;
+            }
 
             if (_keywordRecognizer != null)
             {
@@ -157,5 +173,32 @@ namespace CreateAR.SpirePlayer.UI
             }
         }
 
+        /// <summary>
+        /// Called when label has been updated.
+        /// </summary>
+        /// <param name="prop">Label prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Label_OnChange(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            _text.Text = next;
+        }
+
+        /// <summary>
+        /// Called when the label has been updated.
+        /// </summary>
+        /// <param name="prop">FontSize prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void FontSize_OnChanged(
+            ElementSchemaProp<int> prop,
+            int prev,
+            int next)
+        {
+            _text.FontSize = next;
+        }
     }
 }
