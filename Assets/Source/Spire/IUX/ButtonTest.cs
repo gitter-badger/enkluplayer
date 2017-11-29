@@ -43,6 +43,31 @@ namespace CreateAR.SpirePlayer
                             {
                                 Id = "activator",
                                 Type = ElementTypes.ACTIVATOR,
+                                Schema = new ElementSchemaData
+                                {
+                                    Ints = new Dictionary<string, int>
+                                    {
+                                        {"ready.frameColor", (int)VirtualColor.Ready },
+                                        {"ready.captionColor", (int)VirtualColor.Primary },
+                                        {"ready.tween", (int)TweenType.Responsive },
+
+                                        {"activating.frameColor", (int)VirtualColor.Interacting },
+                                        {"activating.captionColor", (int)VirtualColor.Interacting },
+                                        {"activating.tween", (int)TweenType.Responsive },
+
+                                        {"activated.color", (int)VirtualColor.Interacting },
+                                        {"activated.captionColor", (int)VirtualColor.Interacting },
+                                        {"activated.tween", (int)TweenType.Instant },
+                                    },
+                                    Floats = new Dictionary<string, float>
+                                    {
+                                        { "ready.frameScale", 1.0f },
+
+                                        { "activating.frameScale", 1.1f },
+
+                                        { "activated.frameScale", 1.0f },
+                                    }
+                                },
                                 Children = new []
                                 {
                                     new ElementData
@@ -61,69 +86,6 @@ namespace CreateAR.SpirePlayer
                                             }
                                         }
                                     },
-                                    new ElementData
-                                    {
-                                        Id = "states",
-                                        Children = new[]
-                                        {
-                                            new ElementData
-                                            {
-                                                Id = "ready",
-                                                Type = ElementTypes.BUTTON_READY_STATE,
-                                                Schema = new ElementSchemaData
-                                                {
-                                                    Ints = new Dictionary<string, int>
-                                                    {
-                                                        {"color", (int)VirtualColor.Ready },
-                                                        {"captionColor", (int)VirtualColor.Primary },
-                                                        {"tween", (int)TweenType.Responsive }
-                                                    },
-                                                    Floats = new Dictionary<string, float>
-                                                    {
-                                                        { "frameScale", 1.0f }
-                                                    }
-                                                }
-                                            },
-
-                                            new ElementData
-                                            {
-                                                Id = "activating",
-                                                Type = ElementTypes.BUTTON_ACTIVATING_STATE,
-                                                Schema = new ElementSchemaData
-                                                {
-                                                    Ints = new Dictionary<string, int>
-                                                    {
-                                                        {"color", (int)VirtualColor.Interacting },
-                                                        {"captionColor", (int)VirtualColor.Interacting },
-                                                        {"tween", (int)TweenType.Responsive },
-                                                    },
-                                                    Floats = new Dictionary<string, float>
-                                                    {
-                                                        { "frameScale", 1.1f }
-                                                    }
-                                                }
-                                            },
-
-                                            new ElementData
-                                            {
-                                                Id = "activated",
-                                                Type = ElementTypes.BUTTON_ACTIVATED_STATE,
-                                                Schema = new ElementSchemaData
-                                                {
-                                                    Ints = new Dictionary<string, int>
-                                                    {
-                                                        {"color", (int)VirtualColor.Interacting },
-                                                        {"captionColor", (int)VirtualColor.Interacting },
-                                                        {"tween", (int)TweenType.Instant },
-                                                    },
-                                                    Floats = new Dictionary<string, float>
-                                                    {
-                                                        { "frameScale", 1.0f }
-                                                    }
-                                                }
-                                            },
-                                        }
-                                    }
                                 }
                             }
                         }

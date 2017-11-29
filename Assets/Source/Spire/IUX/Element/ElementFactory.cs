@@ -119,18 +119,6 @@ namespace CreateAR.SpirePlayer.UI
                 {
                     return new Button(_config, _layers, _tweens, _colors, _messages);
                 }
-                case ElementTypes.BUTTON_READY_STATE:
-                {
-                    return new ActivatorReadyState();
-                }
-                case ElementTypes.BUTTON_ACTIVATING_STATE:
-                {
-                    return new ActivatorActivatingState();
-                }
-                case ElementTypes.BUTTON_ACTIVATED_STATE:
-                {
-                    return new ActivatorActivatedState();
-                }
                 case ElementTypes.CURSOR:
                 {
                     return new Cursor(_config, _primitives, _layers, _tweens, _colors, _messages, _intention);

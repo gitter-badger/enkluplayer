@@ -5,45 +5,70 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Visual characteristics common to all buttons.
     /// </summary>
-    public class ActivatorState : Element, IState
+    public class ActivatorState : IState
     {
         /// <summary>
         /// Activator.
         /// </summary>
-        public Activator Activator { get; set; }
+        protected Activator _activator;
 
         /// <summary>
         /// Props.
         /// </summary>
-        private ElementSchemaProp<float> _propFrameScale;
-        private ElementSchemaProp<int> _propFrameColor;
-        private ElementSchemaProp<int> _propTween;
+        private readonly ElementSchemaProp<float> _propFrameScale;
+        private readonly ElementSchemaProp<int> _propFrameColor;
+        private readonly ElementSchemaProp<int> _propTween;
 
         /// <summary>
         /// Color of the button during this state.
         /// </summary>
-        public VirtualColor FrameColor { get { return (VirtualColor)_propFrameColor.Value; } }
+        public VirtualColor FrameColor
+        {
+            get
+            {
+                return (VirtualColor)_propFrameColor.Value;
+            }
+        }
 
         /// <summary>
         /// Color of the button during this state.
         /// </summary>
-        public float FrameScale { get { return _propFrameScale.Value; } }
+        public float FrameScale
+        {
+            get
+            {
+                return _propFrameScale.Value;
+            }
+        }
 
         /// <summary>
         /// Tween into this state.
         /// </summary>
-        public TweenType Tween { get { return (TweenType)_propTween.Value; } }
-        
-        /// <summary>
-        /// Prop initialization.
-        /// </summary>
-        protected override void LoadInternal()
+        public TweenType Tween
         {
-            base.LoadInternal();
+            get
+            {
+                return (TweenType)_propTween.Value;
+            }
+        }
 
-            _propFrameColor = Schema.Get<int>("frameColor");
-            _propTween = Schema.Get<int>("tween");
-            _propFrameScale = Schema.Get<float>("frameScale");
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="activator">Activator.</param>
+        /// <param name="frameColor">Color of frame.</param>
+        /// <param name="tween">Tween prop.</param>
+        /// <param name="frameScale">Frame scale prop.</param>
+        public ActivatorState(
+            Activator activator,
+            ElementSchemaProp<int> frameColor,
+            ElementSchemaProp<int> tween,
+            ElementSchemaProp<float> frameScale)
+        {
+            _activator = activator;
+            _propFrameColor = frameColor;
+            _propTween = tween;
+            _propFrameScale = frameScale;
         }
 
         /// <summary>

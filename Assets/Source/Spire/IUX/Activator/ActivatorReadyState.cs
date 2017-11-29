@@ -17,13 +17,30 @@ namespace CreateAR.SpirePlayer.UI
         private float _elapsed;
 
         /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="activator">Activator.</param>
+        /// <param name="schema">Schema to use.</param>
+        public ActivatorReadyState(
+            Activator activator,
+            ElementSchema schema)
+            : base(
+                activator,
+                schema.Get<int>("ready.frameColor"),
+                schema.Get<int>("ready.tween"),
+                schema.Get<float>("ready.frameScale"))
+        {
+            //
+        }
+
+        /// <summary>
         /// Invoked when the state is begun.
         /// </summary>
         /// <param name="context"></param>
         public override void Enter(object context)
         {
             _elapsed = 0.0f;
-            _initialActivation = Activator.Activation;
+            _initialActivation = _activator.Activation;
         }
 
         /// <summary>
@@ -32,16 +49,16 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="deltaTime"></param>
         public override void Update(float deltaTime)
         {
-            if (Activator.Focused)
+            if (_activator.Focused)
             {
-                Activator.ChangeState<ActivatorActivatingState>();
+                _activator.ChangeState<ActivatorActivatingState>();
             }
             else
             {
                 _elapsed += deltaTime;
 
                 // recede the activation percentage over time
-                Activator.Activation = _initialActivation * Activator
+                _activator.Activation = _initialActivation * _activator
                     .Config
                     .GetFillDelay(_elapsed);
             }
