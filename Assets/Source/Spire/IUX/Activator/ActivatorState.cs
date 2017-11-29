@@ -8,10 +8,8 @@ namespace CreateAR.SpirePlayer
     public class ActivatorState : Element, IState
     {
         /// <summary>
-        /// Dependencies.
+        /// Activator.
         /// </summary>
-        public IColorConfig Colors { get; private set; }
-        public ITweenConfig Tweens { get; private set; }
         public Activator Activator { get; set; }
 
         /// <summary>
@@ -35,16 +33,7 @@ namespace CreateAR.SpirePlayer
         /// Tween into this state.
         /// </summary>
         public TweenType Tween { get { return (TweenType)_propTween.Value; } }
-
-        /// <summary>
-        /// Dependency initialization.
-        /// </summary>
-        public void Initialize(IColorConfig colors, ITweenConfig tweens)
-        {
-            Colors = colors;
-            Tweens = tweens;
-        }
-
+        
         /// <summary>
         /// Prop initialization.
         /// </summary>
