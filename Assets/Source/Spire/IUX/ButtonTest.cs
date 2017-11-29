@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer
                     {
                         Strings = new Dictionary<string, string>
                         {
-                            { "text", "Hello World" }
+                            { "label", "Hello World" }
                         },
                         Ints = new Dictionary<string, int>
                         {
@@ -37,17 +37,6 @@ namespace CreateAR.SpirePlayer
                     {
                         Id = "button",
                         Type = ElementTypes.BUTTON,
-                        Schema = new ElementSchemaData
-                        {
-                            Strings = new Dictionary<string, string>
-                            {
-                                {"label", "Hello World"}
-                            },
-                            Ints = new Dictionary<string, int>
-                            {
-                                {"fontSize", 80}
-                            }
-                        },
                         Children = new []
                         {
                             new ElementData

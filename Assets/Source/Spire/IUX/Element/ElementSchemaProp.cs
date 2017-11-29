@@ -97,7 +97,10 @@ namespace CreateAR.SpirePlayer.UI
         /// <returns></returns>
         public override string ToString()
         {
-            return _value.ToString();
+            return string.Format(
+                "[Prop Name={0}, Value={1}]",
+                Name,
+                _value);
         }
 
         /// <summary>
