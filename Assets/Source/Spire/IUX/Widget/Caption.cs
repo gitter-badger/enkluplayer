@@ -1,4 +1,6 @@
-﻿namespace CreateAR.SpirePlayer.UI
+﻿using CreateAR.Commons.Unity.Messaging;
+
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Basic text rendering widget.
@@ -28,9 +30,17 @@
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Caption(IPrimitiveFactory primitives)
+        public Caption(
+            IPrimitiveFactory primitives,
+            WidgetConfig config,
+            ILayerManager layers,
+            ITweenConfig tweens,
+            IColorConfig colors,
+            IMessageRouter messages)
         {
             _primitives = primitives;
+
+            Initialize(config, layers, tweens, colors, messages);
         }
 
         /// <inheritdoc cref="Element"/>

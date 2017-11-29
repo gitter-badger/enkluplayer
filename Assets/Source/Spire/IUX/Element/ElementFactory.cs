@@ -120,9 +120,7 @@ namespace CreateAR.SpirePlayer.UI
                 }
                 case ElementTypes.CAPTION:
                 {
-                    var newCaption = new Caption(_primitives);
-                    newCaption.Initialize(_config, _layers, _tweens, _colors, _messages);
-                    return newCaption;
+                    return new Caption(_primitives, _config, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.BUTTON:
                 {
