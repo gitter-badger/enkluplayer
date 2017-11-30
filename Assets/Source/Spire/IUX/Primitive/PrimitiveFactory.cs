@@ -39,7 +39,7 @@ namespace CreateAR.SpirePlayer.UI
         /// Creates a text primitive.
         /// </summary>
         /// <returns></returns>
-        public IActivator Activator()
+        public ActivatorMonoBehaviour Activator()
         {
             var activator = Instantiate(ActivatorMonoBehaviour);
             activator.Initialize(Config, Layers, Tweens, Colors, Messages, Intention, Interactions, Interactables);

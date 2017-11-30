@@ -1,5 +1,4 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
-using UnityEngine;
 using UnityEngine.Windows.Speech;
 
 namespace CreateAR.SpirePlayer.UI
@@ -34,12 +33,12 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Activator primitive
         /// </summary>
-        private IActivator _activator;
+        private ActivatorMonoBehaviour _activator;
 
         /// <summary>
         /// Activator Accessor
         /// </summary>
-        public IActivator Activator
+        public ActivatorMonoBehaviour Activator
         {
             get { return _activator; }
         }
@@ -89,7 +88,7 @@ namespace CreateAR.SpirePlayer.UI
 
             // Activator
             {
-                _activator = FindOne<IActivator>("activator");
+                _activator = FindOne<ActivatorMonoBehaviour>("activator");
             }
 
             // create label

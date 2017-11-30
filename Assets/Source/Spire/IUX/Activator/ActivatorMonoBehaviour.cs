@@ -10,7 +10,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Unity implementation of an IActivator.
     /// </summary>
-    public class ActivatorMonoBehaviour : WidgetMonoBehaviour, IActivator
+    public class ActivatorMonoBehaviour : WidgetMonoBehaviour, IInteractable
     {
         /// <summary>
         /// Factor for buffer.
@@ -109,20 +109,36 @@ namespace CreateAR.SpirePlayer
             set { _propHighlightPriority.Value = value; }
         }
 
-        /// <inheritdoc cref="IActivator"/>
+        /// <summary>
+        /// Bounding radius of the activator.
+        /// TODO: Spherical bounds are an implementation detail.
+        /// TODO: Refactor out of interface.
+        /// </summary>
         public float Radius { get; private set; }
 
-        /// <inheritdoc cref="IActivator"/>
+        /// <summary>
+        /// Aim.
+        /// </summary>
         public float Aim { get; set; }
 
-        /// <inheritdoc cref="IActivator"/>
+        /// <summary>
+        /// (IUX PATENT)
+        /// A scalar percentage [0..1] representing targeting steadiness.
+        /// 0 = low steadiness -> may be moving over on way to something else.
+        /// 1 - high steadiness -> definitely stationary over this.
+        /// </summary>
         public float Stability { get; set; }
 
-        /// <inheritdoc cref="IActivator"/>
+        /// <summary>
+        /// (IUX PATENT)
+        /// A scalar percentage [0..1] representing activation completion.
+        /// </summary>
         public float Activation { get; set; }
 
-        /// <inheritdoc cref="IActivator"/>
-        public event Action<IActivator> OnActivated;
+        /// <summary>
+        /// Invoked when the activator is activated.
+        /// </summary>
+        public event Action<ActivatorMonoBehaviour> OnActivated;
 
         /// <summary>
         /// Highligted Accessor/Mutator
@@ -327,7 +343,9 @@ namespace CreateAR.SpirePlayer
             return false;
         }
 
-        /// <inheritdoc cref="IActivator"/>
+        /// <summary>
+        /// Forced activation.
+        /// </summary>
         public void Activate()
         {
             _states.Change<ActivatorActivatedState>();

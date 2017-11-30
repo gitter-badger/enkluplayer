@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer.Test.UI
             return null;
         }
 
-        public IActivator Activator()
+        public ActivatorMonoBehaviour Activator()
         {
             return null;
         }
