@@ -5,7 +5,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// An interface for objects that can be focused upon.
     /// </summary>
-    public interface IInteractive
+    public interface IInteractable : IRaycaster
     {
         /// <summary>
         /// Access to the Unity Hierarchy (for now...).
@@ -39,12 +39,5 @@ namespace CreateAR.SpirePlayer
         /// 1 = high clarity - definitely targeting at center of this.
         /// </summary>
         float Aim { get; }
-
-        /// <summary>
-        /// Casts a ray at the interactive object
-        /// </summary>
-        /// <param name="ray"></param>
-        /// <returns></returns>
-        bool Cast(Ray ray);
     }
 }

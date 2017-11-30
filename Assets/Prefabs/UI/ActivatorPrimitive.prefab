@@ -200,7 +200,7 @@ GameObject:
   - component: {fileID: 223581415234185872}
   - component: {fileID: 65650325743747180}
   m_Layer: 5
-  m_Name: Activator Primitive (1)
+  m_Name: ActivatorPrimitive
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

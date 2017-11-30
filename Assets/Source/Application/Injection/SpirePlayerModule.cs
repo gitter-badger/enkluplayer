@@ -147,6 +147,11 @@ namespace CreateAR.SpirePlayer
 #endif   
             }
 
+            // IUX
+            {
+                binder.Bind<IInteractableManager>().To<InteractableManager>().ToSingleton();
+            }
+
             // content
             {
                 binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();

@@ -14,7 +14,7 @@
         /// <summary>
         /// Current focus.
         /// </summary>
-        IInteractive Focus { get; }
+        IInteractable Focus { get; }
 
         /// <summary>
         /// Forward direction.

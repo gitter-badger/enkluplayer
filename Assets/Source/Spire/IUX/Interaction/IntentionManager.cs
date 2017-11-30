@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// Tracks intention of the user, i.e. view direction and what they are
     /// intending by their view direction.
     /// </summary>
-    public class IntentionManager : MonoBehaviour, IIntentionManager
+    public class IntentionManager : InjectableMonoBehaviour, IIntentionManager
     {
         /// <summary>
         /// Window for calculating steadiness.
@@ -34,7 +34,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Widget which is currently focused
         /// </summary>
-        private IInteractive _focusWidget;
+        private IInteractable _focusWidget;
 
         /// <summary>
         /// For aiming with a hand.
@@ -57,9 +57,15 @@ namespace CreateAR.SpirePlayer
         public bool InputDisabled { get; private set; }
 
         /// <summary>
+        /// Manages interactable objects.
+        /// </summary>
+        [Inject]
+        public IInteractableManager Interactables { get; set; }
+
+        /// <summary>
         /// Current focus.
         /// </summary>
-        public IInteractive Focus
+        public IInteractable Focus
         {
             get { return _focusWidget; }
             set
@@ -267,8 +273,19 @@ namespace CreateAR.SpirePlayer
             }
 
             var layerMask = 1 << LayerMask.NameToLayer(LayerMaskNames.UI);
+            var all = Interactables.All;
+            for (int i = 0, len = all.Count; i < len; i++)
+            {
+                var interactable = all[i];
+                if (interactable.Interactable && interactable.Raycast(Origin, Forward))
+                {
+                    Focus = interactable;
+                    Debug.Log("Hit");
+                    return;
+                }
+            }
 
-            RaycastHit raycastHit;
+            /*RaycastHit raycastHit;
             if (Physics.Raycast(
                 Origin.ToVector(),
                 Forward.ToVector(),
@@ -293,12 +310,12 @@ namespace CreateAR.SpirePlayer
                         }
                     }
                 }
-            }
+            }*/
 
             // determine if the current interactable should lose focuse
             if (Focus != null)
             {
-                if (!Focus.Cast(Ray))
+                if (!Focus.Raycast(Origin, Forward))
                 {
                     Focus = null;
                 }

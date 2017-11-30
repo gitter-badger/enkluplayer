@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Button
     /// </summary>
-    public class Button : Widget, IInteractive
+    public class Button : Widget, IInteractable
     {
         /// <summary>
         /// For primitives.
@@ -49,7 +49,10 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         public bool Interactable { get { return _activator.Interactable; } }
         public float Aim { get { return _activator.Aim; } }
-        public bool Cast(Ray ray) { return _activator.Cast(ray); }
+        public bool Raycast(Vec3 origin, Vec3 direction)
+        {
+            return _activator.Raycast(origin, direction);
+        }
         public bool Focused
         {
             get { return _activator.Focused; }

@@ -19,6 +19,7 @@ namespace CreateAR.SpirePlayer.UI
         [Inject] public IInteractionManager Interactions { get; set; }
         [Inject] public IAssetPoolManager Pools { get; set; }
         [Inject] public WidgetConfig Config { get; set; }
+        [Inject] public IInteractableManager Interactables { get; set; }
 
         /// <summary>
         /// Basic text rendering primitive.
@@ -41,7 +42,7 @@ namespace CreateAR.SpirePlayer.UI
         public IActivator Activator()
         {
             var activator = Instantiate(ActivatorMonoBehaviour);
-            activator.Initialize(Config, Layers, Tweens, Colors, Messages, Intention, Interactions);
+            activator.Initialize(Config, Layers, Tweens, Colors, Messages, Intention, Interactions, Interactables);
             return activator;
         }
 

@@ -5,7 +5,7 @@
         /// <summary>
         /// Retrieves the current highlighted element.
         /// </summary>
-        IInteractive Highlighted { get; }
+        IInteractable Highlighted { get; }
 
         /// <summary>
         /// True if interaction is locked to only the highlighed widget.

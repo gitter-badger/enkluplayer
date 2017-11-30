@@ -18,14 +18,14 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Collection of only the highlighted elements.
         /// </summary>
-        private readonly List<IInteractive> _highlighted = new List<IInteractive>();
+        private readonly List<IInteractable> _highlighted = new List<IInteractable>();
 
         /// <summary>
         /// Retrieves the current highlighted element.
         /// 
         /// Updated every frame.
         /// </summary>
-        public IInteractive Highlighted { get; private set; }
+        public IInteractable Highlighted { get; private set; }
 
         /// <summary>
         /// True if the interaction is locked to only highlighted objects
@@ -75,15 +75,15 @@ namespace CreateAR.SpirePlayer
         /// The Highlighted property is updated every
         /// frame, not synchronously.
         /// </summary>
-        /// <param name="interactive">The element to add.</param>
-        public void Highlight(IInteractive interactive)
+        /// <param name="interactable">The element to add.</param>
+        public void Highlight(IInteractable interactable)
         {
-            if (_highlighted.Contains(interactive))
+            if (_highlighted.Contains(interactable))
             {
                 return;
             }
 
-            _highlighted.Add(interactive);
+            _highlighted.Add(interactable);
         }
 
         /// <summary>
@@ -91,10 +91,10 @@ namespace CreateAR.SpirePlayer
         /// 
         /// The Highlighted property is updated every frame, not synchronously.
         /// </summary>
-        /// <param name="interactive">The element to remove.</param>
-        public void Unhighlight(IInteractive interactive)
+        /// <param name="interactable">The element to remove.</param>
+        public void Unhighlight(IInteractable interactable)
         {
-            _highlighted.Remove(interactive);
+            _highlighted.Remove(interactable);
         }
 
         /// <summary>

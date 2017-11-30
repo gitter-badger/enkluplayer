@@ -5,7 +5,7 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Fundemenal primitive of user engagement.
     /// </summary>
-    public interface IActivator : IElement, IInteractive
+    public interface IActivator : IElement, IInteractable
     {
         /// <summary>
         /// Bounding radius of the activator.

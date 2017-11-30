@@ -18,6 +18,11 @@ namespace CreateAR.SpirePlayer
         private const float AUTO_GEN_BUFFER_FACTOR = 2.0f;
 
         /// <summary>
+        /// Manages interactables.
+        /// </summary>
+        private IInteractableManager _interactables;
+
+        /// <summary>
         /// Dependencies.
         /// </summary>
         public WidgetConfig Config { get; set; }
@@ -32,17 +37,22 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private BoxCollider _bufferCollider;
 
-        /// <inheritdoc cref="IInteractive"/>
-        public bool Interactable { get { return _activator.Interactable; } }
+        /// <inheritdoc cref="IInteractable"/>
+        public bool Interactable {
+            get
+            {
+                return _activator.Interactable;
+            }
+        }
 
-        /// <inheritdoc cref="IInteractive"/>
+        /// <inheritdoc cref="IInteractable"/>
         public bool Focused
         {
             get { return _activator.Focused; }
             set { _activator.Focused = value; }
         }
 
-        /// <inheritdoc cref="IInteractive"/>
+        /// <inheritdoc cref="IInteractable"/>
         public int HighlightPriority
         {
             get { return _activator.HighlightPriority; }
@@ -112,8 +122,10 @@ namespace CreateAR.SpirePlayer
             IColorConfig colors,
             IMessageRouter messages,
             IIntentionManager intention, 
-            IInteractionManager interaction)
+            IInteractionManager interaction,
+            IInteractableManager interactables)
         {
+            _interactables = interactables;
             Config = config;
 
             GenerateBufferCollider();
@@ -126,10 +138,11 @@ namespace CreateAR.SpirePlayer
                 colors, 
                 messages, 
                 intention, 
-                interaction, 
-                CalculateRadius(),
-                Cast);
+                interaction,
+                this,
+                CalculateRadius());
             _activator.OnActivated += Activator_OnActivated;
+
             SetWidget(_activator);
         }
 
@@ -157,8 +170,10 @@ namespace CreateAR.SpirePlayer
             {
                 FrameWidget.LoadFromMonoBehaviour(this);
             }
-        }
 
+            _interactables.Add(this);
+        }
+        
         /// <summary>
         /// Frame based update.
         /// </summary>
@@ -215,6 +230,30 @@ namespace CreateAR.SpirePlayer
             return radius;
         }
 
+        /// <inheritdoc cref="IRaycaster"/>
+        public bool Raycast(Vec3 origin, Vec3 direction)
+        {
+            if (FocusCollider != null)
+            {
+                var ray = new Ray(origin.ToVector(), direction.ToVector());
+                RaycastHit hitInfo;
+                if (FocusCollider.Raycast(ray, out hitInfo, float.PositiveInfinity))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Called when the object is being destroyed.
+        /// </summary>
+        private void OnDestroy()
+        {
+            _interactables.Remove(this);
+        }
+
         /// <summary>
         /// Generate buffer collider
         /// </summary>
@@ -232,25 +271,6 @@ namespace CreateAR.SpirePlayer
             }
 
             _bufferCollider.size = FocusCollider.size * AUTO_GEN_BUFFER_FACTOR;
-        }
-
-        /// <summary>
-        /// Returns true if the primitive is targeted.
-        /// </summary>
-        /// <param name="ray"></param>
-        /// <returns></returns>
-        public bool Cast(Ray ray)
-        {
-            if (_bufferCollider != null)
-            {
-                RaycastHit hitInfo;
-                if (_bufferCollider.Raycast(ray, out hitInfo, float.PositiveInfinity))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         /// <summary>

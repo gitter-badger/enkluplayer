@@ -12,6 +12,11 @@ namespace CreateAR.SpirePlayer
     public class Activator : Widget, IActivator
     {
         /// <summary>
+        /// Handles raycasts.
+        /// </summary>
+        private readonly IRaycaster _raycaster;
+
+        /// <summary>
         /// Dependencies.
         /// </summary>
         public IIntentionManager Intention { get; private set; }
@@ -33,12 +38,7 @@ namespace CreateAR.SpirePlayer
         /// True if the widget is currently focused
         /// </summary>
         private bool _focused;
-
-        /// <summary>
-        /// See comments in constructor.
-        /// </summary>
-        private readonly Func<Ray, bool> _cast;
-
+        
         /// <summary>
         /// True if aim is enabled
         /// </summary>
@@ -160,10 +160,12 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IIntentionManager intention, 
             IInteractionManager interaction,
-            float radius,
-            Func<Ray, bool> cast)
+            IRaycaster raycaster,
+            float radius)
             : base(gameObject)
         {
+            _raycaster = raycaster;
+
             AimEnabled = true;
             Initialize(config, layers, tweens, colors, messages);
 
@@ -171,11 +173,6 @@ namespace CreateAR.SpirePlayer
             Interaction = interaction;
 
             Radius = radius;
-
-            // TODO: this paradigm creates odd dependencies
-            //       difficult to escape with Unity handling physics
-            //       but should be removed eventually
-            _cast = cast;
         }
 
         /// <summary>
@@ -187,13 +184,11 @@ namespace CreateAR.SpirePlayer
             return string.Format("Activator[{0}]", GameObject.name);
         }
 
-        /// <summary>
-        /// Prop Initialization.
-        /// </summary>
+        /// <inheritdoc cref="Element"/>
         protected override void LoadInternal()
         {
             base.LoadInternal();
-
+            
             // States
             {
                 _states = new FiniteStateMachine(new IState[]
@@ -240,9 +235,13 @@ namespace CreateAR.SpirePlayer
             _states.Change<T>();
         }
 
-        /// <summary>
-        /// Called once every frame.
-        /// </summary>
+        /// <inheritdoc cref="IRaycaster"/>
+        public bool Raycast(Vec3 origin, Vec3 direction)
+        {
+            return _raycaster.Raycast(origin, direction);
+        }
+
+        /// <inheritdoc cref="Element"/>
         protected override void UpdateInternal()
         {
             base.UpdateInternal();
@@ -308,16 +307,6 @@ namespace CreateAR.SpirePlayer
                 Stability,
                 targetStability,
                 lerp);
-        }
-
-        /// <summary>
-        /// Forwards cast request to unity 
-        /// </summary>
-        /// <param name="ray"></param>
-        /// <returns></returns>
-        public bool Cast(Ray ray)
-        {
-            return _cast(ray);
         }
     }
 }
