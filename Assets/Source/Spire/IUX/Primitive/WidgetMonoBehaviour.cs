@@ -8,6 +8,7 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Widget primitive.
     /// </summary>
+    [Obsolete("DO NOT use. Only here for Activator at the moment.")]
     public class WidgetMonoBehaviour : MonoBehaviour, IWidget
     {
         /// <summary>
