@@ -18,9 +18,36 @@ namespace CreateAR.SpirePlayer
         private const float AUTO_GEN_BUFFER_FACTOR = 2.0f;
 
         /// <summary>
-        /// Manages interactables.
+        /// Dependencies.
         /// </summary>
         private IInteractableManager _interactables;
+        private IInteractionManager _interaction;
+        private IIntentionManager _intention;
+        private ITweenConfig _tweens;
+        private IColorConfig _colors;
+        private IMessageRouter _messages;
+
+        /// <summary>
+        /// For losing focus.
+        /// </summary>
+        private BoxCollider _bufferCollider;
+
+        /// <summary>
+        /// Props.
+        /// </summary>
+        private ElementSchemaProp<bool> _propHighlighted;
+        private ElementSchemaProp<bool> _propInteractionEnabled;
+        private ElementSchemaProp<int> _propHighlightPriority;
+
+        /// <summary>
+        /// Backing variable for Focused property.
+        /// </summary>
+        private bool _focused;
+
+        /// <summary>
+        /// State management for the button
+        /// </summary>
+        private FiniteStateMachine _states;
 
         /// <summary>
         /// Dependencies.
@@ -28,54 +55,97 @@ namespace CreateAR.SpirePlayer
         public WidgetConfig Config { get; set; }
 
         /// <summary>
-        /// Internal driver.
+        /// Current State Accessor.
         /// </summary>
-        private Activator _activator;
-
-        /// <summary>
-        /// For losing focus.
-        /// </summary>
-        private BoxCollider _bufferCollider;
-
-        /// <inheritdoc cref="IInteractable"/>
-        public bool Interactable {
+        public ActivatorState CurrentState
+        {
             get
             {
-                return _activator.Interactable;
+                return (ActivatorState)_states.Current;
             }
         }
 
         /// <inheritdoc cref="IInteractable"/>
-        public bool Focused
+        public bool Interactable
         {
-            get { return _activator.Focused; }
-            set { _activator.Focused = value; }
+            get
+            {
+                const float FOCUSABLE_THRESHOLD = 0.99f;
+                return Visible && Tween > FOCUSABLE_THRESHOLD
+                       && InteractionEnabled
+                       && (!_interaction.IsOnRails || Highlighted);
+            }
+        }
+
+        /// <inheritdoc cref="IInteractable"/>
+        public virtual bool Focused
+        {
+            get
+            {
+                return _focused;
+            }
+            set
+            {
+                if (_focused != value)
+                {
+                    _focused = value;
+
+                    if (_focused)
+                    {
+                        _messages.Publish(MessageTypes.WIDGET_FOCUS, new WidgetFocusEvent());
+                    }
+                    else
+                    {
+                        _messages.Publish(MessageTypes.WIDGET_UNFOCUS, new WidgetUnfocusEvent());
+                    }
+                }
+            }
         }
 
         /// <inheritdoc cref="IInteractable"/>
         public int HighlightPriority
         {
-            get { return _activator.HighlightPriority; }
-            set { _activator.HighlightPriority = value; }
+            get { return _propHighlightPriority.Value; }
+            set { _propHighlightPriority.Value = value; }
         }
 
         /// <inheritdoc cref="IActivator"/>
-        public float Radius { get { return _activator.Radius; } }
+        public float Radius { get; private set; }
 
         /// <inheritdoc cref="IActivator"/>
-        public float Aim { get { return _activator.Aim; } }
+        public float Aim { get; set; }
 
         /// <inheritdoc cref="IActivator"/>
-        public float Stability { get { return _activator.Stability; } }
+        public float Stability { get; set; }
 
         /// <inheritdoc cref="IActivator"/>
-        public float Activation { get { return _activator.Activation; } }
-
-        /// <inheritdoc cref="IActivator"/>
-        public void Activate() { _activator.Activate(); }
+        public float Activation { get; set; }
 
         /// <inheritdoc cref="IActivator"/>
         public event Action<IActivator> OnActivated;
+
+        /// <summary>
+        /// Highligted Accessor/Mutator
+        /// </summary>
+        public bool Highlighted
+        {
+            get { return _propHighlighted.Value; }
+            set { _propHighlighted.Value = value; }
+        }
+
+        /// <summary>
+        /// If true, can be interacted with.
+        /// </summary>
+        public bool InteractionEnabled
+        {
+            get { return _propInteractionEnabled.Value; }
+            set { _propInteractionEnabled.Value = value; }
+        }
+
+        /// <summary>
+        /// True iff Aim is enabled.
+        /// </summary>
+        public bool AimEnabled { get; set; }
 
         /// <summary>
         /// Primary widget of the activator.
@@ -125,25 +195,20 @@ namespace CreateAR.SpirePlayer
             IInteractionManager interaction,
             IInteractableManager interactables)
         {
+            _interaction = interaction;
             _interactables = interactables;
+            _intention = intention;
+            _tweens = tweens;
+            _colors = colors;
+            _messages = messages;
+
             Config = config;
 
             GenerateBufferCollider();
-
-            _activator = new Activator(
-                gameObject,
-                config, 
-                layers, 
-                tweens, 
-                colors, 
-                messages, 
-                intention, 
-                interaction,
-                this,
-                CalculateRadius());
-            _activator.OnActivated += Activator_OnActivated;
-
-            SetWidget(_activator);
+            Radius = CalculateRadius();
+            AimEnabled = true;
+            
+            Initialize(Config, layers, tweens, colors, messages);
         }
 
         /// <summary>
@@ -155,6 +220,27 @@ namespace CreateAR.SpirePlayer
         public override void Load(ElementData data, ElementSchema schema, IElement[] children)
         {
             base.Load(data, schema, children);
+
+            // States
+            {
+                _states = new FiniteStateMachine(new IState[]
+                {
+                    new ActivatorReadyState(this, Schema),
+                    new ActivatorActivatingState(this, _intention, Schema),
+                    new ActivatorActivatedState(this, _messages, Schema)
+                });
+                _states.Change<ActivatorReadyState>();
+            }
+
+            // Interaction
+            {
+                _propHighlighted = Schema.Get<bool>("highlighted");
+                _propInteractionEnabled = Schema.Get<bool>("interactionEnabled");
+                _propHighlightPriority = Schema.Get<int>("highlightPriority");
+
+                // TODO: fix this once "hasProp" is implemented
+                _propInteractionEnabled.Value = true;
+            }
 
             if (AimWidget != null)
             {
@@ -183,6 +269,21 @@ namespace CreateAR.SpirePlayer
 
             var deltaTime = Time.smoothDeltaTime;
 
+            if (!Focused
+                || !Interactable
+                || !AimEnabled)
+            {
+                Aim = 0.0f;
+                Stability = 0.0f;
+            }
+            else
+            {
+                UpdateAim();
+                UpdateStability(deltaTime);
+            }
+
+            _states.Update(deltaTime);
+
             UpdateAimWidget();
             UpdateStabilityTransform();
             UpdateFillImage();
@@ -190,26 +291,6 @@ namespace CreateAR.SpirePlayer
             UpdateColliders();
         }
         
-        /// <summary>
-        /// Activates the spawn VFX
-        /// </summary>
-        public void Activator_OnActivated(IActivator activator)
-        {
-            if (ActivationVFX != null)
-            {
-                // TODO: ActivationVFX Pooling.
-                var spawnGameObject = Instantiate(ActivationVFX,
-                    gameObject.transform.position,
-                    gameObject.transform.rotation);
-                spawnGameObject.SetActive(true);
-            }
-
-            if (OnActivated != null)
-            {
-                OnActivated(this);
-            }
-        }
-
         /// <summary>
         /// Returns the radius of the widget.
         /// </summary>
@@ -246,6 +327,37 @@ namespace CreateAR.SpirePlayer
             return false;
         }
 
+        /// <inheritdoc cref="IActivator"/>
+        public void Activate()
+        {
+            _states.Change<ActivatorActivatedState>();
+
+            Activation = 0;
+
+            if (ActivationVFX != null)
+            {
+                // TODO: ActivationVFX Pooling.
+                var spawnGameObject = Instantiate(ActivationVFX,
+                    gameObject.transform.position,
+                    gameObject.transform.rotation);
+                spawnGameObject.SetActive(true);
+            }
+
+            if (OnActivated != null)
+            {
+                OnActivated(this);
+            }
+        }
+
+        /// <summary>
+        /// Changes the state of the activator.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public void ChangeState<T>() where T : ActivatorState
+        {
+            _states.Change<T>();
+        }
+
         /// <summary>
         /// Called when the object is being destroyed.
         /// </summary>
@@ -271,6 +383,51 @@ namespace CreateAR.SpirePlayer
             }
 
             _bufferCollider.size = FocusCollider.size * AUTO_GEN_BUFFER_FACTOR;
+        }
+
+        /// <summary>
+        /// Updates the aim as a function of focus towards the center of the widget.
+        /// </summary>
+        private void UpdateAim()
+        {
+            var eyePosition = _intention.Origin;
+            var eyeDirection = _intention.Forward;
+            var delta = GameObject.transform.position.ToVec() - eyePosition;
+            var directionToButton = delta.Normalized;
+
+            var eyeDistance = delta.Magnitude;
+            var radius = Radius;
+
+            var maxTheta = Mathf.Atan2(radius, eyeDistance);
+
+            var cosTheta = Vec3.Dot(
+                directionToButton,
+                eyeDirection);
+            var theta = Mathf.Approximately(cosTheta, 1.0f)
+                ? 0.0f
+                : Mathf.Acos(cosTheta);
+
+            Aim = Mathf.Approximately(maxTheta, 0.0f)
+                ? 0.0f
+                : 1.0f - Mathf.Clamp01(Mathf.Abs(theta / maxTheta));
+        }
+
+        /// <summary>
+        /// Updates the steadiness feedback
+        /// </summary>
+        /// <param name="deltaTime"></param>
+        private void UpdateStability(float deltaTime)
+        {
+            var targetStability = Focused
+                ? _intention.Stability
+                : 0.0f;
+
+            const float STABILITY_LERP_RATE_MAGIC_NUMBER = 8.0f;
+            var lerp = deltaTime * STABILITY_LERP_RATE_MAGIC_NUMBER;
+            Stability = Mathf.Lerp(
+                Stability,
+                targetStability,
+                lerp);
         }
 
         /// <summary>
@@ -320,7 +477,7 @@ namespace CreateAR.SpirePlayer
             }
 
             FillImage.fillAmount = Activation;
-            FillWidget.LocalVisible = _activator.CurrentState is ActivatorActivatingState;
+            FillWidget.LocalVisible = CurrentState is ActivatorActivatingState;
         }
 
         /// <summary>
@@ -346,15 +503,15 @@ namespace CreateAR.SpirePlayer
         /// <param name="deltaTime"></param>
         public void UpdateFrameWidget(float deltaTime)
         {
-            var activatorState = _activator.CurrentState;
+            var activatorState = CurrentState;
 
-            var tweenDuration = _activator.Tweens.DurationSeconds(activatorState.Tween);
+            var tweenDuration = _tweens.DurationSeconds(activatorState.Tween);
             var tweenLerp = tweenDuration > Mathf.Epsilon
                 ? deltaTime / tweenDuration
                 : 1.0f;
 
             // blend the frame's color.
-            var frameColor = _activator.Colors.GetColor(activatorState.FrameColor);
+            var frameColor = _colors.GetColor(activatorState.FrameColor);
             FrameWidget.LocalColor = Col4.Lerp(
                 FrameWidget.LocalColor,
                 frameColor,

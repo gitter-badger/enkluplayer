@@ -8,20 +8,32 @@ namespace CreateAR.SpirePlayer.UI
     public class ActivatorActivatingState : ActivatorState
     {
         /// <summary>
+        /// Activator.
+        /// </summary>
+        private readonly ActivatorMonoBehaviour _activator;
+
+        /// <summary>
+        /// Manages intention.
+        /// </summary>
+        private readonly IIntentionManager _intention;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="activator">Activator.</param>
+        /// <param name="intention">Manages intention.</param>
         /// <param name="schema">Schema to use.</param>
         public ActivatorActivatingState(
-            Activator activator,
+            ActivatorMonoBehaviour activator,
+            IIntentionManager intention,
             ElementSchema schema)
             : base(
-                activator,
                 schema.Get<int>("activating.frameColor"),
                 schema.Get<int>("activating.tween"),
                 schema.Get<float>("activating.frameScale"))
         {
-            //
+            _activator = activator;
+            _intention = intention;
         }
 
         /// <summary>
@@ -38,7 +50,7 @@ namespace CreateAR.SpirePlayer.UI
 
             // aim affects fill rate.
             var aim = _activator.Aim;
-            var stability = _activator.Intention.Stability;
+            var stability = _intention.Stability;
             var fillDuration = _activator.Config.GetFillDuration();
             var aimMultiplier = _activator.Config.GetFillRateMultiplierFromAim(aim);
             var stabilityMultiplier = _activator.Config.GetFillRateMultiplierFromStability(stability);

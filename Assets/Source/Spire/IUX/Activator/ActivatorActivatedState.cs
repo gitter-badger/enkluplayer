@@ -1,4 +1,6 @@
-﻿namespace CreateAR.SpirePlayer.UI
+﻿using CreateAR.Commons.Unity.Messaging;
+
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Input state for controlling rotation.
@@ -6,20 +8,32 @@
     public class ActivatorActivatedState : ActivatorState
     {
         /// <summary>
+        /// Activator.
+        /// </summary>
+        private readonly ActivatorMonoBehaviour _activator;
+
+        /// <summary>
+        /// Routes messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="activator">Activator.</param>
+        /// <param name="messages">Routes messages.</param>
         /// <param name="schema">Schema to use.</param>
         public ActivatorActivatedState(
-            Activator activator,
+            ActivatorMonoBehaviour activator,
+            IMessageRouter messages,
             ElementSchema schema)
             : base(
-                activator,
                 schema.Get<int>("activated.frameColor"),
                 schema.Get<int>("activated.tween"),
                 schema.Get<float>("activated.frameScale"))
         {
-            //
+            _activator = activator;
+            _messages = messages;
         }
 
         /// <summary>
@@ -29,7 +43,7 @@
         public override void Enter(object context)
         {
             _activator.AimEnabled = false;
-            _activator.Messages.Publish(
+            _messages.Publish(
                 MessageTypes.BUTTON_ACTIVATE,
                 new ButtonActivateEvent());
         }

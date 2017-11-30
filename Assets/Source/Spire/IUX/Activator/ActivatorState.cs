@@ -8,11 +8,6 @@ namespace CreateAR.SpirePlayer
     public class ActivatorState : IState
     {
         /// <summary>
-        /// Activator.
-        /// </summary>
-        protected Activator _activator;
-
-        /// <summary>
         /// Props.
         /// </summary>
         private readonly ElementSchemaProp<float> _propFrameScale;
@@ -55,17 +50,14 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="activator">Activator.</param>
         /// <param name="frameColor">Color of frame.</param>
         /// <param name="tween">Tween prop.</param>
         /// <param name="frameScale">Frame scale prop.</param>
         public ActivatorState(
-            Activator activator,
             ElementSchemaProp<int> frameColor,
             ElementSchemaProp<int> tween,
             ElementSchemaProp<float> frameScale)
         {
-            _activator = activator;
             _propFrameColor = frameColor;
             _propTween = tween;
             _propFrameScale = frameScale;
