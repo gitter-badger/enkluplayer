@@ -1,5 +1,4 @@
-﻿using CreateAR.SpirePlayer.UI;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -50,12 +49,7 @@ namespace CreateAR.SpirePlayer
         /// Returns steadiness of the view.
         /// </summary>
         public float Stability { get; private set; }
-
-        /// <summary>
-        /// If true, input is not updated.
-        /// </summary>
-        public bool InputDisabled { get; private set; }
-
+        
         /// <summary>
         /// Manages interactable objects.
         /// </summary>
@@ -266,13 +260,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateFocus()
         {
-            if (InputDisabled)
-            {
-                Focus = null;
-                return;
-            }
-
-            var layerMask = 1 << LayerMask.NameToLayer(LayerMaskNames.UI);
             var all = Interactables.All;
             for (int i = 0, len = all.Count; i < len; i++)
             {
@@ -280,38 +267,10 @@ namespace CreateAR.SpirePlayer
                 if (interactable.Interactable && interactable.Raycast(Origin, Forward))
                 {
                     Focus = interactable;
-                    Debug.Log("Hit");
                     return;
                 }
             }
-
-            /*RaycastHit raycastHit;
-            if (Physics.Raycast(
-                Origin.ToVector(),
-                Forward.ToVector(),
-                out raycastHit,
-                Mathf.Infinity,
-                layerMask))
-            {
-                if (raycastHit.collider != null)
-                {
-                    var activator 
-                        = raycastHit
-                            .collider
-                            .GetComponent<ActivatorMonoBehaviour>();
-                    if (activator != null)
-                    {
-                        var button = activator.Parent as Button;
-                        if (button != null
-                         && button.Interactable)
-                        {
-                            Focus = button;
-                            return;
-                        }
-                    }
-                }
-            }*/
-
+            
             // determine if the current interactable should lose focuse
             if (Focus != null)
             {

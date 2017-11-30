@@ -7,11 +7,6 @@
     public interface IIntentionManager
     {
         /// <summary>
-        /// If true, input is not updated.
-        /// </summary>
-        bool InputDisabled { get; }
-
-        /// <summary>
         /// Current focus.
         /// </summary>
         IInteractable Focus { get; }

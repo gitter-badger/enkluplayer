@@ -107,7 +107,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateVisibility()
         {
-            LocalVisible = !_intention.InputDisabled;
+            LocalVisible = true;
             // && Widgets.GetVisibleCount<InteractableWidget>() > 0;
         }
 
