@@ -78,10 +78,7 @@ namespace CreateAR.SpirePlayer.UI
         {
             _widget = widget;
 
-            foreach (var wRenderer in GetComponentsInChildren<WidgetRenderer>())
-            {
-                wRenderer.Initialize(_widget);
-            }
+            InitializeWidgetRenderers();
         }
 
         /// <summary>
@@ -96,6 +93,8 @@ namespace CreateAR.SpirePlayer.UI
         {
             _widget = new Widget(gameObject);
             _widget.Initialize(config, layers, tweens, colors, messages);
+
+            InitializeWidgetRenderers();
         }
 
         /// <summary>
@@ -150,6 +149,19 @@ namespace CreateAR.SpirePlayer.UI
             if (_unityUpdate)
             {
                 LateFrameUpdate();
+            }
+        }
+
+        /// <summary>
+        /// TEMP.
+        /// 
+        /// Initializes renderers.
+        /// </summary>
+        private void InitializeWidgetRenderers()
+        {
+            foreach (var wRenderer in GetComponentsInChildren<WidgetRenderer>())
+            {
+                wRenderer.Initialize(_widget);
             }
         }
     }
