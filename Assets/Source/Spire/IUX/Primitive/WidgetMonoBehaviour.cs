@@ -76,7 +76,12 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="widget"></param>
         public void SetWidget(Widget widget)
         {
-            _widget = widget; 
+            _widget = widget;
+
+            foreach (var wRenderer in GetComponentsInChildren<WidgetRenderer>())
+            {
+                wRenderer.Initialize(_widget);
+            }
         }
 
         /// <summary>

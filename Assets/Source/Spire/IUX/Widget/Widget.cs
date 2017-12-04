@@ -41,6 +41,11 @@ namespace CreateAR.SpirePlayer.UI
         public IMessageRouter Messages { get; private set; }
 
         /// <summary>
+        /// True iff <c>LoadInternal</c> has been called.
+        /// </summary>
+        public bool IsLoaded { get; private set; }
+
+        /// <summary>
         /// True if the widget is currently visible
         /// </summary>
         private readonly WatchedValue<bool> _isVisible = new WatchedValue<bool>();
@@ -369,7 +374,6 @@ namespace CreateAR.SpirePlayer.UI
             _name = Schema.GetOwn("name", _gameObject.name);
             _localColor = Schema.GetOwn("color", Col4.White);
             _localPosition = Schema.GetOwn("position", Vec3.Zero);
-
             _tweenIn = Schema.GetOwn("tweenIn", TweenType.Responsive);
             _tweenOut = Schema.GetOwn("tweenOut", TweenType.Responsive);
             _virtualColor = Schema.GetOwn("virtualColor", VirtualColor.None);
@@ -403,6 +407,8 @@ namespace CreateAR.SpirePlayer.UI
             {
                 Show();
             }
+
+            IsLoaded = true;
         }
 
         /// <summary>
@@ -410,6 +416,19 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         protected override void UnloadInternal()
         {
+            IsLoaded = false;
+
+            _name = null;
+            _localColor = null;
+            _localPosition = null;
+            _tweenIn = null;
+            _tweenOut = null;
+            _virtualColor = null;
+            _colorMode = null;
+            _visibilityMode = null;
+            _layerMode = null;
+            _autoDestroy = null;
+
             if (_gameObject != null)
             {
                 Object.Destroy(_gameObject);
