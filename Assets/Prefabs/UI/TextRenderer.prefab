@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 222927906829772924}
   - component: {fileID: 114784742494333742}
   m_Layer: 0
-  m_Name: Text Primitive
+  m_Name: TextRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

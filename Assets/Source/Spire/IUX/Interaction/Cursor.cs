@@ -195,7 +195,7 @@ namespace CreateAR.SpirePlayer
                 var pos = interactive.GameObject.transform.position.ToVec();
                 var eyeDeltaToFocusWidget = pos - eyePosition;
                 targetFocusDistance = eyeDeltaToFocusWidget.Magnitude;
-                var activator = interactive as ActivatorMonoBehaviour;
+                var activator = interactive as ActivatorRenderer;
                 if (activator != null)
                 {
                     targetFocusDistance = targetFocusDistance - activator.Radius;

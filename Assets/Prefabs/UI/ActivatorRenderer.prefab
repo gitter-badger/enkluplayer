@@ -196,11 +196,11 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224832394739850342}
-  - component: {fileID: 114288956088431348}
   - component: {fileID: 223581415234185872}
   - component: {fileID: 65650325743747180}
+  - component: {fileID: 114629216621896330}
   m_Layer: 5
-  m_Name: ActivatorPrimitive
+  m_Name: ActivatorRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -812,24 +812,6 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
---- !u!114 &114288956088431348
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1568640161150658}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a98cf550337d8a4a9936df666b42ef4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  FrameWidget: {fileID: 114912480048333940}
-  StabilityTransform: {fileID: 224530307762294046}
-  FillImage: {fileID: 114847686933682960}
-  FillWidget: {fileID: 114317751875704554}
-  AimWidget: {fileID: 114671699404673594}
-  ActivationVFX: {fileID: 1271769183072540}
-  FocusCollider: {fileID: 65650325743747180}
 --- !u!114 &114298680827224788
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -841,7 +823,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Source: {fileID: 114671699404673594}
   Graphic: {fileID: 0}
   CanvasRenderer: {fileID: 0}
   Renderer: {fileID: 23026072972017472}
@@ -869,7 +850,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Source: {fileID: 114671699404673594}
   Graphic: {fileID: 0}
   CanvasRenderer: {fileID: 0}
   Renderer: {fileID: 23602836796331540}
@@ -886,7 +866,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Source: {fileID: 114671699404673594}
   Graphic: {fileID: 0}
   CanvasRenderer: {fileID: 0}
   Renderer: {fileID: 23291002752720190}
@@ -903,12 +882,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Source: {fileID: 114317751875704554}
   Graphic: {fileID: 114847686933682960}
   CanvasRenderer: {fileID: 0}
   Renderer: {fileID: 0}
   Material: {fileID: 0}
   MaterialColorName: _Color
+--- !u!114 &114629216621896330
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1568640161150658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0badd565086d3f45a8731b09690fc48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FrameWidget: {fileID: 114912480048333940}
+  StabilityTransform: {fileID: 224530307762294046}
+  FillImage: {fileID: 114847686933682960}
+  FillWidget: {fileID: 114317751875704554}
+  AimWidget: {fileID: 114671699404673594}
+  ActivationVFX: {fileID: 1271769183072540}
+  FocusCollider: {fileID: 65650325743747180}
 --- !u!114 &114671699404673594
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -931,7 +927,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Source: {fileID: 114912480048333940}
   Graphic: {fileID: 0}
   CanvasRenderer: {fileID: 0}
   Renderer: {fileID: 23398321812455706}

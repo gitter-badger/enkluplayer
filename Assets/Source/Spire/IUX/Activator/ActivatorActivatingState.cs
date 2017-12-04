@@ -10,7 +10,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Activator.
         /// </summary>
-        private readonly ActivatorMonoBehaviour _activator;
+        private readonly ActivatorPrimitive _activator;
 
         /// <summary>
         /// Manages intention.
@@ -24,7 +24,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="intention">Manages intention.</param>
         /// <param name="schema">Schema to use.</param>
         public ActivatorActivatingState(
-            ActivatorMonoBehaviour activator,
+            ActivatorPrimitive activator,
             IIntentionManager intention,
             ElementSchema schema)
             : base(

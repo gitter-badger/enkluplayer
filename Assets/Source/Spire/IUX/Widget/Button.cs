@@ -31,14 +31,14 @@ namespace CreateAR.SpirePlayer.UI
         private KeywordRecognizer _keywordRecognizer;
 
         /// <summary>
-        /// Activator primitive
+        /// Activator!
         /// </summary>
-        private ActivatorMonoBehaviour _activator;
+        private ActivatorPrimitive _activator;
 
         /// <summary>
         /// Activator Accessor
         /// </summary>
-        public ActivatorMonoBehaviour Activator
+        public ActivatorPrimitive Activator
         {
             get { return _activator; }
         }
@@ -88,7 +88,8 @@ namespace CreateAR.SpirePlayer.UI
 
             // Activator
             {
-                _activator = FindOne<ActivatorMonoBehaviour>("activator");
+                _activator = _primitives.Activator();
+                _activator.Parent = this;
             }
 
             // create label

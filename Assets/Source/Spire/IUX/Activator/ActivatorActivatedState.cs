@@ -10,7 +10,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Activator.
         /// </summary>
-        private readonly ActivatorMonoBehaviour _activator;
+        private readonly ActivatorPrimitive _activator;
 
         /// <summary>
         /// Routes messages.
@@ -24,7 +24,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="messages">Routes messages.</param>
         /// <param name="schema">Schema to use.</param>
         public ActivatorActivatedState(
-            ActivatorMonoBehaviour activator,
+            ActivatorPrimitive activator,
             IMessageRouter messages,
             ElementSchema schema)
             : base(

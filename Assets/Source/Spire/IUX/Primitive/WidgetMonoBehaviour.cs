@@ -98,23 +98,22 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
-        /// Loads through the Unity Hierarchy.
-        /// TODO: This code path should be removed once we can transition
-        /// all primitives to data.
+        /// Loads for activator.
+        /// TODO: This code path should be removed.
         /// </summary>
         /// <param name="parent"></param>
-        public void LoadFromMonoBehaviour(WidgetMonoBehaviour parent)
+        public void LoadFromActivator(ActivatorPrimitive parent)
         {
             var newWidget = new Widget(gameObject);
 
             SetWidget(newWidget);
 
             Initialize(
-                parent.Widget.Config, 
-                parent.Widget.Layers, 
-                parent.Widget.Tweens, 
-                parent.Widget.Colors, 
-                parent.Widget.Messages);
+                parent.Config, 
+                parent.Layers, 
+                parent.Tweens, 
+                parent.Colors, 
+                parent.Messages);
 
             var data = new ElementData()
             {

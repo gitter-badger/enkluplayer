@@ -119,7 +119,7 @@ GameObject:
   - component: {fileID: 4484233192252146}
   - component: {fileID: 114002837979368224}
   m_Layer: 0
-  m_Name: ReticlePrimitive
+  m_Name: ReticleRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

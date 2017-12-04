@@ -20,12 +20,7 @@ namespace CreateAR.SpirePlayer.UI
         [Inject] public IAssetPoolManager Pools { get; set; }
         [Inject] public WidgetConfig Config { get; set; }
         [Inject] public IInteractableManager Interactables { get; set; }
-
-        /// <summary>
-        /// Basic text rendering primitive.
-        /// </summary>
-        public ActivatorMonoBehaviour ActivatorMonoBehaviour;
-
+        
         /// <summary>
         /// Creates a text primitive.
         /// </summary>
@@ -39,11 +34,17 @@ namespace CreateAR.SpirePlayer.UI
         /// Creates a text primitive.
         /// </summary>
         /// <returns></returns>
-        public ActivatorMonoBehaviour Activator()
+        public ActivatorPrimitive Activator()
         {
-            var activator = Instantiate(ActivatorMonoBehaviour);
-            activator.Initialize(Config, Layers, Tweens, Colors, Messages, Intention, Interactions, Interactables);
-            return activator;
+            return new ActivatorPrimitive(
+                Config,
+                Interactables,
+                Interactions,
+                Intention,
+                Messages,
+                Layers,
+                Tweens,
+                Colors);
         }
 
         /// <summary>

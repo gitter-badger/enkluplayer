@@ -258,3 +258,5 @@ MonoBehaviour:
   SpinSpeed: -0.25
   Text: {fileID: 114784742494333742, guid: 501ef06376b78954e9f6d81bcec3af57, type: 2}
   Reticle: {fileID: 114002837979368224, guid: 11a8156d5a2eb894286737b838756e38, type: 2}
+  Activator: {fileID: 114629216621896330, guid: aa4acfa93557f6b41875423ab4c10aa4,
+    type: 2}

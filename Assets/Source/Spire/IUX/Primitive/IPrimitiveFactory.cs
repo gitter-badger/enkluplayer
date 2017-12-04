@@ -6,7 +6,7 @@
     public interface IPrimitiveFactory
     {
         TextPrimitive Text();
-        ActivatorMonoBehaviour Activator();
+        ActivatorPrimitive Activator();
         ReticlePrimitive Reticle();
     }
 }

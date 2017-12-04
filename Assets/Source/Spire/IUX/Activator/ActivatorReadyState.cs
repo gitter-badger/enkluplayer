@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Activator.
         /// </summary>
-        private readonly ActivatorMonoBehaviour _activator;
+        private readonly ActivatorPrimitive _activator;
 
         /// <summary>
         /// Activation as the state is entered.
@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="activator">Activator.</param>
         /// <param name="schema">Schema to use.</param>
         public ActivatorReadyState(
-            ActivatorMonoBehaviour activator,
+            ActivatorPrimitive activator,
             ElementSchema schema)
             : base(
                 schema.Get<int>("ready.frameColor"),
