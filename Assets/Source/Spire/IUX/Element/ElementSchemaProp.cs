@@ -10,17 +10,17 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Name of the prop. Can be null for shared, default value props.
         /// </summary>
-        internal readonly string Name;
+        public readonly string Name;
 
         /// <summary>
         /// The type of the prop.
         /// </summary>
-        internal readonly Type Type;
+        public readonly Type Type;
         
         /// <summary>
         /// True iff the link has been broken between parent and child.
         /// </summary>
-        internal bool LinkBroken;
+        public bool LinkBroken;
 
         /// <summary>
         /// Internal constructor.

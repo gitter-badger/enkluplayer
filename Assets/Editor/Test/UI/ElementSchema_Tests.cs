@@ -323,5 +323,77 @@ namespace CreateAR.SpirePlayer.Test.UI
             Assert.IsTrue(_schema.HasOwnProp("foo"));
             Assert.IsTrue(schema.HasOwnProp("foo"));
         }
+
+        [Test]
+        public void IterateProps()
+        {
+            var num = 0;
+            var foo = false;
+            foreach (var prop in _schema)
+            {
+                num++;
+
+                if (prop.Name == "foo")
+                {
+                    foo = true;
+                }
+            }
+
+            Assert.AreEqual(1, num);
+            Assert.IsTrue(foo);
+        }
+
+        [Test]
+        public void IteratePropsAdd()
+        {
+            // create prop
+            _schema.GetOwn("bar", 2);
+
+            var num = 0;
+            var bar = false;
+            foreach (var prop in _schema)
+            {
+                num++;
+
+                if (prop.Name == "bar")
+                {
+                    bar = true;
+                }
+            }
+
+            Assert.AreEqual(2, num);
+            Assert.IsTrue(bar);
+        }
+
+        [Test]
+        public void IteratePropsOrder()
+        {
+            // create child schema
+            var schema = new ElementSchema();
+            schema.GetOwn("bar", 2);
+            schema.Wrap(_schema);
+
+            var num = 0;
+            var foo = false;
+            var bar = false;
+            foreach (var prop in schema)
+            {
+                num++;
+
+                if (prop.Name == "foo")
+                {
+                    foo = true;
+                    Assert.IsTrue(bar);
+                }
+                else if (prop.Name == "bar")
+                {
+                    bar = true;
+                }
+            }
+
+            Assert.AreEqual(2, num);
+            Assert.IsTrue(bar);
+            Assert.IsTrue(foo);
+        }
     }
 }
