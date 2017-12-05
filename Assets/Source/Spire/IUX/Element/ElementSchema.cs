@@ -228,16 +228,14 @@ namespace CreateAR.SpirePlayer.UI
             {
                 // add the default
                 prop = new ElementSchemaProp<T>(name, @default, true);
+                _props.Add(prop);
 
-                if (type == prop.Type)
-                {
-                    _props.Add(prop);
-                }
+                return (ElementSchemaProp<T>) prop;
             }
 
             if (type == prop.Type)
             {
-                return (ElementSchemaProp<T>)prop;
+                return (ElementSchemaProp<T>) prop;
             }
 
             return Default<T>();
@@ -264,7 +262,7 @@ namespace CreateAR.SpirePlayer.UI
                     return true;
                 }
 
-                parent = _parent._parent;
+                parent = parent._parent;
             }
 
             return false;
