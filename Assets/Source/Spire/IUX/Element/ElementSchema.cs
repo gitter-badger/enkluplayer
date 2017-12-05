@@ -9,19 +9,39 @@ namespace CreateAR.SpirePlayer.UI
     /// </summary>
     public class ElementSchema : IEnumerable<ElementSchemaProp>
     {
+        /// <summary>
+        /// Internal enumerator for schema.
+        /// </summary>
         public class SchemaEnumarator : IEnumerator<ElementSchemaProp>
         {
+            /// <summary>
+            /// Schema to start with.
+            /// </summary>
             private readonly ElementSchema _schema;
+
+            /// <summary>
+            /// Current schema up the chain.
+            /// </summary>
             private ElementSchema _currentSchema;
+
+            /// <summary>
+            /// Index into props.
+            /// </summary>
             private int _propIndex = -1;
 
+            /// <inheritdoc cref="IEnumerator"/>
             public ElementSchemaProp Current { get; private set; }
 
+            /// <inheritdoc cref="IEnumerator"/>
             object IEnumerator.Current
             {
                 get { return Current; }
             }
 
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            /// <param name="schema">The schema to iterate over.</param>
             public SchemaEnumarator(ElementSchema schema)
             {
                 _schema = schema;
@@ -29,11 +49,13 @@ namespace CreateAR.SpirePlayer.UI
                 Reset();
             }
 
+            /// <inheritdoc cref="IEnumerator"/>
             public void Dispose()
             {
                 //
             }
 
+            /// <inheritdoc cref="IEnumerator"/>
             public bool MoveNext()
             {
                 if (null == _currentSchema)
@@ -67,6 +89,7 @@ namespace CreateAR.SpirePlayer.UI
                 return true;
             }
 
+            /// <inheritdoc cref="IEnumerator"/>
             public void Reset()
             {
                 _currentSchema = _schema;
