@@ -179,7 +179,7 @@ namespace CreateAR.SpirePlayer
                 _config.Activator,
                 Vector3.zero,
                 Quaternion.identity);
-            _renderer.transform.SetParent(GameObject.transform);
+            _renderer.transform.SetParent(GameObject.transform, false);
 
             AimEnabled = true;
 
@@ -220,12 +220,6 @@ namespace CreateAR.SpirePlayer
             }
 
             _states.Update(deltaTime);
-
-            /*UpdateAimWidget();
-            UpdateStabilityTransform();
-            UpdateFillImage();
-            UpdateFrameWidget(deltaTime);
-            UpdateColliders();*/
         }
 
         /// <summary>

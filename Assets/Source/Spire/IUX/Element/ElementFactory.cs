@@ -107,10 +107,6 @@ namespace CreateAR.SpirePlayer.UI
                 {
                     return new Element();
                 }
-                case ElementTypes.ACTIVATOR:
-                {
-                    return _primitives.Activator();
-                }
                 case ElementTypes.CAPTION:
                 {
                     return new Caption(_config, _primitives, _layers, _tweens, _colors, _messages);

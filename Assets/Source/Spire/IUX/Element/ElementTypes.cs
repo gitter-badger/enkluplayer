@@ -14,7 +14,6 @@
         // Primitive Types.
         ///////////////////////////////////////////////////////////////////////
         public const int CONTAINER = 0;
-        public const int ACTIVATOR = 1;
         
         public const int BUTTON = 10;
 
