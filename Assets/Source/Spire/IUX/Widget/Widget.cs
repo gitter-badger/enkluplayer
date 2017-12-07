@@ -1,3 +1,4 @@
+using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -241,12 +242,7 @@ namespace CreateAR.SpirePlayer.UI
             get
             {
                 var tween = _localTween;
-
-                if (tween < Mathf.Epsilon)
-                {
-                    Log.Debug(this, "_localTween in getter is 0.");
-                }
-
+                
                 if (Parent != null)
                 {
                     tween *= Parent.Tween;
@@ -265,7 +261,7 @@ namespace CreateAR.SpirePlayer.UI
             {
                 var finalColor = LocalColor;
 
-                finalColor.a *= Tween;
+                //finalColor.a *= Tween;
 
                 if (ColorMode == ColorMode.InheritColor)
                 {
@@ -378,6 +374,7 @@ namespace CreateAR.SpirePlayer.UI
 
             _localColor = Schema.GetOwn("color", Col4.White);
             _localPosition = Schema.GetOwn("position", Vec3.Zero);
+            _localPosition.OnChanged += LocalPosition_OnChanged;
             _tweenIn = Schema.GetOwn("tweenIn", TweenType.Responsive);
             _tweenOut = Schema.GetOwn("tweenOut", TweenType.Responsive);
             _virtualColor = Schema.GetOwn("virtualColor", VirtualColor.None);
@@ -423,6 +420,12 @@ namespace CreateAR.SpirePlayer.UI
             IsLoaded = false;
             
             _localColor = null;
+
+            if (null != _localPosition)
+            {
+                _localPosition.OnChanged -= LocalPosition_OnChanged;
+            }
+
             _localPosition = null;
             _tweenIn = null;
             _tweenOut = null;
@@ -618,6 +621,20 @@ namespace CreateAR.SpirePlayer.UI
                     childWidget.Parent = this;
                 }
             }
+        }
+
+        /// <summary>
+        /// Called when the local position changes.
+        /// </summary>
+        /// <param name="prop">Local position prop.</param>
+        /// <param name="prev">Previous position.</param>
+        /// <param name="next">Next position.</param>
+        private void LocalPosition_OnChanged(
+            ElementSchemaProp<Vec3> prop,
+            Vec3 prev,
+            Vec3 next)
+        {
+            _gameObject.transform.localPosition = next.ToVector();
         }
 
         /// <summary>

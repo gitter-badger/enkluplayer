@@ -1,6 +1,7 @@
 using System;
 using CreateAR.Commons.Unity.Editor;
 using CreateAR.SpirePlayer.UI;
+using UnityEditor;
 
 namespace CreateAR.SpirePlayer.Editor
 {
@@ -106,6 +107,29 @@ namespace CreateAR.SpirePlayer.Editor
             cast.Value = (float) value;
 
             return repaint;
+        }
+    }
+
+    /// <summary>
+    /// Renderer for float props.
+    /// </summary>
+    [PropRenderer(typeof(Vec3))]
+    public class Vec3PropRenderer : PropRenderer
+    {
+        /// <inheritdoc cref="PropRenderer"/>
+        public override bool Draw(ElementSchemaProp prop)
+        {
+            var cast = (ElementSchemaProp<Vec3>) prop;
+            var before = cast.Value;
+
+            var after = EditorGUILayout.Vector3Field(prop.Name, before.ToVector()).ToVec();
+            if (after.Approximately(before))
+            {
+                return false;
+            }
+
+            cast.Value = after;
+            return true;
         }
     }
 }

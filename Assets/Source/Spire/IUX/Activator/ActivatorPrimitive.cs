@@ -1,4 +1,5 @@
 using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.UI;
 using UnityEngine;
@@ -55,7 +56,7 @@ namespace CreateAR.SpirePlayer
                 {
                     return;
                 }
-
+                
                 _focused = value;
 
                 if (_focused)

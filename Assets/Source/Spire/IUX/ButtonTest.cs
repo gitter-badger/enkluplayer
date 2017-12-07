@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer
                         },
                         Vectors = new Dictionary<string, Vec3>
                         {
-                            { "position", new Vec3(0,0,3) }
+                            { "position", new Vec3(0f, 0.2f, 3f) }
                         }
                     }
                 },
