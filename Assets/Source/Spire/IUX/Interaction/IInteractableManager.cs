@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Manages interactable objects.

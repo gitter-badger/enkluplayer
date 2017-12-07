@@ -2,7 +2,7 @@ using CreateAR.Commons.Unity.Messaging;
 using System.Collections.Generic;
 using System;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Manages IUX elements.

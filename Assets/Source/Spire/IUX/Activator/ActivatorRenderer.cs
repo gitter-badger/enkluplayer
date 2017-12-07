@@ -66,7 +66,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Spawns when activated
         /// </summary>
-        public GameObject ActivationVFX;
+        public GameObject ActivationVfx;
 
         /// <summary>
         /// For gaining focus.
@@ -165,10 +165,10 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         public void Activate()
         {
-            if (ActivationVFX != null)
+            if (ActivationVfx != null)
             {
                 // TODO: ActivationVFX Pooling.
-                var spawnGameObject = Instantiate(ActivationVFX,
+                var spawnGameObject = Instantiate(ActivationVfx,
                     gameObject.transform.position,
                     gameObject.transform.rotation);
                 spawnGameObject.SetActive(true);

@@ -3,7 +3,7 @@
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Visual characteristics common to all buttons.
+    /// Base class for different states inside of activator.
     /// </summary>
     public class ActivatorState : IState
     {

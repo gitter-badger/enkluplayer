@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine;
+﻿using CreateAR.SpirePlayer.UI;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Virtual color lookup.
@@ -33,7 +29,10 @@ namespace CreateAR.SpirePlayer
 
         Count
     }
+}
 
+namespace CreateAR.SpirePlayer
+{
     public interface IColorConfig
     {
         /// <summary>

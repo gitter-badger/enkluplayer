@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using CreateAR.SpirePlayer.UI;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     public class CursorTest : InjectableMonoBehaviour
     {

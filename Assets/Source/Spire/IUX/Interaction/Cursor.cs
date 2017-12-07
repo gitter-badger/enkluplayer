@@ -1,8 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Manages the cursor rendering
@@ -195,11 +194,6 @@ namespace CreateAR.SpirePlayer
                 var pos = interactive.GameObject.transform.position.ToVec();
                 var eyeDeltaToFocusWidget = pos - eyePosition;
                 targetFocusDistance = eyeDeltaToFocusWidget.Magnitude;
-                var activator = interactive as ActivatorRenderer;
-                if (activator != null)
-                {
-                    targetFocusDistance = targetFocusDistance - activator.Radius;
-                }
             }
 
             var tweenDuration = Tweens.DurationSeconds(

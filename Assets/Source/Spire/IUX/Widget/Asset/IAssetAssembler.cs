@@ -1,8 +1,7 @@
 ﻿using System;
-using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Interface for assembling a <c>GameObject</c> for an <c>AssetElement</c>.

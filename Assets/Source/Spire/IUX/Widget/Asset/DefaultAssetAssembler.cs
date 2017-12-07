@@ -1,10 +1,9 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
-using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Assembler for models.

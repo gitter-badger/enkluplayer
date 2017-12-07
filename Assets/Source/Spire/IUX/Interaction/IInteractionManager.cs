@@ -1,5 +1,8 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer.UI
 {
+    /// <summary>
+    /// Interface for interaction management.
+    /// </summary>
     public interface IInteractionManager
     {
         /// <summary>

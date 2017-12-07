@@ -5,7 +5,7 @@ using CreateAR.SpirePlayer.Assets;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Loads resources for a material.

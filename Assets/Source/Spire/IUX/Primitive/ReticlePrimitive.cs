@@ -1,7 +1,6 @@
-using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Basic building block for reticle.
