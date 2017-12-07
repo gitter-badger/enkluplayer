@@ -6,15 +6,34 @@ using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.UI
 {
+    /// <summary>
+    /// Holds an activator.
+    /// 
+    /// TODO: Remove Widget portion.
+    /// </summary>
     public class ActivatorPrimitive : Widget, IInteractable
     {
+        /// <summary>
+        /// Configuration.
+        /// </summary>
         private readonly WidgetConfig _config;
+
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly IInteractableManager _interactables;
         private readonly IInteractionManager _interaction;
         private readonly IIntentionManager _intention;
         private readonly IMessageRouter _messages;
+
+        /// <summary>
+        /// Renders activator.
+        /// </summary>
         private ActivatorRenderer _renderer;
 
+        /// <summary>
+        /// Props.
+        /// </summary>
         private ElementSchemaProp<bool> _propInteractionEnabled;
         private ElementSchemaProp<bool> _propHighlighted;
         private ElementSchemaProp<int> _propHighlightPriority;
