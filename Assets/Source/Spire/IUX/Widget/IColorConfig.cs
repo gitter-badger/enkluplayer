@@ -1,6 +1,6 @@
-﻿using CreateAR.SpirePlayer.UI;
+﻿using CreateAR.SpirePlayer.IUX;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Virtual color lookup.

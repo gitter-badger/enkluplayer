@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.UI;
+using CreateAR.SpirePlayer.IUX;
 using NUnit.Framework;
 using UnityEngine;
 

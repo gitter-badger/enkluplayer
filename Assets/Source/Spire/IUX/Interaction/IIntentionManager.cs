@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer.UI
+﻿namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Interface for intention. This is for the purposes of abstracting away

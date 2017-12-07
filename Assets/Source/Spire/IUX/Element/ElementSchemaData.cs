@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Holds all data for a schema.

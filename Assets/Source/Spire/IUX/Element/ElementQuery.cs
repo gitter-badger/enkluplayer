@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Query object.

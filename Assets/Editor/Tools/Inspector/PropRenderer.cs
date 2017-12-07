@@ -1,4 +1,4 @@
-using CreateAR.SpirePlayer.UI;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer.Editor
 {

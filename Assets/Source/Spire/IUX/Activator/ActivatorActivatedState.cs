@@ -1,6 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Input state for controlling rotation.

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using CreateAR.SpirePlayer.UI;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer.Test.UI
 {

@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer.UI
+﻿namespace CreateAR.SpirePlayer.IUX
 {
     public interface IElementManager
     {

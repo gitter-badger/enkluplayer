@@ -1,6 +1,6 @@
 using System;
 using CreateAR.Commons.Unity.Editor;
-using CreateAR.SpirePlayer.UI;
+using CreateAR.SpirePlayer.IUX;
 using UnityEditor;
 
 namespace CreateAR.SpirePlayer.Editor

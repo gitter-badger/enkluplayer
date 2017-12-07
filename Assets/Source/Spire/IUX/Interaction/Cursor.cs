@@ -1,7 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Manages the cursor rendering

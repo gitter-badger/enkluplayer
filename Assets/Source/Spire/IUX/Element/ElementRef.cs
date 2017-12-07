@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer.UI
+﻿namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// References an <c>ElementData</c> instance. May contain child references

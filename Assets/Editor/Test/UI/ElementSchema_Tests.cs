@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CreateAR.SpirePlayer.UI;
+using CreateAR.SpirePlayer.IUX;
 using NUnit.Framework;
 
 namespace CreateAR.SpirePlayer.Test.UI

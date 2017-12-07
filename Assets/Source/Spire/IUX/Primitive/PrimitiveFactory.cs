@@ -1,6 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Contains prefabs for UI rendering primitives used in all widgets.

@@ -3,7 +3,7 @@ using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Renders an activator.

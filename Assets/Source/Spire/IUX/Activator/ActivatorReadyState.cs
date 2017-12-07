@@ -1,4 +1,4 @@
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// State the button takes when it is ready for activation 

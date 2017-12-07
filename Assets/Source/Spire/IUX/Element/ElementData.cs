@@ -1,6 +1,6 @@
 using System.Linq;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Saved data for elements.
