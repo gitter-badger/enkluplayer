@@ -28,6 +28,25 @@ namespace CreateAR.SpirePlayer
 
             _all.Add(element);
         }
+
+        /// <summary>
+        /// Retrieves an <c>Element</c> by Guid.
+        /// </summary>
+        /// <param name="guid">Unique guid.</param>
+        /// <returns></returns>
+        public Element ByGuid(string guid)
+        {
+            for (int i = 0, len = _all.Count; i < len; i++)
+            {
+                var element = (Element) _all[i];
+                if (element.Guid == guid)
+                {
+                    return element;
+                }
+            }
+
+            return null;
+        }
         
         /// <summary>
         /// Updates highlighted elements based on visibility.

@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using CreateAR.Commons.Unity.Editor;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
@@ -17,9 +20,19 @@ namespace CreateAR.SpirePlayer.Editor
         private readonly Dictionary<Type, PropRenderer> _propRenderers = new Dictionary<Type, PropRenderer>();
 
         /// <summary>
+        /// Parses element names.
+        /// </summary>
+        private readonly Regex _elementParser = new Regex(@"Guid=([a-zA-Z0-9\-]+)");
+
+        /// <summary>
+        /// Manages elements.
+        /// </summary>
+        private ElementManager _elements;
+
+        /// <summary>
         /// The currently selected Widget.
         /// </summary>
-        private Widget _selection;
+        private Element _selection;
 
         /// <summary>
         /// Current GameObject selected.
@@ -28,32 +41,36 @@ namespace CreateAR.SpirePlayer.Editor
         {
             set
             {
-                Widget widget = null;
-
-                if (value == null)
+                Element element = null;
+                
+                if (null != value)
                 {
-                    if (_selection == null)
+                    // parse name
+                    var name = value.name;
+                    var match = _elementParser.Match(name);
+                    if (match.Success)
                     {
-                        return;
+                        var id = match.Groups[1].Value;
+                        element = FindElement(id);
                     }
-
-                    _selection = null;
+                    // TODO: Remove
+                    else
+                    {
+                        // find widgetmonobehaviour
+                        var behaviour = value.GetComponent<WidgetMonoBehaviour>();
+                        if (null != behaviour)
+                        {
+                            element = behaviour.Widget;
+                        }
+                    }
                 }
-                else
+
+                if (element == _selection)
                 {
-                    var behaviour = value.GetComponent<WidgetMonoBehaviour>();
-                    if (null != behaviour)
-                    {
-                        widget = behaviour.Widget;
-                    }
-
-                    if (widget == _selection)
-                    {
-                        return;
-                    }
+                    return;
                 }
 
-                _selection = widget;
+                _selection = element;
 
                 Repaint();
             }
@@ -122,6 +139,26 @@ namespace CreateAR.SpirePlayer.Editor
             {
                 OnRepaintRequested();
             }
+        }
+
+        /// <summary>
+        /// Find element.
+        /// </summary>
+        /// <param name="guid">Guid of the element.</param>
+        /// <returns></returns>
+        private Element FindElement(string guid)
+        {
+            if (null == _elements)
+            {
+                _elements = UnityEngine.Object.FindObjectOfType<ElementManager>();
+            }
+
+            if (null == _elements)
+            {
+                return null;
+            }
+
+            return _elements.ByGuid(guid);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
 {
@@ -27,6 +28,8 @@ namespace CreateAR.SpirePlayer.Editor
             _elementView.OnRepaintRequested += Repaint;
 
             EditorApplication.update += EditorApplication_Update;
+
+            titleContent = new GUIContent("Elements");
         }
 
         /// <inheritdoc cref="EditorWindow"/>

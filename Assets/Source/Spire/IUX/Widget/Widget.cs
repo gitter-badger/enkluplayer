@@ -446,17 +446,6 @@ namespace CreateAR.SpirePlayer.UI
         }
         
         /// <summary>
-        /// String override
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return string.Format("<{0} Id={1} />",
-                GetType().Name,
-                Id);
-        }
-
-        /// <summary>
         /// Shows the widget
         /// </summary>
         public void Show()

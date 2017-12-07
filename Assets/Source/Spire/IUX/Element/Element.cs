@@ -73,17 +73,17 @@ namespace CreateAR.SpirePlayer.UI
         {
             Schema = new ElementSchema();
         }
-
+        
         /// <summary>
-        /// Useful ToString;
+        /// String override
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format(
-                "[Element Id={0}, Schema={1}]",
+            return string.Format("<{0} Id={1} Guid={2} />",
+                GetType().Name,
                 Id,
-                Schema);
+                Guid);
         }
 
         /// <summary>
