@@ -63,7 +63,7 @@ namespace CreateAR.SpirePlayer.UI
             }
             set
             {
-                _renderer.transform.parent = null;
+                _renderer.transform.SetParent(null);
                 _parent = value;
 
                 if (null != _parent)

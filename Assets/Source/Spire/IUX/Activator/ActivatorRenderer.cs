@@ -19,13 +19,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
-        //private IInteractableManager _interactables;
-        //private IInteractionManager _interaction;
-        //private IIntentionManager _intention;
         private WidgetConfig _config;
         private ITweenConfig _tweens;
         private IColorConfig _colors;
-        //private IMessageRouter _messages;
         private ActivatorPrimitive _activator;
 
         /// <summary>
@@ -37,138 +33,12 @@ namespace CreateAR.SpirePlayer
         /// True iff the renderer is initialized.
         /// </summary>
         private bool _isInited = false;
-
-        /// <summary>
-        /// Props.
-        /// </summary>
-        //private ElementSchemaProp<bool> _propHighlighted;
-        //private ElementSchemaProp<bool> _propInteractionEnabled;
-        //private ElementSchemaProp<int> _propHighlightPriority;
-
-        ///// <summary>
-        ///// Backing variable for Focused property.
-        ///// </summary>
-        //private bool _focused;
-
-        ///// <summary>
-        ///// State management for the button
-        ///// </summary>
-        //private FiniteStateMachine _states;
-
-        ///// <summary>
-        ///// Dependencies.
-        ///// </summary>
-        //public WidgetConfig Config { get; set; }
-
-        ///// <summary>
-        ///// Current State Accessor.
-        ///// </summary>
-        //public ActivatorState CurrentState
-        //{
-        //    get
-        //    {
-        //        return (ActivatorState)_states.Current;
-        //    }
-        //}
-
-        ///// <inheritdoc cref="IInteractable"/>
-        //public bool Interactable
-        //{
-        //    get
-        //    {
-        //        const float FOCUSABLE_THRESHOLD = 0.99f;
-        //        return Visible && Tween > FOCUSABLE_THRESHOLD
-        //               && InteractionEnabled
-        //               && (!_interaction.IsOnRails || Highlighted);
-        //    }
-        //}
-
-        ///// <inheritdoc cref="IInteractable"/>
-        //public virtual bool Focused
-        //{
-        //    get
-        //    {
-        //        return _focused;
-        //    }
-        //    set
-        //    {
-        //        if (_focused != value)
-        //        {
-        //            _focused = value;
-
-        //            if (_focused)
-        //            {
-        //                _messages.Publish(MessageTypes.WIDGET_FOCUS, new WidgetFocusEvent());
-        //            }
-        //            else
-        //            {
-        //                _messages.Publish(MessageTypes.WIDGET_UNFOCUS, new WidgetUnfocusEvent());
-        //            }
-        //        }
-        //    }
-        //}
-
-        ///// <inheritdoc cref="IInteractable"/>
-        //public int HighlightPriority
-        //{
-        //    get { return _propHighlightPriority.Value; }
-        //    set { _propHighlightPriority.Value = value; }
-        //}
-
+        
         /// <summary>
         /// Bounding radius of the activator.
-        /// TODO: Spherical bounds are an implementation detail.
-        /// TODO: Refactor out of interface.
         /// </summary>
         public float Radius { get; private set; }
         
-        /// <summary>
-        /// Aim.
-        /// </summary>
-        //public float Aim { get; set; }
-
-        ///// <summary>
-        ///// (IUX PATENT)
-        ///// A scalar percentage [0..1] representing targeting steadiness.
-        ///// 0 = low steadiness -> may be moving over on way to something else.
-        ///// 1 - high steadiness -> definitely stationary over this.
-        ///// </summary>
-        //public float Stability { get; set; }
-
-        ///// <summary>
-        ///// (IUX PATENT)
-        ///// A scalar percentage [0..1] representing activation completion.
-        ///// </summary>
-        //public float Activation { get; set; }
-
-        ///// <summary>
-        ///// Invoked when the activator is activated.
-        ///// </summary>
-        //public event Action<ActivatorRenderer> OnActivated;
-
-        /// <summary>
-        /// Highligted Accessor/Mutator
-        /// </summary>
-        //public bool Highlighted
-        //{
-        //    get { return _propHighlighted.Value; }
-        //    set { _propHighlighted.Value = value; }
-        //}
-
-        ///// <summary>
-        ///// If true, can be interacted with.
-        ///// </summary>
-        //public bool InteractionEnabled
-        //{
-        //    get { return _propInteractionEnabled.Value; }
-        //    set { _propInteractionEnabled.Value = value; }
-        //}
-
-        ///// <summary>
-        ///// True iff Aim is enabled.
-        ///// </summary>
-        //public bool AimEnabled { get; set; }
-
         /// <summary>
         /// Primary widget of the activator.
         /// </summary>
@@ -219,21 +89,14 @@ namespace CreateAR.SpirePlayer
             IInteractableManager interactables)
         {
             _activator = activator;
-            //_interaction = interaction;
-            //_interactables = interactables;
-            //_intention = intention;
             _tweens = tweens;
             _colors = colors;
-            //_messages = messages;
 
             _config = config;
 
             GenerateBufferCollider();
             Radius = CalculateRadius();
-            //AimEnabled = true;
-
-            //Initialize(Config, layers, tweens, colors, messages);
-
+            
             if (AimWidget != null)
             {
                 AimWidget.LoadFromActivator(_activator);
@@ -251,50 +114,6 @@ namespace CreateAR.SpirePlayer
 
             _isInited = true;
         }
-
-        /// <summary>
-        /// Initialization.
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="schema"></param>
-        /// <param name="children"></param>
-        //public override void Load(ElementData data, ElementSchema schema, IElement[] children)
-        //{
-        //    base.Load(data, schema, children);
-
-            // States
-            //{
-                //_states = new FiniteStateMachine(new IState[]
-                //{
-                //    new ActivatorReadyState(this, Schema),
-                //    new ActivatorActivatingState(this, _intention, Schema),
-                //    new ActivatorActivatedState(this, _messages, Schema)
-                //});
-                //_states.Change<ActivatorReadyState>();
-            //}
-
-            // Interaction
-            //{
-                
-            //}
-
-            //if (AimWidget != null)
-            //{
-            //    AimWidget.LoadFromMonoBehaviour(this);
-            //}
-
-            //if (FillWidget != null)
-            //{
-            //    FillWidget.LoadFromMonoBehaviour(this);
-            //}
-
-            //if (FrameWidget != null)
-            //{
-            //    FrameWidget.LoadFromMonoBehaviour(this);
-            //}
-
-            //_interactables.Add(this);
-        //}
         
         /// <summary>
         /// Frame based update.
@@ -302,25 +121,6 @@ namespace CreateAR.SpirePlayer
         //public override void FrameUpdate()
         private void Update()
         {
-            //base.FrameUpdate();
-
-            //var deltaTime = Time.smoothDeltaTime;
-
-            //if (!Focused
-            //    || !Interactable
-            //    || !AimEnabled)
-            //{
-            //    Aim = 0.0f;
-            //    Stability = 0.0f;
-            //}
-            //else
-            //{
-            //    UpdateAim();
-            //    UpdateStability(deltaTime);
-            //}
-
-            //_states.Update(deltaTime);
-
             if (!_isInited)
             {
                 return;
@@ -354,23 +154,7 @@ namespace CreateAR.SpirePlayer
 
             return radius;
         }
-
-        ///// <inheritdoc cref="IRaycaster"/>
-        //public bool Raycast(Vec3 origin, Vec3 direction)
-        //{
-        //    if (FocusCollider != null)
-        //    {
-        //        var ray = new Ray(origin.ToVector(), direction.ToVector());
-        //        RaycastHit hitInfo;
-        //        if (FocusCollider.Raycast(ray, out hitInfo, float.PositiveInfinity))
-        //        {
-        //            return true;
-        //        }
-        //    }
-
-        //    return false;
-        //}
-
+        
         /// <summary>
         /// Forced activation.
         /// </summary>
@@ -385,24 +169,7 @@ namespace CreateAR.SpirePlayer
                 spawnGameObject.SetActive(true);
             }
         }
-
-        ///// <summary>
-        ///// Changes the state of the activator.
-        ///// </summary>
-        ///// <typeparam name="T"></typeparam>
-        //public void ChangeState<T>() where T : ActivatorState
-        //{
-        //    _states.Change<T>();
-        //}
-
-        ///// <summary>
-        ///// Called when the object is being destroyed.
-        ///// </summary>
-        //private void OnDestroy()
-        //{
-        //    _interactables.Remove(this);
-        //}
-
+        
         /// <summary>
         /// Generate buffer collider
         /// </summary>
@@ -421,52 +188,7 @@ namespace CreateAR.SpirePlayer
 
             _bufferCollider.size = FocusCollider.size * AUTO_GEN_BUFFER_FACTOR;
         }
-
-        ///// <summary>
-        ///// Updates the aim as a function of focus towards the center of the widget.
-        ///// </summary>
-        //private void UpdateAim()
-        //{
-        //    var eyePosition = _intention.Origin;
-        //    var eyeDirection = _intention.Forward;
-        //    var delta = GameObject.transform.position.ToVec() - eyePosition;
-        //    var directionToButton = delta.Normalized;
-
-        //    var eyeDistance = delta.Magnitude;
-        //    var radius = Radius;
-
-        //    var maxTheta = Mathf.Atan2(radius, eyeDistance);
-
-        //    var cosTheta = Vec3.Dot(
-        //        directionToButton,
-        //        eyeDirection);
-        //    var theta = Mathf.Approximately(cosTheta, 1.0f)
-        //        ? 0.0f
-        //        : Mathf.Acos(cosTheta);
-
-        //    Aim = Mathf.Approximately(maxTheta, 0.0f)
-        //        ? 0.0f
-        //        : 1.0f - Mathf.Clamp01(Mathf.Abs(theta / maxTheta));
-        //}
-
-        ///// <summary>
-        ///// Updates the steadiness feedback
-        ///// </summary>
-        ///// <param name="deltaTime"></param>
-        //private void UpdateStability(float deltaTime)
-        //{
-        //    var targetStability = Focused
-        //        ? _intention.Stability
-        //        : 0.0f;
-
-        //    const float STABILITY_LERP_RATE_MAGIC_NUMBER = 8.0f;
-        //    var lerp = deltaTime * STABILITY_LERP_RATE_MAGIC_NUMBER;
-        //    Stability = Mathf.Lerp(
-        //        Stability,
-        //        targetStability,
-        //        lerp);
-        //}
-
+        
         /// <summary>
         /// Enables/disables interaction on the primitive.
         /// </summary>

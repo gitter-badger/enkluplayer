@@ -180,6 +180,7 @@ namespace CreateAR.SpirePlayer
                 Vector3.zero,
                 Quaternion.identity);
             _renderer.transform.SetParent(GameObject.transform, false);
+            _renderer.Initialize(this, _config, Layers, Tweens, Colors, Messages, _intention, _interaction, _interactables);
 
             AimEnabled = true;
 

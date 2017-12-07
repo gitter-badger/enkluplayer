@@ -1,8 +1,10 @@
+using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using System.Diagnostics;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.UI
 {
@@ -371,7 +373,7 @@ namespace CreateAR.SpirePlayer.UI
         {
             base.LoadInternal();
 
-            _name = Schema.GetOwn("name", _gameObject.name);
+            _name = Schema.GetOwn("name", ToString());
             _localColor = Schema.GetOwn("color", Col4.White);
             _localPosition = Schema.GetOwn("position", Vec3.Zero);
             _tweenIn = Schema.GetOwn("tweenIn", TweenType.Responsive);
@@ -449,7 +451,9 @@ namespace CreateAR.SpirePlayer.UI
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("Widget[{0}]", GameObject.name);
+            return string.Format("<{0} Id={1} />",
+                GetType().Name,
+                Id);
         }
 
         /// <summary>
@@ -572,6 +576,11 @@ namespace CreateAR.SpirePlayer.UI
                 _localTween = Visible
                     ? 1.0f
                     : 0.0f;
+
+                if (Math.Abs(_localTween) < Mathf.Epsilon)
+                {
+                    Log.Debug(this, "Tween is zero from visibility.");
+                }
             }
             else
             {
@@ -581,6 +590,11 @@ namespace CreateAR.SpirePlayer.UI
                 var tweenDelta = deltaTime / tweenDuration * multiplier;
 
                 _localTween = Mathf.Clamp01(_localTween + tweenDelta);
+
+                if (Math.Abs(_localTween) < Mathf.Epsilon)
+                {
+                    Log.Debug(this, "Tween is zero.");
+                }
             }
         }
         

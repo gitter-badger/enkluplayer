@@ -23,14 +23,7 @@ namespace CreateAR.SpirePlayer
 
                 Root = new ElementRef
                 {
-                    Id = "cursor",
-                    Schema = new ElementSchemaData
-                    {
-                        Strings = new Dictionary<string, string>
-                        {
-                            {"name", "Cursor"},
-                        }
-                    }
+                    Id = "cursor"
                 }
             });
         }
