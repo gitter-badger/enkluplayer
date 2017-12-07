@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Maps a tween to a duration.
@@ -19,10 +19,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public float DurationSeconds = 0.2f;
     }
-    
+
     /// <summary>
-     /// Contains configuration for each <c>TweenType</c>.
-     /// </summary>
+    /// Contains configuration for each <c>TweenType</c>.
+    /// </summary>
     public class TweenConfig : MonoBehaviour, ITweenConfig
     {
         /// <summary>

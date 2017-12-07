@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Names for LayerMasks.

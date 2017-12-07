@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CreateAR.SpirePlayer.UI;
+using CreateAR.SpirePlayer.IUX;
 using NUnit.Framework;
 
 namespace CreateAR.SpirePlayer.Test.UI
@@ -97,7 +97,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [SetUp]
         public void Setup()
         {
-            _factory = new ElementFactory(null, null, new DummyElementManager(), null, null, null, null, null, null);
+            _factory = new ElementFactory(null, null, new DummyElementManager(), null, null, null, null, null);
         }
 
         [Test]

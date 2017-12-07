@@ -6,6 +6,11 @@
     public struct Col4
     {
         /// <summary>
+        /// Identity color
+        /// </summary>
+        public static readonly Col4 White = new Col4(1f, 1f, 1f, 1f);
+
+        /// <summary>
         /// X component.
         /// </summary>
         public float r;
@@ -85,10 +90,5 @@
                 lhs.b * rhs.b,
                 lhs.a * rhs.a);
         }
-
-        /// <summary>
-        /// Identity color
-        /// </summary>
-        public static readonly Col4 White = new Col4(1,1,1,1);
     }
 }

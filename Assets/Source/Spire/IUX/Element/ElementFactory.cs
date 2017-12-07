@@ -1,6 +1,6 @@
 using CreateAR.Commons.Unity.Messaging;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// <c>IElementFactory</c> implementation.
@@ -15,15 +15,14 @@ namespace CreateAR.SpirePlayer.UI
         private readonly IElementManager _elements;
         private readonly ILayerManager _layers;
         private readonly IColorConfig _colors;
-        private readonly IWidgetConfig _config;
         private readonly ITweenConfig _tweens;
         private readonly IMessageRouter _messages;
-        private readonly IInteractionManager _interactions;
+        private readonly WidgetConfig _config;
 
         /// <summary>
         /// All widgets inherit this base schema
         /// </summary>
-        private ElementSchema _baseSchema = new ElementSchema();
+        private readonly ElementSchema _baseSchema = new ElementSchema();
 
         /// <summary>
         /// Constructor.
@@ -34,20 +33,18 @@ namespace CreateAR.SpirePlayer.UI
             IElementManager elements,
             ILayerManager layers,
             IColorConfig colors,
-            IWidgetConfig config,
             ITweenConfig tweens,
             IMessageRouter messages,
-            IInteractionManager interactions)
+            WidgetConfig config)
         {
             _primitives = primitives;
             _intention = intention;
             _elements = elements;
             _layers = layers;
             _colors = colors;
-            _config = config;
             _tweens = tweens;
             _messages = messages;
-            _interactions = interactions;
+            _config = config;
 
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -61,7 +58,7 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <inheritdoc cref="IElementFactory"/>
-        public IElement Element(ElementDescription description)
+        public Element Element(ElementDescription description)
         {
             return Element(description.Collapsed());
         }
@@ -71,12 +68,12 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="data">Data to create the element from.</param>
         /// <returns></returns>
-        private IElement Element(ElementData data)
+        private Element Element(ElementData data)
         {
             // children first
             var childData = data.Children;
             var childDataLen = childData.Length;
-            var children = new IElement[childDataLen];
+            var children = new Element[childDataLen];
             for (int i = 0, len = childData.Length; i < len; i++)
             {
                 children[i] = Element(childData[i]);
@@ -87,7 +84,7 @@ namespace CreateAR.SpirePlayer.UI
             schema.Load(data.Schema);
             schema.Wrap(_baseSchema);
 
-            var element = Element(data.Schema);
+            var element = ElementForType(data.Type);
             if (element != null)
             {
                 _elements.Add(element);
@@ -98,71 +95,35 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <summary>
-        /// Creates an element of the type corresponding to the type in the schema.
+        /// Creates an element of the type specified.
         /// </summary>
-        /// <param name="schemaData"></param>
+        /// <param name="type">The type of element.</param>
         /// <returns></returns>
-        private IElement Element(ElementSchemaData schemaData)
+        private Element ElementForType(int type)
         {
-            if (null != schemaData.Ints)
+            switch (type)
             {
-                int elementType;
-                if (schemaData.Ints.TryGetValue("type", out elementType))
+                case ElementTypes.CONTAINER:
                 {
-                    switch (elementType)
-                    {
-                        case ElementTypes.CONTAINER:
-                        {
-                            return new Element();
-                        }
-                        case ElementTypes.ACTIVATOR:
-                        {
-                            return _primitives.Activator();
-                        }
-                        case ElementTypes.RETICLE:
-                        {
-                            return _primitives.Reticle();
-                        }
-                        case ElementTypes.TEXT:
-                        {
-                            return _primitives.Text();
-                        }
-                        case ElementTypes.CAPTION:
-                        {
-                            var newCaption = new Caption();
-                            newCaption.Initialize(_config, _layers, _tweens, _colors, _messages);
-                            return newCaption;
-                        }
-                        case ElementTypes.BUTTON:
-                        {
-                            var newButton = new Button();
-                            newButton.Initialize(_config, _layers, _tweens, _colors, _messages, _intention,
-                                _interactions);
-                            return newButton;
-                        }
-                        case ElementTypes.BUTTON_READY_STATE:
-                        {
-                            return new ActivatorReadyState();
-                        }
-                        case ElementTypes.BUTTON_ACTIVATING_STATE:
-                        {
-                            return new ActivatorActivatingState();
-                        }
-                        case ElementTypes.BUTTON_ACTIVATED_STATE:
-                        {
-                            return new ActivatorActivatedState();
-                        }
-                        case ElementTypes.CURSOR:
-                        {
-                            var newCursor = new Cursor();
-                            newCursor.Initialize(_config, _layers, _tweens, _colors, _messages, _intention);
-                            return newCursor;
-                        }
-                    }
+                    return new Element();
+                }
+                case ElementTypes.CAPTION:
+                {
+                    return new Caption(_config, _primitives, _layers, _tweens, _colors, _messages);
+                }
+                case ElementTypes.BUTTON:
+                {
+                    return new Button(_config, _primitives, _layers, _tweens, _colors, _messages);
+                }
+                case ElementTypes.CURSOR:
+                {
+                    return new Cursor(_config, _primitives, _layers, _tweens, _colors, _messages, _intention);
+                }
+                default:
+                {
+                    return new Element();
                 }
             }
-
-            return new Element();
         }
     }
 }

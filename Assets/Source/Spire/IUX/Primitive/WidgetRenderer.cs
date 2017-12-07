@@ -1,26 +1,23 @@
-﻿
-using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.UI;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
-    /// Updates the visual components related to a widget
+    /// Updates the visual components related to a <c>Widget</c>.
     /// </summary>
     public class WidgetRenderer : MonoBehaviour
     {
         /// <summary>
-        /// Cached list of materials
+        /// Cached list of materials.
         /// </summary>
         private Material[] _cachedRendererMaterials;
 
         /// <summary>
         /// Source widget.
         /// </summary>
-        public WidgetMonoBehaviour Source;
-
+        private Widget _source;
+        
         /// <summary>
         /// Target graphic (Unity UI rendering system).
         /// </summary>
@@ -52,18 +49,20 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("WidgetRenderer[{0}]", Source != null ? Source.Widget.GameObject.name : name);
+            return string.Format(
+                "WidgetRenderer[{0}]",
+                _source != null
+                    ? _source.GameObject.name
+                    : name);
         }
 
         /// <summary>
-        /// Initialization.
+        /// Initializes the renderer.
         /// </summary>
-        protected virtual void Awake()
+        /// <param name="widget">Associated widget.</param>
+        public void Initialize(Widget widget)
         {
-            if (Source == null)
-            {
-                Log.Warning(this, "Missing source 'Widget' for {0}!", this);
-            }
+            _source = widget;
         }
 
         /// <summary>
@@ -71,13 +70,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         protected virtual void LateUpdate()
         {
-            if (Source == null
-             || Source.Widget == null)
+            if (null == _source || !_source.IsLoaded)
             {
                 return;
             }
 
-            var color = Source.Color;
+            var color = _source.Color;
             if (Graphic != null)
             {
                 Graphic.color = color.ToColor();

@@ -1,60 +1,66 @@
-﻿using CreateAR.SpirePlayer.UI;
+﻿using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Visual characteristics common to all buttons.
+    /// Base class for different states inside of activator.
     /// </summary>
-    public class ActivatorState : Element, IState
+    public class ActivatorState : IState
     {
-        /// <summary>
-        /// Dependencies.
-        /// </summary>
-        public IColorConfig Colors { get; private set; }
-        public ITweenConfig Tweens { get; private set; }
-        public Activator Activator { get; set; }
-
         /// <summary>
         /// Props.
         /// </summary>
-        private ElementSchemaProp<float> _propFrameScale;
-        private ElementSchemaProp<int> _propFrameColor;
-        private ElementSchemaProp<int> _propTween;
+        private readonly ElementSchemaProp<float> _propFrameScale;
+        private readonly ElementSchemaProp<int> _propFrameColor;
+        private readonly ElementSchemaProp<int> _propTween;
 
         /// <summary>
         /// Color of the button during this state.
         /// </summary>
-        public VirtualColor FrameColor { get { return (VirtualColor)_propFrameColor.Value; } }
+        public VirtualColor FrameColor
+        {
+            get
+            {
+                return (VirtualColor)_propFrameColor.Value;
+            }
+        }
 
         /// <summary>
         /// Color of the button during this state.
         /// </summary>
-        public float FrameScale { get { return _propFrameScale.Value; } }
+        public float FrameScale
+        {
+            get
+            {
+                return _propFrameScale.Value;
+            }
+        }
 
         /// <summary>
         /// Tween into this state.
         /// </summary>
-        public TweenType Tween { get { return (TweenType)_propTween.Value; } }
-
-        /// <summary>
-        /// Dependency initialization.
-        /// </summary>
-        public void Initialize(IColorConfig colors, ITweenConfig tweens)
+        public TweenType Tween
         {
-            Colors = colors;
-            Tweens = tweens;
+            get
+            {
+                return (TweenType)_propTween.Value;
+            }
         }
 
         /// <summary>
-        /// Prop initialization.
+        /// Constructor.
         /// </summary>
-        protected override void LoadInternal()
+        /// <param name="frameColor">Color of frame.</param>
+        /// <param name="tween">Tween prop.</param>
+        /// <param name="frameScale">Frame scale prop.</param>
+        public ActivatorState(
+            ElementSchemaProp<int> frameColor,
+            ElementSchemaProp<int> tween,
+            ElementSchemaProp<float> frameScale)
         {
-            base.LoadInternal();
-
-            _propFrameColor = Schema.Get<int>("frameColor");
-            _propTween = Schema.Get<int>("tween");
-            _propFrameScale = Schema.Get<float>("frameScale");
+            _propFrameColor = frameColor;
+            _propTween = tween;
+            _propFrameScale = frameScale;
         }
 
         /// <summary>

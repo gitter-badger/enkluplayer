@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Describes a single <c>Element</c>, which may have many decendants. This

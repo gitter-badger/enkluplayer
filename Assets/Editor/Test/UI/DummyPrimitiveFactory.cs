@@ -1,20 +1,20 @@
-﻿using CreateAR.SpirePlayer.UI;
+﻿using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer.Test.UI
 {
     public class DummyPrimitiveFactory : IPrimitiveFactory
     {
-        public IText Text()
+        public TextPrimitive Text()
         {
             return null;
         }
 
-        public IActivator Activator()
+        public ActivatorPrimitive Activator()
         {
             return null;
         }
 
-        public IReticle Reticle()
+        public ReticlePrimitive Reticle()
         {
             return null;
         }

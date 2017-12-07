@@ -1,13 +1,12 @@
-﻿using CreateAR.SpirePlayer.UI;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Tracks intention of the user, i.e. view direction and what they are
     /// intending by their view direction.
     /// </summary>
-    public class IntentionManager : MonoBehaviour, IIntentionManager
+    public class IntentionManager : InjectableMonoBehaviour, IIntentionManager
     {
         /// <summary>
         /// Window for calculating steadiness.
@@ -34,7 +33,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Widget which is currently focused
         /// </summary>
-        private IInteractive _focusWidget;
+        private IInteractable _focusWidget;
 
         /// <summary>
         /// For aiming with a hand.
@@ -50,16 +49,17 @@ namespace CreateAR.SpirePlayer
         /// Returns steadiness of the view.
         /// </summary>
         public float Stability { get; private set; }
-
+        
         /// <summary>
-        /// If true, input is not updated.
+        /// Manages interactable objects.
         /// </summary>
-        public bool InputDisabled { get; private set; }
+        [Inject]
+        public IInteractableManager Interactables { get; set; }
 
         /// <summary>
         /// Current focus.
         /// </summary>
-        public IInteractive Focus
+        public IInteractable Focus
         {
             get { return _focusWidget; }
             set
@@ -260,45 +260,21 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateFocus()
         {
-            if (InputDisabled)
+            var all = Interactables.All;
+            for (int i = 0, len = all.Count; i < len; i++)
             {
-                Focus = null;
-                return;
-            }
-
-            var layerMask = 1 << LayerMask.NameToLayer(LayerMaskNames.UI);
-
-            RaycastHit raycastHit;
-            if (Physics.Raycast(
-                Origin.ToVector(),
-                Forward.ToVector(),
-                out raycastHit,
-                Mathf.Infinity,
-                layerMask))
-            {
-                if (raycastHit.collider != null)
+                var interactable = all[i];
+                if (interactable.Interactable && interactable.Raycast(Origin, Forward))
                 {
-                    var activator 
-                        = raycastHit
-                            .collider
-                            .GetComponent<ActivatorMonoBehaviour>();
-                    if (activator != null)
-                    {
-                        var button = activator.Parent as Button;
-                        if (button != null
-                         && button.Interactable)
-                        {
-                            Focus = button;
-                            return;
-                        }
-                    }
+                    Focus = interactable;
+                    return;
                 }
             }
-
+            
             // determine if the current interactable should lose focuse
             if (Focus != null)
             {
-                if (!Focus.Cast(Ray))
+                if (!Focus.Raycast(Origin, Forward))
                 {
                     Focus = null;
                 }

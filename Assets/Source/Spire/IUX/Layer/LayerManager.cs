@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Manages layers.

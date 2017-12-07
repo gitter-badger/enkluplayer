@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.UI;
+using CreateAR.SpirePlayer.IUX;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer.Test.UI
     [TestFixture]
     public class ElementQuery_Tests
     {
-        private IElement _element;
+        private Element _element;
 
         private static readonly char[] _letters = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
 
@@ -27,9 +27,8 @@ namespace CreateAR.SpirePlayer.Test.UI
                 new DummyPrimitiveFactory(),
                 null,
                 new DummyElementManager(),
-                null, null, null, null,
-                new MessageRouter(),
-                null).Element(description);
+                null, null, null,
+                new MessageRouter(), null).Element(description);
         }
         
         private ElementRef GenerateRefs(int index)
@@ -74,77 +73,77 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void FindOneTrivial()
         {
-            Assert.IsNull(_element.FindOne(null));
-            Assert.IsNull(_element.FindOne(string.Empty));
+            Assert.IsNull(_element.FindOne<Element>(null));
+            Assert.IsNull(_element.FindOne<Element>(string.Empty));
         }
 
         [Test]
         public void FindOneShallow()
         {
             Debug.Log(_element.ToTreeString());
-            Assert.AreEqual("b", _element.FindOne("b").Id);
-            Assert.IsNull(_element.FindOne("h"));
+            Assert.AreEqual("b", _element.FindOne<Element>("b").Id);
+            Assert.IsNull(_element.FindOne<Element>("h"));
         }
 
         [Test]
         public void FindOneAbsPath()
         {
-            Assert.AreEqual("z", _element.FindOne("b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z").Id);
-            Assert.IsNull(_element.FindOne("a.b.d"));
+            Assert.AreEqual("z", _element.FindOne<Element>("b.c.d.e.f.g.h.i.j.k.l.m.n.o.p.q.r.s.t.u.v.w.x.y.z").Id);
+            Assert.IsNull(_element.FindOne<Element>("a.b.d"));
         }
 
         [Test]
         public void FindOneRecurPath()
         {
-            Assert.AreEqual("f", _element.FindOne("b..f").Id);
-            Assert.IsNull(_element.FindOne("b..b"));
+            Assert.AreEqual("f", _element.FindOne<Element>("b..f").Id);
+            Assert.IsNull(_element.FindOne<Element>("b..b"));
         }
 
         [Test]
         public void FindOneStartRecurPath()
         {
-            Assert.AreEqual("f", _element.FindOne("..f").Id);
-            Assert.IsNull(_element.FindOne("..boo"));
+            Assert.AreEqual("f", _element.FindOne<Element>("..f").Id);
+            Assert.IsNull(_element.FindOne<Element>("..boo"));
         }
 
         [Test]
         public void FindOneRecurPathTrivial()
         {
-            Assert.AreEqual("c", _element.FindOne("b..c").Id);
+            Assert.AreEqual("c", _element.FindOne<Element>("b..c").Id);
         }
 
         [Test]
         public void FindOneAbsAndRecurPath()
         {
-            Assert.AreEqual("f", _element.FindOne("b.c..f").Id);
-            Assert.IsNull(_element.FindOne("b..a"));
+            Assert.AreEqual("f", _element.FindOne<Element>("b.c..f").Id);
+            Assert.IsNull(_element.FindOne<Element>("b..a"));
         }
 
         [Test]
         public void FindOneMultiRecurPath()
         {
-            Assert.AreEqual("f", _element.FindOne("b..c..f").Id);
-            Assert.IsNull(_element.FindOne("b..c..a"));
+            Assert.AreEqual("f", _element.FindOne<Element>("b..c..f").Id);
+            Assert.IsNull(_element.FindOne<Element>("b..c..a"));
         }
 
         [Test]
         public void FindOnePropString()
         {
-            Assert.AreEqual("f", _element.FindOne("..(@Letter=f)").Id);
-            Assert.IsNull(_element.FindOne("..(@Letter=zebra)"));
+            Assert.AreEqual("f", _element.FindOne<Element>("..(@Letter=f)").Id);
+            Assert.IsNull(_element.FindOne<Element>("..(@Letter=zebra)"));
         }
 
         [Test]
         public void FindOnePropInt()
         {
-            Assert.AreEqual("d", _element.FindOne("..(@Foo=3)").Id);
-            Assert.IsNull(_element.FindOne("..(@Foo=34)"));
+            Assert.AreEqual("d", _element.FindOne<Element>("..(@Foo=3)").Id);
+            Assert.IsNull(_element.FindOne<Element>("..(@Foo=34)"));
         }
 
         [Test]
         public void FindAll()
         {
-            var elements = new List<IElement>();
+            var elements = new List<Element>();
             _element.Find("*", elements);
 
             Assert.AreEqual(1, elements.Count);
@@ -154,7 +153,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void FindAllDeeper()
         {
-            var elements = new List<IElement>();
+            var elements = new List<Element>();
             _element.Find("..d.*", elements);
 
             Assert.AreEqual(1, elements.Count);
@@ -164,7 +163,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void FindAllRecursive()
         {
-            var elements = new List<IElement>();
+            var elements = new List<Element>();
             _element.Find("..*", elements);
 
             Assert.AreEqual(25, elements.Count);
@@ -173,7 +172,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void FindAllRecursiveDeeper()
         {
-            var elements = new List<IElement>();
+            var elements = new List<Element>();
             _element.Find("..d..*", elements);
 
             Assert.AreEqual(22, elements.Count);

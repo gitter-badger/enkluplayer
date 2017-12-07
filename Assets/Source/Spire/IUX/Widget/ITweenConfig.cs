@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Consistent set of tween durations based around intended user-experience.

@@ -1,78 +1,81 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
-using UnityEngine;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
-    /// Contains prefabs for UI rendering primitives used in all widgets.
+    /// Implementation for creating primitives.
     /// </summary>
-    public class PrimitiveFactory : InjectableMonoBehaviour, IPrimitiveFactory
+    public class PrimitiveFactory : IPrimitiveFactory
     {
         /// <summary>
-        /// Dependencies
+        /// Dependencies.
         /// </summary>
-        [Inject] public IElementManager Elements { get; set; }
-        [Inject] public ILayerManager Layers { get; set; }
-        [Inject] public IColorConfig Colors { get; set; }
-        [Inject] public IWidgetConfig Config { get; set; }
-        [Inject] public ITweenConfig Tweens { get; set; }
-        [Inject] public IMessageRouter Messages { get; set; }
-        [Inject] public IIntentionManager Intention { get; set; }
-        [Inject] public IInteractionManager Interactions { get; set; }
+        private readonly IElementManager _elements;
+        private readonly ILayerManager _layers;
+        private readonly IColorConfig _colors;
+        private readonly ITweenConfig _tweens;
+        private readonly IMessageRouter _messages;
+        private readonly IIntentionManager _intention;
+        private readonly IInteractionManager _interactions;
+        private readonly IAssetPoolManager _pools;
+        private readonly IInteractableManager _interactables;
+        private readonly WidgetConfig _config;
 
         /// <summary>
-        /// Basic text rendering primitive.
+        /// Constructor.
         /// </summary>
-        public TextMonoBehaviour TextMonoBehaviour;
-        public ActivatorMonoBehaviour ActivatorMonoBehaviour;
-        public ReticleMonoBehaviour ReticleMonoBehaviour;
-
-        /// <summary>
-        /// Creates a text primitive.
-        /// </summary>
-        /// <returns></returns>
-        public IText Text()
+        public PrimitiveFactory(
+            IElementManager elements,
+            ILayerManager layers,
+            IColorConfig colors,
+            ITweenConfig tweens,
+            IMessageRouter messages,
+            IIntentionManager intention,
+            IInteractionManager interactions,
+            IAssetPoolManager pools,
+            IInteractableManager interactables,
+            WidgetConfig config)
         {
-            return Initialize<IText>(Instantiate(TextMonoBehaviour));
+            _elements = elements;
+            _layers = layers;
+            _colors = colors;
+            _tweens = tweens;
+            _messages = messages;
+            _intention = intention;
+            _interactions = interactions;
+            _pools = pools;
+            _interactables = interactables;
+            _config = config;
         }
 
-        /// <summary>
-        /// Creates a text primitive.
-        /// </summary>
-        /// <returns></returns>
-        public IActivator Activator()
+        /// <inheritdoc cref="IPrimitiveFactory"/>
+        public TextPrimitive Text()
         {
-            var activator = Instantiate(ActivatorMonoBehaviour);
-            activator.Initialize(Config, Layers, Tweens, Colors, Messages, Intention, Interactions);
+            return new TextPrimitive(_config, _pools);
+        }
+
+        /// <inheritdoc cref="IPrimitiveFactory"/>
+        public ActivatorPrimitive Activator()
+        {
+            var activator = new ActivatorPrimitive(
+                _config,
+                _interactables,
+                _interactions,
+                _intention,
+                _messages,
+                _layers,
+                _tweens,
+                _colors);
+
+            _elements.Add(activator);
+
             return activator;
         }
 
-        /// <summary>
-        /// Creates a text primitive.
-        /// </summary>
-        /// <returns></returns>
-        public IReticle Reticle()
+        /// <inheritdoc cref="IPrimitiveFactory"/>
+        public ReticlePrimitive Reticle()
         {
-            return Initialize<IReticle>(Instantiate(ReticleMonoBehaviour));
-        }
-
-        /// <summary>
-        /// Initializes the new monobehaviour.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="widgetMonoBehaviour"></param>
-        /// <returns></returns>
-        private T Initialize<T>(WidgetMonoBehaviour widgetMonoBehaviour) where T : class
-        {
-            widgetMonoBehaviour
-                .Initialize(
-                    Config, 
-                    Layers, 
-                    Tweens, 
-                    Colors, 
-                    Messages);
-
-            return widgetMonoBehaviour as T;
+            return new ReticlePrimitive(_config);
         }
     }
 }

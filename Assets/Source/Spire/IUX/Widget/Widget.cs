@@ -3,8 +3,9 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using System.Diagnostics;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Defines how a widget determines its color
@@ -29,7 +30,7 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Base class for IUX elements.
     /// </summary>
-    public class Widget : Element, IWidget, ILayerable
+    public class Widget : Element, ILayerable
     {
         /// <summary>
         /// Dependencies.
@@ -37,8 +38,13 @@ namespace CreateAR.SpirePlayer.UI
         public ILayerManager Layers { get; private set; }
         public IColorConfig Colors { get; private set; }
         public ITweenConfig Tweens { get; private set; }
-        public IWidgetConfig Config { get; private set; }
+        public WidgetConfig Config { get; private set; }
         public IMessageRouter Messages { get; private set; }
+
+        /// <summary>
+        /// True iff <c>LoadInternal</c> has been called.
+        /// </summary>
+        public bool IsLoaded { get; private set; }
 
         /// <summary>
         /// True if the widget is currently visible
@@ -58,7 +64,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Widget hierarchy.
         /// </summary>
-        private IWidget _parent;
+        private Widget _parent;
 
         /// <summary>
         /// Current tween Value.
@@ -83,7 +89,6 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Props.
         /// </summary>
-        private ElementSchemaProp<string> _name;
         private ElementSchemaProp<Col4> _localColor;
         private ElementSchemaProp<Vec3> _localPosition;
         private ElementSchemaProp<TweenType> _tweenIn;
@@ -207,7 +212,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Parent accessor
         /// </summary>
-        public IWidget Parent
+        public Widget Parent
         {
             get { return _parent; }
             set
@@ -237,6 +242,11 @@ namespace CreateAR.SpirePlayer.UI
             {
                 var tween = _localTween;
 
+                if (_localTween < Mathf.Epsilon)
+                {
+                    Log.Info(this, "[{0}] _localTween is 0.", ToString());
+                }
+                
                 if (Parent != null)
                 {
                     tween *= Parent.Tween;
@@ -344,7 +354,7 @@ namespace CreateAR.SpirePlayer.UI
         /// Initialization
         /// </summary>
         internal void Initialize (
-            IWidgetConfig config,
+            WidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
@@ -366,19 +376,18 @@ namespace CreateAR.SpirePlayer.UI
         {
             base.LoadInternal();
 
-            _name = Schema.GetOwn("name", _gameObject.name);
-            _localColor = Schema.GetOwn<Col4>("color", Col4.White);
-            _localPosition = Schema.GetOwn<Vec3>("position", Vec3.Zero);
+            _localColor = Schema.GetOwn("color", Col4.White);
+            _localPosition = Schema.GetOwn("position", Vec3.Zero);
+            _localPosition.OnChanged += LocalPosition_OnChanged;
+            _tweenIn = Schema.GetOwn("tweenIn", TweenType.Responsive);
+            _tweenOut = Schema.GetOwn("tweenOut", TweenType.Responsive);
+            _virtualColor = Schema.GetOwn("virtualColor", VirtualColor.None);
+            _colorMode = Schema.GetOwn("colorMode", ColorMode.InheritColor);
+            _visibilityMode = Schema.GetOwn("visibilityMode", VisibilityMode.Inherit);
+            _layerMode = Schema.GetOwn("layerMode", LayerMode.Default);
+            _autoDestroy = Schema.GetOwn("autoDestroy", false);
 
-            _tweenIn = Schema.GetOwn<TweenType>("tweenIn", TweenType.Responsive);
-            _tweenOut = Schema.GetOwn<TweenType>("tweenOut", TweenType.Responsive);
-            _virtualColor = Schema.GetOwn<VirtualColor>("virtualColor", VirtualColor.None);
-            _colorMode = Schema.GetOwn<ColorMode>("colorMode", ColorMode.InheritColor);
-            _visibilityMode = Schema.GetOwn<VisibilityMode>("visibilityMode", VisibilityMode.Inherit);
-            _layerMode = Schema.GetOwn<LayerMode>("layerMode", LayerMode.Default);
-            _autoDestroy = Schema.GetOwn<bool>("autoDestroy", false);
-
-            _gameObject.name = _name.Value;
+            _gameObject.name = ToString();
             _gameObject.transform.localPosition = _localPosition.Value.ToVector();
 
             for (int i = 0; i < Children.Length; ++i)
@@ -403,6 +412,8 @@ namespace CreateAR.SpirePlayer.UI
             {
                 Show();
             }
+
+            IsLoaded = true;
         }
 
         /// <summary>
@@ -410,9 +421,27 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         protected override void UnloadInternal()
         {
+            IsLoaded = false;
+            
+            _localColor = null;
+
+            if (null != _localPosition)
+            {
+                _localPosition.OnChanged -= LocalPosition_OnChanged;
+            }
+
+            _localPosition = null;
+            _tweenIn = null;
+            _tweenOut = null;
+            _virtualColor = null;
+            _colorMode = null;
+            _visibilityMode = null;
+            _layerMode = null;
+            _autoDestroy = null;
+
             if (_gameObject != null)
             {
-                UnityEngine.Object.Destroy(_gameObject);
+                Object.Destroy(_gameObject);
                 _gameObject = null;
             }
 
@@ -423,16 +452,7 @@ namespace CreateAR.SpirePlayer.UI
 
             LocalVisible = false;
         }
-
-        /// <summary>
-        /// String override
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return string.Format("Widget[{0}]", GameObject.name);
-        }
-
+        
         /// <summary>
         /// Shows the widget
         /// </summary>
@@ -479,7 +499,8 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         protected override void UpdateInternal()
         {
-            var deltaTime = Time.smoothDeltaTime;
+            //var deltaTime = Time.smoothDeltaTime;
+            var deltaTime = Time.deltaTime;
             UpdateVisibility();
             UpdateTween(deltaTime);
             UpdateColor(deltaTime);
@@ -553,6 +574,11 @@ namespace CreateAR.SpirePlayer.UI
                 _localTween = Visible
                     ? 1.0f
                     : 0.0f;
+
+                if (_localTween < Mathf.Epsilon)
+                {
+                    Log.Debug(this, "My _localTween had been set to zero from visibility.");
+                }
             }
             else
             {
@@ -562,6 +588,11 @@ namespace CreateAR.SpirePlayer.UI
                 var tweenDelta = deltaTime / tweenDuration * multiplier;
 
                 _localTween = Mathf.Clamp01(_localTween + tweenDelta);
+
+                if (_localTween < Mathf.Epsilon)
+                {
+                    Log.Debug(this, "My _localTween had been set to zero from tweening");
+                }
             }
         }
         
@@ -584,16 +615,30 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="parent"></param>
         /// <param name="child"></param>
-        private void Element_OnChildAdded(IElement parent, IElement child)
+        private void Element_OnChildAdded(Element parent, Element child)
         {
             if (parent == this)
             {
-                var childWidget = child as IWidget;
+                var childWidget = child as Widget;
                 if (childWidget != null)
                 {
                     childWidget.Parent = this;
                 }
             }
+        }
+
+        /// <summary>
+        /// Called when the local position changes.
+        /// </summary>
+        /// <param name="prop">Local position prop.</param>
+        /// <param name="prev">Previous position.</param>
+        /// <param name="next">Next position.</param>
+        private void LocalPosition_OnChanged(
+            ElementSchemaProp<Vec3> prop,
+            Vec3 prev,
+            Vec3 next)
+        {
+            _gameObject.transform.localPosition = next.ToVector();
         }
 
         /// <summary>

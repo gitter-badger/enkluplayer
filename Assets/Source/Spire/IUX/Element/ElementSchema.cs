@@ -1,13 +1,102 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Composable state object.
     /// </summary>
-    public class ElementSchema
+    public class ElementSchema : IEnumerable<ElementSchemaProp>
     {
+        /// <summary>
+        /// Internal enumerator for schema.
+        /// </summary>
+        public class SchemaEnumarator : IEnumerator<ElementSchemaProp>
+        {
+            /// <summary>
+            /// Schema to start with.
+            /// </summary>
+            private readonly ElementSchema _schema;
+
+            /// <summary>
+            /// Current schema up the chain.
+            /// </summary>
+            private ElementSchema _currentSchema;
+
+            /// <summary>
+            /// Index into props.
+            /// </summary>
+            private int _propIndex = -1;
+
+            /// <inheritdoc cref="IEnumerator"/>
+            public ElementSchemaProp Current { get; private set; }
+
+            /// <inheritdoc cref="IEnumerator"/>
+            object IEnumerator.Current
+            {
+                get { return Current; }
+            }
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            /// <param name="schema">The schema to iterate over.</param>
+            public SchemaEnumarator(ElementSchema schema)
+            {
+                _schema = schema;
+
+                Reset();
+            }
+
+            /// <inheritdoc cref="IEnumerator"/>
+            public void Dispose()
+            {
+                //
+            }
+
+            /// <inheritdoc cref="IEnumerator"/>
+            public bool MoveNext()
+            {
+                if (null == _currentSchema)
+                {
+                    return false;
+                }
+
+                while (true)
+                {
+                    _propIndex += 1;
+
+                    var props = _currentSchema._props;
+                    if (props.Count == _propIndex)
+                    {
+                        // next parent
+                        _currentSchema = _currentSchema._parent;
+                        _propIndex = -1;
+
+                        return MoveNext();
+                    }
+
+                    var prop = _currentSchema._props[_propIndex];
+                    if (prop.LinkBroken)
+                    {
+                        Current = prop;
+
+                        break;
+                    }
+                }
+                
+                return true;
+            }
+
+            /// <inheritdoc cref="IEnumerator"/>
+            public void Reset()
+            {
+                _currentSchema = _schema;
+                _propIndex = -1;
+            }
+        }
+
         /// <summary>
         /// List of all props.
         /// </summary>
@@ -41,6 +130,32 @@ namespace CreateAR.SpirePlayer.UI
             builder.Append("}");
 
             return builder.ToString();
+        }
+
+        /// <inheritdoc cref="IEnumerable"/>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            if (null != _parent)
+            {
+                yield return _parent.GetEnumerator();
+            }
+
+            for (int i = 0, len = _props.Count; i < len; i++)
+            {
+                var prop = _props[i];
+                if (!prop.LinkBroken)
+                {
+                    continue;
+                }
+
+                yield return prop;
+            }
+        }
+
+        /// <inheritdoc cref="IEnumerable"/>
+        public IEnumerator<ElementSchemaProp> GetEnumerator()
+        {
+            return new SchemaEnumarator(this);
         }
 
         /// <summary>
@@ -227,17 +342,15 @@ namespace CreateAR.SpirePlayer.UI
             if (null == prop)
             {
                 // add the default
-                prop = new ElementSchemaProp<T>(name, @default, true);
+                prop = new ElementSchemaProp<T>(name, @default, false);
+                _props.Add(prop);
 
-                if (type == prop.Type)
-                {
-                    _props.Add(prop);
-                }
+                return (ElementSchemaProp<T>) prop;
             }
 
             if (type == prop.Type)
             {
-                return (ElementSchemaProp<T>)prop;
+                return (ElementSchemaProp<T>) prop;
             }
 
             return Default<T>();
@@ -264,7 +377,7 @@ namespace CreateAR.SpirePlayer.UI
                     return true;
                 }
 
-                parent = _parent._parent;
+                parent = parent._parent;
             }
 
             return false;

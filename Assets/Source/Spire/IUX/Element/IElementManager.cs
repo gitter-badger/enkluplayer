@@ -1,6 +1,4 @@
-﻿using CreateAR.SpirePlayer.UI;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer.IUX
 {
     public interface IElementManager
     {
@@ -8,6 +6,6 @@ namespace CreateAR.SpirePlayer
         /// Adds an element.
         /// </summary>
         /// <param name="element">The element to add.</param>
-        void Add(IElement element);
+        void Add(Element element);
     }
 }

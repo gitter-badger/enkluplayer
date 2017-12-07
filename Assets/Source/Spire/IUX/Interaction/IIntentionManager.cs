@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Interface for intention. This is for the purposes of abstracting away
@@ -7,14 +7,9 @@
     public interface IIntentionManager
     {
         /// <summary>
-        /// If true, input is not updated.
-        /// </summary>
-        bool InputDisabled { get; }
-
-        /// <summary>
         /// Current focus.
         /// </summary>
-        IInteractive Focus { get; }
+        IInteractable Focus { get; }
 
         /// <summary>
         /// Forward direction.

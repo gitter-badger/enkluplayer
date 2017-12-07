@@ -1,6 +1,6 @@
 using System.Linq;
 
-namespace CreateAR.SpirePlayer.UI
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Saved data for elements.
@@ -11,6 +11,11 @@ namespace CreateAR.SpirePlayer.UI
         /// Unique to this set element.
         /// </summary>
         public string Id;
+
+        /// <summary>
+        /// Type of element to construct.
+        /// </summary>
+        public int Type;
 
         /// <summary>
         /// Set of children.
@@ -37,6 +42,7 @@ namespace CreateAR.SpirePlayer.UI
         internal ElementData(ElementData data)
         {
             Id = data.Id;
+            Type = data.Type;
             Children = data.Children.ToArray();
             Schema = new ElementSchemaData(data.Schema);
         }
@@ -47,8 +53,9 @@ namespace CreateAR.SpirePlayer.UI
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[ElementData Id={0}, ChildCount={1}]",
+            return string.Format("[ElementData Id={0}, Type={1}, ChildCount={2}]",
                 Id,
+                Type,
                 Children.Length);
         }
     }

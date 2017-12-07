@@ -4,7 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
-using CreateAR.SpirePlayer.UI;
+using CreateAR.SpirePlayer.IUX;
 using Jint.Parser;
 using Jint.Unity;
 using strange.extensions.injector.impl;
@@ -147,6 +147,12 @@ namespace CreateAR.SpirePlayer
 #endif   
             }
 
+            // IUX
+            {
+                binder.Bind<IInteractableManager>().To<InteractableManager>().ToSingleton();
+                binder.Bind<IPrimitiveFactory>().To<PrimitiveFactory>().ToSingleton();
+            }
+
             // content
             {
                 binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
@@ -156,7 +162,7 @@ namespace CreateAR.SpirePlayer
 
             // configs
             {
-                binder.Bind<IWidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
+                binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
                 binder.Bind<ITweenConfig>().ToValue(LookupComponent<TweenConfig>());
                 binder.Bind<IColorConfig>().ToValue(LookupComponent<ColorConfig>());
                 binder.Bind<FocusManager>().ToValue(LookupComponent<FocusManager>());
@@ -165,7 +171,6 @@ namespace CreateAR.SpirePlayer
             // manager monobehaviours
             {
                 binder.Bind<IElementManager>().ToValue(LookupComponent<ElementManager>());
-                binder.Bind<IPrimitiveFactory>().ToValue(LookupComponent<PrimitiveFactory>());
                 binder.Bind<IIntentionManager>().ToValue(LookupComponent<IntentionManager>());
                 binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
                 binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());

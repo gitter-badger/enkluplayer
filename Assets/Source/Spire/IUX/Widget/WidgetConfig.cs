@@ -1,13 +1,13 @@
-﻿using CreateAR.SpirePlayer.UI;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// TODO: Replace most/if-not-all/of this with schema
     /// Configuration for all widgets.
     /// </summary>
-    public class WidgetConfig : MonoBehaviour, IWidgetConfig
+    public class WidgetConfig : MonoBehaviour
     {
         /// <summary>
         /// Color of the aim widget as a function of aim percentage.
@@ -172,6 +172,22 @@ namespace CreateAR.SpirePlayer
         /// Spins per second.
         /// </summary>
         public float SpinSpeed = 2.0f;
+
+        /// <summary>
+        /// Text prefab.
+        /// </summary>
+        [Header("Prefabs")]
+        public Text Text;
+
+        /// <summary>
+        /// Reticle.
+        /// </summary>
+        public ReticleRenderer Reticle;
+
+        /// <summary>
+        /// Activator.
+        /// </summary>
+        public ActivatorRenderer Activator;
 
         /// <summary>
         /// Spins per second.
