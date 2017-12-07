@@ -1,4 +1,3 @@
-using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -31,7 +30,7 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Base class for IUX elements.
     /// </summary>
-    public class Widget : Element, IWidget, ILayerable
+    public class Widget : Element, ILayerable
     {
         /// <summary>
         /// Dependencies.
@@ -65,7 +64,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Widget hierarchy.
         /// </summary>
-        private IWidget _parent;
+        private Widget _parent;
 
         /// <summary>
         /// Current tween Value.
@@ -213,7 +212,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Parent accessor
         /// </summary>
-        public IWidget Parent
+        public Widget Parent
         {
             get { return _parent; }
             set
@@ -620,7 +619,7 @@ namespace CreateAR.SpirePlayer.UI
         {
             if (parent == this)
             {
-                var childWidget = child as IWidget;
+                var childWidget = child as Widget;
                 if (childWidget != null)
                 {
                     childWidget.Parent = this;

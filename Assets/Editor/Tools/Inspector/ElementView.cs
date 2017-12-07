@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using CreateAR.Commons.Unity.Editor;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
@@ -52,17 +50,6 @@ namespace CreateAR.SpirePlayer.Editor
                     {
                         var id = match.Groups[1].Value;
                         element = FindElement(id);
-                    }
-
-                    // TODO: Remove
-                    if (null == element)
-                    {
-                        // find widgetmonobehaviour
-                        var behaviour = value.GetComponent<WidgetMonoBehaviour>();
-                        if (null != behaviour)
-                        {
-                            element = behaviour.Widget;
-                        }
                     }
                 }
 
