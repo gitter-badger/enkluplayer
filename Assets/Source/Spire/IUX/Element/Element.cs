@@ -8,17 +8,17 @@ namespace CreateAR.SpirePlayer.UI
     /// <summary>
     /// Base class for UI elements.
     /// </summary>
-    public class Element : IElement
+    public class Element
     {
         /// <summary>
         /// Internal list of children.
         /// </summary>
-        private readonly List<IElement> _children = new List<IElement>();
+        private readonly List<Element> _children = new List<Element>();
 
         /// <summary>
         /// Scratch list for FindAll.
         /// </summary>
-        private readonly List<IElement> _findAllScratch = new List<IElement>();
+        private readonly List<Element> _findAllScratch = new List<Element>();
 
         /// <summary>
         /// Unique internal id for this element.
@@ -38,7 +38,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Copy of children collection.
         /// </summary>
-        public IElement[] Children
+        public Element[] Children
         {
             get
             {
@@ -49,22 +49,22 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Invoked when element is destroyed.
         /// </summary>
-        public event Action<IElement> OnDestroyed;
+        public event Action<Element> OnDestroyed;
 
         /// <summary>
         /// Called when this node has been removed from the graph.
         /// </summary>
-        public event Action<IElement> OnRemoved;
+        public event Action<Element> OnRemoved;
 
         /// <summary>
         /// Called when a child, at any depth, has been removed from the graph.
         /// </summary>
-        public event Action<IElement, IElement> OnChildRemoved;
+        public event Action<Element, Element> OnChildRemoved;
 
         /// <summary>
         /// Called when a child, at any depth, has been added to the graph.
         /// </summary>
-        public event Action<IElement, IElement> OnChildAdded;
+        public event Action<Element, Element> OnChildAdded;
 
         /// <summary>
         /// Creates an element.
@@ -108,7 +108,7 @@ namespace CreateAR.SpirePlayer.UI
         public void Load(
             ElementData data,
             ElementSchema schema,
-            IElement[] children)
+            Element[] children)
         {
             Guid = System.Guid.NewGuid().ToString();
             Id = data.Id;
@@ -179,7 +179,7 @@ namespace CreateAR.SpirePlayer.UI
         /// already a child, moves it to the end of the list.
         /// </summary>
         /// <param name="element">Element to add as a child.</param>
-        public void AddChild(IElement element)
+        public void AddChild(Element element)
         {
             if (null == element)
             {
@@ -213,7 +213,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="element">The element to remove.</param>
         /// <returns></returns>
-        public bool RemoveChild(IElement element)
+        public bool RemoveChild(Element element)
         {
             if (null == element)
             {
@@ -229,11 +229,9 @@ namespace CreateAR.SpirePlayer.UI
                 // unwrap schema
                 element.Schema.Wrap(null);
 
-                // TODO: remove this evil
-                var cast = element as Element;
-                if (null != cast && null != cast.OnRemoved)
+                if (null != element.OnRemoved)
                 {
-                    cast.OnRemoved(cast);
+                    element.OnRemoved(element);
                 }
                 
                 if (null != OnChildRemoved)
@@ -250,7 +248,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="query">Query.</param>
         /// <returns></returns>
-        public T FindOne<T>(string query) where T : IElement
+        public T FindOne<T>(string query) where T : Element
         {
             _findAllScratch.Clear();
             Find(query, _findAllScratch);
@@ -265,7 +263,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="query">Query.</param>
         /// <param name="results">Results passed in.</param>
-        public void Find(string query, IList<IElement> results)
+        public void Find(string query, IList<Element> results)
         {
             if (string.IsNullOrEmpty(query))
             {
@@ -273,7 +271,7 @@ namespace CreateAR.SpirePlayer.UI
             }
 
             // split at recursive queries
-            var current = new List<IElement> { this };
+            var current = new List<Element> { this };
             var recur = false;
             if (query.StartsWith(".."))
             {
@@ -307,7 +305,7 @@ namespace CreateAR.SpirePlayer.UI
                     }
 
                     // execute query on each of the current nodes
-                    var matches = new List<IElement>();
+                    var matches = new List<Element>();
                     for (int j = 0, jlen = current.Count; j < jlen; j++)
                     {
                         ExecuteQueryRecursive(
@@ -341,7 +339,7 @@ namespace CreateAR.SpirePlayer.UI
                     }
 
                     // execute query on each of the current nodes
-                    var matches = new List<IElement>();
+                    var matches = new List<Element>();
                     for (int l = 0, llen = current.Count; l < llen; l++)
                     {
                         ExecuteQuery(
@@ -409,7 +407,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="element">Element in question.</param>
         /// <param name="query">The query object.</param>
         /// <param name="results">Results of the query.</param>
-        private void ExecuteQuery(IElement element, ElementQuery query, List<IElement> results)
+        private void ExecuteQuery(Element element, ElementQuery query, List<Element> results)
         {
             // test children
             var children = element.Children;
@@ -429,7 +427,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="element">The element to search.</param>
         /// <param name="query">Query object.</param>
         /// <param name="results">Result list.</param>
-        private void ExecuteQueryRecursive(IElement element, ElementQuery query, List<IElement> results)
+        private void ExecuteQueryRecursive(Element element, ElementQuery query, List<Element> results)
         {
             var children = element.Children;
             for (int i = 0, len = children.Length; i < len; i++)
@@ -449,7 +447,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="_">The parent, which we disregard.</param>
         /// <param name="child">The child.</param>
-        private void Child_OnChildAdded(IElement _, IElement child)
+        private void Child_OnChildAdded(Element _, Element child)
         {
             if (null != OnChildAdded)
             {
@@ -462,7 +460,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="_">The parent, which we disregard.</param>
         /// <param name="child">The child.</param>
-        private void Child_OnChildRemoved(IElement _, IElement child)
+        private void Child_OnChildRemoved(Element _, Element child)
         {
             if (null != OnChildRemoved)
             {
@@ -478,7 +476,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="tabs">Indentation</param>
         private void Append(
             StringBuilder builder,
-            IElement element,
+            Element element,
             int tabs = 0)
         {
             for (var i = 0; i < tabs; i++)

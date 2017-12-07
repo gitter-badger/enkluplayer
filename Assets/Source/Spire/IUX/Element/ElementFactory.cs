@@ -58,7 +58,7 @@ namespace CreateAR.SpirePlayer.UI
         }
 
         /// <inheritdoc cref="IElementFactory"/>
-        public IElement Element(ElementDescription description)
+        public Element Element(ElementDescription description)
         {
             return Element(description.Collapsed());
         }
@@ -68,12 +68,12 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="data">Data to create the element from.</param>
         /// <returns></returns>
-        private IElement Element(ElementData data)
+        private Element Element(ElementData data)
         {
             // children first
             var childData = data.Children;
             var childDataLen = childData.Length;
-            var children = new IElement[childDataLen];
+            var children = new Element[childDataLen];
             for (int i = 0, len = childData.Length; i < len; i++)
             {
                 children[i] = Element(childData[i]);
@@ -99,7 +99,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="type">The type of element.</param>
         /// <returns></returns>
-        private IElement ElementForType(int type)
+        private Element ElementForType(int type)
         {
             switch (type)
             {

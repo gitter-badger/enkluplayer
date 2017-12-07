@@ -1,12 +1,10 @@
 using System;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.UI;
 using UnityEngine;
 
 using Object = UnityEngine.Object;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     public class ActivatorPrimitive : Widget, IInteractable
     {

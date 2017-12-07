@@ -96,7 +96,7 @@ namespace CreateAR.SpirePlayer.UI
                         Id = "Activator"
                     },
                     new ElementSchema(), 
-                    new IElement[0]);
+                    new Element[0]);
 
                 AddChild(_activator);
             }

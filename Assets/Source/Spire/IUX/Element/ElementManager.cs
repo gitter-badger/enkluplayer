@@ -1,7 +1,6 @@
-using CreateAR.SpirePlayer.UI;
 using System.Collections.Generic;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Manages IUX elements.
@@ -11,13 +10,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Collection of all elements.
         /// </summary>
-        private readonly List<IElement> _all = new List<IElement>();
+        private readonly List<Element> _all = new List<Element>();
 
         /// <summary>
         /// Adds an element. Should be called when object is created.
         /// </summary>
         /// <param name="element">The element to add.</param>
-        public void Add(IElement element)
+        public void Add(Element element)
         {
             if (_all.Contains(element))
             {
@@ -76,7 +75,7 @@ namespace CreateAR.SpirePlayer
         /// Invoked when a widget is destroyed
         /// </summary>
         /// <param name="element"></param>
-        private void ElementOnDestroyed(IElement element)
+        private void ElementOnDestroyed(Element element)
         {
             _all.Remove(element);
         }

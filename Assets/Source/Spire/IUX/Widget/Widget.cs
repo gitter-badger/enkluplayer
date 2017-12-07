@@ -615,7 +615,7 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="parent"></param>
         /// <param name="child"></param>
-        private void Element_OnChildAdded(IElement parent, IElement child)
+        private void Element_OnChildAdded(Element parent, Element child)
         {
             if (parent == this)
             {

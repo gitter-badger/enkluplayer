@@ -10,6 +10,6 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         /// <param name="description">The description of the element.</param>
         /// <returns></returns>
-        IElement Element(ElementDescription description);
+        Element Element(ElementDescription description);
     }
 }

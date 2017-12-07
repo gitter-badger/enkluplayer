@@ -1,8 +1,7 @@
-﻿using CreateAR.SpirePlayer.UI;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.UI
 {
     /// <summary>
     /// Updates the visual components related to a <c>Widget</c>.

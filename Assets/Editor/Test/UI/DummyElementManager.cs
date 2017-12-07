@@ -5,9 +5,9 @@ namespace CreateAR.SpirePlayer.Test.UI
 {
     public class DummyElementManager : IElementManager
     {
-        private readonly List<IElement> _elements = new List<IElement>();
+        private readonly List<Element> _elements = new List<Element>();
 
-        public void Add(IElement element)
+        public void Add(Element element)
         {
             _elements.Add(element);
         }
