@@ -1,4 +1,3 @@
-using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -90,7 +89,6 @@ namespace CreateAR.SpirePlayer.UI
         /// <summary>
         /// Props.
         /// </summary>
-        private ElementSchemaProp<string> _name;
         private ElementSchemaProp<Col4> _localColor;
         private ElementSchemaProp<Vec3> _localPosition;
         private ElementSchemaProp<TweenType> _tweenIn;
@@ -244,6 +242,11 @@ namespace CreateAR.SpirePlayer.UI
             {
                 var tween = _localTween;
 
+                if (tween < Mathf.Epsilon)
+                {
+                    Log.Debug(this, "_localTween in getter is 0.");
+                }
+
                 if (Parent != null)
                 {
                     tween *= Parent.Tween;
@@ -373,7 +376,6 @@ namespace CreateAR.SpirePlayer.UI
         {
             base.LoadInternal();
 
-            _name = Schema.GetOwn("name", ToString());
             _localColor = Schema.GetOwn("color", Col4.White);
             _localPosition = Schema.GetOwn("position", Vec3.Zero);
             _tweenIn = Schema.GetOwn("tweenIn", TweenType.Responsive);
@@ -384,7 +386,7 @@ namespace CreateAR.SpirePlayer.UI
             _layerMode = Schema.GetOwn("layerMode", LayerMode.Default);
             _autoDestroy = Schema.GetOwn("autoDestroy", false);
 
-            _gameObject.name = _name.Value;
+            _gameObject.name = ToString();
             _gameObject.transform.localPosition = _localPosition.Value.ToVector();
 
             for (int i = 0; i < Children.Length; ++i)
@@ -419,8 +421,7 @@ namespace CreateAR.SpirePlayer.UI
         protected override void UnloadInternal()
         {
             IsLoaded = false;
-
-            _name = null;
+            
             _localColor = null;
             _localPosition = null;
             _tweenIn = null;
@@ -491,7 +492,8 @@ namespace CreateAR.SpirePlayer.UI
         /// </summary>
         protected override void UpdateInternal()
         {
-            var deltaTime = Time.smoothDeltaTime;
+            //var deltaTime = Time.smoothDeltaTime;
+            var deltaTime = Time.deltaTime;
             UpdateVisibility();
             UpdateTween(deltaTime);
             UpdateColor(deltaTime);
@@ -566,7 +568,7 @@ namespace CreateAR.SpirePlayer.UI
                     ? 1.0f
                     : 0.0f;
 
-                if (Math.Abs(_localTween) < Mathf.Epsilon)
+                if (_localTween < Mathf.Epsilon)
                 {
                     Log.Debug(this, "Tween is zero from visibility.");
                 }
@@ -580,7 +582,7 @@ namespace CreateAR.SpirePlayer.UI
 
                 _localTween = Mathf.Clamp01(_localTween + tweenDelta);
 
-                if (Math.Abs(_localTween) < Mathf.Epsilon)
+                if (_localTween < Mathf.Epsilon)
                 {
                     Log.Debug(this, "Tween is zero.");
                 }

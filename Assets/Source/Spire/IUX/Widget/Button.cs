@@ -89,18 +89,16 @@ namespace CreateAR.SpirePlayer.UI
             // Activator
             {
                 _activator = _primitives.Activator();
-                _activator.Parent = this;
-
-                var activatorSchema = new ElementSchema();
-                activatorSchema.Wrap(Schema);
-
+                
                 _activator.Load(
                     new ElementData
                     {
                         Id = "Activator"
                     },
-                    activatorSchema,
+                    new ElementSchema(), 
                     new IElement[0]);
+
+                AddChild(_activator);
             }
 
             // create label

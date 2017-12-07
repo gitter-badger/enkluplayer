@@ -53,8 +53,9 @@ namespace CreateAR.SpirePlayer.Editor
                         var id = match.Groups[1].Value;
                         element = FindElement(id);
                     }
+
                     // TODO: Remove
-                    else
+                    if (null == element)
                     {
                         // find widgetmonobehaviour
                         var behaviour = value.GetComponent<WidgetMonoBehaviour>();

@@ -36,7 +36,7 @@ namespace CreateAR.SpirePlayer.UI
         /// <returns></returns>
         public ActivatorPrimitive Activator()
         {
-            return new ActivatorPrimitive(
+            var activator = new ActivatorPrimitive(
                 Config,
                 Interactables,
                 Interactions,
@@ -45,6 +45,10 @@ namespace CreateAR.SpirePlayer.UI
                 Layers,
                 Tweens,
                 Colors);
+
+            Elements.Add(activator);
+
+            return activator;
         }
 
         /// <summary>
