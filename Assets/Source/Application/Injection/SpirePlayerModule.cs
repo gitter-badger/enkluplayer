@@ -150,6 +150,7 @@ namespace CreateAR.SpirePlayer
             // IUX
             {
                 binder.Bind<IInteractableManager>().To<InteractableManager>().ToSingleton();
+                binder.Bind<IPrimitiveFactory>().To<PrimitiveFactory>().ToSingleton();
             }
 
             // content
@@ -170,7 +171,6 @@ namespace CreateAR.SpirePlayer
             // manager monobehaviours
             {
                 binder.Bind<IElementManager>().ToValue(LookupComponent<ElementManager>());
-                binder.Bind<IPrimitiveFactory>().ToValue(LookupComponent<PrimitiveFactory>());
                 binder.Bind<IIntentionManager>().ToValue(LookupComponent<IntentionManager>());
                 binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
                 binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
