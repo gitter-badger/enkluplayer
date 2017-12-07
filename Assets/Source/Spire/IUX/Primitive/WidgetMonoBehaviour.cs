@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -22,7 +23,15 @@ namespace CreateAR.SpirePlayer.UI
         public GameObject GameObject { get { return gameObject; } }
         public Col4 Color { get { return _widget.Color; } }
         public bool Visible { get { return _widget.Visible; } }
-        public float Tween { get { return _widget.Tween; } }
+
+        public float Tween
+        {
+            get
+            {
+                return _widget.Tween;
+            }
+        }
+
         public Layer Layer { get { return _widget.Layer; } }
         public string Id { get { return _widget.Id; } }
         public Col4 LocalColor
@@ -48,7 +57,9 @@ namespace CreateAR.SpirePlayer.UI
         {
             _widget = new Widget(gameObject);
         }
-        
+
+        private bool _TEMP_DEBUG = false;
+
         /// <summary>
         /// Loads for activator.
         /// TODO: This code path should be removed.
@@ -56,7 +67,10 @@ namespace CreateAR.SpirePlayer.UI
         /// <param name="parent"></param>
         public void LoadFromActivator(ActivatorPrimitive parent)
         {
-            _widget.Load(new ElementData(), parent.Schema, new IElement[0]);
+            _TEMP_DEBUG = true;
+
+            _widget.Load(new ElementData(), new ElementSchema(), new IElement[0]);
+            parent.AddChild(_widget);
 
             InitializeWidgetRenderers();
         }

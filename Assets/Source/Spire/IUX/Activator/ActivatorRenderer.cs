@@ -42,7 +42,17 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Primary widget of the activator.
         /// </summary>
-        public WidgetMonoBehaviour FrameWidget;
+        public WidgetRenderer Frame;
+
+        /// <summary>
+        /// Fill Widget
+        /// </summary>
+        public WidgetRenderer Fill;
+
+        /// <summary>
+        /// Aim Scale Transform.
+        /// </summary>
+        public WidgetRenderer Aim;
 
         /// <summary>
         /// Transform affected by the steadiness of intention.
@@ -53,16 +63,6 @@ namespace CreateAR.SpirePlayer
         /// Fills with activation percentage.
         /// </summary>
         public Image FillImage;
-
-        /// <summary>
-        /// Fill Widget
-        /// </summary>
-        public WidgetMonoBehaviour FillWidget;
-
-        /// <summary>
-        /// Aim Scale Transform.
-        /// </summary>
-        public WidgetMonoBehaviour AimWidget;
 
         /// <summary>
         /// Spawns when activated
@@ -97,19 +97,25 @@ namespace CreateAR.SpirePlayer
             GenerateBufferCollider();
             Radius = CalculateRadius();
             
-            if (AimWidget != null)
+            if (Aim != null)
             {
-                AimWidget.LoadFromActivator(_activator);
+                //AimWidget.LoadFromActivator(_activator);
+
+                Aim.Initialize(activator);
             }
 
-            if (FillWidget != null)
+            if (Fill != null)
             {
-                FillWidget.LoadFromActivator(_activator);
+                //FillWidget.LoadFromActivator(_activator);
+
+                Fill.Initialize(activator);
             }
 
-            if (FrameWidget != null)
+            if (Frame != null)
             {
-                FrameWidget.LoadFromActivator(_activator);
+                //Frame.LoadFromActivator(_activator);
+
+                Frame.Initialize(activator);
             }
 
             _isInited = true;
@@ -204,8 +210,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void UpdateStabilityTransform()
         {
-            var focusTween = FillWidget != null
-                ? FillWidget.Tween
+            var focusTween = Fill != null
+                ? 0.0f//Fill.Tween
                 : 1.0f;
 
             var degrees = _activator.Stability * _config.StabilityRotation;
@@ -220,7 +226,7 @@ namespace CreateAR.SpirePlayer
         public void UpdateFillImage()
         {
             FillImage.fillAmount = _activator.Activation;
-            FillWidget.LocalVisible = _activator.CurrentState is ActivatorActivatingState;
+            //Fill.LocalVisible = _activator.CurrentState is ActivatorActivatingState;
         }
 
         /// <summary>
@@ -231,8 +237,8 @@ namespace CreateAR.SpirePlayer
             var aimScale = _config.GetAimScale(_activator.Aim);
             var aimColor = _config.GetAimColor(_activator.Aim);
 
-            AimWidget.transform.localScale = Vector3.one * aimScale;
-            AimWidget.LocalColor = aimColor;
+            Aim.transform.localScale = Vector3.one * aimScale;
+            //Aim.LocalColor = aimColor;
         }
 
         /// <summary>
@@ -250,16 +256,16 @@ namespace CreateAR.SpirePlayer
 
             // blend the frame's color.
             var frameColor = _colors.GetColor(activatorState.FrameColor);
-            FrameWidget.LocalColor = Col4.Lerp(
-                FrameWidget.LocalColor,
+            /*Frame.LocalColor = Col4.Lerp(
+                Frame.LocalColor,
                 frameColor,
                 tweenLerp);
 
             // blend the frame's scale.
-            FrameWidget.GameObject.transform.localScale = Vector3.Lerp(
-                FrameWidget.GameObject.transform.localScale,
+            Frame.GameObject.transform.localScale = Vector3.Lerp(
+                Frame.GameObject.transform.localScale,
                 Vector3.one * activatorState.FrameScale,
-                tweenLerp);
+                tweenLerp);*/
         }
     }
 }
