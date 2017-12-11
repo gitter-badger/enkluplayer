@@ -147,11 +147,11 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<ArCameraRig>().ToValue(LookupComponent<ArCameraRig>());
                 binder.Bind<ArServiceConfiguration>().ToValue(LookupComponent<ArServiceConfiguration>());
+#if UNITY_IOS
                 binder.Bind<UnityARSessionNativeInterface>().ToValue(UnityARSessionNativeInterface.GetARSessionNativeInterface());
-#if UNITY_EDITOR
-                binder.Bind<IArService>().To<EditorArService>().ToSingleton();
-#elif UNITY_IOS
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
+#else
+                binder.Bind<IArService>().To<EditorArService>().ToSingleton();
 #endif
             }
 

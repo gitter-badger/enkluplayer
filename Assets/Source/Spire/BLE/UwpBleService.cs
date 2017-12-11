@@ -19,10 +19,7 @@ namespace CreateAR.SpirePlayer.BLE
 
         public UwpBleService()
         {
-            _watcher = DeviceInformation.CreateWatcher(
-                AQS_FILTER,
-                REQUESTED_PROPERTIES,
-                DeviceInformationKind.AssociationEndpoint);
+            _watcher = DeviceInformation.CreateWatcher();
 
             _watcher.Added += Watcher_OnAdded;
             _watcher.Updated += Watcher_OnUpdated;
@@ -70,6 +67,8 @@ namespace CreateAR.SpirePlayer.BLE
             object args)
         {
             _enumerationComplete = true;
+
+            Log.Info(this, "UWPBLE Enum complete.");
 
             _watcherDelegate.BleDeviceInit(_bleDevices.ToArray());
         }

@@ -23,6 +23,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
+using CreateAR.Commons.Unity.Logging;
 using strange.extensions.injector.api;
 
 namespace strange.extensions.injector.impl
@@ -118,11 +119,15 @@ namespace strange.extensions.injector.impl
 			
 			if (args == null || args.Length == 0)
 			{
-				retv = Activator.CreateInstance (value);
+			    Log.Info(this, "CreateFromValue : {0}.", value);
+
+                retv = Activator.CreateInstance (value);
 			}
 			else
 			{
-				retv = Activator.CreateInstance(value, args);
+			    Log.Info(this, "CreateFromValue : {0}, {1}.", value, args);
+
+                retv = Activator.CreateInstance(value, args);
 			}
 
 			return retv;

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if UNITY_IOS
+
+using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System;
@@ -232,3 +234,5 @@ namespace UnityEngine.XR.iOS
 		}
 	}
 }
+
+#endif

@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.XR.iOS;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 
 public class UnityARKitLightManager : MonoBehaviour {
@@ -9,20 +6,22 @@ public class UnityARKitLightManager : MonoBehaviour {
 	Light [] lightsInScene;
 	SphericalHarmonicsL2 shl;
 
-	// Use this for initialization
-	void Start () {
+#if UNITY_IOS
+    
+    // Use this for initialization
+    void Start () {
 		//find all the lights in the scene
 		lightsInScene = FindAllLights();
 		shl = new SphericalHarmonicsL2 ();
 
-		//subscribe to event informing us of light changes from AR
-		UnityARSessionNativeInterface.ARFrameUpdatedEvent += UpdateLightEstimations;
+        //subscribe to event informing us of light changes from AR
+	    UnityEngine.XR.iOS.UnityARSessionNativeInterface.ARFrameUpdatedEvent += UpdateLightEstimations;
 
 	}
 
 	void OnDestroy()
 	{
-		UnityARSessionNativeInterface.ARFrameUpdatedEvent -= UpdateLightEstimations;
+	    UnityEngine.XR.iOS.UnityARSessionNativeInterface.ARFrameUpdatedEvent -= UpdateLightEstimations;
 	}
 		
 
@@ -33,18 +32,18 @@ public class UnityARKitLightManager : MonoBehaviour {
 
 
 
-	void UpdateLightEstimations(UnityARCamera camera)
+	void UpdateLightEstimations(UnityEngine.XR.iOS.UnityARCamera camera)
 	{
-		if (camera.lightData.arLightingType == LightDataType.LightEstimate) {
+		if (camera.lightData.arLightingType == UnityEngine.XR.iOS.LightDataType.LightEstimate) {
 			UpdateBasicLightEstimation (camera.lightData.arLightEstimate);
 		} 
-		else if (camera.lightData.arLightingType == LightDataType.DirectionalLightEstimate) 
+		else if (camera.lightData.arLightingType == UnityEngine.XR.iOS.LightDataType.DirectionalLightEstimate) 
 		{
 			UpdateDirectionalLightEstimation (camera.lightData.arDirectonalLightEstimate);
 		}
 	}
 
-	void UpdateBasicLightEstimation(UnityARLightEstimate uarle)
+	void UpdateBasicLightEstimation(UnityEngine.XR.iOS.UnityARLightEstimate uarle)
 	{
 		foreach (Light l in lightsInScene)
 		{
@@ -64,7 +63,7 @@ public class UnityARKitLightManager : MonoBehaviour {
 	
 	}
 
-	void UpdateDirectionalLightEstimation(UnityARDirectionalLightEstimate uardle)
+	void UpdateDirectionalLightEstimation(UnityEngine.XR.iOS.UnityARDirectionalLightEstimate uardle)
 	{
 		for (int colorChannel = 0; colorChannel < 3; colorChannel++) {
 			for (int index = 0; index < 9; index++) {
@@ -91,4 +90,6 @@ public class UnityARKitLightManager : MonoBehaviour {
 		RenderSettings.ambientProbe = shl;
 		RenderSettings.ambientMode = AmbientMode.Custom;
 	}
+
+#endif
 }
