@@ -45,6 +45,12 @@ namespace CreateAR.SpirePlayer
                         new JsonSerializer(),
                         LookupComponent<MonoBehaviourBootstrapper>()))
                     .ToSingleton();
+
+#if !UNITY_EDITOR && UNITY_WSA
+                binder.Bind<IHashProvider>().To<ShaUwpHashProvider>();
+#else
+                binder.Bind<IHashProvider>().To<Sha256HashProvider>();
+#endif
                 binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
                 binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
@@ -81,7 +87,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
 #elif NETFX_CORE
                     binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
-#endif   
+#endif
                 }
 
                 // spire-specific bindings
@@ -144,7 +150,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IArService>().To<EditorArService>().ToSingleton();
 #elif UNITY_IOS
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
-#endif   
+#endif
             }
 
             // IUX

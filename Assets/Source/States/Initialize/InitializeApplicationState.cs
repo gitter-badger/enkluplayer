@@ -35,6 +35,7 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
         private readonly ArServiceConfiguration _config;
         private readonly IArService _ar;
+        private readonly IHashProvider _hashing;
 
         /// <summary>
         /// Time at which we started looking for the floor.
@@ -50,7 +51,8 @@ namespace CreateAR.SpirePlayer
             IBootstrapper bootstrapper,
             IAssetManager assets,
             ArServiceConfiguration config,
-            IArService ar)
+            IArService ar,
+            IHashProvider hashing)
         {
             _messages = messages;
             _http = http;
@@ -58,6 +60,7 @@ namespace CreateAR.SpirePlayer
             _assets = assets;
             _config = config;
             _ar = ar;
+            _hashing = hashing;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -77,6 +80,7 @@ namespace CreateAR.SpirePlayer
                 _bootstrapper,
                 new StandardAssetBundleCache(
                     _bootstrapper,
+                    _hashing,
                     Path.Combine(
                         UnityEngine.Application.persistentDataPath,
                         "Bundles")), 
