@@ -7,6 +7,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
+using CreateAR.SpirePlayer.BLE;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -32,10 +33,12 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
         private readonly IHttpService _http;
         private readonly IBootstrapper _bootstrapper;
+        private readonly IHashProvider _hashMethod;
         private readonly IAssetManager _assets;
-        private readonly ArServiceConfiguration _config;
+        private readonly ArServiceConfiguration _arConfig;
         private readonly IArService _ar;
-        private readonly IHashProvider _hashing;
+        private readonly BleServiceConfiguration _bleConfig;
+        private readonly IBleService _ble;
 
         /// <summary>
         /// Time at which we started looking for the floor.
@@ -49,25 +52,32 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IHttpService http,
             IBootstrapper bootstrapper,
+            IHashProvider hashMethod,
             IAssetManager assets,
-            ArServiceConfiguration config,
+            ArServiceConfiguration arConfig,
             IArService ar,
-            IHashProvider hashing)
+            BleServiceConfiguration bleConfig,
+            IBleService ble)
         {
             _messages = messages;
             _http = http;
             _bootstrapper = bootstrapper;
+            _hashMethod = hashMethod;
             _assets = assets;
-            _config = config;
+            _arConfig = arConfig;
             _ar = ar;
-            _hashing = hashing;
+            _bleConfig = bleConfig;
+            _ble = ble;
         }
 
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
             // ar
-            _ar.Setup(_config);
+            _ar.Setup(_arConfig);
+
+            // ble
+            _ble.Setup(_bleConfig);
             
             // setup http
             _http.UrlBuilder.Protocol = "http";
@@ -80,7 +90,7 @@ namespace CreateAR.SpirePlayer
                 _bootstrapper,
                 new StandardAssetBundleCache(
                     _bootstrapper,
-                    _hashing,
+                    _hashMethod,
                     Path.Combine(
                         UnityEngine.Application.persistentDataPath,
                         "Bundles")), 
@@ -91,6 +101,7 @@ namespace CreateAR.SpirePlayer
                     Protocol = "http"
                 });
 
+            // reset assets
             _assets.Uninitialize();
             
             // wait for assets to initialize and for the floor to be recognized
@@ -135,8 +146,6 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private IAsyncToken<Void> FindFloor()
         {
-            return new AsyncToken<Void>();
-
             var token = new AsyncToken<Void>();
 
             Log.Info(this, "Attempting to find the floor.");
@@ -187,7 +196,7 @@ namespace CreateAR.SpirePlayer
                         lowest.Tag(ArAnchorTags.FLOOR);
                         
                         // set camera rig
-                        _config.Rig.SetFloor(lowest);
+                        _arConfig.Rig.SetFloor(lowest);
                     
                         token.Succeed(Void.Instance);
                         yield break;

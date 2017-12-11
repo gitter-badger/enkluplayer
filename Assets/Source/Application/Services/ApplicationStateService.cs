@@ -26,7 +26,8 @@ namespace CreateAR.SpirePlayer
             EditApplicationState edit,
             PreviewApplicationState preview,
             PlayApplicationState play,
-            HierarchyApplicationState hierarchy)
+            HierarchyApplicationState hierarchy,
+            BleSearchApplicationState ble)
             : base(bridge, messages)
         {
             _states = new FiniteStateMachine(new IState[]
@@ -36,7 +37,8 @@ namespace CreateAR.SpirePlayer
                 edit,
                 preview,
                 play,
-                hierarchy
+                hierarchy,
+                ble
             });
         }
 
@@ -49,7 +51,8 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Application ready.");
 
-                    _states.Change<WaitingForConnectionApplicationState>();
+                    _states.Change<BleSearchApplicationState>();
+                    //_states.Change<WaitingForConnectionApplicationState>();
                 });
 
             Subscribe<PreviewEvent>(

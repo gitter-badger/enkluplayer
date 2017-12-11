@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
+using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using Jint.Parser;
 using Jint.Unity;
@@ -113,6 +114,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
+                    binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
                 }
 
                 // service manager + appplication
@@ -150,6 +152,18 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IArService>().To<EditorArService>().ToSingleton();
 #elif UNITY_IOS
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
+#endif
+            }
+
+            // BLE
+            {
+                binder.Bind<BleServiceConfiguration>().ToValue(LookupComponent<BleServiceConfiguration>());
+#if NETFX_CORE
+                binder.Bind<IBleService>().To<UwpBleService>().ToSingleton();
+#elif UNITY_EDITOR
+                binder.Bind<IBleService>().To<EditorBleService>().ToSingleton();
+#else
+
 #endif
             }
 
