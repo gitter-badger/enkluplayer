@@ -18,9 +18,20 @@ namespace CreateAR.SpirePlayer.BLE
 
             foreach (var pair in Props)
             {
-                builder.AppendFormat("\t{0}={1}\n",
-                    pair.Key,
-                    pair.Value);
+                var value = pair.Value;
+                var stringArray = value as string[];
+                if (null != stringArray)
+                {
+                    builder.AppendFormat("\t{0}={1}\n",
+                        pair.Key,
+                        string.Join(", ", stringArray));
+                }
+                else
+                {
+                    builder.AppendFormat("\t{0}={1}\n",
+                        pair.Key,
+                        pair.Value);
+                }
             }
 
             builder.AppendFormat("}}");
