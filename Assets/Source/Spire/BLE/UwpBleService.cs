@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
-using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Enumeration;
 using CreateAR.Commons.Unity.Logging;
@@ -95,20 +94,20 @@ namespace CreateAR.SpirePlayer.BLE
 
             _found = true;
             
-            var device = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
+            /*var device = await BluetoothLEDevice.FromBluetoothAddressAsync(args.BluetoothAddress);
 
             Log.Debug(this, $"Device found {device.DeviceId} : {device.DeviceAccessInformation.CurrentStatus} : {device.DeviceInformation.Name}");
             
             try
             {
-                var services = await device.GetGattServicesAsync();
+                //var services = await device.GetGattServicesAsync();
             }
             catch (Exception exception)
             {
                 Log.Error(this, "Exception caught : " + exception);
             }
 
-            Log.Debug(this, "Services retrieved.");
+            Log.Debug(this, "Services retrieved.");*/
         }
 
         public void Teardown()
