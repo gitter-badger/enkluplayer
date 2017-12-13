@@ -1,3 +1,5 @@
+#if UNITY_IOS
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -96,9 +98,19 @@ namespace UnityEngine.XR.iOS {
          */
         public Vector4 extent;
 
-        public string identifierStr { get { return Marshal.PtrToStringAuto(this.ptrIdentifier); } }
+	    public string identifierStr
+	    {
+	        get
+	        {
+#if NETFX_CORE
+                return "";
+#else
+                return Marshal.PtrToStringAuto(this.ptrIdentifier);
+#endif
+            }
+	    }
 
-        public static UnityARAnchorData UnityARAnchorDataFromGameObject(GameObject go) {
+	    public static UnityARAnchorData UnityARAnchorDataFromGameObject(GameObject go) {
             // create an anchor data struct from a game object transform
             Matrix4x4 matrix = Matrix4x4.TRS(go.transform.position, go.transform.rotation, go.transform.localScale);
             UnityARAnchorData ad = new UnityARAnchorData();
@@ -120,9 +132,19 @@ namespace UnityEngine.XR.iOS {
 		 */
 		public UnityARMatrix4x4 transform;
 
-		public string identifierStr { get { return Marshal.PtrToStringAuto(this.ptrIdentifier); } }
+	    public string identifierStr
+	    {
+	        get
+	        {
+#if NETFX_CORE
+                return "";
+#else
+                return Marshal.PtrToStringAuto(this.ptrIdentifier);
+#endif
+            }
+	    }
 
-        public static UnityARUserAnchorData UnityARUserAnchorDataFromGameObject(GameObject go) {
+	    public static UnityARUserAnchorData UnityARUserAnchorDataFromGameObject(GameObject go) {
             // create an anchor data struct from a game object transform
             Matrix4x4 matrix = Matrix4x4.TRS(go.transform.position, go.transform.rotation, go.transform.localScale);
             UnityARUserAnchorData ad = new UnityARUserAnchorData();
@@ -244,14 +266,14 @@ namespace UnityEngine.XR.iOS {
 			this.enableLightEstimation = enableLightEstimation;
 		}
 
-		#if UNITY_EDITOR
+#if UNITY_EDITOR
 		private bool IsARKitFaceTrackingConfigurationSupported() {
 			return true;
 		}
-		#else
+#else
 		[DllImport("__Internal")]
 		private static extern bool IsARKitFaceTrackingConfigurationSupported();
-		#endif
+#endif
 
 	}
 
@@ -566,9 +588,14 @@ namespace UnityEngine.XR.iOS {
 		{
 			//get the identifier for this anchor from the pointer
 			ARPlaneAnchor arPlaneAnchor = new ARPlaneAnchor ();
+#if NETFX_CORE
+            arPlaneAnchor.identifier = "";
+#else
             arPlaneAnchor.identifier = Marshal.PtrToStringAuto(anchor.ptrIdentifier);
+#endif
 
-			Matrix4x4 matrix = new Matrix4x4 ();
+
+            Matrix4x4 matrix = new Matrix4x4 ();
 	        matrix.SetColumn(0, anchor.transform.column0);
 	        matrix.SetColumn(1, anchor.transform.column1);
 	        matrix.SetColumn(2, anchor.transform.column2);
@@ -585,9 +612,13 @@ namespace UnityEngine.XR.iOS {
 		{
 			//get the identifier for this anchor from the pointer
 			ARUserAnchor arUserAnchor = new ARUserAnchor ();
-            arUserAnchor.identifier = Marshal.PtrToStringAuto(anchor.ptrIdentifier);
+#if NETFX_CORE
+            arUserAnchor.identifier = "";
+#else
+		    arUserAnchor.identifier = Marshal.PtrToStringAuto(anchor.ptrIdentifier);
+#endif
 
-			Matrix4x4 matrix = new Matrix4x4 ();
+            Matrix4x4 matrix = new Matrix4x4 ();
 	        matrix.SetColumn(0, anchor.transform.column0);
 	        matrix.SetColumn(1, anchor.transform.column1);
 	        matrix.SetColumn(2, anchor.transform.column2);
@@ -606,7 +637,11 @@ namespace UnityEngine.XR.iOS {
             arHitTestResult.worldTransform = resultData.worldTransform;
             arHitTestResult.isValid = resultData.isValid;
             if (resultData.anchor != IntPtr.Zero) {
-                arHitTestResult.anchorIdentifier = Marshal.PtrToStringAuto (resultData.anchor);
+#if NETFX_CORE
+                arHitTestResult.anchorIdentifier = "";
+#else
+                arHitTestResult.anchorIdentifier = Marshal.PtrToStringAuto(resultData.anchor);
+#endif
             }
             return arHitTestResult;
         }
@@ -755,30 +790,30 @@ namespace UnityEngine.XR.iOS {
 
         public void RunWithConfigAndOptions(ARKitSessionConfiguration config, UnityARSessionRunOption runOptions)
         {
-            #if !UNITY_EDITOR
+#if !UNITY_EDITOR
             StartSessionWithOptions (m_NativeARSession, config, runOptions);
-            #endif
+#endif
         }
 
         public void RunWithConfig(ARKitSessionConfiguration config)
         {
-            #if !UNITY_EDITOR
+#if !UNITY_EDITOR
             StartSession(m_NativeARSession, config);
-            #endif
+#endif
         }
             
 		public void RunWithConfigAndOptions(ARKitFaceTrackingConfiguration config, UnityARSessionRunOption runOptions)
 		{
-			#if !UNITY_EDITOR
+#if !UNITY_EDITOR
 			StartFaceTrackingSessionWithOptions (m_NativeARSession, config, runOptions);
-			#endif
+#endif
 		}
 
 		public void RunWithConfig(ARKitFaceTrackingConfiguration config)
 		{
-			#if !UNITY_EDITOR
+#if !UNITY_EDITOR
 			StartFaceTrackingSession(m_NativeARSession, config);
-			#endif
+#endif
 		}
 
 
@@ -828,7 +863,7 @@ namespace UnityEngine.XR.iOS {
         {
 #if !UNITY_EDITOR
             return SessionAddUserAnchor(m_NativeARSession, anchorData);
-#else 
+#else
             return new UnityARUserAnchorData();
 #endif
         }
@@ -837,7 +872,7 @@ namespace UnityEngine.XR.iOS {
 #if !UNITY_EDITOR
             UnityARUserAnchorData data = AddUserAnchor(UnityARUserAnchorData.UnityARUserAnchorDataFromGameObject(go)); 
             return data;  
-#else 
+#else
             return new UnityARUserAnchorData();
 #endif
         }
@@ -851,3 +886,5 @@ namespace UnityEngine.XR.iOS {
         }
 	}
 }
+
+#endif

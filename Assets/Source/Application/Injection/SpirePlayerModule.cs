@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
+using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using Jint.Parser;
 using Jint.Unity;
@@ -37,6 +38,12 @@ namespace CreateAR.SpirePlayer
                         new JsonSerializer(),
                         LookupComponent<MonoBehaviourBootstrapper>()))
                     .ToSingleton();
+
+#if !UNITY_EDITOR && UNITY_WSA
+                binder.Bind<IHashProvider>().To<ShaUwpHashProvider>();
+#else
+                binder.Bind<IHashProvider>().To<Sha256HashProvider>();
+#endif
                 binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
                 binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
@@ -73,7 +80,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
 #elif NETFX_CORE
                     binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
-#endif   
+#endif
                 }
 
                 // spire-specific bindings
@@ -99,6 +106,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
+                    binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
                     binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
                 }
 
@@ -132,13 +140,27 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<ArCameraRig>().ToValue(LookupComponent<ArCameraRig>());
                 binder.Bind<ArServiceConfiguration>().ToValue(LookupComponent<ArServiceConfiguration>());
+#if UNITY_IOS
                 binder.Bind<UnityARSessionNativeInterface>().ToValue(UnityARSessionNativeInterface.GetARSessionNativeInterface());
-#if UNITY_EDITOR
+                binder.Bind<IArService>().To<IosArService>().ToSingleton();
+#else
                 binder.Bind<IArService>().To<EditorArService>().ToSingleton();
 #elif UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
 #elif UNITY_IOS
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
+#endif
+            }
+
+            // BLE
+            {
+                binder.Bind<BleServiceConfiguration>().ToValue(LookupComponent<BleServiceConfiguration>());
+#if NETFX_CORE
+                binder.Bind<IBleService>().To<UwpBleService>().ToSingleton();
+#elif UNITY_EDITOR
+                binder.Bind<IBleService>().To<EditorBleService>().ToSingleton();
+#else
+
 #endif
             }
 

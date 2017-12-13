@@ -34,6 +34,8 @@ namespace CreateAR.SpirePlayer
             PlayApplicationState play,
             HierarchyApplicationState hierarchy,
             MeshCaptureApplicationState meshCapture)
+            HierarchyApplicationState hierarchy,
+            BleSearchApplicationState ble)
             : base(bridge, messages)
         {
             _config = config;
@@ -46,6 +48,8 @@ namespace CreateAR.SpirePlayer
                 play,
                 hierarchy,
                 meshCapture
+                hierarchy,
+                ble
             });
         }
 
