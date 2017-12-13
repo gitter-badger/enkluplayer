@@ -53,6 +53,21 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Position getter/setter.
+        /// </summary>
+        public Vec3 Position
+        {
+            get
+            {
+                return _renderer.transform.localPosition.ToVec();
+            }
+            set
+            {
+                _renderer.transform.localPosition = value.ToVector();
+            }
+        }
+
+        /// <summary>
         /// Gets/sets text primitive parent.
         /// </summary>
         public Widget Parent

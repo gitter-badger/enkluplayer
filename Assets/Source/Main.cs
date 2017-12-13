@@ -10,6 +10,7 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public enum PlayMode
     {
+        Null = -1,
         Player,
         Release,
         MeshCapture

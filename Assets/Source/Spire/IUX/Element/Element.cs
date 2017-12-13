@@ -265,6 +265,16 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="results">Results passed in.</param>
         public void Find(string query, IList<Element> results)
         {
+            Find<Element>(query, results);
+        }
+
+        /// <summary>
+        /// Finds a list of elements.
+        /// </summary>
+        /// <param name="query">Query.</param>
+        /// <param name="results">Results passed in.</param>
+        public void Find<T>(string query, IList<T> results) where T : Element
+        {
             if (string.IsNullOrEmpty(query))
             {
                 return;
@@ -365,7 +375,11 @@ namespace CreateAR.SpirePlayer.IUX
             // add
             for (int i = 0, len = current.Count; i < len; i++)
             {
-                results.Add(current[i]);
+                var cast = current[i] as T;
+                if (null != cast)
+                {
+                    results.Add(cast);
+                }
             }
         }
         

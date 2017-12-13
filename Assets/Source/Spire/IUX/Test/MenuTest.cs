@@ -25,7 +25,7 @@ namespace CreateAR.SpirePlayer.IUX
                         {
                             Strings = new Dictionary<string, string>
                             {
-                                { "label", "Choose an option!" }
+                                { "label", "Choose!" }
                             },
                             Ints = new Dictionary<string, int>
                             {

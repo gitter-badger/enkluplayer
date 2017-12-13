@@ -62,6 +62,11 @@ namespace CreateAR.SpirePlayer
 
                     switch (_config.Mode)
                     {
+                        case PlayMode.Null:
+                        {
+                            _states.Change(null);
+                            return;
+                        }
                         case PlayMode.MeshCapture:
                         {
                             _states.Change<MeshCaptureApplicationState>();
