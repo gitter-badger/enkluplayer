@@ -42,13 +42,23 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// True iff the observer should be updated.
         /// </summary>
-        private bool _isAlive = false;
+        private bool _isObserverAlive = false;
 
         /// <summary>
         /// Root transform.
         /// </summary>
         private GameObject _root;
-        
+
+        /// <summary>
+        /// Camera settings snapshot.
+        /// </summary>
+        private CameraSettingsSnapshot _snapshot;
+
+        /// <summary>
+        /// Config.
+        /// </summary>
+        private MeshCaptureConfig _config;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -60,17 +70,17 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
+            // setup camera
+            var camera = Camera.main;
+            _snapshot = CameraSettingsSnapshot.Snapshot(camera);
+            camera.clearFlags = CameraClearFlags.Color;
+            camera.backgroundColor = Color.black;
+            camera.nearClipPlane = 0.85f;
+            camera.farClipPlane = 1000f;
+            camera.transform.position = Vector3.zero;
+
             // load scene
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
-                SCENE_NAME,
-                LoadSceneMode.Additive);
-
-            _root = new GameObject("Surfaces");
-
-            _observer = new SurfaceObserver();
-            _observer.SetVolumeAsAxisAlignedBox(Vector3.zero, 100 * Vector3.one);
-
-            _bootstrapper.BootstrapCoroutine(UpdateObserver());
+            _bootstrapper.BootstrapCoroutine(LoadScene());
         }
 
         /// <inheritdoc cref="IState"/>
@@ -82,16 +92,51 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Exit()
         {
-            _isAlive = false;
+            _config = null;
 
+            // destroy observer
+            _isObserverAlive = false;
             _observer.Dispose();
             _observer = null;
 
+            // destroy surfaces
             _surfaces.Clear();
             UnityEngine.Object.Destroy(_root);
 
+            // unload scene
             UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
                 UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
+
+            // reset camera to previous settings
+            CameraSettingsSnapshot.Apply(Camera.main, _snapshot);
+        }
+
+        /// <summary>
+        /// Loads the scene asynchronously.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator LoadScene()
+        {
+            var op = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
+                SCENE_NAME,
+                LoadSceneMode.Additive);
+
+            yield return op;
+
+            // find config
+            _config = UnityEngine.Object.FindObjectOfType<MeshCaptureConfig>();
+            if (null == _config)
+            {
+                throw new Exception("No MeshCaptureConfig found!");
+            }
+
+            // create root for surfaces
+            _root = new GameObject("Surfaces");
+
+            // setup surface observer
+            _observer = new SurfaceObserver();
+            _observer.SetVolumeAsAxisAlignedBox(Vector3.zero, 1000 * Vector3.one);
+            _bootstrapper.BootstrapCoroutine(UpdateObserver());
         }
 
         /// <summary>
@@ -100,9 +145,9 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private IEnumerator UpdateObserver()
         {
-            _isAlive = true;
+            _isObserverAlive = true;
 
-            while (_isAlive)
+            while (_isObserverAlive)
             {
                 _observer.Update(Observer_OnSurfaceChanged);
 
@@ -149,7 +194,7 @@ namespace CreateAR.SpirePlayer
                 target = _surfaces[surfaceId] = new GameObject(surfaceId.ToString());
                 target.transform.SetParent(_root.transform);
                 target.AddComponent<MeshFilter>();
-                target.AddComponent<MeshRenderer>();
+                target.AddComponent<MeshRenderer>().sharedMaterial = _config.SurfaceMaterial;
                 target.AddComponent<WorldAnchor>();
             }
 

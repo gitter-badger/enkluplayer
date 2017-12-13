@@ -143,12 +143,10 @@ namespace CreateAR.SpirePlayer
 #if UNITY_IOS
                 binder.Bind<UnityARSessionNativeInterface>().ToValue(UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
-#else
-                binder.Bind<IArService>().To<EditorArService>().ToSingleton();
 #elif UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
-#elif UNITY_IOS
-                binder.Bind<IArService>().To<IosArService>().ToSingleton();
+#else
+                binder.Bind<IArService>().To<EditorArService>().ToSingleton();
 #endif
             }
 
