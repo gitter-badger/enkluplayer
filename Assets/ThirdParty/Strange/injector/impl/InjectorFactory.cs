@@ -119,14 +119,10 @@ namespace strange.extensions.injector.impl
 			
 			if (args == null || args.Length == 0)
 			{
-			    Log.Info(this, "CreateFromValue : {0}.", value);
-
                 retv = Activator.CreateInstance (value);
 			}
 			else
 			{
-			    Log.Info(this, "CreateFromValue : {0}, {1}.", value, args);
-
                 retv = Activator.CreateInstance(value, args);
 			}
 

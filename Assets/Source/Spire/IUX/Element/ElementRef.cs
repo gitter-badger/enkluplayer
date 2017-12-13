@@ -10,7 +10,7 @@
         /// Unique id of the <c>ElementData</c> to reference.
         /// </summary>
         public string Id;
-
+        
         /// <summary>
         /// List of child references.
         /// </summary>
