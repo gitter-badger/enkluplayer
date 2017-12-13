@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
@@ -46,6 +45,11 @@ namespace CreateAR.SpirePlayer.Assets
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Hashing function.
+        /// </summary>
+        private readonly IHashProvider _hashProvider;
         
         /// <summary>
         /// Base path on disk.
@@ -53,17 +57,14 @@ namespace CreateAR.SpirePlayer.Assets
         private readonly string _basePath;
 
         /// <summary>
-        /// SHA implementation.
-        /// </summary>
-        private readonly SHA256 _sha = SHA256.Create();
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="bootstrapper">For coroutines.</param>
+        /// <param name="hashing">Hashing method.</param>
         /// <param name="basePath">Base path on disk.</param>
         public StandardAssetBundleCache(
             IBootstrapper bootstrapper,
+            IHashProvider hashing,
             string basePath)
         {
             _bootstrapper = bootstrapper;
@@ -130,12 +131,20 @@ namespace CreateAR.SpirePlayer.Assets
             {
                 using (var stream = File.OpenWrite(path))
                 {
+#if NETFX_CORE
+                    stream.WriteAsync(bytes, 0, bytes.Length);
+
+                    Log.Info(this,
+                        "Bundle successfully written to disk for {0}.",
+                        uri);
+#else
                     stream.BeginWrite(
                         bytes,
                         0,
                         bytes.Length,
                         EndWrite,
                         new WriteState(stream, uri));
+#endif
                 }
             }
             catch (Exception exception)
@@ -183,6 +192,7 @@ namespace CreateAR.SpirePlayer.Assets
         /// <param name="result">Result.</param>
         private void EndWrite(IAsyncResult result)
         {
+#if !NETFX_CORE
             var state = (WriteState) result.AsyncState;
             
             var stream = state.Stream;
@@ -192,6 +202,7 @@ namespace CreateAR.SpirePlayer.Assets
             Log.Info(this,
                 "Bundle successfully written to disk for {0}.",
                 state.Uri);
+#endif
         }
         
         /// <summary>
@@ -201,11 +212,9 @@ namespace CreateAR.SpirePlayer.Assets
         /// <returns></returns>
         private string FilePath(string uri)
         {
-            var hash = _sha.ComputeHash(Encoding.UTF8.GetBytes(uri));
-            
             return Path.Combine(
                 _basePath,
-                Convert.ToBase64String(hash));
+                Convert.ToBase64String(_hashProvider.Hash(Encoding.UTF8.GetBytes(uri))));
         }
     }
 }

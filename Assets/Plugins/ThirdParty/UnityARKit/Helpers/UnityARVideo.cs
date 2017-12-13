@@ -1,6 +1,3 @@
-using System;
-using System.Runtime.InteropServices;
-using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace UnityEngine.XR.iOS
@@ -10,6 +7,7 @@ namespace UnityEngine.XR.iOS
     {
         public Material m_ClearMaterial;
 
+#if UNITY_IOS
         private CommandBuffer m_VideoCommandBuffer;
         private Texture2D _videoTextureY;
         private Texture2D _videoTextureCbCr;
@@ -112,6 +110,7 @@ namespace UnityEngine.XR.iOS
 			m_ClearMaterial.SetMatrix("_DisplayTransform", _displayTransform);
 		}
  
+#endif
 #endif
     }
 }

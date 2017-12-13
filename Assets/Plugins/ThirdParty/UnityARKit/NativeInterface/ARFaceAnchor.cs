@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if UNITY_IOS
+
+using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System;
@@ -85,9 +87,19 @@ namespace UnityEngine.XR.iOS
 		 */
 		public UnityARMatrix4x4 transform;
 
-		public string identifierStr { get { return Marshal.PtrToStringAuto(this.ptrIdentifier); } }
+	    public string identifierStr
+	    {
+	        get
+	        {
+#if NETFX_CORE
+                return "";
+#else
+                return Marshal.PtrToStringAuto(this.ptrIdentifier);
+#endif
+            }
+	    }
 
-		public UnityARFaceGeometry faceGeometry;
+	    public UnityARFaceGeometry faceGeometry;
 		public IntPtr blendShapes;
 
 	};
@@ -213,8 +225,14 @@ namespace UnityEngine.XR.iOS
 		[MonoPInvokeCallback(typeof(DictionaryVisitorHandler))]
 		static void AddElementToManagedDictionary(IntPtr keyPtr, float value)
 		{
-			string key = Marshal.PtrToStringAuto(keyPtr);
-			blendshapesDictionary.Add(key, value);
+#if NETFX_CORE
+            string key = "";
+#else
+            string key = Marshal.PtrToStringAuto(keyPtr);
+#endif
+            blendshapesDictionary.Add(key, value);
 		}
 	}
 }
+
+#endif

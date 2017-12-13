@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if UNITY_IOS
+
+using System;
 
 namespace UnityEngine.XR.iOS
 {
@@ -23,3 +25,4 @@ namespace UnityEngine.XR.iOS
 	}
 }
 
+#endif

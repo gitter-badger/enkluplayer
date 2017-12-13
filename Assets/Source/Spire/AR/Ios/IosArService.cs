@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_IOS
+
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.XR.iOS;
@@ -251,3 +253,5 @@ namespace CreateAR.SpirePlayer.AR
         }
     }
 }
+
+#endif
