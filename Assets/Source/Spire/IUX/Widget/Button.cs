@@ -36,27 +36,33 @@ namespace CreateAR.SpirePlayer.IUX
         private ActivatorPrimitive _activator;
 
         /// <summary>
-        /// Activator Accessor
+        /// Activator.
         /// </summary>
         public ActivatorPrimitive Activator
         {
             get { return _activator; }
         }
         
-        /// <summary>
-        /// IInteractive interfaces.
-        /// </summary>
+        /// <inheritdoc cref="IInteractable"/>
         public bool Interactable { get { return _activator.Interactable; } }
+
+        /// <inheritdoc cref="IInteractable"/>
         public float Aim { get { return _activator.Aim; } }
+
+        /// <inheritdoc cref="IInteractable"/>
         public bool Raycast(Vec3 origin, Vec3 direction)
         {
             return _activator.Raycast(origin, direction);
         }
+
+        /// <inheritdoc cref="IInteractable"/>
         public bool Focused
         {
             get { return _activator.Focused; }
             set { _activator.Focused = value; }
         }
+
+        /// <inheritdoc cref="IInteractable"/>
         public int HighlightPriority
         {
             get { return _activator.HighlightPriority; }
