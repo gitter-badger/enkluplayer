@@ -122,6 +122,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _text = _primitives.Text();
                 _text.Parent = this;
                 _text.Text = _labelProp.Value;
+                _text.Position = new Vec3(0.09f, 0f, 0f);
             }
 
             // Voice Activator

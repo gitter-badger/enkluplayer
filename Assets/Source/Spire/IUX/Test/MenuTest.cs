@@ -27,16 +27,14 @@ namespace CreateAR.SpirePlayer.IUX
                             {
                                 { "title", "Welcome" },
                                 { "description", "Move the cursor with your head to activate the Ok button to the right." },
-                                { "layout", "Radial" }
                             },
                             Floats = new Dictionary<string, float>
                             {
-                                { "layout.radius", 0.25f },
-                                { "layout.degrees", 20f }
+                                
                             },
                             Ints = new Dictionary<string, int>
                             {
-                                { "fontSize", 80 }
+                                
                             },
                             Vectors = new Dictionary<string, Vec3>
                             {

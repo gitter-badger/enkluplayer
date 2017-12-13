@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
-using Vuforia;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -93,6 +92,25 @@ namespace CreateAR.SpirePlayer.IUX
                 }
             });
             buttonSchema.Wrap(_baseSchema);
+
+            var menuSchema = _typeSchema[ElementTypes.MENU] = new ElementSchema();
+            menuSchema.Load(new ElementSchemaData
+            {
+                Strings = new Dictionary<string, string>
+                {
+                    { "layout", "Radial" }
+                },
+                Floats = new Dictionary<string, float>
+                {
+                    { "layout.radius", 0.25f },
+                    { "layout.degrees", 70f }
+                },
+                Ints = new Dictionary<string, int>
+                {
+                    { "fontSize", 80 }
+                }
+            });
+            menuSchema.Wrap(_baseSchema);
         }
 
         /// <inheritdoc cref="IElementFactory"/>
