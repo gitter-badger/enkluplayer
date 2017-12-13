@@ -9,25 +9,55 @@ using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Application state for capturing the world mesh.
+    /// </summary>
     public class MeshCaptureApplicationState : IState
     {
+        /// <summary>
+        /// Name of the scene to load.
+        /// </summary>
         private const string SCENE_NAME = "WorldMeshCaptureMode";
-        private const float UPDATE_INTERVAL = 0.2f;
 
+        /// <summary>
+        /// How often, in seconds, to update the mesh.
+        /// </summary>
+        private const float UPDATE_INTERVAL_SECS = 0.2f;
+
+        /// <summary>
+        /// Bootstraps coroutines.
+        /// </summary>
         private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Keeps track of surfaces.
+        /// </summary>
         private readonly Dictionary<SurfaceId, GameObject> _surfaces = new Dictionary<SurfaceId, GameObject>();
 
+        /// <summary>
+        /// Observes surfaces.
+        /// </summary>
         private SurfaceObserver _observer;
 
+        /// <summary>
+        /// True iff the observer should be updated.
+        /// </summary>
         private bool _isAlive = false;
+
+        /// <summary>
+        /// Root transform.
+        /// </summary>
         private GameObject _root;
         
-
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public MeshCaptureApplicationState(IBootstrapper bootstrapper)
         {
             _bootstrapper = bootstrapper;
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
             // load scene
@@ -43,11 +73,13 @@ namespace CreateAR.SpirePlayer
             _bootstrapper.BootstrapCoroutine(UpdateObserver());
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Update(float dt)
         {
             //
         }
 
+        /// <inheritdoc cref="IState"/>
         public void Exit()
         {
             _isAlive = false;
@@ -62,6 +94,10 @@ namespace CreateAR.SpirePlayer
                 UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
         }
 
+        /// <summary>
+        /// Coroutine that updates the observer according to an interval.
+        /// </summary>
+        /// <returns></returns>
         private IEnumerator UpdateObserver()
         {
             _isAlive = true;
@@ -70,10 +106,13 @@ namespace CreateAR.SpirePlayer
             {
                 _observer.Update(Observer_OnSurfaceChanged);
 
-                yield return new WaitForSecondsRealtime(UPDATE_INTERVAL);
+                yield return new WaitForSecondsRealtime(UPDATE_INTERVAL_SECS);
             }
         }
 
+        /// <summary>
+        /// Called when the observer changes.
+        /// </summary>
         private void Observer_OnSurfaceChanged(
             SurfaceId surfaceId,
             SurfaceChange changeType,
@@ -98,6 +137,10 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Called when a surface has been updated.
+        /// </summary>
+        /// <param name="surfaceId">Id of the surface.</param>
         private void SurfaceUpdated(SurfaceId surfaceId)
         {
             GameObject target;
@@ -122,6 +165,10 @@ namespace CreateAR.SpirePlayer
             _observer.RequestMeshAsync(data, OnDataReady);
         }
 
+        /// <summary>
+        /// Called when a surface has been removed.
+        /// </summary>
+        /// <param name="surfaceId">Id of the surface.</param>
         private void SurfaceRemoved(SurfaceId surfaceId)
         {
             GameObject target;
@@ -136,6 +183,9 @@ namespace CreateAR.SpirePlayer
             UnityEngine.Object.Destroy(target);
         }
 
+        /// <summary>
+        /// Called when data is ready.
+        /// </summary>
         private void OnDataReady(
             SurfaceData bakedData,
             bool outputWritten,

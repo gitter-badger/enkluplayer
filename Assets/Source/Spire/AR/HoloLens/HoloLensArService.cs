@@ -2,12 +2,20 @@
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// <c>IArService</c> implementation for HoloLens.
+    /// </summary>
     public class HoloLensArService : IArService
     {
+        /// <inheritdoc cref="IArService"/>
         public ArAnchor[] Anchors { get; private set; }
 
+        /// <inheritdoc cref="IArService"/>
         public ArServiceConfiguration Config { get; private set; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public HoloLensArService()
         {
             Anchors = new[]
@@ -21,11 +29,13 @@ namespace CreateAR.SpirePlayer
             };
         }
 
+        /// <inheritdoc cref="IArService"/>
         public void Setup(ArServiceConfiguration config)
         {
             
         }
 
+        /// <inheritdoc cref="IArService"/>
         public void Teardown()
         {
             
