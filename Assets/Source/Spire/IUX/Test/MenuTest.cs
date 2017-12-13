@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
-    public class MenuTest : MonoBehaviour
+    public class MenuTest : InjectableMonoBehaviour
     {
         [Inject]
         public IElementFactory Elements { get; set; }
@@ -15,34 +14,68 @@ namespace CreateAR.SpirePlayer.IUX
                 Root = new ElementRef
                 {
                     Id = "menu",
-                    Schema =
-                    {
-                        Strings = new Dictionary<string, string>
-                        {
-                            { "label", "Choose an option!" }
-                        },
-                        Ints = new Dictionary<string, int>
-                        {
-                            { "fontSize", 80 }
-                        },
-                        Vectors = new Dictionary<string, Vec3>
-                        {
-                            { "position", new Vec3(0f, 0.2f, 3f) }
-                        }
-                    }
                 },
                 Elements = new[]
                 {
                     new ElementData
                     {
                         Id = "menu",
-                        Type = ElementTypes.MENU
+                        Type = ElementTypes.MENU,
+                        Schema =
+                        {
+                            Strings = new Dictionary<string, string>
+                            {
+                                { "label", "Choose an option!" }
+                            },
+                            Ints = new Dictionary<string, int>
+                            {
+                                { "fontSize", 80 }
+                            },
+                            Vectors = new Dictionary<string, Vec3>
+                            {
+                                { "position", new Vec3(0f, 0.2f, 3f) }
+                            }
+                        },
+                        Children = new []
+                        {
+                            new ElementData
+                            {
+                                Id = "button",
+                                Type = ElementTypes.BUTTON,
+                                Schema =
+                                {
+                                    Strings = new Dictionary<string, string>
+                                    {
+                                        { "label", "A" }
+                                    }
+                                }
+                            },
+                            new ElementData
+                            {
+                                Id = "button",
+                                Type = ElementTypes.BUTTON,
+                                Schema =
+                                {
+                                    Strings = new Dictionary<string, string>
+                                    {
+                                        { "label", "B" }
+                                    }
+                                }
+                            },
+                            new ElementData
+                            {
+                                Id = "button",
+                                Type = ElementTypes.BUTTON,
+                                Schema =
+                                {
+                                    Strings = new Dictionary<string, string>
+                                    {
+                                        { "label", "C" }
+                                    }
+                                }
+                            }
+                        }
                     },
-                    new ElementData
-                    {
-                        Id = "button",
-                        Type = ElementTypes.BUTTON
-                    }
                 }
             });
         }

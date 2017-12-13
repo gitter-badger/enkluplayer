@@ -66,6 +66,8 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 Ints = new Dictionary<string, int>
                 {
+                    { "fontSize", 80 },
+
                     {"ready.frameColor", (int) VirtualColor.Ready},
                     {"ready.captionColor", (int) VirtualColor.Primary},
                     {"ready.tween", (int) TweenType.Responsive},
@@ -83,6 +85,10 @@ namespace CreateAR.SpirePlayer.IUX
                     {"ready.frameScale", 1.0f},
                     {"activating.frameScale", 1.1f},
                     {"activated.frameScale", 1.0f},
+                },
+                Vectors = new Dictionary<string, Vec3>
+                {
+                    { "position", new Vec3(0f, 0f, 0f) }
                 }
             });
             buttonSchema.Wrap(_baseSchema);

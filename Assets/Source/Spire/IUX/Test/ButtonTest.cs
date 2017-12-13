@@ -20,10 +20,6 @@ namespace CreateAR.SpirePlayer.IUX
                         {
                             { "label", "Hello World" }
                         },
-                        Ints = new Dictionary<string, int>
-                        {
-                            { "fontSize", 80 }
-                        },
                         Vectors = new Dictionary<string, Vec3>
                         {
                             { "position", new Vec3(0f, 0.2f, 3f) }
