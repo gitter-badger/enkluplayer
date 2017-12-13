@@ -10,6 +10,11 @@ namespace CreateAR.SpirePlayer
     public class ApplicationStateService : ApplicationService
     {
         /// <summary>
+        /// Application-wide configuration.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
+        /// <summary>
         /// Controls application states.
         /// </summary>
         private readonly FiniteStateMachine _states;
@@ -20,15 +25,18 @@ namespace CreateAR.SpirePlayer
         public ApplicationStateService(
             IBridge bridge,
             IMessageRouter messages,
+            ApplicationConfig config,
 
             InitializeApplicationState initialize,
             WaitingForConnectionApplicationState wait,
             EditApplicationState edit,
             PreviewApplicationState preview,
             PlayApplicationState play,
-            HierarchyApplicationState hierarchy)
+            HierarchyApplicationState hierarchy,
+            MeshCaptureApplicationState meshCapture)
             : base(bridge, messages)
         {
+            _config = config;
             _states = new FiniteStateMachine(new IState[]
             {
                 initialize,
@@ -36,7 +44,8 @@ namespace CreateAR.SpirePlayer
                 edit,
                 preview,
                 play,
-                hierarchy
+                hierarchy,
+                meshCapture
             });
         }
 
@@ -49,7 +58,19 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Application ready.");
 
-                    _states.Change<WaitingForConnectionApplicationState>();
+                    switch (_config.Mode)
+                    {
+                        case PlayMode.MeshCapture:
+                        {
+                            _states.Change<MeshCaptureApplicationState>();
+                            return;
+                        }
+                        default:
+                        {
+                            _states.Change<WaitingForConnectionApplicationState>();
+                            return;
+                        }
+                    }
                 });
 
             Subscribe<PreviewEvent>(
@@ -86,6 +107,15 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Hierarchy requested.");
 
                     _states.Change<HierarchyApplicationState>();
+                });
+
+            Subscribe<Void>(
+                MessageTypes.MESHCAPTURE,
+                _ =>
+                {
+                    Log.Info(this, "Message capture requested.");
+
+                    _states.Change<MeshCaptureApplicationState>();
                 });
 
             _states.Change<InitializeApplicationState>();

@@ -35,6 +35,9 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IInjectionModule"/>
         public void Load(InjectionBinder binder)
         {
+            // main configuration
+            binder.Bind<ApplicationConfig>().ToValue(LookupComponent<ApplicationConfig>());
+
             // misc dependencies
             {
                 binder.Bind<ISerializer>().To<JsonSerializer>();
@@ -107,6 +110,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
+                    binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
                 }
 
                 // service manager + appplication
@@ -142,9 +146,11 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<UnityARSessionNativeInterface>().ToValue(UnityARSessionNativeInterface.GetARSessionNativeInterface());
 #if UNITY_EDITOR
                 binder.Bind<IArService>().To<EditorArService>().ToSingleton();
+#elif UNITY_WSA
+                binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
 #elif UNITY_IOS
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
-#endif   
+#endif
             }
 
             // IUX

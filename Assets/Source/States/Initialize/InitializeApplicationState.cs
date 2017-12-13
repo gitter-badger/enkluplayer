@@ -131,8 +131,6 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private IAsyncToken<Void> FindFloor()
         {
-            return new AsyncToken<Void>();
-
             var token = new AsyncToken<Void>();
 
             Log.Info(this, "Attempting to find the floor.");

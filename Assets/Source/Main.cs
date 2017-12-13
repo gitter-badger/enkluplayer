@@ -2,7 +2,6 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using strange.extensions.injector.impl;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -12,7 +11,8 @@ namespace CreateAR.SpirePlayer
     public enum PlayMode
     {
         Player,
-        Release
+        Release,
+        MeshCapture
     }
 
     /// <summary>
@@ -29,12 +29,7 @@ namespace CreateAR.SpirePlayer
 	    /// The application to run.
 	    /// </summary>
 	    private Application _app;
-
-        /// <summary>
-        /// 
-        /// </summary>
-	    public PlayMode Mode;
-
+        
         /// <summary>
         /// Injects bindings into an object.
         /// </summary>
@@ -89,7 +84,7 @@ namespace CreateAR.SpirePlayer
 	        }
 
             // load bindings
-            _binder.Load(new SpirePlayerModule(Mode));
+            _binder.Load(new SpirePlayerModule(FindObjectOfType<ApplicationConfig>().Mode));
 
             // create application!
             _app = _binder.GetInstance<Application>();

@@ -7,6 +7,9 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class ApplicationConfig : MonoBehaviour
     {
-        
+        /// <summary>
+        /// Main mode of application.
+        /// </summary>
+        public PlayMode Mode;
     }
 }

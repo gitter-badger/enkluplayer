@@ -14,13 +14,14 @@ namespace CreateAR.SpirePlayer
         private const string SCENE_NAME = "WorldMeshCaptureMode";
         private const float UPDATE_INTERVAL = 0.2f;
 
+        private readonly IBootstrapper _bootstrapper;
+        private readonly Dictionary<SurfaceId, GameObject> _surfaces = new Dictionary<SurfaceId, GameObject>();
+
         private SurfaceObserver _observer;
 
         private bool _isAlive = false;
         private GameObject _root;
-        private readonly Dictionary<SurfaceId, GameObject> _surfaces = new Dictionary<SurfaceId, GameObject>();
-
-        private readonly IBootstrapper _bootstrapper;
+        
 
         public MeshCaptureApplicationState(IBootstrapper bootstrapper)
         {
