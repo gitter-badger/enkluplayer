@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 using Vuforia;
@@ -163,9 +164,15 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     return new Cursor(_config, _primitives, _layers, _tweens, _colors, _messages, _intention);
                 }
+                case ElementTypes.MENU:
+                {
+                    return new Menu(_config, _layers, _tweens, _colors, _messages, _primitives);
+                }
                 default:
                 {
-                    return new Element();
+                    throw new Exception(string.Format(
+                        "Invalid element type : {0}.",
+                        type));
                 }
             }
         }

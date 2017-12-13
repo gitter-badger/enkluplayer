@@ -342,24 +342,18 @@ namespace CreateAR.SpirePlayer.IUX
         public GameObject GameObject { get { return _gameObject; } }
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
-        /// <param name="gameObject"></param>
-        public Widget(GameObject gameObject = null)
-        {
-            _gameObject = gameObject ?? new GameObject("Widget");
-        }
-
-        /// <summary>
-        /// Initialization
-        /// </summary>
-        internal void Initialize (
+        public Widget(
+            GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages)
         {
+            _gameObject = gameObject;
+
             Config = config;
             Layers = layers;
             Tweens = tweens;

@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
+using UnityEngine;
 using UnityEngine.Windows.Speech;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -79,15 +80,18 @@ namespace CreateAR.SpirePlayer.IUX
             ITweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages)
+            : base(
+                new GameObject("Button"),
+                config,
+                layers,
+                tweens,
+                colors,
+                messages)
         {
             _primitives = primitives;
-
-            Initialize(config, layers, tweens, colors, messages);
         }
         
-        /// <summary>
-        /// Initialization
-        /// </summary>
+        /// <inheritdoc cref="Element"/>
         protected override void LoadInternal()
         {
             base.LoadInternal();
@@ -136,9 +140,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
-        /// <summary>
-        /// Destroy necessary items here
-        /// </summary>
+        /// <inheritdoc cref="Element"/>
         protected override void UnloadInternal()
         {
             base.UnloadInternal();
