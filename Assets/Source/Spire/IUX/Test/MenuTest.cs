@@ -25,7 +25,14 @@ namespace CreateAR.SpirePlayer.IUX
                         {
                             Strings = new Dictionary<string, string>
                             {
-                                { "label", "Choose!" }
+                                { "title", "Welcome" },
+                                { "description", "Move the cursor with your head to activate the Ok button to the right." },
+                                { "layout", "Radial" }
+                            },
+                            Floats = new Dictionary<string, float>
+                            {
+                                { "layout.radius", 0.25f },
+                                { "layout.degrees", 20f }
                             },
                             Ints = new Dictionary<string, int>
                             {
@@ -46,7 +53,7 @@ namespace CreateAR.SpirePlayer.IUX
                                 {
                                     Strings = new Dictionary<string, string>
                                     {
-                                        { "label", "A" }
+                                        { "label", "Ok" }
                                     }
                                 }
                             },
@@ -58,7 +65,7 @@ namespace CreateAR.SpirePlayer.IUX
                                 {
                                     Strings = new Dictionary<string, string>
                                     {
-                                        { "label", "B" }
+                                        { "label", "Login" }
                                     }
                                 }
                             },
@@ -70,7 +77,19 @@ namespace CreateAR.SpirePlayer.IUX
                                 {
                                     Strings = new Dictionary<string, string>
                                     {
-                                        { "label", "C" }
+                                        { "label", "Explore" }
+                                    }
+                                }
+                            },
+                            new ElementData
+                            {
+                                Id = "button",
+                                Type = ElementTypes.BUTTON,
+                                Schema =
+                                {
+                                    Strings = new Dictionary<string, string>
+                                    {
+                                        { "label", "Options" }
                                     }
                                 }
                             }

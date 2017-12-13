@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
+﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -10,10 +8,15 @@ namespace CreateAR.SpirePlayer.IUX
     {
         private readonly IPrimitiveFactory _primitives;
 
-        private ElementSchemaProp<string> _label;
+        private ElementSchemaProp<string> _title;
+        private ElementSchemaProp<string> _description;
         private ElementSchemaProp<int> _fontSize;
+        private ElementSchemaProp<string> _layout;
+        private ElementSchemaProp<float> _layoutRadius;
+        private ElementSchemaProp<float> _layoutDegrees;
 
-        private TextPrimitive _labelPrimitive;
+        private TextPrimitive _titlePrimitive;
+        private TextPrimitive _descriptionPrimitive;
 
         public Menu(
             WidgetConfig config,
@@ -38,49 +41,71 @@ namespace CreateAR.SpirePlayer.IUX
             base.LoadInternal();
 
             // retrieve properties
-            _label = Schema.Get<string>("label");
-            _label.OnChanged += Label_OnChanged;
+            _title = Schema.Get<string>("title");
+            _title.OnChanged += Title_OnChanged;
+
+            _description = Schema.Get<string>("description");
+            _description.OnChanged += Description_OnChanged;
+
             _fontSize = Schema.Get<int>("fontSize");
             _fontSize.OnChanged += FontSize_OnChanged;
 
-            // create + place label
-            _labelPrimitive = _primitives.Text();
-            _labelPrimitive.Parent = this;
-            _labelPrimitive.Text = _label.Value;
-            _labelPrimitive.FontSize = _fontSize.Value;
-            _labelPrimitive.Position = new Vec3(-0.15f, 0, 0);
+            _layout = Schema.Get<string>("layout");
+            _layout.OnChanged += Layout_OnChanged;
 
-            // retrieve and place buttons
-            var buttons = new List<Button>();
-            Find("(@type=Button)", buttons);
-            
-            Log.Info(this, "Placing {0} buttons.", buttons.Count);
+            _layoutDegrees = Schema.Get<float>("layout.degrees");
+            _layoutDegrees.OnChanged += LayoutDegrees_OnChanged;
 
-            for (int i = 0, len = buttons.Count; i < len; i++)
-            {
-                
-            }
+            _layoutRadius = Schema.Get<float>("layout.radius");
+            _layoutRadius.OnChanged += LayoutRadius_OnChanged;
+
+            // create + place title
+            _titlePrimitive = _primitives.Text();
+            _titlePrimitive.Parent = this;
+            _titlePrimitive.Text = _title.Value;
+            _titlePrimitive.FontSize = _fontSize.Value;
+            _titlePrimitive.Position = new Vec3(-0.15f, 0, -0.15f);
+
+            // create + place description
+            _descriptionPrimitive = _primitives.Text();
+            _descriptionPrimitive.Parent = this;
+            _descriptionPrimitive.Text = _description.Value;
+            _descriptionPrimitive.FontSize = _fontSize.Value;
+            _descriptionPrimitive.Position = new Vec3(-0.15f, 0, 0);
+
+            // update button layout
+            UpdateLayout();
         }
 
         protected override void UnloadInternal()
         {
-            _label.OnChanged -= Label_OnChanged;
-            _label = null;
-
+            _title.OnChanged -= Title_OnChanged;
             _fontSize.OnChanged -= FontSize_OnChanged;
-            _fontSize = null;
+            _description.OnChanged -= Description_OnChanged;
+            _layout.OnChanged -= Layout_OnChanged;
+            _layoutDegrees.OnChanged -= LayoutDegrees_OnChanged;
+            _layoutRadius.OnChanged -= LayoutRadius_OnChanged;
 
-            _labelPrimitive.Destroy();
+            _titlePrimitive.Destroy();
+            _descriptionPrimitive.Destroy();
 
             base.UnloadInternal();
         }
 
-        private void Label_OnChanged(
+        private void Title_OnChanged(
             ElementSchemaProp<string> prop,
             string previous,
             string next)
         {
-            _labelPrimitive.Text = next;
+            _titlePrimitive.Text = next;
+        }
+
+        private void Description_OnChanged(
+            ElementSchemaProp<string> prop,
+            string previous,
+            string next)
+        {
+            _descriptionPrimitive.Text = next;
         }
 
         private void FontSize_OnChanged(
@@ -88,7 +113,101 @@ namespace CreateAR.SpirePlayer.IUX
             int previous,
             int next)
         {
-            _labelPrimitive.FontSize = next;
+            _titlePrimitive.FontSize = _descriptionPrimitive.FontSize = next;
+        }
+
+        private void Layout_OnChanged(
+            ElementSchemaProp<string> prop,
+            string previous,
+            string next)
+        {
+            UpdateLayout();
+        }
+
+        private void UpdateLayout()
+        {
+            var layout = _layout.Value;
+            if (layout == "Radial")
+            {
+                var buttons = new List<Element>();
+                Find("(@type=Button)", buttons);
+
+                RadialLayout(
+                    GameObject.transform,
+                    buttons,
+                    _layoutRadius.Value,
+                    _layoutDegrees.Value);
+            }
+        }
+
+        private void LayoutDegrees_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateLayout();
+        }
+
+        private void LayoutRadius_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateLayout();
+        }
+
+        private void RadialLayout(
+            Transform parent,
+            IList<Element> children,
+            float worldRadius,
+            float degrees)
+        {
+            if (children.Count == 0)
+            {
+                return;
+            }
+
+            var localRadius = CalculateLocalOffset(parent, worldRadius);
+
+            var baseTheta = children.Count > 1
+                ? degrees * -0.5f
+                : 0.0f;
+
+            var stepTheta = children.Count > 1
+                    ? degrees / (children.Count - 1)
+                    : 0.0f;
+
+            for (int i = 0, count = children.Count; i < count; ++i)
+            {
+                var child = children[i];
+                if (child != null)
+                {
+                    var theta = baseTheta + stepTheta * i;
+                    var thetaRadians = theta * Mathf.Deg2Rad;
+                    var targetPosition = localRadius * new Vector3(
+                        Mathf.Cos(thetaRadians),
+                        -Mathf.Sin(thetaRadians),
+                        0);
+
+                    child.Schema.Set("position", targetPosition.ToVec());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calculates the local offset relative to a world transform
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="worldOffset"></param>
+        /// <returns></returns>
+        private float CalculateLocalOffset(Transform parent, float worldOffset)
+        {
+            var worldPosition = parent.position;
+            var worldEdgePosition = worldPosition + Vector3.forward * worldOffset;
+            var localEdgePosition = parent.InverseTransformPoint(worldEdgePosition);
+            var localOffset = localEdgePosition.magnitude;
+
+            return localOffset;
         }
     }
 }
