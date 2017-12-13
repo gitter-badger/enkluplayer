@@ -9,6 +9,7 @@ using CreateAR.SpirePlayer.IUX;
 using Jint.Parser;
 using Jint.Unity;
 using strange.extensions.injector.impl;
+using UnityEngine;
 using UnityEngine.XR.iOS;
 using Object = UnityEngine.Object;
 
@@ -19,23 +20,14 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class SpirePlayerModule : IInjectionModule
     {
-        /// <summary>
-        /// Mode.
-        /// </summary>
-        private readonly PlayMode _mode;
-
-        /// <summary>
-        /// Crates a module.
-        /// </summary>
-        /// <param name="mode">The mode this module should use to advise bindings.</param>
-        public SpirePlayerModule(PlayMode mode)
-        {
-            _mode = mode;
-        }
-
         /// <inheritdoc cref="IInjectionModule"/>
         public void Load(InjectionBinder binder)
         {
+            // main configuration
+            var configText = Resources.Load<TextAsset>("ApplicationConfig");
+            var config = JsonUtility.FromJson<ApplicationConfig>(configText.text);
+            binder.Bind<ApplicationConfig>().ToValue(config);
+
             // misc dependencies
             {
                 binder.Bind<ISerializer>().To<JsonSerializer>();
@@ -76,7 +68,7 @@ namespace CreateAR.SpirePlayer
 
             // application
             {
-                if (_mode == PlayMode.Release)
+                if (config.Mode == PlayMode.Release)
                 {
                     binder.Bind<IBridge>().To<ReleaseBridge>().ToSingleton();
                 }
@@ -115,6 +107,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                     binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
+                    binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
                 }
 
                 // service manager + appplication
@@ -150,6 +143,8 @@ namespace CreateAR.SpirePlayer
 #if UNITY_IOS
                 binder.Bind<UnityARSessionNativeInterface>().ToValue(UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
+#elif UNITY_WSA
+                binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
 #else
                 binder.Bind<IArService>().To<EditorArService>().ToSingleton();
 #endif
