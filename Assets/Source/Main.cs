@@ -84,7 +84,7 @@ namespace CreateAR.SpirePlayer
 	        }
 
             // load bindings
-            _binder.Load(new SpirePlayerModule(FindObjectOfType<ApplicationConfig>().Mode));
+            _binder.Load(new SpirePlayerModule());
 
             // create application!
             _app = _binder.GetInstance<Application>();
@@ -139,7 +139,7 @@ namespace CreateAR.SpirePlayer
 	        }
 #endif
 
-#if NETFX_CORE
+            // clean up loggers
 	        foreach (var target in Log.Targets)
 	        {
 	            var disposable = target as System.IDisposable;
@@ -148,7 +148,6 @@ namespace CreateAR.SpirePlayer
 	                disposable.Dispose();
 	            }
 	        }
-#endif
         }
 	}
 }

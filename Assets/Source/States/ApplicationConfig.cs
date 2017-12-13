@@ -1,11 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Application wide configuration.
     /// </summary>
-    public class ApplicationConfig : MonoBehaviour
+    [Serializable]
+    public class ApplicationConfig
     {
         /// <summary>
         /// Main mode of application.
