@@ -58,7 +58,6 @@ namespace CreateAR.SpirePlayer.AR
             Grid.GridSize = new Vector2(
                 anchor.Extents.x,
                 anchor.Extents.z);
-            Grid.Enabled = true;
         }
     }
 }

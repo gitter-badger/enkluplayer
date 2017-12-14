@@ -33,8 +33,9 @@ namespace CreateAR.SpirePlayer
             PreviewApplicationState preview,
             PlayApplicationState play,
             HierarchyApplicationState hierarchy,
-            MeshCaptureApplicationState meshCapture,
-            BleSearchApplicationState ble)
+            BleSearchApplicationState ble,
+            ToolModeApplicationState tools,
+            MeshCaptureApplicationState meshCapture)
             : base(bridge, messages)
         {
             _config = config;
@@ -46,8 +47,9 @@ namespace CreateAR.SpirePlayer
                 preview,
                 play,
                 hierarchy,
+                ble,
+                tools,
                 meshCapture,
-                ble
             });
         }
 
@@ -62,9 +64,9 @@ namespace CreateAR.SpirePlayer
 
                     switch (_config.Mode)
                     {
-                        case PlayMode.MeshCapture:
+                        case PlayMode.Tool:
                         {
-                            _states.Change<MeshCaptureApplicationState>();
+                            _states.Change<ToolModeApplicationState>();
                             return;
                         }
                         default:

@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer
     {
         Player,
         Release,
-        MeshCapture
+        Tool
     }
 
     /// <summary>

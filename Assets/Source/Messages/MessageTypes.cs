@@ -16,6 +16,7 @@
         public const int READY = 1;
         public const int AUTHORIZED = 2;
         public const int RESTART = 3;
+        public const int STATUS = 4;
 
         // Assets
         public const int ASSET_LIST = 10;
@@ -79,9 +80,10 @@
         public const int HIERARCHY_SELECT = 4005;
 
         ///////////////////////////////////////////////////////////////////////
-        // Mesh Capture State
+        // Tools
         ///////////////////////////////////////////////////////////////////////
-        public const int MESHCAPTURE = 5000;
+        public const int TOOLS = 5000;
+        public const int MESHCAPTURE = 5010;
 
         ///////////////////////////////////////////////////////////////////////
         // User Interface
