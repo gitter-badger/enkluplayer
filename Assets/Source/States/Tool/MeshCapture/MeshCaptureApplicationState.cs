@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
@@ -25,9 +28,10 @@ namespace CreateAR.SpirePlayer
         private const float UPDATE_INTERVAL_SECS = 0.2f;
 
         /// <summary>
-        /// Bootstraps coroutines.
+        /// Dependencies.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+        private readonly IVoiceCommandManager _voice;
 
         /// <summary>
         /// Keeps track of surfaces.
@@ -62,9 +66,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public MeshCaptureApplicationState(IBootstrapper bootstrapper)
+        public MeshCaptureApplicationState(
+            IBootstrapper bootstrapper,
+            IVoiceCommandManager voice)
         {
             _bootstrapper = bootstrapper;
+            _voice = voice;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -72,13 +79,17 @@ namespace CreateAR.SpirePlayer
         {
             // setup camera
             var camera = Camera.main;
+            
+            // save snapshot first
             _snapshot = CameraSettingsSnapshot.Snapshot(camera);
+
+            // then set camera settings
             camera.clearFlags = CameraClearFlags.Color;
             camera.backgroundColor = Color.black;
             camera.nearClipPlane = 0.85f;
             camera.farClipPlane = 1000f;
             camera.transform.position = Vector3.zero;
-
+            
             // load scene
             _bootstrapper.BootstrapCoroutine(LoadScene());
         }
@@ -94,6 +105,12 @@ namespace CreateAR.SpirePlayer
         {
             _config = null;
 
+            // kill voice commands
+            if (!_voice.Unregister(VoiceKeywords.SAVE))
+            {
+                Log.Error(this, "Could not unregister save voice command.");
+            }
+
             // destroy observer
             _isObserverAlive = false;
             _observer.Dispose();
@@ -107,7 +124,7 @@ namespace CreateAR.SpirePlayer
             UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
                 UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
 
-            // reset camera to previous settings
+            // restore camera snapshot
             CameraSettingsSnapshot.Apply(Camera.main, _snapshot);
         }
 
@@ -137,6 +154,12 @@ namespace CreateAR.SpirePlayer
             _observer = new SurfaceObserver();
             _observer.SetVolumeAsAxisAlignedBox(Vector3.zero, 1000 * Vector3.one);
             _bootstrapper.BootstrapCoroutine(UpdateObserver());
+
+            // setup voice commands
+            if (!_voice.Register(VoiceKeywords.SAVE, Voice_OnSave))
+            {
+                Log.Error(this, "Could not register save voice command.");
+            }
         }
 
         /// <summary>
@@ -207,7 +230,7 @@ namespace CreateAR.SpirePlayer
                 false
             );
 
-            _observer.RequestMeshAsync(data, OnDataReady);
+            _observer.RequestMeshAsync(data, SurfaceObserver_OnDataReady);
         }
 
         /// <summary>
@@ -231,12 +254,36 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when data is ready.
         /// </summary>
-        private void OnDataReady(
+        private void SurfaceObserver_OnDataReady(
             SurfaceData bakedData,
             bool outputWritten,
             float elapsedBaketimeSeconds)
         {
             //
+        }
+
+        /// <summary>
+        /// Called when the voice processor received a save command.
+        /// </summary>
+        /// <param name="save">The command received.</param>
+        private void Voice_OnSave(string save)
+        {
+            Log.Info(this, "Exporting...");
+
+            var obj = new ObjExporter().Export(_surfaces.Values.ToArray());
+            var path = Path.Combine(
+                UnityEngine.Application.persistentDataPath,
+                string.Format("{0}_Export.obj", DateTime.Now.Ticks));
+
+            Log.Info(this, "Saving to {0}...", path);
+
+            using (var stream = File.OpenWrite(path))
+            {
+                var bytes = Encoding.UTF8.GetBytes(obj);
+                stream.Write(bytes, 0, bytes.Length);
+            }
+
+            Log.Info(this, "Save complete.");
         }
     }
 }
