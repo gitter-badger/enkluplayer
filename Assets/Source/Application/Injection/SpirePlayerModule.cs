@@ -107,7 +107,12 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                     binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
-                    binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
+
+                    // tools
+                    {
+                        binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
+                        binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
+                    }
                 }
 
                 // service manager + appplication
@@ -160,6 +165,11 @@ namespace CreateAR.SpirePlayer
 #else
 
 #endif
+            }
+
+            // Voice
+            {
+                binder.Bind<IVoiceCommandManager>().To<VoiceCommandManager>().ToSingleton();
             }
 
             // IUX

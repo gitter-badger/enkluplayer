@@ -73,6 +73,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
+            _messages.Publish(MessageTypes.STATUS, "Initializing...");
+
             // ar
             _ar.Setup(_arConfig);
 

@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR.WSA;
@@ -25,9 +29,11 @@ namespace CreateAR.SpirePlayer
         private const float UPDATE_INTERVAL_SECS = 0.2f;
 
         /// <summary>
-        /// Bootstraps coroutines.
+        /// Dependencies.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+        private readonly IVoiceCommandManager _voice;
+        private readonly IMessageRouter _messages;
 
         /// <summary>
         /// Keeps track of surfaces.
@@ -58,13 +64,18 @@ namespace CreateAR.SpirePlayer
         /// Config.
         /// </summary>
         private MeshCaptureConfig _config;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
-        public MeshCaptureApplicationState(IBootstrapper bootstrapper)
+        public MeshCaptureApplicationState(
+            IBootstrapper bootstrapper,
+            IVoiceCommandManager voice,
+            IMessageRouter messages)
         {
             _bootstrapper = bootstrapper;
+            _voice = voice;
+            _messages = messages;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -72,13 +83,17 @@ namespace CreateAR.SpirePlayer
         {
             // setup camera
             var camera = Camera.main;
+            
+            // save snapshot first
             _snapshot = CameraSettingsSnapshot.Snapshot(camera);
+
+            // then set camera settings
             camera.clearFlags = CameraClearFlags.Color;
             camera.backgroundColor = Color.black;
             camera.nearClipPlane = 0.85f;
             camera.farClipPlane = 1000f;
             camera.transform.position = Vector3.zero;
-
+            
             // load scene
             _bootstrapper.BootstrapCoroutine(LoadScene());
         }
@@ -94,6 +109,12 @@ namespace CreateAR.SpirePlayer
         {
             _config = null;
 
+            // kill voice commands
+            if (!_voice.Unregister(VoiceKeywords.SAVE))
+            {
+                Log.Error(this, "Could not unregister save voice command.");
+            }
+
             // destroy observer
             _isObserverAlive = false;
             _observer.Dispose();
@@ -107,7 +128,7 @@ namespace CreateAR.SpirePlayer
             UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
                 UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
 
-            // reset camera to previous settings
+            // restore camera snapshot
             CameraSettingsSnapshot.Apply(Camera.main, _snapshot);
         }
 
@@ -137,6 +158,14 @@ namespace CreateAR.SpirePlayer
             _observer = new SurfaceObserver();
             _observer.SetVolumeAsAxisAlignedBox(Vector3.zero, 1000 * Vector3.one);
             _bootstrapper.BootstrapCoroutine(UpdateObserver());
+
+            // setup voice commands
+            if (!_voice.Register(VoiceKeywords.SAVE, Voice_OnSave))
+            {
+                Log.Error(this, "Could not register save voice command.");
+            }
+
+            _messages.Publish(MessageTypes.STATUS, "World mesh capture has begin. Say 'save' to save to disk.");
         }
 
         /// <summary>
@@ -207,7 +236,7 @@ namespace CreateAR.SpirePlayer
                 false
             );
 
-            _observer.RequestMeshAsync(data, OnDataReady);
+            _observer.RequestMeshAsync(data, SurfaceObserver_OnDataReady);
         }
 
         /// <summary>
@@ -231,12 +260,42 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when data is ready.
         /// </summary>
-        private void OnDataReady(
+        private void SurfaceObserver_OnDataReady(
             SurfaceData bakedData,
             bool outputWritten,
             float elapsedBaketimeSeconds)
         {
             //
+        }
+
+        /// <summary>
+        /// Called when the voice processor received a save command.
+        /// </summary>
+        /// <param name="save">The command received.</param>
+        private void Voice_OnSave(string save)
+        {
+            Log.Info(this, "Exporting...");
+
+            var obj = new ObjExporter().Export(_surfaces.Values.ToArray());
+            var path = Path.Combine(
+                UnityEngine.Application.persistentDataPath,
+                string.Format("{0}_Export.obj", DateTime.Now.Ticks));
+
+            Log.Info(this, "Saving to {0}...", path);
+
+            using (var stream = File.OpenWrite(path))
+            {
+                var bytes = Encoding.UTF8.GetBytes(obj);
+                stream.Write(bytes, 0, bytes.Length);
+            }
+
+            Log.Info(this, "Save complete.");
+
+            _messages.Publish(
+                MessageTypes.STATUS,
+                new StatusEvent(
+                    string.Format("Saved successfully to {0}.", path),
+                    3f));
         }
     }
 }

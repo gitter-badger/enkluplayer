@@ -13,7 +13,7 @@ namespace CreateAR.SpirePlayer
         Null = -1,
         Player,
         Release,
-        MeshCapture
+        Tool
     }
 
     /// <summary>
