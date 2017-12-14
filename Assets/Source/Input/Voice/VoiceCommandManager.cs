@@ -59,7 +59,13 @@ namespace CreateAR.SpirePlayer
                 _recognizer.Dispose();
             }
 
-            _recognizer = new KeywordRecognizer(_actions.Keys.ToArray());
+            var keywords = _actions.Keys.ToArray();
+            if (0 == keywords.Length)
+            {
+                return;
+            }
+
+            _recognizer = new KeywordRecognizer(keywords);
             _recognizer.OnPhraseRecognized += Recognizer_OnPhraseRecognized;
             _recognizer.Start();
         }
