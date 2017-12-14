@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Opens world mesh creation tool.
         /// </summary>
-        public const string MESH_TOOL = "mesh";
+        public const string MESH_TOOL = "capture";
 
         /// <summary>
         /// Saves.
