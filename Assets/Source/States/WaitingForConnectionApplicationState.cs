@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Net.NetworkInformation;
+﻿using System.Net.NetworkInformation;
 using System.Text;
+using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
 {
@@ -9,25 +8,25 @@ namespace CreateAR.SpirePlayer
 	/// Waits for a state change.
 	/// </summary>
     public class WaitingForConnectionApplicationState : IState
-    {
-	    /// <summary>
-	    /// Text for announcement.
-	    /// </summary>
-	    private Text _text;
+	{
+        /// <summary>
+        /// Messages.
+        /// </summary>
+	    private readonly IMessageRouter _messages;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public WaitingForConnectionApplicationState(IMessageRouter messages)
+        {
+            _messages = messages;
+        }
 	    
 	    /// <inheritdoc cref="IState"/>
         public void Enter(object context)
-        {
-            var announce = GameObject.Find("Announcement");
-            if (null != announce)
-            {
-                _text = announce.GetComponent<Text>();
-                if (null != _text)
-                {
-                    _text.text = GetNetworkSummary();
-                }
-            }
-        }
+	    {
+	        _messages.Publish(MessageTypes.STATUS, GetNetworkSummary());
+	    }
 
 	    /// <inheritdoc cref="IState"/>
         public void Update(float dt)
@@ -38,10 +37,7 @@ namespace CreateAR.SpirePlayer
 	    /// <inheritdoc cref="IState"/>
         public void Exit()
         {
-	        if (null != _text)
-	        {
-		        _text.text = string.Empty;
-	        }
+            _messages.Publish(MessageTypes.STATUS, "");
         }
 
 		/// <summary>

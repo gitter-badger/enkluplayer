@@ -16,6 +16,7 @@
         public const int READY = 1;
         public const int AUTHORIZED = 2;
         public const int RESTART = 3;
+        public const int STATUS = 4;
 
         // Assets
         public const int ASSET_LIST = 10;

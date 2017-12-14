@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.XR.WSA;
@@ -32,6 +33,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
         private readonly IVoiceCommandManager _voice;
+        private readonly IMessageRouter _messages;
 
         /// <summary>
         /// Keeps track of surfaces.
@@ -62,16 +64,18 @@ namespace CreateAR.SpirePlayer
         /// Config.
         /// </summary>
         private MeshCaptureConfig _config;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
         public MeshCaptureApplicationState(
             IBootstrapper bootstrapper,
-            IVoiceCommandManager voice)
+            IVoiceCommandManager voice,
+            IMessageRouter messages)
         {
             _bootstrapper = bootstrapper;
             _voice = voice;
+            _messages = messages;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -160,6 +164,8 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Error(this, "Could not register save voice command.");
             }
+
+            _messages.Publish(MessageTypes.STATUS, "World mesh capture has begin. Say 'save' to save to disk.");
         }
 
         /// <summary>
@@ -284,6 +290,12 @@ namespace CreateAR.SpirePlayer
             }
 
             Log.Info(this, "Save complete.");
+
+            _messages.Publish(
+                MessageTypes.STATUS,
+                new StatusEvent(
+                    string.Format("Saved successfully to {0}.", path),
+                    3f));
         }
     }
 }

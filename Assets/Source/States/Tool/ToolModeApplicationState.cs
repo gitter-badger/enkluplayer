@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
@@ -35,10 +36,15 @@ namespace CreateAR.SpirePlayer
         {
             if (!_voice.Register(VoiceKeywords.MESH_TOOL, Voice_OnWorldMeshCapture))
             {
-                Log.Error(this,
-                    "Could not register keyword with voice manager : {0}.",
-                    VoiceKeywords.MESH_TOOL);
+                Log.Error(this, "Could not register mesh capture keyword with voice manager");
             }
+
+            if (!_voice.Register(VoiceKeywords.HELP, Voice_OnHelp))
+            {
+                Log.Error(this, "Could not register help keyword with voice manager.");
+            }
+
+            _messages.Publish(MessageTypes.STATUS, "Waiting for voice commands... Say 'help' for list of commands.");
         }
 
         /// <inheritdoc cref="IState"/>
@@ -50,11 +56,10 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Exit()
         {
-            if (!_voice.Unregister(VoiceKeywords.MESH_TOOL))
+            if (!_voice.Unregister(VoiceKeywords.MESH_TOOL, VoiceKeywords.HELP))
             {
                 Log.Error(this,
-                    "Could not unregister keyword with voice manager : {0}.",
-                    VoiceKeywords.MESH_TOOL);
+                    "Could not unregister keywords with voice manager.");
             }
         }
 
@@ -66,7 +71,18 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "World Mesh Capture voice command recognized.");
 
+            _messages.Publish(MessageTypes.STATUS, "Initializing mesh capture state.");
+
             _messages.Publish(MessageTypes.MESHCAPTURE);
+        }
+
+        /// <summary>
+        /// Called when the help keyword is recognized.
+        /// </summary>
+        /// <param name="command">The keyword.</param>
+        private void Voice_OnHelp(string command)
+        {
+            _messages.Publish(MessageTypes.STATUS, "Available Commands:\nCapture\n");
         }
     }
 }

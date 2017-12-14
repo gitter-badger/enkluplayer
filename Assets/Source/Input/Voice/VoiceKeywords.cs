@@ -14,5 +14,10 @@ namespace CreateAR.SpirePlayer
         /// Saves.
         /// </summary>
         public const string SAVE = "save";
+
+        /// <summary>
+        /// Opens help.
+        /// </summary>
+        public const string HELP = "help";
     }
 }
