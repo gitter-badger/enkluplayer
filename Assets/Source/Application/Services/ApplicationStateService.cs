@@ -64,6 +64,11 @@ namespace CreateAR.SpirePlayer
 
                     switch (_config.Mode)
                     {
+                        case PlayMode.Null:
+                        {
+                            _states.Change(null);
+                            return;
+                        }
                         case PlayMode.Tool:
                         {
                             _states.Change<ToolModeApplicationState>();
