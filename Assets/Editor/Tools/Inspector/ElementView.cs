@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using CreateAR.Commons.Unity.Editor;
 using CreateAR.SpirePlayer.IUX;
+using UnityEditor;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
@@ -41,6 +44,18 @@ namespace CreateAR.SpirePlayer.Editor
         /// Scroll position.
         /// </summary>
         private Vector2 _position;
+
+        private static readonly Dictionary<string, Type> _SupportedTypes = new Dictionary<string, Type>
+        {
+            {"String", typeof(string)},
+            {"Float", typeof(float)},
+            {"Int", typeof(int)},
+            {"Bool", typeof(bool)},
+            {"Vec3", typeof(Vec3)},
+        };
+
+        private string _addPropName;
+        private int _addPropType;
 
         /// <summary>
         /// Current GameObject selected.
@@ -119,6 +134,7 @@ namespace CreateAR.SpirePlayer.Editor
                 while (null != schema)
                 {
                     repaint = DrawSchema(schema) || repaint;
+                    repaint = DrawAddProp(schema) || repaint;
 
                     schema = schema.Parent;
                 }
@@ -138,10 +154,16 @@ namespace CreateAR.SpirePlayer.Editor
         /// <returns></returns>
         private bool DrawSchema(ElementSchema schema)
         {
+            var props = schema.ToArray();
+            if (0 == props.Length)
+            {
+                return false;
+            }
+
             var repaint = false;
             GUILayout.BeginVertical("box");
             {
-                foreach (var prop in schema)
+                foreach (var prop in props)
                 {
                     var type = prop.Type;
                     var name = prop.Name;
@@ -166,6 +188,44 @@ namespace CreateAR.SpirePlayer.Editor
             }
             GUILayout.EndVertical();
             
+            return repaint;
+        }
+
+        /// <summary>
+        /// Draws dialog for adding new prop.
+        /// </summary>
+        /// <param name="schema">Schema in question.</param>
+        /// <returns></returns>
+        private bool DrawAddProp(ElementSchema schema)
+        {
+            var repaint = false;
+
+            GUILayout.BeginHorizontal();
+            {
+                if (GUILayout.Button("+", GUILayout.ExpandWidth(false))
+                    && !string.IsNullOrEmpty(_addPropName))
+                {
+                    var type = _SupportedTypes[_SupportedTypes.Keys.ToArray()[_addPropType]];
+                    schema
+                        .GetType()
+                        .GetMethod("Set")
+                        .MakeGenericMethod(type)
+                        .Invoke(schema, new []
+                        {
+                            _addPropName,
+                            GetDefault(type)
+                        });
+
+                    _addPropName = "";
+
+                    repaint = true;
+                }
+
+                _addPropName = EditorGUILayout.TextField(_addPropName);
+                _addPropType = EditorGUILayout.Popup(_addPropType, _SupportedTypes.Keys.ToArray());
+            }
+            GUILayout.EndHorizontal();
+
             return repaint;
         }
 
@@ -198,6 +258,19 @@ namespace CreateAR.SpirePlayer.Editor
             }
 
             return _elements.ByGuid(guid);
+        }
+
+        private object GetDefault(Type type)
+        {
+            return GetType()
+                .GetMethod("GetDefaultGeneric", BindingFlags.NonPublic | BindingFlags.Instance)
+                .MakeGenericMethod(type)
+                .Invoke(this, null);
+        }
+
+        private T GetDefaultGeneric<T>()
+        {
+            return default(T);
         }
     }
 }

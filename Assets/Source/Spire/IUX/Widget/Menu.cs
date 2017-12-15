@@ -198,7 +198,6 @@ namespace CreateAR.SpirePlayer.IUX
             float prev,
             float next)
         {
-            Log.Info(this, "Changed.");
             UpdateChildLayout();
         }
 
@@ -266,7 +265,7 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            var localRadius = CalculateLocalOffset(parent, worldRadius);
+            var localRadius = worldRadius;//CalculateLocalOffset(parent, worldRadius);
 
             var baseTheta = children.Count > 1
                 ? degrees * -0.5f
