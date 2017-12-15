@@ -135,7 +135,6 @@ namespace CreateAR.SpirePlayer.Editor
                 while (null != schema)
                 {
                     repaint = DrawSchema(schema) || repaint;
-                    repaint = DrawAddProp(schema) || repaint;
 
                     schema = schema.Parent;
                 }
@@ -185,9 +184,15 @@ namespace CreateAR.SpirePlayer.Editor
                     {
                         repaint = renderer.Draw(prop) || repaint;
                     }
+                    else
+                    {
+                        GUILayout.Label(string.Format("{0} (Unsupported type)", prop.Name));
+                    }
                 }
             }
             GUILayout.EndVertical();
+
+            repaint = DrawAddProp(schema) || repaint;
             
             return repaint;
         }
