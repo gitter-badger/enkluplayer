@@ -12,17 +12,17 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Internal enumerator for schema.
         /// </summary>
-        public class SchemaEnumarator : IEnumerator<ElementSchemaProp>
+        public class SchemaEnumerator : IEnumerator<ElementSchemaProp>
         {
             /// <summary>
-            /// Schema to start with.
+            /// Props to enumerate.
             /// </summary>
-            private readonly ElementSchema _schema;
+            private readonly List<ElementSchemaProp> _props;
 
             /// <summary>
-            /// Current schema up the chain.
+            /// Original length of props.
             /// </summary>
-            private ElementSchema _currentSchema;
+            private readonly int _propLen;
 
             /// <summary>
             /// Index into props.
@@ -42,9 +42,10 @@ namespace CreateAR.SpirePlayer.IUX
             /// Constructor.
             /// </summary>
             /// <param name="schema">The schema to iterate over.</param>
-            public SchemaEnumarator(ElementSchema schema)
+            public SchemaEnumerator(ElementSchema schema)
             {
-                _schema = schema;
+                _props = schema._props;
+                _propLen = _props.Count;
 
                 Reset();
             }
@@ -58,41 +59,24 @@ namespace CreateAR.SpirePlayer.IUX
             /// <inheritdoc cref="IEnumerator"/>
             public bool MoveNext()
             {
-                if (null == _currentSchema)
+                // bounds check against original length to act like a real life
+                // interator
+                while (++_propIndex < _propLen)
                 {
-                    return false;
-                }
-
-                while (true)
-                {
-                    _propIndex += 1;
-
-                    var props = _currentSchema._props;
-                    if (props.Count == _propIndex)
+                    var next = _props[_propIndex];
+                    if (next.LinkBroken)
                     {
-                        // next parent
-                        _currentSchema = _currentSchema._parent;
-                        _propIndex = -1;
-
-                        return MoveNext();
-                    }
-
-                    var prop = _currentSchema._props[_propIndex];
-                    if (prop.LinkBroken)
-                    {
-                        Current = prop;
-
-                        break;
+                        Current = next;
+                        return true;
                     }
                 }
-                
-                return true;
+
+                return false;
             }
 
             /// <inheritdoc cref="IEnumerator"/>
             public void Reset()
             {
-                _currentSchema = _schema;
                 _propIndex = -1;
             }
         }
@@ -111,6 +95,14 @@ namespace CreateAR.SpirePlayer.IUX
         /// Parent schema.
         /// </summary>
         private ElementSchema _parent;
+
+        /// <summary>
+        /// Retrieves the parent schema.
+        /// </summary>
+        public ElementSchema Parent
+        {
+            get { return _parent; }
+        }
 
         /// <summary>
         /// Useful ToString.
@@ -155,7 +147,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="IEnumerable"/>
         public IEnumerator<ElementSchemaProp> GetEnumerator()
         {
-            return new SchemaEnumarator(this);
+            return new SchemaEnumerator(this);
         }
 
         /// <summary>

@@ -8,6 +8,26 @@ namespace CreateAR.SpirePlayer
     public static class VectorExtensions
     {
         /// <summary>
+        /// Creates a Unity vector from a Vec2.
+        /// </summary>
+        /// <param name="this">The vec2.</param>
+        /// <returns></returns>
+        public static Vector2 ToVector(this Vec2 @this)
+        {
+            return new Vector2(@this.x, @this.y);
+        }
+
+        /// <summary>
+        /// Creates a Vec2 from a Unity Vector.
+        /// </summary>
+        /// <param name="this">The vector.</param>
+        /// <returns></returns>
+        public static Vec2 ToVec(this Vector2 @this)
+        {
+            return new Vec2(@this.x, @this.y);
+        }
+
+        /// <summary>
         /// Creates a Unity vector from a Vec3.
         /// </summary>
         /// <param name="this">The vec3.</param>

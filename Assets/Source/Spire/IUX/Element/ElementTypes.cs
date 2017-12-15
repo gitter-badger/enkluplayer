@@ -11,7 +11,7 @@
         public const int FATAL_ERROR = -1;
 
         ///////////////////////////////////////////////////////////////////////
-        // Primitive Types.
+        // Types.
         ///////////////////////////////////////////////////////////////////////
         public const int CONTAINER = 0;
         
@@ -20,6 +20,8 @@
         public const int CURSOR = 20;
 
         public const int CAPTION = 30;
+
+        public const int MENU = 100;
     }
 }
 

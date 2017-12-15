@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -37,10 +38,15 @@ namespace CreateAR.SpirePlayer.IUX
             ITweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages)
+            : base(
+                new GameObject("Caption"),
+                config,
+                layers,
+                tweens,
+                colors,
+                messages)
         {
             _primitives = primitives;
-
-            Initialize(config, layers, tweens, colors, messages);
         }
 
         /// <inheritdoc cref="Element"/>

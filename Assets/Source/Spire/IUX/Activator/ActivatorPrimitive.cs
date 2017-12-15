@@ -162,14 +162,19 @@ namespace CreateAR.SpirePlayer.IUX
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors)
+            : base(
+                new GameObject("Activator"),
+                config,
+                layers,
+                tweens,
+                colors,
+                messages)
         {
             _config = config;
             _interactables = interactables;
             _interaction = interaction;
             _intention = intention;
             _messages = messages;
-
-            Initialize(config, layers, tweens, colors, messages);
         }
 
         /// <inheritdoc cref="IRaycaster"/>

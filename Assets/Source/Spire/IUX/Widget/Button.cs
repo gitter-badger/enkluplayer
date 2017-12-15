@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
+using UnityEngine;
 using UnityEngine.Windows.Speech;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -19,6 +20,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _propVoiceActivator;
         private ElementSchemaProp<string> _labelProp;
         private ElementSchemaProp<int> _fontSizeProp;
+        private ElementSchemaProp<float> _labelPaddingProp;
 
         /// <summary>
         /// Text primitive.
@@ -36,27 +38,33 @@ namespace CreateAR.SpirePlayer.IUX
         private ActivatorPrimitive _activator;
 
         /// <summary>
-        /// Activator Accessor
+        /// Activator.
         /// </summary>
         public ActivatorPrimitive Activator
         {
             get { return _activator; }
         }
         
-        /// <summary>
-        /// IInteractive interfaces.
-        /// </summary>
+        /// <inheritdoc cref="IInteractable"/>
         public bool Interactable { get { return _activator.Interactable; } }
+
+        /// <inheritdoc cref="IInteractable"/>
         public float Aim { get { return _activator.Aim; } }
+
+        /// <inheritdoc cref="IInteractable"/>
         public bool Raycast(Vec3 origin, Vec3 direction)
         {
             return _activator.Raycast(origin, direction);
         }
+
+        /// <inheritdoc cref="IInteractable"/>
         public bool Focused
         {
             get { return _activator.Focused; }
             set { _activator.Focused = value; }
         }
+
+        /// <inheritdoc cref="IInteractable"/>
         public int HighlightPriority
         {
             get { return _activator.HighlightPriority; }
@@ -73,15 +81,18 @@ namespace CreateAR.SpirePlayer.IUX
             ITweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages)
+            : base(
+                new GameObject("Button"),
+                config,
+                layers,
+                tweens,
+                colors,
+                messages)
         {
             _primitives = primitives;
-
-            Initialize(config, layers, tweens, colors, messages);
         }
         
-        /// <summary>
-        /// Initialization
-        /// </summary>
+        /// <inheritdoc cref="Element"/>
         protected override void LoadInternal()
         {
             base.LoadInternal();
@@ -109,9 +120,14 @@ namespace CreateAR.SpirePlayer.IUX
                 _fontSizeProp = Schema.Get<int>("fontSize");
                 _fontSizeProp.OnChanged += FontSize_OnChanged;
 
+                _labelPaddingProp = Schema.Get<float>("label.padding");
+                _labelPaddingProp.OnChanged += LabelPadding_OnChanged;
+
                 _text = _primitives.Text();
                 _text.Parent = this;
                 _text.Text = _labelProp.Value;
+
+                UpdateLabelLayout();
             }
 
             // Voice Activator
@@ -130,9 +146,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
-        /// <summary>
-        /// Destroy necessary items here
-        /// </summary>
+        /// <inheritdoc cref="Element"/>
         protected override void UnloadInternal()
         {
             base.UnloadInternal();
@@ -145,10 +159,8 @@ namespace CreateAR.SpirePlayer.IUX
             // cleanup label
             {
                 _fontSizeProp.OnChanged -= FontSize_OnChanged;
-                _fontSizeProp = null;
-
                 _labelProp.OnChanged -= Label_OnChange;
-                _labelProp = null;
+                _labelPaddingProp.OnChanged -= LabelPadding_OnChanged;
             }
 
             if (_keywordRecognizer != null)
@@ -216,6 +228,28 @@ namespace CreateAR.SpirePlayer.IUX
             int next)
         {
             _text.FontSize = next;
+        }
+
+        /// <summary>
+        /// Called when the label padding has changed.
+        /// </summary>
+        /// <param name="prop">Property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void LabelPadding_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateLabelLayout();
+        }
+
+        /// <summary>
+        /// Updates label positioning.
+        /// </summary>
+        private void UpdateLabelLayout()
+        {
+            _text.Position = new Vec2(_labelPaddingProp.Value, 0f);
         }
     }
 }

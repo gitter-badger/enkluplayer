@@ -16,7 +16,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Type of element to construct.
         /// </summary>
         public int Type;
-
+        
         /// <summary>
         /// Set of children.
         /// </summary>

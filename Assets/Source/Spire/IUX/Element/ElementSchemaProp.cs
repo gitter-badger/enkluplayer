@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer.IUX
 {

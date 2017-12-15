@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using CreateAR.Commons.Unity.Editor;
 using CreateAR.SpirePlayer.IUX;
+using UnityEditor;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
@@ -18,6 +21,11 @@ namespace CreateAR.SpirePlayer.Editor
         private readonly Dictionary<Type, PropRenderer> _propRenderers = new Dictionary<Type, PropRenderer>();
 
         /// <summary>
+        /// Tracks which controls have already been rendered.
+        /// </summary>
+        private readonly List<string> _renderedProps = new List<string>();
+
+        /// <summary>
         /// Parses element names.
         /// </summary>
         private readonly Regex _elementParser = new Regex(@"Guid=([a-zA-Z0-9\-]+)");
@@ -31,6 +39,24 @@ namespace CreateAR.SpirePlayer.Editor
         /// The currently selected Widget.
         /// </summary>
         private Element _selection;
+
+        /// <summary>
+        /// Scroll position.
+        /// </summary>
+        private Vector2 _position;
+
+        private static readonly Dictionary<string, Type> _SupportedTypes = new Dictionary<string, Type>
+        {
+            {"String", typeof(string)},
+            {"Float", typeof(float)},
+            {"Int", typeof(int)},
+            {"Bool", typeof(bool)},
+            {"Vec3", typeof(Vec3)},
+        };
+
+        private string _addPropName;
+        private int _addPropType;
+        private ElementSchema _addSchema;
 
         /// <summary>
         /// Current GameObject selected.
@@ -101,21 +127,122 @@ namespace CreateAR.SpirePlayer.Editor
             }
 
             var repaint = false;
-            foreach (var prop in _selection.Schema)
-            {
-                var type = prop.Type;
+            _renderedProps.Clear();
 
-                PropRenderer renderer;
-                if (_propRenderers.TryGetValue(type, out renderer))
+            _position = GUILayout.BeginScrollView(_position);
+            {
+                var schema = _selection.Schema;
+                while (null != schema)
                 {
-                    repaint = renderer.Draw(prop) || repaint;
+                    repaint = DrawSchema(schema) || repaint;
+
+                    schema = schema.Parent;
                 }
             }
+            GUILayout.EndScrollView();
 
             if (repaint)
             {
                 Repaint();
             }
+        }
+
+        /// <summary>
+        /// Draws a schema.
+        /// </summary>
+        /// <param name="schema">Schema.</param>
+        /// <returns></returns>
+        private bool DrawSchema(ElementSchema schema)
+        {
+            var props = schema.ToArray();
+            if (0 == props.Length)
+            {
+                return false;
+            }
+
+            var repaint = false;
+            GUILayout.BeginVertical("box");
+            {
+                foreach (var prop in props)
+                {
+                    var type = prop.Type;
+                    var name = prop.Name;
+
+                    if (_renderedProps.Contains(name))
+                    {
+                        GUI.enabled = false;
+                    }
+                    else
+                    {
+                        GUI.enabled = true;
+
+                        _renderedProps.Add(name);
+                    }
+
+                    PropRenderer renderer;
+                    if (_propRenderers.TryGetValue(type, out renderer))
+                    {
+                        repaint = renderer.Draw(prop) || repaint;
+                    }
+                    else
+                    {
+                        GUILayout.Label(string.Format("{0} (Unsupported type)", prop.Name));
+                    }
+                }
+            }
+            GUILayout.EndVertical();
+
+            repaint = DrawAddProp(schema) || repaint;
+            
+            return repaint;
+        }
+
+        /// <summary>
+        /// Draws dialog for adding new prop.
+        /// </summary>
+        /// <param name="schema">Schema in question.</param>
+        /// <returns></returns>
+        private bool DrawAddProp(ElementSchema schema)
+        {
+            var repaint = false;
+            
+            GUILayout.BeginHorizontal();
+            {
+                if (GUILayout.Button("+", GUILayout.ExpandWidth(false)))
+                {
+                    if (schema == _addSchema)
+                    {
+                        if (!string.IsNullOrEmpty(_addPropName))
+                        {
+                            var type = _SupportedTypes[_SupportedTypes.Keys.ToArray()[_addPropType]];
+                            schema
+                                .GetType()
+                                .GetMethod("Set")
+                                .MakeGenericMethod(type)
+                                .Invoke(schema, new[]
+                                {
+                                    _addPropName,
+                                    GetDefault(type)
+                                });
+                        }
+                    }
+                    else
+                    {
+                        _addSchema = schema;
+                    }
+                    
+                    repaint = true;
+                }
+
+                if (schema == _addSchema)
+                {
+                    _addPropName = EditorGUILayout.TextField(_addPropName);
+                    _addPropType = EditorGUILayout.Popup(_addPropType, _SupportedTypes.Keys.ToArray());
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            return repaint;
         }
 
         /// <summary>
@@ -147,6 +274,29 @@ namespace CreateAR.SpirePlayer.Editor
             }
 
             return _elements.ByGuid(guid);
+        }
+
+        /// <summary>
+        /// Retrieves a default value for a type.
+        /// </summary>
+        /// <param name="type">The type in question.</param>
+        /// <returns></returns>
+        private object GetDefault(Type type)
+        {
+            return GetType()
+                .GetMethod("GetDefaultGeneric", BindingFlags.NonPublic | BindingFlags.Instance)
+                .MakeGenericMethod(type)
+                .Invoke(this, null);
+        }
+
+        /// <summary>
+        /// Retrieves the default for a type.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <returns></returns>
+        private T GetDefaultGeneric<T>()
+        {
+            return default(T);
         }
     }
 }

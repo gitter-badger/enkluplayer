@@ -72,6 +72,11 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 return element.Id == _propValue;
             }
+
+            if (_propName == "type")
+            {
+                return element.GetType().Name == _propValue;
+            }
             
             // bool
             if (_propValue == "true" || _propValue == "false")

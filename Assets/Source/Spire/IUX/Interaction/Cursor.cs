@@ -65,11 +65,16 @@ namespace CreateAR.SpirePlayer.IUX
             IColorConfig colors,
             IMessageRouter messages,
             IIntentionManager intention)
+            : base(
+                new GameObject("Cursor"),
+                config,
+                layers,
+                tweens,
+                colors,
+                messages)
         {
             _intention = intention;
             _primitives = primitives;
-
-            Initialize(config, layers, tweens, colors, messages);
         }
 
         /// <summary>

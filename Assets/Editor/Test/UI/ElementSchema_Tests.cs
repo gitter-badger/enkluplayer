@@ -366,28 +366,45 @@ namespace CreateAR.SpirePlayer.Test.UI
         }
 
         [Test]
-        public void IteratePropsOrder()
+        public void IterateIgnoreParent()
         {
-            // create child schema
             var schema = new ElementSchema();
             schema.GetOwn("bar", 2);
             schema.Wrap(_schema);
 
+            var numProps = 0;
+            foreach (var prop in schema)
+            {
+                numProps++;
+
+                Assert.AreEqual("bar", prop.Name);
+            }
+
+            Assert.AreEqual(1, numProps);
+        }
+
+        [Test]
+        public void IteratePropsOrder()
+        {
+            // create new prop
+            _schema.GetOwn("bar", 2);
+
             var num = 0;
             var foo = false;
             var bar = false;
-            foreach (var prop in schema)
+            foreach (var prop in _schema)
             {
                 num++;
 
                 if (prop.Name == "foo")
                 {
                     foo = true;
-                    Assert.IsTrue(bar);
                 }
                 else if (prop.Name == "bar")
                 {
                     bar = true;
+
+                    Assert.IsTrue(foo);
                 }
             }
 

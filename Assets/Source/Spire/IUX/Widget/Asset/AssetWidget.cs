@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -72,11 +73,21 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Called to setup the content.
         /// </summary>
-        /// <param name="scripts">Loads + executes scripts.</param>
-        /// <param name="assembler">Assembles content.</param>
         public AssetWidget(
             IScriptManager scripts,
-            IAssetAssembler assembler)
+            IAssetAssembler assembler,
+            WidgetConfig config,
+            ILayerManager layers,
+            ITweenConfig tweens,
+            IColorConfig colors,
+            IMessageRouter messages)
+            : base(
+                new GameObject("Asset"),
+                config,
+                layers,
+                tweens,
+                colors,
+                messages)
         {
             _scripts = scripts;
             _assembler = assembler;

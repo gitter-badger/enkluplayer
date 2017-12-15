@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -23,6 +25,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// All widgets inherit this base schema
         /// </summary>
         private readonly ElementSchema _baseSchema = new ElementSchema();
+
+        private readonly Dictionary<int, ElementSchema> _typeSchema = new Dictionary<int, ElementSchema>();
 
         /// <summary>
         /// Constructor.
@@ -55,6 +59,61 @@ namespace CreateAR.SpirePlayer.IUX
             _baseSchema.Set("visibilityMode", VisibilityMode.Inherit);
             _baseSchema.Set("layerMode", LayerMode.Default);
             _baseSchema.Set("autoDestroy", false);
+
+            // load defaults
+            var buttonSchema = _typeSchema[ElementTypes.BUTTON] = new ElementSchema();
+            buttonSchema.Load(new ElementSchemaData
+            {
+                Ints = new Dictionary<string, int>
+                {
+                    { "fontSize", 80 },
+
+                    {"ready.frameColor", (int) VirtualColor.Ready},
+                    {"ready.captionColor", (int) VirtualColor.Primary},
+                    {"ready.tween", (int) TweenType.Responsive},
+
+                    {"activating.frameColor", (int) VirtualColor.Interacting},
+                    {"activating.captionColor", (int) VirtualColor.Interacting},
+                    {"activating.tween", (int) TweenType.Responsive},
+
+                    {"activated.color", (int) VirtualColor.Interacting},
+                    {"activated.captionColor", (int) VirtualColor.Interacting},
+                    {"activated.tween", (int) TweenType.Instant},
+                },
+                Floats = new Dictionary<string, float>
+                {
+                    {"ready.frameScale", 1.0f},
+                    {"activating.frameScale", 1.1f},
+                    {"activated.frameScale", 1.0f},
+
+                    {"label.padding", 70f},
+                },
+                Vectors = new Dictionary<string, Vec3>
+                {
+                    { "position", new Vec3(0f, 0f, 0f) }
+                }
+            });
+            buttonSchema.Wrap(_baseSchema);
+
+            var menuSchema = _typeSchema[ElementTypes.MENU] = new ElementSchema();
+            menuSchema.Load(new ElementSchemaData
+            {
+                Strings = new Dictionary<string, string>
+                {
+                    { "layout", "Radial" }
+                },
+                Floats = new Dictionary<string, float>
+                {
+                    { "headerWidth", 700f },
+                    { "layout.radius", 0.25f },
+                    { "layout.degrees", 70f }
+                },
+                Ints = new Dictionary<string, int>
+                {
+                    { "fontSize", 80 }
+                }
+            });
+            menuSchema.Wrap(_baseSchema);
         }
 
         /// <inheritdoc cref="IElementFactory"/>
@@ -82,7 +141,14 @@ namespace CreateAR.SpirePlayer.IUX
             // element
             var schema = new ElementSchema();
             schema.Load(data.Schema);
-            schema.Wrap(_baseSchema);
+
+            // find appropriate parent schema
+            ElementSchema parentSchema;
+            if (!_typeSchema.TryGetValue(data.Type, out parentSchema))
+            {
+                parentSchema = _baseSchema;
+            }
+            schema.Wrap(parentSchema);
 
             var element = ElementForType(data.Type);
             if (element != null)
@@ -119,9 +185,15 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     return new Cursor(_config, _primitives, _layers, _tweens, _colors, _messages, _intention);
                 }
+                case ElementTypes.MENU:
+                {
+                    return new Menu(_config, _layers, _tweens, _colors, _messages, _primitives);
+                }
                 default:
                 {
-                    return new Element();
+                    throw new Exception(string.Format(
+                        "Invalid element type : {0}.",
+                        type));
                 }
             }
         }
