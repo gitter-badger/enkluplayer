@@ -154,12 +154,15 @@ namespace CreateAR.SpirePlayer.IUX
 
         private void UpdateHeaderLayout()
         {
-            Log.Info(this, "Set width : {0}.", _headerWidth.Value);
             _titlePrimitive.Width = _headerWidth.Value;
             _descriptionPrimitive.Width = _headerWidth.Value;
 
-            //_titlePrimitive.Position = new Vec3(-0.15f, 0, -0.15f);
-            //_descriptionPrimitive.Position = new Vec3(-0.15f, 0, 0);
+            _titlePrimitive.Position = new Vec2(
+                -_headerWidth.Value,
+                100f);
+            _descriptionPrimitive.Position = new Vec2(
+                -_headerWidth.Value,
+                0f);
         }
 
         private void UpdateChildLayout()

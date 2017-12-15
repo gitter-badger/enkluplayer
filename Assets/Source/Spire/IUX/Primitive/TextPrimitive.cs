@@ -40,8 +40,6 @@ namespace CreateAR.SpirePlayer.IUX
             set
             {
                 _renderer.text = value;
-
-                UpdateBounds();
             }
         }
 
@@ -57,25 +55,28 @@ namespace CreateAR.SpirePlayer.IUX
             set
             {
                 _renderer.fontSize = value;
-
-                UpdateBounds();
             }
         }
 
         /// <summary>
         /// Position getter/setter.
         /// </summary>
-        public Vec3 Position
+        public Vec2 Position
         {
             get
             {
-                return _renderer.transform.localPosition.ToVec();
+                var local = _renderer.rectTransform.localPosition;
+
+                return new Vec2(local.x, local.y);
             }
             set
             {
-                _renderer.transform.localPosition = value.ToVector();
+                var scale = _renderer.rectTransform.localScale;
 
-                UpdateBounds();
+                _renderer.rectTransform.localPosition = new Vector3(
+                    scale.x * value.x,
+                    scale.y * (value.y - _renderer.font.lineHeight / 2f),
+                    _renderer.rectTransform.localPosition.z);
             }
         }
 
@@ -155,14 +156,6 @@ namespace CreateAR.SpirePlayer.IUX
         public void Destroy()
         {
             _pools.Put(_renderer.gameObject);
-        }
-
-        /// <summary>
-        /// Updates bounds!
-        /// </summary>
-        private void UpdateBounds()
-        {
-            
         }
     }
 }

@@ -30,7 +30,7 @@ namespace CreateAR.SpirePlayer.IUX
                             },
                             Floats = new Dictionary<string, float>
                             {
-                                { "headerWidth", 50f }
+                                
                             },
                             Ints = new Dictionary<string, int>
                             {
@@ -38,7 +38,7 @@ namespace CreateAR.SpirePlayer.IUX
                             },
                             Vectors = new Dictionary<string, Vec3>
                             {
-                                { "position", new Vec3(0f, 0.2f, 3f) }
+                                { "position", new Vec3(0f, 0f, 3f) }
                             }
                         },
                         Children = new []

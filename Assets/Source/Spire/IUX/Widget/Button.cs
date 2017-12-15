@@ -20,6 +20,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _propVoiceActivator;
         private ElementSchemaProp<string> _labelProp;
         private ElementSchemaProp<int> _fontSizeProp;
+        private ElementSchemaProp<float> _labelPaddingProp;
 
         /// <summary>
         /// Text primitive.
@@ -119,10 +120,14 @@ namespace CreateAR.SpirePlayer.IUX
                 _fontSizeProp = Schema.Get<int>("fontSize");
                 _fontSizeProp.OnChanged += FontSize_OnChanged;
 
+                _labelPaddingProp = Schema.Get<float>("label.padding");
+                _labelPaddingProp.OnChanged += LabelPadding_OnChanged;
+
                 _text = _primitives.Text();
                 _text.Parent = this;
                 _text.Text = _labelProp.Value;
-                _text.Position = new Vec3(0.09f, 0f, 0f);
+
+                UpdateLabelLayout();
             }
 
             // Voice Activator
@@ -154,10 +159,8 @@ namespace CreateAR.SpirePlayer.IUX
             // cleanup label
             {
                 _fontSizeProp.OnChanged -= FontSize_OnChanged;
-                _fontSizeProp = null;
-
                 _labelProp.OnChanged -= Label_OnChange;
-                _labelProp = null;
+                _labelPaddingProp.OnChanged -= LabelPadding_OnChanged;
             }
 
             if (_keywordRecognizer != null)
@@ -225,6 +228,28 @@ namespace CreateAR.SpirePlayer.IUX
             int next)
         {
             _text.FontSize = next;
+        }
+
+        /// <summary>
+        /// Called when the label padding has changed.
+        /// </summary>
+        /// <param name="prop">Property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void LabelPadding_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateLabelLayout();
+        }
+
+        /// <summary>
+        /// Updates label positioning.
+        /// </summary>
+        private void UpdateLabelLayout()
+        {
+            _text.Position = new Vec2(_labelPaddingProp.Value, 0f);
         }
     }
 }
