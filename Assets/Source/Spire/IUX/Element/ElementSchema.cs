@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Internal enumerator for schema.
         /// </summary>
-        public class SchemaEnumarator : IEnumerator<ElementSchemaProp>
+        public class SchemaEnumerator : IEnumerator<ElementSchemaProp>
         {
             /// <summary>
             /// Schema to start with.
@@ -42,7 +42,7 @@ namespace CreateAR.SpirePlayer.IUX
             /// Constructor.
             /// </summary>
             /// <param name="schema">The schema to iterate over.</param>
-            public SchemaEnumarator(ElementSchema schema)
+            public SchemaEnumerator(ElementSchema schema)
             {
                 _schema = schema;
 
@@ -155,7 +155,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="IEnumerable"/>
         public IEnumerator<ElementSchemaProp> GetEnumerator()
         {
-            return new SchemaEnumarator(this);
+            return new SchemaEnumerator(this);
         }
 
         /// <summary>
