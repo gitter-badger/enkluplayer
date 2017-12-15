@@ -1,14 +1,22 @@
 ﻿using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
+    /// <summary>
+    /// Presents menu options.
+    /// </summary>
     public class Menu : Widget
     {
+        /// <summary>
+        /// Creates primitives.
+        /// </summary>
         private readonly IPrimitiveFactory _primitives;
 
+        /// <summary>
+        /// Properties.
+        /// </summary>
         private ElementSchemaProp<string> _title;
         private ElementSchemaProp<string> _description;
         private ElementSchemaProp<int> _fontSize;
@@ -17,9 +25,19 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<float> _layoutDegrees;
         private ElementSchemaProp<float> _headerWidth;
 
+        /// <summary>
+        /// Title text.
+        /// </summary>
         private TextPrimitive _titlePrimitive;
+
+        /// <summary>
+        /// Description text.
+        /// </summary>
         private TextPrimitive _descriptionPrimitive;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public Menu(
             WidgetConfig config,
             ILayerManager layers,
@@ -38,6 +56,7 @@ namespace CreateAR.SpirePlayer.IUX
             _primitives = primitives;
         }
 
+        /// <inheritdoc cref="Element"/>
         protected override void LoadInternal()
         {
             base.LoadInternal();
@@ -80,6 +99,7 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateChildLayout();
         }
 
+        /// <inheritdoc cref="Element"/>
         protected override void UnloadInternal()
         {
             _title.OnChanged -= Title_OnChanged;
@@ -96,6 +116,12 @@ namespace CreateAR.SpirePlayer.IUX
             base.UnloadInternal();
         }
 
+        /// <summary>
+        /// Called when the title value has changed.
+        /// </summary>
+        /// <param name="prop">Title prop.</param>
+        /// <param name="previous">Previous value.</param>
+        /// <param name="next">Next value.</param>
         private void Title_OnChanged(
             ElementSchemaProp<string> prop,
             string previous,
@@ -104,6 +130,12 @@ namespace CreateAR.SpirePlayer.IUX
             _titlePrimitive.Text = next;
         }
 
+        /// <summary>
+        /// Called when the description value has changed.
+        /// </summary>
+        /// <param name="prop">Description prop.</param>
+        /// <param name="previous">Previous value.</param>
+        /// <param name="next">Next value.</param>
         private void Description_OnChanged(
             ElementSchemaProp<string> prop,
             string previous,
@@ -112,6 +144,12 @@ namespace CreateAR.SpirePlayer.IUX
             _descriptionPrimitive.Text = next;
         }
 
+        /// <summary>
+        /// Called when the fontSize value has changed.
+        /// </summary>
+        /// <param name="prop">FontSize prop.</param>
+        /// <param name="previous">Previous value.</param>
+        /// <param name="next">Next value.</param>
         private void FontSize_OnChanged(
             ElementSchemaProp<int> prop,
             int previous,
@@ -120,6 +158,12 @@ namespace CreateAR.SpirePlayer.IUX
             _titlePrimitive.FontSize = _descriptionPrimitive.FontSize = next;
         }
 
+        /// <summary>
+        /// Called when the layout value has changed.
+        /// </summary>
+        /// <param name="prop">Layou prop.</param>
+        /// <param name="previous">Previous value.</param>
+        /// <param name="next">Next value.</param>
         private void Layout_OnChanged(
             ElementSchemaProp<string> prop,
             string previous,
@@ -128,6 +172,12 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateChildLayout();
         }
 
+        /// <summary>
+        /// Called when the layoutDegrees value has changed.
+        /// </summary>
+        /// <param name="prop">layoutDegrees prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
         private void LayoutDegrees_OnChanged(
             ElementSchemaProp<float> prop,
             float prev,
@@ -136,6 +186,12 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateChildLayout();
         }
 
+        /// <summary>
+        /// Called when the layoutRadius value has changed.
+        /// </summary>
+        /// <param name="prop">layoutRadius prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
         private void LayoutRadius_OnChanged(
             ElementSchemaProp<float> prop,
             float prev,
@@ -144,6 +200,12 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateChildLayout();
         }
 
+        /// <summary>
+        /// Called when the headerWidth value has changed.
+        /// </summary>
+        /// <param name="prop">HeaderWidth prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
         private void HeaderWidth_OnChanged(
             ElementSchemaProp<float> prop,
             float prev,
@@ -152,6 +214,9 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateHeaderLayout();
         }
 
+        /// <summary>
+        /// Updates the header layout.
+        /// </summary>
         private void UpdateHeaderLayout()
         {
             _titlePrimitive.Width = _headerWidth.Value;
@@ -165,6 +230,9 @@ namespace CreateAR.SpirePlayer.IUX
             _descriptionPrimitive.Position = offset + new Vec2(0, 0f);
         }
 
+        /// <summary>
+        /// Updates child layout.
+        /// </summary>
         private void UpdateChildLayout()
         {
             var layout = _layout.Value;
@@ -178,6 +246,13 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <summary>
+        /// Adjusts children according to radial layout specs.
+        /// </summary>
+        /// <param name="parent">The parent.</param>
+        /// <param name="children">The children.</param>
+        /// <param name="worldRadius">The radius in world space.</param>
+        /// <param name="degrees">The radius in degrees.</param>
         private void RadialLayout(
             Transform parent,
             IList<Element> children,
