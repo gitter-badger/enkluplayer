@@ -28,6 +28,38 @@ namespace CreateAR.SpirePlayer.Editor
     }
 
     /// <summary>
+    /// Renders controls for a bool prop.
+    /// </summary>
+    [PropRenderer(typeof(bool))]
+    public class BoolPropRenderer : PropRenderer
+    {
+        /// <summary>
+        /// Underyling renderer.
+        /// </summary>
+        private readonly BoolControlRenderer _renderer = new BoolControlRenderer();
+
+        /// <summary>
+        /// Parameters for rendering.
+        /// </summary>
+        private ControlRendererParameter[] _parameters = new ControlRendererParameter[0];
+
+        /// <inheritdoc cref="PropRenderer"/>
+        public override bool Draw(ElementSchemaProp prop)
+        {
+            var cast = (ElementSchemaProp<bool>) prop;
+            var value = (object) cast.Value;
+            var repaint = _renderer.Draw(prop.Name, ref value, ref _parameters);
+
+            if ((bool) value != cast.Value)
+            {
+                cast.Value = (bool) value;
+            }
+
+            return repaint;
+        }
+    }
+
+    /// <summary>
     /// Renders controls for an int prop.
     /// </summary>
     [PropRenderer(typeof(int))]
@@ -124,7 +156,7 @@ namespace CreateAR.SpirePlayer.Editor
     }
 
     /// <summary>
-    /// Renderer for float props.
+    /// Renderer for vec3 props.
     /// </summary>
     [PropRenderer(typeof(Vec3))]
     public class Vec3PropRenderer : PropRenderer
@@ -136,6 +168,52 @@ namespace CreateAR.SpirePlayer.Editor
             var before = cast.Value;
 
             var after = EditorGUILayout.Vector3Field(prop.Name, before.ToVector()).ToVec();
+            if (after.Approximately(before))
+            {
+                return false;
+            }
+
+            cast.Value = after;
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Renderer for Vec2 props.
+    /// </summary>
+    [PropRenderer(typeof(Vec2))]
+    public class Vec2PropRenderer : PropRenderer
+    {
+        /// <inheritdoc cref="PropRenderer"/>
+        public override bool Draw(ElementSchemaProp prop)
+        {
+            var cast = (ElementSchemaProp<Vec2>)prop;
+            var before = cast.Value;
+
+            var after = EditorGUILayout.Vector2Field(prop.Name, before.ToVector()).ToVec();
+            if (after.Approximately(before))
+            {
+                return false;
+            }
+
+            cast.Value = after;
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Renderer for Color props.
+    /// </summary>
+    [PropRenderer(typeof(Col4))]
+    public class ColorPropRenderer : PropRenderer
+    {
+        /// <inheritdoc cref="PropRenderer"/>
+        public override bool Draw(ElementSchemaProp prop)
+        {
+            var cast = (ElementSchemaProp<Col4>) prop;
+            var before = cast.Value;
+
+            var after = EditorGUILayout.ColorField(prop.Name, before.ToColor()).ToCol();
             if (after.Approximately(before))
             {
                 return false;

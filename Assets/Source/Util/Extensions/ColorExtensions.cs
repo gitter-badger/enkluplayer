@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -25,6 +26,20 @@ namespace CreateAR.SpirePlayer
         public static Color ToColor(this Col4 @this)
         {
             return new Color(@this.r, @this.g, @this.b, @this.a);
+        }
+
+        /// <summary>
+        /// True iff colors are approximately equal.
+        /// </summary>
+        /// <param name="this">This color.</param>
+        /// <param name="color">Comparison color.</param>
+        /// <returns></returns>
+        public static bool Approximately(this Col4 @this, Col4 color)
+        {
+            return Math.Abs(@this.r - color.r) < float.Epsilon
+                && Math.Abs(@this.g - color.g) < float.Epsilon
+                && Math.Abs(@this.b - color.b) < float.Epsilon
+                && Math.Abs(@this.a - color.a) < float.Epsilon;
         }
     }
 }
