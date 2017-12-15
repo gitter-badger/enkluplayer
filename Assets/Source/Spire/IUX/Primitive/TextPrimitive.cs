@@ -1,4 +1,5 @@
-﻿using UnityEngine.UI;
+﻿using UnityEngine;
+using UnityEngine.UI;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -23,6 +24,11 @@ namespace CreateAR.SpirePlayer.IUX
         private Widget _parent;
 
         /// <summary>
+        /// Bounds.
+        /// </summary>
+        private Rectangle _rect;
+
+        /// <summary>
         /// Text getter/setter.
         /// </summary>
         public string Text
@@ -34,6 +40,8 @@ namespace CreateAR.SpirePlayer.IUX
             set
             {
                 _renderer.text = value;
+
+                UpdateBounds();
             }
         }
 
@@ -49,6 +57,8 @@ namespace CreateAR.SpirePlayer.IUX
             set
             {
                 _renderer.fontSize = value;
+
+                UpdateBounds();
             }
         }
 
@@ -64,6 +74,41 @@ namespace CreateAR.SpirePlayer.IUX
             set
             {
                 _renderer.transform.localPosition = value.ToVector();
+
+                UpdateBounds();
+            }
+        }
+
+        /// <summary>
+        /// Bounding rectangle.
+        /// </summary>
+        public Rectangle Rect
+        {
+            get
+            {
+                return _renderer.rectTransform.rect.ToRectangle();
+            }
+        }
+
+        public float Width
+        {
+            get { return Rect.size.x; }
+            set
+            {
+                _renderer.rectTransform.SetSizeWithCurrentAnchors(
+                    RectTransform.Axis.Horizontal,
+                    value);
+            }
+        }
+
+        public float Height
+        {
+            get { return Rect.size.y; }
+            set
+            {
+                _renderer.rectTransform.SetSizeWithCurrentAnchors(
+                    RectTransform.Axis.Vertical,
+                    value);
             }
         }
 
@@ -110,6 +155,14 @@ namespace CreateAR.SpirePlayer.IUX
         public void Destroy()
         {
             _pools.Put(_renderer.gameObject);
+        }
+
+        /// <summary>
+        /// Updates bounds!
+        /// </summary>
+        private void UpdateBounds()
+        {
+            
         }
     }
 }

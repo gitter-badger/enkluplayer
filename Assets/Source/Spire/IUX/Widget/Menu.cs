@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _layout;
         private ElementSchemaProp<float> _layoutRadius;
         private ElementSchemaProp<float> _layoutDegrees;
+        private ElementSchemaProp<float> _headerWidth;
 
         private TextPrimitive _titlePrimitive;
         private TextPrimitive _descriptionPrimitive;
@@ -59,22 +61,23 @@ namespace CreateAR.SpirePlayer.IUX
             _layoutRadius = Schema.Get<float>("layout.radius");
             _layoutRadius.OnChanged += LayoutRadius_OnChanged;
 
+            _headerWidth = Schema.Get<float>("headerWidth");
+            _headerWidth.OnChanged += HeaderWidth_OnChanged;
+
             // create + place title
             _titlePrimitive = _primitives.Text();
             _titlePrimitive.Parent = this;
             _titlePrimitive.Text = _title.Value;
             _titlePrimitive.FontSize = _fontSize.Value;
-            _titlePrimitive.Position = new Vec3(-0.15f, 0, -0.15f);
 
             // create + place description
             _descriptionPrimitive = _primitives.Text();
             _descriptionPrimitive.Parent = this;
             _descriptionPrimitive.Text = _description.Value;
             _descriptionPrimitive.FontSize = _fontSize.Value;
-            _descriptionPrimitive.Position = new Vec3(-0.15f, 0, 0);
 
-            // update button layout
-            UpdateLayout();
+            UpdateHeaderLayout();
+            UpdateChildLayout();
         }
 
         protected override void UnloadInternal()
@@ -85,6 +88,7 @@ namespace CreateAR.SpirePlayer.IUX
             _layout.OnChanged -= Layout_OnChanged;
             _layoutDegrees.OnChanged -= LayoutDegrees_OnChanged;
             _layoutRadius.OnChanged -= LayoutRadius_OnChanged;
+            _headerWidth.OnChanged -= HeaderWidth_OnChanged;
 
             _titlePrimitive.Destroy();
             _descriptionPrimitive.Destroy();
@@ -121,23 +125,7 @@ namespace CreateAR.SpirePlayer.IUX
             string previous,
             string next)
         {
-            UpdateLayout();
-        }
-
-        private void UpdateLayout()
-        {
-            var layout = _layout.Value;
-            if (layout == "Radial")
-            {
-                var buttons = new List<Element>();
-                Find("(@type=Button)", buttons);
-
-                RadialLayout(
-                    GameObject.transform,
-                    buttons,
-                    _layoutRadius.Value,
-                    _layoutDegrees.Value);
-            }
+            UpdateChildLayout();
         }
 
         private void LayoutDegrees_OnChanged(
@@ -145,7 +133,7 @@ namespace CreateAR.SpirePlayer.IUX
             float prev,
             float next)
         {
-            UpdateLayout();
+            UpdateChildLayout();
         }
 
         private void LayoutRadius_OnChanged(
@@ -153,7 +141,38 @@ namespace CreateAR.SpirePlayer.IUX
             float prev,
             float next)
         {
-            UpdateLayout();
+            UpdateChildLayout();
+        }
+
+        private void HeaderWidth_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateHeaderLayout();
+        }
+
+        private void UpdateHeaderLayout()
+        {
+            Log.Info(this, "Set width : {0}.", _headerWidth.Value);
+            _titlePrimitive.Width = _headerWidth.Value;
+            _descriptionPrimitive.Width = _headerWidth.Value;
+
+            //_titlePrimitive.Position = new Vec3(-0.15f, 0, -0.15f);
+            //_descriptionPrimitive.Position = new Vec3(-0.15f, 0, 0);
+        }
+
+        private void UpdateChildLayout()
+        {
+            var layout = _layout.Value;
+            if (layout == "Radial")
+            {
+                RadialLayout(
+                    GameObject.transform,
+                    Children,
+                    _layoutRadius.Value,
+                    _layoutDegrees.Value);
+            }
         }
 
         private void RadialLayout(
@@ -174,8 +193,8 @@ namespace CreateAR.SpirePlayer.IUX
                 : 0.0f;
 
             var stepTheta = children.Count > 1
-                    ? degrees / (children.Count - 1)
-                    : 0.0f;
+                ? degrees / (children.Count - 1)
+                : 0.0f;
 
             for (int i = 0, count = children.Count; i < count; ++i)
             {
@@ -185,9 +204,9 @@ namespace CreateAR.SpirePlayer.IUX
                     var theta = baseTheta + stepTheta * i;
                     var thetaRadians = theta * Mathf.Deg2Rad;
                     var targetPosition = localRadius * new Vector3(
-                        Mathf.Cos(thetaRadians),
-                        -Mathf.Sin(thetaRadians),
-                        0);
+                                             Mathf.Cos(thetaRadians),
+                                             -Mathf.Sin(thetaRadians),
+                                             0);
 
                     child.Schema.Set("position", targetPosition.ToVec());
                 }

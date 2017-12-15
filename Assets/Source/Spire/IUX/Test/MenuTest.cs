@@ -30,7 +30,7 @@ namespace CreateAR.SpirePlayer.IUX
                             },
                             Floats = new Dictionary<string, float>
                             {
-                                
+                                { "headerWidth", 50f }
                             },
                             Ints = new Dictionary<string, int>
                             {
