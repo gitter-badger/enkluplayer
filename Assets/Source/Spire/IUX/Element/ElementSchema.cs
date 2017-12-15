@@ -95,6 +95,14 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchema _parent;
 
         /// <summary>
+        /// Retrieves the parent schema.
+        /// </summary>
+        public ElementSchema Parent
+        {
+            get { return _parent; }
+        }
+
+        /// <summary>
         /// Useful ToString.
         /// </summary>
         /// <returns></returns>

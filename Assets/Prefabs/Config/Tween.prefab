@@ -48,15 +48,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1899749205590678}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ad2b997f1eb8c64a9c889062772e35a, type: 3}
+  m_Script: {fileID: 11500000, guid: b41650eca89ff554fa10325ea26ffa75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Profiles:
-  - Type: 0
-    DurationSeconds: 0
-  - Type: 1
-    DurationSeconds: 0.25
-  - Type: 2
-    DurationSeconds: 0.5
-  - Type: 3
-    DurationSeconds: 1
+  Profiles: []

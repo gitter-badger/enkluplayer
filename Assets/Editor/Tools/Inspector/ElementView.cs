@@ -18,6 +18,11 @@ namespace CreateAR.SpirePlayer.Editor
         private readonly Dictionary<Type, PropRenderer> _propRenderers = new Dictionary<Type, PropRenderer>();
 
         /// <summary>
+        /// Tracks which controls have already been rendered.
+        /// </summary>
+        private readonly List<string> _renderedProps = new List<string>();
+
+        /// <summary>
         /// Parses element names.
         /// </summary>
         private readonly Regex _elementParser = new Regex(@"Guid=([a-zA-Z0-9\-]+)");
@@ -31,6 +36,11 @@ namespace CreateAR.SpirePlayer.Editor
         /// The currently selected Widget.
         /// </summary>
         private Element _selection;
+
+        /// <summary>
+        /// Scroll position.
+        /// </summary>
+        private Vector2 _position;
 
         /// <summary>
         /// Current GameObject selected.
@@ -101,21 +111,62 @@ namespace CreateAR.SpirePlayer.Editor
             }
 
             var repaint = false;
-            foreach (var prop in _selection.Schema)
-            {
-                var type = prop.Type;
+            _renderedProps.Clear();
 
-                PropRenderer renderer;
-                if (_propRenderers.TryGetValue(type, out renderer))
+            _position = GUILayout.BeginScrollView(_position);
+            {
+                var schema = _selection.Schema;
+                while (null != schema)
                 {
-                    repaint = renderer.Draw(prop) || repaint;
+                    repaint = DrawSchema(schema) || repaint;
+
+                    schema = schema.Parent;
                 }
             }
+            GUILayout.EndScrollView();
 
             if (repaint)
             {
                 Repaint();
             }
+        }
+
+        /// <summary>
+        /// Draws a schema.
+        /// </summary>
+        /// <param name="schema">Schema.</param>
+        /// <returns></returns>
+        private bool DrawSchema(ElementSchema schema)
+        {
+            var repaint = false;
+            GUILayout.BeginVertical("box");
+            {
+                foreach (var prop in schema)
+                {
+                    var type = prop.Type;
+                    var name = prop.Name;
+
+                    if (_renderedProps.Contains(name))
+                    {
+                        GUI.enabled = false;
+                    }
+                    else
+                    {
+                        GUI.enabled = true;
+
+                        _renderedProps.Add(name);
+                    }
+
+                    PropRenderer renderer;
+                    if (_propRenderers.TryGetValue(type, out renderer))
+                    {
+                        repaint = renderer.Draw(prop) || repaint;
+                    }
+                }
+            }
+            GUILayout.EndVertical();
+            
+            return repaint;
         }
 
         /// <summary>
