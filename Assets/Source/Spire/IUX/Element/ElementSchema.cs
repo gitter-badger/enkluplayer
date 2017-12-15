@@ -15,14 +15,14 @@ namespace CreateAR.SpirePlayer.IUX
         public class SchemaEnumerator : IEnumerator<ElementSchemaProp>
         {
             /// <summary>
-            /// Schema to start with.
+            /// Props to enumerate.
             /// </summary>
-            private readonly ElementSchema _schema;
+            private readonly List<ElementSchemaProp> _props;
 
             /// <summary>
-            /// Current schema up the chain.
+            /// Original length of props.
             /// </summary>
-            private ElementSchema _currentSchema;
+            private readonly int _propLen;
 
             /// <summary>
             /// Index into props.
@@ -44,7 +44,8 @@ namespace CreateAR.SpirePlayer.IUX
             /// <param name="schema">The schema to iterate over.</param>
             public SchemaEnumerator(ElementSchema schema)
             {
-                _schema = schema;
+                _props = schema._props;
+                _propLen = _props.Count;
 
                 Reset();
             }
@@ -58,41 +59,22 @@ namespace CreateAR.SpirePlayer.IUX
             /// <inheritdoc cref="IEnumerator"/>
             public bool MoveNext()
             {
-                if (null == _currentSchema)
+                _propIndex++;
+
+                // bounds check against original length to act like a real life
+                // interator
+                if (_propIndex < _propLen)
                 {
-                    return false;
+                    Current = _props[_propIndex];
+                    return true;
                 }
 
-                while (true)
-                {
-                    _propIndex += 1;
-
-                    var props = _currentSchema._props;
-                    if (props.Count == _propIndex)
-                    {
-                        // next parent
-                        _currentSchema = _currentSchema._parent;
-                        _propIndex = -1;
-
-                        return MoveNext();
-                    }
-
-                    var prop = _currentSchema._props[_propIndex];
-                    if (prop.LinkBroken)
-                    {
-                        Current = prop;
-
-                        break;
-                    }
-                }
-                
-                return true;
+                return false;
             }
 
             /// <inheritdoc cref="IEnumerator"/>
             public void Reset()
             {
-                _currentSchema = _schema;
                 _propIndex = -1;
             }
         }
