@@ -59,14 +59,16 @@ namespace CreateAR.SpirePlayer.IUX
             /// <inheritdoc cref="IEnumerator"/>
             public bool MoveNext()
             {
-                _propIndex++;
-
                 // bounds check against original length to act like a real life
                 // interator
-                if (_propIndex < _propLen)
+                while (++_propIndex < _propLen)
                 {
-                    Current = _props[_propIndex];
-                    return true;
+                    var next = _props[_propIndex];
+                    if (next.LinkBroken)
+                    {
+                        Current = next;
+                        return true;
+                    }
                 }
 
                 return false;

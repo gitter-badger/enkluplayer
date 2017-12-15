@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -197,6 +198,7 @@ namespace CreateAR.SpirePlayer.IUX
             float prev,
             float next)
         {
+            Log.Info(this, "Changed.");
             UpdateChildLayout();
         }
 

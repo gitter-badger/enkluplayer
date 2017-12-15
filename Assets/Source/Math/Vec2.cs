@@ -74,7 +74,7 @@ namespace CreateAR.SpirePlayer
             get
             {
                 var magnitude = Magnitude;
-                if (magnitude < Math.E)
+                if (magnitude < float.Epsilon)
                 {
                     return Zero;
                 }

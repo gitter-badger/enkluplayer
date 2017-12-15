@@ -2,6 +2,7 @@ using System;
 using CreateAR.Commons.Unity.Editor;
 using CreateAR.SpirePlayer.IUX;
 using UnityEditor;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
 {
@@ -46,9 +47,13 @@ namespace CreateAR.SpirePlayer.Editor
         public override bool Draw(ElementSchemaProp prop)
         {
             var cast = (ElementSchemaProp<int>)prop;
-            var value = (object)cast.Value;
+            var value = (object) cast.Value;
             var repaint = _renderer.Draw(prop.Name, ref value, ref _parameters);
-            cast.Value = (int)value;
+
+            if ((int) value != cast.Value)
+            {
+                cast.Value = (int) value;
+            }
 
             return repaint;
         }
@@ -74,9 +79,13 @@ namespace CreateAR.SpirePlayer.Editor
         public override bool Draw(ElementSchemaProp prop)
         {
             var cast = (ElementSchemaProp<string>)prop;
-            var value = (object)cast.Value;
+            var value = (object) cast.Value;
             var repaint = _renderer.Draw(prop.Name, ref value, ref _parameters);
-            cast.Value = (string)value;
+
+            if ((string) value != cast.Value)
+            {
+                cast.Value = (string)value;
+            }
 
             return repaint;
         }
@@ -104,7 +113,11 @@ namespace CreateAR.SpirePlayer.Editor
             var cast = (ElementSchemaProp<float>) prop;
             var value = (object) cast.Value;
             var repaint = _renderer.Draw(prop.Name, ref value, ref _parameters);
-            cast.Value = (float) value;
+
+            if (Math.Abs((float) value - cast.Value) > Mathf.Epsilon)
+            {
+                cast.Value = (float) value;
+            }
 
             return repaint;
         }
