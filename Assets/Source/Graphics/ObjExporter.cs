@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
-using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -18,30 +16,41 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public string Export(params GameObject[] objects)
         {
-            var instances = objects
+            var filters = objects
                 .SelectMany(@object => @object.GetComponentsInChildren<MeshFilter>())
-                .Select(filter =>
-                {
-                    var mesh = UnityEngine.Application.isPlaying
-                        ? filter.mesh
-                        : filter.sharedMesh;
-                    return new CombineInstance
-                    {
-                        mesh = mesh,
-                        transform = filter.transform.localToWorldMatrix
-                    };
-                })
                 .ToArray();
             
-            var combinedMesh = new Mesh();
-            combinedMesh.CombineMeshes(instances, true, true, false);
-            
             var builder = new StringBuilder();
-            builder.AppendLine("o Object.0");
-            WriteMeshToString(
-                combinedMesh,
-                Matrix4x4.identity,
-                builder);
+            for (var i = 0; i < filters.Length; i++)
+            {
+                var filter = filters[i];
+                var mesh = UnityEngine.Application.isPlaying
+                    ? filter.mesh
+                    : filter.sharedMesh;
+
+                builder.AppendFormat("o Object.{0}\n", i);
+
+                WriteMeshToString(
+                    mesh,
+                    filter.transform.localToWorldMatrix,
+                    builder);
+
+                builder.AppendFormat("\n");
+            }
+            
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Exports to obj.
+        /// </summary>
+        /// <param name="mesh">The mesh to export.</param>
+        /// <returns></returns>
+        public string Export(Mesh mesh)
+        {
+            var builder = new StringBuilder();
+            WriteMeshToString(mesh, Matrix4x4.identity, builder);
+
             return builder.ToString();
         }
 
@@ -94,24 +103,14 @@ namespace CreateAR.SpirePlayer
                 builder.Append("\n");
             }
 
-            try
+            var triangles = mesh.triangles;
+            for (var i = 0; i < triangles.Length; i += 3)
             {
-                for (var material = 0; material < mesh.subMeshCount; material++)
-                {
-                    var triangles = mesh.GetTriangles(material);
-                    for (var i = 0; i < triangles.Length; i += 3)
-                    {
-                        builder.AppendFormat(
-                            "f {0}/{0}/{0} {1}/{1}/{1} {2}/{2}/{2}\n",
-                            triangles[i] + 1, triangles[i + 1] + 1, triangles[i + 2] + 1);
-                    }
-                }
+                builder.AppendFormat(
+                    "f {0}/{0}/{0} {1}/{1}/{1} {2}/{2}/{2}\n",
+                    triangles[i] + 1, triangles[i + 1] + 1, triangles[i + 2] + 1);
             }
-            catch (Exception exception)
-            {
-                Log.Error(mesh, "Could not write triangles : {0}.", exception);
-            }
-
+            
             builder.AppendLine("\n");
         }
     }
