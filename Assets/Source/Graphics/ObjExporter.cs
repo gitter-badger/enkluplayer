@@ -46,6 +46,19 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Exports to obj.
+        /// </summary>
+        /// <param name="mesh">The mesh to export.</param>
+        /// <returns></returns>
+        public string Export(Mesh mesh)
+        {
+            var builder = new StringBuilder();
+            WriteMeshToString(mesh, Matrix4x4.identity, builder);
+
+            return builder.ToString();
+        }
+
+        /// <summary>
         /// Encodes a mesh as an OBJ.
         /// </summary>
         /// <param name="mesh">The mesh in question.</param>
@@ -94,24 +107,14 @@ namespace CreateAR.SpirePlayer
                 builder.Append("\n");
             }
 
-            try
+            var triangles = mesh.triangles;
+            for (var i = 0; i < triangles.Length; i += 3)
             {
-                for (var material = 0; material < mesh.subMeshCount; material++)
-                {
-                    var triangles = mesh.GetTriangles(material);
-                    for (var i = 0; i < triangles.Length; i += 3)
-                    {
-                        builder.AppendFormat(
-                            "f {0}/{0}/{0} {1}/{1}/{1} {2}/{2}/{2}\n",
-                            triangles[i] + 1, triangles[i + 1] + 1, triangles[i + 2] + 1);
-                    }
-                }
+                builder.AppendFormat(
+                    "f {0}/{0}/{0} {1}/{1}/{1} {2}/{2}/{2}\n",
+                    triangles[i] + 1, triangles[i + 1] + 1, triangles[i + 2] + 1);
             }
-            catch (Exception exception)
-            {
-                Log.Error(mesh, "Could not write triangles : {0}.", exception);
-            }
-
+            
             builder.AppendLine("\n");
         }
     }
