@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
 
@@ -212,6 +211,12 @@ namespace CreateAR.SpirePlayer.Editor
             }
 
             AssetDatabase.SaveAssets();
+            PrefabUtility.CreatePrefab("Assets/Exports/Export.prefab", root);
+
+            var export = new ObjExporter().Export(root);
+            File.WriteAllText("Assets/Exports/Exported_obj.obj", export);
+
+            DestroyImmediate(root);
         }
 
         /// <summary>

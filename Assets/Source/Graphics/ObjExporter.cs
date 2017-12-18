@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
-using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -18,30 +16,28 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public string Export(params GameObject[] objects)
         {
-            var instances = objects
+            var filters = objects
                 .SelectMany(@object => @object.GetComponentsInChildren<MeshFilter>())
-                .Select(filter =>
-                {
-                    var mesh = UnityEngine.Application.isPlaying
-                        ? filter.mesh
-                        : filter.sharedMesh;
-                    return new CombineInstance
-                    {
-                        mesh = mesh,
-                        transform = filter.transform.localToWorldMatrix
-                    };
-                })
                 .ToArray();
             
-            var combinedMesh = new Mesh();
-            combinedMesh.CombineMeshes(instances, true, true, false);
-            
             var builder = new StringBuilder();
-            builder.AppendLine("o Object.0");
-            WriteMeshToString(
-                combinedMesh,
-                Matrix4x4.identity,
-                builder);
+            for (var i = 0; i < filters.Length; i++)
+            {
+                var filter = filters[i];
+                var mesh = UnityEngine.Application.isPlaying
+                    ? filter.mesh
+                    : filter.sharedMesh;
+
+                builder.AppendFormat("o Object.{0}\n", i);
+
+                WriteMeshToString(
+                    mesh,
+                    filter.transform.localToWorldMatrix,
+                    builder);
+
+                builder.AppendFormat("\n");
+            }
+            
             return builder.ToString();
         }
 
