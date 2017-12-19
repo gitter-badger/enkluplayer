@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Imports from vine.
         /// </summary>
-        private readonly VineImporter _importer = new VineImporter();
+        private readonly VineImporter _importer = new VineImporter(new JsVinePreProcessor());
 
         /// <summary>
         /// Creates elements.

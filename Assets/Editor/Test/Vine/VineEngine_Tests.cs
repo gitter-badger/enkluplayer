@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [SetUp]
         public void Setup()
         {
-            _importer = new VineImporter();
+            _importer = new VineImporter(new DummyVinePreProcessor());
         }
 
         [Test]

@@ -12,7 +12,16 @@ namespace CreateAR.SpirePlayer.Vine
         /// <summary>
         /// Preprocess.
         /// </summary>
-        private readonly JsVinePreProcessor _preProcessor = new JsVinePreProcessor();
+        private readonly IVinePreProcessor _preProcessor;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="preProcessor">Preprocessor.</param>
+        public VineImporter(IVinePreProcessor preProcessor)
+        {
+            _preProcessor = preProcessor;
+        }
 
         /// <summary>
         /// Parses the data.
