@@ -2,70 +2,90 @@
 using System.Collections.Generic;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 using Vine;
 
 using ElementMap = CreateAR.Commons.Unity.DataStructures.Tuple<string, int>;
 
 namespace CreateAR.SpirePlayer.Vine
 {
+    /// <summary>
+    /// Listener that creates an <c>ElementDescription</c> from a vine.
+    /// </summary>
     public class ElementDescriptionListener : IVineParserListener
     {
+        /// <summary>
+        /// Stores current attribute.
+        /// </summary>
         private class AttributeData
         {
             public string Name;
             public string Value;
         }
 
-        private readonly ElementDescription _description;
+        /// <summary>
+        /// Stack of elements. The top is the one currently being edited.
+        /// </summary>
         private readonly Stack<ElementData> _elements = new Stack<ElementData>();
+
+        /// <summary>
+        /// Maps strings to ints.
+        /// </summary>
         private readonly List<ElementMap> _elementTypeMap = new List<ElementMap>
         {
-            CreateAR.Commons.Unity.DataStructures.Tuple.Create("Container", ElementTypes.CONTAINER),
-            CreateAR.Commons.Unity.DataStructures.Tuple.Create("Button", ElementTypes.BUTTON),
-            CreateAR.Commons.Unity.DataStructures.Tuple.Create("Caption", ElementTypes.CAPTION),
-            CreateAR.Commons.Unity.DataStructures.Tuple.Create("Menu", ElementTypes.MENU),
-            CreateAR.Commons.Unity.DataStructures.Tuple.Create("Cursor", ElementTypes.CURSOR)
+            Commons.Unity.DataStructures.Tuple.Create("Container", ElementTypes.CONTAINER),
+            Commons.Unity.DataStructures.Tuple.Create("Button", ElementTypes.BUTTON),
+            Commons.Unity.DataStructures.Tuple.Create("Caption", ElementTypes.CAPTION),
+            Commons.Unity.DataStructures.Tuple.Create("Menu", ElementTypes.MENU),
+            Commons.Unity.DataStructures.Tuple.Create("Cursor", ElementTypes.CURSOR)
         };
 
+        /// <summary>
+        /// The root data.
+        /// </summary>
         private ElementData _root;
-        private ElementData _current;
+        
+        /// <summary>
+        /// Current attribute we're working on.
+        /// </summary>
         private AttributeData _currentAttribute;
 
-        public bool Success { get; private set; }
+        /// <summary>
+        /// Resulting description.
+        /// </summary>
+        public ElementDescription Description { get; private set; }
 
-        public ElementDescriptionListener(ElementDescription description)
-        {
-            _description = description;
-        }
-
+        /// <inheritdoc cref="IVineParserListener"/>
         public void VisitTerminal(ITerminalNode node)
         {
-                
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void VisitErrorNode(IErrorNode node)
         {
-                
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void EnterEveryRule(ParserRuleContext ctx)
         {
-                
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void ExitEveryRule(ParserRuleContext ctx)
         {
-                
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void EnterDocument(VineParser.DocumentContext context)
         {
             //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void ExitDocument(VineParser.DocumentContext context)
         {
             if (null == _root)
@@ -73,9 +93,12 @@ namespace CreateAR.SpirePlayer.Vine
                 throw new Exception("No root element found.");
             }
 
-            _description.Elements = new[]
+            Description = new ElementDescription
             {
-                _root
+                Elements = new[]
+                {
+                    _root
+                }
             };
 
             if (string.IsNullOrEmpty(_root.Id))
@@ -83,14 +106,13 @@ namespace CreateAR.SpirePlayer.Vine
                 _root.Id = Guid.NewGuid().ToString();
             }
 
-            _description.Root = new ElementRef
+            Description.Root = new ElementRef
             {
                 Id = _root.Id
             };
-            
-            Success = true;
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void EnterElement(VineParser.ElementContext context)
         {
             var name = context.GetChild(1);
@@ -113,6 +135,7 @@ namespace CreateAR.SpirePlayer.Vine
             EnterElementData(type);
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void ExitElement(VineParser.ElementContext context)
         {
             string stringType;
@@ -136,11 +159,12 @@ namespace CreateAR.SpirePlayer.Vine
 
             // check for matching types
             var type = ToIntElementType(stringType);
-            if (_current.Type != type)
+            var current = _elements.Peek();
+            if (current.Type != type)
             {
                 throw new Exception(string.Format(
                     "Invalid closing tag. Expected {0} but found {1} : {2}.",
-                    ToStringElementType(_current.Type),
+                    ToStringElementType(current.Type),
                     stringType,
                     GetExceptionLocation(context)));
             }
@@ -148,81 +172,86 @@ namespace CreateAR.SpirePlayer.Vine
             ExitElementData();
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void EnterContent(VineParser.ContentContext context)
         {
-                
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void ExitContent(VineParser.ContentContext context)
         {
-                
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void EnterMisc(VineParser.MiscContext context)
         {
-                
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void ExitMisc(VineParser.MiscContext context)
         {
-                
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void EnterComment(VineParser.CommentContext context)
         {
-            
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void ExitComment(VineParser.CommentContext context)
         {
-            
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void EnterAttribute(VineParser.AttributeContext context)
         {
             _currentAttribute = new AttributeData();
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void ExitAttribute(VineParser.AttributeContext context)
         {
             // 
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void EnterAttributeName(VineParser.AttributeNameContext context)
         {
-            
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void ExitAttributeName(VineParser.AttributeNameContext context)
         {
             _currentAttribute.Name = context.children[0].ToString();
-
-            Debug.Log("Exit Attribute Name " + _currentAttribute.Name);
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void EnterAttributeValue(VineParser.AttributeValueContext context)
         {
-            
+            //
         }
 
+        /// <inheritdoc cref="IVineParserListener"/>
         public void ExitAttributeValue(VineParser.AttributeValueContext context)
         {
             _currentAttribute.Value = context.children[context.ChildCount - 1]
                 .ToString();
-
-            Debug.Log("Exit Attribute Value" + _currentAttribute.Value);
-
-            Debug.Log(string.Format("Attribute found : {0} = {1}.",
-                _currentAttribute.Name,
-                _currentAttribute.Value));
-
+            
             // identify type and add to current schema
             var name = _currentAttribute.Name;
             var value = _currentAttribute.Value;
+            var current = _elements.Peek();
             if (value.StartsWith("'"))
             {
                 // string!
-                if (_current.Schema.Strings.ContainsKey(name))
+                if (current.Schema.Strings.ContainsKey(name))
                 {
                     throw new Exception(string.Format(
                         "Multiple string attributes by the name {0} defined : {1}.",
@@ -230,12 +259,12 @@ namespace CreateAR.SpirePlayer.Vine
                         GetExceptionLocation(context)));
                 }
 
-                _current.Schema.Strings[name] = value.Trim('\'');
+                current.Schema.Strings[name] = value.Trim('\'');
             }
             else if (value.Contains("."))
             {
                 // float
-                if (_current.Schema.Floats.ContainsKey(name))
+                if (current.Schema.Floats.ContainsKey(name))
                 {
                     throw new Exception(string.Format(
                         "Multiple float attributes by the name {0} defined : {1}.",
@@ -252,12 +281,12 @@ namespace CreateAR.SpirePlayer.Vine
                         GetExceptionLocation(context)));
                 }
 
-                _current.Schema.Floats[name] = floatValue;
+                current.Schema.Floats[name] = floatValue;
             }
             else if (value == "true" || value == "false")
             {
                 // bool
-                if (_current.Schema.Bools.ContainsKey(name))
+                if (current.Schema.Bools.ContainsKey(name))
                 {
                     throw new Exception(string.Format(
                         "Multiple bool attributes by the name {0} defined : {1}.",
@@ -265,12 +294,12 @@ namespace CreateAR.SpirePlayer.Vine
                         GetExceptionLocation(context)));
                 }
 
-                _current.Schema.Bools[name] = "true" == value;
+                current.Schema.Bools[name] = "true" == value;
             }
             else
             {
                 // int
-                if (_current.Schema.Ints.ContainsKey(name))
+                if (current.Schema.Ints.ContainsKey(name))
                 {
                     throw new Exception(string.Format(
                         "Multiple int attributes by the name {0} defined : {1}.",
@@ -287,10 +316,15 @@ namespace CreateAR.SpirePlayer.Vine
                         GetExceptionLocation(context)));
                 }
 
-                _current.Schema.Ints[name] = intValue;
+                current.Schema.Ints[name] = intValue;
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of <c>ElementData</c> when an element has been
+        /// entered.
+        /// </summary>
+        /// <param name="type">The type to create.</param>
         private void EnterElementData(int type)
         {
             var element = new ElementData
@@ -299,9 +333,10 @@ namespace CreateAR.SpirePlayer.Vine
             };
 
             // add child
-            if (null != _current)
+            if (0 != _elements.Count)
             {
-                _current.Children = _current.Children.Add(element);
+                var current = _elements.Peek();
+                current.Children = current.Children.Add(element);
             }
             else
             {
@@ -316,23 +351,21 @@ namespace CreateAR.SpirePlayer.Vine
 
             // push onto stack
             _elements.Push(element);
-            _current = element;
         }
 
+        /// <summary>
+        /// Exits an element.
+        /// </summary>
         private void ExitElementData()
         {
             _elements.Pop();
-
-            if (_elements.Count > 0)
-            {
-                _current = _elements.Peek();
-            }
-            else
-            {
-                _current = null;
-            }
         }
 
+        /// <summary>
+        /// Retrieves a location for an error.
+        /// </summary>
+        /// <param name="context">The context to use.</param>
+        /// <returns></returns>
         private static string GetExceptionLocation(ParserRuleContext context)
         {
             return string.Format(
@@ -342,6 +375,11 @@ namespace CreateAR.SpirePlayer.Vine
                 context.GetText());
         }
 
+        /// <summary>
+        /// Translates an int element type to a string element type.
+        /// </summary>
+        /// <param name="type">The type to translate.</param>
+        /// <returns></returns>
         private string ToStringElementType(int type)
         {
             for (int i = 0, len = _elementTypeMap.Count; i < len; i++)
@@ -356,6 +394,11 @@ namespace CreateAR.SpirePlayer.Vine
             return string.Empty;
         }
 
+        /// <summary>
+        /// Translates an string element type to a int element type.
+        /// </summary>
+        /// <param name="type">The type to translate.</param>
+        /// <returns></returns>
         private int ToIntElementType(string type)
         {
             for (int i = 0, len = _elementTypeMap.Count; i < len; i++)

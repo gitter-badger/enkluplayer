@@ -7,12 +7,12 @@ namespace CreateAR.SpirePlayer.Test.Vine
     [TestFixture]
     public class VineEngine_Tests
     {
-        private VineEngine _engine;
+        private VineImporter _importer;
 
         [SetUp]
         public void Setup()
         {
-            _engine = new VineEngine();
+            _importer = new VineImporter();
         }
 
         [Test]
@@ -20,7 +20,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         {
             Assert.Throws<Exception>(() =>
             {
-                _engine.Parse(@"
+                _importer.Parse(@"
                     <?Vine>
                     <Container />
                     <Container />");
@@ -30,7 +30,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container></Container>");
 
@@ -40,7 +40,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_Child()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container>
     <Container />
@@ -53,7 +53,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_ChildTypes()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container>
     <Container />
@@ -73,7 +73,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_Child_Deep()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container>
     <Menu>
@@ -97,7 +97,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_SelfClosing()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container />");
 
@@ -109,7 +109,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         {
             Assert.Throws<Exception>(() =>
             {
-                _engine.Parse(@"
+                _importer.Parse(@"
 <?Vine>
 <Foo></Foo>");
             });
@@ -120,7 +120,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         {
             Assert.Throws<Exception>(() =>
             {
-                _engine.Parse(@"
+                _importer.Parse(@"
 <?Vine>
 <Foo />");
             });
@@ -129,7 +129,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_Attributes_String()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container id='test_container'>
 </Container>");
@@ -140,7 +140,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_Attributes_Int()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container foo=5>
 </Container>");
@@ -151,7 +151,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_Attributes_Float()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container foo=5.4>
 </Container>");
@@ -162,7 +162,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_Attributes_Bool_True()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container foo=true>
 </Container>");
@@ -173,7 +173,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_Attributes_Bool_False()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container foo=false>
 </Container>");
@@ -199,7 +199,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_Attributes_Multi()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container
     foo='test_value'
@@ -217,7 +217,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_Attributes_Multi_SelfClosing()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container
     foo='test_value'
@@ -234,7 +234,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_Attributes_Multi_SameName()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
 <Container foo='test_value' foo=5>
 </Container>");
@@ -246,7 +246,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Element_Attributes_Multi_Collide()
         {
-            Assert.Throws<Exception>(() => _engine.Parse(@"
+            Assert.Throws<Exception>(() => _importer.Parse(@"
 <?Vine>
 <Container foo='test_value' foo='another_value'>
 </Container>"));
