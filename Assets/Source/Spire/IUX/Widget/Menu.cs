@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -239,9 +238,7 @@ namespace CreateAR.SpirePlayer.IUX
             var layout = _layout.Value;
             if (layout == "Radial")
             {
-                RadialLayout(
-                    GameObject.transform,
-                    Children,
+                RadialLayout(Children,
                     _layoutRadius.Value,
                     _layoutDegrees.Value);
             }
@@ -250,13 +247,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Adjusts children according to radial layout specs.
         /// </summary>
-        /// <param name="parent">The parent.</param>
         /// <param name="children">The children.</param>
         /// <param name="worldRadius">The radius in world space.</param>
         /// <param name="degrees">The radius in degrees.</param>
-        private void RadialLayout(
-            Transform parent,
-            IList<Element> children,
+        private void RadialLayout(IList<Element> children,
             float worldRadius,
             float degrees)
         {
@@ -265,7 +259,7 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            var localRadius = worldRadius;//CalculateLocalOffset(parent, worldRadius);
+            var localRadius = worldRadius;
 
             var baseTheta = children.Count > 1
                 ? degrees * -0.5f
@@ -290,22 +284,6 @@ namespace CreateAR.SpirePlayer.IUX
                     child.Schema.Set("position", targetPosition.ToVec());
                 }
             }
-        }
-
-        /// <summary>
-        /// Calculates the local offset relative to a world transform
-        /// </summary>
-        /// <param name="parent"></param>
-        /// <param name="worldOffset"></param>
-        /// <returns></returns>
-        private float CalculateLocalOffset(Transform parent, float worldOffset)
-        {
-            var worldPosition = parent.position;
-            var worldEdgePosition = worldPosition + Vector3.forward * worldOffset;
-            var localEdgePosition = parent.InverseTransformPoint(worldEdgePosition);
-            var localOffset = localEdgePosition.magnitude;
-
-            return localOffset;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.SpirePlayer.Test.UI
 {
     public class StandardQueryResolver_Tests
     {
