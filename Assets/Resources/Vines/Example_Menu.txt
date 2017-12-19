@@ -1,0 +1,10 @@
+<?Vine>
+
+<Menu
+	title='Welcome'
+	description='Move the cursor with your head to activate the Ok button to the right.'>
+	<Button label='Ok' />
+	<Button label='Login' />
+	<Button label='Explore' />
+	<Button label='Options' />
+</Menu>
