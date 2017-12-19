@@ -261,6 +261,44 @@ namespace CreateAR.SpirePlayer.Vine
 
                 current.Schema.Strings[name] = value.Trim('\'');
             }
+            else if (value.StartsWith("("))
+            {
+                // vec3
+                if (current.Schema.Vectors.ContainsKey(name))
+                {
+                    throw new Exception(string.Format(
+                        "Multiple Vec3 attributes by the name {0} defined : {1}.",
+                        name,
+                        GetExceptionLocation(context)));
+                }
+
+                // parse
+                value = value.Replace(" ", "");
+                value = value.TrimStart('(');
+                value = value.TrimEnd(')');
+
+                var substrings = value.Split(',');
+                if (3 != substrings.Length)
+                {
+                    throw new Exception(string.Format(
+                        "Vec3 could not be parsed for attribute {0} : {1}.",
+                        name,
+                        GetExceptionLocation(context)));
+                }
+
+                float x, y, z;
+                if (!float.TryParse(substrings[0], out x)
+                    || !float.TryParse(substrings[1], out y)
+                    || !float.TryParse(substrings[2], out z))
+                {
+                    throw new Exception(string.Format(
+                        "Vec3 could not be parsed for attribute {0} : {1}.",
+                        name,
+                        GetExceptionLocation(context)));
+                }
+
+                current.Schema.Vectors[name] = new Vec3(x, y, z);
+            }
             else if (value.Contains("."))
             {
                 // float

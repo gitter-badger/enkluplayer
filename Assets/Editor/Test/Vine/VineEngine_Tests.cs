@@ -180,21 +180,20 @@ namespace CreateAR.SpirePlayer.Test.Vine
 
             Assert.AreEqual(false, description.Elements[0].Schema.Bools["foo"]);
         }
-        /*
+        
         [Test]
         public void Element_Attributes_Vec3()
         {
-            var description = _engine.Parse(@"
+            var description = _importer.Parse(@"
 <?Vine>
-<Container foo=(3, 2, 1)>
+<Container foo=(3.1, 2, 1)>
 </Container>");
 
             var vec = description.Elements[0].Schema.Vectors["foo"];
-            Assert.IsTrue(Math.Abs(3f - vec.x) < float.Epsilon);
+            Assert.IsTrue(Math.Abs(3.1f - vec.x) < float.Epsilon);
             Assert.IsTrue(Math.Abs(2f - vec.y) < float.Epsilon);
             Assert.IsTrue(Math.Abs(1f - vec.z) < float.Epsilon);
         }
-        */
 
         [Test]
         public void Element_Attributes_Multi()

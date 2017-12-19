@@ -2,7 +2,8 @@
 
 <Menu
 	title='Welcome'
-	description='Move the cursor with your head to activate the Ok button to the right.'>
+	description='Move the cursor with your head to activate the Ok button to the right.'
+	position=(0, 0, 3)>
 	<Button label='Ok' />
 	<Button label='Login' />
 	<Button label='Explore' />
