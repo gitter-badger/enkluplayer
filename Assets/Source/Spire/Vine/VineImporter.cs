@@ -1,7 +1,6 @@
 ﻿using Antlr4.Runtime.Tree;
 using CreateAR.Commons.Vine;
 using CreateAR.SpirePlayer.IUX;
-using Vine;
 
 namespace CreateAR.SpirePlayer.Vine
 {
@@ -13,7 +12,7 @@ namespace CreateAR.SpirePlayer.Vine
         /// <summary>
         /// Preprocess.
         /// </summary>
-        private readonly VinePreprocessor _preprocessor = new VinePreprocessor();
+        private readonly JsVinePreProcessor _preProcessor = new JsVinePreProcessor();
 
         /// <summary>
         /// Parses the data.
@@ -22,7 +21,7 @@ namespace CreateAR.SpirePlayer.Vine
         /// <returns></returns>
         public ElementDescription Parse(string data)
         {
-            data = _preprocessor.Execute(data);
+            data = _preProcessor.Execute(data);
 
             var loader = new VineLoader();
             var document = loader.Load(data);

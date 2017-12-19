@@ -5,18 +5,18 @@ namespace CreateAR.SpirePlayer.Test.Vine
 {
     public class VinePreprocessor_Tests
     {
-        private VinePreprocessor _preprocessor;
+        private JsVinePreProcessor _preProcessor;
 
         [SetUp]
         public void Setup()
         {
-            _preprocessor = new VinePreprocessor();
+            _preProcessor = new JsVinePreProcessor();
         }
 
         [Test]
         public void Script()
         {
-            var processed = _preprocessor.Execute("{{return 'foo';}}");
+            var processed = _preProcessor.Execute("{{return 'foo';}}");
 
             Assert.AreEqual("foo", processed);
         }
@@ -24,7 +24,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [Test]
         public void Script_Loop()
         {
-            var processed = _preprocessor.Execute(
+            var processed = _preProcessor.Execute(
 "{{ var nums = []; for (var i = 0, len = 10; i < len; i++) nums.push(i); return nums.join(''); }}");
 
             Assert.AreEqual("0123456789", processed);

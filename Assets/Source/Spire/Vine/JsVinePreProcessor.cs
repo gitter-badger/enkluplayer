@@ -2,15 +2,22 @@
 using System.Text;
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Vine
 {
-    public class VinePreprocessor
+    /// <summary>
+    /// Preprocessor.
+    /// </summary>
+    public class JsVinePreProcessor : IVinePreProcessor
     {
-        private static long IDS = 0;
+        /// <summary>
+        /// For creating unique ids.
+        /// </summary>
+        private static long _ids = 0;
         
+        /// <summary>
+        /// JS engine.
+        /// </summary>
         private readonly Engine _engine = new Engine(options =>
         {
             options.AllowClr();
@@ -20,6 +27,11 @@ namespace CreateAR.SpirePlayer.Vine
             });
         });
 
+        /// <summary>
+        /// Transforms an input stream.
+        /// </summary>
+        /// <param name="data">Source data.</param>
+        /// <returns></returns>
         public string Execute(string data)
         {
             var builder = new StringBuilder();
@@ -46,7 +58,6 @@ namespace CreateAR.SpirePlayer.Vine
                 // process script + append output
                 string contextName;
                 script = ExecutionContext(script, out contextName);
-                Debug.Log(script);
                 _engine.Execute(script);
 
                 var callable = _engine.GetFunction(contextName);
@@ -68,11 +79,17 @@ namespace CreateAR.SpirePlayer.Vine
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Creates a safe-ish execution context.
+        /// </summary>
+        /// <param name="script">Script to execute.</param>
+        /// <param name="contextName">Outputs a unique context name.</param>
+        /// <returns></returns>
         private string ExecutionContext(
             string script,
             out string contextName)
         {
-            contextName = string.Format("Context_{0}", IDS++);
+            contextName = string.Format("Context_{0}", _ids++);
             return string.Format(@"
 function {0}()
 {{
