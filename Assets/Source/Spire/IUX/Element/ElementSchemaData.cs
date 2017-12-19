@@ -10,32 +10,32 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Name to string value.
         /// </summary>
-        public Dictionary<string, string> Strings;
+        public Dictionary<string, string> Strings = new Dictionary<string, string>();
 
         /// <summary>
         /// Name to int value.
         /// </summary>
-        public Dictionary<string, int> Ints;
+        public Dictionary<string, int> Ints = new Dictionary<string, int>();
 
         /// <summary>
         /// Name to float value.
         /// </summary>
-        public Dictionary<string, float> Floats;
+        public Dictionary<string, float> Floats = new Dictionary<string, float>();
 
         /// <summary>
         /// Name to bool value.
         /// </summary>
-        public Dictionary<string, bool> Bools;
+        public Dictionary<string, bool> Bools = new Dictionary<string, bool>();
 
         /// <summary>
         /// Name to Vec3 value.
         /// </summary>
-        public Dictionary<string, Vec3> Vectors;
+        public Dictionary<string, Vec3> Vectors = new Dictionary<string, Vec3>();
 
         /// <summary>
         /// Name to Vec3 value.
         /// </summary>
-        public Dictionary<string, Col4> Colors;
+        public Dictionary<string, Col4> Colors = new Dictionary<string, Col4>();
 
         /// <summary>
         /// Default constructor.
