@@ -209,6 +209,18 @@ namespace CreateAR.SpirePlayer.Vine
         }
 
         /// <inheritdoc cref="IVineParserListener"/>
+        public void EnterScript(VineParser.ScriptContext context)
+        {
+            //
+        }
+
+        /// <inheritdoc cref="IVineParserListener"/>
+        public void ExitScript(VineParser.ScriptContext context)
+        {
+            //
+        }
+
+        /// <inheritdoc cref="IVineParserListener"/>
         public void EnterAttribute(VineParser.AttributeContext context)
         {
             _currentAttribute = new AttributeData();
