@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using CreateAR.SpirePlayer.IUX;
-using Vine;
 
 using ElementMap = CreateAR.Commons.Unity.DataStructures.Tuple<string, int>;
 
