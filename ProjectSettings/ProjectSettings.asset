@@ -537,14 +537,14 @@ PlayerSettings:
   m_MobileRenderingPath: 1
   metroPackageName: spireplayer-unity
   metroPackageVersion: 1.0.0.0
-  metroCertificatePath: Assets\WSATestCertificate.pfx
+  metroCertificatePath: Assets/WSATestCertificate.pfx
   metroCertificatePassword: 
-  metroCertificateSubject: DefaultCompany
-  metroCertificateIssuer: DefaultCompany
-  metroCertificateNotAfter: 0048c705e656d401
-  metroApplicationDescription: spireplayer-unity
+  metroCertificateSubject: CreateAR
+  metroCertificateIssuer: CreateAR
+  metroCertificateNotAfter: 002687d9e698d401
+  metroApplicationDescription: SpirePlayer
   wsaImages: {}
-  metroTileShortName: 
+  metroTileShortName: SpirePlayer
   metroCommandLineArgsFile: 
   metroTileShowName: 0
   metroMediumTileShowName: 0
