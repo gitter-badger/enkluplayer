@@ -53,11 +53,7 @@ public partial class VineLexer : Lexer {
 		"TAG_EQUALS", "ATTRIBUTE_VALUE", "ATTRIBUTE", "ATTCHAR", "ATTCHARS", "HEXCHARS", 
 		"DECCHARS", "DOUBLE_QUOTE_STRING", "SINGLE_QUOTE_STRING"
 	};
-
-
-	public VineLexer(ICharStream input)
-	: this(input, Console.Out, Console.Error) { }
-
+    
 	public VineLexer(ICharStream input, TextWriter output, TextWriter errorOutput)
 	: base(input, output, errorOutput)
 	{
