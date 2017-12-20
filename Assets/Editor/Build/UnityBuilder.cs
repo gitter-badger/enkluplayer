@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
@@ -18,15 +17,15 @@ namespace CreateAR.SpirePlayer.Editor
             | BuildOptions.Development
             | BuildOptions.ForceEnableAssertions;
 
-        private const string BASE_PATH = "./";
-        private const string PATH_WEBGL = BASE_PATH + "Builds/WebGl";
-        private const string PATH_WSAX86 = BASE_PATH + "Builds/Wsa.x86";
-        private const string PATH_WSAX64 = BASE_PATH + "Builds/Wsa.x64";
-        private const string PATH_WSAARM = BASE_PATH + "Builds/Wsa.ARM";
-        private const string PATH_IOS = BASE_PATH + "Builds/iOS";
-        private const string PATH_ANDROID = BASE_PATH + "Builds/Android";
-        private const string PATH_WINDOWS = BASE_PATH + "Builds/Standalone.Windows";
-        private const string PATH_OSX = BASE_PATH + "Builds/Standalone.Osx";
+        private const string BASE_PATH = "./Builds/";
+        private const string PATH_WEBGL = BASE_PATH + "WebGl";
+        private const string PATH_WSAX86 = BASE_PATH + "Wsa.x86";
+        private const string PATH_WSAX64 = BASE_PATH + "Wsa.x64";
+        private const string PATH_WSAARM = BASE_PATH + "Wsa.ARM";
+        private const string PATH_IOS = BASE_PATH + "iOS";
+        private const string PATH_ANDROID = BASE_PATH + "Android";
+        private const string PATH_WINDOWS = BASE_PATH + "Standalone.Windows";
+        private const string PATH_OSX = BASE_PATH + "Standalone.Osx";
 
         /// <summary>
         /// Builds app.
