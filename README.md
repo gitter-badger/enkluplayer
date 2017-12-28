@@ -25,7 +25,7 @@ A detailed diagram can be found [here](https://www.lucidchart.com/documents/view
 * [AssetManager](docs/assets.md)
   * For details on how assets are uploaded, imported, and served, see [this diagram](https://www.lucidchart.com/documents/view/dd316cb9-5b27-4e67-8829-e508d91b4e79).
 * [Scripting](docs/scripting.overview.md)
-* [ContentGraph](docs/contentgraph.md)
+* ~[ContentGraph](docs/contentgraph.md)~ Obsolete
 * [Element](docs/element.md)
   * [Queries](docs/element.query.md)
 
