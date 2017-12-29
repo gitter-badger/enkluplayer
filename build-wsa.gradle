@@ -1,0 +1,75 @@
+def wsaDir = './Builds/Wsa.x86'
+
+/**
+ * Overwrites app manifest with proper information.
+ * 
+ * TODO: Should be able to be just a copy + filter...
+ */
+task buildWsa_editManifest {
+    doLast {
+        def fileName = "$wsaDir/spireplayer/Package.appxmanifest"
+        def file = new File(fileName)
+        def text = ""
+
+        file.eachLine { String line ->
+            if (line.startsWith("  <Identity")) {
+                text += "  <Identity Name=\"$app_name\" Publisher=\"CN=CreateAR\" Version=\"$app_version\" />\n"
+            } else {
+                text += line + "\n"
+            }
+        }
+
+        file.text = text
+    }
+}
+
+/**
+ * Restores solution with Nuget.
+ */
+task buildWsa_restoreSolution(type:Exec) {
+    workingDir wsaDir
+    executable nugetAbsPath
+    args 'restore'
+    standardOutput System.out
+}
+
+/**
+ * Builds solution with csc.
+ */
+task buildWsa_buildSolution(type:Exec) {
+    workingDir wsaDir
+    executable cscPath
+    args '/p:Configuration=Debug', '/p:Platform=x86'
+    standardOutput System.out
+}
+
+def appxUploadName = "${app_name}.${app_version}.appxupload"
+def appxTargetDir = "."
+
+task buildWsa_archiveUpload(type:Zip) {
+    from (wsaDir) {
+        include '**/*.appx'
+        include '**/*.appxsym'
+    }
+    archiveName appxUploadName
+    destinationDir file(appxTargetDir)
+}
+
+buildWsa_editManifest.mustRunAfter buildWsa_unity
+buildWsa_restoreSolution.mustRunAfter buildWsa_editManifest
+buildWsa_buildSolution.mustRunAfter buildWsa_restoreSolution
+buildWsa_archiveUpload.mustRunAfter buildWsa_buildSolution
+
+/**
+ * Builds app.
+ */
+task buildWsa(dependsOn:[
+    buildWsa_unity,
+    buildWsa_editManifest,
+    buildWsa_restoreSolution,
+    buildWsa_buildSolution]) {
+
+    doLast {
+        // TODO: zip    
+    }
+}
