@@ -46,7 +46,10 @@ task buildWsa_buildSolution(type:Exec) {
 def appxUploadName = "${app_name}.${app_version}.appxupload"
 def appxTargetDir = "."
 
-task buildWsa_archiveUpload(type:Zip) {
+/**
+ * Builds an appxupload file.
+ */
+task buildWsa_archiveUpload(type:Zip, dependsOn:buildWsa_buildSolution) {
     from (wsaDir) {
         include '**/*.appx'
         include '**/*.appxsym'
@@ -58,7 +61,6 @@ task buildWsa_archiveUpload(type:Zip) {
 buildWsa_editManifest.mustRunAfter buildWsa_unity
 buildWsa_restoreSolution.mustRunAfter buildWsa_editManifest
 buildWsa_buildSolution.mustRunAfter buildWsa_restoreSolution
-buildWsa_archiveUpload.mustRunAfter buildWsa_buildSolution
 
 /**
  * Builds app.
