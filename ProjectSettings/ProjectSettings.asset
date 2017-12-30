@@ -11,8 +11,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
-  productName: spireplayer-unity
+  companyName: CreateAR
+  productName: spireplayer
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
@@ -150,7 +150,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    iOS: com.createar.spire
+    iOS: com.createar.spireplayer
   buildNumber: {}
   AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 16
@@ -535,16 +535,16 @@ PlayerSettings:
     WebGL: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: spireplayer-unity
-  metroPackageVersion: 1.0.0.0
-  metroCertificatePath: Assets\WSATestCertificate.pfx
+  metroPackageName: spireplayer
+  metroPackageVersion: 0.1.0.0
+  metroCertificatePath: Assets/WSATestCertificate.pfx
   metroCertificatePassword: 
-  metroCertificateSubject: DefaultCompany
-  metroCertificateIssuer: DefaultCompany
-  metroCertificateNotAfter: 0048c705e656d401
-  metroApplicationDescription: spireplayer-unity
+  metroCertificateSubject: CreateAR
+  metroCertificateIssuer: CreateAR
+  metroCertificateNotAfter: 002687d9e698d401
+  metroApplicationDescription: SpirePlayer
   wsaImages: {}
-  metroTileShortName: 
+  metroTileShortName: SpirePlayer
   metroCommandLineArgsFile: 
   metroTileShowName: 0
   metroMediumTileShowName: 0

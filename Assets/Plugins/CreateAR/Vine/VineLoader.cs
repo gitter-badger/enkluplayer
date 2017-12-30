@@ -4,8 +4,16 @@ using UnityEngine;
 
 namespace CreateAR.Commons.Vine
 {
+    /// <summary>
+    /// Loads a Vine document from a string of data.
+    /// </summary>
     public class VineLoader
     {
+        /// <summary>
+        /// Loads a Vine document from a string.
+        /// </summary>
+        /// <param name="data">The Vine source.</param>
+        /// <returns></returns>
         public VineParser.DocumentContext Load(string data)
         {
             var stdout = new StreamWriter(File.OpenWrite(Path.Combine(
