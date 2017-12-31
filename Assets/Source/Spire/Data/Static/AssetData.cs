@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
@@ -10,13 +10,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Minumum.
         /// </summary>
-        [JsonProperty("min")]
+        [JsonName("min")]
         public Vec3 Min;
 
         /// <summary>
         /// Maximum.
         /// </summary>
-        [JsonProperty("max")]
+        [JsonName("max")]
         public Vec3 Max;
     }
 
@@ -28,19 +28,19 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Vert count.
         /// </summary>
-        [JsonProperty("vertCount")]
+        [JsonName("vertCount")]
         public int VertCount;
 
         /// <summary>
         /// Tri count.
         /// </summary>
-        [JsonProperty("triCount")]
+        [JsonName("triCount")]
         public int TriCount;
 
         /// <summary>
         /// Bounds.
         /// </summary>
-        [JsonProperty("bounds")]
+        [JsonName("bounds")]
         public AssetStatsBounds Bounds;
     }
 
@@ -54,44 +54,44 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Identifier unique to this asset.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonName("id")]
         public string Guid;
         
         /// <summary>
         /// The URI at which to download the asset. This is not a complete URI
         /// but used to create a complete URI.
         /// </summary>
-        [JsonProperty("uri")]
+        [JsonName("uri")]
         public string Uri;
 
         /// <summary>
         /// Name of the asset in the bundle.
         /// </summary>
-        [JsonProperty("name")]
+        [JsonName("name")]
         public string AssetName;
 
         /// <summary>
         /// Version of the asset.
         /// </summary>
-        [JsonProperty("version")]
+        [JsonName("version")]
         public int Version;
 
         /// <summary>
         /// Crc for checking download validity.
         /// </summary>
-        [JsonProperty("crc")]
+        [JsonName("crc")]
         public string Crc;
 
         /// <summary>
         /// Tags associated with this asset.
         /// </summary>
-        [JsonProperty("tags")]
+        [JsonName("tags")]
         public string Tags;
 
         /// <summary>
         /// Stats associated with this asset, if any.
         /// </summary>
-        [JsonProperty("stats")]
+        [JsonName("stats")]
         public AssetStats Stats = new AssetStats();
         
         /// <summary>

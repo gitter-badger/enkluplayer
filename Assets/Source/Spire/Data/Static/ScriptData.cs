@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
@@ -11,19 +11,19 @@ namespace CreateAR.SpirePlayer
         /// The URI at which to download the script. This is not a complete URI
         /// but used to create a complete URI.
         /// </summary>
-        [JsonProperty("uri")]
+        [JsonName("uri")]
         public string Uri;
 
         /// <summary>
         /// If true, plays on its own.
         /// </summary>
-        [JsonProperty("autoplay")]
+        [JsonName("autoplay")]
         public bool AutoPlay;
 
         /// <summary>
         /// Tags associated with this script.
         /// </summary>
-        [JsonProperty("tags")]
+        [JsonName("tags")]
         public string[] Tags;
 
         /// <summary>

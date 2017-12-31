@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
-using Newtonsoft.Json;
+using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
@@ -13,15 +13,15 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="ISerializer"/>
         public void Serialize(object value, out byte[] bytes)
         {
-            bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value));
+            bytes = Encoding.UTF8.GetBytes(new JsonObject().ToString(true));
         }
 
         /// <inheritdoc cref="ISerializer"/>
         public void Deserialize(Type type, ref byte[] bytes, out object value)
         {
-            value = JsonConvert.DeserializeObject(
-                Encoding.UTF8.GetString(bytes),
-                type);
+            value = JsonValue
+                .Parse(Encoding.UTF8.GetString(bytes))
+                .As(type);
         }
     }
 }

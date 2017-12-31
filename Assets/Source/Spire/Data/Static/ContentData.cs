@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
@@ -14,43 +14,43 @@ namespace CreateAR.SpirePlayer
         /// If true, each request from the IContentManager will create a new
         /// <c>Content</c> instance.
         /// </summary>
-        [JsonProperty("unique")]
+        [JsonName("unique")]
         public bool Unique;
 
         /// <summary>
         /// If true, does not inherit color from parent.
         /// </summary>
-        [JsonProperty("preserveColor")]
+        [JsonName("preserveColor")]
         public bool PreserveColor;
 
         /// <summary>
         /// Tags associated with this piece of content.
         /// </summary>
-        [JsonProperty("tags")]
+        [JsonName("tags")]
         public string Tags;
 
         /// <summary>
         /// Data about the asset.
         /// </summary>
-        [JsonProperty("asset")]
+        [JsonName("asset")]
         public AssetReference Asset;
 
         /// <summary>
         /// Links to the material.
         /// </summary>
-        [JsonProperty("materialId")]
+        [JsonName("materialId")]
         public string MaterialId;
         
         /// <summary>
         /// Describes how to anchor this content.
         /// </summary>
-        [JsonProperty("anchor")]
+        [JsonName("anchor")]
         public AnchorData Anchor = new AnchorData();
 
         /// <summary>
         /// Scripts that execute on this piece of content.
         /// </summary>
-        [JsonProperty("scripts")]
+        [JsonName("scripts")]
         public List<ScriptReference> Scripts = new List<ScriptReference>();
 
         /// <summary>

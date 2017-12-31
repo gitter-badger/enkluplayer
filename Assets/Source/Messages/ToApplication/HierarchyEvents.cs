@@ -1,37 +1,37 @@
-﻿using Newtonsoft.Json;
+﻿using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
     public class HierarchyListEvent
     {
-        [JsonProperty("children")]
+        [JsonName("children")]
         public HierarchyNodeData[] Children;
     }
 
     public class HierarchySelectEvent
     {
-        [JsonProperty("contentId")]
-        public string ContentId { get; set; }
+        [JsonName("contentId")]
+        public string ContentId;
     }
 
     public class HierarchyRemoveEvent
     {
-        [JsonProperty("contentId")]
-        public string ContentId { get; set; }
+        [JsonName("contentId")]
+        public string ContentId;
     }
 
     public class HierarchyAddEvent
     {
-        [JsonProperty("parent")]
-        public string Parent { get; set; }
+        [JsonName("parent")]
+        public string Parent;
 
-        [JsonProperty("node")]
-        public HierarchyNodeData Node { get; set; }
+        [JsonName("node")]
+        public HierarchyNodeData Node;
     }
 
     public class HierarchyUpdateEvent
     {
-        [JsonProperty("node")]
-        public HierarchyNodeData Node { get; set; }
+        [JsonName("node")]
+        public HierarchyNodeData Node;
     }
 }

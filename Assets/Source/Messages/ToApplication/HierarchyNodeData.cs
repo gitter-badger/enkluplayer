@@ -1,25 +1,25 @@
-﻿using Newtonsoft.Json;
+﻿using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
     public class HierarchyNodeLocatorData
     {
-        [JsonProperty("id")]
+        [JsonName("id")]
         public string Id;
 
-        [JsonProperty("name")]
+        [JsonName("name")]
         public string Name;
 
-        [JsonProperty("description")]
+        [JsonName("description")]
         public string Description;
 
-        [JsonProperty("position")]
+        [JsonName("position")]
         public float[] PositionArray;
 
-        [JsonProperty("rotation")]
+        [JsonName("rotation")]
         public float[] RotationArray;
 
-        [JsonProperty("scale")]
+        [JsonName("scale")]
         public float[] ScaleArray;
 
         public Vec3 Position
@@ -58,15 +58,15 @@ namespace CreateAR.SpirePlayer
 
     public class HierarchyNodeData
     {
-        [JsonProperty("id")]
+        [JsonName("id")]
         public string Id;
 
-        [JsonProperty("contentId")]
+        [JsonName("contentId")]
         public string ContentId;
 
-        [JsonProperty("children")]
+        [JsonName("children")]
         public HierarchyNodeData[] Children = new HierarchyNodeData[0];
 
-        [JsonProperty("locators")] public HierarchyNodeLocatorData[] Locators = new HierarchyNodeLocatorData[0];
+        [JsonName("locators")] public HierarchyNodeLocatorData[] Locators = new HierarchyNodeLocatorData[0];
     }
 }

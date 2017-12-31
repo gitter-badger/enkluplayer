@@ -1,28 +1,28 @@
-﻿using Newtonsoft.Json;
+﻿using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
     public class ShaderListEvent
     {
-        [JsonProperty("Shaders")]
+        [JsonName("Shaders")]
         public ShaderData[] Shaders;
     }
 
     public class ShaderAddEvent
     {
-        [JsonProperty("Shader")]
+        [JsonName("Shader")]
         public ShaderData Shader;
     }
 
     public class ShaderUpdateEvent
     {
-        [JsonProperty("Shader")]
+        [JsonName("Shader")]
         public ShaderData Shader;
     }
 
     public class ShaderRemoveEvent
     {
-        [JsonProperty("id")]
+        [JsonName("id")]
         public string Id;
     }
 }

@@ -1,28 +1,28 @@
-﻿using Newtonsoft.Json;
+﻿using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
     public class ContentListEvent
     {
-        [JsonProperty("content")]
+        [JsonName("content")]
         public ContentData[] Content;
     }
 
     public class ContentAddEvent
     {
-        [JsonProperty("content")]
+        [JsonName("content")]
         public ContentData Content;
     }
 
     public class ContentUpdateEvent
     {
-        [JsonProperty("content")]
+        [JsonName("content")]
         public ContentData Content;
     }
 
     public class ContentRemoveEvent
     {
-        [JsonProperty("id")]
+        [JsonName("id")]
         public string Id;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using Newtonsoft.Json;
+using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
@@ -12,19 +12,19 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Id of the shader to use.
         /// </summary>
-        [JsonProperty("shaderId")]
-        public string ShaderId { get; set; }
+        [JsonName("shaderId")]
+        public string ShaderId;
 
         /// <summary>
         /// Uniform => Value.
         /// </summary>
-        [JsonProperty("properties")]
+        [JsonName("properties")]
         public Dictionary<string, object> Properties;
 
         /// <summary>
         /// Uniform => AssetId.
         /// </summary>
-        [JsonProperty("textures")]
+        [JsonName("textures")]
         public Dictionary<string, string> Textures;
 
         /// <summary>
