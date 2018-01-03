@@ -1,77 +1,45 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using CreateAR.Commons.Unity.Logging;
 using NUnit.Framework.Interfaces;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.Events;
 
 namespace CreateAR.SpirePlayer.Editor
 {
-    public class TestListener
+    /// <summary>
+    /// Runs unit tests from an internal API.
+    /// </summary>
+    public static class UnitTestRunner
     {
-        private readonly List<ITestResult> _results = new List<ITestResult>();
-        
-        public void OnFinishedTest(ITestResult result)
-        {
-            _results.Add(result);
-        }
-
-        public void OnFinishedAll()
-        {
-            var builder = new StringBuilder();
-            foreach (var result in _results)
-            {
-                if (result.FailCount > 0)
-                {
-                    builder.AppendFormat("Test : {0}\n", result.FullName);
-                    builder.AppendFormat("\tFailed {0} tests.\n", result.FailCount);
-                    builder.AppendFormat("\t{0}\n", result.Output);
-                    builder.AppendFormat("{0}\n\n", result.StackTrace);
-                }
-            }
-
-            if (builder.Length > 0)
-            {
-                Debug.LogError(builder.ToString());
-
-                throw new Exception("Tests failed.");
-            }
-
-            Debug.Log("All tests passed.");
-        }
-    }
-
-    public static class ExperimentalTools
-    {
+        /// <summary>
+        /// TestRunner assembly.
+        /// </summary>
         private const string EDITOR_TESTRUNNER_ASSEMBLY = "UnityEditor.TestRunner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
-        private const string ENGINE_TESTRUNNER_ASSEMBLY = "UnityEngine.TestRunner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
-
-        private static FieldInfo _isRunning;
-        private static TestListener _listener;
 
         /// <summary>
-        /// Unity has no API to run tests programmatically, thus-- this method.
+        /// Engine assembly.
         /// </summary>
-        [MenuItem("Tools/Run Tests (EXPERIMENTAL)")]
-        public static void RunTests()
-        {
-            if (Log.Targets.Length == 0)
-            {
-                Log.AddLogTarget(new FileLogTarget(
-                    new DefaultLogFormatter(),
-                    Path.Combine(
-                        UnityEngine.Application.persistentDataPath,
-                        "UnitTests.log")));
-                Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter()));
-            }
+        private const string ENGINE_TESTRUNNER_ASSEMBLY = "UnityEngine.TestRunner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
 
-            _listener = new TestListener();
-            
+        /// <summary>
+        /// Field we poll for completion.
+        /// </summary>
+        private static FieldInfo _isRunning;
+
+        /// <summary>
+        /// Runner!
+        /// </summary>
+        private static IUnitTestListener _listener;
+
+        /// <summary>
+        /// Runs unit tests.
+        /// </summary>
+        /// <param name="listener">Listener object.</param>
+        public static void Run(IUnitTestListener listener)
+        {
+            _listener = listener;
+
             var launcherType = LoadType(EDITOR_TESTRUNNER_ASSEMBLY, "UnityEditor.TestTools.TestRunner.EditModeLauncher");
             var filterType = LoadType(ENGINE_TESTRUNNER_ASSEMBLY, "UnityEngine.TestTools.TestRunner.GUI.TestRunnerFilter");
             
@@ -118,6 +86,9 @@ namespace CreateAR.SpirePlayer.Editor
             EditorApplication.update += OnUpdate;
         }
 
+        /// <summary>
+        /// Called on EditorUpdate.
+        /// </summary>
         private static void OnUpdate()
         {
             if ((bool) _isRunning.GetValue(null))
@@ -130,6 +101,12 @@ namespace CreateAR.SpirePlayer.Editor
             _listener.OnFinishedAll();
         }
 
+        /// <summary>
+        /// Loads a type from an assembly.
+        /// </summary>
+        /// <param name="assemblyName">Name of the assembly to load from.</param>
+        /// <param name="name">Name of the type to load.</param>
+        /// <returns></returns>
         private static Type LoadType(string assemblyName, string name)
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();

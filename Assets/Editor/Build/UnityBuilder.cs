@@ -76,6 +76,15 @@ namespace CreateAR.SpirePlayer.Editor
         }
 
         /// <summary>
+        /// Runs unit tests.
+        /// </summary>
+        [MenuItem("Tools/Run Unit Tests %t")]
+        public static void RunTests()
+        {
+            UnitTestRunner.Run(new UnitTestListener());
+        }
+
+        /// <summary>
         /// Builds the player.
         /// </summary>
         /// <param name="requiredPlatform">Required runtime platform (to avoid accidental reimports).</param>
