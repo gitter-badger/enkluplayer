@@ -84,7 +84,6 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void FindOneShallow()
         {
-            Debug.Log(_element.ToTreeString());
             Assert.AreEqual("b", _element.FindOne<Element>("b").Id);
             Assert.IsNull(_element.FindOne<Element>("h"));
         }
