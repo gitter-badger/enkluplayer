@@ -81,6 +81,8 @@ namespace CreateAR.SpirePlayer.Editor
         [MenuItem("Tools/Run Unit Tests %t")]
         public static void RunTests()
         {
+            Debug.Log("Running tests.");
+
             UnitTestRunner.Run(new UnitTestListener());
         }
 
@@ -102,7 +104,7 @@ namespace CreateAR.SpirePlayer.Editor
                     UnityEngine.Application.platform,
                     requiredPlatform));
             }*/
-            
+
             var options = new BuildPlayerOptions
             {
                 scenes = _Scenes,
