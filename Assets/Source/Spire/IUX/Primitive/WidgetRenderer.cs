@@ -17,6 +17,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Source widget.
         /// </summary>
         private Widget _source;
+
+        /// <summary>
+        /// Local color
+        /// </summary>
+        private Col4 _localColor = Col4.White;
         
         /// <summary>
         /// Target graphic (Unity UI rendering system).
@@ -42,6 +47,15 @@ namespace CreateAR.SpirePlayer.IUX
         /// Name of the color in the primary material of the target renderer.
         /// </summary>
         public string MaterialColorName = "_Color";
+
+        /// <summary>
+        /// Local color accessor
+        /// </summary>
+        public Col4 LocalColor
+        {
+            get { return _localColor; }
+            set { _localColor = value; }
+        }
 
         /// <summary>
         /// String override.
@@ -75,7 +89,7 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            var color = _source.Color;
+            var color = _source.Color * _localColor;
             if (Graphic != null)
             {
                 Graphic.color = color.ToColor();
