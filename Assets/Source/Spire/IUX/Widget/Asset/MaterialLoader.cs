@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
-using Newtonsoft.Json.Linq;
+using LightJson;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -216,7 +216,7 @@ namespace CreateAR.SpirePlayer.IUX
             foreach (var prop in _materialData.Properties)
             {
                 var name = prop.Key;
-                var value = (JObject) prop.Value;
+                var value = (JsonValue) prop.Value;
 
                 TrySetColor(value, name);
             }
@@ -232,7 +232,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         /// <param name="value"><c>JObject</c> value.</param>
         /// <param name="name">Name of the uniform.</param>
-        private bool TrySetColor(JObject value, string name)
+        private bool TrySetColor(JsonValue value, string name)
         {
             return false;
             /*JToken r, g, b, a;

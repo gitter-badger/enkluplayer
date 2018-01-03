@@ -7,6 +7,13 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     internal class ElementQuery
     {
+        private const string OPERATOR_EQUALS = "==";
+        private const string OPERATOR_NOT_EQUALS = "!=";
+        private const string OPERATOR_LT = "<";
+        private const string OPERATOR_LT_EQUALS = "<=";
+        private const string OPERATOR_GT = ">";
+        private const string OPERATOR_GT_EQUALS = ">=";
+
         /// <summary>
         /// Regex for name matches.
         /// </summary>
@@ -15,7 +22,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Regex for property matches.
         /// </summary>
-        private static readonly Regex PROPERTY_QUERY = new Regex(@"^\(@(\w+)=(\w+)\)$");
+        private static readonly Regex PROPERTY_QUERY = new Regex(@"^\(@(\w+)([<>=!]=?)(\w+)\)$");
 
         /// <summary>
         /// Property to look for.
@@ -31,17 +38,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Operator to look for.
         /// </summary>
         private string _operator;
-
-        /// <summary>
-        /// Start index.
-        /// </summary>
-        private int _startIndex;
-
-        /// <summary>
-        /// End index.
-        /// </summary>
-        private int _endIndex;
-
+        
         /// <summary>
         /// True iff this is a valid query.
         /// </summary>
@@ -81,7 +78,9 @@ namespace CreateAR.SpirePlayer.IUX
             // bool
             if (_propValue == "true" || _propValue == "false")
             {
-                var boolValue = _propValue == "true";
+                var boolValue = _operator == OPERATOR_EQUALS
+                    ? _propValue == "true"
+                    : _propValue == "false";
                 return boolValue == element.Schema.Get<bool>(_propName).Value;
             }
 
@@ -89,7 +88,38 @@ namespace CreateAR.SpirePlayer.IUX
             int intValue;
             if (int.TryParse(_propValue, out intValue))
             {
-                return intValue == element.Schema.Get<int>(_propName).Value;
+                var val = element.Schema.Get<int>(_propName).Value;
+                switch (_operator)
+                {
+                    case OPERATOR_EQUALS:
+                    {
+                        return intValue == val;
+                    }
+                    case OPERATOR_NOT_EQUALS:
+                    {
+                        return intValue != val;
+                    }
+                    case OPERATOR_GT:
+                    {
+                        return val > intValue;
+                    }
+                    case OPERATOR_GT_EQUALS:
+                    {
+                        return val >= intValue;
+                    }
+                    case OPERATOR_LT:
+                    {
+                        return val < intValue;
+                    }
+                    case OPERATOR_LT_EQUALS:
+                    {
+                        return val <= intValue;
+                    }
+                    default:
+                    {
+                        return false;
+                    }
+                }
             }
 
             // string
@@ -115,22 +145,25 @@ namespace CreateAR.SpirePlayer.IUX
             if (match.Success)
             {
                 _propName = "id";
-                _operator = "==";
+                _operator = OPERATOR_EQUALS;
                 _propValue = match.Groups[1].Value;
-                _startIndex = 0;
-                _endIndex = 0;
-
+                
                 IsValid = true;
             }
             else
             {
                 match = PROPERTY_QUERY.Match(value);
 
-                if (match.Success)
+                if (match.Success) 
                 {
                     _propName = match.Groups[1].Value;
-                    _operator = "==";
-                    _propValue = match.Groups[2].Value;
+                    _operator = match.Groups[2].Value;
+                    if (_operator == "=")
+                    {
+                        _operator = OPERATOR_EQUALS;
+                    }
+
+                    _propValue = match.Groups[3].Value;
                     
                     IsValid = true;
                 }
