@@ -19,9 +19,17 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="ISerializer"/>
         public void Deserialize(Type type, ref byte[] bytes, out object value)
         {
-            value = JsonValue
-                .Parse(Encoding.UTF8.GetString(bytes))
-                .As(type);
+            var json = Encoding.UTF8.GetString(bytes);
+            if (string.IsNullOrEmpty(json))
+            {
+                value = null;
+            }
+            else
+            {
+                value = JsonValue
+                    .Parse(json)
+                    .As(type);
+            }
         }
     }
 }
