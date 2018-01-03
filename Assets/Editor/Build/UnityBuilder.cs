@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
@@ -105,48 +103,6 @@ namespace CreateAR.SpirePlayer.Editor
             };
 
             BuildPipeline.BuildPlayer(options);
-        }
-
-        /// <summary>
-        /// Unity has no API to run tests programmatically, thus-- this method.
-        /// </summary>
-        [MenuItem("Hacks/Run Tests")]
-        public static void RunTests()
-        {
-            Type launcherType = null;
-            Type filterType = null;
-
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var assembly in assemblies)
-            {
-                if ("UnityEditor.TestRunner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" == assembly.FullName)
-                {
-                    var types = assembly.GetTypes();
-                    foreach (var type in types)
-                    {
-                        if (type.FullName == "UnityEditor.TestTools.TestRunner.EditModeLauncher")
-                        {
-                            launcherType = type;
-                        }
-                    }
-                }
-                else if ("UnityEngine.TestRunner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" == assembly.FullName)
-                {
-                    var types = assembly.GetTypes();
-                    foreach (var type in types)
-                    {
-                        if (type.FullName == "UnityEngine.TestTools.TestRunner.GUI.TestRunnerFilter")
-                        {
-                            filterType = type;
-                        }
-                    }
-                }
-            }
-
-            var filter = Activator.CreateInstance(filterType);
-            var launcher = Activator.CreateInstance(launcherType, new object[] { filter });
-            var method = launcher.GetType().GetMethod("Run", BindingFlags.Instance | BindingFlags.Public);
-            method.Invoke(launcher, new object[0]);
         }
     }
 }
