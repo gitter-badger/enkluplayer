@@ -210,7 +210,7 @@ namespace CreateAR.SpirePlayer.IUX
         public void UpdateStabilityTransform()
         {
             var focusTween = Fill != null
-                ? 0.0f//Fill.Tween
+                ? Fill.Tween
                 : 1.0f;
 
             var degrees = _activator.Stability * _config.StabilityRotation;
@@ -225,7 +225,7 @@ namespace CreateAR.SpirePlayer.IUX
         public void UpdateFillImage()
         {
             FillImage.fillAmount = _activator.Activation;
-            //Fill.LocalVisible = _activator.CurrentState is ActivatorActivatingState;
+            Fill.LocalVisible = _activator.CurrentState is ActivatorActivatingState;
         }
 
         /// <summary>

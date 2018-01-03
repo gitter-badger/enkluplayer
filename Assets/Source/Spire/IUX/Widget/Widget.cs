@@ -242,11 +242,6 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 var tween = _localTween;
 
-                if (_localTween < Mathf.Epsilon)
-                {
-                    Log.Info(this, "[{0}] _localTween is 0.", ToString());
-                }
-                
                 if (Parent != null)
                 {
                     tween *= Parent.Tween;
@@ -571,7 +566,7 @@ namespace CreateAR.SpirePlayer.IUX
 
                 if (_localTween < Mathf.Epsilon)
                 {
-                    Log.Debug(this, "My _localTween had been set to zero from visibility.");
+                    LogVerbose("My _localTween had been set to zero from visibility.");
                 }
             }
             else
@@ -585,7 +580,7 @@ namespace CreateAR.SpirePlayer.IUX
 
                 if (_localTween < Mathf.Epsilon)
                 {
-                    Log.Debug(this, "My _localTween had been set to zero from tweening");
+                    LogVerbose("My _localTween had been set to zero from tweening");
                 }
             }
         }
