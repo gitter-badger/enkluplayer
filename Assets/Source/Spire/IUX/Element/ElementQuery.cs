@@ -22,7 +22,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Regex for property matches.
         /// </summary>
-        private static readonly Regex PROPERTY_QUERY = new Regex(@"^\(@(\w+)=(\w+)\)$");
+        private static readonly Regex PROPERTY_QUERY = new Regex(@"^\(@(\w+)([<>=!]=?)(\w+)\)$");
 
         /// <summary>
         /// Property to look for.
@@ -115,6 +115,10 @@ namespace CreateAR.SpirePlayer.IUX
                     {
                         return val <= intValue;
                     }
+                    default:
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -141,7 +145,7 @@ namespace CreateAR.SpirePlayer.IUX
             if (match.Success)
             {
                 _propName = "id";
-                _operator = "==";
+                _operator = OPERATOR_EQUALS;
                 _propValue = match.Groups[1].Value;
                 
                 IsValid = true;
@@ -153,8 +157,13 @@ namespace CreateAR.SpirePlayer.IUX
                 if (match.Success) 
                 {
                     _propName = match.Groups[1].Value;
-                    _operator = "==";
-                    _propValue = match.Groups[2].Value;
+                    _operator = match.Groups[2].Value;
+                    if (_operator == "=")
+                    {
+                        _operator = OPERATOR_EQUALS;
+                    }
+
+                    _propValue = match.Groups[3].Value;
                     
                     IsValid = true;
                 }
