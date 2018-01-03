@@ -1,9 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using CreateAR.Commons.Unity.Logging;
 using NUnit.Framework.Interfaces;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.Events;
 
 namespace CreateAR.SpirePlayer.Editor
@@ -12,7 +13,7 @@ namespace CreateAR.SpirePlayer.Editor
     {
         public void OnFinished(ITestResult result)
         {
-            Debug.Log("CALLED!!!!!");
+            Log.Debug(this, "CALLED!!!!!");
         }
     }
 
@@ -20,16 +21,27 @@ namespace CreateAR.SpirePlayer.Editor
     {
         private const string EDITOR_TESTRUNNER_ASSEMBLY = "UnityEditor.TestRunner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
         private const string ENGINE_TESTRUNNER_ASSEMBLY = "UnityEngine.TestRunner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
-        private const string ENGINE_COREMODULE = "UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
+
+        private static TestListener _listener;
 
         /// <summary>
         /// Unity has no API to run tests programmatically, thus-- this method.
         /// </summary>
-        [MenuItem("Hacks/Run Tests")]
+        [MenuItem("Hacks/Run Tests! (v9)")]
         public static void RunTests()
         {
-            var listener = new TestListener();
+            if (Log.Targets.Length == 0)
+            {
+                Log.AddLogTarget(new FileLogTarget(
+                    new DefaultLogFormatter(),
+                    Path.Combine(
+                        UnityEngine.Application.persistentDataPath,
+                        "UnitTests.log")));
+                Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter()));
+            }
 
+            _listener = new TestListener();
+            
             var launcherType = LoadType(EDITOR_TESTRUNNER_ASSEMBLY, "UnityEditor.TestTools.TestRunner.EditModeLauncher");
             var filterType = LoadType(ENGINE_TESTRUNNER_ASSEMBLY, "UnityEngine.TestTools.TestRunner.GUI.TestRunnerFilter");
             
@@ -39,28 +51,32 @@ namespace CreateAR.SpirePlayer.Editor
                 .GetType()
                 .GetField("m_EditModeRunner", BindingFlags.Instance | BindingFlags.NonPublic)
                 .GetValue(launcher);
+            
             var finishedEvent = runner
                 .GetType()
                 .GetField("m_TestFinishedEvent", BindingFlags.Instance | BindingFlags.NonPublic)
                 .GetValue(runner);
-
-            var action = new UnityAction<ITestResult>(listener.OnFinished);
-
-            Debug.Log(finishedEvent.GetType().FullName);
-
-            var addListenerMethod = finishedEvent
-                .GetType()
-                .GetMethod("AddListener", BindingFlags.Instance | BindingFlags.NonPublic);
-
-            foreach (var param in addListenerMethod.GetParameters())
-            {
-                Debug.Log(param.ParameterType.Name);
-            }
             
+            var methods = finishedEvent
+                .GetType()
+                .GetMethods(BindingFlags.Instance | BindingFlags.Public)
+                .ToArray();
+
+            MethodInfo addListenerMethod = null;
+            foreach (var method in methods)
+            {
+                if (method.GetParameters().Length == 1 && method.Name == "AddListener")
+                {
+                    addListenerMethod = method;
+                    break;
+                }
+            }
+
+            var action = new UnityAction<ITestResult>(_listener.OnFinished);
             addListenerMethod.Invoke(finishedEvent, new object[] { action });
             
             var runMethod = launcher.GetType().GetMethod("Run", BindingFlags.Instance | BindingFlags.Public);
-            runMethod.Invoke(launcher, new object[0]);
+            runMethod.Invoke(launcher, null);
         }
 
         private static Type LoadType(string assemblyName, string name)
