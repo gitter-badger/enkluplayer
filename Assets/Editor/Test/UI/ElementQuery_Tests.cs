@@ -62,6 +62,10 @@ namespace CreateAR.SpirePlayer.Test.UI
                         Strings = new Dictionary<string, string>
                         {
                             { "Letter", id }
+                        },
+                        Bools = new Dictionary<string, bool>
+                        {
+                            { "Bar", i == 19 }
                         }
                     }
                 });
@@ -80,7 +84,6 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void FindOneShallow()
         {
-            Debug.Log(_element.ToTreeString());
             Assert.AreEqual("b", _element.FindOne<Element>("b").Id);
             Assert.IsNull(_element.FindOne<Element>("h"));
         }
@@ -176,6 +179,60 @@ namespace CreateAR.SpirePlayer.Test.UI
             _element.Find("..d..*", elements);
 
             Assert.AreEqual(22, elements.Count);
+        }
+
+        [Test]
+        public void FindProp_Gt()
+        {
+            var elements = new List<Element>();
+            _element.Find("..(@Foo>5)", elements);
+
+            Assert.AreEqual(20, elements.Count);
+        }
+
+        [Test]
+        public void FindProp_Gt_Equals()
+        {
+            var elements = new List<Element>();
+            _element.Find("..(@Foo>=5)", elements);
+
+            Assert.AreEqual(21, elements.Count);
+        }
+
+        [Test]
+        public void FindProp_Lt()
+        {
+            var elements = new List<Element>();
+            _element.Find("..(@Foo<5)", elements);
+
+            Assert.AreEqual(4, elements.Count);
+        }
+
+        [Test]
+        public void FindProp_Lt_Equals()
+        {
+            var elements = new List<Element>();
+            _element.Find("..(@Foo<=5)", elements);
+
+            Assert.AreEqual(5, elements.Count);
+        }
+
+        [Test]
+        public void FindProp_Not_Equals()
+        {
+            var elements = new List<Element>();
+            _element.Find("..(@Foo!=5)", elements);
+
+            Assert.AreEqual(24, elements.Count);
+        }
+
+        [Test]
+        public void FindProp_True()
+        {
+            var elements = new List<Element>();
+            _element.Find("..(@Bar=true)", elements);
+
+            Assert.AreEqual(1, elements.Count);
         }
     }
 }

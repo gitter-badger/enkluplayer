@@ -1,5 +1,5 @@
 ﻿using System;
-using Newtonsoft.Json;
+using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
@@ -12,13 +12,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Unique id of the script to play.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonName("id")]
         public string ScriptDataId;
 
         /// <summary>
         /// If true, starts the script immediately after loading.
         /// </summary>
-        [JsonProperty("playOnAwake")]
+        [JsonName("playOnAwake")]
         public bool PlayOnAwake;
     }
 }

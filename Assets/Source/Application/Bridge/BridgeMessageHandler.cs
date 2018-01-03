@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using Newtonsoft.Json;
+using LightJson;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -95,9 +95,7 @@ namespace CreateAR.SpirePlayer
             // deserialize
             try
             {
-                var payload = JsonConvert.DeserializeObject(
-                    payloadString,
-                    payloadType);
+                var payload = JsonValue.Parse(payloadString).As(payloadType);
 
                 _router.Publish(messageType, payload);
             }

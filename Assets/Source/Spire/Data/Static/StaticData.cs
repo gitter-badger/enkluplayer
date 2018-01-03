@@ -1,5 +1,5 @@
 ﻿using System;
-using Newtonsoft.Json;
+using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
@@ -12,19 +12,19 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Unique identifier.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonName("id")]
         public string Id;
 
         /// <summary>
         /// Human readable name. Non-unique.
         /// </summary>
-        [JsonProperty("name")]
+        [JsonName("name")]
         public string Name;
 
         /// <summary>
         /// Optional description.
         /// </summary>
-        [JsonProperty("description")]
+        [JsonName("description")]
         public string Description;
 
         /// <summary>
