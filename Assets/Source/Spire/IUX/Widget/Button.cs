@@ -100,13 +100,15 @@ namespace CreateAR.SpirePlayer.IUX
             // Activator
             {
                 _activator = _primitives.Activator();
-                
+
+                var activatorSchema = new ElementSchema();
+                activatorSchema.Wrap(Schema);
                 _activator.Load(
                     new ElementData
                     {
                         Id = "Activator"
                     },
-                    new ElementSchema(), 
+                    activatorSchema, 
                     new Element[0]);
 
                 AddChild(_activator);

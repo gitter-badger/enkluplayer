@@ -17,7 +17,27 @@ namespace CreateAR.SpirePlayer.IUX
         /// Source widget.
         /// </summary>
         private Widget _source;
-        
+
+        /// <summary>
+        /// Local measure of blend-in/blend out.
+        /// </summary>
+        private float _localTween = 1.0f;
+
+        /// <summary>
+        /// Local color.
+        /// </summary>
+        private Col4 _localColor = Col4.White;
+
+        /// <summary>
+        /// Visbility flag, does NOT consider parent.
+        /// </summary>
+        private bool _localVisible = true;
+
+        /// <summary>
+        /// Visibility flag, considers parent.
+        /// </summary>
+        private bool _isVisible = true;
+
         /// <summary>
         /// Target graphic (Unity UI rendering system).
         /// </summary>
@@ -42,6 +62,55 @@ namespace CreateAR.SpirePlayer.IUX
         /// Name of the color in the primary material of the target renderer.
         /// </summary>
         public string MaterialColorName = "_Color";
+
+        /// <summary>
+        /// Local color accessor, ignores parent color.
+        /// </summary>
+        public Col4 LocalColor
+        {
+            get { return _localColor; }
+            set { _localColor = value; }
+        }
+
+        /// <summary>
+        /// True if locally visible, ignores parent visibility.
+        /// </summary>
+        public bool LocalVisible
+        {
+            get { return _localVisible; }
+            set
+            {
+                _localVisible = value;
+
+                UpdateVisibility();
+            }
+        }
+
+        /// <summary>
+        /// True if visible including parent visibility.
+        /// </summary>
+        public bool Visible
+        {
+            get { return _isVisible; }
+        }
+
+        /// <summary>
+        /// Tween Accessor.
+        /// </summary>
+        public float Tween
+        {
+            get
+            {
+                var tween = _localTween;
+
+                if (_source != null)
+                {
+                    tween *= _source.Tween;
+                }
+
+                return tween;
+            }
+        }
 
         /// <summary>
         /// String override.
@@ -75,7 +144,12 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            var color = _source.Color;
+            UpdateVisibility();
+            UpdateTween(Time.deltaTime);
+
+            var color = _source.Color * _localColor;
+            color.a *= _localTween;
+
             if (Graphic != null)
             {
                 Graphic.color = color.ToColor();
@@ -91,6 +165,41 @@ namespace CreateAR.SpirePlayer.IUX
             if (Material != null)
             {
                 Material.SetColor(MaterialColorName, color.ToColor());
+            }
+        }
+
+        /// <summary>
+        /// Updates visibility
+        /// </summary>
+        private void UpdateVisibility()
+        {
+            _isVisible = LocalVisible && _source.Visible;
+        }
+
+        /// <summary>
+        /// Updates the fade for the control
+        /// </summary>
+        private void UpdateTween(float deltaTime)
+        {
+            var tweenType = Visible
+                ? _source.TweenIn
+                : _source.TweenOut;
+
+            var tweenDuration = _source.Tweens.DurationSeconds(tweenType);
+            if (tweenDuration < Mathf.Epsilon)
+            {
+                _localTween = Visible
+                    ? 1.0f
+                    : 0.0f;
+            }
+            else
+            {
+                var multiplier = Visible
+                    ? 1.0f
+                    : -1.0f;
+                var tweenDelta = deltaTime / tweenDuration * multiplier;
+
+                _localTween = Mathf.Clamp01(_localTween + tweenDelta);
             }
         }
 
