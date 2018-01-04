@@ -210,7 +210,7 @@ namespace CreateAR.SpirePlayer.IUX
         public void UpdateStabilityTransform()
         {
             var focusTween = Fill != null
-                ? 0.0f//Fill.Tween
+                ? Fill.Tween
                 : 1.0f;
 
             var degrees = _activator.Stability * _config.StabilityRotation;
@@ -225,7 +225,7 @@ namespace CreateAR.SpirePlayer.IUX
         public void UpdateFillImage()
         {
             FillImage.fillAmount = _activator.Activation;
-            //Fill.LocalVisible = _activator.CurrentState is ActivatorActivatingState;
+            Fill.LocalVisible = _activator.CurrentState is ActivatorActivatingState;
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace CreateAR.SpirePlayer.IUX
             var aimColor = _config.GetAimColor(_activator.Aim);
 
             Aim.transform.localScale = Vector3.one * aimScale;
-            //Aim.LocalColor = aimColor;
+            Aim.LocalColor = aimColor;
         }
 
         /// <summary>
@@ -255,16 +255,16 @@ namespace CreateAR.SpirePlayer.IUX
 
             // blend the frame's color.
             var frameColor = _colors.GetColor(activatorState.FrameColor);
-            /*Frame.LocalColor = Col4.Lerp(
+            Frame.LocalColor = Col4.Lerp(
                 Frame.LocalColor,
                 frameColor,
                 tweenLerp);
-
+            
             // blend the frame's scale.
-            Frame.GameObject.transform.localScale = Vector3.Lerp(
-                Frame.GameObject.transform.localScale,
+            Frame.gameObject.transform.localScale = Vector3.Lerp(
+                Frame.gameObject.transform.localScale,
                 Vector3.one * activatorState.FrameScale,
-                tweenLerp);*/
+                tweenLerp);
         }
     }
 }
