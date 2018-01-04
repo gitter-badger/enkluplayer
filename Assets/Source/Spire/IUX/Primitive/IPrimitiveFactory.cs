@@ -9,13 +9,13 @@
         /// Creates text.
         /// </summary>
         /// <returns></returns>
-        TextPrimitive Text();
+        TextPrimitive Text(ElementSchema schema);
 
         /// <summary>
         /// Creates an Activator.
         /// </summary>
         /// <returns></returns>
-        ActivatorPrimitive Activator();
+        ActivatorPrimitive Activator(ElementSchema schema);
 
         /// <summary>
         /// Creates a reticle.

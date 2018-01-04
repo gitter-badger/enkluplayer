@@ -98,22 +98,16 @@ namespace CreateAR.SpirePlayer.IUX
             
             if (Aim != null)
             {
-                //AimWidget.LoadFromActivator(_activator);
-
                 Aim.Initialize(activator);
             }
 
             if (Fill != null)
             {
-                //FillWidget.LoadFromActivator(_activator);
-
                 Fill.Initialize(activator);
             }
 
             if (Frame != null)
             {
-                //Frame.LoadFromActivator(_activator);
-
                 Frame.Initialize(activator);
             }
 

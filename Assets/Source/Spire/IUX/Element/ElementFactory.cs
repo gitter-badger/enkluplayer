@@ -189,6 +189,10 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     return new Menu(_config, _layers, _tweens, _colors, _messages, _primitives);
                 }
+                case ElementTypes.TEXTCRAWL:
+                {
+                    return new TextCrawl(_config, _layers, _tweens, _colors, _messages, _primitives);
+                }
                 default:
                 {
                     throw new Exception(string.Format(

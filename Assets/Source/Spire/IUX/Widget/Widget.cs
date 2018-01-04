@@ -376,7 +376,7 @@ namespace CreateAR.SpirePlayer.IUX
             _layerMode = Schema.GetOwn("layerMode", LayerMode.Default);
             _autoDestroy = Schema.GetOwn("autoDestroy", false);
 
-            _gameObject.name = ToString();
+            _gameObject.name = Schema.GetOwn("name", ToString()).Value;
             _gameObject.transform.localPosition = _localPosition.Value.ToVector();
 
             for (int i = 0; i < Children.Length; ++i)

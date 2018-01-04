@@ -60,7 +60,7 @@ namespace CreateAR.SpirePlayer.IUX
             _fontSize = Schema.Get<int>("fontSize");
             _fontSize.OnChanged += FontSize_OnChange;
 
-            _primitive = _primitives.Text();
+            _primitive = _primitives.Text(Schema);
             _primitive.Parent = this;
             _primitive.Text = _text.Value;
             _primitive.FontSize = _fontSize.Value;

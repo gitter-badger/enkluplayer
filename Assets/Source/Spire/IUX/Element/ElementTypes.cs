@@ -22,6 +22,8 @@
         public const int CAPTION = 30;
 
         public const int MENU = 100;
+
+        public const int TEXTCRAWL = 120;
     }
 }
 

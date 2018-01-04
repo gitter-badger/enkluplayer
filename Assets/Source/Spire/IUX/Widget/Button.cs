@@ -99,17 +99,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             // Activator
             {
-                _activator = _primitives.Activator();
-
-                var activatorSchema = new ElementSchema();
-                activatorSchema.Wrap(Schema);
-                _activator.Load(
-                    new ElementData
-                    {
-                        Id = "Activator"
-                    },
-                    activatorSchema, 
-                    new Element[0]);
+                _activator = _primitives.Activator(Schema);
 
                 AddChild(_activator);
             }
@@ -125,7 +115,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _labelPaddingProp = Schema.Get<float>("label.padding");
                 _labelPaddingProp.OnChanged += LabelPadding_OnChanged;
 
-                _text = _primitives.Text();
+                _text = _primitives.Text(Schema);
                 _text.Parent = this;
                 _text.Text = _labelProp.Value;
 

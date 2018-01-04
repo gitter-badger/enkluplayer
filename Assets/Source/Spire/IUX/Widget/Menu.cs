@@ -84,13 +84,13 @@ namespace CreateAR.SpirePlayer.IUX
             _headerWidth.OnChanged += HeaderWidth_OnChanged;
 
             // create + place title
-            _titlePrimitive = _primitives.Text();
+            _titlePrimitive = _primitives.Text(Schema);
             _titlePrimitive.Parent = this;
             _titlePrimitive.Text = _title.Value;
             _titlePrimitive.FontSize = _fontSize.Value;
 
             // create + place description
-            _descriptionPrimitive = _primitives.Text();
+            _descriptionPrimitive = _primitives.Text(Schema);
             _descriptionPrimitive.Parent = this;
             _descriptionPrimitive.Text = _description.Value;
             _descriptionPrimitive.FontSize = _fontSize.Value;
