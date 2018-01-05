@@ -1,6 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
-using UnityEngine.Windows.Speech;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -13,6 +12,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// For primitives.
         /// </summary>
         private readonly IPrimitiveFactory _primitives;
+        
+        /// <summary>
+        /// Recognized voice commands.
+        /// </summary>
+        private readonly IVoiceCommandManager _voice;
 
         /// <summary>
         /// Props.
@@ -28,14 +32,14 @@ namespace CreateAR.SpirePlayer.IUX
         private TextPrimitive _text;
 
         /// <summary>
-        /// Keyword recognizer for voice activation
-        /// </summary>
-        private KeywordRecognizer _keywordRecognizer;
-
-        /// <summary>
         /// Activator!
         /// </summary>
         private ActivatorPrimitive _activator;
+
+        /// <summary>
+        /// Voice command.
+        /// </summary>
+        private string _registeredVoiceCommand; 
 
         /// <summary>
         /// Activator.
@@ -80,7 +84,8 @@ namespace CreateAR.SpirePlayer.IUX
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            IVoiceCommandManager voice)
             : base(
                 new GameObject("Button"),
                 config,
@@ -90,6 +95,7 @@ namespace CreateAR.SpirePlayer.IUX
                 messages)
         {
             _primitives = primitives;
+            _voice = voice;
         }
         
         /// <inheritdoc cref="Element"/>
@@ -135,16 +141,9 @@ namespace CreateAR.SpirePlayer.IUX
             // Voice Activator
             {
                 _propVoiceActivator = Schema.Get<string>("voiceActivator");
-                var voiceActivator = _propVoiceActivator.Value;
-                if (string.IsNullOrEmpty(voiceActivator))
-                {
-                    voiceActivator = _labelProp.Value;
-                }
-
-                if (!string.IsNullOrEmpty(voiceActivator))
-                {
-                    StartKeywordRecognizer(voiceActivator);
-                }
+                _propVoiceActivator.OnChanged += VoiceActivator_OnChange;
+                
+                RegisterVoiceCommand();
             }
         }
 
@@ -164,44 +163,60 @@ namespace CreateAR.SpirePlayer.IUX
                 _labelProp.OnChanged -= Label_OnChange;
                 _labelPaddingProp.OnChanged -= LabelPadding_OnChanged;
             }
+            
+            UnregisterVoiceCommand();
+        }
 
-            if (_keywordRecognizer != null)
+        /// <summary>
+        /// Registers voice command.
+        /// </summary>
+        private void RegisterVoiceCommand()
+        {
+            var voiceActivator = _propVoiceActivator.Value;
+            if (!string.IsNullOrEmpty(voiceActivator))
             {
-                _keywordRecognizer.Stop();
-                _keywordRecognizer.Dispose();
+                _registeredVoiceCommand = _labelProp.Value;
+                _voice.Register(_registeredVoiceCommand, Voice_OnRecognized);
             }
         }
         
         /// <summary>
-        /// Starts a KeywordRecognizer session to listen to key word or phrase
+        /// Unregisters voice command.
         /// </summary>
-        /// <param name="str">Keyword or phrase to listen for</param>
-        private void StartKeywordRecognizer(string str)
+        private void UnregisterVoiceCommand()
         {
-            if (_keywordRecognizer != null)
+            if (!string.IsNullOrEmpty(_registeredVoiceCommand))
             {
-                _keywordRecognizer.Stop();
-                _keywordRecognizer.Dispose();
+                _voice.Unregister(_registeredVoiceCommand);
+                _registeredVoiceCommand = string.Empty;
             }
-
-            _keywordRecognizer = new KeywordRecognizer(new[] { str });
-            _keywordRecognizer.OnPhraseRecognized += OnPhraseRecognized;
-            _keywordRecognizer.Start();
         }
-
+        
         /// <summary>
-        /// Invoked when a recognizable word or phrase is spoken
+        /// Invoked when a recognizable word or phrase is spoken.
         /// </summary>
-        /// <param name="args"></param>
-        private void OnPhraseRecognized(PhraseRecognizedEventArgs args)
+        /// <param name="keyword">The keywords spoken.</param>
+        private void Voice_OnRecognized(string keyword)
         {
             if (_activator.Interactable)
             {
-                _keywordRecognizer.Stop();
-                _keywordRecognizer.Dispose();
-
                 _activator.Activate();
             }
+        }
+        
+        /// <summary>
+        /// Called when the voice activator prop has changed.
+        /// </summary>
+        /// <param name="prop">Prop!</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void VoiceActivator_OnChange(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            UnregisterVoiceCommand();
+            RegisterVoiceCommand();
         }
 
         /// <summary>
