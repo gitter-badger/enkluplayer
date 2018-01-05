@@ -19,6 +19,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IColorConfig _colors;
         private readonly ITweenConfig _tweens;
         private readonly IMessageRouter _messages;
+        private readonly IVoiceCommandManager _voice;
         private readonly WidgetConfig _config;
 
         /// <summary>
@@ -39,6 +40,7 @@ namespace CreateAR.SpirePlayer.IUX
             IColorConfig colors,
             ITweenConfig tweens,
             IMessageRouter messages,
+            IVoiceCommandManager voice,
             WidgetConfig config)
         {
             _primitives = primitives;
@@ -48,6 +50,7 @@ namespace CreateAR.SpirePlayer.IUX
             _colors = colors;
             _tweens = tweens;
             _messages = messages;
+            _voice = voice;
             _config = config;
 
             // TODO: Load this all from data
@@ -179,7 +182,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.BUTTON:
                 {
-                    return new Button(_config, _primitives, _layers, _tweens, _colors, _messages);
+                    return new Button(_config, _primitives, _layers, _tweens, _colors, _messages, _voice);
                 }
                 case ElementTypes.CURSOR:
                 {

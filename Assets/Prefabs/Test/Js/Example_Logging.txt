@@ -1,0 +1,3 @@
+function enter() {
+	log.info("Script entered at " + time.dt() + " seconds!");
+}
