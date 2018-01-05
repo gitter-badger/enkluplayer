@@ -6,6 +6,7 @@
 
 To develop with `spireplayer`, you will need a few prerequisites.
 
+* Requires **Unity 2017.2.x**.
 * Download and install the latest version of [node.js](https://nodejs.org/en/download/).
 * Setup the [spire-react](https://github.com/create-ar/spire-react) project as shown in the `spire-react` [getting started guide](https://github.com/create-ar/spire-react/blob/master/docs/gettingstarted.md).
 * Setup the [spire-trellis](https://github.com/create-ar/spire-trellis) project as shown in the `spire-trellis` [getting started guide](https://github.com/create-ar/spire-trellis/blob/master/docs/gettingstarted.md).
