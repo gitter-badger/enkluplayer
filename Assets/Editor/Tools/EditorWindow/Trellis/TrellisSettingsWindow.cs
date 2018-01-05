@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Text;
-using CreateAR.Commons.Unity.Http;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,32 +12,17 @@ namespace CreateAR.SpirePlayer.Editor
         public string Token;
     }
 
-    public class EditorBootstrapper : IBootstrapper
-    {
-        private readonly List<IEnumerator> _coroutines = new List<IEnumerator>();
-        
-        public void BootstrapCoroutine(IEnumerator coroutine)
-        {
-            _coroutines.Add(coroutine);
-        }
-    }
-    
     public class TrellisSettingsWindow : EditorWindow
     {
-        private readonly JsonSerializer _serializer = new JsonSerializer();
-        private readonly EditorBootstrapper _bootstrapper = new EditorBootstrapper();
+        private static readonly JsonSerializer _serializer = new JsonSerializer();
         
         private TrellisSettings _settings;
 
-        public static IHttpService Http { get; private set; }
-        
         private void OnEnable()
         {
             titleContent = new GUIContent("Trellis");
 
             LoadSettings();
-            
-            
         }
         
         private void OnGUI()
