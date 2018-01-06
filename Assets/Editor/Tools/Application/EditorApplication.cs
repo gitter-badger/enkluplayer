@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis;
 using UnityEditor;
 
@@ -27,6 +28,12 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         static EditorApplication()
         {
+            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
+            {
+                Timestamp = false,
+                Level = false
+            }));
+            
             UnityEditor.EditorApplication.update += _bootstrapper.Update;
             
             Http = new HttpService(new JsonSerializer(), Bootstrapper);

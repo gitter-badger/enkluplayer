@@ -27,7 +27,8 @@ namespace CreateAR.SpirePlayer.Editor
         {
             for (var i = _coroutines.Count - 1; i >= 0; i--)
             {
-                if (!_coroutines[i].MoveNext())
+                var coroutine = _coroutines[i];
+                if (!coroutine.MoveNext())
                 {
                     _coroutines.RemoveAt(i);
                 }
