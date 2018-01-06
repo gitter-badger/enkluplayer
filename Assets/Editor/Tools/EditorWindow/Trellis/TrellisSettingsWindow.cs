@@ -96,7 +96,7 @@ namespace CreateAR.SpirePlayer.Editor
                     {
                         SaveCredentials(_credentials);
 
-                        GetToken();
+                        Connect();
                     }
 
                     GUILayout.FlexibleSpace();
@@ -137,28 +137,44 @@ namespace CreateAR.SpirePlayer.Editor
             GUILayout.EndHorizontal();
         }
 
-        private void GetToken()
+        /// <summary>
+        /// Connects to Trellis. Once connected, automatically saves token.
+        /// </summary>
+        private void Connect()
         {
+            Log.Info(this, "Attempting to connect to Trellis.");
+            
             EditorUtility.DisplayProgressBar(
                 SIGNIN_PROGRESS_TITLE,
-                "Attempting to sign in.",
+                "Attempting to connect.",
                 0.25f);
 
             // try signing in
             SignIn()
-                .OnSuccess(_ => EditorUtility.ClearProgressBar())
-                .OnFailure(_ =>
+                .OnSuccess(_ =>
                 {
+                    EditorUtility.ClearProgressBar();
+                    
+                    Log.Info(this, "Successfully connected.");
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Info(this, "Signin failed, attempting signup ({0}).", exception.Message);
+                    
                     SignUp()
                         .OnSuccess(__ =>
                         {
                             EditorUtility.ClearProgressBar();
+                            
+                            Log.Info(this, "Successfully connected to Trellis.");
                         })
                         .OnFailure(error =>
                         {
                             EditorUtility.ClearProgressBar();
 
                             _errorMessage = "Could not signup.";
+                            
+                            Log.Warning(this, "Could not connect to Trellis.");
                         });
                 });
         }
@@ -182,17 +198,24 @@ namespace CreateAR.SpirePlayer.Editor
                 })
                 .OnSuccess(response =>
                 {
-                    if (response.NetworkSuccess && response.Payload.Success)
+                    if (response.NetworkSuccess)
                     {
-                        _credentials.Token = response.Payload.Body.Token;
+                        if (response.Payload.Success)
+                        {
+                            _credentials.Token = response.Payload.Body.Token;
 
-                        SaveCredentials(_credentials);
-                        
-                        token.Succeed(Void.Instance);
+                            SaveCredentials(_credentials);
+
+                            token.Succeed(Void.Instance);
+                        }
+                        else
+                        {
+                            token.Fail(new Exception(response.Payload.Error));
+                        }
                     }
                     else
                     {
-                        token.Fail(new Exception(response.NetworkError ?? response.Payload.Error));
+                        token.Fail(new Exception(response.NetworkError));
                     }
                 })
                 .OnFailure(token.Fail);
@@ -218,17 +241,24 @@ namespace CreateAR.SpirePlayer.Editor
                 })
                 .OnSuccess(response =>
                 {
-                    if (response.NetworkSuccess && response.Payload.Success)
+                    if (response.NetworkSuccess)
                     {
-                        _credentials.Token = response.Payload.Body.Token;
+                        if (response.Payload.Success)
+                        {
+                            _credentials.Token = response.Payload.Body.Token;
 
-                        SaveCredentials(_credentials);
+                            SaveCredentials(_credentials);
 
-                        token.Succeed(Void.Instance);
+                            token.Succeed(Void.Instance);
+                        }
+                        else
+                        {
+                            token.Fail(new Exception(response.Payload.Error));
+                        }
                     }
                     else
                     {
-                        token.Fail(new Exception(response.NetworkError ?? response.Payload.Error));
+                        token.Fail(new Exception(response.NetworkError));
                     }
                 })
                 .OnFailure(token.Fail);
