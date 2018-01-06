@@ -1,10 +1,15 @@
 ﻿namespace CreateAR.SpirePlayer.Editor
 {
     /// <summary>
-    /// Simple POCO for editor interaction with Trellis. Security doesn't really matter here.
+    /// Simple POCO for editor interaction with Trellis.
     /// </summary>
-    public class TrellisCredentials
+    public class EnvironmentCredentials
     {
+        /// <summary>
+        /// Environment these credentials are for.
+        /// </summary>
+        public string Environment;
+        
         /// <summary>
         /// Email.
         /// </summary>

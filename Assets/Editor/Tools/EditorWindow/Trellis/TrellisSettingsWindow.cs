@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -21,19 +22,19 @@ namespace CreateAR.SpirePlayer.Editor
         private static readonly JsonSerializer _serializer = new JsonSerializer();
 
         /// <summary>
-        /// All environments.
+        /// Configuration for all environments.
         /// </summary>
         private EnvironmentConfig _environments;
         
         /// <summary>
-        /// Settings!
+        /// User settings.
         /// </summary>
-        private TrellisCredentials _credentials;
+        private UserEnvironmentSettings _settings;
 
         /// <summary>
         /// Message to display.
         /// </summary>
-        private string _errorMessage;
+        private string _logMessage;
         
         /// <summary>
         /// Title for signin.
@@ -67,13 +68,33 @@ namespace CreateAR.SpirePlayer.Editor
         /// <inheritdoc cref="MonoBehaviour"/>
         private void OnGUI()
         {
-            EditorGUIUtility.labelWidth = 60;
-            
             GUILayout.BeginVertical();
             {
+                DrawEnvironmentSelection();
                 DrawConnectForm();
             }
             GUILayout.EndVertical();
+        }
+
+        /// <summary>
+        /// Draws environment selection panel.
+        /// </summary>
+        private void DrawEnvironmentSelection()
+        {
+            EditorGUIUtility.labelWidth = 100;
+            
+            var options = _environments
+                .Environments
+                .Select(env => env.Name)
+                .ToList();
+            var selection = options.IndexOf(_settings.Environment);
+            var popupSelection = EditorGUILayout.Popup("Environment", selection, options.ToArray());
+            if (selection != popupSelection)
+            {
+                _settings.Environment = _environments.Environments[popupSelection].Name;
+                
+                SaveUserSettings(_settings);
+            }
         }
 
         /// <summary>
@@ -81,10 +102,29 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private void DrawConnectForm()
         {
+            EditorGUIUtility.labelWidth = 60;
+            
+            var environment = _environments.Environment(_settings.Environment);
+            if (null == environment)
+            {
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.FlexibleSpace();
+                    
+                    GUILayout.Label("Invalid environment selection.");
+                    
+                    GUILayout.FlexibleSpace();
+                }
+                GUILayout.EndHorizontal();
+                
+                return;
+            }
+
+            var credentials = _settings.Credentials(_settings.Environment);
             GUILayout.BeginVertical("box");
             {
-                _credentials.Email = EditorGUILayout.TextField("Email", _credentials.Email);
-                _credentials.Password = EditorGUILayout.TextField("Password", _credentials.Password);
+                credentials.Email = EditorGUILayout.TextField("Email", credentials.Email);
+                credentials.Password = EditorGUILayout.TextField("Password", credentials.Password);
 
                 EditorGUILayout.Space();
 
@@ -94,7 +134,7 @@ namespace CreateAR.SpirePlayer.Editor
 
                     if (GUILayout.Button("Connect"))
                     {
-                        SaveCredentials(_credentials);
+                        SaveUserSettings(_settings);
 
                         Connect();
                     }
@@ -115,15 +155,17 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private void DrawMessage()
         {
+            var credentials = _settings.Credentials(_settings.Environment);
+            
             GUILayout.BeginHorizontal();
             {
                 GUILayout.FlexibleSpace();
 
-                if (!string.IsNullOrEmpty(_errorMessage))
+                if (!string.IsNullOrEmpty(_logMessage))
                 {
-                    GUILayout.Label(_errorMessage);
+                    GUILayout.Label(_logMessage);
                 }
-                else if (!string.IsNullOrEmpty(_credentials.Token))
+                else if (!string.IsNullOrEmpty(credentials.Token))
                 {
                     GUILayout.Label("Sign in successful.");
                 }
@@ -142,6 +184,27 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private void Connect()
         {
+            var environment = _environments.Environment(_settings.Environment);
+            if (null == environment)
+            {
+                Log.Warning(this, "Invalid environment selection.");
+                return;
+            }
+
+            var credentials = _settings.Credentials(_settings.Environment);
+            if (null == credentials)
+            {
+                Log.Warning(this, "Invalid credentials.");
+                return;
+            }
+            
+            // setup HTTP
+            EditorApplication.Http.UrlBuilder.FromUrl(string.Format(
+                "http://{0}:{1}/{2}",
+                environment.Hostname,
+                environment.Port,
+                environment.ApiVersion));
+            
             Log.Info(this, "Attempting to connect to Trellis.");
             
             EditorUtility.DisplayProgressBar(
@@ -150,7 +213,7 @@ namespace CreateAR.SpirePlayer.Editor
                 0.25f);
 
             // try signing in
-            SignIn()
+            SignIn(credentials)
                 .OnSuccess(_ =>
                 {
                     EditorUtility.ClearProgressBar();
@@ -161,7 +224,7 @@ namespace CreateAR.SpirePlayer.Editor
                 {
                     Log.Info(this, "Signin failed, attempting signup ({0}).", exception.Message);
                     
-                    SignUp()
+                    SignUp(credentials)
                         .OnSuccess(__ =>
                         {
                             EditorUtility.ClearProgressBar();
@@ -172,7 +235,7 @@ namespace CreateAR.SpirePlayer.Editor
                         {
                             EditorUtility.ClearProgressBar();
 
-                            _errorMessage = "Could not signup.";
+                            _logMessage = "Could not signup.";
                             
                             Log.Warning(this, "Could not connect to Trellis.");
                         });
@@ -183,7 +246,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// Attempts to sign up.
         /// </summary>
         /// <returns></returns>
-        private IAsyncToken<Void> SignUp()
+        private IAsyncToken<Void> SignUp(EnvironmentCredentials credentials)
         {
             var token = new AsyncToken<Void>();
 
@@ -193,8 +256,8 @@ namespace CreateAR.SpirePlayer.Editor
                 .EmailSignUp(new Trellis.Messages.EmailSignUp.Request
                 {
                     DisplayName = "UnityEditor",
-                    Email = _credentials.Email,
-                    Password = _credentials.Password
+                    Email = credentials.Email,
+                    Password = credentials.Password
                 })
                 .OnSuccess(response =>
                 {
@@ -202,9 +265,9 @@ namespace CreateAR.SpirePlayer.Editor
                     {
                         if (response.Payload.Success)
                         {
-                            _credentials.Token = response.Payload.Body.Token;
+                            credentials.Token = response.Payload.Body.Token;
 
-                            SaveCredentials(_credentials);
+                            SaveUserSettings(_settings);
 
                             token.Succeed(Void.Instance);
                         }
@@ -227,7 +290,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// Attempts to sign in.
         /// </summary>
         /// <returns></returns>
-        private IAsyncToken<Void> SignIn()
+        private IAsyncToken<Void> SignIn(EnvironmentCredentials credentials)
         {
             var token = new AsyncToken<Void>();
             
@@ -236,8 +299,8 @@ namespace CreateAR.SpirePlayer.Editor
                 .EmailAuths
                 .EmailSignIn(new Request
                 {
-                    Email = _credentials.Email,
-                    Password = _credentials.Password
+                    Email = credentials.Email,
+                    Password = credentials.Password
                 })
                 .OnSuccess(response =>
                 {
@@ -245,9 +308,9 @@ namespace CreateAR.SpirePlayer.Editor
                     {
                         if (response.Payload.Success)
                         {
-                            _credentials.Token = response.Payload.Body.Token;
+                            credentials.Token = response.Payload.Body.Token;
 
-                            SaveCredentials(_credentials);
+                            SaveUserSettings(_settings);
 
                             token.Succeed(Void.Instance);
                         }
@@ -271,28 +334,43 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private void LoadEnvironments()
         {
+            var config = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Config/Environments.json");
+            if (null == config)
+            {
+                return;
+            }
             
+            var bytes = Encoding.UTF8.GetBytes(config.text);
+            object @object;
+            
+            _serializer.Deserialize(
+                typeof(EnvironmentConfig),
+                ref bytes,
+                out @object);
+
+            _environments = (EnvironmentConfig) @object;
+            
+            Log.Info(this, "Loaded environments : {0}.", _environments);
         }
 
         /// <summary>
         /// Saves credentials to disk.
         /// </summary>
         /// <param name="credentials">Credentials to save.</param>
-        private void SaveCredentials(TrellisCredentials credentials)
+        private void SaveUserSettings(UserEnvironmentSettings credentials)
         {
-            var path = GetCredentialsPath();
+            var path = GetSettingsPath();
+            
+            Log.Info(this,
+                "Saving {0}  to {1}.",
+                credentials,
+                path);
             
             byte[] bytes;
             _serializer.Serialize(credentials, out bytes);
             var json = Encoding.UTF8.GetString(bytes);
 
             File.WriteAllText(
-                path,
-                json);
-            
-            Log.Info(this,
-                "Saved {0} to {1}. Output json = '{2}'.",
-                credentials,
                 path,
                 json);
         }
@@ -302,35 +380,56 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private void LoadCredentials()
         {
-            // load/create settings object
-            var path = GetCredentialsPath();
+            // create settings object if one doesn't exist
+            var path = GetSettingsPath();
             if (!File.Exists(path))
             {
-                SaveCredentials(new TrellisCredentials());
+                SaveUserSettings(new UserEnvironmentSettings());
             }
-
+    
+            // load object
             var json = File.ReadAllText(path);
             var jsonBytes = Encoding.UTF8.GetBytes(json);
             object @object;
             _serializer.Deserialize(
-                typeof(TrellisCredentials),
+                typeof(UserEnvironmentSettings),
                 ref jsonBytes,
                 out @object);
-
-            _credentials = (TrellisCredentials) @object;
+            _settings = (UserEnvironmentSettings) @object;
             
-            Log.Info(this, "Loaded credentials {0}.", _credentials);
+            // make sure there is an entry for every environment
+            var changed = false;
+            for (int i = 0, len = _environments.Environments.Length; i < len; i++)
+            {
+                var environment = _environments.Environments[i];
+                if (null == _settings.Credentials(environment.Name))
+                {
+                    _settings.All = _settings.All.Add(new EnvironmentCredentials
+                    {
+                        Environment = environment.Name
+                    });
+
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
+                SaveUserSettings(_settings);
+            }
+            
+            Log.Info(this, "Loaded credentials {0}.", _settings);
         }
 
         /// <summary>
         /// Path to credentials.
         /// </summary>
         /// <returns></returns>
-        private static string GetCredentialsPath()
+        private static string GetSettingsPath()
         {
             var path = Path.Combine(
                 UnityEngine.Application.persistentDataPath,
-                "Trellis.config");
+                "User.Environment.config");
             return path;
         }
     }

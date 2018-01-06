@@ -11,9 +11,9 @@
         public string Name = "local";
         
         /// <summary>
-        /// Ip.
+        /// Hostname.
         /// </summary>
-        public string Ip = "localhost";
+        public string Hostname = "localhost";
         
         /// <summary>
         /// Port.

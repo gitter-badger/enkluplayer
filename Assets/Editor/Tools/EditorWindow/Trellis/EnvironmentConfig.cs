@@ -11,33 +11,38 @@
         public EnvironmentData[] Environments;
 
         /// <summary>
-        /// Name of the selected environments.
+        /// Retrieves an environment by name.
         /// </summary>
-        public string SelectedEnvironment;
+        /// <param name="name">Environment name.</param>
+        /// <returns></returns>
+        public EnvironmentData Environment(string name)
+        {
+            if (null == Environments)
+            {
+                return null;
+            }
+
+            for (int i = 0, len = Environments.Length; i < len; i++)
+            {
+                var env = Environments[i];
+                if (env.Name == name)
+                {
+                    return env;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
-        /// Retrieves the currently selected environment.
+        /// Useful ToString.
         /// </summary>
-        public EnvironmentData Selected
+        /// <returns></returns>
+        public override string ToString()
         {
-            get
-            {
-                for (int i = 0, len = Environments.Length; i < len; i++)
-                {
-                    var env = Environments[i];
-                    if (env.Name == SelectedEnvironment)
-                    {
-                        return env;
-                    }
-                }
-
-                if (0 == Environments.Length)
-                {
-                    return null;
-                }
-
-                return Environments[0];
-            }
+            return string.Format(
+                "[EnvironmentConfig Count={0}]",
+                null == Environments ? 0 : Environments.Length);
         }
     }
 }
