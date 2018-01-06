@@ -199,11 +199,10 @@ namespace CreateAR.SpirePlayer.Editor
             }
             
             // setup HTTP
-            EditorApplication.Http.UrlBuilder.FromUrl(string.Format(
-                "http://{0}:{1}/{2}",
-                environment.Hostname,
-                environment.Port,
-                environment.ApiVersion));
+            var builder = EditorApplication.Http.UrlBuilder;
+            builder.BaseUrl = "http://" + environment.Hostname;
+            builder.Port = environment.Port;
+            builder.Version = environment.ApiVersion;
             
             Log.Info(this, "Attempting to connect to Trellis.");
             
