@@ -226,6 +226,11 @@ namespace CreateAR.SpirePlayer.IUX
         public ActivatorRenderer Activator;
 
         /// <summary>
+        /// Float.
+        /// </summary>
+        public FloatRenderer Float;
+
+        /// <summary>
         /// Spins per second.
         /// </summary>
         public float GetDefaultDistanceForCursor()

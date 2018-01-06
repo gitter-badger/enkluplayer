@@ -36,11 +36,6 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IPrimitiveFactory _primitives;
 
         /// <summary>
-        /// Font size.
-        /// </summary>
-        private ElementSchemaProp<int> _fontSize;
-
-        /// <summary>
         /// List of active entries
         /// </summary>
         private readonly List<TextEntry> _textEntries = new List<TextEntry>();
@@ -79,7 +74,6 @@ namespace CreateAR.SpirePlayer.IUX
 
             textPrimitive.Text = text;
             textPrimitive.Parent = this;
-            textPrimitive.FontSize = _fontSize.Value;
             
             var textEntry = new TextEntry()
             {
@@ -95,16 +89,12 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void LoadInternal()
         {
             base.LoadInternal();
-            
-            _fontSize = Schema.Get<int>("fontSize");
-            _fontSize.OnChanged += FontSize_OnChange;
         }
 
         /// <inheritdoc cref="Element"/>
         protected override void UnloadInternal()
         {
-            _fontSize.OnChanged -= FontSize_OnChange;
-            _fontSize = null;
+            base.UnloadInternal();
         }
 
         private float countdown = 1.0f;
@@ -169,25 +159,6 @@ namespace CreateAR.SpirePlayer.IUX
                       * (offset + localOffset)
                       - text.Forward * localOffset * Config.CrawlFadeOutDepthScale;
                 offset += Config.CrawlSeperation * scale;
-            }
-        }
-
-        /// <summary>
-        /// Called when the font size changes.
-        /// </summary>
-        /// <param name="prop">Propery.</param>
-        /// <param name="prev">Previous value.</param>
-        /// <param name="next">Next value.</param>
-        private void FontSize_OnChange(
-            ElementSchemaProp<int> prop,
-            int prev,
-            int next)
-        {
-            // update the entries
-            for (int i = 0, count = _textEntries.Count; i < count; ++i)
-            {
-                var textEntry = _textEntries[i];
-                textEntry.TextPrimitive.FontSize = next;
             }
         }
     }

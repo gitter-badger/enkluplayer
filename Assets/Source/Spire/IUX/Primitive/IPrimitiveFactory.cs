@@ -22,5 +22,11 @@
         /// </summary>
         /// <returns></returns>
         ReticlePrimitive Reticle();
+
+        /// <summary>
+        /// Creates a float.
+        /// </summary>
+        /// <returns></returns>
+        FloatPrimitive Float(ElementSchema schema);
     }
 }

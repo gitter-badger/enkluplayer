@@ -4,13 +4,20 @@
 	state.letters = ["A", "B", "C", "D", "E"];
 }}
 
-/* Must have a root element. */
+<TextCrawl 
+  fontSize=68 
+  name='Hello Crawl' 
+  position=(0, 0, 3.93) 
+  > 
+</TextCrawl> 
+
+/* Must have a root element. 
 <Menu
 	title='Welcome'
 	description='Move the cursor with your head to activate the Ok button to the right.'
 	position=(0, 0, 3.93)>
 	
-	/* Now for buttons! */
+
 	{{
 		var buttons = [];
 		state.letters.forEach(function(item, index, arr) {
@@ -20,4 +27,4 @@
 		return buttons.join("");
 	}}
 
-</Menu>
+</Menu>*/

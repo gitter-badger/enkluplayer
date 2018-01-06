@@ -26,6 +26,13 @@ namespace CreateAR.SpirePlayer.IUX
         private TextRenderer _renderer;
 
         /// <summary>
+        /// Props.
+        /// </summary>
+        private ElementSchemaProp<int> _propAlignment;
+        private ElementSchemaProp<string> _propFont;
+        private ElementSchemaProp<int> _propFontSize;
+
+        /// <summary>
         /// Bounds.
         /// </summary>
         private Rectangle _rect;
@@ -168,7 +175,7 @@ namespace CreateAR.SpirePlayer.IUX
             _interaction = interaction;
             _intention = intention;
         }
-
+        
         /// <inheritdoc cref="Element"/>
         protected override void LoadInternal()
         {
@@ -181,7 +188,18 @@ namespace CreateAR.SpirePlayer.IUX
             _renderer.transform.SetParent(GameObject.transform, false);
             _renderer.Initialize(this, _config, Layers, Tweens, Colors, Messages, _intention, _interaction, _interactables);
 
-            // TODO: load Font setup from here.
+            // load font setup.
+            _propAlignment = Schema.GetOwn("alignment", AlignmentTypes.MID_CENTER);
+            _propAlignment.OnChanged += Alignment_OnChanged;
+            _renderer.Alignment = _propAlignment.Value;
+
+            _propFont = Schema.Get<string>("font");
+            _propFont.OnChanged += Font_OnChanged;
+            _renderer.Font = _propFont.Value;
+
+            _propFontSize = Schema.Get<int>("fontSize");
+            _propFontSize.OnChanged += FontSize_OnChanged;
+            _renderer.FontSize = _propFontSize.Value;
         }
 
         /// <inheritdoc cref="Element"/>
@@ -190,6 +208,48 @@ namespace CreateAR.SpirePlayer.IUX
             Object.Destroy(_renderer.gameObject);
 
             base.UnloadInternal();
+        }
+
+        /// <summary>
+        /// Called when the label has been updated.
+        /// </summary>
+        /// <param name="prop">Alignment prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Alignment_OnChanged(
+            ElementSchemaProp<int> prop,
+            int prev,
+            int next)
+        {
+            _renderer.Alignment = next;
+        }
+
+        /// <summary>
+        /// Called when the label has been updated.
+        /// </summary>
+        /// <param name="prop">FontSize prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void FontSize_OnChanged(
+            ElementSchemaProp<int> prop,
+            int prev,
+            int next)
+        {
+            _renderer.FontSize = next;
+        }
+
+        /// <summary>
+        /// Called when the label has been updated.
+        /// </summary>
+        /// <param name="prop">Font prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Font_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            _renderer.Font = next;
         }
     }
 }

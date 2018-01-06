@@ -196,6 +196,10 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     return new TextCrawl(_config, _layers, _tweens, _colors, _messages, _primitives);
                 }
+                case ElementTypes.FLOAT:
+                {
+                    return new Float(_config, _layers, _tweens, _colors, _messages, _primitives);
+                }
                 default:
                 {
                     throw new Exception(string.Format(

@@ -1,9 +1,9 @@
 ﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Application-wide message types.
+    /// Application-wide alignment types.
     /// </summary>
-    public static class ElementTypes
+    public static class AlignmentTypes
     {
         ///////////////////////////////////////////////////////////////////////
         // Error.
@@ -13,19 +13,22 @@
         ///////////////////////////////////////////////////////////////////////
         // Types.
         ///////////////////////////////////////////////////////////////////////
-        public const int CONTAINER = 0;
-        
-        public const int BUTTON = 10;
+        public const int MID_CENTER = 0;
 
-        public const int CURSOR = 20;
+        public const int TOP_LEFT = 1;
 
-        public const int CAPTION = 30;
+        public const int TOP_CENTER = 2;
 
-        public const int MENU = 100;
+        public const int TOP_RIGHT = 3;
 
-        public const int TEXTCRAWL = 120;
+        public const int MID_RIGHT = 4;
 
-        public const int FLOAT = 130;
+        public const int BOT_RIGHT = 5;
+
+        public const int BOT_CENTER = 6;
+
+        public const int BOT_LEFT = 7;
+
+        public const int MID_LEFT = 8;
     }
 }
-

@@ -109,5 +109,26 @@ namespace CreateAR.SpirePlayer.IUX
         {
             return new ReticlePrimitive(_config);
         }
+
+        /// <inheritdoc cref="IPrimitiveFactory"/>
+        public FloatPrimitive Float(ElementSchema schema)
+        {
+            var floatPrimitive = new FloatPrimitive(
+                _config);
+
+            var textSchema = new ElementSchema();
+            textSchema.Wrap(schema);
+            floatPrimitive.Load(
+                new ElementData
+                {
+                    Id = "Float"
+                },
+                textSchema,
+                new Element[0]);
+
+            _elements.Add(floatPrimitive);
+
+            return floatPrimitive;
+        }
     }
 }
