@@ -170,9 +170,9 @@ namespace CreateAR.Commons.Unity.Http.Editor
             }
             catch (Exception exception)
             {
-                Synchronize(() => state.Resolve(exception));
-
                 Log.Error(this, "Exception!");
+
+                Synchronize(() => state.Resolve(exception));
                 
                 return;
             }
@@ -194,10 +194,23 @@ namespace CreateAR.Commons.Unity.Http.Editor
                     return;
                 }
 
-                var len = (int) stream.Length;
-                var bytes = new byte[len];
-                stream.Read(bytes, 0, len);
+                // TODO: reuse buffers
+                var bytes = new byte[16384];
+                var index = 0;
+                var bytesRead = 0;
 
+                while ((bytesRead = stream.Read(bytes, index, bytes.Length - index)) > 0)
+                {
+                    index += bytesRead;
+
+                    if (index == bytes.Length)
+                    {
+                        var newBuffer = new byte[bytes.Length * 2];
+                        Array.Copy(bytes, 0, newBuffer, 0, index);
+                        bytes = newBuffer;
+                    }
+                }
+                
                 object value = null;
                 switch (state.Serialization)
                 {
@@ -234,7 +247,7 @@ namespace CreateAR.Commons.Unity.Http.Editor
                 }
             }
 
-            Log.Error(this, "Resolve.");
+            Log.Info(this, "Resolve.");
             Synchronize(() => state.Resolve(httpResponse));
 
             response.Close();
