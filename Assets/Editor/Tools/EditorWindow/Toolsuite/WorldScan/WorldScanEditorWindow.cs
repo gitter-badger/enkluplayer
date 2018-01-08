@@ -54,38 +54,6 @@ namespace CreateAR.SpirePlayer.Editor
             GUILayout.EndVertical();
         }
 
-        private void DrawRows()
-        {
-            if (null == _elements)
-            {
-                return;
-            }
-
-            foreach (var row in _elements)
-            {
-                GUILayout.BeginHorizontal();
-                {
-                    foreach (var column in _columns)
-                    {
-                        try
-                        {
-                            var value = column.Field.GetValue(row);
-                            GUILayout.Label(
-                                null == value
-                                    ? "No value"
-                                    : value.ToString(),
-                                GUILayout.Width(column.Width));
-                        }
-                        catch (Exception exception)
-                        {
-                            Debug.Log("Could not GetValue : " + exception.Message);
-                        }
-                    }
-                }
-                GUILayout.EndHorizontal();
-            }
-        }
-
         private void DrawHeaders()
         {
             GUILayout.BeginHorizontal();
@@ -103,6 +71,40 @@ namespace CreateAR.SpirePlayer.Editor
             GUILayout.EndHorizontal();
         }
 
+        private void DrawRows()
+        {
+            if (null == _elements)
+            {
+                return;
+            }
+
+            foreach (var row in _elements)
+            {
+                GUILayout.BeginHorizontal();
+                {
+                    foreach (var column in _columns)
+                    {
+                        object value = null;
+                        try
+                        {
+                            value = column.Field.GetValue(row);
+                        }
+                        catch
+                        {
+                            value = "N/A";
+                        }
+
+                        GUILayout.Label(
+                            null == value
+                                ? (string) GetDefault(column.Field.FieldType)
+                                : value.ToString(),
+                            GUILayout.Width(column.Width));
+                    }
+                }
+                GUILayout.EndHorizontal();
+            }
+        }
+
         private void Unpopulate()
         {
             _columns = new TableColumnData[0];
@@ -115,19 +117,36 @@ namespace CreateAR.SpirePlayer.Editor
                 return;
             }
 
-            var columns = new HashSet<FieldInfo>();
+            var columns = new List<FieldInfo>();
             foreach (var element in _elements)
             {
                 var fields = element.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
                 foreach (var field in fields)
                 {
-                    columns.Add(field);
+                    var exists = columns.Any(column => column.Name == field.Name && column.FieldType == field.FieldType);
+                    if (!exists)
+                    {
+                        columns.Add(field);
+                    }
                 }
             }
-
+            
             _columns = columns
                 .Select(field => new TableColumnData(field))
                 .ToArray();
+        }
+
+        private object GetDefault(Type type)
+        {
+            return GetType()
+                .GetMethod("GetDefaultGeneric", BindingFlags.Instance | BindingFlags.NonPublic)
+                .MakeGenericMethod(type)
+                .Invoke(this, null);
+        }
+
+        private T GetDefaultGeneric<T>()
+        {
+            return default(T);
         }
     }
 
@@ -139,6 +158,14 @@ namespace CreateAR.SpirePlayer.Editor
             public string Uri;
             public string LastUpdated;
             public string Tags;
+            public string A;
+            public float B;
+        }
+
+        public class DummyTest
+        {
+            public string Name;
+            public int A;
         }
 
         private readonly TableComponent _table = new TableComponent();
@@ -157,6 +184,11 @@ namespace CreateAR.SpirePlayer.Editor
                 new WorldScanRecord
                 {
                     Name = "Scan B"
+                },
+                new DummyTest
+                {
+                    Name = "Foo",
+                    A = 14
                 }
             };
         }
