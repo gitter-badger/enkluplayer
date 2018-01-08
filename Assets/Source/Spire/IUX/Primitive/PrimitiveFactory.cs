@@ -114,7 +114,12 @@ namespace CreateAR.SpirePlayer.IUX
         public FloatPrimitive Float(ElementSchema schema)
         {
             var floatPrimitive = new FloatPrimitive(
-                _config);
+                _config,
+                _intention,
+                _messages,
+                _layers,
+                _tweens,
+                _colors);
 
             var textSchema = new ElementSchema();
             textSchema.Wrap(schema);

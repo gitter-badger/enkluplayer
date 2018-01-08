@@ -13,8 +13,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Dependencies.
         /// </summary>
-        private readonly IInteractableManager _interactables;
-        private readonly IInteractionManager _interaction;
         private readonly IIntentionManager _intention;
 
         /// <summary>
@@ -27,8 +25,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public FloatPrimitive(
             WidgetConfig config,
-            IInteractableManager interactables,
-            IInteractionManager interaction,
             IIntentionManager intention,
             IMessageRouter messages,
             ILayerManager layers,
@@ -43,8 +39,6 @@ namespace CreateAR.SpirePlayer.IUX
                 messages)
         {
             _config = config;
-            _interactables = interactables;
-            _interaction = interaction;
             _intention = intention;
         }
 
@@ -58,7 +52,7 @@ namespace CreateAR.SpirePlayer.IUX
                 Vector3.zero,
                 Quaternion.identity);
             _renderer.transform.SetParent(GameObject.transform, false);
-            _renderer.Initialize(this, _config, Layers, Tweens, Colors, Messages, _intention, _interaction, _interactables);
+            _renderer.Initialize(this, _intention);
         }
 
         /// <inheritdoc cref="Element"/>

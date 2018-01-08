@@ -112,6 +112,11 @@ namespace CreateAR.SpirePlayer.IUX
         public float AverageAngularVelocity { get; private set; }
 
         /// <summary>
+        /// Forward direction.
+        /// </summary>
+        public float FieldOfView { get; private set; }
+
+        /// <summary>
         /// Return if the supplied position is visible to the user.
         /// </summary>
         public bool IsVisible(Vec3 position, float fovScale = 1.0f)

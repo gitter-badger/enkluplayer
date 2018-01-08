@@ -151,7 +151,10 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public static Vec3 Cross(Vec3 lhs, Vec3 rhs)
         {
-            throw NotImplementedException();
+            return new Vec3(
+                lhs.y*rhs.z - lhs.z*rhs.y,
+                lhs.z*rhs.x - lhs.x*rhs.z,
+                lhs.x*rhs.y - lhs.y*rhs.x);
         }
 
         /// <summary>

@@ -1,6 +1,6 @@
-﻿using System;
-using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Dynamics;
+using System.Diagnostics;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -10,9 +10,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Dependencies.
         /// </summary>
-        private WidgetConfig _config;
-        private ITweenConfig _tweens;
-        private IColorConfig _colors;
         private IIntentionManager _intention;
 
         /// <summary>
@@ -25,20 +22,13 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         internal void Initialize(
             FloatPrimitive primitive,
-            WidgetConfig config,
-            ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
-            IMessageRouter messages,
-            IIntentionManager intention,
-            IInteractionManager interaction,
-            IInteractableManager interactables)
+            IIntentionManager intention)
         {
             _primitive = primitive;
-            _tweens = tweens;
-            _colors = colors;
-            _config = config;
             _intention = intention;
+
+            StationaryWidget.Initialize(_primitive);
+            MotionWidget.Initialize(_primitive);
         }
 
         #region Fields
@@ -76,48 +66,59 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// FOV Scale
         /// </summary>
-        public float FOVScale = 1.2f;
+        public const float REORIENT_FOV_SCALE = 1.5f;
+
+        /// <summary>
+        /// FOV Scale
+        /// </summary>
+        public const float CLOSE_FOV_SCALE = 0.5f;
+
+        /// <summary>
+        /// Too far away from the origin
+        /// </summary>
+        public const float DISTANCE_SCALE = 0.25f;
 
         /// <summary>
         /// Shown when stationary
         /// </summary>
-        public Widget StationaryWidget;
+        public WidgetRenderer StationaryWidget;
 
         /// <summary>
         /// Shown when in motion
         /// </summary>
-        public Widget MotionWidget;
+        public WidgetRenderer MotionWidget;
+
+        /// <summary>
+        /// Only active once has been stationary
+        /// </summary>
+        public GameObject Trail;
 
         /// <summary>
         /// Links to the parent menu
         /// </summary>
-        public DynamicLink LinkPrefab;
-
-        #endregion
-
-        #region Properties
+        public LinkRenderer LinkPrefab;
 
         /// <summary>
         /// returns the ideal position
         /// </summary>
-        public Vector3 IdealPosition
+        public Vec3 IdealPosition
         {
             get
             {
-                
+                if (_intention == null)
+                {
+                    return transform.position.ToVec();
+                }
+
                 var focusOrigin = _intention.Origin;
                 var zAxis = _intention.Forward;
-                var xAxis = Vec3.Cross(zAxis, Vec3.Up).Normalized;
-                var yAxis = -Vec3.Cross(zAxis, xAxis).Normalized;
+                var xAxis = _intention.Right;
+                var yAxis = _intention.Up;
                 var idealPosition
                     = focusOrigin
                       + xAxis * Offset.x
                       + yAxis * Offset.y
                       + zAxis * Offset.z;
-                idealPosition.y
-                    = Math.Max(
-                        idealPosition.y,
-                        MinimumGroundHeight);
 
                 return idealPosition;
             }
@@ -142,114 +143,138 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Returns true if this context menu is visible to user
         /// </summary>
-        public bool IsVisibleToUser
+        public bool IsInFieldOfView { get { return _intention.IsVisible(transform.position.ToVec(), REORIENT_FOV_SCALE); } }
+
+        /// <summary>
+        /// Returns true if this context menu is visible to user
+        /// </summary>
+        public bool IsTooFarAway
         {
             get
             {
-                var widgetManager = WidgetManager.Instance;
-                if (widgetManager == null)
+                var delta = _intention.Origin - transform.position.ToVec();
+                var distance = delta.Magnitude;
+                var minDistance = Offset.z * DISTANCE_SCALE;
+                var maxDistance = Offset.z * (1.0f + DISTANCE_SCALE);
+
+                if (distance < minDistance || distance > maxDistance)
                 {
                     return true;
-
                 }
 
-                var mainCamera = UnityEngine.Camera.main;
-                if (mainCamera == null)
-                {
-                    return false;
-                }
-
-                var focusOrigin = widgetManager.FocusOrigin;
-                var focusDirection = widgetManager.FocusDirection;
-
-                var delta
-                    = Transform
-                          .position
-                      - focusOrigin;
-                var deltaDirection
-                    = delta
-                        .normalized;
-                var lookCosTheta
-                    = Vector3
-                        .Dot(
-                            deltaDirection,
-                            focusDirection);
-                var lookThetaDegrees
-                    = Mathf.Approximately(lookCosTheta, 1.0f)
-                        ? 0.0f
-                        : Mathf.Acos(lookCosTheta)
-                          * Mathf.Rad2Deg;
-                var maxLookThetaDegrees
-                    = mainCamera.fieldOfView
-                      * FOVScale;
-                var isLooking
-                    = lookThetaDegrees
-                      < maxLookThetaDegrees;
-
-                return isLooking;
+                return false;
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Returns true if this context menu is visible to user
+        /// </summary>
+        public bool IsCloseToIdealPosition { get { return _intention.IsVisible(transform.position.ToVec(), CLOSE_FOV_SCALE); } }
 
-        #region Methods
+        /// <summary>
+        /// String override
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return "DynamicNode";
+        }
 
         /// <summary>
         /// Frame base initialization
         /// </summary>
         public void Awake()
         {
+            if (Magnet == null)
+            {
+                LogVerbose("Missing Magnet!");
+            }
+
             if (LinkPrefab != null)
             {
                 LinkPrefab.gameObject.SetActive(false);
             }
+
+            if (Transform == null)
+            {
+                Transform = transform;
+            }
+
+            if (LinkTransform == null)
+            {
+                LinkTransform = transform;
+            }
         }
 
         /// <summary>
-        /// Frame based update
+        /// Called before first Update.
+        /// </summary>
+        public void Start()
+        {
+            if (Transform != null)
+            {
+                var initialPosition = IdealPosition;
+                //initialPosition.y = Anchor.FloorY - 2.0f;
+                Transform.position = initialPosition.ToVector();
+
+                var trailRenderer = GetComponentInChildren<TrailRenderer>(true);
+                if (trailRenderer != null)
+                {
+                    trailRenderer.Clear();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Frame based update.
         /// </summary>
         public void Update()
         {
-            if (Magnet == null)
+            if (_primitive.Visible)
             {
-                return;
+                UpdateMovement();
             }
 
-            UpdateMovement();
             UpdateWidgets();
             UpdateLink();
         }
 
-        #endregion
-
-        #region Private Fields
+        /// <summary>
+        /// Moves to ideal position
+        /// </summary>
+        public void MoveToIdealPosition()
+        {
+            Magnet
+                .SetTarget(
+                    new Target()
+                    {
+                        Position = IdealPosition.ToVector()
+                    });
+        }
 
         /// <summary>
         /// Dynamic Link Instance
         /// </summary>
-        private DynamicLink _dynamicLink;
+        private LinkRenderer _dynamicLink;
 
-        #endregion
-
-        #region Private Methods
+        /// <summary>
+        /// True if has been stationary
+        /// </summary>
+        private bool _hasBeenStationary;
 
         /// <summary>
         /// Updates the movement of the context menu
         /// </summary>
         private void UpdateMovement()
         {
-            var idealPosition = IdealPosition;
-
             if (Magnet.Target.IsEmpty
-                || IsInMotion
-                || !IsVisibleToUser)
+                || !IsInFieldOfView
+                || IsTooFarAway)
             {
-                Magnet
-                    .SetTarget(
-                        new Target()
-                        {
-                            Position = idealPosition
-                        });
+                if (!IsInMotion || !IsCloseToIdealPosition || IsTooFarAway)
+                {
+                    MoveToIdealPosition();
+                }
             }
         }
 
@@ -263,12 +288,20 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (StationaryWidget != null)
             {
-                StationaryWidget.SetLocalVisible(isStationaryVisible);
+                StationaryWidget.LocalVisible = isStationaryVisible;
             }
 
             if (MotionWidget != null)
             {
-                MotionWidget.SetLocalVisible(!isStationaryVisible);
+                MotionWidget.LocalVisible = !isStationaryVisible;
+            }
+
+            if (_hasBeenStationary)
+            {
+                if (Trail != null)
+                {
+                    Trail.gameObject.SetActive(true);
+                }
             }
         }
 
@@ -279,36 +312,22 @@ namespace CreateAR.SpirePlayer.IUX
         {
             if (LinkPrefab == null)
             {
+                // valid to have no link prefab
                 return;
             }
 
-            if (Transform == null)
-            {
-                Transform = transform;
-            }
+            var linkIsVisible
+                = _primitive.Visible
+                  && !IsInMotion;
 
-            if (LinkTransform == null)
+            if (linkIsVisible)
             {
-                LinkTransform = transform;
-            }
-
-            if (IsInMotion)
-            {
-                if (_dynamicLink != null
-                    && !_dynamicLink.IsFadingOut)
-                {
-                    _dynamicLink.FadeOut();
-                    _dynamicLink = null;
-                }
+                CreateLink();
+                _hasBeenStationary = true;
             }
             else
             {
-                if (_dynamicLink == null)
-                {
-                    _dynamicLink = Instantiate(LinkPrefab);
-                    _dynamicLink.transform.SetParent(transform, false);
-                    _dynamicLink.gameObject.SetActive(true);
-                }
+                ClearLink();
             }
 
             if (_dynamicLink != null)
@@ -316,21 +335,55 @@ namespace CreateAR.SpirePlayer.IUX
                 _dynamicLink.EndPoint0
                     = new Target()
                     {
-                        Transform = Parent != null ? Parent.transform : null,
                         Position = LinkTransform.position
                     };
-                _dynamicLink.EndPoint0.Position.y = 0;
+                _dynamicLink.EndPoint0.Position.y = 0; // Anchor.FloorY;
 
-                if (!_dynamicLink.IsFadingOut)
-                {
-                    _dynamicLink.EndPoint1
-                        = new Target()
-                        {
-                            Transform = null,
-                            Position = LinkTransform.position
-                        };
-                }
+                _dynamicLink.EndPoint1
+                    = new Target()
+                    {
+                        Position = LinkTransform.position
+                    };
             }
+        }
+
+        /// <summary>
+        /// Creates the dynamic link
+        /// </summary>
+        private void CreateLink()
+        {
+            if (_dynamicLink == null)
+            {
+                LogVerbose("Create DynamicLink.");
+
+                _dynamicLink = Instantiate(LinkPrefab);
+                _dynamicLink.transform.SetParent(transform, false);
+                _dynamicLink.gameObject.SetActive(true);
+            }
+        }
+
+        /// <summary>
+        /// Clears the link
+        /// </summary>
+        public void ClearLink()
+        {
+            if (_dynamicLink != null)
+            {
+                LogVerbose("Clear DynamicLink.");
+
+                _dynamicLink.FadeOut();
+                _dynamicLink = null;
+            }
+        }
+
+        /// <summary>
+        /// Logs verbosely.
+        /// </summary>
+        /// <param name="message">Verbose logging.</param>
+        [Conditional("VERBOSE_LOGGING")]
+        private void LogVerbose(string message)
+        {
+            Log.Info(this, message);
         }
 
         #endregion

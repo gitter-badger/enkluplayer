@@ -32,8 +32,16 @@
         Vec3 Right { get; }
 
         /// <summary>
-        /// Measure of stability;
+        /// Measure of stability.
         /// </summary>
         float Stability { get; }
+
+        /// <summary>
+        /// True if visible to user.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="fovScale"></param>
+        /// <returns></returns>
+        bool IsVisible(Vec3 position, float fovScale = 1.0f);
     }
 }
