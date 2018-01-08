@@ -186,6 +186,8 @@ namespace CreateAR.SpirePlayer.Editor
                     EditorUtility.ClearProgressBar();
 
                     Log.Info(this, "Successfully connected.");
+
+                    Repaint();
                 })
                 .OnFailure(exception =>
                 {
@@ -197,6 +199,8 @@ namespace CreateAR.SpirePlayer.Editor
                             EditorUtility.ClearProgressBar();
 
                             Log.Info(this, "Successfully connected to Trellis.");
+
+                            Repaint();
                         })
                         .OnFailure(error =>
                         {
@@ -205,6 +209,8 @@ namespace CreateAR.SpirePlayer.Editor
                             _logMessage = "Could not signup.";
 
                             Log.Warning(this, "Could not connect to Trellis.");
+
+                            Repaint();
                         });
                 });
         }

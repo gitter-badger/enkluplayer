@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using CreateAR.Commons.Unity.Editor;
@@ -107,12 +108,12 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Columns, populated on Populate();
         /// </summary>
-        private TableColumnData[] _columns;
+        private TableColumnData[] _columns = new TableColumnData[0];
 
         /// <summary>
         /// Backing variable for Elements property.
         /// </summary>
-        private object[] _elements;
+        private object[] _elements = new object[0];
 
         /// <summary>
         /// Elements to display information for.
