@@ -167,7 +167,7 @@ namespace CreateAR.SpirePlayer.Editor
                 }
                 else if (!string.IsNullOrEmpty(credentials.Token))
                 {
-                    GUILayout.Label("Sign in successful.");
+                    GUILayout.Label("Connected!");
                 }
                 else
                 {
