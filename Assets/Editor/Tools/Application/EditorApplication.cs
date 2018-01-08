@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Http.Editor;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis;
 using UnityEditor;
@@ -39,7 +40,7 @@ namespace CreateAR.SpirePlayer.Editor
             
             UnityEditor.EditorApplication.update += _bootstrapper.Update;
             
-            Http = new HttpService(new JsonSerializer(), Bootstrapper);
+            Http = new EditorHttpService(new JsonSerializer(), _bootstrapper);
             Api = new ApiController(Http);
         }
     }

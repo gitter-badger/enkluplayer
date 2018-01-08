@@ -141,8 +141,12 @@ namespace CreateAR.SpirePlayer
 #endif
 
             // clean up loggers
-	        foreach (var target in Log.Targets)
-	        {
+	        var targets = Log.Targets;
+            for (var i = targets.Length - 1; i >= 0; i--)
+            {
+                var target = targets[i];
+                Log.RemoveLogTarget(target);
+
 	            var disposable = target as System.IDisposable;
 	            if (null != disposable)
 	            {
