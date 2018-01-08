@@ -7,16 +7,39 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
 {
+    /// <summary>
+    /// Component for tabular data.
+    /// </summary>
     public class TableComponent : IEditorView
     {
+        /// <summary>
+        /// Stores column information.
+        /// </summary>
         private class TableColumnData
         {
+            /// <summary>
+            /// Label for this column.
+            /// </summary>
             public readonly string Label;
+
+            /// <summary>
+            /// Name of the field for this column.
+            /// </summary>
             public readonly string FieldName;
+
+            /// <summary>
+            /// Type of field.
+            /// </summary>
             public readonly Type FieldType;
 
+            /// <summary>
+            /// Column width.
+            /// </summary>
             public float Width;
 
+            /// <summary>
+            /// Constructor.
+            /// </summary>
             public TableColumnData(
                 string label,
                 string fieldName,
@@ -28,17 +51,33 @@ namespace CreateAR.SpirePlayer.Editor
             }
         }
 
+        /// <summary>
+        /// Caches field information.
+        /// </summary>
         private class FieldInfoCache
         {
-            public readonly Type Type;
+            /// <summary>
+            /// Fields.
+            /// </summary>
             public readonly FieldInfo[] Fields;
 
+            /// <summary>
+            /// Constructor.
+            /// </summary>
             public FieldInfoCache(Type type)
             {
-                Type = type;
-                Fields = Type.GetFields(BindingFlags.Instance | BindingFlags.Public);
+                Fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
             }
 
+            /// <summary>
+            /// Retrieves a matching value and returns true iff the field
+            /// exists.
+            /// </summary>
+            /// <param name="fieldName">Name of the field.</param>
+            /// <param name="fieldType">Type of field.</param>
+            /// <param name="instance">Instance to pull value off of.</param>
+            /// <param name="value">Output value.</param>
+            /// <returns>True iff field exists on object.</returns>
             public bool Value(
                 string fieldName,
                 Type fieldType,
@@ -60,11 +99,24 @@ namespace CreateAR.SpirePlayer.Editor
             }
         }
 
+        /// <summary>
+        /// Caches by type.
+        /// </summary>
         private static readonly Dictionary<Type, FieldInfoCache> _caches = new Dictionary<Type, FieldInfoCache>();
 
+        /// <summary>
+        /// Columns, populated on Populate();
+        /// </summary>
         private TableColumnData[] _columns;
+
+        /// <summary>
+        /// Backing variable for Elements property.
+        /// </summary>
         private object[] _elements;
 
+        /// <summary>
+        /// Elements to display information for.
+        /// </summary>
         public object[] Elements
         {
             get
@@ -96,6 +148,9 @@ namespace CreateAR.SpirePlayer.Editor
             GUILayout.EndVertical();
         }
 
+        /// <summary>
+        /// Draws column headers.
+        /// </summary>
         private void DrawHeaders()
         {
             GUILayout.BeginHorizontal();
@@ -113,6 +168,9 @@ namespace CreateAR.SpirePlayer.Editor
             GUILayout.EndHorizontal();
         }
 
+        /// <summary>
+        /// Draws all column rows.
+        /// </summary>
         private void DrawRows()
         {
             if (null == _elements)
@@ -142,9 +200,12 @@ namespace CreateAR.SpirePlayer.Editor
                             {
                                 if (GUILayout.Button(
                                     column.FieldName,
-                                    GUILayout.Width(column.Width)))
+                                    GUILayout.Width(column.Width))
+                                && null != value)
                                 {
                                     ((Action) value)();
+
+                                    Repaint();
                                 }
                             }
                             else
@@ -159,7 +220,7 @@ namespace CreateAR.SpirePlayer.Editor
                         else
                         {
                             GUILayout.Label(
-                                "N/A",
+                                "--",
                                 GUILayout.Width(column.Width));
                         }
                     }
@@ -168,11 +229,18 @@ namespace CreateAR.SpirePlayer.Editor
             }
         }
 
+        /// <summary>
+        /// Unpopulates data.
+        /// </summary>
         private void Unpopulate()
         {
             _columns = new TableColumnData[0];
+            _elements = new object[0];
         }
 
+        /// <summary>
+        /// Populates data.
+        /// </summary>
         private void Populate()
         {
             if (null == _elements)
@@ -240,6 +308,11 @@ namespace CreateAR.SpirePlayer.Editor
             _columns = columns.ToArray();
         }
 
+        /// <summary>
+        /// Retrieves default value for type.
+        /// </summary>
+        /// <param name="type">Type.</param>
+        /// <returns></returns>
         private object GetDefault(Type type)
         {
             return GetType()
@@ -248,9 +321,25 @@ namespace CreateAR.SpirePlayer.Editor
                 .Invoke(this, null);
         }
 
+        /// <summary>
+        /// Retrieves default value for type.
+        /// </summary>
+        /// <typeparam name="T">Type.</typeparam>
+        /// <returns></returns>
         private T GetDefaultGeneric<T>()
         {
             return default(T);
+        }
+
+        /// <summary>
+        /// Requests a repaint.
+        /// </summary>
+        private void Repaint()
+        {
+            if (null != OnRepaintRequested)
+            {
+                OnRepaintRequested();
+            }
         }
     }
 }
