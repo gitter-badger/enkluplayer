@@ -62,6 +62,7 @@ namespace CreateAR.SpirePlayer.IUX
             _baseSchema.Set("visibilityMode", VisibilityMode.Inherit);
             _baseSchema.Set("layerMode", LayerMode.Default);
             _baseSchema.Set("autoDestroy", false);
+            _baseSchema.Set("font", "Watchword_bold");
 
             // load defaults
             var buttonSchema = _typeSchema[ElementTypes.BUTTON] = new ElementSchema();

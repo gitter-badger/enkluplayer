@@ -121,14 +121,12 @@ namespace CreateAR.SpirePlayer.IUX
                 _tweens,
                 _colors);
 
-            var textSchema = new ElementSchema();
-            textSchema.Wrap(schema);
             floatPrimitive.Load(
                 new ElementData
                 {
                     Id = "Float"
                 },
-                textSchema,
+                schema,
                 new Element[0]);
 
             _elements.Add(floatPrimitive);

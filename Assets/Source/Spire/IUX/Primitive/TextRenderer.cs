@@ -76,7 +76,7 @@ namespace CreateAR.SpirePlayer.IUX
         public string Font
         {
             get { return Text.font.name; }
-            set { Text.font = new Font(value); }
+            set { Text.font = (Font) Resources.Load("Fonts/" + value); }
         }
 
         /// <summary>

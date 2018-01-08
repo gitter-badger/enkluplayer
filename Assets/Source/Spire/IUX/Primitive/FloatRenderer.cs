@@ -213,6 +213,11 @@ namespace CreateAR.SpirePlayer.IUX
         {
             if (Transform != null)
             {
+                // TODO: fix this, hiearchy of spawned IUX objects is extra deep.
+                // TODO: fix this, hiearchy of spawned IUX objects is extra deep.
+                Magnet.Root = Magnet.Root.transform.parent.parent;
+                Transform = transform.parent.parent;
+
                 var initialPosition = IdealPosition;
                 //initialPosition.y = Anchor.FloorY - 2.0f;
                 Transform.position = initialPosition.ToVector();

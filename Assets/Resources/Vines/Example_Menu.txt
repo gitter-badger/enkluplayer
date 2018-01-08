@@ -4,27 +4,23 @@
 	state.letters = ["A", "B", "C", "D", "E"];
 }}
 
-<TextCrawl 
-  fontSize=68 
-  name='Hello Crawl' 
-  position=(0, 0, 3.93) 
-  > 
-</TextCrawl> 
-
-/* Must have a root element. 
-<Menu
-	title='Welcome'
-	description='Move the cursor with your head to activate the Ok button to the right.'
-	position=(0, 0, 3.93)>
+<Float
+	offset=(0,0,3)>
 	
+	<Menu
+		title='Welcome'
+		description='Move the cursor with your head to activate the Ok button to the right.'
+		position=(0, 0, 3.93)>
 
-	{{
-		var buttons = [];
-		state.letters.forEach(function(item, index, arr) {
-			buttons.push("<Button label='" + item + "' />");
-		});
+		{{
+			var buttons = [];
+			state.letters.forEach(function(item, index, arr) {
+				buttons.push("<Button label='" + item + "' />");
+			});
 
-		return buttons.join("");
-	}}
+			return buttons.join("");
+		}}
 
-</Menu>*/
+	</Menu>
+
+</Float>
