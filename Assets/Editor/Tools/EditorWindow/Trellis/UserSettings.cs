@@ -1,9 +1,9 @@
 ﻿namespace CreateAR.SpirePlayer.Editor
 {
     /// <summary>
-    /// Contains credentials for all environments.
+    /// Contains saved settings for user.
     /// </summary>
-    public class UserEnvironmentSettings
+    public class UserSettings
     {
         /// <summary>
         /// All credentials for all environments.
