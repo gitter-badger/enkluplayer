@@ -73,19 +73,23 @@ namespace CreateAR.SpirePlayer.Editor
             {
                 GUILayout.Space(20);
 
-                var selected = EditorGUILayout.Foldout(
-                    method == _selectedMethod,
-                    method.Name);
-                if (selected)
+                GUILayout.BeginVertical();
                 {
-                    _selectedMethod = method;
+                    var selected = EditorGUILayout.Foldout(
+                        method == _selectedMethod,
+                        method.Name);
+                    if (selected)
+                    {
+                        _selectedMethod = method;
 
-                    DrawForm(controller, method);
+                        DrawForm(controller, method);
+                    }
+                    else if (_selectedMethod == method)
+                    {
+                        _selectedMethod = null;
+                    }
                 }
-                else if (_selectedMethod == method)
-                {
-                    _selectedMethod = null;
-                }
+                GUILayout.EndVertical();
             }
             GUILayout.EndHorizontal();
         }
@@ -98,7 +102,12 @@ namespace CreateAR.SpirePlayer.Editor
             {
                 foreach (var param in parameters)
                 {
-                    if (param.GetType().IsPrimitive)
+                    var type = param.ParameterType;
+                    if (type.IsPrimitive)
+                    {
+
+                    }
+                    else if (type == typeof(string))
                     {
 
                     }
