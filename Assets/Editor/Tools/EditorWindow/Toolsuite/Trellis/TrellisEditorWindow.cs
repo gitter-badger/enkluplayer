@@ -1,0 +1,68 @@
+﻿using CreateAR.Commons.Unity.Editor;
+using UnityEditor;
+using UnityEngine;
+
+namespace CreateAR.SpirePlayer.Editor
+{
+    /// <summary>
+    /// Window for setting up Trellis integration.
+    /// </summary>
+    public class TrellisEditorWindow : EditorWindow
+    {
+        /// <summary>
+        /// Tabs.
+        /// </summary>
+        private readonly TabCollectionComponent _tabs = new TabCollectionComponent();
+
+        /// <summary>
+        /// Views to render.
+        /// </summary>
+        private readonly TrellisSettingsView _settingsView = new TrellisSettingsView();
+        private readonly HttpControllerView _controllerView = new HttpControllerView();
+        
+        /// <summary>
+        /// Opens window.
+        /// </summary>
+        [MenuItem("Tools/Trellis %t")]
+        private static void Open()
+        {
+            GetWindow<TrellisEditorWindow>();
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnEnable()
+        {
+            titleContent = new GUIContent("Trellis");
+            
+            _settingsView.OnRepaintRequested += Repaint;
+            _controllerView.OnRepaintRequested += Repaint;
+            _tabs.OnRepaintRequested += Repaint;
+
+            _tabs.Tabs = new TabComponent[]
+            {
+                new ViewTabComponent("Settings", _settingsView),
+                new ViewTabComponent("Controllers", _controllerView)
+            };
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnDisable()
+        {
+            EditorUtility.ClearProgressBar();
+
+            _tabs.OnRepaintRequested -= Repaint;
+            _controllerView.OnRepaintRequested -= Repaint;
+            _settingsView.OnRepaintRequested -= Repaint;
+        }
+        
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnGUI()
+        {
+            GUI.skin = (GUISkin) EditorGUIUtility.Load("Default.guiskin");
+
+            _tabs.Draw();
+
+            Repaint();
+        }
+    }
+}

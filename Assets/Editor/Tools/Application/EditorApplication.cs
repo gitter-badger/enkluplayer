@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Http.Editor;
 using CreateAR.Commons.Unity.Logging;
@@ -62,19 +63,6 @@ namespace CreateAR.SpirePlayer.Editor
         }
 
         /// <summary>
-        /// Watches for uninit.
-        /// </summary>
-        private static void WatchForCompile()
-        {
-            if (UnityEditor.EditorApplication.isCompiling)
-            {
-                Http.Abort();
-
-                UnityEditor.EditorApplication.update -= WatchForCompile;
-            }
-        }
-
-        /// <summary>
         /// Saves credentials to disk.
         /// </summary>
         public static void SaveUserSettings()
@@ -92,6 +80,20 @@ namespace CreateAR.SpirePlayer.Editor
             File.WriteAllText(
                 path,
                 json);
+        }
+
+        /// <summary>
+        /// Watches for uninit.
+        /// </summary>
+        private static void WatchForCompile()
+        {
+            if (UnityEditor.EditorApplication.isCompiling)
+            {
+                Http.Abort();
+
+                UnityEditor.EditorApplication.update -= _bootstrapper.Update;
+                UnityEditor.EditorApplication.update -= WatchForCompile;
+            }
         }
 
         /// <summary>
@@ -160,6 +162,28 @@ namespace CreateAR.SpirePlayer.Editor
             if (changed)
             {
                 SaveUserSettings();
+            }
+
+            // remove Authentication
+            for (int i = 0, len = Http.Headers.Count; i < len; i++)
+            {
+                var header = Http.Headers[i];
+                if (header.Item1.StartsWith("Authorization"))
+                {
+                    Http.Headers.RemoveAt(i);
+
+                    break;
+                }
+            }
+
+            var creds = UserSettings.Credentials(UserSettings.Environment);
+            if (null != creds && !string.IsNullOrEmpty(creds.Token))
+            {
+                Log.Info(UserSettings, "Setting Authorization header.");
+
+                Http.Headers.Add(Tuple.Create(
+                    "Authorization",
+                    string.Format("Bearer {0}", creds.Token)));
             }
 
             Log.Info(UserSettings, "Loaded credentials {0}.", UserSettings);
