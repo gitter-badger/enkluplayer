@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Editor;
+﻿using System.ComponentModel;
+using CreateAR.Commons.Unity.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private readonly TrellisSettingsView _settingsView = new TrellisSettingsView();
         private readonly HttpControllerView _controllerView = new HttpControllerView();
+        private readonly WorldScanView _worldScanView = new WorldScanView();
         
         /// <summary>
         /// Opens window.
@@ -41,8 +43,11 @@ namespace CreateAR.SpirePlayer.Editor
             _tabs.Tabs = new TabComponent[]
             {
                 new ViewTabComponent("Settings", _settingsView),
+                new ViewTabComponent("World Scans", _worldScanView),
                 new ViewTabComponent("Controllers", _controllerView)
             };
+
+            _settingsView.Connect();
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>

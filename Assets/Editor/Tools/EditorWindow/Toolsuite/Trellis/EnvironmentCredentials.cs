@@ -26,6 +26,11 @@
         public string Token;
 
         /// <summary>
+        /// User id.
+        /// </summary>
+        public string UserId;
+
+        /// <summary>
         /// Useful ToString override.
         /// </summary>
         /// <returns></returns>

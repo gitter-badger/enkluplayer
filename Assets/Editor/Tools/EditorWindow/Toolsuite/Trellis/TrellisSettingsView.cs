@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer.Editor
 
         ///<inheritdoc cref="IEditorView"/>
         public event Action OnRepaintRequested;
-
+        
         ///<inheritdoc cref="IEditorView"/>
         public void Draw()
         {
@@ -35,8 +35,81 @@ namespace CreateAR.SpirePlayer.Editor
             {
                 DrawEnvironmentSelection();
                 DrawConnectForm();
+                DrawUserInformation();
             }
             GUILayout.EndVertical();
+        }
+
+        /// <summary>
+        /// Connects to Trellis. Once connected, automatically saves token.
+        /// </summary>
+        public void Connect()
+        {
+            var environment = EditorApplication.Environments.Environment(
+                EditorApplication.UserSettings.Environment);
+            if (null == environment)
+            {
+                Log.Warning(this, "Invalid environment selection.");
+                return;
+            }
+
+            var credentials = EditorApplication.UserSettings.Credentials(
+                EditorApplication.UserSettings.Environment);
+            if (null == credentials)
+            {
+                Log.Warning(this, "Invalid credentials.");
+                return;
+            }
+
+            // setup HTTP
+            var builder = EditorApplication.Http.UrlBuilder;
+            builder.BaseUrl = "http://" + environment.Hostname;
+            builder.Port = environment.Port;
+            builder.Version = environment.ApiVersion;
+
+            Log.Info(this, "Attempting to connect to Trellis.");
+
+            EditorUtility.DisplayProgressBar(
+                SIGNIN_PROGRESS_TITLE,
+                "Attempting to connect.",
+                0.25f);
+
+            // try signing in
+            SignIn(credentials)
+                .OnSuccess(_ =>
+                {
+                    EditorUtility.ClearProgressBar();
+
+                    _logMessage = "Successfully connected.";
+                    Log.Info(this, "Successfully connected.");
+
+                    Repaint();
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Info(this, "Signin failed, attempting signup ({0}).", exception.Message);
+
+                    SignUp(credentials)
+                        .OnSuccess(__ =>
+                        {
+                            EditorUtility.ClearProgressBar();
+
+                            Log.Info(this, "Successfully connected to Trellis.");
+                            _logMessage = "Successfully connected.";
+
+                            Repaint();
+                        })
+                        .OnFailure(error =>
+                        {
+                            EditorUtility.ClearProgressBar();
+
+                            _logMessage = "Could not signup.";
+
+                            Log.Warning(this, "Could not connect to Trellis.");
+
+                            Repaint();
+                        });
+                });
         }
 
         /// <summary>
@@ -120,9 +193,6 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private void DrawMessage()
         {
-            var credentials = EditorApplication.UserSettings.Credentials(
-                EditorApplication.UserSettings.Environment);
-
             GUILayout.BeginHorizontal();
             {
                 GUILayout.FlexibleSpace();
@@ -130,10 +200,6 @@ namespace CreateAR.SpirePlayer.Editor
                 if (!string.IsNullOrEmpty(_logMessage))
                 {
                     GUILayout.Label(_logMessage);
-                }
-                else if (!string.IsNullOrEmpty(credentials.Token))
-                {
-                    GUILayout.Label("Connected!");
                 }
                 else
                 {
@@ -146,73 +212,34 @@ namespace CreateAR.SpirePlayer.Editor
         }
 
         /// <summary>
-        /// Connects to Trellis. Once connected, automatically saves token.
+        /// Draws information about user.
         /// </summary>
-        private void Connect()
+        private void DrawUserInformation()
         {
-            var environment = EditorApplication.Environments.Environment(
-                EditorApplication.UserSettings.Environment);
-            if (null == environment)
-            {
-                Log.Warning(this, "Invalid environment selection.");
-                return;
-            }
-
             var credentials = EditorApplication.UserSettings.Credentials(
                 EditorApplication.UserSettings.Environment);
-            if (null == credentials)
+
+            GUILayout.BeginVertical("box");
             {
-                Log.Warning(this, "Invalid credentials.");
-                return;
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label("User Id:");
+                    GUILayout.FlexibleSpace();
+                }
+                GUILayout.EndVertical();
+                
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label(credentials.UserId);
+
+                    if (GUILayout.Button("Copy"))
+                    {
+                        EditorGUIUtility.systemCopyBuffer = credentials.UserId;
+                    }
+                }
+                GUILayout.EndHorizontal();
             }
-
-            // setup HTTP
-            var builder = EditorApplication.Http.UrlBuilder;
-            builder.BaseUrl = "http://" + environment.Hostname;
-            builder.Port = environment.Port;
-            builder.Version = environment.ApiVersion;
-
-            Log.Info(this, "Attempting to connect to Trellis.");
-
-            EditorUtility.DisplayProgressBar(
-                SIGNIN_PROGRESS_TITLE,
-                "Attempting to connect.",
-                0.25f);
-
-            // try signing in
-            SignIn(credentials)
-                .OnSuccess(_ =>
-                {
-                    EditorUtility.ClearProgressBar();
-
-                    Log.Info(this, "Successfully connected.");
-
-                    Repaint();
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Info(this, "Signin failed, attempting signup ({0}).", exception.Message);
-
-                    SignUp(credentials)
-                        .OnSuccess(__ =>
-                        {
-                            EditorUtility.ClearProgressBar();
-
-                            Log.Info(this, "Successfully connected to Trellis.");
-
-                            Repaint();
-                        })
-                        .OnFailure(error =>
-                        {
-                            EditorUtility.ClearProgressBar();
-
-                            _logMessage = "Could not signup.";
-
-                            Log.Warning(this, "Could not connect to Trellis.");
-
-                            Repaint();
-                        });
-                });
+            GUILayout.EndVertical();
         }
 
         /// <summary>
@@ -239,6 +266,7 @@ namespace CreateAR.SpirePlayer.Editor
                         if (response.Payload.Success)
                         {
                             credentials.Token = response.Payload.Body.Token;
+                            credentials.UserId = response.Payload.Body.User.Id;
 
                             EditorApplication.SaveUserSettings();
 
@@ -282,6 +310,7 @@ namespace CreateAR.SpirePlayer.Editor
                         if (response.Payload.Success)
                         {
                             credentials.Token = response.Payload.Body.Token;
+                            credentials.UserId = response.Payload.Body.User.Id;
 
                             EditorApplication.SaveUserSettings();
 
@@ -302,6 +331,9 @@ namespace CreateAR.SpirePlayer.Editor
             return token;
         }
 
+        /// <summary>
+        /// Calls repaint event safely.
+        /// </summary>
         private void Repaint()
         {
             if (null != OnRepaintRequested)
