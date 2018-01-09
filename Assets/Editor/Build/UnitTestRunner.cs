@@ -83,7 +83,7 @@ namespace CreateAR.SpirePlayer.Editor
             var runMethod = launcher.GetType().GetMethod("Run", BindingFlags.Instance | BindingFlags.Public);
             runMethod.Invoke(launcher, null);
             
-            EditorApplication.update += OnUpdate;
+            UnityEditor.EditorApplication.update += OnUpdate;
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace CreateAR.SpirePlayer.Editor
                 return;
             }
 
-            EditorApplication.update -= OnUpdate;
+            UnityEditor.EditorApplication.update -= OnUpdate;
 
             _listener.OnFinishedAll();
         }

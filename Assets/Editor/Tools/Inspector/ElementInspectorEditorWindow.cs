@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer.Editor
         {
             _elementView.OnRepaintRequested += Repaint;
 
-            EditorApplication.update += EditorApplication_Update;
+            UnityEditor.EditorApplication.update += EditorApplication_Update;
 
             titleContent = new GUIContent("Elements");
         }
@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer.Editor
         {
             _elementView.OnRepaintRequested -= Repaint;
 
-            EditorApplication.update -= EditorApplication_Update;
+            UnityEditor.EditorApplication.update -= EditorApplication_Update;
         }
 
         /// <inheritdoc cref="EditorWindow"/>

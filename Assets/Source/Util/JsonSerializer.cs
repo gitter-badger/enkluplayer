@@ -13,7 +13,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="ISerializer"/>
         public void Serialize(object value, out byte[] bytes)
         {
-            bytes = Encoding.UTF8.GetBytes(new JsonObject().ToString(true));
+            bytes = Encoding.UTF8.GetBytes(new JsonObject(value).ToString(true));
         }
 
         /// <inheritdoc cref="ISerializer"/>

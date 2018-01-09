@@ -78,7 +78,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Runs unit tests.
         /// </summary>
-        [MenuItem("Tools/Run Unit Tests %t")]
+        [MenuItem("Tools/Build/Run Unit Tests %t")]
         public static void RunTests()
         {
             Debug.Log("Running tests.");
