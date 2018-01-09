@@ -63,7 +63,7 @@ namespace CreateAR.SpirePlayer.Editor
             EditorApplication
                 .Api
                 .Files
-                .GetMyFiles()
+                .GetMyFilesByTags("worldscan")
                 .OnSuccess(response =>
                 {
                     if (response.NetworkSuccess && response.Payload.Success)

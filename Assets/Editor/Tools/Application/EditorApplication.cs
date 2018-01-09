@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Http.Editor;
@@ -50,6 +51,7 @@ namespace CreateAR.SpirePlayer.Editor
             }));
             
             UnityEditor.EditorApplication.update += _bootstrapper.Update;
+            UnityEditor.EditorApplication.update += WatchForCompile;
             
             Serializer = new JsonSerializer();
             Http = new EditorHttpService(Serializer, _bootstrapper);
@@ -57,6 +59,19 @@ namespace CreateAR.SpirePlayer.Editor
 
             LoadEnvironments();
             LoadCredentials();
+        }
+
+        /// <summary>
+        /// Watches for uninit.
+        /// </summary>
+        private static void WatchForCompile()
+        {
+            if (UnityEditor.EditorApplication.isCompiling)
+            {
+                Http.Abort();
+
+                UnityEditor.EditorApplication.update -= WatchForCompile;
+            }
         }
 
         /// <summary>
