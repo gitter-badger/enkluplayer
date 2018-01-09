@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
@@ -73,6 +72,8 @@ namespace CreateAR.SpirePlayer.Editor
                 "Saving UserSettings to {0}.",
                 path);
 
+            SetAuthenticationHeader();
+
             byte[] bytes;
             Serializer.Serialize(UserSettings, out bytes);
             var json = Encoding.UTF8.GetString(bytes);
@@ -143,7 +144,7 @@ namespace CreateAR.SpirePlayer.Editor
                 typeof(UserSettings),
                 ref jsonBytes,
                 out @object);
-            UserSettings = (UserSettings)@object;
+            UserSettings = (UserSettings) @object;
 
             // make sure there is an entry for every environment
             var changed = false;
@@ -166,6 +167,16 @@ namespace CreateAR.SpirePlayer.Editor
                 SaveUserSettings();
             }
 
+            SetAuthenticationHeader();
+
+            Log.Info(UserSettings, "Loaded credentials {0}.", UserSettings);
+        }
+
+        /// <summary>
+        /// Sets the auth header.
+        /// </summary>
+        private static void SetAuthenticationHeader()
+        {
             // remove Authentication
             for (int i = 0, len = Http.Headers.Count; i < len; i++)
             {
@@ -187,8 +198,6 @@ namespace CreateAR.SpirePlayer.Editor
                     "Authorization",
                     string.Format("Bearer {0}", creds.Token)));
             }
-
-            Log.Info(UserSettings, "Loaded credentials {0}.", UserSettings);
         }
 
         /// <summary>

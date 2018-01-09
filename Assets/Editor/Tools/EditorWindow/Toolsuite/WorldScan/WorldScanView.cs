@@ -24,6 +24,11 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private readonly TableComponent _table = new TableComponent();
 
+        /// <summary>
+        /// Position of scroll bar.
+        /// </summary>
+        private Vector2 _scrollPosition;
+
         /// <inheritdoc cref="IEditorView"/>
         public event Action OnRepaintRequested;
 
@@ -38,9 +43,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// <inheritdoc cref="IEditorView"/>
         public void Draw()
         {
-            GUILayout.BeginVertical(
-                GUILayout.ExpandHeight(true),
-                GUILayout.ExpandWidth(true));
+            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
             {
                 GUILayout.BeginHorizontal();
                 {
@@ -53,7 +56,7 @@ namespace CreateAR.SpirePlayer.Editor
 
                 _table.Draw();
             }
-            GUILayout.EndVertical();
+            GUILayout.EndScrollView();
         }
 
         private void Refresh()

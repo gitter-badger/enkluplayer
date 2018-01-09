@@ -21,6 +21,11 @@ namespace CreateAR.SpirePlayer.Editor
         private string _logMessage;
 
         /// <summary>
+        /// Position.
+        /// </summary>
+        private Vector2 _scrollPosition;
+
+        /// <summary>
         /// Title for signin.
         /// </summary>
         private const string SIGNIN_PROGRESS_TITLE = "Connecting to Trellis...";
@@ -31,13 +36,13 @@ namespace CreateAR.SpirePlayer.Editor
         ///<inheritdoc cref="IEditorView"/>
         public void Draw()
         {
-            GUILayout.BeginVertical();
+            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
             {
                 DrawEnvironmentSelection();
                 DrawConnectForm();
                 DrawUserInformation();
             }
-            GUILayout.EndVertical();
+            GUILayout.EndScrollView();
         }
 
         /// <summary>
@@ -226,7 +231,7 @@ namespace CreateAR.SpirePlayer.Editor
                     GUILayout.Label("User Id:");
                     GUILayout.FlexibleSpace();
                 }
-                GUILayout.EndVertical();
+                GUILayout.EndHorizontal();
                 
                 GUILayout.BeginHorizontal();
                 {
@@ -235,6 +240,31 @@ namespace CreateAR.SpirePlayer.Editor
                     if (GUILayout.Button("Copy"))
                     {
                         EditorGUIUtility.systemCopyBuffer = credentials.UserId;
+                    }
+                }
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Label("Token:");
+                    GUILayout.FlexibleSpace();
+                }
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                {
+                    if (string.IsNullOrEmpty(credentials.Token))
+                    {
+                        GUILayout.Label("None");
+                    }
+                    else
+                    {
+                        GUILayout.Label(credentials.Token.Substring(0, 24) + "...");
+                    }
+
+                    if (GUILayout.Button("Copy"))
+                    {
+                        EditorGUIUtility.systemCopyBuffer = credentials.Token;
                     }
                 }
                 GUILayout.EndHorizontal();
