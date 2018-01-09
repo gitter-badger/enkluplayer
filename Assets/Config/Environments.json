@@ -2,7 +2,7 @@
     "Environments": [
         {
             "Name": "local",
-            "Hostname": "localhost",
+            "Hostname": "127.0.0.1",
             "Port": 9999,
             "ApiVersion": "v1"
         },

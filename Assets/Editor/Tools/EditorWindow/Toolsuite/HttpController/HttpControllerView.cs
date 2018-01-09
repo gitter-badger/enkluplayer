@@ -13,7 +13,10 @@ namespace CreateAR.SpirePlayer.Editor
     /// </summary>
     public class HttpControllerView : IEditorView
     {
-        private static readonly string[] IGNORED_METHODS = new[]
+        /// <summary>
+        /// Ignore these methods on object.
+        /// </summary>
+        private static readonly string[] IGNORED_METHODS = 
         {
             "GetHashCode",
             "ToString",
@@ -21,15 +24,36 @@ namespace CreateAR.SpirePlayer.Editor
             "Equals"
         };
 
+        /// <summary>
+        /// Forms for each method.
+        /// </summary>
         private readonly Dictionary<MethodInfo, HttpControllerMethodForm> _methodForms = new Dictionary<MethodInfo, HttpControllerMethodForm>();
+
+        /// <summary>
+        /// Which controller is currently selected.
+        /// </summary>
         private object _selectedController = null;
+
+        /// <summary>
+        /// Which method is currently selected.
+        /// </summary>
         private MethodInfo _selectedMethod = null;
 
+        /// <summary>
+        /// Current scroll position.
+        /// </summary>
+        private Vector2 _scrollPosition;
+
+        /// <inheritdoc cref="IEditorView"/>
         public event Action OnRepaintRequested;
-        
+
+        /// <inheritdoc cref="IEditorView"/>
         public void Draw()
         {
-            GUILayout.BeginVertical();
+            _scrollPosition = GUILayout.BeginScrollView(
+                _scrollPosition,
+                GUILayout.ExpandHeight(true),
+                GUILayout.ExpandWidth(true));
             {
                 var api = EditorApplication.Api;
 
@@ -43,9 +67,13 @@ namespace CreateAR.SpirePlayer.Editor
                     DrawController(controller);
                 }
             }
-            GUILayout.EndVertical();
+            GUILayout.EndScrollView();
         }
 
+        /// <summary>
+        /// Draws controls for an HttpController.
+        /// </summary>
+        /// <param name="controller">The HttpController.</param>
         private void DrawController(object controller)
         {
             var selected = EditorGUILayout.Foldout(
@@ -70,6 +98,11 @@ namespace CreateAR.SpirePlayer.Editor
             }
         }
 
+        /// <summary>
+        /// Draws controls for a specific method.
+        /// </summary>
+        /// <param name="controller">The HttpController.</param>
+        /// <param name="method">The method.</param>
         private void DrawMethod(object controller, MethodInfo method)
         {
             GUILayout.BeginHorizontal();
@@ -97,6 +130,11 @@ namespace CreateAR.SpirePlayer.Editor
             GUILayout.EndHorizontal();
         }
 
+        /// <summary>
+        /// Draws a form.
+        /// </summary>
+        /// <param name="controller">HttpController.</param>
+        /// <param name="method">The method to draw a form for.</param>
         private void DrawForm(object controller, MethodInfo method)
         {
             HttpControllerMethodForm form;
@@ -109,6 +147,9 @@ namespace CreateAR.SpirePlayer.Editor
             form.Draw();
         }
 
+        /// <summary>
+        /// Safely calls repaint event.
+        /// </summary>
         private void Repaint()
         {
             if (null != OnRepaintRequested)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using CreateAR.Commons.Unity.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -14,14 +15,13 @@ namespace CreateAR.SpirePlayer.Editor
     public class HttpControllerMethodForm : IEditorView
     {
         /// <summary>
-        /// Method the form is being rendered for.
+        /// Keeps track of last response.
         /// </summary>
-        public MethodInfo Method { get; private set; }
-
-        /// <summary>
-        /// Controller.
-        /// </summary>
-        public object Controller { get; private set; }
+        private class ResponseRecord
+        {
+            public MethodInfo Method;
+            public Action Draw;
+        }
 
         /// <summary>
         /// Parameters of method.
@@ -38,6 +38,21 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private readonly List<Action> _drawingMethods = new List<Action>();
 
+        /// <summary>
+        /// Response, if any.
+        /// </summary>
+        private static ResponseRecord _response;
+
+        /// <summary>
+        /// Method the form is being rendered for.
+        /// </summary>
+        public MethodInfo Method { get; private set; }
+
+        /// <summary>
+        /// Controller.
+        /// </summary>
+        public object Controller { get; private set; }
+        
         /// <inheritdoc cref="IEditorView"/>
         public event Action OnRepaintRequested;
 
@@ -95,19 +110,44 @@ namespace CreateAR.SpirePlayer.Editor
                     {
                         _drawingMethods[i]();
                     }
+
+                    if (null != _response
+                        && _response.Method == Method
+                        && null != _response.Draw)
+                    {
+                        _response.Draw();
+                    }
                 }
                 GUILayout.EndVertical();
             }
 
             if (GUILayout.Button("Send"))
             {
+                _response = new ResponseRecord
+                {
+                    Method = Method
+                };
+
                 var arguments = _parameters
                     .Select(parameter => _state[parameter.Name])
                     .ToArray();
-                Method.Invoke(Controller, arguments);
+                var token = Method.Invoke(Controller, arguments);
+                var tokenParameterType = token.GetType().GetGenericArguments()[0];
+                var handler = GetType()
+                    .GetMethod(
+                        "OnResponse",
+                        BindingFlags.Static | BindingFlags.NonPublic)
+                    .MakeGenericMethod(tokenParameterType);
+                var actionT = typeof(Action<>).MakeGenericType(tokenParameterType);
+                var @delegate = Delegate.CreateDelegate(actionT, handler);
+                var onSuccess = token.GetType().GetMethod(
+                    "OnSuccess",
+                    BindingFlags.Instance | BindingFlags.Public);
+                
+                onSuccess.Invoke(token, new object[] { @delegate });
             }
         }
-
+        
         /// <summary>
         /// Called repaint event safely.
         /// </summary>
@@ -117,6 +157,34 @@ namespace CreateAR.SpirePlayer.Editor
             {
                 OnRepaintRequested();
             }
+        }
+
+        /// <summary>
+        /// Called when a response comes back.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="response">The response.</param>
+        private static void OnResponse<T>(T response)
+        {
+            var rawField = response
+                .GetType()
+                .GetField("Raw", BindingFlags.Instance | BindingFlags.Public);
+            var bytes = (byte[]) rawField.GetValue(response);
+            var json = null == bytes
+                ? "No response."
+                : Encoding.UTF8.GetString(bytes);
+
+            _response.Draw = () =>
+            {
+                GUILayout.BeginVertical("box");
+                {
+                    var enabled = GUI.enabled;
+                    GUI.enabled = false;
+                    GUILayout.TextArea(json);
+                    GUI.enabled = enabled;
+                }
+                GUILayout.EndVertical();
+            };
         }
     }
 }

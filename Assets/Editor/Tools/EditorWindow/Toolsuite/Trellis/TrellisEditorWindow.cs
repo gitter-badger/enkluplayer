@@ -60,9 +60,21 @@ namespace CreateAR.SpirePlayer.Editor
         {
             GUI.skin = (GUISkin) EditorGUIUtility.Load("Default.guiskin");
 
-            _tabs.Draw();
+            GUILayout.BeginHorizontal();
+            {
+                GUILayout.Space(10);
+                GUILayout.BeginVertical();
+                {
+                    GUILayout.Space(10);
 
-            Repaint();
+                    _tabs.Draw();
+
+                    GUILayout.Space(10);
+                }
+                GUILayout.EndVertical();
+                GUILayout.Space(10);
+            }
+            GUILayout.EndHorizontal();
         }
     }
 }

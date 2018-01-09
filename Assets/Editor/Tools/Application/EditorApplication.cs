@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer.Editor
             UnityEditor.EditorApplication.update += WatchForCompile;
             
             Serializer = new JsonSerializer();
-            Http = new EditorHttpService(Serializer);
+            Http = new EditorHttpService(Serializer, Bootstrapper);
             Api = new ApiController(Http);
 
             LoadEnvironments();
@@ -90,6 +90,8 @@ namespace CreateAR.SpirePlayer.Editor
             if (UnityEditor.EditorApplication.isCompiling)
             {
                 Http.Abort();
+
+                Log.Info(Bootstrapper, "Shutting down bootstrapper.");
 
                 UnityEditor.EditorApplication.update -= _bootstrapper.Update;
                 UnityEditor.EditorApplication.update -= WatchForCompile;
