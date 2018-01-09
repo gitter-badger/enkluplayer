@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
+using System.Linq;
 using CreateAR.Commons.Unity.Editor;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Trellis.Messages.GetMyFilesByTags;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
@@ -16,6 +19,7 @@ namespace CreateAR.SpirePlayer.Editor
         public class WorldScanRecord
         {
             public string Name;
+            public DateTime Updated;
             public Action Download;
         }
         
@@ -31,15 +35,7 @@ namespace CreateAR.SpirePlayer.Editor
 
         /// <inheritdoc cref="IEditorView"/>
         public event Action OnRepaintRequested;
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        public WorldScanView()
-        {
-
-        }
-
+        
         /// <inheritdoc cref="IEditorView"/>
         public void Draw()
         {
@@ -59,24 +55,61 @@ namespace CreateAR.SpirePlayer.Editor
             GUILayout.EndScrollView();
         }
 
-        private void Refresh()
+        /// <summary>
+        /// Refreshes world scans.
+        /// </summary>
+        public void Refresh()
         {
-            Log.Info(this, "Requesting my files...");
-
             EditorApplication
                 .Api
                 .Files
-                .GetMyFilesByTags("")
+                .GetMyFilesByTags("worldscan")
                 .OnSuccess(response =>
                 {
                     if (response.NetworkSuccess && response.Payload.Success)
                     {
-                        Log.Info(this, "Found {0} files.", response.Payload.Body.Length);
+                        var elements = response
+                            .Payload
+                            .Body
+                            .Select(file => new WorldScanRecord
+                            {
+                                Name = Path.GetFileName(file.RelUrl),
+                                Updated = DateTime.Parse(file.UpdatedAt),
+                                Download = Download(file)
+                            })
+                            .ToList();
+                        elements.Sort((a, b) => DateTime.Compare(a.Updated, b.Updated));
 
-                        _table.Elements = response.Payload.Body;
+                        _table.Elements = elements.ToArray();
+
+                        Repaint();
                     }
                 })
                 .OnFailure(exception => Log.Error(this, exception));
+        }
+
+        /// <summary>
+        /// Creates an action for downloading a file.
+        /// </summary>
+        /// <param name="file">The file to download.</param>
+        /// <returns></returns>
+        private Action Download(Body file)
+        {
+            return () =>
+            {
+                Log.Info(this, "Download {0}.", file.RelUrl);
+            };
+        }
+
+        /// <summary>
+        /// Safely calls repaint event.
+        /// </summary>
+        private void Repaint()
+        {
+            if (null != OnRepaintRequested)
+            {
+                OnRepaintRequested();
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿using System;
 using CreateAR.Commons.Unity.Editor;
 using UnityEditor;
 using UnityEngine;
@@ -25,7 +25,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Opens window.
         /// </summary>
-        [MenuItem("Tools/Trellis %t")]
+        [MenuItem("Tools/Trellis Editor %t")]
         private static void Open()
         {
             GetWindow<TrellisEditorWindow>();
@@ -47,6 +47,7 @@ namespace CreateAR.SpirePlayer.Editor
                 new ViewTabComponent("Controllers", _controllerView)
             };
 
+            _settingsView.OnConnected += Settings_OnConnected;
             _settingsView.Connect();
         }
 
@@ -80,6 +81,14 @@ namespace CreateAR.SpirePlayer.Editor
                 GUILayout.Space(10);
             }
             GUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// Called when we have connected to Trellis.
+        /// </summary>
+        private void Settings_OnConnected()
+        {
+            _worldScanView.Refresh();
         }
     }
 }

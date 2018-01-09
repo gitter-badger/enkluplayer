@@ -30,6 +30,11 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private const string SIGNIN_PROGRESS_TITLE = "Connecting to Trellis...";
 
+        /// <summary>
+        /// Called when connected.
+        /// </summary>
+        public event Action OnConnected;
+
         ///<inheritdoc cref="IEditorView"/>
         public event Action OnRepaintRequested;
         
@@ -88,6 +93,11 @@ namespace CreateAR.SpirePlayer.Editor
                     _logMessage = "Successfully connected.";
                     Log.Info(this, "Successfully connected.");
 
+                    if (null != OnConnected)
+                    {
+                        OnConnected();
+                    }
+
                     Repaint();
                 })
                 .OnFailure(exception =>
@@ -101,6 +111,11 @@ namespace CreateAR.SpirePlayer.Editor
 
                             Log.Info(this, "Successfully connected to Trellis.");
                             _logMessage = "Successfully connected.";
+
+                            if (null != OnConnected)
+                            {
+                                OnConnected();
+                            }
 
                             Repaint();
                         })
