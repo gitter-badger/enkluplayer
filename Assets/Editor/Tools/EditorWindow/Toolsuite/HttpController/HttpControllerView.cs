@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
 {
+    /// <summary>
+    /// View of all HttpController calls.
+    /// </summary>
     public class HttpControllerView : IEditorView
     {
         private static readonly string[] IGNORED_METHODS = new[]
@@ -18,7 +21,7 @@ namespace CreateAR.SpirePlayer.Editor
             "Equals"
         };
 
-        private readonly Dictionary<Type, FormInspector> _forms = new Dictionary<Type, FormInspector>();
+        private readonly Dictionary<MethodInfo, HttpControllerMethodForm> _methodForms = new Dictionary<MethodInfo, HttpControllerMethodForm>();
         private object _selectedController = null;
         private MethodInfo _selectedMethod = null;
 
@@ -96,40 +99,14 @@ namespace CreateAR.SpirePlayer.Editor
 
         private void DrawForm(object controller, MethodInfo method)
         {
-            var parameters = method.GetParameters();
-
-            GUILayout.BeginVertical("box");
+            HttpControllerMethodForm form;
+            if (!_methodForms.TryGetValue(method, out form))
             {
-                foreach (var param in parameters)
-                {
-                    var type = param.ParameterType;
-                    if (type.IsPrimitive)
-                    {
-
-                    }
-                    else if (type == typeof(string))
-                    {
-
-                    }
-                    else
-                    {
-                        FormInspector form;
-                        if (!_forms.TryGetValue(param.ParameterType, out form))
-                        {
-                            form = _forms[param.ParameterType] = new FormInspector();
-                            form.Value = Activator.CreateInstance(param.ParameterType);
-                        }
-
-                        form.Draw();
-                    }
-                }
+                form = _methodForms[method] = new HttpControllerMethodForm(method, controller);
+                form.OnRepaintRequested += Repaint;
             }
-            GUILayout.EndVertical();
 
-            if (GUILayout.Button("Send"))
-            {
-                
-            }
+            form.Draw();
         }
 
         private void Repaint()

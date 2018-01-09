@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer.Editor
             UnityEditor.EditorApplication.update += WatchForCompile;
             
             Serializer = new JsonSerializer();
-            Http = new EditorHttpService(Serializer, _bootstrapper);
+            Http = new EditorHttpService(Serializer);
             Api = new ApiController(Http);
 
             LoadEnvironments();
