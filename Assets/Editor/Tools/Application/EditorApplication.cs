@@ -43,6 +43,10 @@ namespace CreateAR.SpirePlayer.Editor
         public static IHttpService Http { get; private set; }
         public static ISerializer Serializer { get; private set; }
         public static ApiController Api { get; private set; }
+
+        /// <summary>
+        /// Lazily create this importer as it has a long-running coroutine.
+        /// </summary>
         public static ObjImporter ObjImporter
         {
             get

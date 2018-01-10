@@ -29,7 +29,14 @@ public class OBJLoader
 
     public class MeshInfo
     {
+        public Vector3[] Vertices;
+        public Vector3[] Normals;
+        public Vector2[] Uvs;
+        public int[][] Triangles;
 
+        public string Name;
+        public bool HasNormals;
+        public int SubMeshCount;
     }
 
     public static Vector3 ParseVectorFromCMPS(string[] cmps)
@@ -51,8 +58,10 @@ public class OBJLoader
         return new Color(Kr, Kg, Kb);
     }
     
-    public static GameObject LoadOBJFile(string source)
+    public static List<MeshInfo> LoadOBJFile(string source)
     {
+        var meshes = new List<MeshInfo>();
+
         bool hasNormals = false;
         //OBJ LISTS
         List<Vector3> vertices = new List<Vector3>();
@@ -211,18 +220,8 @@ public class OBJLoader
         if (objectNames.Count == 0)
             objectNames.Add("default");
        
-        //build objects
-        GameObject parentObject = new GameObject("Test");
-        
-        
         foreach (string obj in objectNames)
         {
-            GameObject subObject = new GameObject(obj);
-            subObject.transform.parent = parentObject.transform;
-            subObject.transform.localScale = new Vector3(-1, 1, 1);
-            //Create mesh
-            Mesh m = new Mesh();
-            m.name = obj;
             //LISTS FOR REORDERING
             List<Vector3> processedVertices = new List<Vector3>();
             List<Vector3> processedNormals = new List<Vector3>();
@@ -232,6 +231,7 @@ public class OBJLoader
             //POPULATE MESH
             List<string> meshMaterialNames = new List<string>();
 
+            var subMeshCount = 0;
             OBJFace[] ofaces = faceList.Where(x =>  x.meshName == obj).ToArray();
             foreach (string mn in materialNames)
             {
@@ -246,8 +246,8 @@ public class OBJLoader
                         System.Array.Copy(f.indexes, 0, indexes, l, f.indexes.Length);
                     }
                     meshMaterialNames.Add(mn);
-                    if (m.subMeshCount != meshMaterialNames.Count)
-                        m.subMeshCount = meshMaterialNames.Count;
+                    if (subMeshCount != meshMaterialNames.Count)
+                        subMeshCount = meshMaterialNames.Count;
 
                     for (int i = 0; i < indexes.Length; i++)
                     {
@@ -270,61 +270,22 @@ public class OBJLoader
 
                     processedIndexes.Add(indexes);
                 }
-                else
-                {
-
-                }
             }
 
             //apply stuff
-            m.vertices = processedVertices.ToArray();
-            m.normals = processedNormals.ToArray();
-            m.uv = processedUVs.ToArray();
-
-            for (int i = 0; i < processedIndexes.Count; i++)
+            var info = new MeshInfo
             {
-                m.SetTriangles(processedIndexes[i],i);   
-            }
-
-            if (!hasNormals)
-            {
-             m.RecalculateNormals();   
-            }
-            m.RecalculateBounds();
-            ;
-
-            MeshFilter mf = subObject.AddComponent<MeshFilter>();
-            MeshRenderer mr = subObject.AddComponent<MeshRenderer>();
-
-            Material[] processedMaterials = new Material[meshMaterialNames.Count];
-            for(int i=0 ; i < meshMaterialNames.Count; i++)
-            {
-                
-                if (materialCache == null)
-                {
-                    processedMaterials[i] = new Material(Shader.Find("Standard (Specular setup)"));
-                }
-                else
-                {
-                    Material mfn = Array.Find(materialCache, x => x.name == meshMaterialNames[i]); ;
-                    if (mfn == null)
-                    {
-                        processedMaterials[i] = new Material(Shader.Find("Standard (Specular setup)"));
-                    }
-                    else
-                    {
-                        processedMaterials[i] = mfn;
-                    }
-                    
-                }
-                processedMaterials[i].name = meshMaterialNames[i];
-            }
-
-            mr.materials = processedMaterials;
-            mf.mesh = m;
-
+                Name = obj,
+                HasNormals = hasNormals,
+                Vertices = processedVertices.ToArray(),
+                Normals = processedNormals.ToArray(),
+                Uvs = processedUVs.ToArray(),
+                Triangles = processedIndexes.ToArray(),
+                SubMeshCount = subMeshCount
+            };
+            meshes.Add(info);
         }
 
-        return parentObject;
-        }
+        return meshes;
     }
+}
