@@ -2,7 +2,6 @@
 using System.Text;
 using CreateAR.SpirePlayer.Util;
 using NUnit.Framework;
-using UnityEngine.WSA;
 
 namespace CreateAR.SpirePlayer.Test.Util
 {

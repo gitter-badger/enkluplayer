@@ -21,7 +21,7 @@ namespace CreateAR.SpirePlayer.Test
         {
             if (Run)
             {
-                _pipeline.Start();
+                _pipeline.Start("Sim");
             }
             else
             {
