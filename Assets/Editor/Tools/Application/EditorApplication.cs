@@ -22,6 +22,11 @@ namespace CreateAR.SpirePlayer.Editor
         private static readonly EditorBootstrapper _bootstrapper = new EditorBootstrapper();
 
         /// <summary>
+        /// Obj importer, lazily created.
+        /// </summary>
+        private static ObjImporter _importer;
+
+        /// <summary>
         /// Configuration for all environments.
         /// </summary>
         public static EnvironmentConfig Environments { get; private set; }
@@ -38,7 +43,19 @@ namespace CreateAR.SpirePlayer.Editor
         public static IHttpService Http { get; private set; }
         public static ISerializer Serializer { get; private set; }
         public static ApiController Api { get; private set; }
-        
+        public static ObjImporter ObjImporter
+        {
+            get
+            {
+                if (null == _importer)
+                {
+                    _importer = new ObjImporter(Bootstrapper);
+                }
+
+                return _importer;
+            }
+        }
+
         /// <summary>
         /// Static constructor.
         /// </summary>

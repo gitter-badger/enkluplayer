@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using CreateAR.Commons.Unity.Editor;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis.Messages.GetMyFilesByTags;
+using UnityEditor;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
@@ -113,6 +115,21 @@ namespace CreateAR.SpirePlayer.Editor
                         if (response.NetworkSuccess)
                         {
                             Log.Info(this, "Downloaded {0} bytes.", response.Payload.Length);
+
+                            var source = Encoding.UTF8.GetString(response.Payload);
+                            EditorUtility.DisplayProgressBar(
+                                "Importing",
+                                "Please wait...",
+                                0.25f);
+
+                            EditorApplication
+                                .ObjImporter
+                                .Import(source, action =>
+                                {
+                                    action(new GameObject("Import"));
+
+                                    EditorUtility.ClearProgressBar();
+                                });
                         }
                         else
                         {

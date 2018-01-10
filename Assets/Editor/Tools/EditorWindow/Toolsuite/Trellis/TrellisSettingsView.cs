@@ -48,6 +48,8 @@ namespace CreateAR.SpirePlayer.Editor
                 DrawUserInformation();
             }
             GUILayout.EndScrollView();
+
+            Repaint();
         }
 
         /// <summary>
