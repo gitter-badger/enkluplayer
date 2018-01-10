@@ -49,7 +49,7 @@ namespace CreateAR.SpirePlayer.Util
                         return new LzmaResult(exception);
                     }
 
-                    return new LzmaResult(output.GetBuffer());
+                    return new LzmaResult(output.ToArray());
                 }
             }
         }
