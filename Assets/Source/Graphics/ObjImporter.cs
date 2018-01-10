@@ -66,13 +66,19 @@ namespace CreateAR.SpirePlayer
             string obj,
             Action<Action<GameObject>> callback)
         {
+            var state = new ObjImportState
+            {
+                Obj = obj,
+                Callback = callback
+            };
+
+#if NETFX_CORE
+            Windows.System.Threading.ThreadPool.RunAsync(_ => Process(state));
+#else
             ThreadPool.QueueUserWorkItem(
                 Process,
-                new ObjImportState
-                {
-                    Obj = obj,
-                    Callback = callback
-                });
+                state);
+#endif
         }
 
         /// <summary>
