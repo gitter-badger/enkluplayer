@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
@@ -31,7 +32,7 @@ namespace CreateAR.SpirePlayer
         /// Starts processing. Calls to <c>Save</c> must follow a Start and 
         /// preceede a Stop. Start/Stop may be called many times.
         /// </summary>
-        public void Start()
+        public void Start(string tag = null)
         {
             if (null != _writer)
             {
@@ -40,7 +41,9 @@ namespace CreateAR.SpirePlayer
 
             _writer = new WorldScanPipelineWriterThread(
                 Configuration.LockTimeoutMs,
-                Configuration.MaxScanQueueLen);
+                Configuration.MaxScanQueueLen,
+                Configuration.MaxOnDisk,
+                tag ?? Guid.NewGuid().ToString());
             new Thread(_writer.Start).Start();
         }
 

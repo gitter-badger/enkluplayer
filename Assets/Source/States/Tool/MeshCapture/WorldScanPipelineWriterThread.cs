@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.Util;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -30,7 +33,12 @@ namespace CreateAR.SpirePlayer
         /// Maximum number of scans to allow in the queue.
         /// </summary>
         private readonly int _maxQueued;
-
+        
+        /// <summary>
+        /// Writes a max of N versions of the same file to disk.
+        /// </summary>
+        private readonly VersionedFileWriter _fileWriter;
+        
         /// <summary>
         /// World scan queue.
         /// </summary>
@@ -50,14 +58,37 @@ namespace CreateAR.SpirePlayer
         /// True iff the thread should be running.
         /// </summary>
         private bool _isAlive = false;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
-        public WorldScanPipelineWriterThread(int lockTimeoutMs, int maxQueued)
+        public WorldScanPipelineWriterThread(
+            int lockTimeoutMs,
+            int maxQueued,
+            int maxOnDisk,
+            string tag)
         {
             _lockTimeoutMs = lockTimeoutMs;
             _maxQueued = maxQueued;
+            
+            var folder = Path.Combine(
+                Path.Combine(
+                    UnityEngine.Application.persistentDataPath,
+                    "Scans"),
+                tag);
+
+            if (Directory.Exists(folder))
+            {
+                Directory.Delete(folder, true);
+            }
+
+            Directory.CreateDirectory(folder);
+
+            _fileWriter = new VersionedFileWriter(
+                folder,
+                tag,
+                "obj",
+                maxOnDisk);
         }
 
         /// <summary>
@@ -65,7 +96,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Start()
         {
-            Log.Info(this, "Pipeline thread spipnning up.");
+            Log.Info(this, "Pipeline thread spinning up.");
             _isAlive = true;
             
             while (true)
@@ -88,6 +119,7 @@ namespace CreateAR.SpirePlayer
                 var obj = _exporter.Export(record.State);
 
                 // write to disk
+                _fileWriter.Write(Encoding.UTF8.GetBytes(obj));
 
                 // send to Trellis
 
