@@ -111,7 +111,9 @@ namespace CreateAR.SpirePlayer
                     // tools
                     {
                         binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
+#if NETFX_CORE
                         binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
+#endif
                     }
                 }
 
