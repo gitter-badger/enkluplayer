@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETFX_CORE
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Windows.Speech;
@@ -86,3 +87,4 @@ namespace CreateAR.SpirePlayer
         }
     }
 }
+#endif

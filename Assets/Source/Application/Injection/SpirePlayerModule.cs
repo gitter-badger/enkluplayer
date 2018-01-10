@@ -169,7 +169,11 @@ namespace CreateAR.SpirePlayer
 
             // Voice
             {
+#if NETFX_CORE
                 binder.Bind<IVoiceCommandManager>().To<VoiceCommandManager>().ToSingleton();
+#else
+                binder.Bind<IVoiceCommandManager>().To<PassthroughVoiceCommandManager>().ToSingleton();
+#endif
             }
 
             // IUX
