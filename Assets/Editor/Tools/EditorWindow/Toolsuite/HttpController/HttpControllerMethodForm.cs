@@ -19,8 +19,45 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private class ResponseRecord
         {
-            public MethodInfo Method;
-            public Action Draw;
+            /// <summary>
+            /// Repaint action.
+            /// </summary>
+            private readonly Action _onRepaint;
+
+            /// <summary>
+            /// Backing variable for prop.
+            /// </summary>
+            private Action _draw;
+
+            /// <summary>
+            /// Associated method.
+            /// </summary>
+            public readonly MethodInfo Method;
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            public ResponseRecord(
+                MethodInfo method,
+                Action onRepaint)
+            {
+                Method = method;
+                _onRepaint = onRepaint;
+            }
+
+            /// <summary>
+            /// Action to call to draw stufff.
+            /// </summary>
+            public Action Draw
+            {
+                get { return _draw; }
+                set
+                {
+                    _draw = value;
+
+                    _onRepaint();
+                }
+            }
         }
 
         /// <summary>
@@ -123,10 +160,7 @@ namespace CreateAR.SpirePlayer.Editor
 
             if (GUILayout.Button("Send"))
             {
-                _response = new ResponseRecord
-                {
-                    Method = Method
-                };
+                _response = new ResponseRecord(Method, Repaint);
 
                 var arguments = _parameters
                     .Select(parameter => _state[parameter.Name])

@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// View implementation.
         /// </summary>
         private readonly IEditorView _view;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
