@@ -111,7 +111,9 @@ namespace CreateAR.SpirePlayer
                     // tools
                     {
                         binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
+#if NETFX_CORE
                         binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
+#endif
                     }
                 }
 
@@ -169,7 +171,11 @@ namespace CreateAR.SpirePlayer
 
             // Voice
             {
+#if NETFX_CORE
                 binder.Bind<IVoiceCommandManager>().To<VoiceCommandManager>().ToSingleton();
+#else
+                binder.Bind<IVoiceCommandManager>().To<PassthroughVoiceCommandManager>().ToSingleton();
+#endif
             }
 
             // IUX

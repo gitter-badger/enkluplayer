@@ -34,8 +34,11 @@ namespace CreateAR.SpirePlayer
             PlayApplicationState play,
             HierarchyApplicationState hierarchy,
             BleSearchApplicationState ble,
-            ToolModeApplicationState tools,
-            MeshCaptureApplicationState meshCapture)
+            // TODO: find a different pattern to do this
+#if NETFX_CORE
+            MeshCaptureApplicationState meshCapture,
+#endif
+            ToolModeApplicationState tools)
             : base(bridge, messages)
         {
             _config = config;
@@ -48,8 +51,10 @@ namespace CreateAR.SpirePlayer
                 play,
                 hierarchy,
                 ble,
-                tools,
+#if NETFX_CORE
                 meshCapture,
+#endif
+                tools
             });
         }
 
@@ -124,7 +129,9 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Message capture requested.");
 
+#if NETFX_CORE
                     _states.Change<MeshCaptureApplicationState>();
+#endif
                 });
 
             _states.Change<InitializeApplicationState>();
