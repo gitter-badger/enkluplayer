@@ -53,6 +53,8 @@ namespace CreateAR.SpirePlayer.Editor
                 _table.Draw();
             }
             GUILayout.EndScrollView();
+
+            Repaint();
         }
 
         /// <summary>
@@ -98,6 +100,29 @@ namespace CreateAR.SpirePlayer.Editor
             return () =>
             {
                 Log.Info(this, "Download {0}.", file.RelUrl);
+
+                var http = EditorApplication.Http;
+                var url = http
+                    .UrlBuilder
+                    .Url(file.RelUrl)
+                    .Replace("/v1", "");
+                http
+                    .Download(url)
+                    .OnSuccess(response =>
+                    {
+                        if (response.NetworkSuccess)
+                        {
+                            Log.Info(this, "Downloaded {0} bytes.", response.Payload.Length);
+                        }
+                        else
+                        {
+                            Log.Warning(this, "Could not download : {0}.", response.NetworkError);
+                        }
+                    })
+                    .OnFailure(exception =>
+                    {
+                        Log.Error(this, "Could not download : {0}.", exception);
+                    });
             };
         }
 
