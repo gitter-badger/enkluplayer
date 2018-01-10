@@ -48,8 +48,12 @@ namespace SevenZip.Compression.RangeCoder
 
 		public void CloseStream()
 		{
-			Stream.Close();
-		}
+#if NETFX_CORE
+            Stream.Dispose();
+#else
+            Stream.Close();
+#endif
+        }
 
 		public void Encode(uint start, uint size, uint total)
 		{
@@ -146,10 +150,14 @@ namespace SevenZip.Compression.RangeCoder
 
 		public void CloseStream()
 		{
-			Stream.Close();
-		}
+#if NETFX_CORE
+            Stream.Dispose();
+#else
+		    Stream.Close();
+#endif
+        }
 
-		public void Normalize()
+        public void Normalize()
 		{
 			while (Range < kTopValue)
 			{
