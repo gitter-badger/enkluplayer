@@ -17,26 +17,19 @@ using UnityEditor;
 
 public class OBJLoader
 {
-    public class MeshInfo
-    {
-        public string Name;
-        public Vector3[] Vertices;
-        public Vector3[] Normals;
-        public Vector2[] Uvs;
-        public int[][] Triangles;
-        public bool HasNormals;
-    }
-
     public static bool splitByMaterial = false;
-
-    public static string[] searchPaths = new string[] {"", "%FileName%_Textures" + Path.DirectorySeparatorChar};
-
+    public static string[] searchPaths = new string[] { "", "%FileName%_Textures" + Path.DirectorySeparatorChar };
     //structures
     struct OBJFace
     {
         public string materialName;
         public string meshName;
         public int[] indexes;
+    }
+
+    public class MeshInfo
+    {
+
     }
 
     public static Vector3 ParseVectorFromCMPS(string[] cmps)
@@ -48,22 +41,18 @@ public class OBJLoader
             float z = float.Parse(cmps[3]);
             return new Vector3(x, y, z);
         }
-
         return new Vector2(x, y);
     }
-
-    public static Color ParseColorFromCMPS(string[] cmps, float scalar = 1.0f)
+    public static Color ParseColorFromCMPS(string[] cmps,float scalar = 1.0f)
     {
-        float Kr = float.Parse(cmps[1]) * scalar;
+        float Kr = float.Parse(cmps[1]) * scalar ;
         float Kg = float.Parse(cmps[2]) * scalar;
         float Kb = float.Parse(cmps[3]) * scalar;
         return new Color(Kr, Kg, Kb);
     }
-
-    public static List<MeshInfo> LoadOBJFile(string source)
+    
+    public static GameObject LoadOBJFile(string source)
     {
-        var meshes = new List<MeshInfo>();
-
         bool hasNormals = false;
         //OBJ LISTS
         List<Vector3> vertices = new List<Vector3>();
@@ -76,7 +65,7 @@ public class OBJLoader
         //MESH CONSTRUCTION
         List<string> materialNames = new List<string>();
         List<string> objectNames = new List<string>();
-        Dictionary<string, int> hashtable = new Dictionary<string, int>();
+        Dictionary<string,int> hashtable = new Dictionary<string, int>();
         List<OBJFace> faceList = new List<OBJFace>();
         string cmaterial = "";
         string cmesh = "default";
@@ -88,7 +77,7 @@ public class OBJLoader
         {
             if (ln.Length > 0 && ln[0] != '#')
             {
-                string l = ln.Trim().Replace("  ", " ");
+                string l = ln.Trim().Replace("  "," ");
                 string[] cmps = l.Split(' ');
                 string data = l.Remove(0, l.IndexOf(' ') + 1);
 
@@ -98,6 +87,22 @@ public class OBJLoader
                     if (!objectNames.Contains(cmesh))
                     {
                         objectNames.Add(cmesh);
+                    }
+                }
+                else if (cmps[0] == "usemtl")
+                {
+                    cmaterial = data;
+                    if (!materialNames.Contains(cmaterial))
+                    {
+                        materialNames.Add(cmaterial);
+                    }
+
+                    if (splitByMaterial)
+                    {
+                        if (!objectNames.Contains(cmaterial))
+                        {
+                            objectNames.Add(cmaterial);
+                        }
                     }
                 }
                 else if (cmps[0] == "v")
@@ -118,7 +123,7 @@ public class OBJLoader
                 else if (cmps[0] == "f")
                 {
                     int[] indexes = new int[cmps.Length - 1];
-                    for (int i = 1; i < cmps.Length; i++)
+                    for (int i = 1; i < cmps.Length ; i++)
                     {
                         string felement = cmps[i];
                         int vertexIndex = -1;
@@ -151,8 +156,7 @@ public class OBJLoader
                             vertexIndex = int.Parse(elementComps[0]) - 1;
                             uvIndex = int.Parse(elementComps[1]) - 1;
                         }
-
-                        string hashEntry = vertexIndex + "|" + normalIndex + "|" + uvIndex;
+                        string hashEntry = vertexIndex + "|" + normalIndex + "|" +uvIndex;
                         if (hashtable.ContainsKey(hashEntry))
                         {
                             indexes[i - 1] = hashtable[hashEntry];
@@ -172,7 +176,6 @@ public class OBJLoader
                                 hasNormals = true;
                                 unormals.Add(normals[normalIndex]);
                             }
-
                             if (uvIndex < 0 || (uvIndex > (uvs.Count - 1)))
                             {
                                 uuvs.Add(Vector2.zero);
@@ -184,12 +187,11 @@ public class OBJLoader
 
                         }
                     }
-
                     if (indexes.Length < 5 && indexes.Length >= 3)
                     {
                         OBJFace f1 = new OBJFace();
                         f1.materialName = cmaterial;
-                        f1.indexes = new int[] {indexes[0], indexes[1], indexes[2]};
+                        f1.indexes = new int[] { indexes[0], indexes[1], indexes[2] };
                         f1.meshName = (splitByMaterial) ? cmaterial : cmesh;
                         faceList.Add(f1);
                         if (indexes.Length > 3)
@@ -198,7 +200,7 @@ public class OBJLoader
                             OBJFace f2 = new OBJFace();
                             f2.materialName = cmaterial;
                             f2.meshName = (splitByMaterial) ? cmaterial : cmesh;
-                            f2.indexes = new int[] {indexes[2], indexes[3], indexes[0]};
+                            f2.indexes = new int[] { indexes[2], indexes[3], indexes[0] };
                             faceList.Add(f2);
                         }
                     }
@@ -208,17 +210,29 @@ public class OBJLoader
 
         if (objectNames.Count == 0)
             objectNames.Add("default");
-
+       
+        //build objects
+        GameObject parentObject = new GameObject("Test");
+        
+        
         foreach (string obj in objectNames)
         {
+            GameObject subObject = new GameObject(obj);
+            subObject.transform.parent = parentObject.transform;
+            subObject.transform.localScale = new Vector3(-1, 1, 1);
+            //Create mesh
+            Mesh m = new Mesh();
+            m.name = obj;
             //LISTS FOR REORDERING
             List<Vector3> processedVertices = new List<Vector3>();
             List<Vector3> processedNormals = new List<Vector3>();
             List<Vector2> processedUVs = new List<Vector2>();
             List<int[]> processedIndexes = new List<int[]>();
-            Dictionary<int, int> remapTable = new Dictionary<int, int>();
-            
-            OBJFace[] ofaces = faceList.Where(x => x.meshName == obj).ToArray();
+            Dictionary<int,int> remapTable = new Dictionary<int, int>();
+            //POPULATE MESH
+            List<string> meshMaterialNames = new List<string>();
+
+            OBJFace[] ofaces = faceList.Where(x =>  x.meshName == obj).ToArray();
             foreach (string mn in materialNames)
             {
                 OBJFace[] faces = ofaces.Where(x => x.materialName == mn).ToArray();
@@ -231,6 +245,9 @@ public class OBJLoader
                         System.Array.Resize(ref indexes, l + f.indexes.Length);
                         System.Array.Copy(f.indexes, 0, indexes, l, f.indexes.Length);
                     }
+                    meshMaterialNames.Add(mn);
+                    if (m.subMeshCount != meshMaterialNames.Count)
+                        m.subMeshCount = meshMaterialNames.Count;
 
                     for (int i = 0; i < indexes.Length; i++)
                     {
@@ -253,19 +270,61 @@ public class OBJLoader
 
                     processedIndexes.Add(indexes);
                 }
+                else
+                {
+
+                }
             }
 
-            meshes.Add(new MeshInfo
+            //apply stuff
+            m.vertices = processedVertices.ToArray();
+            m.normals = processedNormals.ToArray();
+            m.uv = processedUVs.ToArray();
+
+            for (int i = 0; i < processedIndexes.Count; i++)
             {
-                Name = obj,
-                Vertices = processedVertices.ToArray(),
-                Normals = processedNormals.ToArray(),
-                Uvs = processedUVs.ToArray(),
-                Triangles = processedIndexes.ToArray(),
-                HasNormals = hasNormals
-            });
+                m.SetTriangles(processedIndexes[i],i);   
+            }
+
+            if (!hasNormals)
+            {
+             m.RecalculateNormals();   
+            }
+            m.RecalculateBounds();
+            ;
+
+            MeshFilter mf = subObject.AddComponent<MeshFilter>();
+            MeshRenderer mr = subObject.AddComponent<MeshRenderer>();
+
+            Material[] processedMaterials = new Material[meshMaterialNames.Count];
+            for(int i=0 ; i < meshMaterialNames.Count; i++)
+            {
+                
+                if (materialCache == null)
+                {
+                    processedMaterials[i] = new Material(Shader.Find("Standard (Specular setup)"));
+                }
+                else
+                {
+                    Material mfn = Array.Find(materialCache, x => x.name == meshMaterialNames[i]); ;
+                    if (mfn == null)
+                    {
+                        processedMaterials[i] = new Material(Shader.Find("Standard (Specular setup)"));
+                    }
+                    else
+                    {
+                        processedMaterials[i] = mfn;
+                    }
+                    
+                }
+                processedMaterials[i].name = meshMaterialNames[i];
+            }
+
+            mr.materials = processedMaterials;
+            mf.mesh = m;
+
         }
 
-        return meshes;
+        return parentObject;
+        }
     }
-}

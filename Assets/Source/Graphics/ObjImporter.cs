@@ -33,13 +33,18 @@ namespace CreateAR.SpirePlayer
             string obj,
             Action<Action<GameObject>> callback)
         {
-            ThreadPool.QueueUserWorkItem(
+            /*ThreadPool.QueueUserWorkItem(
                 Process,
                 new ObjImportState
                 {
                     Obj = obj,
                     Callback = callback
-                });
+                });*/
+            Process(new ObjImportState
+            {
+                Obj = obj,
+                Callback = callback
+            });
         }
 
         private IEnumerator Synchronize()
@@ -73,7 +78,7 @@ namespace CreateAR.SpirePlayer
                 {
                     importState.Callback(gameObject =>
                     {
-                        // APPLY
+                        /*// APPLY
                         foreach (var mesh in meshes)
                         {
                             var child = new GameObject(mesh.Name);
@@ -81,12 +86,12 @@ namespace CreateAR.SpirePlayer
                             child.transform.SetParent(gameObject.transform);
 
                             ApplyMesh(child, mesh);
-                        }
+                        }*/
                     });
                 });
             }
         }
-
+        /*
         private static void ApplyMesh(GameObject gameObject, OBJLoader.MeshInfo info)
         {
             var mesh = new Mesh
@@ -109,6 +114,6 @@ namespace CreateAR.SpirePlayer
             mesh.RecalculateBounds();
 
             gameObject.AddComponent<MeshFilter>().mesh = mesh;
-        }
+        }*/
     }
 }
