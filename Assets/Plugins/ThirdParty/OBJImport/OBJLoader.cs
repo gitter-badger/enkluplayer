@@ -79,7 +79,6 @@ public class OBJLoader
         string cmaterial = "";
         string cmesh = "default";
         //CACHE
-        Material[] materialCache = null;
 
         var lines = source.Split('\n');
         foreach (string ln in lines)
