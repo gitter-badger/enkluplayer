@@ -17,7 +17,6 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IMessageRouter _messages;
         private readonly IIntentionManager _intention;
         private readonly IInteractionManager _interactions;
-        private readonly IAssetPoolManager _pools;
         private readonly IInteractableManager _interactables;
         private readonly WidgetConfig _config;
 
@@ -32,7 +31,6 @@ namespace CreateAR.SpirePlayer.IUX
             IMessageRouter messages,
             IIntentionManager intention,
             IInteractionManager interactions,
-            IAssetPoolManager pools,
             IInteractableManager interactables,
             WidgetConfig config)
         {
@@ -43,7 +41,6 @@ namespace CreateAR.SpirePlayer.IUX
             _messages = messages;
             _intention = intention;
             _interactions = interactions;
-            _pools = pools;
             _interactables = interactables;
             _config = config;
         }
@@ -53,9 +50,6 @@ namespace CreateAR.SpirePlayer.IUX
         {
             var textPrimitive = new TextPrimitive(
                 _config,
-                _interactables,
-                _interactions,
-                _intention,
                 _messages,
                 _layers,
                 _tweens,

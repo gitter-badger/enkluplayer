@@ -14,13 +14,6 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly WidgetConfig _config;
 
         /// <summary>
-        /// Dependencies.
-        /// </summary>
-        private readonly IInteractableManager _interactables;
-        private readonly IInteractionManager _interaction;
-        private readonly IIntentionManager _intention;
-        
-        /// <summary>
         /// Renders text.
         /// </summary>
         private TextRenderer _renderer;
@@ -156,9 +149,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public TextPrimitive(
             WidgetConfig config,
-            IInteractableManager interactables,
-            IInteractionManager interaction,
-            IIntentionManager intention,
             IMessageRouter messages,
             ILayerManager layers,
             ITweenConfig tweens,
@@ -172,9 +162,6 @@ namespace CreateAR.SpirePlayer.IUX
                 messages)
         {
             _config = config;
-            _interactables = interactables;
-            _interaction = interaction;
-            _intention = intention;
         }
         
         /// <inheritdoc cref="Element"/>
@@ -187,8 +174,7 @@ namespace CreateAR.SpirePlayer.IUX
                 Vector3.zero,
                 Quaternion.identity);
             _renderer.transform.SetParent(GameObject.transform, false);
-            _renderer.Initialize(this, _config, Layers, Tweens, Colors, Messages, _intention, _interaction, _interactables);
-
+            
             // load font setup.
             _propAlignment = Schema.GetOwn("alignment", AlignmentTypes.MID_CENTER);
             _propAlignment.OnChanged += Alignment_OnChanged;
