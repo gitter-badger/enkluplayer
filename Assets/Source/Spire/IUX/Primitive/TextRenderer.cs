@@ -1,23 +1,14 @@
-﻿using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace CreateAR.SpirePlayer.IUX
 {
+    /// <summary>
+    /// Controls rendering of text.
+    /// </summary>
     public class TextRenderer : MonoBehaviour
     {
-        /// <summary>
-        /// Dependencies.
-        /// </summary>
-        private WidgetConfig _config;
-        private ITweenConfig _tweens;
-        private IColorConfig _colors;
-
-        /// <summary>
-        /// Source primitive.
-        /// </summary>
-        private TextPrimitive _textPrimitive;
-
         /// <summary>
         /// Alignment types
         /// </summary>
@@ -27,27 +18,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Unity text rendering.
         /// </summary>
         public Text Text;
-
-        /// <summary>
-        /// Initialization.
-        /// </summary>
-        internal void Initialize(
-            TextPrimitive textPrimitive,
-            WidgetConfig config,
-            ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
-            IMessageRouter messages,
-            IIntentionManager intention,
-            IInteractionManager interaction,
-            IInteractableManager interactables)
-        {
-            _textPrimitive = textPrimitive;
-            _tweens = tweens;
-            _colors = colors;
-            _config = config;
-        }
-
+        
         /// <summary>
         /// Alignment accessor/mutator.
         /// </summary>
@@ -87,29 +58,39 @@ namespace CreateAR.SpirePlayer.IUX
             switch (_alignment)
             {
                 case AlignmentTypes.MID_CENTER:
+                {
                     Text.rectTransform.pivot = new Vector2(0.5f, 0.5f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
+                }
 
                 case AlignmentTypes.TOP_LEFT:
+                {
                     Text.rectTransform.pivot = new Vector2(0.0f, 0.0f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
+                }
 
                 case AlignmentTypes.TOP_CENTER:
+                {
                     Text.rectTransform.pivot = new Vector2(0.5f, 0.0f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
+                }
 
                 case AlignmentTypes.TOP_RIGHT:
+                {
                     Text.rectTransform.pivot = new Vector2(1.0f, 0.0f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
+                }
 
                 case AlignmentTypes.MID_RIGHT:
+                {
                     Text.rectTransform.pivot = new Vector2(1.0f, 0.5f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
+                }
 
                 case AlignmentTypes.BOT_RIGHT:
                     Text.rectTransform.pivot = new Vector2(1.0f, 1.0f);
@@ -117,19 +98,31 @@ namespace CreateAR.SpirePlayer.IUX
                     break;
 
                 case AlignmentTypes.BOT_CENTER:
+                {
                     Text.rectTransform.pivot = new Vector2(0.5f, 1.0f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
+                }
 
                 case AlignmentTypes.BOT_LEFT:
+                {
                     Text.rectTransform.pivot = new Vector2(0.0f, 1.0f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
+                }
 
                 case AlignmentTypes.MID_LEFT:
+                {
                     Text.rectTransform.pivot = new Vector2(0.0f, 1.0f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
+                }
+
+                default:
+                {
+                    Log.Warning(this, "Unknown alignment type : {0}.", _alignment);
+                    break;
+                }
             }
         }
     }
