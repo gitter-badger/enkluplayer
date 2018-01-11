@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Holds an activator.
     /// 
-    /// TODO: Remove Widget portion.
+    /// TODO: Remove Widget portion *** though talk to Ray about this first because doing this will also require reworking how visibility/color is managed.
     /// </summary>
     public class ActivatorPrimitive : Widget, IInteractable
     {

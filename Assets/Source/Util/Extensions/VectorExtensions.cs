@@ -64,5 +64,57 @@ namespace CreateAR.SpirePlayer
             var deltaMagSqr = delta.sqrMagnitude;
             return deltaMagSqr < epsilon;
         }
+
+        /// <summary>
+        /// Converts to a 2D vector ignoring the y component
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns></returns>
+        public static Vector2 ToXZ(this Vector3 vector)
+        {
+            return new Vector2(vector.x, vector.z);
+        }
+
+        /// <summary>
+        /// Converts to a 2D vector ignoring the y component
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <returns></returns>
+        public static Vector3 ToX0Y(this Vector2 vector)
+        {
+            return new Vector3(vector.x, 0, vector.y);
+        }
+
+        /// <summary>
+        /// Cross Product
+        /// </summary>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        /// <returns></returns>
+        public static float Cross(this Vector2 lhs, Vector2 rhs)
+        {
+            return lhs.x * rhs.y - lhs.y * rhs.x;
+        }
+
+        /// <summary>
+        /// Cross Product
+        /// </summary>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        /// <returns></returns>
+        public static float Dot(this Vector2 lhs, Vector2 rhs)
+        {
+            return rhs.x * lhs.x + rhs.y * lhs.y;
+        }
+
+        /// <summary>
+        /// Perpendicular Vector
+        /// </summary>
+        /// <param name="@this"></param>
+        /// <returns></returns>
+        public static Vector2 Perpendicular(this Vector2 @this)
+        {
+            return new Vector2(@this.y, -(@this.x));
+        }
     }
 }

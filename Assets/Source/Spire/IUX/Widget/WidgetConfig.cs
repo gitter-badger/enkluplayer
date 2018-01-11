@@ -174,10 +174,46 @@ namespace CreateAR.SpirePlayer.IUX
         public float SpinSpeed = 2.0f;
 
         /// <summary>
+        /// Defines how long each entry sticks around.
+        /// </summary>
+        [Header("Crawl")]
+        public float CrawlDuration = 4.0f;
+
+        /// <summary>
+        /// Defines the distance between entries.
+        /// </summary>
+        public float CrawlSeperation = 0.1f;
+
+        /// <summary>
+        /// Curve used to fade out entries with time.
+        /// </summary>
+        public AnimationCurve CrawlFadeInAlpha = new AnimationCurve(new Keyframe[] { new Keyframe(1f, 1f), new Keyframe(1f, 0f) });
+
+        /// <summary>
+        /// Curve used to scale the entries.
+        /// </summary>
+        public AnimationCurve CrawlScale = new AnimationCurve(new Keyframe[] { new Keyframe(0f, 0f), new Keyframe(0.25f, 1f) });
+
+        /// <summary>
+        /// Curve used to fade out entries with time.
+        /// </summary>
+        public AnimationCurve CrawlFadeOutAlpha = new AnimationCurve(new Keyframe[] { new Keyframe(1f, 1f), new Keyframe(1f, 0f) });
+
+        /// <summary>
+        /// Curve used to move entries with time.
+        /// </summary>
+        public AnimationCurve CrawlFadeOutOffset = new AnimationCurve(new Keyframe[] { new Keyframe(0f, 0f), new Keyframe(1f, 1f) });
+
+        /// <summary>
+        /// Defines how far text pushes backwards as it fades as multiple of CrawlFadeOutOffset.
+        /// </summary>
+        public float CrawlFadeOutDepthScale = 5.0f;
+        
+        /// <summary>
         /// Text prefab.
         /// </summary>
         [Header("Prefabs")]
-        public Text Text;
+        public TextRenderer Text;
 
         /// <summary>
         /// Reticle.
@@ -188,6 +224,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Activator.
         /// </summary>
         public ActivatorRenderer Activator;
+
+        /// <summary>
+        /// Float.
+        /// </summary>
+        public FloatRenderer Float;
 
         /// <summary>
         /// Spins per second.

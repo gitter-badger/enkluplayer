@@ -36,7 +36,9 @@ namespace CreateAR.SpirePlayer.Vine
             Commons.Unity.DataStructures.Tuple.Create("Button", ElementTypes.BUTTON),
             Commons.Unity.DataStructures.Tuple.Create("Caption", ElementTypes.CAPTION),
             Commons.Unity.DataStructures.Tuple.Create("Menu", ElementTypes.MENU),
-            Commons.Unity.DataStructures.Tuple.Create("Cursor", ElementTypes.CURSOR)
+            Commons.Unity.DataStructures.Tuple.Create("Cursor", ElementTypes.CURSOR),
+            Commons.Unity.DataStructures.Tuple.Create("TextCrawl", ElementTypes.TEXTCRAWL),
+            Commons.Unity.DataStructures.Tuple.Create("Float", ElementTypes.FLOAT)
         };
 
         /// <summary>

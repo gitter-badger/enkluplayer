@@ -62,6 +62,7 @@ namespace CreateAR.SpirePlayer.IUX
             _baseSchema.Set("visibilityMode", VisibilityMode.Inherit);
             _baseSchema.Set("layerMode", LayerMode.Default);
             _baseSchema.Set("autoDestroy", false);
+            _baseSchema.Set("font", "Watchword_bold");
 
             // load defaults
             var buttonSchema = _typeSchema[ElementTypes.BUTTON] = new ElementSchema();
@@ -191,6 +192,14 @@ namespace CreateAR.SpirePlayer.IUX
                 case ElementTypes.MENU:
                 {
                     return new Menu(_config, _layers, _tweens, _colors, _messages, _primitives);
+                }
+                case ElementTypes.TEXTCRAWL:
+                {
+                    return new TextCrawl(_config, _layers, _tweens, _colors, _messages, _primitives);
+                }
+                case ElementTypes.FLOAT:
+                {
+                    return new Float(_config, _layers, _tweens, _colors, _messages, _primitives);
                 }
                 default:
                 {

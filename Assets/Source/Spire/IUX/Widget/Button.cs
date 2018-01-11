@@ -23,7 +23,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private ElementSchemaProp<string> _propVoiceActivator;
         private ElementSchemaProp<string> _labelProp;
-        private ElementSchemaProp<int> _fontSizeProp;
         private ElementSchemaProp<float> _labelPaddingProp;
 
         /// <summary>
@@ -105,17 +104,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             // Activator
             {
-                _activator = _primitives.Activator();
-
-                var activatorSchema = new ElementSchema();
-                activatorSchema.Wrap(Schema);
-                _activator.Load(
-                    new ElementData
-                    {
-                        Id = "Activator"
-                    },
-                    activatorSchema, 
-                    new Element[0]);
+                _activator = _primitives.Activator(Schema);
 
                 AddChild(_activator);
             }
@@ -124,14 +113,11 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _labelProp = Schema.Get<string>("label");
                 _labelProp.OnChanged += Label_OnChange;
-
-                _fontSizeProp = Schema.Get<int>("fontSize");
-                _fontSizeProp.OnChanged += FontSize_OnChanged;
-
+                
                 _labelPaddingProp = Schema.Get<float>("label.padding");
                 _labelPaddingProp.OnChanged += LabelPadding_OnChanged;
 
-                _text = _primitives.Text();
+                _text = _primitives.Text(Schema);
                 _text.Parent = this;
                 _text.Text = _labelProp.Value;
 
@@ -159,7 +145,6 @@ namespace CreateAR.SpirePlayer.IUX
 
             // cleanup label
             {
-                _fontSizeProp.OnChanged -= FontSize_OnChanged;
                 _labelProp.OnChanged -= Label_OnChange;
                 _labelPaddingProp.OnChanged -= LabelPadding_OnChanged;
             }
@@ -232,21 +217,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _text.Text = next;
         }
-
-        /// <summary>
-        /// Called when the label has been updated.
-        /// </summary>
-        /// <param name="prop">FontSize prop.</param>
-        /// <param name="prev">Previous value.</param>
-        /// <param name="next">Next value.</param>
-        private void FontSize_OnChanged(
-            ElementSchemaProp<int> prop,
-            int prev,
-            int next)
-        {
-            _text.FontSize = next;
-        }
-
+        
         /// <summary>
         /// Called when the label padding has changed.
         /// </summary>

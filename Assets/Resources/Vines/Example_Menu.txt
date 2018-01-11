@@ -4,20 +4,23 @@
 	state.letters = ["A", "B", "C", "D", "E"];
 }}
 
-/* Must have a root element. */
-<Menu
-	title='Welcome'
-	description='Move the cursor with your head to activate the Ok button to the right.'
-	position=(0, 0, 3.93)>
+<Float
+	offset=(0,0,3)>
 	
-	/* Now for buttons! */
-	{{
-		var buttons = [];
-		state.letters.forEach(function(item, index, arr) {
-			buttons.push("<Button label='" + item + "' />");
-		});
+	<Menu
+		title='Welcome'
+		description='Move the cursor with your head to activate the Ok button to the right.'
+		position=(0, 0, 3.93)>
 
-		return buttons.join("");
-	}}
+		{{
+			var buttons = [];
+			state.letters.forEach(function(item, index, arr) {
+				buttons.push("<Button label='" + item + "' />");
+			});
 
-</Menu>
+			return buttons.join("");
+		}}
+
+	</Menu>
+
+</Float>

@@ -24,11 +24,6 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _text;
 
         /// <summary>
-        /// Font size.
-        /// </summary>
-        private ElementSchemaProp<int> _fontSize;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         public Caption(
@@ -57,13 +52,9 @@ namespace CreateAR.SpirePlayer.IUX
             _text = Schema.Get<string>("text");
             _text.OnChanged += Text_OnChange;
 
-            _fontSize = Schema.Get<int>("fontSize");
-            _fontSize.OnChanged += FontSize_OnChange;
-
-            _primitive = _primitives.Text();
+            _primitive = _primitives.Text(Schema);
             _primitive.Parent = this;
             _primitive.Text = _text.Value;
-            _primitive.FontSize = _fontSize.Value;
         }
 
         /// <inheritdoc cref="Element"/>
@@ -71,9 +62,6 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _text.OnChanged -= Text_OnChange;
             _text = null;
-
-            _fontSize.OnChanged -= FontSize_OnChange;
-            _fontSize = null;
         }
 
         /// <summary>
@@ -88,20 +76,6 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             _primitive.Text = next;
-        }
-
-        /// <summary>
-        /// Called when the font size changes.
-        /// </summary>
-        /// <param name="prop">Propery.</param>
-        /// <param name="prev">Previous value.</param>
-        /// <param name="next">Next value.</param>
-        private void FontSize_OnChange(
-            ElementSchemaProp<int> prop,
-            int prev,
-            int next)
-        {
-            _primitive.FontSize = next;
         }
     }
 }

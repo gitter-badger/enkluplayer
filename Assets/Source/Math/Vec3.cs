@@ -19,6 +19,11 @@ namespace CreateAR.SpirePlayer
         public static readonly Vec3 One = new Vec3(1, 1, 1);
 
         /// <summary>
+        /// Identity vector.
+        /// </summary>
+        public static readonly Vec3 Up = new Vec3(0, 1, 0);
+
+        /// <summary>
         /// X component.
         /// </summary>
         public float x;
@@ -136,6 +141,20 @@ namespace CreateAR.SpirePlayer
                 lhs.x * rhs.x
               + lhs.y * rhs.y
               + lhs.z * rhs.z;
+        }
+
+        /// <summary>
+        /// Returns the dot product for two vectors.
+        /// </summary>
+        /// <param name="lhs">Left hand side of the dot product.</param>
+        /// <param name="rhs">Right hand side of the dot product.</param>
+        /// <returns></returns>
+        public static Vec3 Cross(Vec3 lhs, Vec3 rhs)
+        {
+            return new Vec3(
+                lhs.y*rhs.z - lhs.z*rhs.y,
+                lhs.z*rhs.x - lhs.x*rhs.z,
+                lhs.x*rhs.y - lhs.y*rhs.x);
         }
 
         /// <summary>

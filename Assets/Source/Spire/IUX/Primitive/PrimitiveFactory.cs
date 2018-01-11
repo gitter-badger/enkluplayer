@@ -49,13 +49,35 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="IPrimitiveFactory"/>
-        public TextPrimitive Text()
+        public TextPrimitive Text(ElementSchema schema)
         {
-            return new TextPrimitive(_config, _pools);
+            var textPrimitive = new TextPrimitive(
+                _config,
+                _interactables,
+                _interactions,
+                _intention,
+                _messages,
+                _layers,
+                _tweens,
+                _colors);
+
+            var textSchema = new ElementSchema();
+            textSchema.Wrap(schema);
+            textPrimitive.Load(
+                new ElementData
+                {
+                    Id = "Text"
+                },
+                textSchema,
+                new Element[0]);
+
+            _elements.Add(textPrimitive);
+
+            return textPrimitive;
         }
 
         /// <inheritdoc cref="IPrimitiveFactory"/>
-        public ActivatorPrimitive Activator()
+        public ActivatorPrimitive Activator(ElementSchema schema)
         {
             var activator = new ActivatorPrimitive(
                 _config,
@@ -67,6 +89,16 @@ namespace CreateAR.SpirePlayer.IUX
                 _tweens,
                 _colors);
 
+            var activatorSchema = new ElementSchema();
+            activatorSchema.Wrap(schema);
+            activator.Load(
+                new ElementData
+                {
+                    Id = "Activator"
+                },
+                activatorSchema,
+                new Element[0]);
+
             _elements.Add(activator);
 
             return activator;
@@ -76,6 +108,30 @@ namespace CreateAR.SpirePlayer.IUX
         public ReticlePrimitive Reticle()
         {
             return new ReticlePrimitive(_config);
+        }
+
+        /// <inheritdoc cref="IPrimitiveFactory"/>
+        public FloatPrimitive Float(ElementSchema schema)
+        {
+            var floatPrimitive = new FloatPrimitive(
+                _config,
+                _intention,
+                _messages,
+                _layers,
+                _tweens,
+                _colors);
+
+            floatPrimitive.Load(
+                new ElementData
+                {
+                    Id = "Float"
+                },
+                schema,
+                new Element[0]);
+
+            _elements.Add(floatPrimitive);
+
+            return floatPrimitive;
         }
     }
 }
