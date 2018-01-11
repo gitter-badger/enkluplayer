@@ -1,35 +1,38 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Dynamics
+namespace CreateAR.SpirePlayer.IUX.Dynamics
 {
+    /// <summary>
+    /// Describes a set of target criteria for a magnet.
+    /// </summary>
     [Serializable]
     public struct Target
     {
         /// <summary>
-        /// Continuous Updates
+        /// The transform to track.
         /// </summary>
         public Transform Transform;
 
         /// <summary>
-        /// Current Target Position
+        /// Current position of the target..
         /// </summary>
         public Vector3 Position;
 
         /// <summary>
-        /// Returns true if the target is empty
+        /// Returns true if the target is empty.
         /// </summary>
         public bool IsEmpty
         {
             get
             {
                 return Transform == null
-                       && Position.Approximately(Vector3.zero);
+                    && Position.Approximately(Vector3.zero);
             }
         }
 
         /// <summary>
-        /// Transform or position
+        /// Calculates the position.
         /// </summary>
         public Vector3 DynamicPosition
         {

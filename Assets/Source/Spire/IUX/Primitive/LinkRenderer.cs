@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using CreateAR.SpirePlayer.Dynamics;
+using CreateAR.SpirePlayer.IUX.Dynamics;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX

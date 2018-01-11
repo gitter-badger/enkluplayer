@@ -1,6 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.Dynamics;
 using System.Diagnostics;
+using CreateAR.SpirePlayer.IUX.Dynamics;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX

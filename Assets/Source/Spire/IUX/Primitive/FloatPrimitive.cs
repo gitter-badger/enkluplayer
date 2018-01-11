@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
+    /// <summary>
+    /// Primitive for displaying floats.
+    /// </summary>
     public class FloatPrimitive : Widget
     {
         /// <summary>
@@ -68,6 +71,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="Element"/>
         protected override void UnloadInternal()
         {
+            _propOffset.OnChanged -= Offset_OnChanged;
+
             Object.Destroy(_renderer.gameObject);
 
             base.UnloadInternal();

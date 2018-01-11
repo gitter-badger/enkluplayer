@@ -1,18 +1,31 @@
 ﻿using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Dynamics
+namespace CreateAR.SpirePlayer.IUX.Dynamics
 {
+    /// <summary>
+    /// Uses a spring force approximation to approach a target.
+    /// </summary>
     public class Magnet : MonoBehaviour
     {
         /// <summary>
         /// To prevent re-tweens with minute target variations.
         /// </summary>
-        public float TARGET_TOLERANCE = 0.0001f;
+        private const float TARGET_TOLERANCE = 0.0001f;
 
         /// <summary>
         /// To prevent re-tweens with minute target variations.
         /// </summary>
-        public float NEAR_TOLERANCE = 0.1f;
+        private const float NEAR_TOLERANCE = 0.1f;
+
+        /// <summary>
+        /// Target Accessor/Mutator
+        /// </summary>
+        private Target _target;
+
+        /// <summary>
+        /// Velocity component
+        /// </summary>
+        private Vector3 _velocity = Vector3.zero;
 
         /// <summary>
         /// Fixes up the position of the thing.
@@ -82,9 +95,21 @@ namespace CreateAR.SpirePlayer.Dynamics
         }
 
         /// <summary>
+        /// Target Mutator.
+        /// </summary>
+        public void SetTarget(Target target)
+        {
+            _target = target;
+            if (!IsAtTarget)
+            {
+                enabled = true;
+            }
+        }
+
+        /// <summary>
         /// Frame-based update.
         /// </summary>
-        public void Update()
+        private void Update()
         {
             if (Root == null)
             {
@@ -98,32 +123,26 @@ namespace CreateAR.SpirePlayer.Dynamics
 
             var deltaTime = Time.fixedDeltaTime * Time.timeScale;
 
-            if (!IsInMotion
-                && IsAtTarget)
+            if (!IsInMotion && IsAtTarget)
             {
                 Root.position = Target.Position;
                 _velocity = Vector3.zero;
 
                 enabled = false;
-                return;
             }
             else
             {
                 var currPosition = Root.position;
                 var goalPosition = Target.Position;
 
-                MathUtil
-                    .UpdateSpring(
-                        currPosition,
-                        goalPosition,
-                        ref _velocity,
-                        SpringConstant,
-                        deltaTime);
+                MathUtil.UpdateSpring(
+                    currPosition,
+                    goalPosition,
+                    ref _velocity,
+                    SpringConstant,
+                    deltaTime);
 
-                var newPosition
-                    = currPosition
-                        + _velocity
-                        * deltaTime;
+                var newPosition = currPosition + _velocity * deltaTime;
 
                 Root.position = newPosition;
 
@@ -134,35 +153,12 @@ namespace CreateAR.SpirePlayer.Dynamics
                 {
                     var distance = Mathf.Sqrt(distanceSqr);
                     var lerp = (1.0f - distance / NEAR_TOLERANCE) * FixupFactor;
-                    Root.position
-                        = Vector3.Lerp(
-                            Root.position,
-                            Target.Position,
-                            lerp);
+                    Root.position = Vector3.Lerp(
+                        Root.position,
+                        Target.Position,
+                        lerp);
                 }
             }
         }
-
-        /// <summary>
-        /// Target Mutator.
-        /// </summary>
-        public void SetTarget(Target target)
-        {
-            _target = target;
-            if (!IsAtTarget)
-            {
-                enabled = true;
-            }
-        }
-
-        /// <summary>
-        /// Target Accessor/Mutator
-        /// </summary>
-        private Target _target;
-
-        /// <summary>
-        /// Velocity component
-        /// </summary>
-        private Vector3 _velocity = Vector3.zero;
     }
 }
