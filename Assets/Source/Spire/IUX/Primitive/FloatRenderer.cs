@@ -18,88 +18,84 @@ namespace CreateAR.SpirePlayer.IUX
         private FloatPrimitive _primitive;
 
         /// <summary>
-        /// Initialization.
+        /// Dynamic Link Instance
         /// </summary>
-        internal void Initialize(
-            FloatPrimitive primitive,
-            IIntentionManager intention)
-        {
-            _primitive = primitive;
-            _intention = intention;
-
-            StationaryWidget.Initialize(_primitive);
-            MotionWidget.Initialize(_primitive);
-        }
-
-        #region Fields
+        private LinkRenderer _dynamicLink;
 
         /// <summary>
-        /// Parent transform
+        /// True if has been stationary
         /// </summary>
-        public Widget Parent;
+        private bool _hasBeenStationary;
 
         /// <summary>
-        /// Affected Transform
-        /// </summary>
-        public Transform Transform;
-
-        /// <summary>
-        /// Transform for Link Anchoring
-        /// </summary>
-        public Transform LinkTransform;
-
-        /// <summary>
-        /// Used for movement
-        /// </summary>
-        public Magnet Magnet;
-
-        /// <summary>
-        /// Ideal offset from camera
-        /// </summary>
-        public Vector3 Offset = new Vector3(0, 0, 2.5f);
-
-        /// <summary>
-        /// Minimum distance for the appearence of this context menu
-        /// </summary>
-        public float MinimumGroundHeight = 1;
-
-        /// <summary>
-        /// FOV Scale
+        /// FOV Scale at which to reorient.
         /// </summary>
         public const float REORIENT_FOV_SCALE = 1.5f;
 
         /// <summary>
-        /// FOV Scale
+        /// FOV Scale.
         /// </summary>
         public const float CLOSE_FOV_SCALE = 0.5f;
 
         /// <summary>
-        /// Too far away from the origin
+        /// ??
         /// </summary>
         public const float DISTANCE_SCALE = 0.25f;
+        
+        /// <summary>
+        /// Parent Widget.
+        /// </summary>
+        public Widget Parent;
 
         /// <summary>
-        /// Shown when stationary
+        /// Affected Transform.
+        /// </summary>
+        public Transform Transform;
+
+        /// <summary>
+        /// Transform for Link Anchoring.
+        /// </summary>
+        public Transform LinkTransform;
+
+        /// <summary>
+        /// Used for movement.
+        /// 
+        /// TODO: Arguably should not be in a renderer.
+        /// </summary>
+        public Magnet Magnet;
+
+        /// <summary>
+        /// Ideal offset from camera.
+        /// </summary>
+        public Vector3 Offset = new Vector3(0, 0, 2.5f);
+
+        /// <summary>
+        /// Minimum distance for the appearence of this context menu.
+        /// </summary>
+        public float MinimumGroundHeight = 1;
+
+        /// <summary>
+        /// Shown when stationary.
         /// </summary>
         public WidgetRenderer StationaryWidget;
 
         /// <summary>
-        /// Shown when in motion
+        /// Shown when in motion.
         /// </summary>
         public WidgetRenderer MotionWidget;
 
         /// <summary>
-        /// Only active once has been stationary
+        /// Only active once has been stationary.
         /// </summary>
         public GameObject Trail;
 
         /// <summary>
-        /// Links to the parent menu
+        /// Links to the parent menu.
         /// </summary>
         public LinkRenderer LinkPrefab;
 
         /// <summary>
-        /// returns the ideal position
+        /// Returns the ideal position.
         /// </summary>
         public Vec3 IdealPosition
         {
@@ -114,11 +110,10 @@ namespace CreateAR.SpirePlayer.IUX
                 var zAxis = _intention.Forward;
                 var xAxis = _intention.Right;
                 var yAxis = _intention.Up;
-                var idealPosition
-                    = focusOrigin
-                      + xAxis * Offset.x
-                      + yAxis * Offset.y
-                      + zAxis * Offset.z;
+                var idealPosition = focusOrigin
+                    + xAxis * Offset.x
+                    + yAxis * Offset.y
+                    + zAxis * Offset.z;
 
                 return idealPosition;
             }
@@ -141,12 +136,21 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Returns true if this context menu is visible to user
+        /// Returns true if this context menu is visible to user.
         /// </summary>
-        public bool IsInFieldOfView { get { return _intention.IsVisible(transform.position.ToVec(), REORIENT_FOV_SCALE); } }
+        public bool IsInFieldOfView
+        {
+            get
+            {
+                return _intention.IsVisible(
+                    transform.position.ToVec(),
+                    REORIENT_FOV_SCALE);
+            }
+
+        }
 
         /// <summary>
-        /// Returns true if this context menu is visible to user
+        /// Returns true if this context menu is too far away.
         /// </summary>
         public bool IsTooFarAway
         {
@@ -169,21 +173,64 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Returns true if this context menu is visible to user
         /// </summary>
-        public bool IsCloseToIdealPosition { get { return _intention.IsVisible(transform.position.ToVec(), CLOSE_FOV_SCALE); } }
-
-        /// <summary>
-        /// String override
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
+        public bool IsCloseToIdealPosition
         {
-            return "DynamicNode";
+            get
+            {
+                return _intention.IsVisible(
+                    transform.position.ToVec(),
+                    CLOSE_FOV_SCALE);
+            }
         }
 
         /// <summary>
-        /// Frame base initialization
+        /// Initialization.
         /// </summary>
-        public void Awake()
+        internal void Initialize(
+            FloatPrimitive primitive,
+            IIntentionManager intention)
+        {
+            _primitive = primitive;
+            _intention = intention;
+
+            StationaryWidget.Initialize(_primitive);
+            MotionWidget.Initialize(_primitive);
+        }
+
+        /// <inheritdoc cref="object"/>
+        public override string ToString()
+        {
+            return string.Format("[{0}]", GetType().Name);
+        }
+
+        /// <summary>
+        /// Sets the internal magnet target to the ideal position.
+        /// </summary>
+        public void MoveToIdealPosition()
+        {
+            Magnet.SetTarget(
+                new Target
+                {
+                    Position = IdealPosition.ToVector()
+                });
+        }
+
+        /// <summary>
+        /// Clears the link
+        /// </summary>
+        public void ClearLink()
+        {
+            if (_dynamicLink != null)
+            {
+                LogVerbose("Clear DynamicLink.");
+
+                _dynamicLink.FadeOut();
+                _dynamicLink = null;
+            }
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void Awake()
         {
             if (Magnet == null)
             {
@@ -209,11 +256,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Called before first Update.
         /// </summary>
-        public void Start()
+        private void Start()
         {
             if (Transform != null)
             {
-                // TODO: fix this, hiearchy of spawned IUX objects is extra deep.
                 // TODO: fix this, hiearchy of spawned IUX objects is extra deep.
                 Magnet.Root = Magnet.Root.transform.parent.parent;
                 Transform = transform.parent.parent;
@@ -230,10 +276,8 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
-        /// <summary>
-        /// Frame based update.
-        /// </summary>
-        public void Update()
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void Update()
         {
             if (_primitive.Visible)
             {
@@ -243,29 +287,6 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateWidgets();
             UpdateLink();
         }
-
-        /// <summary>
-        /// Moves to ideal position
-        /// </summary>
-        public void MoveToIdealPosition()
-        {
-            Magnet
-                .SetTarget(
-                    new Target()
-                    {
-                        Position = IdealPosition.ToVector()
-                    });
-        }
-
-        /// <summary>
-        /// Dynamic Link Instance
-        /// </summary>
-        private LinkRenderer _dynamicLink;
-
-        /// <summary>
-        /// True if has been stationary
-        /// </summary>
-        private bool _hasBeenStationary;
 
         /// <summary>
         /// Updates the movement of the context menu
@@ -288,8 +309,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateWidgets()
         {
-            var isStationaryVisible
-                = Magnet.IsNearTarget;
+            var isStationaryVisible = Magnet.IsNearTarget;
 
             if (StationaryWidget != null)
             {
@@ -321,9 +341,7 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            var linkIsVisible
-                = _primitive.Visible
-                  && !IsInMotion;
+            var linkIsVisible = _primitive.Visible && !IsInMotion;
 
             if (linkIsVisible)
             {
@@ -337,18 +355,16 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (_dynamicLink != null)
             {
-                _dynamicLink.EndPoint0
-                    = new Target()
-                    {
-                        Position = LinkTransform.position
-                    };
+                _dynamicLink.EndPoint0 = new Target
+                {
+                    Position = LinkTransform.position
+                };
                 _dynamicLink.EndPoint0.Position.y = 0; // Anchor.FloorY;
 
-                _dynamicLink.EndPoint1
-                    = new Target()
-                    {
-                        Position = LinkTransform.position
-                    };
+                _dynamicLink.EndPoint1 = new Target
+                {
+                    Position = LinkTransform.position
+                };
             }
         }
 
@@ -368,20 +384,6 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Clears the link
-        /// </summary>
-        public void ClearLink()
-        {
-            if (_dynamicLink != null)
-            {
-                LogVerbose("Clear DynamicLink.");
-
-                _dynamicLink.FadeOut();
-                _dynamicLink = null;
-            }
-        }
-
-        /// <summary>
         /// Logs verbosely.
         /// </summary>
         /// <param name="message">Verbose logging.</param>
@@ -390,7 +392,5 @@ namespace CreateAR.SpirePlayer.IUX
         {
             Log.Info(this, message);
         }
-
-        #endregion
     }
 }
