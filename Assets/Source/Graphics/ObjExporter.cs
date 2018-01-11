@@ -1,49 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
-    public class ObjExporterState
-    {
-        public class ObjMeshState
-        {
-            public readonly Matrix4x4 LocalToWorld;
-            public readonly Vector3[] Vertices;
-            public readonly Vector3[] Normals;
-            public readonly Vector2[] Uv;
-            public readonly int[] Triangles;
-
-            public ObjMeshState(MeshFilter filter)
-            {
-                LocalToWorld = filter.transform.localToWorldMatrix;
-
-                var mesh = UnityEngine.Application.isPlaying
-                    ? filter.mesh
-                    : filter.sharedMesh;
-
-                Vertices = mesh.vertices;
-                Normals = mesh.normals;
-                Uv = mesh.uv;
-                Triangles = mesh.triangles;
-            }
-        }
-
-        public readonly List<ObjMeshState> Meshes = new List<ObjMeshState>();
-
-        public ObjExporterState(GameObject[] gameObjects)
-        {
-            var filters = gameObjects
-                .SelectMany(@object => @object.GetComponentsInChildren<MeshFilter>())
-                .ToArray();
-            for (int i = 0, len = filters.Length; i < len; i++)
-            {
-                Meshes.Add(new ObjMeshState(filters[i]));
-            }
-        }
-    }
-
     /// <summary>
     /// Object that can export to OBJ.
     /// </summary>
