@@ -20,12 +20,14 @@ namespace CreateAR.SpirePlayer.IUX
             public TextPrimitive TextPrimitive;
 
             /// <summary>
+            /// Time at which the entry started.
+            /// 
             /// TODO: A proprietary solution for time?
             /// </summary>
             public float StartTime;
 
             /// <summary>
-            /// Color of the text rendering
+            /// Color of the text rendering.
             /// </summary>
             public Col4 Color;
         }
@@ -39,6 +41,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// List of active entries
         /// </summary>
         private readonly List<TextEntry> _textEntries = new List<TextEntry>();
+
+        /// <summary>
+        /// Used for timing.
+        /// </summary>
+        private float _countdown = 1.0f;
 
         /// <summary>
         /// Constructor.
@@ -75,7 +82,7 @@ namespace CreateAR.SpirePlayer.IUX
             textPrimitive.Text = text;
             textPrimitive.Parent = this;
             
-            var textEntry = new TextEntry()
+            var textEntry = new TextEntry
             {
                 TextPrimitive = textPrimitive,
                 StartTime = Time.time,
@@ -84,48 +91,33 @@ namespace CreateAR.SpirePlayer.IUX
 
             _textEntries.Add(textEntry);
         }
-
-        /// <inheritdoc cref="Element"/>
-        protected override void LoadInternal()
-        {
-            base.LoadInternal();
-        }
-
-        /// <inheritdoc cref="Element"/>
-        protected override void UnloadInternal()
-        {
-            base.UnloadInternal();
-        }
-
-        private float countdown = 1.0f;
-
-        /// <summary>
-        /// Frame Based Update
-        /// </summary>
+        
+        /// <inheritdoc />
         protected override void UpdateInternal()
         {
             base.UpdateInternal();
 
-            if (countdown > 0)
+            if (_countdown > 0)
             {
-                countdown -= Time.time;
-                if (countdown <= 0)
+                _countdown -= Time.time;
+                if (_countdown <= 0)
                 {
                     Add("Hello World!", new Col4(1,0,0,1));
                 }
             }
 
-            var fadeOutDuration = Config.CrawlFadeOutOffset.keys[Config.CrawlFadeOutOffset.keys.Length - 1].time;
+            var keys = Config.CrawlFadeOutOffset.keys;
+            var fadeOutDuration = keys[keys.Length - 1].time;
 
             // Color and position entries
             var time = Time.time;
             var offset = 0.0f;
-            for (int i = _textEntries.Count; i > 0;)
+            for (var i = _textEntries.Count; i > 0;)
             {
                 var entry = _textEntries[--i];
                 var elapsed = time - entry.StartTime;
                 var localOffset = 0.0f;
-                var alpha = 0.0f;
+                float alpha;
 
                 if (elapsed > Config.CrawlDuration)
                 {
@@ -154,10 +146,9 @@ namespace CreateAR.SpirePlayer.IUX
 
                 var scale = Config.CrawlScale.Evaluate(lerp);
                 text.LocalScale = Vector3.one * scale;
-                text.LocalPosition
-                    = Vector3.up
-                      * (offset + localOffset)
-                      - text.Forward * localOffset * Config.CrawlFadeOutDepthScale;
+                text.LocalPosition = Vector3.up
+                    * (offset + localOffset)
+                    - text.Forward * localOffset * Config.CrawlFadeOutDepthScale;
                 offset += Config.CrawlSeperation * scale;
             }
         }
