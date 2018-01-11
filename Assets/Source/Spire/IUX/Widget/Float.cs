@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
+    /// <summary>
+    /// Layout element.
+    /// </summary>
     public class Float : Widget
     {
         /// <summary>
@@ -58,7 +57,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="Element"/>
         protected override void UnloadInternal()
         {
-            
+            _primitive.Destroy();
+
+            base.UnloadInternal();
         }
     }
 }
