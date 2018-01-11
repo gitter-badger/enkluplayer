@@ -10,6 +10,16 @@ namespace CreateAR.SpirePlayer.IUX
     public class LinkRenderer : MonoBehaviour
     {
         /// <summary>
+        /// Time alive
+        /// </summary>
+        private float _elapsed;
+
+        /// <summary>
+        /// Elapsed when fade out was started
+        /// </summary>
+        private float _fadeOutStartElapsed;
+
+        /// <summary>
         /// Defines the motion of the second point moving towards the first point
         /// </summary>
         public AnimationCurve FadeInCurve = AnimationCurve.EaseInOut(0, 0, 0.4f, 1);
@@ -46,9 +56,15 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Frame based update
+        /// Begins fade out procedure
         /// </summary>
-        public void Update()
+        public void FadeOut()
+        {
+            _fadeOutStartElapsed = _elapsed;
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void Update()
         {
             _elapsed += Time.smoothDeltaTime;
 
@@ -85,23 +101,5 @@ namespace CreateAR.SpirePlayer.IUX
             LineRenderer.SetPosition(0, p0);
             LineRenderer.SetPosition(1, p1);
         }
-
-        /// <summary>
-        /// Begins fade out procedure
-        /// </summary>
-        public void FadeOut()
-        {
-            _fadeOutStartElapsed = _elapsed;
-        }
-
-        /// <summary>
-        /// Time alive
-        /// </summary>
-        private float _elapsed;
-
-        /// <summary>
-        /// Elapsed when fade out was started
-        /// </summary>
-        private float _fadeOutStartElapsed;
     }
 }
