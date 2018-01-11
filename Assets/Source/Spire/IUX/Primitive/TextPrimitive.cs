@@ -33,11 +33,6 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<int> _propFontSize;
 
         /// <summary>
-        /// Bounds.
-        /// </summary>
-        private Rectangle _rect;
-
-        /// <summary>
         /// Text getter/setter.
         /// </summary>
         public string Text
@@ -119,6 +114,9 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <summary>
+        /// Retrieves the width of the primitive.
+        /// </summary>
         public float Width
         {
             get { return Rect.size.x; }
@@ -130,6 +128,9 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <summary>
+        /// Retrieves the height of the primitive.
+        /// </summary>
         public float Height
         {
             get { return Rect.size.y; }
@@ -205,6 +206,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="Element"/>
         protected override void UnloadInternal()
         {
+            _propAlignment.OnChanged -= Alignment_OnChanged;
+            _propFont.OnChanged -= Font_OnChanged;
+            _propFontSize.OnChanged -= FontSize_OnChanged;
+
             Object.Destroy(_renderer.gameObject);
 
             base.UnloadInternal();
