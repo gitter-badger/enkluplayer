@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System.Text;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -16,58 +15,46 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public string Export(params GameObject[] objects)
         {
-            var filters = objects
-                .SelectMany(@object => @object.GetComponentsInChildren<MeshFilter>())
-                .ToArray();
-            
+            return Export(new ObjExporterState(objects));
+        }
+
+        /// <summary>
+        /// Exports an OBJ.
+        /// </summary>
+        /// <param name="info">The info to export.</param>
+        /// <returns></returns>
+        public string Export(ObjExporterState info)
+        {
             var builder = new StringBuilder();
-            for (var i = 0; i < filters.Length; i++)
+            for (var i = 0; i < info.Meshes.Count; i++)
             {
-                var filter = filters[i];
-                var mesh = UnityEngine.Application.isPlaying
-                    ? filter.mesh
-                    : filter.sharedMesh;
+                var mesh = info.Meshes[i];
 
                 builder.AppendFormat("o Object.{0}\n", i);
 
                 WriteMeshToString(
                     mesh,
-                    filter.transform.localToWorldMatrix,
                     builder);
 
                 builder.AppendFormat("\n");
             }
-            
-            return builder.ToString();
-        }
-
-        /// <summary>
-        /// Exports to obj.
-        /// </summary>
-        /// <param name="mesh">The mesh to export.</param>
-        /// <returns></returns>
-        public string Export(Mesh mesh)
-        {
-            var builder = new StringBuilder();
-            WriteMeshToString(mesh, Matrix4x4.identity, builder);
 
             return builder.ToString();
         }
 
         /// <summary>
-        /// Encodes a mesh as an OBJ.
+        /// Encodes mesh information onto a string.
         /// </summary>
-        /// <param name="mesh">The mesh in question.</param>
-        /// <param name="localToWorld">Local to world matrix.</param>
+        /// <param name="mesh">The <c>MeshInfo</c> to write.</param>
         /// <param name="builder">The builder to write to.</param>
         private static void WriteMeshToString(
-            Mesh mesh,
-            Matrix4x4 localToWorld,
+            ObjExporterState.ObjMeshState mesh,
             StringBuilder builder)
         {
-            var numVerts = mesh.vertexCount;
+            var numVerts = mesh.Vertices.Length;
 
-            var vertices = mesh.vertices;
+            var localToWorld = mesh.LocalToWorld;
+            var vertices = mesh.Vertices;
             for (var i = 0; i < numVerts; i++)
             {
                 var vertex = localToWorld.MultiplyPoint3x4(vertices[i]);
@@ -77,7 +64,7 @@ namespace CreateAR.SpirePlayer
             }
             builder.Append("\n");
 
-            var normals = mesh.normals;
+            var normals = mesh.Normals;
             if (normals.Length == numVerts)
             {
                 for (var i = 0; i < numVerts; i++)
@@ -90,7 +77,7 @@ namespace CreateAR.SpirePlayer
                 builder.Append("\n");
             }
 
-            var uvs = mesh.uv;
+            var uvs = mesh.Uv;
             if (uvs.Length == numVerts)
             {
                 for (var i = 0; i < numVerts; i++)
@@ -103,7 +90,7 @@ namespace CreateAR.SpirePlayer
                 builder.Append("\n");
             }
 
-            var triangles = mesh.triangles;
+            var triangles = mesh.Triangles;
             for (var i = 0; i < triangles.Length; i += 3)
             {
                 builder.AppendFormat(

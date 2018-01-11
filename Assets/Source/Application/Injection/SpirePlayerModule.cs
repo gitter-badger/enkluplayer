@@ -6,6 +6,7 @@ using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
+using CreateAR.Trellis;
 using Jint.Parser;
 using Jint.Unity;
 using strange.extensions.injector.impl;
@@ -38,6 +39,7 @@ namespace CreateAR.SpirePlayer
                         new JsonSerializer(),
                         LookupComponent<MonoBehaviourBootstrapper>()))
                     .ToSingleton();
+                binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IHashProvider>().To<ShaUwpHashProvider>();
@@ -111,6 +113,11 @@ namespace CreateAR.SpirePlayer
                     // tools
                     {
                         binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
+                        binder.Bind<WorldScanPipelineConfiguration>().ToValue(new WorldScanPipelineConfiguration
+                        {
+
+                        });
+                        binder.Bind<WorldScanPipeline>().To<WorldScanPipeline>().ToSingleton();
 #if NETFX_CORE
                         binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
 #endif
