@@ -170,7 +170,7 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "AutoLogin");
 
             // setup
-            _http.Headers.Add(Tuple.Create(
+            _http.Headers.Add(CreateAR.Commons.Unity.DataStructures.Tuple.Create(
                 "Authorization",
                 string.Format("Bearer {0}", config.AutoLoginToken)));
 

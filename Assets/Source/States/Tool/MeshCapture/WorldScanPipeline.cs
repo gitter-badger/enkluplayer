@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
@@ -44,7 +43,15 @@ namespace CreateAR.SpirePlayer
                 Configuration.MaxScanQueueLen,
                 Configuration.MaxOnDisk,
                 tag ?? Guid.NewGuid().ToString());
-            new Thread(_writer.Start).Start();
+
+#if NETFX_CORE
+            // here
+            System.Threading.Tasks.Task.Factory.StartNew(
+                _writer.Start,
+                System.Threading.Tasks.TaskCreationOptions.LongRunning);
+#else
+            new System.Threading.Thread(_writer.Start).Start();
+#endif
         }
 
         /// <summary>
