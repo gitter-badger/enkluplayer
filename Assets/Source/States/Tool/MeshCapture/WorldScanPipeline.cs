@@ -21,9 +21,9 @@ namespace CreateAR.SpirePlayer
         private readonly IHttpService _http;
 
         /// <summary>
-        /// Writer thread.
+        /// Worker object.
         /// </summary>
-        private WorldScanPipelineWorker _writer;
+        private WorldScanPipelineWorker _worker;
 
         /// <summary>
         /// Configuration object.
@@ -40,6 +40,7 @@ namespace CreateAR.SpirePlayer
         {
             _bootstrapper = bootstrapper;
             _http = http;
+
             Configuration = config;
         }
 
@@ -49,12 +50,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Start(string tag = null)
         {
-            if (null != _writer)
+            if (null != _worker)
             {
                 return;
             }
 
-            _writer = new WorldScanPipelineWorker(
+            _worker = new WorldScanPipelineWorker(
                 _bootstrapper,
                 _http,
                 Configuration.LockTimeoutMs,
@@ -68,7 +69,7 @@ namespace CreateAR.SpirePlayer
                 _writer.Start,
                 System.Threading.Tasks.TaskCreationOptions.LongRunning);
 #else
-            new System.Threading.Thread(_writer.Start).Start();
+            new System.Threading.Thread(_worker.Start).Start();
 #endif
         }
 
@@ -77,13 +78,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Stop()
         {
-            if (null == _writer)
+            if (null == _worker)
             {
                 return;
             }
 
-            _writer.Kill();
-            _writer = null;
+            _worker.Kill();
+            _worker = null;
 
             // Thread::Join() unnecessary
         }
@@ -95,13 +96,13 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public bool Scan(params GameObject[] gameObjects)
         {
-            if (null == _writer)
+            if (null == _worker)
             {
                 Log.Warning(this, "Cannot queue scan until Start() is called.");
                 return false;
             }
 
-            return _writer.Queue(gameObjects);
+            return _worker.Queue(gameObjects);
         }
     }
 }

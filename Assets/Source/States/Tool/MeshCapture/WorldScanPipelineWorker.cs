@@ -1,179 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
-using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Util;
-using CreateAR.Trellis.Messages.CreateFile;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
-    public class NetworkFileUploader
-    {
-        private readonly IBootstrapper _bootstrapper;
-        private readonly IHttpService _http;
-        private readonly string _tags;
-
-        private bool _isAlive = false;
-        private bool _requestOut;
-        private byte[] _queue;
-        private string _fileId;
-
-        public NetworkFileUploader(
-            IBootstrapper bootstrapper,
-            IHttpService http,
-            string tags)
-        {
-            _bootstrapper = bootstrapper;
-            _http = http;
-            _tags = tags;
-        }
-
-        public void Start()
-        {
-            _isAlive = true;
-            _bootstrapper.BootstrapCoroutine(Update());
-        }
-
-        public void Stop()
-        {
-            _isAlive = false;
-        }
-
-        public void Write(byte[] bytes)
-        {
-            if (null == bytes)
-            {
-                return;
-            }
-
-            Interlocked.Exchange(ref _queue, bytes);
-        }
-
-        private IEnumerator Update()
-        {
-            while (_isAlive)
-            {
-                if (!_requestOut && null != _queue)
-                {
-                    _requestOut = true;
-
-                    var bytes = _queue;
-                    Interlocked.CompareExchange(ref _queue, null, bytes);
-
-                    if (string.IsNullOrEmpty(_fileId))
-                    {
-                        Create(bytes);
-                    }
-                    else
-                    {
-                        Update(bytes);
-                    }
-                }
-
-                yield return null;
-            }
-        }
-
-        private void Create(byte[] bytes)
-        {
-            Log.Info(this, "Creating new file.");
-
-            _http
-                .PostFile<Response>(
-                    _http.UrlBuilder.Url("file"),
-                    new List<Tuple<string, string>>
-                    {
-                        Tuple.Create("tags", _tags)
-                    },
-                    ref bytes)
-                .OnSuccess(response =>
-                {
-                    if (null != response.Payload
-                        && response.Payload.Success)
-                    {
-                        _fileId = response.Payload.Body.Id;
-
-                        Log.Info(this, "Successfully created file.");
-                    }
-                    else
-                    {
-                        Log.Error(this,
-                            "Could not create file : {0}",
-                            null == response.Payload
-                                ? response.NetworkError
-                                : response.Payload.Error);
-                    }
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this,
-                        "Could not create file : {0}.",
-                        exception.Message);
-                })
-                .OnFinally(_ =>
-                {
-                    _requestOut = false;
-                    ProcessQueue();
-                });
-        }
-
-        private void Update(byte[] bytes)
-        {
-            Log.Info(this, "Updating existing file.");
-
-            _http
-                .PutFile<Trellis.Messages.UpdateFile.Response>(
-                    _http.UrlBuilder.Url("file/" + _fileId),
-                    new List<Tuple<string, string>>(),
-                    ref bytes)
-                .OnSuccess(response =>
-                {
-                    if (null != response.Payload
-                        && response.Payload.Success)
-                    {
-                        Log.Info(this, "Successfully updated file.");
-                    }
-                    else
-                    {
-                        Log.Error(this,
-                            "Could not create file : {0}",
-                            null == response.Payload
-                                ? "Unknown."
-                                : response.Payload.Error);
-                    }
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this,
-                        "Could not create file : {0}.",
-                        exception.Message);
-                })
-                .OnFinally(_ =>
-                {
-                    _requestOut = false;
-                    ProcessQueue();
-                });
-        }
-
-        private void ProcessQueue()
-        {
-            if (null == _queue)
-            {
-                return;
-            }
-
-            var next = _queue;
-            _queue = null;
-
-            Write(next);
-        }
-    }
-
     /// <summary>
     /// Long-running thread that process a scan.
     /// </summary>
@@ -208,7 +43,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Uploads a file over and over, serially.
         /// </summary>
-        private readonly NetworkFileUploader _fileUploader;
+        private readonly FileResourceUpdater _fileUploader;
         
         /// <summary>
         /// World scan queue.
@@ -262,7 +97,7 @@ namespace CreateAR.SpirePlayer
                 tag,
                 "obj",
                 maxOnDisk);
-            _fileUploader = new NetworkFileUploader(
+            _fileUploader = new FileResourceUpdater(
                 bootstrapper,
                 http,
                 "worldscan");
