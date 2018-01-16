@@ -35,6 +35,7 @@ namespace CreateAR.SpirePlayer
         private readonly IBootstrapper _bootstrapper;
         private readonly IVoiceCommandManager _voice;
         private readonly IMessageRouter _messages;
+        private readonly WorldScanPipeline _pipeline;
 
         /// <summary>
         /// Keeps track of surfaces.
@@ -72,11 +73,13 @@ namespace CreateAR.SpirePlayer
         public MeshCaptureApplicationState(
             IBootstrapper bootstrapper,
             IVoiceCommandManager voice,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            WorldScanPipeline pipeline)
         {
             _bootstrapper = bootstrapper;
             _voice = voice;
             _messages = messages;
+            _pipeline = pipeline;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -109,6 +112,8 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             _config = null;
+
+            _pipeline.Stop();
 
             // kill voice commands
             if (!_voice.Unregister(VoiceKeywords.SAVE))
@@ -166,6 +171,8 @@ namespace CreateAR.SpirePlayer
                 Log.Error(this, "Could not register save voice command.");
             }
 
+            _pipeline.Start();
+
             _messages.Publish(MessageTypes.STATUS, "World mesh capture has begin. Say 'save' to save to disk.");
         }
 
@@ -183,6 +190,20 @@ namespace CreateAR.SpirePlayer
 
                 yield return new WaitForSecondsRealtime(UPDATE_INTERVAL_SECS);
             }
+        }
+
+        /// <summary>
+        /// Pushes changes to pipeline.
+        /// </summary>
+        private void PushToPipeline()
+        {
+            _pipeline.Scan(_surfaces.Values.ToArray());
+
+            _messages.Publish(
+                MessageTypes.STATUS,
+                new StatusEvent(
+                    "Autosave on.",
+                    3f));
         }
 
         /// <summary>
@@ -238,6 +259,8 @@ namespace CreateAR.SpirePlayer
             );
 
             _observer.RequestMeshAsync(data, SurfaceObserver_OnDataReady);
+
+            PushToPipeline();
         }
 
         /// <summary>
@@ -275,6 +298,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="save">The command received.</param>
         private void Voice_OnSave(string save)
         {
+            /*
             Log.Info(this, "Exporting...");
 
             var obj = new ObjExporter().Export(_surfaces.Values.ToArray());
@@ -297,6 +321,7 @@ namespace CreateAR.SpirePlayer
                 new StatusEvent(
                     string.Format("Saved successfully to {0}.", path),
                     3f));
+            */
         }
     }
 }
