@@ -27,6 +27,11 @@ namespace CreateAR.SpirePlayer.Editor
         private static ObjImporter _importer;
 
         /// <summary>
+        /// Configuration for entire application.
+        /// </summary>
+        public static ApplicationConfig Application { get; private set; }
+
+        /// <summary>
         /// Configuration for all environments.
         /// </summary>
         public static EnvironmentConfig Environments { get; private set; }
@@ -85,6 +90,7 @@ namespace CreateAR.SpirePlayer.Editor
 
             LoadEnvironments();
             LoadCredentials();
+            LoadApplicationConfig();
         }
 
         /// <summary>
@@ -97,9 +103,7 @@ namespace CreateAR.SpirePlayer.Editor
             Log.Info(UserSettings,
                 "Saving UserSettings to {0}.",
                 path);
-
-            SetAuthenticationHeader();
-
+            
             byte[] bytes;
             Serializer.Serialize(UserSettings, out bytes);
             var json = Encoding.UTF8.GetString(bytes);
@@ -130,7 +134,8 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private static void LoadEnvironments()
         {
-            var config = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Config/Environments.json");
+            var config = AssetDatabase.LoadAssetAtPath<TextAsset>(
+                "Assets/Resources/EnvironmentConfig.json");
             if (null == config)
             {
                 return;
@@ -173,7 +178,6 @@ namespace CreateAR.SpirePlayer.Editor
             UserSettings = (UserSettings) @object;
 
             // make sure there is an entry for every environment
-            var changed = false;
             for (int i = 0, len = Environments.Environments.Length; i < len; i++)
             {
                 var environment = Environments.Environments[i];
@@ -183,25 +187,42 @@ namespace CreateAR.SpirePlayer.Editor
                     {
                         Environment = environment.Name
                     });
-
-                    changed = true;
                 }
             }
-
-            if (changed)
-            {
-                SaveUserSettings();
-            }
-
-            SetAuthenticationHeader();
 
             Log.Info(UserSettings, "Loaded credentials {0}.", UserSettings);
         }
 
         /// <summary>
+        /// Loads application configuration.
+        /// </summary>
+        private static void LoadApplicationConfig()
+        {
+            // main configuration
+            var configAsset = Resources.Load<TextAsset>("ApplicationConfig");
+            Log.Info(configAsset, "ApplicationConfig Source:\n{0}", configAsset.text);
+
+            var serializer = new JsonSerializer();
+            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
+
+            object app;
+            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
+
+            Application = (ApplicationConfig) app;
+
+            // set up HttpService
+            var env = Environments.Environment("dev");
+            Http.UrlBuilder.BaseUrl = env.Hostname;
+            Http.UrlBuilder.Port = env.Port;
+            Http.UrlBuilder.Version = env.ApiVersion;
+
+            SetAuthenticationHeader(Application.Network.AutoLoginToken);
+        }
+
+        /// <summary>
         /// Sets the auth header.
         /// </summary>
-        private static void SetAuthenticationHeader()
+        private static void SetAuthenticationHeader(string token)
         {
             // remove Authentication
             for (int i = 0, len = Http.Headers.Count; i < len; i++)
@@ -215,15 +236,11 @@ namespace CreateAR.SpirePlayer.Editor
                 }
             }
 
-            var creds = UserSettings.Credentials(UserSettings.Environment);
-            if (null != creds && !string.IsNullOrEmpty(creds.Token))
-            {
-                Log.Info(UserSettings, "Setting Authorization header.");
+            Log.Info(UserSettings, "Setting Authorization header.");
 
-                Http.Headers.Add(Tuple.Create(
-                    "Authorization",
-                    string.Format("Bearer {0}", creds.Token)));
-            }
+            Http.Headers.Add(Tuple.Create(
+                "Authorization",
+                string.Format("Bearer {0}", token)));
         }
 
         /// <summary>

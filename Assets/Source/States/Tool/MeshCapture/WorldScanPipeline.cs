@@ -66,7 +66,7 @@ namespace CreateAR.SpirePlayer
 #if NETFX_CORE
             // here
             System.Threading.Tasks.Task.Factory.StartNew(
-                _writer.Start,
+                _worker.Start,
                 System.Threading.Tasks.TaskCreationOptions.LongRunning);
 #else
             new System.Threading.Thread(_worker.Start).Start();

@@ -18,7 +18,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Views to render.
         /// </summary>
-        private readonly TrellisSettingsView _settingsView = new TrellisSettingsView();
+        private readonly LoginView _settingsView = new LoginView();
         private readonly HttpControllerView _controllerView = new HttpControllerView();
         private readonly WorldScanView _worldScanView = new WorldScanView();
         
@@ -42,13 +42,12 @@ namespace CreateAR.SpirePlayer.Editor
 
             _tabs.Tabs = new TabComponent[]
             {
-                new ViewTabComponent("Settings", _settingsView),
+                //new ViewTabComponent("Login", _settingsView),
                 new ViewTabComponent("World Scans", _worldScanView),
-                new ViewTabComponent("Controllers", _controllerView)
+                //new ViewTabComponent("Controllers", _controllerView)
             };
 
             _settingsView.OnConnected += Settings_OnConnected;
-            _settingsView.Connect();
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>

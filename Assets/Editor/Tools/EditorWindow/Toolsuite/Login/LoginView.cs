@@ -11,9 +11,9 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 namespace CreateAR.SpirePlayer.Editor
 {
     /// <summary>
-    /// Draws controls for setting up Trellis integration.
+    /// Draws controls for logging into Trellis.
     /// </summary>
-    public class TrellisSettingsView : IEditorView
+    public class LoginView : IEditorView
     {
         /// <summary>
         /// Message to display.
