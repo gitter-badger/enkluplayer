@@ -65,6 +65,11 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         static EditorApplication()
         {
+            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                return;
+            }
+
             Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
             {
                 Timestamp = false,
