@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -9,6 +10,7 @@ using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis;
 using Jint.Parser;
 using Jint.Unity;
+using LightJson;
 using strange.extensions.injector.impl;
 using UnityEngine;
 using UnityEngine.XR.iOS;
@@ -25,8 +27,17 @@ namespace CreateAR.SpirePlayer
         public void Load(InjectionBinder binder)
         {
             // main configuration
-            var configText = Resources.Load<TextAsset>("ApplicationConfig");
-            var config = JsonUtility.FromJson<ApplicationConfig>(configText.text);
+            var configAsset = Resources.Load<TextAsset>("ApplicationConfig");
+            Log.Info(this, "ApplicationConfig Source:\n{0}", configAsset.text);
+
+            var serializer = new JsonSerializer();
+            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
+            object app;
+            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
+
+            var config = (ApplicationConfig) app;
+            Log.Info(this, "ApplicationConfig:\n{0}", config);
+
             binder.Bind<ApplicationConfig>().ToValue(config);
 
             // misc dependencies
@@ -70,12 +81,6 @@ namespace CreateAR.SpirePlayer
 
             // application
             {
-                if (config.Mode == PlayMode.Release)
-                {
-                    binder.Bind<IBridge>().To<ReleaseBridge>().ToSingleton();
-                }
-                else
-                {
 #if UNITY_EDITOR || UNITY_IOS
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
@@ -83,8 +88,7 @@ namespace CreateAR.SpirePlayer
 #elif NETFX_CORE
                     binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
 #endif
-                }
-
+                
                 // spire-specific bindings
                 AddSpireBindings(binder);
 

@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
+using CreateAR.Trellis;
+using CreateAR.Trellis.Messages.RefreshToken;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -39,6 +43,7 @@ namespace CreateAR.SpirePlayer
         private readonly IArService _ar;
         private readonly BleServiceConfiguration _bleConfig;
         private readonly IBleService _ble;
+        private readonly ApiController _api;
 
         /// <summary>
         /// Time at which we started looking for the floor.
@@ -57,7 +62,8 @@ namespace CreateAR.SpirePlayer
             ArServiceConfiguration arConfig,
             IArService ar,
             BleServiceConfiguration bleConfig,
-            IBleService ble)
+            IBleService ble,
+            ApiController api)
         {
             _messages = messages;
             _http = http;
@@ -68,11 +74,14 @@ namespace CreateAR.SpirePlayer
             _ar = ar;
             _bleConfig = bleConfig;
             _ble = ble;
+            _api = api;
         }
 
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
+            var config = (ApplicationConfig) context;
+
             _messages.Publish(MessageTypes.STATUS, "Initializing...");
 
             // ar
@@ -82,10 +91,7 @@ namespace CreateAR.SpirePlayer
             _ble.Setup(_bleConfig);
             
             // setup http
-            _http.UrlBuilder.Protocol = "http";
-            _http.UrlBuilder.BaseUrl = "localhost";
-            _http.UrlBuilder.Port = 9999;
-            _http.UrlBuilder.Version = "v1";
+            _http.UrlBuilder.FromUrl(config.Network.TrellisUrl);
 
             // setup assets
             var loader = new StandardAssetLoader(
@@ -107,14 +113,24 @@ namespace CreateAR.SpirePlayer
             _assets.Uninitialize();
             
             // wait for assets to initialize and for the floor to be recognized
+            var tasks = new List<IAsyncToken<Void>>
+            {
+                _assets.Initialize(new AssetManagerConfiguration
+                {
+                    Loader = loader,
+                    Queries = new StandardQueryResolver()
+                }),
+                FindFloor()
+            };
+
+            // if we're logging in automatically, also wait for login
+            if (config.Network.AutoLogin)
+            {
+                tasks.Add(Login(config.Network));
+            }
+
             Async
-                .All(
-                    _assets.Initialize(new AssetManagerConfiguration
-                    {
-                        Loader = loader,
-                        Queries = new StandardQueryResolver()
-                    }),
-                    FindFloor())
+                .All(tasks.ToArray())
                 .OnSuccess(_ =>
                 {
                     _messages.Publish(MessageTypes.READY, Void.Instance);
@@ -140,6 +156,52 @@ namespace CreateAR.SpirePlayer
             {
                 anchor.ClearTags();
             }
+        }
+
+        /// <summary>
+        /// Automatically connects to Trellis.
+        /// </summary>
+        /// <param name="config">Configuration.</param>
+        /// <returns></returns>
+        private IAsyncToken<Void> Login(ApplicationNetworkConfig config)
+        {
+            var token = new AsyncToken<Void>();
+
+            Log.Info(this, "AutoLogin");
+
+            // setup
+            _http.Headers.Add(Tuple.Create(
+                "Authorization",
+                string.Format("Bearer {0}", config.AutoLoginToken)));
+
+            _api
+                .Users
+                .RefreshToken(config.AutoLoginUserId, new Request
+                {
+                    Token = config.AutoLoginToken
+                })
+                .OnSuccess(response =>
+                {
+                    if (null == response.Payload || !response.Payload.Success)
+                    {
+                        var message = string.Format("Could not refresh token : {0}.",
+                            null != response.Payload
+                                ? response.Payload.Error
+                                : "Unknown");
+                        Log.Error(this, message);
+
+                        token.Fail(new Exception(message));
+                    }
+                    else
+                    {
+                        // TODO: resave token
+
+                        token.Succeed(Void.Instance);
+                    }
+                })
+                .OnFailure(token.Fail);
+
+            return token;
         }
 
         /// <summary>

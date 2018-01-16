@@ -67,24 +67,7 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Application ready.");
 
-                    switch (_config.Mode)
-                    {
-                        case PlayMode.Null:
-                        {
-                            _states.Change(null);
-                            return;
-                        }
-                        case PlayMode.Tool:
-                        {
-                            _states.Change<ToolModeApplicationState>();
-                            return;
-                        }
-                        default:
-                        {
-                            _states.Change<WaitingForConnectionApplicationState>();
-                            return;
-                        }
-                    }
+                    _states.Change<ToolModeApplicationState>();
                 });
 
             Subscribe<PreviewEvent>(
@@ -134,7 +117,7 @@ namespace CreateAR.SpirePlayer
 #endif
                 });
 
-            _states.Change<InitializeApplicationState>();
+            _states.Change<InitializeApplicationState>(_config);
         }
 
         /// <inheritdoc cref="ApplicationService"/>
