@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
@@ -10,9 +11,19 @@ namespace CreateAR.SpirePlayer
     public class WorldScanPipeline
     {
         /// <summary>
+        /// Bootstraps on the main thread.
+        /// </summary>
+        private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Http service.
+        /// </summary>
+        private readonly IHttpService _http;
+
+        /// <summary>
         /// Writer thread.
         /// </summary>
-        private WorldScanPipelineWriterThread _writer;
+        private WorldScanPipelineWorker _writer;
 
         /// <summary>
         /// Configuration object.
@@ -22,8 +33,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public WorldScanPipeline(WorldScanPipelineConfiguration config)
+        public WorldScanPipeline(
+            IBootstrapper bootstrapper,
+            IHttpService http,
+            WorldScanPipelineConfiguration config)
         {
+            _bootstrapper = bootstrapper;
+            _http = http;
             Configuration = config;
         }
 
@@ -38,7 +54,9 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            _writer = new WorldScanPipelineWriterThread(
+            _writer = new WorldScanPipelineWorker(
+                _bootstrapper,
+                _http,
                 Configuration.LockTimeoutMs,
                 Configuration.MaxScanQueueLen,
                 Configuration.MaxOnDisk,
