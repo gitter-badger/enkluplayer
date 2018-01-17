@@ -8,9 +8,9 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Imports Objs at runtime in a threadpool.
+    /// Imports meshes at runtime in a threadpool.
     /// </summary>
-    public class ObjImporter
+    public class MeshImporter
     {
         /// <summary>
         /// Internal state.
@@ -18,9 +18,9 @@ namespace CreateAR.SpirePlayer
         private class ObjImportState
         {
             /// <summary>
-            /// Obj source.
+            /// Source buffer.
             /// </summary>
-            public string Obj;
+            public byte[] Bytes;
 
             /// <summary>
             /// Callback that receives a method for construction. This allows
@@ -42,7 +42,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ObjImporter(IBootstrapper bootstrapper)
+        public MeshImporter(IBootstrapper bootstrapper)
         {
             bootstrapper.BootstrapCoroutine(Synchronize());
         }
@@ -56,19 +56,19 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Imports an obj from source text. The callback is passed a function
+        /// Imports an obj from source bytes. The callback is passed a function
         /// that will construct the meshes on a GameObject. This allows the 
         /// caller of this method to decide when to actually create the meshes.
         /// </summary>
-        /// <param name="obj">The obj source text.</param>
+        /// <param name="bytes">The obj source text.</param>
         /// <param name="callback">The callback.</param>
         public void Import(
-            string obj,
+            byte[] bytes,
             Action<Action<GameObject>> callback)
         {
             var state = new ObjImportState
             {
-                Obj = obj,
+                Bytes = bytes,
                 Callback = callback
             };
 
@@ -112,7 +112,7 @@ namespace CreateAR.SpirePlayer
         private static void Process(object state)
         {
             var importState = (ObjImportState) state;
-            var meshes = OBJLoader.LoadOBJFile(importState.Obj);
+            var collection = ImportBytes(importState.Bytes);
 
             lock (_synchronizedActions)
             {
@@ -122,9 +122,9 @@ namespace CreateAR.SpirePlayer
                     importState.Callback(gameObject =>
                     {
                         // APPLY
-                        foreach (var mesh in meshes)
+                        foreach (var mesh in collection.Meshes)
                         {
-                            var child = new GameObject(mesh.Name);
+                            var child = new GameObject();
                             child.transform.parent = gameObject.transform;
                             child.transform.localScale = new Vector3(-1, 1, 1);
                             child.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard (Specular setup)"));
@@ -135,32 +135,82 @@ namespace CreateAR.SpirePlayer
                 });
             }
         }
-        
+
+        /// <summary>
+        /// Imports bytes into a collection of <c>MeshState</c> objects.
+        /// </summary>
+        /// <param name="bytes">The bytes to import.</param>
+        /// <returns></returns>
+        private static MeshStateCollection ImportBytes(byte[] bytes)
+        {
+            var collection = new MeshStateCollection();
+
+            var index = 0;
+            while (index < bytes.Length)
+            {
+                var state = new MeshStateCollection.MeshState();
+                collection.Meshes.Add(state);
+
+                int numVerts, numTris;
+                
+                // read header
+                {
+                    // num verts
+                    numVerts = BitConverter.ToInt32(bytes, index); index += 4;
+
+                    // num tris
+                    numTris = BitConverter.ToInt32(bytes, index); index += 4;
+                }
+
+                // read verts
+                {
+                    state.Vertices = new Vector3[numVerts];
+
+                    for (var i = 0; i < numVerts; i++)
+                    {
+                        state.Vertices[i] = new Vector3(
+                            BitConverter.ToSingle(bytes, index),
+                            BitConverter.ToSingle(bytes, index + 4),
+                            BitConverter.ToSingle(bytes, index + 8));
+
+                        index += 12;
+                    }
+                }
+
+                // read triangles
+                {
+                    state.Triangles = new int[numTris * 3];
+
+                    for (var i = 0; i < numTris; i++)
+                    {
+                        state.Triangles[i] = BitConverter.ToUInt16(bytes, index); index += 2;
+                        state.Triangles[i + 1] = BitConverter.ToUInt16(bytes, index); index += 2;
+                        state.Triangles[i + 2] = BitConverter.ToUInt16(bytes, index); index += 2;
+
+                        index += 6;
+                    }
+                }
+            }
+
+            return collection;
+        }
+
         /// <summary>
         /// Applies the MeshInfo to a GameObject.
         /// </summary>
         /// <param name="gameObject">The GameObject.</param>
         /// <param name="info">The mesh information.</param>
-        private static void ApplyMesh(GameObject gameObject, OBJLoader.MeshInfo info)
+        private static void ApplyMesh(
+            GameObject gameObject,
+            MeshStateCollection.MeshState info)
         {
             var mesh = new Mesh
             {
                 vertices = info.Vertices,
-                normals = info.Normals,
-                uv = info.Uvs,
-                subMeshCount = info.SubMeshCount
+                triangles = info.Triangles
             };
 
-            for (var i = 0; i < info.Triangles.Length; i++)
-            {
-                mesh.SetTriangles(info.Triangles[i], i);
-            }
-
-            if (!info.HasNormals)
-            {
-                mesh.RecalculateNormals();
-            }
-
+            mesh.RecalculateNormals();
             mesh.RecalculateBounds();
 
             gameObject.AddComponent<MeshFilter>().mesh = mesh;

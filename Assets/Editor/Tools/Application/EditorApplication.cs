@@ -23,10 +23,19 @@ namespace CreateAR.SpirePlayer.Editor
         private static readonly EditorBootstrapper _bootstrapper = new EditorBootstrapper();
 
         /// <summary>
+        /// Log target we add and remove.
+        /// </summary>
+        private static readonly ILogTarget _logTarget = new UnityLogTarget(new DefaultLogFormatter
+        {
+            Timestamp = false,
+            Level = false
+        });
+
+        /// <summary>
         /// Obj importer, lazily created.
         /// </summary>
-        private static ObjImporter _importer;
-        
+        private static MeshImporter _importer;
+
         /// <summary>
         /// Managed configuration.
         /// </summary>
@@ -43,13 +52,13 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Lazily create this importer as it has a long-running coroutine.
         /// </summary>
-        public static ObjImporter ObjImporter
+        public static MeshImporter MeshImporter
         {
             get
             {
                 if (null == _importer)
                 {
-                    _importer = new ObjImporter(Bootstrapper);
+                    _importer = new MeshImporter(Bootstrapper);
                 }
 
                 return _importer;
@@ -97,12 +106,7 @@ namespace CreateAR.SpirePlayer.Editor
 
             _isRunning = true;
 
-            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
-            {
-                Timestamp = false,
-                Level = false
-            }));
-
+            Log.AddLogTarget(_logTarget);
             Log.Debug(null, "Intialize().");
 
             UnityEditor.EditorApplication.update += _bootstrapper.Update;
@@ -125,6 +129,7 @@ namespace CreateAR.SpirePlayer.Editor
             _isRunning = false;
 
             Log.Debug(null, "Unintialize().");
+            Log.RemoveLogTarget(_logTarget);
 
             Config.OnUpdate -= Config_OnUpdate;
             Config.Teardown();

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using CreateAR.Commons.Unity.Editor;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis.Messages.GetMyFilesByTags;
@@ -155,14 +153,14 @@ namespace CreateAR.SpirePlayer.Editor
                         {
                             Log.Info(this, "Downloaded {0} bytes.", response.Payload.Length);
 
-                            var source = Encoding.UTF8.GetString(response.Payload);
+                            var source = response.Payload;
                             EditorUtility.DisplayProgressBar(
                                 "Importing",
                                 "Please wait...",
                                 0.25f);
 
                             EditorApplication
-                                .ObjImporter
+                                .MeshImporter
                                 .Import(source, action =>
                                 {
                                     action(new GameObject("Import"));

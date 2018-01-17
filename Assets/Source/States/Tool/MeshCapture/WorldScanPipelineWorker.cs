@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -22,7 +21,7 @@ namespace CreateAR.SpirePlayer
             /// <summary>
             /// The ObjExporter snapshot.
             /// </summary>
-            public ObjExporterState State;
+            public MeshStateCollection State;
         }
         
         /// <summary>
@@ -58,7 +57,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Exporter.
         /// </summary>
-        private readonly ObjExporter _exporter = new ObjExporter();
+        private readonly MeshExporter _exporter = new MeshExporter();
 
         /// <summary>
         /// True iff the thread should be running.
@@ -130,8 +129,7 @@ namespace CreateAR.SpirePlayer
                 }
 
                 // process
-                var obj = _exporter.Export(record.State);
-                var bytes = Encoding.UTF8.GetBytes(obj);
+                var bytes = _exporter.Export(record.State);
 
                 // write to disk
                 _fileWriter.Write(bytes);
@@ -158,7 +156,7 @@ namespace CreateAR.SpirePlayer
                 {
                     _queue.Enqueue(new WorldScanRecord
                     {
-                        State = new ObjExporterState(objects)
+                        State = new MeshStateCollection(objects)
                     });
 
                     // discard
