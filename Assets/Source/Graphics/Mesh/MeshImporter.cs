@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using CreateAR.Commons.Unity.Http;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -126,7 +127,6 @@ namespace CreateAR.SpirePlayer
                         {
                             var child = new GameObject();
                             child.transform.parent = gameObject.transform;
-                            child.transform.localScale = new Vector3(-1, 1, 1);
                             child.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard (Specular setup)"));
 
                             ApplyMesh(child, mesh);
@@ -183,14 +183,19 @@ namespace CreateAR.SpirePlayer
 
                     for (var i = 0; i < numTris; i++)
                     {
-                        state.Triangles[i] = BitConverter.ToUInt16(bytes, index); index += 2;
-                        state.Triangles[i + 1] = BitConverter.ToUInt16(bytes, index); index += 2;
-                        state.Triangles[i + 2] = BitConverter.ToUInt16(bytes, index); index += 2;
+                        state.Triangles[i * 3] = BitConverter.ToUInt16(bytes, index);
+                        index += 2;
 
-                        index += 6;
+                        state.Triangles[i * 3 + 1] = BitConverter.ToUInt16(bytes, index);
+                        index += 2;
+
+                        state.Triangles[i * 3 + 2] = BitConverter.ToUInt16(bytes, index);
+                        index += 2;
                     }
                 }
             }
+
+            Assert.AreEqual(index, bytes.Length, "Index mismatch.");
 
             return collection;
         }
@@ -204,11 +209,10 @@ namespace CreateAR.SpirePlayer
             GameObject gameObject,
             MeshStateCollection.MeshState info)
         {
-            var mesh = new Mesh
-            {
-                vertices = info.Vertices,
-                triangles = info.Triangles
-            };
+            var mesh = new Mesh();
+            mesh.vertices = info.Vertices;
+            mesh.triangles = info.Triangles;
+            mesh.UploadMeshData(false);
 
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();

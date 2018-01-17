@@ -21,13 +21,15 @@ namespace CreateAR.SpirePlayer.Test
             {
                 return;
             }
+            
+            File.WriteAllBytes(
+                path,
+                new MeshExporter().Export(Selection.gameObjects));
 
-            using (var stream = File.OpenWrite(path))
-            {
-                var bytes = new MeshExporter().Export(Selection.gameObjects);
-
-                stream.Write(bytes, 0, bytes.Length);
-            }
+            EditorUtility.DisplayDialog(
+                "Export",
+                string.Format("Mesh exported to {0}.", path),
+                "Ok");
         }
 
         /// <summary>
@@ -50,13 +52,18 @@ namespace CreateAR.SpirePlayer.Test
             {
                 return;
             }
-
+            
             var bytes = File.ReadAllBytes(path);
             EditorApplication.MeshImporter.Import(
                 bytes,
                 execute =>
                 {
                     execute(new GameObject());
+
+                    EditorUtility.DisplayDialog(
+                        "Import",
+                        "Mesh imported.",
+                        "Ok");
                 });
         }
     }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text;
+using CreateAR.Commons.Unity.Logging;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -34,7 +36,7 @@ namespace CreateAR.SpirePlayer
             {
                 size += 8;                          // header   -- two ints
                 size += meshes[i].NumVerts * 3 * 4; // verts    -- three floats
-                size += meshes[i].NumTris * 3 * 2;  // tris     -- three ushorts
+                size += meshes[i].NumTris * 3 * 2;  // tris     -- three ints
             }
             
             // allocate
@@ -55,12 +57,16 @@ namespace CreateAR.SpirePlayer
                         4);
                     index += 4;
 
+                    Log(mesh.NumVerts);
+
                     // num tris
                     Array.Copy(
                         BitConverter.GetBytes(mesh.NumTris), 0,
                         buffer, index,
                         4);
                     index += 4;
+
+                    Log(mesh.NumTris);
                 }
 
                 // pack verts
@@ -71,8 +77,8 @@ namespace CreateAR.SpirePlayer
                     {
                         var vert = localToWorld.MultiplyPoint3x4(verts[j]);
                         var x = BitConverter.GetBytes(vert.x);
-                        var y = BitConverter.GetBytes(vert.x);
-                        var z = BitConverter.GetBytes(vert.x);
+                        var y = BitConverter.GetBytes(vert.y);
+                        var z = BitConverter.GetBytes(vert.z);
 
                         Array.Copy(x, 0, buffer, index, 4); index += 4;
                         Array.Copy(y, 0, buffer, index, 4); index += 4;
@@ -96,9 +102,14 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
-            Assert.IsTrue(index == buffer.Length, "Index mismatch.");
-
+            Assert.AreEqual(index, buffer.Length, "Index mismatch.");
+            
             return buffer;
+        }
+
+        private static void Log(object value)
+        {
+
         }
     }
 }
