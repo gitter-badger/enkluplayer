@@ -13,6 +13,11 @@ namespace CreateAR.SpirePlayer.Editor
     public static class EditorApplication
     {
         /// <summary>
+        /// True iff the app has been initialized.
+        /// </summary>
+        private static bool _isRunning;
+
+        /// <summary>
         /// Backing variable for Bootstrapper.
         /// </summary>
         private static readonly EditorBootstrapper _bootstrapper = new EditorBootstrapper();
@@ -52,30 +57,19 @@ namespace CreateAR.SpirePlayer.Editor
         }
 
         /// <summary>
+        /// True iff editor app is initialized.
+        /// </summary>
+        public static bool IsRunning
+        {
+            get { return _isRunning; }
+        }
+
+        /// <summary>
         /// Static constructor.
         /// </summary>
         static EditorApplication()
         {
-            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
-            {
-                return;
-            }
-
-            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
-            {
-                Timestamp = false,
-                Level = false
-            }));
-            
-            UnityEditor.EditorApplication.update += _bootstrapper.Update;
             UnityEditor.EditorApplication.update += WatchForUninit;
-            
-            Serializer = new JsonSerializer();
-            Http = new EditorHttpService(Serializer, Bootstrapper);
-            Api = new ApiController(Http);
-            Config = new EditorConfigurationManager();
-            Config.OnUpdate += Config_OnUpdate;
-            Config.Startup();
         }
 
         /// <summary>
@@ -86,15 +80,57 @@ namespace CreateAR.SpirePlayer.Editor
             if (UnityEditor.EditorApplication.isCompiling
                 || UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                Config.OnUpdate -= Config_OnUpdate;
-                Config.Teardown();
-                Http.Abort();
-
-                Log.Info(Bootstrapper, "Shutting down bootstrapper.");
-
-                UnityEditor.EditorApplication.update -= _bootstrapper.Update;
-                UnityEditor.EditorApplication.update -= WatchForUninit;
+                Uninit();
             }
+            else if (!UnityEditor.EditorApplication.isPlaying)
+            {
+                Init();
+            }
+        }
+
+        private static void Init()
+        {
+            if (_isRunning)
+            {
+                return;
+            }
+
+            _isRunning = true;
+
+            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
+            {
+                Timestamp = false,
+                Level = false
+            }));
+
+            Log.Debug(null, "Intialize().");
+
+            UnityEditor.EditorApplication.update += _bootstrapper.Update;
+
+            Serializer = new JsonSerializer();
+            Http = new EditorHttpService(Serializer, Bootstrapper);
+            Api = new ApiController(Http);
+            Config = new EditorConfigurationManager();
+            Config.OnUpdate += Config_OnUpdate;
+            Config.Startup();
+        }
+
+        private static void Uninit()
+        {
+            if (!_isRunning)
+            {
+                return;
+            }
+
+            _isRunning = false;
+
+            Log.Debug(null, "Unintialize().");
+
+            Config.OnUpdate -= Config_OnUpdate;
+            Config.Teardown();
+            Http.Abort();
+
+            UnityEditor.EditorApplication.update -= _bootstrapper.Update;
         }
 
         /// <summary>

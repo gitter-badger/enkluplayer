@@ -76,6 +76,11 @@ namespace CreateAR.SpirePlayer.Editor
         /// <inheritdoc cref="MonoBehaviour"/>
         private void OnGUI()
         {
+            if (!EditorApplication.IsRunning)
+            {
+                return;
+            }
+
             GUI.skin = (GUISkin) EditorGUIUtility.Load("Default.guiskin");
 
             GUILayout.BeginHorizontal();
