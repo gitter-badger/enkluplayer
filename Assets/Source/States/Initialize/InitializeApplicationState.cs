@@ -90,7 +90,10 @@ namespace CreateAR.SpirePlayer
             _ble.Setup(_bleConfig);
             
             // setup http
-            _http.UrlBuilder.FromUrl(config.Network.TrellisUrl);
+            var env = config.Network.Environment(config.Network.Current);
+            _http.UrlBuilder.BaseUrl = env.BaseUrl;
+            _http.UrlBuilder.Version = env.ApiVersion;
+            _http.UrlBuilder.Port = env.Port;
 
             // setup assets
             var loader = new StandardAssetLoader(
@@ -162,22 +165,23 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="config">Configuration.</param>
         /// <returns></returns>
-        private IAsyncToken<Void> Login(ApplicationNetworkConfig config)
+        private IAsyncToken<Void> Login(NetworkConfig config)
         {
             var token = new AsyncToken<Void>();
 
             Log.Info(this, "AutoLogin");
 
             // setup
-            _http.Headers.Add(CreateAR.Commons.Unity.DataStructures.Tuple.Create(
+            var creds = config.Credentials(config.Current);
+            _http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
                 "Authorization",
-                string.Format("Bearer {0}", config.AutoLoginToken)));
+                string.Format("Bearer {0}", creds.Token)));
 
             _api
                 .Users
-                .RefreshToken(config.AutoLoginUserId, new Request
+                .RefreshToken(creds.UserId, new Request
                 {
-                    Token = config.AutoLoginToken
+                    Token = creds.Token
                 })
                 .OnSuccess(response =>
                 {

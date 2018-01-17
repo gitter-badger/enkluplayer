@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Editor;
+﻿using CreateAR.Commons.Unity.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -18,7 +17,8 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Views to render.
         /// </summary>
-        private readonly LoginView _settingsView = new LoginView();
+        private readonly LoginView _loginView = new LoginView();
+        private readonly DetailsView _detailsView = new DetailsView();
         private readonly HttpControllerView _controllerView = new HttpControllerView();
         private readonly WorldScanView _worldScanView = new WorldScanView();
         
@@ -36,18 +36,20 @@ namespace CreateAR.SpirePlayer.Editor
         {
             titleContent = new GUIContent("Trellis");
             
-            _settingsView.OnRepaintRequested += Repaint;
+            _loginView.OnRepaintRequested += Repaint;
+            _detailsView.OnRepaintRequested += Repaint;
             _controllerView.OnRepaintRequested += Repaint;
             _tabs.OnRepaintRequested += Repaint;
 
             _tabs.Tabs = new TabComponent[]
             {
-                //new ViewTabComponent("Login", _settingsView),
+                //new ViewTabComponent("Login", _loginView),
+                new ViewTabComponent("Details", _detailsView), 
                 new ViewTabComponent("World Scans", _worldScanView),
                 //new ViewTabComponent("Controllers", _controllerView)
             };
 
-            _settingsView.OnConnected += Settings_OnConnected;
+            _loginView.OnConnected += Login_OnConnected;
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>
@@ -57,7 +59,8 @@ namespace CreateAR.SpirePlayer.Editor
 
             _tabs.OnRepaintRequested -= Repaint;
             _controllerView.OnRepaintRequested -= Repaint;
-            _settingsView.OnRepaintRequested -= Repaint;
+            _detailsView.OnRepaintRequested -= Repaint;
+            _loginView.OnRepaintRequested -= Repaint;
         }
         
         /// <inheritdoc cref="MonoBehaviour"/>
@@ -85,7 +88,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Called when we have connected to Trellis.
         /// </summary>
-        private void Settings_OnConnected()
+        private void Login_OnConnected()
         {
             _worldScanView.Refresh();
         }

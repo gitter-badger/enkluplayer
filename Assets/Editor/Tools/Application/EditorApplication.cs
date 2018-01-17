@@ -1,12 +1,8 @@
-﻿using System.IO;
-using System.Text;
-using CreateAR.Commons.Unity.DataStructures;
-using CreateAR.Commons.Unity.Http;
+﻿using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Http.Editor;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis;
 using UnityEditor;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
 {
@@ -25,21 +21,11 @@ namespace CreateAR.SpirePlayer.Editor
         /// Obj importer, lazily created.
         /// </summary>
         private static ObjImporter _importer;
-
+        
         /// <summary>
-        /// Configuration for entire application.
+        /// Managed configuration.
         /// </summary>
-        public static ApplicationConfig Application { get; private set; }
-
-        /// <summary>
-        /// Configuration for all environments.
-        /// </summary>
-        public static EnvironmentConfig Environments { get; private set; }
-
-        /// <summary>
-        /// User settings.
-        /// </summary>
-        public static UserSettings UserSettings { get; private set; }
+        public static EditorConfigurationManager Config { get; private set; }
 
         /// <summary>
         /// Dependencies.
@@ -82,141 +68,56 @@ namespace CreateAR.SpirePlayer.Editor
             }));
             
             UnityEditor.EditorApplication.update += _bootstrapper.Update;
-            UnityEditor.EditorApplication.update += WatchForCompile;
+            UnityEditor.EditorApplication.update += WatchForUninit;
             
             Serializer = new JsonSerializer();
             Http = new EditorHttpService(Serializer, Bootstrapper);
             Api = new ApiController(Http);
-
-            LoadEnvironments();
-            LoadCredentials();
-            LoadApplicationConfig();
+            Config = new EditorConfigurationManager();
+            Config.OnUpdate += Config_OnUpdate;
+            Config.Startup();
         }
 
         /// <summary>
-        /// Saves credentials to disk.
+        /// Polls Unity for uninitialize info.
         /// </summary>
-        public static void SaveUserSettings()
+        private static void WatchForUninit()
         {
-            var path = GetSettingsPath();
-
-            Log.Info(UserSettings,
-                "Saving UserSettings to {0}.",
-                path);
-            
-            byte[] bytes;
-            Serializer.Serialize(UserSettings, out bytes);
-            var json = Encoding.UTF8.GetString(bytes);
-
-            File.WriteAllText(
-                path,
-                json);
-        }
-
-        /// <summary>
-        /// Watches for uninit.
-        /// </summary>
-        private static void WatchForCompile()
-        {
-            if (UnityEditor.EditorApplication.isCompiling)
+            if (UnityEditor.EditorApplication.isCompiling
+                || UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
             {
+                Config.OnUpdate -= Config_OnUpdate;
+                Config.Teardown();
                 Http.Abort();
 
                 Log.Info(Bootstrapper, "Shutting down bootstrapper.");
 
                 UnityEditor.EditorApplication.update -= _bootstrapper.Update;
-                UnityEditor.EditorApplication.update -= WatchForCompile;
+                UnityEditor.EditorApplication.update -= WatchForUninit;
             }
         }
 
         /// <summary>
-        /// Loads information about environments.
+        /// Called when a configuration has been updated.
         /// </summary>
-        private static void LoadEnvironments()
+        private static void Config_OnUpdate()
         {
-            var config = AssetDatabase.LoadAssetAtPath<TextAsset>(
-                "Assets/Resources/EnvironmentConfig.json");
-            if (null == config)
+            // set up HttpService
+            var env = Config.Environment;
+            if (null == env)
             {
                 return;
             }
 
-            var bytes = Encoding.UTF8.GetBytes(config.text);
-            object @object;
-
-            Serializer.Deserialize(
-                typeof(EnvironmentConfig),
-                ref bytes,
-                out @object);
-
-            Environments = (EnvironmentConfig) @object;
-
-            Log.Info(Environments, "Loaded environments : {0}.", Environments);
-        }
-
-        /// <summary>
-        /// Loads credentials.
-        /// </summary>
-        private static void LoadCredentials()
-        {
-            // create settings object if one doesn't exist
-            var path = GetSettingsPath();
-            if (!File.Exists(path))
-            {
-                UserSettings = new UserSettings();
-                SaveUserSettings();
-            }
-
-            // load object
-            var json = File.ReadAllText(path);
-            var jsonBytes = Encoding.UTF8.GetBytes(json);
-            object @object;
-            Serializer.Deserialize(
-                typeof(UserSettings),
-                ref jsonBytes,
-                out @object);
-            UserSettings = (UserSettings) @object;
-
-            // make sure there is an entry for every environment
-            for (int i = 0, len = Environments.Environments.Length; i < len; i++)
-            {
-                var environment = Environments.Environments[i];
-                if (null == UserSettings.Credentials(environment.Name))
-                {
-                    UserSettings.All = UserSettings.All.Add(new EnvironmentCredentials
-                    {
-                        Environment = environment.Name
-                    });
-                }
-            }
-
-            Log.Info(UserSettings, "Loaded credentials {0}.", UserSettings);
-        }
-
-        /// <summary>
-        /// Loads application configuration.
-        /// </summary>
-        private static void LoadApplicationConfig()
-        {
-            // main configuration
-            var configAsset = Resources.Load<TextAsset>("ApplicationConfig");
-            Log.Info(configAsset, "ApplicationConfig Source:\n{0}", configAsset.text);
-
-            var serializer = new JsonSerializer();
-            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
-
-            object app;
-            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
-
-            Application = (ApplicationConfig) app;
-
-            // set up HttpService
-            var env = Environments.Environment("dev");
-            Http.UrlBuilder.BaseUrl = env.Hostname;
+            Http.UrlBuilder.BaseUrl = env.BaseUrl;
             Http.UrlBuilder.Port = env.Port;
             Http.UrlBuilder.Version = env.ApiVersion;
 
-            SetAuthenticationHeader(Application.Network.AutoLoginToken);
+            var credentials = Config.Credentials;
+            if (null != credentials)
+            {
+                SetAuthenticationHeader(credentials.Token);
+            }
         }
 
         /// <summary>
@@ -236,23 +137,11 @@ namespace CreateAR.SpirePlayer.Editor
                 }
             }
 
-            Log.Info(UserSettings, "Setting Authorization header.");
+            Log.Info(Config, "Setting Authorization header.");
 
-            Http.Headers.Add(Tuple.Create(
+            Http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
                 "Authorization",
                 string.Format("Bearer {0}", token)));
-        }
-
-        /// <summary>
-        /// Path to credentials.
-        /// </summary>
-        /// <returns></returns>
-        private static string GetSettingsPath()
-        {
-            var path = Path.Combine(
-                UnityEngine.Application.persistentDataPath,
-                "User.Environment.config");
-            return path;
         }
     }
 }

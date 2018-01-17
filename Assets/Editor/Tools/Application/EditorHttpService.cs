@@ -128,11 +128,19 @@ namespace CreateAR.Commons.Unity.Http.Editor
             {
                 _serializer.Serialize(payload, out bytes);
             }
-            
+
+            var headers = HeaderDictionary();
+            if (verb == HttpVerb.Delete
+                || verb == HttpVerb.Patch
+                || verb == HttpVerb.Put)
+            {
+                headers["X-HTTP-Method-Override"] = verb.ToString().ToUpperInvariant();
+            }
+
             var request = new WWW(
                 url,
                 bytes,
-                HeaderDictionary());
+                headers);
 
             _bootstrapper.BootstrapCoroutine(Wait(request, token));
             

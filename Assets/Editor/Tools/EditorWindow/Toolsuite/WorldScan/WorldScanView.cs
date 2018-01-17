@@ -23,6 +23,7 @@ namespace CreateAR.SpirePlayer.Editor
             public string Name;
             public DateTime Updated;
             public Action Download;
+            public Action Delete;
         }
         
         /// <summary>
@@ -79,10 +80,11 @@ namespace CreateAR.SpirePlayer.Editor
                             {
                                 Name = Path.GetFileName(file.RelUrl),
                                 Updated = DateTime.Parse(file.UpdatedAt),
-                                Download = Download(file)
+                                Download = Download(file),
+                                Delete = Delete(file)
                             })
                             .ToList();
-                        elements.Sort((a, b) => DateTime.Compare(a.Updated, b.Updated));
+                        elements.Sort((a, b) => DateTime.Compare(b.Updated, a.Updated));
 
                         _table.Elements = elements.ToArray();
 
@@ -140,6 +142,44 @@ namespace CreateAR.SpirePlayer.Editor
                     {
                         Log.Error(this, "Could not download : {0}.", exception);
                     });
+            };
+        }
+
+        /// <summary>
+        /// Deletes a file.
+        /// </summary>
+        /// <param name="file">The file.</param>
+        /// <returns></returns>
+        private Action Delete(Body file)
+        {
+            return () =>
+            {
+                EditorApplication
+                    .Api
+                    .Files
+                    .DeleteFile(file.Id)
+                    .OnSuccess(response =>
+                    {
+                        if (null != response.Payload
+                            && response.Payload.Success)
+                        {
+                            Refresh();
+                        }
+                        else
+                        {
+                            EditorUtility.DisplayDialog(
+                                "Error",
+                                "Could not delete file: " + (null == response.Payload
+                                    ? "Unknown."
+                                    : response.Payload.Error),
+                                "Okay");
+                        }
+                    })
+                    .OnFailure(exception =>
+                        EditorUtility.DisplayDialog(
+                            "Error",
+                            "Could not delete file: " + exception.Message,
+                            "Okay"));
             };
         }
 

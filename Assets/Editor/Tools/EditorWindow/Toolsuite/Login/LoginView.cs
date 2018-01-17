@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Editor;
 using CreateAR.Commons.Unity.Logging;
@@ -57,16 +56,14 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         public void Connect()
         {
-            var environment = EditorApplication.Environments.Environment(
-                EditorApplication.UserSettings.Environment);
+            var environment = EditorApplication.Config.Environment;
             if (null == environment)
             {
                 Log.Warning(this, "Invalid environment selection.");
                 return;
             }
 
-            var credentials = EditorApplication.UserSettings.Credentials(
-                EditorApplication.UserSettings.Environment);
+            var credentials = EditorApplication.Config.Credentials;
             if (null == credentials)
             {
                 Log.Warning(this, "Invalid credentials.");
@@ -75,7 +72,7 @@ namespace CreateAR.SpirePlayer.Editor
 
             // setup HTTP
             var builder = EditorApplication.Http.UrlBuilder;
-            builder.BaseUrl = "http://" + environment.Hostname;
+            builder.BaseUrl = "http://" + environment.BaseUrl;
             builder.Port = environment.Port;
             builder.Version = environment.ApiVersion;
 
@@ -141,9 +138,11 @@ namespace CreateAR.SpirePlayer.Editor
         {
             EditorGUIUtility.labelWidth = 100;
 
-            var options = EditorApplication
-                .Environments
-                .Environments
+            /*var options = EditorApplication
+                .Config
+                .AppConfig
+                .Network
+                .AllEnvironments
                 .Select(env => env.Name)
                 .ToList();
             var selection = options.IndexOf(EditorApplication.UserSettings.Environment);
@@ -152,7 +151,7 @@ namespace CreateAR.SpirePlayer.Editor
             {
                 EditorApplication.UserSettings.Environment = EditorApplication.Environments.Environments[popupSelection].Name;
                 EditorApplication.SaveUserSettings();
-            }
+            }*/
         }
 
         /// <summary>
@@ -161,7 +160,7 @@ namespace CreateAR.SpirePlayer.Editor
         private void DrawConnectForm()
         {
             EditorGUIUtility.labelWidth = 60;
-
+            /*
             var environment = EditorApplication.Environments.Environment(
                 EditorApplication.UserSettings.Environment);
             if (null == environment)
@@ -208,6 +207,7 @@ namespace CreateAR.SpirePlayer.Editor
                 DrawMessage();
             }
             GUILayout.EndVertical();
+            */
         }
 
         /// <summary>
@@ -238,8 +238,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private void DrawUserInformation()
         {
-            var credentials = EditorApplication.UserSettings.Credentials(
-                EditorApplication.UserSettings.Environment);
+            var credentials = EditorApplication.Config.Credentials;
 
             GUILayout.BeginVertical("box");
             {
@@ -293,7 +292,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// Attempts to sign up.
         /// </summary>
         /// <returns></returns>
-        private IAsyncToken<Void> SignUp(EnvironmentCredentials credentials)
+        private IAsyncToken<Void> SignUp(CredentialsData credentials)
         {
             var token = new AsyncToken<Void>();
 
@@ -315,7 +314,7 @@ namespace CreateAR.SpirePlayer.Editor
                             credentials.Token = response.Payload.Body.Token;
                             credentials.UserId = response.Payload.Body.User.Id;
 
-                            EditorApplication.SaveUserSettings();
+                            //EditorApplication.SaveUserSettings();
 
                             token.Succeed(Void.Instance);
                         }
@@ -338,7 +337,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// Attempts to sign in.
         /// </summary>
         /// <returns></returns>
-        private IAsyncToken<Void> SignIn(EnvironmentCredentials credentials)
+        private IAsyncToken<Void> SignIn(CredentialsData credentials)
         {
             var token = new AsyncToken<Void>();
 
@@ -359,7 +358,7 @@ namespace CreateAR.SpirePlayer.Editor
                             credentials.Token = response.Payload.Body.Token;
                             credentials.UserId = response.Payload.Body.User.Id;
 
-                            EditorApplication.SaveUserSettings();
+                            //EditorApplication.SaveUserSettings();
 
                             token.Succeed(Void.Instance);
                         }
