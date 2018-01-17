@@ -116,11 +116,6 @@ namespace CreateAR.Commons.Unity.Http.Editor
             string url,
             object payload)
         {
-            Log.Info(this,
-                "{0} {1}",
-                verb.ToString().ToUpperInvariant(),
-                url);
-
             var token = new AsyncToken<HttpResponse<T>>();
 
             byte[] bytes = null;
