@@ -22,8 +22,21 @@ namespace CreateAR.SpirePlayer.Editor
         {
             public string Name;
             public DateTime Updated;
-            public Action Download;
+            public Action Import;
             public Action Delete;
+
+            public string Id { get; private set; }
+
+            public WorldScanRecord(string id)
+            {
+                Id = id;
+            }
+
+            public void Update(Body file)
+            {
+                Name = Path.GetFileName(file.RelUrl);
+                Updated = DateTime.Parse(file.UpdatedAt);
+            }
         }
         
         /// <summary>
@@ -44,15 +57,6 @@ namespace CreateAR.SpirePlayer.Editor
         {
             _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
             {
-                GUILayout.BeginHorizontal();
-                {
-                    if (GUILayout.Button("Refresh"))
-                    {
-                        Refresh();
-                    }
-                }
-                GUILayout.EndHorizontal();
-
                 _table.Draw();
             }
             GUILayout.EndScrollView();
@@ -73,19 +77,54 @@ namespace CreateAR.SpirePlayer.Editor
                 {
                     if (response.NetworkSuccess && response.Payload.Success)
                     {
-                        var elements = response
-                            .Payload
-                            .Body
-                            .Select(file => new WorldScanRecord
+                        var existingElements = _table.Elements;
+                        var files = response.Payload.Body.ToList();
+                        if (existingElements.Length == files.Count)
+                        {
+                            var returnEarly = true;
+                            for (int i = 0, ilen = files.Count; i < ilen; i++)
                             {
-                                Name = Path.GetFileName(file.RelUrl),
-                                Updated = DateTime.Parse(file.UpdatedAt),
-                                Download = Download(file),
-                                Delete = Delete(file)
+                                var found = false;
+                                var file = files[i];
+                                for (int j = 0, jlen = existingElements.Length; j < jlen; j++)
+                                {
+                                    var element = (WorldScanRecord) existingElements[j];
+                                    if (element.Id == file.Id)
+                                    {
+                                        // update!
+                                        found = true;
+
+                                        element.Update(file);
+                                    }
+                                }
+
+                                if (!found)
+                                {
+                                    returnEarly = false;
+                                    break;
+                                }
+                            }
+
+                            if (returnEarly)
+                            {
+                                return;
+                            }
+                        }
+
+                        var elements = files.Select(file =>
+                            {
+                                var record = new WorldScanRecord(file.Id)
+                                {
+                                    Import = Download(file),
+                                    Delete = Delete(file)
+                                };
+                                record.Update(file);
+
+                                return record;
                             })
                             .ToList();
                         elements.Sort((a, b) => DateTime.Compare(b.Updated, a.Updated));
-
+                        
                         _table.Elements = elements.ToArray();
 
                         Repaint();

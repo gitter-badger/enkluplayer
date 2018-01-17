@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Editor;
+﻿using System;
+using System.Collections;
+using CreateAR.Commons.Unity.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,6 +11,11 @@ namespace CreateAR.SpirePlayer.Editor
     /// </summary>
     public class TrellisEditorWindow : EditorWindow
     {
+        /// <summary>
+        /// How often, in seconds, to poll for new worldscans.
+        /// </summary>
+        private const int WORLDSCAN_POLL_SEC = 2;
+
         /// <summary>
         /// Tabs.
         /// </summary>
@@ -50,6 +57,9 @@ namespace CreateAR.SpirePlayer.Editor
             };
 
             _loginView.OnConnected += Login_OnConnected;
+
+            // start timer for worldscan refresh
+            EditorApplication.Bootstrapper.BootstrapCoroutine(UpdateWorldScans());
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>
@@ -90,7 +100,28 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private void Login_OnConnected()
         {
-            _worldScanView.Refresh();
+            //
+        }
+
+        /// <summary>
+        /// Automatically updates worldscans.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator UpdateWorldScans()
+        {
+            var lastUpdate = DateTime.MinValue;
+            while (true)
+            {
+                var now = DateTime.Now;
+                if (now.Subtract(lastUpdate).TotalSeconds > WORLDSCAN_POLL_SEC)
+                {
+                    lastUpdate = now;
+
+                    _worldScanView.Refresh();
+                }
+
+                yield return null;
+            }
         }
     }
 }
