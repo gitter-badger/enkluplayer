@@ -126,7 +126,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="bytes">Bytes to write.</param>
         private void Create(byte[] bytes)
         {
-            Log.Info(this, "Creating new file.");
+            Log.Info(this,
+                "Creating new file ({0} bytes).",
+                bytes.Length);
 
             _http
                 .PostFile<Response>(
@@ -172,7 +174,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="bytes">Bytes to write.</param>
         private void Update(byte[] bytes)
         {
-            Log.Info(this, "Updating existing file.");
+            Log.Info(this,
+                "Updating existing file ({0} bytes).",
+                bytes.Length);
 
             _http
                 .PutFile<Trellis.Messages.UpdateFile.Response>(

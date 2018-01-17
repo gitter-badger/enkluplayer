@@ -23,6 +23,7 @@ namespace CreateAR.SpirePlayer.Editor
             public Action Delete;
 
             public string Id { get; private set; }
+            public string RelUrl { get; private set; }
 
             public WorldScanRecord(string id)
             {
@@ -32,6 +33,7 @@ namespace CreateAR.SpirePlayer.Editor
             public void Update(Body file)
             {
                 Updated = DateTime.Parse(file.UpdatedAt);
+                RelUrl = file.RelUrl;
             }
         }
         
@@ -111,8 +113,8 @@ namespace CreateAR.SpirePlayer.Editor
                             {
                                 var record = new WorldScanRecord(file.Id)
                                 {
-                                    Import = Download(file),
-                                    Delete = Delete(file)
+                                    Import = Download(file.Id),
+                                    Delete = Delete(file.Id)
                                 };
                                 record.Update(file);
 
@@ -132,18 +134,36 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Creates an action for downloading a file.
         /// </summary>
-        /// <param name="file">The file to download.</param>
+        /// <param name="id">The file to download.</param>
         /// <returns></returns>
-        private Action Download(Body file)
+        private Action Download(string id)
         {
             return () =>
             {
-                Log.Info(this, "Download {0}.", file.RelUrl);
+                // find element
+                string relUrl = string.Empty;
+
+                var elements = _table.Elements;
+                foreach (WorldScanRecord record in elements)
+                {
+                    if (record.Id == id)
+                    {
+                        relUrl = record.RelUrl;
+                        break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(relUrl))
+                {
+                    return;
+                }
+
+                Log.Info(this, "Download {0}.", relUrl);
 
                 var http = EditorApplication.Http;
                 var url = http
                     .UrlBuilder
-                    .Url(file.RelUrl)
+                    .Url(relUrl)
                     .Replace("/v1", "");
                 http
                     .Download(url)
@@ -183,16 +203,16 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Deletes a file.
         /// </summary>
-        /// <param name="file">The file.</param>
+        /// <param name="id">The id of the file.</param>
         /// <returns></returns>
-        private Action Delete(Body file)
+        private Action Delete(string id)
         {
             return () =>
             {
                 EditorApplication
                     .Api
                     .Files
-                    .DeleteFile(file.Id)
+                    .DeleteFile(id)
                     .OnSuccess(response =>
                     {
                         if (null != response.Payload
