@@ -20,7 +20,6 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         public class WorldScanRecord
         {
-            public string Name;
             public DateTime Updated;
             public Action Import;
             public Action Delete;
@@ -34,7 +33,6 @@ namespace CreateAR.SpirePlayer.Editor
 
             public void Update(Body file)
             {
-                Name = Path.GetFileName(file.RelUrl);
                 Updated = DateTime.Parse(file.UpdatedAt);
             }
         }
