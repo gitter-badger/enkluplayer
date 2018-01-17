@@ -11,9 +11,9 @@ namespace CreateAR.SpirePlayer
         public const string MESH_TOOL = "capture";
 
         /// <summary>
-        /// Saves.
+        /// Exits.
         /// </summary>
-        public const string SAVE = "save";
+        public const string EXIT = "exit";
 
         /// <summary>
         /// Opens help.

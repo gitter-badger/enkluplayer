@@ -116,9 +116,9 @@ namespace CreateAR.SpirePlayer
             _pipeline.Stop();
 
             // kill voice commands
-            if (!_voice.Unregister(VoiceKeywords.SAVE))
+            if (!_voice.Unregister(VoiceKeywords.EXIT))
             {
-                Log.Error(this, "Could not unregister save voice command.");
+                Log.Error(this, "Could not unregister exit voice command.");
             }
 
             // destroy observer
@@ -166,9 +166,9 @@ namespace CreateAR.SpirePlayer
             _bootstrapper.BootstrapCoroutine(UpdateObserver());
 
             // setup voice commands
-            if (!_voice.Register(VoiceKeywords.SAVE, Voice_OnSave))
+            if (!_voice.Register(VoiceKeywords.EXIT, Voice_OnExit))
             {
-                Log.Error(this, "Could not register save voice command.");
+                Log.Error(this, "Could not register exit voice command.");
             }
 
             _pipeline.Start();
@@ -296,32 +296,9 @@ namespace CreateAR.SpirePlayer
         /// Called when the voice processor received a save command.
         /// </summary>
         /// <param name="save">The command received.</param>
-        private void Voice_OnSave(string save)
+        private void Voice_OnExit(string save)
         {
-            /*
-            Log.Info(this, "Exporting...");
-
-            var obj = new ObjExporter().Export(_surfaces.Values.ToArray());
-            var path = Path.Combine(
-                UnityEngine.Application.persistentDataPath,
-                string.Format("{0}_Export.obj", DateTime.Now.Ticks));
-
-            Log.Info(this, "Saving to {0}...", path);
-
-            using (var stream = File.OpenWrite(path))
-            {
-                var bytes = Encoding.UTF8.GetBytes(obj);
-                stream.Write(bytes, 0, bytes.Length);
-            }
-
-            Log.Info(this, "Save complete.");
-
-            _messages.Publish(
-                MessageTypes.STATUS,
-                new StatusEvent(
-                    string.Format("Saved successfully to {0}.", path),
-                    3f));
-            */
+            _messages.Publish(MessageTypes.TOOLS);
         }
     }
 }

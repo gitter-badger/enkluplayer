@@ -107,6 +107,15 @@ namespace CreateAR.SpirePlayer
                 });
 
             Subscribe<Void>(
+                MessageTypes.TOOLS,
+                _ =>
+                {
+                    Log.Info(this, "Tools requested.");
+
+                    _states.Change<ToolModeApplicationState>();
+                });
+
+            Subscribe<Void>(
                 MessageTypes.MESHCAPTURE,
                 _ =>
                 {
