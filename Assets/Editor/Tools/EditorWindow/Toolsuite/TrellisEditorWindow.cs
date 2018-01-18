@@ -15,6 +15,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// How often, in seconds, to poll for new worldscans.
         /// </summary>
         private const int WORLDSCAN_POLL_SEC = 2;
+        private const int WORLDSCAN_POLL_TIMEOUT_SEC = 5;
 
         /// <summary>
         /// Tabs.
@@ -28,7 +29,17 @@ namespace CreateAR.SpirePlayer.Editor
         private readonly DetailsView _detailsView = new DetailsView();
         private readonly HttpControllerView _controllerView = new HttpControllerView();
         private readonly WorldScanView _worldScanView = new WorldScanView();
-        
+
+        /// <summary>
+        /// Polls world scans.
+        /// </summary>
+        private bool _pollWorldScans;
+
+        /// <summary>
+        /// Last time OnGUI was called.
+        /// </summary>
+        private DateTime _lastDraw;
+
         /// <summary>
         /// Opens window.
         /// </summary>
@@ -42,7 +53,7 @@ namespace CreateAR.SpirePlayer.Editor
         private void OnEnable()
         {
             titleContent = new GUIContent("Trellis");
-            
+
             _loginView.OnRepaintRequested += Repaint;
             _detailsView.OnRepaintRequested += Repaint;
             _controllerView.OnRepaintRequested += Repaint;
@@ -51,7 +62,7 @@ namespace CreateAR.SpirePlayer.Editor
             _tabs.Tabs = new TabComponent[]
             {
                 //new ViewTabComponent("Login", _loginView),
-                new ViewTabComponent("Details", _detailsView), 
+                new ViewTabComponent("Details", _detailsView),
                 new ViewTabComponent("World Scans", _worldScanView),
                 //new ViewTabComponent("Controllers", _controllerView)
             };
@@ -71,8 +82,10 @@ namespace CreateAR.SpirePlayer.Editor
             _controllerView.OnRepaintRequested -= Repaint;
             _detailsView.OnRepaintRequested -= Repaint;
             _loginView.OnRepaintRequested -= Repaint;
+
+            _pollWorldScans = false;
         }
-        
+
         /// <inheritdoc cref="MonoBehaviour"/>
         private void OnGUI()
         {
@@ -81,7 +94,9 @@ namespace CreateAR.SpirePlayer.Editor
                 return;
             }
 
-            GUI.skin = (GUISkin) EditorGUIUtility.Load("Default.guiskin");
+            _lastDraw = DateTime.Now;
+
+            GUI.skin = (GUISkin)EditorGUIUtility.Load("Default.guiskin");
 
             GUILayout.BeginHorizontal();
             {
@@ -114,15 +129,20 @@ namespace CreateAR.SpirePlayer.Editor
         /// <returns></returns>
         private IEnumerator UpdateWorldScans()
         {
+            _pollWorldScans = true;
+
             var lastUpdate = DateTime.MinValue;
-            while (true)
+            while (_pollWorldScans)
             {
                 var now = DateTime.Now;
                 if (now.Subtract(lastUpdate).TotalSeconds > WORLDSCAN_POLL_SEC)
                 {
-                    lastUpdate = now;
+                    if (now.Subtract(_lastDraw).TotalSeconds < WORLDSCAN_POLL_TIMEOUT_SEC)
+                    {
+                        lastUpdate = now;
 
-                    _worldScanView.Refresh();
+                        _worldScanView.Refresh();
+                    }
                 }
 
                 yield return null;
