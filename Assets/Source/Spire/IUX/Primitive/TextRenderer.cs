@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Alignment types
         /// </summary>
-        private int _alignment = AlignmentTypes.MID_CENTER;
+        private int _alignment = AlignmentTypes.MID_LEFT;
 
         /// <summary>
         /// Unity text rendering.
@@ -113,8 +113,8 @@ namespace CreateAR.SpirePlayer.IUX
 
                 case AlignmentTypes.MID_LEFT:
                 {
-                    Text.rectTransform.pivot = new Vector2(0.0f, 1.0f);
-                    Text.alignment = TextAnchor.MiddleCenter;
+                    Text.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                    Text.alignment = TextAnchor.MiddleLeft;
                     break;
                 }
 

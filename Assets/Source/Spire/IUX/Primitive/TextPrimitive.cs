@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Messaging;
+﻿using System.Collections.Generic;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -12,6 +13,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Configuration.
         /// </summary>
         private readonly WidgetConfig _config;
+
+        /// <summary>
+        /// List of verts.
+        /// </summary>
+        private readonly List<UIVertex> _vertices = new List<UIVertex>();
 
         /// <summary>
         /// Renders text.
@@ -54,31 +60,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _renderer.Text.fontSize = value;
             }
         }
-/*
-        /// <summary>
-        /// TODO: All UI manipulation should be in 3D, Vec2 methods should be removed.
-        /// TODO: This is a local Position accessor/mutator, and should be named as such.
-        /// Position getter/setter.
-        /// </summary>
-        public Vec2 Position
-        {
-            get
-            {
-                var local = _renderer.Text.rectTransform.localPosition;
 
-                return new Vec2(local.x, local.y);
-            }
-            set
-            {
-                var scale = _renderer.Text.rectTransform.localScale;
-
-                _renderer.Text.rectTransform.localPosition = new Vector3(
-                    scale.x * value.x,
-                    scale.y * (value.y - _renderer.Text.font.lineHeight / 2f), 
-                    _renderer.Text.rectTransform.localPosition.z);
-            }
-        }
-        */
         /// <summary>
         /// Position getter/setter.
         /// </summary>
@@ -113,7 +95,7 @@ namespace CreateAR.SpirePlayer.IUX
                     rect.height * scale.y);
             }
         }
-
+        
         /// <summary>
         /// Retrieves the width of the primitive.
         /// </summary>
@@ -183,7 +165,7 @@ namespace CreateAR.SpirePlayer.IUX
             _renderer.transform.SetParent(GameObject.transform, false);
             
             // load font setup.
-            _propAlignment = Schema.GetOwn("alignment", AlignmentTypes.MID_CENTER);
+            _propAlignment = Schema.GetOwn("alignment", AlignmentTypes.MID_LEFT);
             _propAlignment.OnChanged += Alignment_OnChanged;
             _renderer.Alignment = _propAlignment.Value;
 
@@ -217,6 +199,53 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Bounding rectangle of rendered text.
+        /// 
+        /// EXPERIMENTAL
+        /// </summary>
+        private Rectangle TextRect
+        {
+            get
+            {
+                var gen = _renderer.Text.cachedTextGenerator
+                          ?? _renderer.Text.cachedTextGeneratorForLayout;
+                if (null == gen)
+                {
+                    return Rect;
+                }
+
+                var maxY = float.MinValue;
+                var minY = float.MaxValue;
+                var maxX = float.MinValue;
+                var minX = float.MaxValue;
+
+                _vertices.Clear();
+                gen.GetVertices(_vertices);
+
+                if (_vertices.Count == 0)
+                {
+                    return Rect;
+                }
+
+                for (var index = 0; index < _vertices.Count; index++)
+                {
+                    var pos = _vertices[index].position;
+
+                    maxY = Mathf.Max(maxY, pos.y);
+                    maxX = Mathf.Max(maxX, pos.x);
+
+                    minY = Mathf.Min(minY, pos.y);
+                    minX = Mathf.Min(minX, pos.x);
+                }
+
+                return new Rectangle(
+                    minX, minY,
+                    maxX - minX,
+                    maxY - minY);
+            }
+        }
+
+        /// <summary>
         /// Draws debug lines.
         /// </summary>
         /// [Conditional("ELEMENT_DEBUGGING")]
@@ -236,6 +265,15 @@ namespace CreateAR.SpirePlayer.IUX
                         Width,
                         Height,
                         0)));
+
+                /*var rect = TextRect;
+                ctx.Color(new Color(1, 0, 0));
+                ctx.Prism(new Bounds(
+                    _renderer.Text.rectTransform.position,
+                    new Vector3(
+                        (rect.max.x - rect.min.x) * _renderer.Text.rectTransform.localScale.x,
+                        (rect.max.y - rect.min.y) * _renderer.Text.rectTransform.localScale.y,
+                        0)));*/
             });
         }
 
