@@ -1,5 +1,4 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -39,6 +38,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         /// <param name="parent">The new parent.</param>
         internal abstract void Reparent(ElementSchemaProp parent);
+
+        /// <summary>
+        /// Copies prop.
+        /// </summary>
+        /// <returns>New prop.</returns>
+        internal abstract ElementSchemaProp Copy();
     }
 
     /// <summary>
@@ -157,6 +162,12 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _value = default(T);
             }
+        }
+
+        /// <inheritdoc />
+        internal override ElementSchemaProp Copy()
+        {
+            return new ElementSchemaProp<T>(Name, Value, false);
         }
 
         /// <summary>

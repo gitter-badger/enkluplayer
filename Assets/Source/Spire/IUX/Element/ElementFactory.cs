@@ -25,8 +25,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// All widgets inherit this base schema
         /// </summary>
-        private readonly ElementSchema _baseSchema = new ElementSchema();
+        private readonly ElementSchema _baseSchema = new ElementSchema("Base");
 
+        /// <summary>
+        /// Type to base schema.
+        /// </summary>
         private readonly Dictionary<int, ElementSchema> _typeSchema = new Dictionary<int, ElementSchema>();
 
         /// <summary>
@@ -65,7 +68,7 @@ namespace CreateAR.SpirePlayer.IUX
             _baseSchema.Set("font", "Watchword_bold");
 
             // load defaults
-            var buttonSchema = _typeSchema[ElementTypes.BUTTON] = new ElementSchema();
+            var buttonSchema = _typeSchema[ElementTypes.BUTTON] = new ElementSchema("Base.Button");
             buttonSchema.Load(new ElementSchemaData
             {
                 Ints = new Dictionary<string, int>
@@ -97,9 +100,9 @@ namespace CreateAR.SpirePlayer.IUX
                     { "position", new Vec3(0f, 0f, 0f) }
                 }
             });
-            buttonSchema.Wrap(_baseSchema);
+            buttonSchema.Inherit(_baseSchema);
 
-            var menuSchema = _typeSchema[ElementTypes.MENU] = new ElementSchema();
+            var menuSchema = _typeSchema[ElementTypes.MENU] = new ElementSchema("Base.Menu");
             menuSchema.Load(new ElementSchemaData
             {
                 Strings = new Dictionary<string, string>
@@ -117,7 +120,7 @@ namespace CreateAR.SpirePlayer.IUX
                     { "fontSize", 80 }
                 }
             });
-            menuSchema.Wrap(_baseSchema);
+            menuSchema.Inherit(_baseSchema);
         }
 
         /// <inheritdoc cref="IElementFactory"/>
@@ -143,16 +146,16 @@ namespace CreateAR.SpirePlayer.IUX
             }
             
             // element
-            var schema = new ElementSchema();
+            var schema = new ElementSchema(data.Id);
             schema.Load(data.Schema);
 
-            // find appropriate parent schema
+            // find appropriate schema to inherit
             ElementSchema parentSchema;
             if (!_typeSchema.TryGetValue(data.Type, out parentSchema))
             {
                 parentSchema = _baseSchema;
             }
-            schema.Wrap(parentSchema);
+            schema.Inherit(parentSchema);
 
             var element = ElementForType(data.Type);
             if (element != null)

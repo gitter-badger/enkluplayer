@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using CreateAR.Commons.Unity.Editor;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEditor;
 using UnityEngine;
@@ -155,14 +156,16 @@ namespace CreateAR.SpirePlayer.Editor
         private bool DrawSchema(ElementSchema schema)
         {
             var props = schema.ToArray();
-            if (0 == props.Length)
-            {
-                return false;
-            }
-
             var repaint = false;
             GUILayout.BeginVertical("box");
             {
+                GUILayout.Label(schema.Identifier);
+
+                if (0 == props.Length)
+                {
+                    GUILayout.Label("No properties.");
+                }
+                
                 foreach (var prop in props)
                 {
                     var type = prop.Type;

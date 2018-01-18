@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CreateAR.SpirePlayer.IUX;
 using NUnit.Framework;
 
@@ -13,7 +14,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [SetUp]
         public void SetUp()
         {
-            _schema = new ElementSchema();
+            _schema = new ElementSchema("Foo");
             _schema.Set("foo", 5);
         }
         
@@ -67,9 +68,34 @@ namespace CreateAR.SpirePlayer.Test.UI
         }
 
         [Test]
+        public void WrapSelf()
+        {
+            Assert.Throws<Exception>(() =>
+            {
+                _schema.Wrap(_schema);
+            });
+        }
+
+        [Test]
+        public void WrapCycle()
+        {
+            var a = new ElementSchema();
+            var b = new ElementSchema();
+            var c = new ElementSchema();
+
+            c.Wrap(b);
+            b.Wrap(a);
+
+            Assert.Throws<Exception>(() =>
+            {
+                a.Wrap(c);
+            });
+        }
+
+        [Test]
         public void WrapInt()
         {
-            var state = new ElementSchema();
+            var state = new ElementSchema("Foo");
             state.Set("bar", 17);
 
             _schema.Wrap(state);
@@ -80,7 +106,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void WrapIntSet()
         {
-            var state = new ElementSchema();
+            var state = new ElementSchema("Foo");
             state.Set("bar", 17);
 
             _schema.Wrap(state);
@@ -96,7 +122,7 @@ namespace CreateAR.SpirePlayer.Test.UI
             var calls = 0;
 
             // wrap
-            var state = new ElementSchema();
+            var state = new ElementSchema("Foo");
             state.Set("bar", 17);
             var parentBar = state.Get<int>("bar");
             _schema.Wrap(state);
@@ -129,10 +155,10 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void GrandChildSetEvent()
         {
-            var child = new ElementSchema();
+            var child = new ElementSchema("Foo");
             child.Wrap(_schema);
 
-            var grandChild = new ElementSchema();
+            var grandChild = new ElementSchema("Foo");
             grandChild.Wrap(child);
 
             var bar = grandChild.Get<int>("bar");
@@ -149,10 +175,10 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void GrandChildSetChildEvent()
         {
-            var child = new ElementSchema();
+            var child = new ElementSchema("Foo");
             child.Wrap(_schema);
 
-            var grandChild = new ElementSchema();
+            var grandChild = new ElementSchema("Foo");
             grandChild.Wrap(child);
 
             var bar = grandChild.Get<int>("bar");
@@ -171,10 +197,10 @@ namespace CreateAR.SpirePlayer.Test.UI
         {
             var prop = _schema.Get<int>("bar");
 
-            var a = new ElementSchema();
+            var a = new ElementSchema("Foo");
             a.Set("bar", 15);
 
-            var b = new ElementSchema();
+            var b = new ElementSchema("Foo");
             b.Set("bar", 43);
 
             _schema.Wrap(a);
@@ -279,7 +305,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void HasPropChild()
         {
-            var schema = new ElementSchema();
+            var schema = new ElementSchema("Foo");
             schema.Wrap(_schema);
             
             Assert.IsTrue(schema.HasProp("foo"));
@@ -292,7 +318,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void HasOwnProp()
         {
-            var schema = new ElementSchema();
+            var schema = new ElementSchema("Foo");
             schema.Wrap(_schema);
             
             Assert.IsTrue(_schema.HasOwnProp("foo"));
@@ -302,7 +328,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void HasOwnPropLinked()
         {
-            var schema = new ElementSchema();
+            var schema = new ElementSchema("Foo");
             schema.Wrap(_schema);
 
             schema.Get<int>("foo");
@@ -314,7 +340,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void HasOwnPropUnLinked()
         {
-            var schema = new ElementSchema();
+            var schema = new ElementSchema("Foo");
             schema.Wrap(_schema);
 
             var prop = schema.Get<int>("foo");
@@ -368,7 +394,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void IterateIgnoreParent()
         {
-            var schema = new ElementSchema();
+            var schema = new ElementSchema("Foo");
             schema.GetOwn("bar", 2);
             schema.Wrap(_schema);
 
@@ -411,6 +437,83 @@ namespace CreateAR.SpirePlayer.Test.UI
             Assert.AreEqual(2, num);
             Assert.IsTrue(bar);
             Assert.IsTrue(foo);
+        }
+
+        [Test]
+        public void IterateChildProps()
+        {
+            var a = new ElementSchema("Foo");
+            a.Set("a", "a");
+
+            var b = new ElementSchema("Foo");
+            b.Load(new ElementSchemaData
+            {
+                Strings =
+                {
+                    { "b", "b" }
+                }
+            });
+            b.Wrap(a);
+
+            var c = new ElementSchema("Foo");
+            c.Load(new ElementSchemaData
+            {
+                Strings =
+                {
+                    { "c", "c" }
+                }
+            });
+            c.Wrap(b);
+            
+            var propsC = c.ToArray();
+            Assert.AreEqual(1, propsC.Length);
+            Assert.AreEqual("c", ((ElementSchemaProp<string>) propsC[0]).Value);
+
+            var propsB = b.ToArray();
+            Assert.AreEqual(1, propsB.Length);
+            Assert.AreEqual("b", ((ElementSchemaProp<string>)propsB[0]).Value);
+
+            var propsA = a.ToArray();
+            Assert.AreEqual(1, propsA.Length);
+            Assert.AreEqual("a", ((ElementSchemaProp<string>)propsA[0]).Value);
+        }
+
+        [Test]
+        public void Inherit()
+        {
+            var a = new ElementSchema();
+            a.Set("a", "a");
+
+            var b = new ElementSchema();
+            b.Set("b", "b");
+            b.Inherit(a);
+
+            var c = new ElementSchema();
+            c.Set("c", "c");
+            c.Inherit(b);
+
+            var propsC = c.ToArray();
+            Assert.AreEqual(3, propsC.Length);
+
+            var cA = c.Get<string>("a");
+            var aA = a.Get<string>("a");
+
+            aA.Value = "A";
+
+            Assert.AreNotEqual(cA.Value, aA.Value);
+        }
+
+        [Test]
+        public void InheritExisting()
+        {
+            var a = new ElementSchema();
+            a.Set("a", "a");
+
+            var b = new ElementSchema();
+            b.Set("a", "b");
+            b.Inherit(a);
+
+            Assert.AreEqual("b", b.Get<string>("a").Value);
         }
     }
 }

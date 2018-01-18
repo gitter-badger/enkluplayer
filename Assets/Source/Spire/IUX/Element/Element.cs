@@ -71,7 +71,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public Element()
         {
-            Schema = new ElementSchema();
+            Schema = new ElementSchema("Unknown");
         }
         
         /// <summary>
@@ -113,6 +113,7 @@ namespace CreateAR.SpirePlayer.IUX
             Guid = System.Guid.NewGuid().ToString();
             Id = data.Id;
             Schema = schema;
+            Schema.Identifier = data.Id;
 
             // child schemas wrap parent
             for (int i = 0, len = children.Length; i < len; i++)
@@ -136,7 +137,7 @@ namespace CreateAR.SpirePlayer.IUX
             UnloadInternal();
 
             Id = string.Empty;
-            Schema = new ElementSchema();
+            Schema = new ElementSchema("Unknown");
 
             _children.Clear();
         }

@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _tweens,
                 _colors);
 
-            var textSchema = new ElementSchema();
+            var textSchema = new ElementSchema("TextPrimitive");
             textSchema.Wrap(schema);
             textPrimitive.Load(
                 new ElementData
@@ -83,7 +83,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _tweens,
                 _colors);
 
-            var activatorSchema = new ElementSchema();
+            var activatorSchema = new ElementSchema("ActivatorPrimitive");
             activatorSchema.Wrap(schema);
             activator.Load(
                 new ElementData

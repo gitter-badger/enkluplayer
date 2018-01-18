@@ -221,13 +221,22 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _titlePrimitive.Width = _headerWidth.Value;
             _descriptionPrimitive.Width = _headerWidth.Value;
+            
+            _descriptionPrimitive.LocalPosition = new Vector3(
+                0,
+                -_descriptionPrimitive.Height / 2f,
+                0f);
 
-            var offset = new Vec2(
-                -_headerWidth.Value + 150,
-                _descriptionPrimitive.Height);
-
-            //_titlePrimitive.Position = offset + new Vec2(0, 100f);
-            //_descriptionPrimitive.Position = offset + new Vec2(0, 0f);
+            if (!string.IsNullOrEmpty(_description.Value))
+            {
+                _titlePrimitive.LocalPosition = new Vector3();
+            }
+            else
+            {
+                _titlePrimitive.LocalPosition = new Vector3(
+                    0,
+                    -_titlePrimitive.Rect.size.y / 2);
+            }
         }
 
         /// <summary>
