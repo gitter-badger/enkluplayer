@@ -26,7 +26,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Props.
         /// </summary>
-        private ElementSchemaProp<Vec3> _propOffset;
+        private ElementSchemaProp<Vec3> _propPosition;
 
         /// <summary>
         /// Constructor.
@@ -63,15 +63,15 @@ namespace CreateAR.SpirePlayer.IUX
             _renderer.Initialize(this, _intention);
 
             // load font setup.
-            _propOffset = Schema.GetOwn("offset", new Vec3(0,0,2.5f));
-            _propOffset.OnChanged += Offset_OnChanged;
-            _renderer.Offset = _propOffset.Value.ToVector();
+            _propPosition = Schema.GetOwn("position", new Vec3(0, 0, 2.5f));
+            _propPosition.OnChanged += Position_OnChanged;
+            _renderer.Offset = _propPosition.Value.ToVector();
         }
 
         /// <inheritdoc cref="Element"/>
         protected override void UnloadInternal()
         {
-            _propOffset.OnChanged -= Offset_OnChanged;
+            _propPosition.OnChanged -= Position_OnChanged;
 
             Object.Destroy(_renderer.gameObject);
 
@@ -84,7 +84,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="prop">Alignment prop.</param>
         /// <param name="prev">Previous value.</param>
         /// <param name="next">Next value.</param>
-        private void Offset_OnChanged(
+        private void Position_OnChanged(
             ElementSchemaProp<Vec3> prop,
             Vec3 prev,
             Vec3 next)

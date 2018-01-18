@@ -2,7 +2,7 @@
 	
 	<Menu
 		title='Design'
-		position=(0, 0, 4)>
+		position=(0, 0, 6)>
 		
 		<Button label='Load Scene' />
 		<Button label='New Scene' />

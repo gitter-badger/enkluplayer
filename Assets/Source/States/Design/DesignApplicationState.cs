@@ -32,7 +32,7 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Error(this, "Could not find Design Menu Vine!");
 
-                _messages.Publish(MessageTypes.TOOLS);
+                _messages.Publish(MessageTypes.DEFAULT_STATE);
                 return;
             }
 

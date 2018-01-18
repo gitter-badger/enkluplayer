@@ -1,4 +1,6 @@
-﻿namespace CreateAR.SpirePlayer
+﻿using System.Runtime.Serialization;
+
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Application-wide message types.
@@ -17,6 +19,7 @@
         public const int AUTHORIZED = 2;
         public const int RESTART = 3;
         public const int STATUS = 4;
+        public const int DEFAULT_STATE = 5;
 
         // Assets
         public const int ASSET_LIST = 10;

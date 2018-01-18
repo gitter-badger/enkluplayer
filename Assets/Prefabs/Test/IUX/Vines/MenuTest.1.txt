@@ -1,0 +1,26 @@
+<?Vine>
+
+<Container>
+	<Float position=(0, 0.5, 6)>
+		<Menu
+			title='Welcome'
+			description='Move the cursor with your head to activate the Ok button to the right.'>
+			<Button label='A' />
+			<Button label='B' />
+			<Button label='C' />
+			<Button label='D' />
+			<Button label='E' />
+		</Menu>
+	</Float>
+
+	<Float position=(0, 0, 6)>
+		<Menu
+			title='Welcome'>
+			<Button label='A' />
+			<Button label='B' />
+			<Button label='C' />
+			<Button label='D' />
+			<Button label='E' />
+		</Menu>
+	</Float>
+</Container>
