@@ -237,7 +237,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateLabelLayout()
         {
-            _text.Position = new Vec2(_labelPaddingProp.Value, 0f);
+            _text.LocalPosition = new Vector3(
+                _text.Width / 2 + _labelPaddingProp.Value,
+                -_text.Height / 2,
+                0f);
         }
     }
 }

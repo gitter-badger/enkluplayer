@@ -54,7 +54,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _renderer.Text.fontSize = value;
             }
         }
-
+/*
         /// <summary>
         /// TODO: All UI manipulation should be in 3D, Vec2 methods should be removed.
         /// TODO: This is a local Position accessor/mutator, and should be named as such.
@@ -78,7 +78,7 @@ namespace CreateAR.SpirePlayer.IUX
                     _renderer.Text.rectTransform.localPosition.z);
             }
         }
-
+        */
         /// <summary>
         /// Position getter/setter.
         /// </summary>
@@ -103,7 +103,14 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                return _renderer.Text.rectTransform.rect.ToRectangle();
+                var trans = _renderer.Text.rectTransform;
+                var rect = trans.rect;
+                var scale = trans.localScale;
+                return new Rectangle(
+                    rect.x * scale.x,
+                    rect.y * scale.y,
+                    rect.width * scale.x,
+                    rect.height * scale.y);
             }
         }
 
@@ -199,6 +206,37 @@ namespace CreateAR.SpirePlayer.IUX
             Object.Destroy(_renderer.gameObject);
 
             base.UnloadInternal();
+        }
+
+        /// <inheritdoc cref="Element"/>
+        protected override void LateUpdateInternal()
+        {
+            base.LateUpdateInternal();
+
+            DebugDraw();
+        }
+
+        /// <summary>
+        /// Draws debug lines.
+        /// </summary>
+        /// [Conditional("ELEMENT_DEBUGGING")]
+        private void DebugDraw()
+        {
+            var handle = Render.Handle("IUX");
+            if (null == handle)
+            {
+                return;
+            }
+
+            handle.Draw(ctx =>
+            {
+                ctx.Prism(new Bounds(
+                    _renderer.Text.rectTransform.position,
+                    new Vector3(
+                        Width,
+                        Height,
+                        0)));
+            });
         }
 
         /// <summary>

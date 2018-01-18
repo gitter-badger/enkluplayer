@@ -8,8 +8,6 @@ namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Holds an activator.
-    /// 
-    /// TODO: Remove Widget portion *** though talk to Ray about this first because doing this will also require reworking how visibility/color is managed.
     /// </summary>
     public class ActivatorPrimitive : Widget, IInteractable
     {
@@ -244,6 +242,8 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             _states.Update(deltaTime);
+
+            DebugDraw();
         }
 
         /// <summary>
@@ -347,6 +347,26 @@ namespace CreateAR.SpirePlayer.IUX
                 Stability,
                 targetStability,
                 lerp);
+        }
+
+        /// <summary>
+        /// Draws debug lines.
+        /// </summary>
+        /// [Conditional("ELEMENT_DEBUGGING")]
+        private void DebugDraw()
+        {
+            var handle = Render.Handle("IUX");
+            if (null == handle)
+            {
+                return;
+            }
+
+            handle.Draw(ctx =>
+            {
+                ctx.Prism(new Bounds(
+                    _renderer.transform.position,
+                    _renderer.Radius * Vector3.one));
+            });
         }
     }
 }

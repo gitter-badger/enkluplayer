@@ -226,8 +226,8 @@ namespace CreateAR.SpirePlayer.IUX
                 -_headerWidth.Value + 150,
                 _descriptionPrimitive.Height);
 
-            _titlePrimitive.Position = offset + new Vec2(0, 100f);
-            _descriptionPrimitive.Position = offset + new Vec2(0, 0f);
+            //_titlePrimitive.Position = offset + new Vec2(0, 100f);
+            //_descriptionPrimitive.Position = offset + new Vec2(0, 0f);
         }
 
         /// <summary>

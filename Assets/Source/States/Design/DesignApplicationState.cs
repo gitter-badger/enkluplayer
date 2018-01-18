@@ -36,7 +36,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            _menu = _elements.Element(_vine.Parse(designAsset.text));
+            //_menu = _elements.Element(_vine.Parse(designAsset.text));
         }
 
         /// <inheritdoc cref="IState"/>
