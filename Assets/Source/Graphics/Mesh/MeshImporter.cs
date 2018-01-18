@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using CreateAR.Commons.Unity.Http;
-using NUnit.Framework;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -194,9 +193,7 @@ namespace CreateAR.SpirePlayer
                     }
                 }
             }
-
-            Assert.AreEqual(index, bytes.Length, "Index mismatch.");
-
+            
             return collection;
         }
 

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Text;
-using CreateAR.Commons.Unity.Logging;
-using NUnit.Framework;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -101,8 +98,6 @@ namespace CreateAR.SpirePlayer
                     }
                 }
             }
-
-            Assert.AreEqual(index, buffer.Length, "Index mismatch.");
             
             return buffer;
         }
