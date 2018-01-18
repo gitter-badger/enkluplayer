@@ -198,7 +198,7 @@ namespace CreateAR.Commons.Unity.Http.Editor
             else
             {
                 httpResponse.NetworkSuccess = false;
-                httpResponse.NetworkError = Encoding.UTF8.GetString(bytes);
+                httpResponse.NetworkError = Encoding.UTF8.GetString(bytes ?? new byte[0]);
             }
         
             token.Succeed(httpResponse);
