@@ -134,6 +134,24 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Sets overflow method.
+        /// </summary>
+        public HorizontalWrapMode Overflow
+        {
+            get { return _renderer.Text.horizontalOverflow; }
+            set { _renderer.Text.horizontalOverflow = value; }
+        }
+
+        /// <summary>
+        /// Sets alignment.
+        /// </summary>
+        public int Alignment
+        {
+            get { return _renderer.Alignment; }
+            set { _renderer.Alignment = value; }
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public TextPrimitive(
