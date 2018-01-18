@@ -211,7 +211,17 @@ namespace CreateAR.Commons.Unity.Http.Editor
         /// <returns></returns>
         private int GetStatusCode(WWW request)
         {
-            var headers = request.responseHeaders;
+            Dictionary<string, string> headers;
+            try
+            {
+                // Unity bug-- accessing responseHeaders may throw NPE
+                headers = request.responseHeaders;
+            }
+            catch
+            {
+                return 0;
+            }
+            
             if (null == headers)
             {
                 return 0;

@@ -107,8 +107,7 @@ namespace CreateAR.SpirePlayer.Editor
             _isRunning = true;
 
             Log.AddLogTarget(_logTarget);
-            Log.Debug(null, "Intialize().");
-
+            
             UnityEditor.EditorApplication.update += _bootstrapper.Update;
 
             Serializer = new JsonSerializer();
@@ -127,8 +126,7 @@ namespace CreateAR.SpirePlayer.Editor
             }
 
             _isRunning = false;
-
-            Log.Debug(null, "Unintialize().");
+            
             Log.RemoveLogTarget(_logTarget);
 
             Config.OnUpdate -= Config_OnUpdate;
@@ -177,9 +175,7 @@ namespace CreateAR.SpirePlayer.Editor
                     break;
                 }
             }
-
-            Log.Info(Config, "Setting Authorization header.");
-
+            
             Http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
                 "Authorization",
                 string.Format("Bearer {0}", token)));

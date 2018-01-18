@@ -129,7 +129,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private void This_OnUpdate()
         {
-            Log.Info(this, "Updated config.");
+            //
         }
 
         /// <summary>
