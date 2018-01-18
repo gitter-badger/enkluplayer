@@ -213,8 +213,8 @@ namespace CreateAR.SpirePlayer.Editor
             AssetDatabase.SaveAssets();
             PrefabUtility.CreatePrefab("Assets/Exports/Export.prefab", root);
 
-            var export = new ObjExporter().Export(root);
-            File.WriteAllText("Assets/Exports/Exported_obj.obj", export);
+            var export = new MeshExporter().Export(root);
+            File.WriteAllBytes("Assets/Exports/Exported_obj.obj", export);
 
             DestroyImmediate(root);
         }

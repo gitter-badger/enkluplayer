@@ -116,11 +116,6 @@ namespace CreateAR.Commons.Unity.Http.Editor
             string url,
             object payload)
         {
-            Log.Info(this,
-                "{0} {1}",
-                verb.ToString().ToUpperInvariant(),
-                url);
-
             var token = new AsyncToken<HttpResponse<T>>();
 
             byte[] bytes = null;
@@ -128,11 +123,19 @@ namespace CreateAR.Commons.Unity.Http.Editor
             {
                 _serializer.Serialize(payload, out bytes);
             }
-            
+
+            var headers = HeaderDictionary();
+            if (verb == HttpVerb.Delete
+                || verb == HttpVerb.Patch
+                || verb == HttpVerb.Put)
+            {
+                headers["X-HTTP-Method-Override"] = verb.ToString().ToUpperInvariant();
+            }
+
             var request = new WWW(
                 url,
                 bytes,
-                HeaderDictionary());
+                headers);
 
             _bootstrapper.BootstrapCoroutine(Wait(request, token));
             
@@ -208,7 +211,17 @@ namespace CreateAR.Commons.Unity.Http.Editor
         /// <returns></returns>
         private int GetStatusCode(WWW request)
         {
-            var headers = request.responseHeaders;
+            Dictionary<string, string> headers;
+            try
+            {
+                // Unity bug-- accessing responseHeaders may throw NPE
+                headers = request.responseHeaders;
+            }
+            catch
+            {
+                return 0;
+            }
+            
             if (null == headers)
             {
                 return 0;

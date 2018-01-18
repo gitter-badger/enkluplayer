@@ -1,12 +1,8 @@
-﻿using System.IO;
-using System.Text;
-using CreateAR.Commons.Unity.DataStructures;
-using CreateAR.Commons.Unity.Http;
+﻿using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Http.Editor;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis;
 using UnityEditor;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Editor
 {
@@ -17,24 +13,33 @@ namespace CreateAR.SpirePlayer.Editor
     public static class EditorApplication
     {
         /// <summary>
+        /// True iff the app has been initialized.
+        /// </summary>
+        private static bool _isRunning;
+
+        /// <summary>
         /// Backing variable for Bootstrapper.
         /// </summary>
         private static readonly EditorBootstrapper _bootstrapper = new EditorBootstrapper();
 
         /// <summary>
+        /// Log target we add and remove.
+        /// </summary>
+        private static readonly ILogTarget _logTarget = new UnityLogTarget(new DefaultLogFormatter
+        {
+            Timestamp = false,
+            Level = false
+        });
+
+        /// <summary>
         /// Obj importer, lazily created.
         /// </summary>
-        private static ObjImporter _importer;
+        private static MeshImporter _importer;
 
         /// <summary>
-        /// Configuration for all environments.
+        /// Managed configuration.
         /// </summary>
-        public static EnvironmentConfig Environments { get; private set; }
-
-        /// <summary>
-        /// User settings.
-        /// </summary>
-        public static UserSettings UserSettings { get; private set; }
+        public static EditorConfigurationManager Config { get; private set; }
 
         /// <summary>
         /// Dependencies.
@@ -47,13 +52,13 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Lazily create this importer as it has a long-running coroutine.
         /// </summary>
-        public static ObjImporter ObjImporter
+        public static MeshImporter MeshImporter
         {
             get
             {
                 if (null == _importer)
                 {
-                    _importer = new ObjImporter(Bootstrapper);
+                    _importer = new MeshImporter(Bootstrapper);
                 }
 
                 return _importer;
@@ -61,142 +66,103 @@ namespace CreateAR.SpirePlayer.Editor
         }
 
         /// <summary>
+        /// True iff editor app is initialized.
+        /// </summary>
+        public static bool IsRunning
+        {
+            get { return _isRunning; }
+        }
+
+        /// <summary>
         /// Static constructor.
         /// </summary>
         static EditorApplication()
         {
-            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
-            {
-                Timestamp = false,
-                Level = false
-            }));
-            
-            UnityEditor.EditorApplication.update += _bootstrapper.Update;
-            UnityEditor.EditorApplication.update += WatchForCompile;
-            
-            Serializer = new JsonSerializer();
-            Http = new EditorHttpService(Serializer, Bootstrapper);
-            Api = new ApiController(Http);
-
-            LoadEnvironments();
-            LoadCredentials();
+            UnityEditor.EditorApplication.update += WatchForUninit;
         }
 
         /// <summary>
-        /// Saves credentials to disk.
+        /// Polls Unity for uninitialize info.
         /// </summary>
-        public static void SaveUserSettings()
+        private static void WatchForUninit()
         {
-            var path = GetSettingsPath();
-
-            Log.Info(UserSettings,
-                "Saving UserSettings to {0}.",
-                path);
-
-            SetAuthenticationHeader();
-
-            byte[] bytes;
-            Serializer.Serialize(UserSettings, out bytes);
-            var json = Encoding.UTF8.GetString(bytes);
-
-            File.WriteAllText(
-                path,
-                json);
-        }
-
-        /// <summary>
-        /// Watches for uninit.
-        /// </summary>
-        private static void WatchForCompile()
-        {
-            if (UnityEditor.EditorApplication.isCompiling)
+            if (UnityEditor.EditorApplication.isCompiling
+                || UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                Http.Abort();
-
-                Log.Info(Bootstrapper, "Shutting down bootstrapper.");
-
-                UnityEditor.EditorApplication.update -= _bootstrapper.Update;
-                UnityEditor.EditorApplication.update -= WatchForCompile;
+                Uninit();
+            }
+            else if (!UnityEditor.EditorApplication.isPlaying)
+            {
+                Init();
             }
         }
 
-        /// <summary>
-        /// Loads information about environments.
-        /// </summary>
-        private static void LoadEnvironments()
+        private static void Init()
         {
-            var config = AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Config/Environments.json");
-            if (null == config)
+            if (_isRunning)
             {
                 return;
             }
 
-            var bytes = Encoding.UTF8.GetBytes(config.text);
-            object @object;
+            _isRunning = true;
 
-            Serializer.Deserialize(
-                typeof(EnvironmentConfig),
-                ref bytes,
-                out @object);
+            Log.AddLogTarget(_logTarget);
+            
+            UnityEditor.EditorApplication.update += _bootstrapper.Update;
 
-            Environments = (EnvironmentConfig) @object;
+            Serializer = new JsonSerializer();
+            Http = new EditorHttpService(Serializer, Bootstrapper);
+            Api = new ApiController(Http);
+            Config = new EditorConfigurationManager();
+            Config.OnUpdate += Config_OnUpdate;
+            Config.Startup();
+        }
 
-            Log.Info(Environments, "Loaded environments : {0}.", Environments);
+        private static void Uninit()
+        {
+            if (!_isRunning)
+            {
+                return;
+            }
+
+            _isRunning = false;
+            
+            Log.RemoveLogTarget(_logTarget);
+
+            Config.OnUpdate -= Config_OnUpdate;
+            Config.Teardown();
+            Http.Abort();
+
+            UnityEditor.EditorApplication.update -= _bootstrapper.Update;
         }
 
         /// <summary>
-        /// Loads credentials.
+        /// Called when a configuration has been updated.
         /// </summary>
-        private static void LoadCredentials()
+        private static void Config_OnUpdate()
         {
-            // create settings object if one doesn't exist
-            var path = GetSettingsPath();
-            if (!File.Exists(path))
+            // set up HttpService
+            var env = Config.Environment;
+            if (null == env)
             {
-                UserSettings = new UserSettings();
-                SaveUserSettings();
+                return;
             }
 
-            // load object
-            var json = File.ReadAllText(path);
-            var jsonBytes = Encoding.UTF8.GetBytes(json);
-            object @object;
-            Serializer.Deserialize(
-                typeof(UserSettings),
-                ref jsonBytes,
-                out @object);
-            UserSettings = (UserSettings) @object;
+            Http.UrlBuilder.BaseUrl = env.BaseUrl;
+            Http.UrlBuilder.Port = env.Port;
+            Http.UrlBuilder.Version = env.ApiVersion;
 
-            // make sure there is an entry for every environment
-            var changed = false;
-            for (int i = 0, len = Environments.Environments.Length; i < len; i++)
+            var credentials = Config.Credentials;
+            if (null != credentials)
             {
-                var environment = Environments.Environments[i];
-                if (null == UserSettings.Credentials(environment.Name))
-                {
-                    UserSettings.All = UserSettings.All.Add(new EnvironmentCredentials
-                    {
-                        Environment = environment.Name
-                    });
-
-                    changed = true;
-                }
+                SetAuthenticationHeader(credentials.Token);
             }
-
-            if (changed)
-            {
-                SaveUserSettings();
-            }
-
-            SetAuthenticationHeader();
-
-            Log.Info(UserSettings, "Loaded credentials {0}.", UserSettings);
         }
 
         /// <summary>
         /// Sets the auth header.
         /// </summary>
-        private static void SetAuthenticationHeader()
+        private static void SetAuthenticationHeader(string token)
         {
             // remove Authentication
             for (int i = 0, len = Http.Headers.Count; i < len; i++)
@@ -209,28 +175,10 @@ namespace CreateAR.SpirePlayer.Editor
                     break;
                 }
             }
-
-            var creds = UserSettings.Credentials(UserSettings.Environment);
-            if (null != creds && !string.IsNullOrEmpty(creds.Token))
-            {
-                Log.Info(UserSettings, "Setting Authorization header.");
-
-                Http.Headers.Add(Tuple.Create(
-                    "Authorization",
-                    string.Format("Bearer {0}", creds.Token)));
-            }
-        }
-
-        /// <summary>
-        /// Path to credentials.
-        /// </summary>
-        /// <returns></returns>
-        private static string GetSettingsPath()
-        {
-            var path = Path.Combine(
-                UnityEngine.Application.persistentDataPath,
-                "User.Environment.config");
-            return path;
+            
+            Http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
+                "Authorization",
+                string.Format("Bearer {0}", token)));
         }
     }
 }

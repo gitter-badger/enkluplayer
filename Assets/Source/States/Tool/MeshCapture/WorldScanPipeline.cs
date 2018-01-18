@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
@@ -11,9 +11,19 @@ namespace CreateAR.SpirePlayer
     public class WorldScanPipeline
     {
         /// <summary>
-        /// Writer thread.
+        /// Bootstraps on the main thread.
         /// </summary>
-        private WorldScanPipelineWriterThread _writer;
+        private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Http service.
+        /// </summary>
+        private readonly IHttpService _http;
+
+        /// <summary>
+        /// Worker object.
+        /// </summary>
+        private WorldScanPipelineWorker _worker;
 
         /// <summary>
         /// Configuration object.
@@ -23,8 +33,14 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public WorldScanPipeline(WorldScanPipelineConfiguration config)
+        public WorldScanPipeline(
+            IBootstrapper bootstrapper,
+            IHttpService http,
+            WorldScanPipelineConfiguration config)
         {
+            _bootstrapper = bootstrapper;
+            _http = http;
+
             Configuration = config;
         }
 
@@ -34,17 +50,27 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Start(string tag = null)
         {
-            if (null != _writer)
+            if (null != _worker)
             {
                 return;
             }
 
-            _writer = new WorldScanPipelineWriterThread(
+            _worker = new WorldScanPipelineWorker(
+                _bootstrapper,
+                _http,
                 Configuration.LockTimeoutMs,
                 Configuration.MaxScanQueueLen,
                 Configuration.MaxOnDisk,
                 tag ?? Guid.NewGuid().ToString());
-            new Thread(_writer.Start).Start();
+
+#if NETFX_CORE
+            // here
+            System.Threading.Tasks.Task.Factory.StartNew(
+                _worker.Start,
+                System.Threading.Tasks.TaskCreationOptions.LongRunning);
+#else
+            new System.Threading.Thread(_worker.Start).Start();
+#endif
         }
 
         /// <summary>
@@ -52,13 +78,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Stop()
         {
-            if (null == _writer)
+            if (null == _worker)
             {
                 return;
             }
 
-            _writer.Kill();
-            _writer = null;
+            _worker.Kill();
+            _worker = null;
 
             // Thread::Join() unnecessary
         }
@@ -70,13 +96,13 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public bool Scan(params GameObject[] gameObjects)
         {
-            if (null == _writer)
+            if (null == _worker)
             {
                 Log.Warning(this, "Cannot queue scan until Start() is called.");
                 return false;
             }
 
-            return _writer.Queue(gameObjects);
+            return _worker.Queue(gameObjects);
         }
     }
 }

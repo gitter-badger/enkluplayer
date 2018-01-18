@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using CreateAR.Commons.Unity.Editor;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis.Messages.GetMyFilesByTags;
@@ -20,9 +18,23 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         public class WorldScanRecord
         {
-            public string Name;
             public DateTime Updated;
-            public Action Download;
+            public Action Import;
+            public Action Delete;
+
+            public string Id { get; private set; }
+            public string RelUrl { get; private set; }
+
+            public WorldScanRecord(string id)
+            {
+                Id = id;
+            }
+
+            public void Update(Body file)
+            {
+                Updated = DateTime.Parse(file.UpdatedAt);
+                RelUrl = file.RelUrl;
+            }
         }
         
         /// <summary>
@@ -43,15 +55,6 @@ namespace CreateAR.SpirePlayer.Editor
         {
             _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
             {
-                GUILayout.BeginHorizontal();
-                {
-                    if (GUILayout.Button("Refresh"))
-                    {
-                        Refresh();
-                    }
-                }
-                GUILayout.EndHorizontal();
-
                 _table.Draw();
             }
             GUILayout.EndScrollView();
@@ -72,18 +75,54 @@ namespace CreateAR.SpirePlayer.Editor
                 {
                     if (response.NetworkSuccess && response.Payload.Success)
                     {
-                        var elements = response
-                            .Payload
-                            .Body
-                            .Select(file => new WorldScanRecord
+                        var existingElements = _table.Elements;
+                        var files = response.Payload.Body.ToList();
+                        if (existingElements.Length == files.Count)
+                        {
+                            var returnEarly = true;
+                            for (int i = 0, ilen = files.Count; i < ilen; i++)
                             {
-                                Name = Path.GetFileName(file.RelUrl),
-                                Updated = DateTime.Parse(file.UpdatedAt),
-                                Download = Download(file)
+                                var found = false;
+                                var file = files[i];
+                                for (int j = 0, jlen = existingElements.Length; j < jlen; j++)
+                                {
+                                    var element = (WorldScanRecord) existingElements[j];
+                                    if (element.Id == file.Id)
+                                    {
+                                        // update!
+                                        found = true;
+
+                                        element.Update(file);
+                                    }
+                                }
+
+                                if (!found)
+                                {
+                                    returnEarly = false;
+                                    break;
+                                }
+                            }
+
+                            if (returnEarly)
+                            {
+                                return;
+                            }
+                        }
+
+                        var elements = files.Select(file =>
+                            {
+                                var record = new WorldScanRecord(file.Id)
+                                {
+                                    Import = Download(file.Id),
+                                    Delete = Delete(file.Id)
+                                };
+                                record.Update(file);
+
+                                return record;
                             })
                             .ToList();
-                        elements.Sort((a, b) => DateTime.Compare(a.Updated, b.Updated));
-
+                        elements.Sort((a, b) => DateTime.Compare(b.Updated, a.Updated));
+                        
                         _table.Elements = elements.ToArray();
 
                         Repaint();
@@ -95,18 +134,36 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Creates an action for downloading a file.
         /// </summary>
-        /// <param name="file">The file to download.</param>
+        /// <param name="id">The file to download.</param>
         /// <returns></returns>
-        private Action Download(Body file)
+        private Action Download(string id)
         {
             return () =>
             {
-                Log.Info(this, "Download {0}.", file.RelUrl);
+                // find element
+                string relUrl = string.Empty;
+
+                var elements = _table.Elements;
+                foreach (WorldScanRecord record in elements)
+                {
+                    if (record.Id == id)
+                    {
+                        relUrl = record.RelUrl;
+                        break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(relUrl))
+                {
+                    return;
+                }
+
+                Log.Info(this, "Download {0}.", relUrl);
 
                 var http = EditorApplication.Http;
                 var url = http
                     .UrlBuilder
-                    .Url(file.RelUrl)
+                    .Url(relUrl)
                     .Replace("/v1", "");
                 http
                     .Download(url)
@@ -116,14 +173,14 @@ namespace CreateAR.SpirePlayer.Editor
                         {
                             Log.Info(this, "Downloaded {0} bytes.", response.Payload.Length);
 
-                            var source = Encoding.UTF8.GetString(response.Payload);
+                            var source = response.Payload;
                             EditorUtility.DisplayProgressBar(
                                 "Importing",
                                 "Please wait...",
                                 0.25f);
 
                             EditorApplication
-                                .ObjImporter
+                                .MeshImporter
                                 .Import(source, action =>
                                 {
                                     action(new GameObject("Import"));
@@ -140,6 +197,44 @@ namespace CreateAR.SpirePlayer.Editor
                     {
                         Log.Error(this, "Could not download : {0}.", exception);
                     });
+            };
+        }
+
+        /// <summary>
+        /// Deletes a file.
+        /// </summary>
+        /// <param name="id">The id of the file.</param>
+        /// <returns></returns>
+        private Action Delete(string id)
+        {
+            return () =>
+            {
+                EditorApplication
+                    .Api
+                    .Files
+                    .DeleteFile(id)
+                    .OnSuccess(response =>
+                    {
+                        if (null != response.Payload
+                            && response.Payload.Success)
+                        {
+                            Refresh();
+                        }
+                        else
+                        {
+                            EditorUtility.DisplayDialog(
+                                "Error",
+                                "Could not delete file: " + (null == response.Payload
+                                    ? "Unknown."
+                                    : response.Payload.Error),
+                                "Okay");
+                        }
+                    })
+                    .OnFailure(exception =>
+                        EditorUtility.DisplayDialog(
+                            "Error",
+                            "Could not delete file: " + exception.Message,
+                            "Okay"));
             };
         }
 

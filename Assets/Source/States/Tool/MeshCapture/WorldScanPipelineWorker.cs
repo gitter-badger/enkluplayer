@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Util;
 using UnityEngine;
@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Long-running thread that process a scan.
     /// </summary>
-    public class WorldScanPipelineWriterThread
+    public class WorldScanPipelineWorker
     {
         /// <summary>
         /// Internal record-keeping.
@@ -21,9 +21,9 @@ namespace CreateAR.SpirePlayer
             /// <summary>
             /// The ObjExporter snapshot.
             /// </summary>
-            public ObjExporterState State;
+            public MeshStateCollection State;
         }
-
+        
         /// <summary>
         /// Ms to wait for lock.
         /// </summary>
@@ -38,6 +38,11 @@ namespace CreateAR.SpirePlayer
         /// Writes a max of N versions of the same file to disk.
         /// </summary>
         private readonly VersionedFileWriter _fileWriter;
+
+        /// <summary>
+        /// Uploads a file over and over, serially.
+        /// </summary>
+        private readonly FileResourceUpdater _fileUploader;
         
         /// <summary>
         /// World scan queue.
@@ -52,7 +57,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Exporter.
         /// </summary>
-        private readonly ObjExporter _exporter = new ObjExporter();
+        private readonly MeshExporter _exporter = new MeshExporter();
 
         /// <summary>
         /// True iff the thread should be running.
@@ -62,7 +67,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public WorldScanPipelineWriterThread(
+        public WorldScanPipelineWorker(
+            IBootstrapper bootstrapper,
+            IHttpService http,
             int lockTimeoutMs,
             int maxQueued,
             int maxOnDisk,
@@ -89,6 +96,12 @@ namespace CreateAR.SpirePlayer
                 tag,
                 "obj",
                 maxOnDisk);
+            _fileUploader = new FileResourceUpdater(
+                bootstrapper,
+                http,
+                "worldscan");
+
+            _fileUploader.Start();
         }
 
         /// <summary>
@@ -116,12 +129,13 @@ namespace CreateAR.SpirePlayer
                 }
 
                 // process
-                var obj = _exporter.Export(record.State);
+                var bytes = _exporter.Export(record.State);
 
                 // write to disk
-                _fileWriter.Write(Encoding.UTF8.GetBytes(obj));
+                _fileWriter.Write(bytes);
 
                 // send to Trellis
+                _fileUploader.Write(bytes);
 
                 Log.Info(this, "Exported obj.");
             }
@@ -142,7 +156,7 @@ namespace CreateAR.SpirePlayer
                 {
                     _queue.Enqueue(new WorldScanRecord
                     {
-                        State = new ObjExporterState(objects)
+                        State = new MeshStateCollection(objects)
                     });
 
                     // discard
@@ -168,6 +182,8 @@ namespace CreateAR.SpirePlayer
         public void Kill()
         {
             _isAlive = false;
+
+            _fileUploader.Stop();
 
             // may be waiting on a pulse
             Monitor.Enter(_lock);
