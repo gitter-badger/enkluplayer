@@ -34,6 +34,7 @@ namespace CreateAR.SpirePlayer
             PlayApplicationState play,
             HierarchyApplicationState hierarchy,
             BleSearchApplicationState ble,
+            DesignApplicationState design,
             // TODO: find a different pattern to do this
 #if NETFX_CORE
             MeshCaptureApplicationState meshCapture,
@@ -51,6 +52,7 @@ namespace CreateAR.SpirePlayer
                 play,
                 hierarchy,
                 ble,
+                design,
 #if NETFX_CORE
                 meshCapture,
 #endif
@@ -67,7 +69,7 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Application ready.");
 
-                    _states.Change<ToolModeApplicationState>();
+                    _states.Change<DesignApplicationState>();
                 });
 
             Subscribe<PreviewEvent>(

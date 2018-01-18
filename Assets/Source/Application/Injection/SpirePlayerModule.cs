@@ -7,6 +7,7 @@ using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
+using CreateAR.SpirePlayer.Vine;
 using CreateAR.Trellis;
 using Jint.Parser;
 using Jint.Unity;
@@ -61,6 +62,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
+                binder.Bind<IVinePreProcessor>().To<JsVinePreProcessor>().ToSingleton();
 
                 // input
                 {
@@ -113,6 +115,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                     binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
+                    binder.Bind<DesignApplicationState>().To<DesignApplicationState>();
 
                     // tools
                     {
