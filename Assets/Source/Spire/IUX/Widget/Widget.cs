@@ -208,31 +208,6 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get { return _isVisible; }
         }
-
-        /// <summary>
-        /// Parent accessor
-        /// </summary>
-        public Widget Parent
-        {
-            get { return _parent; }
-            // TODO: MAKE PRIVATE
-            set
-            {
-                if (_parent != null)
-                {
-                    GameObject.transform.SetParent(null);
-                }
-
-                _parent = value;
-
-                if (_parent != null)
-                {
-                    GameObject
-                        .transform
-                        .SetParent(_parent.GameObject.transform, true);
-                }
-            }
-        }
         
         /// <summary>
         /// Tween for the widget.
@@ -243,9 +218,9 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 var tween = _localTween;
 
-                if (Parent != null)
+                if (_parent != null)
                 {
-                    tween *= Parent.Tween;
+                    tween *= _parent.Tween;
                 }
 
                 return tween;
@@ -266,9 +241,9 @@ namespace CreateAR.SpirePlayer.IUX
                 if (ColorMode == ColorMode.InheritColor)
                 {
                     var parentColor = Col4.White;
-                    if (Parent != null)
+                    if (_parent != null)
                     {
-                        parentColor = Parent.Color;
+                        parentColor = _parent.Color;
                     }
 
                     finalColor *= parentColor;
@@ -277,9 +252,9 @@ namespace CreateAR.SpirePlayer.IUX
                 if (ColorMode == ColorMode.InheritAlpha)
                 {
                     var parentAlpha = 1.0f;
-                    if (Parent != null)
+                    if (_parent != null)
                     {
-                        parentAlpha = Parent.Color.a;
+                        parentAlpha = _parent.Color.a;
                     }
 
                     var color = finalColor;
@@ -300,9 +275,9 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 if (_layer == null)
                 {
-                    if (Parent != null)
+                    if (_parent != null)
                     {
-                        return Parent.Layer;
+                        return _parent.Layer;
                     }
                 }
 
@@ -444,10 +419,10 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.AddChildInternal(element);
             
-            var childWidget = element as Widget;
-            if (childWidget != null)
+            var widget = element as Widget;
+            if (widget != null)
             {
-                childWidget.Parent = this;
+                AddChildToHierarchy(widget, this);
             }
         }
 
@@ -504,15 +479,37 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateColor(deltaTime);
             UpdateAutoDestroy();
         }
-        
+
+        /// <summary>
+        /// Adds child to Unity hierarchy.
+        /// </summary>
+        /// <param name="child">Child.</param>
+        /// <param name="parent">Parent.</param>
+        protected virtual void AddChildToHierarchy(Widget child, Widget parent)
+        {
+            if (child._parent != null)
+            {
+                GameObject.transform.SetParent(null);
+            }
+
+            child._parent = parent;
+
+            if (child._parent != null)
+            {
+                child.GameObject
+                    .transform
+                    .SetParent(child._parent.GameObject.transform, true);
+            }
+        }
+
         /// <summary>
         /// Updates the visibility
         /// </summary>
         private void UpdateVisibility()
         {
             var parentVisible = VisibilityMode != VisibilityMode.Inherit
-                || Parent == null
-                || Parent.Visible;
+                || _parent == null
+                || _parent.Visible;
 
             var layerIsVisible = !(LayerMode == LayerMode.Hide && !LayerInteractive);
 

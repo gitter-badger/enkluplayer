@@ -78,9 +78,8 @@ namespace CreateAR.SpirePlayer.IUX
         {
             // create a text primitive.
             var textPrimitive = _primitives.Text(Schema);
-
             textPrimitive.Text = text;
-            textPrimitive.Parent = this;
+            AddChild(textPrimitive);
             
             var textEntry = new TextEntry
             {
