@@ -214,7 +214,6 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             _children.Add(element);
-            
             element.OnChildAdded += Child_OnChildAdded;
             element.OnChildRemoved += Child_OnChildRemoved;
 

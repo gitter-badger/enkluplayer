@@ -229,7 +229,7 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     GameObject
                         .transform
-                        .SetParent(_parent.GameObject.transform, false);
+                        .SetParent(_parent.GameObject.transform, true);
                 }
             }
         }

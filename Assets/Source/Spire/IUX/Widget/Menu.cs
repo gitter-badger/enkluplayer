@@ -15,6 +15,11 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IPrimitiveFactory _primitives;
 
         /// <summary>
+        /// List of children to layout. This filters out menu, title, etc.
+        /// </summary>
+        private readonly List<Element> _filteredChildren = new List<Element>();
+
+        /// <summary>
         /// Properties.
         /// </summary>
         private ElementSchemaProp<string> _title;
@@ -85,13 +90,13 @@ namespace CreateAR.SpirePlayer.IUX
 
             // create + place title
             _titlePrimitive = _primitives.Text(Schema);
-            _titlePrimitive.Parent = this;
+            AddChild(_titlePrimitive);
             _titlePrimitive.Text = _title.Value;
             _titlePrimitive.FontSize = _fontSize.Value;
 
             // create + place description
             _descriptionPrimitive = _primitives.Text(Schema);
-            _descriptionPrimitive.Parent = this;
+            AddChild(_descriptionPrimitive);
             _descriptionPrimitive.Overflow = HorizontalWrapMode.Wrap;
             _descriptionPrimitive.Alignment = AlignmentTypes.TOP_LEFT;
             _descriptionPrimitive.Text = _description.Value;
@@ -111,10 +116,7 @@ namespace CreateAR.SpirePlayer.IUX
             _layoutDegrees.OnChanged -= LayoutDegrees_OnChanged;
             _layoutRadius.OnChanged -= LayoutRadius_OnChanged;
             _headerWidth.OnChanged -= HeaderWidth_OnChanged;
-
-            _titlePrimitive.Destroy();
-            _descriptionPrimitive.Destroy();
-
+            
             base.UnloadInternal();
         }
 
@@ -259,7 +261,21 @@ namespace CreateAR.SpirePlayer.IUX
             var layout = _layout.Value;
             if (layout == "Radial")
             {
-                RadialLayout(Children,
+                var children = Children;
+                _filteredChildren.Clear();
+                for (int i = 0, len = children.Length; i < len; i++)
+                {
+                    var child = children[i];
+                    if (child == _titlePrimitive || child == _descriptionPrimitive)
+                    {
+                        continue;
+                    }
+
+                    _filteredChildren.Add(child);
+                }
+
+                RadialLayout(
+                    _filteredChildren,
                     _layoutRadius.Value,
                     _layoutDegrees.Value);
             }
@@ -279,7 +295,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 return;
             }
-
+            
             var localRadius = worldRadius;
 
             var baseTheta = children.Count > 1
