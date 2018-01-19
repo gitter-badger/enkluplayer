@@ -226,7 +226,7 @@ namespace CreateAR.SpirePlayer.IUX
             
             _descriptionPrimitive.LocalPosition = new Vector3(
                 0,
-                -_descriptionPrimitive.Height / 2f,
+                -_descriptionPrimitive.Height / 2f - 0.02f,
                 0f);
 
             if (!string.IsNullOrEmpty(_description.Value))
