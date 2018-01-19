@@ -146,7 +146,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             base.DestroyInternal();
         }
-
+        
         /// <summary>
         /// Called when the title value has changed.
         /// </summary>

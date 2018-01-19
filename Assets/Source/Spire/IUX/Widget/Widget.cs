@@ -317,30 +317,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Retrieves the transform.
         /// </summary>
         public GameObject GameObject { get { return _gameObject; } }
-
-        /// <summary>
-        /// Bounds object.
-        /// </summary>
-        public Bounds Bounds
-        {
-            get
-            {
-                var bounds = CalculateSelfBounds();
-
-                var children = Children;
-                for (int i = 0, len = children.Length; i < len; i++)
-                {
-                    var widgetChild = children[i] as Widget;
-                    if (null != widgetChild)
-                    {
-                        bounds.Encapsulate(widgetChild.Bounds);
-                    }
-                }
-
-                return bounds;
-            }
-        }
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -514,16 +491,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             return GameObject.transform;
         }
-
-        /// <summary>
-        /// Calculates own bounds.
-        /// </summary>
-        /// <returns></returns>
-        protected virtual Bounds CalculateSelfBounds()
-        {
-            return new Bounds(GameObject.transform.position, Vector3.zero);
-        }
-
+        
         /// <summary>
         /// Initializes all <c>IWidgetComponent</c> children.
         /// </summary>
