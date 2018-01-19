@@ -6,52 +6,52 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Component that tweens alpha.
     /// </summary>
-    public class TweenAlphaComponent : MonoBehaviour
+    public class TweenAlphaComponent : MonoBehaviour, IWidgetComponent
     {
         /// <summary>
-        /// Retrievs the 
-        /// </summary>
-        public Widget Widget;
-
-        /// <summary>
-        /// Graphic Color
+        /// Graphic.
         /// </summary>
         public Graphic Graphic;
 
         /// <summary>
-        /// Graphic Color
+        /// CanvasRenderer.
         /// </summary>
         public CanvasRenderer CanvasRenderer;
 
         /// <summary>
-        /// Particle System
+        /// Particle System.
         /// </summary>
         public ParticleSystem ParticleSystem;
 
         /// <summary>
-        /// Renderer
+        /// Renderer.
         /// </summary>
         public Renderer Renderer;
 
         /// <summary>
-        /// Direct material tweening
+        /// Material.
         /// </summary>
         public Material Material;
 
         /// <summary>
-        /// Name for renderer material
+        /// Name for renderer material.
         /// </summary>
         public string MaterialColorName = "_Color";
 
         /// <summary>
-        /// If true, excludes color from tween
+        /// If true, excludes color from tween.
         /// </summary>
         public bool ExcludeColor;
 
         /// <summary>
-        /// For modulating against widget color
+        /// For modulating against widget color.
         /// </summary>
         public Color GraphicStartColor { get; private set; }
+
+        /// <summary>
+        /// The Widget to affect.
+        /// </summary>
+        public Widget Widget { get; set; }
 
         /// <summary>
         /// Initialization
