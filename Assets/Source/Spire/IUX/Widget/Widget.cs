@@ -62,11 +62,6 @@ namespace CreateAR.SpirePlayer.IUX
         private Layer _layer;
 
         /// <summary>
-        /// Widget hierarchy.
-        /// </summary>
-        private Widget _parent;
-
-        /// <summary>
         /// Current tween Value.
         /// </summary>
         private float _localTween = 0.0f;
@@ -75,6 +70,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// True if the widget is currently visible.
         /// </summary>
         private bool _localVisible;
+
+        /// <summary>
+        /// Widget hierarchy.
+        /// </summary>
+        internal Widget _parent;
 
         /// <summary>
         /// True if the window has been visible
@@ -419,10 +419,22 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.AddChildInternal(element);
             
-            var widget = element as Widget;
-            if (widget != null)
+            var child = element as Widget;
+            if (child != null)
             {
-                AddChildToHierarchy(widget, this);
+                if (child._parent != null)
+                {
+                    child.GameObject.transform.SetParent(null);
+                }
+
+                child._parent = this;
+
+                if (child._parent != null)
+                {
+                    child.GameObject.transform.SetParent(
+                        GetChildHierarchyParent(child),
+                        true);
+                }
             }
         }
 
@@ -481,27 +493,15 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Adds child to Unity hierarchy.
+        /// Retrives the Unity hierarchy root for children.
         /// </summary>
-        /// <param name="child">Child.</param>
-        /// <param name="parent">Parent.</param>
-        protected virtual void AddChildToHierarchy(Widget child, Widget parent)
+        /// <param name="child">The child.</param>
+        /// <returns></returns>
+        protected virtual Transform GetChildHierarchyParent(Widget child)
         {
-            if (child._parent != null)
-            {
-                GameObject.transform.SetParent(null);
-            }
-
-            child._parent = parent;
-
-            if (child._parent != null)
-            {
-                child.GameObject
-                    .transform
-                    .SetParent(child._parent.GameObject.transform, true);
-            }
+            return GameObject.transform;
         }
-
+        
         /// <summary>
         /// Updates the visibility
         /// </summary>
