@@ -154,7 +154,8 @@ namespace CreateAR.SpirePlayer.Vine
             else
             {
                 throw new Exception(string.Format(
-                    "Invalid element exit. Parser/lexer error most likely. Please report this. {0}",
+                    "Invalid element exit '{0}'. Parser/lexer error most likely. Please report this. {1}",
+                    closingToken,
                     GetExceptionLocation(context)));
             }
 

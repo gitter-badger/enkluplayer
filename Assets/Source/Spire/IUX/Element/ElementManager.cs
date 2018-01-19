@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             for (int i = 0, len = _all.Count; i < len; i++)
             {
-                var element = (Element) _all[i];
+                var element = _all[i];
                 if (element.Guid == guid)
                 {
                     return element;

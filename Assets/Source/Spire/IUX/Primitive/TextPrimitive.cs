@@ -269,29 +269,23 @@ namespace CreateAR.SpirePlayer.IUX
         /// [Conditional("ELEMENT_DEBUGGING")]
         private void DebugDraw()
         {
-            var handle = Render.Handle("IUX");
+            var handle = Render.Handle("IUX.Text");
             if (null == handle)
             {
                 return;
             }
 
+            var pos = _renderer.Text.rectTransform.position;
+            var width = Width;
+            var height = Height;
             handle.Draw(ctx =>
             {
                 ctx.Prism(new Bounds(
-                    _renderer.Text.rectTransform.position,
+                    pos,
                     new Vector3(
-                        Width,
-                        Height,
+                        width,
+                        height,
                         0)));
-
-                /*var rect = TextRect;
-                ctx.Color(new Color(1, 0, 0));
-                ctx.Prism(new Bounds(
-                    _renderer.Text.rectTransform.position,
-                    new Vector3(
-                        (rect.max.x - rect.min.x) * _renderer.Text.rectTransform.localScale.x,
-                        (rect.max.y - rect.min.y) * _renderer.Text.rectTransform.localScale.y,
-                        0)));*/
             });
         }
 

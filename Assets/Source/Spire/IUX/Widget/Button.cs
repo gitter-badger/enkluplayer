@@ -118,8 +118,8 @@ namespace CreateAR.SpirePlayer.IUX
                 _labelPaddingProp.OnChanged += LabelPadding_OnChanged;
 
                 _text = _primitives.Text(Schema);
-                _text.Parent = this;
                 _text.Text = _labelProp.Value;
+                AddChild(_text);
 
                 UpdateLabelLayout();
             }
@@ -137,12 +137,7 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void UnloadInternal()
         {
             base.UnloadInternal();
-
-            // activator
-            {
-                _activator.Unload();
-            }
-
+            
             // cleanup label
             {
                 _labelProp.OnChanged -= Label_OnChange;
@@ -151,7 +146,7 @@ namespace CreateAR.SpirePlayer.IUX
             
             UnregisterVoiceCommand();
         }
-
+        
         /// <summary>
         /// Registers voice command.
         /// </summary>

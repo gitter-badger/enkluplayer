@@ -355,17 +355,19 @@ namespace CreateAR.SpirePlayer.IUX
         /// [Conditional("ELEMENT_DEBUGGING")]
         private void DebugDraw()
         {
-            var handle = Render.Handle("IUX");
+            var handle = Render.Handle("IUX.Activator");
             if (null == handle)
             {
                 return;
             }
 
+            var pos = _renderer.transform.position;
+            var rad = _renderer.Radius;
             handle.Draw(ctx =>
             {
                 ctx.Prism(new Bounds(
-                    _renderer.transform.position,
-                    _renderer.Radius * Vector3.one));
+                    pos,
+                    rad * Vector3.one));
             });
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -45,7 +46,7 @@ namespace CreateAR.SpirePlayer.IUX
                 return _children.ToArray();
             }
         }
-
+        
         /// <summary>
         /// Invoked when element is destroyed.
         /// </summary>
@@ -126,6 +127,8 @@ namespace CreateAR.SpirePlayer.IUX
                 }
             }
 
+            Log.Info(this, "Load({0})", Guid);
+
             LoadInternal();
         }
 
@@ -134,14 +137,23 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         internal void Unload()
         {
+            // unload children first
+            for (var i = _children.Count - 1; i >= 0; i--)
+            {
+                _children[i].Unload();
+            }
+            _children.Clear();
+
+            Log.Info(this, "Unload({0})", Guid);
+
             UnloadInternal();
 
             Id = string.Empty;
+
+            // TODO: create on Load(), NOT constructor/Unload
             Schema = new ElementSchema("Unknown");
-
-            _children.Clear();
         }
-
+        
         /// <summary>
         /// Frame based update.
         /// </summary>
@@ -163,15 +175,21 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public void Destroy()
         {
+            // destroy children
+            for (var i = _children.Count - 1; i >= 0; i--)
+            {
+                _children[i].Destroy();
+            }
+
+            Log.Info(this, "Destroy({0})", Guid);
+
+            UnloadInternal();
+            DestroyInternal();
+
             if (OnDestroyed != null)
             {
-                Unload();
-
-                if (OnDestroyed != null)
-                {
-                    OnDestroyed(this);
-                    OnDestroyed = null;
-                }
+                OnDestroyed(this);
+                OnDestroyed = null;
             }
         }
 
@@ -396,6 +414,14 @@ namespace CreateAR.SpirePlayer.IUX
         /// For base classes to override.
         /// </summary>
         protected virtual void UnloadInternal()
+        {
+
+        }
+
+        /// <summary>
+        /// For base classes to override.
+        /// </summary>
+        protected virtual void DestroyInternal()
         {
 
         }

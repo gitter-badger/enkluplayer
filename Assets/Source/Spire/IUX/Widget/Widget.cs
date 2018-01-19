@@ -215,6 +215,7 @@ namespace CreateAR.SpirePlayer.IUX
         public Widget Parent
         {
             get { return _parent; }
+            // TODO: MAKE PRIVATE
             set
             {
                 if (_parent != null)
@@ -438,8 +439,6 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 Layers.Release(_layer);
             }
-
-            LocalVisible = false;
         }
         
         /// <summary>

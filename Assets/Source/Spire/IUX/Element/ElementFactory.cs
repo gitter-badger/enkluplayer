@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -178,7 +179,9 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 case ElementTypes.CONTAINER:
                 {
-                    return new Element();
+                    return new Container(
+                        new GameObject("<Container />"),
+                        _config, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.CAPTION:
                 {

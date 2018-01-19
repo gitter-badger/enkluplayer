@@ -53,8 +53,8 @@ namespace CreateAR.SpirePlayer.IUX
             _text.OnChanged += Text_OnChange;
 
             _primitive = _primitives.Text(Schema);
-            _primitive.Parent = this;
             _primitive.Text = _text.Value;
+            AddChild(_primitive);
         }
 
         /// <inheritdoc cref="Element"/>
@@ -62,6 +62,8 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _text.OnChanged -= Text_OnChange;
             _text = null;
+
+            base.UnloadInternal();
         }
 
         /// <summary>

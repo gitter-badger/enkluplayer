@@ -118,6 +118,15 @@ namespace CreateAR.SpirePlayer.IUX
             base.UnloadInternal();
         }
 
+        /// <inheritdoc />
+        protected override void DestroyInternal()
+        {
+            _titlePrimitive.Destroy();
+            _descriptionPrimitive.Destroy();
+
+            base.DestroyInternal();
+        }
+
         /// <summary>
         /// Called when the title value has changed.
         /// </summary>

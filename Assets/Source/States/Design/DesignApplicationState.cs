@@ -14,6 +14,7 @@ namespace CreateAR.SpirePlayer
         private readonly VineImporter _vine;
 
         private Element _menu;
+        private Element _cursor;
 
         public DesignApplicationState(
             IMessageRouter messages,
@@ -39,7 +40,8 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            _menu = _elements.Element(_vine.Parse(designAsset.text));
+            //_menu = _elements.Element(_vine.Parse(designAsset.text));
+            //_cursor = _elements.Element(_vine.Parse("<?Vine><Cursor />"));
         }
 
         /// <inheritdoc cref="IState"/>

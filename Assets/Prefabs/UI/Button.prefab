@@ -290,7 +290,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224836200394989536}
-  - component: {fileID: 114593814821999522}
   - component: {fileID: 223251523119465220}
   m_Layer: 5
   m_Name: Highlighted Widget
@@ -533,6 +532,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -548,6 +548,7 @@ MeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -565,6 +566,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -580,6 +582,7 @@ MeshRenderer:
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -597,6 +600,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -612,6 +616,7 @@ MeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -629,6 +634,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
   m_MotionVectors: 2
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
@@ -644,6 +650,7 @@ MeshRenderer:
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -754,7 +761,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Widget: {fileID: 114223934892903586}
   Graphic: {fileID: 0}
   CanvasRenderer: {fileID: 0}
   Renderer: {fileID: 23034579339090444}
@@ -771,7 +777,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Widget: {fileID: 114223934892903586}
   Graphic: {fileID: 114865176187918430}
   CanvasRenderer: {fileID: 0}
   Renderer: {fileID: 0}
@@ -857,7 +862,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Widget: {fileID: 114517216487231708}
   Graphic: {fileID: 0}
   CanvasRenderer: {fileID: 0}
   Renderer: {fileID: 23138686869704458}
@@ -895,7 +899,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Widget: {fileID: 114541498173983578}
   Graphic: {fileID: 0}
   CanvasRenderer: {fileID: 0}
   Renderer: {fileID: 23850276908988352}
@@ -1033,26 +1036,6 @@ MonoBehaviour:
     m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: Text
---- !u!114 &114593814821999522
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1705996379989028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d479722835c8a8d42971379d91d0f19a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LocalColor: {r: 1, g: 1, b: 1, a: 1}
-  TweenIn: 2
-  TweenOut: 2
-  VirtualColor: 0
-  ColorMode: 0
-  VisibilityMode: 0
-  Anchors: {fileID: 0}
-  StartVisible: 1
-  AutoDestroy: 0
 --- !u!114 &114710997407359356
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1112,7 +1095,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Widget: {fileID: 114223934892903586}
   Graphic: {fileID: 0}
   CanvasRenderer: {fileID: 0}
   Renderer: {fileID: 23569088692755140}
@@ -1154,6 +1136,7 @@ SpriteRenderer:
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1169,6 +1152,7 @@ SpriteRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 0
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1292,7 +1276,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1323105778846006}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 120, y: 0, z: 0}
   m_LocalScale: {x: 0.9999999, y: 0.9999999, z: 0.9999999}
   m_Children: []
   m_Father: {fileID: 224165515539002384}
@@ -1352,7 +1336,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1018924799955578}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -5.2}
+  m_LocalPosition: {x: 0.0000076293945, y: -0.0000076293945, z: -5.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4452967794521976}
@@ -1447,7 +1431,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1968043359847326}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -120, y: 0, z: 0}
   m_LocalScale: {x: 0.9999998, y: 0.9999998, z: 0.9999998}
   m_Children: []
   m_Father: {fileID: 224165515539002384}
@@ -1484,7 +1468,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1485391834421192}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -70, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 224165515539002384}
@@ -1521,7 +1505,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1618164143690354}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 70, z: 0}
   m_LocalScale: {x: 0.99999994, y: 0.99999994, z: 0.99999994}
   m_Children: []
   m_Father: {fileID: 224165515539002384}
