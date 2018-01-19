@@ -53,7 +53,7 @@ namespace CreateAR.SpirePlayer.IUX
         public TextCrawl(
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
+            TweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages,
             IPrimitiveFactory primitives)

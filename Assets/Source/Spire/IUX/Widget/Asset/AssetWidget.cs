@@ -78,7 +78,7 @@ namespace CreateAR.SpirePlayer.IUX
             IAssetAssembler assembler,
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
+            TweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages)
             : base(

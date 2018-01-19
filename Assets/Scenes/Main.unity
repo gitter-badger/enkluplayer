@@ -1374,6 +1374,36 @@ Prefab:
       propertyPath: m_RootOrder
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 114289638523300488, guid: d764834611b5ac141aa85404ee14797a,
+        type: 2}
+      propertyPath: ButtonScaleTween.Start.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114289638523300488, guid: d764834611b5ac141aa85404ee14797a,
+        type: 2}
+      propertyPath: ButtonScaleTween.Start.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114289638523300488, guid: d764834611b5ac141aa85404ee14797a,
+        type: 2}
+      propertyPath: ButtonScaleTween.Start.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114289638523300488, guid: d764834611b5ac141aa85404ee14797a,
+        type: 2}
+      propertyPath: ButtonScaleTween.End.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114289638523300488, guid: d764834611b5ac141aa85404ee14797a,
+        type: 2}
+      propertyPath: ButtonScaleTween.End.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114289638523300488, guid: d764834611b5ac141aa85404ee14797a,
+        type: 2}
+      propertyPath: ButtonScaleTween.End.z
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d764834611b5ac141aa85404ee14797a, type: 2}
   m_IsPrefabParent: 0

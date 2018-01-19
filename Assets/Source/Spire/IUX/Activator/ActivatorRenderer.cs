@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Dependencies.
         /// </summary>
         private WidgetConfig _config;
-        private ITweenConfig _tweens;
+        private TweenConfig _tweens;
         private IColorConfig _colors;
         private ActivatorPrimitive _activator;
 
@@ -80,7 +80,7 @@ namespace CreateAR.SpirePlayer.IUX
             ActivatorPrimitive activator,
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
+            TweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages,
             IIntentionManager intention, 

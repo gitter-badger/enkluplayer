@@ -11,31 +11,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Transform.
         /// </summary>
         public Transform Transform;
-
-        /// <summary>
-        /// Position information.
-        /// </summary>
-        [Header("Position")]
-        public Vector3 Position0;
-        public Vector3 Position1;
-        public AnimationCurve PositionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-
-        /// <summary>
-        /// Scale information.
-        /// </summary>
-        [Header("Scale")]
-        public Vector3 Scale0 = Vector3.one;
-        public Vector3 Scale1 = Vector3.one;
-        public AnimationCurve ScaleCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-
-        /// <summary>
-        /// Rotation information.
-        /// </summary>
-        [Header("Rotation")]
-        public Vector3 Rotation0 = Vector3.zero;
-        public Vector3 Rotation1 = Vector3.zero;
-        public AnimationCurve RotationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-
+        
         /// <inheritdoc cref="IWidgetComponent"/>
         public Widget Widget { get; set; }
         
@@ -48,21 +24,22 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             var tween = Widget.Tween;
+            var tweens = Widget.Tweens;
 
             var localPosition = Vector3.Lerp(
-                Position0,
-                Position1,
-                PositionCurve.Evaluate(tween));
+                tweens.ButtonPositionTween.Start,
+                tweens.ButtonPositionTween.End,
+                tweens.ButtonPositionTween.Curve.Evaluate(tween));
 
             var localRotation = Vector3.Slerp(
-                Rotation0,
-                Rotation1,
-                RotationCurve.Evaluate(tween));
+                tweens.ButtonRotationTween.Start,
+                tweens.ButtonRotationTween.End,
+                tweens.ButtonRotationTween.Curve.Evaluate(tween));
 
             var localScale = Vector3.Lerp(
-                Scale0,
-                Scale1,
-                ScaleCurve.Evaluate(tween));
+                tweens.ButtonScaleTween.Start,
+                tweens.ButtonScaleTween.End,
+                tweens.ButtonScaleTween.Curve.Evaluate(tween));
 
             var targetTransform = Transform != null
                 ? Transform

@@ -143,7 +143,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Defines how far text pushes backwards as it fades as multiple of CrawlFadeOutOffset.
         /// </summary>
         public float CrawlFadeOutDepthScale = 5.0f;
-        
+
         /// <summary>
         /// Text prefab.
         /// </summary>

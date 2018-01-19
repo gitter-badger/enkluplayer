@@ -2,6 +2,7 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -33,18 +34,9 @@ namespace CreateAR.SpirePlayer.IUX
     public class Widget : Element, ILayerable
     {
         /// <summary>
-        /// Dependencies.
+        /// Regex for parsing element names.
         /// </summary>
-        public ILayerManager Layers { get; private set; }
-        public IColorConfig Colors { get; private set; }
-        public ITweenConfig Tweens { get; private set; }
-        public WidgetConfig Config { get; private set; }
-        public IMessageRouter Messages { get; private set; }
-
-        /// <summary>
-        /// True iff <c>LoadInternal</c> has been called.
-        /// </summary>
-        public bool IsLoaded { get; private set; }
+        private readonly Regex _elementParser = new Regex(@"Guid=([a-zA-Z0-9\-]+)");
 
         /// <summary>
         /// True if the widget is currently visible
@@ -98,6 +90,20 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<VisibilityMode> _visibilityMode;
         private ElementSchemaProp<LayerMode> _layerMode;
         private ElementSchemaProp<bool> _autoDestroy;
+
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
+        public ILayerManager Layers { get; private set; }
+        public IColorConfig Colors { get; private set; }
+        public TweenConfig Tweens { get; private set; }
+        public WidgetConfig Config { get; private set; }
+        public IMessageRouter Messages { get; private set; }
+
+        /// <summary>
+        /// True iff <c>LoadInternal</c> has been called.
+        /// </summary>
+        public bool IsLoaded { get; private set; }
 
         /// <summary>
         /// Color accessor.
@@ -342,7 +348,7 @@ namespace CreateAR.SpirePlayer.IUX
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
+            TweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages)
         {
@@ -416,6 +422,8 @@ namespace CreateAR.SpirePlayer.IUX
 
             _gameObject.name = Schema.GetOwn("name", ToString()).Value;
             _gameObject.transform.localPosition = _localPosition.Value.ToVector();
+
+            InitializeWidgetComponents(GameObject.transform);
 
             OnVisible.OnChanged += IsVisible_OnUpdate;
 
@@ -515,7 +523,29 @@ namespace CreateAR.SpirePlayer.IUX
         {
             return new Bounds(GameObject.transform.position, Vector3.zero);
         }
-        
+
+        /// <summary>
+        /// Initializes all <c>IWidgetComponent</c> children.
+        /// </summary>
+        private void InitializeWidgetComponents(Transform transform)
+        {
+            var childCount = transform.childCount;
+            for (var i = 0; i < childCount; i++)
+            {
+                var child = transform.GetChild(i);
+                if (_elementParser.IsMatch(child.name))
+                {
+                    continue;
+                }
+
+                var components = child.GetComponents<IWidgetComponent>();
+                for (int j = 0, jlen = components.Length; j < jlen; j++)
+                {
+                    components[j].Widget = this;
+                }
+            }
+        }
+
         /// <summary>
         /// Updates the visibility
         /// </summary>

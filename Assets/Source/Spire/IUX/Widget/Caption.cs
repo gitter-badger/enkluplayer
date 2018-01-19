@@ -30,7 +30,7 @@ namespace CreateAR.SpirePlayer.IUX
             WidgetConfig config,
             IPrimitiveFactory primitives,
             ILayerManager layers,
-            ITweenConfig tweens,
+            TweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages)
             : base(

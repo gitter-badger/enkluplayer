@@ -51,7 +51,7 @@ namespace CreateAR.SpirePlayer.IUX
         public Menu(
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
+            TweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages,
             IPrimitiveFactory primitives)

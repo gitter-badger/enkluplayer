@@ -87,7 +87,7 @@ namespace CreateAR.SpirePlayer
         public Content(
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
+            TweenConfig tweens,
             IColorConfig colors,
             IMessageRouter messages)
             : base(
