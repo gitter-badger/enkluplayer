@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class VineRawMonoBehaviour : InjectableMonoBehaviour
     {
-        private const float TIMEOUT_SEC = 1;
+        private const float TIMEOUT_SEC = 0.1f;
 
         /// <summary>
         /// Imports from vine.
