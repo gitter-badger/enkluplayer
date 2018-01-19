@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -51,16 +52,23 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void LoadInternal()
+        protected override void BeforeLoadChildrenInternal()
         {
-            base.LoadInternal();
+            base.BeforeLoadChildrenInternal();
 
+            // children need to be added to this
             _renderer = Object.Instantiate(
                 _config.Float,
                 Vector3.zero,
                 Quaternion.identity);
             _renderer.transform.SetParent(GameObject.transform, false);
             _renderer.Initialize(this, _intention);
+        }
+
+        /// <inheritdoc cref="Element"/>
+        protected override void AfterLoadChildrenInternal()
+        {
+            base.AfterLoadChildrenInternal();
 
             // load font setup.
             _propPosition = Schema.GetOwn("position", new Vec3(0, 0, 2.5f));
@@ -78,6 +86,12 @@ namespace CreateAR.SpirePlayer.IUX
             base.UnloadInternal();
         }
         
+        /// <inheritdoc />
+        protected override Transform GetChildHierarchyParent(Widget child)
+        {
+            return _renderer.StationaryWidget.transform;
+        }
+
         /// <summary>
         /// Called when the label has been updated.
         /// </summary>

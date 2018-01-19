@@ -116,6 +116,8 @@ namespace CreateAR.SpirePlayer.IUX
             Schema = schema;
             Schema.Identifier = data.Id;
 
+            BeforeLoadChildrenInternal();
+
             // child schemas wrap parent
             for (int i = 0, len = children.Length; i < len; i++)
             {
@@ -129,7 +131,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             Log.Info(this, "Load({0})", Guid);
 
-            LoadInternal();
+            AfterLoadChildrenInternal();
         }
 
         /// <summary>
@@ -404,11 +406,19 @@ namespace CreateAR.SpirePlayer.IUX
                 }
             }
         }
+
+        /// <summary>
+        /// For base classes to override.
+        /// </summary>
+        protected virtual void BeforeLoadChildrenInternal()
+        {
+
+        }
         
         /// <summary>
         /// For base classes to override.
         /// </summary>
-        protected virtual void LoadInternal()
+        protected virtual void AfterLoadChildrenInternal()
         {
             
         }

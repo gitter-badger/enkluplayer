@@ -199,7 +199,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 130951154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -258, y: -124, z: 0}
+  m_LocalPosition: {x: -260.5, y: -234.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1693554495}
@@ -1219,7 +1219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vine: "<?Vine>\n<Float position=(0,0,3)>\r\n\t<Menu title='Design'>\r\n\t\t<Button
+  Vine: "<?Vine>\r\n<Float position=(0,0,3)>\r\n\t<Menu title='Design'>\r\n\t\t<Button
     label='Load Scene' />\r\n\t\t<Button label='New Scene' />\r\n\t\t<Button label='Play'
     />\r\n\t\t<Button label='Exit' />\r\n\t</Menu>\r\n</Float>"
 --- !u!4 &1662866789
@@ -1318,7 +1318,7 @@ RectTransform:
   m_GameObject: {fileID: 1693554491}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.009053034, y: 0.009053034, z: 0.009053034}
+  m_LocalScale: {x: 0.0054087345, y: 0.0054087345, z: 0.0054087345}
   m_Children:
   - {fileID: 1598552740}
   - {fileID: 130951155}

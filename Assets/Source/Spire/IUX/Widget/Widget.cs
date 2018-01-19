@@ -335,9 +335,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Initialization
         /// </summary>
-        protected override void LoadInternal()
+        protected override void AfterLoadChildrenInternal()
         {
-            base.LoadInternal();
+            base.AfterLoadChildrenInternal();
 
             _localColor = Schema.GetOwn("color", Col4.White);
             _localPosition = Schema.GetOwn("position", Vec3.Zero);
@@ -352,16 +352,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             _gameObject.name = Schema.GetOwn("name", ToString()).Value;
             _gameObject.transform.localPosition = _localPosition.Value.ToVector();
-
-            for (int i = 0; i < Children.Length; ++i)
-            {
-                var child = Children[i] as Widget;
-                if (child != null)
-                {
-                    child.GameObject.transform.SetParent(_gameObject.transform, false);
-                }
-            }
-
+            
             OnVisible.OnChanged += IsVisible_OnUpdate;
 
             UpdateVisibility();
@@ -422,19 +413,10 @@ namespace CreateAR.SpirePlayer.IUX
             var child = element as Widget;
             if (child != null)
             {
-                if (child._parent != null)
-                {
-                    child.GameObject.transform.SetParent(null);
-                }
-
                 child._parent = this;
-
-                if (child._parent != null)
-                {
-                    child.GameObject.transform.SetParent(
-                        GetChildHierarchyParent(child),
-                        true);
-                }
+                child.GameObject.transform.SetParent(
+                    GetChildHierarchyParent(child),
+                    true);
             }
         }
 
