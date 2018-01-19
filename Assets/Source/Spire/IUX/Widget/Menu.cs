@@ -226,6 +226,7 @@ namespace CreateAR.SpirePlayer.IUX
             
             _descriptionPrimitive.LocalPosition = new Vector3(
                 0,
+                // TODO: move to prop
                 -_descriptionPrimitive.Height / 2f - 0.02f,
                 0f);
 
