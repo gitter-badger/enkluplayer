@@ -36,7 +36,7 @@ namespace CreateAR.SpirePlayer.Editor
                 RelUrl = file.RelUrl;
             }
         }
-        
+
         /// <summary>
         /// Table to display scans in.
         /// </summary>
@@ -49,7 +49,7 @@ namespace CreateAR.SpirePlayer.Editor
 
         /// <inheritdoc cref="IEditorView"/>
         public event Action OnRepaintRequested;
-        
+
         /// <inheritdoc cref="IEditorView"/>
         public void Draw()
         {
@@ -86,7 +86,7 @@ namespace CreateAR.SpirePlayer.Editor
                                 var file = files[i];
                                 for (int j = 0, jlen = existingElements.Length; j < jlen; j++)
                                 {
-                                    var element = (WorldScanRecord) existingElements[j];
+                                    var element = (WorldScanRecord)existingElements[j];
                                     if (element.Id == file.Id)
                                     {
                                         // update!
@@ -110,19 +110,19 @@ namespace CreateAR.SpirePlayer.Editor
                         }
 
                         var elements = files.Select(file =>
+                        {
+                            var record = new WorldScanRecord(file.Id)
                             {
-                                var record = new WorldScanRecord(file.Id)
-                                {
-                                    Import = Download(file.Id),
-                                    Delete = Delete(file.Id)
-                                };
-                                record.Update(file);
+                                Import = Download(file.Id),
+                                Delete = Delete(file.Id)
+                            };
+                            record.Update(file);
 
-                                return record;
-                            })
+                            return record;
+                        })
                             .ToList();
                         elements.Sort((a, b) => DateTime.Compare(b.Updated, a.Updated));
-                        
+
                         _table.Elements = elements.ToArray();
 
                         Repaint();
@@ -181,11 +181,26 @@ namespace CreateAR.SpirePlayer.Editor
 
                             EditorApplication
                                 .MeshImporter
-                                .Import(source, action =>
+                                .Import(source, (exception, action) =>
                                 {
+                                    if (null != exception)
+                                    {
+                                        EditorUtility.ClearProgressBar();
+                                        EditorUtility.DisplayDialog(
+                                            "Error",
+                                            "There was an error.",
+                                            "Ok");
+                                        return;
+                                    }
+
                                     action(new GameObject("Import"));
 
                                     EditorUtility.ClearProgressBar();
+
+                                    EditorUtility.DisplayDialog(
+                                        "Success",
+                                        "Import complete.",
+                                        "Ok");
                                 });
                         }
                         else
