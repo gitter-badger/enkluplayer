@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
+    /// <summary>
+    /// Renders a <c>Float</c>.
+    /// </summary>
     public class FloatRenderer : MonoBehaviour
     {
         /// <summary>

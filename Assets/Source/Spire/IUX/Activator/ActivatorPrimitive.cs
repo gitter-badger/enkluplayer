@@ -212,13 +212,13 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _interactables.Remove(this);
 
             Object.Destroy(_renderer.gameObject);
 
-            base.UnloadInternal();
+            base.AfterUnloadChildrenInternal();
         }
 
         /// <inheritdoc cref="Element"/>

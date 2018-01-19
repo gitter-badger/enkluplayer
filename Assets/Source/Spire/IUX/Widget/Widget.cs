@@ -313,6 +313,29 @@ namespace CreateAR.SpirePlayer.IUX
         public GameObject GameObject { get { return _gameObject; } }
 
         /// <summary>
+        /// Bounds object.
+        /// </summary>
+        public Bounds Bounds
+        {
+            get
+            {
+                var bounds = CalculateSelfBounds();
+
+                var children = Children;
+                for (int i = 0, len = children.Length; i < len; i++)
+                {
+                    var widgetChild = children[i] as Widget;
+                    if (null != widgetChild)
+                    {
+                        bounds.Encapsulate(widgetChild.Bounds);
+                    }
+                }
+
+                return bounds;
+            }
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public Widget(
@@ -330,94 +353,6 @@ namespace CreateAR.SpirePlayer.IUX
             Tweens = tweens;
             Colors = colors;
             Messages = messages;
-        }
-
-        /// <summary>
-        /// Initialization
-        /// </summary>
-        protected override void AfterLoadChildrenInternal()
-        {
-            base.AfterLoadChildrenInternal();
-
-            _localColor = Schema.GetOwn("color", Col4.White);
-            _localPosition = Schema.GetOwn("position", Vec3.Zero);
-            _localPosition.OnChanged += LocalPosition_OnChanged;
-            _tweenIn = Schema.GetOwn("tweenIn", TweenType.Responsive);
-            _tweenOut = Schema.GetOwn("tweenOut", TweenType.Responsive);
-            _virtualColor = Schema.GetOwn("virtualColor", VirtualColor.None);
-            _colorMode = Schema.GetOwn("colorMode", ColorMode.InheritColor);
-            _visibilityMode = Schema.GetOwn("visibilityMode", VisibilityMode.Inherit);
-            _layerMode = Schema.GetOwn("layerMode", LayerMode.Default);
-            _autoDestroy = Schema.GetOwn("autoDestroy", false);
-
-            _gameObject.name = Schema.GetOwn("name", ToString()).Value;
-            _gameObject.transform.localPosition = _localPosition.Value.ToVector();
-            
-            OnVisible.OnChanged += IsVisible_OnUpdate;
-
-            UpdateVisibility();
-
-            if (LayerMode == LayerMode.Modal)
-            {
-                BringToTop();
-            }
-
-            if (StartVisible)
-            {
-                Show();
-            }
-
-            IsLoaded = true;
-        }
-
-        /// <summary>
-        /// Invoked when the widget is destroyed
-        /// </summary>
-        protected override void UnloadInternal()
-        {
-            IsLoaded = false;
-            
-            _localColor = null;
-
-            if (null != _localPosition)
-            {
-                _localPosition.OnChanged -= LocalPosition_OnChanged;
-            }
-
-            _localPosition = null;
-            _tweenIn = null;
-            _tweenOut = null;
-            _virtualColor = null;
-            _colorMode = null;
-            _visibilityMode = null;
-            _layerMode = null;
-            _autoDestroy = null;
-
-            if (_gameObject != null)
-            {
-                Object.Destroy(_gameObject);
-                _gameObject = null;
-            }
-
-            if (_layer != null)
-            {
-                Layers.Release(_layer);
-            }
-        }
-
-        /// <inheritdoc />
-        protected override void AddChildInternal(Element element)
-        {
-            base.AddChildInternal(element);
-            
-            var child = element as Widget;
-            if (child != null)
-            {
-                child._parent = this;
-                child.GameObject.transform.SetParent(
-                    GetChildHierarchyParent(child),
-                    true);
-            }
         }
 
         /// <summary>
@@ -462,6 +397,94 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Initialization
+        /// </summary>
+        protected override void AfterLoadChildrenInternal()
+        {
+            base.AfterLoadChildrenInternal();
+
+            _localColor = Schema.GetOwn("color", Col4.White);
+            _localPosition = Schema.GetOwn("position", Vec3.Zero);
+            _localPosition.OnChanged += LocalPosition_OnChanged;
+            _tweenIn = Schema.GetOwn("tweenIn", TweenType.Responsive);
+            _tweenOut = Schema.GetOwn("tweenOut", TweenType.Responsive);
+            _virtualColor = Schema.GetOwn("virtualColor", VirtualColor.None);
+            _colorMode = Schema.GetOwn("colorMode", ColorMode.InheritColor);
+            _visibilityMode = Schema.GetOwn("visibilityMode", VisibilityMode.Inherit);
+            _layerMode = Schema.GetOwn("layerMode", LayerMode.Default);
+            _autoDestroy = Schema.GetOwn("autoDestroy", false);
+
+            _gameObject.name = Schema.GetOwn("name", ToString()).Value;
+            _gameObject.transform.localPosition = _localPosition.Value.ToVector();
+
+            OnVisible.OnChanged += IsVisible_OnUpdate;
+
+            UpdateVisibility();
+
+            if (LayerMode == LayerMode.Modal)
+            {
+                BringToTop();
+            }
+
+            if (StartVisible)
+            {
+                Show();
+            }
+
+            IsLoaded = true;
+        }
+
+        /// <summary>
+        /// Invoked when the widget is destroyed
+        /// </summary>
+        protected override void AfterUnloadChildrenInternal()
+        {
+            IsLoaded = false;
+
+            _localColor = null;
+
+            if (null != _localPosition)
+            {
+                _localPosition.OnChanged -= LocalPosition_OnChanged;
+            }
+
+            _localPosition = null;
+            _tweenIn = null;
+            _tweenOut = null;
+            _virtualColor = null;
+            _colorMode = null;
+            _visibilityMode = null;
+            _layerMode = null;
+            _autoDestroy = null;
+
+            if (_gameObject != null)
+            {
+                Object.Destroy(_gameObject);
+                _gameObject = null;
+            }
+
+            if (_layer != null)
+            {
+                Layers.Release(_layer);
+            }
+        }
+
+        /// <inheritdoc />
+        protected override void AddChildInternal(Element element)
+        {
+            base.AddChildInternal(element);
+
+            var child = element as Widget;
+            if (child != null)
+            {
+                child._parent = this;
+                child.GameObject.transform.SetParent(
+                    GetChildHierarchyParent(child),
+                    true);
+            }
+        }
+
+        /// <summary>
         /// Frame based update
         /// </summary>
         protected override void UpdateInternal()
@@ -482,6 +505,15 @@ namespace CreateAR.SpirePlayer.IUX
         protected virtual Transform GetChildHierarchyParent(Widget child)
         {
             return GameObject.transform;
+        }
+
+        /// <summary>
+        /// Calculates own bounds.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual Bounds CalculateSelfBounds()
+        {
+            return new Bounds(GameObject.transform.position, Vector3.zero);
         }
         
         /// <summary>

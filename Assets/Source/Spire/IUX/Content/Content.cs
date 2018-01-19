@@ -137,7 +137,7 @@ namespace CreateAR.SpirePlayer
         /// Destroys this instance. Should not be called directly, but through
         /// <c>IContentManager</c> Release flow.
         /// </summary>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _assembler.Teardown();
             TeardownScripts();

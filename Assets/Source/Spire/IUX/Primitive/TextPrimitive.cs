@@ -197,7 +197,7 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _propAlignment.OnChanged -= Alignment_OnChanged;
             _propFont.OnChanged -= Font_OnChanged;
@@ -205,7 +205,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             Object.Destroy(_renderer.gameObject);
 
-            base.UnloadInternal();
+            base.AfterUnloadChildrenInternal();
         }
 
         /// <inheritdoc cref="Element"/>

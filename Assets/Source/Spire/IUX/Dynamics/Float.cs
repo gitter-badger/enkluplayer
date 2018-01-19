@@ -1,5 +1,4 @@
-﻿using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -77,13 +76,13 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _propPosition.OnChanged -= Position_OnChanged;
 
             Object.Destroy(_renderer.gameObject);
 
-            base.UnloadInternal();
+            base.AfterUnloadChildrenInternal();
         }
         
         /// <inheritdoc />

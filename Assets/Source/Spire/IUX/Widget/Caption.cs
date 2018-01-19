@@ -58,12 +58,12 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _text.OnChanged -= Text_OnChange;
             _text = null;
 
-            base.UnloadInternal();
+            base.AfterUnloadChildrenInternal();
         }
 
         /// <summary>

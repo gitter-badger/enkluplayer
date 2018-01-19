@@ -100,12 +100,12 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Widget"/>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _assembler.Teardown();
             TeardownScripts();
             
-            base.UnloadInternal();
+            base.AfterUnloadChildrenInternal();
         }
 
         /// <inheritdoc cref="Widget"/>

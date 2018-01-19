@@ -122,7 +122,7 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _title.OnChanged -= Title_OnChanged;
             _fontSize.OnChanged -= FontSize_OnChanged;
@@ -135,7 +135,7 @@ namespace CreateAR.SpirePlayer.IUX
             Object.Destroy(_halfMoon);
             _halfMoon = null;
             
-            base.UnloadInternal();
+            base.AfterUnloadChildrenInternal();
         }
 
         /// <inheritdoc />
@@ -332,9 +332,9 @@ namespace CreateAR.SpirePlayer.IUX
                     var theta = baseTheta + stepTheta * i;
                     var thetaRadians = theta * Mathf.Deg2Rad;
                     var targetPosition = localRadius * new Vector3(
-                                             Mathf.Cos(thetaRadians),
-                                             -Mathf.Sin(thetaRadians),
-                                             0);
+                        Mathf.Cos(thetaRadians),
+                        -Mathf.Sin(thetaRadians),
+                        0);
 
                     child.Schema.Set("position", targetPosition.ToVec());
                 }

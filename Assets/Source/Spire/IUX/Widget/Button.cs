@@ -134,9 +134,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
-            base.UnloadInternal();
+            base.AfterUnloadChildrenInternal();
             
             // cleanup label
             {

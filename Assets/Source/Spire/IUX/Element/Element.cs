@@ -8,6 +8,25 @@ namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Base class for UI elements.
+    /// 
+    /// Flows:
+    /// 
+    /// Load()
+    ///     > BeforeLoadChildrenInternal
+    ///     > Children > Load()
+    ///     > AfterLoadChildrenInternal
+    /// 
+    /// Unload()
+    ///     > BeforeUnloadChildrenInternal
+    ///     > Children > Unload()
+    ///     > AfterUnloadChildrenInternal
+    /// 
+    /// Destroy()
+    ///     > BeforeUnloadChildrenInternal
+    ///     > Children > Destroy()
+    ///     > AfterUnloadChildrenInternal 
+    ///     > DestroyInternal
+    /// 
     /// </summary>
     public class Element
     {
@@ -139,6 +158,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         internal void Unload()
         {
+            BeforeUnloadChildrenInternal();
+
             // unload children first
             for (var i = _children.Count - 1; i >= 0; i--)
             {
@@ -148,7 +169,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             Log.Info(this, "Unload({0})", Guid);
 
-            UnloadInternal();
+            AfterUnloadChildrenInternal();
 
             Id = string.Empty;
 
@@ -177,6 +198,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public void Destroy()
         {
+            BeforeUnloadChildrenInternal();
+
             // destroy children
             for (var i = _children.Count - 1; i >= 0; i--)
             {
@@ -185,7 +208,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             Log.Info(this, "Destroy({0})", Guid);
 
-            UnloadInternal();
+            AfterUnloadChildrenInternal();
             DestroyInternal();
 
             if (OnDestroyed != null)
@@ -426,7 +449,15 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// For base classes to override.
         /// </summary>
-        protected virtual void UnloadInternal()
+        protected virtual void BeforeUnloadChildrenInternal()
+        {
+
+        }
+
+        /// <summary>
+        /// For base classes to override.
+        /// </summary>
+        protected virtual void AfterUnloadChildrenInternal()
         {
 
         }
