@@ -355,8 +355,6 @@ namespace CreateAR.SpirePlayer.IUX
             Tweens = tweens;
             Colors = colors;
             Messages = messages;
-
-            OnChildAdded += Element_OnChildAdded;
         }
 
         /// <summary>
@@ -440,7 +438,19 @@ namespace CreateAR.SpirePlayer.IUX
                 Layers.Release(_layer);
             }
         }
-        
+
+        /// <inheritdoc />
+        protected override void AddChildInternal(Element element)
+        {
+            base.AddChildInternal(element);
+            
+            var childWidget = element as Widget;
+            if (childWidget != null)
+            {
+                childWidget.Parent = this;
+            }
+        }
+
         /// <summary>
         /// Shows the widget
         /// </summary>
@@ -597,24 +607,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _hasBeenVisible = true;
             }
         }
-
-        /// <summary>
-        /// Invoked when a child is added
-        /// </summary>
-        /// <param name="parent"></param>
-        /// <param name="child"></param>
-        private void Element_OnChildAdded(Element parent, Element child)
-        {
-            if (parent == this)
-            {
-                var childWidget = child as Widget;
-                if (childWidget != null)
-                {
-                    childWidget.Parent = this;
-                }
-            }
-        }
-
+        
         /// <summary>
         /// Called when the local position changes.
         /// </summary>

@@ -221,12 +221,14 @@ namespace CreateAR.SpirePlayer.IUX
             // hook up schema
             element.Schema.Wrap(Schema);
 
+            AddChildInternal(element);
+
             if (null != OnChildAdded)
             {
                 OnChildAdded(this, element);
             }
         }
-        
+
         /// <summary>
         /// Removes an element as a child.
         /// </summary>
@@ -247,6 +249,8 @@ namespace CreateAR.SpirePlayer.IUX
 
                 // unwrap schema
                 element.Schema.Wrap(null);
+
+                RemoveChildInternal(element);
 
                 if (null != element.OnRemoved)
                 {
@@ -438,6 +442,22 @@ namespace CreateAR.SpirePlayer.IUX
         /// Invoked once per frame.
         /// </summary>
         protected virtual void LateUpdateInternal()
+        {
+
+        }
+
+        /// <summary>
+        /// For base classes to override.
+        /// </summary>
+        protected virtual void AddChildInternal(Element element)
+        {
+            
+        }
+
+        /// <summary>
+        /// For base classes to override.
+        /// </summary>
+        protected virtual void RemoveChildInternal(Element element)
         {
 
         }

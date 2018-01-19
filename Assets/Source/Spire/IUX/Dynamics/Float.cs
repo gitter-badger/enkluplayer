@@ -4,9 +4,9 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
-    /// Primitive for displaying floats.
+    /// Layout element.
     /// </summary>
-    public class FloatPrimitive : Widget
+    public class Float : Widget
     {
         /// <summary>
         /// Configuration.
@@ -31,7 +31,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public FloatPrimitive(
+        public Float(
             WidgetConfig config,
             IIntentionManager intention,
             IMessageRouter messages,
@@ -77,7 +77,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             base.UnloadInternal();
         }
-
+        
         /// <summary>
         /// Called when the label has been updated.
         /// </summary>

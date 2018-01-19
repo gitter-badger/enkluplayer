@@ -205,7 +205,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.FLOAT:
                 {
-                    return new Float(_config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new Float(_config, _intention, _messages, _layers, _tweens, _colors);
                 }
                 default:
                 {

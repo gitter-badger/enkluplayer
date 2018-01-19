@@ -15,7 +15,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Primitive.
         /// </summary>
-        private FloatPrimitive _primitive;
+        private Float _float;
 
         /// <summary>
         /// Dynamic Link Instance
@@ -187,14 +187,14 @@ namespace CreateAR.SpirePlayer.IUX
         /// Initialization.
         /// </summary>
         internal void Initialize(
-            FloatPrimitive primitive,
+            Float @float,
             IIntentionManager intention)
         {
-            _primitive = primitive;
+            _float = @float;
             _intention = intention;
 
-            StationaryWidget.Initialize(_primitive);
-            MotionWidget.Initialize(_primitive);
+            StationaryWidget.Initialize(_float);
+            MotionWidget.Initialize(_float);
         }
 
         /// <inheritdoc cref="object"/>
@@ -260,9 +260,8 @@ namespace CreateAR.SpirePlayer.IUX
         {
             if (Transform != null)
             {
-                // TODO: fix this, hiearchy of spawned IUX objects is extra deep.
-                Magnet.Root = Magnet.Root.transform.parent.parent;
-                Transform = transform.parent.parent;
+                Magnet.Root = Magnet.Root.transform.parent;
+                Transform = transform.parent;
 
                 var initialPosition = IdealPosition;
                 //initialPosition.y = Anchor.FloorY - 2.0f;
@@ -279,7 +278,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
         {
-            if (_primitive.Visible)
+            if (_float.Visible)
             {
                 UpdateMovement();
             }
@@ -341,7 +340,7 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            var linkIsVisible = _primitive.Visible && !IsInMotion;
+            var linkIsVisible = _float.Visible && !IsInMotion;
 
             if (linkIsVisible)
             {
