@@ -7,10 +7,13 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Creates elements from a vine.
+    /// Creates elements from a vine typed in the inspector..
     /// </summary>
     public class VineRawMonoBehaviour : InjectableMonoBehaviour
     {
+        /// <summary>
+        /// Timeout since last update to try to create elements.
+        /// </summary>
         private const float TIMEOUT_SEC = 0.1f;
 
         /// <summary>
@@ -18,11 +21,24 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly VineImporter _importer = new VineImporter(new JsVinePreProcessor());
 
+        /// <summary>
+        /// Last vine value.
+        /// </summary>
         private string _lastVine;
+
+        /// <summary>
+        /// Vine we ended up parsing and baking out.
+        /// </summary>
         private string _bakedVine;
-        
+
+        /// <summary>
+        /// Time at which the vine was last updated.
+        /// </summary>
         private DateTime _lastChange = DateTime.MinValue;
 
+        /// <summary>
+        /// The element created.
+        /// </summary>
         private Element _element;
 
         /// <summary>
