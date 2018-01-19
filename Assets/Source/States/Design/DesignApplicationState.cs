@@ -9,25 +9,28 @@ namespace CreateAR.SpirePlayer
     public class DesignApplicationState : IState
     {
         private readonly IMessageRouter _messages;
-        private readonly VineImporter _vine;
         private readonly IElementFactory _elements;
+        private readonly WidgetConfig _config;
+        private readonly VineImporter _vine;
 
         private Element _menu;
 
         public DesignApplicationState(
             IMessageRouter messages,
             IVinePreProcessor preprocessor,
-            IElementFactory elements)
+            IElementFactory elements,
+            WidgetConfig config)
         {
             _messages = messages;
-            _vine = new VineImporter(preprocessor);
             _elements = elements;
+            _config = config;
+            _vine = new VineImporter(preprocessor);
         }
 
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
-            var designAsset = Resources.Load<TextAsset>("Vines/Design.Menu");
+            var designAsset = _config.DesignMenu;
             if (!designAsset)
             {
                 Log.Error(this, "Could not find Design Menu Vine!");
@@ -36,7 +39,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            //_menu = _elements.Element(_vine.Parse(designAsset.text));
+            _menu = _elements.Element(_vine.Parse(designAsset.text));
         }
 
         /// <inheritdoc cref="IState"/>

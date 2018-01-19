@@ -1,0 +1,13 @@
+<Float offset=(0,0,3)>
+	
+	<Menu
+		title='Design'
+		position=(0, 0, 6)>
+		
+		<Button label='Load Scene' />
+		<Button label='New Scene' />
+		<Button label='Play' />
+
+	</Menu>
+
+</Float>

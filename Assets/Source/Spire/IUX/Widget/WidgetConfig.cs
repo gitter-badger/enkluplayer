@@ -94,28 +94,9 @@ namespace CreateAR.SpirePlayer.IUX
         public float FillDuration = 2.0f;
 
         /// <summary>
-        /// Duration for full fillm in seconds.
-        /// </summary>
-        /// <returns></returns>
-        public float GetFillDuration()
-        {
-            return FillDuration;
-        }
-
-        /// <summary>
         /// Fill decay multiplier.
         /// </summary>
         public AnimationCurve FillDecay = AnimationCurve.EaseInOut(0, 1, 1, 0);
-
-        /// <summary>
-        /// Fill decay multiplier.
-        /// </summary>
-        /// <param name="elapsed"></param>
-        /// <returns></returns>
-        public float GetFillDelay(float elapsed)
-        {
-            return FillDecay.Evaluate(elapsed);
-        }
         
         /// <summary>
         /// Default Cursor Distance
@@ -229,6 +210,36 @@ namespace CreateAR.SpirePlayer.IUX
         /// Float.
         /// </summary>
         public FloatRenderer Float;
+
+        /// <summary>
+        /// Design.
+        /// </summary>
+        [Header("Vines")]
+        public TextAsset DesignMenu;
+
+        /// <summary>
+        /// Play.
+        /// </summary>
+        public TextAsset PlayMenu;
+
+        /// <summary>
+        /// Duration for full fillm in seconds.
+        /// </summary>
+        /// <returns></returns>
+        public float GetFillDuration()
+        {
+            return FillDuration;
+        }
+
+        /// <summary>
+        /// Fill decay multiplier.
+        /// </summary>
+        /// <param name="elapsed"></param>
+        /// <returns></returns>
+        public float GetFillDelay(float elapsed)
+        {
+            return FillDecay.Evaluate(elapsed);
+        }
 
         /// <summary>
         /// Spins per second.
