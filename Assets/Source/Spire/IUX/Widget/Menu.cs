@@ -41,6 +41,11 @@ namespace CreateAR.SpirePlayer.IUX
         private TextPrimitive _descriptionPrimitive;
 
         /// <summary>
+        /// Half moon.
+        /// </summary>
+        private GameObject _halfMoon;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public Menu(
@@ -102,6 +107,16 @@ namespace CreateAR.SpirePlayer.IUX
             _descriptionPrimitive.Text = _description.Value;
             _descriptionPrimitive.FontSize = _fontSize.Value;
 
+            _halfMoon = Object.Instantiate(
+                Config.HalfMoon.gameObject,
+                Vector3.zero,
+                Quaternion.identity);
+            var transform = _halfMoon.GetComponent<RectTransform>();
+            transform.SetParent(
+                GameObject.transform,
+                false);
+            transform.position = new Vector3(-0.54f, 0f, 0f);
+
             UpdateHeaderLayout();
             UpdateChildLayout();
         }
@@ -116,6 +131,9 @@ namespace CreateAR.SpirePlayer.IUX
             _layoutDegrees.OnChanged -= LayoutDegrees_OnChanged;
             _layoutRadius.OnChanged -= LayoutRadius_OnChanged;
             _headerWidth.OnChanged -= HeaderWidth_OnChanged;
+
+            Object.Destroy(_halfMoon);
+            _halfMoon = null;
             
             base.UnloadInternal();
         }

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -28,37 +27,7 @@ namespace CreateAR.SpirePlayer.IUX
         public AnimationCurve AimFillMultiplier = new AnimationCurve(
             new Keyframe(0, 1),
             new Keyframe(1, 4));
-
-        /// <summary>
-        /// Accessor for stability multiplier.
-        /// </summary>
-        /// <param name="aim"></param>
-        /// <returns></returns>
-        public float GetAimScale(float aim)
-        {
-            return AimFeedbackScale.Evaluate(aim);
-        }
-
-        /// <summary>
-        /// Accessor for stability multiplier.
-        /// </summary>
-        /// <param name="aim"></param>
-        /// <returns></returns>
-        public Col4 GetAimColor(float aim)
-        {
-            return AimFeedbackColor.Evaluate(aim).ToCol();
-        }
-
-        /// <summary>
-        /// Accessor for stability multiplier.
-        /// </summary>
-        /// <param name="stability"></param>
-        /// <returns></returns>
-        public float GetFillRateMultiplierFromAim(float stability)
-        {
-            return AimFillMultiplier.Evaluate(stability);
-        }
-
+        
         /// <summary>
         /// Multiplies steadiness fill.
         /// </summary>
@@ -68,24 +37,9 @@ namespace CreateAR.SpirePlayer.IUX
             new Keyframe(1, 4));
 
         /// <summary>
-        /// Accessor for stability multiplier.
-        /// </summary>
-        /// <param name="stability"></param>
-        /// <returns></returns>
-        public float GetFillRateMultiplierFromStability(float stability)
-        {
-            return SteadinessFillMultiplier.Evaluate(stability);
-        }
-
-        /// <summary>
         /// The rotation in degrees of the steadiness transform
         /// </summary>
         public float SteadinessRotation;
-
-        /// <summary>
-        /// Steadiness Rotation Accessor
-        /// </summary>
-        public float StabilityRotation { get { return SteadinessRotation; } }
 
         /// <summary>
         /// Duration for full fillm in seconds.
@@ -212,6 +166,11 @@ namespace CreateAR.SpirePlayer.IUX
         public FloatRenderer Float;
 
         /// <summary>
+        /// Half moon.
+        /// </summary>
+        public RectTransform HalfMoon;
+
+        /// <summary>
         /// Design.
         /// </summary>
         [Header("Vines")]
@@ -221,6 +180,51 @@ namespace CreateAR.SpirePlayer.IUX
         /// Play.
         /// </summary>
         public TextAsset PlayMenu;
+
+        /// <summary>
+        /// Steadiness Rotation Accessor
+        /// </summary>
+        public float StabilityRotation { get { return SteadinessRotation; } }
+
+        /// <summary>
+        /// Accessor for stability multiplier.
+        /// </summary>
+        /// <param name="aim"></param>
+        /// <returns></returns>
+        public float GetAimScale(float aim)
+        {
+            return AimFeedbackScale.Evaluate(aim);
+        }
+
+        /// <summary>
+        /// Accessor for stability multiplier.
+        /// </summary>
+        /// <param name="aim"></param>
+        /// <returns></returns>
+        public Col4 GetAimColor(float aim)
+        {
+            return AimFeedbackColor.Evaluate(aim).ToCol();
+        }
+
+        /// <summary>
+        /// Accessor for stability multiplier.
+        /// </summary>
+        /// <param name="stability"></param>
+        /// <returns></returns>
+        public float GetFillRateMultiplierFromAim(float stability)
+        {
+            return AimFillMultiplier.Evaluate(stability);
+        }
+
+        /// <summary>
+        /// Accessor for stability multiplier.
+        /// </summary>
+        /// <param name="stability"></param>
+        /// <returns></returns>
+        public float GetFillRateMultiplierFromStability(float stability)
+        {
+            return SteadinessFillMultiplier.Evaluate(stability);
+        }
 
         /// <summary>
         /// Duration for full fillm in seconds.

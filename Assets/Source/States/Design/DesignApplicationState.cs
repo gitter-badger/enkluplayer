@@ -2,20 +2,35 @@
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// State for design state.
+    /// </summary>
     public class DesignApplicationState : IState
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly IMessageRouter _messages;
         private readonly IElementFactory _elements;
         private readonly WidgetConfig _config;
         private readonly VineImporter _vine;
 
+        /// <summary>
+        /// The design menu.
+        /// </summary>
         private Element _menu;
+
+        /// <summary>
+        /// The cursor.
+        /// </summary>
         private Element _cursor;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public DesignApplicationState(
             IMessageRouter messages,
             IVinePreProcessor preprocessor,
@@ -41,7 +56,7 @@ namespace CreateAR.SpirePlayer
             }
 
             //_menu = _elements.Element(_vine.Parse(designAsset.text));
-            //_cursor = _elements.Element(_vine.Parse("<?Vine><Cursor />"));
+            _cursor = _elements.Element(_vine.Parse("<?Vine><Cursor />"));
         }
 
         /// <inheritdoc cref="IState"/>
@@ -55,6 +70,9 @@ namespace CreateAR.SpirePlayer
         {
             _menu.Destroy();
             _menu = null;
+
+            _cursor.Destroy();
+            _cursor = null;
         }
     }
 }

@@ -336,5 +336,6 @@ MonoBehaviour:
   Activator: {fileID: 114629216621896330, guid: aa4acfa93557f6b41875423ab4c10aa4,
     type: 2}
   Float: {fileID: 114891288986271038, guid: e46ef3829b3cce546833a7154aa2c318, type: 2}
+  HalfMoon: {fileID: 224793317094499598, guid: 36fa325fc61364646a0e467d65879938, type: 2}
   DesignMenu: {fileID: 4900000, guid: bdfddba0a0fcb5f41b4051ccaeaae723, type: 3}
   PlayMenu: {fileID: 4900000, guid: 67608bf5e2dec664a802b806644825b8, type: 3}
