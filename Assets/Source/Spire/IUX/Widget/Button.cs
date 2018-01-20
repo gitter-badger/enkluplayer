@@ -21,9 +21,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Props.
         /// </summary>
-        private ElementSchemaProp<string> _propVoiceActivator;
+        private ElementSchemaProp<string> _voiceActivatorProp;
         private ElementSchemaProp<string> _labelProp;
         private ElementSchemaProp<float> _labelPaddingProp;
+        private ElementSchemaProp<string> _iconProp;
 
         /// <summary>
         /// Text primitive.
@@ -105,8 +106,11 @@ namespace CreateAR.SpirePlayer.IUX
             // Activator
             {
                 _activator = _primitives.Activator(Schema);
-
                 AddChild(_activator);
+
+                _iconProp = Schema.Get<string>("icon");
+                _iconProp.OnChanged += Icon_OnChanged;
+                UpdateIcon();
             }
 
             // create label
@@ -126,8 +130,8 @@ namespace CreateAR.SpirePlayer.IUX
 
             // Voice Activator
             {
-                _propVoiceActivator = Schema.Get<string>("voiceActivator");
-                _propVoiceActivator.OnChanged += VoiceActivator_OnChange;
+                _voiceActivatorProp = Schema.Get<string>("voiceActivator");
+                _voiceActivatorProp.OnChanged += VoiceActivator_OnChange;
                 
                 RegisterVoiceCommand();
             }
@@ -137,14 +141,23 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void AfterUnloadChildrenInternal()
         {
             base.AfterUnloadChildrenInternal();
-            
+
+            // activator
+            {
+                _iconProp.OnChanged -= Icon_OnChanged;
+            }
+
             // cleanup label
             {
                 _labelProp.OnChanged -= Label_OnChange;
                 _labelPaddingProp.OnChanged -= LabelPadding_OnChanged;
             }
-            
-            UnregisterVoiceCommand();
+
+            // cleanup voice
+            {
+                UnregisterVoiceCommand();
+                _voiceActivatorProp.OnChanged -= VoiceActivator_OnChange;
+            }
         }
         
         /// <summary>
@@ -152,7 +165,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void RegisterVoiceCommand()
         {
-            var voiceActivator = _propVoiceActivator.Value;
+            var voiceActivator = _voiceActivatorProp.Value;
             if (!string.IsNullOrEmpty(voiceActivator))
             {
                 _registeredVoiceCommand = _labelProp.Value;
@@ -170,6 +183,20 @@ namespace CreateAR.SpirePlayer.IUX
                 _voice.Unregister(_registeredVoiceCommand);
                 _registeredVoiceCommand = string.Empty;
             }
+        }
+
+        /// <summary>
+        /// Called when the icon has changed.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Icon_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            UpdateIcon();
         }
         
         /// <summary>
@@ -237,6 +264,14 @@ namespace CreateAR.SpirePlayer.IUX
                 -textRect.min.x + _labelPaddingProp.Value,
                 -(textRect.max.y - textRect.min.y) / 2,
                 0f);
+        }
+
+        /// <summary>
+        /// Updates the icon.
+        /// </summary>
+        private void UpdateIcon()
+        {
+            _activator.Icon = Config.Icons.Icon(_iconProp.Value);
         }
     }
 }

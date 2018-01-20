@@ -9,6 +9,11 @@ namespace CreateAR.SpirePlayer.IUX
     public class WidgetConfig : MonoBehaviour
     {
         /// <summary>
+        /// Icons.
+        /// </summary>
+        public IconConfig Icons;
+
+        /// <summary>
         /// Color of the aim widget as a function of aim percentage.
         /// </summary>
         [Header("Aim")]

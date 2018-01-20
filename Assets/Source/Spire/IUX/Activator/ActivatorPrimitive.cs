@@ -1,7 +1,7 @@
 using System;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
-
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -45,6 +45,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Backing variable for Focused property.
         /// </summary>
         private bool _focused;
+
+        /// <summary>
+        /// The icon.
+        /// </summary>
+        private Sprite _icon;
 
         /// <inheritdoc cref="IInteractable"/>
         public bool Interactable
@@ -144,6 +149,25 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Gets/sets the icon.
+        /// </summary>
+        public Sprite Icon
+        {
+            get { return _icon; }
+            set
+            {
+                if (value == _icon)
+                {
+                    return;
+                }
+
+                _icon = value;
+
+                SetIcon();
+            }
+        }
+
+        /// <summary>
         /// Invoked when the activator is activated.
         /// </summary>
         public event Action<ActivatorPrimitive> OnActivated;
@@ -202,6 +226,8 @@ namespace CreateAR.SpirePlayer.IUX
                 Quaternion.identity);
             _renderer.transform.SetParent(GameObject.transform, false);
             _renderer.Initialize(this, _config, Layers, Tweens, Colors, Messages, _intention, _interaction, _interactables);
+
+            SetIcon();
 
             AimEnabled = true;
 
@@ -369,6 +395,24 @@ namespace CreateAR.SpirePlayer.IUX
                     pos,
                     rad * Vector3.one));
             });
+        }
+
+        /// <summary>
+        /// Sets the icon.
+        /// </summary>
+        private void SetIcon()
+        {
+            if (null != _renderer
+                && null != _renderer.Icon
+                && null != _renderer.Icon.Graphic)
+            {
+                var image = _renderer.Icon.Graphic as Image;
+                if (null != image)
+                {
+                    image.sprite = _icon;
+                    image.enabled = null != _icon;
+                }
+            }
         }
     }
 }

@@ -34,11 +34,6 @@ namespace CreateAR.SpirePlayer.IUX
         private bool _isInited = false;
         
         /// <summary>
-        /// Bounding radius of the activator.
-        /// </summary>
-        public float Radius { get; private set; }
-        
-        /// <summary>
         /// Primary widget of the activator.
         /// </summary>
         public WidgetRenderer Frame;
@@ -52,6 +47,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Aim Scale Transform.
         /// </summary>
         public WidgetRenderer Aim;
+
+        /// <summary>
+        /// Icon.
+        /// </summary>
+        public WidgetRenderer Icon;
 
         /// <summary>
         /// Transform affected by the steadiness of intention.
@@ -72,7 +72,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// For gaining focus.
         /// </summary>
         public BoxCollider FocusCollider;
-       
+
+        /// <summary>
+        /// Bounding radius of the activator.
+        /// </summary>
+        public float Radius { get; private set; }
+
         /// <summary>
         /// Initialization.
         /// </summary>
@@ -109,6 +114,11 @@ namespace CreateAR.SpirePlayer.IUX
             if (Frame != null)
             {
                 Frame.Initialize(activator);
+            }
+
+            if (Icon != null)
+            {
+                Icon.Initialize(activator);
             }
 
             _isInited = true;
