@@ -112,13 +112,13 @@ namespace CreateAR.SpirePlayer.IUX
                 },
                 Floats = new Dictionary<string, float>
                 {
-                    { "headerWidth", 700f },
                     { "layout.radius", 0.25f },
                     { "layout.degrees", 70f }
                 },
                 Ints = new Dictionary<string, int>
                 {
-                    { "fontSize", 80 }
+                    { "fontSize", 80 },
+                    { "header.width", 700 },
                 }
             });
             menuSchema.Inherit(_baseSchema);

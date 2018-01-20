@@ -1,6 +1,6 @@
 <?Vine>
 <Float position=(0,0,3)>
-	<Menu title='Design'>
+	<Menu title='Design' header.width=200>
 		<Button label='Load Scene' icon='search' />
 		<Button label='New Scene' icon='plus' />
 		<Button label='Play' icon='play' />

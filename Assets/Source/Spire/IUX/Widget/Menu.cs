@@ -28,7 +28,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _layout;
         private ElementSchemaProp<float> _layoutRadius;
         private ElementSchemaProp<float> _layoutDegrees;
-        private ElementSchemaProp<float> _headerWidth;
+        private ElementSchemaProp<int> _headerWidth;
 
         /// <summary>
         /// Title text.
@@ -90,7 +90,7 @@ namespace CreateAR.SpirePlayer.IUX
             _layoutRadius = Schema.Get<float>("layout.radius");
             _layoutRadius.OnChanged += LayoutRadius_OnChanged;
 
-            _headerWidth = Schema.Get<float>("headerWidth");
+            _headerWidth = Schema.Get<int>("header.width");
             _headerWidth.OnChanged += HeaderWidth_OnChanged;
 
             // create + place title
@@ -238,9 +238,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="prev">Previous value.</param>
         /// <param name="next">Next value.</param>
         private void HeaderWidth_OnChanged(
-            ElementSchemaProp<float> prop,
-            float prev,
-            float next)
+            ElementSchemaProp<int> prop,
+            int prev,
+            int next)
         {
             UpdateHeaderLayout();
         }
