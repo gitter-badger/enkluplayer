@@ -16,13 +16,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonName("unique")]
         public bool Unique;
-
-        /// <summary>
-        /// If true, does not inherit color from parent.
-        /// </summary>
-        [JsonName("preserveColor")]
-        public bool PreserveColor;
-
+        
         /// <summary>
         /// Tags associated with this piece of content.
         /// </summary>
@@ -51,7 +45,7 @@ namespace CreateAR.SpirePlayer
         /// Scripts that execute on this piece of content.
         /// </summary>
         [JsonName("scripts")]
-        public List<ScriptReference> Scripts = new List<ScriptReference>();
+        public ScriptReference[] Scripts = new ScriptReference[0];
 
         /// <summary>
         /// Useful ToString.

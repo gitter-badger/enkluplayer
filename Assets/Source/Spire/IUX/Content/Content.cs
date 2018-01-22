@@ -204,7 +204,7 @@ namespace CreateAR.SpirePlayer
         private void SetupScripts()
         {
             var scripts = Data.Scripts;
-            var len = scripts.Count;
+            var len = scripts.Length;
 
             Log.Info(this, "\t-Loading {0} scripts.", len);
 
@@ -304,12 +304,12 @@ namespace CreateAR.SpirePlayer
 
             var currentScripts = Data.Scripts;
             var newScripts = data.Scripts;
-            if (currentScripts.Count != newScripts.Count)
+            if (currentScripts.Length != newScripts.Length)
             {
                 return true;
             }
 
-            for (int i = 0, len = currentScripts.Count; i < len; i++)
+            for (int i = 0, len = currentScripts.Length; i < len; i++)
             {
                 if (currentScripts[i].ScriptDataId != newScripts[i].ScriptDataId)
                 {
