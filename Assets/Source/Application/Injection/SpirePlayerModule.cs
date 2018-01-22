@@ -222,7 +222,7 @@ namespace CreateAR.SpirePlayer
 
             // hierarchy
             {
-                binder.Bind<ContentGraph>().To<ContentGraph>().ToSingleton();
+                binder.Bind<HierarchyDatabase>().To<HierarchyDatabase>().ToSingleton();
                 binder.Bind<HierarchyManager>().To<HierarchyManager>().ToSingleton();
             }
 

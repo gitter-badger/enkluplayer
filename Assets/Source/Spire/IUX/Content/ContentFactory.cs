@@ -1,11 +1,12 @@
 ﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
-using UnityEngine;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Crates content.
+    /// Creates instances of <c>Content</c>.
     /// </summary>
     public class ContentFactory : IContentFactory
     {
@@ -18,6 +19,11 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetPoolManager _pools;
         private readonly IAnchorReferenceFrameFactory _frames;
         private readonly ILoadProgressManager _progress;
+        private readonly ILayerManager _layers;
+        private readonly IColorConfig _colors;
+        private readonly ITweenConfig _tweens;
+        private readonly IMessageRouter _messages;
+        private readonly WidgetConfig _config;
 
         /// <summary>
         /// Constructor.
@@ -28,7 +34,12 @@ namespace CreateAR.SpirePlayer
             IScriptManager scripts,
             IAssetPoolManager pools,
             IAnchorReferenceFrameFactory frames,
-            ILoadProgressManager progress)
+            ILoadProgressManager progress,
+            ILayerManager layers,
+            IColorConfig colors,
+            ITweenConfig tweens,
+            IMessageRouter messages,
+            WidgetConfig config)
         {
             _appData = appData;
             _assets = assets;
@@ -36,6 +47,11 @@ namespace CreateAR.SpirePlayer
             _pools = pools;
             _frames = frames;
             _progress = progress;
+            _layers = layers;
+            _colors = colors;
+            _tweens = tweens;
+            _messages = messages;
+            _config = config;
         }
 
         /// <inheritdoc cref="IContentFactory"/>
@@ -43,29 +59,36 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "New content from {0}.", data);
 
-            // TODO: Refactor Content
-            return null;
-            /*
-            var instance = new GameObject(data.Name);
+            var assembler = new ModelContentAssembler(
+                _appData,
+                _assets,
+                _pools,
+                _progress);
+            var instance = new Content(
+                _config,
+                _layers,
+                _tweens, 
+                _colors,
+                _messages,
+                _scripts,
+                assembler);
+
+            // TODO: Move ContentData into Schema and use Element creation flow
+            instance.Load(
+                new ElementData
+                {
+                    Id = data.Id
+                }, 
+                new ElementSchema(),
+                new Element[0]);
+            instance.Setup(data);
 
             // setup the Anchor
             var frame = _frames.Instance(content, data.Anchor.Type);
-            var anchor = instance.AddComponent<Anchor>();
+            var anchor = instance.GameObject.AddComponent<Anchor>();
             anchor.Initialize(frame, data.Anchor);
 
-            // setup the content
-            var newContent = instance.AddComponent<Content>();
-            newContent.Setup(
-                _scripts,
-                new ModelContentAssembler(
-                    _appData,
-                    _assets,
-                    _pools,
-                    _progress),
-                data);
-
-            return newContent;
-            */
+            return instance;
         }
     }
 }

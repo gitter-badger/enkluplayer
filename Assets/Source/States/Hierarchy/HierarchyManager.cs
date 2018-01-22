@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
-using ContentGraphNode = CreateAR.SpirePlayer.ContentGraph.ContentGraphNode;
 
 namespace CreateAR.SpirePlayer
 {
@@ -20,6 +19,7 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly IElementManager _elements;
+        private readonly IContentManager _content;
         private readonly HierarchyDatabase _database;
         private readonly FocusManager _focus;
         
@@ -39,10 +39,12 @@ namespace CreateAR.SpirePlayer
         public HierarchyManager(
             IAppDataManager appData,
             IElementManager elements,
+            IContentManager content,
             HierarchyDatabase database,
             FocusManager focus)
         {
             _elements = elements;
+            _content = content;
             _database = database;
             _focus = focus;
 
@@ -54,12 +56,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Startup()
         {
-            //Create(_database.Root);
-            /*
-            _graph.Root.OnChildAdded += Graph_OnChildAdded;
-            _graph.Root.OnChildRemoved += Graph_OnChildRemoved;
-            _graph.Root.OnChildUpdated += Graph_OnUpdated;
-            */
+            Create(_database.Root);
+
+            _database.OnNodeAdded += Hierarchy_OnNodeAdded;
+            _database.OnNodeRemoved += Graph_OnChildRemoved;
+            _database.OnNodeUpdated += Graph_OnUpdated;
         }
 
         /// <summary>
@@ -101,29 +102,25 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Teardown()
         {
-            /*
-            _graph.Root.OnChildAdded -= Graph_OnChildAdded;
-            _graph.Root.OnChildRemoved -= Graph_OnChildRemoved;
-            _graph.Root.OnChildUpdated -= Graph_OnUpdated;
-            */
-            
+            _database.OnNodeUpdated -= Graph_OnUpdated;
+            _database.OnNodeRemoved -= Graph_OnChildRemoved;
+            _database.OnNodeAdded -= Hierarchy_OnNodeAdded;
+
             _contentMap.Clear();
 
             // kill content
-            //_content.ReleaseAll(CONTENT_TAGS);
+            _content.ReleaseAll(CONTENT_TAGS);
         }
         
         /// <summary>
         /// Called when a child is added somewhere beneath the Root.
         /// </summary>
-        /// <param name="root">The root node.</param>
+        /// <param name="parent">The parent node.</param>
         /// <param name="child">The child that has been added.</param>
-        private void Graph_OnChildAdded(
-            ContentGraphNode root,
-            ContentGraphNode child)
+        private void Hierarchy_OnNodeAdded(
+            HierarchyNodeData parent,
+            HierarchyNodeData child)
         {
-            var parent = child.Parent;
-
             // check that parent exists first
             Content content;
             if (!_contentMap.TryGetValue(parent.Id, out content))
@@ -134,39 +131,34 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            //Create(child);
+            Create(child);
         }
 
         /// <summary>
         /// Called when a child has been removed from the graph.
         /// </summary>
-        /// <param name="root">The root node.</param>
-        /// <param name="child">The child node.</param>
-        private void Graph_OnChildRemoved(
-            ContentGraphNode root,
-            ContentGraphNode child)
+        /// <param name="nodeId">The id of the node.</param>
+        private void Graph_OnChildRemoved(string nodeId)
         {
             // check that child exists first
             Content content;
-            if (!_contentMap.TryGetValue(child.Id, out content))
+            if (!_contentMap.TryGetValue(nodeId, out content))
             {
                 Log.Error(this,
                     "Child removed that HierarchyManager has not created : {0}.",
-                    child.Id);
+                    nodeId);
                 return;
             }
 
-            _contentMap.Remove(child.Id);
-
-            //_content.Release(content);
+            _contentMap.Remove(nodeId);
+            _content.Release(content);
         }
 
         /// <summary>
         /// Called when a node has been updated.
         /// </summary>
-        /// <param name="root">Root node.</param>
         /// <param name="node">Node that was updated.</param>
-        private void Graph_OnUpdated(ContentGraphNode root, ContentGraphNode node)
+        private void Graph_OnUpdated(HierarchyNodeData node)
         {
             Content content;
             if (!_contentMap.TryGetValue(node.Id, out content))
@@ -184,27 +176,27 @@ namespace CreateAR.SpirePlayer
         /// Recursive method that creates nodes.
         /// </summary>
         /// <param name="node">Node to create.</param>
-        private void Create(ContentGraphNode node)
+        private void Create(HierarchyNodeData node)
         {
-            if (node.Id == "root")
+            if (node == _database.Root)
             {
-                // ignore
+                // ignore root
             }
             else
             {
                 var contentId = node.ContentId;
-                /*var content = _content.Request(contentId, CONTENT_TAGS);
+                var content = _content.Request(contentId, CONTENT_TAGS);
                 _contentMap[contentId] = content;
                 
                 // locators enforce Self() to be non-null
                 // TODO: This should go through the Anchor system.
-                var self = node.Locators.Self();
-                self.OnUpdated += locator => Locator_OnUpdated(locator, content);*/
+                //var self = content.Locators.Self();
+                //self.OnUpdated += locator => Locator_OnUpdated(locator, content);
             }
 
-            // children
+            // create children
             var children = node.Children;
-            for (int i = 0, len = children.Count; i < len; i++)
+            for (int i = 0, len = children.Length; i < len; i++)
             {
                 Create(children[i]);
             }

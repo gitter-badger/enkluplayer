@@ -20,8 +20,6 @@
         public const int MENU = 100;
         public const int TEXTCRAWL = 120;
         public const int FLOAT = 130;
-
-        public const int CONTENT = 1000;
     }
 }
 

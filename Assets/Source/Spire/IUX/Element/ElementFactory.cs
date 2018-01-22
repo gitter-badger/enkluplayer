@@ -27,6 +27,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private readonly ElementSchema _baseSchema = new ElementSchema();
 
+        /// <summary>
+        /// Lookup from element type to base schema for that type.
+        /// </summary>
         private readonly Dictionary<int, ElementSchema> _typeSchema = new Dictionary<int, ElementSchema>();
 
         /// <summary>
@@ -200,10 +203,6 @@ namespace CreateAR.SpirePlayer.IUX
                 case ElementTypes.FLOAT:
                 {
                     return new Float(_config, _layers, _tweens, _colors, _messages, _primitives);
-                }
-                case ElementTypes.CONTENT:
-                {
-                    return new Content(_config, _layers, _tweens, _colors, _messages);
                 }
                 default:
                 {

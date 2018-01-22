@@ -21,12 +21,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Loads and executes scripts.
         /// </summary>
-        private IScriptManager _scripts;
+        private readonly IScriptManager _scripts;
 
         /// <summary>
         /// Assembles <c>Content</c>.
         /// </summary>
-        private IContentAssembler _assembler;
+        private readonly IContentAssembler _assembler;
 
         /// <summary>
         /// True iff Setup has been called.
@@ -89,7 +89,9 @@ namespace CreateAR.SpirePlayer
             ILayerManager layers,
             ITweenConfig tweens,
             IColorConfig colors,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            IScriptManager scripts,
+            IContentAssembler assembler)
             : base(
                 new GameObject("Content"),
                 config,
@@ -98,19 +100,16 @@ namespace CreateAR.SpirePlayer
                 colors,
                 messages)
         {
-            //
+            _scripts = scripts;
+            _assembler = assembler;
+            _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
         }
-
+        
         /// <summary>
         /// Called to setup the content.
         /// </summary>
-        /// <param name="scripts">Loads + executes scripts.</param>
-        /// <param name="assembler">Assembles content.</param>
         /// <param name="data">Data to setup with.</param>
-        public void Setup(
-            IScriptManager scripts,
-            IContentAssembler assembler,
-            ContentData data)
+        public void Setup(ContentData data)
         {
             if (_setup)
             {
@@ -120,10 +119,6 @@ namespace CreateAR.SpirePlayer
                     data.Name));
             }
             _setup = true;
-            
-            _scripts = scripts;
-            _assembler = assembler;
-            _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
             
             _host = new UnityScriptingHost(
                 this,
