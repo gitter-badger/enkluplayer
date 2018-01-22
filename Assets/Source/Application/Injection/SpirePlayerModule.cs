@@ -173,10 +173,8 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<BleServiceConfiguration>().ToValue(LookupComponent<BleServiceConfiguration>());
 #if NETFX_CORE
                 binder.Bind<IBleService>().To<UwpBleService>().ToSingleton();
-#elif UNITY_EDITOR
-                binder.Bind<IBleService>().To<EditorBleService>().ToSingleton();
 #else
-
+                binder.Bind<IBleService>().To<NullBleService>().ToSingleton();
 #endif
             }
 
