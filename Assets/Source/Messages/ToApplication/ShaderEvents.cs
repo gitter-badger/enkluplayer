@@ -4,19 +4,19 @@ namespace CreateAR.SpirePlayer
 {
     public class ShaderListEvent
     {
-        [JsonName("Shaders")]
+        [JsonName("shaders")]
         public ShaderData[] Shaders;
     }
 
     public class ShaderAddEvent
     {
-        [JsonName("Shader")]
+        [JsonName("shader")]
         public ShaderData Shader;
     }
 
     public class ShaderUpdateEvent
     {
-        [JsonName("Shader")]
+        [JsonName("shader")]
         public ShaderData Shader;
     }
 
