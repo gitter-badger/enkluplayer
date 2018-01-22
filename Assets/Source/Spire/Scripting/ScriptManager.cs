@@ -131,7 +131,8 @@ namespace CreateAR.SpirePlayer
             for (int i = 0, len = _records.Count; i < len; i++)
             {
                 var record = _records[i];
-                if (_resolver.Resolve(query, ref record.Script.Data.Tags))
+                var tags = record.Script.Data.Tags;
+                if (_resolver.Resolve(query, ref tags))
                 {
                     return record.Script;
                 }
@@ -146,7 +147,8 @@ namespace CreateAR.SpirePlayer
             for (int i = 0, len = _records.Count; i < len; i++)
             {
                 var record = _records[i];
-                if (_resolver.Resolve(query, ref record.Script.Data.Tags))
+                var tags = record.Script.Data.Tags;
+                if (_resolver.Resolve(query, ref tags))
                 {
                     scripts.Add(record.Script);
                 }
