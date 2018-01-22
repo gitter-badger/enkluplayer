@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
@@ -12,19 +10,22 @@ namespace CreateAR.SpirePlayer
     public class HierarchyDatabase
     {
         /// <summary>
-        /// List of top level nodes.
+        /// Reserved id for root.
         /// </summary>
-        private readonly List<HierarchyNodeData> _nodes = new List<HierarchyNodeData>();
+        private const string HIERARCHY_ROOT_ID = "__root__";
 
         /// <summary>
-        /// Readonly collection that wraps <c>_nodes</c> field.
+        /// Root data object.
         /// </summary>
-        private readonly ReadOnlyCollection<HierarchyNodeData> _publicNodes;
-
+        private readonly HierarchyNodeData _root = new HierarchyNodeData
+        {
+            Id = HIERARCHY_ROOT_ID
+        };
+        
         /// <summary>
         /// Called when a node has been added.
         /// </summary>
-        public event Action<string, HierarchyNodeData> OnNodeAdded;
+        public event Action<HierarchyNodeData, HierarchyNodeData> OnNodeAdded;
 
         /// <summary>
         /// Called when a node has been removed.
@@ -39,27 +40,18 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// All top level nodes.
         /// </summary>
-        public ReadOnlyCollection<HierarchyNodeData> Nodes
+        public HierarchyNodeData Root
         {
-            get { return _publicNodes; }
+            get { return _root; }
         }
-
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        public HierarchyDatabase()
-        {
-            _publicNodes = new ReadOnlyCollection<HierarchyNodeData>(_nodes);
-        }
-
+        
         /// <summary>
         /// Sets all top level nodes.
         /// </summary>
-        /// <param name="nodes">The collectyion of top level nodes.</param>
+        /// <param name="nodes">The collection of top level nodes.</param>
         public void Set(HierarchyNodeData[] nodes)
         {
-            _nodes.Clear();
-            _nodes.AddRange(nodes);
+            _root.Children = nodes;
         }
 
         /// <summary>
@@ -70,7 +62,11 @@ namespace CreateAR.SpirePlayer
         public void Add(string parentId, HierarchyNodeData node)
         {
             HierarchyNodeData match, parent;
-            if (!Node(parentId,  out match, out parent))
+            if (string.IsNullOrEmpty(parentId))
+            {
+                parent = _root;
+            }
+            else if (!Node(parentId, _root, out match, out parent))
             {
                 Log.Error(this,
                     "Attempted to add {0} to parent {1} but parent does not exist.",
@@ -79,40 +75,37 @@ namespace CreateAR.SpirePlayer
 
                 return;
             }
-
-            if (null != parent)
+            
+            for (int i = 0, len = parent.Children.Length; i < len; i++)
             {
-                for (int i = 0, len = parent.Children.Length; i < len; i++)
+                var child = parent.Children[i];
+                if (child.Id == node.Id)
                 {
-                    var child = parent.Children[i];
-                    if (child.Id == node.Id)
-                    {
-                        Log.Error(this,
-                            "Attempted to add {0} to parent {1} but child already exists! You probably meant to use Update instead.",
-                            node,
-                            parent);
+                    Log.Error(this,
+                        "Attempted to add {0} to parent {1} but child already exists! You probably meant to use Update instead.",
+                        node,
+                        parent);
 
-                        return;
-                    }
+                    return;
                 }
-
-                parent.Children = parent.Children.Add(node);
             }
+
+            parent.Children = parent.Children.Add(node);
 
             if (null != OnNodeAdded)
             {
-                OnNodeAdded(parentId, node);
+                OnNodeAdded(parent, node);
             }
         }
 
         /// <summary>
         /// Updates a node.
         /// </summary>
-        /// <param name="node">The new node data.</param>
+        /// <param name="node">The updated node data.</param>
         public void Update(HierarchyNodeData node)
         {
             HierarchyNodeData match, parent;
-            if (!Node(node.Id, out match, out parent))
+            if (!Node(node.Id, _root, out match, out parent))
             {
                 Log.Error(this,
                     "Attempted to update {0} but node not found.",
@@ -120,36 +113,18 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            // update the parent
             var updated = false;
-
-            if (null == parent)
+            for (int i = 0, len = parent.Children.Length; i < len; i++)
             {
-                for (int i = 0, len = _nodes.Count; i < len; i++)
+                var child = parent.Children[i];
+                if (child.Id == node.Id)
                 {
-                    var child = _nodes[i];
-                    if (child.Id == node.Id)
-                    {
-                        _nodes[i] = node;
+                    parent.Children[i] = node;
 
-                        updated = true;
+                    updated = true;
 
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0, len = parent.Children.Length; i < len; i++)
-                {
-                    var child = parent.Children[i];
-                    if (child.Id == node.Id)
-                    {
-                        parent.Children[i] = node;
-
-                        updated = true;
-
-                        break;
-                    }
+                    break;
                 }
             }
 
@@ -175,7 +150,7 @@ namespace CreateAR.SpirePlayer
         public void Remove(string id)
         {
             HierarchyNodeData match, parent;
-            if (!Node(id, out match, out parent))
+            if (!Node(id, _root, out match, out parent))
             {
                 Log.Error(this,
                     "Attempted to remove {0} but node not found.",
@@ -184,35 +159,16 @@ namespace CreateAR.SpirePlayer
             }
 
             var removed = false;
-
-            if (null == parent)
+            for (int i = 0, len = parent.Children.Length; i < len; i++)
             {
-                for (int i = 0, len = _nodes.Count; i < len; i++)
+                var child = parent.Children[i];
+                if (child.Id == id)
                 {
-                    var child = _nodes[i];
-                    if (child.Id == id)
-                    {
-                        _nodes.RemoveAt(i);
+                    parent.Children = parent.Children.Remove(child);
 
-                        removed = true;
+                    removed = true;
 
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0, len = parent.Children.Length; i < len; i++)
-                {
-                    var child = parent.Children[i];
-                    if (child.Id == id)
-                    {
-                        parent.Children = parent.Children.Remove(child);
-
-                        removed = true;
-
-                        break;
-                    }
+                    break;
                 }
             }
 
@@ -230,42 +186,10 @@ namespace CreateAR.SpirePlayer
                 OnNodeRemoved(id);
             }
         }
-
+        
         /// <summary>
-        /// Retrieves a node.
-        /// </summary>
-        /// <param name="id">Unique id of the node.</param>
-        /// <param name="match">The matching node.</param>
-        /// <param name="parent">The parent of the matching node.</param>
-        /// <returns></returns>
-        private bool Node(
-            string id,
-            out HierarchyNodeData match,
-            out HierarchyNodeData parent)
-        {
-            for (int i = 0, len = _nodes.Count; i < len; i++)
-            {
-                var child = _nodes[i];
-                if (child.Id == id)
-                {
-                    match = child;
-                    parent = null;
-
-                    return true;
-                }
-
-                if (Node(id, child, out match, out parent))
-                {
-                    return true;
-                }
-            }
-
-            parent = match = null;
-            return false;
-        }
-
-        /// <summary>
-        /// Recursive method that retrieves a node.
+        /// Recursive method that retrieves a node. This method will _not_ return
+        /// root as a match.
         /// </summary>
         /// <param name="id">Id of the node.</param>
         /// <param name="start">Node at which to start.</param>

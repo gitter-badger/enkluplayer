@@ -19,7 +19,6 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
-        private readonly IContentManager _content;
         private readonly IElementManager _elements;
         private readonly HierarchyDatabase _database;
         private readonly FocusManager _focus;
@@ -38,13 +37,11 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public HierarchyManager(
-            IContentManager content,
             IAppDataManager appData,
             IElementManager elements,
             HierarchyDatabase database,
             FocusManager focus)
         {
-            _content = content;
             _elements = elements;
             _database = database;
             _focus = focus;
@@ -57,8 +54,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Startup()
         {
-            
-            //Create(_graph.Root);
+            //Create(_database.Root);
             /*
             _graph.Root.OnChildAdded += Graph_OnChildAdded;
             _graph.Root.OnChildRemoved += Graph_OnChildRemoved;
@@ -114,7 +110,7 @@ namespace CreateAR.SpirePlayer
             _contentMap.Clear();
 
             // kill content
-            _content.ReleaseAll(CONTENT_TAGS);
+            //_content.ReleaseAll(CONTENT_TAGS);
         }
         
         /// <summary>
@@ -138,7 +134,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            Create(child);
+            //Create(child);
         }
 
         /// <summary>
@@ -162,7 +158,7 @@ namespace CreateAR.SpirePlayer
 
             _contentMap.Remove(child.Id);
 
-            _content.Release(content);
+            //_content.Release(content);
         }
 
         /// <summary>
@@ -197,13 +193,13 @@ namespace CreateAR.SpirePlayer
             else
             {
                 var contentId = node.ContentId;
-                var content = _content.Request(contentId, CONTENT_TAGS);
+                /*var content = _content.Request(contentId, CONTENT_TAGS);
                 _contentMap[contentId] = content;
                 
                 // locators enforce Self() to be non-null
                 // TODO: This should go through the Anchor system.
                 var self = node.Locators.Self();
-                self.OnUpdated += locator => Locator_OnUpdated(locator, content);
+                self.OnUpdated += locator => Locator_OnUpdated(locator, content);*/
             }
 
             // children
