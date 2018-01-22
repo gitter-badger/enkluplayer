@@ -4,25 +4,26 @@ using CreateAR.Commons.Unity.Messaging;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Manages <c>ContentGraph</c> related events.
+    /// Received hierarchy-related events from the bridge and passed them along
+    /// to the database.
     /// </summary>
-    public class ContentGraphUpdateService : ApplicationService
+    public class HierarchyUpdateService : ApplicationService
     {
         /// <summary>
-        /// The <c>ContentGraph</c>.
+        /// Stores hierarchy data.
         /// </summary>
-        private readonly ContentGraph _graph;
+        private readonly HierarchyDatabase _database;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ContentGraphUpdateService(
+        public HierarchyUpdateService(
             IBridge bridge,
             IMessageRouter messages,
-            ContentGraph graph)
+            HierarchyDatabase database)
             : base(bridge, messages)
         {
-            _graph = graph;
+            _database = database;
         }
 
         /// <inheritdoc cref="ApplicationService"/>
@@ -45,9 +46,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Hierarchy list updated.");
 
-            _graph.Add(_graph.Root.Id, @event.Children);
-
-            _graph.Walk(node => { Silly("\t{0}", node); });
+            _database.Set(@event.Children);
         }
 
         /// <summary>
@@ -58,7 +57,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Add node to hierarchy.");
 
-            _graph.Add(@event.Parent, @event.Node);
+            _database.Add(@event.Parent, @event.Node);
         }
 
         /// <summary>
@@ -69,7 +68,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Remove node from hierarchy.");
 
-            _graph.Remove(@event.ContentId);
+            _database.Remove(@event.ContentId);
         }
 
         /// <summary>
@@ -78,7 +77,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="event">The event.</param>
         private void OnHierarchyUpdateEvent(HierarchyUpdateEvent @event)
         {
-            _graph.Update(@event.Node);
+            Log.Info(this, "Update hierarchy node.");
+
+            _database.Update(@event.Node);
         }
     }
 }

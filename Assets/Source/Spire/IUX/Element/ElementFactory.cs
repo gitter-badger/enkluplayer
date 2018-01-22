@@ -201,6 +201,10 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     return new Float(_config, _layers, _tweens, _colors, _messages, _primitives);
                 }
+                case ElementTypes.CONTENT:
+                {
+                    return new Content(_config, _layers, _tweens, _colors, _messages);
+                }
                 default:
                 {
                     throw new Exception(string.Format(

@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using ContentGraphNode = CreateAR.SpirePlayer.ContentGraph.ContentGraphNode;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Manages the mapping between Unity objects and the ContentGraph.
+    /// Synchonizes <c>Element</c> system and <c>HierarchyDatabase</c>.
     /// </summary>
     public class HierarchyManager
     {
@@ -19,15 +20,12 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly IContentManager _content;
+        private readonly IElementManager _elements;
+        private readonly HierarchyDatabase _database;
         private readonly FocusManager _focus;
-
+        
         /// <summary>
-        /// Backing variable for Graph property.
-        /// </summary>
-        private readonly ContentGraph _graph;
-
-        /// <summary>
-        /// Lookup from ContentData id to GameObject instance.
+        /// Lookup from ContentData id to Content instance.
         /// </summary>
         private readonly Dictionary<string, Content> _contentMap = new Dictionary<string, Content>();
 
@@ -35,27 +33,21 @@ namespace CreateAR.SpirePlayer
         /// Current selection.
         /// </summary>
         private Content _selectedContent;
-
-        /// <summary>
-        /// Holds relationships between Content.
-        /// </summary>
-        public ContentGraph Graph
-        {
-            get { return _graph; }
-        }
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
         public HierarchyManager(
             IContentManager content,
             IAppDataManager appData,
-            FocusManager focus,
-            ContentGraph graph)
+            IElementManager elements,
+            HierarchyDatabase database,
+            FocusManager focus)
         {
             _content = content;
+            _elements = elements;
+            _database = database;
             _focus = focus;
-            _graph = graph;
 
             appData.OnUpdated += AppData_OnUpdated;
         }
@@ -63,13 +55,15 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates the GameObject hierarchy from the <c>ContentGraph</c>.
         /// </summary>
-        public void Create()
+        public void Startup()
         {
-            Create(_graph.Root);
-
+            
+            //Create(_graph.Root);
+            /*
             _graph.Root.OnChildAdded += Graph_OnChildAdded;
             _graph.Root.OnChildRemoved += Graph_OnChildRemoved;
             _graph.Root.OnChildUpdated += Graph_OnUpdated;
+            */
         }
 
         /// <summary>
@@ -109,11 +103,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Clears the GameObjects.
         /// </summary>
-        public void Clear()
+        public void Teardown()
         {
+            /*
             _graph.Root.OnChildAdded -= Graph_OnChildAdded;
             _graph.Root.OnChildRemoved -= Graph_OnChildRemoved;
             _graph.Root.OnChildUpdated -= Graph_OnUpdated;
+            */
             
             _contentMap.Clear();
 

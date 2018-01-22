@@ -97,7 +97,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ApplicationStateService>().To<ApplicationStateService>().ToSingleton();
                     binder.Bind<AuthorizationService>().To<AuthorizationService>().ToSingleton();
                     binder.Bind<AssetUpdateService>().To<AssetUpdateService>().ToSingleton();
-                    binder.Bind<ContentGraphUpdateService>().To<ContentGraphUpdateService>().ToSingleton();
+                    binder.Bind<HierarchyUpdateService>().To<HierarchyUpdateService>().ToSingleton();
                     binder.Bind<ContentUpdateService>().To<ContentUpdateService>().ToSingleton();
                     binder.Bind<ScriptUpdateService>().To<ScriptUpdateService>().ToSingleton();
                     binder.Bind<MaterialUpdateService>().To<MaterialUpdateService>().ToSingleton();
@@ -136,7 +136,7 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<ApplicationStateService>(),
                         binder.GetInstance<AuthorizationService>(),
                         binder.GetInstance<AssetUpdateService>(),
-                        binder.GetInstance<ContentGraphUpdateService>(),
+                        binder.GetInstance<HierarchyUpdateService>(),
                         binder.GetInstance<ContentUpdateService>(),
                         binder.GetInstance<ScriptUpdateService>(),
                         binder.GetInstance<MaterialUpdateService>(),

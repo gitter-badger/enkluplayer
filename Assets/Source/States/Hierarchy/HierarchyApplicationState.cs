@@ -20,7 +20,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly IInputManager _input;
         private readonly IMessageRouter _router;
-        private readonly HierarchyManager _gameObjects;
+        private readonly HierarchyManager _hierarchy;
 
         /// <summary>
         /// Unsubscribe.
@@ -43,7 +43,7 @@ namespace CreateAR.SpirePlayer
         {
             _input = input;
             _router = router;
-            _gameObjects = hierarchy;
+            _hierarchy = hierarchy;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -57,8 +57,8 @@ namespace CreateAR.SpirePlayer
             // input
             _input.ChangeState(InputState);
             
-            // create asset representation
-            _gameObjects.Create();
+            // create elements
+            _hierarchy.Startup();
 
             // listen for selection
             _unsub = _router.Subscribe(
@@ -75,7 +75,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Exit()
         {
-            _gameObjects.Clear();
+            _hierarchy.Teardown();
 
             _unsub();
 
@@ -94,7 +94,7 @@ namespace CreateAR.SpirePlayer
 
             Log.Info(this, "Select content : {0}.", @event.ContentId);
 
-            _gameObjects.Select(@event.ContentId);
+            _hierarchy.Select(@event.ContentId);
         }
     }
 }
