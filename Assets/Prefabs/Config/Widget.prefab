@@ -469,6 +469,21 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   CrawlFadeOutDepthScale: 5
+  ButtonReady:
+    Color: 1
+    CaptionColor: 4
+    Scale: {x: 1, y: 1, z: 1}
+    Tween: 1
+  ButtonActivating:
+    Color: 2
+    CaptionColor: 2
+    Scale: {x: 1.1, y: 1.1, z: 1.1}
+    Tween: 1
+  ButtonActivated:
+    Color: 2
+    CaptionColor: 2
+    Scale: {x: 1, y: 1, z: 1}
+    Tween: 1
   Text: {fileID: 114448120540335030, guid: 501ef06376b78954e9f6d81bcec3af57, type: 2}
   Reticle: {fileID: 114002837979368224, guid: 11a8156d5a2eb894286737b838756e38, type: 2}
   Activator: {fileID: 114629216621896330, guid: aa4acfa93557f6b41875423ab4c10aa4,

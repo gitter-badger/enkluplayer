@@ -150,6 +150,22 @@ namespace CreateAR.SpirePlayer.IUX
         public float CrawlFadeOutDepthScale = 5.0f;
 
         /// <summary>
+        /// Configuration for ready state of a button.
+        /// </summary>
+        [Header("Button")]
+        public ButtonStateConfig ButtonReady;
+
+        /// <summary>
+        /// Configuration for activating state of a button.
+        /// </summary>
+        public ButtonStateConfig ButtonActivating;
+
+        /// <summary>
+        /// Configuration for activated state of a button.
+        /// </summary>
+        public ButtonStateConfig ButtonActivated;
+
+        /// <summary>
         /// Text prefab.
         /// </summary>
         [Header("Prefabs")]

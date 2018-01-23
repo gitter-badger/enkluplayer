@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer.IUX
             IMessageRouter messages,
             ILayerManager layers,
             TweenConfig tweens,
-            IColorConfig colors)
+            ColorConfig colors)
             : base(
                 new GameObject("Float"),
                 config,

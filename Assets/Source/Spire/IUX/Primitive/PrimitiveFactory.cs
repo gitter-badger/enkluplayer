@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private readonly IElementManager _elements;
         private readonly ILayerManager _layers;
-        private readonly IColorConfig _colors;
+        private readonly ColorConfig _colors;
         private readonly TweenConfig _tweens;
         private readonly IMessageRouter _messages;
         private readonly IIntentionManager _intention;
@@ -26,7 +26,7 @@ namespace CreateAR.SpirePlayer.IUX
         public PrimitiveFactory(
             IElementManager elements,
             ILayerManager layers,
-            IColorConfig colors,
+            ColorConfig colors,
             TweenConfig tweens,
             IMessageRouter messages,
             IIntentionManager intention,

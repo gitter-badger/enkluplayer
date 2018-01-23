@@ -93,9 +93,11 @@ namespace CreateAR.SpirePlayer.IUX
 
         /// <summary>
         /// Dependencies.
+        /// 
+        /// TODO: Switch to protected.
         /// </summary>
         public ILayerManager Layers { get; private set; }
-        public IColorConfig Colors { get; private set; }
+        public ColorConfig Colors { get; private set; }
         public TweenConfig Tweens { get; private set; }
         public WidgetConfig Config { get; private set; }
         public IMessageRouter Messages { get; private set; }
@@ -326,7 +328,7 @@ namespace CreateAR.SpirePlayer.IUX
             WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
-            IColorConfig colors,
+            ColorConfig colors,
             IMessageRouter messages)
         {
             _gameObject = gameObject;

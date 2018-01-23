@@ -17,7 +17,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IIntentionManager _intention;
         private readonly IElementManager _elements;
         private readonly ILayerManager _layers;
-        private readonly IColorConfig _colors;
+        private readonly ColorConfig _colors;
         private readonly TweenConfig _tweens;
         private readonly IMessageRouter _messages;
         private readonly IVoiceCommandManager _voice;
@@ -41,7 +41,7 @@ namespace CreateAR.SpirePlayer.IUX
             IIntentionManager intention,
             IElementManager elements,
             ILayerManager layers,
-            IColorConfig colors,
+            ColorConfig colors,
             TweenConfig tweens,
             IMessageRouter messages,
             IVoiceCommandManager voice,

@@ -88,7 +88,7 @@ namespace CreateAR.SpirePlayer
             WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
-            IColorConfig colors,
+            ColorConfig colors,
             IMessageRouter messages,
             IScriptManager scripts,
             IContentAssembler assembler)

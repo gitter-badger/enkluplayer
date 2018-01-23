@@ -20,7 +20,7 @@ namespace CreateAR.SpirePlayer
         private readonly IAnchorReferenceFrameFactory _frames;
         private readonly ILoadProgressManager _progress;
         private readonly ILayerManager _layers;
-        private readonly IColorConfig _colors;
+        private readonly ColorConfig _colors;
         private readonly IMessageRouter _messages;
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
@@ -36,7 +36,7 @@ namespace CreateAR.SpirePlayer
             IAnchorReferenceFrameFactory frames,
             ILoadProgressManager progress,
             ILayerManager layers,
-            IColorConfig colors,
+            ColorConfig colors,
             IMessageRouter messages,
             TweenConfig tweens,
             WidgetConfig config)

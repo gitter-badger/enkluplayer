@@ -31,7 +31,7 @@ namespace CreateAR.SpirePlayer.IUX
             IPrimitiveFactory primitives,
             ILayerManager layers,
             TweenConfig tweens,
-            IColorConfig colors,
+            ColorConfig colors,
             IMessageRouter messages)
             : base(
                 new GameObject("Caption"),

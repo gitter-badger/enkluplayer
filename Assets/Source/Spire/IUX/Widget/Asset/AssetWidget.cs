@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -79,7 +79,7 @@ namespace CreateAR.SpirePlayer.IUX
             WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
-            IColorConfig colors,
+            ColorConfig colors,
             IMessageRouter messages)
             : base(
                 new GameObject("Asset"),
@@ -237,4 +237,4 @@ namespace CreateAR.SpirePlayer.IUX
             _onAssetLoaded.Succeed(this);
         }
     }
-}
+}*/

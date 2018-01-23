@@ -144,7 +144,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                return (ActivatorState)_states.Current;
+                return (ActivatorState) _states.Current;
             }
         }
 
@@ -183,7 +183,7 @@ namespace CreateAR.SpirePlayer.IUX
             IMessageRouter messages,
             ILayerManager layers,
             TweenConfig tweens,
-            IColorConfig colors)
+            ColorConfig colors)
             : base(
                 new GameObject("Activator"),
                 config,

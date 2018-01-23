@@ -5,7 +5,6 @@ namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Consistent set of tween durations based around intended user-experience.
-    /// 
     /// </summary>
     public enum TweenType
     {
