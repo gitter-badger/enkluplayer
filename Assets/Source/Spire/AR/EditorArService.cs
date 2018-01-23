@@ -15,7 +15,7 @@
                     new ArAnchor("floor")
                     {
                         Extents = new Vec3(1, 0, 1),
-                        Position = new Vec3(0.3f, -0.8f, 0.1f),
+                        Position = new Vec3(0f, 0f, 0f),
                         Rotation = Quat.Euler(0, 45, 0)
                     },
                 };

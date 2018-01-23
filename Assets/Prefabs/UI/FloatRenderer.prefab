@@ -20,7 +20,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4045059208945196}
   - component: {fileID: 114723491222898982}
-  - component: {fileID: 114330309398706866}
   m_Layer: 0
   m_Name: Stationary Widget
   m_TagString: Untagged
@@ -37,7 +36,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4077881146560442}
   - component: {fileID: 114039426122872568}
-  - component: {fileID: 114552636260345096}
   m_Layer: 0
   m_Name: Motion Widget
   m_TagString: Untagged
@@ -123,7 +121,6 @@ GameObject:
   - component: {fileID: 4622654898724592}
   - component: {fileID: 33813621724251724}
   - component: {fileID: 23037711506490638}
-  - component: {fileID: 114662928222453826}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
@@ -467,79 +464,6 @@ MonoBehaviour:
   Renderer: {fileID: 23353192127414122}
   Material: {fileID: 0}
   MaterialColorName: _TintColor
---- !u!114 &114330309398706866
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1167421304515214}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e408ff3926c6d3142b0d0bb5b4712128, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Widget: {fileID: 114723491222898982}
-  Transform: {fileID: 4045059208945196}
-  Position0: {x: 0, y: 0, z: 0}
-  Position1: {x: 0, y: 0, z: 0}
-  PositionCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    - serializedVersion: 2
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  Scale0: {x: 0, y: 0, z: 0}
-  Scale1: {x: 1, y: 1, z: 1}
-  ScaleCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    - serializedVersion: 2
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  Rotation0: {x: 0, y: 0, z: 0}
-  Rotation1: {x: 0, y: 0, z: 0}
-  RotationCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    - serializedVersion: 2
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
 --- !u!114 &114421777139123910
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -554,90 +478,6 @@ MonoBehaviour:
   FixupFactor: 2
   Root: {fileID: 4458961773882158}
   SpringConstant: 8
---- !u!114 &114552636260345096
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1224673006738614}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e408ff3926c6d3142b0d0bb5b4712128, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Widget: {fileID: 114039426122872568}
-  Transform: {fileID: 4077881146560442}
-  Position0: {x: 0, y: 0, z: 0}
-  Position1: {x: 0, y: 0, z: 0}
-  PositionCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    - serializedVersion: 2
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  Scale0: {x: 0, y: 0, z: 0}
-  Scale1: {x: 1, y: 1, z: 1}
-  ScaleCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    - serializedVersion: 2
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  Rotation0: {x: 0, y: 0, z: 0}
-  Rotation1: {x: 0, y: 0, z: 0}
-  RotationCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 2
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    - serializedVersion: 2
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
---- !u!114 &114662928222453826
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1943430864535658}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114723491222898982
 MonoBehaviour:
   m_ObjectHideFlags: 1
