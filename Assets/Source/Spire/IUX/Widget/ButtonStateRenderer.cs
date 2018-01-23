@@ -20,6 +20,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private readonly Button _button;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public ButtonStateRenderer(
             TweenConfig tweens,
             ColorConfig colors,
@@ -32,7 +35,11 @@ namespace CreateAR.SpirePlayer.IUX
             _button = button;
         }
         
-        public void Update(float deltaTime)
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
+        /// <param name="dt">Delta time.</param>
+        public void Update(float dt)
         {
             var config = Config(GetCurrentButtonState());
             var isInteractable = _button.Interactable;
@@ -46,7 +53,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             var tweenDuration = _tweens.DurationSeconds(config.Tween);
             var tweenLerp = tweenDuration > Mathf.Epsilon
-                ? deltaTime / tweenDuration
+                ? dt / tweenDuration
                 : 1.0f;
 
             _button.LocalColor = Col4.Lerp(
@@ -72,7 +79,12 @@ namespace CreateAR.SpirePlayer.IUX
                 tweenLerp);
         }
 
-        public ButtonStateConfig Config(ButtonState state)
+        /// <summary>
+        /// Retrieves the correct config for a state..
+        /// </summary>
+        /// <param name="state">The ButtonState.</param>
+        /// <returns></returns>
+        private ButtonStateConfig Config(ButtonState state)
         {
             switch (state)
             {
