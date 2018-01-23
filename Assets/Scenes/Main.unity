@@ -1219,7 +1219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vine: "<?Vine>\r\n<Float position=(0,0,3)>\r\n\t<Menu title='Design'>\r\n\t\t<Button
+  Vine: "<?Vine>\r\n<Float position=(0,0,6)>\r\n\t<Menu title='Design'>\r\n\t\t<Button
     label='Load Scene' icon='search' />\r\n\t\t<Button label='New Scene' icon='plus'
     />\r\n\t\t<Button label='Play' icon='play' />\r\n\t\t<Button label='Exit' icon='arrow-left'/>\r\n\t</Menu>\r\n</Float>"
 --- !u!4 &1662866789

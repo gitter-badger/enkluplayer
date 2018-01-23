@@ -1,123 +1,8 @@
-﻿using System;
-using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
-    public class ButtonStateRenderer
-    {
-        private readonly TweenConfig _tweens;
-        private readonly ColorConfig _colors;
-
-        /// <summary>
-        /// Configuration for all widgets.
-        /// </summary>
-        public readonly WidgetConfig _config;
-
-        /// <summary>
-        /// The activator to watch.
-        /// </summary>
-        private readonly ActivatorPrimitive _activator;
-
-        private readonly Button _button;
-
-        public ButtonStateRenderer(
-            TweenConfig tweens,
-            ColorConfig colors,
-            WidgetConfig config,
-            ActivatorPrimitive activator,
-            Button button)
-        {
-            _tweens = tweens;
-            _colors = colors;
-            _config = config;
-            _activator = activator;
-            _button = button;
-        }
-
-        public void Update(float deltaTime)
-        {
-            var config = Config(GetCurrentButtonState());
-            var isInteractable = _button.Interactable;
-
-            var virtualColor = isInteractable
-                ? config.Color
-                : VirtualColor.Disabled;
-
-            Col4 shellStateColor;
-            _colors.TryGetColor(virtualColor, out shellStateColor);
-
-            var tweenDuration = _tweens.DurationSeconds(config.Tween);
-            var tweenLerp = tweenDuration > Mathf.Epsilon
-                ? deltaTime / tweenDuration
-                : 1.0f;
-
-            _button.LocalColor = Col4.Lerp(
-                _button.LocalColor,
-                shellStateColor,
-                tweenLerp);
-
-            _button.GameObject.transform.localScale = Vector3.Lerp(
-                _button.GameObject.transform.localScale,
-                config.Scale,
-                tweenLerp);
-
-            var captionVirtualColor = isInteractable
-                ? config.CaptionColor
-                : VirtualColor.Disabled;
-
-            Col4 captionColor;
-            _colors.TryGetColor(captionVirtualColor, out captionColor);
-
-            _button.Text.LocalColor = Col4.Lerp(
-                _button.Text.LocalColor,
-                captionColor,
-                tweenLerp);
-        }
-
-        public ButtonStateConfig Config(ButtonState state)
-        {
-            switch (state)
-            {
-                case ButtonState.Ready:
-                {
-                    return _config.ButtonReady;
-                }
-                case ButtonState.Activating:
-                {
-                    return _config.ButtonActivating;
-                }
-                case ButtonState.Activated:
-                {
-                    return _config.ButtonActivated;
-                }
-            }
-
-            throw new Exception(String.Format(
-                "Could not find ButtonConfig for {0}.",
-                state));
-        }
-
-        /// <summary>
-        /// Determines the current button state using the activator.
-        /// </summary>
-        /// <returns></returns>
-        private ButtonState GetCurrentButtonState()
-        {
-            if (_activator.CurrentState is ActivatorActivatingState)
-            {
-                return ButtonState.Activating;
-            }
-
-            if (_activator.CurrentState is ActivatorActivatedState)
-            {
-                return ButtonState.Activated;
-            }
-
-            return ButtonState.Ready;
-        }
-    }
-
     /// <summary>
     /// Three distinct states of a button.
     /// </summary>
@@ -146,7 +31,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Controls rendering changes based on button state.
         /// </summary>
-        private ButtonStateRenderer _stateRenderer;
+        private readonly ButtonStateRenderer _stateRenderer;
 
         /// <summary>
         /// Props.
@@ -234,6 +119,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _primitives = primitives;
             _voice = voice;
+            _stateRenderer = new ButtonStateRenderer(tweens, colors, config, this);
         }
         
         /// <inheritdoc cref="Element"/>
@@ -273,22 +159,13 @@ namespace CreateAR.SpirePlayer.IUX
                 
                 RegisterVoiceCommand();
             }
-
-            _stateRenderer = new ButtonStateRenderer(
-                Tweens,
-                Colors,
-                Config,
-                _activator,
-                this);
         }
 
         /// <inheritdoc cref="Element"/>
         protected override void AfterUnloadChildrenInternal()
         {
             base.AfterUnloadChildrenInternal();
-
-            _stateRenderer = null;
-
+            
             // activator
             {
                 _iconProp.OnChanged -= Icon_OnChanged;
