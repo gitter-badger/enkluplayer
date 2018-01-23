@@ -2,6 +2,7 @@
 using System.Collections;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -16,11 +17,16 @@ namespace CreateAR.SpirePlayer.Assets
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Logging tag.
+        /// </summary>
+        private readonly string _tag;
         
         /// <summary>
         /// Raw bytes.
         /// </summary>
-        private byte[] _bytes;
+        private byte[] _buffer;
         
         /// <summary>
         /// Download progress.
@@ -49,15 +55,19 @@ namespace CreateAR.SpirePlayer.Assets
         /// Constructor.
         /// </summary>
         /// <param name="bootstrapper">For courintes.</param>
-        public AssetBundleDownloadHandler(IBootstrapper bootstrapper)
+        /// <param name="tag">Tag to append to logs.</param>
+        public AssetBundleDownloadHandler(
+            IBootstrapper bootstrapper,
+            string tag)
         {
             _bootstrapper = bootstrapper;
+            _tag = tag;
         }
         
         /// <inheritdoc cref="DownloadHandlerScript"/>
         protected override byte[] GetData()
         {
-            return _bytes;
+            return _buffer;
         }
 
         /// <inheritdoc cref="DownloadHandlerScript"/>
@@ -69,24 +79,31 @@ namespace CreateAR.SpirePlayer.Assets
         /// <inheritdoc cref="DownloadHandlerScript"/>
         protected override void ReceiveContentLength(int contentLength)
         {
-            _bytes = new byte[contentLength];
+            _buffer = new byte[contentLength];
         }
         
         /// <inheritdoc cref="DownloadHandlerScript"/>
-        protected override bool ReceiveData(byte[] data, int dataLength)
+        protected override bool ReceiveData(byte[] bytes, int dataLength)
         {
-            var delta = _bytes.Length - _index;
+            var remainingBufferLen = _buffer.Length - _index;
             
             // too much data
-            if (delta < dataLength)
+            if (remainingBufferLen < dataLength)
             {
+                Trace("Buffer overflow-- received more data than content length.");
+                
                 return false;
             }
             
-            Array.Copy(data, 0, _bytes, _index, dataLength);
+            Array.Copy(bytes, 0, _buffer, _index, dataLength);
             _index += dataLength;
 
-            _progress = _index / (float) _bytes.Length;
+            _progress = _index / (float) _buffer.Length;
+            
+            Trace("Received {0} bytes. {1} of {2} total.",
+                dataLength,
+                _index,
+                _buffer.Length);
 
             return true;
         }
@@ -96,8 +113,12 @@ namespace CreateAR.SpirePlayer.Assets
         {
             _progress = 1;
             
+            Trace("Download complete ({0} / {1} bytes).",
+                _index,
+                _buffer.Length);
+            
             // create bundle
-            _bootstrapper.BootstrapCoroutine(Wait(AssetBundle.LoadFromMemoryAsync(_bytes)));
+            _bootstrapper.BootstrapCoroutine(Wait(AssetBundle.LoadFromMemoryAsync(_buffer)));
         }
 
         /// <summary>
@@ -107,10 +128,7 @@ namespace CreateAR.SpirePlayer.Assets
         /// <returns></returns>
         private IEnumerator Wait(AssetBundleCreateRequest request)
         {
-            while (!request.isDone)
-            {
-                yield return null;
-            }
+            yield return request;
 
             if (null != request.assetBundle)
             {
@@ -120,6 +138,19 @@ namespace CreateAR.SpirePlayer.Assets
             {
                 _onReady.Fail(new Exception("Could not create asset bundle."));
             }
+        }
+        
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        /// <param name="message">Message to log.</param>
+        /// <param name="replacements">Logging replacements.</param>
+        private void Trace(string message, params object[] replacements)
+        {
+            Log.Info(this,
+                "[{0}] {1}",
+                _tag,
+                string.Format(message, replacements));
         }
     }
 }

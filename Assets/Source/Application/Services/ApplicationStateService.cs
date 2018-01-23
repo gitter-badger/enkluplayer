@@ -1,6 +1,7 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -69,7 +70,33 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Application ready.");
 
-                    _states.Change<DesignApplicationState>();
+                    ApplicationMode mode = ApplicationMode.WaitForConnection;
+                    try
+                    {
+                        mode = (ApplicationMode) Enum.Parse(
+                            typeof(ApplicationMode),
+                            _config.Mode);
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Warning(this,
+                            "Could not parse mode in ApplicationConfig : {0}.",
+                            exception);
+                    }
+
+                    switch (mode)
+                    {
+                        case ApplicationMode.Tools:
+                        {
+                            _states.Change<ToolModeApplicationState>();
+                            break;
+                        }
+                        case ApplicationMode.WaitForConnection:
+                        {
+                            _states.Change<WaitingForConnectionApplicationState>();
+                            break;
+                        }
+                    }
                 });
 
             Subscribe<PreviewEvent>(

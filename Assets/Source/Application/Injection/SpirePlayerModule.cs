@@ -99,7 +99,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ApplicationStateService>().To<ApplicationStateService>().ToSingleton();
                     binder.Bind<AuthorizationService>().To<AuthorizationService>().ToSingleton();
                     binder.Bind<AssetUpdateService>().To<AssetUpdateService>().ToSingleton();
-                    binder.Bind<ContentGraphUpdateService>().To<ContentGraphUpdateService>().ToSingleton();
+                    binder.Bind<HierarchyUpdateService>().To<HierarchyUpdateService>().ToSingleton();
                     binder.Bind<ContentUpdateService>().To<ContentUpdateService>().ToSingleton();
                     binder.Bind<ScriptUpdateService>().To<ScriptUpdateService>().ToSingleton();
                     binder.Bind<MaterialUpdateService>().To<MaterialUpdateService>().ToSingleton();
@@ -139,7 +139,7 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<ApplicationStateService>(),
                         binder.GetInstance<AuthorizationService>(),
                         binder.GetInstance<AssetUpdateService>(),
-                        binder.GetInstance<ContentGraphUpdateService>(),
+                        binder.GetInstance<HierarchyUpdateService>(),
                         binder.GetInstance<ContentUpdateService>(),
                         binder.GetInstance<ScriptUpdateService>(),
                         binder.GetInstance<MaterialUpdateService>(),
@@ -161,10 +161,10 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<ArCameraRig>().ToValue(LookupComponent<ArCameraRig>());
                 binder.Bind<ArServiceConfiguration>().ToValue(LookupComponent<ArServiceConfiguration>());
-#if UNITY_IOS
+#if !UNITY_EDITOR && UNITY_IOS
                 binder.Bind<UnityARSessionNativeInterface>().ToValue(UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
-#elif UNITY_WSA
+#elif !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
 #else
                 binder.Bind<IArService>().To<EditorArService>().ToSingleton();
@@ -176,10 +176,8 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<BleServiceConfiguration>().ToValue(LookupComponent<BleServiceConfiguration>());
 #if NETFX_CORE
                 binder.Bind<IBleService>().To<UwpBleService>().ToSingleton();
-#elif UNITY_EDITOR
-                binder.Bind<IBleService>().To<EditorBleService>().ToSingleton();
 #else
-
+                binder.Bind<IBleService>().To<NullBleService>().ToSingleton();
 #endif
             }
 
@@ -225,7 +223,7 @@ namespace CreateAR.SpirePlayer
 
             // hierarchy
             {
-                binder.Bind<ContentGraph>().To<ContentGraph>().ToSingleton();
+                binder.Bind<HierarchyDatabase>().To<HierarchyDatabase>().ToSingleton();
                 binder.Bind<HierarchyManager>().To<HierarchyManager>().ToSingleton();
             }
 

@@ -8,6 +8,11 @@ namespace CreateAR.SpirePlayer
     public class ScriptData : StaticData
     {
         /// <summary>
+        /// Backing variable for property.
+        /// </summary>
+        private string[] _tags;
+
+        /// <summary>
         /// The URI at which to download the script. This is not a complete URI
         /// but used to create a complete URI.
         /// </summary>
@@ -24,7 +29,37 @@ namespace CreateAR.SpirePlayer
         /// Tags associated with this script.
         /// </summary>
         [JsonName("tags")]
-        public string[] Tags;
+        public string TagString;
+
+        /// <summary>
+        /// CRC.
+        /// </summary>
+        [JsonName("crc")]
+        public string Crc;
+
+        /// <summary>
+        /// Time at which script was created.
+        /// </summary>
+        [JsonName("createdAt")]
+        public string CreatedAt;
+
+        /// <summary>
+        /// Time at which script was last updated.
+        /// </summary>
+        [JsonName("updatedAt")]
+        public string UpdatedAt;
+
+        /// <summary>
+        /// Id of owning user.
+        /// </summary>
+        [JsonName("owner")]
+        public string Owner;
+
+        /// <summary>
+        /// Version.
+        /// </summary>
+        [JsonName("version")]
+        public int Version;
 
         /// <summary>
         /// Useful ToString().
@@ -35,6 +70,22 @@ namespace CreateAR.SpirePlayer
             return string.Format("[ScriptData Id={0}, Uri={1}]",
                 Id,
                 Uri);
+        }
+
+        /// <summary>
+        /// Tags.
+        /// </summary>
+        public string[] Tags
+        {
+            get
+            {
+                if (null == _tags)
+                {
+                    _tags = (TagString ?? "").Split(',');
+                }
+
+                return _tags;
+            }
         }
     }
 }

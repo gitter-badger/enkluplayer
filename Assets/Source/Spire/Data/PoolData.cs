@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer
         /// Pool priority.
         /// </summary>
         [JsonName("priority")]
-        public int Priority;
+        public int Priority = 0;
 
         /// <summary>
         /// How big the pool should start.
