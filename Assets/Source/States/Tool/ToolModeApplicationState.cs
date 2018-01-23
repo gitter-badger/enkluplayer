@@ -56,6 +56,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Exit()
         {
+            _messages.Publish(MessageTypes.STATUS, "");
+
             if (!_voice.Unregister(VoiceKeywords.MESH_TOOL, VoiceKeywords.HELP))
             {
                 Log.Error(this,

@@ -68,6 +68,7 @@ namespace CreateAR.SpirePlayer.Assets
             string basePath)
         {
             _bootstrapper = bootstrapper;
+            _hashProvider = hashing;
             _basePath = basePath;
         }
         
@@ -212,9 +213,13 @@ namespace CreateAR.SpirePlayer.Assets
         /// <returns></returns>
         private string FilePath(string uri)
         {
+            Log.Info(this, "FilePath for {0}.", uri);
+            var bytes = Encoding.UTF8.GetBytes(uri);
+            var hash = _hashProvider.Hash(bytes);
+            var encodedHash = Convert.ToBase64String(hash);
             return Path.Combine(
                 _basePath,
-                Convert.ToBase64String(_hashProvider.Hash(Encoding.UTF8.GetBytes(uri))));
+                encodedHash);
         }
     }
 }

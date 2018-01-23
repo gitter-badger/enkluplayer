@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using LightJson;
 
 namespace CreateAR.SpirePlayer
@@ -11,18 +10,12 @@ namespace CreateAR.SpirePlayer
     public class ContentData : StaticData
     {
         /// <summary>
-        /// If true, each request from the IContentManager will create a new
+        /// If true, each request from the <c>IContentManager</c> will create a new
         /// <c>Content</c> instance.
         /// </summary>
         [JsonName("unique")]
         public bool Unique;
-
-        /// <summary>
-        /// If true, does not inherit color from parent.
-        /// </summary>
-        [JsonName("preserveColor")]
-        public bool PreserveColor;
-
+        
         /// <summary>
         /// Tags associated with this piece of content.
         /// </summary>
@@ -30,16 +23,16 @@ namespace CreateAR.SpirePlayer
         public string Tags;
 
         /// <summary>
-        /// Data about the asset.
-        /// </summary>
-        [JsonName("asset")]
-        public AssetReference Asset;
-
-        /// <summary>
         /// Links to the material.
         /// </summary>
         [JsonName("materialId")]
         public string MaterialId;
+
+        /// <summary>
+        /// Data about the asset.
+        /// </summary>
+        [JsonName("asset")]
+        public AssetReference Asset;
         
         /// <summary>
         /// Describes how to anchor this content.
@@ -51,7 +44,7 @@ namespace CreateAR.SpirePlayer
         /// Scripts that execute on this piece of content.
         /// </summary>
         [JsonName("scripts")]
-        public List<ScriptReference> Scripts = new List<ScriptReference>();
+        public ScriptReference[] Scripts = new ScriptReference[0];
 
         /// <summary>
         /// Useful ToString.

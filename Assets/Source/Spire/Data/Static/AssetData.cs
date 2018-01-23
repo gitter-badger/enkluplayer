@@ -5,7 +5,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Bounds object used internally to <c>AssetData</c>.
     /// </summary>
-    public class AssetStatsBounds
+    public class AssetStatsBoundsData
     {
         /// <summary>
         /// Minumum.
@@ -19,11 +19,11 @@ namespace CreateAR.SpirePlayer
         [JsonName("max")]
         public Vec3 Max;
     }
-
+    
     /// <summary>
     /// Stats for an asset.
     /// </summary>
-    public class AssetStats
+    public class AssetStatsData
     {
         /// <summary>
         /// Vert count.
@@ -41,7 +41,7 @@ namespace CreateAR.SpirePlayer
         /// Bounds.
         /// </summary>
         [JsonName("bounds")]
-        public AssetStatsBounds Bounds;
+        public AssetStatsBoundsData Bounds;
     }
 
     /// <summary>
@@ -56,13 +56,32 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonName("id")]
         public string Guid;
-        
+
+        /// <summary>
+        /// Description.
+        /// </summary>
+        [JsonName("description")]
+        public string Description;
+
+        /// <summary>
+        /// Id of owning user.
+        /// </summary>
+        [JsonName("owner")]
+        public string Owner;
+
         /// <summary>
         /// The URI at which to download the asset. This is not a complete URI
         /// but used to create a complete URI.
         /// </summary>
         [JsonName("uri")]
         public string Uri;
+
+        /// <summary>
+        /// The URI at which to download the asset thumbnail. This is not a
+        /// complete URI but used to create a complete URI.
+        /// </summary>
+        [JsonName("uriThumb")]
+        public string UriThumb;
 
         /// <summary>
         /// Name of the asset in the bundle.
@@ -92,7 +111,49 @@ namespace CreateAR.SpirePlayer
         /// Stats associated with this asset, if any.
         /// </summary>
         [JsonName("stats")]
-        public AssetStats Stats = new AssetStats();
+        public AssetStatsData Stats = new AssetStatsData();
+
+        /// <summary>
+        /// TODO: Remove unused field.
+        /// </summary>
+        [JsonName("status")]
+        public string Status;
+
+        /// <summary>
+        /// Type of asset.
+        /// </summary>
+        [JsonName("type")]
+        public string Type;
+
+        /// <summary>
+        /// Time at which the asset was created.
+        /// </summary>
+        [JsonName("createdAt")]
+        public string CreatedAt;
+
+        /// <summary>
+        /// Last updated time.
+        /// </summary>
+        [JsonName("updatedAt")]
+        public string UpdatedAt;
+
+        /// <summary>
+        /// iOS import status.
+        /// </summary>
+        [JsonName("ios")]
+        public string Ios;
+
+        /// <summary>
+        /// Webgl import status.
+        /// </summary>
+        [JsonName("webgl")]
+        public string Webgl;
+
+        /// <summary>
+        /// WsaPlayer import status.
+        /// </summary>
+        [JsonName("wsaplayer")]
+        public string Wsaplayer;
         
         /// <summary>
         /// Useful ToString.

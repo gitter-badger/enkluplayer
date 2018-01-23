@@ -3,11 +3,25 @@
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
+    /// Determines the mode of the application.
+    /// </summary>
+    public enum ApplicationMode
+    {
+        WaitForConnection,
+        Tools
+    }
+
+    /// <summary>
     /// Application wide configuration.
     /// </summary>
     [Serializable]
     public class ApplicationConfig
     {
+        /// <summary>
+        /// Defines the main application mode.
+        /// </summary>
+        public string Mode;
+        
         /// <summary>
         /// Network configuration.
         /// </summary>

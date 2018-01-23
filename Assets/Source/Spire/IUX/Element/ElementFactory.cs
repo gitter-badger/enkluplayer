@@ -27,6 +27,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private readonly ElementSchema _baseSchema = new ElementSchema();
 
+        /// <summary>
+        /// Lookup from element type to base schema for that type.
+        /// </summary>
         private readonly Dictionary<int, ElementSchema> _typeSchema = new Dictionary<int, ElementSchema>();
 
         /// <summary>

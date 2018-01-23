@@ -64,12 +64,12 @@ namespace CreateAR.SpirePlayer
             var @event = (PreviewEvent) context;
             
             // retrieve reference
-            var reference = _assets.Manifest.Asset(@event.id);
+            var reference = _assets.Manifest.Asset(@event.Guid);
             if (null == reference)
             {
                 Log.Warning(
                     this,
-                    "Could not find AssetReference with guid " + @event.id);
+                    "Could not find AssetReference with guid " + @event.Guid);
                 return;
             }
 

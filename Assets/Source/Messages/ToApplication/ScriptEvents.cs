@@ -16,7 +16,7 @@ namespace CreateAR.SpirePlayer
 
     public class ScriptUpdateEvent
     {
-        [JsonName("Script")]
+        [JsonName("script")]
         public ScriptData Script;
     }
 

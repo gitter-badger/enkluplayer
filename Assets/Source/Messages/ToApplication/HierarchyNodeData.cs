@@ -5,7 +5,7 @@ namespace CreateAR.SpirePlayer
     public class HierarchyNodeLocatorData
     {
         [JsonName("id")]
-        public string Id;
+        public int Id;
 
         [JsonName("name")]
         public string Name;
@@ -67,6 +67,7 @@ namespace CreateAR.SpirePlayer
         [JsonName("children")]
         public HierarchyNodeData[] Children = new HierarchyNodeData[0];
 
-        [JsonName("locators")] public HierarchyNodeLocatorData[] Locators = new HierarchyNodeLocatorData[0];
+        [JsonName("locators")]
+        public HierarchyNodeLocatorData[] Locators = new HierarchyNodeLocatorData[0];
     }
 }
