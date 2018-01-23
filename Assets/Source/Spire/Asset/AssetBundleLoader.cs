@@ -68,11 +68,15 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         public void Destroy()
         {
+            Trace("Destroy");
+            
             _destroy = true;
 
             if (null != Bundle)
             {
                 Bundle.Unload(true);
+                
+                Trace("Bundle unloaded.");
             }
         }
 
@@ -82,11 +86,11 @@ namespace CreateAR.SpirePlayer.Assets
         public void Load()
         {
             // check cache
-            Log.Info(this, "Checking cache for bundle {0}.", _url);
+            Trace("Checking cache.");
 
-            if (_cache.Contains(_url))
+            if (false && _cache.Contains(_url))
             {
-                Log.Info(this, "Cache hit. Loading from cache.");
+                Trace("Cache hit.");
 
                 LoadProgress progress;
                 _bundleLoad = _cache.Load(_url, out progress);
@@ -95,7 +99,7 @@ namespace CreateAR.SpirePlayer.Assets
             }
             else
             {
-                Log.Info(this, "Cache miss. Downloading bundle {0}.", _url);
+                Trace("Cache miss.");
                 
                 _bootstrapper.BootstrapCoroutine(DownloadBundle());
             }
@@ -114,7 +118,7 @@ namespace CreateAR.SpirePlayer.Assets
                 throw new ArgumentException(assetName);
             }
 
-            Log.Info(this, "Load asset {0}.", assetName);
+            Trace("Load Asset {0}.", assetName);
 
             var token = new AsyncToken<Object>();
             var load = new LoadProgress();
@@ -122,7 +126,7 @@ namespace CreateAR.SpirePlayer.Assets
             _bundleLoad
                 .OnSuccess(bundle =>
                 {
-                    Log.Info(this, "Completed bundle load successfully.");
+                    Trace("Load Asset {0}: bundle load complete.", assetName);
 
                     Bundle = bundle;
                     
@@ -158,35 +162,45 @@ namespace CreateAR.SpirePlayer.Assets
             var token = new AsyncToken<AssetBundle>();
             _bundleLoad = token;
 
-            var request = new UnityWebRequest(
+            /*var request = new UnityWebRequest(
                 _url,
                 "GET",
-                new AssetBundleDownloadHandler(_bootstrapper),
+                new AssetBundleDownloadHandler(_bootstrapper, _url),
                 null);
+            
             request.SendWebRequest();
-
             while (!request.isDone)
             {
                 Progress.Value = request.downloadProgress;
 
                 yield return null;
-            }
+            }*/
+
+            var request = UnityWebRequest.GetAssetBundle(_url);
+            yield return request.SendWebRequest();
+            
+            Trace("DownloadBundle complete.");
 
             if (_destroy)
             {
                 request.Dispose();
+                
+                Trace("Loader was destroyed when load came back. Disposing bundle.");
+                
                 yield break;
             }
 
             if (request.isNetworkError || request.isHttpError)
             {
+                Trace("Network or Http error: {0}.", request.error);
+                
                 token.Fail(new Exception(request.error));
             }
             else
             {
-                var handler = (AssetBundleDownloadHandler) request.downloadHandler;
-                
                 // wait for bundle to complete
+                /*
+                var handler = (AssetBundleDownloadHandler) request.downloadHandler;
                 handler
                     .OnReady
                     .OnSuccess(bundle =>
@@ -195,7 +209,17 @@ namespace CreateAR.SpirePlayer.Assets
 
                         token.Succeed(bundle);
                     })
-                    .OnFailure(token.Fail);
+                    .OnFailure(token.Fail);*/
+
+                var bundle = DownloadHandlerAssetBundle.GetContent(request);
+                if (null != bundle)
+                {
+                    token.Succeed(bundle);
+                }
+                else
+                {
+                    token.Fail(new Exception("Could not create bundle."));
+                }
             }
 
             request.Dispose();
@@ -238,6 +262,19 @@ namespace CreateAR.SpirePlayer.Assets
 
                 token.Succeed(asset);
             }
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        /// <param name="message">Message to log.</param>
+        /// <param name="replacements">Logging replacements.</param>
+        private void Trace(string message, params object[] replacements)
+        {
+            Log.Info(this,
+                "[{0}] {1}",
+                _url,
+                string.Format(message, replacements));
         }
     }
 }

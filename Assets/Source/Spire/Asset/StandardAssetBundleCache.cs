@@ -213,13 +213,18 @@ namespace CreateAR.SpirePlayer.Assets
         /// <returns></returns>
         private string FilePath(string uri)
         {
-            Log.Info(this, "FilePath for {0}.", uri);
             var bytes = Encoding.UTF8.GetBytes(uri);
             var hash = _hashProvider.Hash(bytes);
             var encodedHash = Convert.ToBase64String(hash);
-            return Path.Combine(
+            var path = Path.Combine(
                 _basePath,
                 encodedHash);
+            
+            Log.Info(this, "Hash({0}) = {1}",
+                uri,
+                path);
+
+            return path;
         }
     }
 }

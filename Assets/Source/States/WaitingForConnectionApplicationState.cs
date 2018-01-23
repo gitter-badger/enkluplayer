@@ -1,5 +1,6 @@
 ﻿using System.Net.NetworkInformation;
 using System.Text;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
@@ -78,6 +79,8 @@ namespace CreateAR.SpirePlayer
             }
 #endif
 
+			Log.Info(this, builder.ToString());
+			
             return builder.ToString();
 		}
     }
