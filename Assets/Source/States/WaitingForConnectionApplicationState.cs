@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
 			var builder = new StringBuilder();
 			builder.AppendLine("Networking information:");
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_IOS
             foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
 			{
 				if (nic.NetworkInterfaceType == NetworkInterfaceType.Wireless80211
