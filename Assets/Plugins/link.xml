@@ -3,4 +3,8 @@
 	<assembly fullname="CreateAR.Commons.Unity.Messaging">
 		<namespace fullname="CreateAR.Commons.Unity.Messaging" preserve="all" />
 	</assembly>
+	
+	<assembly fullname="CreateAR.Trellis.Messages">
+		<namespace fullname="CreateAR.Trellis" preserve="all" />
+	</assembly>
 </linker>
