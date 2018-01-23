@@ -40,10 +40,10 @@ namespace CreateAR.SpirePlayer
                     // setup http service
                     _http.UrlBuilder.Replacements.Add(Commons.Unity.DataStructures.Tuple.Create(
                         "userId",
-                        message.profile.id));
+                        message.Profile.Id));
                     _http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
                         "Authorization",
-                        string.Format("Bearer {0}", message.credentials.token)));
+                        string.Format("Bearer {0}", message.Credentials.Token)));
                 });
         }
     }

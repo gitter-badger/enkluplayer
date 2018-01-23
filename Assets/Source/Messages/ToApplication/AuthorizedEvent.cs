@@ -1,45 +1,55 @@
-﻿namespace CreateAR.SpirePlayer
+﻿using LightJson;
+
+namespace CreateAR.SpirePlayer
 {
     public class UserCredentialsModel
     {
-        public string token;
+        [JsonName("token")]
+        public string Token;
 
         public override string ToString()
         {
             return string.Format("[UserCredentialsModel token={0}]",
-                token);
+                Token);
         }
     }
 
     public class UserProfileModel
     {
-        public string id;
-        public string displayName;
-        public string email;
+        [JsonName("id")]
+        public string Id;
+        
+        [JsonName("displayName")]
+        public string DisplayName;
+        
+        [JsonName("email")]
+        public string Email;
 
         public override string ToString()
         {
             return string.Format("[UserProfileModel id={0}, displayName={1}, email={2}]",
-                id,
-                displayName,
-                email);
+                Id,
+                DisplayName,
+                Email);
         }
     }
     
     /// <summary>
-    /// Passed from the <c>IApplicationHost</c> to the <c>IApplicationHostDelegate</c>
-    /// when we're authorized.
+    /// Authorization information.
     /// </summary>
     public class AuthorizedEvent
     {
-        public UserCredentialsModel credentials;
-        public UserProfileModel profile;
+        [JsonName("credentials")]
+        public UserCredentialsModel Credentials;
+        
+        [JsonName("profile")]
+        public UserProfileModel Profile;
 
         public override string ToString()
         {
             return string.Format("[AuthorizedEvent credentials={0}, profile={1}]",
-                credentials,
-                profile);
+                Credentials,
+                Profile);
         }
     }
 }

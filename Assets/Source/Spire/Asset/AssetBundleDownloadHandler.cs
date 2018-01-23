@@ -118,16 +118,7 @@ namespace CreateAR.SpirePlayer.Assets
                 _buffer.Length);
             
             // create bundle
-            var bundle = AssetBundle.LoadFromMemory(_buffer);
-            if (null == bundle)
-            {
-                _onReady.Fail(new Exception("Could not create bundle."));
-            }
-            else
-            {
-                _onReady.Succeed(bundle);
-            }
-            //_bootstrapper.BootstrapCoroutine(Wait(AssetBundle.LoadFromMemoryAsync(_buffer)));
+            _bootstrapper.BootstrapCoroutine(Wait(AssetBundle.LoadFromMemoryAsync(_buffer)));
         }
 
         /// <summary>
