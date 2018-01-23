@@ -88,7 +88,7 @@ namespace CreateAR.SpirePlayer.Assets
             // check cache
             Trace("Checking cache.");
 
-            if (false && _cache.Contains(_url))
+            if (_cache.Contains(_url))
             {
                 Trace("Cache hit.");
 

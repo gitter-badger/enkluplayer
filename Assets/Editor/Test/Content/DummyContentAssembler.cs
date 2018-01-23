@@ -9,7 +9,10 @@ namespace CreateAR.SpirePlayer.Test
 
         public void Setup(ContentData data)
         {
-            
+            if (null != OnAssemblyComplete)
+            {
+                OnAssemblyComplete(null);
+            }
         }
 
         public void UpdateMaterialData(MaterialData material)

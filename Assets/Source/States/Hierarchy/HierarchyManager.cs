@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -15,10 +14,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private const string CONTENT_TAGS = "hierarchymanager";
 
-        /// <summary>
-        /// Dependencies.
-        /// </summary>
-        private readonly IElementManager _elements;
         private readonly IContentManager _content;
         private readonly HierarchyDatabase _database;
         private readonly FocusManager _focus;
@@ -38,12 +33,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public HierarchyManager(
             IAppDataManager appData,
-            IElementManager elements,
             IContentManager content,
             HierarchyDatabase database,
             FocusManager focus)
         {
-            _elements = elements;
             _content = content;
             _database = database;
             _focus = focus;
