@@ -7,6 +7,7 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public enum ApplicationMode
     {
+        None,
         WaitForConnection,
         Tools
     }

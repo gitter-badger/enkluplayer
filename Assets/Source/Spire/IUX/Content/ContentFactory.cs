@@ -21,8 +21,8 @@ namespace CreateAR.SpirePlayer
         private readonly ILoadProgressManager _progress;
         private readonly ILayerManager _layers;
         private readonly IColorConfig _colors;
-        private readonly ITweenConfig _tweens;
         private readonly IMessageRouter _messages;
+        private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
 
         /// <summary>
@@ -37,8 +37,8 @@ namespace CreateAR.SpirePlayer
             ILoadProgressManager progress,
             ILayerManager layers,
             IColorConfig colors,
-            ITweenConfig tweens,
             IMessageRouter messages,
+            TweenConfig tweens,
             WidgetConfig config)
         {
             _appData = appData;
