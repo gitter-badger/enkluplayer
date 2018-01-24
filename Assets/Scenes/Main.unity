@@ -199,7 +199,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 130951154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -360.9338, y: -292.47092, z: 0}
+  m_LocalPosition: {x: -517.08453, y: -192.07037, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1693554495}
@@ -276,7 +276,6 @@ GameObject:
   - component: {fileID: 142035194}
   - component: {fileID: 142035198}
   - component: {fileID: 142035201}
-  - component: {fileID: 142035202}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -319,8 +318,8 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 15
-  field of view: 16.89
+  far clip plane: 150
+  field of view: 45
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -366,14 +365,14 @@ MonoBehaviour:
   PrimaryColor: {r: 0, g: 0.50735295, b: 0.31252939, a: 1}
   SecondaryColor: {r: 0, g: 0.75735295, b: 0.46652937, a: 0.353}
   Material: {fileID: 0}
-  Enabled: 0
+  Enabled: 1
 --- !u!114 &142035199
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 142035192}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 693ec2743dbe899449dd5ab4321dad3e, type: 3}
   m_Name: 
@@ -402,31 +401,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37eb718391051464bbd68ff023c989b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &142035202
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 142035192}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14b482d5d7a542844911bec92666a02d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ExtraMouseSensitivityScale: 3
-  DefaultMouseSensitivity: 0.1
-  MouseLookButton: 4
-  IsControllerLookInverted: 1
-  CurrentControlMode: 1
-  FastControlKey: 305
-  ControlSlowSpeed: 0.1
-  ControlFastSpeed: 1
-  MoveHorizontal: Horizontal
-  MoveVertical: Vertical
-  MouseX: Mouse X
-  MouseY: Mouse Y
-  LookHorizontal: LookHorizontal
-  LookVertical: LookVertical
 --- !u!1001 &358864088
 Prefab:
   m_ObjectHideFlags: 0
@@ -1436,7 +1410,7 @@ RectTransform:
   m_GameObject: {fileID: 1693554491}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.0044656466, y: 0.0044656466, z: 0.0044656466}
+  m_LocalScale: {x: 0.017848618, y: 0.017848618, z: 0.017848618}
   m_Children:
   - {fileID: 1598552740}
   - {fileID: 130951155}

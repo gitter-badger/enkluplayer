@@ -54,10 +54,12 @@ namespace CreateAR.SpirePlayer.AR
         private void UpdateGrid(ArAnchor anchor)
         {
             // setup grid!
+#if UNITY_IOS || UNITY_ANDROID || UNITY_WSA
             Grid.CellSize = 0.5f;
             Grid.GridSize = new Vector2(
                 anchor.Extents.x,
                 anchor.Extents.z);
+#endif
         }
     }
 }

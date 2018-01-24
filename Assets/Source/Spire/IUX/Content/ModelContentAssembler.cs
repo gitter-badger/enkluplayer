@@ -3,6 +3,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -196,6 +197,9 @@ namespace CreateAR.SpirePlayer
                 _instance = null;
             }
 
+            // shut off garbage
+            RemoveBadComponents(value);
+
             // get a new one
             _instance = _pools.Get<GameObject>(value);
 
@@ -206,6 +210,19 @@ namespace CreateAR.SpirePlayer
             if (null != OnAssemblyComplete)
             {
                 OnAssemblyComplete(_instance);
+            }
+        }
+
+        /// <summary>
+        /// Removes bad components from a prefab.
+        /// </summary>
+        /// <param name="value">Value.</param>
+        private void RemoveBadComponents(GameObject value)
+        {
+            var cameras = value.GetComponentsInChildren<Camera>(true);
+            foreach (var camera in cameras)
+            {
+                camera.enabled = false;
             }
         }
 
