@@ -162,10 +162,10 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            foreach (var pair in material.Textures)
+            foreach (var textureData in material.Textures)
             {
-                var uniform = pair.Key;
-                var assetId = pair.Value;
+                var uniform = textureData.Uniform;
+                var assetId = textureData.AssetId;
                 var textureAsset = _assets.Manifest.Asset(assetId);
                 if (null != textureAsset)
                 {
@@ -215,7 +215,7 @@ namespace CreateAR.SpirePlayer.IUX
             // TODO: set properties
             foreach (var prop in _materialData.Properties)
             {
-                var name = prop.Key;
+                var name = prop.Uniform;
                 var value = (JsonValue) prop.Value;
 
                 TrySetColor(value, name);

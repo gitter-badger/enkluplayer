@@ -4,6 +4,36 @@ using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
+    public class MaterialTextureData
+    {
+        /// <summary>
+        /// Uniform.
+        /// </summary>
+        [JsonName("uniform")]
+        public string Uniform;
+
+        /// <summary>
+        /// Texture asset id.
+        /// </summary>
+        [JsonName("assetId")]
+        public string AssetId;
+    }
+
+    public class MaterialPropertyData
+    {
+        /// <summary>
+        /// Uniform.
+        /// </summary>
+        [JsonName("uniform")]
+        public string Uniform;
+
+        /// <summary>
+        /// Texture asset id.
+        /// </summary>
+        [JsonName("value")]
+        public string Value;
+    }
+
     /// <summary>
     /// Data structure for materials.
     /// </summary>
@@ -19,13 +49,13 @@ namespace CreateAR.SpirePlayer
         /// Uniform => Value.
         /// </summary>
         [JsonName("properties")]
-        public Dictionary<string, object> Properties;
+        public MaterialPropertyData[] Properties;
 
         /// <summary>
         /// Uniform => AssetId.
         /// </summary>
         [JsonName("textures")]
-        public Dictionary<string, string> Textures;
+        public MaterialTextureData[] Textures;
 
         /// <summary>
         /// Useful ToString override.
@@ -47,11 +77,11 @@ namespace CreateAR.SpirePlayer
         {
             var builder = new StringBuilder();
 
-            foreach (var pair in Textures)
+            foreach (var texture in Textures)
             {
                 builder.AppendFormat(" {0}={1} ",
-                    pair.Key,
-                    pair.Value);
+                    texture.Uniform,
+                    texture.AssetId);
             }
 
             return builder.ToString();
@@ -68,7 +98,7 @@ namespace CreateAR.SpirePlayer
             foreach (var pair in Properties)
             {
                 builder.AppendFormat(" {0}={1} ",
-                    pair.Key,
+                    pair.Uniform,
                     pair.Value);
             }
 
