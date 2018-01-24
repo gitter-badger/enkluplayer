@@ -30,8 +30,8 @@ namespace CreateAR.SpirePlayer.IUX
             WidgetConfig config,
             IPrimitiveFactory primitives,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IMessageRouter messages)
             : base(
                 new GameObject("Caption"),
@@ -45,23 +45,25 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void LoadInternal()
+        protected override void AfterLoadChildrenInternal()
         {
-            base.LoadInternal();
+            base.AfterLoadChildrenInternal();
 
             _text = Schema.Get<string>("text");
             _text.OnChanged += Text_OnChange;
 
             _primitive = _primitives.Text(Schema);
-            _primitive.Parent = this;
             _primitive.Text = _text.Value;
+            AddChild(_primitive);
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _text.OnChanged -= Text_OnChange;
             _text = null;
+
+            base.AfterUnloadChildrenInternal();
         }
 
         /// <summary>

@@ -1,15 +1,13 @@
 using System;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
-
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Holds an activator.
-    /// 
-    /// TODO: Remove Widget portion *** though talk to Ray about this first because doing this will also require reworking how visibility/color is managed.
     /// </summary>
     public class ActivatorPrimitive : Widget, IInteractable
     {
@@ -47,6 +45,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Backing variable for Focused property.
         /// </summary>
         private bool _focused;
+
+        /// <summary>
+        /// The icon.
+        /// </summary>
+        private Sprite _icon;
 
         /// <inheritdoc cref="IInteractable"/>
         public bool Interactable
@@ -141,7 +144,26 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                return (ActivatorState)_states.Current;
+                return (ActivatorState) _states.Current;
+            }
+        }
+
+        /// <summary>
+        /// Gets/sets the icon.
+        /// </summary>
+        public Sprite Icon
+        {
+            get { return _icon; }
+            set
+            {
+                if (value == _icon)
+                {
+                    return;
+                }
+
+                _icon = value;
+
+                SetIcon();
             }
         }
 
@@ -160,8 +182,8 @@ namespace CreateAR.SpirePlayer.IUX
             IIntentionManager intention,
             IMessageRouter messages,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors)
+            TweenConfig tweens,
+            ColorConfig colors)
             : base(
                 new GameObject("Activator"),
                 config,
@@ -194,9 +216,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void LoadInternal()
+        protected override void AfterLoadChildrenInternal()
         {
-            base.LoadInternal();
+            base.AfterLoadChildrenInternal();
 
             _renderer = Object.Instantiate(
                 _config.Activator,
@@ -204,6 +226,8 @@ namespace CreateAR.SpirePlayer.IUX
                 Quaternion.identity);
             _renderer.transform.SetParent(GameObject.transform, false);
             _renderer.Initialize(this, _config, Layers, Tweens, Colors, Messages, _intention, _interaction, _interactables);
+
+            SetIcon();
 
             AimEnabled = true;
 
@@ -214,13 +238,13 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _interactables.Remove(this);
 
             Object.Destroy(_renderer.gameObject);
 
-            base.UnloadInternal();
+            base.AfterUnloadChildrenInternal();
         }
 
         /// <inheritdoc cref="Element"/>
@@ -244,6 +268,8 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             _states.Update(deltaTime);
+
+            DebugDraw();
         }
 
         /// <summary>
@@ -347,6 +373,46 @@ namespace CreateAR.SpirePlayer.IUX
                 Stability,
                 targetStability,
                 lerp);
+        }
+
+        /// <summary>
+        /// Draws debug lines.
+        /// </summary>
+        /// [Conditional("ELEMENT_DEBUGGING")]
+        private void DebugDraw()
+        {
+            var handle = Render.Handle("IUX.Activator");
+            if (null == handle)
+            {
+                return;
+            }
+
+            var pos = _renderer.transform.position;
+            var rad = _renderer.Radius;
+            handle.Draw(ctx =>
+            {
+                ctx.Prism(new Bounds(
+                    pos,
+                    rad * Vector3.one));
+            });
+        }
+
+        /// <summary>
+        /// Sets the icon.
+        /// </summary>
+        private void SetIcon()
+        {
+            if (null != _renderer
+                && null != _renderer.Icon
+                && null != _renderer.Icon.Graphic)
+            {
+                var image = _renderer.Icon.Graphic as Image;
+                if (null != image)
+                {
+                    image.sprite = _icon;
+                    image.enabled = null != _icon;
+                }
+            }
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -9,6 +8,11 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     public class WidgetConfig : MonoBehaviour
     {
+        /// <summary>
+        /// Icons.
+        /// </summary>
+        public IconConfig Icons;
+
         /// <summary>
         /// Color of the aim widget as a function of aim percentage.
         /// </summary>
@@ -28,37 +32,7 @@ namespace CreateAR.SpirePlayer.IUX
         public AnimationCurve AimFillMultiplier = new AnimationCurve(
             new Keyframe(0, 1),
             new Keyframe(1, 4));
-
-        /// <summary>
-        /// Accessor for stability multiplier.
-        /// </summary>
-        /// <param name="aim"></param>
-        /// <returns></returns>
-        public float GetAimScale(float aim)
-        {
-            return AimFeedbackScale.Evaluate(aim);
-        }
-
-        /// <summary>
-        /// Accessor for stability multiplier.
-        /// </summary>
-        /// <param name="aim"></param>
-        /// <returns></returns>
-        public Col4 GetAimColor(float aim)
-        {
-            return AimFeedbackColor.Evaluate(aim).ToCol();
-        }
-
-        /// <summary>
-        /// Accessor for stability multiplier.
-        /// </summary>
-        /// <param name="stability"></param>
-        /// <returns></returns>
-        public float GetFillRateMultiplierFromAim(float stability)
-        {
-            return AimFillMultiplier.Evaluate(stability);
-        }
-
+        
         /// <summary>
         /// Multiplies steadiness fill.
         /// </summary>
@@ -68,24 +42,9 @@ namespace CreateAR.SpirePlayer.IUX
             new Keyframe(1, 4));
 
         /// <summary>
-        /// Accessor for stability multiplier.
-        /// </summary>
-        /// <param name="stability"></param>
-        /// <returns></returns>
-        public float GetFillRateMultiplierFromStability(float stability)
-        {
-            return SteadinessFillMultiplier.Evaluate(stability);
-        }
-
-        /// <summary>
         /// The rotation in degrees of the steadiness transform
         /// </summary>
         public float SteadinessRotation;
-
-        /// <summary>
-        /// Steadiness Rotation Accessor
-        /// </summary>
-        public float StabilityRotation { get { return SteadinessRotation; } }
 
         /// <summary>
         /// Duration for full fillm in seconds.
@@ -94,28 +53,9 @@ namespace CreateAR.SpirePlayer.IUX
         public float FillDuration = 2.0f;
 
         /// <summary>
-        /// Duration for full fillm in seconds.
-        /// </summary>
-        /// <returns></returns>
-        public float GetFillDuration()
-        {
-            return FillDuration;
-        }
-
-        /// <summary>
         /// Fill decay multiplier.
         /// </summary>
         public AnimationCurve FillDecay = AnimationCurve.EaseInOut(0, 1, 1, 0);
-
-        /// <summary>
-        /// Fill decay multiplier.
-        /// </summary>
-        /// <param name="elapsed"></param>
-        /// <returns></returns>
-        public float GetFillDelay(float elapsed)
-        {
-            return FillDecay.Evaluate(elapsed);
-        }
         
         /// <summary>
         /// Default Cursor Distance
@@ -208,7 +148,23 @@ namespace CreateAR.SpirePlayer.IUX
         /// Defines how far text pushes backwards as it fades as multiple of CrawlFadeOutOffset.
         /// </summary>
         public float CrawlFadeOutDepthScale = 5.0f;
-        
+
+        /// <summary>
+        /// Configuration for ready state of a button.
+        /// </summary>
+        [Header("Button")]
+        public ButtonStateConfig ButtonReady;
+
+        /// <summary>
+        /// Configuration for activating state of a button.
+        /// </summary>
+        public ButtonStateConfig ButtonActivating;
+
+        /// <summary>
+        /// Configuration for activated state of a button.
+        /// </summary>
+        public ButtonStateConfig ButtonActivated;
+
         /// <summary>
         /// Text prefab.
         /// </summary>
@@ -229,6 +185,86 @@ namespace CreateAR.SpirePlayer.IUX
         /// Float.
         /// </summary>
         public FloatRenderer Float;
+
+        /// <summary>
+        /// Half moon.
+        /// </summary>
+        public RectTransform HalfMoon;
+
+        /// <summary>
+        /// Design.
+        /// </summary>
+        [Header("Vines")]
+        public TextAsset DesignMenu;
+
+        /// <summary>
+        /// Play.
+        /// </summary>
+        public TextAsset PlayMenu;
+
+        /// <summary>
+        /// Steadiness Rotation Accessor
+        /// </summary>
+        public float StabilityRotation { get { return SteadinessRotation; } }
+
+        /// <summary>
+        /// Accessor for stability multiplier.
+        /// </summary>
+        /// <param name="aim"></param>
+        /// <returns></returns>
+        public float GetAimScale(float aim)
+        {
+            return AimFeedbackScale.Evaluate(aim);
+        }
+
+        /// <summary>
+        /// Accessor for stability multiplier.
+        /// </summary>
+        /// <param name="aim"></param>
+        /// <returns></returns>
+        public Col4 GetAimColor(float aim)
+        {
+            return AimFeedbackColor.Evaluate(aim).ToCol();
+        }
+
+        /// <summary>
+        /// Accessor for stability multiplier.
+        /// </summary>
+        /// <param name="stability"></param>
+        /// <returns></returns>
+        public float GetFillRateMultiplierFromAim(float stability)
+        {
+            return AimFillMultiplier.Evaluate(stability);
+        }
+
+        /// <summary>
+        /// Accessor for stability multiplier.
+        /// </summary>
+        /// <param name="stability"></param>
+        /// <returns></returns>
+        public float GetFillRateMultiplierFromStability(float stability)
+        {
+            return SteadinessFillMultiplier.Evaluate(stability);
+        }
+
+        /// <summary>
+        /// Duration for full fillm in seconds.
+        /// </summary>
+        /// <returns></returns>
+        public float GetFillDuration()
+        {
+            return FillDuration;
+        }
+
+        /// <summary>
+        /// Fill decay multiplier.
+        /// </summary>
+        /// <param name="elapsed"></param>
+        /// <returns></returns>
+        public float GetFillDelay(float elapsed)
+        {
+            return FillDecay.Evaluate(elapsed);
+        }
 
         /// <summary>
         /// Spins per second.

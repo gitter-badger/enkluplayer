@@ -87,8 +87,8 @@ namespace CreateAR.SpirePlayer
         public Content(
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IMessageRouter messages,
             IScriptManager scripts,
             IContentAssembler assembler)
@@ -132,7 +132,7 @@ namespace CreateAR.SpirePlayer
         /// Destroys this instance. Should not be called directly, but through
         /// <c>IContentManager</c> Release flow.
         /// </summary>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _assembler.Teardown();
             TeardownScripts();

@@ -4,6 +4,23 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
+    /// Consistent set of tween durations based around intended user-experience.
+    /// </summary>
+    public enum TweenType
+    {
+        Instant,
+        Responsive,
+        Deliberate,
+        Pronounced
+
+        // !!!
+        // NOTE: Before adding a new TweenType to the enum, consider the
+        //       goals of the user experience you are trying to achieve,
+        //       and why those goals do not fit the existing tween types.
+        // !!!
+    }
+
+    /// <summary>
     /// Maps a tween to a duration.
     /// </summary>
     [Serializable]
@@ -23,12 +40,20 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Contains configuration for each <c>TweenType</c>.
     /// </summary>
-    public class TweenConfig : MonoBehaviour, ITweenConfig
+    public class TweenConfig : MonoBehaviour
     {
         /// <summary>
         /// All profiles.
         /// </summary>
         public TweenProfile[] Profiles;
+
+        /// <summary>
+        /// Tween information.
+        /// </summary>
+        [Header("Menu")]
+        public VectorTweenData ButtonPositionTween;
+        public VectorTweenData ButtonScaleTween;
+        public VectorTweenData ButtonRotationTween;
 
         /// <summary>
         /// Retrieves the duration in seconds of a particular tween, or -1 if

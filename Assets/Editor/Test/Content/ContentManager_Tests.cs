@@ -50,12 +50,38 @@ namespace CreateAR.SpirePlayer.Test.Content
 
         public IAsyncToken<Void> Load(string id)
         {
+            if (null != OnLoaded)
+            {
+                OnLoaded();
+            }
+
             throw new NotImplementedException();
         }
 
         public IAsyncToken<Void> Unload()
         {
+            if (null != OnUnloaded)
+            {
+                OnUnloaded();
+            }
+
             throw new NotImplementedException();
+        }
+
+        public void Remove(StaticData data)
+        {
+            if (null != OnRemoved)
+            {
+                OnRemoved(data);
+            }
+        }
+
+        public void Update(StaticData data)
+        {
+            if (null != OnUpdated)
+            {
+                OnUpdated(data);
+            }
         }
     }
 

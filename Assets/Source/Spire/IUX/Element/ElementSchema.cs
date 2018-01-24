@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -102,6 +103,28 @@ namespace CreateAR.SpirePlayer.IUX
         public ElementSchema Parent
         {
             get { return _parent; }
+        }
+
+        /// <summary>
+        /// Identifier.
+        /// </summary>
+        public string Identifier { get; set; }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public ElementSchema()
+        {
+            //
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="identifier">Identifier.</param>
+        public ElementSchema(string identifier)
+        {
+            Identifier = identifier;
         }
 
         /// <summary>
@@ -229,6 +252,18 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="schema">The schema to wrap.</param>
         public void Wrap(ElementSchema schema)
         {
+            // detect cycles
+            var node = schema;
+            while (null != node)
+            {
+                if (node == this)
+                {
+                    throw new Exception("Schema cannot wrap self.");
+                }
+
+                node = node.Parent;
+            }
+
             _parent = schema;
 
             if (null == schema)
@@ -257,6 +292,31 @@ namespace CreateAR.SpirePlayer.IUX
                         break;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Inherits properties from a schema. Copies values so that changes
+        /// to one do not affect the other.
+        /// </summary>
+        /// <param name="schema">The schema to inherit from.</param>
+        public void Inherit(ElementSchema schema)
+        {
+            while (null != schema)
+            {
+                // copy props
+                foreach (var prop in schema)
+                {
+                    var existing = Prop(prop.Name);
+                    if (null != existing)
+                    {
+                        continue;
+                    }
+
+                    _props.Add(prop.Copy());
+                }
+
+                schema = schema.Parent;
             }
         }
 

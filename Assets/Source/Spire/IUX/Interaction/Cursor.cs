@@ -61,8 +61,8 @@ namespace CreateAR.SpirePlayer.IUX
             WidgetConfig config,
             IPrimitiveFactory primitives,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IMessageRouter messages,
             IIntentionManager intention)
             : base(
@@ -80,9 +80,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Initialization
         /// </summary>
-        protected override void LoadInternal()
+        protected override void AfterLoadChildrenInternal()
         {
-            base.LoadInternal();
+            base.AfterLoadChildrenInternal();
 
             _reticle = _primitives.Reticle();
             _reticle.Parent = this;

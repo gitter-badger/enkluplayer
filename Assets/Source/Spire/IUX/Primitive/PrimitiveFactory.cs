@@ -12,8 +12,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private readonly IElementManager _elements;
         private readonly ILayerManager _layers;
-        private readonly IColorConfig _colors;
-        private readonly ITweenConfig _tweens;
+        private readonly ColorConfig _colors;
+        private readonly TweenConfig _tweens;
         private readonly IMessageRouter _messages;
         private readonly IIntentionManager _intention;
         private readonly IInteractionManager _interactions;
@@ -26,8 +26,8 @@ namespace CreateAR.SpirePlayer.IUX
         public PrimitiveFactory(
             IElementManager elements,
             ILayerManager layers,
-            IColorConfig colors,
-            ITweenConfig tweens,
+            ColorConfig colors,
+            TweenConfig tweens,
             IMessageRouter messages,
             IIntentionManager intention,
             IInteractionManager interactions,
@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _tweens,
                 _colors);
 
-            var textSchema = new ElementSchema();
+            var textSchema = new ElementSchema("TextPrimitive");
             textSchema.Wrap(schema);
             textPrimitive.Load(
                 new ElementData
@@ -83,7 +83,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _tweens,
                 _colors);
 
-            var activatorSchema = new ElementSchema();
+            var activatorSchema = new ElementSchema("ActivatorPrimitive");
             activatorSchema.Wrap(schema);
             activator.Load(
                 new ElementData
@@ -102,30 +102,6 @@ namespace CreateAR.SpirePlayer.IUX
         public ReticlePrimitive Reticle()
         {
             return new ReticlePrimitive(_config);
-        }
-
-        /// <inheritdoc cref="IPrimitiveFactory"/>
-        public FloatPrimitive Float(ElementSchema schema)
-        {
-            var floatPrimitive = new FloatPrimitive(
-                _config,
-                _intention,
-                _messages,
-                _layers,
-                _tweens,
-                _colors);
-
-            floatPrimitive.Load(
-                new ElementData
-                {
-                    Id = "Float"
-                },
-                schema,
-                new Element[0]);
-
-            _elements.Add(floatPrimitive);
-
-            return floatPrimitive;
         }
     }
 }

@@ -53,8 +53,8 @@ namespace CreateAR.SpirePlayer.IUX
         public TextCrawl(
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IMessageRouter messages,
             IPrimitiveFactory primitives)
             : base(
@@ -78,9 +78,8 @@ namespace CreateAR.SpirePlayer.IUX
         {
             // create a text primitive.
             var textPrimitive = _primitives.Text(Schema);
-
             textPrimitive.Text = text;
-            textPrimitive.Parent = this;
+            AddChild(textPrimitive);
             
             var textEntry = new TextEntry
             {

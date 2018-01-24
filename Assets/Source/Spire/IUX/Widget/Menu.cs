@@ -15,6 +15,11 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IPrimitiveFactory _primitives;
 
         /// <summary>
+        /// List of children to layout. This filters out menu, title, etc.
+        /// </summary>
+        private readonly List<Element> _filteredChildren = new List<Element>();
+
+        /// <summary>
         /// Properties.
         /// </summary>
         private ElementSchemaProp<string> _title;
@@ -23,7 +28,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _layout;
         private ElementSchemaProp<float> _layoutRadius;
         private ElementSchemaProp<float> _layoutDegrees;
-        private ElementSchemaProp<float> _headerWidth;
+        private ElementSchemaProp<int> _headerWidth;
 
         /// <summary>
         /// Title text.
@@ -36,13 +41,18 @@ namespace CreateAR.SpirePlayer.IUX
         private TextPrimitive _descriptionPrimitive;
 
         /// <summary>
+        /// Half moon.
+        /// </summary>
+        private GameObject _halfMoon;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public Menu(
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IMessageRouter messages,
             IPrimitiveFactory primitives)
             : base(
@@ -57,9 +67,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void LoadInternal()
+        protected override void AfterLoadChildrenInternal()
         {
-            base.LoadInternal();
+            base.AfterLoadChildrenInternal();
 
             // retrieve properties
             _title = Schema.Get<string>("title");
@@ -80,27 +90,39 @@ namespace CreateAR.SpirePlayer.IUX
             _layoutRadius = Schema.Get<float>("layout.radius");
             _layoutRadius.OnChanged += LayoutRadius_OnChanged;
 
-            _headerWidth = Schema.Get<float>("headerWidth");
+            _headerWidth = Schema.Get<int>("header.width");
             _headerWidth.OnChanged += HeaderWidth_OnChanged;
 
             // create + place title
             _titlePrimitive = _primitives.Text(Schema);
-            _titlePrimitive.Parent = this;
+            AddChild(_titlePrimitive);
             _titlePrimitive.Text = _title.Value;
             _titlePrimitive.FontSize = _fontSize.Value;
 
             // create + place description
             _descriptionPrimitive = _primitives.Text(Schema);
-            _descriptionPrimitive.Parent = this;
+            AddChild(_descriptionPrimitive);
+            _descriptionPrimitive.Overflow = HorizontalWrapMode.Wrap;
+            _descriptionPrimitive.Alignment = AlignmentTypes.TOP_LEFT;
             _descriptionPrimitive.Text = _description.Value;
             _descriptionPrimitive.FontSize = _fontSize.Value;
+
+            _halfMoon = Object.Instantiate(
+                Config.HalfMoon.gameObject,
+                Vector3.zero,
+                Quaternion.identity);
+            var transform = _halfMoon.GetComponent<RectTransform>();
+            transform.SetParent(
+                GameObject.transform,
+                false);
+            transform.position = new Vector3(-0.54f, 0f, 0f);
 
             UpdateHeaderLayout();
             UpdateChildLayout();
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _title.OnChanged -= Title_OnChanged;
             _fontSize.OnChanged -= FontSize_OnChanged;
@@ -110,12 +132,21 @@ namespace CreateAR.SpirePlayer.IUX
             _layoutRadius.OnChanged -= LayoutRadius_OnChanged;
             _headerWidth.OnChanged -= HeaderWidth_OnChanged;
 
+            Object.Destroy(_halfMoon);
+            _halfMoon = null;
+            
+            base.AfterUnloadChildrenInternal();
+        }
+
+        /// <inheritdoc />
+        protected override void DestroyInternal()
+        {
             _titlePrimitive.Destroy();
             _descriptionPrimitive.Destroy();
 
-            base.UnloadInternal();
+            base.DestroyInternal();
         }
-
+        
         /// <summary>
         /// Called when the title value has changed.
         /// </summary>
@@ -207,9 +238,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="prev">Previous value.</param>
         /// <param name="next">Next value.</param>
         private void HeaderWidth_OnChanged(
-            ElementSchemaProp<float> prop,
-            float prev,
-            float next)
+            ElementSchemaProp<int> prop,
+            int prev,
+            int next)
         {
             UpdateHeaderLayout();
         }
@@ -221,13 +252,23 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _titlePrimitive.Width = _headerWidth.Value;
             _descriptionPrimitive.Width = _headerWidth.Value;
+            
+            _descriptionPrimitive.LocalPosition = new Vector3(
+                0,
+                // TODO: move to prop
+                -_descriptionPrimitive.Height / 2f - 0.02f,
+                0f);
 
-            var offset = new Vec2(
-                -_headerWidth.Value + 150,
-                _descriptionPrimitive.Height);
-
-            _titlePrimitive.Position = offset + new Vec2(0, 100f);
-            _descriptionPrimitive.Position = offset + new Vec2(0, 0f);
+            if (!string.IsNullOrEmpty(_description.Value))
+            {
+                _titlePrimitive.LocalPosition = new Vector3();
+            }
+            else
+            {
+                _titlePrimitive.LocalPosition = new Vector3(
+                    0,
+                    -_titlePrimitive.Rect.size.y / 2);
+            }
         }
 
         /// <summary>
@@ -238,7 +279,21 @@ namespace CreateAR.SpirePlayer.IUX
             var layout = _layout.Value;
             if (layout == "Radial")
             {
-                RadialLayout(Children,
+                var children = Children;
+                _filteredChildren.Clear();
+                for (int i = 0, len = children.Length; i < len; i++)
+                {
+                    var child = children[i];
+                    if (child == _titlePrimitive || child == _descriptionPrimitive)
+                    {
+                        continue;
+                    }
+
+                    _filteredChildren.Add(child);
+                }
+
+                RadialLayout(
+                    _filteredChildren,
                     _layoutRadius.Value,
                     _layoutDegrees.Value);
             }
@@ -258,7 +313,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 return;
             }
-
+            
             var localRadius = worldRadius;
 
             var baseTheta = children.Count > 1
@@ -277,9 +332,9 @@ namespace CreateAR.SpirePlayer.IUX
                     var theta = baseTheta + stepTheta * i;
                     var thetaRadians = theta * Mathf.Deg2Rad;
                     var targetPosition = localRadius * new Vector3(
-                                             Mathf.Cos(thetaRadians),
-                                             -Mathf.Sin(thetaRadians),
-                                             0);
+                        Mathf.Cos(thetaRadians),
+                        -Mathf.Sin(thetaRadians),
+                        0);
 
                     child.Schema.Set("position", targetPosition.ToVec());
                 }

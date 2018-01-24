@@ -26,9 +26,9 @@ namespace CreateAR.SpirePlayer
             /// Callback that receives a method for construction. This allows
             /// the caller to decide when a GameObject is created.
             /// </summary>
-            public Action<Action<GameObject>> Callback;
+            public Action<Exception, Action<GameObject>> Callback;
         }
-        
+
         /// <summary>
         /// "Synchronized" list of actions needed on the main thread.
         /// </summary>
@@ -64,7 +64,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="callback">The callback.</param>
         public void Import(
             byte[] bytes,
-            Action<Action<GameObject>> callback)
+            Action<Exception, Action<GameObject>> callback)
         {
             var state = new ObjImportState
             {
@@ -111,15 +111,28 @@ namespace CreateAR.SpirePlayer
         /// <param name="state">The obj source.</param>
         private static void Process(object state)
         {
-            var importState = (ObjImportState) state;
-            var collection = ImportBytes(importState.Bytes);
+            var importState = (ObjImportState)state;
+            MeshStateCollection collection;
+            try
+            {
+                collection = ImportBytes(importState.Bytes);
+            }
+            catch (Exception exception)
+            {
+                lock (_synchronizedActions)
+                {
+                    _synchronizedActions.Add(() => importState.Callback(exception, null));
+                }
+
+                return;
+            }
 
             lock (_synchronizedActions)
             {
                 // add an action to be run on the main thread
                 _synchronizedActions.Add(() =>
                 {
-                    importState.Callback(gameObject =>
+                    importState.Callback(null, gameObject =>
                     {
                         // APPLY
                         foreach (var mesh in collection.Meshes)
@@ -151,7 +164,7 @@ namespace CreateAR.SpirePlayer
                 collection.Meshes.Add(state);
 
                 int numVerts, numTris;
-                
+
                 // read header
                 {
                     // num verts
@@ -193,7 +206,7 @@ namespace CreateAR.SpirePlayer
                     }
                 }
             }
-            
+
             return collection;
         }
 

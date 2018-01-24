@@ -159,6 +159,29 @@ namespace CreateAR.SpirePlayer.IUX.Dynamics
                         lerp);
                 }
             }
+
+            DebugRender();
+        }
+
+        /// <summary>
+        /// Renders debug information.
+        /// </summary>
+        //[Conditional("ELEMENT_DEBUGGING")]
+        private void DebugRender()
+        {
+            var handle = Render.Handle("IUX.Magnet");
+            if (null == handle)
+            {
+                return;
+            }
+
+            handle.Draw(ctx =>
+            {
+                ctx.Color(Color.red);
+                ctx.Prism(new Bounds(
+                    Target.Position,
+                    0.5f * Vector3.one));
+            });
         }
     }
 }

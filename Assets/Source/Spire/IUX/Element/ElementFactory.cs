@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -16,8 +17,8 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IIntentionManager _intention;
         private readonly IElementManager _elements;
         private readonly ILayerManager _layers;
-        private readonly IColorConfig _colors;
-        private readonly ITweenConfig _tweens;
+        private readonly ColorConfig _colors;
+        private readonly TweenConfig _tweens;
         private readonly IMessageRouter _messages;
         private readonly IVoiceCommandManager _voice;
         private readonly WidgetConfig _config;
@@ -25,7 +26,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// All widgets inherit this base schema
         /// </summary>
-        private readonly ElementSchema _baseSchema = new ElementSchema();
+        private readonly ElementSchema _baseSchema = new ElementSchema("Base");
 
         /// <summary>
         /// Lookup from element type to base schema for that type.
@@ -40,8 +41,8 @@ namespace CreateAR.SpirePlayer.IUX
             IIntentionManager intention,
             IElementManager elements,
             ILayerManager layers,
-            IColorConfig colors,
-            ITweenConfig tweens,
+            ColorConfig colors,
+            TweenConfig tweens,
             IMessageRouter messages,
             IVoiceCommandManager voice,
             WidgetConfig config)
@@ -61,14 +62,14 @@ namespace CreateAR.SpirePlayer.IUX
             _baseSchema.Set("tweenOut", TweenType.Deliberate);
             _baseSchema.Set("color", Col4.White);
             _baseSchema.Set("virtualColor", VirtualColor.None);
-            _baseSchema.Set("colorMode", ColorMode.InheritColor);
-            _baseSchema.Set("visibilityMode", VisibilityMode.Inherit);
+            _baseSchema.Set("colorMode", WidgetColorMode.InheritColor);
+            _baseSchema.Set("visibilityMode", WidgetVisibilityMode.Inherit);
             _baseSchema.Set("layerMode", LayerMode.Default);
             _baseSchema.Set("autoDestroy", false);
             _baseSchema.Set("font", "Watchword_bold");
 
             // load defaults
-            var buttonSchema = _typeSchema[ElementTypes.BUTTON] = new ElementSchema();
+            var buttonSchema = _typeSchema[ElementTypes.BUTTON] = new ElementSchema("Base.Button");
             buttonSchema.Load(new ElementSchemaData
             {
                 Ints = new Dictionary<string, int>
@@ -93,16 +94,18 @@ namespace CreateAR.SpirePlayer.IUX
                     {"activating.frameScale", 1.1f},
                     {"activated.frameScale", 1.0f},
 
-                    {"label.padding", 70f},
+                    {"label.padding", 0.05f},
                 },
                 Vectors = new Dictionary<string, Vec3>
                 {
                     { "position", new Vec3(0f, 0f, 0f) }
                 }
             });
-            buttonSchema.Wrap(_baseSchema);
+            buttonSchema.Inherit(_baseSchema);
 
-            var menuSchema = _typeSchema[ElementTypes.MENU] = new ElementSchema();
+            _typeSchema[ElementTypes.SELECT] = buttonSchema;
+
+            var menuSchema = _typeSchema[ElementTypes.MENU] = new ElementSchema("Base.Menu");
             menuSchema.Load(new ElementSchemaData
             {
                 Strings = new Dictionary<string, string>
@@ -111,16 +114,16 @@ namespace CreateAR.SpirePlayer.IUX
                 },
                 Floats = new Dictionary<string, float>
                 {
-                    { "headerWidth", 700f },
                     { "layout.radius", 0.25f },
                     { "layout.degrees", 70f }
                 },
                 Ints = new Dictionary<string, int>
                 {
-                    { "fontSize", 80 }
+                    { "fontSize", 80 },
+                    { "header.width", 700 },
                 }
             });
-            menuSchema.Wrap(_baseSchema);
+            menuSchema.Inherit(_baseSchema);
         }
 
         /// <inheritdoc cref="IElementFactory"/>
@@ -146,16 +149,16 @@ namespace CreateAR.SpirePlayer.IUX
             }
             
             // element
-            var schema = new ElementSchema();
+            var schema = new ElementSchema(data.Id);
             schema.Load(data.Schema);
 
-            // find appropriate parent schema
+            // find appropriate schema to inherit
             ElementSchema parentSchema;
             if (!_typeSchema.TryGetValue(data.Type, out parentSchema))
             {
                 parentSchema = _baseSchema;
             }
-            schema.Wrap(parentSchema);
+            schema.Inherit(parentSchema);
 
             var element = ElementForType(data.Type);
             if (element != null)
@@ -178,7 +181,9 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 case ElementTypes.CONTAINER:
                 {
-                    return new Element();
+                    return new Container(
+                        new GameObject("<Container />"),
+                        _config, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.CAPTION:
                 {
@@ -202,7 +207,15 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.FLOAT:
                 {
-                    return new Float(_config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new Float(_config, _intention, _messages, _layers, _tweens, _colors);
+                }
+                case ElementTypes.SELECT:
+                {
+                    return new Select(_config, _layers, _tweens, _colors, _messages, _primitives);
+                }
+                case ElementTypes.SELECT_OPTION:
+                {
+                    return new SelectOption();
                 }
                 default:
                 {

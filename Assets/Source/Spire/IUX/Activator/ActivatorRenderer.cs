@@ -19,8 +19,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// Dependencies.
         /// </summary>
         private WidgetConfig _config;
-        private ITweenConfig _tweens;
-        private IColorConfig _colors;
+        private TweenConfig _tweens;
+        private ColorConfig _colors;
         private ActivatorPrimitive _activator;
 
         /// <summary>
@@ -32,11 +32,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// True iff the renderer is initialized.
         /// </summary>
         private bool _isInited = false;
-        
-        /// <summary>
-        /// Bounding radius of the activator.
-        /// </summary>
-        public float Radius { get; private set; }
         
         /// <summary>
         /// Primary widget of the activator.
@@ -52,6 +47,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Aim Scale Transform.
         /// </summary>
         public WidgetRenderer Aim;
+
+        /// <summary>
+        /// Icon.
+        /// </summary>
+        public WidgetRenderer Icon;
 
         /// <summary>
         /// Transform affected by the steadiness of intention.
@@ -72,7 +72,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// For gaining focus.
         /// </summary>
         public BoxCollider FocusCollider;
-       
+
+        /// <summary>
+        /// Bounding radius of the activator.
+        /// </summary>
+        public float Radius { get; private set; }
+
         /// <summary>
         /// Initialization.
         /// </summary>
@@ -80,8 +85,8 @@ namespace CreateAR.SpirePlayer.IUX
             ActivatorPrimitive activator,
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IMessageRouter messages,
             IIntentionManager intention, 
             IInteractionManager interaction,
@@ -109,6 +114,11 @@ namespace CreateAR.SpirePlayer.IUX
             if (Frame != null)
             {
                 Frame.Initialize(activator);
+            }
+
+            if (Icon != null)
+            {
+                Icon.Initialize(activator);
             }
 
             _isInited = true;

@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer.Test.UI
             return null;
         }
 
-        public FloatPrimitive Float(ElementSchema selementSchema)
+        public Float Float(ElementSchema selementSchema)
         {
             return null;
         }

@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -78,8 +78,8 @@ namespace CreateAR.SpirePlayer.IUX
             IAssetAssembler assembler,
             WidgetConfig config,
             ILayerManager layers,
-            ITweenConfig tweens,
-            IColorConfig colors,
+            TweenConfig tweens,
+            ColorConfig colors,
             IMessageRouter messages)
             : base(
                 new GameObject("Asset"),
@@ -100,18 +100,18 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Widget"/>
-        protected override void UnloadInternal()
+        protected override void AfterUnloadChildrenInternal()
         {
             _assembler.Teardown();
             TeardownScripts();
             
-            base.UnloadInternal();
+            base.AfterUnloadChildrenInternal();
         }
 
         /// <inheritdoc cref="Widget"/>
-        protected override void LoadInternal()
+        protected override void AfterLoadChildrenInternal()
         {
-            base.LoadInternal();
+            base.AfterLoadChildrenInternal();
 
             // assets
             _assembler.Setup(Schema);
@@ -237,4 +237,4 @@ namespace CreateAR.SpirePlayer.IUX
             _onAssetLoaded.Succeed(this);
         }
     }
-}
+}*/
