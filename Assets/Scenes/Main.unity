@@ -199,7 +199,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 130951154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -366.34363, y: -287.5613, z: 0}
+  m_LocalPosition: {x: -390.5999, y: -267.21973, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1693554495}
@@ -842,9 +842,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vine: "<?Vine>\n\n<Container position=(0,0,4)>\n\t<Menu>\n\t\t<Button label='New
-    Scan' />\n\t\t<Select>\n\t\t\t<Option label='Rendering On' />\n\t\t\t<Option label='Rendering
-    Off' />\n\t\t</Select>\n\t\t<Button label='Exit' />\n\t</Menu>\n</Container>"
+  Vine: "<?Vine>\n\n<Float position=(0,0,4) face='billboard'>\n\t<Menu title='Scan'
+    header.width=100>\n\t\t<Button label='New Scan' />\n\t\t<Select>\n\t\t\t<Option
+    label='Rendering On' />\n\t\t\t<Option label='Rendering Off' />\n\t\t</Select>\n\t\t<Button
+    label='Exit' />\n\t</Menu>\n</Float>"
 --- !u!1 &1232127254
 GameObject:
   m_ObjectHideFlags: 0
@@ -1435,7 +1436,7 @@ RectTransform:
   m_GameObject: {fileID: 1693554491}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.0045325793, y: 0.0045325793, z: 0.0045325793}
+  m_LocalScale: {x: 0.00483269, y: 0.00483269, z: 0.00483269}
   m_Children:
   - {fileID: 1598552740}
   - {fileID: 130951155}

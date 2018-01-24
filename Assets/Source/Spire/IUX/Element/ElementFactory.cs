@@ -62,8 +62,8 @@ namespace CreateAR.SpirePlayer.IUX
             _baseSchema.Set("tweenOut", TweenType.Deliberate);
             _baseSchema.Set("color", Col4.White);
             _baseSchema.Set("virtualColor", VirtualColor.None);
-            _baseSchema.Set("colorMode", ColorMode.InheritColor);
-            _baseSchema.Set("visibilityMode", VisibilityMode.Inherit);
+            _baseSchema.Set("colorMode", WidgetColorMode.InheritColor);
+            _baseSchema.Set("visibilityMode", WidgetVisibilityMode.Inherit);
             _baseSchema.Set("layerMode", LayerMode.Default);
             _baseSchema.Set("autoDestroy", false);
             _baseSchema.Set("font", "Watchword_bold");
