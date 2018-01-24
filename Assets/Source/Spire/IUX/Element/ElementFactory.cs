@@ -103,6 +103,8 @@ namespace CreateAR.SpirePlayer.IUX
             });
             buttonSchema.Inherit(_baseSchema);
 
+            _typeSchema[ElementTypes.SELECT] = buttonSchema;
+
             var menuSchema = _typeSchema[ElementTypes.MENU] = new ElementSchema("Base.Menu");
             menuSchema.Load(new ElementSchemaData
             {
@@ -206,6 +208,14 @@ namespace CreateAR.SpirePlayer.IUX
                 case ElementTypes.FLOAT:
                 {
                     return new Float(_config, _intention, _messages, _layers, _tweens, _colors);
+                }
+                case ElementTypes.SELECT:
+                {
+                    return new Select(_config, _layers, _tweens, _colors, _messages, _primitives);
+                }
+                case ElementTypes.SELECT_OPTION:
+                {
+                    return new SelectOption();
                 }
                 default:
                 {

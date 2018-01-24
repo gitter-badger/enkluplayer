@@ -21,7 +21,6 @@ GameObject:
   - component: {fileID: 4895577602431502}
   - component: {fileID: 33345327174032300}
   - component: {fileID: 23162225315627248}
-  - component: {fileID: 114042683064773012}
   m_Layer: 0
   m_Name: Inner Sphere
   m_TagString: Untagged
@@ -39,7 +38,6 @@ GameObject:
   - component: {fileID: 4546403832172024}
   - component: {fileID: 33569284885457660}
   - component: {fileID: 23255300383424760}
-  - component: {fileID: 114261925371796730}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
@@ -74,7 +72,6 @@ GameObject:
   - component: {fileID: 224166204816257494}
   - component: {fileID: 222759076964834870}
   - component: {fileID: 114274694184192080}
-  - component: {fileID: 114136906056544508}
   m_Layer: 5
   m_Name: Half Moon
   m_TagString: Untagged
@@ -116,14 +113,14 @@ MeshRenderer:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1003459643233504}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_LightProbeUsage: 0
+  m_ReflectionProbeUsage: 0
   m_Materials:
-  - {fileID: 2100000, guid: f54b88b20d6daf44cb2e1d2672233bec, type: 2}
+  - {fileID: 2100000, guid: da2c18259b1cb7c4a9cab29f13c29fb0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -191,60 +188,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1686830644516966}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &114042683064773012
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1003459643233504}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fcda460f4f3b12429077fd7d9446388, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Graphic: {fileID: 0}
-  CanvasRenderer: {fileID: 0}
-  ParticleSystem: {fileID: 0}
-  Renderer: {fileID: 23162225315627248}
-  Material: {fileID: 0}
-  MaterialColorName: _Color
-  ExcludeColor: 0
---- !u!114 &114136906056544508
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1926893010042542}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fcda460f4f3b12429077fd7d9446388, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Graphic: {fileID: 114274694184192080}
-  CanvasRenderer: {fileID: 0}
-  ParticleSystem: {fileID: 0}
-  Renderer: {fileID: 0}
-  Material: {fileID: 0}
-  MaterialColorName: _Color
-  ExcludeColor: 0
---- !u!114 &114261925371796730
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1686830644516966}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fcda460f4f3b12429077fd7d9446388, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Graphic: {fileID: 0}
-  CanvasRenderer: {fileID: 0}
-  ParticleSystem: {fileID: 0}
-  Renderer: {fileID: 23255300383424760}
-  Material: {fileID: 0}
-  MaterialColorName: _Color
-  ExcludeColor: 0
 --- !u!114 &114274694184192080
 MonoBehaviour:
   m_ObjectHideFlags: 1
