@@ -81,6 +81,8 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Successfully loaded.");
 
+                    RemoveBadComponents(instance);
+
                     _instance = Object.Instantiate(instance, Vector3.zero, Quaternion.identity);
 
                     _focus.Focus(_instance);
@@ -116,6 +118,19 @@ namespace CreateAR.SpirePlayer
             // unload scene
             UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
                 UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
+        }
+
+        /// <summary>
+        /// Removes bad components from a prefab.
+        /// </summary>
+        /// <param name="value">Value.</param>
+        private void RemoveBadComponents(GameObject value)
+        {
+            var cameras = value.GetComponentsInChildren<Camera>(true);
+            foreach (var camera in cameras)
+            {
+                camera.enabled = false;
+            }
         }
     }
 }

@@ -116,7 +116,8 @@ namespace CreateAR.SpirePlayer
         {
             // check that parent exists first
             Content content;
-            if (!_contentMap.TryGetValue(parent.Id, out content))
+            if (parent != _database.Root
+                && !_contentMap.TryGetValue(parent.Id, out content))
             {
                 Log.Error(this,
                     "Child added to a node HierarchyManager has not created : {0}.",

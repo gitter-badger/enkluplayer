@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
@@ -20,14 +22,7 @@ namespace CreateAR.SpirePlayer
         /// Target of focus.
         /// </summary>
         private GameObject _target;
-
-        /// <summary>
-        /// The Theta we used to find the camera's current position. This is
-        /// saved off so that we can preview what different Theta look like
-        /// in the editor.
-        /// </summary>
-        private float _bakedTheta;
-
+        
         /// <summary>
         /// Saved off bounds so we can render them.
         /// </summary>
@@ -57,82 +52,73 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Update camera focus.");
 
-            /**
-             * General approach:
-             * 
-             * 1. Find the bounds of the object based on renderers.
-             * 2. Construct 8 vectors from camera's current position (O) to the
-             * verts of the bounds object.
-             * 3. Construct the direction vector, d, from O to the target object.
-             * 4. Find which vector has the greatest angle between itself and d.
-             * 5. Find R, the point along the line O + td, such that the angle
-             * from R to that maximum point is equal to Theta.
-             */
-
             // construct a bounding box of the target
-            var renderers = _target.GetComponentsInChildren<Renderer>(true);
-            if (0 == renderers.Length)
+            _bounds = GetBounds(_target);
+
+            var delta = _bounds.max - _bounds.min;
+            var w = delta.magnitude;
+
+            var mainCamera = Camera.main;
+            var fov = mainCamera.fieldOfView * mainCamera.aspect;
+            var theta = Mathf.Deg2Rad * (fov / 2f);
+            var h = w / 2f;
+            var r = h / Mathf.Sin(theta);
+
+            var C = _bounds.center;
+            var d = new Vector3(1, 1, 1).normalized;
+            var K = C + r * d;
+
+            mainCamera.transform.position = K;
+            mainCamera.transform.forward = -d;
+        }
+
+        /// <summary>
+        /// Retrieves the bounding box of a GameObject's renderers.
+        /// </summary>
+        /// <param name="instance">GameObject to find bounds for.</param>
+        public static Bounds GetBounds(GameObject instance)
+        {
+            var minx = float.MaxValue; var miny = float.MaxValue; var minz = float.MaxValue;
+            var maxx = float.MinValue; var maxy = float.MinValue; var maxz = float.MinValue;
+
+            var verts = new List<Vector3>();
+            var filters = instance.GetComponentsInChildren<MeshFilter>().ToArray();
+            if (0 == filters.Length)
             {
-                _bounds = new Bounds(_target.transform.position, Vector3.one);
+                return new Bounds(
+                    Vector3.zero,
+                    Vector3.one);
             }
-            else
+
+            foreach (var filter in filters)
             {
-                _bounds = renderers[0].bounds;
-            }
+                verts.Clear();
+                filter.sharedMesh.GetVertices(verts);
 
-            for (int i = 1, len = renderers.Length; i < len; i++)
-            {
-                _bounds.Encapsulate(renderers[i].bounds);
-            }
-
-            // calculate target position of camera
-            var cameraTransform = Camera.main.transform;
-
-            // knowns
-            var O = cameraTransform.position;
-            var d = (_bounds.center - cameraTransform.position).normalized;
-            
-            // collect verts of the Bounds object
-            var size = _bounds.size;
-            var P = new Vector3[8];
-            P[0] = _bounds.min;
-            P[1] = _bounds.min + new Vector3(size.x, 0, 0);
-            P[2] = _bounds.min + new Vector3(size.x, 0, size.z);
-            P[3] = _bounds.min + new Vector3(0, 0, size.z);
-
-            P[4] = _bounds.min + new Vector3(0, size.y, 0);
-            P[5] = _bounds.min + new Vector3(size.x, size.y, 0);
-            P[6] = _bounds.min + new Vector3(size.x, size.y, size.z);
-            P[7] = _bounds.min + new Vector3(0, size.y, size.z);
-
-            // find vert with max theta delta
-            var P_max = Vector3.zero;
-            var theta_max = float.MinValue;
-            for (var i = 0; i < 8; i++)
-            {
-                var dir = (P[i] - O).normalized;
-                var theta_p = Mathf.Deg2Rad * Vector3.Angle(d, dir);
-                if (theta_p > theta_max)
+                var transform = filter.transform.localToWorldMatrix;
+                for (int i = 0, len = verts.Count; i < len; i++)
                 {
-                    theta_max = theta_p;
-                    P_max = P[i];
+                    var vert = transform.MultiplyPoint3x4(verts[i]);
+
+                    minx = Mathf.Min(minx, vert.x);
+                    miny = Mathf.Min(miny, vert.y);
+                    minz = Mathf.Min(minz, vert.z);
+
+                    maxx = Mathf.Max(maxx, vert.x);
+                    maxy = Mathf.Max(maxy, vert.y);
+                    maxz = Mathf.Max(maxz, vert.z);
                 }
             }
 
-            // drop perp from P_max to line defined by O + td and solve for R
-            var a = P_max - O;
-            var OP_max = Vector3.Dot(d, a) * d;
-            var P_perpP_max = P_max - (O + OP_max);
-            var P_perp = O + a.magnitude * Mathf.Cos(theta_max) * d;
-            var b = P_perpP_max.magnitude / Mathf.Tan(Theta);
-            var R = P_perp - b * d;
-            
-            // TODO: Animate camera to R.
-            cameraTransform.position = R;
-            cameraTransform.forward = d;
-
-            // save state
-            _bakedTheta = Theta;
+            return new Bounds(
+                new Vector3(
+                    (maxx - minx) / 2f,
+                    (maxy - miny) / 2f,
+                    (maxz - minz) / 2f),
+                new Vector3(
+                    maxx - minx,
+                    maxy - miny,
+                    maxz - minz));
         }
 
         /// <summary>
@@ -140,12 +126,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Update()
         {
-            if (null != _target
-                && Math.Abs(Theta - _bakedTheta) > Mathf.Epsilon)
-            {
-                UpdateCameraPosition();
-            }
-
             DebugDraw();
         }
 
@@ -162,18 +142,8 @@ namespace CreateAR.SpirePlayer
             var handle = Render.Handle("Hierarchy");
             if (null != handle)
             {
-                var position = _bounds.center;
                 handle.Draw(ctx =>
                 {
-                    ctx.Color(Color.white);
-                    ctx.Cube(position, 1f);
-                    ctx.Color(Color.green);
-                    ctx.Cube(position, 10f);
-                    ctx.Color(Color.blue);
-                    ctx.Cube(position, 100f);
-                    ctx.Color(Color.yellow);
-                    ctx.Cube(position, 1000f);
-
                     ctx.Color(Color.red);
                     ctx.Prism(_bounds);
                 });

@@ -181,4 +181,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8164cf90428abd1419bbda4170d4b776, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SurfaceMaterial: {fileID: 2100000, guid: b480fd871ba38aa4da13270c9e425314, type: 2}
+  SurfaceMaterial: {fileID: 2100000, guid: 5ed4c59e66ee9ce4ba6c738f9001996a, type: 2}
