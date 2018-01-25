@@ -62,7 +62,7 @@ namespace CreateAR.SpirePlayer
         public void Add(string parentId, HierarchyNodeData node)
         {
             HierarchyNodeData match, parent;
-            if (string.IsNullOrEmpty(parentId))
+            if (string.IsNullOrEmpty(parentId) || parentId == "root")
             {
                 parent = _root;
             }

@@ -47,9 +47,9 @@ namespace CreateAR.SpirePlayer
 		private string GetNetworkSummary()
 		{
 			var builder = new StringBuilder();
-			builder.AppendLine("Networking information:");
 
 #if UNITY_EDITOR || UNITY_IOS
+		    builder.AppendLine("Networking information:");
             foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())
 			{
 				if (nic.NetworkInterfaceType == NetworkInterfaceType.Wireless80211
@@ -67,6 +67,7 @@ namespace CreateAR.SpirePlayer
 #endif
 
 #if NETFX_CORE
+            builder.AppendLine("Networking information:");
             foreach (var localHostName in Windows.Networking.Connectivity.NetworkInformation.GetHostNames())
             {
                 if (localHostName.IPInformation != null)
@@ -79,7 +80,7 @@ namespace CreateAR.SpirePlayer
             }
 #endif
 
-			Log.Info(this, builder.ToString());
+            Log.Info(this, builder.ToString());
 			
             return builder.ToString();
 		}

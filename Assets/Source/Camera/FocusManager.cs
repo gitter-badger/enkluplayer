@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
@@ -81,7 +82,14 @@ namespace CreateAR.SpirePlayer
             var maxx = float.MinValue; var maxy = float.MinValue; var maxz = float.MinValue;
 
             var verts = new List<Vector3>();
-            var filters = instance.GetComponentsInChildren<MeshFilter>();
+            var filters = instance.GetComponentsInChildren<MeshFilter>().ToArray();
+            if (0 == filters.Length)
+            {
+                return new Bounds(
+                    Vector3.zero,
+                    Vector3.one);
+            }
+
             foreach (var filter in filters)
             {
                 verts.Clear();
