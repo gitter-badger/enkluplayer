@@ -16,7 +16,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// MonoBehaviour to run it with.
         /// </summary>
-        public MonoBehaviourSpireScript Script;
+        public SpireScriptMonoBehaviour Script;
 
         /// <summary>
         /// True iff the script should execute immediately.

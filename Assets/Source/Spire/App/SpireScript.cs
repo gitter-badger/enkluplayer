@@ -96,7 +96,17 @@ namespace CreateAR.SpirePlayer
             
             _load = _loader
                 .Load(Data)
-                .OnSuccess(OnLoaded)
+                .OnSuccess(text =>
+                {
+                    if (data.Type == ScriptType.Behavior)
+                    {
+                        OnBehaviourLoaded(text);
+                    }
+                    else
+                    {
+                        OnVineLoaded(text);
+                    }
+                })
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not load script {0} : {1}.",
@@ -108,10 +118,21 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called when the vine has been downloaded.
+        /// </summary>
+        /// <param name="text">Source text.</param>
+        private void OnVineLoaded(string text)
+        {
+            Source = text;
+            
+            _onReady.Succeed(this);
+        }
+
+        /// <summary>
         /// Called when the script has been downloaded.
         /// </summary>
         /// <param name="text">Text of the script.</param>
-        private void OnLoaded(string text)
+        private void OnBehaviourLoaded(string text)
         {
             Log.Info(this, "Script loaded, parsing Program : {0} :\n{1}.",
                 Data,

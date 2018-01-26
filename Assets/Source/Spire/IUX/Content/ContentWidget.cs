@@ -50,9 +50,14 @@ namespace CreateAR.SpirePlayer
         private readonly MutableAsyncToken<ContentWidget> _onScriptsLoaded = new MutableAsyncToken<ContentWidget>();
 
         /// <summary>
-        /// Scripts.
+        /// Behaviors.
         /// </summary>
-        private readonly List<MonoBehaviourSpireScript> _scriptComponents = new List<MonoBehaviourSpireScript>();
+        private readonly List<SpireScriptMonoBehaviour> _scriptComponents = new List<SpireScriptMonoBehaviour>();
+        
+        /// <summary>
+        /// Vines.
+        /// </summary>
+        private readonly List<VineMonoBehaviour> _vineComponents = new List<VineMonoBehaviour>();
 
         /// <summary>
         /// Scripting host.
@@ -239,34 +244,7 @@ namespace CreateAR.SpirePlayer
                 }
 
                 var token = tokens[i] = script.OnReady;
-                token
-                    .OnSuccess(spireScript =>
-                    {
-                        // restart or create new component
-                        MonoBehaviourSpireScript component = null;
-
-                        var found = false;
-                        for (int j = 0, jlen = _scriptComponents.Count; j < jlen; j++)
-                        {
-                            component = _scriptComponents[j];
-                            if (component.Script == spireScript)
-                            {
-                                component.Exit();
-
-                                found = true;
-                                break;
-                            }
-                        }
-
-                        if (!found)
-                        {
-                            component = GameObject.AddComponent<MonoBehaviourSpireScript>();
-                            _scriptComponents.Add(component);
-                        }
-
-                        component.Initialize(_host, script);
-                        component.Enter();
-                    });
+                token.OnSuccess(RunScript);
             }
 
             // when all scripts are loaded, resolve the mutable token
@@ -294,6 +272,94 @@ namespace CreateAR.SpirePlayer
 
             // release scripts we created
             _scripts.ReleaseAll(_scriptTag);
+        }
+        
+        /// <summary>
+        /// Runs script.
+        /// </summary>
+        /// <param name="script">The script to run.</param>
+        private void RunScript(SpireScript script)
+        {
+            Log.Info(this, "Run script {0}.", script.Data);
+            
+            switch (script.Data.Type)
+            {
+                case ScriptType.Behavior:
+                {
+                    RunBehavior(script);
+                    break;
+                }
+                case ScriptType.Vine:
+                {
+                    RunVine(script);
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Runs a behavior script.
+        /// </summary>
+        /// <param name="script">The script to run.</param>
+        private void RunBehavior(SpireScript script)
+        {
+            // restart or create new component
+            SpireScriptMonoBehaviour component = null;
+
+            var found = false;
+            for (int j = 0, jlen = _scriptComponents.Count; j < jlen; j++)
+            {
+                component = _scriptComponents[j];
+                if (component.Script.Data.Id == script.Data.Id)
+                {
+                    component.Exit();
+
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                component = GameObject.AddComponent<SpireScriptMonoBehaviour>();
+                _scriptComponents.Add(component);
+            }
+
+            component.Initialize(_host, script);
+            component.Enter();
+        }
+        
+        /// <summary>
+        /// Runs a vine script
+        /// </summary>
+        /// <param name="script">The vine to run.</param>
+        private void RunVine(SpireScript script)
+        {
+            VineMonoBehaviour component = null;
+
+            var found = false;
+            for (int j = 0, jlen = _vineComponents.Count; j < jlen; j++)
+            {
+                component = _vineComponents[j];
+                if (component.Script.Data.Id == script.Data.Id)
+                {
+                    component.Exit();
+
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                component = GameObject.AddComponent<VineMonoBehaviour>();
+                _vineComponents.Add(component);
+            }
+
+            if (component.Initialize(script))
+            {
+                component.Enter();
+            }
         }
         
         /// <summary>

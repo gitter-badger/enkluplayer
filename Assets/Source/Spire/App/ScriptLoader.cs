@@ -31,6 +31,8 @@ namespace CreateAR.SpirePlayer
 
             var url = _http.UrlBuilder.Url(script.Uri);
             
+            Log.Info(this, "Downloading script at {0}.", url);
+            
             _http
                 .Download(url)
                 .OnSuccess(response =>

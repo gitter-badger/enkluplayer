@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// This object is able to run a JS script as if it were a MonoBehaviour.
     /// </summary>
-    public class MonoBehaviourSpireScript : MonoBehaviour
+    public class SpireScriptMonoBehaviour : MonoBehaviour
     {
         /// <summary>
         /// Properties that need to be serialized for the script.

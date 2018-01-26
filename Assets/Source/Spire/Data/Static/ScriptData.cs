@@ -3,6 +3,15 @@
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
+    /// Describes type of script.
+    /// </summary>
+    public enum ScriptType
+    {
+        Behavior,
+        Vine
+    }
+    
+    /// <summary>
     /// Describes a script.
     /// </summary>
     public class ScriptData : StaticData
@@ -62,13 +71,35 @@ namespace CreateAR.SpirePlayer
         public int Version;
 
         /// <summary>
+        /// Retieves the type of script.
+        /// </summary>
+        public ScriptType Type
+        {
+            get
+            {
+                var tags = Tags;
+                for (int i = 0, len = tags.Length; i < len; i++)
+                {
+                    var tag = tags[i];
+                    if (tag.ToLowerInvariant() == "vine")
+                    {
+                        return ScriptType.Vine;
+                    }
+                }
+
+                return ScriptType.Behavior;
+            }
+        }
+
+        /// <summary>
         /// Useful ToString().
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[ScriptData Id={0}, Uri={1}]",
+            return string.Format("[ScriptData Id={0}, Type={1}, Uri={2}]",
                 Id,
+                Type,
                 Uri);
         }
 

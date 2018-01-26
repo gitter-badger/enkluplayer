@@ -17,7 +17,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Hosts!
         /// </summary>
-        private readonly List<MonoBehaviourSpireScript> _scripts = new List<MonoBehaviourSpireScript>();
+        private readonly List<SpireScriptMonoBehaviour> _scripts = new List<SpireScriptMonoBehaviour>();
 
         /// <summary>
         /// Dependencies.
@@ -239,7 +239,7 @@ namespace CreateAR.SpirePlayer
                 obj.transform.localPosition = Vector3.zero;
                 obj.transform.localRotation = Quaternion.identity;
 
-                var host = obj.AddComponent<MonoBehaviourSpireScript>();
+                var host = obj.AddComponent<SpireScriptMonoBehaviour>();
                 host.Initialize(
                     _host,
                     script);

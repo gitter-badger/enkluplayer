@@ -1,4 +1,6 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
 
@@ -15,23 +17,80 @@ namespace CreateAR.SpirePlayer
         private readonly VineImporter _importer = new VineImporter(new JsVinePreProcessor());
 
         /// <summary>
+        /// Parsed script.
+        /// </summary>
+        private ElementDescription _description;
+
+        /// <summary>
+        /// The element created.
+        /// </summary>
+        private Element _element;
+        
+        /// <summary>
         /// Creates elements.
         /// </summary>
         [Inject]
         public IElementFactory Elements { get; private set; }
+        
+        /// <summary>
+        /// SpireScript.
+        /// </summary>
+        public SpireScript Script { get; private set; }
+        
+        /// <summary>
+        /// Initializes script.
+        /// </summary>
+        public bool Initialize(SpireScript script)
+        {
+            Script = script;
+
+            try
+            {
+                _description = _importer.Parse(Script.Source);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not parse {0} : {1}.",
+                    script,
+                    exception);
+
+                return false;
+            }
+
+            return true;
+        }
 
         /// <summary>
-        /// The vine.
+        /// Runs script.
         /// </summary>
-        public TextAsset Vine;
-
-        /// <inheritdoc cref="MonoBehaviour"/>
-        private void Start()
+        public bool Enter()
         {
-            if (null != Vine)
+            if (null == _description)
             {
-                Elements.Element(_importer.Parse(Vine.text));
+                return false;
             }
+            
+            _element = Elements.Element(_description);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Destroys component and created elements.
+        /// </summary>
+        public void Exit()
+        {
+            if (null != _element)
+            {
+                _element.Destroy();
+                _element = null;
+            }
+        }
+    
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnDestroy()
+        {
+            Exit();
         }
     }
 }
