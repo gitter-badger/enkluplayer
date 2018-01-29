@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -9,6 +10,16 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     public class Menu : Widget
     {
+        /// <summary>
+        /// Name of back button.
+        /// </summary>
+        private const string BACK_BUTTON_NAME = "__back__";
+
+        /// <summary>
+        /// Creates elements.
+        /// </summary>
+        private readonly IElementFactory _elements;
+
         /// <summary>
         /// Creates primitives.
         /// </summary>
@@ -20,15 +31,21 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly List<Element> _filteredChildren = new List<Element>();
 
         /// <summary>
+        /// Back button.
+        /// </summary>
+        private Button _backButton;
+
+        /// <summary>
         /// Properties.
         /// </summary>
-        private ElementSchemaProp<string> _title;
-        private ElementSchemaProp<string> _description;
-        private ElementSchemaProp<int> _fontSize;
-        private ElementSchemaProp<string> _layout;
-        private ElementSchemaProp<float> _layoutRadius;
-        private ElementSchemaProp<float> _layoutDegrees;
-        private ElementSchemaProp<int> _headerWidth;
+        private ElementSchemaProp<string> _titleProp;
+        private ElementSchemaProp<string> _descriptionProp;
+        private ElementSchemaProp<int> _fontSizeProp;
+        private ElementSchemaProp<string> _layoutProp;
+        private ElementSchemaProp<float> _layoutRadiusProp;
+        private ElementSchemaProp<float> _layoutDegreesProp;
+        private ElementSchemaProp<int> _headerWidthProp;
+        private ElementSchemaProp<bool> _showBackButtonProp;
 
         /// <summary>
         /// Title text.
@@ -54,7 +71,8 @@ namespace CreateAR.SpirePlayer.IUX
             TweenConfig tweens,
             ColorConfig colors,
             IMessageRouter messages,
-            IPrimitiveFactory primitives)
+            IPrimitiveFactory primitives,
+            IElementFactory elements)
             : base(
                   new GameObject("Menu"),
                   config,
@@ -64,6 +82,7 @@ namespace CreateAR.SpirePlayer.IUX
                   messages)
         {
             _primitives = primitives;
+            _elements = elements;
         }
 
         /// <inheritdoc cref="Element"/>
@@ -72,40 +91,43 @@ namespace CreateAR.SpirePlayer.IUX
             base.AfterLoadChildrenInternal();
 
             // retrieve properties
-            _title = Schema.Get<string>("title");
-            _title.OnChanged += Title_OnChanged;
+            _titleProp = Schema.Get<string>("title");
+            _titleProp.OnChanged += Title_OnChanged;
 
-            _description = Schema.Get<string>("description");
-            _description.OnChanged += Description_OnChanged;
+            _descriptionProp = Schema.Get<string>("description");
+            _descriptionProp.OnChanged += Description_OnChanged;
 
-            _fontSize = Schema.Get<int>("fontSize");
-            _fontSize.OnChanged += FontSize_OnChanged;
+            _fontSizeProp = Schema.Get<int>("fontSize");
+            _fontSizeProp.OnChanged += FontSize_OnChanged;
 
-            _layout = Schema.Get<string>("layout");
-            _layout.OnChanged += Layout_OnChanged;
+            _layoutProp = Schema.Get<string>("layout");
+            _layoutProp.OnChanged += Layout_OnChanged;
 
-            _layoutDegrees = Schema.Get<float>("layout.degrees");
-            _layoutDegrees.OnChanged += LayoutDegrees_OnChanged;
+            _layoutDegreesProp = Schema.Get<float>("layout.degrees");
+            _layoutDegreesProp.OnChanged += LayoutDegrees_OnChanged;
 
-            _layoutRadius = Schema.Get<float>("layout.radius");
-            _layoutRadius.OnChanged += LayoutRadius_OnChanged;
+            _layoutRadiusProp = Schema.Get<float>("layout.radius");
+            _layoutRadiusProp.OnChanged += LayoutRadius_OnChanged;
 
-            _headerWidth = Schema.Get<int>("header.width");
-            _headerWidth.OnChanged += HeaderWidth_OnChanged;
+            _headerWidthProp = Schema.Get<int>("header.width");
+            _headerWidthProp.OnChanged += HeaderWidth_OnChanged;
+
+            _showBackButtonProp = Schema.Get<bool>("showBackButton");
+            _showBackButtonProp.OnChanged += ShowBackButton_OnChanged;
 
             // create + place title
             _titlePrimitive = _primitives.Text(Schema);
             AddChild(_titlePrimitive);
-            _titlePrimitive.Text = _title.Value;
-            _titlePrimitive.FontSize = _fontSize.Value;
+            _titlePrimitive.Text = _titleProp.Value;
+            _titlePrimitive.FontSize = _fontSizeProp.Value;
 
             // create + place description
             _descriptionPrimitive = _primitives.Text(Schema);
             AddChild(_descriptionPrimitive);
             _descriptionPrimitive.Overflow = HorizontalWrapMode.Wrap;
             _descriptionPrimitive.Alignment = AlignmentTypes.TOP_LEFT;
-            _descriptionPrimitive.Text = _description.Value;
-            _descriptionPrimitive.FontSize = _fontSize.Value;
+            _descriptionPrimitive.Text = _descriptionProp.Value;
+            _descriptionPrimitive.FontSize = _fontSizeProp.Value;
 
             _halfMoon = Object.Instantiate(
                 Config.HalfMoon.gameObject,
@@ -124,13 +146,14 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="Element"/>
         protected override void AfterUnloadChildrenInternal()
         {
-            _title.OnChanged -= Title_OnChanged;
-            _fontSize.OnChanged -= FontSize_OnChanged;
-            _description.OnChanged -= Description_OnChanged;
-            _layout.OnChanged -= Layout_OnChanged;
-            _layoutDegrees.OnChanged -= LayoutDegrees_OnChanged;
-            _layoutRadius.OnChanged -= LayoutRadius_OnChanged;
-            _headerWidth.OnChanged -= HeaderWidth_OnChanged;
+            _titleProp.OnChanged -= Title_OnChanged;
+            _fontSizeProp.OnChanged -= FontSize_OnChanged;
+            _descriptionProp.OnChanged -= Description_OnChanged;
+            _layoutProp.OnChanged -= Layout_OnChanged;
+            _layoutDegreesProp.OnChanged -= LayoutDegrees_OnChanged;
+            _layoutRadiusProp.OnChanged -= LayoutRadius_OnChanged;
+            _headerWidthProp.OnChanged -= HeaderWidth_OnChanged;
+            _showBackButtonProp.OnChanged -= ShowBackButton_OnChanged;
 
             Object.Destroy(_halfMoon);
             _halfMoon = null;
@@ -246,12 +269,26 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Called when the show back button property changes.
+        /// </summary>
+        /// <param name="prop">Prop in question.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void ShowBackButton_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            //
+        }
+
+        /// <summary>
         /// Updates the header layout.
         /// </summary>
         private void UpdateHeaderLayout()
         {
-            _titlePrimitive.Width = _headerWidth.Value;
-            _descriptionPrimitive.Width = _headerWidth.Value;
+            _titlePrimitive.Width = _headerWidthProp.Value;
+            _descriptionPrimitive.Width = _headerWidthProp.Value;
             
             _descriptionPrimitive.LocalPosition = new Vector3(
                 0,
@@ -259,7 +296,7 @@ namespace CreateAR.SpirePlayer.IUX
                 -_descriptionPrimitive.Height / 2f - 0.02f,
                 0f);
 
-            if (!string.IsNullOrEmpty(_description.Value))
+            if (!string.IsNullOrEmpty(_descriptionProp.Value))
             {
                 _titlePrimitive.LocalPosition = new Vector3();
             }
@@ -269,6 +306,57 @@ namespace CreateAR.SpirePlayer.IUX
                     0,
                     -_titlePrimitive.Rect.size.y / 2);
             }
+
+            // back button
+            if (_showBackButtonProp.Value)
+            {
+                InitializeBackButton();
+
+                // place back button
+                _backButton.Schema.Set("position", new Vec3(-0.2f, 0, 0));
+            }
+            else if (null != _backButton)
+            {
+                RemoveChild(_backButton);
+                _backButton.Destroy();
+                _backButton = null;
+            }
+        }
+
+        /// <summary>
+        /// Creates back button if need be.
+        /// </summary>
+        private void InitializeBackButton()
+        {
+            if (null != _backButton)
+            {
+                return;
+            }
+
+            _backButton = (Button) _elements.Element(new ElementDescription
+            {
+                Root = new ElementRef
+                {
+                    Id = BACK_BUTTON_NAME
+                },
+                Elements = new[]
+                {
+                    new ElementData
+                    {
+                        Id = BACK_BUTTON_NAME,
+                        Type = ElementTypes.BUTTON,
+                        Schema = new ElementSchemaData
+                        {
+                            Strings = new Dictionary<string, string>
+                            {
+                                { "icon", "arrow-left" }
+                            }
+                        }
+                    }
+                }
+            });
+
+            AddChild(_backButton);
         }
 
         /// <summary>
@@ -276,7 +364,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateChildLayout()
         {
-            var layout = _layout.Value;
+            var layout = _layoutProp.Value;
             if (layout == "Radial")
             {
                 var children = Children;
@@ -284,7 +372,9 @@ namespace CreateAR.SpirePlayer.IUX
                 for (int i = 0, len = children.Length; i < len; i++)
                 {
                     var child = children[i];
-                    if (child == _titlePrimitive || child == _descriptionPrimitive)
+                    if (child == _titlePrimitive
+                        || child == _descriptionPrimitive
+                        || child == _backButton)
                     {
                         continue;
                     }
@@ -294,8 +384,8 @@ namespace CreateAR.SpirePlayer.IUX
 
                 RadialLayout(
                     _filteredChildren,
-                    _layoutRadius.Value,
-                    _layoutDegrees.Value);
+                    _layoutRadiusProp.Value,
+                    _layoutDegreesProp.Value);
             }
         }
 

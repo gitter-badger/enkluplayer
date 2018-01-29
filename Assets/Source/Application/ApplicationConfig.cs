@@ -9,7 +9,8 @@ namespace CreateAR.SpirePlayer
     {
         None,
         WaitForConnection,
-        Tools
+        Tools,
+        Play
     }
 
     /// <summary>
@@ -22,6 +23,11 @@ namespace CreateAR.SpirePlayer
         /// Defines the main application mode.
         /// </summary>
         public string Mode;
+
+        /// <summary>
+        /// Configuration for playing an app.
+        /// </summary>
+        public PlayAppConfig Play = new PlayAppConfig();
         
         /// <summary>
         /// Network configuration.
@@ -38,6 +44,17 @@ namespace CreateAR.SpirePlayer
                 "[ApplicationConfig Network={0}]",
                 Network);
         }
+    }
+
+    /// <summary>
+    /// Application to play.
+    /// </summary>
+    public class PlayAppConfig
+    {
+        /// <summary>
+        /// Id of the app.
+        /// </summary>
+        public string AppId;
     }
 
     /// <summary>

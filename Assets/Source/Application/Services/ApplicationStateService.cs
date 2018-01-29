@@ -100,6 +100,11 @@ namespace CreateAR.SpirePlayer
                             _states.Change<WaitingForConnectionApplicationState>();
                             break;
                         }
+                        case ApplicationMode.Play:
+                        {
+                            _states.Change<PlayApplicationState>(_config);
+                            break;
+                        }
                     }
                 });
 

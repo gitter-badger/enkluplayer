@@ -98,6 +98,11 @@ namespace CreateAR.SpirePlayer.IUX
         public LinkRenderer LinkPrefab;
 
         /// <summary>
+        /// Sphere.
+        /// </summary>
+        public GameObject Sphere;
+
+        /// <summary>
         /// Returns the ideal position.
         /// </summary>
         public Vec3 IdealPosition
@@ -185,7 +190,7 @@ namespace CreateAR.SpirePlayer.IUX
                     CLOSE_FOV_SCALE);
             }
         }
-
+        
         /// <summary>
         /// Initialization.
         /// </summary>

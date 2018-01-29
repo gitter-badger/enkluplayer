@@ -199,7 +199,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.MENU:
                 {
-                    return new Menu(_config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new Menu(_config, _layers, _tweens, _colors, _messages, _primitives, this);
                 }
                 case ElementTypes.TEXTCRAWL:
                 {
