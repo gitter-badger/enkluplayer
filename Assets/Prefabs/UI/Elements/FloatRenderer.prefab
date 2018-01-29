@@ -514,6 +514,7 @@ MonoBehaviour:
   MotionWidget: {fileID: 114039426122872568}
   Trail: {fileID: 1821504241148556}
   LinkPrefab: {fileID: 114026799036586964}
+  Sphere: {fileID: 0}
 --- !u!120 &120794689001363238
 LineRenderer:
   m_ObjectHideFlags: 1
