@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using Jint.Unity;
 using UnityEngine;
@@ -10,11 +12,11 @@ namespace CreateAR.SpirePlayer
 {
     public class DesignController
     {
-        private readonly PlayModeConfig _playConfig;
+        private PlayModeConfig _playConfig;
 
         private GameObject _current;
-
-        public DesignController()
+        
+        public void Setup()
         {
             _playConfig = Object.FindObjectOfType<PlayModeConfig>();
 
@@ -22,10 +24,7 @@ namespace CreateAR.SpirePlayer
             {
                 throw new Exception("Could not find PlayModeConfig.");
             }
-        }
 
-        public void Setup()
-        {
             _current = Object.Instantiate(_playConfig.SplashMenu);
         }
 
@@ -41,6 +40,11 @@ namespace CreateAR.SpirePlayer
         /// Name of the playmode scene to load.
         /// </summary>
         private const string SCENE_NAME = "PlayMode";
+
+        /// <summary>
+        /// Bootstraps coroutines.
+        /// </summary>
+        private readonly IBootstrapper _bootstrapper;
 
         /// <summary>
         /// Gets + sets files.
@@ -66,13 +70,17 @@ namespace CreateAR.SpirePlayer
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
+            IBootstrapper bootstrapper,
             IFileManager files,
             IScriptRequireResolver resolver,
             AppController app)
         {
+            _bootstrapper = bootstrapper;
             _files = files;
             _resolver = resolver;
             _app = app;
+
+            _design = new DesignController();
         }
 
         /// <inheritdoc cref="IState"/>
@@ -89,7 +97,10 @@ namespace CreateAR.SpirePlayer
             );
 
             // load playmode scene
-            UnityEngine.SceneManagement.SceneManager.LoadScene(SCENE_NAME, LoadSceneMode.Additive);
+            _bootstrapper.BootstrapCoroutine(WaitForScene(
+                UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
+                    SCENE_NAME,
+                    LoadSceneMode.Additive)));
 
             // configure
             _files.Register(
@@ -110,9 +121,6 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "App successfully started.");
                 })
                 .OnFailure(exception => Log.Error(this, "Could not start app : {0}.", exception));
-
-            // TODO: only on connection
-            _design.Setup();
         }
 
         /// <inheritdoc cref="IState"/>
@@ -131,6 +139,19 @@ namespace CreateAR.SpirePlayer
             // unload playmode scene
             UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
                 UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
+        }
+
+        /// <summary>
+        /// Waits for the scene to load.
+        /// </summary>
+        /// <param name="op">Load operation.</param>
+        /// <returns></returns>
+        private IEnumerator WaitForScene(AsyncOperation op)
+        {
+            yield return op;
+
+            // TODO: only on connection
+            _design.Setup();
         }
     }
 }

@@ -51,7 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vine: "<?Vine>\n\n<Float position=(0,0,1)>\n\t<Menu showBackButton=true>\n\t\t<Button
+  Vine: "<?Vine>\n\n<Float position=(0,0,2)>\n\t<Menu showBackButton=true>\n\t\t<Button
     label='Play' icon='play' />\n\t\t<Button label='New' icon='plus' />\n\t\t<Button
     label='Clear All' icon='trash' />\n\t\t<Button label='Quit' icon='x' />\n\t\t<Button
     label='Debug Render' />\n\t</Menu>\n</Float>"
