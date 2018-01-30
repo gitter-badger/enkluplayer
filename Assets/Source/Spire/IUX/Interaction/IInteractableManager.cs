@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -11,6 +12,16 @@ namespace CreateAR.SpirePlayer.IUX
         /// Collection of all <c>IInteractable</c> instances.
         /// </summary>
         ReadOnlyCollection<IInteractable> All { get; }
+
+        /// <summary>
+        /// Called when an item has been added.
+        /// </summary>
+        event Action<IInteractable> OnAdded;
+
+        /// <summary>
+        /// Called when an item has been removed.
+        /// </summary>
+        event Action<IInteractable> OnRemoved;
 
         /// <summary>
         /// Adds an interactable.

@@ -52,6 +52,19 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [TextArea(10, 100)]
         public string Vine;
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnDisable()
+        {
+            if (null != Element)
+            {
+                Element.Destroy();
+                Element = null;
+            }
+
+            _lastChange = DateTime.MinValue;
+            _bakedVine = _lastVine = null;
+        }
         
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()

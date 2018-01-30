@@ -32,11 +32,6 @@ namespace CreateAR.SpirePlayer
             _events.RemoveHandler(MessageTypes.BUTTON_ACTIVATE, this);
 
             Vine.enabled = false;
-
-            if (null != Vine.Element)
-            {
-                Vine.Element.Destroy();
-            }
         }
 
         public void Uninitialize()

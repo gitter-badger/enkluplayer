@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -204,6 +206,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="message">The message received.</param>
         private void Messages_OnSubscribeAll(object message)
         {
+            Log.Info(this, "Recevied {0}.", message);
+
             var @event = message as IUXEvent;
             if (null == @event)
             {

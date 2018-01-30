@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -16,6 +17,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="IInteractableManager"/>
         public ReadOnlyCollection<IInteractable> All { get; private set; }
 
+        /// <inheritdoc cref="IInteractableManager"/>
+        public event Action<IInteractable> OnAdded;
+
+        /// <inheritdoc cref="IInteractableManager"/>
+        public event Action<IInteractable> OnRemoved;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -27,14 +34,29 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="IInteractableManager"/>
         public void Add(IInteractable interactable)
         {
-            _all.Remove(interactable);
+            var removed = _all.Remove(interactable);
             _all.Add(interactable);
+
+            // do not call on item already added.
+            if (!removed)
+            {
+                if (null != OnAdded)
+                {
+                    OnAdded(interactable);
+                }
+            }
         }
 
         /// <inheritdoc cref="IInteractableManager"/>
         public void Remove(IInteractable interactable)
         {
-            _all.Remove(interactable);
+            if (_all.Remove(interactable))
+            {
+                if (null != OnRemoved)
+                {
+                    OnRemoved(interactable);
+                }
+            }
         }
     }
 }

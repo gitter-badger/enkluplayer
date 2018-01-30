@@ -25,6 +25,17 @@
             Type = type;
             Target = target;
         }
+
+        /// <summary>
+        /// Useful ToString.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[IUXEvent Type={0}, Target={1}]",
+                Type,
+                Target.Id);
+        }
     }
 
     /// <summary>

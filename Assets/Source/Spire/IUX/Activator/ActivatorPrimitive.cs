@@ -30,6 +30,11 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly Widget _target;
 
         /// <summary>
+        /// True iff we are registered with <c>IInteractableManager</c>.
+        /// </summary>
+        private bool _interactable = false;
+
+        /// <summary>
         /// Renders activator.
         /// </summary>
         private ActivatorRenderer _renderer;
@@ -62,7 +67,7 @@ namespace CreateAR.SpirePlayer.IUX
             get
             {
                 const float FOCUSABLE_THRESHOLD = 0.99f;
-                return Visible && Tween > FOCUSABLE_THRESHOLD
+                return _interactable && Visible && Tween > FOCUSABLE_THRESHOLD
                        && InteractionEnabled
                        && (!_interaction.IsOnRails || Highlighted);
             }
@@ -83,6 +88,11 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 
                 _focused = value;
+
+                if (!_interactable)
+                {
+                    return;
+                }
 
                 if (_focused)
                 {
@@ -245,6 +255,7 @@ namespace CreateAR.SpirePlayer.IUX
             InitializeProps();
             InitializeStates();
 
+            _interactable = true;
             _interactables.Add(this);
         }
 
@@ -252,6 +263,7 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void AfterUnloadChildrenInternal()
         {
             _interactables.Remove(this);
+            _interactable = false;
 
             Object.Destroy(_renderer.gameObject);
 
