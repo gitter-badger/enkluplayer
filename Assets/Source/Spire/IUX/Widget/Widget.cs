@@ -56,12 +56,17 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<Vec3> _localPositionProp;
         private ElementSchemaProp<TweenType> _tweenInProp;
         private ElementSchemaProp<TweenType> _tweenOutProp;
-        private ElementSchemaProp<VirtualColor> _virtualColorProp;
+        private ElementSchemaProp<string> _virtualColorProp;
         private ElementSchemaProp<WidgetColorMode> _colorModeProp;
         private ElementSchemaProp<WidgetVisibilityMode> _visibilityModeProp;
         private ElementSchemaProp<LayerMode> _layerModeProp;
         private ElementSchemaProp<bool> _autoDestroyProp;
         private ElementSchemaProp<string> _faceProp;
+
+        /// <summary>
+        /// Cached virtual color.
+        /// </summary>
+        private VirtualColor _virtualColor;
 
         /// <summary>
         /// Widget hierarchy.
@@ -121,8 +126,14 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public VirtualColor VirtualColor
         {
-            get { return _virtualColorProp.Value; }
-            set { _virtualColorProp.Value = value; }
+            get
+            {
+                return _virtualColor;
+            }
+            set
+            {
+                _virtualColorProp.Value = value.ToString();
+            }
         }
 
         /// <summary>
@@ -380,7 +391,8 @@ namespace CreateAR.SpirePlayer.IUX
             _localPositionProp.OnChanged += LocalPosition_OnChanged;
             _tweenInProp = Schema.GetOwn("tweenIn", TweenType.Responsive);
             _tweenOutProp = Schema.GetOwn("tweenOut", TweenType.Responsive);
-            _virtualColorProp = Schema.GetOwn("virtualColor", VirtualColor.None);
+            _virtualColorProp = Schema.GetOwn("virtualColor", "None");
+            _virtualColorProp.OnChanged += VirtualColor_OnChanged;
             _colorModeProp = Schema.GetOwn("colorMode", WidgetColorMode.InheritColor);
             _visibilityModeProp = Schema.GetOwn("visibilityMode", WidgetVisibilityMode.Inherit);
             _layerModeProp = Schema.GetOwn("layerMode", LayerMode.Default);
@@ -419,6 +431,7 @@ namespace CreateAR.SpirePlayer.IUX
             IsLoaded = false;
             
             _localPositionProp.OnChanged -= LocalPosition_OnChanged;
+            _virtualColorProp.OnChanged -= VirtualColor_OnChanged;
             _faceProp.OnChanged -= Face_OnChanged;
             
             Object.Destroy(GameObject);
@@ -428,6 +441,8 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 Layers.Release(_layer);
             }
+
+            base.AfterUnloadChildrenInternal();
         }
 
         /// <inheritdoc />
@@ -630,6 +645,29 @@ namespace CreateAR.SpirePlayer.IUX
             Vec3 next)
         {
             GameObject.transform.localPosition = next.ToVector();
+        }
+
+        /// <summary>
+        /// Called when the virtual color changes via schema.
+        /// </summary>
+        /// <param name="prop">Prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void VirtualColor_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            try
+            {
+                _virtualColor = (VirtualColor) Enum.Parse(
+                    typeof(VirtualColor),
+                    next);
+            }
+            catch
+            {
+                //
+            }
         }
 
         /// <summary>

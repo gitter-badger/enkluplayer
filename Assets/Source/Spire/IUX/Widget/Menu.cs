@@ -369,7 +369,8 @@ namespace CreateAR.SpirePlayer.IUX
                         {
                             Strings = new Dictionary<string, string>
                             {
-                                { "icon", "arrow-left" }
+                                { "icon", "arrow-left" },
+                                { "virtualColor", "Tertiary" }
                             }
                         }
                     }

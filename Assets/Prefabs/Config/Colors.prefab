@@ -51,7 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1123ffcdebab6ce41a2bf38d0e93f318, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CurrentProfileName: 
+  CurrentProfileName: Default
   Profiles:
   - Name: Default
     VirtualColors:

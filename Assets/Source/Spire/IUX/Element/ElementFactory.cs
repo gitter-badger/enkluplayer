@@ -61,7 +61,7 @@ namespace CreateAR.SpirePlayer.IUX
             _baseSchema.Set("tweenIn", TweenType.Responsive);
             _baseSchema.Set("tweenOut", TweenType.Deliberate);
             _baseSchema.Set("color", Col4.White);
-            _baseSchema.Set("virtualColor", VirtualColor.None);
+            _baseSchema.Set("virtualColor", "None");
             _baseSchema.Set("colorMode", WidgetColorMode.InheritColor);
             _baseSchema.Set("visibilityMode", WidgetVisibilityMode.Inherit);
             _baseSchema.Set("layerMode", LayerMode.Default);
