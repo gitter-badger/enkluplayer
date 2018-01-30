@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -95,7 +96,53 @@ namespace CreateAR.SpirePlayer.IUX
                     rect.height * scale.y);
             }
         }
-        
+
+        /// <summary>
+        /// Bounding rectangle of rendered text.
+        /// 
+        /// EXPERIMENTAL
+        /// </summary>
+        public Rectangle TextRect
+        {
+            get
+            {
+                var gen = _renderer.Text.cachedTextGenerator;
+                var maxY = float.MinValue;
+                var minY = float.MaxValue;
+                var maxX = float.MinValue;
+                var minX = float.MaxValue;
+
+                _vertices.Clear();
+                gen.GetVertices(_vertices);
+
+                if (_vertices.Count == 0)
+                {
+                    return Rect;
+                }
+                
+                for (var index = 0; index < _vertices.Count; index++)
+                {
+                    var pos = _vertices[index].position;
+
+                    maxY = Mathf.Max(maxY, pos.y);
+                    maxX = Mathf.Max(maxX, pos.x);
+
+                    minY = Mathf.Min(minY, pos.y);
+                    minX = Mathf.Min(minX, pos.x);
+                }
+
+                var trans = _renderer.Text.transform;
+                var scale = trans.localScale;
+                var offset = trans.localPosition + _renderer.transform.localPosition;
+
+                return new Rectangle(
+                    (minX) * scale.x + offset.x,
+                    (minY) * scale.y + offset.y,
+                    (maxX - minX) * scale.x,
+                    (maxY - minY) * scale.y);
+            }
+        }
+
         /// <summary>
         /// Retrieves the width of the primitive.
         /// </summary>
@@ -199,13 +246,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="Element"/>
         protected override void AfterUnloadChildrenInternal()
         {
+            base.AfterUnloadChildrenInternal();
+
             _propAlignment.OnChanged -= Alignment_OnChanged;
             _propFont.OnChanged -= Font_OnChanged;
             _propFontSize.OnChanged -= FontSize_OnChanged;
-
-            Object.Destroy(_renderer.gameObject);
-
-            base.AfterUnloadChildrenInternal();
         }
 
         /// <inheritdoc cref="Element"/>
@@ -214,53 +259,6 @@ namespace CreateAR.SpirePlayer.IUX
             base.LateUpdateInternal();
 
             DebugDraw();
-        }
-
-        /// <summary>
-        /// Bounding rectangle of rendered text.
-        /// 
-        /// EXPERIMENTAL
-        /// </summary>
-        private Rectangle TextRect
-        {
-            get
-            {
-                var gen = _renderer.Text.cachedTextGenerator
-                          ?? _renderer.Text.cachedTextGeneratorForLayout;
-                if (null == gen)
-                {
-                    return Rect;
-                }
-
-                var maxY = float.MinValue;
-                var minY = float.MaxValue;
-                var maxX = float.MinValue;
-                var minX = float.MaxValue;
-
-                _vertices.Clear();
-                gen.GetVertices(_vertices);
-
-                if (_vertices.Count == 0)
-                {
-                    return Rect;
-                }
-
-                for (var index = 0; index < _vertices.Count; index++)
-                {
-                    var pos = _vertices[index].position;
-
-                    maxY = Mathf.Max(maxY, pos.y);
-                    maxX = Mathf.Max(maxX, pos.x);
-
-                    minY = Mathf.Min(minY, pos.y);
-                    minX = Mathf.Min(minX, pos.x);
-                }
-
-                return new Rectangle(
-                    minX, minY,
-                    maxX - minX,
-                    maxY - minY);
-            }
         }
 
         /// <summary>
@@ -276,15 +274,31 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             var pos = _renderer.Text.rectTransform.position;
-            var width = Width;
-            var height = Height;
+
+            var rect = Rect;
+            var rectWidth = rect.size.x;
+            var rectHeight = rect.size.y;
+
+            var textRect = TextRect;
+            
             handle.Draw(ctx =>
             {
                 ctx.Prism(new Bounds(
                     pos,
                     new Vector3(
-                        width,
-                        height,
+                        rectWidth,
+                        rectHeight,
+                        0)));
+
+                ctx.Color(new Color(1, 0, 0, 1));
+                ctx.Prism(new Bounds(
+                    new Vector3(
+                        textRect.min.x + textRect.size.x / 2f,
+                        textRect.min.y + textRect.size.y / 2f,
+                        pos.z), 
+                    new Vector3(
+                        textRect.size.x,
+                        textRect.size.y,
                         0)));
             });
         }
