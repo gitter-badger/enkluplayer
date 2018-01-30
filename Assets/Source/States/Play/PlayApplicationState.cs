@@ -1,39 +1,16 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.IO;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
-    public class DesignController
-    {
-        private PlayModeConfig _playConfig;
-
-        private GameObject _current;
-        
-        public void Setup()
-        {
-            _playConfig = Object.FindObjectOfType<PlayModeConfig>();
-
-            if (null == _playConfig)
-            {
-                throw new Exception("Could not find PlayModeConfig.");
-            }
-
-            _current = Object.Instantiate(_playConfig.SplashMenu);
-        }
-
-        public void Teardown()
-        {
-
-        }
-    }
-
+    /// <summary>
+    /// Manages the play state.
+    /// </summary>
     public class PlayApplicationState : IState
     {
         /// <summary>

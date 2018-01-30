@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4319325088739126}
   - component: {fileID: 114227665588516278}
+  - component: {fileID: 114689886553146754}
   m_Layer: 0
   m_Name: SplashMenu
   m_TagString: Untagged
@@ -52,3 +53,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Vine: "<?Vine>\n\n<Float position=(0, 0, 2)>\n\t<Button label='Menu' />\n</Float>"
+--- !u!114 &114689886553146754
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1969744451271428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26e555e3f4481c74885be51d4111f8f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

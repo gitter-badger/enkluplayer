@@ -71,7 +71,7 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="IPrimitiveFactory"/>
-        public ActivatorPrimitive Activator(ElementSchema schema)
+        public ActivatorPrimitive Activator(ElementSchema schema, Widget target)
         {
             var activator = new ActivatorPrimitive(
                 _config,
@@ -81,7 +81,8 @@ namespace CreateAR.SpirePlayer.IUX
                 _messages,
                 _layers,
                 _tweens,
-                _colors);
+                _colors,
+                target);
 
             var activatorSchema = new ElementSchema("ActivatorPrimitive");
             activatorSchema.Wrap(schema);

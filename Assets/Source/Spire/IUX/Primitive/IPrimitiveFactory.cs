@@ -15,7 +15,7 @@
         /// Creates an Activator.
         /// </summary>
         /// <returns></returns>
-        ActivatorPrimitive Activator(ElementSchema schema);
+        ActivatorPrimitive Activator(ElementSchema schema, Widget target);
 
         /// <summary>
         /// Creates a reticle.

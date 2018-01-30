@@ -129,7 +129,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             // Activator
             {
-                _activator = _primitives.Activator(Schema);
+                _activator = _primitives.Activator(Schema, this);
                 AddChild(_activator);
                 
                 _iconProp = Schema.Get<string>("icon");

@@ -69,7 +69,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             // Left Activator
             {
-                _leftActivator = _primitives.Activator(Schema);
+                _leftActivator = _primitives.Activator(Schema, this);
                 _leftActivator.Icon = Config.Icons.Icon("arrow-left");
                 _leftActivator.OnActivated += Left_OnActivated;
                 AddChild(_leftActivator);
@@ -77,7 +77,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             // Right Activator
             {
-                _rightActivator = _primitives.Activator(Schema);
+                _rightActivator = _primitives.Activator(Schema, this);
                 _rightActivator.Icon = Config.Icons.Icon("arrow-right");
                 _rightActivator.OnActivated += Right_OnActivated;
                 // TODO: Don't hack positions

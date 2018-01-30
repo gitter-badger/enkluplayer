@@ -122,6 +122,7 @@ GameObject:
   - component: {fileID: 993257955}
   - component: {fileID: 993257956}
   - component: {fileID: 993257957}
+  - component: {fileID: 993257958}
   m_Layer: 0
   m_Name: Spire
   m_TagString: Untagged
@@ -153,7 +154,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7401ed17eacc06f4eba766720f574419, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SplashMenu: {fileID: 1969744451271428, guid: e99de7fc71498064aa155b74a3c1027f, type: 2}
+  Root: {fileID: 993257958}
+  SplashMenu: {fileID: 114689886553146754, guid: e99de7fc71498064aa155b74a3c1027f,
+    type: 2}
   MainMenu: {fileID: 1755666855694244, guid: 4de28392ec1056c44b206725de3b65f2, type: 2}
   NewManu: {fileID: 0}
   ClearAllMenu: {fileID: 1300301315191926, guid: b325ca9c6560e0644bcfa67726a9fb3a,
@@ -173,3 +176,14 @@ MonoBehaviour:
   Vine: '<?Vine>
 
     <Cursor />'
+--- !u!114 &993257958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 993257954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81689b646eff16541991921488aecc38, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

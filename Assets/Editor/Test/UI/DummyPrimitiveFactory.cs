@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer.Test.UI
             return null;
         }
 
-        public ActivatorPrimitive Activator(ElementSchema elementSchema)
+        public ActivatorPrimitive Activator(ElementSchema elementSchema, Widget target)
         {
             return null;
         }

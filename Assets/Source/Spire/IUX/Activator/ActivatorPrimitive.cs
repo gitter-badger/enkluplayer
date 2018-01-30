@@ -25,6 +25,11 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        /// Target widget.
+        /// </summary>
+        private readonly Widget _target;
+
+        /// <summary>
         /// Renders activator.
         /// </summary>
         private ActivatorRenderer _renderer;
@@ -81,11 +86,15 @@ namespace CreateAR.SpirePlayer.IUX
 
                 if (_focused)
                 {
-                    _messages.Publish(MessageTypes.WIDGET_FOCUS, new WidgetFocusEvent());
+                    _messages.Publish(
+                        MessageTypes.WIDGET_FOCUS,
+                        new WidgetFocusEvent(_target));
                 }
                 else
                 {
-                    _messages.Publish(MessageTypes.WIDGET_UNFOCUS, new WidgetUnfocusEvent());
+                    _messages.Publish(
+                        MessageTypes.WIDGET_UNFOCUS,
+                        new WidgetUnfocusEvent(_target));
                 }
             }
         }
@@ -166,7 +175,7 @@ namespace CreateAR.SpirePlayer.IUX
                 SetIcon();
             }
         }
-
+        
         /// <summary>
         /// Invoked when the activator is activated.
         /// </summary>
@@ -183,7 +192,8 @@ namespace CreateAR.SpirePlayer.IUX
             IMessageRouter messages,
             ILayerManager layers,
             TweenConfig tweens,
-            ColorConfig colors)
+            ColorConfig colors,
+            Widget target)
             : base(
                 new GameObject("Activator"),
                 config,
@@ -197,6 +207,7 @@ namespace CreateAR.SpirePlayer.IUX
             _interaction = interaction;
             _intention = intention;
             _messages = messages;
+            _target = target;
         }
 
         /// <inheritdoc cref="IRaycaster"/>
@@ -325,7 +336,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 new ActivatorReadyState(this, Schema),
                 new ActivatorActivatingState(this, _intention, Schema),
-                new ActivatorActivatedState(this, _messages, Schema)
+                new ActivatorActivatedState(_target, this, _messages, Schema)
             });
             _states.Change<ActivatorReadyState>();
         }
