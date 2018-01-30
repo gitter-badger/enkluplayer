@@ -1,5 +1,7 @@
-﻿using CreateAR.Commons.Unity.Messaging;
+﻿using System;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -26,7 +28,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Props.
         /// </summary>
-        private ElementSchemaProp<Vec3> _propPosition;
+        private ElementSchemaProp<Vec3> _positionProp;
+        private ElementSchemaProp<Vec3> _focusProp;
 
         /// <summary>
         /// Constructor.
@@ -70,15 +73,20 @@ namespace CreateAR.SpirePlayer.IUX
             base.AfterLoadChildrenInternal();
 
             // load font setup.
-            _propPosition = Schema.GetOwn("position", new Vec3(0, 0, 2.5f));
-            _propPosition.OnChanged += Position_OnChanged;
-            _renderer.Offset = _propPosition.Value.ToVector();
+            _positionProp = Schema.GetOwn("position", new Vec3(0, 0, 2.5f));
+            _positionProp.OnChanged += Position_OnChanged;
+            _renderer.Offset = _positionProp.Value.ToVector();
+
+            // focus
+            _focusProp = Schema.Get<Vec3>("focus");
+            _focusProp.OnChanged += Focus_OnChanged;
         }
 
         /// <inheritdoc cref="Element"/>
         protected override void AfterUnloadChildrenInternal()
         {
-            _propPosition.OnChanged -= Position_OnChanged;
+            _positionProp.OnChanged -= Position_OnChanged;
+            _focusProp.OnChanged -= Focus_OnChanged;
 
             Object.Destroy(_renderer.gameObject);
 
@@ -103,6 +111,20 @@ namespace CreateAR.SpirePlayer.IUX
             Vec3 next)
         {
             _renderer.Offset = next.ToVector();
+        }
+
+        /// <summary>
+        /// Called when the focus has changed.
+        /// </summary>
+        /// <param name="prop">Focus prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Focus_OnChanged(
+            ElementSchemaProp<Vec3> prop,
+            Vec3 prev,
+            Vec3 next)
+        {
+            _renderer.Focus = next.ToVector();
         }
     }
 }

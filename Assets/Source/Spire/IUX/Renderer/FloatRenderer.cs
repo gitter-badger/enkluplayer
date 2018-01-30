@@ -73,6 +73,11 @@ namespace CreateAR.SpirePlayer.IUX
         public Vector3 Offset = new Vector3(0, 0, 2.5f);
 
         /// <summary>
+        /// Focus position.
+        /// </summary>
+        public Vector3 Focus = new Vector3(0, 0, 0);
+
+        /// <summary>
         /// Minimum distance for the appearence of this context menu.
         /// </summary>
         public float MinimumGroundHeight = 1;
@@ -98,9 +103,9 @@ namespace CreateAR.SpirePlayer.IUX
         public LinkRenderer LinkPrefab;
 
         /// <summary>
-        /// Sphere.
+        /// Focus sphere.
         /// </summary>
-        public GameObject Sphere;
+        public GameObject FocusSphere;
 
         /// <summary>
         /// Returns the ideal position.
@@ -293,6 +298,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             UpdateWidgets();
             UpdateLink();
+            UpdateFocus();
         }
 
         /// <summary>
@@ -373,6 +379,14 @@ namespace CreateAR.SpirePlayer.IUX
                     Position = LinkTransform.position
                 };
             }
+        }
+
+        /// <summary>
+        /// Updates the focus.
+        /// </summary>
+        private void UpdateFocus()
+        {
+            FocusSphere.transform.localPosition = Focus;
         }
 
         /// <summary>

@@ -509,12 +509,13 @@ MonoBehaviour:
   LinkTransform: {fileID: 0}
   Magnet: {fileID: 114421777139123910}
   Offset: {x: 0, y: 0, z: 2.5}
+  Focus: {x: 0, y: 0, z: 0}
   MinimumGroundHeight: 1
   StationaryWidget: {fileID: 114723491222898982}
   MotionWidget: {fileID: 114039426122872568}
   Trail: {fileID: 1821504241148556}
   LinkPrefab: {fileID: 114026799036586964}
-  Sphere: {fileID: 0}
+  FocusSphere: {fileID: 1943430864535658}
 --- !u!120 &120794689001363238
 LineRenderer:
   m_ObjectHideFlags: 1
