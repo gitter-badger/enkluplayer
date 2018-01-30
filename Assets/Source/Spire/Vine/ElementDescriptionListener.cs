@@ -43,7 +43,8 @@ namespace CreateAR.SpirePlayer.Vine
             Commons.Unity.DataStructures.Tuple.Create("Slider", ElementTypes.SLIDER),
             Commons.Unity.DataStructures.Tuple.Create("Select", ElementTypes.SELECT),
             Commons.Unity.DataStructures.Tuple.Create("Grid", ElementTypes.GRID),
-            Commons.Unity.DataStructures.Tuple.Create("Option", ElementTypes.OPTION)
+            Commons.Unity.DataStructures.Tuple.Create("Option", ElementTypes.OPTION),
+            Commons.Unity.DataStructures.Tuple.Create("OptionGroup", ElementTypes.OPTION_GROUP)
         };
 
         /// <summary>

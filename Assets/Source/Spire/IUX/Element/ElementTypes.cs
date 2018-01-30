@@ -26,5 +26,6 @@
         public const int SELECT = 200;
         public const int GRID = 201;
         public const int OPTION = 210;
+        public const int OPTION_GROUP = 211;
     }
 }

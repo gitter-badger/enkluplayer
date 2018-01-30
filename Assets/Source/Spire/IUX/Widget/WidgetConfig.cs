@@ -192,6 +192,11 @@ namespace CreateAR.SpirePlayer.IUX
         public RectTransform HalfMoon;
 
         /// <summary>
+        /// Grid shell.
+        /// </summary>
+        public RectTransform GridShell;
+
+        /// <summary>
         /// Design.
         /// </summary>
         [Header("Vines")]

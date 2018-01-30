@@ -63,6 +63,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
                 binder.Bind<IVinePreProcessor>().To<JsVinePreProcessor>().ToSingleton();
+                binder.Bind<VineImporter>().To<VineImporter>();
 
                 // input
                 {

@@ -15,4 +15,18 @@ namespace CreateAR.SpirePlayer.IUX
             Object.Destroy(gameObject);
         }
     }
+
+    /// <summary>
+    /// Basic element for OptionGroups.
+    /// </summary>
+    public class OptionGroup : Element
+    {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public OptionGroup(GameObject gameObject)
+        {
+            Object.Destroy(gameObject);
+        }
+    }
 }

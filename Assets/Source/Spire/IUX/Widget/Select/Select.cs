@@ -18,7 +18,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// List of potential options.
         /// </summary>
-        private readonly List<string> _options = new List<string>();
+        private readonly List<Option> _options = new List<Option>();
 
         /// <summary>
         /// Left activator.
@@ -44,6 +44,19 @@ namespace CreateAR.SpirePlayer.IUX
         /// Index into options list.
         /// </summary>
         private int _selection = 0;
+
+        /// <summary>
+        /// Currently selected option.
+        /// </summary>
+        public Option Selection
+        {
+            get
+            {
+                return _selection >= 0 && _selection < _options.Count
+                    ? _options[_selection]
+                    : null;
+            }
+        }
 
         /// <summary>
         /// Constructor.
@@ -128,7 +141,7 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            _text.Text = _options[_selection];
+            _text.Text = _options[_selection].Schema.Get<string>("value").Value;
         }
 
         /// <summary>
@@ -144,7 +157,7 @@ namespace CreateAR.SpirePlayer.IUX
                 var option = child as Option;
                 if (null != option)
                 {
-                    _options.Add(option.Schema.Get<string>("label").Value);
+                    _options.Add(option);
                 }
             }
         }

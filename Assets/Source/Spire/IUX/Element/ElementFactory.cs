@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -22,6 +23,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IMessageRouter _messages;
         private readonly IVoiceCommandManager _voice;
         private readonly WidgetConfig _config;
+        private readonly VineImporter _parser;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -45,7 +47,8 @@ namespace CreateAR.SpirePlayer.IUX
             TweenConfig tweens,
             IMessageRouter messages,
             IVoiceCommandManager voice,
-            WidgetConfig config)
+            WidgetConfig config,
+            VineImporter parser)
         {
             _primitives = primitives;
             _intention = intention;
@@ -56,6 +59,7 @@ namespace CreateAR.SpirePlayer.IUX
             _messages = messages;
             _voice = voice;
             _config = config;
+            _parser = parser;
 
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -223,11 +227,15 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.GRID:
                 {
-                    return new Grid(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new Grid(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives, this, _parser);
                 }
                 case ElementTypes.OPTION:
                 {
                     return new Option(gameObject);
+                }
+                case ElementTypes.OPTION_GROUP:
+                {
+                    return new OptionGroup(gameObject);
                 }
                 default:
                 {
