@@ -103,7 +103,7 @@ namespace CreateAR.SpirePlayer.IUX
             });
             buttonSchema.Inherit(_baseSchema);
 
-            _typeSchema[ElementTypes.SELECT] = buttonSchema;
+            _typeSchema[ElementTypes.SELECT] = _typeSchema[ElementTypes.TOGGLE] = buttonSchema;
 
             var menuSchema = _typeSchema[ElementTypes.MENU] = new ElementSchema("Base.Menu");
             menuSchema.Load(new ElementSchemaData
@@ -208,6 +208,10 @@ namespace CreateAR.SpirePlayer.IUX
                 case ElementTypes.FLOAT:
                 {
                     return new Float(gameObject, _config, _intention, _messages, _layers, _tweens, _colors);
+                }
+                case ElementTypes.TOGGLE:
+                {
+                    return new Toggle(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives, _voice);
                 }
                 case ElementTypes.SELECT:
                 {

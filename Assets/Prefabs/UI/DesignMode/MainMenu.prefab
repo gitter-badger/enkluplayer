@@ -67,5 +67,5 @@ MonoBehaviour:
   Vine: "<?Vine>\n\n<Float position=(0,0,2)>\n\t<Menu id='menu' showBackButton=true>\n\t\t<Button
     id='btn-play' label='Play' icon='play' />\n\t\t<Button id='btn-new' label='New'
     icon='plus' />\n\t\t<Button id='btn-clearall' label='Clear All' icon='trash' />\n\t\t<Button
-    id='btn-quit' label='Quit' icon='x' />\n\t\t<Button id='toggle-debugrender' label='Debug
+    id='btn-quit' label='Quit' icon='x' />\n\t\t<Toggle id='toggle-debugrender' label='Debug
     Render' />\n\t</Menu>\n</Float>"
