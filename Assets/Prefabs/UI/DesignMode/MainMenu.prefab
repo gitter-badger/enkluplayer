@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4836085244318670}
   - component: {fileID: 114803618365743388}
+  - component: {fileID: 114176353643999980}
   m_Layer: 0
   m_Name: MainMenu
   m_TagString: Untagged
@@ -40,7 +41,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114803618365743388
+--- !u!114 &114176353643999980
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -48,10 +49,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 1755666855694244}
   m_Enabled: 1
   m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4425ef75c14253a4782d68323f8119a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Vine: {fileID: 114803618365743388}
+--- !u!114 &114803618365743388
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1755666855694244}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vine: "<?Vine>\n\n<Float position=(0,0,2)>\n\t<Menu showBackButton=true>\n\t\t<Button
-    label='Play' icon='play' />\n\t\t<Button label='New' icon='plus' />\n\t\t<Button
-    label='Clear All' icon='trash' />\n\t\t<Button label='Quit' icon='x' />\n\t\t<Button
-    label='Debug Render' />\n\t</Menu>\n</Float>"
+  Vine: "<?Vine>\n\n<Float position=(0,0,2)>\n\t<Menu id='menu' showBackButton=true>\n\t\t<Button
+    id='btn-play' label='Play' icon='play' />\n\t\t<Button id='btn-new' label='New'
+    icon='plus' />\n\t\t<Button id='btn-clearall' label='Clear All' icon='trash' />\n\t\t<Button
+    id='btn-quit' label='Quit' icon='x' />\n\t\t<Button id='toggle-debugrender' label='Debug
+    Render' />\n\t</Menu>\n</Float>"

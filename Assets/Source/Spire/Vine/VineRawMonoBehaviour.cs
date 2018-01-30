@@ -37,15 +37,15 @@ namespace CreateAR.SpirePlayer
         private DateTime _lastChange = DateTime.MinValue;
 
         /// <summary>
-        /// The element created.
-        /// </summary>
-        private Element _element;
-
-        /// <summary>
         /// Creates elements.
         /// </summary>
         [Inject]
         public IElementFactory Elements { get; private set; }
+
+        /// <summary>
+        /// The created element.
+        /// </summary>
+        public Element Element { get; private set; }
 
         /// <summary>
         /// The vine.
@@ -79,15 +79,15 @@ namespace CreateAR.SpirePlayer
                     return;
                 }
 
-                if (null != _element)
+                if (null != Element)
                 {
-                    _element.Destroy();
-                    _element = null;
+                    Element.Destroy();
+                    Element = null;
                 }
                 
-                _element = Elements.Element(description);
+                Element = Elements.Element(description);
 
-                var widget = _element as Widget;
+                var widget = Element as Widget;
                 if (null != widget)
                 {
                     widget.GameObject.transform.parent = transform;

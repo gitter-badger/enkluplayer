@@ -1,20 +1,16 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
-    public class SplashMenuController : InjectableMonoBehaviour, IIUXEventHandler
+    public class MainMenuController : InjectableMonoBehaviour, IIUXEventHandler
     {
         private IUXEventHandler _events;
 
-        [Inject]
-        public IMessageRouter Messages { get; set; }
-
         public VineRawMonoBehaviour Vine;
 
-        public event Action OnOpenMenu;
-        
+        public event Action OnBack;
+
         public void Initialize(IUXEventHandler events)
         {
             _events = events;
@@ -41,16 +37,17 @@ namespace CreateAR.SpirePlayer
 
         public void Uninitialize()
         {
-            
+            //
         }
 
         public bool OnEvent(IUXEvent @event)
         {
-            if ("btn-menu" == @event.Target.Id)
+            var id = @event.Target.Id;
+            if ("menu.back" == id)
             {
-                if (null != OnOpenMenu)
+                if (null != OnBack)
                 {
-                    OnOpenMenu();
+                    OnBack();
                 }
 
                 return true;

@@ -41,6 +41,11 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly List<Element> _findAllScratch = new List<Element>();
 
         /// <summary>
+        /// Id prop.
+        /// </summary>
+        private ElementSchemaProp<string> _idProp;
+
+        /// <summary>
         /// Unique internal id for this element.
         /// </summary>
         public string Guid { get; private set;  }
@@ -131,9 +136,12 @@ namespace CreateAR.SpirePlayer.IUX
             Element[] children)
         {
             Guid = System.Guid.NewGuid().ToString();
-            Id = data.Id;
             Schema = schema;
-            Schema.Identifier = data.Id;
+
+            _idProp = schema.GetOwn("id", data.Id ?? Guid);
+            _idProp.OnChanged += Id_OnChange;
+
+            Id = Schema.Identifier = _idProp.Value;
 
             BeforeLoadChildrenInternal();
 
@@ -168,9 +176,10 @@ namespace CreateAR.SpirePlayer.IUX
             _children.Clear();
 
             Log.Info(this, "Unload({0})", Guid);
-
+            
             AfterUnloadChildrenInternal();
 
+            _idProp.OnChanged -= Id_OnChange;
             Id = string.Empty;
 
             // TODO: create on Load(), NOT constructor/Unload
@@ -592,6 +601,20 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 Append(builder, children[i], tabs + 1);
             }
+        }
+
+        /// <summary>
+        /// Called when the id changes.
+        /// </summary>
+        /// <param name="prop">Prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Id_OnChange(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            Id = next;
         }
     }
 }

@@ -11,11 +11,6 @@ namespace CreateAR.SpirePlayer.IUX
     public class Menu : Widget
     {
         /// <summary>
-        /// Name of back button.
-        /// </summary>
-        private const string BACK_BUTTON_NAME = "__back__";
-
-        /// <summary>
         /// Creates elements.
         /// </summary>
         private readonly IElementFactory _elements;
@@ -338,13 +333,13 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 Root = new ElementRef
                 {
-                    Id = BACK_BUTTON_NAME
+                    Id = Id + ".back"
                 },
                 Elements = new[]
                 {
                     new ElementData
                     {
-                        Id = BACK_BUTTON_NAME,
+                        Id = Id + ".back",
                         Type = ElementTypes.BUTTON,
                         Schema = new ElementSchemaData
                         {

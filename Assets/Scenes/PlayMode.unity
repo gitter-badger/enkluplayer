@@ -157,7 +157,7 @@ MonoBehaviour:
   Root: {fileID: 993257958}
   SplashMenu: {fileID: 114689886553146754, guid: e99de7fc71498064aa155b74a3c1027f,
     type: 2}
-  MainMenu: {fileID: 1755666855694244, guid: 4de28392ec1056c44b206725de3b65f2, type: 2}
+  MainMenu: {fileID: 114176353643999980, guid: 4de28392ec1056c44b206725de3b65f2, type: 2}
   NewManu: {fileID: 0}
   ClearAllMenu: {fileID: 1300301315191926, guid: b325ca9c6560e0644bcfa67726a9fb3a,
     type: 2}
