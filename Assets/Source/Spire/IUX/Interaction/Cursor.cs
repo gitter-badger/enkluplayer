@@ -58,6 +58,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Constructor.
         /// </summary>
         public Cursor(
+            GameObject gameObject,
             WidgetConfig config,
             IPrimitiveFactory primitives,
             ILayerManager layers,
@@ -66,7 +67,7 @@ namespace CreateAR.SpirePlayer.IUX
             IMessageRouter messages,
             IIntentionManager intention)
             : base(
-                new GameObject("Cursor"),
+                gameObject,
                 config,
                 layers,
                 tweens,

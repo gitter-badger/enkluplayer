@@ -66,6 +66,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Constructor.
         /// </summary>
         public Menu(
+            GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
@@ -74,7 +75,7 @@ namespace CreateAR.SpirePlayer.IUX
             IPrimitiveFactory primitives,
             IElementFactory elements)
             : base(
-                  new GameObject("Menu"),
+                  gameObject,
                   config,
                   layers,
                   tweens,

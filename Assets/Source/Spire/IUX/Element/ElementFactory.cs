@@ -177,45 +177,45 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private Element ElementForType(int type)
         {
+            var gameObject = new GameObject("Element");
+
             switch (type)
             {
                 case ElementTypes.CONTAINER:
                 {
-                    return new Container(
-                        new GameObject("<Container />"),
-                        _config, _layers, _tweens, _colors, _messages);
+                    return new Container(gameObject, _config, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.CAPTION:
                 {
-                    return new Caption(_config, _primitives, _layers, _tweens, _colors, _messages);
+                    return new Caption(gameObject, _config, _primitives, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.BUTTON:
                 {
-                    return new Button(_config, _primitives, _layers, _tweens, _colors, _messages, _voice);
+                    return new Button(gameObject, _config, _primitives, _layers, _tweens, _colors, _messages, _voice);
                 }
                 case ElementTypes.CURSOR:
                 {
-                    return new Cursor(_config, _primitives, _layers, _tweens, _colors, _messages, _intention);
+                    return new Cursor(gameObject, _config, _primitives, _layers, _tweens, _colors, _messages, _intention);
                 }
                 case ElementTypes.MENU:
                 {
-                    return new Menu(_config, _layers, _tweens, _colors, _messages, _primitives, this);
+                    return new Menu(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives, this);
                 }
                 case ElementTypes.TEXTCRAWL:
                 {
-                    return new TextCrawl(_config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new TextCrawl(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives);
                 }
                 case ElementTypes.FLOAT:
                 {
-                    return new Float(_config, _intention, _messages, _layers, _tweens, _colors);
+                    return new Float(gameObject, _config, _intention, _messages, _layers, _tweens, _colors);
                 }
                 case ElementTypes.SELECT:
                 {
-                    return new Select(_config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new Select(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives);
                 }
                 case ElementTypes.SELECT_OPTION:
                 {
-                    return new SelectOption();
+                    return new SelectOption(gameObject);
                 }
                 default:
                 {

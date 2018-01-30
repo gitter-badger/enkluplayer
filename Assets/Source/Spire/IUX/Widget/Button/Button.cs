@@ -102,6 +102,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Constructor.
         /// </summary>
         public Button(
+            GameObject gameObject,
             WidgetConfig config,
             IPrimitiveFactory primitives,
             ILayerManager layers,
@@ -110,7 +111,7 @@ namespace CreateAR.SpirePlayer.IUX
             IMessageRouter messages,
             IVoiceCommandManager voice)
             : base(
-                new GameObject("Button"),
+                gameObject,
                 config,
                 layers,
                 tweens,

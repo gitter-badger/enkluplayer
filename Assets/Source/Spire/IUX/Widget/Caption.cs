@@ -27,6 +27,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Constructor.
         /// </summary>
         public Caption(
+            GameObject gameObject,
             WidgetConfig config,
             IPrimitiveFactory primitives,
             ILayerManager layers,
@@ -34,7 +35,7 @@ namespace CreateAR.SpirePlayer.IUX
             ColorConfig colors,
             IMessageRouter messages)
             : base(
-                new GameObject("Caption"),
+                gameObject,
                 config,
                 layers,
                 tweens,

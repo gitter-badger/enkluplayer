@@ -86,6 +86,12 @@ namespace CreateAR.SpirePlayer
                 }
                 
                 _element = Elements.Element(description);
+
+                var widget = _element as Widget;
+                if (null != widget)
+                {
+                    widget.GameObject.transform.parent = transform;
+                }
             }
         }
     }

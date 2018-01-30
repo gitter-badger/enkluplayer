@@ -49,6 +49,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Constructor.
         /// </summary>
         public Select(
+            GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
@@ -56,8 +57,12 @@ namespace CreateAR.SpirePlayer.IUX
             IMessageRouter messages,
             IPrimitiveFactory primitives)
             : base(
-                new GameObject("Select"),
-                config, layers, tweens, colors, messages)
+                gameObject,
+                config,
+                layers,
+                tweens,
+                colors,
+                messages)
         {
             _primitives = primitives;
         }

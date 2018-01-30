@@ -35,6 +35,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Constructor.
         /// </summary>
         public Float(
+            GameObject gameObject,
             WidgetConfig config,
             IIntentionManager intention,
             IMessageRouter messages,
@@ -42,7 +43,7 @@ namespace CreateAR.SpirePlayer.IUX
             TweenConfig tweens,
             ColorConfig colors)
             : base(
-                new GameObject("Float"),
+                gameObject,
                 config,
                 layers,
                 tweens,
