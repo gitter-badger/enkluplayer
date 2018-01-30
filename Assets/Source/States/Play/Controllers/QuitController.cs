@@ -1,15 +1,17 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
-    public class MainMenuController : InjectableMonoBehaviour, IIUXEventHandler
+    public class QuitController : MonoBehaviour, IIUXEventDelegate
     {
         private IUXEventHandler _events;
 
         public VineRawMonoBehaviour Vine;
 
-        public event Action OnBack;
+        public event Action OnConfirm;
+        public event Action OnCancel;
 
         public void Initialize(IUXEventHandler events)
         {
@@ -32,17 +34,26 @@ namespace CreateAR.SpirePlayer
 
         public void Uninitialize()
         {
-            //
+
         }
 
         public bool OnEvent(IUXEvent @event)
         {
-            var id = @event.Target.Id;
-            if ("menu.back" == id)
+            if ("btn-yes" == @event.Target.Id)
             {
-                if (null != OnBack)
+                if (null != OnConfirm)
                 {
-                    OnBack();
+                    OnConfirm();
+                }
+
+                return true;
+            }
+
+            if ("btn-no" == @event.Target.Id)
+            {
+                if (null != OnCancel)
+                {
+                    OnCancel();
                 }
 
                 return true;

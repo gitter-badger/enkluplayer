@@ -333,13 +333,13 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 Root = new ElementRef
                 {
-                    Id = Id + ".back"
+                    Id = Id + ".btn-back"
                 },
                 Elements = new[]
                 {
                     new ElementData
                     {
-                        Id = Id + ".back",
+                        Id = Id + ".btn-back",
                         Type = ElementTypes.BUTTON,
                         Schema = new ElementSchemaData
                         {

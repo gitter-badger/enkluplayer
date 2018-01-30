@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Handles IUXEvents from children only.
@@ -26,12 +25,12 @@ namespace CreateAR.SpirePlayer
             /// <summary>
             /// List of handlers.
             /// </summary>
-            private readonly List<IIUXEventHandler> _handlers = new List<IIUXEventHandler>();
+            private readonly List<IIUXEventDelegate> _handlers = new List<IIUXEventDelegate>();
 
             /// <summary>
             /// List of handlers waiting to be removed.
             /// </summary>
-            private readonly List<IIUXEventHandler> _toRemove = new List<IIUXEventHandler>();
+            private readonly List<IIUXEventDelegate> _toRemove = new List<IIUXEventDelegate>();
 
             /// <summary>
             /// The MessageType this record refers to.
@@ -69,7 +68,7 @@ namespace CreateAR.SpirePlayer
             /// Adds a handler.
             /// </summary>
             /// <param name="handler">Handler to add.</param>
-            public void Add(IIUXEventHandler handler)
+            public void Add(IIUXEventDelegate handler)
             {
                 _handlers.Add(handler);
             }
@@ -78,7 +77,7 @@ namespace CreateAR.SpirePlayer
             /// Removes a handler.
             /// </summary>
             /// <param name="handler">handler to remove.</param>
-            public void Remove(IIUXEventHandler handler)
+            public void Remove(IIUXEventDelegate handler)
             {
                 if (_isLocked)
                 {
@@ -150,7 +149,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="messageType">The type to listen to.</param>
         /// <param name="handler">The handler to add.</param>
-        public void AddHandler(int messageType, IIUXEventHandler handler)
+        public void AddHandler(int messageType, IIUXEventDelegate handler)
         {
             HandlerRecord record;
             for (int i = 0, len = _handlers.Count; i < len; i++)
@@ -175,7 +174,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="messageType">The message type.</param>
         /// <param name="handler">The handler to remove.</param>
-        public void RemoveHandler(int messageType, IIUXEventHandler handler)
+        public void RemoveHandler(int messageType, IIUXEventDelegate handler)
         {
             for (int i = 0, len = _handlers.Count; i < len; i++)
             {

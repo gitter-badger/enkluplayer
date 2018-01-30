@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -7,8 +8,8 @@ namespace CreateAR.SpirePlayer
         public IUXEventHandler Root;
         public SplashMenuController SplashMenu;
         public MainMenuController MainMenu;
-        public GameObject NewManu;
-        public GameObject ClearAllMenu;
-        public GameObject QuitMenu;
+        public GameObject NewMenu;
+        public ClearAllPropsController ClearAllMenu;
+        public QuitController QuitMenu;
     }
 }

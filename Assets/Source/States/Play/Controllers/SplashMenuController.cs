@@ -1,16 +1,13 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
-    public class SplashMenuController : InjectableMonoBehaviour, IIUXEventHandler
+    public class SplashMenuController : MonoBehaviour, IIUXEventDelegate
     {
         private IUXEventHandler _events;
-
-        [Inject]
-        public IMessageRouter Messages { get; set; }
-
+        
         public VineRawMonoBehaviour Vine;
 
         public event Action OnOpenMenu;
