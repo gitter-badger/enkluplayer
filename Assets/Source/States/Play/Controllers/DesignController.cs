@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer
                             {
                                 {
                                     "position",
-                                    new Vec3(0, 0, 2)
+                                    new Vec3(0, 0, 1)
                                 }
                             }
                         }
