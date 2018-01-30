@@ -7,19 +7,22 @@ namespace CreateAR.SpirePlayer
     public class ClearAllPropsController : MonoBehaviour, IIUXEventDelegate
     {
         private IUXEventHandler _events;
+        private Element _container;
 
         public VineRawMonoBehaviour Vine;
 
         public event Action OnConfirm;
         public event Action OnCancel;
 
-        public void Initialize(IUXEventHandler events)
+        public void Initialize(IUXEventHandler events, Element container)
         {
             _events = events;
+            _container = container;
         }
 
         public void Show()
         {
+            Vine.OnElementCreated += Vine_OnCreated;
             Vine.enabled = true;
 
             _events.AddHandler(MessageTypes.BUTTON_ACTIVATE, this);
@@ -30,6 +33,7 @@ namespace CreateAR.SpirePlayer
             _events.RemoveHandler(MessageTypes.BUTTON_ACTIVATE, this);
 
             Vine.enabled = false;
+            Vine.OnElementCreated -= Vine_OnCreated;
         }
 
         public void Uninitialize()
@@ -60,6 +64,11 @@ namespace CreateAR.SpirePlayer
             }
 
             return false;
+        }
+
+        private void Vine_OnCreated(Element element)
+        {
+            _container.AddChild(element);
         }
     }
 }

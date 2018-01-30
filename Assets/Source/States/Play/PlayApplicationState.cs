@@ -2,6 +2,7 @@
 using System.IO;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -50,6 +51,7 @@ namespace CreateAR.SpirePlayer
             IBootstrapper bootstrapper,
             IFileManager files,
             IScriptRequireResolver resolver,
+            IElementFactory elements,
             AppController app)
         {
             _bootstrapper = bootstrapper;
@@ -57,7 +59,7 @@ namespace CreateAR.SpirePlayer
             _resolver = resolver;
             _app = app;
 
-            _design = new DesignController();
+            _design = new DesignController(elements);
         }
 
         /// <inheritdoc cref="IState"/>

@@ -30,7 +30,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private ElementSchemaProp<Vec3> _positionProp;
         private ElementSchemaProp<Vec3> _focusProp;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>

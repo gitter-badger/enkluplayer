@@ -441,7 +441,7 @@ namespace CreateAR.SpirePlayer.IUX
                 child._parent = this;
                 child.GameObject.transform.SetParent(
                     GetChildHierarchyParent(child),
-                    true);
+                    false);
             }
         }
 

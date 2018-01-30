@@ -5,7 +5,7 @@ namespace CreateAR.SpirePlayer
 {
     public class PlayModeConfig : MonoBehaviour
     {
-        public IUXEventHandler Root;
+        public IUXEventHandler Events;
         public SplashMenuController SplashMenu;
         public MainMenuController MainMenu;
         public GameObject NewMenu;

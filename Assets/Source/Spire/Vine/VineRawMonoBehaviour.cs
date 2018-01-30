@@ -53,6 +53,11 @@ namespace CreateAR.SpirePlayer
         [TextArea(10, 100)]
         public string Vine;
 
+        /// <summary>
+        /// Called when element has been created.
+        /// </summary>
+        public Action<Element> OnElementCreated;
+
         /// <inheritdoc cref="MonoBehaviour"/>
         private void OnDisable()
         {
@@ -99,11 +104,10 @@ namespace CreateAR.SpirePlayer
                 }
                 
                 Element = Elements.Element(description);
-
-                var widget = Element as Widget;
-                if (null != widget)
+                
+                if (null != OnElementCreated)
                 {
-                    widget.GameObject.transform.parent = transform;
+                    OnElementCreated(Element);
                 }
             }
         }

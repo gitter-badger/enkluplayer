@@ -52,10 +52,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vine: "<?Vine>\n<Float position=(0,0,2)>\n\t<Menu\n\t\ttitle='Quit'\n\t\tdescription='Exit
-    the application?'\n\t\theader.width=1000\n\t\tlayout.radius=0.25\n\t\tlayout.degrees=35.5>\n\t\t<Button
-    id='btn-yes' label='Yes' icon='check' />\n\t\t<Button id='btn-no' label='No' icon='cancel'
-    />\n\t</Menu>\n</Float>"
+  Vine: "<?Vine>\n\n<Menu\n\ttitle='Quit'\n\tdescription='Exit the application?'\n\theader.width=1000\n\tlayout.radius=0.25\n\tlayout.degrees=35.5>\n\t<Button
+    id='btn-yes' label='Yes' icon='check' />\n\t<Button id='btn-no' label='No' icon='cancel'
+    />\n</Menu>"
 --- !u!114 &114748359243540142
 MonoBehaviour:
   m_ObjectHideFlags: 1
