@@ -217,17 +217,7 @@ namespace CreateAR.SpirePlayer
             }
 
             var trans = widget.GameObject.transform;
-            if (trans == transform)
-            {
-                if (Emit(@event))
-                {
-                    Messages.Consume(@event);
-                }
-
-                return;
-            }
-
-            while (null != trans.parent)
+            while (true)
             {
                 if (trans == transform)
                 {
@@ -240,6 +230,11 @@ namespace CreateAR.SpirePlayer
                 }
 
                 trans = trans.parent;
+
+                if (null == trans)
+                {
+                    break;
+                }
             }
         }
 
