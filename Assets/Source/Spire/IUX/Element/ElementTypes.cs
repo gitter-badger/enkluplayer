@@ -21,9 +21,10 @@
         public const int TEXTCRAWL = 120;
         public const int FLOAT = 130;
         public const int TOGGLE = 140;
-
+        public const int SLIDER = 150;
+        
         public const int SELECT = 200;
-        public const int SELECT_OPTION = 210;
+        public const int GRID = 201;
+        public const int OPTION = 210;
     }
 }
-

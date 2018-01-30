@@ -213,13 +213,21 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     return new Toggle(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives, _voice);
                 }
+                case ElementTypes.SLIDER:
+                {
+                    return new Slider(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives);
+                }
                 case ElementTypes.SELECT:
                 {
                     return new Select(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives);
                 }
-                case ElementTypes.SELECT_OPTION:
+                case ElementTypes.GRID:
                 {
-                    return new SelectOption(gameObject);
+                    return new Grid(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives);
+                }
+                case ElementTypes.OPTION:
+                {
+                    return new Option(gameObject);
                 }
                 default:
                 {

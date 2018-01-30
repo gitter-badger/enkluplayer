@@ -141,7 +141,7 @@ namespace CreateAR.SpirePlayer.IUX
             for (int i = 0, len = children.Length; i < len; i++)
             {
                 var child = children[i];
-                var option = child as SelectOption;
+                var option = child as Option;
                 if (null != option)
                 {
                     _options.Add(option.Schema.Get<string>("label").Value);
