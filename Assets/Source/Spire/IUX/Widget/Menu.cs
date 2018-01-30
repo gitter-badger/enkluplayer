@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -40,6 +41,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<float> _layoutRadiusProp;
         private ElementSchemaProp<float> _layoutDegreesProp;
         private ElementSchemaProp<int> _headerWidthProp;
+        private ElementSchemaProp<float> _headerPaddingProp;
         private ElementSchemaProp<bool> _showBackButtonProp;
 
         /// <summary>
@@ -108,6 +110,9 @@ namespace CreateAR.SpirePlayer.IUX
             _headerWidthProp = Schema.Get<int>("header.width");
             _headerWidthProp.OnChanged += HeaderWidth_OnChanged;
 
+            _headerPaddingProp = Schema.Get<float>("header.padding");
+            _headerPaddingProp.OnChanged += HeaderPadding_OnChange;
+
             _showBackButtonProp = Schema.Get<bool>("showBackButton");
             _showBackButtonProp.OnChanged += ShowBackButton_OnChanged;
 
@@ -149,6 +154,7 @@ namespace CreateAR.SpirePlayer.IUX
             _layoutDegreesProp.OnChanged -= LayoutDegrees_OnChanged;
             _layoutRadiusProp.OnChanged -= LayoutRadius_OnChanged;
             _headerWidthProp.OnChanged -= HeaderWidth_OnChanged;
+            _headerPaddingProp.OnChanged -= HeaderPadding_OnChange;
             _showBackButtonProp.OnChanged -= ShowBackButton_OnChanged;
 
             Object.Destroy(_halfMoon);
@@ -265,6 +271,20 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Called when the headerPadding value has changed.
+        /// </summary>
+        /// <param name="prop">HeaderPadding prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void HeaderPadding_OnChange(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateHeaderLayout();
+        }
+
+        /// <summary>
         /// Called when the show back button property changes.
         /// </summary>
         /// <param name="prop">Prop in question.</param>
@@ -283,23 +303,27 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateHeaderLayout()
         {
+            var padding = -_headerPaddingProp.Value;
+
             _titlePrimitive.Width = _headerWidthProp.Value;
             _descriptionPrimitive.Width = _headerWidthProp.Value;
             
             _descriptionPrimitive.LocalPosition = new Vector3(
-                0,
+                padding,
                 // TODO: move to prop
                 -_descriptionPrimitive.Height / 2f - 0.02f,
                 0f);
 
             if (!string.IsNullOrEmpty(_descriptionProp.Value))
             {
-                _titlePrimitive.LocalPosition = new Vector3();
+                _titlePrimitive.LocalPosition = new Vector3(
+                    padding,
+                    0, 0);
             }
             else
             {
                 _titlePrimitive.LocalPosition = new Vector3(
-                    0,
+                    padding,
                     -_titlePrimitive.Rect.size.y / 2);
             }
 
