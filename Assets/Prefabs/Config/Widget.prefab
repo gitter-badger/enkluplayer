@@ -189,6 +189,7 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 3a8171ed0b21eb44e91156399c41ed24, type: 3}
     - {fileID: 21300000, guid: baf41c2c48d622948bc93eb03481e6a7, type: 3}
     - {fileID: 21300000, guid: cf579be53edf3554399dcd88d76d5537, type: 3}
+    - {fileID: 21300000, guid: 0596416de99945b4dbce0976349a17be, type: 3}
   AimFeedbackColor:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 0}

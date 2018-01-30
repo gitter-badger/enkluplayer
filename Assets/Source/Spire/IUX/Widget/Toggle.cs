@@ -95,7 +95,7 @@ namespace CreateAR.SpirePlayer.IUX
             bool prev,
             bool next)
         {
-            Schema.Set("icon", next ? "record" : "");
+            Schema.Set("icon", next ? "toggled" : "");
         }
     }
 }
