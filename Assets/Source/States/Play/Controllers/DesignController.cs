@@ -5,27 +5,67 @@ using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Controls design mode menus.
+    /// </summary>
     public class DesignController
     {
+        /// <summary>
+        /// Elements!
+        /// </summary>
         private readonly IElementFactory _elements;
 
+        /// <summary>
+        /// Play mode.
+        /// </summary>
         private PlayModeConfig _playConfig;
 
+        /// <summary>
+        /// Event handler.
+        /// </summary>
         private IUXEventHandler _events;
 
+        /// <summary>
+        /// Splash menu.
+        /// </summary>
         private SplashMenuController _splash;
+
+        /// <summary>
+        /// Main menu.
+        /// </summary>
         private MainMenuController _mainMenu;
+
+        /// <summary>
+        /// Clear all menu.
+        /// </summary>
         private ClearAllPropsController _clearAllProps;
+
+        /// <summary>
+        /// Quit menu.
+        /// </summary>
         private QuitController _quit;
+
+        /// <summary>
+        /// New item menu.
+        /// </summary>
         private NewItemController _new;
 
+        /// <summary>
+        /// Container for all.
+        /// </summary>
         private Float _float;
 
+        /// <summary>
+        /// Constuctor.
+        /// </summary>
         public DesignController(IElementFactory elements)
         {
             _elements = elements;
         }
 
+        /// <summary>
+        /// Starts controllers.
+        /// </summary>
         public void Setup()
         {
             _playConfig = Object.FindObjectOfType<PlayModeConfig>();
@@ -70,6 +110,22 @@ namespace CreateAR.SpirePlayer
             _splash.Show();
         }
 
+        public void Teardown()
+        {
+            _splash.Uninitialize();
+            _mainMenu.Uninitialize();
+            _clearAllProps.Uninitialize();
+            _quit.Uninitialize();
+
+            Object.Destroy(_splash);
+            Object.Destroy(_mainMenu);
+            Object.Destroy(_clearAllProps);
+            Object.Destroy(_quit);
+        }
+
+        /// <summary>
+        /// Creates and initializes all menus.
+        /// </summary>
         private void SetupMenus()
         {
             var parent = _float;
@@ -101,79 +157,99 @@ namespace CreateAR.SpirePlayer
             _new.Initialize(_events, parent);
         }
 
-        public void Teardown()
-        {
-            _splash.Uninitialize();
-            _mainMenu.Uninitialize();
-            _clearAllProps.Uninitialize();
-            _quit.Uninitialize();
-
-            Object.Destroy(_splash);
-            Object.Destroy(_mainMenu);
-            Object.Destroy(_clearAllProps);
-            Object.Destroy(_quit);
-        }
-
+        /// <summary>
+        /// Called when splash wants to open the menu.
+        /// </summary>
         private void Splash_OnOpenMenu()
         {
             _splash.Hide();
             _mainMenu.Show();
         }
 
+        /// <summary>
+        /// Called when main menu wants to go back.
+        /// </summary>
         private void MainMenu_OnBack()
         {
             _mainMenu.Hide();
             _splash.Show();
         }
 
+        /// <summary>
+        /// Called when main menu wants to quit.
+        /// </summary>
         private void MainMenu_OnQuit()
         {
             _mainMenu.Hide();
             _quit.Show();
         }
 
+        /// <summary>
+        /// Called when main menu wants to clear all props.
+        /// </summary>
         private void MainMenu_OnClearAll()
         {
             _mainMenu.Hide();
             _clearAllProps.Show();
         }
 
+        /// <summary>
+        /// Called when main menu wants to create a new prop.
+        /// </summary>
         private void MainMenu_OnNew()
         {
             _mainMenu.Hide();
             _new.Show();
         }
 
+        /// <summary>
+        /// Called when clear all menu wants to cancel.
+        /// </summary>
         private void ClearAll_OnCancel()
         {
             _clearAllProps.Hide();
             _mainMenu.Show();
         }
 
+        /// <summary>
+        /// Called when clear all menu wants to clear all.
+        /// </summary>
         private void ClearAll_OnConfirm()
         {
             _clearAllProps.Hide();
             _mainMenu.Show();
         }
 
+        /// <summary>
+        /// Called when ther quit menu wants to cancel.
+        /// </summary>
         private void Quit_OnCancel()
         {
             _quit.Hide();
             _mainMenu.Show();
         }
 
+        /// <summary>
+        /// Called when the quit menu wants to quit.
+        /// </summary>
         private void Quit_OnConfirm()
         {
             _quit.Hide();
             _mainMenu.Show();
         }
 
+        /// <summary>
+        /// Called when the new menu wants to create a prop.
+        /// </summary>
         private void New_OnConfirm()
         {
             _new.Hide();
             _mainMenu.Show();
         }
 
+        /// <summary>
+        /// Called when the new menu wants to cancel.
+        /// </summary>
         private void New_OnCancel()
         {
             _new.Hide();
