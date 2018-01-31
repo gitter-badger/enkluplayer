@@ -1,11 +1,14 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.IO;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -35,6 +38,11 @@ namespace CreateAR.SpirePlayer
         private readonly IScriptRequireResolver _resolver;
 
         /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
+        /// <summary>
         /// Controls design mode.
         /// </summary>
         private readonly DesignController _design;
@@ -52,11 +60,13 @@ namespace CreateAR.SpirePlayer
             IFileManager files,
             IScriptRequireResolver resolver,
             IElementFactory elements,
+            IMessageRouter messages,
             AppController app)
         {
             _bootstrapper = bootstrapper;
             _files = files;
             _resolver = resolver;
+            _messages = messages;
             _app = app;
 
             _design = new DesignController(elements);
@@ -129,8 +139,36 @@ namespace CreateAR.SpirePlayer
         {
             yield return op;
 
+            var config = Object.FindObjectOfType<PlayModeConfig>();
+            if (null == config)
+            {
+                throw new Exception("Could not find PlayModeConfig.");
+            }
+            
+            LoadFakeData(config);
+
             // TODO: only on connection
-            _design.Setup();
+            _design.Setup(config);
+        }
+
+        /// <summary>
+        /// Loads fake data.
+        /// </summary>
+        /// <param name="config">Config for play mode.</param>
+        private void LoadFakeData(PlayModeConfig config)
+        {
+            var data = config.TestContentData.bytes;
+            object objects;
+            new JsonSerializer().Deserialize(typeof(AssetData[]), ref data, out objects);
+
+            var assets = (AssetData[]) objects;
+            foreach (var asset in assets)
+            {
+                _messages.Publish(MessageTypes.ASSET_ADD, new AssetAddEvent
+                {
+                    Asset = asset
+                });
+            }
         }
     }
 }

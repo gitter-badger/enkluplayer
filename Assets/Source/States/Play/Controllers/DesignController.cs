@@ -66,17 +66,11 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Starts controllers.
         /// </summary>
-        public void Setup()
+        public void Setup(PlayModeConfig config)
         {
-            _playConfig = Object.FindObjectOfType<PlayModeConfig>();
-
-            if (null == _playConfig)
-            {
-                throw new Exception("Could not find PlayModeConfig.");
-            }
-
+            _playConfig = config;
             _events = _playConfig.Events;
-
+            
             // create float
             _float = (Float) _elements.Element(new ElementDescription
             {

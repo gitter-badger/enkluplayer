@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
 
@@ -9,6 +11,17 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class NewItemController : InjectableMonoBehaviour
     {
+        private class AssetGroup
+        {
+            public readonly string GroupName;
+            public readonly List<AssetData> Assets = new List<AssetData>();
+
+            public AssetGroup(string groupName)
+            {
+                GroupName = groupName;
+            }
+        }
+
         /// <summary>
         /// Events to listen to.
         /// </summary>
@@ -40,6 +53,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [Inject]
         public IElementFactory Elements{ get; set; }
+
+        /// <summary>
+        /// App data.
+        /// </summary>
+        [Inject]
+        public IAssetManager Assets { get; set; }
 
         /// <summary>
         /// Called when we wish to create a prop.
@@ -80,7 +99,10 @@ namespace CreateAR.SpirePlayer
             }
 
             {
-                _grid = (GridWidget)Elements.Element(Parser.Parse(@"<Grid fontSize=20 />"));
+                var vine = string.Format(
+                    @"<Grid fontSize=20>{0}</Grid>",
+                    AssetsToVine());
+                _grid = (GridWidget) Elements.Element(Parser.Parse(vine));
                 _container.AddChild(_grid);
             }
         }
@@ -103,6 +125,73 @@ namespace CreateAR.SpirePlayer
         public void Uninitialize()
         {
             
+        }
+
+        /// <summary>
+        /// Creates a vine string from asset data.
+        /// </summary>
+        /// <returns></returns>
+        private string AssetsToVine()
+        {
+            var groups = GroupAssets();
+            var vine = "";
+
+            for (int i = 0, len = groups.Count; i < len; i++)
+            {
+                var group = groups[i];
+                var assets = group.Assets;
+                vine += string.Format(
+                    "<OptionGroup value='{0}' label='{0}'>",
+                    group.GroupName);
+                for (int j = 0, jlen = assets.Count; j < jlen; j++)
+                {
+                    var asset = assets[i];
+                    vine += string.Format(
+                        "<Option value='{0}' label='{1}' />",
+                        asset.Guid,
+                        asset.Description);
+                }
+                vine += "</OptionGroup>";
+            }
+
+            return vine;
+        }
+
+        /// <summary>
+        /// Groups assets together by tags.
+        /// </summary>
+        /// <returns></returns>
+        private List<AssetGroup> GroupAssets()
+        {
+            var assets = Assets.Manifest.All;
+            var groups = new List<AssetGroup>();
+            for (int i = 0, ilen = assets.Length; i < ilen; i++)
+            {
+                var asset = assets[i];
+
+                var found = false;
+                for (int j = 0, jlen = groups.Count; j < jlen; j++)
+                {
+                    var group = groups[j];
+                    if (group.GroupName == asset.Tags)
+                    {
+                        group.Assets.Add(asset);
+                        found = true;
+
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    var group = new AssetGroup(asset.Tags);
+                    group.Assets.Add(asset);
+
+                    groups.Add(group);
+                }
+            }
+
+            return groups;
         }
 
         /// <summary>
