@@ -199,7 +199,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 130951154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -318.1229, y: -337.21268, z: 0}
+  m_LocalPosition: {x: -335.1861, y: -318.01007, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1693554495}
@@ -505,7 +505,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &531348134
 Transform:
   m_ObjectHideFlags: 0
@@ -530,7 +530,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vine: "<?Vine>\n<Float position=(0, 0, 1)>\n\t<Grid />\n</Float>"
+  Vine: "<?Vine>\n<Float position=(0, 0, 1)>\n/*\t<Grid />*/\n<Button label='Test
+    Asset' layout='vertical' />\n</Float>"
 --- !u!1001 &558283089
 Prefab:
   m_ObjectHideFlags: 0
@@ -1341,7 +1342,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1662866788
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1353,7 +1354,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vine: "<?Vine>\r\n<Float position=(0,0,4)>\r\n\t<Menu title='Design' header.width=220>\r\n\t\t<Button
+  Vine: "<?Vine>\r\n<Float position=(0,0,2)>\r\n\t<Menu title='Design' header.width=220>\r\n\t\t<Button
     label='Load Scene' icon='search' />\r\n\t\t<Button label='New Scene' icon='plus'
     />\r\n\t\t<Button label='Play' icon='play' />\r\n\t\t<Button label='Exit' icon='arrow-left'/>\r\n\t</Menu>\r\n</Float>"
 --- !u!4 &1662866789
@@ -1452,7 +1453,7 @@ RectTransform:
   m_GameObject: {fileID: 1693554491}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.010980903, y: 0.010980903, z: 0.010980903}
+  m_LocalScale: {x: 0.0115698865, y: 0.0115698865, z: 0.0115698865}
   m_Children:
   - {fileID: 1598552740}
   - {fileID: 130951155}

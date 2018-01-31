@@ -125,8 +125,9 @@ namespace CreateAR.SpirePlayer.IUX
             // create + place description
             _descriptionPrimitive = _primitives.Text(Schema);
             AddChild(_descriptionPrimitive);
+
             _descriptionPrimitive.Overflow = HorizontalWrapMode.Wrap;
-            _descriptionPrimitive.Alignment = AlignmentTypes.TOP_LEFT;
+            _descriptionPrimitive.Alignment = TextAlignmentType.TopLeft;
             _descriptionPrimitive.Text = _descriptionProp.Value;
             _descriptionPrimitive.FontSize = _fontSizeProp.Value;
 

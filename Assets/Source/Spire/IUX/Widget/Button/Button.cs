@@ -40,6 +40,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _labelProp;
         private ElementSchemaProp<float> _labelPaddingProp;
         private ElementSchemaProp<string> _iconProp;
+        private ElementSchemaProp<string> _layoutProp;
 
         /// <summary>
         /// Text primitive.
@@ -54,7 +55,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Voice command.
         /// </summary>
-        private string _registeredVoiceCommand; 
+        private string _registeredVoiceCommand;
 
         /// <summary>
         /// Activator.
@@ -146,6 +147,9 @@ namespace CreateAR.SpirePlayer.IUX
                 _labelPaddingProp = Schema.Get<float>("label.padding");
                 _labelPaddingProp.OnChanged += LabelPadding_OnChanged;
 
+                _layoutProp = Schema.Get<string>("layout");
+                _layoutProp.OnChanged += Layout_OnChanged;
+
                 _text = _primitives.Text(Schema);
                 _text.Text = _labelProp.Value;
                 AddChild(_text);
@@ -219,6 +223,45 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Updates the icon.
+        /// </summary>
+        private void UpdateIcon()
+        {
+            _activator.Icon = Config.Icons.Icon(_iconProp.Value);
+        }
+
+        /// <summary>
+        /// Updates label positioning.
+        /// </summary>
+        private void UpdateLabelLayout()
+        {
+            var rect = _text.Rect;
+
+            switch (_layoutProp.Value)
+            {
+                case "vertical":
+                {
+                    _text.Alignment = TextAlignmentType.MidCenter;
+                    _text.LocalPosition = new Vector3(
+                        0,
+                        -rect.size.y - _labelPaddingProp.Value,
+                        0);
+                    
+                    break;
+                }
+
+                default:
+                {
+                    _text.LocalPosition = new Vector3(
+                        -rect.min.x + _labelPaddingProp.Value,
+                        -(rect.max.y - rect.min.y) / 2,
+                        0f);
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
         /// Called when the icon has changed.
         /// </summary>
         /// <param name="prop">The prop.</param>
@@ -288,23 +331,17 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Updates label positioning.
+        /// Called when the layout has changed.
         /// </summary>
-        private void UpdateLabelLayout()
+        /// <param name="prop">Property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Layout_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
         {
-            var textRect = _text.Rect;
-            _text.LocalPosition = new Vector3(
-                -textRect.min.x + _labelPaddingProp.Value,
-                -(textRect.max.y - textRect.min.y) / 2,
-                0f);
-        }
-
-        /// <summary>
-        /// Updates the icon.
-        /// </summary>
-        private void UpdateIcon()
-        {
-            _activator.Icon = Config.Icons.Icon(_iconProp.Value);
+            UpdateLabelLayout();
         }
     }
 }

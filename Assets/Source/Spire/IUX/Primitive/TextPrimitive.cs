@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -28,7 +29,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Props.
         /// </summary>
-        private ElementSchemaProp<int> _propAlignment;
+        private ElementSchemaProp<string> _propAlignment;
         private ElementSchemaProp<string> _propFont;
         private ElementSchemaProp<int> _propFontSize;
 
@@ -78,9 +79,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get { return _renderer.transform.forward; }
         }
-
+        
         /// <summary>
-        /// Bounding rectangle.
+        /// Bounding rectangle in local space.
         /// </summary>
         public Rectangle Rect
         {
@@ -89,6 +90,7 @@ namespace CreateAR.SpirePlayer.IUX
                 var trans = _renderer.Text.rectTransform;
                 var rect = trans.rect;
                 var scale = trans.localScale;
+                
                 return new Rectangle(
                     rect.x * scale.x,
                     rect.y * scale.y,
@@ -96,11 +98,9 @@ namespace CreateAR.SpirePlayer.IUX
                     rect.height * scale.y);
             }
         }
-
+        
         /// <summary>
-        /// Bounding rectangle of rendered text.
-        /// 
-        /// EXPERIMENTAL
+        /// Bounding rectangle of rendered text in world space.
         /// </summary>
         public Rectangle TextRect
         {
@@ -117,7 +117,7 @@ namespace CreateAR.SpirePlayer.IUX
 
                 if (_vertices.Count == 0)
                 {
-                    return Rect;
+                    maxX = maxY = minX = minY = 0;
                 }
                 
                 for (var index = 0; index < _vertices.Count; index++)
@@ -133,11 +133,13 @@ namespace CreateAR.SpirePlayer.IUX
 
                 var trans = _renderer.Text.transform;
                 var scale = trans.localScale;
+
+                // must include the parent too
                 var offset = trans.localPosition + _renderer.transform.localPosition;
 
                 return new Rectangle(
-                    (minX) * scale.x + offset.x,
-                    (minY) * scale.y + offset.y,
+                    minX * scale.x + offset.x,
+                    minY * scale.y + offset.y,
                     (maxX - minX) * scale.x,
                     (maxY - minY) * scale.y);
             }
@@ -190,9 +192,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Sets alignment.
+        /// Alignment.
         /// </summary>
-        public int Alignment
+        public TextAlignmentType Alignment
         {
             get { return _renderer.Alignment; }
             set { _renderer.Alignment = value; }
@@ -230,9 +232,9 @@ namespace CreateAR.SpirePlayer.IUX
             _renderer.transform.SetParent(GameObject.transform, false);
             
             // load font setup.
-            _propAlignment = Schema.GetOwn("alignment", AlignmentTypes.MID_LEFT);
+            _propAlignment = Schema.Get<string>("alignment");
             _propAlignment.OnChanged += Alignment_OnChanged;
-            _renderer.Alignment = _propAlignment.Value;
+            UpdateAlignment(_propAlignment.Value);
 
             _propFont = Schema.Get<string>("font");
             _propFont.OnChanged += Font_OnChanged;
@@ -273,12 +275,8 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            var pos = _renderer.Text.rectTransform.position;
-
+            var pos = _renderer.transform.position;
             var rect = Rect;
-            var rectWidth = rect.size.x;
-            var rectHeight = rect.size.y;
-
             var textRect = TextRect;
             
             handle.Draw(ctx =>
@@ -286,8 +284,8 @@ namespace CreateAR.SpirePlayer.IUX
                 ctx.Prism(new Bounds(
                     pos,
                     new Vector3(
-                        rectWidth,
-                        rectHeight,
+                        rect.size.x,
+                        rect.size.y,
                         0)));
 
                 ctx.Color(new Color(1, 0, 0, 1));
@@ -304,17 +302,35 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Updats alignment from a string.
+        /// </summary>
+        /// <param name="alignment">String value.</param>
+        private void UpdateAlignment(string alignment)
+        {
+            try
+            {
+                _renderer.Alignment = (TextAlignmentType)Enum.Parse(
+                    typeof(TextAlignmentType),
+                    alignment);
+            }
+            catch
+            {
+                //
+            }
+        }
+
+        /// <summary>
         /// Called when the label has been updated.
         /// </summary>
         /// <param name="prop">Alignment prop.</param>
         /// <param name="prev">Previous value.</param>
         /// <param name="next">Next value.</param>
         private void Alignment_OnChanged(
-            ElementSchemaProp<int> prop,
-            int prev,
-            int next)
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
         {
-            _renderer.Alignment = next;
+            UpdateAlignment(next);
         }
 
         /// <summary>
