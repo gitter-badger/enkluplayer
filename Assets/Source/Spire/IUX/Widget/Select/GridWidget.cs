@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Vine;
@@ -11,7 +12,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Displays options in a grid format.
     /// </summary>
-    public class Grid : Widget
+    public class GridWidget : Widget
     {
         private const int NUM_COLS = 3;
         private const int NUM_ROWS = 2;
@@ -32,12 +33,12 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly VineImporter _parser;
 
         private readonly List<OptionGroup> _groups = new List<OptionGroup>();
-        private readonly List<Option> _pageSelectChildren = new List<Option>();
-        private readonly List<Button> _currentChildren = new List<Button>();
+        private readonly List<Option> _groupSelectOptions = new List<Option>();
+        private readonly List<Button> _buttons = new List<Button>();
 
-        private Select _groupSelect;
+        private SelectWidget _groupSelect;
 
-        private Select _pageSelect;
+        private SelectWidget _pageSelect;
 
         private Button _backButton;
 
@@ -52,7 +53,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Grid(
+        public GridWidget(
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,
@@ -87,52 +88,6 @@ namespace CreateAR.SpirePlayer.IUX
 
             RefreshOptionGroups();
 
-            // group select
-            {
-                // generate vine
-                var vine = @"<?Vine><Select>";
-                for (int i = 0, len = _groups.Count; i < len; i++)
-                {
-                    var group = _groups[i];
-
-                    vine += string.Format("<Option label='{0}' value='{1}' />",
-                        group.Label,
-                        group.Value);
-                }
-                vine += "</Select>";
-
-                var groupSelectDescription = _parser.Parse(vine);
-                groupSelectDescription.Elements[0].Schema.Vectors["position"] = new Vec3(
-                    -0.241f,
-                    0.22f,
-                    0f);
-
-                _groupSelect = (Select) _elements.Element(groupSelectDescription);
-                AddChild(_groupSelect);
-            }
-
-            // page select
-            {
-                // generate vine
-                var vine = @"<?Vine><Select>";
-                /*for (int i = 0, len = _groups.Count; i < len; i++)
-                {
-                    vine += "<Option label='{0}' value='{0}' />";
-                }*/
-                vine += "</Select>";
-
-                var pageSelectDescription = _parser.Parse(vine);
-
-                // TODO: REMOVE HACK
-                pageSelectDescription.Elements[0].Schema.Vectors["position"] = new Vec3(
-                    -0.241f,
-                    -0.22f,
-                    0f);
-
-                _pageSelect = (Select) _elements.Element(pageSelectDescription);
-                AddChild(_pageSelect);
-            }
-
             // shell
             {
                 _shell = Object.Instantiate(
@@ -154,13 +109,56 @@ namespace CreateAR.SpirePlayer.IUX
                 // TODO: REMOVE HACK
                 description.Elements[0].Schema.Vectors["position"] = new Vec3(-0.35f, 0, 0);
 
-                _backButton = (Button) _elements.Element(description);
+                _backButton = (Button)_elements.Element(description);
                 AddChild(_backButton);
             }
 
-            // current page buttons
+            // group select
             {
-                UpdatePage();
+                // generate select element with all options
+                var vine = @"<Select>";
+                for (int i = 0, len = _groups.Count; i < len; i++)
+                {
+                    var group = _groups[i];
+
+                    vine += string.Format("<Option label='{0}' value='{1}' />",
+                        group.Label,
+                        group.Value);
+                }
+                vine += @"</Select>";
+
+                var groupSelectDescription = _parser.Parse(vine);
+
+                // TODO: REMOVE HACK
+                groupSelectDescription.Elements[0].Schema.Vectors["position"] = new Vec3(
+                    -0.241f,
+                    0.22f,
+                    0f);
+
+                _groupSelect = (SelectWidget) _elements.Element(groupSelectDescription);
+                AddChild(_groupSelect);
+            }
+
+            // page select
+            {
+                // generate page select
+                var pageSelectDescription = _parser.Parse(@"<Select\>");
+
+                // TODO: REMOVE HACK
+                pageSelectDescription.Elements[0].Schema.Vectors["position"] = new Vec3(
+                    -0.241f,
+                    -0.22f,
+                    0f);
+
+                _pageSelect = (SelectWidget) _elements.Element(pageSelectDescription);
+                AddChild(_pageSelect);
+
+                UpdatePageOptions();
+            }
+
+            // update buttons for current selections
+            {
+                UpdateButtons();
             }
         }
 
@@ -172,9 +170,43 @@ namespace CreateAR.SpirePlayer.IUX
             _verticalPaddingProp.OnChanged -= VerticalPadding_OnChanged;
         }
 
-        private void UpdatePage()
+        private void UpdatePageOptions()
         {
-            var group = Group(_groupSelect.Selection.Value);
+            // destroy old options
+            var pageOptions = _pageSelect.Options;
+            for (var i = pageOptions.Count - 1; i >= 0; i--)
+            {
+                pageOptions[i].Destroy();
+            }
+
+            // create new options
+            var group = CurrentGroup();
+            if (null == group)
+            {
+                return;
+            }
+
+            var options = group.Options;
+            var total = options.Length;
+            var numPages = total / (NUM_COLS * NUM_ROWS);
+            for (var i = 0; i < numPages; i++)
+            {
+                var option = (Option) _elements.Element(_parser.Parse(
+                    string.Format(
+                        @"<Option value='{0}' label='{1}' />",
+                        i,
+                        string.Format(
+                            "Page {0}/{1}",
+                            i + 1,
+                            numPages))));
+                
+                _pageSelect.AddChild(option);
+            }
+        }
+
+        private void UpdateButtons()
+        {
+            var group = CurrentGroup();
             if (null == group)
             {
                 return;
@@ -188,11 +220,11 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             // clear old children
-            for (int i = 0, len = _currentChildren.Count; i < len; i++)
+            for (int i = 0, len = _buttons.Count; i < len; i++)
             {
-                _currentChildren[i].Destroy();
+                _buttons[i].Destroy();
             }
-            _currentChildren.Clear();
+            _buttons.Clear();
 
             // create new children
             var resultsPerPage = NUM_COLS * NUM_ROWS;
@@ -215,7 +247,7 @@ namespace CreateAR.SpirePlayer.IUX
 
                 AddChild(button);
 
-                _currentChildren.Add(button);
+                _buttons.Add(button);
             }
 
             // position children
@@ -226,18 +258,17 @@ namespace CreateAR.SpirePlayer.IUX
         {
             var elementHeight = _verticalPaddingProp.Value;
             var elementWidth = _horizontalPaddingProp.Value;
+            var offset = new Vec3(-0.15f, 0.11f, 0f);
 
-            for (var i = 0; i < _currentChildren.Count; i++)
+            for (var i = 0; i < _buttons.Count; i++)
             {
-                var button = _currentChildren[i];
+                var button = _buttons[i];
 
                 // position
                 var row = i / NUM_COLS;
                 var col = i % NUM_COLS;
-
-                Log.Info(this, "{0} -> {1}, {2}", i, row, col);
-
-                var targetPosition = new Vec3(
+                
+                var targetPosition = offset + new Vec3(
                     col * elementWidth,
                     -row * elementHeight,
                     0);
@@ -258,6 +289,17 @@ namespace CreateAR.SpirePlayer.IUX
                     _groups.Add(@group);
                 }
             }
+        }
+
+        private OptionGroup CurrentGroup()
+        {
+            var selection = _groupSelect.Selection;
+            if (null == selection)
+            {
+                return null;
+            }
+
+            return Group(selection.Value);
         }
 
         private OptionGroup Group(string value)

@@ -199,7 +199,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 130951154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -338.43097, y: -314.57748, z: 0}
+  m_LocalPosition: {x: -318.1229, y: -337.21268, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1693554495}
@@ -500,12 +500,12 @@ GameObject:
   - component: {fileID: 531348134}
   - component: {fileID: 531348135}
   m_Layer: 0
-  m_Name: Grid
+  m_Name: Grid-Groups
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &531348134
 Transform:
   m_ObjectHideFlags: 0
@@ -531,21 +531,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Vine: "<?Vine>\r\n<Float position=(0, 0, 1)>\r\n\t<Grid fontSize=20>\r\n\t\t<OptionGroup
-    label='Plants' value='plants'>\r\n\t\t\t<Option label='Oak value='oaktree' />\r\n\t\t\t<Option
-    label='Shrub' value='shrub' />\r\n\t\t\t<Option label='Shrub2' value='redshub'
-    />\r\n\t\t\t<Option label='Vine' value='vine' />\r\n\t\t\t<Option label='Succulent'
-    value='succulent' />\r\n\t\t\t<Option label='Cactus' value='cactus' />\r\n\t\t\t<Option
-    label='Ivy' value='ivy' />\r\n\t\t\t<Option label='Ivy 2' value='redivy' />\r\n\t\t\t<Option
-    label='Ivy 3' value='poisonivy' />\r\n\t\t\t<Option label='Maple' value='sugarmaple'
-    />\r\n\t\t\t<Option label='Pine' value='lambsear' />\r\n\t\t\t<Option label='Flower'
-    value='petunia' />\r\n\t\t</OptionGroup>\r\n\t\t<OptionGroup label='Animals' value='animals'>\r\n\t\t\t<Option
-    label='Skunk' value='skunk' />\r\n\t\t\t<Option label='Crab' value='crab' />\r\n\t\t\t<Option
-    label='Skink' value='skink' />\r\n\t\t\t<Option label='Fox' value='fox' />\r\n\t\t\t<Option
-    label='Deer' value='deer' />\r\n\t\t\t<Option label='Elephant' value='elephant'
-    />\r\n\t\t\t<Option label='Giraffe' value='giraffe' />\r\n\t\t\t<Option label='Lizard'
-    value='lizard' />\r\n\t\t\t<Option label='Dinosaur' value='dinosaur' />\r\n\t\t\t<Option
-    label='Cat' value='cat' />\r\n\t\t\t<Option label='Dog' value='dog' />\r\n\t\t\t<Option
-    label='Hyena' value='hyena' />\r\n\t\t</OptionGroup>\r\n\t</Grid>\r\n</Float>"
+    label='Plants' value='plants' />\n\t\t<OptionGroup label='Animals' value='animals'
+    />\n\t\t<OptionGroup label='Props' value='props' />\n\t</Grid>\r\n</Float>"
 --- !u!1001 &558283089
 Prefab:
   m_ObjectHideFlags: 0
@@ -961,6 +948,55 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1064e98892a50634b8b966be19de3987, type: 2}
   m_IsPrefabParent: 0
+--- !u!1 &1302617288
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1302617289}
+  - component: {fileID: 1302617290}
+  m_Layer: 0
+  m_Name: Grid-Pages
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1302617289
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1302617288}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1389533282}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1302617290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1302617288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Vine: "<?Vine>\r\n<Float position=(0, 0, 1)>\r\n\t<Grid fontSize=20>\r\n\t\t<OptionGroup
+    label='Plants' value='plants'>\n\t\t\t<Option label='Oak' value='oaktree' />\r\n\t\t\t<Option
+    label='Shrub' value='shrub' />\r\n\t\t\t<Option label='Shrub2' value='redshub'
+    />\r\n\t\t\t<Option label='Vine' value='vine' />\r\n\t\t\t<Option label='Succulent'
+    value='succulent' />\r\n\t\t\t<Option label='Cactus' value='cactus' />\r\n\t\t\t<Option
+    label='Ivy' value='ivy' />\r\n\t\t\t<Option label='Ivy 2' value='redivy' />\r\n\t\t\t<Option
+    label='Ivy 3' value='poisonivy' />\r\n\t\t\t<Option label='Maple' value='sugarmaple'
+    />\r\n\t\t\t<Option label='Pine' value='lambsear' />\r\n\t\t\t<Option label='Flower'
+    value='petunia' />\n\t\t</OptionGroup>\n\t</Grid>\r\n</Float>"
 --- !u!4 &1322888684 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4806941493528534, guid: 7af591af75f6af9479f3c4f743039865,
@@ -995,6 +1031,7 @@ Transform:
   - {fileID: 1138689487}
   - {fileID: 1662866789}
   - {fileID: 531348134}
+  - {fileID: 1302617289}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1467,7 +1504,7 @@ RectTransform:
   m_GameObject: {fileID: 1693554491}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.011681891, y: 0.011681891, z: 0.011681891}
+  m_LocalScale: {x: 0.010980903, y: 0.010980903, z: 0.010980903}
   m_Children:
   - {fileID: 1598552740}
   - {fileID: 130951155}

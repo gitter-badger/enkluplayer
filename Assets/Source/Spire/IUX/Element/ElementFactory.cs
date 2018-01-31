@@ -231,11 +231,11 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.SELECT:
                 {
-                    return new Select(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new SelectWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
                 }
                 case ElementTypes.GRID:
                 {
-                    return new Grid(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, this, _parser);
+                    return new GridWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, this, _parser);
                 }
                 case ElementTypes.OPTION:
                 {

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -8,7 +10,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// Almost 1:1 with HTML Select tag. Child Option components will be
     /// displayed.
     /// </summary>
-    public class Select : Widget
+    public class SelectWidget : Widget
     {
         /// <summary>
         /// Primitives.
@@ -19,6 +21,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// List of potential options.
         /// </summary>
         private readonly List<Option> _options = new List<Option>();
+
+        /// <summary>
+        /// Public collection.
+        /// </summary>
+        private readonly ReadOnlyCollection<Option> _optionsWrapper;
 
         /// <summary>
         /// Left activator.
@@ -43,7 +50,15 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Index into options list.
         /// </summary>
-        private int _selection = 0;
+        private int _selection = -1;
+
+        /// <summary>
+        /// Retrieves all options.
+        /// </summary>
+        public ReadOnlyCollection<Option> Options
+        {
+            get { return _optionsWrapper; }
+        }
 
         /// <summary>
         /// Currently selected option.
@@ -61,7 +76,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Select(
+        public SelectWidget(
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,
@@ -78,12 +93,13 @@ namespace CreateAR.SpirePlayer.IUX
                 messages)
         {
             _primitives = primitives;
+
+            _optionsWrapper = new ReadOnlyCollection<Option>(_options);
         }
 
-        /// <inheritdoc />
-        protected override void AfterLoadChildrenInternal()
+        protected override void BeforeLoadChildrenInternal()
         {
-            base.AfterLoadChildrenInternal();
+            base.BeforeLoadChildrenInternal();
 
             // Left Activator
             {
@@ -99,7 +115,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _rightActivator.Icon = Config.Icons.Icon("arrow-right");
                 _rightActivator.OnActivated += Right_OnActivated;
                 // TODO: Don't hack positions
-                _rightActivator.GameObject.transform.localPosition = new Vector3(0.48f, 0, 0);
+                _rightActivator.Schema.Set("position", new Vec3(0.48f, 0, 0));
                 AddChild(_rightActivator);
             }
 
@@ -110,18 +126,20 @@ namespace CreateAR.SpirePlayer.IUX
 
                 _text = _primitives.Text(Schema);
                 _text.FontSize = _fontSizeProp.Value;
-                // TODO: Don't hack positions
-                _text.GameObject.transform.localPosition = new Vector3(0.09f, -0.03f, 0);
+                _text.Alignment = TextAlignmentType.MidCenter;
+
+                // center
+                var left = _leftActivator.GameObject.transform.localPosition;
+                var right = _rightActivator.GameObject.transform.localPosition;
+                var pos = (left + right) / 2f;
+                
+                _text.Schema.Set(
+                    "position",
+                    pos.ToVec() - new Vec3(0, _text.Rect.size.y / 2f, 0));
                 AddChild(_text);
             }
-
-            // Options
-            {
-                GatherOptions();
-                UpdateLabel();
-            }
         }
-
+        
         /// <inheritdoc />
         protected override void BeforeUnloadChildrenInternal()
         {
@@ -130,38 +148,72 @@ namespace CreateAR.SpirePlayer.IUX
 
             base.BeforeUnloadChildrenInternal();
         }
-        
+
+        protected override void AddChildInternal(Element element)
+        {
+            base.AddChildInternal(element);
+
+            var option = element as Option;
+            if (null != option)
+            {
+                _options.Add(option);
+
+                UpdateLabel();
+            }
+        }
+
+        protected override void RemoveChildInternal(Element element)
+        {
+            var option = element as Option;
+            if (null != option)
+            {
+                // remove from options
+                if (!_options.Remove(option))
+                {
+                    Log.Error(this, "Untracked Option removed from Select element!");
+                    return;
+                }
+                
+                UpdateLabel();
+            }
+
+            base.RemoveChildInternal(element);
+        }
+
         /// <summary>
         /// Updates the label in the middle.
         /// </summary>
         private void UpdateLabel()
         {
+            if (-1 == _selection)
+            {
+                if (_options.Count > 0)
+                {
+                    _selection = 0;
+                }
+            }
+
+            if (_selection > _options.Count)
+            {
+                if (0 == _options.Count)
+                {
+                    _selection = -1;
+                }
+                else
+                {
+                    _selection = _options.Count - 1;
+                }
+            }
+
             if (_selection < 0 || _selection >= _options.Count)
             {
+                _text.Text = "";
                 return;
             }
 
-            _text.Text = _options[_selection].Schema.Get<string>("value").Value;
+            _text.Text = _options[_selection].Schema.Get<string>("label").Value;
         }
-
-        /// <summary>
-        /// Gathers all the potential options.
-        /// </summary>
-        private void GatherOptions()
-        {
-            _options.Clear();
-            var children = Children;
-            for (int i = 0, len = children.Length; i < len; i++)
-            {
-                var child = children[i];
-                var option = child as Option;
-                if (null != option)
-                {
-                    _options.Add(option);
-                }
-            }
-        }
-
+        
         private void Right_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             _selection = (_selection + 1) % _options.Count;
