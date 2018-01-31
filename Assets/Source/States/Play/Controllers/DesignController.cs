@@ -110,17 +110,22 @@ namespace CreateAR.SpirePlayer
             _splash.Show();
         }
 
+        /// <summary>
+        /// Tears down all controllers and destroys them.
+        /// </summary>
         public void Teardown()
         {
             _splash.Uninitialize();
             _mainMenu.Uninitialize();
             _clearAllProps.Uninitialize();
             _quit.Uninitialize();
+            _new.Uninitialize();
 
-            Object.Destroy(_splash);
-            Object.Destroy(_mainMenu);
-            Object.Destroy(_clearAllProps);
-            Object.Destroy(_quit);
+            Object.Destroy(_splash.gameObject);
+            Object.Destroy(_mainMenu.gameObject);
+            Object.Destroy(_clearAllProps.gameObject);
+            Object.Destroy(_quit.gameObject);
+            Object.Destroy(_new.gameObject);
         }
 
         /// <summary>

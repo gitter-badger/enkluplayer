@@ -93,7 +93,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Uninitialize()
         {
-            //
+            Hide();
         }
 
         /// <inheritdoc cref="IIUXEventDelegate"/>
