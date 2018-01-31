@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -72,6 +73,11 @@ namespace CreateAR.SpirePlayer.IUX
                     : null;
             }
         }
+
+        /// <summary>
+        /// Called when the selection has changed.
+        /// </summary>
+        public event Action OnChanged;
 
         /// <summary>
         /// Constructor.
@@ -158,7 +164,11 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _options.Add(option);
 
-                UpdateLabel();
+                Log.Info(this, "Added {0}. {1} total options.",
+                    option,
+                    _options.Count);
+
+                UpdateLabel(_selection);
             }
         }
 
@@ -173,8 +183,12 @@ namespace CreateAR.SpirePlayer.IUX
                     Log.Error(this, "Untracked Option removed from Select element!");
                     return;
                 }
+
+                Log.Info(this, "Removed {0}. {1} total options.",
+                    option,
+                    _options.Count);
                 
-                UpdateLabel();
+                UpdateLabel(_selection);
             }
 
             base.RemoveChildInternal(element);
@@ -183,13 +197,15 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Updates the label in the middle.
         /// </summary>
-        private void UpdateLabel()
+        private void UpdateLabel(int target)
         {
+            var current = _selection;
+
             if (-1 == _selection)
             {
                 if (_options.Count > 0)
                 {
-                    _selection = 0;
+                    target = 0;
                 }
             }
 
@@ -197,28 +213,34 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 if (0 == _options.Count)
                 {
-                    _selection = -1;
+                    target = -1;
                 }
                 else
                 {
-                    _selection = _options.Count - 1;
+                    target = _options.Count - 1;
                 }
             }
 
-            if (_selection < 0 || _selection >= _options.Count)
+            if (target < 0 || target >= _options.Count)
             {
+                _selection = target;
                 _text.Text = "";
-                return;
+            }
+            else
+            {
+                _selection = target;
+                _text.Text = _options[_selection].Schema.Get<string>("label").Value;
             }
 
-            _text.Text = _options[_selection].Schema.Get<string>("label").Value;
+            if (current != _selection && null != OnChanged)
+            {
+                OnChanged();
+            }
         }
         
         private void Right_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
-            _selection = (_selection + 1) % _options.Count;
-
-            UpdateLabel();
+            UpdateLabel((_selection + 1) % _options.Count);
         }
 
         /// <summary>
@@ -232,16 +254,17 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
+            var target = _selection;
             if (0 == _selection)
             {
-                _selection = _options.Count - 1;
+                target = _options.Count - 1;
             }
             else
             {
-                _selection -= 1;
+                target -= 1;
             }
 
-            UpdateLabel();
+            UpdateLabel(target);
         }
 
         /// <summary>

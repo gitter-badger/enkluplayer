@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Displays options in a grid format.
     /// </summary>
-    public class GridWidget : Widget
+    public class GridWidget : Widget, IIUXEventDelegate
     {
         private const int NUM_COLS = 3;
         private const int NUM_ROWS = 2;
@@ -32,6 +32,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private readonly VineImporter _parser;
 
+        /// <summary>
+        /// Handles events.
+        /// </summary>
+        private readonly IUXEventHandler _events;
+
         private readonly List<OptionGroup> _groups = new List<OptionGroup>();
         private readonly List<Option> _groupSelectOptions = new List<Option>();
         private readonly List<Button> _buttons = new List<Button>();
@@ -39,9 +44,7 @@ namespace CreateAR.SpirePlayer.IUX
         private SelectWidget _groupSelect;
 
         private SelectWidget _pageSelect;
-
-        private Button _backButton;
-
+        
         private ElementSchemaProp<float> _horizontalPaddingProp;
         private ElementSchemaProp<float> _verticalPaddingProp;
 
@@ -49,7 +52,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Shell.
         /// </summary>
         private GameObject _shell;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -74,6 +77,14 @@ namespace CreateAR.SpirePlayer.IUX
             _primitives = primitives;
             _elements = elements;
             _parser = parser;
+
+            _events = gameObject.GetComponent<IUXEventHandler>()
+                ?? gameObject.AddComponent<IUXEventHandler>();
+        }
+
+        public bool OnEvent(IUXEvent @event)
+        {
+            return false;
         }
 
         protected override void AfterLoadChildrenInternal()
@@ -99,20 +110,7 @@ namespace CreateAR.SpirePlayer.IUX
                     GameObject.transform,
                     false);
             }
-
-            // back button
-            {
-                var description = _parser.Parse(string.Format(
-                    @"<?Vine><Button id='{0}.btn-back' icon='cancel' />",
-                    Id));
-
-                // TODO: REMOVE HACK
-                description.Elements[0].Schema.Vectors["position"] = new Vec3(-0.35f, 0, 0);
-
-                _backButton = (Button)_elements.Element(description);
-                AddChild(_backButton);
-            }
-
+            
             // group select
             {
                 // generate select element with all options
@@ -136,6 +134,7 @@ namespace CreateAR.SpirePlayer.IUX
                     0f);
 
                 _groupSelect = (SelectWidget) _elements.Element(groupSelectDescription);
+                _groupSelect.OnChanged += GroupSelect_OnChange;
                 AddChild(_groupSelect);
             }
 
@@ -151,6 +150,7 @@ namespace CreateAR.SpirePlayer.IUX
                     0f);
 
                 _pageSelect = (SelectWidget) _elements.Element(pageSelectDescription);
+                _pageSelect.OnChanged += PageSelect_OnChanged;
                 AddChild(_pageSelect);
 
                 UpdatePageOptions();
@@ -160,8 +160,10 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 UpdateButtons();
             }
-        }
 
+            _events.AddHandler(MessageTypes.BUTTON_ACTIVATE, this);
+        }
+        
         protected override void AfterUnloadChildrenInternal()
         {
             base.AfterUnloadChildrenInternal();
@@ -188,7 +190,14 @@ namespace CreateAR.SpirePlayer.IUX
 
             var options = group.Options;
             var total = options.Length;
-            var numPages = total / (NUM_COLS * NUM_ROWS);
+            var buttonsPerPage = NUM_COLS * NUM_ROWS;
+            var numPages = 0;
+            while (total > 0)
+            {
+                numPages++;
+                total -= buttonsPerPage;
+            }
+
             for (var i = 0; i < numPages; i++)
             {
                 var option = (Option) _elements.Element(_parser.Parse(
@@ -212,8 +221,7 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            // TODO: determine page
-            var page = 0;
+            var page = CurrentPage();
             if (-1 == page)
             {
                 return;
@@ -302,6 +310,17 @@ namespace CreateAR.SpirePlayer.IUX
             return Group(selection.Value);
         }
 
+        private int CurrentPage()
+        {
+            var selection = _pageSelect.Selection;
+            if (null == selection)
+            {
+                return -1;
+            }
+
+            return int.Parse(selection.Value);
+        }
+
         private OptionGroup Group(string value)
         {
             for (int i = 0, len = _groups.Count; i < len; i++)
@@ -314,6 +333,17 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             return null;
+        }
+
+        private void GroupSelect_OnChange()
+        {
+            UpdatePageOptions();
+            UpdateButtons();
+        }
+
+        private void PageSelect_OnChanged()
+        {
+            UpdateButtons();
         }
 
         /// <summary>

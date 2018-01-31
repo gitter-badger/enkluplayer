@@ -199,7 +199,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 130951154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -318.1229, y: -337.21268, z: 0}
+  m_LocalPosition: {x: -387.2288, y: -269.89432, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1693554495}
@@ -989,14 +989,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Vine: "<?Vine>\r\n<Float position=(0, 0, 1)>\r\n\t<Grid fontSize=20>\r\n\t\t<OptionGroup
-    label='Plants' value='plants'>\n\t\t\t<Option label='Oak' value='oaktree' />\r\n\t\t\t<Option
+    label='Plants' value='plants'>\r\n\t\t\t<Option label='Oak' value='oaktree' />\r\n\t\t\t<Option
     label='Shrub' value='shrub' />\r\n\t\t\t<Option label='Shrub2' value='redshub'
     />\r\n\t\t\t<Option label='Vine' value='vine' />\r\n\t\t\t<Option label='Succulent'
     value='succulent' />\r\n\t\t\t<Option label='Cactus' value='cactus' />\r\n\t\t\t<Option
     label='Ivy' value='ivy' />\r\n\t\t\t<Option label='Ivy 2' value='redivy' />\r\n\t\t\t<Option
     label='Ivy 3' value='poisonivy' />\r\n\t\t\t<Option label='Maple' value='sugarmaple'
     />\r\n\t\t\t<Option label='Pine' value='lambsear' />\r\n\t\t\t<Option label='Flower'
-    value='petunia' />\n\t\t</OptionGroup>\n\t</Grid>\r\n</Float>"
+    value='petunia' />\r\n\t\t\t<Option label='Flower2' value='flower2' />\r\n\t\t\t<Option
+    label='Plant' value='plant' />\r\n\t\t</OptionGroup>\r\n\t\t<OptionGroup label='Animals'
+    value='animals'>\r\n\t\t\t<Option label='Skunk' value='skunk' />\r\n\t\t\t<Option
+    label='Crab' value='crab' />\r\n\t\t\t<Option label='Skink' value='skink' />\r\n\t\t\t<Option
+    label='Fox' value='fox' />\r\n\t\t\t<Option label='Deer' value='deer' />\r\n\t\t\t<Option
+    label='Elephant' value='elephant' />\r\n\t\t\t<Option label='Giraffe' value='giraffe'
+    />\r\n\t\t\t<Option label='Lizard' value='lizard' />\r\n\t\t\t<Option label='Dinosaur'
+    value='dinosaur' />\r\n\t\t\t<Option label='Cat' value='cat' />\r\n\t\t\t<Option
+    label='Dog' value='dog' />\r\n\t\t\t<Option label='Hyena' value='hyena' />\r\n\t\t</OptionGroup>\r\n\t</Grid>\r\n</Float>"
 --- !u!4 &1322888684 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4806941493528534, guid: 7af591af75f6af9479f3c4f743039865,
@@ -1504,7 +1512,7 @@ RectTransform:
   m_GameObject: {fileID: 1693554491}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.010980903, y: 0.010980903, z: 0.010980903}
+  m_LocalScale: {x: 0.013366285, y: 0.013366285, z: 0.013366285}
   m_Children:
   - {fileID: 1598552740}
   - {fileID: 130951155}
