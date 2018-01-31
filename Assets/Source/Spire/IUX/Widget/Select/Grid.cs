@@ -26,6 +26,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly VineImporter _parser;
 
         private readonly List<OptionGroup> _groups = new List<OptionGroup>();
+        private readonly List<Button> _currentChildren = new List<Button>();
 
         private Select _groupSelect;
 
@@ -76,7 +77,11 @@ namespace CreateAR.SpirePlayer.IUX
                 var vine = @"<?Vine><Select>";
                 for (int i = 0, len = _groups.Count; i < len; i++)
                 {
-                    vine += "<Option label='{0}' value='{0}' />";
+                    var group = _groups[i];
+
+                    vine += string.Format("<Option label='{0}' value='{1}' />",
+                        group.Label,
+                        group.Value);
                 }
                 vine += "</Select>";
 
@@ -136,6 +141,47 @@ namespace CreateAR.SpirePlayer.IUX
                 _backButton = (Button) _elements.Element(description);
                 AddChild(_backButton);
             }
+
+            // current page buttons
+            {
+                var group = Group(_groupSelect.Selection.Value);
+                if (null != group)
+                {
+                    // create children!
+                    var options = group.Options;
+
+                    const int NUM_ROWS = 3;
+                    const int NUM_COLS = 3;
+
+                    var elementWidth = .1f;
+                    var elementHeight = .1f;
+
+                    for (var i = 0; i < options.Length; i++)
+                    {
+                        var option = options[i];
+                        var description = _parser.Parse(string.Format(
+                            @"<?Vine><Button layout='vertical' label='{0}' value='{1}' />",
+                            option.Label,
+                            option.Value));
+
+                        var button = (Button) _elements.Element(description);
+
+                        // position
+                        var row = i / NUM_COLS;
+                        var col = i % NUM_COLS;
+
+                        var targetPosition = new Vec3(
+                            row * elementWidth,
+                            col * elementHeight,
+                            0);
+                        button.Schema.Set("position", targetPosition);
+
+                        AddChild(button);
+
+                        _currentChildren.Add(button);
+                    }
+                }
+            }
         }
 
         private void RefreshOptionGroups()
@@ -151,6 +197,20 @@ namespace CreateAR.SpirePlayer.IUX
                     _groups.Add(@group);
                 }
             }
+        }
+
+        private OptionGroup Group(string value)
+        {
+            for (int i = 0, len = _groups.Count; i < len; i++)
+            {
+                var group = _groups[i];
+                if (group.Value == value)
+                {
+                    return group;
+                }
+            }
+
+            return null;
         }
     }
 }

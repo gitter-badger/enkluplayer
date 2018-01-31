@@ -181,61 +181,59 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private Element ElementForType(int type)
         {
-            var gameObject = new GameObject("Element");
-
             switch (type)
             {
                 case ElementTypes.CONTAINER:
                 {
-                    return new Container(gameObject, _config, _layers, _tweens, _colors, _messages);
+                    return new Container(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.CAPTION:
                 {
-                    return new Caption(gameObject, _config, _primitives, _layers, _tweens, _colors, _messages);
+                    return new Caption(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.BUTTON:
                 {
-                    return new Button(gameObject, _config, _primitives, _layers, _tweens, _colors, _messages, _voice);
+                    return new Button(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages, _voice);
                 }
                 case ElementTypes.CURSOR:
                 {
-                    return new Cursor(gameObject, _config, _primitives, _layers, _tweens, _colors, _messages, _intention);
+                    return new Cursor(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages, _intention);
                 }
                 case ElementTypes.MENU:
                 {
-                    return new Menu(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives, this);
+                    return new Menu(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, this);
                 }
                 case ElementTypes.TEXTCRAWL:
                 {
-                    return new TextCrawl(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new TextCrawl(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
                 }
                 case ElementTypes.FLOAT:
                 {
-                    return new Float(gameObject, _config, _intention, _messages, _layers, _tweens, _colors);
+                    return new Float(new GameObject("Element"), _config, _intention, _messages, _layers, _tweens, _colors);
                 }
                 case ElementTypes.TOGGLE:
                 {
-                    return new Toggle(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives, _voice);
+                    return new Toggle(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, _voice);
                 }
                 case ElementTypes.SLIDER:
                 {
-                    return new Slider(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new Slider(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
                 }
                 case ElementTypes.SELECT:
                 {
-                    return new Select(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new Select(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
                 }
                 case ElementTypes.GRID:
                 {
-                    return new Grid(gameObject, _config, _layers, _tweens, _colors, _messages, _primitives, this, _parser);
+                    return new Grid(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, this, _parser);
                 }
                 case ElementTypes.OPTION:
                 {
-                    return new Option(gameObject);
+                    return new Option();
                 }
                 case ElementTypes.OPTION_GROUP:
                 {
-                    return new OptionGroup(gameObject);
+                    return new OptionGroup();
                 }
                 default:
                 {

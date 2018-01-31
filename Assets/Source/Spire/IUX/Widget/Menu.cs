@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;

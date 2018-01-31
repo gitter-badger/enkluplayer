@@ -505,7 +505,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &531348134
 Transform:
   m_ObjectHideFlags: 0
@@ -530,8 +530,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vine: "<?Vine>\n<Float position=(0, 0, 1)>\n/*\t<Grid />*/\n<Button label='Test
-    Asset' layout='vertical' />\n</Float>"
+  Vine: "<?Vine>\r\n<Float position=(0, 0, 1)>\r\n\t<Grid>\r\n\t\t<OptionGroup label='Plants'
+    value='plants'>\r\n\t\t\t<Option label='Oak Tree' value='oaktree' />\r\n\t\t\t<Option
+    label='Shrub' value='shrub' />\r\n\t\t\t<Option label='Red Shrub' value='redshub'
+    />\r\n\t\t\t<Option label='Vine' value='vine' />\r\n\t\t\t<Option label='Succulent'
+    value='succulent' />\r\n\t\t\t<Option label='Cactus' value='cactus' />\r\n\t\t\t<Option
+    label='Ivy' value='ivy' />\r\n\t\t\t<Option label='Red Ivy' value='redivy' />\r\n\t\t\t<Option
+    label='Poison Ivy' value='poisonivy' />\r\n\t\t\t<Option label='Sugar Maple' value='sugarmaple'
+    />\r\n\t\t\t<Option label='Lambs Ear' value='lambsear' />\r\n\t\t\t<Option label='Petunia'
+    value='petunia' />\r\n\t\t</OptionGroup>\r\n\t\t<OptionGroup label='Animals' value='animals'>\r\n\t\t\t<Option
+    label='Skunk' value='skunk' />\r\n\t\t\t<Option label='Crab' value='crab' />\r\n\t\t\t<Option
+    label='Skink' value='skink' />\r\n\t\t\t<Option label='Fox' value='fox' />\r\n\t\t\t<Option
+    label='Deer' value='deer' />\r\n\t\t\t<Option label='Elephant' value='elephant'
+    />\r\n\t\t\t<Option label='Giraffe' value='giraffe' />\r\n\t\t\t<Option label='Lizard'
+    value='lizard' />\r\n\t\t\t<Option label='Dinosaur' value='dinosaur' />\r\n\t\t\t<Option
+    label='Cat' value='cat' />\r\n\t\t\t<Option label='Dog' value='dog' />\r\n\t\t\t<Option
+    label='Hyena' value='hyena' />\r\n\t\t</OptionGroup>\r\n\t</Grid>\r\n</Float>"
 --- !u!1001 &558283089
 Prefab:
   m_ObjectHideFlags: 0
@@ -1342,7 +1356,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1662866788
 MonoBehaviour:
   m_ObjectHideFlags: 0
