@@ -310,21 +310,20 @@ namespace CreateAR.SpirePlayer.IUX
             
             _descriptionPrimitive.LocalPosition = new Vector3(
                 padding,
-                // TODO: move to prop
-                -_descriptionPrimitive.Height / 2f - 0.02f,
+                -_descriptionPrimitive.Height,
                 0f);
 
             if (!string.IsNullOrEmpty(_descriptionProp.Value))
             {
                 _titlePrimitive.LocalPosition = new Vector3(
                     padding,
-                    0, 0);
+                    _titlePrimitive.Height / 2f, 0);
             }
             else
             {
                 _titlePrimitive.LocalPosition = new Vector3(
                     padding,
-                    -_titlePrimitive.Rect.size.y / 2);
+                    -_titlePrimitive.Height / 2f);
             }
 
             // back button
