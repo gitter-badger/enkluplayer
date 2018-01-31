@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CreateAR.Commons.Unity.Logging;
+﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
@@ -10,18 +7,16 @@ using Object = UnityEngine.Object;
 namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
-    /// Displays options in a grid format.
+    /// Displays buttons in a grid format.
     /// </summary>
     public class GridWidget : Widget, IIUXEventDelegate
     {
+        /// <summary>
+        /// Enforced layout consts.
+        /// </summary>
         private const int NUM_COLS = 3;
         private const int NUM_ROWS = 2;
-
-        /// <summary>
-        /// For creating primitives.
-        /// </summary>
-        private readonly IPrimitiveFactory _primitives;
-
+        
         /// <summary>
         /// For creating elements.
         /// </summary>
@@ -37,14 +32,29 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private readonly IUXEventHandler _events;
 
+        /// <summary>
+        /// List of groups.
+        /// </summary>
         private readonly List<OptionGroup> _groups = new List<OptionGroup>();
-        private readonly List<Option> _groupSelectOptions = new List<Option>();
+
+        /// <summary>
+        /// List of buttons currently presented.
+        /// </summary>
         private readonly List<Button> _buttons = new List<Button>();
 
+        /// <summary>
+        /// The select widget for groups.
+        /// </summary>
         private SelectWidget _groupSelect;
 
+        /// <summary>
+        /// The select widget for pages.
+        /// </summary>
         private SelectWidget _pageSelect;
         
+        /// <summary>
+        /// Props.
+        /// </summary>
         private ElementSchemaProp<float> _horizontalPaddingProp;
         private ElementSchemaProp<float> _verticalPaddingProp;
 
@@ -63,7 +73,6 @@ namespace CreateAR.SpirePlayer.IUX
             TweenConfig tweens,
             ColorConfig colors,
             IMessageRouter messages,
-            IPrimitiveFactory primitives,
             IElementFactory elements,
             VineImporter parser)
             : base(
@@ -74,7 +83,6 @@ namespace CreateAR.SpirePlayer.IUX
                 colors,
                 messages)
         {
-            _primitives = primitives;
             _elements = elements;
             _parser = parser;
 
@@ -82,11 +90,13 @@ namespace CreateAR.SpirePlayer.IUX
                 ?? gameObject.AddComponent<IUXEventHandler>();
         }
 
+        /// <inheritdoc cref="IIUXEventDelegate"/>
         public bool OnEvent(IUXEvent @event)
         {
             return false;
         }
 
+        /// <inheritdoc />
         protected override void AfterLoadChildrenInternal()
         {
             base.AfterLoadChildrenInternal();
@@ -153,17 +163,18 @@ namespace CreateAR.SpirePlayer.IUX
                 _pageSelect.OnChanged += PageSelect_OnChanged;
                 AddChild(_pageSelect);
 
-                UpdatePageOptions();
+                CreatePageOptions();
             }
 
             // update buttons for current selections
             {
-                UpdateButtons();
+                CreateButtons();
             }
 
             _events.AddHandler(MessageTypes.BUTTON_ACTIVATE, this);
         }
-        
+
+        /// <inheritdoc />
         protected override void AfterUnloadChildrenInternal()
         {
             base.AfterUnloadChildrenInternal();
@@ -172,7 +183,10 @@ namespace CreateAR.SpirePlayer.IUX
             _verticalPaddingProp.OnChanged -= VerticalPadding_OnChanged;
         }
 
-        private void UpdatePageOptions()
+        /// <summary>
+        /// Creates options for pafe selector.
+        /// </summary>
+        private void CreatePageOptions()
         {
             // destroy old options
             var pageOptions = _pageSelect.Options;
@@ -213,7 +227,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
-        private void UpdateButtons()
+        private void CreateButtons()
         {
             var group = CurrentGroup();
             if (null == group)
@@ -284,6 +298,9 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <summary>
+        /// Grabs all child OptionGroups.
+        /// </summary>
         private void RefreshOptionGroups()
         {
             var children = Children;
@@ -299,6 +316,10 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <summary>
+        /// Retrieves the currently selected <c>OptionGroup</c>.
+        /// </summary>
+        /// <returns></returns>
         private OptionGroup CurrentGroup()
         {
             var selection = _groupSelect.Selection;
@@ -310,6 +331,10 @@ namespace CreateAR.SpirePlayer.IUX
             return Group(selection.Value);
         }
 
+        /// <summary>
+        /// Retrieves the current page.
+        /// </summary>
+        /// <returns></returns>
         private int CurrentPage()
         {
             var selection = _pageSelect.Selection;
@@ -321,6 +346,11 @@ namespace CreateAR.SpirePlayer.IUX
             return int.Parse(selection.Value);
         }
 
+        /// <summary>
+        /// Retrieves an <c>OptionGroup</c> by value.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
         private OptionGroup Group(string value)
         {
             for (int i = 0, len = _groups.Count; i < len; i++)
@@ -335,15 +365,21 @@ namespace CreateAR.SpirePlayer.IUX
             return null;
         }
 
+        /// <summary>
+        /// Called when the group select widget changes its selection.
+        /// </summary>
         private void GroupSelect_OnChange()
         {
-            UpdatePageOptions();
-            UpdateButtons();
+            CreatePageOptions();
+            CreateButtons();
         }
 
+        /// <summary>
+        /// Called when the page select widget changes its selection.
+        /// </summary>
         private void PageSelect_OnChanged()
         {
-            UpdateButtons();
+            CreateButtons();
         }
 
         /// <summary>

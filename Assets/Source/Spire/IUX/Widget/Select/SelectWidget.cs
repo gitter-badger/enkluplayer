@@ -103,6 +103,7 @@ namespace CreateAR.SpirePlayer.IUX
             _optionsWrapper = new ReadOnlyCollection<Option>(_options);
         }
 
+        /// <inheritdoc />
         protected override void BeforeLoadChildrenInternal()
         {
             base.BeforeLoadChildrenInternal();
@@ -155,6 +156,7 @@ namespace CreateAR.SpirePlayer.IUX
             base.BeforeUnloadChildrenInternal();
         }
 
+        /// <inheritdoc />
         protected override void AddChildInternal(Element element)
         {
             base.AddChildInternal(element);
@@ -172,6 +174,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <inheritdoc />
         protected override void RemoveChildInternal(Element element)
         {
             var option = element as Option;
@@ -237,7 +240,11 @@ namespace CreateAR.SpirePlayer.IUX
                 OnChanged();
             }
         }
-        
+
+        /// <summary>
+        /// Called when the right button is activated.
+        /// </summary>
+        /// <param name="activatorPrimitive">The activator.</param>
         private void Right_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             UpdateLabel((_selection + 1) % _options.Count);
