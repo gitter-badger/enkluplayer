@@ -17,6 +17,7 @@ namespace CreateAR.SpirePlayer
         private MainMenuController _mainMenu;
         private ClearAllPropsController _clearAllProps;
         private QuitController _quit;
+        private NewItemController _new;
 
         private Float _float;
 
@@ -81,6 +82,7 @@ namespace CreateAR.SpirePlayer
             _mainMenu.OnBack += MainMenu_OnBack;
             _mainMenu.OnQuit += MainMenu_OnQuit;
             _mainMenu.OnClearAll += MainMenu_OnClearAll;
+            _mainMenu.OnNew += MainMenu_OnNew;
             _mainMenu.Initialize(_events, parent);
 
             _clearAllProps = Object.Instantiate(_playConfig.ClearAllMenu, _events.transform);
@@ -92,6 +94,11 @@ namespace CreateAR.SpirePlayer
             _quit.OnCancel += Quit_OnCancel;
             _quit.OnConfirm += Quit_OnConfirm;
             _quit.Initialize(_events, parent);
+
+            _new = Object.Instantiate(_playConfig.NewMenu, _events.transform);
+            _new.OnCancel += New_OnCancel;
+            _new.OnConfirm += New_OnConfirm;
+            _new.Initialize(_events, parent);
         }
 
         public void Teardown()
@@ -131,6 +138,12 @@ namespace CreateAR.SpirePlayer
             _clearAllProps.Show();
         }
 
+        private void MainMenu_OnNew()
+        {
+            _mainMenu.Hide();
+            _new.Show();
+        }
+
         private void ClearAll_OnCancel()
         {
             _clearAllProps.Hide();
@@ -152,6 +165,18 @@ namespace CreateAR.SpirePlayer
         private void Quit_OnConfirm()
         {
             _quit.Hide();
+            _mainMenu.Show();
+        }
+
+        private void New_OnConfirm()
+        {
+            _new.Hide();
+            _mainMenu.Show();
+        }
+
+        private void New_OnCancel()
+        {
+            _new.Hide();
             _mainMenu.Show();
         }
     }

@@ -158,7 +158,7 @@ MonoBehaviour:
   SplashMenu: {fileID: 114689886553146754, guid: e99de7fc71498064aa155b74a3c1027f,
     type: 2}
   MainMenu: {fileID: 114176353643999980, guid: 4de28392ec1056c44b206725de3b65f2, type: 2}
-  NewMenu: {fileID: 0}
+  NewMenu: {fileID: 114623033104309342, guid: 793ebc07f80bae242b585741bc5625d7, type: 2}
   ClearAllMenu: {fileID: 114708181194160608, guid: b325ca9c6560e0644bcfa67726a9fb3a,
     type: 2}
   QuitMenu: {fileID: 114748359243540142, guid: 6220a35c9b855344090985a50fe7a4f2, type: 2}

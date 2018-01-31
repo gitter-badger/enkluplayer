@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
         public IUXEventHandler Events;
         public SplashMenuController SplashMenu;
         public MainMenuController MainMenu;
-        public GameObject NewMenu;
+        public NewItemController NewMenu;
         public ClearAllPropsController ClearAllMenu;
         public QuitController QuitMenu;
     }

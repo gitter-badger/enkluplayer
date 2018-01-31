@@ -13,6 +13,7 @@ namespace CreateAR.SpirePlayer
 
         public event Action OnBack;
         public event Action OnPlay;
+        public event Action OnNew;
         public event Action OnClearAll;
         public event Action OnQuit;
         public event Action<bool> OnDebugRender;
@@ -72,6 +73,15 @@ namespace CreateAR.SpirePlayer
                     if (null != OnQuit)
                     {
                         OnQuit();
+                    }
+
+                    return true;
+                }
+                case "btn-new":
+                {
+                    if (null != OnNew)
+                    {
+                        OnNew();
                     }
 
                     return true;
