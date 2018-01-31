@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IContentFactory"/>
-        public Content Instance(IContentManager content, ContentData data)
+        public ContentWiget Instance(IContentManager content, ContentData data)
         {
             Log.Info(this, "New content from {0}.", data);
 
@@ -64,7 +64,7 @@ namespace CreateAR.SpirePlayer
                 _assets,
                 _pools,
                 _progress);
-            var instance = new Content(
+            var instance = new ContentWiget(
                 _config,
                 _layers,
                 _tweens, 

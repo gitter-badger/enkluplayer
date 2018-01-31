@@ -21,7 +21,7 @@ namespace CreateAR.SpirePlayer
             /// <summary>
             /// Content instance.
             /// </summary>
-            public readonly Content Content;
+            public readonly ContentWiget Content;
 
             /// <summary>
             /// Set of unique tags. These are used to cleanup references.
@@ -32,7 +32,7 @@ namespace CreateAR.SpirePlayer
             /// Creates a new record.
             /// </summary>
             /// <param name="content">The content instance.</param>
-            public ContentRecord(Content content)
+            public ContentRecord(ContentWiget content)
             {
                 Id = content.Data.Id;
                 Content = content;
@@ -103,7 +103,7 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <inheritdoc cref="IContentManager"/>
-        public void FindAll(string contentId, List<Content> content)
+        public void FindAll(string contentId, List<ContentWiget> content)
         {
             for (int i = 0, len = _all.Count; i < len; i++)
             {
@@ -116,7 +116,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IContentManager"/>
-        public Content FindShared(string contentId)
+        public ContentWiget FindShared(string contentId)
         {
             for (int i = 0, len = _shared.Count; i < len; i++)
             {
@@ -131,7 +131,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IContentManager"/>
-        public Content Request(string contentId, params string[] tags)
+        public ContentWiget Request(string contentId, params string[] tags)
         {
             var data = _appData.Get<ContentData>(contentId);
             if (null == data)
@@ -148,7 +148,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IContentManager"/>
-        public void Release(Content content)
+        public void Release(ContentWiget content)
         {
             // only remove unique content instances
             if (content.Data.Unique)
@@ -190,7 +190,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="data">The data to create the instance with.</param>
         /// <param name="tags">Tags with which to tag the <c>Content</c> for later cleanup.</param>
         /// <returns></returns>
-        private Content RequestUnique(ContentData data, params string[] tags)
+        private ContentWiget RequestUnique(ContentData data, params string[] tags)
         {
             var record = CreateRecord(data);
             _all.Add(record);
@@ -207,7 +207,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="data">The data to create the instance with.</param>
         /// <param name="tags">Tags with which to tag the <c>Content</c> for later cleanup.</param>
         /// <returns></returns>
-        private Content RequestShared(ContentData data, params string[] tags)
+        private ContentWiget RequestShared(ContentData data, params string[] tags)
         {
             var contentId = data.Id;
             var record = FindRecord(contentId, _shared);

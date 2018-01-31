@@ -21,12 +21,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Lookup from ContentData id to Content instance.
         /// </summary>
-        private readonly Dictionary<string, Content> _contentMap = new Dictionary<string, Content>();
+        private readonly Dictionary<string, ContentWiget> _contentMap = new Dictionary<string, ContentWiget>();
 
         /// <summary>
         /// Current selection.
         /// </summary>
-        private Content _selectedContent;
+        private ContentWiget _selectedContent;
         
         /// <summary>
         /// Constructor.
@@ -62,7 +62,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="contentId">Id of the <c>Content</c> to select.</param>
         public void Select(string contentId)
         {
-            Content selection;
+            ContentWiget selection;
             if (_contentMap.TryGetValue(contentId, out selection))
             {
                 // stop listening to the old one (which starts as null)
@@ -115,7 +115,7 @@ namespace CreateAR.SpirePlayer
             HierarchyNodeData child)
         {
             // check that parent exists first
-            Content content;
+            ContentWiget content;
             if (parent != _database.Root
                 && !_contentMap.TryGetValue(parent.Id, out content))
             {
@@ -135,7 +135,7 @@ namespace CreateAR.SpirePlayer
         private void Graph_OnChildRemoved(string nodeId)
         {
             // check that child exists first
-            Content content;
+            ContentWiget content;
             if (!_contentMap.TryGetValue(nodeId, out content))
             {
                 Log.Error(this,
@@ -154,7 +154,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="node">Node that was updated.</param>
         private void Graph_OnUpdated(HierarchyNodeData node)
         {
-            Content content;
+            ContentWiget content;
             if (!_contentMap.TryGetValue(node.Id, out content))
             {
                 Log.Error(this,
@@ -202,7 +202,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="staticData">The StaticData that was updated.</param>
         private void AppData_OnUpdated(StaticData staticData)
         {
-            Content content;
+            ContentWiget content;
             if (_contentMap.TryGetValue(staticData.Id, out content))
             {
                 Log.Info(this, "Pushing ContentData update to Content.");
@@ -216,7 +216,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="locator">Locator in question.</param>
         /// <param name="content">Content associated with this locator.</param>
-        private void Locator_OnUpdated(Locator locator, Content content)
+        private void Locator_OnUpdated(Locator locator, ContentWiget content)
         {
             Log.Info(this, "Locator updatd.");
 
@@ -229,7 +229,7 @@ namespace CreateAR.SpirePlayer
         /// Called when the current selection has been reloaded.
         /// </summary>
         /// <param name="content">Content.</param>
-        private void Selection_OnLoaded(Content content)
+        private void Selection_OnLoaded(ContentWiget content)
         {
             _focus.Focus(content.GameObject);
         }

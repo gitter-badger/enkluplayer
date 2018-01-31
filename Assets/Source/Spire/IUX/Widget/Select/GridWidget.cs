@@ -40,7 +40,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// List of buttons currently presented.
         /// </summary>
-        private readonly List<Button> _buttons = new List<Button>();
+        private readonly List<ButtonWidget> _buttons = new List<ButtonWidget>();
 
         /// <summary>
         /// The select widget for groups.
@@ -265,7 +265,7 @@ namespace CreateAR.SpirePlayer.IUX
                     option.Label,
                     option.Value));
 
-                var button = (Button) _elements.Element(description);
+                var button = (ButtonWidget) _elements.Element(description);
 
                 AddChild(button);
 

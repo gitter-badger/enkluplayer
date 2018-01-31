@@ -1,16 +1,17 @@
-﻿/*using System;
+﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.IUX
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Widget that loads + holds an asset.
     /// </summary>
-    public class AssetWidget : Widget
+    public class ContentWiget : Widget
     {
         /// <summary>
         /// Unique tag for this piece of <c>Content</c>.
@@ -23,39 +24,49 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IScriptManager _scripts;
 
         /// <summary>
-        /// Assembles asset.
+        /// Assembles <c>Content</c>.
         /// </summary>
-        private readonly IAssetAssembler _assembler;
+        private readonly IContentAssembler _assembler;
+
+        /// <summary>
+        /// True iff Setup has been called.
+        /// </summary>
+        private bool _setup;
         
         /// <summary>
         /// Token for asset readiness.
         /// </summary>
-        private readonly MutableAsyncToken<AssetWidget> _onAssetLoaded = new MutableAsyncToken<AssetWidget>();
+        private readonly MutableAsyncToken<ContentWiget> _onAssetLoaded = new MutableAsyncToken<ContentWiget>();
 
         /// <summary>
         /// Token for script readiness.
         /// </summary>
-        private readonly MutableAsyncToken<AssetWidget> _onScriptsLoaded = new MutableAsyncToken<AssetWidget>();
+        private readonly MutableAsyncToken<ContentWiget> _onScriptsLoaded = new MutableAsyncToken<ContentWiget>();
 
         /// <summary>
         /// Scripts.
         /// </summary>
         private readonly List<MonoBehaviourSpireScript> _scriptComponents = new List<MonoBehaviourSpireScript>();
-        
+
         /// <summary>
         /// Scripting host.
         /// </summary>
-        private readonly UnityScriptingHost _host;
-
+        private UnityScriptingHost _host;
+        
         /// <summary>
         /// Token, lazily created through property OnLoaded.
         /// </summary>
-        private IMutableAsyncToken<AssetWidget> _onLoaded;
+        private IMutableAsyncToken<ContentWiget> _onLoaded;
+
+        /// <summary>
+        /// Content data.
+        /// </summary>
+        public ContentData Data { get; private set; }
         
         /// <summary>
         /// A token that is fired whenever the content has loaded.
         /// </summary>
-        public IMutableAsyncToken<AssetWidget> OnLoaded
+        public IMutableAsyncToken<ContentWiget> OnLoaded
         {
             get
             {
@@ -71,18 +82,18 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Called to setup the content.
+        /// Constructor.
         /// </summary>
-        public AssetWidget(
-            IScriptManager scripts,
-            IAssetAssembler assembler,
+        public ContentWiget(
             WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            IScriptManager scripts,
+            IContentAssembler assembler)
             : base(
-                new GameObject("Asset"),
+                new GameObject("Content"),
                 config,
                 layers,
                 tweens,
@@ -92,54 +103,103 @@ namespace CreateAR.SpirePlayer.IUX
             _scripts = scripts;
             _assembler = assembler;
             _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
-
+        }
+        
+        /// <summary>
+        /// Called to setup the content.
+        /// </summary>
+        /// <param name="data">Data to setup with.</param>
+        public void Setup(ContentData data)
+        {
+            if (_setup)
+            {
+                throw new Exception(string.Format(
+                    "Already initialized content. Existing: {0}, Requestd: {1}.",
+                    Data.Name,
+                    data.Name));
+            }
+            _setup = true;
+            
             _host = new UnityScriptingHost(
                 this,
                 null,
                 _scripts);
+            
+            UpdateData(data);
         }
-
-        /// <inheritdoc cref="Widget"/>
+        
+        /// <summary>
+        /// Destroys this instance. Should not be called directly, but through
+        /// <c>IContentManager</c> Release flow.
+        /// </summary>
         protected override void AfterUnloadChildrenInternal()
         {
             _assembler.Teardown();
             TeardownScripts();
-            
-            base.AfterUnloadChildrenInternal();
         }
 
-        /// <inheritdoc cref="Widget"/>
-        protected override void AfterLoadChildrenInternal()
+        /// <summary>
+        /// Updates <c>ContentData</c> for this instance.
+        /// </summary>
+        public void UpdateData(ContentData data)
         {
-            base.AfterLoadChildrenInternal();
+            Log.Info(this, "Data updated for content {0}.", data);
 
-            // assets
-            _assembler.Setup(Schema);
+            var assetRefresh = null == Data
+                || Data.Asset.AssetDataId != data.Asset.AssetDataId;
+            var scriptRefresh = ScriptRefreshRequired(data);
+            
+            Data = data;
 
-            // scripts
-            // TODO: watch for changes
-            RefreshScripts();
+            if (assetRefresh)
+            {
+                RefreshAsset();
+            }
+
+            if (scriptRefresh)
+            {
+                RefreshScripts();
+            }
+        }
+
+        /// <summary>
+        /// Updates the underlying material data.
+        /// </summary>
+        /// <param name="data">Material data to update with.</param>
+        public void UpdateMaterialData(MaterialData data)
+        {
+            _assembler.UpdateMaterialData(data);
         }
         
+        /// <summary>
+        /// Tears down the asset and sets it back up.
+        /// </summary>
+        private void RefreshAsset()
+        {
+            Log.Info(this, "Refresh asset for {0}.", Data);
+
+            _assembler.Teardown();
+            _assembler.Setup(Data);
+        }
+
         /// <summary>
         /// Tears down scripts and sets them back up.
         /// </summary>
         private void RefreshScripts()
         {
-            Log.Info(this, "Refresh scripts for {0}.", Schema);
+            Log.Info(this, "Refresh scripts for {0}.", Data);
 
             TeardownScripts();
             SetupScripts();
         }
-
+        
         /// <summary>
         /// Loads all scripts.
         /// </summary>
         private void SetupScripts()
         {
-            // TODO: pull from schema
-            var scripts = new List<ScriptReference>();//Data.Scripts;
-            var len = scripts.Count;
+            var scripts = Data.Scripts;
+            var len = scripts.Length;
 
             Log.Info(this, "\t-Loading {0} scripts.", len);
 
@@ -226,15 +286,46 @@ namespace CreateAR.SpirePlayer.IUX
         }
         
         /// <summary>
+        /// True iff scripts need to be torn down and setup.
+        /// </summary>
+        /// <param name="data">New data.</param>
+        /// <returns></returns>
+        private bool ScriptRefreshRequired(ContentData data)
+        {
+            if (null == Data)
+            {
+                return true;
+            }
+
+            var currentScripts = Data.Scripts;
+            var newScripts = data.Scripts;
+            if (currentScripts.Length != newScripts.Length)
+            {
+                return true;
+            }
+
+            for (int i = 0, len = currentScripts.Length; i < len; i++)
+            {
+                if (currentScripts[i].ScriptDataId != newScripts[i].ScriptDataId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Called when the assembler has completed seting up the asset.
         /// </summary>
         private void Assembler_OnAssemblyComplete(GameObject instance)
         {
             // parent + orient
+            instance.name = Data.Asset.AssetDataId;
             instance.transform.SetParent(GameObject.transform, false);
             instance.SetActive(true);
 
             _onAssetLoaded.Succeed(this);
         }
     }
-}*/
+}

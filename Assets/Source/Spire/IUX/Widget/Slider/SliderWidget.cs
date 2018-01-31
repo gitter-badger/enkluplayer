@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Basic slider control.
     /// </summary>
-    public class Slider : Widget
+    public class SliderWidget : Widget
     {
         /// <summary>
         /// For creating primitives.
@@ -16,7 +16,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Slider(
+        public SliderWidget(
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,

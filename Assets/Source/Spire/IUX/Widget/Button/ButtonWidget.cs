@@ -16,7 +16,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Basic widget that combines an activator and a label.
     /// </summary>
-    public class Button : Widget, IInteractable
+    public class ButtonWidget : Widget, IInteractable
     {
         /// <summary>
         /// For primitives.
@@ -102,7 +102,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Button(
+        public ButtonWidget(
             GameObject gameObject,
             WidgetConfig config,
             IPrimitiveFactory primitives,

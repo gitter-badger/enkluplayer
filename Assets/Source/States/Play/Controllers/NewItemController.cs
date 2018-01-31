@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Back button.
         /// </summary>
-        private Button _backButton;
+        private ButtonWidget _backButton;
 
         /// <summary>
         /// Parses vines.
@@ -74,7 +74,7 @@ namespace CreateAR.SpirePlayer
                 // TODO: REMOVE HACK
                 description.Elements[0].Schema.Vectors["position"] = new Vec3(-0.35f, 0, 0);
 
-                _backButton = (Button) Elements.Element(description);
+                _backButton = (ButtonWidget) Elements.Element(description);
                 _backButton.Activator.OnActivated += BackButton_OnActivate;
                 _container.AddChild(_backButton);
             }

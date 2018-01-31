@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// A simple widget that toggles on and off.
     /// </summary>
-    public class Toggle : Button
+    public class ToggleWidget : ButtonWidget
     {
         /// <summary>
         /// Internal value.
@@ -25,7 +25,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Toggle(
+        public ToggleWidget(
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,

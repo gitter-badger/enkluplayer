@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Presents text and then fades/scrolls out of sight.
     /// </summary>
-    public class TextCrawl : Widget
+    public class TextCrawlWidget : Widget
     {
         /// <summary>
         /// Tracks spawned text entries.
@@ -50,7 +50,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public TextCrawl(
+        public TextCrawlWidget(
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,

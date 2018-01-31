@@ -18,7 +18,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// The button to affect.
         /// </summary>
-        private readonly Button _button;
+        private readonly ButtonWidget _button;
 
         /// <summary>
         /// Constructor.
@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer.IUX
             TweenConfig tweens,
             ColorConfig colors,
             WidgetConfig config,
-            Button button)
+            ButtonWidget button)
         {
             _tweens = tweens;
             _colors = colors;

@@ -199,11 +199,11 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.CAPTION:
                 {
-                    return new Caption(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages);
+                    return new CaptionWidget(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.BUTTON:
                 {
-                    return new Button(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages, _voice);
+                    return new ButtonWidget(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages, _voice);
                 }
                 case ElementTypes.CURSOR:
                 {
@@ -211,11 +211,11 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.MENU:
                 {
-                    return new Menu(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, this);
+                    return new MenuWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, this);
                 }
                 case ElementTypes.TEXTCRAWL:
                 {
-                    return new TextCrawl(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new TextCrawlWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
                 }
                 case ElementTypes.FLOAT:
                 {
@@ -223,11 +223,11 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.TOGGLE:
                 {
-                    return new Toggle(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, _voice);
+                    return new ToggleWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, _voice);
                 }
                 case ElementTypes.SLIDER:
                 {
-                    return new Slider(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new SliderWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
                 }
                 case ElementTypes.SELECT:
                 {

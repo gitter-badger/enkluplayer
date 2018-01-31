@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Presents menu options.
     /// </summary>
-    public class Menu : Widget
+    public class MenuWidget : Widget
     {
         /// <summary>
         /// Creates elements.
@@ -28,7 +28,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Back button.
         /// </summary>
-        private Button _backButton;
+        private ButtonWidget _backButton;
 
         /// <summary>
         /// Properties.
@@ -61,7 +61,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Menu(
+        public MenuWidget(
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,
@@ -352,7 +352,7 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            _backButton = (Button) _elements.Element(new ElementDescription
+            _backButton = (ButtonWidget) _elements.Element(new ElementDescription
             {
                 Root = new ElementRef
                 {

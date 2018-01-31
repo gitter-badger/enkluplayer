@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Basic text rendering widget.
     /// </summary>
-    public class Caption : Widget
+    public class CaptionWidget : Widget
     {
         /// <summary>
         /// Primitives!
@@ -26,7 +26,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Caption(
+        public CaptionWidget(
             GameObject gameObject,
             WidgetConfig config,
             IPrimitiveFactory primitives,
