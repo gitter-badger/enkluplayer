@@ -212,7 +212,9 @@ namespace CreateAR.SpirePlayer.IUX
             // destroy children
             for (var i = _children.Count - 1; i >= 0; i--)
             {
-                _children[i].Destroy();
+                var child = _children[i];
+                child.OnDestroyed -= Child_OnDestroyed;
+                child.Destroy();
             }
 
             Log.Info(this, "Destroy({0})", Guid);
@@ -244,12 +246,14 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 element.OnChildAdded -= Child_OnChildAdded;
                 element.OnChildRemoved -= Child_OnChildRemoved;
+                element.OnDestroyed -= Child_OnDestroyed;
                 _children.RemoveAt(index);
             }
 
             _children.Add(element);
             element.OnChildAdded += Child_OnChildAdded;
             element.OnChildRemoved += Child_OnChildRemoved;
+            element.OnDestroyed += Child_OnDestroyed;
 
             // hook up schema
             element.Schema.Wrap(Schema);
@@ -279,6 +283,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 element.OnChildAdded -= Child_OnChildAdded;
                 element.OnChildRemoved -= Child_OnChildRemoved;
+                element.OnDestroyed -= Child_OnDestroyed;
 
                 // unwrap schema
                 element.Schema.Wrap(null);
@@ -576,6 +581,15 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 OnChildRemoved(this, child);
             }
+        }
+
+        /// <summary>
+        /// Called when an immediate child has been destroyed.
+        /// </summary>
+        /// <param name="element">The child element.</param>
+        private void Child_OnDestroyed(Element element)
+        {
+            RemoveChild(element);
         }
 
         /// <summary>
