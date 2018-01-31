@@ -70,7 +70,6 @@ GameObject:
   - component: {fileID: 224136976709088080}
   - component: {fileID: 222725344672095334}
   - component: {fileID: 114712388572234712}
-  - component: {fileID: 114035555938832212}
   m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
@@ -827,22 +826,6 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
---- !u!114 &114035555938832212
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1234443186617658}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0ddc9ed7bd3ad9b40b0f10bfa7e98b63, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Graphic: {fileID: 114712388572234712}
-  CanvasRenderer: {fileID: 0}
-  Renderer: {fileID: 0}
-  Material: {fileID: 0}
-  MaterialColorName: _Color
 --- !u!114 &114141884784939324
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -937,7 +920,7 @@ MonoBehaviour:
   Frame: {fileID: 114141884784939324}
   Fill: {fileID: 114500099616267398}
   Aim: {fileID: 114405829131359438}
-  Icon: {fileID: 114035555938832212}
+  Icon: {fileID: 114712388572234712}
   StabilityTransform: {fileID: 224530307762294046}
   FillImage: {fileID: 114847686933682960}
   ActivationVfx: {fileID: 1271769183072540}

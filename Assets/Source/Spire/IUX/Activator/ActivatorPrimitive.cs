@@ -425,16 +425,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void SetIcon()
         {
-            if (null != _renderer
-                && null != _renderer.Icon
-                && null != _renderer.Icon.Graphic)
+            if (null != _renderer && null != _renderer.Icon)
             {
-                var image = _renderer.Icon.Graphic as Image;
-                if (null != image)
-                {
-                    image.sprite = _icon;
-                    image.enabled = null != _icon;
-                }
+                _renderer.Icon.sprite = _icon;
+                _renderer.Icon.enabled = null != _icon;
             }
         }
     }

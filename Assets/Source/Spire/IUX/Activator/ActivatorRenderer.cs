@@ -51,7 +51,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Icon.
         /// </summary>
-        public WidgetRenderer Icon;
+        public Image Icon;
 
         /// <summary>
         /// Transform affected by the steadiness of intention.
@@ -114,11 +114,6 @@ namespace CreateAR.SpirePlayer.IUX
             if (Frame != null)
             {
                 Frame.Initialize(activator);
-            }
-
-            if (Icon != null)
-            {
-                Icon.Initialize(activator);
             }
 
             _isInited = true;
