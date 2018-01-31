@@ -125,9 +125,23 @@ namespace CreateAR.SpirePlayer.IUX
         }
         
         /// <summary>
+        /// Forced activation.
+        /// </summary>
+        public void Activate()
+        {
+            if (ActivationVfx != null)
+            {
+                // TODO: ActivationVFX Pooling.
+                var spawnGameObject = Instantiate(ActivationVfx,
+                    gameObject.transform.position,
+                    gameObject.transform.rotation);
+                spawnGameObject.SetActive(true);
+            }
+        }
+
+        /// <summary>
         /// Frame based update.
         /// </summary>
-        //public override void FrameUpdate()
         private void Update()
         {
             if (!_isInited)
@@ -147,7 +161,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Returns the radius of the widget.
         /// </summary>
-        public float CalculateRadius()
+        private float CalculateRadius()
         {
             var radius = 1f;
             if (null != FocusCollider)
@@ -163,22 +177,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             return radius;
         }
-        
-        /// <summary>
-        /// Forced activation.
-        /// </summary>
-        public void Activate()
-        {
-            if (ActivationVfx != null)
-            {
-                // TODO: ActivationVFX Pooling.
-                var spawnGameObject = Instantiate(ActivationVfx,
-                    gameObject.transform.position,
-                    gameObject.transform.rotation);
-                spawnGameObject.SetActive(true);
-            }
-        }
-        
+
         /// <summary>
         /// Generate buffer collider
         /// </summary>

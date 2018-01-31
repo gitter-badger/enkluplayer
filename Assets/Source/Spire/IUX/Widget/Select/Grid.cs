@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -10,6 +13,9 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     public class Grid : Widget
     {
+        private const int NUM_COLS = 3;
+        private const int NUM_ROWS = 2;
+
         /// <summary>
         /// For creating primitives.
         /// </summary>
@@ -26,6 +32,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly VineImporter _parser;
 
         private readonly List<OptionGroup> _groups = new List<OptionGroup>();
+        private readonly List<Option> _pageSelectChildren = new List<Option>();
         private readonly List<Button> _currentChildren = new List<Button>();
 
         private Select _groupSelect;
@@ -33,6 +40,9 @@ namespace CreateAR.SpirePlayer.IUX
         private Select _pageSelect;
 
         private Button _backButton;
+
+        private ElementSchemaProp<float> _horizontalPaddingProp;
+        private ElementSchemaProp<float> _verticalPaddingProp;
 
         /// <summary>
         /// Shell.
@@ -68,6 +78,12 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void AfterLoadChildrenInternal()
         {
             base.AfterLoadChildrenInternal();
+
+            _verticalPaddingProp = Schema.Get<float>("padding.vertical");
+            _verticalPaddingProp.OnChanged += VerticalPadding_OnChanged;
+
+            _horizontalPaddingProp = Schema.Get<float>("padding.horizontal");
+            _horizontalPaddingProp.OnChanged += HorizontalPadding_OnChanged;
 
             RefreshOptionGroups();
 
@@ -144,43 +160,88 @@ namespace CreateAR.SpirePlayer.IUX
 
             // current page buttons
             {
-                var group = Group(_groupSelect.Selection.Value);
-                if (null != group)
-                {
-                    // create children!
-                    var options = group.Options;
+                UpdatePage();
+            }
+        }
 
-                    const int NUM_ROWS = 3;
-                    const int NUM_COLS = 3;
+        protected override void AfterUnloadChildrenInternal()
+        {
+            base.AfterUnloadChildrenInternal();
 
-                    var elementWidth = .1f;
-                    var elementHeight = .1f;
+            _horizontalPaddingProp.OnChanged -= HorizontalPadding_OnChanged;
+            _verticalPaddingProp.OnChanged -= VerticalPadding_OnChanged;
+        }
 
-                    for (var i = 0; i < options.Length; i++)
-                    {
-                        var option = options[i];
-                        var description = _parser.Parse(string.Format(
-                            @"<?Vine><Button layout='vertical' label='{0}' value='{1}' />",
-                            option.Label,
-                            option.Value));
+        private void UpdatePage()
+        {
+            var group = Group(_groupSelect.Selection.Value);
+            if (null == group)
+            {
+                return;
+            }
 
-                        var button = (Button) _elements.Element(description);
+            // TODO: determine page
+            var page = 0;
+            if (-1 == page)
+            {
+                return;
+            }
 
-                        // position
-                        var row = i / NUM_COLS;
-                        var col = i % NUM_COLS;
+            // clear old children
+            for (int i = 0, len = _currentChildren.Count; i < len; i++)
+            {
+                _currentChildren[i].Destroy();
+            }
+            _currentChildren.Clear();
 
-                        var targetPosition = new Vec3(
-                            row * elementWidth,
-                            col * elementHeight,
-                            0);
-                        button.Schema.Set("position", targetPosition);
+            // create new children
+            var resultsPerPage = NUM_COLS * NUM_ROWS;
+            var options = group.Options;
+            for (var i = page * resultsPerPage;
+                i < Mathf.Min(options.Length, (page + 1) * resultsPerPage);
+                i++)
+            {
+                var option = options[i];
+                var description = _parser.Parse(string.Format(
+                    @"<Button
+                        layout='vertical'
+                        label='{0}'
+                        value='{1}'
+                        fontSize=50 />",
+                    option.Label,
+                    option.Value));
 
-                        AddChild(button);
+                var button = (Button) _elements.Element(description);
 
-                        _currentChildren.Add(button);
-                    }
-                }
+                AddChild(button);
+
+                _currentChildren.Add(button);
+            }
+
+            // position children
+            UpdateButtonLayout();
+        }
+
+        private void UpdateButtonLayout()
+        {
+            var elementHeight = _verticalPaddingProp.Value;
+            var elementWidth = _horizontalPaddingProp.Value;
+
+            for (var i = 0; i < _currentChildren.Count; i++)
+            {
+                var button = _currentChildren[i];
+
+                // position
+                var row = i / NUM_COLS;
+                var col = i % NUM_COLS;
+
+                Log.Info(this, "{0} -> {1}, {2}", i, row, col);
+
+                var targetPosition = new Vec3(
+                    col * elementWidth,
+                    -row * elementHeight,
+                    0);
+                button.Schema.Set("position", targetPosition);
             }
         }
 
@@ -211,6 +272,34 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Called when horizontal padding changes.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value</param>
+        private void HorizontalPadding_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateButtonLayout();
+        }
+
+        /// <summary>
+        /// Called when horizontal padding changes.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value</param>
+        private void VerticalPadding_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateButtonLayout();
         }
     }
 }

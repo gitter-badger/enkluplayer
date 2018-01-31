@@ -128,6 +128,16 @@ namespace CreateAR.SpirePlayer.IUX
                 }
             });
             menuSchema.Inherit(_baseSchema);
+
+            var gridSchema = _typeSchema[ElementTypes.GRID] = new ElementSchema("Base.Grid");
+            gridSchema.Load(new ElementSchemaData
+            {
+                Floats = new Dictionary<string, float>()
+                {
+                    { "padding.vertical", .15f },
+                    { "padding.horizontal", .15f }
+                }
+            });
         }
 
         /// <inheritdoc cref="IElementFactory"/>
