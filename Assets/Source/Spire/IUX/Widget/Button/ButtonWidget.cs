@@ -40,16 +40,16 @@ namespace CreateAR.SpirePlayer.IUX
         /// Controls rendering changes based on button state.
         /// </summary>
         private readonly ButtonStateRenderer _stateRenderer;
-
-        /// <summary>
-        /// Texture for src.
-        /// </summary>
-        private Texture2D _srcTexture;
-
+        
         /// <summary>
         /// Token for image load.
         /// </summary>
-        private IAsyncToken<Func<Texture2D, bool>> _loadToken;
+        private IAsyncToken<ManagedTexture> _loadToken;
+
+        /// <summary>
+        /// Managed texture we release after we are done.
+        /// </summary>
+        private ManagedTexture _texture;
 
         /// <summary>
         /// Props.
@@ -201,6 +201,17 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void AfterUnloadChildrenInternal()
         {
             base.AfterUnloadChildrenInternal();
+
+            if (null != _loadToken)
+            {
+                _loadToken.Abort();
+            }
+
+            if (null != _texture)
+            {
+                _texture.Release();
+                _texture = null;
+            }
             
             // activator
             {
@@ -259,17 +270,22 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateIcon()
         {
+            // kill previous managed textures
+            if (null != _texture)
+            {
+                _texture.Release();
+                _texture = null;
+
+                _activator.Icon = null;
+            }
+
+            // load icon
             _activator.Icon = Config.Icons.Icon(_iconProp.Value);
 
             // if there is a src, load it
             var src = _srcProp.Value;
             if (!string.IsNullOrEmpty(src))
             {
-                if (null == _srcTexture)
-                {
-                    _srcTexture = new Texture2D(2, 2);
-                }
-
                 // abort previous loads
                 if (null != _loadToken)
                 {
@@ -277,23 +293,19 @@ namespace CreateAR.SpirePlayer.IUX
                 }
 
                 _loadToken = _loader
-                    .Load("{assetsUrl}" + src)
-                    .OnSuccess(action =>
+                    .Load(src)
+                    .OnSuccess(texture =>
                     {
                         Log.Info(this, "Successfully loaded image.");
 
-                        // apply to texture
-                        if (!action(_srcTexture))
-                        {
-                            Log.Error(this, "Could not load bytes into image.");
-
-                            return;
-                        }
-
+                        _texture = texture;
+                        
                         // create sprite
                         _activator.Icon = Sprite.Create(
-                            _srcTexture,
-                            Rect.MinMaxRect(0, 0, _srcTexture.width, _srcTexture.height),
+                            texture.Source,
+                            Rect.MinMaxRect(0, 0,
+                                texture.Source.width,
+                                texture.Source.height),
                             new Vector2(0.5f, 0.5f));
                     })
                     .OnFailure(exception => Log.Error(

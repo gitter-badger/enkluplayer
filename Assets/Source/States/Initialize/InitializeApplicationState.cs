@@ -77,8 +77,8 @@ namespace CreateAR.SpirePlayer
             _ble = ble;
             _api = api;
 
-            imageLoader.Replace(
-                "assetsUrl",
+            imageLoader.ReplaceProtocol(
+                "assets",
                 "http://ec2-54-202-152-140.us-west-2.compute.amazonaws.com:9091");
         }
 

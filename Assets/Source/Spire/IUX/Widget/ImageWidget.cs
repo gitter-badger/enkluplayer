@@ -32,12 +32,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// The token returned from the loader.
         /// </summary>
-        private IAsyncToken<Func<Texture2D, bool>> _loadToken;
+        private IAsyncToken<ManagedTexture> _loadToken;
 
         /// <summary>
-        /// Underlying texture.
+        /// Managed texture we must release.
         /// </summary>
-        private Texture2D _texture;
+        private ManagedTexture _texture;
 
         /// <summary>
         /// Constructor.
@@ -87,6 +87,17 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.AfterUnloadChildrenInternal();
 
+            if (null != _loadToken)
+            {
+                _loadToken.Abort();
+            }
+
+            if (null != _texture)
+            {
+                _texture.Release();
+                _texture = null;
+            }
+
             // props
             {
                 _widthProp.OnChanged -= Width_OnChanged;
@@ -124,29 +135,26 @@ namespace CreateAR.SpirePlayer.IUX
                 _loadToken.Abort();
             }
 
+            if (null != _texture)
+            {
+                _texture.Release();
+                _texture = null;
+
+                _image.sprite = null;
+            }
+
             _image.enabled = false;
 
             _loadToken = _loader
                 .Load(src)
-                .OnSuccess(action =>
+                .OnSuccess(texture =>
                 {
-                    // lazily create
-                    if (null == _texture)
-                    {
-                        _texture = new Texture2D(2, 2);
-                    }
-
-                    // apply
-                    if (!action(_texture))
-                    {
-                        Log.Error(this, "Could not load bytes into texture.");
-                        return;
-                    }
-
+                    _texture = texture;
+                    
                     _image.enabled = true;
                     _image.sprite = Sprite.Create(
-                        _texture,
-                        Rect.MinMaxRect(0, 0, _texture.width, _texture.height),
+                        _texture.Source,
+                        Rect.MinMaxRect(0, 0, _texture.Source.width, _texture.Source.height),
                         new Vector2(0.5f, 0.5f));
 
                     UpdateDimensions();

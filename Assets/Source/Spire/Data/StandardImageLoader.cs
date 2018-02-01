@@ -29,6 +29,11 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Protocol for resources.
+        /// </summary>
+        private const string RESOURCE_PROTOCOL = "res://";
+
+        /// <summary>
         /// Dumb in-memory cache.
         /// </summary>
         private readonly Dictionary<string, byte[]> _cache = new Dictionary<string, byte[]>();
@@ -37,6 +42,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// List of replacements.
         /// </summary>
         private readonly List<ReplacementRecord> _replacements = new List<ReplacementRecord>();
+
+        /// <summary>
+        /// List of protocol replacements.
+        /// </summary>
+        private readonly List<ReplacementRecord> _protocols = new List<ReplacementRecord>();
 
         /// <summary>
         /// Bootstraps coroutines.
@@ -60,9 +70,22 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Func<Texture2D, bool>> Load(string url)
+        public IImageLoader ReplaceProtocol(string protocol, string replacement)
         {
-            var token = new AsyncToken<Func<Texture2D, bool>>();
+            if (!replacement.EndsWith("/"))
+            {
+                replacement += "/";
+            }
+
+            _protocols.Add(new ReplacementRecord(protocol, replacement));
+
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IAsyncToken<ManagedTexture> Load(string url)
+        {
+            var token = new AsyncToken<ManagedTexture>();
             
             if (string.IsNullOrEmpty(url))
             {
@@ -74,16 +97,38 @@ namespace CreateAR.SpirePlayer.IUX
             byte[] bytes;
             if (_cache.TryGetValue(url, out bytes))
             {
-                token.Succeed(texture =>
+                var texture = ManagedTexture();
+                if (texture.Source.LoadImage(bytes))
                 {
-                    texture.LoadImage(bytes);
-
-                    return true;
-                });
+                    token.Succeed(texture);
+                }
+                else
+                {
+                    token.Fail(new Exception("Could not load bytes into texture."));
+                }
             }
             else
             {
                 Log.Info(this, "Requesting image at {0}.", url);
+
+                if (url.StartsWith(RESOURCE_PROTOCOL))
+                {
+                    var path = url.Substring(RESOURCE_PROTOCOL.Length);
+                    var source = Resources.Load<Texture2D>(path);
+                    if (null == source)
+                    {
+                        token.Fail(new Exception(string.Format(
+                            "Could not find {0} in Resources.",
+                            path)));
+                    }
+                    else
+                    {
+                        var texture = ManagedTexture(source);
+                        token.Succeed(texture);
+                    }
+
+                    return token;
+                }
 
                 try
                 {
@@ -112,7 +157,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private IEnumerator Wait(
             UnityWebRequest request,
-            AsyncToken<Func<Texture2D, bool>> token)
+            AsyncToken<ManagedTexture> token)
         {
             yield return request.SendWebRequest();
 
@@ -122,18 +167,18 @@ namespace CreateAR.SpirePlayer.IUX
             }
             else
             {
-                token.Succeed(texture =>
+                var texture = ManagedTexture();
+                var bytes = request.downloadHandler.data;
+                if (texture.Source.LoadImage(bytes))
                 {
-                    var bytes = request.downloadHandler.data;
-                    if (texture.LoadImage(bytes))
-                    {
-                        _cache[request.url] = bytes;
+                    _cache[request.url] = bytes;
 
-                        return true;
-                    }
-
-                    return false;
-                });
+                    token.Succeed(texture);
+                }
+                else
+                {
+                    token.Fail(new Exception("Could not load bytes into texture."));
+                }
             }
         }
 
@@ -144,6 +189,21 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private string Replace(string url)
         {
+            var index = url.IndexOf("://", StringComparison.Ordinal);
+            if (-1 != index)
+            {
+                var protocol = url.Substring(0, index + 3);
+                for (int i = 0, len = _protocols.Count; i < len; i++)
+                {
+                    if (_protocols[i].Template == protocol)
+                    {
+                        url = _protocols[i].Replacement + url.Substring(index + 3);
+
+                        break;
+                    }
+                }
+            }
+
             for (var i = 0; i < _replacements.Count; i++)
             {
                 var replacement = _replacements[i];
@@ -154,6 +214,17 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             return url;
+        }
+
+        /// <summary>
+        /// Retrieves a texture.
+        /// 
+        /// TODO: Pool.
+        /// </summary>
+        /// <returns></returns>
+        private ManagedTexture ManagedTexture(Texture2D texture = null)
+        {
+            return new ManagedTexture(texture ?? new Texture2D(2, 2));
         }
     }
 }
