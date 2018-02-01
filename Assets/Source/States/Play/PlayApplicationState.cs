@@ -81,7 +81,7 @@ namespace CreateAR.SpirePlayer
 #if NETFX_CORE
                 // reference by hand
 #else
-                System.AppDomain.CurrentDomain.GetAssemblies()
+                AppDomain.CurrentDomain.GetAssemblies()
 #endif
             );
 
@@ -161,6 +161,10 @@ namespace CreateAR.SpirePlayer
             LoadFakeContentData(config);
         }
 
+        /// <summary>
+        /// Loads fake asset data into appdata.
+        /// </summary>
+        /// <param name="config">Configuration.</param>
         private void LoadFakeAssetData(PlayModeConfig config)
         {
             var data = config.TestAssetData.bytes;
@@ -177,6 +181,10 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Loads fake content data into appdata.
+        /// </summary>
+        /// <param name="config">Config.</param>
         private void LoadFakeContentData(PlayModeConfig config)
         {
             var data = config.TestContentData.bytes;
