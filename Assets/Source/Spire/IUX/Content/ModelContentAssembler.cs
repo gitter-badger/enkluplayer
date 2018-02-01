@@ -208,7 +208,7 @@ namespace CreateAR.SpirePlayer
             _instance = _pools.Get<GameObject>(value);
 
             // apply material
-            ApplyMaterial(_instance, _materialLoader.Material);
+            //ApplyMaterial(_instance, _materialLoader.Material);
 
             // asset is loaded
             if (null != OnAssemblyComplete)
