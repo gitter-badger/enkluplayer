@@ -157,7 +157,13 @@ namespace CreateAR.SpirePlayer
         /// <param name="config">Config for play mode.</param>
         private void LoadFakeData(PlayModeConfig config)
         {
-            var data = config.TestContentData.bytes;
+            LoadFakeAssetData(config);
+            LoadFakeContentData(config);
+        }
+
+        private void LoadFakeAssetData(PlayModeConfig config)
+        {
+            var data = config.TestAssetData.bytes;
             object objects;
             new JsonSerializer().Deserialize(typeof(AssetData[]), ref data, out objects);
 
@@ -167,6 +173,22 @@ namespace CreateAR.SpirePlayer
                 _messages.Publish(MessageTypes.ASSET_ADD, new AssetAddEvent
                 {
                     Asset = asset
+                });
+            }
+        }
+
+        private void LoadFakeContentData(PlayModeConfig config)
+        {
+            var data = config.TestContentData.bytes;
+            object objects;
+            new JsonSerializer().Deserialize(typeof(ContentData[]), ref data, out objects);
+
+            var contents = (ContentData[]) objects;
+            foreach (var content in contents)
+            {
+                _messages.Publish(MessageTypes.CONTENT_ADD, new ContentAddEvent
+                {
+                    Content = content
                 });
             }
         }
