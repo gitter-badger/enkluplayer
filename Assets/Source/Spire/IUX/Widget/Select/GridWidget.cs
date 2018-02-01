@@ -265,7 +265,7 @@ namespace CreateAR.SpirePlayer.IUX
                         fontSize=50 />",
                     option.Label,
                     option.Value,
-                    option.Schema.Get<string>("src")));
+                    option.Schema.Get<string>("src").Value));
 
                 var button = (ButtonWidget) _elements.Element(description);
 

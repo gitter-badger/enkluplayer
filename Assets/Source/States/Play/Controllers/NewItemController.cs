@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
@@ -154,7 +155,7 @@ namespace CreateAR.SpirePlayer
                 }
                 vine += "</OptionGroup>";
             }
-
+            
             return vine;
         }
 
