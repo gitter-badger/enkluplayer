@@ -199,7 +199,7 @@ namespace CreateAR.SpirePlayer.IUX
             get { return _renderer.Alignment; }
             set { _renderer.Alignment = value; }
         }
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
