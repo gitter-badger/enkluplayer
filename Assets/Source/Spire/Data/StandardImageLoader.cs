@@ -88,6 +88,17 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 Log.Info(this, "Requesting image at {0}.", url);
 
+                try
+                {
+                    new Uri(url);
+                }
+                catch (Exception exception)
+                {
+                    token.Fail(exception);
+
+                    return token;
+                }
+
                 _bootstrapper.BootstrapCoroutine(Wait(
                     UnityWebRequest.Get(url),
                     texture,
