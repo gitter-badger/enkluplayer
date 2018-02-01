@@ -80,7 +80,9 @@ public partial class VineParser : Parser {
 			decisionToDFA[i] = new DFA(_ATN.GetDecisionState(i), i);
 		}
 	}
-    
+
+		public VineParser(ITokenStream input) : this(input, Console.Out, Console.Error) { }
+
 		public VineParser(ITokenStream input, TextWriter output, TextWriter errorOutput)
 		: base(input, output, errorOutput)
 	{

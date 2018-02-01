@@ -335,8 +335,9 @@ namespace CreateAR.SpirePlayer.Vine
                 if (!float.TryParse(value, out floatValue))
                 {
                     throw new Exception(string.Format(
-                        "Float could not be parsed for attribute {0} : {1}.",
+                        "Float could not be parsed for attribute {0} : {1} : {2}.",
                         name,
+                        value,
                         GetExceptionLocation(context)));
                 }
 
