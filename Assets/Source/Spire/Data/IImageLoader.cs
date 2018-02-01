@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -20,8 +21,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Loads an image into a texture.
         /// </summary>
         /// <param name="url">The url.</param>
-        /// <param name="texture">The texture.</param>
         /// <returns></returns>
-        IAsyncToken<Void> Load(string url, Texture2D texture);
+        IAsyncToken<Func<Texture2D, bool>> Load(string url);
     }
 }

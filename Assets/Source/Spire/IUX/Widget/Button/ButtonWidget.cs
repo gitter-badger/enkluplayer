@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
@@ -44,6 +45,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Texture for src.
         /// </summary>
         private Texture2D _srcTexture;
+
+        /// <summary>
+        /// Token for image load.
+        /// </summary>
+        private IAsyncToken<Func<Texture2D, bool>> _loadToken;
 
         /// <summary>
         /// Props.
@@ -264,14 +270,27 @@ namespace CreateAR.SpirePlayer.IUX
                     _srcTexture = new Texture2D(2, 2);
                 }
 
-                _loader
-                    .Load(
-                        "{assetsUrl}" + src,
-                        _srcTexture)
-                    .OnSuccess(_ =>
+                // abort previous loads
+                if (null != _loadToken)
+                {
+                    _loadToken.Abort();
+                }
+
+                _loadToken = _loader
+                    .Load("{assetsUrl}" + src)
+                    .OnSuccess(action =>
                     {
                         Log.Info(this, "Successfully loaded image.");
 
+                        // apply to texture
+                        if (!action(_srcTexture))
+                        {
+                            Log.Error(this, "Could not load bytes into image.");
+
+                            return;
+                        }
+
+                        // create sprite
                         _activator.Icon = Sprite.Create(
                             _srcTexture,
                             Rect.MinMaxRect(0, 0, _srcTexture.width, _srcTexture.height),

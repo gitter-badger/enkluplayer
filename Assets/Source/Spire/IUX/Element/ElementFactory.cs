@@ -138,10 +138,20 @@ namespace CreateAR.SpirePlayer.IUX
             var gridSchema = _typeSchema[ElementTypes.GRID] = new ElementSchema("Base.Grid");
             gridSchema.Load(new ElementSchemaData
             {
-                Floats = new Dictionary<string, float>()
+                Floats = new Dictionary<string, float>
                 {
                     { "padding.vertical", .15f },
                     { "padding.horizontal", .15f }
+                }
+            });
+
+            var imageSchema = _typeSchema[ElementTypes.IMAGE] = new ElementSchema("Base.Image");
+            imageSchema.Load(new ElementSchemaData
+            {
+                Floats = new Dictionary<string, float>
+                {
+                    { "width", 0.1f },
+                    { "height", 0.1f }
                 }
             });
         }
@@ -202,6 +212,10 @@ namespace CreateAR.SpirePlayer.IUX
                 case ElementTypes.CONTAINER:
                 {
                     return new Container(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages);
+                }
+                case ElementTypes.IMAGE:
+                {
+                    return new ImageWidget(UnityEngine.Object.Instantiate(_config.Image), _config, _layers, _tweens, _colors, _messages, _imageLoader);
                 }
                 case ElementTypes.CAPTION:
                 {

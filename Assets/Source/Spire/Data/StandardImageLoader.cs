@@ -6,7 +6,6 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.Networking;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -61,15 +60,10 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Load(string url, Texture2D texture)
+        public IAsyncToken<Func<Texture2D, bool>> Load(string url)
         {
-            var token = new AsyncToken<Void>();
-
-            if (null == texture)
-            {
-                throw new ArgumentException("'texture' cannot be null.");
-            }
-
+            var token = new AsyncToken<Func<Texture2D, bool>>();
+            
             if (string.IsNullOrEmpty(url))
             {
                 throw new ArgumentException("'url' must be non-empty.");
@@ -80,9 +74,12 @@ namespace CreateAR.SpirePlayer.IUX
             byte[] bytes;
             if (_cache.TryGetValue(url, out bytes))
             {
-                texture.LoadImage(bytes);
+                token.Succeed(texture =>
+                {
+                    texture.LoadImage(bytes);
 
-                token.Succeed(Void.Instance);
+                    return true;
+                });
             }
             else
             {
@@ -101,7 +98,6 @@ namespace CreateAR.SpirePlayer.IUX
 
                 _bootstrapper.BootstrapCoroutine(Wait(
                     UnityWebRequest.Get(url),
-                    texture,
                     token));
             }
 
@@ -112,13 +108,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Waits on a request.
         /// </summary>
         /// <param name="request">The request to wait on.</param>
-        /// <param name="texture">The texture to load the image into.</param>
         /// <param name="token">The token to resolve.</param>
         /// <returns></returns>
         private IEnumerator Wait(
             UnityWebRequest request,
-            Texture2D texture,
-            AsyncToken<Void> token)
+            AsyncToken<Func<Texture2D, bool>> token)
         {
             yield return request.SendWebRequest();
 
@@ -128,14 +122,18 @@ namespace CreateAR.SpirePlayer.IUX
             }
             else
             {
-                if (texture.LoadImage(request.downloadHandler.data))
+                token.Succeed(texture =>
                 {
-                    token.Succeed(Void.Instance);
-                }
-                else
-                {
-                    token.Fail(new Exception("Could not load data into Texture2D."));
-                }
+                    var bytes = request.downloadHandler.data;
+                    if (texture.LoadImage(bytes))
+                    {
+                        _cache[request.url] = bytes;
+
+                        return true;
+                    }
+
+                    return false;
+                });
             }
         }
 

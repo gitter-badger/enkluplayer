@@ -33,6 +33,7 @@ namespace CreateAR.SpirePlayer.Vine
         private readonly List<ElementMap> _elementTypeMap = new List<ElementMap>
         {
             Commons.Unity.DataStructures.Tuple.Create("Container", ElementTypes.CONTAINER),
+            Commons.Unity.DataStructures.Tuple.Create("Image", ElementTypes.IMAGE),
             Commons.Unity.DataStructures.Tuple.Create("Button", ElementTypes.BUTTON),
             Commons.Unity.DataStructures.Tuple.Create("Caption", ElementTypes.CAPTION),
             Commons.Unity.DataStructures.Tuple.Create("Menu", ElementTypes.MENU),

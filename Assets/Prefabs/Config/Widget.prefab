@@ -493,5 +493,6 @@ MonoBehaviour:
   HalfMoon: {fileID: 224793317094499598, guid: 36fa325fc61364646a0e467d65879938, type: 2}
   GridShell: {fileID: 224793317094499598, guid: d3d24646e4585dc4586c9e0a5fb58a60,
     type: 2}
+  Image: {fileID: 1595879130462960, guid: f9aad1ccf2c5e5e40b879a3b37c8aaf9, type: 2}
   DesignMenu: {fileID: 4900000, guid: bdfddba0a0fcb5f41b4051ccaeaae723, type: 3}
   PlayMenu: {fileID: 4900000, guid: 67608bf5e2dec664a802b806644825b8, type: 3}

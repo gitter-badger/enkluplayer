@@ -196,6 +196,11 @@ namespace CreateAR.SpirePlayer.IUX
         public RectTransform GridShell;
 
         /// <summary>
+        /// Image prefab.
+        /// </summary>
+        public GameObject Image;
+
+        /// <summary>
         /// Design.
         /// </summary>
         [Header("Vines")]
