@@ -7,19 +7,41 @@ using UnityEngine.UI;
 
 namespace CreateAR.SpirePlayer.IUX
 {
+    /// <summary>
+    /// Widget for a static image.
+    /// </summary>
     public class ImageWidget : Widget
     {
+        /// <summary>
+        /// Loads images.
+        /// </summary>
         private readonly IImageLoader _loader;
+
+        /// <summary>
+        /// The image reference.
+        /// </summary>
         private readonly Image _image;
 
+        /// <summary>
+        /// Props!
+        /// </summary>
         private ElementSchemaProp<string> _srcProp;
         private ElementSchemaProp<float> _widthProp;
         private ElementSchemaProp<float> _heightProp;
 
+        /// <summary>
+        /// The token returned from the loader.
+        /// </summary>
         private IAsyncToken<Func<Texture2D, bool>> _loadToken;
 
+        /// <summary>
+        /// Underlying texture.
+        /// </summary>
         private Texture2D _texture;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public ImageWidget(
             GameObject gameObject,
             WidgetConfig config,
@@ -40,6 +62,7 @@ namespace CreateAR.SpirePlayer.IUX
             _image = gameObject.GetComponentInChildren<Image>();
         }
 
+        /// <inheritdoc />
         protected override void AfterLoadChildrenInternal()
         {
             base.AfterLoadChildrenInternal();
@@ -59,6 +82,7 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateSrc();
         }
 
+        /// <inheritdoc />
         protected override void AfterUnloadChildrenInternal()
         {
             base.AfterUnloadChildrenInternal();
@@ -70,6 +94,9 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <summary>
+        /// Updates the image dimensions.
+        /// </summary>
         private void UpdateDimensions()
         {
             _image.rectTransform.SetSizeWithCurrentAnchors(
@@ -81,6 +108,9 @@ namespace CreateAR.SpirePlayer.IUX
                 _heightProp.Value);
         }
 
+        /// <summary>
+        /// Updates the image src.
+        /// </summary>
         private void UpdateSrc()
         {
             var src = _srcProp.Value;
