@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -8,7 +7,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Layout element.
     /// </summary>
-    public class Float : Widget
+    public class FloatWidget : Widget
     {
         /// <summary>
         /// Configuration.
@@ -35,7 +34,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Float(
+        public FloatWidget(
             GameObject gameObject,
             WidgetConfig config,
             IIntentionManager intention,

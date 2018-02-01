@@ -123,7 +123,7 @@ namespace CreateAR.SpirePlayer.Test.Content
             var a = _content.Request("Unique");
             var b = _content.Request("Unique");
 
-            var content = new List<SpirePlayer.ContentWiget>();
+            var content = new List<SpirePlayer.ContentWidget>();
             _content.FindAll("Unique", content);
 
             Assert.AreEqual(2, content.Count);
@@ -137,7 +137,7 @@ namespace CreateAR.SpirePlayer.Test.Content
             var a = _content.Request("A");
             var b = _content.Request("A");
 
-            var content = new List<SpirePlayer.ContentWiget>();
+            var content = new List<SpirePlayer.ContentWidget>();
             _content.FindAll("A", content);
 
             Assert.AreEqual(1, content.Count);
@@ -164,7 +164,7 @@ namespace CreateAR.SpirePlayer.Test.Content
             
             _content.Release(a);
 
-            var content = new List<SpirePlayer.ContentWiget>();
+            var content = new List<SpirePlayer.ContentWidget>();
             _content.FindAll("Unique", content);
 
             Assert.AreEqual(0, content.Count);
@@ -177,7 +177,7 @@ namespace CreateAR.SpirePlayer.Test.Content
 
             _content.Release(a);
 
-            var content = new List<SpirePlayer.ContentWiget>();
+            var content = new List<SpirePlayer.ContentWidget>();
             _content.FindAll("A", content);
 
             Assert.AreEqual(1, content.Count);
@@ -193,7 +193,7 @@ namespace CreateAR.SpirePlayer.Test.Content
 
             _content.ReleaseAll("Foo");
 
-            var content = new List<SpirePlayer.ContentWiget>();
+            var content = new List<SpirePlayer.ContentWidget>();
             _content.FindAll("Unique", content);
 
             Assert.AreSame(c, content[0]);
@@ -214,7 +214,7 @@ namespace CreateAR.SpirePlayer.Test.Content
 
             _content.ReleaseAll("Tag1");
 
-            var content = new List<SpirePlayer.ContentWiget>();
+            var content = new List<SpirePlayer.ContentWidget>();
             _content.FindAll("Unique", content);
 
             Assert.AreSame(c, content[0]);

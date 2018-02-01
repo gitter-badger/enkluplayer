@@ -52,7 +52,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Container for all.
         /// </summary>
-        private Float _float;
+        private FloatWidget _float;
 
         /// <summary>
         /// Constuctor.
@@ -71,7 +71,7 @@ namespace CreateAR.SpirePlayer
             _events = _playConfig.Events;
             
             // create float
-            _float = (Float) _elements.Element(new ElementDescription
+            _float = (FloatWidget) _elements.Element(new ElementDescription
             {
                 Root = new ElementRef
                 {

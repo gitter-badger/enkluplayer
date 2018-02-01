@@ -168,10 +168,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="contentIds">Ids of <c>Content</c> to load.</param>
         /// <returns></returns>
-        private IAsyncToken<ContentWiget[]> LoadContent(List<string> contentIds)
+        private IAsyncToken<ContentWidget[]> LoadContent(List<string> contentIds)
         {
             var len = contentIds.Count;
-            var loads = new IAsyncToken<ContentWiget>[len];
+            var loads = new IAsyncToken<ContentWidget>[len];
 
             Log.Info(this, "Loading {0} piece of Content.", len);
 

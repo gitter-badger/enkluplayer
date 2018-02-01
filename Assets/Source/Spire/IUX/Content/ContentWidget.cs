@@ -11,12 +11,17 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Widget that loads + holds an asset.
     /// </summary>
-    public class ContentWiget : Widget
+    public class ContentWidget : Widget
     {
         /// <summary>
         /// Unique tag for this piece of <c>Content</c>.
         /// </summary>
         private readonly string _scriptTag = System.Guid.NewGuid().ToString();
+
+        /// <summary>
+        /// App data.
+        /// </summary>
+        private readonly IAppDataManager _appData;
 
         /// <summary>
         /// Loads and executes scripts.
@@ -29,19 +34,19 @@ namespace CreateAR.SpirePlayer
         private readonly IContentAssembler _assembler;
 
         /// <summary>
-        /// True iff Setup has been called.
+        /// Props.
         /// </summary>
-        private bool _setup;
+        private ElementSchemaProp<string> _srcProp;
         
         /// <summary>
         /// Token for asset readiness.
         /// </summary>
-        private readonly MutableAsyncToken<ContentWiget> _onAssetLoaded = new MutableAsyncToken<ContentWiget>();
+        private readonly MutableAsyncToken<ContentWidget> _onAssetLoaded = new MutableAsyncToken<ContentWidget>();
 
         /// <summary>
         /// Token for script readiness.
         /// </summary>
-        private readonly MutableAsyncToken<ContentWiget> _onScriptsLoaded = new MutableAsyncToken<ContentWiget>();
+        private readonly MutableAsyncToken<ContentWidget> _onScriptsLoaded = new MutableAsyncToken<ContentWidget>();
 
         /// <summary>
         /// Scripts.
@@ -56,7 +61,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Token, lazily created through property OnLoaded.
         /// </summary>
-        private IMutableAsyncToken<ContentWiget> _onLoaded;
+        private IMutableAsyncToken<ContentWidget> _onLoaded;
 
         /// <summary>
         /// Content data.
@@ -66,7 +71,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// A token that is fired whenever the content has loaded.
         /// </summary>
-        public IMutableAsyncToken<ContentWiget> OnLoaded
+        public IMutableAsyncToken<ContentWidget> OnLoaded
         {
             get
             {
@@ -84,14 +89,15 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ContentWiget(
+        public ContentWidget(
             WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
             IMessageRouter messages,
             IScriptManager scripts,
-            IContentAssembler assembler)
+            IContentAssembler assembler,
+            IAppDataManager appData)
             : base(
                 new GameObject("Content"),
                 config,
@@ -103,39 +109,7 @@ namespace CreateAR.SpirePlayer
             _scripts = scripts;
             _assembler = assembler;
             _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
-        }
-        
-        /// <summary>
-        /// Called to setup the content.
-        /// </summary>
-        /// <param name="data">Data to setup with.</param>
-        public void Setup(ContentData data)
-        {
-            if (_setup)
-            {
-                throw new Exception(string.Format(
-                    "Already initialized content. Existing: {0}, Requestd: {1}.",
-                    Data.Name,
-                    data.Name));
-            }
-            _setup = true;
-            
-            _host = new UnityScriptingHost(
-                this,
-                null,
-                _scripts);
-            
-            UpdateData(data);
-        }
-        
-        /// <summary>
-        /// Destroys this instance. Should not be called directly, but through
-        /// <c>IContentManager</c> Release flow.
-        /// </summary>
-        protected override void AfterUnloadChildrenInternal()
-        {
-            _assembler.Teardown();
-            TeardownScripts();
+            _appData = appData;
         }
 
         /// <summary>
@@ -145,10 +119,9 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Data updated for content {0}.", data);
 
-            var assetRefresh = null == Data
-                || Data.Asset.AssetDataId != data.Asset.AssetDataId;
+            var assetRefresh = null == Data || Data.Asset.AssetDataId != data.Asset.AssetDataId;
             var scriptRefresh = ScriptRefreshRequired(data);
-            
+
             Data = data;
 
             if (assetRefresh)
@@ -169,6 +142,33 @@ namespace CreateAR.SpirePlayer
         public void UpdateMaterialData(MaterialData data)
         {
             _assembler.UpdateMaterialData(data);
+        }
+
+        /// <inheritdoc />
+        protected override void AfterLoadChildrenInternal()
+        {
+            base.AfterLoadChildrenInternal();
+
+            _host = new UnityScriptingHost(
+                this,
+                null,
+                _scripts);
+
+            _srcProp = Schema.Get<string>("src");
+            _srcProp.OnChanged += Src_OnChanged;
+
+            UpdateData(_appData.Get<ContentData>(_srcProp.Value));
+        }
+
+        /// <inheritdoc />
+        protected override void AfterUnloadChildrenInternal()
+        {
+            base.AfterUnloadChildrenInternal();
+
+            _srcProp.OnChanged -= Src_OnChanged;
+
+            _assembler.Teardown();
+            TeardownScripts();
         }
         
         /// <summary>
@@ -198,6 +198,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SetupScripts()
         {
+            if (null == Data)
+            {
+                return;
+            }
+
             var scripts = Data.Scripts;
             var len = scripts.Length;
 
@@ -326,6 +331,20 @@ namespace CreateAR.SpirePlayer
             instance.SetActive(true);
 
             _onAssetLoaded.Succeed(this);
+        }
+
+        /// <summary>
+        /// Called when the source changes.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Src_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            UpdateData(_appData.Get<ContentData>(_srcProp.Value));
         }
     }
 }

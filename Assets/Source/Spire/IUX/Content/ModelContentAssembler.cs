@@ -89,6 +89,11 @@ namespace CreateAR.SpirePlayer
         {
             _data = data;
 
+            if (null == _data)
+            {
+                return;
+            }
+
             WatchMainAsset();
 
             var material = _appData.Get<MaterialData>(_data.MaterialId);

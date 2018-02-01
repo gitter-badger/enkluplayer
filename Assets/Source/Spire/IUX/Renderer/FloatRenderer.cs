@@ -18,7 +18,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Primitive.
         /// </summary>
-        private Float _float;
+        private FloatWidget _float;
 
         /// <summary>
         /// Dynamic Link Instance
@@ -165,7 +165,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Initialization.
         /// </summary>
         internal void Initialize(
-            Float @float,
+            FloatWidget @float,
             IIntentionManager intention)
         {
             _float = @float;
@@ -272,11 +272,6 @@ namespace CreateAR.SpirePlayer.IUX
                     || !IsCloseToIdealPosition
                     || tooFar)
                 {
-                    Log.Warning(this, "!IsInMotion={0}, !IsCloseToIdealPosition={1}, TooFar={2}",
-                        !IsInMotion,
-                        !IsCloseToIdealPosition,
-                        tooFar);
-
                     MoveToIdealPosition();
                 }
             }

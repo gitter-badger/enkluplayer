@@ -11,6 +11,6 @@
         /// <param name="content">All content.</param>
         /// <param name="data">The <c>ContentData</c> to create the <c>Content</c> with.</param>
         /// <returns></returns>
-        ContentWiget Instance(IContentManager content, ContentData data);
+        ContentWidget Instance(IContentManager content, ContentData data);
     }
 }

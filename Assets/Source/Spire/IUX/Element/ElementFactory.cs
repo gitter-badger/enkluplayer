@@ -26,6 +26,9 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly WidgetConfig _config;
         private readonly VineImporter _parser;
         private readonly IImageLoader _imageLoader;
+        private readonly IContentFactory _content;
+        private readonly IContentManager _contentManager;
+        private readonly IAppDataManager _appData;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -52,7 +55,10 @@ namespace CreateAR.SpirePlayer.IUX
             IVoiceCommandManager voice,
             WidgetConfig config,
             VineImporter parser,
-            IImageLoader imageLoader)
+            IImageLoader imageLoader,
+            IContentFactory content,
+            IContentManager contentManager,
+            IAppDataManager appData)
         {
             _primitives = primitives;
             _intention = intention;
@@ -66,6 +72,9 @@ namespace CreateAR.SpirePlayer.IUX
             _config = config;
             _parser = parser;
             _imageLoader = imageLoader;
+            _content = content;
+            _contentManager = contentManager;
+            _appData = appData;
 
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -248,7 +257,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.FLOAT:
                 {
-                    return new Float(new GameObject("Element"), _config, _intention, _messages, _layers, _tweens, _colors);
+                    return new FloatWidget(new GameObject("Element"), _config, _intention, _messages, _layers, _tweens, _colors);
                 }
                 case ElementTypes.TOGGLE:
                 {
@@ -273,6 +282,10 @@ namespace CreateAR.SpirePlayer.IUX
                 case ElementTypes.OPTION_GROUP:
                 {
                     return new OptionGroup();
+                }
+                case ElementTypes.CONTENT:
+                {
+                    return _content.Instance(_contentManager, new ContentData());
                 }
                 default:
                 {

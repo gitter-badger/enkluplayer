@@ -4,7 +4,7 @@ namespace CreateAR.SpirePlayer.Test
 {
     public class DummyContentFactory : IContentFactory
     {
-        public SpirePlayer.ContentWiget Instance(IContentManager content, ContentData data)
+        public SpirePlayer.ContentWidget Instance(IContentManager content, ContentData data)
         {
             return null;
             /*
