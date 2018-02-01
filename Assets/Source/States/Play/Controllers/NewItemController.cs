@@ -12,22 +12,30 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class NewItemController : InjectableMonoBehaviour
     {
+        /// <summary>
+        /// Internal class to group assets by tag.
+        /// </summary>
         private class AssetGroup
         {
+            /// <summary>
+            /// Name of the group.
+            /// </summary>
             public readonly string GroupName;
+
+            /// <summary>
+            /// The asset in question.
+            /// </summary>
             public readonly List<AssetData> Assets = new List<AssetData>();
 
+            /// <summary>
+            /// Constructor.
+            /// </summary>
             public AssetGroup(string groupName)
             {
                 GroupName = groupName;
             }
         }
-
-        /// <summary>
-        /// Events to listen to.
-        /// </summary>
-        private IUXEventHandler _events;
-
+        
         /// <summary>
         /// Container to add everything to.
         /// </summary>
@@ -64,7 +72,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when we wish to create a prop.
         /// </summary>
-        public event Action OnConfirm;
+        public event Action<string> OnConfirm;
 
         /// <summary>
         /// Called when we wish to cancel prop creation.
@@ -78,7 +86,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="container">Container to add elements to.</param>
         public void Initialize(IUXEventHandler events, Element container)
         {
-            _events = events;
             _container = container;
         }
 
@@ -215,7 +222,10 @@ namespace CreateAR.SpirePlayer
         /// <param name="option">The selected option/</param>
         private void Grid_OnSelected(Option option)
         {
-            Log.Info(this, "Selected {0}.", option);
+            if (null != OnConfirm)
+            {
+                OnConfirm(option.Value);
+            }
         }
     }
 }

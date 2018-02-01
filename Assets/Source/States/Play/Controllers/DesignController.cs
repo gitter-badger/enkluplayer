@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CreateAR.SpirePlayer.IUX;
 using Object = UnityEngine.Object;
 
@@ -240,10 +239,11 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the new menu wants to create a prop.
         /// </summary>
-        private void New_OnConfirm()
+        private void New_OnConfirm(string assetId)
         {
             _new.Hide();
-            _mainMenu.Show();
+
+            // load asset and place
         }
 
         /// <summary>
