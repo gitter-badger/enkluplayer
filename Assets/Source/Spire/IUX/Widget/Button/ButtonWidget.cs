@@ -149,6 +149,8 @@ namespace CreateAR.SpirePlayer.IUX
             _voice = voice;
             _loader = loader;
             _stateRenderer = new ButtonStateRenderer(tweens, colors, config, this);
+
+            _isVisible.OnChanged += Visible_OnChanged;
         }
         
         /// <inheritdoc cref="Element"/>
@@ -344,6 +346,18 @@ namespace CreateAR.SpirePlayer.IUX
                         0f);
                     break;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Called when the visibility changes.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        private void Visible_OnChanged(bool value)
+        {
+            if (null != OnVisibilityChanged)
+            {
+                OnVisibilityChanged(this);
             }
         }
 
