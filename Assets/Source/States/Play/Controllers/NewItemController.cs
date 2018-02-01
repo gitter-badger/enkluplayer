@@ -104,6 +104,7 @@ namespace CreateAR.SpirePlayer
                     @"<Grid fontSize=20>{0}</Grid>",
                     AssetsToVine());
                 _grid = (GridWidget) Elements.Element(Parser.Parse(vine));
+                _grid.OnSelected += Grid_OnSelected; 
                 _container.AddChild(_grid);
             }
         }
@@ -206,6 +207,15 @@ namespace CreateAR.SpirePlayer
             {
                 OnCancel();
             }
+        }
+
+        /// <summary>
+        /// Called when something is selected in the grid.
+        /// </summary>
+        /// <param name="option">The selected option/</param>
+        private void Grid_OnSelected(Option option)
+        {
+            Log.Info(this, "Selected {0}.", option);
         }
     }
 }

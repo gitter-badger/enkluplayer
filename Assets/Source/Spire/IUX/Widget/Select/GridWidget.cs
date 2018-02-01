@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
@@ -16,7 +17,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private const int NUM_COLS = 3;
         private const int NUM_ROWS = 2;
-        
+
+        /// <summary>
+        /// We secretly put the Option on the Button using this prop.
+        /// </summary>
+        private const string OPTION_PROPNAME = "__option__";
+
         /// <summary>
         /// For creating elements.
         /// </summary>
@@ -62,6 +68,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Shell.
         /// </summary>
         private GameObject _shell;
+
+        /// <summary>
+        /// Called when a specific <c>Option</c> has been selected.
+        /// </summary>
+        public event Action<Option> OnSelected; 
         
         /// <summary>
         /// Constructor.
@@ -93,6 +104,22 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="IIUXEventDelegate"/>
         public bool OnEvent(IUXEvent @event)
         {
+            var id = @event.Target.Id;
+            if (id.StartsWith("grid.btn-"))
+            {
+                int index;
+                if (int.TryParse(id.Split('-')[1], out index))
+                {
+                    var option = _buttons[index];
+                    if (null != OnSelected)
+                    {
+                        OnSelected(option.Schema.Get<Option>(OPTION_PROPNAME).Value);
+                    }
+
+                    return true;
+                }
+            }
+
             return false;
         }
 
@@ -259,10 +286,12 @@ namespace CreateAR.SpirePlayer.IUX
                 var description = _parser.Parse(string.Format(
                     @"<Button
                         layout='vertical'
-                        label='{0}'
-                        value='{1}'
-                        src='{2}'
+                        id='grid.btn-{0}'
+                        label='{1}'
+                        value='{2}'
+                        src='{3}'
                         fontSize=50 />",
+                    i,
                     option.Label,
                     option.Value,
                     option.Schema.Get<string>("src").Value));
@@ -270,6 +299,8 @@ namespace CreateAR.SpirePlayer.IUX
                 var button = (ButtonWidget) _elements.Element(description);
 
                 AddChild(button);
+
+                button.Schema.Set(OPTION_PROPNAME, option);
 
                 _buttons.Add(button);
             }
