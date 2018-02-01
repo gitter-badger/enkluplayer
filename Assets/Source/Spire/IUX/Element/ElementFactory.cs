@@ -154,6 +154,15 @@ namespace CreateAR.SpirePlayer.IUX
                     { "height", 0.1f }
                 }
             });
+
+            var floatSchema = _typeSchema[ElementTypes.FLOAT] = new ElementSchema("Base.Float");
+            floatSchema.Load(new ElementSchemaData
+            {
+                Floats = new Dictionary<string, float>
+                {
+                    { "fov.reorient", 1.5f }
+                }
+            });
         }
 
         /// <inheritdoc cref="IElementFactory"/>

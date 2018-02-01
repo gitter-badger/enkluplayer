@@ -30,7 +30,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private ElementSchemaProp<Vec3> _positionProp;
         private ElementSchemaProp<Vec3> _focusProp;
-        
+        private ElementSchemaProp<float> _reorientProp;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -73,14 +74,20 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.AfterLoadChildrenInternal();
 
-            // load font setup.
-            _positionProp = Schema.GetOwn("position", new Vec3(0, 0, 2.5f));
-            _positionProp.OnChanged += Position_OnChanged;
-            _renderer.Offset = _positionProp.Value.ToVector();
+            // props
+            {
+                _positionProp = Schema.GetOwn("position", new Vec3(0, 0, 2.5f));
+                _positionProp.OnChanged += Position_OnChanged;
+                UpdateRendererPosition();
+                
+                _focusProp = Schema.Get<Vec3>("focus");
+                _focusProp.OnChanged += Focus_OnChanged;
+                UpdateFocus();
 
-            // focus
-            _focusProp = Schema.Get<Vec3>("focus");
-            _focusProp.OnChanged += Focus_OnChanged;
+                _reorientProp = Schema.Get<float>("fov.reorient");
+                _reorientProp.OnChanged += Reorient_OnChanged;
+                UpdateReorient();
+            }
         }
 
         /// <inheritdoc cref="Element"/>
@@ -101,6 +108,30 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Updates the renderer's position.
+        /// </summary>
+        private void UpdateRendererPosition()
+        {
+            _renderer.Offset = _positionProp.Value.ToVector();
+        }
+
+        /// <summary>
+        /// Updates the focus position.
+        /// </summary>
+        private void UpdateFocus()
+        {
+            _renderer.Focus = _focusProp.Value.ToVector();
+        }
+
+        /// <summary>
+        /// Updates the reorient fov.
+        /// </summary>
+        private void UpdateReorient()
+        {
+            _renderer.ReorientFovScale = _reorientProp.Value;
+        }
+
+        /// <summary>
         /// Called when the label has been updated.
         /// </summary>
         /// <param name="prop">Alignment prop.</param>
@@ -111,7 +142,7 @@ namespace CreateAR.SpirePlayer.IUX
             Vec3 prev,
             Vec3 next)
         {
-            _renderer.Offset = next.ToVector();
+            UpdateRendererPosition();
         }
 
         /// <summary>
@@ -125,7 +156,21 @@ namespace CreateAR.SpirePlayer.IUX
             Vec3 prev,
             Vec3 next)
         {
-            _renderer.Focus = next.ToVector();
+            UpdateFocus();
+        }
+
+        /// <summary>
+        /// Called when the reorient prop changes.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Reorient_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateReorient();
         }
     }
 }

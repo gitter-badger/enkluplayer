@@ -199,7 +199,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 130951154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -344.1322, y: -308.70322, z: 0}
+  m_LocalPosition: {x: -439.61166, y: -232.96817, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1693554495}
@@ -483,11 +483,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vine: "<?Vine>\n<Container position=(0, 0, 1) >\n\t<Image\n\t\tsrc='res://Art/Textures/Outer
+  Vine: "<?Vine>\n<Float position=(0, 0, 1) fov.reorient=0.36>\n\t<Image\n\t\tsrc='res://Art/Textures/Outer
     Gradient'\n\t\twidth=.6\n\t\theight=.6 />\n\t<Image\n\t\tsrc='res://Art/Textures/Half
     Moon'\n\t\tposition=(0,-0.07, 0)\n\t\twidth=0.33\n\t\theight=0.1 />\n\t<Button\n\t\tid='btn-cancel'\n\t\ticon='cancel'\n\t\tposition=(0.05,-0.12,0)
     />\n\t<Button\n\t\tid='btn-ok'\n\t\ticon='check'\n\t\tposition=(-0.05,-0.12,0)
-    />\n\t<Caption\n\t\tlabel='Move the object with your head.'\n\t\tfontSize=40\n\t\twidth=500.0\n\t\toverflow='Wrap'\n\t\tposition=(0,0.05,0)\n\t\talignment='MidCenter'/>\n</Container>"
+    />\n\t<Caption\n\t\tlabel='Move the object with your head.'\n\t\tfontSize=40\n\t\twidth=500.0\n\t\toverflow='Wrap'\n\t\tposition=(0,0.05,0)\n\t\talignment='MidCenter'/>\n</Float>"
 --- !u!4 &388939355 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4109128089842400, guid: 1064e98892a50634b8b966be19de3987,
@@ -1602,7 +1602,7 @@ RectTransform:
   m_GameObject: {fileID: 1693554491}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.011878685, y: 0.011878685, z: 0.011878685}
+  m_LocalScale: {x: 0.015174427, y: 0.015174427, z: 0.015174427}
   m_Children:
   - {fileID: 1598552740}
   - {fileID: 130951155}
