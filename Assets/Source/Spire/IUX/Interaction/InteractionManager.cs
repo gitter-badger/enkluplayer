@@ -73,7 +73,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (!removed)
             {
-                interactable.OnVisibilityChange += Interactable_OnVisibilityChange;
+                interactable.OnVisibilityChanged += Interactable_OnVisibilityChange;
                 UpdateVisibility(interactable);
 
                 if (null != OnAdded)
@@ -93,7 +93,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (_all.Remove(interactable))
             {
-                interactable.OnVisibilityChange -= Interactable_OnVisibilityChange;
+                interactable.OnVisibilityChanged -= Interactable_OnVisibilityChange;
                 _visible.Remove(interactable);
 
                 if (null != OnRemoved)

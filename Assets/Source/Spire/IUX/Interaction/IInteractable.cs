@@ -49,6 +49,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Called when visibility changes.
         /// </summary>
-        event Action<IInteractable> OnVisibilityChange;
+        event Action<IInteractable> OnVisibilityChanged;
     }
 }

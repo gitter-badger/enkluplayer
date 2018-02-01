@@ -184,7 +184,7 @@ namespace CreateAR.SpirePlayer.IUX
         public event Action<ActivatorPrimitive> OnActivated;
 
         /// <inheritdoc />
-        public event Action<IInteractable> OnVisibilityChange;
+        public event Action<IInteractable> OnVisibilityChanged;
 
         /// <summary>
         /// Constructor.
@@ -433,9 +433,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="value">True iff visible.</param>
         private void Visible_OnChanged(bool value)
         {
-            if (null != OnVisibilityChange)
+            if (null != OnVisibilityChanged)
             {
-                OnVisibilityChange(this);
+                OnVisibilityChanged(this);
             }
         }
     }

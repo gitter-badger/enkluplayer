@@ -116,7 +116,7 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        public event Action<IInteractable> OnVisibilityChange;
+        public event Action<IInteractable> OnVisibilityChanged;
 
         /// <summary>
         /// Constructor.
