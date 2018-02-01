@@ -3,7 +3,6 @@
 namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
-    /// TODO: Replace most/if-not-all/of this with schema
     /// Configuration for all widgets.
     /// </summary>
     public class WidgetConfig : MonoBehaviour

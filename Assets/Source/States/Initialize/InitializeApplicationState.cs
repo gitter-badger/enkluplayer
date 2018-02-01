@@ -9,6 +9,7 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
+using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis;
 using CreateAR.Trellis.Messages.RefreshToken;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -62,7 +63,8 @@ namespace CreateAR.SpirePlayer
             IArService ar,
             BleServiceConfiguration bleConfig,
             IBleService ble,
-            ApiController api)
+            ApiController api,
+            IImageLoader imageLoader)
         {
             _messages = messages;
             _http = http;
@@ -74,6 +76,10 @@ namespace CreateAR.SpirePlayer
             _bleConfig = bleConfig;
             _ble = ble;
             _api = api;
+
+            imageLoader.Replace(
+                "assetsUrl",
+                "http://ec2-54-202-152-140.us-west-2.compute.amazonaws.com:9091");
         }
 
         /// <inheritdoc cref="IState"/>

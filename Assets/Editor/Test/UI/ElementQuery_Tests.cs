@@ -29,7 +29,7 @@ namespace CreateAR.SpirePlayer.Test.UI
                 new DummyElementManager(),
                 null, null, null,
                 new MessageRouter(),
-                null, null, null).Element(description);
+                null, null, null, null).Element(description);
         }
         
         private ElementRef GenerateRefs(int index)

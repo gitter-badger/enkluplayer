@@ -261,9 +261,11 @@ namespace CreateAR.SpirePlayer.IUX
                         layout='vertical'
                         label='{0}'
                         value='{1}'
+                        src='{2}'
                         fontSize=50 />",
                     option.Label,
-                    option.Value));
+                    option.Value,
+                    option.Schema.Get<string>("src")));
 
                 var button = (ButtonWidget) _elements.Element(description);
 

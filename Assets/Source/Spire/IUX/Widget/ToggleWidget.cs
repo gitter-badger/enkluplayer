@@ -33,7 +33,8 @@ namespace CreateAR.SpirePlayer.IUX
             ColorConfig colors,
             IMessageRouter messages,
             IPrimitiveFactory primitives,
-            IVoiceCommandManager voice)
+            IVoiceCommandManager voice,
+            IImageLoader imageLoader)
             : base(
                 gameObject,
                 config,
@@ -42,7 +43,8 @@ namespace CreateAR.SpirePlayer.IUX
                 tweens,
                 colors,
                 messages,
-                voice)
+                voice,
+                imageLoader)
         {
             //
         }

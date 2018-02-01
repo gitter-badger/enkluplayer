@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -29,9 +30,19 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IVoiceCommandManager _voice;
 
         /// <summary>
+        /// Loads images.
+        /// </summary>
+        private readonly IImageLoader _loader;
+
+        /// <summary>
         /// Controls rendering changes based on button state.
         /// </summary>
         private readonly ButtonStateRenderer _stateRenderer;
+
+        /// <summary>
+        /// Texture for src.
+        /// </summary>
+        private Texture2D _srcTexture;
 
         /// <summary>
         /// Props.
@@ -41,6 +52,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<float> _labelPaddingProp;
         private ElementSchemaProp<string> _iconProp;
         private ElementSchemaProp<string> _layoutProp;
+        private ElementSchemaProp<string> _srcProp;
 
         /// <summary>
         /// Text primitive.
@@ -110,7 +122,8 @@ namespace CreateAR.SpirePlayer.IUX
             TweenConfig tweens,
             ColorConfig colors,
             IMessageRouter messages,
-            IVoiceCommandManager voice)
+            IVoiceCommandManager voice,
+            IImageLoader loader)
             : base(
                 gameObject,
                 config,
@@ -121,6 +134,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _primitives = primitives;
             _voice = voice;
+            _loader = loader;
             _stateRenderer = new ButtonStateRenderer(tweens, colors, config, this);
         }
         
@@ -133,9 +147,13 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _activator = _primitives.Activator(Schema, this);
                 AddChild(_activator);
-                
+
+                _srcProp = Schema.Get<string>("src");
+                _srcProp.OnChanged += Src_OnChanged;
+
                 _iconProp = Schema.Get<string>("icon");
                 _iconProp.OnChanged += Icon_OnChanged;
+
                 UpdateIcon();
             }
 
@@ -173,6 +191,7 @@ namespace CreateAR.SpirePlayer.IUX
             
             // activator
             {
+                _srcProp.OnChanged -= Src_OnChanged;
                 _iconProp.OnChanged -= Icon_OnChanged;
             }
 
@@ -228,6 +247,35 @@ namespace CreateAR.SpirePlayer.IUX
         private void UpdateIcon()
         {
             _activator.Icon = Config.Icons.Icon(_iconProp.Value);
+
+            // if there is a src, load it
+            var src = _srcProp.Value;
+            if (!string.IsNullOrEmpty(src))
+            {
+                if (null == _srcTexture)
+                {
+                    _srcTexture = new Texture2D(2, 2);
+                }
+
+                _loader
+                    .Load(
+                        "{assetsUrl}" + src,
+                        _srcTexture)
+                    .OnSuccess(_ =>
+                    {
+                        Log.Info(this, "Successfully loaded image.");
+
+                        _activator.Icon = Sprite.Create(
+                            _srcTexture,
+                            Rect.MinMaxRect(0, 0, _srcTexture.width, _srcTexture.height),
+                            new Vector2(0.5f, 0.5f));
+                    })
+                    .OnFailure(exception => Log.Error(
+                        this,
+                        "Could not load {0} : {1}.",
+                        src,
+                        exception));
+            }
         }
 
         /// <summary>
@@ -274,7 +322,21 @@ namespace CreateAR.SpirePlayer.IUX
         {
             UpdateIcon();
         }
-        
+
+        /// <summary>
+        /// Called when the src has changed.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Src_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            UpdateIcon();
+        }
+
         /// <summary>
         /// Invoked when a recognizable word or phrase is spoken.
         /// </summary>

@@ -24,6 +24,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IVoiceCommandManager _voice;
         private readonly WidgetConfig _config;
         private readonly VineImporter _parser;
+        private readonly IImageLoader _imageLoader;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -48,7 +49,8 @@ namespace CreateAR.SpirePlayer.IUX
             IMessageRouter messages,
             IVoiceCommandManager voice,
             WidgetConfig config,
-            VineImporter parser)
+            VineImporter parser,
+            IImageLoader imageLoader)
         {
             _primitives = primitives;
             _intention = intention;
@@ -60,6 +62,7 @@ namespace CreateAR.SpirePlayer.IUX
             _voice = voice;
             _config = config;
             _parser = parser;
+            _imageLoader = imageLoader;
 
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -203,7 +206,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.BUTTON:
                 {
-                    return new ButtonWidget(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages, _voice);
+                    return new ButtonWidget(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages, _voice, _imageLoader);
                 }
                 case ElementTypes.CURSOR:
                 {
@@ -223,7 +226,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.TOGGLE:
                 {
-                    return new ToggleWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, _voice);
+                    return new ToggleWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, _voice, _imageLoader);
                 }
                 case ElementTypes.SLIDER:
                 {
