@@ -194,35 +194,34 @@ namespace CreateAR.SpirePlayer
 
             // IUX
             {
-                binder.Bind<IInteractableManager>().To<InteractableManager>().ToSingleton();
                 binder.Bind<IPrimitiveFactory>().To<PrimitiveFactory>().ToSingleton();
-            }
 
-            // content
-            {
-                binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
-                binder.Bind<IContentFactory>().To<ContentFactory>();
-                binder.Bind<IAnchorReferenceFrameFactory>().To<AnchorReferenceFrameFactory>();
-            }
+                // content
+                {
+                    binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
+                    binder.Bind<IContentFactory>().To<ContentFactory>();
+                    binder.Bind<IAnchorReferenceFrameFactory>().To<AnchorReferenceFrameFactory>();
+                }
 
-            // configs
-            {
-                binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
-                binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfig>());
-                binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfig>());
-                binder.Bind<IFontConfig>().ToValue(LookupComponent<FontConfig>());
-                binder.Bind<FocusManager>().ToValue(LookupComponent<FocusManager>());
-            }
+                // configs
+                {
+                    binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
+                    binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfig>());
+                    binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfig>());
+                    binder.Bind<IFontConfig>().ToValue(LookupComponent<FontConfig>());
+                    binder.Bind<FocusManager>().ToValue(LookupComponent<FocusManager>());
+                }
 
-            // manager monobehaviours
-            {
-                binder.Bind<IElementManager>().ToValue(LookupComponent<ElementManager>());
-                binder.Bind<IIntentionManager>().ToValue(LookupComponent<IntentionManager>());
-                binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
-                binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
-                binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
+                // manager monobehaviours
+                {
+                    binder.Bind<IElementManager>().ToValue(LookupComponent<ElementManager>());
+                    binder.Bind<IIntentionManager>().ToValue(LookupComponent<IntentionManager>());
+                    binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
+                    binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
+                    binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
+                }
             }
-
+            
             // hierarchy
             {
                 binder.Bind<HierarchyDatabase>().To<HierarchyDatabase>().ToSingleton();

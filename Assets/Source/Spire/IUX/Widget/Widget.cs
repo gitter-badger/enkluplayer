@@ -20,11 +20,6 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly Regex _elementParser = new Regex(@"Guid=([a-zA-Z0-9\-]+)");
 
         /// <summary>
-        /// True if the widget is currently visible
-        /// </summary>
-        private readonly WatchedValue<bool> _isVisible = new WatchedValue<bool>();
-
-        /// <summary>
         /// Special code path for first visbility refresh
         /// </summary>
         private bool _firstVisbilityRefresh = true;
@@ -72,6 +67,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Widget hierarchy.
         /// </summary>
         internal Widget _parent;
+
+        /// <summary>
+        /// True if the widget is currently visible
+        /// </summary>
+        protected readonly WatchedValue<bool> _isVisible = new WatchedValue<bool>();
 
         /// <summary>
         /// True if the window has been visible
@@ -200,14 +200,6 @@ namespace CreateAR.SpirePlayer.IUX
                     GameObject.SetActive(true);
                 }
             }
-        }
-
-        /// <summary>
-        /// Invoked when Visibility chnages
-        /// </summary>
-        public WatchedValue<bool> OnVisible
-        {
-            get { return _isVisible; }
         }
         
         /// <summary>
@@ -406,7 +398,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             InitializeWidgetComponents(GameObject.transform);
 
-            OnVisible.OnChanged += IsVisible_OnUpdate;
+            _isVisible.OnChanged += IsVisible_OnUpdate;
 
             UpdateVisibility();
 
@@ -511,8 +503,8 @@ namespace CreateAR.SpirePlayer.IUX
         private void UpdateVisibility()
         {
             var parentVisible = VisibilityMode != WidgetVisibilityMode.Inherit
-                || _parent == null
-                || _parent.Visible;
+                                || _parent == null
+                                || _parent.Visible;
 
             var layerIsVisible = !(LayerMode == LayerMode.Hide && !LayerInteractive);
 
@@ -549,8 +541,8 @@ namespace CreateAR.SpirePlayer.IUX
             if (AutoDestroy)
             {
                 if (_hasBeenVisible
-                 && !LocalVisible
-                 && Mathf.Approximately(0, Tween))
+                    && !LocalVisible
+                    && Mathf.Approximately(0, Tween))
                 {
                     Destroy();
                 }

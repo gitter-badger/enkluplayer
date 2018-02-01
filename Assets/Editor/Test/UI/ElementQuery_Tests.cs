@@ -25,7 +25,7 @@ namespace CreateAR.SpirePlayer.Test.UI
 
             _element = new ElementFactory(
                 new DummyPrimitiveFactory(),
-                null,
+                null, null,
                 new DummyElementManager(),
                 null, null, null,
                 new MessageRouter(),

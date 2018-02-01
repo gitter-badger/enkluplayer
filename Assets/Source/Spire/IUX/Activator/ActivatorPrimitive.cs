@@ -1,13 +1,14 @@
 using System;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Holds an activator.
+    /// 
+    /// TODO: Subclass InteractableWidget.
     /// </summary>
     public class ActivatorPrimitive : Widget, IInteractable
     {
@@ -19,7 +20,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Dependencies.
         /// </summary>
-        private readonly IInteractableManager _interactables;
         private readonly IInteractionManager _interaction;
         private readonly IIntentionManager _intention;
         private readonly IMessageRouter _messages;
@@ -61,7 +61,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private Sprite _icon;
 
-        /// <inheritdoc cref="IInteractable"/>
+        /// <inheritdoc />
         public bool Interactable
         {
             get
@@ -69,11 +69,11 @@ namespace CreateAR.SpirePlayer.IUX
                 const float FOCUSABLE_THRESHOLD = 0.99f;
                 return _interactable && Visible && Tween > FOCUSABLE_THRESHOLD
                        && InteractionEnabled
-                       && (!_interaction.IsOnRails || Highlighted);
+                       && (!_interaction.IsOnRails || _propHighlighted.Value);
             }
         }
 
-        /// <inheritdoc cref="IInteractable"/>
+        /// <inheritdoc />
         public virtual bool Focused
         {
             get
@@ -109,14 +109,17 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
-        /// <inheritdoc cref="IInteractable"/>
+        /// <inheritdoc />
         public int HighlightPriority
         {
             get { return _propHighlightPriority.Value; }
             set { _propHighlightPriority.Value = value; }
         }
 
-        /// <inheritdoc cref="IRaycaster"/>
+        /// <inheritdoc />
+        public bool IsHighlighted { get; set; }
+
+        /// <inheritdoc />
         public float Aim { get; set; }
 
         /// <summary>
@@ -127,16 +130,7 @@ namespace CreateAR.SpirePlayer.IUX
             get { return _propInteractionEnabled.Value; }
             set { _propInteractionEnabled.Value = value; }
         }
-
-        /// <summary>
-        /// True iff the widget should be highlighted.
-        /// </summary>
-        public bool Highlighted
-        {
-            get { return _propHighlighted.Value; }
-            set { _propHighlighted.Value = value; }
-        }
-
+        
         /// <summary>
         /// (IUX PATENT)
         /// A scalar percentage [0..1] representing activation completion.
@@ -191,12 +185,14 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public event Action<ActivatorPrimitive> OnActivated;
 
+        /// <inheritdoc />
+        public event Action<IInteractable> OnVisibilityChange;
+
         /// <summary>
         /// Constructor.
         /// </summary>
         public ActivatorPrimitive(
             WidgetConfig config,
-            IInteractableManager interactables,
             IInteractionManager interaction,
             IIntentionManager intention,
             IMessageRouter messages,
@@ -213,11 +209,12 @@ namespace CreateAR.SpirePlayer.IUX
                 messages)
         {
             _config = config;
-            _interactables = interactables;
             _interaction = interaction;
             _intention = intention;
             _messages = messages;
             _target = target;
+
+            _isVisible.OnChanged += Visible_OnChanged;
         }
 
         /// <inheritdoc cref="IRaycaster"/>
@@ -246,7 +243,7 @@ namespace CreateAR.SpirePlayer.IUX
                 Vector3.zero,
                 Quaternion.identity);
             _renderer.transform.SetParent(GameObject.transform, false);
-            _renderer.Initialize(this, _config, Layers, Tweens, Colors, Messages, _intention, _interaction, _interactables);
+            _renderer.Initialize(this, _config, Layers, Tweens, Colors, Messages, _intention, _interaction);
 
             SetIcon();
 
@@ -256,13 +253,13 @@ namespace CreateAR.SpirePlayer.IUX
             InitializeStates();
 
             _interactable = true;
-            _interactables.Add(this);
+            _interaction.Add(this);
         }
 
         /// <inheritdoc cref="Element"/>
         protected override void AfterUnloadChildrenInternal()
         {
-            _interactables.Remove(this);
+            _interaction.Remove(this);
             _interactable = false;
 
             Object.Destroy(_renderer.gameObject);
@@ -429,6 +426,18 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _renderer.Icon.sprite = _icon;
                 _renderer.Icon.enabled = null != _icon;
+            }
+        }
+
+        /// <summary>
+        /// Called when visibility changes.
+        /// </summary>
+        /// <param name="value">True iff visible.</param>
+        private void Visible_OnChanged(bool value)
+        {
+            if (null != OnVisibilityChange)
+            {
+                OnVisibilityChange(this);
             }
         }
     }

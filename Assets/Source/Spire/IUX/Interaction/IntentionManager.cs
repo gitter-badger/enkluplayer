@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -55,7 +54,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Manages interactable objects.
         /// </summary>
         [Inject]
-        public IInteractableManager Interactables { get; set; }
+        public IInteractionManager Interactables { get; set; }
 
         /// <summary>
         /// Current focus.

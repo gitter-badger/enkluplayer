@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -85,31 +86,37 @@ namespace CreateAR.SpirePlayer.IUX
             get { return _text; }
         }
         
-        /// <inheritdoc cref="IInteractable"/>
+        /// <inheritdoc />
         public bool Interactable { get { return _activator.Interactable; } }
 
-        /// <inheritdoc cref="IInteractable"/>
+        /// <inheritdoc />
+        public bool IsHighlighted { get; set; }
+
+        /// <inheritdoc />
         public float Aim { get { return _activator.Aim; } }
 
-        /// <inheritdoc cref="IInteractable"/>
+        /// <inheritdoc />
         public bool Raycast(Vec3 origin, Vec3 direction)
         {
             return _activator.Raycast(origin, direction);
         }
 
-        /// <inheritdoc cref="IInteractable"/>
+        /// <inheritdoc />
         public bool Focused
         {
             get { return _activator.Focused; }
             set { _activator.Focused = value; }
         }
 
-        /// <inheritdoc cref="IInteractable"/>
+        /// <inheritdoc />
         public int HighlightPriority
         {
             get { return _activator.HighlightPriority; }
             set { _activator.HighlightPriority = value; }
         }
+
+        /// <inheritdoc />
+        public event Action<IInteractable> OnVisibilityChange;
 
         /// <summary>
         /// Constructor.

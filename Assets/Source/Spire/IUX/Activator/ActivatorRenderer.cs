@@ -89,8 +89,7 @@ namespace CreateAR.SpirePlayer.IUX
             ColorConfig colors,
             IMessageRouter messages,
             IIntentionManager intention, 
-            IInteractionManager interaction,
-            IInteractableManager interactables)
+            IInteractionManager interaction)
         {
             _activator = activator;
             _tweens = tweens;

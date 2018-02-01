@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -33,11 +34,21 @@ namespace CreateAR.SpirePlayer.IUX
         int HighlightPriority { get; set; }
 
         /// <summary>
+        /// If true, the widget is highlighted.
+        /// </summary>
+        bool IsHighlighted { get; set; }
+
+        /// <summary>
         /// (IUX PATENT)
         /// A scalar percentage [0..1] representing targeting clarity.
         /// 0 = low clarity - may be aiming at the edge of this.
         /// 1 = high clarity - definitely targeting at center of this.
         /// </summary>
         float Aim { get; }
+
+        /// <summary>
+        /// Called when visibility changes.
+        /// </summary>
+        event Action<IInteractable> OnVisibilityChange;
     }
 }

@@ -16,6 +16,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private readonly IPrimitiveFactory _primitives;
         private readonly IIntentionManager _intention;
+        private readonly IInteractionManager _interaction;
         private readonly IElementManager _elements;
         private readonly ILayerManager _layers;
         private readonly ColorConfig _colors;
@@ -42,6 +43,7 @@ namespace CreateAR.SpirePlayer.IUX
         public ElementFactory(
             IPrimitiveFactory primitives,
             IIntentionManager intention,
+            IInteractionManager interaction,
             IElementManager elements,
             ILayerManager layers,
             ColorConfig colors,
@@ -54,6 +56,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _primitives = primitives;
             _intention = intention;
+            _interaction = interaction;
             _elements = elements;
             _layers = layers;
             _colors = colors;
@@ -210,7 +213,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.CURSOR:
                 {
-                    return new Cursor(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages, _intention);
+                    return new Cursor(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _intention, _interaction, _primitives);
                 }
                 case ElementTypes.MENU:
                 {

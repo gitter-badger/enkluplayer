@@ -12,6 +12,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Dependencies.
         /// </summary>
         private readonly IIntentionManager _intention;
+        private readonly IInteractionManager _interaction;
         private readonly IPrimitiveFactory _primitives;
 
         /// <summary>
@@ -60,12 +61,13 @@ namespace CreateAR.SpirePlayer.IUX
         public Cursor(
             GameObject gameObject,
             WidgetConfig config,
-            IPrimitiveFactory primitives,
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
             IMessageRouter messages,
-            IIntentionManager intention)
+            IIntentionManager intention,
+            IInteractionManager interaction,
+            IPrimitiveFactory primitives)
             : base(
                 gameObject,
                 config,
@@ -75,6 +77,7 @@ namespace CreateAR.SpirePlayer.IUX
                 messages)
         {
             _intention = intention;
+            _interaction = interaction;
             _primitives = primitives;
         }
 
@@ -112,8 +115,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateVisibility()
         {
-            LocalVisible = true;
-            // && Widgets.GetVisibleCount<InteractableWidget>() > 0;
+            LocalVisible = _interaction.Visible.Count > 0;
         }
 
         /// <summary>
