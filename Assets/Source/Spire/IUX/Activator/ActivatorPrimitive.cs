@@ -7,8 +7,6 @@ namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Holds an activator.
-    /// 
-    /// TODO: Subclass InteractableWidget.
     /// </summary>
     public class ActivatorPrimitive : Widget, IInteractable
     {

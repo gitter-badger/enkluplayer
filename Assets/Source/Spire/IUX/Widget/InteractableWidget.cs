@@ -10,14 +10,24 @@ namespace CreateAR.SpirePlayer.IUX
     public abstract class InteractableWidget : Widget, IInteractable
     {
         /// <summary>
-        /// Interactions.
+        /// Backing vatiable for Focused property.
         /// </summary>
-        protected readonly IInteractionManager _interactions;
+        private bool _focused;
 
         /// <summary>
         /// True iff we are registered with <c>IInteractionManager</c>.
         /// </summary>
-        protected bool _isInteractable;
+        private bool _isInteractable;
+
+        /// <summary>
+        /// Interactions.
+        /// </summary>
+        private readonly IInteractionManager _interactions;
+
+        /// <summary>
+        /// Interactions.
+        /// </summary>
+        private readonly IMessageRouter _messages;
 
         /// <inheritdoc />
         public bool IsHighlighted { get; set; }
@@ -26,7 +36,40 @@ namespace CreateAR.SpirePlayer.IUX
         public float Aim { get; protected set; }
 
         /// <inheritdoc />
-        public bool Focused { get; set; }
+        public virtual bool Focused
+        {
+            get
+            {
+                return _focused;
+            }
+            set
+            {
+                if (_focused == value)
+                {
+                    return;
+                }
+
+                _focused = value;
+
+                if (!_isInteractable)
+                {
+                    return;
+                }
+
+                if (_focused)
+                {
+                    _messages.Publish(
+                        MessageTypes.WIDGET_FOCUS,
+                        new WidgetFocusEvent(this));
+                }
+                else
+                {
+                    _messages.Publish(
+                        MessageTypes.WIDGET_UNFOCUS,
+                        new WidgetUnfocusEvent(this));
+                }
+            }
+        }
 
         /// <inheritdoc />
         public bool Interactable { get; protected set; }
@@ -67,6 +110,7 @@ namespace CreateAR.SpirePlayer.IUX
                 messages)
         {
             _interactions = interactions;
+            _messages = messages;
         }
 
         /// <inheritdoc />
