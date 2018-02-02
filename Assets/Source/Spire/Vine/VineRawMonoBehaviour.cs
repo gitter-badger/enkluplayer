@@ -57,7 +57,13 @@ namespace CreateAR.SpirePlayer
         /// Called when element has been created.
         /// </summary>
         public Action<Element> OnElementCreated;
-        
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnEnable()
+        {
+            Update();
+        }
+
         /// <inheritdoc cref="MonoBehaviour"/>
         private void OnDisable()
         {

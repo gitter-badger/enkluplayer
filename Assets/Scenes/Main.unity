@@ -199,7 +199,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 130951154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -388.60165, y: -268.79953, z: 0}
+  m_LocalPosition: {x: -337.4608, y: -315.59686, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1693554495}
@@ -443,64 +443,6 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 3295d79719838b241b312bbb40a04c17, type: 2}
   m_IsPrefabParent: 0
---- !u!1 &367506623
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 367506624}
-  - component: {fileID: 367506625}
-  - component: {fileID: 367506626}
-  m_Layer: 0
-  m_Name: PlaceObjectMenu
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &367506624
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 367506623}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &367506625
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 367506623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<?Vine>\n<Float position=(0, 0, 1) fov.reorient=0.36>\n\t<Image\n\t\tsrc='res://Art/Textures/Outer
-    Gradient'\n\t\twidth=.6\n\t\theight=.6 />\n\t<Image\n\t\tsrc='res://Art/Textures/Half
-    Moon'\n\t\tposition=(0,-0.07, 0)\n\t\twidth=0.33\n\t\theight=0.1 />\n\t<Button\n\t\tid='btn-cancel'\n\t\ticon='cancel'\n\t\tposition=(0.05,-0.12,0)
-    />\n\t<Button\n\t\tid='btn-ok'\n\t\ticon='check'\n\t\tposition=(-0.05,-0.12,0)
-    />\n\t<Caption\n\t\tlabel='Move the object with your head.'\n\t\tfontSize=40\n\t\twidth=500.0\n\t\toverflow='Wrap'\n\t\tposition=(0,0.05,0)\n\t\talignment='MidCenter'/>\n\t<Content\n\t\tposition=(-16.55,
-    -81.1, -23.37)\n\t\tsrc='4f3d40d4-58c2-4de2-bd88-1f17410106f7' />\n</Float>"
---- !u!114 &367506626
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 367506623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e98dddf4fb3bcc4bb2439ca0a87538d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &388939355 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4109128089842400, guid: 1064e98892a50634b8b966be19de3987,
@@ -1141,7 +1083,6 @@ Transform:
   - {fileID: 531348134}
   - {fileID: 1302617289}
   - {fileID: 855948603}
-  - {fileID: 367506624}
   - {fileID: 1999305311}
   m_Father: {fileID: 0}
   m_RootOrder: 6
@@ -1615,7 +1556,7 @@ RectTransform:
   m_GameObject: {fileID: 1693554491}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.013413672, y: 0.013413672, z: 0.013413672}
+  m_LocalScale: {x: 0.011648403, y: 0.011648403, z: 0.011648403}
   m_Children:
   - {fileID: 1598552740}
   - {fileID: 130951155}
@@ -1781,7 +1722,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1389533282}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1999305312
 MonoBehaviour:

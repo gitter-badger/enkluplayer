@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.SpirePlayer.IUX;
 using Object = UnityEngine.Object;
 
@@ -48,6 +49,11 @@ namespace CreateAR.SpirePlayer
         /// New item menu.
         /// </summary>
         private NewItemController _new;
+
+        /// <summary>
+        /// Menu to place objects.
+        /// </summary>
+        private PlaceObjectController _place;
 
         /// <summary>
         /// Container for all.
@@ -153,6 +159,10 @@ namespace CreateAR.SpirePlayer
             _new.OnCancel += New_OnCancel;
             _new.OnConfirm += New_OnConfirm;
             _new.Initialize(_events, parent);
+
+            _place = Object.Instantiate(_playConfig.PlaceObject, _events.transform);
+            _place.OnConfirm += Place_OnConfirm;
+            _place.OnCancel += Place_OnCancel;
         }
 
         /// <summary>
@@ -242,8 +252,7 @@ namespace CreateAR.SpirePlayer
         private void New_OnConfirm(string assetId)
         {
             _new.Hide();
-
-            // load asset and place
+            _place.Show(assetId);
         }
 
         /// <summary>
@@ -253,6 +262,25 @@ namespace CreateAR.SpirePlayer
         {
             _new.Hide();
             _mainMenu.Show();
+        }
+
+        /// <summary>
+        /// Called when the place menu wants to confirm placement.
+        /// </summary>
+        /// <param name="propData">The prop.</param>
+        private void Place_OnConfirm(PropData propData)
+        {
+            _place.Hide();
+            _splash.Show();
+        }
+
+        /// <summary>
+        /// Called when the place menu wants to cancel placement.
+        /// </summary>
+        private void Place_OnCancel()
+        {
+            _place.Hide();
+            _new.Show();
         }
     }
 }

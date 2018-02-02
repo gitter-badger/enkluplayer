@@ -1,13 +1,10 @@
-﻿using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
+﻿using System;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
-    [RequireComponent(typeof(VineRawMonoBehaviour))]
-    public class PlaceObjectController : InjectableMonoBehaviour
+    public class PlaceObjectController : AutoController
     {
-        private VineRawMonoBehaviour _vine;
-
         [InjectElements("..(@type==ImageWidget)")]
         public ImageWidget[] Images { get; private set; }
 
@@ -20,22 +17,47 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..(@type==ContentWidget)")]
         public ContentWidget Content { get; private set; }
 
-        protected override void Awake()
-        {
-            base.Awake();
+        public event Action OnCancel;
+        public event Action<PropData> OnConfirm;
 
-            _vine = GetComponent<VineRawMonoBehaviour>();
-            _vine.OnElementCreated += Vine_OnElementCreated;
+        protected override void Initialize(
+            Element element,
+            object context)
+        {
+            base.Initialize(element, context);
+
+            var assetId = context.ToString();
+            Content.Schema.Set("src", assetId);
+
+            BtnOk.Activator.OnActivated += Ok_OnActivated;
+            BtnCancel.Activator.OnActivated += Cancel_OnActivated;
         }
 
-        private void Vine_OnElementCreated(Element element)
+        protected override void Uninitialize()
         {
-            InjectElementsAttribute.InjectElements(this, element);
+            base.Uninitialize();
 
-            Debug.Assert(2 == Images.Length);
-            Debug.Assert(null != BtnOk);
-            Debug.Assert(null != BtnCancel);
-            Debug.Assert(null != Content);
+            BtnOk.Activator.OnActivated -= Ok_OnActivated;
+            BtnCancel.Activator.OnActivated -= Cancel_OnActivated;
+        }
+
+        private void Ok_OnActivated(ActivatorPrimitive activatorPrimitive)
+        {
+            if (null != OnConfirm)
+            {
+                OnConfirm(new PropData
+                {
+
+                });
+            }
+        }
+
+        private void Cancel_OnActivated(ActivatorPrimitive activatorPrimitive)
+        {
+            if (null != OnCancel)
+            {
+                OnCancel();
+            }
         }
     }
 }

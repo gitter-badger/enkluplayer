@@ -162,6 +162,8 @@ MonoBehaviour:
   ClearAllMenu: {fileID: 114708181194160608, guid: b325ca9c6560e0644bcfa67726a9fb3a,
     type: 2}
   QuitMenu: {fileID: 114748359243540142, guid: 6220a35c9b855344090985a50fe7a4f2, type: 2}
+  PlaceObject: {fileID: 114350906986501418, guid: 7f62b74b83506124882967c0a92dc4a9,
+    type: 2}
   TestAssetData: {fileID: 4900000, guid: f33c5a643b6f63740899c16498bf74a8, type: 3}
   TestContentData: {fileID: 4900000, guid: 9a5eb77ca782af340b131e2acff5510f, type: 3}
 --- !u!114 &993257957
