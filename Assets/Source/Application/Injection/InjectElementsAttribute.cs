@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using CreateAR.SpirePlayer.IUX;
@@ -10,7 +9,7 @@ namespace CreateAR.SpirePlayer
     /// Marks a property to receive an element.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public class InjectElementAttribute : Attribute
+    public class InjectElementsAttribute : Attribute
     {
         /// <summary>
         /// Scratch list for elements.
@@ -25,7 +24,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public InjectElementAttribute(string query)
+        public InjectElementsAttribute(string query)
         {
             Query = query;
         }
@@ -45,13 +44,13 @@ namespace CreateAR.SpirePlayer
             for (int i = 0, len = props.Length; i < len; i++)
             {
                 var prop = props[i];
-                var attributes = prop.GetCustomAttributes(typeof(InjectElementAttribute), true);
+                var attributes = prop.GetCustomAttributes(typeof(InjectElementsAttribute), true);
                 if (0 == attributes.Length)
                 {
                     continue;
                 }
 
-                var query = ((InjectElementAttribute)attributes[0]).Query;
+                var query = ((InjectElementsAttribute)attributes[0]).Query;
 
                 // single injection or multiple
                 var type = prop.PropertyType;

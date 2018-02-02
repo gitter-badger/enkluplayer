@@ -61,8 +61,6 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="MonoBehaviour"/>
         private void OnDisable()
         {
-            Debug.Log("OnDisable();");
-
             if (null != Element)
             {
                 Element.Destroy();
