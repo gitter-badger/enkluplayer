@@ -17,12 +17,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Regex for name matches.
         /// </summary>
-        private static readonly Regex NAME_QUERY = new Regex(@"^(\w+)$");
+        private static readonly Regex NAME_QUERY = new Regex(@"^([\w-_\.]+)$");
 
         /// <summary>
         /// Regex for property matches.
         /// </summary>
-        private static readonly Regex PROPERTY_QUERY = new Regex(@"^\(@(\w+)([<>=!]=?)(\w+)\)$");
+        private static readonly Regex PROPERTY_QUERY = new Regex(@"^\(@([\w-_\.]+)([<>=!]=?)(\w+)\)$");
 
         /// <summary>
         /// Property to look for.
