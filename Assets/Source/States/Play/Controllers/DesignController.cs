@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Object = UnityEngine.Object;
 
@@ -14,6 +13,16 @@ namespace CreateAR.SpirePlayer
         /// Elements!
         /// </summary>
         private readonly IElementFactory _elements;
+
+        /// <summary>
+        /// Manages props.
+        /// </summary>
+        private readonly IPropManager _propManager;
+
+        /// <summary>
+        /// The current set of props.
+        /// </summary>
+        private PropSet _propSet;
 
         /// <summary>
         /// Play mode.
@@ -63,9 +72,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constuctor.
         /// </summary>
-        public DesignController(IElementFactory elements)
+        public DesignController(
+            IElementFactory elements,
+            IPropManager propManager)
         {
             _elements = elements;
+            _propManager = propManager;
         }
 
         /// <summary>
@@ -77,36 +89,26 @@ namespace CreateAR.SpirePlayer
             _events = _playConfig.Events;
             
             // create float
-            _float = (FloatWidget) _elements.Element(new ElementDescription
-            {
-                Root = new ElementRef
-                {
-                    Id = "Root"
-                },
-                Elements = new[]
-                {
-                    new ElementData
-                    {
-                        Id = "Root",
-                        Type = ElementTypes.FLOAT,
-                        Schema = new ElementSchemaData
-                        {
-                            Vectors = new Dictionary<string, Vec3>
-                            {
-                                {
-                                    "position",
-                                    new Vec3(0, 0, 1)
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            _float = (FloatWidget) _elements.Element(@"<Float id='Root' position=(0, 0, 1) />");
             _float.GameObject.transform.parent = _events.transform;
 
             SetupMenus();
 
-            _splash.Show();
+            // for now, set up a default propset
+            _propManager
+                .Create()
+                .OnSuccess(set =>
+                {
+                    _propSet = set;
+
+                    _splash.Show();
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not create PropSet!");
+
+                    _splash.Show();
+                });
         }
 
         /// <summary>
@@ -270,6 +272,13 @@ namespace CreateAR.SpirePlayer
         /// <param name="propData">The prop.</param>
         private void Place_OnConfirm(PropData propData)
         {
+            _propSet
+                .Create(propData)
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not place prop : {0}.", exception);
+                });
+
             _place.Hide();
             _splash.Show();
         }

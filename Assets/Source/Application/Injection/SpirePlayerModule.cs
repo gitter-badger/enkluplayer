@@ -221,7 +221,13 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
                 }
             }
-            
+
+            // design
+            {
+                binder.Bind<DesignController>().To<DesignController>().ToSingleton();
+                binder.Bind<IPropManager>().To<PropManager>().ToSingleton();
+            }
+
             // hierarchy
             {
                 binder.Bind<HierarchyDatabase>().To<HierarchyDatabase>().ToSingleton();

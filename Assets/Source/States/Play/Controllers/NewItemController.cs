@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
-using CreateAR.SpirePlayer.Vine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -50,13 +48,7 @@ namespace CreateAR.SpirePlayer
         /// Back button.
         /// </summary>
         private ButtonWidget _backButton;
-
-        /// <summary>
-        /// Parses vines.
-        /// </summary>
-        [Inject]
-        public VineImporter Parser { get; set; }
-
+        
         /// <summary>
         /// Creates elements.
         /// </summary>
@@ -95,13 +87,7 @@ namespace CreateAR.SpirePlayer
         public void Show()
         {
             {
-                var description = Parser.Parse(
-                    @"<?Vine><Button id='btn-back' icon='cancel' />");
-
-                // TODO: REMOVE HACK
-                description.Elements[0].Schema.Vectors["position"] = new Vec3(-0.35f, 0, 0);
-
-                _backButton = (ButtonWidget) Elements.Element(description);
+                _backButton = (ButtonWidget) Elements.Element(@"<?Vine><Button id='btn-back' icon='cancel' position=(-0.35, 0, 0) />");
                 _backButton.Activator.OnActivated += BackButton_OnActivate;
                 _container.AddChild(_backButton);
             }
@@ -110,7 +96,7 @@ namespace CreateAR.SpirePlayer
                 var vine = string.Format(
                     @"<Grid fontSize=20>{0}</Grid>",
                     AssetsToVine());
-                _grid = (GridWidget) Elements.Element(Parser.Parse(vine));
+                _grid = (GridWidget) Elements.Element(vine);
                 _grid.OnSelected += Grid_OnSelected; 
                 _container.AddChild(_grid);
             }

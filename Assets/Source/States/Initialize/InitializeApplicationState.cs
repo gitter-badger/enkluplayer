@@ -22,16 +22,6 @@ namespace CreateAR.SpirePlayer
     public class InitializeApplicationState : IState
     {
         /// <summary>
-        /// Minimum amount of time to search for the floor.
-        /// </summary>
-        private const int MIN_SEC_SEARCH = 3;
-
-        /// <summary>
-        /// Maximum amount of time to search for the floor.
-        /// </summary>
-        private const int MAX_SEC_SEARCH = 20;
-        
-        /// <summary>
         /// Dependencies.
         /// </summary>
         private readonly IMessageRouter _messages;
@@ -241,7 +231,7 @@ namespace CreateAR.SpirePlayer
                 var deltaSec = (DateTime.Now.Subtract(_startFloorSearch).TotalSeconds);
                 
                 // wait at least min
-                if (deltaSec < MIN_SEC_SEARCH)
+                if (deltaSec < _arConfig.MinSearchSec)
                 {
                     //
                 }
@@ -276,7 +266,7 @@ namespace CreateAR.SpirePlayer
                     }
                 
                     // waited too long!
-                    if (deltaSec > MAX_SEC_SEARCH)
+                    if (deltaSec > _arConfig.MaxSearchSec)
                     {
                         token.Fail(new Exception("Timeout."));
                         yield break;

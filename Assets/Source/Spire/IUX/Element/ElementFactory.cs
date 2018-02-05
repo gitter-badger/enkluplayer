@@ -14,6 +14,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Dependencies.
         /// </summary>
+        private readonly VineImporter _parser;
         private readonly IPrimitiveFactory _primitives;
         private readonly IIntentionManager _intention;
         private readonly IInteractionManager _interaction;
@@ -24,11 +25,9 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IMessageRouter _messages;
         private readonly IVoiceCommandManager _voice;
         private readonly WidgetConfig _config;
-        private readonly VineImporter _parser;
         private readonly IImageLoader _imageLoader;
         private readonly IContentFactory _content;
         private readonly IContentManager _contentManager;
-        private readonly IAppDataManager _appData;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -44,6 +43,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Constructor.
         /// </summary>
         public ElementFactory(
+            VineImporter parser,
             IPrimitiveFactory primitives,
             IIntentionManager intention,
             IInteractionManager interaction,
@@ -54,12 +54,11 @@ namespace CreateAR.SpirePlayer.IUX
             IMessageRouter messages,
             IVoiceCommandManager voice,
             WidgetConfig config,
-            VineImporter parser,
             IImageLoader imageLoader,
             IContentFactory content,
-            IContentManager contentManager,
-            IAppDataManager appData)
+            IContentManager contentManager)
         {
+            _parser = parser;
             _primitives = primitives;
             _intention = intention;
             _interaction = interaction;
@@ -70,12 +69,10 @@ namespace CreateAR.SpirePlayer.IUX
             _messages = messages;
             _voice = voice;
             _config = config;
-            _parser = parser;
             _imageLoader = imageLoader;
             _content = content;
             _contentManager = contentManager;
-            _appData = appData;
-
+            
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
             _baseSchema.Set("tweenOut", TweenType.Deliberate);
@@ -174,12 +171,18 @@ namespace CreateAR.SpirePlayer.IUX
             });
         }
 
-        /// <inheritdoc cref="IElementFactory"/>
+        /// <inheritdoc />
         public Element Element(ElementDescription description)
         {
             return Element(description.Collapsed());
         }
-        
+
+        /// <inheritdoc />
+        public Element Element(string vine)
+        {
+            return Element(_parser.Parse(vine));
+        }
+
         /// <summary>
         /// Recursive method that creates an <c>Element</c> from data.
         /// </summary>
@@ -273,7 +276,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.GRID:
                 {
-                    return new GridWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, this, _parser);
+                    return new GridWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, this);
                 }
                 case ElementTypes.OPTION:
                 {

@@ -24,12 +24,13 @@ namespace CreateAR.SpirePlayer.Test.UI
             };
 
             _element = new ElementFactory(
+                null,
                 new DummyPrimitiveFactory(),
                 null, null,
                 new DummyElementManager(),
                 null, null, null,
                 new MessageRouter(),
-                null, null, null, null, null, null, null).Element(description);
+                null, null, null, null, null).Element(description);
         }
         
         private ElementRef GenerateRefs(int index)

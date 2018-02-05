@@ -11,5 +11,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="description">The description of the element.</param>
         /// <returns></returns>
         Element Element(ElementDescription description);
+
+        /// <summary>
+        /// Craetes an element from a vine.
+        /// </summary>
+        /// <param name="vine">The raw vine.</param>
+        /// <returns></returns>
+        Element Element(string vine);
     }
 }

@@ -33,7 +33,7 @@ namespace CreateAR.SpirePlayer
         /// Network configuration.
         /// </summary>
         public NetworkConfig Network = new NetworkConfig();
-
+        
         /// <summary>
         /// ToString override.
         /// </summary>
@@ -41,11 +41,12 @@ namespace CreateAR.SpirePlayer
         public override string ToString()
         {
             return string.Format(
-                "[ApplicationConfig Network={0}]",
-                Network);
+                "[ApplicationConfig Network={0}, Play={1}]",
+                Network,
+                Play);
         }
     }
-
+    
     /// <summary>
     /// Application to play.
     /// </summary>

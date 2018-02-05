@@ -5,6 +5,7 @@ namespace CreateAR.SpirePlayer
     [Serializable]
     public class PropData
     {
+        public string Id;
         public string ContentId;
 
         public Vec3 Position;

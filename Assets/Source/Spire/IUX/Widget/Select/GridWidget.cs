@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -27,12 +26,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// For creating elements.
         /// </summary>
         private readonly IElementFactory _elements;
-
-        /// <summary>
-        /// Parses vines.
-        /// </summary>
-        private readonly VineImporter _parser;
-
+        
         /// <summary>
         /// Handles events.
         /// </summary>
@@ -84,8 +78,7 @@ namespace CreateAR.SpirePlayer.IUX
             TweenConfig tweens,
             ColorConfig colors,
             IMessageRouter messages,
-            IElementFactory elements,
-            VineImporter parser)
+            IElementFactory elements)
             : base(
                 gameObject,
                 config,
@@ -95,7 +88,6 @@ namespace CreateAR.SpirePlayer.IUX
                 messages)
         {
             _elements = elements;
-            _parser = parser;
 
             _events = gameObject.GetComponent<IUXEventHandler>()
                 ?? gameObject.AddComponent<IUXEventHandler>();
@@ -151,7 +143,7 @@ namespace CreateAR.SpirePlayer.IUX
             // group select
             {
                 // generate select element with all options
-                var vine = @"<Select>";
+                var vine = @"<Select position=(-0.241, 0.22, 0) >";
                 for (int i = 0, len = _groups.Count; i < len; i++)
                 {
                     var group = _groups[i];
@@ -161,32 +153,15 @@ namespace CreateAR.SpirePlayer.IUX
                         group.Value);
                 }
                 vine += @"</Select>";
-
-                var groupSelectDescription = _parser.Parse(vine);
-
-                // TODO: REMOVE HACK
-                groupSelectDescription.Elements[0].Schema.Vectors["position"] = new Vec3(
-                    -0.241f,
-                    0.22f,
-                    0f);
-
-                _groupSelect = (SelectWidget) _elements.Element(groupSelectDescription);
+                
+                _groupSelect = (SelectWidget) _elements.Element(vine);
                 _groupSelect.OnChanged += GroupSelect_OnChange;
                 AddChild(_groupSelect);
             }
 
             // page select
             {
-                // generate page select
-                var pageSelectDescription = _parser.Parse(@"<Select\>");
-
-                // TODO: REMOVE HACK
-                pageSelectDescription.Elements[0].Schema.Vectors["position"] = new Vec3(
-                    -0.241f,
-                    -0.22f,
-                    0f);
-
-                _pageSelect = (SelectWidget) _elements.Element(pageSelectDescription);
+                _pageSelect = (SelectWidget) _elements.Element(@"<Select position=(-0.241, -0.22, 0) />");
                 _pageSelect.OnChanged += PageSelect_OnChanged;
                 AddChild(_pageSelect);
 
@@ -241,14 +216,13 @@ namespace CreateAR.SpirePlayer.IUX
 
             for (var i = 0; i < numPages; i++)
             {
-                var option = (Option) _elements.Element(_parser.Parse(
+                var option = (Option) _elements.Element(string.Format(
+                    @"<Option value='{0}' label='{1}' />",
+                    i,
                     string.Format(
-                        @"<Option value='{0}' label='{1}' />",
-                        i,
-                        string.Format(
-                            "Page {0}/{1}",
-                            i + 1,
-                            numPages))));
+                        "Page {0}/{1}",
+                        i + 1,
+                        numPages)));
                 
                 _pageSelect.AddChild(option);
             }
@@ -283,20 +257,18 @@ namespace CreateAR.SpirePlayer.IUX
                 i++)
             {
                 var option = options[i];
-                var description = _parser.Parse(string.Format(
+                var button = (ButtonWidget) _elements.Element(string.Format(
                     @"<Button
-                        layout='vertical'
-                        id='grid.btn-{0}'
-                        label='{1}'
-                        value='{2}'
-                        src='{3}'
-                        fontSize=50 />",
+                    layout='vertical'
+                    id='grid.btn-{0}'
+                    label='{1}'
+                    value='{2}'
+                    src='{3}'
+                    fontSize=50 />",
                     i,
                     option.Label,
                     option.Value,
                     option.Schema.Get<string>("src").Value));
-
-                var button = (ButtonWidget) _elements.Element(description);
 
                 AddChild(button);
 
