@@ -8,17 +8,44 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Manages a set of prop data + the corresponding controllers.
+    /// </summary>
     public class PropSet
     {
+        /// <summary>
+        /// Creates elements.
+        /// </summary>
         private readonly IElementFactory _elements;
+
+        /// <summary>
+        /// Receives update events.
+        /// </summary>
         private readonly IPropUpdateDelegate _propDelegate;
+
+        /// <summary>
+        /// Received propset update events.
+        /// </summary>
         private readonly IPropSetUpdateDelegate _propSetDelegate;
+
+        /// <summary>
+        /// Backing property for Props.
+        /// </summary>
         private readonly List<PropController> _props = new List<PropController>();
 
+        /// <summary>
+        /// The unique id of this propset.
+        /// </summary>
         public string Id { get; private set; }
 
+        /// <summary>
+        /// All props.
+        /// </summary>
         public ReadOnlyCollection<PropController> Props { get; private set; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public PropSet(
             IElementFactory elements,
             IPropUpdateDelegate propDelegate,
@@ -48,6 +75,12 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Creates a PropController from a PropData. The PropData is expected
+        /// to have a valid Content Id.
+        /// </summary>
+        /// <param name="data">The propdata.</param>
+        /// <returns></returns>
         public IAsyncToken<PropController> Create(PropData data)
         {
             if (_propSetDelegate.Add(data))
@@ -68,6 +101,11 @@ namespace CreateAR.SpirePlayer
             return new AsyncToken<PropController>(new Exception("Could not add new prop data."));
         }
 
+        /// <summary>
+        /// Destroys a Prop by id.
+        /// </summary>
+        /// <param name="id">The id of the prop.</param>
+        /// <returns></returns>
         public IAsyncToken<Void> Destroy(string id)
         {
             var prop = ById(id);
@@ -88,6 +126,11 @@ namespace CreateAR.SpirePlayer
             return new AsyncToken<Void>(new Exception("Found prop but delegate could not remove it."));
         }
 
+        /// <summary>
+        /// Internal Create method which creates a <c>ContentWidget</c> as well.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
         private PropController CreateInternal(PropData data)
         {
             var content = (ContentWidget) _elements.Element(string.Format(
@@ -106,6 +149,10 @@ namespace CreateAR.SpirePlayer
             return controller;
         }
 
+        /// <summary>
+        /// Safely destroys a prop.
+        /// </summary>
+        /// <param name="prop"></param>
         private void DestroyInternal(PropController prop)
         {
             var content = prop.Content;
@@ -116,6 +163,11 @@ namespace CreateAR.SpirePlayer
             content.Destroy();
         }
 
+        /// <summary>
+        /// Retrieves a <c>PropController</c> by id.
+        /// </summary>
+        /// <param name="id">The unique id of the content.</param>
+        /// <returns></returns>
         private PropController ById(string id)
         {
             for (var i = 0; i < _props.Count; i++)

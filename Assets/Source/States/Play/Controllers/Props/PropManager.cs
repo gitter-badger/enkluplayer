@@ -14,6 +14,9 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class PropManager : IPropManager, IPropSetUpdateDelegate, IPropUpdateDelegate
     {
+        /// <summary>
+        /// Backing variable for Sets prpoperty.
+        /// </summary>
         private readonly List<PropSet> _sets = new List<PropSet>();
 
         /// <inheritdoc />
