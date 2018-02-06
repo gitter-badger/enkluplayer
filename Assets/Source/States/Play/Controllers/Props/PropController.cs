@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
+using UnityEngine;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -13,11 +16,27 @@ namespace CreateAR.SpirePlayer
         private const float POSITION_EPSILON = 0.1f;
         private const float ROTATION_EPSILON = 0.1f;
         private const float SCALE_EPSILON = 0.1f;
+        private const float TIME_EPSILON = 0.5f;
 
         /// <summary>
         /// The delegate to push updates through.
         /// </summary>
         private IPropUpdateDelegate _delegate;
+
+        /// <summary>
+        /// Time of last save.
+        /// </summary>
+        private DateTime _lastSave;
+
+        /// <summary>
+        /// Save token.
+        /// </summary>
+        private IAsyncToken<Void> _saveToken;
+
+        /// <summary>
+        /// True iff needs to save.
+        /// </summary>
+        private bool _isDirty;
 
         /// <summary>
         /// The PropData.
@@ -80,7 +99,6 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            var isDirty = false;
             var trans = Content.GameObject.transform;
 
             // check for position changes
@@ -91,7 +109,7 @@ namespace CreateAR.SpirePlayer
                 {
                     Data.Position = trans.position.ToVec();
 
-                    isDirty = true;
+                    _isDirty = true;
                 }
             }
 
@@ -103,7 +121,7 @@ namespace CreateAR.SpirePlayer
                 {
                     Data.Rotation = trans.rotation.eulerAngles.ToVec();
 
-                    isDirty = true;
+                    _isDirty = true;
                 }
             }
 
@@ -115,13 +133,20 @@ namespace CreateAR.SpirePlayer
                 {
                     Data.Scale = trans.localScale.ToVec();
 
-                    isDirty = true;
+                    _isDirty = true;
                 }
             }
 
-            if (isDirty)
+            var now = DateTime.Now;
+            if (_isDirty
+                && null == _saveToken
+                && now.Subtract(_lastSave).TotalSeconds > TIME_EPSILON)
             {
-                _delegate.Update(Data);
+                _isDirty = false;
+                _lastSave = now;
+
+                _saveToken = _delegate.Update(Data);
+                _saveToken.OnFinally(_ => _saveToken = null);
             }
         }
     }

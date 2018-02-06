@@ -221,31 +221,31 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Update(PropData data)
+        public IAsyncToken<Void> Update(PropData data)
         {
             var id = data.Id;
 
             StorageBucket bucket;
             if (!_props.TryGetValue(id, out bucket))
             {
-                Log.Error(this, string.Format(
+                return new AsyncToken<Void>(new Exception(string.Format(
                     "Could not find storage bucket to update {0}.",
-                    data));
-
-                return;
+                    data)));
             }
 
-            bucket
-                .Save(data)
-                .OnFailure(exception =>
-                {
-                    Log.Error(this, string.Format(
-                        "Could not save bucket {0} : {1}.",
-                        id,
-                        exception));
+            return Async.Map(
+                bucket
+                    .Save(data)
+                    .OnFailure(exception =>
+                    {
+                        Log.Error(this, string.Format(
+                            "Could not save bucket {0} : {1}.",
+                            id,
+                            exception));
 
-                    // TODO: refresh specific bucket, not all buckets
-                });
+                        // TODO: refresh specific bucket, not all buckets
+                    }),
+                _ => Void.Instance);
         }
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace CreateAR.SpirePlayer
                 var prop = props[i];
                 var data = datas[i];
 
-                var substrings = prop.Key.Split('.');
+                var substrings = prop.Tags.Split('.');
                 if (3 != substrings.Length)
                 {
                     Log.Error(this,

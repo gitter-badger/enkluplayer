@@ -1,4 +1,6 @@
-﻿namespace CreateAR.SpirePlayer
+﻿using CreateAR.Commons.Unity.Async;
+
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// An interface for an object that handles <c>PropData</c> updates.
@@ -9,6 +11,6 @@
         /// Called when <c>PropData</c> has been updated.
         /// </summary>
         /// <param name="data">The data.</param>
-        void Update(PropData data);
+        IAsyncToken<Void> Update(PropData data);
     }
 }
