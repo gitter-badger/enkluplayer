@@ -72,9 +72,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc />
         public IImageLoader ReplaceProtocol(string protocol, string replacement)
         {
-            if (!replacement.EndsWith("/"))
+            if (!protocol.EndsWith("://"))
             {
-                replacement += "/";
+                protocol += "://";
             }
 
             _protocols.Add(new ReplacementRecord(protocol, replacement));
