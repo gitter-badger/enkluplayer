@@ -310,7 +310,7 @@ namespace CreateAR.SpirePlayer.IUX
                                 texture.Source.height),
                             new Vector2(0.5f, 0.5f));
                     })
-                    .OnFailure(exception => Log.Error(
+                    .OnFailure(exception => Log.Warning(
                         this,
                         "Could not load {0} : {1}.",
                         src,

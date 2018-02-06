@@ -205,8 +205,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="message">The message received.</param>
         private void Messages_OnSubscribeAll(object message)
         {
-            Log.Info(this, "Recevied {0}.", message);
-
             var @event = message as IUXEvent;
             if (null == @event)
             {
