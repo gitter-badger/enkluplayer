@@ -2,20 +2,47 @@
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Data needed for each prop in a scene.
+    /// </summary>
     [Serializable]
     public class PropData
     {
+        /// <summary>
+        /// Unique id of a prop.
+        /// </summary>
         public string Id = Guid.NewGuid().ToString();
+
+        /// <summary>
+        /// Reference to the asset.
+        /// </summary>
         public string AssetId;
 
+        /// <summary>
+        /// World space position.
+        /// </summary>
         public Vec3 Position;
+
+        /// <summary>
+        /// World space rotation.
+        /// </summary>
         public Vec3 Rotation;
-        public Vec3 Scale = Vec3.One;
+
+        /// <summary>
+        /// Local scale.
+        /// </summary>
+        public Vec3 LocalScale = Vec3.One;
+
+
         public Vec3 CenterOffset;
         public Vec3 Size;
-
         public bool Fade = true;
 
+        /// <summary>
+        /// Creates <c>PropData</c> from a piece of content.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <returns></returns>
         public static PropData Create(ContentWidget content)
         {
             if (null == content 
@@ -30,7 +57,7 @@ namespace CreateAR.SpirePlayer
                 AssetId = content.Data.Asset.AssetDataId,
                 Position = content.GameObject.transform.position.ToVec(),
                 Rotation = content.GameObject.transform.rotation.eulerAngles.ToVec(),
-                Scale = content.GameObject.transform.localScale.ToVec()
+                LocalScale = content.GameObject.transform.localScale.ToVec()
             };
         }
     }

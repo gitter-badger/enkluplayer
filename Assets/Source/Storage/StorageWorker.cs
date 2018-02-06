@@ -159,10 +159,7 @@ namespace CreateAR.Commons.Unity.Storage
             var token = new AsyncToken<Void>();
 
             LogVerbose("Save({0})", key);
-
-            // serialize value
-            //var serialized = Serialize(value);
-
+            
             _http
                 .Put<UpdateKvResponse>(
                     _http.UrlBuilder.Url(string.Format(

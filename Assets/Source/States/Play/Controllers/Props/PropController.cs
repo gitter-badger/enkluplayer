@@ -88,7 +88,7 @@ namespace CreateAR.SpirePlayer
 
             trans.position = data.Position.ToVector();
             trans.localRotation = Quaternion.Euler(data.Rotation.ToVector());
-            trans.localScale = data.Scale.ToVector();
+            trans.localScale = data.LocalScale.ToVector();
 
             Data = data;
         }
@@ -130,10 +130,10 @@ namespace CreateAR.SpirePlayer
             // check for scale changes
             {
                 if (!trans.localScale.Approximately(
-                    Data.Scale.ToVector(),
+                    Data.LocalScale.ToVector(),
                     SCALE_EPSILON))
                 {
-                    Data.Scale = trans.localScale.ToVec();
+                    Data.LocalScale = trans.localScale.ToVec();
 
                     _isDirty = true;
                 }
