@@ -11,15 +11,6 @@ namespace CreateAR.SpirePlayer.IUX
     public class ActivatorRenderer : MonoBehaviour
     {
         /// <summary>
-        /// Determines how the renderer responds to activation.
-        /// </summary>
-        public enum ActivationType
-        {
-            Fill,
-            Scale
-        }
-
-        /// <summary>
         /// Factor for buffer.
         /// </summary>
         private const float AUTO_GEN_BUFFER_FACTOR = 2.0f;
@@ -85,7 +76,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Type of response for activation.
         /// </summary>
-        public ActivationType Activation;
+        public ActivatorPrimitive.ActivationType Activation;
 
         /// <summary>
         /// Bounding radius of the activator.
@@ -147,7 +138,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             UpdateAimWidget();
             UpdateStabilityTransform();
-            UpdateFillImage();
+            UpdateActivation();
             UpdateFrameWidget(deltaTime);
             UpdateColliders();
         }
@@ -217,9 +208,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Updates the fill image with current activation percent.
+        /// Updates based on activation.
         /// </summary>
-        private void UpdateFillImage()
+        private void UpdateActivation()
         {
             FillImage.fillAmount = _activator.Activation;
             Fill.LocalVisible = _activator.CurrentState is ActivatorActivatingState;

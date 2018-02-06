@@ -10,6 +10,12 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     public class ActivatorPrimitive : Widget, IInteractable
     {
+        public enum ActivationType
+        {
+            Fill,
+            Scale
+        }
+
         /// <summary>
         /// Configuration.
         /// </summary>
@@ -43,6 +49,8 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<bool> _propInteractionEnabled;
         private ElementSchemaProp<bool> _propHighlighted;
         private ElementSchemaProp<int> _propHighlightPriority;
+        private ElementSchemaProp<string> _propActivationType;
+        private ElementSchemaProp<bool> _propSliderBehavior;
 
         /// <summary>
         /// State management for the button
@@ -328,15 +336,19 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _propHighlighted = Schema.Get<bool>("highlighted");
             _propHighlightPriority = Schema.Get<int>("highlightPriority");
+            _propInteractionEnabled = Schema.GetOwn<bool>("interactionEnabled", true);
 
-            var hasProp = Schema.HasProp("interactionEnabled");
-            _propInteractionEnabled = Schema.Get<bool>("interactionEnabled");
-
-            // default to true
-            if (!hasProp)
+            _propActivationType = Schema.GetOwn("activation.type", ActivationType.Fill.ToString());
+            try
             {
-                _propInteractionEnabled.Value = true;
+                _renderer.Activation = (ActivationType) Enum.Parse(typeof(ActivationType), _propActivationType.Value);
             }
+            catch
+            {
+                // default to fill
+            }
+
+            _propSliderBehavior = Schema.GetOwn("activation.slider", false);
         }
 
         /// <summary>
@@ -344,13 +356,24 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void InitializeStates()
         {
-            _states = new FiniteStateMachine(new IState[]
+            if (_propSliderBehavior.Value)
             {
-                new ActivatorReadyState(this, Schema),
-                new ActivatorActivatingState(this, _intention, Schema),
-                new ActivatorActivatedState(_target, this, _messages, Schema)
-            });
-            _states.Change<ActivatorReadyState>();
+                _states = new FiniteStateMachine(new IState[]
+                {
+                    new ActivatorActivatingState(this, _intention, Schema, false)
+                });
+                _states.Change<ActivatorActivatingState>();
+            }
+            else
+            {
+                _states = new FiniteStateMachine(new IState[]
+                {
+                    new ActivatorReadyState(this, Schema),
+                    new ActivatorActivatingState(this, _intention, Schema, true),
+                    new ActivatorActivatedState(_target, this, _messages, Schema)
+                });
+                _states.Change<ActivatorReadyState>();
+            }
         }
 
         /// <summary>
