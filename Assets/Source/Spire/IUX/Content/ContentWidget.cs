@@ -119,7 +119,9 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Data updated for content {0}.", data);
 
-            var assetRefresh = null == Data || null == Data.Asset || Data.Asset.AssetDataId != data.Asset.AssetDataId;
+            var assetRefresh = null != Data && null == data
+                               || null != data && null == Data
+                               || null != data && null != Data && Data.Asset.AssetDataId != data.Asset.AssetDataId;
             var scriptRefresh = ScriptRefreshRequired(data);
 
             Data = data;
@@ -297,23 +299,31 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private bool ScriptRefreshRequired(ContentData data)
         {
-            if (null == Data)
+            if (null == Data && null != data)
             {
                 return true;
             }
 
-            var currentScripts = Data.Scripts;
-            var newScripts = data.Scripts;
-            if (currentScripts.Length != newScripts.Length)
+            if (null == data && null != Data)
             {
                 return true;
             }
 
-            for (int i = 0, len = currentScripts.Length; i < len; i++)
+            if (null != data && null != Data)
             {
-                if (currentScripts[i].ScriptDataId != newScripts[i].ScriptDataId)
+                var currentScripts = Data.Scripts;
+                var newScripts = data.Scripts;
+                if (currentScripts.Length != newScripts.Length)
                 {
                     return true;
+                }
+
+                for (int i = 0, len = currentScripts.Length; i < len; i++)
+                {
+                    if (currentScripts[i].ScriptDataId != newScripts[i].ScriptDataId)
+                    {
+                        return true;
+                    }
                 }
             }
 
