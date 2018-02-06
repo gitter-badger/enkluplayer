@@ -14,6 +14,11 @@ namespace CreateAR.SpirePlayer
         ReadOnlyCollection<PropSet> Sets { get; }
 
         /// <summary>
+        /// Gets/sets the active <c>PropSet</c>.
+        /// </summary>
+        PropSet Active { get; set; }
+
+        /// <summary>
         /// Initializes the manager. This should be called before any other calls.
         /// </summary>
         /// <param name="appId">The id of the app.</param>

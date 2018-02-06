@@ -18,12 +18,7 @@ namespace CreateAR.SpirePlayer
         /// Manages props.
         /// </summary>
         private readonly IPropManager _propManager;
-
-        /// <summary>
-        /// The current set of props.
-        /// </summary>
-        private PropSet _propSet;
-
+        
         /// <summary>
         /// Play mode.
         /// </summary>
@@ -94,23 +89,37 @@ namespace CreateAR.SpirePlayer
 
             SetupMenus();
 
-            // for now, set up a default propset
+            // initialize with hardcoded app id
             _propManager
-                .Create()
-                .OnSuccess(set =>
+                .Initialize("test")
+                .OnSuccess(_ =>
                 {
-                    _propSet = set;
+                    // create a default propset if there isn't one
+                    if (null == _propManager.Active)
+                    {
+                        _propManager
+                            .Create()
+                            .OnSuccess(set => Start())
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this, "Could not create PropSet!");
 
-                    _splash.Show();
+                                _splash.Show();
+                            });
+                    }
+                    else
+                    {
+                        Start();
+                    }
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this, "Could not create PropSet!");
-
-                    _splash.Show();
+                    Log.Error(this, string.Format(
+                        "Could not initialize IPropManager : {0}.",
+                        exception));
                 });
         }
-
+        
         /// <summary>
         /// Tears down all controllers and destroys them.
         /// </summary>
@@ -165,6 +174,14 @@ namespace CreateAR.SpirePlayer
             _place = Object.Instantiate(_playConfig.PlaceObject, _events.transform);
             _place.OnConfirm += Place_OnConfirm;
             _place.OnCancel += Place_OnCancel;
+        }
+
+        /// <summary>
+        /// Starts design mode after everything is ready.
+        /// </summary>
+        private void Start()
+        {
+            _splash.Show();
         }
 
         /// <summary>
@@ -272,7 +289,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="propData">The prop.</param>
         private void Place_OnConfirm(PropData propData)
         {
-            _propSet
+            _propManager
+                .Active
                 .Create(propData)
                 .OnFailure(exception =>
                 {

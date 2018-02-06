@@ -15,7 +15,7 @@ namespace CreateAR.Commons.Unity.Storage
         /// <summary>
         /// Root endpoint.
         /// </summary>
-        private const string ENDPOINT_KVS = "/user/{userId}/kv";
+        private const string ENDPOINT_KVS = "/kv";
 
         /// <summary>
         /// Dependencies.
@@ -48,6 +48,14 @@ namespace CreateAR.Commons.Unity.Storage
                 .Get<GetAllKvsResponse>(_http.UrlBuilder.Url(ENDPOINT_KVS))
                 .OnSuccess(response =>
                 {
+                    if (null == response.Payload)
+                    {
+                        token.Fail(new Exception(string.Format(
+                            "Unknown error : {0}.",
+                            Encoding.UTF8.GetString(response.Raw))));
+                        return;
+                    }
+
                     if (!response.Payload.success)
                     {
                         token.Fail(new Exception(response.Payload.error));

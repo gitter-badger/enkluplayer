@@ -6,7 +6,6 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Storage;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -45,6 +44,9 @@ namespace CreateAR.SpirePlayer
 
         /// <inheritdoc />
         public ReadOnlyCollection<PropSet> Sets { get; private set; }
+
+        /// <inheritdoc />
+        public PropSet Active { get; set; }
 
         /// <summary>
         /// Constructor.
@@ -94,6 +96,12 @@ namespace CreateAR.SpirePlayer
 
                             // create propsets of course
                             CreatePropSets(ParitionProps(datas, props));
+
+                            // select a default propset
+                            if (_sets.Count > 0)
+                            {
+                                Active = _sets[0];
+                            }
 
                             token.Succeed(Void.Instance);
                         })

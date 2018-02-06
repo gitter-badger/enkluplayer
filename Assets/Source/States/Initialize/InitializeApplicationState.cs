@@ -76,8 +76,6 @@ namespace CreateAR.SpirePlayer
         {
             var config = (ApplicationConfig) context;
 
-            //_messages.Publish(MessageTypes.STATUS, "Initializing...");
-
             // ar
             _ar.Setup(_arConfig);
 
