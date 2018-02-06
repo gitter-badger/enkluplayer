@@ -169,6 +169,18 @@ namespace CreateAR.SpirePlayer.IUX
                     { "fov.reorient", 1.5f }
                 }
             });
+
+            var sliderSchema = _typeSchema[ElementTypes.SLIDER] = new ElementSchema("Base.Slider");
+            sliderSchema.Load(new ElementSchemaData
+            {
+                Floats = new Dictionary<string, float>
+                {
+                    { "size.max", 3f },
+                    { "size.min", 1f },
+                    { "radius", 0.5f },
+                    { "length", 1f }
+                }
+            });
         }
 
         /// <inheritdoc />
@@ -268,7 +280,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.SLIDER:
                 {
-                    return new SliderWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new SliderWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, this, _intention);
                 }
                 case ElementTypes.SELECT:
                 {

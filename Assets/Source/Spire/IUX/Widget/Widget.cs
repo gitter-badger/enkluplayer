@@ -83,10 +83,15 @@ namespace CreateAR.SpirePlayer.IUX
         /// 
         /// TODO: Switch to protected.
         /// </summary>
+        [Obsolete]
         public ILayerManager Layers { get; private set; }
+        [Obsolete]
         public ColorConfig Colors { get; private set; }
+        [Obsolete]
         public TweenConfig Tweens { get; private set; }
+        [Obsolete]
         public WidgetConfig Config { get; private set; }
+        [Obsolete]
         public IMessageRouter Messages { get; private set; }
 
         /// <summary>
