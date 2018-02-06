@@ -125,8 +125,8 @@ namespace CreateAR.SpirePlayer
         private PropController CreateInternal(PropData data)
         {
             var content = (ContentWidget) _elements.Element(string.Format(
-                @"<Content src='{0}' />",
-                data.ContentId));
+                @"<Content assetSrc='{0}' />",
+                data.AssetId));
             if (null == content)
             {
                 Log.Error(this, "Could not create content.");

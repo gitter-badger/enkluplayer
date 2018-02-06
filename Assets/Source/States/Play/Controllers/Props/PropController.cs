@@ -63,6 +63,8 @@ namespace CreateAR.SpirePlayer
             Content = content;
 
             _delegate = @delegate;
+
+            Resync(Data);
         }
 
         /// <summary>

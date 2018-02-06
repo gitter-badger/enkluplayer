@@ -37,7 +37,8 @@ namespace CreateAR.SpirePlayer
         /// Props.
         /// </summary>
         private ElementSchemaProp<string> _srcProp;
-        
+        private ElementSchemaProp<string> _srcAssetProp;
+
         /// <summary>
         /// Token for asset readiness.
         /// </summary>
@@ -159,7 +160,10 @@ namespace CreateAR.SpirePlayer
             _srcProp = Schema.Get<string>("src");
             _srcProp.OnChanged += Src_OnChanged;
 
-            UpdateData(_appData.Get<ContentData>(_srcProp.Value));
+            _srcAssetProp = Schema.Get<string>("assetSrc");
+            _srcAssetProp.OnChanged += AssetSrc_OnChanged;
+
+            UpdateData(GetContent());
         }
 
         /// <inheritdoc />
@@ -331,6 +335,34 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Retrieves <c>ContentData</c>. The src prop takes precedence over the
+        /// assetSrc prop.
+        /// </summary>
+        /// <returns></returns>
+        private ContentData GetContent()
+        {
+            var content = _appData.Get<ContentData>(_srcProp.Value);
+            if (null == content)
+            {
+                var assetId = _srcAssetProp.Value;
+                if (!string.IsNullOrEmpty(assetId))
+                {
+                    content = new ContentData
+                    {
+                        Asset = new AssetReference
+                        {
+                            AssetDataId = assetId,
+                            Pooling = new PoolData()
+                        },
+                        Id = System.Guid.NewGuid().ToString()
+                    };
+                }
+            }
+
+            return content;
+        }
+
+        /// <summary>
         /// Called when the assembler has completed seting up the asset.
         /// </summary>
         private void Assembler_OnAssemblyComplete(GameObject instance)
@@ -354,7 +386,21 @@ namespace CreateAR.SpirePlayer
             string prev,
             string next)
         {
-            UpdateData(_appData.Get<ContentData>(_srcProp.Value));
+            UpdateData(GetContent());
+        }
+
+        /// <summary>
+        /// Called when the asset src changes.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void AssetSrc_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            UpdateData(GetContent());
         }
     }
 }

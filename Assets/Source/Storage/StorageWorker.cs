@@ -161,7 +161,7 @@ namespace CreateAR.Commons.Unity.Storage
             LogVerbose("Save({0})", key);
 
             // serialize value
-            var serialized = Serialize(value);
+            //var serialized = Serialize(value);
 
             _http
                 .Put<UpdateKvResponse>(
@@ -171,7 +171,7 @@ namespace CreateAR.Commons.Unity.Storage
                         key)),
                     new UpdateKvRequest
                     {
-                        value = serialized,
+                        value = value,
                         version = version
                     })
                 .OnSuccess(response =>

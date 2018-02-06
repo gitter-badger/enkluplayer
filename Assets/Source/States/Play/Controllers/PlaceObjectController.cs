@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
@@ -27,7 +28,7 @@ namespace CreateAR.SpirePlayer
             base.Initialize(element, context);
 
             var assetId = context.ToString();
-            Content.Schema.Set("src", assetId);
+            Content.Schema.Set("assetSrc", assetId);
 
             BtnOk.Activator.OnActivated += Ok_OnActivated;
             BtnCancel.Activator.OnActivated += Cancel_OnActivated;
@@ -43,12 +44,22 @@ namespace CreateAR.SpirePlayer
 
         private void Ok_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            var prop = PropData.Create(Content);
+            if (null == prop)
+            {
+                Log.Error(this,
+                    "Could not create PropData from ContentWidget {0}.", Content);
+                if (null != OnCancel)
+                {
+                    OnCancel();
+                }
+
+                return;
+            }
+
             if (null != OnConfirm)
             {
-                OnConfirm(new PropData
-                {
-
-                });
+                OnConfirm(prop);
             }
         }
 

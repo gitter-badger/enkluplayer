@@ -140,11 +140,11 @@ namespace CreateAR.SpirePlayer
                     group.GroupName);
                 for (int j = 0, jlen = assets.Count; j < jlen; j++)
                 {
-                    var asset = assets[i];
+                    var asset = assets[j];
                     vine += string.Format(
                         "<Option value='{0}' label='{1}' src='assets://{2}' />",
                         asset.Guid,
-                        asset.Description,
+                        asset.AssetName,
                         asset.UriThumb);
                 }
                 vine += "</OptionGroup>";

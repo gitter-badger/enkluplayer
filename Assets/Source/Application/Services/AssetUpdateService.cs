@@ -52,9 +52,7 @@ namespace CreateAR.SpirePlayer
         private void Messages_OnAssetUpdate(AssetUpdateEvent @event)
         {
             Log.Info(this, "Update asset.");
-
-            // ImportService marks AssetNames with guid
-            @event.Asset.AssetName = @event.Asset.Guid;
+            
             _assets.Manifest.Update(@event.Asset);
         }
 
@@ -144,9 +142,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="asset">The asset received.</param>
         private void FormatAssetData(AssetData asset)
         {
-            // ImportService marks AssetNames with guid
-            asset.AssetName = asset.Guid;
-
             // append build target to URI
             var index = asset.Uri.IndexOf(".bundle", StringComparison.Ordinal);
             asset.Uri = string.Format(
