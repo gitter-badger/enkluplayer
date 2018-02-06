@@ -11,6 +11,15 @@ namespace CreateAR.SpirePlayer.IUX
     public class ActivatorRenderer : MonoBehaviour
     {
         /// <summary>
+        /// Determines how the renderer responds to activation.
+        /// </summary>
+        public enum ActivationType
+        {
+            Fill,
+            Scale
+        }
+
+        /// <summary>
         /// Factor for buffer.
         /// </summary>
         private const float AUTO_GEN_BUFFER_FACTOR = 2.0f;
@@ -74,6 +83,11 @@ namespace CreateAR.SpirePlayer.IUX
         public BoxCollider FocusCollider;
 
         /// <summary>
+        /// Type of response for activation.
+        /// </summary>
+        public ActivationType Activation;
+
+        /// <summary>
         /// Bounding radius of the activator.
         /// </summary>
         public float Radius { get; private set; }
@@ -94,8 +108,9 @@ namespace CreateAR.SpirePlayer.IUX
             _activator = activator;
             _tweens = tweens;
             _colors = colors;
-
             _config = config;
+
+            _activator.OnActivated += Activator_OnActivated;
 
             GenerateBufferCollider();
             Radius = CalculateRadius();
@@ -116,21 +131,6 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             _isInited = true;
-        }
-        
-        /// <summary>
-        /// Forced activation.
-        /// </summary>
-        public void Activate()
-        {
-            if (ActivationVfx != null)
-            {
-                // TODO: ActivationVFX Pooling.
-                var spawnGameObject = Instantiate(ActivationVfx,
-                    gameObject.transform.position,
-                    gameObject.transform.rotation);
-                spawnGameObject.SetActive(true);
-            }
         }
 
         /// <summary>
@@ -190,21 +190,21 @@ namespace CreateAR.SpirePlayer.IUX
 
             _bufferCollider.size = FocusCollider.size * AUTO_GEN_BUFFER_FACTOR;
         }
-        
+
         /// <summary>
         /// Enables/disables interaction on the primitive.
         /// </summary>
-        public void UpdateColliders()
+        private void UpdateColliders()
         {
             FocusCollider.enabled = _activator.Interactable;
 
             _bufferCollider.enabled = _activator.Focused;
         }
-        
+
         /// <summary>
         /// Updates the rotation and scale of the stability transform.
         /// </summary>
-        public void UpdateStabilityTransform()
+        private void UpdateStabilityTransform()
         {
             var focusTween = Fill != null
                 ? Fill.Tween
@@ -219,7 +219,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Updates the fill image with current activation percent.
         /// </summary>
-        public void UpdateFillImage()
+        private void UpdateFillImage()
         {
             FillImage.fillAmount = _activator.Activation;
             Fill.LocalVisible = _activator.CurrentState is ActivatorActivatingState;
@@ -228,7 +228,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Sets the aim scale.
         /// </summary>
-        public void UpdateAimWidget()
+        private void UpdateAimWidget()
         {
             var aimScale = _config.GetAimScale(_activator.Aim);
             var aimColor = _config.GetAimColor(_activator.Aim);
@@ -241,7 +241,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Updates the frame widget based on activator state.
         /// </summary>
         /// <param name="deltaTime"></param>
-        public void UpdateFrameWidget(float deltaTime)
+        private void UpdateFrameWidget(float deltaTime)
         {
             var activatorState = _activator.CurrentState;
 
@@ -262,6 +262,22 @@ namespace CreateAR.SpirePlayer.IUX
                 Frame.gameObject.transform.localScale,
                 Vector3.one * activatorState.FrameScale,
                 tweenLerp);
+        }
+
+        /// <summary>
+        /// Called when the activator activates.
+        /// </summary>
+        /// <param name="activator">The activator.</param>
+        private void Activator_OnActivated(ActivatorPrimitive activator)
+        {
+            if (ActivationVfx != null)
+            {
+                // TODO: ActivationVFX Pooling.
+                var spawnGameObject = Instantiate(ActivationVfx,
+                    gameObject.transform.position,
+                    gameObject.transform.rotation);
+                spawnGameObject.SetActive(true);
+            }
         }
     }
 }

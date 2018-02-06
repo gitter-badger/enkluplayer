@@ -227,10 +227,9 @@ namespace CreateAR.SpirePlayer.IUX
             _aim = 0.0f;
 
             var interactive = _intention.Focus;
-            var activator = (interactive);
-            if (activator != null)
+            if (null != interactive)
             {
-                _aim = activator.Aim;
+                _aim = interactive.Aim;
             }
 
             var buttonScale = interactive != null && interactive.GameObject != null

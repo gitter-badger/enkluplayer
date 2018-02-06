@@ -291,12 +291,19 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Changes the state of the activator.
+        /// Moves into ready state.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        public void ChangeState<T>() where T : ActivatorState
+        public void Ready()
         {
-            _states.Change<T>();
+            _states.Change<ActivatorReadyState>();
+        }
+
+        /// <summary>
+        /// Moves into activating state.
+        /// </summary>
+        public void Activating()
+        {
+            _states.Change<ActivatorActivatingState>();
         }
 
         /// <summary>
@@ -307,9 +314,7 @@ namespace CreateAR.SpirePlayer.IUX
             _states.Change<ActivatorActivatedState>();
 
             Activation = 0;
-
-            _renderer.Activate();
-
+            
             if (OnActivated != null)
             {
                 OnActivated(this);

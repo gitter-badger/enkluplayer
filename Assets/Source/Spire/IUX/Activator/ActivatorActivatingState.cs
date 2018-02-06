@@ -44,7 +44,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             if (!_activator.Focused)
             {
-                _activator.ChangeState<ActivatorReadyState>();
+                _activator.Ready();
                 return;
             }
 
