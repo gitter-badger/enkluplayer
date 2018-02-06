@@ -19,6 +19,11 @@ namespace CreateAR.SpirePlayer
     public class PropManager : IPropManager, IPropSetUpdateDelegate, IPropUpdateDelegate
     {
         /// <summary>
+        /// Propset.
+        /// </summary>
+        private const string PROPSET_TAG = "propset";
+
+        /// <summary>
         /// Handles storage needs.
         /// </summary>
         private readonly IStorageService _storage;
@@ -78,7 +83,7 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(_ =>
                 {
                     // get buckets for just our app
-                    var props = _storage.FindAll(PropTag(_appId));
+                    var props = _storage.FindAll(_appId + "." + PROPSET_TAG);
 
                     // load all PropData from buckets
                     var tokens = new List<IAsyncToken<PropData>>();
@@ -136,6 +141,11 @@ namespace CreateAR.SpirePlayer
 
             _sets.Add(propSet);
 
+            if (null == Active)
+            {
+                Active = propSet;
+            }
+
             return new AsyncToken<PropSet>(propSet);
         }
 
@@ -178,7 +188,7 @@ namespace CreateAR.SpirePlayer
             }
 
             return Async.Map(
-                _storage.Create(data, PropTag(_appId)),
+                _storage.Create(data, _appId + "." + PROPSET_TAG + "." + set.Id),
                 bucket =>
                 {
                     _props[id] = bucket;
@@ -312,17 +322,7 @@ namespace CreateAR.SpirePlayer
 
             return null;
         }
-
-        /// <summary>
-        /// Retrieves the tag for all props in an app.
-        /// </summary>
-        /// <param name="appId">The specific app id.</param>
-        /// <returns></returns>
-        private static string PropTag(string appId)
-        {
-            return appId + ".propset";
-        }
-
+        
         /// <summary>
         /// Logging.
         /// </summary>

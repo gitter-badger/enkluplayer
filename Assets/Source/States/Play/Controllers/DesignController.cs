@@ -94,9 +94,13 @@ namespace CreateAR.SpirePlayer
                 .Initialize("test")
                 .OnSuccess(_ =>
                 {
+                    Log.Info(this, "IPropManager initialized.");
+
                     // create a default propset if there isn't one
                     if (null == _propManager.Active)
                     {
+                        Log.Info(this, "No active PropSet, creating a default.");
+
                         _propManager
                             .Create()
                             .OnSuccess(set => Start())

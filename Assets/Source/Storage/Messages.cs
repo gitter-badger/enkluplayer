@@ -36,8 +36,8 @@
     /// </summary>
     public class CreateKvRequest
     {
-        public object value;
-        public object tags;
+        public string value;
+        public string tags;
     }
 
     /// <summary>

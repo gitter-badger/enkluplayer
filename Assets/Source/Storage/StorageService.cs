@@ -63,7 +63,7 @@ namespace CreateAR.Commons.Unity.Storage
                         if (null == bucket)
                         {
                             bucket = new StorageBucket(
-                                null,
+                                _worker,
                                 model.key,
                                 model.tags,
                                 model.version);

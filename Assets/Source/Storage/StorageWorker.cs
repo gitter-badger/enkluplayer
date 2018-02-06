@@ -23,7 +23,7 @@ namespace CreateAR.Commons.Unity.Storage
         /// Dependencies.
         /// </summary>
         private readonly IHttpService _http;
-        private readonly ISerializer _json;
+        private readonly ISerializer _serializer;
 
         /// <inheritdoc cref="IStorageWorker"/>
         public event Action<string> OnDelete;
@@ -32,13 +32,13 @@ namespace CreateAR.Commons.Unity.Storage
         /// Creates a new StorageWorker.
         /// </summary>
         /// <param name="http">IHttpService implementation.</param>
-        /// <param name="json">For JSON serialization.</param>
+        /// <param name="serializer">For JSON serialization.</param>
         public StorageWorker(
             IHttpService http,
-            ISerializer json)
+            ISerializer serializer)
         {
             _http = http;
-            _json = json;
+            _serializer = serializer;
         }
 
         /// <inheritdoc cref="IStorageWorker"/>
@@ -80,16 +80,27 @@ namespace CreateAR.Commons.Unity.Storage
 
             LogVerbose("Create()");
 
+            // serialize value
+            var serialized = Serialize(value);
+
             _http
                 .Post<CreateKvResponse>(
                     _http.UrlBuilder.Url(ENDPOINT_KVS),
                     new CreateKvRequest
                     {
-                        value = value,
+                        value = serialized,
                         tags = tags
                     })
                 .OnSuccess(response =>
                 {
+                    if (null == response.Payload)
+                    {
+                        token.Fail(new Exception(string.Format(
+                            "Unknown error : {0}.",
+                            Encoding.UTF8.GetString(response.Raw))));
+                        return;
+                    }
+
                     if (!response.Payload.success)
                     {
                         token.Fail(new Exception(response.Payload.error));
@@ -117,6 +128,14 @@ namespace CreateAR.Commons.Unity.Storage
                     key)))
                 .OnSuccess(response =>
                 {
+                    if (null == response.Payload)
+                    {
+                        token.Fail(new Exception(string.Format(
+                            "Unknown error : {0}.",
+                            Encoding.UTF8.GetString(response.Raw))));
+                        return;
+                    }
+
                     if (!response.Payload.success)
                     {
                         token.Fail(new Exception(response.Payload.error));
@@ -125,7 +144,7 @@ namespace CreateAR.Commons.Unity.Storage
 
                     var bytes = Encoding.UTF8.GetBytes(response.Payload.body.value);
                     object value;
-                    _json.Deserialize(type, ref bytes, out value);
+                    _serializer.Deserialize(type, ref bytes, out value);
 
                     token.Succeed(value);
                 })
@@ -141,6 +160,9 @@ namespace CreateAR.Commons.Unity.Storage
 
             LogVerbose("Save({0})", key);
 
+            // serialize value
+            var serialized = Serialize(value);
+
             _http
                 .Put<UpdateKvResponse>(
                     _http.UrlBuilder.Url(string.Format(
@@ -149,11 +171,19 @@ namespace CreateAR.Commons.Unity.Storage
                         key)),
                     new UpdateKvRequest
                     {
-                        value = value,
+                        value = serialized,
                         version = version
                     })
                 .OnSuccess(response =>
                 {
+                    if (null == response.Payload)
+                    {
+                        token.Fail(new Exception(string.Format(
+                            "Unknown error : {0}.",
+                            Encoding.UTF8.GetString(response.Raw))));
+                        return;
+                    }
+
                     if (response.Payload.success)
                     {
                         token.Succeed(Void.Instance);
@@ -182,6 +212,14 @@ namespace CreateAR.Commons.Unity.Storage
                         key)))
                 .OnSuccess(response =>
                 {
+                    if (null == response.Payload)
+                    {
+                        token.Fail(new Exception(string.Format(
+                            "Unknown error : {0}.",
+                            Encoding.UTF8.GetString(response.Raw))));
+                        return;
+                    }
+
                     if (!response.Payload.success)
                     {
                         token.Fail(new Exception(response.Payload.error));
@@ -198,6 +236,19 @@ namespace CreateAR.Commons.Unity.Storage
                 .OnFailure(token.Fail);
 
             return token;
+        }
+
+        /// <summary>
+        /// Serializes value.
+        /// </summary>
+        /// <param name="value">The value!</param>
+        /// <returns></returns>
+        private string Serialize(object value)
+        {
+            byte[] bytes;
+            _serializer.Serialize(value, out bytes);
+            var serialized = Encoding.UTF8.GetString(bytes);
+            return serialized;
         }
 
         /// <summary>
