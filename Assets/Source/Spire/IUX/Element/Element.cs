@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Logging;
@@ -156,7 +157,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
             }
 
-            Log.Info(this, "Load({0})", Guid);
+            LogVerbose("Load({0})", Guid);
 
             AfterLoadChildrenInternal();
         }
@@ -175,7 +176,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
             _children.Clear();
 
-            Log.Info(this, "Unload({0})", Guid);
+            LogVerbose("Unload({0})", Guid);
             
             AfterUnloadChildrenInternal();
 
@@ -217,7 +218,7 @@ namespace CreateAR.SpirePlayer.IUX
                 child.Destroy();
             }
 
-            Log.Info(this, "Destroy({0})", Guid);
+            LogVerbose("Destroy({0})", Guid);
 
             AfterUnloadChildrenInternal();
             DestroyInternal();
@@ -629,6 +630,15 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             Id = next;
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        [Conditional("VERBOSE_LOGGING")]
+        private void LogVerbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

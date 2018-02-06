@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.Commons.Unity.Storage
@@ -44,6 +46,8 @@ namespace CreateAR.Commons.Unity.Storage
         {
             var token = new AsyncToken<KvModel[]>();
 
+            LogVerbose("GetAll()");
+            
             _http
                 .Get<GetAllKvsResponse>(_http.UrlBuilder.Url(ENDPOINT_KVS))
                 .OnSuccess(response =>
@@ -74,6 +78,8 @@ namespace CreateAR.Commons.Unity.Storage
         {
             var token = new AsyncToken<KvModel>();
 
+            LogVerbose("Create()");
+
             _http
                 .Post<CreateKvResponse>(
                     _http.UrlBuilder.Url(ENDPOINT_KVS),
@@ -101,6 +107,8 @@ namespace CreateAR.Commons.Unity.Storage
         public IAsyncToken<object> Load(string key, Type type)
         {
             var token = new AsyncToken<object>();
+
+            LogVerbose("Load({0})", key);
 
             _http
                 .Get<GetKvResponse>(_http.UrlBuilder.Url(string.Format(
@@ -130,6 +138,8 @@ namespace CreateAR.Commons.Unity.Storage
         public IAsyncToken<Void> Save(string key, object value, string tags, int version)
         {
             var token = new AsyncToken<Void>();
+
+            LogVerbose("Save({0})", key);
 
             _http
                 .Put<UpdateKvResponse>(
@@ -163,6 +173,8 @@ namespace CreateAR.Commons.Unity.Storage
         {
             var token = new AsyncToken<Void>();
 
+            LogVerbose("Delete({0})");
+
             _http
                 .Delete<CreateKvResponse>(_http.UrlBuilder.Url(string.Format(
                         "{0}/{1}",
@@ -186,6 +198,15 @@ namespace CreateAR.Commons.Unity.Storage
                 .OnFailure(token.Fail);
 
             return token;
+        }
+
+        /// <summary>
+        /// Logging.
+        /// </summary>
+        [Conditional("VERBOSE_LOGGING")]
+        private void LogVerbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

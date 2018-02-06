@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -67,6 +68,9 @@ namespace CreateAR.SpirePlayer
             _appId = appId;
 
             var token = new AsyncToken<Void>();
+
+            LogVerbose("Initialize().");
+            LogVerbose("Refreshing list of all buckets.");
             
             // get a list of all our buckets
             _storage
@@ -88,6 +92,8 @@ namespace CreateAR.SpirePlayer
                         .All(tokens.ToArray())
                         .OnSuccess(datas =>
                         {
+                            LogVerbose("All buckets loaded.");
+
                             // keep lookup from prop id to bucket
                             for (var i = 0; i < datas.Length; i++)
                             {
@@ -315,6 +321,15 @@ namespace CreateAR.SpirePlayer
         private static string PropTag(string appId)
         {
             return appId + ".propset";
+        }
+
+        /// <summary>
+        /// Logging.
+        /// </summary>
+        [Conditional("VERBOSE_LOGGING")]
+        private void LogVerbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }
