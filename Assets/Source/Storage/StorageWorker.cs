@@ -62,7 +62,7 @@ namespace CreateAR.Commons.Unity.Storage
         }
 
         /// <inheritdoc cref="IStorageWorker"/>
-        public IAsyncToken<KvModel> Create(object value)
+        public IAsyncToken<KvModel> Create(object value, string tags)
         {
             var token = new AsyncToken<KvModel>();
 
@@ -71,7 +71,8 @@ namespace CreateAR.Commons.Unity.Storage
                     _http.UrlBuilder.Url(ENDPOINT_KVS),
                     new CreateKvRequest
                     {
-                        value = value
+                        value = value,
+                        tags = tags
                     })
                 .OnSuccess(response =>
                 {

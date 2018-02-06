@@ -10,8 +10,7 @@ using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
-using CreateAR.Trellis;
-using CreateAR.Trellis.Messages.RefreshToken;
+using CreateAR.Trellis.Messages;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -175,7 +174,7 @@ namespace CreateAR.SpirePlayer
 
             _api
                 .Users
-                .RefreshToken(creds.UserId, new Request
+                .RefreshToken(creds.UserId, new Trellis.Messages.RefreshToken.Request
                 {
                     Token = creds.Token
                 })

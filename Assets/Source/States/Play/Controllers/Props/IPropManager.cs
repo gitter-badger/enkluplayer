@@ -14,6 +14,18 @@ namespace CreateAR.SpirePlayer
         ReadOnlyCollection<PropSet> Sets { get; }
 
         /// <summary>
+        /// Initializes the manager. This should be called before any other calls.
+        /// </summary>
+        /// <param name="appId">The id of the app.</param>
+        /// <returns></returns>
+        IAsyncToken<Void> Initialize(string appId);
+
+        /// <summary>
+        /// Uninitializes the manager.
+        /// </summary>
+        void Uninitialize();
+
+        /// <summary>
         /// Creates a <c>PropSet</c>.
         /// </summary>
         /// <returns></returns>
@@ -25,19 +37,5 @@ namespace CreateAR.SpirePlayer
         /// <param name="id">The id of the <c>PropSet</c>.</param>
         /// <returns></returns>
         IAsyncToken<PropSet> Destroy(string id);
-
-        /// <summary>
-        /// Loads a <c>PropSet</c>.
-        /// </summary>
-        /// <param name="id">The id of the <c>PropSet</c>.</param>
-        /// <returns></returns>
-        IAsyncToken<PropSet> Load(string id);
-
-        /// <summary>
-        /// Unloads a <c>PropSet</c>.
-        /// </summary>
-        /// <param name="id">The id of the <c>PropSet</c>.</param>
-        /// <returns></returns>
-        IAsyncToken<Void> Unload(string id);
     }
 }

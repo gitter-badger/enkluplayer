@@ -3,12 +3,14 @@ using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.Commons.Unity.Storage;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
 using CreateAR.Trellis;
+using CreateAR.Trellis.Messages;
 using Jint.Parser;
 using Jint.Unity;
 using LightJson;
@@ -65,6 +67,9 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
                 binder.Bind<IVinePreProcessor>().To<JsVinePreProcessor>().ToSingleton();
                 binder.Bind<VineImporter>().To<VineImporter>();
+
+                binder.Bind<IStorageWorker>().To<StorageWorker>().ToSingleton();
+                binder.Bind<IStorageService>().To<StorageService>().ToSingleton();
 
                 // input
                 {

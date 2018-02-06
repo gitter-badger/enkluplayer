@@ -10,6 +10,8 @@
         public string owner;
         public string tags;
         public int version;
+        public string createdAt;
+        public string updatedAt;
     }
 
     /// <summary>
@@ -35,6 +37,7 @@
     public class CreateKvRequest
     {
         public object value;
+        public object tags;
     }
 
     /// <summary>

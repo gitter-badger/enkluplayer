@@ -50,12 +50,14 @@ namespace CreateAR.SpirePlayer
             IElementFactory elements,
             IPropUpdateDelegate propDelegate,
             IPropSetUpdateDelegate propSetDelegate,
+            string id,
             PropData[] data)
         {
             _elements = elements;
             _propDelegate = propDelegate;
             _propSetDelegate = propSetDelegate;
 
+            Id = id;
             Props = new ReadOnlyCollection<PropController>(_props);
 
             // create controllers
@@ -83,22 +85,13 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public IAsyncToken<PropController> Create(PropData data)
         {
-            if (_propSetDelegate.Add(data))
-            {
-                var controller = CreateInternal(data);
-                if (null == controller)
-                {
-                    return new AsyncToken<PropController>(new Exception(string.Format(
-                        "Could not create controller from data {0}.",
-                        data)));
-                }
+            PropController controller = null;
 
-                return Async.Map(
-                    _propSetDelegate.Save(),
-                    _ => controller);
-            }
-
-            return new AsyncToken<PropController>(new Exception("Could not add new prop data."));
+            return Async.Map(
+                _propSetDelegate
+                    .Add(this, data)
+                    .OnSuccess(_ => controller = CreateInternal(data)),
+                _ => controller);
         }
 
         /// <summary>
@@ -114,16 +107,14 @@ namespace CreateAR.SpirePlayer
                 return new AsyncToken<Void>(new Exception("Could not find prop by id."));
             }
 
-            if (_propSetDelegate.Remove(prop.Data))
-            {
-                _props.Remove(prop);
+            return _propSetDelegate
+                .Remove(this, prop.Data)
+                .OnSuccess(_ =>
+                {
+                    _props.Remove(prop);
 
-                DestroyInternal(prop);
-
-                return _propSetDelegate.Save();
-            }
-
-            return new AsyncToken<Void>(new Exception("Found prop but delegate could not remove it."));
+                    DestroyInternal(prop);
+                });
         }
 
         /// <summary>

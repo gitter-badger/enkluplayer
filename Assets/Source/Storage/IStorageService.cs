@@ -24,8 +24,9 @@ namespace CreateAR.Commons.Unity.Storage
         /// </summary>
         /// <typeparam name="T">The type of object to save.</typeparam>
         /// <param name="value">The value to save.</param>
+        /// <param name="tags">Tags to associate with bucket.</param>
         /// <returns></returns>
-        IAsyncToken<StorageBucket> Create<T>(T value);
+        IAsyncToken<StorageBucket> Create<T>(T value, string tags);
 
         /// <summary>
         /// Retrieves the StorageBucket for a particular key.

@@ -21,8 +21,9 @@ namespace CreateAR.Commons.Unity.Storage
         /// Creates a new KvModel.
         /// </summary>
         /// <param name="value">The intial value.</param>
+        /// <param name="tags">Initial tags.</param>
         /// <returns></returns>
-        IAsyncToken<KvModel> Create(object value);
+        IAsyncToken<KvModel> Create(object value, string tags);
 
         /// <summary>
         /// Loads a KV's value.

@@ -87,12 +87,12 @@ namespace CreateAR.Commons.Unity.Storage
         }
 
         /// <inheritdoc cref="IStorageService"/>
-        public IAsyncToken<StorageBucket> Create<T>(T value)
+        public IAsyncToken<StorageBucket> Create<T>(T value, string tags)
         {
             var token = new AsyncToken<StorageBucket>();
 
             _worker
-                .Create(value)
+                .Create(value, tags)
                 .OnSuccess(model =>
                 {
                     var bucket = new StorageBucket(
