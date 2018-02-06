@@ -12,6 +12,7 @@ namespace CreateAR.SpirePlayer
         public ClearAllPropsController ClearAllMenu;
         public QuitController QuitMenu;
         public PlaceObjectController PlaceObject;
+        public PropAdjustController PropAdjust;
 
         public TextAsset TestAssetData;
         public TextAsset TestContentData;

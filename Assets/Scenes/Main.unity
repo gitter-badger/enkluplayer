@@ -199,7 +199,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 130951154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -349.55084, y: -303.2977, z: 0}
+  m_LocalPosition: {x: -329.93506, y: -323.70795, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1693554495}
@@ -905,6 +905,52 @@ MonoBehaviour:
     header.width=100>\n\t\t<Button label='New Scan' />\n\t\t<Select>\n\t\t\t<Option
     label='Rendering On' />\n\t\t\t<Option label='Rendering Off' />\n\t\t</Select>\n\t\t<Button
     label='Exit' />\n\t</Menu>\n</Float>"
+--- !u!1 &1217937925
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1217937926}
+  - component: {fileID: 1217937927}
+  m_Layer: 0
+  m_Name: TransformMenu
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1217937926
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1217937925}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1389533282}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1217937927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1217937925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Vine: "<Float position=(0, 0, 2)>\n\t<Button id='btn-back' icon='arrow-left' position=(-0.3,
+    0.25, 0) />\n\t<Button id='btn-rotate' icon='arrow-rotate' position=(0.2, 0, 0)
+    />\n\t<Button id='btn-scale' icon='scale' position=(0, 0.1, 0) />\n\t<Button id='btn-x'
+    icon='arrow-double' position=(-0.2, 0, 0) />\n\t<Button id='btn-z' icon='arrow-double-z'
+    position=(0, 0, 0) />\n\t<Button id='btn-y' icon='arrow-double-z' position=(0,
+    0.2, 0) />\n</Float>"
 --- !u!1 &1232127254
 GameObject:
   m_ObjectHideFlags: 0
@@ -1084,6 +1130,7 @@ Transform:
   - {fileID: 1302617289}
   - {fileID: 855948603}
   - {fileID: 1999305311}
+  - {fileID: 1217937926}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1551,7 +1598,7 @@ RectTransform:
   m_GameObject: {fileID: 1693554491}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.012065725, y: 0.012065725, z: 0.012065725}
+  m_LocalScale: {x: 0.011388631, y: 0.011388631, z: 0.011388631}
   m_Children:
   - {fileID: 1598552740}
   - {fileID: 130951155}

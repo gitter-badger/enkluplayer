@@ -190,6 +190,11 @@ MonoBehaviour:
     - {fileID: 21300000, guid: baf41c2c48d622948bc93eb03481e6a7, type: 3}
     - {fileID: 21300000, guid: cf579be53edf3554399dcd88d76d5537, type: 3}
     - {fileID: 21300000, guid: 0596416de99945b4dbce0976349a17be, type: 3}
+    - {fileID: 21300000, guid: 4035f1ab0be094245adeb8a03e0566b4, type: 3}
+    - {fileID: 21300000, guid: 7d8dd6a5de27b3e4f91c8b90842d3ba9, type: 3}
+    - {fileID: 21300000, guid: 47d2bd846637a5a4cbabbf30edc10f43, type: 3}
+    - {fileID: 21300000, guid: 46fff84858ba4c24db4fb4bfd464b7af, type: 3}
+    - {fileID: 21300000, guid: 5bb770a9084d0fa409a83cbebdc64d1a, type: 3}
   AimFeedbackColor:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 0}

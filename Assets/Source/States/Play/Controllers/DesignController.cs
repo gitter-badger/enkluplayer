@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Object = UnityEngine.Object;
 
@@ -58,6 +59,11 @@ namespace CreateAR.SpirePlayer
         /// Menu to place objects.
         /// </summary>
         private PlaceObjectController _place;
+
+        /// <summary>
+        /// Menu to adjust prop.
+        /// </summary>
+        private PropAdjustController _propAdjust;
 
         /// <summary>
         /// Container for all.
@@ -178,6 +184,9 @@ namespace CreateAR.SpirePlayer
             _place = Object.Instantiate(_playConfig.PlaceObject, _events.transform);
             _place.OnConfirm += Place_OnConfirm;
             _place.OnCancel += Place_OnCancel;
+
+            _propAdjust = Object.Instantiate(_playConfig.PropAdjust, _events.transform);
+            _propAdjust.OnExit += PropAdjust_OnExit;
         }
 
         /// <summary>
@@ -312,6 +321,15 @@ namespace CreateAR.SpirePlayer
         {
             _place.Hide();
             _new.Show();
+        }
+
+        /// <summary>
+        /// Called when the prop adjust menu wants to exit.
+        /// </summary>
+        private void PropAdjust_OnExit()
+        {
+            _propAdjust.Hide();
+            _splash.Show();
         }
     }
 }
