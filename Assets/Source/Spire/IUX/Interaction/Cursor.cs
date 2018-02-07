@@ -178,7 +178,7 @@ namespace CreateAR.SpirePlayer.IUX
 
                 cursorPosition = Vec3.Lerp(
                     cursorPosition,
-                    interactive.GameObject.transform.position.ToVec(),
+                    interactive.Focus,
                     aimMagnet);
             }
 
@@ -196,10 +196,10 @@ namespace CreateAR.SpirePlayer.IUX
             var targetFocusDistance = Config.GetDefaultDistanceForCursor();
 
             var interactive = _intention.Focus;
-            if (interactive != null && interactive.GameObject != null)
+            if (interactive != null)
             {
                 // focus on the focus widget
-                var pos = interactive.GameObject.transform.position.ToVec();
+                var pos = interactive.Focus;
                 var eyeDeltaToFocusWidget = pos - eyePosition;
                 targetFocusDistance = eyeDeltaToFocusWidget.Magnitude;
             }
@@ -232,8 +232,8 @@ namespace CreateAR.SpirePlayer.IUX
                 _aim = interactive.Aim;
             }
 
-            var buttonScale = interactive != null && interactive.GameObject != null
-                ? interactive.GameObject.transform.lossyScale.x
+            var buttonScale = interactive != null
+                ? interactive.FocusScale.x
                 : 1.0f;
 
             _spread = Config.GetReticleSpreadFromAim(_aim) * buttonScale;

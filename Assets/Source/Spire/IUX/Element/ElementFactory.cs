@@ -178,7 +178,11 @@ namespace CreateAR.SpirePlayer.IUX
                     { "size.max", 3f },
                     { "size.min", 1f },
                     { "radius", 0.5f },
-                    { "length", 1f }
+                    { "length", 0.1f },
+                },
+                Strings = new Dictionary<string, string>
+                {
+                    { "axis", "x" }
                 }
             });
         }
@@ -280,7 +284,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.SLIDER:
                 {
-                    return new SliderWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, this, _intention);
+                    return new SliderWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _interaction, this, _intention);
                 }
                 case ElementTypes.SELECT:
                 {

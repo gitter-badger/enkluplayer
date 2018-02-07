@@ -115,6 +115,18 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
+        public Vec3 Focus
+        {
+            get { return GameObject.transform.position.ToVec(); }
+        }
+
+        /// <inheritdoc />
+        public Vec3 FocusScale
+        {
+            get { return GameObject.transform.lossyScale.ToVec(); }
+        }
+
+        /// <inheritdoc />
         public int HighlightPriority
         {
             get { return _activator.HighlightPriority; }

@@ -66,7 +66,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// The icon.
         /// </summary>
         private Sprite _icon;
-
+        
         /// <inheritdoc />
         public bool Interactable
         {
@@ -113,6 +113,18 @@ namespace CreateAR.SpirePlayer.IUX
                         new WidgetUnfocusEvent(_target));
                 }
             }
+        }
+
+        /// <inheritdoc />
+        public Vec3 Focus
+        {
+            get { return GameObject.transform.position.ToVec(); }
+        }
+
+        /// <inheritdoc />
+        public Vec3 FocusScale
+        {
+            get { return GameObject.transform.lossyScale.ToVec(); }
         }
 
         /// <inheritdoc />

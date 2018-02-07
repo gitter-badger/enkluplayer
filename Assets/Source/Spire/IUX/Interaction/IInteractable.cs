@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Access to the Unity Hierarchy (for now...).
         /// </summary>
-        GameObject GameObject { get; }
+        //GameObject GameObject { get; }
 
         /// <summary>
         /// True if the object is visible.
@@ -22,6 +22,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// True if the object is focused.
         /// </summary>
         bool Focused { get; set; }
+
+        Vec3 Focus { get; }
+        Vec3 FocusScale { get; }
 
         /// <summary>
         /// True if the object can be interacted with.
