@@ -1,1 +1,1 @@
-<Button id='btn-splash' icon='gear' />
+<Button face='camera' id='btn-splash' icon='gear' />

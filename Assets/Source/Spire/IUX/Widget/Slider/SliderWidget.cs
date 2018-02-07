@@ -192,16 +192,17 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (!Visible)
             {
+                Value = 0.5f;
                 return;
             }
 
+            CalculatePlane();
+
             var intersection = CalculateIntentionIntersection();
             var aim = CalculateAim(intersection);
-            _image.GameObject.transform.localScale = 
-                (_sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value))
-                * Vector3.one;
+            var scalar = _sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value);
+            _image.GameObject.transform.localScale = scalar * Vector3.one;
             
-            CalculatePlane();
             UpdatePosition(intersection);
             DebugRender();
 
@@ -304,6 +305,12 @@ namespace CreateAR.SpirePlayer.IUX
             // intersect ray with plane
             var t = n_dot_s / n_dot_r;
             var intersection = _intentions.Origin + _intentions.Forward * t;
+
+            if (float.IsNaN(intersection.x))
+            {
+                throw new Exception("Invalid.");
+            }
+
             return intersection;
         }
 

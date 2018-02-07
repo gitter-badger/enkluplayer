@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -15,7 +16,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private PropController _controller;
 
+        /// <summary>
+        /// Starting scale.
+        /// </summary>
         private Vector3 _startScale;
+
+        /// <summary>
+        /// Starting rotation.
+        /// </summary>
         private Vector3 _startRotation;
 
         /// <summary>
@@ -25,43 +33,40 @@ namespace CreateAR.SpirePlayer
         public Widget Container { get; private set; }
 
         /// <summary>
-        /// The back button.
+        /// Elements.
         /// </summary>
         [InjectElements("..btn-back")]
         public ButtonWidget BtnBack { get; private set; }
-
         [InjectElements("..btn-rotate")]
         public ButtonWidget BtnRotate{ get; private set; }
-
         [InjectElements("..btn-scale")]
         public ButtonWidget BtnScale { get; private set; }
-
         [InjectElements("..btn-x")]
         public ButtonWidget BtnX { get; private set; }
-
         [InjectElements("..btn-y")]
         public ButtonWidget BtnY { get; private set; }
-
         [InjectElements("..btn-z")]
         public ButtonWidget BtnZ { get; private set; }
-
         [InjectElements("..slider-x")]
         public SliderWidget SliderX { get; private set; }
-
         [InjectElements("..slider-y")]
         public SliderWidget SliderY { get; private set; }
-
         [InjectElements("..slider-z")]
         public SliderWidget SliderZ { get; private set; }
-
         [InjectElements("..slider-scale")]
         public SliderWidget SliderScale { get; private set; }
-
         [InjectElements("..slider-rotate")]
         public SliderWidget SliderRotate { get; private set; }
 
+        /// <summary>
+        /// Called when the menu should be exited.
+        /// </summary>
         public event Action<PropController> OnExit;
 
+        /// <summary>
+        /// Initiailizes the menu.
+        /// </summary>
+        /// <param name="controller">The prop controller.</param>
         public void Initialize(PropController controller)
         {
             _controller = controller;
@@ -85,11 +90,7 @@ namespace CreateAR.SpirePlayer
             ResetMenuPosition();
         }
 
-        private void ResetMenuPosition()
-        {
-            transform.position = _controller.Content.GameObject.transform.position;
-        }
-
+        /// <inheritdoc cref="MonoBehaviour" />
         private void Update()
         {
             if (null == _controller)
@@ -131,6 +132,17 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Resets the position of the menu to the center of the content.
+        /// </summary>
+        private void ResetMenuPosition()
+        {
+            transform.position = _controller.Content.GameObject.transform.position;
+        }
+
+        /// <summary>
+        /// Called when the x slider has unfocused.
+        /// </summary>
         private void SliderX_OnUnfocused()
         {
             SliderX.LocalVisible = false;
@@ -139,6 +151,9 @@ namespace CreateAR.SpirePlayer
             Container.LocalVisible = true;
         }
 
+        /// <summary>
+        /// Called when the y slider has unfocused.
+        /// </summary>
         private void SliderY_OnUnfocused()
         {
             SliderY.LocalVisible = false;
@@ -147,6 +162,9 @@ namespace CreateAR.SpirePlayer
             Container.LocalVisible = true;
         }
 
+        /// <summary>
+        /// Called when the z slider has unfocused.
+        /// </summary>
         private void SliderZ_OnUnfocused()
         {
             SliderZ.LocalVisible = false;
@@ -155,18 +173,27 @@ namespace CreateAR.SpirePlayer
             Container.LocalVisible = true;
         }
 
+        /// <summary>
+        /// Called when the scale slider has unfocused.
+        /// </summary>
         private void SliderScale_OnUnfocused()
         {
             SliderScale.LocalVisible = false;
             Container.LocalVisible = true;
         }
 
+        /// <summary>
+        /// Called when the rotate slider has unfocused.
+        /// </summary>
         private void SliderRotate_OnUnfocused()
         {
             SliderRotate.LocalVisible = false;
             Container.LocalVisible = true;
         }
 
+        /// <summary>
+        /// Called when the back button has been activated.
+        /// </summary>
         private void BtnBack_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             if (null != OnExit)
@@ -175,6 +202,9 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Called when the rotate button has been activated.
+        /// </summary>
         private void BtnRotate_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             Container.LocalVisible = false;
@@ -183,6 +213,9 @@ namespace CreateAR.SpirePlayer
             SliderRotate.LocalVisible = true;
         }
 
+        /// <summary>
+        /// Called when the scale button has been activated.
+        /// </summary>
         private void BtnScale_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             Container.LocalVisible = false;
@@ -190,19 +223,28 @@ namespace CreateAR.SpirePlayer
             _startScale = _controller.Content.GameObject.transform.localScale;
             SliderScale.LocalVisible = true;
         }
-
+        
+        /// <summary>
+        /// Called when the x button has been activated.
+        /// </summary>
         private void BtnX_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             Container.LocalVisible = false;
             SliderX.LocalVisible = true;
         }
 
+        /// <summary>
+        /// Called when the y button has been activated.
+        /// </summary>
         private void BtnY_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             Container.LocalVisible = false;
             SliderY.LocalVisible = true;
         }
 
+        /// <summary>
+        /// Called when the z button has been activated.
+        /// </summary>
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             Container.LocalVisible = false;

@@ -1,4 +1,4 @@
-<Container>
+<Container face='camera'>
 	/* Menu for control menu */
 	<Container id='controls'>
 		<Button id='btn-back' icon='arrow-left' position=(-0.3, 0.25, 0) />

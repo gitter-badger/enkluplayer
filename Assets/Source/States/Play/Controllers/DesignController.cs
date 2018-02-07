@@ -349,8 +349,14 @@ namespace CreateAR.SpirePlayer
                 _propAdjust = null;
             }
 
+            // hide the splash on the controller
             controller.HideSplashMenu();
 
+            // hide any other menus
+            _splash.Hide();
+            _mainMenu.Hide();
+
+            // create a new propadjust menu
             var root = new GameObject("PropAdjust");
             _propAdjust = root.AddComponent<PropAdjustController>();
             _propAdjust.OnExit += PropAdjust_OnExit;
@@ -369,6 +375,8 @@ namespace CreateAR.SpirePlayer
             }
 
             controller.ShowSplashMenu();
+
+            _splash.Show();
         }
     }
 }
