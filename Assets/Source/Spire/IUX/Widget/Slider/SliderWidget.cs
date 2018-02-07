@@ -38,7 +38,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Image widget.
         /// </summary>
-        private ImageWidget _image;
+        private ImageWidget _positionImage;
+        private ImageWidget _minImage;
+        private ImageWidget _maxImage;
 
         /// <summary>
         /// Start of slider, in world space.
@@ -73,9 +75,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                if (null != _image)
+                if (null != _positionImage)
                 {
-                    return _image.GameObject.transform.position.ToVec();
+                    return _positionImage.GameObject.transform.position.ToVec();
                 }
 
                 return GameObject.transform.position.ToVec();
@@ -87,9 +89,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                if (null != _image)
+                if (null != _positionImage)
                 {
-                    return _image.GameObject.transform.lossyScale.ToVec();
+                    return _positionImage.GameObject.transform.lossyScale.ToVec();
                 }
 
                 return GameObject.transform.lossyScale.ToVec();
@@ -166,13 +168,19 @@ namespace CreateAR.SpirePlayer.IUX
             _axisProp = Schema.Get<string>("axis");
             _axisProp.OnChanged += Axis_OnChanged;
 
-            _image = (ImageWidget)_elements.Element("<Image src='res://Art/Textures/Outer Gradient' />");
-            AddChild(_image);
+            _positionImage = (ImageWidget) _elements.Element("<Image src='res://Art/Textures/Outer Gradient' />");
+            AddChild(_positionImage);
 
+            _minImage = (ImageWidget) _elements.Element("<Image src='res://Art/Textures/arrow-left' />");
+            AddChild(_minImage);
+
+            _maxImage = (ImageWidget) _elements.Element("<Image src='res://Art/Textures/arrow-right' />");
+            AddChild(_maxImage);
+            
             _interactions.Add(this);
             Interactable = true;
         }
-        
+
         /// <inheritdoc />
         protected override void AfterUnloadChildrenInternal()
         {
@@ -202,7 +210,7 @@ namespace CreateAR.SpirePlayer.IUX
             UpdatePosition(intersection);
             var aim = CalculateAim(intersection);
             var scalar = _sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value);
-            _image.GameObject.transform.localScale = scalar * Vector3.one;
+            _positionImage.GameObject.transform.localScale = scalar * Vector3.one;
             
             if (Math.Abs(aim) < float.Epsilon)
             {
@@ -245,7 +253,7 @@ namespace CreateAR.SpirePlayer.IUX
             Value = CalculateValue(intersection, _p0, _p1);
 
             // force world position, not position property
-            _image.GameObject.transform.position = Vector3.Lerp(_p0, _p1, Value);
+            _positionImage.GameObject.transform.position = Vector3.Lerp(_p0, _p1, Value);
         }
 
         /// <summary>
@@ -266,15 +274,28 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             var offset = _intentions.Right;
-            if (axis == AxisType.Y)
+            if (axis == AxisType.X)
+            {
+                offset = _intentions.Right;
+
+                _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
+                _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
+            }
+            else if (axis == AxisType.Y)
             {
                 offset = _intentions.Up;
+
+                _minImage.Schema.Set("src", "res://Art/Textures/arrow-down");
+                _maxImage.Schema.Set("src", "res://Art/Textures/arrow-up");
             }
             
             var position = GameObject.transform.position;
             
             _p0 = position - _lengthProp.Value * offset.ToVector();
             _p1 = position + _lengthProp.Value * offset.ToVector();
+
+            _minImage.GameObject.transform.position = _p0;
+            _maxImage.GameObject.transform.position = _p1;
         }
 
         /// <summary>
@@ -343,7 +364,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             return value;
         }
-
+        
         /// <summary>
         /// Called when property changes.
         /// </summary>
@@ -355,7 +376,7 @@ namespace CreateAR.SpirePlayer.IUX
             float prev,
             float next)
         {
-            CalculatePlane();
+            //
         }
 
         /// <summary>
@@ -369,7 +390,7 @@ namespace CreateAR.SpirePlayer.IUX
             string prev,
             string next)
         {
-            CalculatePlane();
+            //
         }
 
         /// <summary>
