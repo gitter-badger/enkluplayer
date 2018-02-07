@@ -268,7 +268,7 @@ namespace CreateAR.SpirePlayer.Vine
             
             // identify type and add to current schema
             var name = _currentAttribute.Name;
-            var value = _currentAttribute.Value;
+            var value = _currentAttribute.Value.Trim(' ');
             var current = _elements.Peek();
             if (value.StartsWith("'"))
             {
@@ -372,8 +372,9 @@ namespace CreateAR.SpirePlayer.Vine
                 if (!int.TryParse(value, out intValue))
                 {
                     throw new Exception(string.Format(
-                        "Int could not be parsed for attribute {0} : {1}.",
+                        "Int could not be parsed for attribute '{0}'={1} : {2}.",
                         name,
+                        value,
                         GetExceptionLocation(context)));
                 }
 
