@@ -190,6 +190,11 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LateUpdateInternal();
 
+            if (!Visible)
+            {
+                return;
+            }
+
             var aim = CalculateAim();
             _image.GameObject.transform.localScale = 
                 (_sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value))

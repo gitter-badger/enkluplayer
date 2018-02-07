@@ -28,7 +28,16 @@ namespace CreateAR.SpirePlayer
 
         [InjectElements("..btn-z")]
         public ButtonWidget BtnZ { get; private set; }
-        
+
+        [InjectElements("..slider-x")]
+        public SliderWidget SliderX { get; private set; }
+
+        [InjectElements("..slider-y")]
+        public SliderWidget SliderY { get; private set; }
+
+        [InjectElements("..slider-z")]
+        public SliderWidget SliderZ { get; private set; }
+
         public event Action OnExit;
 
         public void Initialize(PropController controller)
@@ -43,8 +52,30 @@ namespace CreateAR.SpirePlayer
             BtnX.Activator.OnActivated += BtnX_OnActivated;
             BtnY.Activator.OnActivated += BtnY_OnActivated;
             BtnZ.Activator.OnActivated += BtnZ_OnActivated;
+
+            SliderX.OnUnfocused += SliderX_OnUnfocused;
+            SliderY.OnUnfocused += SliderY_OnUnfocused;
+            SliderZ.OnUnfocused += SliderZ_OnUnfocused;
         }
-        
+
+        private void SliderX_OnUnfocused()
+        {
+            SliderX.LocalVisible = false;
+            Container.LocalVisible = true;
+        }
+
+        private void SliderY_OnUnfocused()
+        {
+            SliderY.LocalVisible = false;
+            Container.LocalVisible = true;
+        }
+
+        private void SliderZ_OnUnfocused()
+        {
+            SliderZ.LocalVisible = false;
+            Container.LocalVisible = true;
+        }
+
         private void BtnBack_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             if (null != OnExit)
@@ -66,16 +97,19 @@ namespace CreateAR.SpirePlayer
         private void BtnX_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             Container.LocalVisible = false;
+            SliderX.LocalVisible = true;
         }
 
         private void BtnY_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             Container.LocalVisible = false;
+            SliderY.LocalVisible = true;
         }
 
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             Container.LocalVisible = false;
+            SliderZ.LocalVisible = true;
         }
     }
 }
