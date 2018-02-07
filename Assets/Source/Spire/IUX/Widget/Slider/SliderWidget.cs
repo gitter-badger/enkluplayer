@@ -152,11 +152,10 @@ namespace CreateAR.SpirePlayer.IUX
             return true;
         }
 
-        /// <inheritdoc />
-        protected override void AfterLoadChildrenInternal()
+        protected override void BeforeLoadChildrenInternal()
         {
-            base.AfterLoadChildrenInternal();
-            
+            base.BeforeLoadChildrenInternal();
+
             _sizeMaxProp = Schema.Get<float>("size.max");
             _sizeMinProp = Schema.Get<float>("size.min");
             _radiusProp = Schema.Get<float>("radius");
@@ -166,14 +165,14 @@ namespace CreateAR.SpirePlayer.IUX
 
             _axisProp = Schema.Get<string>("axis");
             _axisProp.OnChanged += Axis_OnChanged;
-            
-            _image = (ImageWidget) _elements.Element("<Image src='res://Art/Textures/Outer Gradient' />");
+
+            _image = (ImageWidget)_elements.Element("<Image src='res://Art/Textures/Outer Gradient' />");
             AddChild(_image);
 
             _interactions.Add(this);
             Interactable = true;
         }
-
+        
         /// <inheritdoc />
         protected override void AfterUnloadChildrenInternal()
         {
@@ -213,6 +212,17 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void OnVisibilityUpdated()
         {
             base.OnVisibilityUpdated();
+
+            if (Visible)
+            {
+                _interactions.Add(this);
+                Interactable = true;
+            }
+            else
+            {
+                Interactable = false;
+                _interactions.Remove(this);
+            }
 
             if (null != OnVisibilityChanged)
             {

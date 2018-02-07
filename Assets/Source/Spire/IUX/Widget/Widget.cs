@@ -321,6 +321,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.AfterLoadChildrenInternal();
 
+            // default to gameobject
+            Visible = GameObject.activeSelf;
+
             _localVisibleProp = Schema.GetOwn("visible", true);
             _localVisibleProp.OnChanged += LocalVisible_OnChanged;
             _localColorProp = Schema.GetOwn("color", Col4.White);
