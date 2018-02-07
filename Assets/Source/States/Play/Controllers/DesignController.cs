@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
@@ -206,7 +207,7 @@ namespace CreateAR.SpirePlayer
                 ListenToProp(controllers[i]);
             }
 
-            //_splash.Show();
+            _splash.Show();
         }
 
         /// <summary>
@@ -344,12 +345,13 @@ namespace CreateAR.SpirePlayer
         {
             if (null != _propAdjust)
             {
-                Object.Destroy(_propAdjust);
+                Object.Destroy(_propAdjust.gameObject);
             }
 
             controller.HideSplashMenu();
 
-            _propAdjust = controller.Content.GameObject.AddComponent<PropAdjustController>();
+            var root = new GameObject("PropAdjust");
+            _propAdjust = root.AddComponent<PropAdjustController>();
             _propAdjust.Initialize(controller);
         }
     }

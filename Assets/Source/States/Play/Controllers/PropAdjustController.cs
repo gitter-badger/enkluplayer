@@ -43,6 +43,7 @@ namespace CreateAR.SpirePlayer
         public void Initialize(PropController controller)
         {
             _controller = controller;
+            transform.position = _controller.Content.GameObject.transform.position;
 
             BtnBack.Activator.OnActivated += BtnBack_OnActivated;
 
@@ -56,6 +57,29 @@ namespace CreateAR.SpirePlayer
             SliderX.OnUnfocused += SliderX_OnUnfocused;
             SliderY.OnUnfocused += SliderY_OnUnfocused;
             SliderZ.OnUnfocused += SliderZ_OnUnfocused;
+        }
+
+        private void Update()
+        {
+            if (null == _controller)
+            {
+                return;
+            }
+            
+            if (SliderX.Visible)
+            {
+                _controller.Content.GameObject.transform.position = SliderX.Focus.ToVector();
+            }
+
+            if (SliderY.Visible)
+            {
+                _controller.Content.GameObject.transform.position = SliderY.Focus.ToVector();
+            }
+
+            if (SliderZ.Visible)
+            {
+                _controller.Content.GameObject.transform.position = SliderZ.Focus.ToVector();
+            }
         }
 
         private void SliderX_OnUnfocused()

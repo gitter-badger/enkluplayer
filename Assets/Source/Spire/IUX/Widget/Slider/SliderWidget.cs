@@ -151,6 +151,7 @@ namespace CreateAR.SpirePlayer.IUX
             return true;
         }
 
+        /// <inheritdoc />
         protected override void BeforeLoadChildrenInternal()
         {
             base.BeforeLoadChildrenInternal();
@@ -200,7 +201,7 @@ namespace CreateAR.SpirePlayer.IUX
                 (_sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value))
                 * Vector3.one;
             
-            RecalculatePlane();
+            CalculatePlane();
             UpdatePosition(intersection);
             DebugRender();
 
@@ -236,25 +237,20 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Renders debugging information.
+        /// Updates the image position.
         /// </summary>
-        private void DebugRender()
+        private void UpdatePosition(Vec3 intersection)
         {
-            var handle = Render.Handle("IUX");
-            if (null != handle)
-            {
-                handle.Draw(ctx =>
-                {
-                    ctx.Color(UnityEngine.Color.green);
-                    ctx.Line(_p0, _p1);
-                });
-            }
+            Value = CalculateValue(intersection.ToVector(), _p0, _p1);
+
+            // force world position, not position property
+            _image.GameObject.transform.position = Vector3.Lerp(_p0, _p1, Value);
         }
 
         /// <summary>
         /// Recalculates the plane to restrict slider controls to.
         /// </summary>
-        private void RecalculatePlane()
+        private void CalculatePlane()
         {
             var axis = AxisType.X;
             try
@@ -278,17 +274,6 @@ namespace CreateAR.SpirePlayer.IUX
             
             _p0 = position - _lengthProp.Value * offset.ToVector();
             _p1 = position + _lengthProp.Value * offset.ToVector();
-        }
-
-        /// <summary>
-        /// Updates the image position.
-        /// </summary>
-        private void UpdatePosition(Vec3 intersection)
-        {
-            Value = CalculateValue(intersection.ToVector(), _p0, _p1);
-            
-            // force world position, not position property
-            _image.GameObject.transform.position = Vector3.Lerp(_p0, _p1, Value);
         }
 
         /// <summary>
@@ -366,7 +351,7 @@ namespace CreateAR.SpirePlayer.IUX
             float prev,
             float next)
         {
-            RecalculatePlane();
+            CalculatePlane();
         }
 
         /// <summary>
@@ -380,7 +365,23 @@ namespace CreateAR.SpirePlayer.IUX
             string prev,
             string next)
         {
-            RecalculatePlane();
+            CalculatePlane();
+        }
+
+        /// <summary>
+        /// Renders debugging information.
+        /// </summary>
+        private void DebugRender()
+        {
+            var handle = Render.Handle("IUX");
+            if (null != handle)
+            {
+                handle.Draw(ctx =>
+                {
+                    ctx.Color(UnityEngine.Color.green);
+                    ctx.Line(_p0, _p1);
+                });
+            }
         }
     }
 }
