@@ -33,12 +33,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Current tween Value.
         /// </summary>
         private float _localTween = 0.0f;
-
-        /// <summary>
-        /// True if the widget is currently visible.
-        /// </summary>
-        private bool _localVisible;
-
+        
         /// <summary>
         /// Component that controls Widget facing direction.
         /// </summary>
@@ -49,6 +44,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private ElementSchemaProp<Col4> _localColorProp;
         private ElementSchemaProp<Vec3> _localPositionProp;
+        private ElementSchemaProp<bool> _localVisibleProp;
         private ElementSchemaProp<TweenType> _tweenInProp;
         private ElementSchemaProp<TweenType> _tweenOutProp;
         private ElementSchemaProp<string> _virtualColorProp;
@@ -189,21 +185,11 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                return _localVisible;
+                return _localVisibleProp.Value;
             }
             set
             {
-                if (_localVisible != value)
-                {
-                    _localVisible = value;
-
-                    UpdateVisibility();
-                }
-
-                if (_localVisible)
-                {
-                    GameObject.SetActive(true);
-                }
+                _localVisibleProp.Value = value;
             }
         }
         
@@ -374,6 +360,8 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.AfterLoadChildrenInternal();
 
+            _localVisibleProp = Schema.GetOwn("visible", true);
+            _localVisibleProp.OnChanged += LocalVisible_OnChanged;
             _localColorProp = Schema.GetOwn("color", Col4.White);
             _localPositionProp = Schema.GetOwn("position", Vec3.Zero);
             _localPositionProp.OnChanged += LocalPosition_OnChanged;
@@ -670,6 +658,20 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             UpdateFace(next);
+        }
+
+        /// <summary>
+        /// Called when the local visibility changes.
+        /// </summary>
+        /// <param name="prop">Property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void LocalVisible_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            UpdateVisibility();
         }
 
         /// <summary>

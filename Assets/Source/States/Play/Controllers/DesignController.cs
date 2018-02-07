@@ -186,10 +186,26 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Listens to prop.
+        /// </summary>
+        /// <param name="controller">The PropController.</param>
+        private void ListenToProp(PropController controller)
+        {
+            controller.OnAdjust += Controller_OnAdjust;
+        }
+
+        /// <summary>
         /// Starts design mode after everything is ready.
         /// </summary>
         private void Start()
         {
+            // listen to all prop controllers
+            var controllers = _propManager.Active.Props;
+            for (int i = 0, len = controllers.Count; i < len; i++)
+            {
+                ListenToProp(controllers[i]);
+            }
+
             _splash.Show();
         }
 
@@ -301,10 +317,7 @@ namespace CreateAR.SpirePlayer
             _propManager
                 .Active
                 .Create(propData)
-                .OnSuccess(controller =>
-                {
-                    controller.OnAdjust += Controller_OnAdjust;
-                })
+                .OnSuccess(ListenToProp)
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not place prop : {0}.", exception);
@@ -333,6 +346,8 @@ namespace CreateAR.SpirePlayer
             {
                 Object.Destroy(_propAdjust);
             }
+
+            controller.HideSplashMenu();
 
             _propAdjust = controller.Content.GameObject.AddComponent<PropAdjustController>();
             _propAdjust.Initialize(controller);

@@ -105,6 +105,16 @@ namespace CreateAR.SpirePlayer
             Data = data;
         }
 
+        public void HideSplashMenu()
+        {
+            _splashController.Root.Schema.Set("visible", false);
+        }
+
+        public void ShowSplashMenu()
+        {
+            _splashController.Root.Schema.Set("visible", true);
+        }
+
         /// <summary>
         /// Creates splash menu.
         /// </summary>
