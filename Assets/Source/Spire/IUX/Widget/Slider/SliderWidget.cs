@@ -197,15 +197,13 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             CalculatePlane();
-
             var intersection = CalculateIntentionIntersection();
+
+            UpdatePosition(intersection);
             var aim = CalculateAim(intersection);
             var scalar = _sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value);
             _image.GameObject.transform.localScale = scalar * Vector3.one;
             
-            UpdatePosition(intersection);
-            DebugRender();
-
             if (Math.Abs(aim) < float.Epsilon)
             {
                 if (null != OnUnfocused)
@@ -213,6 +211,8 @@ namespace CreateAR.SpirePlayer.IUX
                     OnUnfocused();
                 }
             }
+
+            DebugRender();
         }
 
         /// <inheritdoc />
@@ -240,9 +240,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Updates the image position.
         /// </summary>
-        private void UpdatePosition(Vec3 intersection)
+        private void UpdatePosition(Vector3 intersection)
         {
-            Value = CalculateValue(intersection.ToVector(), _p0, _p1);
+            Value = CalculateValue(intersection, _p0, _p1);
 
             // force world position, not position property
             _image.GameObject.transform.position = Vector3.Lerp(_p0, _p1, Value);
@@ -282,7 +282,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// from the points on slider + up.
         /// </summary>
         /// <returns></returns>
-        private Vec3 CalculateIntentionIntersection()
+        private Vector3 CalculateIntentionIntersection()
         {
             // generate plane normal
             var right = (_p1 - _p0).normalized;
@@ -311,19 +311,16 @@ namespace CreateAR.SpirePlayer.IUX
                 throw new Exception("Invalid.");
             }
 
-            return intersection;
+            return intersection.ToVector();
         }
 
         /// <summary>
         /// Updates the aim as a function of focus towards the center of the
         /// line segment.
         /// </summary>
-        private float CalculateAim(Vec3 intersection)
+        private float CalculateAim(Vector3 intersection)
         {
-            var O = _p0;
-            var d = (_p1 - _p0).normalized;
-            var p = intersection.ToVector();
-            var distance = Vector3.Magnitude((O - p) - (Vector3.Dot(O - p, d) * d));
+            var distance = Vector3.Magnitude(Focus.ToVector() - intersection);
             var rad = _radiusProp.Value;
 
             return Mathf.Clamp01(1 - distance / rad);
