@@ -66,6 +66,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IImageLoader>().To<StandardImageLoader>().ToSingleton();
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
                 binder.Bind<IVinePreProcessor>().To<JsVinePreProcessor>().ToSingleton();
+                binder.Bind<IVineTable>().To(LookupComponent<VineTable>());
                 binder.Bind<VineImporter>().To<VineImporter>();
 
                 binder.Bind<IStorageWorker>().To<StorageWorker>().ToSingleton();

@@ -177,7 +177,7 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     { "size.max", 3f },
                     { "size.min", 1f },
-                    { "radius", 0.5f },
+                    { "radius", 0.25f },
                     { "length", 0.1f },
                 },
                 Strings = new Dictionary<string, string>

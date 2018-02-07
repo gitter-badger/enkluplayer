@@ -17,7 +17,7 @@ namespace CreateAR.SpirePlayer
         /// Creates elements.
         /// </summary>
         private readonly IElementFactory _elements;
-
+        
         /// <summary>
         /// Receives update events.
         /// </summary>

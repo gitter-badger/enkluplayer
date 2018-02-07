@@ -205,7 +205,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             var options = group.Options;
-            var total = options.Length;
+            var total = options.Count;
             var buttonsPerPage = NUM_COLS * NUM_ROWS;
             var numPages = 0;
             while (total > 0)
@@ -253,7 +253,7 @@ namespace CreateAR.SpirePlayer.IUX
             var resultsPerPage = NUM_COLS * NUM_ROWS;
             var options = group.Options;
             for (var i = page * resultsPerPage;
-                i < Mathf.Min(options.Length, (page + 1) * resultsPerPage);
+                i < Mathf.Min(options.Count, (page + 1) * resultsPerPage);
                 i++)
             {
                 var option = options[i];
@@ -308,12 +308,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void RefreshOptionGroups()
         {
-            var children = Children;
-
             _groups.Clear();
-            for (int i = 0, len = children.Length; i < len; i++)
+            for (int i = 0, len = Children.Count; i < len; i++)
             {
-                var group = children[i] as OptionGroup;
+                var group = Children[i] as OptionGroup;
                 if (null != @group)
                 {
                     _groups.Add(@group);

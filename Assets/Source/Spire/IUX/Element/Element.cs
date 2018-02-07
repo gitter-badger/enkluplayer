@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -64,13 +65,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Copy of children collection.
         /// </summary>
-        public Element[] Children
-        {
-            get
-            {
-                return _children.ToArray();
-            }
-        }
+        public ReadOnlyCollection<Element> Children { get; private set; }
         
         /// <summary>
         /// Invoked when element is destroyed.
@@ -97,6 +92,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public Element()
         {
+            Children = new ReadOnlyCollection<Element>(_children);
             Schema = new ElementSchema("Unknown");
         }
         
@@ -527,7 +523,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             // test children
             var children = element.Children;
-            for (int i = 0, len = children.Length; i < len; i++)
+            for (int i = 0, len = children.Count; i < len; i++)
             {
                 var child = children[i];
                 if (query.Execute(child))
@@ -546,7 +542,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void ExecuteQueryRecursive(Element element, ElementQuery query, List<Element> results)
         {
             var children = element.Children;
-            for (int i = 0, len = children.Length; i < len; i++)
+            for (int i = 0, len = children.Count; i < len; i++)
             {
                 var child = children[i];
                 if (query.Execute(child))
@@ -612,7 +608,7 @@ namespace CreateAR.SpirePlayer.IUX
             builder.AppendFormat("{0}\n", element);
 
             var children = element.Children;
-            for (int i = 0, len = children.Length; i < len; i++)
+            for (int i = 0, len = children.Count; i < len; i++)
             {
                 Append(builder, children[i], tabs + 1);
             }

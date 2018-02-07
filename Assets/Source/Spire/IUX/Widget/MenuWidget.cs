@@ -387,11 +387,10 @@ namespace CreateAR.SpirePlayer.IUX
             var layout = _layoutProp.Value;
             if (layout == "Radial")
             {
-                var children = Children;
                 _filteredChildren.Clear();
-                for (int i = 0, len = children.Length; i < len; i++)
+                for (int i = 0, len = Children.Count; i < len; i++)
                 {
-                    var child = children[i];
+                    var child = Children[i];
                     if (child == _titlePrimitive
                         || child == _descriptionPrimitive
                         || child == _backButton)

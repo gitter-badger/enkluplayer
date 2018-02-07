@@ -3,9 +3,13 @@ using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
-    public class PropAdjustController : AutoController
+    [InjectVine("Prop.Adjust")]
+    public class PropAdjustController : InjectableIUXController
     {
-        private ContentWidget _content;
+        private PropController _controller;
+
+        [InjectElements("..controls")]
+        public Widget Container { get; private set; }
 
         [InjectElements("..btn-back")]
         public ButtonWidget BtnBack { get; private set; }
@@ -24,14 +28,12 @@ namespace CreateAR.SpirePlayer
 
         [InjectElements("..btn-z")]
         public ButtonWidget BtnZ { get; private set; }
-
+        
         public event Action OnExit;
 
-        protected override void Initialize(Element element, object context)
+        public void Initialize(PropController controller)
         {
-            base.Initialize(element, context);
-
-            _content = (ContentWidget) context;
+            _controller = controller;
 
             BtnBack.Activator.OnActivated += BtnBack_OnActivated;
 
@@ -43,13 +45,6 @@ namespace CreateAR.SpirePlayer
             BtnZ.Activator.OnActivated += BtnZ_OnActivated;
         }
         
-        protected override void Uninitialize()
-        {
-
-
-            base.Uninitialize();
-        }
-
         private void BtnBack_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             if (null != OnExit)
@@ -70,17 +65,17 @@ namespace CreateAR.SpirePlayer
 
         private void BtnX_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
-
+            Container.LocalVisible = false;
         }
 
         private void BtnY_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
-
+            Container.LocalVisible = false;
         }
 
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
-
+            Container.LocalVisible = false;
         }
     }
 }

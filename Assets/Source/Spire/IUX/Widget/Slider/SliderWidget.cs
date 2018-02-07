@@ -116,6 +116,11 @@ namespace CreateAR.SpirePlayer.IUX
         public event Action<IInteractable> OnVisibilityChanged;
 
         /// <summary>
+        /// Called when the control is not being focused on.
+        /// </summary>
+        public event Action OnUnfocused;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public SliderWidget(
@@ -193,11 +198,18 @@ namespace CreateAR.SpirePlayer.IUX
             _image.GameObject.transform.localScale = 
                 (_sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value))
                 * Vector3.one;
-
+            
             RecalculatePlane();
-
             UpdatePosition();
             DebugRender();
+
+            if (Math.Abs(aim) < float.Epsilon)
+            {
+                if (null != OnUnfocused)
+                {
+                    OnUnfocused();
+                }
+            }
         }
 
         /// <summary>

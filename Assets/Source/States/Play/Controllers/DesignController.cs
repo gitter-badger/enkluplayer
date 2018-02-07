@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Object = UnityEngine.Object;
 
@@ -184,9 +183,6 @@ namespace CreateAR.SpirePlayer
             _place = Object.Instantiate(_playConfig.PlaceObject, _events.transform);
             _place.OnConfirm += Place_OnConfirm;
             _place.OnCancel += Place_OnCancel;
-
-            _propAdjust = Object.Instantiate(_playConfig.PropAdjust, _events.transform);
-            _propAdjust.OnExit += PropAdjust_OnExit;
         }
 
         /// <summary>
@@ -305,6 +301,10 @@ namespace CreateAR.SpirePlayer
             _propManager
                 .Active
                 .Create(propData)
+                .OnSuccess(controller =>
+                {
+                    controller.OnAdjust += Controller_OnAdjust;
+                })
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not place prop : {0}.", exception);
@@ -322,14 +322,20 @@ namespace CreateAR.SpirePlayer
             _place.Hide();
             _new.Show();
         }
-
+        
         /// <summary>
-        /// Called when the prop adjust menu wants to exit.
+        /// Called when the controller asks to open the menu.
         /// </summary>
-        private void PropAdjust_OnExit()
+        /// <param name="controller">The prop controller.</param>
+        private void Controller_OnAdjust(PropController controller)
         {
-            _propAdjust.Hide();
-            _splash.Show();
+            if (null != _propAdjust)
+            {
+                Object.Destroy(_propAdjust);
+            }
+
+            _propAdjust = controller.Content.GameObject.AddComponent<PropAdjustController>();
+            _propAdjust.Initialize(controller);
         }
     }
 }

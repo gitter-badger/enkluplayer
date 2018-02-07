@@ -366,16 +366,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             _layer = Layers.Request(this);
         }
-
-        /// <summary>
-        /// Updates the visibility chain
-        /// </summary>
-        /// <param name="visible"></param>
-        public void SetLocalVisible(bool visible)
-        {
-            LocalVisible = visible;
-        }
-
+        
         /// <summary>
         /// Initialization
         /// </summary>

@@ -17,12 +17,17 @@ namespace CreateAR.SpirePlayer
         private const float ROTATION_EPSILON = 0.1f;
         private const float SCALE_EPSILON = 0.1f;
         private const float TIME_EPSILON = 0.5f;
-
+        
         /// <summary>
         /// The delegate to push updates through.
         /// </summary>
         private IPropUpdateDelegate _delegate;
 
+        /// <summary>
+        /// Controls the prop splash menu.
+        /// </summary>
+        private PropSplashController _splashController;
+        
         /// <summary>
         /// Time of last save.
         /// </summary>
@@ -49,6 +54,11 @@ namespace CreateAR.SpirePlayer
         public ContentWidget Content { get; private set; }
 
         /// <summary>
+        /// Called when prop adjust is requested.
+        /// </summary>
+        public event Action<PropController> OnAdjust;
+        
+        /// <summary>
         /// Initializes the controller. Updates are sent through the delegate.
         /// </summary>
         /// <param name="data">The data to edit.</param>
@@ -61,8 +71,10 @@ namespace CreateAR.SpirePlayer
         {
             Data = data;
             Content = content;
-
+            
             _delegate = @delegate;
+
+            InitializeSplashMenu();
 
             Resync(Data);
         }
@@ -91,6 +103,16 @@ namespace CreateAR.SpirePlayer
             trans.localScale = data.LocalScale.ToVector();
 
             Data = data;
+        }
+
+        /// <summary>
+        /// Creates splash menu.
+        /// </summary>
+        private void InitializeSplashMenu()
+        {
+            _splashController = Content.GameObject.AddComponent<PropSplashController>();
+            _splashController.OnOpen += Splash_OnOpen;
+            _splashController.Initialize(Data);
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>
@@ -149,6 +171,17 @@ namespace CreateAR.SpirePlayer
 
                 _saveToken = _delegate.Update(Data);
                 _saveToken.OnFinally(_ => _saveToken = null);
+            }
+        }
+
+        /// <summary>
+        /// Called when the splash requests to open.
+        /// </summary>
+        private void Splash_OnOpen()
+        {
+            if (null != OnAdjust)
+            {
+                OnAdjust(this);
             }
         }
     }

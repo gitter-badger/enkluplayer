@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer.Test.UI
             _root.AddChild(element);
             _root.AddChild(element);
 
-            Assert.AreEqual(1, _root.Children.Length);
+            Assert.AreEqual(1, _root.Children.Count);
         }
 
         [Test]
@@ -110,7 +110,7 @@ namespace CreateAR.SpirePlayer.Test.UI
             _root.AddChild(element);
 
             Assert.IsTrue(_root.RemoveChild(element));
-            Assert.AreEqual(0, _root.Children.Length);
+            Assert.AreEqual(0, _root.Children.Count);
         }
 
         [Test]

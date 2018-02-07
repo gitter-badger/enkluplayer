@@ -260,7 +260,8 @@ namespace CreateAR.SpirePlayer
                 var data = pair.Value.ToArray();
 
                 _sets.Add(new PropSet(
-                    _elements, this, this,
+                    _elements,
+                    this, this,
                     id,
                     data));
             }
