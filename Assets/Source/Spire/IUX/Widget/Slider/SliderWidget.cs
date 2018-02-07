@@ -156,9 +156,7 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void AfterLoadChildrenInternal()
         {
             base.AfterLoadChildrenInternal();
-
-            _isVisible.OnChanged += IsVisible_OnChanged;
-
+            
             _sizeMaxProp = Schema.Get<float>("size.max");
             _sizeMinProp = Schema.Get<float>("size.min");
             _radiusProp = Schema.Get<float>("radius");
@@ -186,7 +184,6 @@ namespace CreateAR.SpirePlayer.IUX
 
             _lengthProp.OnChanged -= Length_OnChanged;
             _axisProp.OnChanged -= Axis_OnChanged;
-            _isVisible.OnChanged -= IsVisible_OnChanged;
         }
 
         /// <inheritdoc />
@@ -209,6 +206,17 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     OnUnfocused();
                 }
+            }
+        }
+
+        /// <inheritdoc />
+        protected override void OnVisibilityUpdated()
+        {
+            base.OnVisibilityUpdated();
+
+            if (null != OnVisibilityChanged)
+            {
+                OnVisibilityChanged(this);
             }
         }
 
@@ -364,18 +372,6 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             RecalculatePlane();
-        }
-
-        /// <summary>
-        /// Called when visibility changes.
-        /// </summary>
-        /// <param name="value">The visibility value.</param>
-        private void IsVisible_OnChanged(bool value)
-        {
-            if (null != OnVisibilityChanged)
-            {
-                OnVisibilityChanged(this);
-            }
         }
     }
 }

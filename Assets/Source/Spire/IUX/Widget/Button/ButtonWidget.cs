@@ -161,8 +161,6 @@ namespace CreateAR.SpirePlayer.IUX
             _voice = voice;
             _loader = loader;
             _stateRenderer = new ButtonStateRenderer(tweens, colors, config, this);
-
-            _isVisible.OnChanged += Visible_OnChanged;
         }
         
         /// <inheritdoc cref="Element"/>
@@ -252,6 +250,17 @@ namespace CreateAR.SpirePlayer.IUX
             base.LateUpdateInternal();
 
             _stateRenderer.Update(Time.smoothDeltaTime);
+        }
+
+        /// <inheritdoc />
+        protected override void OnVisibilityUpdated()
+        {
+            base.OnVisibilityUpdated();
+
+            if (null != OnVisibilityChanged)
+            {
+                OnVisibilityChanged(this);
+            }
         }
 
         /// <summary>
@@ -360,19 +369,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
             }
         }
-
-        /// <summary>
-        /// Called when the visibility changes.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        private void Visible_OnChanged(bool value)
-        {
-            if (null != OnVisibilityChanged)
-            {
-                OnVisibilityChanged(this);
-            }
-        }
-
+        
         /// <summary>
         /// Called when the icon has changed.
         /// </summary>

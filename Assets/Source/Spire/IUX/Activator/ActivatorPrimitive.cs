@@ -231,8 +231,6 @@ namespace CreateAR.SpirePlayer.IUX
             _intention = intention;
             _messages = messages;
             _target = target;
-
-            _isVisible.OnChanged += Visible_OnChanged;
         }
 
         /// <inheritdoc cref="IRaycaster"/>
@@ -308,6 +306,17 @@ namespace CreateAR.SpirePlayer.IUX
             _states.Update(deltaTime);
 
             DebugDraw();
+        }
+
+        /// <inheritdoc />
+        protected override void OnVisibilityUpdated()
+        {
+            base.OnVisibilityUpdated();
+
+            if (null != OnVisibilityChanged)
+            {
+                OnVisibilityChanged(this);
+            }
         }
 
         /// <summary>
@@ -464,18 +473,6 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _renderer.Icon.sprite = _icon;
                 _renderer.Icon.enabled = null != _icon;
-            }
-        }
-
-        /// <summary>
-        /// Called when visibility changes.
-        /// </summary>
-        /// <param name="value">True iff visible.</param>
-        private void Visible_OnChanged(bool value)
-        {
-            if (null != OnVisibilityChanged)
-            {
-                OnVisibilityChanged(this);
             }
         }
     }

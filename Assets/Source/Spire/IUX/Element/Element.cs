@@ -41,7 +41,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Scratch list for FindAll.
         /// </summary>
         private readonly List<Element> _findAllScratch = new List<Element>();
-
+        
         /// <summary>
         /// Id prop.
         /// </summary>
@@ -67,6 +67,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public ReadOnlyCollection<Element> Children { get; private set; }
         
+        /// <summary>
+        /// The element's parent.
+        /// </summary>
+        public Element Parent { get; private set; }
+
         /// <summary>
         /// Invoked when element is destroyed.
         /// </summary>
@@ -248,6 +253,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             _children.Add(element);
+            element.Parent = this;
             element.OnChildAdded += Child_OnChildAdded;
             element.OnChildRemoved += Child_OnChildRemoved;
             element.OnDestroyed += Child_OnDestroyed;
@@ -278,6 +284,7 @@ namespace CreateAR.SpirePlayer.IUX
             var removed = _children.Remove(element);
             if (removed)
             {
+                element.Parent = null;
                 element.OnChildAdded -= Child_OnChildAdded;
                 element.OnChildRemoved -= Child_OnChildRemoved;
                 element.OnDestroyed -= Child_OnDestroyed;

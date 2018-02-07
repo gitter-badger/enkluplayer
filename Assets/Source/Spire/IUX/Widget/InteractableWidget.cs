@@ -123,8 +123,6 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _interactions = interactions;
             _messages = messages;
-
-            _isVisible.OnChanged += Visible_OnChanged;
         }
 
         /// <inheritdoc />
@@ -188,18 +186,17 @@ namespace CreateAR.SpirePlayer.IUX
             ShowIfHighlightedWidget.LocalVisible = isHighlighted && !HideHighlightWidget;
         }
 
-        /// <summary>
-        /// Called when the visibility changes.
-        /// </summary>
-        /// <param name="value">The visibility value.</param>
-        private void Visible_OnChanged(bool value)
+        /// <inheritdoc />
+        protected override void OnVisibilityUpdated()
         {
+            base.OnVisibilityUpdated();
+
             if (null != OnVisibilityChanged)
             {
                 OnVisibilityChanged(this);
             }
         }
-
+        
         /// <summary>
         /// Checks if a transform is a decendent of another.
         /// </summary>

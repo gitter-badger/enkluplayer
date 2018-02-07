@@ -1,5 +1,4 @@
 using System;
-using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using System.Diagnostics;
@@ -18,12 +17,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Regex for parsing element names.
         /// </summary>
         private readonly Regex _elementParser = new Regex(@"Guid=([a-zA-Z0-9\-]+)");
-
-        /// <summary>
-        /// Special code path for first visbility refresh
-        /// </summary>
-        private bool _firstVisbilityRefresh = true;
-
+        
         /// <summary>
         /// Layer this widget belongs to (Only root widgets need this set).
         /// </summary>
@@ -63,17 +57,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Widget hierarchy.
         /// </summary>
         internal Widget _parent;
-
-        /// <summary>
-        /// True if the widget is currently visible
-        /// </summary>
-        protected readonly WatchedValue<bool> _isVisible = new WatchedValue<bool>();
-
-        /// <summary>
-        /// True if the window has been visible
-        /// </summary>
-        protected bool _hasBeenVisible;
-
+        
         /// <summary>
         /// Dependencies.
         /// 
@@ -172,11 +156,6 @@ namespace CreateAR.SpirePlayer.IUX
             get { return _autoDestroyProp.Value; }
             set { _autoDestroyProp.Value = value; }
         }
-
-        /// <summary>
-        /// True if should start visible
-        /// </summary>
-        public bool StartVisible = true;
         
         /// <summary>
         /// Controls local GameObject visibility, not parent.
@@ -284,12 +263,10 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Is Visible Modification.
+        /// True iff the widget is currently visible. This refers to _global_
+        /// visibility, not local, i.e. the value is calculated from its parent.
         /// </summary>
-        public bool Visible
-        {
-            get { return _isVisible.Value; }
-        }
+        public bool Visible { get; private set; }
 
         /// <summary>
         /// Retrieves the transform.
@@ -319,22 +296,6 @@ namespace CreateAR.SpirePlayer.IUX
             Tweens = tweens;
             Colors = colors;
             Messages = messages;
-        }
-
-        /// <summary>
-        /// Shows the widget
-        /// </summary>
-        public void Show()
-        {
-            LocalVisible = true;
-        }
-
-        /// <summary>
-        /// Hides the widget
-        /// </summary>
-        public void Hide()
-        {
-            LocalVisible = false;
         }
         
         /// <summary>
@@ -381,21 +342,14 @@ namespace CreateAR.SpirePlayer.IUX
             GameObject.transform.localPosition = _localPositionProp.Value.ToVector();
 
             InitializeWidgetComponents(GameObject.transform);
-
-            _isVisible.OnChanged += IsVisible_OnUpdate;
-
-            UpdateVisibility();
+            
+            UpdateGlobalVisibility();
 
             if (LayerMode == LayerMode.Modal)
             {
                 BringToTop();
             }
-
-            if (StartVisible)
-            {
-                Show();
-            }
-
+            
             IsLoaded = true;
         }
 
@@ -443,7 +397,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             //var deltaTime = Time.smoothDeltaTime;
             var deltaTime = Time.deltaTime;
-            UpdateVisibility();
+            UpdateGlobalVisibility();
             UpdateTween(deltaTime);
             UpdateColor(deltaTime);
             UpdateAutoDestroy();
@@ -482,21 +436,112 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Updates the visibility
+        /// Updates global visibility.
         /// </summary>
-        private void UpdateVisibility()
+        private void UpdateGlobalVisibility()
         {
-            var parentVisible = VisibilityMode != WidgetVisibilityMode.Inherit
-                                || _parent == null
-                                || _parent.Visible;
-
-            var layerIsVisible = !(LayerMode == LayerMode.Hide && !LayerInteractive);
-
-            var isVisible = LocalVisible && parentVisible && layerIsVisible;
-            if (_firstVisbilityRefresh || isVisible != _isVisible.Value)
+            if (VisibilityMode == WidgetVisibilityMode.Local)
             {
-                _firstVisbilityRefresh = false;
-                _isVisible.Value = isVisible;
+                // no change
+                if (_localVisibleProp.Value == Visible)
+                {
+                    return;
+                }
+
+                Visible = _localVisibleProp.Value;
+            }
+            else
+            {
+                if (!_localVisibleProp.Value)
+                {
+                    // no change
+                    if (Visible == false)
+                    {
+                        return;
+                    }
+
+                    Visible = false;
+                }
+                // calculate from parent chain
+                else
+                {
+                    var invisibleParent = false;
+                    var parent = Parent;
+                    while (null != parent)
+                    {
+                        var widget = parent as Widget;
+                        if (null == widget)
+                        {
+                            var val = parent.Schema.Get<bool>("visible").Value;
+                            if (!val)
+                            {
+                                invisibleParent = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (!widget.Visible)
+                            {
+                                invisibleParent = true;
+                                break;
+                            }
+                        }
+
+                        parent = parent.Parent;
+                    }
+
+                    // no change
+                    if (Visible != invisibleParent)
+                    {
+                        return;
+                    }
+
+                    Visible = !invisibleParent;
+                }
+            }
+
+            // guaranteed that visibility changed here
+            GameObject.SetActive(Visible);
+            
+            // push to children
+            PushVisibilityUpdateToNearestWidgets(this);
+
+            // call overrideable method _after_ children are updated
+            OnVisibilityUpdated();
+        }
+
+        /// <summary>
+        /// True iff visibility was updated. This method is called after children
+        /// update their visibilities.
+        /// </summary>
+        protected virtual void OnVisibilityUpdated()
+        {
+
+        }
+
+        /// <summary>
+        /// Pushes a visibility update down into the nearest child Widgets. This
+        /// means that if a child is not a Widget, it keeps recursing until it
+        /// finds one to pass the update to. This is so that visibility updates
+        /// may pass through intermediate widgets if necessary.
+        /// </summary>
+        /// <param name="element">The element to start with.</param>
+        private void PushVisibilityUpdateToNearestWidgets(Element element)
+        {
+            for (int i = 0, len = element.Children.Count; i < len; i++)
+            {
+                var child = element.Children[i];
+
+                var widget = child as Widget;
+                if (null != widget)
+                {
+                    widget.UpdateGlobalVisibility();
+                }
+                else
+                {
+                    PushVisibilityUpdateToNearestWidgets(child);
+                }
             }
         }
 
@@ -524,8 +569,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             if (AutoDestroy)
             {
-                if (_hasBeenVisible
-                    && !LocalVisible
+                if (!LocalVisible
                     && Mathf.Approximately(0, Tween))
                 {
                     Destroy();
@@ -594,20 +638,6 @@ namespace CreateAR.SpirePlayer.IUX
 
             _faceComponent.Face(facePropValue);
         }
-
-        /// <summary>
-        /// Invoked when visibility changes
-        /// </summary>
-        /// <param name="isVisible"></param>
-        private void IsVisible_OnUpdate(bool isVisible)
-        {
-            LogVerbose(string.Format("Widget Visible[={0}]", isVisible));
-
-            if (isVisible)
-            {
-                _hasBeenVisible = true;
-            }
-        }
         
         /// <summary>
         /// Called when the local position changes.
@@ -671,7 +701,7 @@ namespace CreateAR.SpirePlayer.IUX
             bool prev,
             bool next)
         {
-            UpdateVisibility();
+            UpdateGlobalVisibility();
         }
 
         /// <summary>

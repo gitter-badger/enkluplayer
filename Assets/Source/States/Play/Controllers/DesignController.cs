@@ -206,7 +206,7 @@ namespace CreateAR.SpirePlayer
                 ListenToProp(controllers[i]);
             }
 
-            _splash.Show();
+            //_splash.Show();
         }
 
         /// <summary>

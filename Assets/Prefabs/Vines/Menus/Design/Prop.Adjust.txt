@@ -7,7 +7,7 @@
 		<Button id='btn-z' icon='arrow-double-z' position=(0, 0, 0) />
 		<Button id='btn-y' icon='arrow-double-z' position=(0, 0.2, 0) />
 	</Container>
-	<Slider id='slider-x' length=0.5 axis='x' position=(-0.2, 0, 0) />
-	<Slider id='slider-y' length=0.5 axis='y' position=(0, 0, 0) />
-	<Slider id='slider-z' length=0.5 axis='z' position=(0, 0.2, 0) />
+	<Slider id='slider-x' visible=false length=0.5 axis='x' position=(-0.2, 0, 0) />
+	/*<Slider id='slider-y' visible=false length=0.5 axis='y' position=(0, 0, 0) />
+	<Slider id='slider-z' visible=false length=0.5 axis='z' position=(0, 0.2, 0) />*/
 </Container>

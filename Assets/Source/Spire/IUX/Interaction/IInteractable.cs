@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -8,11 +7,6 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     public interface IInteractable : IRaycaster
     {
-        /// <summary>
-        /// Access to the Unity Hierarchy (for now...).
-        /// </summary>
-        //GameObject GameObject { get; }
-
         /// <summary>
         /// True if the object is visible.
         /// </summary>
