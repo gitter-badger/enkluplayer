@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Resources;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -10,11 +9,15 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     public class SliderWidget : Widget, IInteractable
     {
+        /// <summary>
+        /// Defines the type of axes.
+        /// </summary>
         public enum AxisType
         {
             X,
             Y,
-            Z
+            Z,
+            Custom
         }
 
         /// <summary>
@@ -38,14 +41,22 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private ImageWidget _image;
 
-        private Vector3 P0;
-        private Vector3 P1;
+        /// <summary>
+        /// Start of slider, in world space.
+        /// </summary>
+        private Vector3 _p0;
+
+        /// <summary>
+        /// End of slider, in world space.
+        /// </summary>
+        private Vector3 _p1;
 
         /// <summary>
         /// Normalized value.
         /// </summary>
         public float Value { get; set; }
 
+        /// <inheritdoc />
         public bool Focused
         {
             get
@@ -58,6 +69,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <inheritdoc />
         public Vec3 Focus
         {
             get
@@ -70,7 +82,8 @@ namespace CreateAR.SpirePlayer.IUX
                 return GameObject.transform.position.ToVec();
             }
         }
-
+        
+        /// <inheritdoc />
         public Vec3 FocusScale
         {
             get
@@ -84,15 +97,22 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <inheritdoc />
         public bool Interactable { get; private set; }
+
+        /// <inheritdoc />
         public int HighlightPriority { get; set; }
+
+        /// <inheritdoc />
         public bool IsHighlighted { get; set; }
 
+        /// <inheritdoc />
         public float Aim
         {
             get { return 1f; }
         }
 
+        /// <inheritdoc />
         public event Action<IInteractable> OnVisibilityChanged;
 
         /// <summary>
@@ -121,14 +141,18 @@ namespace CreateAR.SpirePlayer.IUX
             _interactions = interactions;
         }
 
+        /// <inheritdoc />
         public bool Raycast(Vec3 origin, Vec3 direction)
         {
             return true;
         }
 
+        /// <inheritdoc />
         protected override void AfterLoadChildrenInternal()
         {
             base.AfterLoadChildrenInternal();
+
+            _isVisible.OnChanged += IsVisible_OnChanged;
 
             _sizeMaxProp = Schema.Get<float>("size.max");
             _sizeMinProp = Schema.Get<float>("size.min");
@@ -146,7 +170,8 @@ namespace CreateAR.SpirePlayer.IUX
             _interactions.Add(this);
             Interactable = true;
         }
-        
+
+        /// <inheritdoc />
         protected override void AfterUnloadChildrenInternal()
         {
             base.AfterUnloadChildrenInternal();
@@ -156,8 +181,10 @@ namespace CreateAR.SpirePlayer.IUX
 
             _lengthProp.OnChanged -= Length_OnChanged;
             _axisProp.OnChanged -= Axis_OnChanged;
+            _isVisible.OnChanged -= IsVisible_OnChanged;
         }
 
+        /// <inheritdoc />
         protected override void LateUpdateInternal()
         {
             base.LateUpdateInternal();
@@ -173,6 +200,9 @@ namespace CreateAR.SpirePlayer.IUX
             DebugRender();
         }
 
+        /// <summary>
+        /// Renders debugging information.
+        /// </summary>
         private void DebugRender()
         {
             var handle = Render.Handle("IUX");
@@ -181,11 +211,14 @@ namespace CreateAR.SpirePlayer.IUX
                 handle.Draw(ctx =>
                 {
                     ctx.Color(UnityEngine.Color.green);
-                    ctx.Line(P0, P1);
+                    ctx.Line(_p0, _p1);
                 });
             }
         }
 
+        /// <summary>
+        /// Recalculates the plane to restrict slider controls to.
+        /// </summary>
         private void RecalculatePlane()
         {
             var axis = AxisType.X;
@@ -213,14 +246,17 @@ namespace CreateAR.SpirePlayer.IUX
 
             var position = GameObject.transform.position;
 
-            P0 = position - _lengthProp.Value * offset;
-            P1 = position + _lengthProp.Value * offset;
+            _p0 = position - _lengthProp.Value * offset;
+            _p1 = position + _lengthProp.Value * offset;
         }
 
+        /// <summary>
+        /// Updates the image position.
+        /// </summary>
         private void UpdatePosition()
         {
             // generate plane normal
-            var segmentDirection = (P1 - P0).normalized;
+            var segmentDirection = (_p1 - _p0).normalized;
             var segmentUp = Vector3
                 .Cross(_intentions.Forward.ToVector(), segmentDirection)
                 .normalized;
@@ -228,7 +264,7 @@ namespace CreateAR.SpirePlayer.IUX
                 .Cross(segmentDirection, segmentUp)
                 .normalized;
 
-            var p3 = P0;
+            var p3 = _p0;
             var p1 = _intentions.Origin.ToVector();
             var p2 = p1 + _intentions.Forward.ToVector();
             var p3subp1 = p3 - p1;
@@ -240,9 +276,9 @@ namespace CreateAR.SpirePlayer.IUX
             var t = n_dot_p3subp1 / n_dot_p2subp1;
             var intersection = _intentions.Origin + _intentions.Forward * t;
 
-            Value = CalculateValue(intersection.ToVector(), P0, P1);
+            Value = CalculateValue(intersection.ToVector(), _p0, _p1);
             
-            _image.Schema.Set("position", Vector3.Lerp(P0, P1, Value).ToVec());
+            _image.Schema.Set("position", Vector3.Lerp(_p0, _p1, Value).ToVec());
         }
 
         /// <summary>
@@ -290,6 +326,12 @@ namespace CreateAR.SpirePlayer.IUX
             return value;
         }
 
+        /// <summary>
+        /// Called when property changes.
+        /// </summary>
+        /// <param name="prop">The property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
         private void Length_OnChanged(
             ElementSchemaProp<float> prop,
             float prev,
@@ -298,12 +340,30 @@ namespace CreateAR.SpirePlayer.IUX
             RecalculatePlane();
         }
 
+        /// <summary>
+        /// Called when property changes.
+        /// </summary>
+        /// <param name="prop">The property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
         private void Axis_OnChanged(
             ElementSchemaProp<string> prop,
             string prev,
             string next)
         {
             RecalculatePlane();
+        }
+
+        /// <summary>
+        /// Called when visibility changes.
+        /// </summary>
+        /// <param name="value">The visibility value.</param>
+        private void IsVisible_OnChanged(bool value)
+        {
+            if (null != OnVisibilityChanged)
+            {
+                OnVisibilityChanged(this);
+            }
         }
     }
 }

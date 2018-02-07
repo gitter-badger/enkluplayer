@@ -23,7 +23,14 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         bool Focused { get; set; }
 
+        /// <summary>
+        /// World space position of focal point.
+        /// </summary>
         Vec3 Focus { get; }
+
+        /// <summary>
+        /// World space scale of focal point.
+        /// </summary>
         Vec3 FocusScale { get; }
 
         /// <summary>
