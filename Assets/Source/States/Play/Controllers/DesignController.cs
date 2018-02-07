@@ -346,13 +346,29 @@ namespace CreateAR.SpirePlayer
             if (null != _propAdjust)
             {
                 Object.Destroy(_propAdjust.gameObject);
+                _propAdjust = null;
             }
 
             controller.HideSplashMenu();
 
             var root = new GameObject("PropAdjust");
             _propAdjust = root.AddComponent<PropAdjustController>();
+            _propAdjust.OnExit += PropAdjust_OnExit;
             _propAdjust.Initialize(controller);
+        }
+
+        /// <summary>
+        /// Called when the prop adjust wishes to exit.
+        /// </summary>
+        private void PropAdjust_OnExit(PropController controller)
+        {
+            if (null != _propAdjust)
+            {
+                Object.Destroy(_propAdjust.gameObject);
+                _propAdjust = null;
+            }
+
+            controller.ShowSplashMenu();
         }
     }
 }

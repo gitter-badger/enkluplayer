@@ -1,16 +1,32 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Controls the menu for adjusting a prop.
+    /// </summary>
     [InjectVine("Prop.Adjust")]
     public class PropAdjustController : InjectableIUXController
     {
+        /// <summary>
+        /// Ties together the propdata and content.
+        /// </summary>
         private PropController _controller;
 
+        private Vector3 _startScale;
+        private Vector3 _startRotation;
+
+        /// <summary>
+        /// The container for all the control buttons.
+        /// </summary>
         [InjectElements("..controls")]
         public Widget Container { get; private set; }
 
+        /// <summary>
+        /// The back button.
+        /// </summary>
         [InjectElements("..btn-back")]
         public ButtonWidget BtnBack { get; private set; }
 
@@ -38,12 +54,17 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..slider-z")]
         public SliderWidget SliderZ { get; private set; }
 
-        public event Action OnExit;
+        [InjectElements("..slider-scale")]
+        public SliderWidget SliderScale { get; private set; }
+
+        [InjectElements("..slider-rotate")]
+        public SliderWidget SliderRotate { get; private set; }
+
+        public event Action<PropController> OnExit;
 
         public void Initialize(PropController controller)
         {
             _controller = controller;
-            transform.position = _controller.Content.GameObject.transform.position;
 
             BtnBack.Activator.OnActivated += BtnBack_OnActivated;
 
@@ -57,6 +78,16 @@ namespace CreateAR.SpirePlayer
             SliderX.OnUnfocused += SliderX_OnUnfocused;
             SliderY.OnUnfocused += SliderY_OnUnfocused;
             SliderZ.OnUnfocused += SliderZ_OnUnfocused;
+
+            SliderScale.OnUnfocused += SliderScale_OnUnfocused;
+            SliderRotate.OnUnfocused += SliderRotate_OnUnfocused;
+
+            ResetMenuPosition();
+        }
+
+        private void ResetMenuPosition()
+        {
+            transform.position = _controller.Content.GameObject.transform.position;
         }
 
         private void Update()
@@ -68,35 +99,71 @@ namespace CreateAR.SpirePlayer
             
             if (SliderX.Visible)
             {
-                _controller.Content.GameObject.transform.position = SliderX.Focus.ToVector();
+                var offset = BtnX.GameObject.transform.position - Container.GameObject.transform.position;
+                _controller.Content.GameObject.transform.position = SliderX.Focus.ToVector() - offset;
             }
 
             if (SliderY.Visible)
             {
-                _controller.Content.GameObject.transform.position = SliderY.Focus.ToVector();
+                var offset = BtnY.GameObject.transform.position - Container.GameObject.transform.position;
+                _controller.Content.GameObject.transform.position = SliderY.Focus.ToVector() - offset;
             }
 
             if (SliderZ.Visible)
             {
-                _controller.Content.GameObject.transform.position = SliderZ.Focus.ToVector();
+                var offset = BtnZ.GameObject.transform.position - Container.GameObject.transform.position;
+                _controller.Content.GameObject.transform.position = SliderZ.Focus.ToVector() - offset;
+            }
+
+            if (SliderScale.Visible)
+            {
+                const float scaleDiff = 2f;
+                var start = _startScale.x;
+                var val = start + (SliderScale.Value - 0.5f) * scaleDiff;
+                _controller.Content.GameObject.transform.localScale = val * Vector3.one;
+            }
+
+            if (SliderRotate.Visible)
+            {
+                var start = _startRotation.y;
+                var val = start + (SliderRotate.Value - 0.5f) * 360;
+                _controller.Content.GameObject.transform.localRotation = Quaternion.Euler(0, val, 0);
             }
         }
 
         private void SliderX_OnUnfocused()
         {
             SliderX.LocalVisible = false;
+
+            ResetMenuPosition();
             Container.LocalVisible = true;
         }
 
         private void SliderY_OnUnfocused()
         {
             SliderY.LocalVisible = false;
+
+            ResetMenuPosition();
             Container.LocalVisible = true;
         }
 
         private void SliderZ_OnUnfocused()
         {
             SliderZ.LocalVisible = false;
+
+            ResetMenuPosition();
+            Container.LocalVisible = true;
+        }
+
+        private void SliderScale_OnUnfocused()
+        {
+            SliderScale.LocalVisible = false;
+            Container.LocalVisible = true;
+        }
+
+        private void SliderRotate_OnUnfocused()
+        {
+            SliderRotate.LocalVisible = false;
             Container.LocalVisible = true;
         }
 
@@ -104,18 +171,24 @@ namespace CreateAR.SpirePlayer
         {
             if (null != OnExit)
             {
-                OnExit();
+                OnExit(_controller);
             }
         }
 
         private void BtnRotate_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
-            
+            Container.LocalVisible = false;
+
+            _startRotation = _controller.Content.GameObject.transform.localRotation.eulerAngles;
+            SliderRotate.LocalVisible = true;
         }
 
         private void BtnScale_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            Container.LocalVisible = false;
 
+            _startScale = _controller.Content.GameObject.transform.localScale;
+            SliderScale.LocalVisible = true;
         }
 
         private void BtnX_OnActivated(ActivatorPrimitive activatorPrimitive)
