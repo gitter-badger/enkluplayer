@@ -16,7 +16,6 @@ namespace CreateAR.SpirePlayer.IUX
         {
             X,
             Y,
-            Z,
             Custom
         }
 
@@ -195,13 +194,14 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            var aim = CalculateAim();
+            var intersection = CalculateIntentionIntersection();
+            var aim = CalculateAim(intersection);
             _image.GameObject.transform.localScale = 
                 (_sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value))
                 * Vector3.one;
             
             RecalculatePlane();
-            UpdatePosition();
+            UpdatePosition(intersection);
             DebugRender();
 
             if (Math.Abs(aim) < float.Epsilon)
@@ -268,79 +268,73 @@ namespace CreateAR.SpirePlayer.IUX
                 //
             }
 
-            var offset = Vector3.right;
+            var offset = _intentions.Right;
             if (axis == AxisType.Y)
             {
-                offset = Vector3.up;
+                offset = _intentions.Up;
             }
-
-            if (axis == AxisType.Z)
-            {
-                offset = Vector3.forward;
-            }
-
+            
             var position = GameObject.transform.position;
-
-            _p0 = position - _lengthProp.Value * offset;
-            _p1 = position + _lengthProp.Value * offset;
+            
+            _p0 = position - _lengthProp.Value * offset.ToVector();
+            _p1 = position + _lengthProp.Value * offset.ToVector();
         }
 
         /// <summary>
         /// Updates the image position.
         /// </summary>
-        private void UpdatePosition()
+        private void UpdatePosition(Vec3 intersection)
+        {
+            Value = CalculateValue(intersection.ToVector(), _p0, _p1);
+            
+            // force world position, not position property
+            _image.GameObject.transform.position = Vector3.Lerp(_p0, _p1, Value);
+        }
+
+        /// <summary>
+        /// Calculates the intention forward intersection with the plane made
+        /// from the points on slider + up.
+        /// </summary>
+        /// <returns></returns>
+        private Vec3 CalculateIntentionIntersection()
         {
             // generate plane normal
-            var segmentDirection = (_p1 - _p0).normalized;
-            var segmentUp = Vector3
-                .Cross(_intentions.Forward.ToVector(), segmentDirection)
+            var right = (_p1 - _p0).normalized;
+            var up = Vector3
+                .Cross(_intentions.Forward.ToVector(), right)
                 .normalized;
-            var n = -Vector3
-                .Cross(segmentDirection, segmentUp)
+            var normal = -Vector3
+                .Cross(right, up)
                 .normalized;
 
             var p3 = _p0;
             var p1 = _intentions.Origin.ToVector();
             var p2 = p1 + _intentions.Forward.ToVector();
-            var p3subp1 = p3 - p1;
-            var p2subp1 = p2 - p1;
-            var n_dot_p3subp1 = Vector3.Dot(n, p3subp1);
-            var n_dot_p2subp1 = Vector3.Dot(n, p2subp1);
+
+            var s = p3 - p1;
+            var r = p2 - p1;
+            var n_dot_s = Vector3.Dot(normal, s);
+            var n_dot_r = Vector3.Dot(normal, r);
 
             // intersect ray with plane
-            var t = n_dot_p3subp1 / n_dot_p2subp1;
+            var t = n_dot_s / n_dot_r;
             var intersection = _intentions.Origin + _intentions.Forward * t;
-
-            Value = CalculateValue(intersection.ToVector(), _p0, _p1);
-            
-            _image.Schema.Set("position", Vector3.Lerp(_p0, _p1, Value).ToVec());
+            return intersection;
         }
 
         /// <summary>
         /// Updates the aim as a function of focus towards the center of the
-        /// image.
+        /// line segment.
         /// </summary>
-        private float CalculateAim()
+        private float CalculateAim(Vec3 intersection)
         {
-            var eyePosition = _intentions.Origin;
-            var eyeDirection = _intentions.Forward;
-            var delta = GameObject.transform.position.ToVec() - eyePosition;
-            var directionToButton = delta.Normalized;
+            var O = _p0;
+            var d = (_p1 - _p0).normalized;
+            var p = intersection.ToVector();
+            var distance = Vector3.Magnitude((O - p) - (Vector3.Dot(O - p, d) * d));
+            var rad = _radiusProp.Value;
 
-            var eyeDistance = delta.Magnitude;
-            var radius = _radiusProp.Value;
-            var maxTheta = Mathf.Atan2(radius, eyeDistance);
-
-            var cosTheta = Vec3.Dot(
-                directionToButton,
-                eyeDirection);
-            var theta = Mathf.Approximately(cosTheta, 1.0f)
-                ? 0.0f
-                : Mathf.Acos(cosTheta);
-
-            return Mathf.Approximately(maxTheta, 0.0f)
-                ? 0.0f
-                : 1.0f - Mathf.Clamp01(Mathf.Abs(theta / maxTheta));
+            return Mathf.Clamp01(1 - distance / rad);
         }
 
         /// <summary>

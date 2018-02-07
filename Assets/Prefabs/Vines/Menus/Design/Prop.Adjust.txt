@@ -9,5 +9,5 @@
 	</Container>
 	<Slider id='slider-x' visible=false length=1.0 axis='x' position=(-0.2, 0, 0) />
 	<Slider id='slider-y' visible=false length=1.0 axis='y' position=(0, 0, 0) />
-	<Slider id='slider-z' visible=false length=1.0 axis='z' position=(0, 0.2, 0) />
+	<Slider id='slider-z' visible=false length=1.0 axis='y' position=(0, 0.2, 0) />
 </Container>
