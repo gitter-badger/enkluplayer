@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -57,6 +58,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Half moon.
         /// </summary>
         private GameObject _halfMoon;
+
+        /// <summary>
+        /// Called when the back button has been activated.
+        /// </summary>
+        public event Action<MenuWidget> OnBack;
 
         /// <summary>
         /// Constructor.
@@ -355,6 +361,7 @@ namespace CreateAR.SpirePlayer.IUX
             _backButton = (ButtonWidget) _elements.Element(string.Format(
                 "<Button id='{0}' icon='arrow-left' ready.color='Negative' />",
                 Id + ".btn-back"));
+            _backButton.Activator.OnActivated += Back_OnActivated;
             AddChild(_backButton);
         }
 
@@ -426,6 +433,18 @@ namespace CreateAR.SpirePlayer.IUX
 
                     child.Schema.Set("position", targetPosition.ToVec());
                 }
+            }
+        }
+
+        /// <summary>
+        /// Called when the back button has been activated.
+        /// </summary>
+        /// <param name="activatorPrimitive">Activator.</param>
+        private void Back_OnActivated(ActivatorPrimitive activatorPrimitive)
+        {
+            if (null != OnBack)
+            {
+                OnBack(this);
             }
         }
     }

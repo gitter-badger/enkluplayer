@@ -1,28 +1,36 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Manages the main menu.
     /// </summary>
-    public class MainMenuController : MonoBehaviour, IIUXEventDelegate
+    [InjectVine("Design.MainMenu")]
+    public class MainMenuController : InjectableIUXController
     {
         /// <summary>
-        /// Handles events.
+        /// Elements.
         /// </summary>
-        private IUXEventHandler _events;
+        public MenuWidget Menu
+        {
+            get { return (MenuWidget) Root; }
+        }
 
-        /// <summary>
-        /// Container element to add to.
-        /// </summary>
-        private Element _container;
+        [InjectElements("..btn-play")]
+        public ButtonWidget BtnPlay { get; private set; }
 
-        /// <summary>
-        /// The raw vine.
-        /// </summary>
-        public VineRawMonoBehaviour Vine;
+        [InjectElements("..btn-new")]
+        public ButtonWidget BtnNew { get; private set; }
+
+        [InjectElements("..btn-clearall")]
+        public ButtonWidget BtnClearAll { get; private set; }
+
+        [InjectElements("..btn-quit")]
+        public ButtonWidget BtnQuit { get; private set; }
+
+        [InjectElements("..toggle-debugrender")]
+        public ToggleWidget ToggleDebugRender { get; private set; }
 
         /// <summary>
         /// Called when we wish to go back.
@@ -54,102 +62,58 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public event Action<bool> OnDebugRender;
 
-        /// <summary>
-        /// Makes the controller ready for show/hide.
-        /// </summary>
-        /// <param name="events">Events to listen to.</param>
-        /// <param name="container">Container element to add to.</param>
-        public void Initialize(IUXEventHandler events, Element container)
+        /// <inheritdoc />
+        protected override void Awake()
         {
-            _events = events;
-            _container = container;
-        }
+            base.Awake();
 
-        /// <summary>
-        /// Shows elements.
-        /// </summary>
-        public void Show()
-        {
-            Vine.OnElementCreated += Vine_OnCreated;
-            Vine.enabled = true;
-
-            _events.AddHandler(MessageTypes.BUTTON_ACTIVATE, this);
-        }
-
-        /// <summary>
-        /// Hides elements.
-        /// </summary>
-        public void Hide()
-        {
-            _events.RemoveHandler(MessageTypes.BUTTON_ACTIVATE, this);
-
-            Vine.enabled = false;
-            Vine.OnElementCreated -= Vine_OnCreated;
-        }
-
-        /// <summary>
-        /// Uninitializes the controller. Show/Hide should not be called again
-        /// until Initialize is called.
-        /// </summary>
-        public void Uninitialize()
-        {
-            Hide();
-        }
-
-        /// <inheritdoc cref="IIUXEventDelegate"/>
-        public bool OnEvent(IUXEvent @event)
-        {
-            var id = @event.Target.Id;
-            switch (id)
+            Menu.OnBack += _ =>
             {
-                case "menu.btn-back":
+                if (null != OnBack)
                 {
-                    if (null != OnBack)
-                    {
-                        OnBack();
-                    }
-
-                    return true;
+                    OnBack();
                 }
-                case "btn-clearall":
+            };
+
+            BtnPlay.Activator.OnActivated += _ =>
+            {
+                if (OnPlay != null)
                 {
-                    if (null != OnClearAll)
-                    {
-                        OnClearAll();
-                    }
-
-                    return true;
+                    OnPlay();
                 }
-                case "btn-quit":
+            };
+
+            BtnNew.Activator.OnActivated += _ =>
+            {
+                if (OnNew != null)
                 {
-                    if (null != OnQuit)
-                    {
-                        OnQuit();
-                    }
-
-                    return true;
+                    OnNew();
                 }
-                case "btn-new":
+            };
+
+            BtnClearAll.Activator.OnActivated += _ =>
+            {
+                if (OnClearAll != null)
                 {
-                    if (null != OnNew)
-                    {
-                        OnNew();
-                    }
-
-                    return true;
+                    OnClearAll();
                 }
-            }
-            
-            return false;
-        }
+            };
 
-        /// <summary>
-        /// Called when the vine creates an element.
-        /// </summary>
-        /// <param name="element">The element created.</param>
-        private void Vine_OnCreated(Element element)
-        {
-            _container.AddChild(element);
+            BtnQuit.Activator.OnActivated += _ =>
+            {
+                if (OnQuit != null)
+                {
+                    OnQuit();
+                }
+            };
+
+            ToggleDebugRender.OnValueChanged += _ =>
+            {
+                if (OnDebugRender != null)
+                {
+                    OnDebugRender(ToggleDebugRender.Value);
+                }
+            };
         }
     }
 }

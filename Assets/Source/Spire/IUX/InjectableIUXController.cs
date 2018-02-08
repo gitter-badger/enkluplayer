@@ -43,9 +43,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 Root = Elements.Element(vine.Text);
                 Root.Schema.Set("visible", false);
-
-                Log.Info(this, "Create " + identifier);
-
+                
                 var widget = Root as Widget;
                 if (null != widget)
                 {
@@ -63,11 +61,13 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <inheritdoc cref="MonoBehaviour" />
         protected virtual void OnDisable()
         {
             Root.Schema.Set("visible", false);
         }
 
+        /// <inheritdoc cref="MonoBehaviour" />
         protected virtual void OnEnable()
         {
             Root.Schema.Set("visible", true);

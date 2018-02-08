@@ -146,12 +146,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Teardown()
         {
-            _mainMenu.Uninitialize();
             _clearAllProps.Uninitialize();
             _quit.Uninitialize();
             _new.Uninitialize();
             
-            Object.Destroy(_mainMenu.gameObject);
+
             Object.Destroy(_clearAllProps.gameObject);
             Object.Destroy(_quit.gameObject);
             Object.Destroy(_new.gameObject);
@@ -165,15 +164,17 @@ namespace CreateAR.SpirePlayer
             var parent = _float;
 
             _splash = _events.gameObject.AddComponent<SplashMenuController>();
-            _float.AddChild(_splash.Root);
+            _splash.enabled = false;
             _splash.OnOpenMenu += Splash_OnOpenMenu;
+            _float.AddChild(_splash.Root);
 
-            _mainMenu = Object.Instantiate(_playConfig.MainMenu, _events.transform);
+            _mainMenu = _events.gameObject.AddComponent<MainMenuController>();
+            _mainMenu.enabled = false;
             _mainMenu.OnBack += MainMenu_OnBack;
             _mainMenu.OnQuit += MainMenu_OnQuit;
             _mainMenu.OnClearAll += MainMenu_OnClearAll;
             _mainMenu.OnNew += MainMenu_OnNew;
-            _mainMenu.Initialize(_events, parent);
+            _float.AddChild(_mainMenu.Root);
 
             _clearAllProps = Object.Instantiate(_playConfig.ClearAllMenu, _events.transform);
             _clearAllProps.OnCancel += ClearAll_OnCancel;
@@ -246,7 +247,7 @@ namespace CreateAR.SpirePlayer
         private void Splash_OnOpenMenu()
         {
             _splash.enabled = false;
-            _mainMenu.Show();
+            _mainMenu.enabled = true;
         }
 
         /// <summary>
@@ -254,7 +255,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MainMenu_OnBack()
         {
-            _mainMenu.Hide();
+            _mainMenu.enabled = false;
             _splash.enabled = true;
         }
 
@@ -263,7 +264,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MainMenu_OnQuit()
         {
-            _mainMenu.Hide();
+            _mainMenu.enabled = false;
             _quit.Show();
         }
 
@@ -272,7 +273,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MainMenu_OnClearAll()
         {
-            _mainMenu.Hide();
+            _mainMenu.enabled = false;
             _clearAllProps.Show();
         }
 
@@ -281,7 +282,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MainMenu_OnNew()
         {
-            _mainMenu.Hide();
+            _mainMenu.enabled = false;
             _new.Show();
         }
 
@@ -291,7 +292,7 @@ namespace CreateAR.SpirePlayer
         private void ClearAll_OnCancel()
         {
             _clearAllProps.Hide();
-            _mainMenu.Show();
+            _mainMenu.enabled = true;
         }
 
         /// <summary>
@@ -300,7 +301,7 @@ namespace CreateAR.SpirePlayer
         private void ClearAll_OnConfirm()
         {
             _clearAllProps.Hide();
-            _mainMenu.Show();
+            _mainMenu.enabled = true;
         }
 
         /// <summary>
@@ -309,7 +310,7 @@ namespace CreateAR.SpirePlayer
         private void Quit_OnCancel()
         {
             _quit.Hide();
-            _mainMenu.Show();
+            _mainMenu.enabled = true;
         }
 
         /// <summary>
@@ -318,7 +319,7 @@ namespace CreateAR.SpirePlayer
         private void Quit_OnConfirm()
         {
             _quit.Hide();
-            _mainMenu.Show();
+            _mainMenu.enabled = true;
         }
 
         /// <summary>
@@ -338,7 +339,7 @@ namespace CreateAR.SpirePlayer
         private void New_OnCancel()
         {
             _new.Hide();
-            _mainMenu.Show();
+            _mainMenu.enabled = true;
         }
 
         /// <summary>
@@ -396,7 +397,7 @@ namespace CreateAR.SpirePlayer
 
             // hide any other menus
             _splash.enabled = false;
-            _mainMenu.Hide();
+            _mainMenu.enabled = false;
             
             _propAdjust.Initialize(controller);
             _propAdjust.enabled = true;

@@ -23,6 +23,11 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Called when the value has changed.
+        /// </summary>
+        public event Action<ToggleWidget> OnValueChanged;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ToggleWidget(
@@ -98,6 +103,11 @@ namespace CreateAR.SpirePlayer.IUX
             bool next)
         {
             Schema.Set("icon", next ? "toggled" : "");
+
+            if (null != OnValueChanged)
+            {
+                OnValueChanged(this);
+            }
         }
     }
 }
