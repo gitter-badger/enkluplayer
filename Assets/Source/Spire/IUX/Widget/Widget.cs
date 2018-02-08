@@ -32,6 +32,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Component that controls Widget facing direction.
         /// </summary>
         private FaceComponent _faceComponent;
+
+        /// <summary>
+        /// Parent widget, updated every frame.
+        /// </summary>
+        private Widget _parentWidget;
         
         /// <summary>
         /// Props.
@@ -52,11 +57,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// Cached virtual color.
         /// </summary>
         private VirtualColor _virtualColor;
-
-        /// <summary>
-        /// Widget hierarchy.
-        /// </summary>
-        internal Widget _parent;
         
         /// <summary>
         /// Dependencies.
@@ -181,9 +181,9 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 var tween = _localTween;
 
-                if (_parent != null)
+                if (_parentWidget != null)
                 {
-                    tween *= _parent.Tween;
+                    tween *= _parentWidget.Tween;
                 }
 
                 return tween;
@@ -191,7 +191,7 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Color Accessor
+        /// Calculated color, based on WidgetColorMode.
         /// </summary>
         public Col4 Color
         {
@@ -204,9 +204,9 @@ namespace CreateAR.SpirePlayer.IUX
                 if (ColorMode == WidgetColorMode.InheritColor)
                 {
                     var parentColor = Col4.White;
-                    if (_parent != null)
+                    if (_parentWidget != null)
                     {
-                        parentColor = _parent.Color;
+                        parentColor = _parentWidget.Color;
                     }
 
                     finalColor *= parentColor;
@@ -215,9 +215,9 @@ namespace CreateAR.SpirePlayer.IUX
                 if (ColorMode == WidgetColorMode.InheritAlpha)
                 {
                     var parentAlpha = 1.0f;
-                    if (_parent != null)
+                    if (_parentWidget != null)
                     {
-                        parentAlpha = _parent.Color.a;
+                        parentAlpha = _parentWidget.Color.a;
                     }
 
                     var color = finalColor;
@@ -238,9 +238,9 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 if (_layer == null)
                 {
-                    if (_parent != null)
+                    if (_parentWidget != null)
                     {
-                        return _parent.Layer;
+                        return _parentWidget.Layer;
                     }
                 }
 
@@ -386,7 +386,6 @@ namespace CreateAR.SpirePlayer.IUX
             var child = element as Widget;
             if (child != null)
             {
-                child._parent = this;
                 child.GameObject.transform.SetParent(
                     GetChildHierarchyParent(child),
                     false);
@@ -398,8 +397,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         protected override void UpdateInternal()
         {
-            //var deltaTime = Time.smoothDeltaTime;
+            _parentWidget = GetWidgetParent();
+
             var deltaTime = Time.deltaTime;
+
             UpdateGlobalVisibility();
             UpdateTween(deltaTime);
             UpdateColor(deltaTime);
@@ -414,6 +415,27 @@ namespace CreateAR.SpirePlayer.IUX
         protected virtual Transform GetChildHierarchyParent(Widget child)
         {
             return GameObject.transform;
+        }
+
+        /// <summary>
+        /// Retrieves the first ancestor Widget.
+        /// </summary>
+        /// <returns></returns>
+        protected Widget GetWidgetParent()
+        {
+            var parent = Parent;
+            while (null != parent)
+            {
+                var widget = parent as Widget;
+                if (null != widget)
+                {
+                    return widget;
+                }
+
+                parent = parent.Parent;
+            }
+
+            return null;
         }
         
         /// <summary>

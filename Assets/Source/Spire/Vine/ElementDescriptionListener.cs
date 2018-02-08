@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using CreateAR.SpirePlayer.IUX;
@@ -356,6 +357,41 @@ namespace CreateAR.SpirePlayer.Vine
                 }
 
                 current.Schema.Bools[name] = "true" == value;
+            }
+            else if (value.StartsWith("#"))
+            {
+                // trim #
+                value = value.Substring(1);
+
+                if (value.Length == 6)
+                {
+                    int r, g, b;
+                    try
+                    {
+                        r = int.Parse(value.Substring(0, 2), NumberStyles.AllowHexSpecifier);
+                        g = int.Parse(value.Substring(2, 2), NumberStyles.AllowHexSpecifier);
+                        b = int.Parse(value.Substring(4, 2), NumberStyles.AllowHexSpecifier);
+                    }
+                    catch (Exception exception)
+                    {
+                        throw new Exception(string.Format(
+                            "Could not parse color, '{0}'={1} : {2} - {3}.",
+                            name,
+                            value,
+                            exception,
+                            GetExceptionLocation(context)));
+                    }
+
+                    current.Schema.Colors[name] = new Col4(r / 255f, g / 255f, b / 255f, 1f);
+                }
+                else
+                {
+                    throw new Exception(string.Format(
+                        "Invalid format for color, '{0}'={1} : {2}.",
+                        name,
+                        value,
+                        GetExceptionLocation(context)));
+                }
             }
             else
             {

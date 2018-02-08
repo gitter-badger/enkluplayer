@@ -41,17 +41,17 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="dt">Delta time.</param>
         public void Update(float dt)
         {
-            var config = Config(GetCurrentButtonState());
+            var state = GetCurrentButtonState();
             var isInteractable = _button.Interactable;
 
             var virtualColor = isInteractable
-                ? config.Color
+                ? GetColor(state)
                 : VirtualColor.Disabled;
 
             Col4 shellStateColor;
             _colors.TryGetColor(virtualColor, out shellStateColor);
 
-            var tweenDuration = _tweens.DurationSeconds(config.Tween);
+            var tweenDuration = _tweens.DurationSeconds(GetTween(state));
             var tweenLerp = tweenDuration > Mathf.Epsilon
                 ? dt / tweenDuration
                 : 1.0f;
@@ -63,11 +63,11 @@ namespace CreateAR.SpirePlayer.IUX
 
             _button.GameObject.transform.localScale = Vector3.Lerp(
                 _button.GameObject.transform.localScale,
-                config.Scale,
+                GetScale(state),
                 tweenLerp);
 
             var captionVirtualColor = isInteractable
-                ? config.CaptionColor
+                ? GetCaptionColor(state)
                 : VirtualColor.Disabled;
 
             Col4 captionColor;
@@ -79,32 +79,71 @@ namespace CreateAR.SpirePlayer.IUX
                 tweenLerp);
         }
 
-        /// <summary>
-        /// Retrieves the correct config for a state..
-        /// </summary>
-        /// <param name="state">The ButtonState.</param>
-        /// <returns></returns>
-        private ButtonStateConfig Config(ButtonState state)
+        private VirtualColor GetColor(ButtonState state)
         {
-            switch (state)
-            {
-                case ButtonState.Ready:
-                {
-                    return _config.ButtonReady;
-                }
-                case ButtonState.Activating:
-                {
-                    return _config.ButtonActivating;
-                }
-                case ButtonState.Activated:
-                {
-                    return _config.ButtonActivated;
-                }
-            }
+            var virtualColorString = _button
+                .Schema
+                .Get<string>(state.ToString().ToLowerInvariant() + ".color")
+                .Value;
 
-            throw new Exception(String.Format(
-                "Could not find ButtonConfig for {0}.",
-                state));
+            return ParseColor(virtualColorString);
+        }
+
+        private TweenType GetTween(ButtonState state)
+        {
+            var tweenTypeString = _button
+                .Schema
+                .Get<string>(state.ToString().ToLowerInvariant())
+                .Value;
+
+            return ParseTween(tweenTypeString);
+        }
+
+        private Vector3 GetScale(ButtonState state)
+        {
+            return _button
+                .Schema
+                .Get<Vec3>(state.ToString().ToLowerInvariant() + ".scale")
+                .Value
+                .ToVector();
+        }
+
+        private VirtualColor GetCaptionColor(ButtonState state)
+        {
+            var virtualColorString = _button
+                .Schema
+                .Get<string>(state.ToString().ToLowerInvariant() + ".captionColor")
+                .Value;
+
+            return ParseColor(virtualColorString);
+        }
+
+        private TweenType ParseTween(string tween)
+        {
+            try
+            {
+                return (TweenType) Enum.Parse(
+                    typeof(TweenType),
+                    tween);
+            }
+            catch
+            {
+                return TweenType.Responsive;
+            }
+        }
+
+        private VirtualColor ParseColor(string color)
+        {
+            try
+            {
+                return (VirtualColor) Enum.Parse(
+                    typeof(VirtualColor),
+                    color);
+            }
+            catch
+            {
+                return VirtualColor.Disabled;
+            }
         }
 
         /// <summary>

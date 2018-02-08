@@ -94,15 +94,26 @@ namespace CreateAR.SpirePlayer.IUX
 
                     {"ready.frameColor", (int) VirtualColor.Ready},
                     {"ready.captionColor", (int) VirtualColor.Primary},
-                    {"ready.tween", (int) TweenType.Responsive},
 
                     {"activating.frameColor", (int) VirtualColor.Interacting},
                     {"activating.captionColor", (int) VirtualColor.Interacting},
-                    {"activating.tween", (int) TweenType.Responsive},
-
+                    
                     {"activated.color", (int) VirtualColor.Interacting},
                     {"activated.captionColor", (int) VirtualColor.Interacting},
-                    {"activated.tween", (int) TweenType.Instant},
+                },
+                Strings = new Dictionary<string, string>
+                {
+                    {"ready.color", VirtualColor.Ready.ToString()},
+                    {"ready.captionColor", VirtualColor.Primary.ToString()},
+                    {"ready.tween", TweenType.Responsive.ToString()},
+
+                    {"activating.color", VirtualColor.Interacting.ToString()},
+                    {"activating.captionColor", VirtualColor.Interacting.ToString()},
+                    {"activating.tween", TweenType.Responsive.ToString()},
+
+                    {"activated.color", VirtualColor.Interacting.ToString()},
+                    {"activated.captionColor", VirtualColor.Interacting.ToString()},
+                    {"activated.tween", TweenType.Responsive.ToString()}
                 },
                 Floats = new Dictionary<string, float>
                 {
@@ -114,7 +125,11 @@ namespace CreateAR.SpirePlayer.IUX
                 },
                 Vectors = new Dictionary<string, Vec3>
                 {
-                    { "position", new Vec3(0f, 0f, 0f) }
+                    { "position", new Vec3(0f, 0f, 0f) },
+
+                    { "ready.scale", new Vec3(1, 1, 1) },
+                    { "activating.scale", new Vec3(1.1f, 1.1f, 1.1f) },
+                    { "activated.scale", new Vec3(1, 1, 1) }
                 }
             });
             buttonSchema.Inherit(_baseSchema);
