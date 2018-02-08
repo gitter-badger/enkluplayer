@@ -352,29 +352,9 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            _backButton = (ButtonWidget) _elements.Element(new ElementDescription
-            {
-                Root = new ElementRef
-                {
-                    Id = Id + ".btn-back"
-                },
-                Elements = new[]
-                {
-                    new ElementData
-                    {
-                        Id = Id + ".btn-back",
-                        Type = ElementTypes.BUTTON,
-                        Schema = new ElementSchemaData
-                        {
-                            Strings = new Dictionary<string, string>
-                            {
-                                { "icon", "arrow-left" },
-                                { "virtualColor", "Tertiary" }
-                            }
-                        }
-                    }
-                }
-            });
+            _backButton = (ButtonWidget) _elements.Element(string.Format(
+                "<Button id='{0}' icon='arrow-left' ready.color='Negative' />",
+                Id + ".back-btn"));
 
             AddChild(_backButton);
         }
