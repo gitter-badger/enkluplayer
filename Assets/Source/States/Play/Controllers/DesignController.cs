@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -198,6 +199,7 @@ namespace CreateAR.SpirePlayer
 
             _propEdit = _staticRoot.AddComponent<PropEditController>();
             _propEdit.OnMove += PropEdit_OnMove;
+            _propEdit.OnDelete += PropEdit_OnDelete;
             _propEdit.enabled = false;
         }
 
@@ -411,6 +413,19 @@ namespace CreateAR.SpirePlayer
             
             _place.Initialize(propController);
             _place.enabled = true;
+        }
+
+        /// <summary>
+        /// Called to delete the prop.
+        /// </summary>
+        /// <param name="propController">The controller.</param>
+        private void PropEdit_OnDelete(PropController propController)
+        {
+            ClosePropControls();
+            
+            _propManager.Active.Destroy(propController.Data.Id);
+
+            _splash.enabled = true;
         }
 
         /// <summary>
