@@ -1,28 +1,22 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Controls clear all props menu.
     /// </summary>
-    public class ClearAllPropsController : MonoBehaviour, IIUXEventDelegate
+    [InjectVine("Design.ClearAllProps")]
+    public class ClearAllPropsController : InjectableIUXController
     {
         /// <summary>
-        /// Handles events.
+        /// Elements.
         /// </summary>
-        private IUXEventHandler _events;
+        [InjectElements("..btn-yes")]
+        public ButtonWidget BtnYes { get; private set; }
 
-        /// <summary>
-        /// Container to add vine.
-        /// </summary>
-        private Element _container;
-
-        /// <summary>
-        /// Raw vine.
-        /// </summary>
-        public VineRawMonoBehaviour Vine;
+        [InjectElements("..btn-no")]
+        public ButtonWidget BtnNo { get; private set; }
 
         /// <summary>
         /// Called when we wish to confirm clearing all props.
@@ -34,81 +28,26 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public event Action OnCancel;
 
-        /// <summary>
-        /// Initializes the controller + readies it for show/hide.
-        /// </summary>
-        /// <param name="events">Events to listen to.</param>
-        /// <param name="container">Container to add elements to.</param>
-        public void Initialize(IUXEventHandler events, Element container)
+        /// <inheritdoc />
+        protected override void Awake()
         {
-            _events = events;
-            _container = container;
-        }
+            base.Awake();
 
-        /// <summary>
-        /// Shows menu.
-        /// </summary>
-        public void Show()
-        {
-            Vine.OnElementCreated += Vine_OnCreated;
-            Vine.enabled = true;
-
-            _events.AddHandler(MessageTypes.BUTTON_ACTIVATE, this);
-        }
-
-        /// <summary>
-        /// Hides menu.
-        /// </summary>
-        public void Hide()
-        {
-            _events.RemoveHandler(MessageTypes.BUTTON_ACTIVATE, this);
-
-            Vine.enabled = false;
-            Vine.OnElementCreated -= Vine_OnCreated;
-        }
-
-        /// <summary>
-        /// Uninitializes controller. Show/Hide should not be called again
-        /// until Initialize is called.
-        /// </summary>
-        public void Uninitialize()
-        {
-            Hide();
-        }
-
-        /// <inheritdoc cref="IIUXEventDelegate"/>
-        public bool OnEvent(IUXEvent @event)
-        {
-            if ("btn-yes" == @event.Target.Id)
+            BtnYes.Activator.OnActivated += _ =>
             {
                 if (null != OnConfirm)
                 {
                     OnConfirm();
                 }
+            };
 
-                return true;
-            }
-
-            if ("btn-no" == @event.Target.Id)
+            BtnNo.Activator.OnActivated += _ =>
             {
                 if (null != OnCancel)
                 {
                     OnCancel();
                 }
-
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Called when an element is created from the vine.
-        /// </summary>
-        /// <param name="element">Element that was created.</param>
-        private void Vine_OnCreated(Element element)
-        {
-            _container.AddChild(element);
+            };
         }
     }
 }

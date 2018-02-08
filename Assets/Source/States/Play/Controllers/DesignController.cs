@@ -146,14 +146,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Teardown()
         {
-            _clearAllProps.Uninitialize();
-            _quit.Uninitialize();
-            _new.Uninitialize();
-            
-
-            Object.Destroy(_clearAllProps.gameObject);
-            Object.Destroy(_quit.gameObject);
-            Object.Destroy(_new.gameObject);
+            Object.Destroy(_events.gameObject);
         }
 
         /// <summary>
@@ -176,20 +169,23 @@ namespace CreateAR.SpirePlayer
             _mainMenu.OnNew += MainMenu_OnNew;
             _float.AddChild(_mainMenu.Root);
 
-            _clearAllProps = Object.Instantiate(_playConfig.ClearAllMenu, _events.transform);
+            _clearAllProps = _events.gameObject.AddComponent<ClearAllPropsController>();
+            _clearAllProps.enabled = false;
             _clearAllProps.OnCancel += ClearAll_OnCancel;
             _clearAllProps.OnConfirm += ClearAll_OnConfirm;
-            _clearAllProps.Initialize(_events, parent);
+            _float.AddChild(_clearAllProps.Root);
 
-            _quit = Object.Instantiate(_playConfig.QuitMenu, _events.transform);
+            _quit = _events.gameObject.AddComponent<QuitController>();
+            _quit.enabled = false;
             _quit.OnCancel += Quit_OnCancel;
             _quit.OnConfirm += Quit_OnConfirm;
-            _quit.Initialize(_events, parent);
+            _float.AddChild(_quit.Root);
 
-            _new = Object.Instantiate(_playConfig.NewMenu, _events.transform);
+            _new = _events.gameObject.AddComponent<NewItemController>();
+            _new.enabled = false;
             _new.OnCancel += New_OnCancel;
             _new.OnConfirm += New_OnConfirm;
-            _new.Initialize(_events, parent);
+            _float.AddChild(_new.Root);
 
             _staticRoot = new GameObject("Static Menus");
 
@@ -265,7 +261,7 @@ namespace CreateAR.SpirePlayer
         private void MainMenu_OnQuit()
         {
             _mainMenu.enabled = false;
-            _quit.Show();
+            _quit.enabled = true;;
         }
 
         /// <summary>
@@ -274,7 +270,7 @@ namespace CreateAR.SpirePlayer
         private void MainMenu_OnClearAll()
         {
             _mainMenu.enabled = false;
-            _clearAllProps.Show();
+            _clearAllProps.enabled = true;
         }
 
         /// <summary>
@@ -283,7 +279,7 @@ namespace CreateAR.SpirePlayer
         private void MainMenu_OnNew()
         {
             _mainMenu.enabled = false;
-            _new.Show();
+            _new.enabled = true;
         }
 
         /// <summary>
@@ -291,7 +287,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ClearAll_OnCancel()
         {
-            _clearAllProps.Hide();
+            _clearAllProps.enabled = false;
             _mainMenu.enabled = true;
         }
 
@@ -300,7 +296,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ClearAll_OnConfirm()
         {
-            _clearAllProps.Hide();
+            _clearAllProps.enabled = false;
             _mainMenu.enabled = true;
         }
 
@@ -309,7 +305,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Quit_OnCancel()
         {
-            _quit.Hide();
+            _quit.enabled = false;;
             _mainMenu.enabled = true;
         }
 
@@ -318,7 +314,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Quit_OnConfirm()
         {
-            _quit.Hide();
+            _quit.enabled = false;;
             _mainMenu.enabled = true;
         }
 
@@ -327,7 +323,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void New_OnConfirm(string assetId)
         {
-            _new.Hide();
+            _new.enabled = false;
 
             _place.Initialize(assetId);
             _place.enabled = true;
@@ -338,7 +334,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void New_OnCancel()
         {
-            _new.Hide();
+            _new.enabled = false;
             _mainMenu.enabled = true;
         }
 
@@ -383,7 +379,7 @@ namespace CreateAR.SpirePlayer
         {
             _place.enabled = false;
 
-            _new.Show();
+            _new.enabled = true;
         }
         
         /// <summary>

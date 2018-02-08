@@ -31,12 +31,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Handles events.
         /// </summary>
         private readonly IUXEventHandler _events;
-
-        /// <summary>
-        /// List of groups.
-        /// </summary>
-        private readonly List<OptionGroup> _groups = new List<OptionGroup>();
-
+        
         /// <summary>
         /// List of buttons currently presented.
         /// </summary>
@@ -125,9 +120,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             _horizontalPaddingProp = Schema.Get<float>("padding.horizontal");
             _horizontalPaddingProp.OnChanged += HorizontalPadding_OnChanged;
-
-            RefreshOptionGroups();
-
+            
             // shell
             {
                 _shell = Object.Instantiate(
@@ -139,38 +132,23 @@ namespace CreateAR.SpirePlayer.IUX
                     GameObject.transform,
                     false);
             }
-            
-            // group select
-            {
-                // generate select element with all options
-                var vine = @"<Select position=(-0.241, 0.22, 0) >";
-                for (int i = 0, len = _groups.Count; i < len; i++)
-                {
-                    var group = _groups[i];
-
-                    vine += string.Format("<Option label='{0}' value='{1}' />",
-                        group.Label,
-                        group.Value);
-                }
-                vine += @"</Select>";
-                
-                _groupSelect = (SelectWidget) _elements.Element(vine);
-                _groupSelect.OnChanged += GroupSelect_OnChange;
-                AddChild(_groupSelect);
-            }
 
             // page select
             {
                 _pageSelect = (SelectWidget) _elements.Element(@"<Select position=(-0.241, -0.22, 0) />");
                 _pageSelect.OnChanged += PageSelect_OnChanged;
                 AddChild(_pageSelect);
-
-                CreatePageOptions();
             }
 
-            // update buttons for current selections
+            // group select
             {
-                CreateButtons();
+                var vine = @"<Select position=(-0.241, 0.22, 0) />";
+                _groupSelect = (SelectWidget) _elements.Element(vine);
+                _groupSelect.OnChanged += GroupSelect_OnChange;
+                AddChild(_groupSelect);
+
+                // generate select element with all options
+                CreateGroupOptions();
             }
 
             _events.AddHandler(MessageTypes.BUTTON_ACTIVATE, this);
@@ -185,8 +163,51 @@ namespace CreateAR.SpirePlayer.IUX
             _verticalPaddingProp.OnChanged -= VerticalPadding_OnChanged;
         }
 
+        protected override void AddChildInternal(Element element)
+        {
+            base.AddChildInternal(element);
+
+            if (element is OptionGroup)
+            {
+                CreateGroupOptions();
+            }
+        }
+
         /// <summary>
-        /// Creates options for pafe selector.
+        /// Creates options for group selector.
+        /// </summary>
+        private void CreateGroupOptions()
+        {
+            // destroy old options
+            var groupOptions = _groupSelect.Options;
+            for (var i = groupOptions.Count - 1; i >= 0; i--)
+            {
+                groupOptions[i].Destroy();
+            }
+
+            var groups = new List<OptionGroup>();
+            Find("(@type==OptionGroup)", groups);
+            for (int i = 0, len = groups.Count; i < len; i++)
+            {
+                var group = groups[i];
+
+                var option = (Option) _elements.Element(string.Format(
+                    "<Option label='{0}' value='{1}' />",
+                    group.Label,
+                    group.Value));
+
+                _groupSelect.AddChild(option);
+            }
+
+            // recreate pages
+            CreatePageOptions();
+
+            // recreate buttons
+            CreateButtons();
+        }
+
+        /// <summary>
+        /// Creates options for page selector.
         /// </summary>
         private void CreatePageOptions()
         {
@@ -228,6 +249,9 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <summary>
+        /// Recreates buttons for current page.
+        /// </summary>
         private void CreateButtons()
         {
             var group = CurrentGroup();
@@ -281,6 +305,9 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateButtonLayout();
         }
 
+        /// <summary>
+        /// Updates the position of visible buttons.
+        /// </summary>
         private void UpdateButtonLayout()
         {
             var elementHeight = _verticalPaddingProp.Value;
@@ -302,23 +329,7 @@ namespace CreateAR.SpirePlayer.IUX
                 button.Schema.Set("position", targetPosition);
             }
         }
-
-        /// <summary>
-        /// Grabs all child OptionGroups.
-        /// </summary>
-        private void RefreshOptionGroups()
-        {
-            _groups.Clear();
-            for (int i = 0, len = Children.Count; i < len; i++)
-            {
-                var group = Children[i] as OptionGroup;
-                if (null != @group)
-                {
-                    _groups.Add(@group);
-                }
-            }
-        }
-
+        
         /// <summary>
         /// Retrieves the currently selected <c>OptionGroup</c>.
         /// </summary>
@@ -356,10 +367,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private OptionGroup Group(string value)
         {
-            for (int i = 0, len = _groups.Count; i < len; i++)
+            for (int i = 0, len = Children.Count; i < len; i++)
             {
-                var group = _groups[i];
-                if (group.Value == value)
+                var group = Children[i] as OptionGroup;
+                if (null != group && group.Value == value)
                 {
                     return group;
                 }

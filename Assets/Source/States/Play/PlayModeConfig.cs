@@ -7,7 +7,6 @@ namespace CreateAR.SpirePlayer
     {
         public IUXEventHandler Events;
         public NewItemController NewMenu;
-        public ClearAllPropsController ClearAllMenu;
         public QuitController QuitMenu;
         
         public TextAsset TestAssetData;

@@ -68,7 +68,7 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 4da505ffbb02ecf47b8fdf2a8c1d4c0a, type: 3}
   - Identifier: Design.ClearAllProps
     Source: {fileID: 4900000, guid: 54042b0ce1069b040ba18b9e17466430, type: 3}
-  - Identifier: 
-    Source: {fileID: 0}
+  - Identifier: Design.NewItem
+    Source: {fileID: 4900000, guid: 295f6564a49d4b44c9ced1133f453c22, type: 3}
   - Identifier: 
     Source: {fileID: 0}

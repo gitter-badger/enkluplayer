@@ -8,7 +8,8 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the new item menu.
     /// </summary>
-    public class NewItemController : InjectableMonoBehaviour
+    [InjectVine("Design.NewItem")]
+    public class NewItemController : InjectableIUXController
     {
         /// <summary>
         /// Internal class to group assets by tag.
@@ -33,28 +34,19 @@ namespace CreateAR.SpirePlayer
                 GroupName = groupName;
             }
         }
-        
-        /// <summary>
-        /// Container to add everything to.
-        /// </summary>
-        private Element _container;
 
         /// <summary>
         /// Grid element.
         /// </summary>
-        private GridWidget _grid;
+        [InjectElements("..(@type==GridWidget)")]
+        public GridWidget Grid { get; private set; }
 
         /// <summary>
         /// Back button.
         /// </summary>
-        private ButtonWidget _backButton;
+        [InjectElements("..btn-back")]
+        public ButtonWidget BtnBack { get; private set; }
         
-        /// <summary>
-        /// Creates elements.
-        /// </summary>
-        [Inject]
-        public IElementFactory Elements{ get; set; }
-
         /// <summary>
         /// App data.
         /// </summary>
@@ -71,71 +63,35 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public event Action OnCancel;
 
-        /// <summary>
-        /// Initializes the controller + readies it for show/hide.
-        /// </summary>
-        /// <param name="events">Events to listen to.</param>
-        /// <param name="container">Container to add elements to.</param>
-        public void Initialize(IUXEventHandler events, Element container)
+        /// <inheritdoc />
+        protected override void Awake()
         {
-            _container = container;
-        }
+            base.Awake();
 
-        /// <summary>
-        /// Shows the menu.
-        /// </summary>
-        public void Show()
-        {
-            {
-                _backButton = (ButtonWidget) Elements.Element(@"<?Vine><Button id='btn-back' icon='cancel' position=(-0.35, 0, 0) />");
-                _backButton.Activator.OnActivated += BackButton_OnActivate;
-                _container.AddChild(_backButton);
-            }
+            BtnBack.Activator.OnActivated += BackButton_OnActivate;
+            Grid.OnSelected += Grid_OnSelected;
 
+            var options = GenerateOptions();
+            foreach (var option in options)
             {
-                var vine = string.Format(
-                    @"<Grid fontSize=20>{0}</Grid>",
-                    AssetsToVine());
-                _grid = (GridWidget) Elements.Element(vine);
-                _grid.OnSelected += Grid_OnSelected; 
-                _container.AddChild(_grid);
+                Grid.AddChild(option);
             }
         }
-
-        /// <summary>
-        /// Hides the menu.
-        /// </summary>
-        public void Hide()
-        {
-            _backButton.Activator.OnActivated -= BackButton_OnActivate;
-            _backButton.Destroy();
-
-            _grid.Destroy();
-        }
-
-        /// <summary>
-        /// Uninitializes controller. Show/Hide should not be called again
-        /// until Initialize is called.
-        /// </summary>
-        public void Uninitialize()
-        {
-            
-        }
-
+        
         /// <summary>
         /// Creates a vine string from asset data.
         /// </summary>
         /// <returns></returns>
-        private string AssetsToVine()
+        private List<OptionGroup> GenerateOptions()
         {
+            var groupElements = new List<OptionGroup>();
             var groups = GroupAssets();
-            var vine = "";
 
             for (int i = 0, len = groups.Count; i < len; i++)
             {
                 var group = groups[i];
                 var assets = group.Assets;
-                vine += string.Format(
+                var vine = string.Format(
                     "<OptionGroup value='{0}' label='{0}'>",
                     group.GroupName);
                 for (int j = 0, jlen = assets.Count; j < jlen; j++)
@@ -148,9 +104,11 @@ namespace CreateAR.SpirePlayer
                         asset.UriThumb);
                 }
                 vine += "</OptionGroup>";
+
+                groupElements.Add((OptionGroup) Elements.Element(vine));
             }
             
-            return vine;
+            return groupElements;
         }
 
         /// <summary>
