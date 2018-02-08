@@ -1,0 +1,104 @@
+[
+	{
+		"crc": "test",
+		"createdAt": "2018-01-31T22:31:19.365Z",
+		"description": "Balloon",
+		"id": "1e4d737c-8efa-497b-9a36-b9fe9045ab47",
+		"ios": "complete",
+		"name": "Balloon",
+		"owner": "be0e2a39-6dee-462a-b06f-50f29dac9158",
+		"stats": {
+			"bounds": {
+				"max": {
+					"x": 18.49998,
+					"y": 84.49942,
+					"z": 37.92117
+				},
+				"min": {
+					"x": 14.61107,
+					"y": 78.27438,
+					"z": 34.01262
+				}
+			},
+			"triCount": 21550,
+			"vertCount": 18652
+		},
+		"status": null,
+		"tags": "OneDome",
+		"type": "model",
+		"updatedAt": "2018-01-31T22:34:19.334Z",
+		"uri": "/bundles/1e4d737c-8efa-497b-9a36-b9fe9045ab47/1e4d737c-8efa-497b-9a36-b9fe9045ab47.bundle",
+		"uriThumb": "/thumbs/1e4d737c-8efa-497b-9a36-b9fe9045ab47.png",
+		"version": 0,
+		"webgl": "complete",
+		"wsaplayer": "complete"
+	},
+	{
+		"crc": "test",
+		"createdAt": "2018-01-31T22:31:19.365Z",
+		"description": "Converse",
+		"id": "c837dd34-dbaa-482b-ace5-8bb16b32d462",
+		"ios": "complete",
+		"name": "converse",
+		"owner": "be0e2a39-6dee-462a-b06f-50f29dac9158",
+		"stats": {
+			"bounds": {
+				"max": {
+					"x": 0.1024867,
+					"y": 0.144702,
+					"z": 0.135289
+				},
+				"min": {
+					"x": -0.1024867,
+					"y": 0.00009992719,
+					"z": -0.1211112
+				}
+			},
+			"triCount": 35784,
+			"vertCount": 23786
+		},
+		"status": null,
+		"tags": "OneDome",
+		"type": "model",
+		"updatedAt": "2018-01-31T22:34:19.334Z",
+		"uri": "/bundles/c837dd34-dbaa-482b-ace5-8bb16b32d462/c837dd34-dbaa-482b-ace5-8bb16b32d462.bundle",
+		"uriThumb": "/thumbs/c837dd34-dbaa-482b-ace5-8bb16b32d462.png",
+		"version": 0,
+		"webgl": "complete",
+		"wsaplayer": "complete"
+	},
+	{
+		"crc": "test",
+		"createdAt": "2018-01-31T22:31:19.365Z",
+		"description": "Turbine",
+		"id": "a11d2e7b-d908-43f2-84b4-490b6ff87d58",
+		"ios": "complete",
+		"name": "turbine",
+		"owner": "be0e2a39-6dee-462a-b06f-50f29dac9158",
+		"stats": {
+			"bounds": {
+				"max": {
+					"x": 0.6627324,
+					"y": 0.6777152,
+					"z": 1.704408
+				},
+				"min": {
+					"x": -0.6782809,
+					"y": -0.6654822,
+					"z": -1.975268
+				}
+			},
+			"triCount": 9080,
+			"vertCount": 9785
+		},
+		"status": null,
+		"tags": "OneDome",
+		"type": "model",
+		"updatedAt": "2018-01-31T22:34:19.334Z",
+		"uri": "/bundles/a11d2e7b-d908-43f2-84b4-490b6ff87d58/a11d2e7b-d908-43f2-84b4-490b6ff87d58.bundle",
+		"uriThumb": "/thumbs/a11d2e7b-d908-43f2-84b4-490b6ff87d58.png",
+		"version": 0,
+		"webgl": "complete",
+		"wsaplayer": "complete"
+	}
+]

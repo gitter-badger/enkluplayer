@@ -11,6 +11,7 @@ using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages;
+using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -33,6 +34,12 @@ namespace CreateAR.SpirePlayer
         private readonly BleServiceConfiguration _bleConfig;
         private readonly IBleService _ble;
         private readonly ApiController _api;
+        private readonly ITestDataController _testData;
+
+        /// <summary>
+        /// App config.
+        /// </summary>
+        private ApplicationConfig _appConfig;
 
         /// <summary>
         /// Time at which we started looking for the floor.
@@ -53,7 +60,8 @@ namespace CreateAR.SpirePlayer
             BleServiceConfiguration bleConfig,
             IBleService ble,
             ApiController api,
-            IImageLoader imageLoader)
+            IImageLoader imageLoader,
+            ITestDataController testData)
         {
             _messages = messages;
             _http = http;
@@ -65,6 +73,7 @@ namespace CreateAR.SpirePlayer
             _bleConfig = bleConfig;
             _ble = ble;
             _api = api;
+            _testData = testData;
 
             imageLoader.ReplaceProtocol(
                 "assets",
@@ -74,7 +83,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
-            var config = (ApplicationConfig) context;
+            _appConfig = (ApplicationConfig) context;
 
             // ar
             _ar.Setup(_arConfig);
@@ -83,7 +92,7 @@ namespace CreateAR.SpirePlayer
             _ble.Setup(_bleConfig);
             
             // setup http
-            var env = config.Network.Environment(config.Network.Current);
+            var env = _appConfig.Network.Environment(_appConfig.Network.Current);
             _http.UrlBuilder.BaseUrl = env.BaseUrl;
             _http.UrlBuilder.Version = env.ApiVersion;
             _http.UrlBuilder.Port = env.Port;
@@ -119,15 +128,18 @@ namespace CreateAR.SpirePlayer
             };
 
             // if we're logging in automatically, also wait for login
-            if (config.Network.AutoLogin)
+            if (_appConfig.Network.AutoLogin)
             {
-                tasks.Add(Login(config.Network));
+                tasks.Add(Login(_appConfig.Network));
             }
 
             Async
                 .All(tasks.ToArray())
                 .OnSuccess(_ =>
                 {
+                    // load in test data after systems are ready
+                    _testData.Load();
+
                     _messages.Publish(MessageTypes.READY, Void.Instance);
                 })
                 .OnFailure(exception =>

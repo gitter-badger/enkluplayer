@@ -143,60 +143,8 @@ namespace CreateAR.SpirePlayer
                 throw new Exception("Could not find PlayModeConfig.");
             }
             
-            LoadFakeData(config);
-
             // TODO: only on connection
             _design.Setup(config);
-        }
-
-        /// <summary>
-        /// Loads fake data.
-        /// </summary>
-        /// <param name="config">Config for play mode.</param>
-        private void LoadFakeData(PlayModeConfig config)
-        {
-            LoadFakeAssetData(config);
-            LoadFakeContentData(config);
-        }
-
-        /// <summary>
-        /// Loads fake asset data into appdata.
-        /// </summary>
-        /// <param name="config">Configuration.</param>
-        private void LoadFakeAssetData(PlayModeConfig config)
-        {
-            var data = config.TestAssetData.bytes;
-            object objects;
-            new JsonSerializer().Deserialize(typeof(AssetData[]), ref data, out objects);
-
-            var assets = (AssetData[]) objects;
-            foreach (var asset in assets)
-            {
-                _messages.Publish(MessageTypes.ASSET_ADD, new AssetAddEvent
-                {
-                    Asset = asset
-                });
-            }
-        }
-
-        /// <summary>
-        /// Loads fake content data into appdata.
-        /// </summary>
-        /// <param name="config">Config.</param>
-        private void LoadFakeContentData(PlayModeConfig config)
-        {
-            var data = config.TestContentData.bytes;
-            object objects;
-            new JsonSerializer().Deserialize(typeof(ContentData[]), ref data, out objects);
-
-            var contents = (ContentData[]) objects;
-            foreach (var content in contents)
-            {
-                _messages.Publish(MessageTypes.CONTENT_ADD, new ContentAddEvent
-                {
-                    Content = content
-                });
-            }
         }
     }
 }

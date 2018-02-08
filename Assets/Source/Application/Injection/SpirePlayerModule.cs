@@ -116,6 +116,8 @@ namespace CreateAR.SpirePlayer
 
                 // application states
                 {
+                    binder.Bind<TestDataConfig>().To(LookupComponent<TestDataConfig>());
+                    binder.Bind<ITestDataController>().To<TestDataController>();
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                     binder.Bind<WaitingForConnectionApplicationState>().To<WaitingForConnectionApplicationState>();
                     binder.Bind<EditApplicationState>().To<EditApplicationState>();
