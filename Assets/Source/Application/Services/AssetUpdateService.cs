@@ -121,7 +121,7 @@ namespace CreateAR.SpirePlayer
                 var found = false;
                 for (int j = 0, jlen = assets.Length; j < jlen; j++)
                 {
-                    var asset = assets[i];
+                    var asset = assets[j];
                     if (data.Guid == asset.Guid)
                     {
                         found = true;
