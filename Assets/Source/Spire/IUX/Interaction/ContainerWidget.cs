@@ -6,12 +6,12 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Container widget.
     /// </summary>
-    public class Container : Widget
+    public class ContainerWidget : Widget
     {
         /// <summary>
         /// Constructor.
         /// </summary>
-        public Container(
+        public ContainerWidget(
             GameObject gameObject,
             WidgetConfig config,
             ILayerManager layers,

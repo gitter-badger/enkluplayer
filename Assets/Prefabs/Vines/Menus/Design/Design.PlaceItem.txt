@@ -1,0 +1,29 @@
+<Float position=(0, 0, 1) fov.reorient=0.36>
+	<Image
+		src='res://Art/Textures/Outer Gradient'
+		width=.6
+		height=.6 />
+	<Image
+		src='res://Art/Textures/Half Moon'
+		position=(0,-0.07, 0)
+		width=0.33
+		height=0.1 />
+	<Button
+		id='btn-cancel'
+		icon='cancel'
+		position=(0.05,-0.12,0) />
+	<Button
+		id='btn-ok'
+		icon='check'
+		position=(-0.05,-0.12,0) />
+	<Caption
+		label='Move the object with your head.'
+		fontSize=40
+		width=500.0
+		overflow='Wrap'
+		position=(0,0.05,0)
+		alignment='MidCenter'/>
+	<Container id='content-container' position=(0, 0, 0.2)>
+		<Content visible='false' />
+	</Container>
+</Float>

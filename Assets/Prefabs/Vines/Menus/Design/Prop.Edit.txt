@@ -1,7 +1,8 @@
 <Container>
 	<Menu>
-		<Button id='btn-move' label='Move' />
-		<Button id='btn-delete' label='Delete' />
+		<Button id='btn-rename' label='Shoes' icon='ellipses' />
+		<Button id='btn-move' label='Move' icon='move' />
+		<Button id='btn-delete' label='Delete' icon='trash' />
 		<Toggle toggle='toggle-fade' label='Fade' />
 	</Menu>
 </Container>

@@ -254,7 +254,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 case ElementTypes.CONTAINER:
                 {
-                    return new Container(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages);
+                    return new ContainerWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages);
                 }
                 case ElementTypes.IMAGE:
                 {

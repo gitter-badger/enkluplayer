@@ -240,7 +240,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 130951154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -369.74896, y: -284.54453, z: 0}
+  m_LocalPosition: {x: -371.01703, y: -283.4353, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1693554495}
@@ -626,6 +626,50 @@ MonoBehaviour:
   Vine: "<?Vine>\r\n<Float position=(0, 0, 1)>\r\n\t<Grid fontSize=20>\r\n\t\t<OptionGroup
     label='Plants' value='plants' />\n\t\t<OptionGroup label='Animals' value='animals'
     />\n\t\t<OptionGroup label='Props' value='props' />\n\t</Grid>\r\n</Float>"
+--- !u!1 &540517788
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 540517789}
+  - component: {fileID: 540517790}
+  m_Layer: 0
+  m_Name: PropEdit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &540517789
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 540517788}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1389533282}
+  m_RootOrder: 13
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &540517790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 540517788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Vine: "<Container position=(0, 0, 2)>\r\n\t<Menu>\r\n\t\t<Button id='btn-move' label='Shoes'
+    icon='ellipses' />\r\n\t\t<Button id='btn-move' label='Move' icon='move' />\r\n\t\t<Button
+    id='btn-delete' label='Delete' icon='trash' />\r\n\t\t<Toggle toggle='toggle-fade'
+    label='Fade' />\r\n\t</Menu>\r\n</Container>"
 --- !u!1001 &558283089
 Prefab:
   m_ObjectHideFlags: 0
@@ -1312,6 +1356,7 @@ Transform:
   - {fileID: 27699454}
   - {fileID: 789404041}
   - {fileID: 158951884}
+  - {fileID: 540517789}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1779,7 +1824,7 @@ RectTransform:
   m_GameObject: {fileID: 1693554491}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.012762919, y: 0.012762919, z: 0.012762919}
+  m_LocalScale: {x: 0.01280669, y: 0.01280669, z: 0.01280669}
   m_Children:
   - {fileID: 1598552740}
   - {fileID: 130951155}

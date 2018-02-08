@@ -58,16 +58,16 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 75d72ca1956fc9f439c0408c09818ff3, type: 3}
   - Identifier: Prop.Edit
     Source: {fileID: 4900000, guid: 57e7211e4792fa04e8c62bf299e0666d, type: 3}
-  - Identifier: 
-    Source: {fileID: 0}
-  - Identifier: 
-    Source: {fileID: 0}
-  - Identifier: 
-    Source: {fileID: 0}
-  - Identifier: 
-    Source: {fileID: 0}
-  - Identifier: 
-    Source: {fileID: 0}
+  - Identifier: Design.Splash
+    Source: {fileID: 4900000, guid: dbd30b534f36a5b41b050f239bfdacaa, type: 3}
+  - Identifier: Design.Quit
+    Source: {fileID: 4900000, guid: 468a569b710451e4999e462c33bcf8e1, type: 3}
+  - Identifier: Design.PlaceItem
+    Source: {fileID: 4900000, guid: 95b874d4b58f0b445b709b8bb0095768, type: 3}
+  - Identifier: Design.MainMenu
+    Source: {fileID: 4900000, guid: 4da505ffbb02ecf47b8fdf2a8c1d4c0a, type: 3}
+  - Identifier: Design.ClearAllProps
+    Source: {fileID: 4900000, guid: 54042b0ce1069b040ba18b9e17466430, type: 3}
   - Identifier: 
     Source: {fileID: 0}
   - Identifier: 

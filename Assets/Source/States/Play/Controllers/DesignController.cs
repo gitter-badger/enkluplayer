@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -64,6 +65,11 @@ namespace CreateAR.SpirePlayer
         /// Menu to adjust prop.
         /// </summary>
         private PropAdjustController _propAdjust;
+
+        /// <summary>
+        /// Menu to edit prop.
+        /// </summary>
+        private PropEditController _propEdit;
 
         /// <summary>
         /// Container for all.
@@ -180,10 +186,18 @@ namespace CreateAR.SpirePlayer
             _new.OnCancel += New_OnCancel;
             _new.OnConfirm += New_OnConfirm;
             _new.Initialize(_events, parent);
+        }
 
-            _place = Object.Instantiate(_playConfig.PlaceObject, _events.transform);
-            _place.OnConfirm += Place_OnConfirm;
-            _place.OnCancel += Place_OnCancel;
+        /// <summary>
+        /// Closes prop menus.
+        /// </summary>
+        private void ClosePropControls()
+        {
+            if (null != _propAdjust)
+            {
+                Object.Destroy(_propAdjust.gameObject);
+                _propAdjust = null;
+            }
         }
 
         /// <summary>
@@ -297,7 +311,11 @@ namespace CreateAR.SpirePlayer
         private void New_OnConfirm(string assetId)
         {
             _new.Hide();
-            _place.Show(assetId);
+
+            _place = _events.gameObject.AddComponent<PlaceObjectController>();
+            _place.OnConfirm += Place_OnConfirm;
+            _place.OnCancel += Place_OnCancel;
+            _place.Initialize(assetId);
         }
 
         /// <summary>
@@ -324,7 +342,23 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this, "Could not place prop : {0}.", exception);
                 });
 
-            _place.Hide();
+            Object.Destroy(_place);
+            _place = null;
+
+            _splash.Show();
+        }
+
+        /// <summary>
+        /// Called when the place menu wants to confirm placement.
+        /// </summary>
+        /// <param name="controller">The prop controller.</param>
+        private void Place_OnConfirmController(PropController controller)
+        {
+            controller.Content.GameObject.transform.SetParent(null, true);
+
+            Object.Destroy(_place);
+            _place = null;
+
             _splash.Show();
         }
 
@@ -333,7 +367,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Place_OnCancel()
         {
-            _place.Hide();
+            Object.Destroy(_place);
+            _place = null;
+
             _new.Show();
         }
         
@@ -347,6 +383,7 @@ namespace CreateAR.SpirePlayer
             {
                 Object.Destroy(_propAdjust.gameObject);
                 _propAdjust = null;
+                _propEdit = null;
             }
 
             // hide the splash on the controller
@@ -357,10 +394,29 @@ namespace CreateAR.SpirePlayer
             _mainMenu.Hide();
 
             // create a new propadjust menu
-            var root = new GameObject("PropAdjust");
+            var root = new GameObject("Prop Controls");
+
             _propAdjust = root.AddComponent<PropAdjustController>();
             _propAdjust.OnExit += PropAdjust_OnExit;
             _propAdjust.Initialize(controller);
+
+            _propEdit = root.AddComponent<PropEditController>();
+            _propEdit.OnMove += PropEdit_OnMove;
+            _propEdit.Initialize(controller);
+        }
+
+        /// <summary>
+        /// Called to move the prop.
+        /// </summary>
+        /// <param name="propController">The controller.</param>
+        private void PropEdit_OnMove(PropController propController)
+        {
+            ClosePropControls();
+
+            _place = _events.gameObject.AddComponent<PlaceObjectController>();
+            _place.OnConfirmController += Place_OnConfirmController;
+            _place.OnCancel += Place_OnCancel;
+            _place.Initialize(propController);
         }
 
         /// <summary>
@@ -368,11 +424,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void PropAdjust_OnExit(PropController controller)
         {
-            if (null != _propAdjust)
-            {
-                Object.Destroy(_propAdjust.gameObject);
-                _propAdjust = null;
-            }
+            ClosePropControls();
 
             controller.ShowSplashMenu();
 

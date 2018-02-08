@@ -354,8 +354,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             _backButton = (ButtonWidget) _elements.Element(string.Format(
                 "<Button id='{0}' icon='arrow-left' ready.color='Negative' />",
-                Id + ".back-btn"));
-
+                Id + ".btn-back"));
             AddChild(_backButton);
         }
 

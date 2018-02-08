@@ -4,8 +4,11 @@ using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
-    public class PlaceObjectController : AutoController
+    [InjectVine("Design.PlaceItem")]
+    public class PlaceObjectController : InjectableIUXController
     {
+        private PropController _controller;
+
         [InjectElements("..(@type==ImageWidget)")]
         public ImageWidget[] Images { get; private set; }
 
@@ -18,32 +21,52 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..(@type==ContentWidget)")]
         public ContentWidget Content { get; private set; }
 
+        [InjectElements("..content-container")]
+        public ContainerWidget ContentContainer { get; private set; }
+
         public event Action OnCancel;
         public event Action<PropData> OnConfirm;
+        public event Action<PropController> OnConfirmController;
 
-        protected override void Initialize(
-            Element element,
-            object context)
+        public void Initialize(PropController controller)
         {
-            base.Initialize(element, context);
+            _controller = controller;
 
-            var assetId = context.ToString();
+            Content.LocalVisible = false;
+
+            controller.Content.GameObject.transform.SetParent(
+                ContentContainer.GameObject.transform,
+                true);
+
+            AddListeners();
+        }
+
+        public void Initialize(string assetId)
+        {
+            Content.LocalVisible = true;
             Content.Schema.Set("assetSrc", assetId);
 
+            AddListeners();
+        }
+
+        private void AddListeners()
+        {
             BtnOk.Activator.OnActivated += Ok_OnActivated;
             BtnCancel.Activator.OnActivated += Cancel_OnActivated;
         }
 
-        protected override void Uninitialize()
-        {
-            base.Uninitialize();
-
-            BtnOk.Activator.OnActivated -= Ok_OnActivated;
-            BtnCancel.Activator.OnActivated -= Cancel_OnActivated;
-        }
-
         private void Ok_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            if (null != _controller)
+            {
+                if (null != OnConfirmController)
+                {
+                    OnConfirmController(_controller);
+                }
+
+                return;
+            }
+
             var prop = PropData.Create(Content);
             if (null == prop)
             {
