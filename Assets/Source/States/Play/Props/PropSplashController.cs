@@ -9,16 +9,26 @@ namespace CreateAR.SpirePlayer
     [InjectVine("Prop.Splash")]
     public class PropSplashController : InjectableIUXController
     {
+        /// <summary>
+        /// Splash button.
+        /// </summary>
         public ButtonWidget BtnSplash
         {
             get { return (ButtonWidget) Root; }
         }
         
+        /// <summary>
+        /// Called when open requested.
+        /// </summary>
         public event Action OnOpen;
         
+        /// <summary>
+        /// Initiailizes the controller.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
         public void Initialize(PropData prop)
         {
-            BtnSplash.Schema.Set("label", prop.AssetId);
+            BtnSplash.Schema.Set("label", prop.Name);
             BtnSplash.Activator.OnActivated += Activator_OnActivated;
         }
         

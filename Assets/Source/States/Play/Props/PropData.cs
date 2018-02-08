@@ -14,6 +14,11 @@ namespace CreateAR.SpirePlayer
         public string Id = Guid.NewGuid().ToString();
 
         /// <summary>
+        /// Display name.
+        /// </summary>
+        public string Name;
+
+        /// <summary>
         /// Reference to the asset.
         /// </summary>
         public string AssetId;
@@ -54,6 +59,7 @@ namespace CreateAR.SpirePlayer
 
             return new PropData
             {
+                Name = content.Data.Name,
                 AssetId = content.Data.Asset.AssetDataId,
                 Position = content.GameObject.transform.position.ToVec(),
                 Rotation = content.GameObject.transform.rotation.eulerAngles.ToVec(),
