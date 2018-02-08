@@ -4,7 +4,7 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
-    /// Alters <b>Button</b> based on activator state.
+    /// Alters ButtonWidget based on activator state.
     /// </summary>
     public class ButtonStateRenderer
     {
@@ -79,6 +79,11 @@ namespace CreateAR.SpirePlayer.IUX
                 tweenLerp);
         }
 
+        /// <summary>
+        /// Retrieves the color for the given state.
+        /// </summary>
+        /// <param name="state">State.</param>
+        /// <returns></returns>
         private VirtualColor GetColor(ButtonState state)
         {
             var virtualColorString = _button
@@ -89,6 +94,11 @@ namespace CreateAR.SpirePlayer.IUX
             return ParseColor(virtualColorString);
         }
 
+        /// <summary>
+        /// Retrieves the Tween value for the given state.
+        /// </summary>
+        /// <param name="state">sState.</param>
+        /// <returns></returns>
         private TweenType GetTween(ButtonState state)
         {
             var tweenTypeString = _button
@@ -99,6 +109,11 @@ namespace CreateAR.SpirePlayer.IUX
             return ParseTween(tweenTypeString);
         }
 
+        /// <summary>
+        /// Retrieves the scale value for the given state.
+        /// </summary>
+        /// <param name="state">State.</param>
+        /// <returns></returns>
         private Vector3 GetScale(ButtonState state)
         {
             return _button
@@ -108,6 +123,11 @@ namespace CreateAR.SpirePlayer.IUX
                 .ToVector();
         }
 
+        /// <summary>
+        /// Retrieves the caption color for the given state.
+        /// </summary>
+        /// <param name="state">State.</param>
+        /// <returns></returns>
         private VirtualColor GetCaptionColor(ButtonState state)
         {
             var virtualColorString = _button
@@ -118,6 +138,11 @@ namespace CreateAR.SpirePlayer.IUX
             return ParseColor(virtualColorString);
         }
 
+        /// <summary>
+        /// Safely parses a string into a TweenType.
+        /// </summary>
+        /// <param name="tween">The tween.</param>
+        /// <returns></returns>
         private TweenType ParseTween(string tween)
         {
             try
@@ -132,6 +157,11 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <summary>
+        /// Safely parses a string into a VirtualColor.
+        /// </summary>
+        /// <param name="color">The color string.</param>
+        /// <returns></returns>
         private VirtualColor ParseColor(string color)
         {
             try
