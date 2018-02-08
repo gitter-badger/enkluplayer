@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -154,8 +153,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SetupMenus()
         {
-            var parent = _float;
-
             _splash = _events.gameObject.AddComponent<SplashMenuController>();
             _splash.enabled = false;
             _splash.OnOpenMenu += Splash_OnOpenMenu;
@@ -261,7 +258,7 @@ namespace CreateAR.SpirePlayer
         private void MainMenu_OnQuit()
         {
             _mainMenu.enabled = false;
-            _quit.enabled = true;;
+            _quit.enabled = true;
         }
 
         /// <summary>
@@ -305,7 +302,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Quit_OnCancel()
         {
-            _quit.enabled = false;;
+            _quit.enabled = false;
             _mainMenu.enabled = true;
         }
 
@@ -314,7 +311,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Quit_OnConfirm()
         {
-            _quit.enabled = false;;
+            _quit.enabled = false;
             _mainMenu.enabled = true;
         }
 
