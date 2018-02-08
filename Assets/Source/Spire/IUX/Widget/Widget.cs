@@ -14,11 +14,6 @@ namespace CreateAR.SpirePlayer.IUX
     public class Widget : Element, ILayerable
     {
         /// <summary>
-        /// Regex for parsing element names.
-        /// </summary>
-        private readonly Regex _elementParser = new Regex(@"Guid=([a-zA-Z0-9\-]+)");
-        
-        /// <summary>
         /// Layer this widget belongs to (Only root widgets need this set).
         /// </summary>
         private Layer _layer;
@@ -43,6 +38,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private ElementSchemaProp<Col4> _localColorProp;
         private ElementSchemaProp<Vec3> _localPositionProp;
+        private ElementSchemaProp<Vec3> _localScaleProp;
         private ElementSchemaProp<bool> _localVisibleProp;
         private ElementSchemaProp<TweenType> _tweenInProp;
         private ElementSchemaProp<TweenType> _tweenOutProp;
@@ -329,6 +325,8 @@ namespace CreateAR.SpirePlayer.IUX
             _localColorProp = Schema.GetOwn("color", Col4.White);
             _localPositionProp = Schema.GetOwn("position", Vec3.Zero);
             _localPositionProp.OnChanged += LocalPosition_OnChanged;
+            _localScaleProp = Schema.GetOwn("scale", Vec3.One);
+            _localScaleProp.OnChanged += LocalScale_OnChanged;
             _tweenInProp = Schema.GetOwn("tweenIn", TweenType.Responsive);
             _tweenOutProp = Schema.GetOwn("tweenOut", TweenType.Responsive);
             _virtualColorProp = Schema.GetOwn("virtualColor", "None");
@@ -343,8 +341,6 @@ namespace CreateAR.SpirePlayer.IUX
 
             GameObject.name = Schema.GetOwn("name", ToString()).Value;
             GameObject.transform.localPosition = _localPositionProp.Value.ToVector();
-
-            InitializeWidgetComponents(GameObject.transform);
             
             UpdateGlobalVisibility();
 
@@ -438,28 +434,6 @@ namespace CreateAR.SpirePlayer.IUX
             return null;
         }
         
-        /// <summary>
-        /// Initializes all <c>IWidgetComponent</c> children.
-        /// </summary>
-        private void InitializeWidgetComponents(Transform transform)
-        {
-            var childCount = transform.childCount;
-            for (var i = 0; i < childCount; i++)
-            {
-                var child = transform.GetChild(i);
-                if (_elementParser.IsMatch(child.name))
-                {
-                    continue;
-                }
-
-                var components = child.GetComponents<IWidgetComponent>();
-                for (int j = 0, jlen = components.Length; j < jlen; j++)
-                {
-                    components[j].Widget = this;
-                }
-            }
-        }
-
         /// <summary>
         /// Updates global visibility.
         /// </summary>
@@ -676,6 +650,20 @@ namespace CreateAR.SpirePlayer.IUX
             Vec3 next)
         {
             GameObject.transform.localPosition = next.ToVector();
+        }
+
+        /// <summary>
+        /// Called when the local scale changes.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous scale.</param>
+        /// <param name="next">Next scale.</param>
+        private void LocalScale_OnChanged(
+            ElementSchemaProp<Vec3> prop,
+            Vec3 prev,
+            Vec3 next)
+        {
+            GameObject.transform.localScale = next.ToVector();
         }
 
         /// <summary>

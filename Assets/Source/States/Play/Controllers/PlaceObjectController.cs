@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -14,7 +15,7 @@ namespace CreateAR.SpirePlayer
         /// The controller.
         /// </summary>
         private PropController _controller;
-
+        
         /// <summary>
         /// Elements.
         /// </summary>
@@ -69,15 +70,18 @@ namespace CreateAR.SpirePlayer
         public void Initialize(PropController controller)
         {
             _controller = controller;
+            _controller.HideSplashMenu();
 
             var controllerTransform = controller.Content.GameObject.transform;
-
+            
             Content.LocalVisible = false;
             Container.GameObject.transform.position = controllerTransform.position;
             
             controllerTransform.SetParent(
                 ContentContainer.GameObject.transform,
                 true);
+
+            BtnCancel.Schema.Set("visible", false);
         }
 
         /// <summary>
@@ -86,8 +90,12 @@ namespace CreateAR.SpirePlayer
         /// <param name="assetId">The asset.</param>
         public void Initialize(string assetId)
         {
+            _controller = null;
+
             Content.LocalVisible = true;
             Content.Schema.Set("assetSrc", assetId);
+
+            BtnCancel.Schema.Set("visible", true);
         }
         
         /// <summary>
