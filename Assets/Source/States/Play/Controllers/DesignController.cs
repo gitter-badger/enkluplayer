@@ -125,7 +125,7 @@ namespace CreateAR.SpirePlayer
                             {
                                 Log.Error(this, "Could not create PropSet!");
 
-                                _splash.Show();
+                                _splash.enabled = true;
                             });
                     }
                     else
@@ -146,13 +146,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Teardown()
         {
-            _splash.Uninitialize();
             _mainMenu.Uninitialize();
             _clearAllProps.Uninitialize();
             _quit.Uninitialize();
             _new.Uninitialize();
-
-            Object.Destroy(_splash.gameObject);
+            
             Object.Destroy(_mainMenu.gameObject);
             Object.Destroy(_clearAllProps.gameObject);
             Object.Destroy(_quit.gameObject);
@@ -166,9 +164,9 @@ namespace CreateAR.SpirePlayer
         {
             var parent = _float;
 
-            _splash = Object.Instantiate(_playConfig.SplashMenu, _events.transform);
+            _splash = _events.gameObject.AddComponent<SplashMenuController>();
+            _float.AddChild(_splash.Root);
             _splash.OnOpenMenu += Splash_OnOpenMenu;
-            _splash.Initialize(_events, parent);
 
             _mainMenu = Object.Instantiate(_playConfig.MainMenu, _events.transform);
             _mainMenu.OnBack += MainMenu_OnBack;
@@ -239,7 +237,7 @@ namespace CreateAR.SpirePlayer
                 ListenToProp(controllers[i]);
             }
 
-            _splash.Show();
+            _splash.enabled = true;
         }
 
         /// <summary>
@@ -247,7 +245,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Splash_OnOpenMenu()
         {
-            _splash.Hide();
+            _splash.enabled = false;
             _mainMenu.Show();
         }
 
@@ -257,7 +255,7 @@ namespace CreateAR.SpirePlayer
         private void MainMenu_OnBack()
         {
             _mainMenu.Hide();
-            _splash.Show();
+            _splash.enabled = true;
         }
 
         /// <summary>
@@ -360,7 +358,7 @@ namespace CreateAR.SpirePlayer
 
             _place.enabled = false;
 
-            _splash.Show();
+            _splash.enabled = true;
         }
 
         /// <summary>
@@ -374,7 +372,7 @@ namespace CreateAR.SpirePlayer
 
             _place.enabled = false;
 
-            _splash.Show();
+            _splash.enabled = true;
         }
 
         /// <summary>
@@ -397,7 +395,7 @@ namespace CreateAR.SpirePlayer
             controller.HideSplashMenu();
 
             // hide any other menus
-            _splash.Hide();
+            _splash.enabled = false;
             _mainMenu.Hide();
             
             _propAdjust.Initialize(controller);
@@ -430,7 +428,7 @@ namespace CreateAR.SpirePlayer
 
             controller.ShowSplashMenu();
 
-            _splash.Show();
+            _splash.enabled = true;
         }
     }
 }

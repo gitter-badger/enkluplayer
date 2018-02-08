@@ -1,99 +1,45 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Manages the splash menu.
     /// </summary>
-    public class SplashMenuController : MonoBehaviour, IIUXEventDelegate
+    [InjectVine("Design.Splash")]
+    public class SplashMenuController : InjectableIUXController
     {
         /// <summary>
-        /// Events to listen to.
+        /// Main menu button.
         /// </summary>
-        private IUXEventHandler _events;
-
-        /// <summary>
-        /// The container to add elements to.
-        /// </summary>
-        private Element _container;
+        public ButtonWidget BtnMenu
+        {
+            get { return (ButtonWidget) Root; }
+        }
         
-        /// <summary>
-        /// Raw vine.
-        /// </summary>
-        public VineRawMonoBehaviour Vine;
-
         /// <summary>
         /// Called when the main menu should be opened.
         /// </summary>
         public event Action OnOpenMenu;
 
-        /// <summary>
-        /// Initializes the controller + readies it for show/hide.
-        /// </summary>
-        /// <param name="events">Events to listen to.</param>
-        /// <param name="container">Container to add elements to.</param>
-        public void Initialize(IUXEventHandler events, Element container)
+        /// <inheritdoc />
+        protected override void Awake()
         {
-            _events = events;
-            _container = container;
+            base.Awake();
+
+            BtnMenu.Activator.OnActivated += Btn_OnActivated;
         }
 
         /// <summary>
-        /// Shows the menu.
+        /// Called when the menu button has been activated.
         /// </summary>
-        public void Show()
+        /// <param name="activatorPrimitive">Activator primitive.</param>
+        private void Btn_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
-            Vine.OnElementCreated += Vine_OnCreated;
-            Vine.enabled = true;
-
-            _events.AddHandler(MessageTypes.BUTTON_ACTIVATE, this);
-        }
-
-        /// <summary>
-        /// Hides the menu.
-        /// </summary>
-        public void Hide()
-        {
-            _events.RemoveHandler(MessageTypes.BUTTON_ACTIVATE, this);
-
-            Vine.enabled = false;
-            Vine.OnElementCreated -= Vine_OnCreated;
-        }
-
-        /// <summary>
-        /// Uninitializes controller. Show/Hide should not be called again
-        /// until Initialize is called.
-        /// </summary>
-        public void Uninitialize()
-        {
-            Hide();
-        }
-
-        /// <inheritdoc cref="IIUXEventDelegate"/>
-        public bool OnEvent(IUXEvent @event)
-        {
-            if ("btn-menu" == @event.Target.Id)
+            if (null != OnOpenMenu)
             {
-                if (null != OnOpenMenu)
-                {
-                    OnOpenMenu();
-                }
-
-                return true;
+                OnOpenMenu();
             }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Called when an element has been created from a vine.
-        /// </summary>
-        /// <param name="element">The element.</param>
-        private void Vine_OnCreated(Element element)
-        {
-            _container.AddChild(element);
         }
     }
 }
