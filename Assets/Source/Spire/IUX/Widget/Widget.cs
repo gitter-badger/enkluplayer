@@ -2,7 +2,6 @@ using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -11,7 +10,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Base class for IUX elements.
     /// </summary>
-    public class Widget : Element, ILayerable
+    public class Widget : Element, ILayerable, IUnityElement
     {
         /// <summary>
         /// Layer this widget belongs to (Only root widgets need this set).
@@ -379,11 +378,11 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.AddChildInternal(element);
 
-            var child = element as Widget;
+            var child = element as IUnityElement;
             if (child != null)
             {
                 child.GameObject.transform.SetParent(
-                    GetChildHierarchyParent(child),
+                    GetChildHierarchyParent(element),
                     false);
             }
         }
@@ -408,7 +407,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         /// <param name="child">The child.</param>
         /// <returns></returns>
-        protected virtual Transform GetChildHierarchyParent(Widget child)
+        protected virtual Transform GetChildHierarchyParent(Element child)
         {
             return GameObject.transform;
         }

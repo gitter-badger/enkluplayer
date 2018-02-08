@@ -71,9 +71,14 @@ namespace CreateAR.SpirePlayer
         private PropEditController _propEdit;
 
         /// <summary>
-        /// Container for all.
+        /// Root float.
         /// </summary>
         private FloatWidget _float;
+
+        /// <summary>
+        /// Parent container.
+        /// </summary>
+        private ScaleTransition _parent;
 
         /// <summary>
         /// Root for static menus.
@@ -100,8 +105,9 @@ namespace CreateAR.SpirePlayer
             _events = _playConfig.Events;
             
             // create float
-            _float = (FloatWidget) _elements.Element(@"<Float id='Root' position=(0, 0, 1) />");
+            _float = (FloatWidget) _elements.Element(@"<Float id='Root' position=(0, 0, 1)><ScaleTransition /></Float>");
             _float.GameObject.transform.parent = _events.transform;
+            _parent = (ScaleTransition) _float.Children[0];
 
             SetupMenus();
 
@@ -156,7 +162,7 @@ namespace CreateAR.SpirePlayer
             _splash = _events.gameObject.AddComponent<SplashMenuController>();
             _splash.enabled = false;
             _splash.OnOpenMenu += Splash_OnOpenMenu;
-            _float.AddChild(_splash.Root);
+            _parent.AddChild(_splash.Root);
 
             _mainMenu = _events.gameObject.AddComponent<MainMenuController>();
             _mainMenu.enabled = false;
@@ -164,25 +170,25 @@ namespace CreateAR.SpirePlayer
             _mainMenu.OnQuit += MainMenu_OnQuit;
             _mainMenu.OnClearAll += MainMenu_OnClearAll;
             _mainMenu.OnNew += MainMenu_OnNew;
-            _float.AddChild(_mainMenu.Root);
+            _parent.AddChild(_mainMenu.Root);
 
             _clearAllProps = _events.gameObject.AddComponent<ClearAllPropsController>();
             _clearAllProps.enabled = false;
             _clearAllProps.OnCancel += ClearAll_OnCancel;
             _clearAllProps.OnConfirm += ClearAll_OnConfirm;
-            _float.AddChild(_clearAllProps.Root);
+            _parent.AddChild(_clearAllProps.Root);
 
             _quit = _events.gameObject.AddComponent<QuitController>();
             _quit.enabled = false;
             _quit.OnCancel += Quit_OnCancel;
             _quit.OnConfirm += Quit_OnConfirm;
-            _float.AddChild(_quit.Root);
+            _parent.AddChild(_quit.Root);
 
             _new = _events.gameObject.AddComponent<NewItemController>();
             _new.enabled = false;
             _new.OnCancel += New_OnCancel;
             _new.OnConfirm += New_OnConfirm;
-            _float.AddChild(_new.Root);
+            _parent.AddChild(_new.Root);
 
             _staticRoot = new GameObject("Static Menus");
 

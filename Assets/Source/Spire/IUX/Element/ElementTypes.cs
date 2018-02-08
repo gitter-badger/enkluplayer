@@ -30,5 +30,7 @@
         public const int OPTION_GROUP = 211;
 
         public const int CONTENT = 1000;
+
+        public const int TRANSITION_SCALE = 10000;
     }
 }

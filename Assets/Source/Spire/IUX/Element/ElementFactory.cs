@@ -312,6 +312,10 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     return _content.Instance(_contentManager, new ContentData());
                 }
+                case ElementTypes.TRANSITION_SCALE:
+                {
+                    return new ScaleTransition(new GameObject("ScaleTransition"), _tweens);
+                }
                 default:
                 {
                     throw new Exception(string.Format(

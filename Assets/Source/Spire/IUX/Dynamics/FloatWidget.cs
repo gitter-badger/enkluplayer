@@ -101,7 +101,7 @@ namespace CreateAR.SpirePlayer.IUX
         }
         
         /// <inheritdoc />
-        protected override Transform GetChildHierarchyParent(Widget child)
+        protected override Transform GetChildHierarchyParent(Element child)
         {
             return _renderer.StationaryWidget.transform;
         }

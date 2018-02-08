@@ -48,6 +48,7 @@ namespace CreateAR.SpirePlayer.Vine
             Commons.Unity.DataStructures.Tuple.Create("Option", ElementTypes.OPTION),
             Commons.Unity.DataStructures.Tuple.Create("OptionGroup", ElementTypes.OPTION_GROUP),
             Commons.Unity.DataStructures.Tuple.Create("Content", ElementTypes.CONTENT),
+            Commons.Unity.DataStructures.Tuple.Create("ScaleTransition", ElementTypes.TRANSITION_SCALE),
         };
 
         /// <summary>
