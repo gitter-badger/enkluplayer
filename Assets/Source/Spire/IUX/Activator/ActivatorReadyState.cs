@@ -30,8 +30,8 @@ namespace CreateAR.SpirePlayer.IUX
             ActivatorPrimitive activator,
             ElementSchema schema)
             : base(
-                schema.Get<int>("ready.frameColor"),
-                schema.Get<int>("ready.tween"),
+                schema.Get<string>("ready.color"),
+                schema.Get<string>("ready.color"),
                 schema.Get<float>("ready.frameScale"))
         {
             _activator = activator;

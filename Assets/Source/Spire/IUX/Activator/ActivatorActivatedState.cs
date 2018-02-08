@@ -35,8 +35,8 @@ namespace CreateAR.SpirePlayer.IUX
             IMessageRouter messages,
             ElementSchema schema)
             : base(
-                schema.Get<int>("activated.frameColor"),
-                schema.Get<int>("activated.tween"),
+                schema.Get<string>("activated.color"),
+                schema.Get<string>("activated.tween"),
                 schema.Get<float>("activated.frameScale"))
         {
             _target = target;

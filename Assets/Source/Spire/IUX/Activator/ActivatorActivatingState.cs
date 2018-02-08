@@ -35,8 +35,8 @@ namespace CreateAR.SpirePlayer.IUX
             ElementSchema schema,
             bool autoActivate)
             : base(
-                schema.Get<int>("activating.frameColor"),
-                schema.Get<int>("activating.tween"),
+                schema.Get<string>("activating.color"),
+                schema.Get<string>("activating.tween"),
                 schema.Get<float>("activating.frameScale"))
         {
             _activator = activator;

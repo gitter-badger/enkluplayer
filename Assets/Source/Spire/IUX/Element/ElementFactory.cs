@@ -90,16 +90,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 Ints = new Dictionary<string, int>
                 {
-                    { "fontSize", 80 },
-
-                    {"ready.frameColor", (int) VirtualColor.Ready},
-                    {"ready.captionColor", (int) VirtualColor.Primary},
-
-                    {"activating.frameColor", (int) VirtualColor.Interacting},
-                    {"activating.captionColor", (int) VirtualColor.Interacting},
-                    
-                    {"activated.color", (int) VirtualColor.Interacting},
-                    {"activated.captionColor", (int) VirtualColor.Interacting},
+                    { "fontSize", 80 }
                 },
                 Strings = new Dictionary<string, string>
                 {
