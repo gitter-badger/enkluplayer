@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
@@ -90,10 +91,15 @@ namespace CreateAR.SpirePlayer
             return Async.Map(
                 _propSetDelegate
                     .Add(this, data)
-                    .OnSuccess(_ => controller = CreateInternal(data)),
+                    .OnSuccess(_ =>
+                    {
+                        controller = CreateInternal(data);
+
+                        _props.Add(controller);
+                    }),
                 _ => controller);
         }
-
+        
         /// <summary>
         /// Destroys a Prop by id.
         /// </summary>
@@ -115,6 +121,21 @@ namespace CreateAR.SpirePlayer
 
                     DestroyInternal(prop);
                 });
+        }
+
+        /// <summary>
+        /// Destroys all props.
+        /// </summary>
+        /// <returns></returns>
+        public IAsyncToken<Void> DestroyAll()
+        {
+            return Async.Map(
+                Async.All(
+                    _props
+                        .ToArray()
+                        .Select(prop => Destroy(prop.Data.Id))
+                        .ToArray()),
+                _ => Void.Instance);
         }
 
         /// <summary>

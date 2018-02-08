@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -296,6 +295,9 @@ namespace CreateAR.SpirePlayer
         private void ClearAll_OnConfirm()
         {
             _clearAllProps.enabled = false;
+
+            _propManager.Active.DestroyAll();
+
             _mainMenu.enabled = true;
         }
 
