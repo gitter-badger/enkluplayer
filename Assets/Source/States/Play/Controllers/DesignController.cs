@@ -77,6 +77,11 @@ namespace CreateAR.SpirePlayer
         private FloatWidget _float;
 
         /// <summary>
+        /// Root for static menus.
+        /// </summary>
+        private GameObject _staticRoot;
+
+        /// <summary>
         /// Constuctor.
         /// </summary>
         public DesignController(
@@ -186,6 +191,22 @@ namespace CreateAR.SpirePlayer
             _new.OnCancel += New_OnCancel;
             _new.OnConfirm += New_OnConfirm;
             _new.Initialize(_events, parent);
+
+            _staticRoot = new GameObject("Static Menus");
+
+            _place = _staticRoot.AddComponent<PlaceObjectController>();
+            _place.OnConfirm += Place_OnConfirm;
+            _place.OnConfirmController += Place_OnConfirmController;
+            _place.OnCancel += Place_OnCancel;
+            _place.enabled = false;
+
+            _propAdjust = _staticRoot.AddComponent<PropAdjustController>();
+            _propAdjust.OnExit += PropAdjust_OnExit;
+            _propAdjust.enabled = false;
+
+            _propEdit = _staticRoot.AddComponent<PropEditController>();
+            _propEdit.OnMove += PropEdit_OnMove;
+            _propEdit.enabled = false;
         }
 
         /// <summary>
@@ -193,11 +214,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ClosePropControls()
         {
-            if (null != _propAdjust)
-            {
-                Object.Destroy(_propAdjust.gameObject);
-                _propAdjust = null;
-            }
+            _propAdjust.enabled = false;
+            _propEdit.enabled = false;
         }
 
         /// <summary>
@@ -312,10 +330,8 @@ namespace CreateAR.SpirePlayer
         {
             _new.Hide();
 
-            _place = _events.gameObject.AddComponent<PlaceObjectController>();
-            _place.OnConfirm += Place_OnConfirm;
-            _place.OnCancel += Place_OnCancel;
             _place.Initialize(assetId);
+            _place.enabled = true;
         }
 
         /// <summary>
@@ -342,8 +358,7 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this, "Could not place prop : {0}.", exception);
                 });
 
-            Object.Destroy(_place);
-            _place = null;
+            _place.enabled = false;
 
             _splash.Show();
         }
@@ -356,8 +371,7 @@ namespace CreateAR.SpirePlayer
         {
             controller.Content.GameObject.transform.SetParent(null, true);
 
-            Object.Destroy(_place);
-            _place = null;
+            _place.enabled = false;
 
             _splash.Show();
         }
@@ -367,8 +381,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Place_OnCancel()
         {
-            Object.Destroy(_place);
-            _place = null;
+            _place.enabled = false;
 
             _new.Show();
         }
@@ -379,30 +392,18 @@ namespace CreateAR.SpirePlayer
         /// <param name="controller">The prop controller.</param>
         private void Controller_OnAdjust(PropController controller)
         {
-            if (null != _propAdjust)
-            {
-                Object.Destroy(_propAdjust.gameObject);
-                _propAdjust = null;
-                _propEdit = null;
-            }
-
             // hide the splash on the controller
             controller.HideSplashMenu();
 
             // hide any other menus
             _splash.Hide();
             _mainMenu.Hide();
-
-            // create a new propadjust menu
-            var root = new GameObject("Prop Controls");
-
-            _propAdjust = root.AddComponent<PropAdjustController>();
-            _propAdjust.OnExit += PropAdjust_OnExit;
+            
             _propAdjust.Initialize(controller);
-
-            _propEdit = root.AddComponent<PropEditController>();
-            _propEdit.OnMove += PropEdit_OnMove;
+            _propAdjust.enabled = true;
+            
             _propEdit.Initialize(controller);
+            _propEdit.enabled = true;
         }
 
         /// <summary>
@@ -412,11 +413,9 @@ namespace CreateAR.SpirePlayer
         private void PropEdit_OnMove(PropController propController)
         {
             ClosePropControls();
-
-            _place = _events.gameObject.AddComponent<PlaceObjectController>();
-            _place.OnConfirmController += Place_OnConfirmController;
-            _place.OnCancel += Place_OnCancel;
+            
             _place.Initialize(propController);
+            _place.enabled = true;
         }
 
         /// <summary>

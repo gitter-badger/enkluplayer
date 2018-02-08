@@ -87,6 +87,8 @@ namespace CreateAR.SpirePlayer
             SliderRotate.OnUnfocused += SliderRotate_OnUnfocused;
 
             ResetMenuPosition();
+
+            enabled = true;
         }
 
         /// <inheritdoc cref="MonoBehaviour" />

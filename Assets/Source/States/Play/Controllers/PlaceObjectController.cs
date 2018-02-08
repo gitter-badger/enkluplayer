@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -8,6 +9,11 @@ namespace CreateAR.SpirePlayer
     public class PlaceObjectController : InjectableIUXController
     {
         private PropController _controller;
+
+        public FloatWidget Container
+        {
+            get { return (FloatWidget) Root; }
+        }
 
         [InjectElements("..(@type==ImageWidget)")]
         public ImageWidget[] Images { get; private set; }
@@ -32,9 +38,12 @@ namespace CreateAR.SpirePlayer
         {
             _controller = controller;
 
-            Content.LocalVisible = false;
+            var controllerTransform = controller.Content.GameObject.transform;
 
-            controller.Content.GameObject.transform.SetParent(
+            Content.LocalVisible = false;
+            Container.GameObject.transform.position = controllerTransform.position;
+            
+            controllerTransform.SetParent(
                 ContentContainer.GameObject.transform,
                 true);
 
