@@ -68,16 +68,39 @@ namespace CreateAR.SpirePlayer
         {
             base.Awake();
 
+            Assets.Manifest.OnAssetAdded += Manifest_OnAssetEvent;
+            Assets.Manifest.OnAssetRemoved += Manifest_OnAssetEvent;
+            Assets.Manifest.OnAssetUpdated += Manifest_OnAssetEvent;
+
             BtnBack.Activator.OnActivated += BackButton_OnActivate;
             Grid.OnSelected += Grid_OnSelected;
 
-            var options = GenerateOptions();
-            foreach (var option in options)
+            UpdateOptions();
+        }
+
+        /// <summary>
+        /// Deletes old options and creates new ones.
+        /// </summary>
+        private void UpdateOptions()
+        {
+            for (var i = Grid.Children.Count - 1; i >= 0; i--)
             {
-                Grid.AddChild(option);
+                var group = Grid.Children[i] as OptionGroup;
+                if (null != group)
+                {
+                    Grid.RemoveChild(group);
+
+                    group.Destroy();
+                }
+            }
+
+            var options = GenerateOptions();
+            for (var i = 0; i < options.Count; i++)
+            {
+                Grid.AddChild(options[i]);
             }
         }
-        
+
         /// <summary>
         /// Creates a vine string from asset data.
         /// </summary>
@@ -170,6 +193,15 @@ namespace CreateAR.SpirePlayer
             {
                 OnConfirm(option.Value);
             }
+        }
+
+        /// <summary>
+        /// Called when manifest is updated.
+        /// </summary>
+        /// <param name="asset">The asset/</param>
+        private void Manifest_OnAssetEvent(Asset asset)
+        {
+            UpdateOptions();
         }
     }
 }

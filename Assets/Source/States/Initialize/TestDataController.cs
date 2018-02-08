@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Messaging;
+﻿using System;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -27,15 +28,26 @@ namespace CreateAR.SpirePlayer
         {
             _messages = message;
             _config = config;
-        }
 
-        /// <inheritdoc />
-        public void Load()
-        {
-            LoadAssetData(_config.Data);
-            LoadContentData(_config.Data);
-        }
+            Action unsub = null;
 
+            _messages.Subscribe(
+                MessageTypes.READY,
+                _ =>
+                {
+                    if (null != unsub)
+                    {
+                        unsub();
+                    }
+
+                    unsub = _messages.Subscribe(
+                        MessageTypes.ASSET_LIST,
+                        __ => LoadAssetData(_config.Data));
+
+                    LoadAssetData(_config.Data);
+                });
+        }
+        
         /// <summary>
         /// Loads static asset data.
         /// </summary>

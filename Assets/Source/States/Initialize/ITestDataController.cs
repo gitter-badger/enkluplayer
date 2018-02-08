@@ -5,9 +5,6 @@
     /// </summary>
     public interface ITestDataController
     {
-        /// <summary>
-        /// Loads test data.
-        /// </summary>
-        void Load();
+        
     }
 }

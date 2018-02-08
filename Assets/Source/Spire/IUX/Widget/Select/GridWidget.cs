@@ -57,7 +57,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Shell.
         /// </summary>
         private GameObject _shell;
-
+        
         /// <summary>
         /// Called when a specific <c>Option</c> has been selected.
         /// </summary>
@@ -163,9 +163,21 @@ namespace CreateAR.SpirePlayer.IUX
             _verticalPaddingProp.OnChanged -= VerticalPadding_OnChanged;
         }
 
+        /// <inheritdoc />
         protected override void AddChildInternal(Element element)
         {
             base.AddChildInternal(element);
+
+            if (element is OptionGroup)
+            {
+                CreateGroupOptions();
+            }
+        }
+
+        /// <inheritdoc />
+        protected override void RemoveChildInternal(Element element)
+        {
+            base.RemoveChildInternal(element);
 
             if (element is OptionGroup)
             {

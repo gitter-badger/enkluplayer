@@ -11,7 +11,6 @@ using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages;
-using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -137,9 +136,6 @@ namespace CreateAR.SpirePlayer
                 .All(tasks.ToArray())
                 .OnSuccess(_ =>
                 {
-                    // load in test data after systems are ready
-                    _testData.Load();
-
                     _messages.Publish(MessageTypes.READY, Void.Instance);
                 })
                 .OnFailure(exception =>
