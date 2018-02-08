@@ -370,6 +370,7 @@ namespace CreateAR.SpirePlayer
         private void Place_OnConfirmController(PropController controller)
         {
             controller.Content.GameObject.transform.SetParent(null, true);
+            controller.ShowSplashMenu();
 
             _place.enabled = false;
 
@@ -413,6 +414,8 @@ namespace CreateAR.SpirePlayer
         private void PropEdit_OnMove(PropController propController)
         {
             ClosePropControls();
+
+            propController.HideSplashMenu();
             
             _place.Initialize(propController);
             _place.enabled = true;
