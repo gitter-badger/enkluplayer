@@ -1,0 +1,7 @@
+<Container>
+	<Menu>
+		<Button id='btn-move' label='Move' />
+		<Button id='btn-delete' label='Delete' />
+		<Toggle toggle='toggle-fade' label='Fade' />
+	</Menu>
+</Container>
