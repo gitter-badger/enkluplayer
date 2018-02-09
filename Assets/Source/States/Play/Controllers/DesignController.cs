@@ -170,6 +170,7 @@ namespace CreateAR.SpirePlayer
             _mainMenu.OnQuit += MainMenu_OnQuit;
             _mainMenu.OnClearAll += MainMenu_OnClearAll;
             _mainMenu.OnNew += MainMenu_OnNew;
+            _mainMenu.OnPlay += MainMenu_OnPlay;
             _parent.AddChild(_mainMenu.Root);
 
             _clearAllProps = _events.gameObject.AddComponent<ClearAllPropsController>();
@@ -284,6 +285,14 @@ namespace CreateAR.SpirePlayer
         {
             _mainMenu.enabled = false;
             _new.enabled = true;
+        }
+
+        /// <summary>
+        /// Move to play mode.
+        /// </summary>
+        private void MainMenu_OnPlay()
+        {
+
         }
 
         /// <summary>

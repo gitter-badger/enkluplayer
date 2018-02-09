@@ -125,7 +125,6 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                     binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
-                    binder.Bind<DesignApplicationState>().To<DesignApplicationState>();
 
                     // tools
                     {

@@ -183,18 +183,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Image prefab.
         /// </summary>
         public GameObject Image;
-
-        /// <summary>
-        /// Design.
-        /// </summary>
-        [Header("Vines")]
-        public TextAsset DesignMenu;
-
-        /// <summary>
-        /// Play.
-        /// </summary>
-        public TextAsset PlayMenu;
-
+        
         /// <summary>
         /// Steadiness Rotation Accessor
         /// </summary>

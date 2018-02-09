@@ -3,7 +3,6 @@ using System.Collections;
 using System.IO;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -35,12 +34,7 @@ namespace CreateAR.SpirePlayer
         /// Resolves script requires.
         /// </summary>
         private readonly IScriptRequireResolver _resolver;
-
-        /// <summary>
-        /// Messages.
-        /// </summary>
-        private readonly IMessageRouter _messages;
-
+        
         /// <summary>
         /// Controls design mode.
         /// </summary>
@@ -58,14 +52,12 @@ namespace CreateAR.SpirePlayer
             IBootstrapper bootstrapper,
             IFileManager files,
             IScriptRequireResolver resolver,
-            IMessageRouter messages,
             AppController app,
             DesignController design)
         {
             _bootstrapper = bootstrapper;
             _files = files;
             _resolver = resolver;
-            _messages = messages;
             _app = app;
             _design = design;
         }
