@@ -99,6 +99,12 @@ namespace CreateAR.SpirePlayer
             {
                 var asset = assets[i];
 
+                if (null == asset.Stats.Bounds)
+                {
+                    Log.Warning(this, "Invalid asset : {0}.", asset);
+                    continue;
+                }
+
                 FormatAssetData(asset);
 
                 var info = manifest.Data(asset.Guid);
