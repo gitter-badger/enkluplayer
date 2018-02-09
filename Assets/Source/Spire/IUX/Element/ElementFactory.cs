@@ -113,6 +113,8 @@ namespace CreateAR.SpirePlayer.IUX
                     {"activated.frameScale", 1.0f},
 
                     {"label.padding", 0.05f},
+
+                    { "icon.scale", 1f }
                 },
                 Vectors = new Dictionary<string, Vec3>
                 {

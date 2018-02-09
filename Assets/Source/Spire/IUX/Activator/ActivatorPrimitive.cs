@@ -197,6 +197,15 @@ namespace CreateAR.SpirePlayer.IUX
                 SetIcon();
             }
         }
+
+        /// <summary>
+        /// Gets/sets icon scale.
+        /// </summary>
+        public float IconScale
+        {
+            get { return _renderer.Icon.transform.localScale.x; }
+            set { _renderer.Icon.transform.localScale = value * Vector3.one; }
+        }
         
         /// <summary>
         /// Invoked when the activator is activated.

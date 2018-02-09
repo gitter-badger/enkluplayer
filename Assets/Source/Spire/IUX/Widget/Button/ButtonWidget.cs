@@ -58,6 +58,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _labelProp;
         private ElementSchemaProp<float> _labelPaddingProp;
         private ElementSchemaProp<string> _iconProp;
+        private ElementSchemaProp<float> _iconScaleProp;
         private ElementSchemaProp<string> _layoutProp;
         private ElementSchemaProp<string> _srcProp;
 
@@ -179,7 +180,11 @@ namespace CreateAR.SpirePlayer.IUX
                 _iconProp = Schema.Get<string>("icon");
                 _iconProp.OnChanged += Icon_OnChanged;
 
+                _iconScaleProp = Schema.Get<float>("icon.scale");
+                _iconScaleProp.OnChanged += IconScale_OnChanged;
+
                 UpdateIcon();
+                UpdateIconScale();
             }
 
             // create label
@@ -340,6 +345,14 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Updates the scale of the icon.
+        /// </summary>
+        private void UpdateIconScale()
+        {
+            Activator.IconScale = _iconScaleProp.Value;
+        }
+
+        /// <summary>
         /// Updates label positioning.
         /// </summary>
         private void UpdateLabelLayout()
@@ -382,6 +395,20 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             UpdateIcon();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void IconScale_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateIconScale();
         }
 
         /// <summary>

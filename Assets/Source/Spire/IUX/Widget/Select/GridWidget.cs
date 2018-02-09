@@ -300,6 +300,7 @@ namespace CreateAR.SpirePlayer.IUX
                     label='{1}'
                     value='{2}'
                     src='{3}'
+                    icon.scale=7.0
                     fontSize=50 />",
                     i,
                     option.Label,

@@ -26,6 +26,11 @@ namespace CreateAR.SpirePlayer
         private Vector3 _startRotation;
 
         /// <summary>
+        /// Starting position.
+        /// </summary>
+        private Vector3 _startPosition;
+
+        /// <summary>
         /// The container for all the control buttons.
         /// </summary>
         [InjectElements("..controls")]
@@ -113,8 +118,9 @@ namespace CreateAR.SpirePlayer
 
             if (SliderZ.Visible)
             {
-                var offset = BtnZ.GameObject.transform.position - Container.GameObject.transform.position;
-                _controller.Content.GameObject.transform.position = SliderZ.Focus.ToVector() - offset;
+                var zScale = 10;
+                _controller.Content.GameObject.transform.position =
+                    _startPosition + new Vector3(0, 0, (SliderZ.Value - 0.5f) * zScale);
             }
 
             if (SliderScale.Visible)
@@ -248,6 +254,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            _startPosition = _controller.Content.GameObject.transform.position;
+
             Container.LocalVisible = false;
             SliderZ.LocalVisible = true;
         }

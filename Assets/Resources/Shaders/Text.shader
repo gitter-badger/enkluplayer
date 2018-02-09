@@ -21,7 +21,7 @@ Shader "UI/Unlit/Text Custom"
     {
         Tags
         {
-            "Queue"="Transparent"
+            "Queue"="Overlay"
             "IgnoreProjector"="True"
             "RenderType"="Transparent"
             "PreviewType"="Plane"

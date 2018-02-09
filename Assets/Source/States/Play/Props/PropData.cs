@@ -4,6 +4,8 @@ namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Data needed for each prop in a scene.
+    /// 
+    /// TODO: REMOVE. We should just be using ElementData.
     /// </summary>
     [Serializable]
     public class PropData
