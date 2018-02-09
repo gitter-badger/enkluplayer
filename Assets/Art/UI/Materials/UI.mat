@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Text
-  m_Shader: {fileID: 4800000, guid: 479eb2076cf01a84cb32a911f59caa61, type: 3}
+  m_Name: UI
+  m_Shader: {fileID: 4800000, guid: 33f03a093dcbcae4c859b07937138900, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
