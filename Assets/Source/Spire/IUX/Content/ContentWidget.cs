@@ -148,9 +148,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        protected override void AfterLoadChildrenInternal()
+        protected override void LoadInternalAfterChildren()
         {
-            base.AfterLoadChildrenInternal();
+            base.LoadInternalAfterChildren();
 
             _host = new UnityScriptingHost(
                 this,
@@ -167,9 +167,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        protected override void AfterUnloadChildrenInternal()
+        protected override void UnloadInternalAfterChildren()
         {
-            base.AfterUnloadChildrenInternal();
+            base.UnloadInternalAfterChildren();
 
             _srcProp.OnChanged -= Src_OnChanged;
 

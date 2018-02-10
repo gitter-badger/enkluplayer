@@ -104,9 +104,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        protected override void BeforeLoadChildrenInternal()
+        protected override void LoadInternalBeforeChildren()
         {
-            base.BeforeLoadChildrenInternal();
+            base.LoadInternalBeforeChildren();
 
             // Left Activator
             {
@@ -148,12 +148,12 @@ namespace CreateAR.SpirePlayer.IUX
         }
         
         /// <inheritdoc />
-        protected override void BeforeUnloadChildrenInternal()
+        protected override void UnloadInternalBeforeChildren()
         {
             _leftActivator.OnActivated -= Left_OnActivated;
             _rightActivator.OnActivated -= Right_OnActivated;
 
-            base.BeforeUnloadChildrenInternal();
+            base.UnloadInternalBeforeChildren();
         }
 
         /// <inheritdoc />

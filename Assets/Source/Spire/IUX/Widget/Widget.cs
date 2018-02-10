@@ -312,9 +312,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Initialization
         /// </summary>
-        protected override void AfterLoadChildrenInternal()
+        protected override void LoadInternalAfterChildren()
         {
-            base.AfterLoadChildrenInternal();
+            base.LoadInternalAfterChildren();
 
             // default to gameobject
             Visible = GameObject.activeSelf;
@@ -354,7 +354,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Invoked when the widget is destroyed
         /// </summary>
-        protected override void AfterUnloadChildrenInternal()
+        protected override void UnloadInternalAfterChildren()
         {
             IsLoaded = false;
             
@@ -370,7 +370,7 @@ namespace CreateAR.SpirePlayer.IUX
                 Layers.Release(_layer);
             }
 
-            base.AfterUnloadChildrenInternal();
+            base.UnloadInternalAfterChildren();
         }
 
         /// <inheritdoc />

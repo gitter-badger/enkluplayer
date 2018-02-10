@@ -135,7 +135,7 @@ namespace CreateAR.SpirePlayer
                 throw new Exception("Could not find PlayModeConfig.");
             }
             
-            // TODO: only on connection
+            // TODO: only with connection
             _design.Setup(config);
         }
     }

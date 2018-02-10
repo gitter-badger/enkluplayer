@@ -154,9 +154,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        protected override void BeforeLoadChildrenInternal()
+        protected override void LoadInternalBeforeChildren()
         {
-            base.BeforeLoadChildrenInternal();
+            base.LoadInternalBeforeChildren();
 
             _sizeMaxProp = Schema.Get<float>("size.max");
             _sizeMinProp = Schema.Get<float>("size.min");
@@ -182,9 +182,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        protected override void AfterUnloadChildrenInternal()
+        protected override void UnloadInternalAfterChildren()
         {
-            base.AfterUnloadChildrenInternal();
+            base.UnloadInternalAfterChildren();
 
             Interactable = false;
             _interactions.Remove(this);

@@ -259,9 +259,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void AfterLoadChildrenInternal()
+        protected override void LoadInternalAfterChildren()
         {
-            base.AfterLoadChildrenInternal();
+            base.LoadInternalAfterChildren();
 
             _renderer = Object.Instantiate(
                 _config.Activator,
@@ -282,14 +282,14 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void AfterUnloadChildrenInternal()
+        protected override void UnloadInternalAfterChildren()
         {
             _interaction.Remove(this);
             _interactable = false;
 
             Object.Destroy(_renderer.gameObject);
 
-            base.AfterUnloadChildrenInternal();
+            base.UnloadInternalAfterChildren();
         }
 
         /// <inheritdoc cref="Element"/>

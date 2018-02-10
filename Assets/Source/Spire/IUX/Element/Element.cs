@@ -14,19 +14,19 @@ namespace CreateAR.SpirePlayer.IUX
     /// Flows:
     /// 
     /// Load()
-    ///     > BeforeLoadChildrenInternal
-    ///     > Children > Load()
-    ///     > AfterLoadChildrenInternal
+    ///     > LoadInternalBeforeChildren
+    ///     > Children > AddChild()
+    ///     > LoadInternalAfterChildren
     /// 
     /// Unload()
-    ///     > BeforeUnloadChildrenInternal
+    ///     > UnloadInternalBeforeChildren
     ///     > Children > Unload()
-    ///     > AfterUnloadChildrenInternal
+    ///     > UnloadInternalAfterChildren
     /// 
     /// Destroy()
-    ///     > BeforeUnloadChildrenInternal
+    ///     > UnloadInternalBeforeChildren
     ///     > Children > Destroy()
-    ///     > AfterUnloadChildrenInternal 
+    ///     > UnloadInternalAfterChildren 
     ///     > DestroyInternal
     /// 
     /// </summary>
@@ -145,7 +145,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             Id = Schema.Identifier = _idProp.Value;
 
-            BeforeLoadChildrenInternal();
+            LoadInternalBeforeChildren();
 
             // child schemas wrap parent
             for (int i = 0, len = children.Length; i < len; i++)
@@ -160,15 +160,15 @@ namespace CreateAR.SpirePlayer.IUX
 
             LogVerbose("Load({0})", Guid);
 
-            AfterLoadChildrenInternal();
+            LoadInternalAfterChildren();
         }
 
         /// <summary>
         /// Unloads for reuse.
         /// </summary>
-        internal void Unload()
+        public void Unload()
         {
-            BeforeUnloadChildrenInternal();
+            UnloadInternalBeforeChildren();
 
             // unload children first
             for (var i = _children.Count - 1; i >= 0; i--)
@@ -179,7 +179,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             LogVerbose("Unload({0})", Guid);
             
-            AfterUnloadChildrenInternal();
+            UnloadInternalAfterChildren();
 
             _idProp.OnChanged -= Id_OnChange;
             Id = string.Empty;
@@ -209,7 +209,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public void Destroy()
         {
-            BeforeUnloadChildrenInternal();
+            UnloadInternalBeforeChildren();
 
             // destroy children
             for (var i = _children.Count - 1; i >= 0; i--)
@@ -221,7 +221,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             LogVerbose("Destroy({0})", Guid);
 
-            AfterUnloadChildrenInternal();
+            UnloadInternalAfterChildren();
             DestroyInternal();
 
             if (OnDestroyed != null)
@@ -451,7 +451,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// For base classes to override.
         /// </summary>
-        protected virtual void BeforeLoadChildrenInternal()
+        protected virtual void LoadInternalBeforeChildren()
         {
 
         }
@@ -459,7 +459,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// For base classes to override.
         /// </summary>
-        protected virtual void AfterLoadChildrenInternal()
+        protected virtual void LoadInternalAfterChildren()
         {
             
         }
@@ -467,7 +467,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// For base classes to override.
         /// </summary>
-        protected virtual void BeforeUnloadChildrenInternal()
+        protected virtual void UnloadInternalBeforeChildren()
         {
 
         }
@@ -475,7 +475,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// For base classes to override.
         /// </summary>
-        protected virtual void AfterUnloadChildrenInternal()
+        protected virtual void UnloadInternalAfterChildren()
         {
 
         }

@@ -55,18 +55,18 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        protected override void BeforeLoadChildrenInternal()
+        protected override void LoadInternalBeforeChildren()
         {
             // override icon
             Schema.Set("icon", "");
 
-            base.BeforeLoadChildrenInternal();
+            base.LoadInternalBeforeChildren();
         }
 
         /// <inheritdoc />
-        protected override void AfterLoadChildrenInternal()
+        protected override void LoadInternalAfterChildren()
         {
-            base.AfterLoadChildrenInternal();
+            base.LoadInternalAfterChildren();
             
             _valueProp = Schema.GetOwn("value", false);
             _valueProp.OnChanged += Value_OnChanged;
@@ -75,9 +75,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        protected override void BeforeUnloadChildrenInternal()
+        protected override void UnloadInternalBeforeChildren()
         {
-            base.BeforeUnloadChildrenInternal();
+            base.UnloadInternalBeforeChildren();
 
             Activator.OnActivated -= Activator_OnActivated;
         }

@@ -111,9 +111,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        protected override void AfterLoadChildrenInternal()
+        protected override void LoadInternalAfterChildren()
         {
-            base.AfterLoadChildrenInternal();
+            base.LoadInternalAfterChildren();
 
             _verticalPaddingProp = Schema.Get<float>("padding.vertical");
             _verticalPaddingProp.OnChanged += VerticalPadding_OnChanged;
@@ -155,9 +155,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        protected override void AfterUnloadChildrenInternal()
+        protected override void UnloadInternalAfterChildren()
         {
-            base.AfterUnloadChildrenInternal();
+            base.UnloadInternalAfterChildren();
 
             _horizontalPaddingProp.OnChanged -= HorizontalPadding_OnChanged;
             _verticalPaddingProp.OnChanged -= VerticalPadding_OnChanged;

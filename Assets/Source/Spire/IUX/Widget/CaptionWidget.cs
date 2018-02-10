@@ -51,9 +51,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void AfterLoadChildrenInternal()
+        protected override void LoadInternalAfterChildren()
         {
-            base.AfterLoadChildrenInternal();
+            base.LoadInternalAfterChildren();
 
             _labelProp = Schema.Get<string>("label");
             _labelProp.OnChanged += Label_OnChanged;
@@ -81,7 +81,7 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void AfterUnloadChildrenInternal()
+        protected override void UnloadInternalAfterChildren()
         {
             _labelProp.OnChanged -= Label_OnChanged;
             _fontSizeProp.OnChanged -= FontSize_OnChanged;
@@ -89,7 +89,7 @@ namespace CreateAR.SpirePlayer.IUX
             _alignmentProp.OnChanged -= Alignment_OnChanged;
             _overflowProp.OnChanged -= Overflow_OnChanged;
 
-            base.AfterUnloadChildrenInternal();
+            base.UnloadInternalAfterChildren();
         }
 
         /// <summary>

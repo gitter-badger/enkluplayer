@@ -55,9 +55,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void BeforeLoadChildrenInternal()
+        protected override void LoadInternalBeforeChildren()
         {
-            base.BeforeLoadChildrenInternal();
+            base.LoadInternalBeforeChildren();
 
             // children need to be added to this
             _renderer = Object.Instantiate(
@@ -69,9 +69,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void AfterLoadChildrenInternal()
+        protected override void LoadInternalAfterChildren()
         {
-            base.AfterLoadChildrenInternal();
+            base.LoadInternalAfterChildren();
 
             // props
             {
@@ -90,14 +90,14 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void AfterUnloadChildrenInternal()
+        protected override void UnloadInternalAfterChildren()
         {
             _positionProp.OnChanged -= Position_OnChanged;
             _focusProp.OnChanged -= Focus_OnChanged;
 
             Object.Destroy(_renderer.gameObject);
 
-            base.AfterUnloadChildrenInternal();
+            base.UnloadInternalAfterChildren();
         }
         
         /// <inheritdoc />

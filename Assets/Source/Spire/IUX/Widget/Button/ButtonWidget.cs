@@ -165,9 +165,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
         
         /// <inheritdoc cref="Element"/>
-        protected override void AfterLoadChildrenInternal()
+        protected override void LoadInternalAfterChildren()
         {
-            base.AfterLoadChildrenInternal();
+            base.LoadInternalAfterChildren();
 
             // Activator
             {
@@ -215,9 +215,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void AfterUnloadChildrenInternal()
+        protected override void UnloadInternalAfterChildren()
         {
-            base.AfterUnloadChildrenInternal();
+            base.UnloadInternalAfterChildren();
 
             if (null != _loadToken)
             {

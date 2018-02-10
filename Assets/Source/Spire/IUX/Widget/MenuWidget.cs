@@ -89,9 +89,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void AfterLoadChildrenInternal()
+        protected override void LoadInternalAfterChildren()
         {
-            base.AfterLoadChildrenInternal();
+            base.LoadInternalAfterChildren();
 
             // retrieve properties
             _titleProp = Schema.Get<string>("title");
@@ -151,7 +151,7 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void AfterUnloadChildrenInternal()
+        protected override void UnloadInternalAfterChildren()
         {
             _titleProp.OnChanged -= Title_OnChanged;
             _fontSizeProp.OnChanged -= FontSize_OnChanged;
@@ -166,7 +166,7 @@ namespace CreateAR.SpirePlayer.IUX
             Object.Destroy(_halfMoon);
             _halfMoon = null;
             
-            base.AfterUnloadChildrenInternal();
+            base.UnloadInternalAfterChildren();
         }
 
         /// <inheritdoc />

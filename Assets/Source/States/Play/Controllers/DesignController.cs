@@ -19,6 +19,11 @@ namespace CreateAR.SpirePlayer
         /// Manages props.
         /// </summary>
         private readonly IPropManager _propManager;
+
+        /// <summary>
+        /// Voice commands.
+        /// </summary>
+        private readonly IVoiceCommandManager _voice;
         
         /// <summary>
         /// Play mode.
@@ -90,10 +95,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public DesignController(
             IElementFactory elements,
-            IPropManager propManager)
+            IPropManager propManager,
+            IVoiceCommandManager voice)
         {
             _elements = elements;
             _propManager = propManager;
+            _voice = voice;
         }
 
         /// <summary>
@@ -103,6 +110,8 @@ namespace CreateAR.SpirePlayer
         {
             _playConfig = config;
             _events = _playConfig.Events;
+
+            _voice.Register("design", Voice_OnDesignCommand);
             
             // create float
             _float = (FloatWidget) _elements.Element(@"<Float id='Root' position=(0, 0, 1)><ScaleTransition /></Float>");
@@ -145,7 +154,7 @@ namespace CreateAR.SpirePlayer
                         exception));
                 });
         }
-        
+
         /// <summary>
         /// Tears down all controllers and destroys them.
         /// </summary>
@@ -243,6 +252,15 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called when voice command is detected.
+        /// </summary>
+        /// <param name="command">The detected command.</param>
+        private void Voice_OnDesignCommand(string command)
+        {
+            _mainMenu.enabled = true;
+        }
+
+        /// <summary>
         /// Called when splash wants to open the menu.
         /// </summary>
         private void Splash_OnOpenMenu()
@@ -292,7 +310,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MainMenu_OnPlay()
         {
-
+            _float.Schema.Set("visible", false);
         }
 
         /// <summary>

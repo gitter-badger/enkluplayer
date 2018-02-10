@@ -221,9 +221,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
         
         /// <inheritdoc cref="Element"/>
-        protected override void AfterLoadChildrenInternal()
+        protected override void LoadInternalAfterChildren()
         {
-            base.AfterLoadChildrenInternal();
+            base.LoadInternalAfterChildren();
 
             _renderer = Object.Instantiate(
                 _config.Text,
@@ -246,9 +246,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="Element"/>
-        protected override void AfterUnloadChildrenInternal()
+        protected override void UnloadInternalAfterChildren()
         {
-            base.AfterUnloadChildrenInternal();
+            base.UnloadInternalAfterChildren();
 
             _propAlignment.OnChanged -= Alignment_OnChanged;
             _propFont.OnChanged -= Font_OnChanged;
