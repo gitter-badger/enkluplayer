@@ -89,3 +89,6 @@ The default `VineML` importer, `VineImporter`, comes with a simple preprocessor 
   }}
 </Container>
 ```
+### Further Reading
+
+* [Writing Controllers](vine.controller.md)

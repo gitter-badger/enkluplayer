@@ -1,4 +1,4 @@
-# Overview
+### Overview
 
 The [Element](element.md) system provides a simple node graph implementation, much like the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction) or [Cocos](http://www.cocos2d-x.org/) (or pretty much every other game engine under the sun). The intention of the element system is to provide a basis for many types of composite structures, which is a helpful mechanism for managing scenes. The need also arises for elements to have a composite state structure, which is what the _Schema_ system provides.
 
@@ -125,3 +125,6 @@ stringProp.Value = "Hello World";
 print(stringProp.Value); // null
 
 ```
+### Further Reading
+
+* [Ideas](element.schema.ideas.md)

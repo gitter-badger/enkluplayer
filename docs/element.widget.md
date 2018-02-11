@@ -1,4 +1,4 @@
-# Overview
+### Overview
 
 The [Element](element.md) and [Schema](element.schema.md) systems provide simple methods for composing objects and state. Both of these systems have few (if any) dependencies outside of the standard C# library. In order to pull together the Unity hierarchy and the Element system, we have introduced the `Widget` class.
 
@@ -31,7 +31,7 @@ Let's see what this actually creates in the Unity hierarchy:
 
 Er-- close. `Float` is a bit special and attaches children to a special place. `Menu`, on the other hand acts exactly like you'd expect. As I pointed out above, `Option` doesn't even have a `GameObject`.
 
-#### Writing a Widget: Best Practices
+### Writing a Widget: Best Practices
 
 `Widget` is made for subclassing. At this point, there are many examples of `Widget` subclasses (of varying quality) that you can read through. `Caption` and `ButtonWidget` are probably the most straightforward. Through these, you will see a number of best practices:
 

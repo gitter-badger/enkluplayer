@@ -1,4 +1,4 @@
-#### Usage
+#### Schema DSL
 
 Every schema definition follows the form:
 

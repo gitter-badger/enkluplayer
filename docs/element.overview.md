@@ -1,8 +1,8 @@
-# Overview
+### Overview
 
 The `Element` system is a barebones node graph system with composable state, called `Schema`. By itself, Element does very little, but through subclassing, a user may implement a variety of responsive systems, quite quickly.
 
-### Children
+#### Children
 
 Elements are very similar to other object graph systems out there. Each Element has a list of child elements that can be manipulated through `AddChild` and `RemoveChild`.
 
@@ -46,7 +46,7 @@ newChild.OnRemoved += @this => print("I was removed!");
 greatgrandchild.RemoveChild(newChild);	// I was removed!
 ```
 
-### Queries
+#### Queries
 
 Somebody please think of the children!
 
@@ -58,7 +58,7 @@ var buttons = _root.Find("..container.(@type==Button)");
 
 Yes please, I'll take that. This is but a taste-- for more, check out the [ɛql documentation](element.query.md).
 
-### Schema
+#### Schema
 
 Each `Element` has an `ElementSchema` that allows elements to compose data down the hierarchy.
 
@@ -71,7 +71,7 @@ print(foo.Value);	// 12
 
 This short example just scratches the surface of our powerful Schema system, so please read more about it in the [Schema documentation](element.schema.md).
 
-### Creating and Destroying Elements
+#### Creating and Destroying Elements
 
 To create an element structure, pass an `ElementDescription` object to an `IElementFactory`:
 
@@ -89,7 +89,7 @@ var element = _factory.Element(@"<Cursor />");
 
 Oh yes. Yes, my friend, you can create elements through an HTML-ish markup language. There's even a JS preprocessor and C style comments instead of those nasty `<!-- -->` things. This is the preferred method for creating elements. For more details on VineML, please start with the [Vine documentation](vine.overview.md).
 
-### Lifecycle
+#### Lifecycle
 
 Elements are meant to be created via an `IElementFactory` implementation, pooled, and reused with a predictable lifecycle. The base `Element` class has two main API functions, generally called by an `IElementFactory` implementation:
 
@@ -227,3 +227,14 @@ public ElementData[] Elements;
 The `ElementRef` is a very simple data structure that simply references into the collection of `ElementData`. In this way, the `ElementRef` structure may reference the same `ElementData` multiple times. This structure has the added benefit of disallowing cycles.
 
 Both `ElementRef` and `ElementData` have a list of children and a schema. When constructing the graph, the child lists are combined (putting `ElementData` children first). The `Schema` objects (discussed later) are also combined. Here, the `ElementRef` schema supersedes that of `ElementData`, allowing users to override template data.
+
+### Further Reading
+
+* More about elements:
+  * [Queries](element.query.md)
+  * [Schema](element.query.md)
+  * [Widgets](element.widget.md)
+  * [Ideas](element.ideas.md)
+* Create elements with VineML:
+  * [VineML](vine.overview.md)
+  * [Vine Controllers](vine.controller.md)
