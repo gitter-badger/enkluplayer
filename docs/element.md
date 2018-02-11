@@ -46,6 +46,18 @@ newChild.OnRemoved += @this => print("I was removed!");
 greatgrandchild.RemoveChild(newChild);	// I was removed!
 ```
 
+### Queries
+
+Somebody please think of the children!
+
+What happens when an element structure gets... complicated? Finding the elements you need in a sprawling graph is not always easy. Luckily, there's a query language built into the `Element` system.
+
+```csharp
+var buttons = _root.Find("..container.(@type==Button)");
+```
+
+Yes please, I'll take that. This is but a taste-- for more, check out the [ɛql documentation](element.query.md).
+
 ### Schema
 
 Each `Element` has an `ElementSchema` that allows elements to compose data down the hierarchy.
@@ -58,6 +70,24 @@ print(foo.Value);	// 12
 ```
 
 This short example just scratches the surface of our powerful Schema system, so please read more about it in the [Schema documentation](element.schema.md).
+
+### Creating and Destroying Elements
+
+To create an element structure, pass an `ElementDescription` object to an `IElementFactory`:
+
+```csharp
+var element = _factory.Element(description);
+```
+
+`StandardElementFactory` (which you should _definitely_ subclass) will fill out the entire structure of elements, bottom up. This is covered in more depth below.
+
+But wait! `IElementFactory` also allows creation of objects _directly from a Vine_.
+
+```csharp
+var element = _factory.Element(@"<Cursor />");
+```
+
+Oh yes. Yes, my friend, you can create elements through an HTML-ish markup language. There's even a JS preprocessor and C style comments instead of those nasty `<!-- -->` things. This is the preferred method for creating elements. For more details on VineML, please start with the [Vine documentation](vine.overview.md).
 
 ### Lifecycle
 
@@ -182,24 +212,6 @@ public class SumElement : Element
 	}
 }
 ```
-
-### Creating Elements
-
-To create an element structure, pass an `ElementDescription` object to an `IElementFactory`:
-
-```csharp
-var element = _factory.Element(description);
-```
-
-This will fill out the entire structure of elements. `Element` may not be created directly, but subclasses of `Element` may choose to allow this.
-
-`IElementFactory` also allows creation of objects directly from a Vine.
-
-```csharp
-var element = _factory.Element(@"<Cursor />");
-```
-
-This is the preferred method for creating elements. For more details on VineML, please start with the [Vine documentation](vine.overview.md).
 
 ### ElementDescription
 

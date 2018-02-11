@@ -79,10 +79,12 @@ var big = a.Find("..(@size>100)");
 var small = a.Find("..(@size<100)");
 ```
 
-### Ideas
+### Special Queries
 
-##### Combining Predicates
+One more thing-- there are some special queries that skip the schema.
 
 ```csharp
-var visibleAndBig = a.Find("..(@size>100 && @visible=true)");
+var buttons = container.Find("..(@type==Button)");
 ```
+
+The **type** property actually inspects the class type of the element rather than a schema property.
