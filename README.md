@@ -34,4 +34,6 @@ A detailed diagram can be found [here](https://www.lucidchart.com/documents/view
   * [Ideas](element.ideas.md)
 * [Vine](vine.overview.md)
   * [Controllers](vine.controller.md)
+* Miscellany
+  * [Standard Queries](standardqueries.overview.md)
 
