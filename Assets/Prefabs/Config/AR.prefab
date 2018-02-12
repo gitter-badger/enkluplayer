@@ -55,5 +55,8 @@ MonoBehaviour:
   EnablePlaneDetection: 1
   EnableLightEstimation: 1
   EnablePointCloud: 1
+  DrawPlanes: 1
   Rig: {fileID: 0}
   CameraMaterial: {fileID: 2100000, guid: f1d9352050a75486f878ab19fa578f16, type: 2}
+  MinSearchSec: 0
+  MaxSearchSec: 20

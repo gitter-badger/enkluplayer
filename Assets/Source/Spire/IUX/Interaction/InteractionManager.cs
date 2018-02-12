@@ -1,6 +1,7 @@
 using CreateAR.Commons.Unity.Messaging;
 using System.Collections.Generic;
 using System;
+using System.Collections.ObjectModel;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -10,10 +11,14 @@ namespace CreateAR.SpirePlayer.IUX
     public class InteractionManager : InjectableMonoBehaviour, IInteractionManager
     {
         /// <summary>
-        /// Dependendies.
+        /// Backing variable for property.
         /// </summary>
-        [Inject]
-        public IMessageRouter Messages { get; set; }
+        private readonly List<IInteractable> _all = new List<IInteractable>();
+
+        /// <summary>
+        /// Tracks the number of visible InteractableWidgets.
+        /// </summary>
+        private readonly List<IInteractable> _visible = new List<IInteractable>();
 
         /// <summary>
         /// Collection of only the highlighted elements.
@@ -21,63 +26,91 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly List<IInteractable> _highlighted = new List<IInteractable>();
 
         /// <summary>
-        /// Retrieves the current highlighted element.
-        /// 
-        /// Updated every frame.
+        /// Dependendies.
         /// </summary>
+        [Inject]
+        public IMessageRouter Messages { get; set; }
+
+        /// <inheritdoc />
         public IInteractable Highlighted { get; private set; }
 
-        /// <summary>
-        /// True if the interaction is locked to only highlighted objects
-        /// </summary>
+        /// <inheritdoc />
         public bool IsOnRails { get; private set; }
+        
+        /// <inheritdoc />
+        public ReadOnlyCollection<IInteractable> All { get; private set; }
 
-        /// <summary>
-        /// Initialize
-        /// </summary>
+        /// <inheritdoc />
+        public ReadOnlyCollection<IInteractable> Visible { get; private set; }
+
+        /// <inheritdoc />
+        public event Action<IInteractable> OnAdded;
+
+        /// <inheritdoc />
+        public event Action<IInteractable> OnRemoved;
+        
+        /// <inheritdoc />
         protected override void Awake()
         {
             base.Awake();
 
+            All = new ReadOnlyCollection<IInteractable>(_all);
+            Visible = new ReadOnlyCollection<IInteractable>(_visible);
+
             Messages.Subscribe(MessageTypes.BUTTON_ACTIVATE, Button_OnActivate);
         }
 
-        /// <summary>
-        /// Updates the currently highlighted element.
-        /// </summary>
-        private void Update()
+        /// <inheritdoc />
+        public void Add(IInteractable interactable)
         {
-            Highlighted = null;
-
-            var highestPriority = int.MinValue;
-            for (int i = 0, count = _highlighted.Count; i < count; ++i)
+            if (null == interactable)
             {
-                var interactive = _highlighted[i];
-                if (!interactive.Visible)
-                {
-                    continue;
-                }
+                throw new ArgumentException("'interactable' cannot be null.");
+            }
 
-                if (interactive.HighlightPriority < highestPriority)
-                {
-                    continue;
-                }
+            var removed = _all.Remove(interactable);
+            _all.Add(interactable);
 
-                Highlighted = interactive;
-                highestPriority = interactive.HighlightPriority;
+            if (!removed)
+            {
+                interactable.OnVisibilityChanged += Interactable_OnVisibilityChange;
+                UpdateVisibility(interactable);
+
+                if (null != OnAdded)
+                {
+                    OnAdded(interactable);
+                }
             }
         }
 
-        /// <summary>
-        /// Adds an object to highlight queue. The element with the highest
-        /// HighlightPriority will be highlighted.
-        /// 
-        /// The Highlighted property is updated every
-        /// frame, not synchronously.
-        /// </summary>
-        /// <param name="interactable">The element to add.</param>
+        /// <inheritdoc />
+        public void Remove(IInteractable interactable)
+        {
+            if (null == interactable)
+            {
+                throw new ArgumentException("'interactable' cannot be null.");
+            }
+
+            if (_all.Remove(interactable))
+            {
+                interactable.OnVisibilityChanged -= Interactable_OnVisibilityChange;
+                _visible.Remove(interactable);
+
+                if (null != OnRemoved)
+                {
+                    OnRemoved(interactable);
+                }
+            }
+        }
+
+        /// <inheritdoc />
         public void Highlight(IInteractable interactable)
         {
+            if (null == interactable)
+            {
+                throw new ArgumentException("'interactable' cannot be null.");
+            }
+
             if (_highlighted.Contains(interactable))
             {
                 return;
@@ -86,15 +119,69 @@ namespace CreateAR.SpirePlayer.IUX
             _highlighted.Add(interactable);
         }
 
-        /// <summary>
-        /// Unhighlights an element.
-        /// 
-        /// The Highlighted property is updated every frame, not synchronously.
-        /// </summary>
-        /// <param name="interactable">The element to remove.</param>
+        /// <inheritdoc />
         public void Unhighlight(IInteractable interactable)
         {
+            if (null == interactable)
+            {
+                throw new ArgumentException("'interactable' cannot be null.");
+            }
+
             _highlighted.Remove(interactable);
+        }
+
+        /// <summary>
+        /// Updates the currently highlighted element.
+        /// </summary>
+        private void Update()
+        {
+            var highestPriority = int.MinValue;
+            IInteractable highlightInteractable = null;
+
+            for (int i = 0, count = _visible.Count; i < count; ++i)
+            {
+                var visible = _visible[i];
+                if (visible.IsHighlighted)
+                {
+                    // TODO: Create property that a widget can implement with "Tween > 0.1"
+                    //if (visible.Tween > 0.1f)
+                    {
+                        if (highlightInteractable == null
+                            || visible.HighlightPriority > highestPriority)
+                        {
+                            highlightInteractable = visible;
+                            highestPriority = visible.HighlightPriority;
+                        }
+                    }
+                }
+            }
+
+            Highlighted = highlightInteractable;
+        }
+        
+        /// <summary>
+        /// Adds or removes an interactable to the visible list.
+        /// </summary>
+        /// <param name="interactable"></param>
+        private void UpdateVisibility(IInteractable interactable)
+        {
+            if (interactable.Visible)
+            {
+                // keep the list consistent
+                if (!_visible.Contains(interactable))
+                {
+                    _visible.Add(interactable);
+                }
+            }
+            else
+            {
+                _visible.Remove(interactable);
+            }
+        }
+        
+        private void Interactable_OnVisibilityChange(IInteractable interactable)
+        {
+            UpdateVisibility(interactable);
         }
 
         /// <summary>
@@ -106,53 +193,5 @@ namespace CreateAR.SpirePlayer.IUX
         {
             IsOnRails = false;
         }
-
-        /*/// <summary>
-        /// Updates the highlight widget.
-        /// </summary>
-        private void UpdateHighlight()
-        {
-            if (ShowIfHighlightedWidget != null)
-            {
-                var isHighlighted = false;
-                var highlightWidget = Interactions.Highlighted;
-                if (highlightWidget != null)
-                {
-                    if (this == (InteractiveWidget)highlightWidget)
-                    {
-                        if (IsDescendant(highlightWidget.GameObject.transform, GameObject.transform)
-                         || IsDescendant(GameObject.transform, highlightWidget.GameObject.transform))
-                        {
-                            isHighlighted = true;
-                        }
-                    }
-                }
-
-                ShowIfHighlightedWidget.LocalVisible = isHighlighted;
-            }
-        }
-
-        /// <summary>
-        /// Checks if there is a child/parent relationship.
-        /// </summary>
-        private static bool IsDescendant(Transform ancestor, Transform descendant)
-        {
-            if (descendant == ancestor)
-            {
-                return true;
-            }
-
-            if (descendant.IsChildOf(ancestor))
-            {
-                return true;
-            }
-
-            if (descendant.parent != null)
-            {
-                return IsDescendant(ancestor, descendant.parent);
-            }
-
-            return false;
-        }*/
     }
 }

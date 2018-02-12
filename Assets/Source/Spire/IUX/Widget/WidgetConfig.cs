@@ -3,7 +3,6 @@
 namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
-    /// TODO: Replace most/if-not-all/of this with schema
     /// Configuration for all widgets.
     /// </summary>
     public class WidgetConfig : MonoBehaviour
@@ -148,23 +147,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Defines how far text pushes backwards as it fades as multiple of CrawlFadeOutOffset.
         /// </summary>
         public float CrawlFadeOutDepthScale = 5.0f;
-
-        /// <summary>
-        /// Configuration for ready state of a button.
-        /// </summary>
-        [Header("Button")]
-        public ButtonStateConfig ButtonReady;
-
-        /// <summary>
-        /// Configuration for activating state of a button.
-        /// </summary>
-        public ButtonStateConfig ButtonActivating;
-
-        /// <summary>
-        /// Configuration for activated state of a button.
-        /// </summary>
-        public ButtonStateConfig ButtonActivated;
-
+        
         /// <summary>
         /// Text prefab.
         /// </summary>
@@ -192,16 +175,15 @@ namespace CreateAR.SpirePlayer.IUX
         public RectTransform HalfMoon;
 
         /// <summary>
-        /// Design.
+        /// Grid shell.
         /// </summary>
-        [Header("Vines")]
-        public TextAsset DesignMenu;
+        public RectTransform GridShell;
 
         /// <summary>
-        /// Play.
+        /// Image prefab.
         /// </summary>
-        public TextAsset PlayMenu;
-
+        public GameObject Image;
+        
         /// <summary>
         /// Steadiness Rotation Accessor
         /// </summary>

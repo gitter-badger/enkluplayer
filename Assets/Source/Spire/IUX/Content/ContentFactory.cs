@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IContentFactory"/>
-        public Content Instance(IContentManager content, ContentData data)
+        public ContentWidget Instance(IContentManager content, ContentData data)
         {
             Log.Info(this, "New content from {0}.", data);
 
@@ -64,25 +64,27 @@ namespace CreateAR.SpirePlayer
                 _assets,
                 _pools,
                 _progress);
-            var instance = new Content(
+            var instance = new ContentWidget(
                 _config,
                 _layers,
                 _tweens, 
                 _colors,
                 _messages,
                 _scripts,
-                assembler);
+                assembler,
+                _appData);
 
-            // TODO: Move ContentData into Schema and use Element creation flow
+            var schema = new ElementSchema();
+            schema.Set("src", data.Id);
+
             instance.Load(
                 new ElementData
                 {
                     Id = data.Id
                 }, 
-                new ElementSchema(),
+                schema,
                 new Element[0]);
-            instance.Setup(data);
-
+            
             // setup the Anchor
             var frame = _frames.Instance(content, data.Anchor.Type);
             var anchor = instance.GameObject.AddComponent<Anchor>();

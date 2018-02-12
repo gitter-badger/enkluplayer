@@ -1,0 +1,1 @@
+<Button face='camera' id='btn-splash' icon='gear' />

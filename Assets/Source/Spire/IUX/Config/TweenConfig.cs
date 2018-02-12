@@ -46,15 +46,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// All profiles.
         /// </summary>
         public TweenProfile[] Profiles;
-
-        /// <summary>
-        /// Tween information.
-        /// </summary>
-        [Header("Menu")]
-        public VectorTweenData ButtonPositionTween;
-        public VectorTweenData ButtonScaleTween;
-        public VectorTweenData ButtonRotationTween;
-
+        
         /// <summary>
         /// Retrieves the duration in seconds of a particular tween, or -1 if
         /// no profile could be found.

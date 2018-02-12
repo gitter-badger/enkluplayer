@@ -37,21 +37,45 @@ namespace CreateAR.SpirePlayer
         private DateTime _lastChange = DateTime.MinValue;
 
         /// <summary>
-        /// The element created.
-        /// </summary>
-        private Element _element;
-
-        /// <summary>
         /// Creates elements.
         /// </summary>
         [Inject]
         public IElementFactory Elements { get; private set; }
 
         /// <summary>
+        /// The created element.
+        /// </summary>
+        public Element Element { get; private set; }
+
+        /// <summary>
         /// The vine.
         /// </summary>
         [TextArea(10, 100)]
         public string Vine;
+
+        /// <summary>
+        /// Called when element has been created.
+        /// </summary>
+        public Action<Element> OnElementCreated;
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnEnable()
+        {
+            Update();
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnDisable()
+        {
+            if (null != Element)
+            {
+                Element.Destroy();
+                Element = null;
+            }
+
+            _lastChange = DateTime.MinValue;
+            _bakedVine = _lastVine = null;
+        }
         
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
@@ -79,13 +103,18 @@ namespace CreateAR.SpirePlayer
                     return;
                 }
 
-                if (null != _element)
+                if (null != Element)
                 {
-                    _element.Destroy();
-                    _element = null;
+                    Element.Destroy();
+                    Element = null;
                 }
                 
-                _element = Elements.Element(description);
+                Element = Elements.Element(description);
+                
+                if (null != OnElementCreated)
+                {
+                    OnElementCreated(Element);
+                }
             }
         }
     }

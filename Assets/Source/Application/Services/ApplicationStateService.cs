@@ -35,7 +35,6 @@ namespace CreateAR.SpirePlayer
             PlayApplicationState play,
             HierarchyApplicationState hierarchy,
             BleSearchApplicationState ble,
-            DesignApplicationState design,
             // TODO: find a different pattern to do this
 #if NETFX_CORE
             MeshCaptureApplicationState meshCapture,
@@ -53,7 +52,6 @@ namespace CreateAR.SpirePlayer
                 play,
                 hierarchy,
                 ble,
-                design,
 #if NETFX_CORE
                 meshCapture,
 #endif
@@ -98,6 +96,11 @@ namespace CreateAR.SpirePlayer
                         case ApplicationMode.WaitForConnection:
                         {
                             _states.Change<WaitingForConnectionApplicationState>();
+                            break;
+                        }
+                        case ApplicationMode.Play:
+                        {
+                            _states.Change<PlayApplicationState>(_config);
                             break;
                         }
                     }

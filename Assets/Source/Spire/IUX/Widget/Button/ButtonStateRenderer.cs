@@ -4,7 +4,7 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
-    /// Alters <b>Button</b> based on activator state.
+    /// Alters ButtonWidget based on activator state.
     /// </summary>
     public class ButtonStateRenderer
     {
@@ -18,7 +18,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// The button to affect.
         /// </summary>
-        private readonly Button _button;
+        private readonly ButtonWidget _button;
 
         /// <summary>
         /// Constructor.
@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer.IUX
             TweenConfig tweens,
             ColorConfig colors,
             WidgetConfig config,
-            Button button)
+            ButtonWidget button)
         {
             _tweens = tweens;
             _colors = colors;
@@ -41,17 +41,17 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="dt">Delta time.</param>
         public void Update(float dt)
         {
-            var config = Config(GetCurrentButtonState());
+            var state = GetCurrentButtonState();
             var isInteractable = _button.Interactable;
 
             var virtualColor = isInteractable
-                ? config.Color
+                ? GetColor(state)
                 : VirtualColor.Disabled;
 
             Col4 shellStateColor;
             _colors.TryGetColor(virtualColor, out shellStateColor);
 
-            var tweenDuration = _tweens.DurationSeconds(config.Tween);
+            var tweenDuration = _tweens.DurationSeconds(GetTween(state));
             var tweenLerp = tweenDuration > Mathf.Epsilon
                 ? dt / tweenDuration
                 : 1.0f;
@@ -63,11 +63,11 @@ namespace CreateAR.SpirePlayer.IUX
 
             _button.GameObject.transform.localScale = Vector3.Lerp(
                 _button.GameObject.transform.localScale,
-                config.Scale,
+                GetScale(state),
                 tweenLerp);
 
             var captionVirtualColor = isInteractable
-                ? config.CaptionColor
+                ? GetCaptionColor(state)
                 : VirtualColor.Disabled;
 
             Col4 captionColor;
@@ -80,31 +80,100 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Retrieves the correct config for a state..
+        /// Retrieves the color for the given state.
         /// </summary>
-        /// <param name="state">The ButtonState.</param>
+        /// <param name="state">State.</param>
         /// <returns></returns>
-        private ButtonStateConfig Config(ButtonState state)
+        private VirtualColor GetColor(ButtonState state)
         {
-            switch (state)
-            {
-                case ButtonState.Ready:
-                {
-                    return _config.ButtonReady;
-                }
-                case ButtonState.Activating:
-                {
-                    return _config.ButtonActivating;
-                }
-                case ButtonState.Activated:
-                {
-                    return _config.ButtonActivated;
-                }
-            }
+            var virtualColorString = _button
+                .Schema
+                .Get<string>(state.ToString().ToLowerInvariant() + ".color")
+                .Value;
 
-            throw new Exception(String.Format(
-                "Could not find ButtonConfig for {0}.",
-                state));
+            return ParseColor(virtualColorString);
+        }
+
+        /// <summary>
+        /// Retrieves the Tween value for the given state.
+        /// </summary>
+        /// <param name="state">sState.</param>
+        /// <returns></returns>
+        private TweenType GetTween(ButtonState state)
+        {
+            var tweenTypeString = _button
+                .Schema
+                .Get<string>(state.ToString().ToLowerInvariant())
+                .Value;
+
+            return ParseTween(tweenTypeString);
+        }
+
+        /// <summary>
+        /// Retrieves the scale value for the given state.
+        /// </summary>
+        /// <param name="state">State.</param>
+        /// <returns></returns>
+        private Vector3 GetScale(ButtonState state)
+        {
+            return _button
+                .Schema
+                .Get<Vec3>(state.ToString().ToLowerInvariant() + ".scale")
+                .Value
+                .ToVector();
+        }
+
+        /// <summary>
+        /// Retrieves the caption color for the given state.
+        /// </summary>
+        /// <param name="state">State.</param>
+        /// <returns></returns>
+        private VirtualColor GetCaptionColor(ButtonState state)
+        {
+            var virtualColorString = _button
+                .Schema
+                .Get<string>(state.ToString().ToLowerInvariant() + ".captionColor")
+                .Value;
+
+            return ParseColor(virtualColorString);
+        }
+
+        /// <summary>
+        /// Safely parses a string into a TweenType.
+        /// </summary>
+        /// <param name="tween">The tween.</param>
+        /// <returns></returns>
+        private TweenType ParseTween(string tween)
+        {
+            try
+            {
+                return (TweenType) Enum.Parse(
+                    typeof(TweenType),
+                    tween);
+            }
+            catch
+            {
+                return TweenType.Responsive;
+            }
+        }
+
+        /// <summary>
+        /// Safely parses a string into a VirtualColor.
+        /// </summary>
+        /// <param name="color">The color string.</param>
+        /// <returns></returns>
+        private VirtualColor ParseColor(string color)
+        {
+            try
+            {
+                return (VirtualColor) Enum.Parse(
+                    typeof(VirtualColor),
+                    color);
+            }
+            catch
+            {
+                return VirtualColor.Disabled;
+            }
         }
 
         /// <summary>

@@ -18,7 +18,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Primitive.
         /// </summary>
-        private Float _float;
+        private FloatWidget _float;
 
         /// <summary>
         /// Dynamic Link Instance
@@ -31,19 +31,14 @@ namespace CreateAR.SpirePlayer.IUX
         private bool _hasBeenStationary;
 
         /// <summary>
-        /// FOV Scale at which to reorient.
-        /// </summary>
-        public const float REORIENT_FOV_SCALE = 1.5f;
-
-        /// <summary>
         /// FOV Scale.
         /// </summary>
-        public const float CLOSE_FOV_SCALE = 0.5f;
+        private const float CLOSE_FOV_SCALE = 0.5f;
 
         /// <summary>
         /// ??
         /// </summary>
-        public const float DISTANCE_SCALE = 0.25f;
+        private const float DISTANCE_SCALE = 0.25f;
         
         /// <summary>
         /// Parent Widget.
@@ -73,6 +68,11 @@ namespace CreateAR.SpirePlayer.IUX
         public Vector3 Offset = new Vector3(0, 0, 2.5f);
 
         /// <summary>
+        /// Focus position.
+        /// </summary>
+        public Vector3 Focus = new Vector3(0, 0, 0);
+
+        /// <summary>
         /// Minimum distance for the appearence of this context menu.
         /// </summary>
         public float MinimumGroundHeight = 1;
@@ -96,6 +96,16 @@ namespace CreateAR.SpirePlayer.IUX
         /// Links to the parent menu.
         /// </summary>
         public LinkRenderer LinkPrefab;
+
+        /// <summary>
+        /// Focus sphere.
+        /// </summary>
+        public GameObject FocusSphere;
+
+        /// <summary>
+        /// FOV Scale at which to reorient.
+        /// </summary>
+        public float ReorientFovScale { get; set; }
 
         /// <summary>
         /// Returns the ideal position.
@@ -137,42 +147,7 @@ namespace CreateAR.SpirePlayer.IUX
                 return Magnet.IsInMotion;
             }
         }
-
-        /// <summary>
-        /// Returns true if this context menu is visible to user.
-        /// </summary>
-        public bool IsInFieldOfView
-        {
-            get
-            {
-                return _intention.IsVisible(
-                    transform.position.ToVec(),
-                    REORIENT_FOV_SCALE);
-            }
-
-        }
-
-        /// <summary>
-        /// Returns true if this context menu is too far away.
-        /// </summary>
-        public bool IsTooFarAway
-        {
-            get
-            {
-                var delta = _intention.Origin - transform.position.ToVec();
-                var distance = delta.Magnitude;
-                var minDistance = Offset.z * DISTANCE_SCALE;
-                var maxDistance = Offset.z * (1.0f + DISTANCE_SCALE);
-
-                if (distance < minDistance || distance > maxDistance)
-                {
-                    return true;
-                }
-
-                return false;
-            }
-        }
-
+        
         /// <summary>
         /// Returns true if this context menu is visible to user
         /// </summary>
@@ -185,12 +160,12 @@ namespace CreateAR.SpirePlayer.IUX
                     CLOSE_FOV_SCALE);
             }
         }
-
+        
         /// <summary>
         /// Initialization.
         /// </summary>
         internal void Initialize(
-            Float @float,
+            FloatWidget @float,
             IIntentionManager intention)
         {
             _float = @float;
@@ -204,18 +179,6 @@ namespace CreateAR.SpirePlayer.IUX
         public override string ToString()
         {
             return string.Format("[{0}]", GetType().Name);
-        }
-
-        /// <summary>
-        /// Sets the internal magnet target to the ideal position.
-        /// </summary>
-        public void MoveToIdealPosition()
-        {
-            Magnet.SetTarget(
-                new Target
-                {
-                    Position = IdealPosition.ToVector()
-                });
         }
 
         /// <summary>
@@ -288,6 +251,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             UpdateWidgets();
             UpdateLink();
+            UpdateFocus();
         }
 
         /// <summary>
@@ -295,11 +259,18 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateMovement()
         {
+            var tooFar = CalculateIsTooFarAway();
+            var isInFieldOfView = _intention.IsVisible(
+                transform.position.ToVec(),
+                ReorientFovScale);
+
             if (Magnet.Target.IsEmpty
-                || !IsInFieldOfView
-                || IsTooFarAway)
+                || !isInFieldOfView
+                || tooFar)
             {
-                if (!IsInMotion || !IsCloseToIdealPosition || IsTooFarAway)
+                if (!IsInMotion
+                    || !IsCloseToIdealPosition
+                    || tooFar)
                 {
                     MoveToIdealPosition();
                 }
@@ -371,6 +342,26 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Updates the focus.
+        /// </summary>
+        private void UpdateFocus()
+        {
+            FocusSphere.transform.localPosition = Focus;
+        }
+
+        /// <summary>
+        /// Sets the internal magnet target to the ideal position.
+        /// </summary>
+        private void MoveToIdealPosition()
+        {
+            Magnet.SetTarget(
+                new Target
+                {
+                    Position = IdealPosition.ToVector()
+                });
+        }
+
+        /// <summary>
         /// Creates the dynamic link
         /// </summary>
         private void CreateLink()
@@ -383,6 +374,24 @@ namespace CreateAR.SpirePlayer.IUX
                 _dynamicLink.transform.SetParent(transform, false);
                 _dynamicLink.gameObject.SetActive(true);
             }
+        }
+
+        /// <summary>
+        /// Returns true if this context menu is too far away.
+        /// </summary>
+        private bool CalculateIsTooFarAway()
+        {
+            var delta = _intention.Origin - transform.position.ToVec();
+            var distance = delta.Magnitude;
+            var minDistance = Offset.z * DISTANCE_SCALE;
+            var maxDistance = Offset.z * (1.0f + DISTANCE_SCALE);
+
+            if (distance < minDistance || distance > maxDistance)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

@@ -1,6 +1,4 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Async;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -28,14 +26,7 @@ namespace CreateAR.SpirePlayer
         /// Called when a piece of <c>StaticData</c> has been updated.
         /// </summary>
         event Action<StaticData> OnUpdated;
-
-        /// <summary>
-        /// Id of the currently loaded app.
-        /// 
-        /// Only non null between OnLoaded + OnUnloaded.
-        /// </summary>
-        string LoadedApp { get; }
-
+        
         /// <summary>
         /// Retrieves a type of data.
         /// </summary>
@@ -58,18 +49,5 @@ namespace CreateAR.SpirePlayer
         /// <param name="name">The name of the data.</param>
         /// <returns></returns>
         T GetByName<T>(string name) where T : StaticData;
-
-        /// <summary>
-        /// Loads all data for an app by id.
-        /// </summary>
-        /// <param name="id">Unique id.</param>
-        /// <returns></returns>
-        IAsyncToken<Void> Load(string id);
-
-        /// <summary>
-        /// Unloads currently loaded scene.
-        /// </summary>
-        /// <returns></returns>
-        IAsyncToken<Void> Unload();
     }
 }

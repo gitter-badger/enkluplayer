@@ -1,7 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Http.Editor;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Trellis;
+using CreateAR.Trellis.Messages;
 using UnityEditor;
 
 namespace CreateAR.SpirePlayer.Editor

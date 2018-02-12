@@ -3,12 +3,14 @@ using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.Commons.Unity.Storage;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
 using CreateAR.Trellis;
+using CreateAR.Trellis.Messages;
 using Jint.Parser;
 using Jint.Unity;
 using LightJson;
@@ -61,8 +63,14 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
                 binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
+                binder.Bind<IImageLoader>().To<StandardImageLoader>().ToSingleton();
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
                 binder.Bind<IVinePreProcessor>().To<JsVinePreProcessor>().ToSingleton();
+                binder.Bind<IVineTable>().To(LookupComponent<VineTable>());
+                binder.Bind<VineImporter>().To<VineImporter>();
+
+                binder.Bind<IStorageWorker>().To<StorageWorker>().ToSingleton();
+                binder.Bind<IStorageService>().To<StorageService>().ToSingleton();
 
                 // input
                 {
@@ -108,6 +116,8 @@ namespace CreateAR.SpirePlayer
 
                 // application states
                 {
+                    binder.Bind<TestDataConfig>().To(LookupComponent<TestDataConfig>());
+                    binder.Bind<ITestDataController>().To<TestDataController>();
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                     binder.Bind<WaitingForConnectionApplicationState>().To<WaitingForConnectionApplicationState>();
                     binder.Bind<EditApplicationState>().To<EditApplicationState>();
@@ -115,7 +125,6 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                     binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
-                    binder.Bind<DesignApplicationState>().To<DesignApplicationState>();
 
                     // tools
                     {
@@ -192,33 +201,38 @@ namespace CreateAR.SpirePlayer
 
             // IUX
             {
-                binder.Bind<IInteractableManager>().To<InteractableManager>().ToSingleton();
                 binder.Bind<IPrimitiveFactory>().To<PrimitiveFactory>().ToSingleton();
+
+                // content
+                {
+                    binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
+                    binder.Bind<IContentFactory>().To<ContentFactory>();
+                    binder.Bind<IAnchorReferenceFrameFactory>().To<AnchorReferenceFrameFactory>();
+                }
+
+                // configs
+                {
+                    binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
+                    binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfig>());
+                    binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfig>());
+                    binder.Bind<IFontConfig>().ToValue(LookupComponent<FontConfig>());
+                    binder.Bind<FocusManager>().ToValue(LookupComponent<FocusManager>());
+                }
+
+                // manager monobehaviours
+                {
+                    binder.Bind<IElementManager>().ToValue(LookupComponent<ElementManager>());
+                    binder.Bind<IIntentionManager>().ToValue(LookupComponent<IntentionManager>());
+                    binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
+                    binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
+                    binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
+                }
             }
 
-            // content
+            // design
             {
-                binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
-                binder.Bind<IContentFactory>().To<ContentFactory>();
-                binder.Bind<IAnchorReferenceFrameFactory>().To<AnchorReferenceFrameFactory>();
-            }
-
-            // configs
-            {
-                binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
-                binder.Bind<TweenConfig>().ToValue(LookupComponent<TweenConfig>());
-                binder.Bind<ColorConfig>().ToValue(LookupComponent<ColorConfig>());
-                binder.Bind<IFontConfig>().ToValue(LookupComponent<FontConfig>());
-                binder.Bind<FocusManager>().ToValue(LookupComponent<FocusManager>());
-            }
-
-            // manager monobehaviours
-            {
-                binder.Bind<IElementManager>().ToValue(LookupComponent<ElementManager>());
-                binder.Bind<IIntentionManager>().ToValue(LookupComponent<IntentionManager>());
-                binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
-                binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
-                binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
+                binder.Bind<DesignController>().To<DesignController>().ToSingleton();
+                binder.Bind<IPropManager>().To<PropManager>().ToSingleton();
             }
 
             // hierarchy
@@ -239,7 +253,6 @@ namespace CreateAR.SpirePlayer
                 {
                     binder.Bind<AppDataScriptingInterface>().To<AppDataScriptingInterface>().ToSingleton();
                     binder.Bind<MessageRouterScriptingInterface>().To<MessageRouterScriptingInterface>().ToSingleton();
-                    binder.Bind<WidgetsScriptingInterface>().To<WidgetsScriptingInterface>().ToSingleton();
                 }
             }
 

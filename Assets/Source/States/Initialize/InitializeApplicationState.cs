@@ -9,8 +9,8 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
-using CreateAR.Trellis;
-using CreateAR.Trellis.Messages.RefreshToken;
+using CreateAR.SpirePlayer.IUX;
+using CreateAR.Trellis.Messages;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -20,16 +20,6 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class InitializeApplicationState : IState
     {
-        /// <summary>
-        /// Minimum amount of time to search for the floor.
-        /// </summary>
-        private const int MIN_SEC_SEARCH = 3;
-
-        /// <summary>
-        /// Maximum amount of time to search for the floor.
-        /// </summary>
-        private const int MAX_SEC_SEARCH = 20;
-        
         /// <summary>
         /// Dependencies.
         /// </summary>
@@ -43,6 +33,12 @@ namespace CreateAR.SpirePlayer
         private readonly BleServiceConfiguration _bleConfig;
         private readonly IBleService _ble;
         private readonly ApiController _api;
+        private readonly ITestDataController _testData;
+
+        /// <summary>
+        /// App config.
+        /// </summary>
+        private ApplicationConfig _appConfig;
 
         /// <summary>
         /// Time at which we started looking for the floor.
@@ -62,7 +58,9 @@ namespace CreateAR.SpirePlayer
             IArService ar,
             BleServiceConfiguration bleConfig,
             IBleService ble,
-            ApiController api)
+            ApiController api,
+            IImageLoader imageLoader,
+            ITestDataController testData)
         {
             _messages = messages;
             _http = http;
@@ -74,14 +72,17 @@ namespace CreateAR.SpirePlayer
             _bleConfig = bleConfig;
             _ble = ble;
             _api = api;
+            _testData = testData;
+
+            imageLoader.ReplaceProtocol(
+                "assets",
+                "http://ec2-54-202-152-140.us-west-2.compute.amazonaws.com:9091");
         }
 
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
-            var config = (ApplicationConfig) context;
-
-            //_messages.Publish(MessageTypes.STATUS, "Initializing...");
+            _appConfig = (ApplicationConfig) context;
 
             // ar
             _ar.Setup(_arConfig);
@@ -90,7 +91,7 @@ namespace CreateAR.SpirePlayer
             _ble.Setup(_bleConfig);
             
             // setup http
-            var env = config.Network.Environment(config.Network.Current);
+            var env = _appConfig.Network.Environment(_appConfig.Network.Current);
             _http.UrlBuilder.BaseUrl = env.BaseUrl;
             _http.UrlBuilder.Version = env.ApiVersion;
             _http.UrlBuilder.Port = env.Port;
@@ -126,9 +127,9 @@ namespace CreateAR.SpirePlayer
             };
 
             // if we're logging in automatically, also wait for login
-            if (config.Network.AutoLogin)
+            if (_appConfig.Network.AutoLogin)
             {
-                tasks.Add(Login(config.Network));
+                tasks.Add(Login(_appConfig.Network));
             }
 
             Async
@@ -179,7 +180,7 @@ namespace CreateAR.SpirePlayer
 
             _api
                 .Users
-                .RefreshToken(creds.UserId, new Request
+                .RefreshToken(creds.UserId, new Trellis.Messages.RefreshToken.Request
                 {
                     Token = creds.Token
                 })
@@ -235,7 +236,7 @@ namespace CreateAR.SpirePlayer
                 var deltaSec = (DateTime.Now.Subtract(_startFloorSearch).TotalSeconds);
                 
                 // wait at least min
-                if (deltaSec < MIN_SEC_SEARCH)
+                if (deltaSec < _arConfig.MinSearchSec)
                 {
                     //
                 }
@@ -270,7 +271,7 @@ namespace CreateAR.SpirePlayer
                     }
                 
                     // waited too long!
-                    if (deltaSec > MAX_SEC_SEARCH)
+                    if (deltaSec > _arConfig.MaxSearchSec)
                     {
                         token.Fail(new Exception("Timeout."));
                         yield break;

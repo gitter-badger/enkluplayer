@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using CreateAR.SpirePlayer.IUX;
@@ -33,14 +34,21 @@ namespace CreateAR.SpirePlayer.Vine
         private readonly List<ElementMap> _elementTypeMap = new List<ElementMap>
         {
             Commons.Unity.DataStructures.Tuple.Create("Container", ElementTypes.CONTAINER),
+            Commons.Unity.DataStructures.Tuple.Create("Image", ElementTypes.IMAGE),
             Commons.Unity.DataStructures.Tuple.Create("Button", ElementTypes.BUTTON),
             Commons.Unity.DataStructures.Tuple.Create("Caption", ElementTypes.CAPTION),
             Commons.Unity.DataStructures.Tuple.Create("Menu", ElementTypes.MENU),
             Commons.Unity.DataStructures.Tuple.Create("Cursor", ElementTypes.CURSOR),
             Commons.Unity.DataStructures.Tuple.Create("TextCrawl", ElementTypes.TEXTCRAWL),
             Commons.Unity.DataStructures.Tuple.Create("Float", ElementTypes.FLOAT),
+            Commons.Unity.DataStructures.Tuple.Create("Toggle", ElementTypes.TOGGLE),
+            Commons.Unity.DataStructures.Tuple.Create("Slider", ElementTypes.SLIDER),
             Commons.Unity.DataStructures.Tuple.Create("Select", ElementTypes.SELECT),
-            Commons.Unity.DataStructures.Tuple.Create("Option", ElementTypes.SELECT_OPTION)
+            Commons.Unity.DataStructures.Tuple.Create("Grid", ElementTypes.GRID),
+            Commons.Unity.DataStructures.Tuple.Create("Option", ElementTypes.OPTION),
+            Commons.Unity.DataStructures.Tuple.Create("OptionGroup", ElementTypes.OPTION_GROUP),
+            Commons.Unity.DataStructures.Tuple.Create("Content", ElementTypes.CONTENT),
+            Commons.Unity.DataStructures.Tuple.Create("ScaleTransition", ElementTypes.TRANSITION_SCALE),
         };
 
         /// <summary>
@@ -262,7 +270,7 @@ namespace CreateAR.SpirePlayer.Vine
             
             // identify type and add to current schema
             var name = _currentAttribute.Name;
-            var value = _currentAttribute.Value;
+            var value = _currentAttribute.Value.Trim(' ');
             var current = _elements.Peek();
             if (value.StartsWith("'"))
             {
@@ -330,8 +338,9 @@ namespace CreateAR.SpirePlayer.Vine
                 if (!float.TryParse(value, out floatValue))
                 {
                     throw new Exception(string.Format(
-                        "Float could not be parsed for attribute {0} : {1}.",
+                        "Float could not be parsed for attribute {0} : {1} : {2}.",
                         name,
+                        value,
                         GetExceptionLocation(context)));
                 }
 
@@ -350,6 +359,41 @@ namespace CreateAR.SpirePlayer.Vine
 
                 current.Schema.Bools[name] = "true" == value;
             }
+            else if (value.StartsWith("#"))
+            {
+                // trim #
+                value = value.Substring(1);
+
+                if (value.Length == 6)
+                {
+                    int r, g, b;
+                    try
+                    {
+                        r = int.Parse(value.Substring(0, 2), NumberStyles.AllowHexSpecifier);
+                        g = int.Parse(value.Substring(2, 2), NumberStyles.AllowHexSpecifier);
+                        b = int.Parse(value.Substring(4, 2), NumberStyles.AllowHexSpecifier);
+                    }
+                    catch (Exception exception)
+                    {
+                        throw new Exception(string.Format(
+                            "Could not parse color, '{0}'={1} : {2} - {3}.",
+                            name,
+                            value,
+                            exception,
+                            GetExceptionLocation(context)));
+                    }
+
+                    current.Schema.Colors[name] = new Col4(r / 255f, g / 255f, b / 255f, 1f);
+                }
+                else
+                {
+                    throw new Exception(string.Format(
+                        "Invalid format for color, '{0}'={1} : {2}.",
+                        name,
+                        value,
+                        GetExceptionLocation(context)));
+                }
+            }
             else
             {
                 // int
@@ -365,8 +409,9 @@ namespace CreateAR.SpirePlayer.Vine
                 if (!int.TryParse(value, out intValue))
                 {
                     throw new Exception(string.Format(
-                        "Int could not be parsed for attribute {0} : {1}.",
+                        "Int could not be parsed for attribute '{0}'={1} : {2}.",
                         name,
+                        value,
                         GetExceptionLocation(context)));
                 }
 

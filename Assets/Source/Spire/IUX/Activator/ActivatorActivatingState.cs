@@ -18,22 +18,30 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IIntentionManager _intention;
 
         /// <summary>
+        /// If true, calls activate.
+        /// </summary>
+        private readonly bool _autoActivate;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="activator">Activator.</param>
         /// <param name="intention">Manages intention.</param>
         /// <param name="schema">Schema to use.</param>
+        /// <param name="autoActivate">If true, calls Activate.</param>
         public ActivatorActivatingState(
             ActivatorPrimitive activator,
             IIntentionManager intention,
-            ElementSchema schema)
+            ElementSchema schema,
+            bool autoActivate)
             : base(
-                schema.Get<int>("activating.frameColor"),
-                schema.Get<int>("activating.tween"),
+                schema.Get<string>("activating.color"),
+                schema.Get<string>("activating.tween"),
                 schema.Get<float>("activating.frameScale"))
         {
             _activator = activator;
             _intention = intention;
+            _autoActivate = autoActivate;
         }
 
         /// <summary>
@@ -44,7 +52,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             if (!_activator.Focused)
             {
-                _activator.ChangeState<ActivatorReadyState>();
+                _activator.Ready();
                 return;
             }
 
@@ -58,13 +66,11 @@ namespace CreateAR.SpirePlayer.IUX
             var deltaFill = deltaTime * fillRate;
 
             var activation = _activator.Activation + deltaFill;
-            if (activation > 1.0f || Mathf.Approximately(activation, 1.0f))
+            _activator.Activation = Mathf.Clamp01(activation);
+
+            if (_autoActivate && (activation > 1.0f || Mathf.Approximately(activation, 1.0f)))
             {
                 _activator.Activate();
-            }
-            else
-            {
-                _activator.Activation = activation;
             }
         }
     }

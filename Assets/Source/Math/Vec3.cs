@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer
         /// Z component.
         /// </summary>
         public float z;
-
+        
         /// <summary>
         /// Creates a Vec3 from a Vec3.
         /// </summary>

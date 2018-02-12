@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -9,7 +10,8 @@ namespace CreateAR.SpirePlayer
     {
         None,
         WaitForConnection,
-        Tools
+        Tools,
+        Play
     }
 
     /// <summary>
@@ -22,6 +24,11 @@ namespace CreateAR.SpirePlayer
         /// Defines the main application mode.
         /// </summary>
         public string Mode;
+
+        /// <summary>
+        /// Configuration for playing an app.
+        /// </summary>
+        public PlayAppConfig Play = new PlayAppConfig();
         
         /// <summary>
         /// Network configuration.
@@ -35,9 +42,21 @@ namespace CreateAR.SpirePlayer
         public override string ToString()
         {
             return string.Format(
-                "[ApplicationConfig Network={0}]",
-                Network);
+                "[ApplicationConfig Network={0}, Play={1}]",
+                Network,
+                Play);
         }
+    }
+    
+    /// <summary>
+    /// Application to play.
+    /// </summary>
+    public class PlayAppConfig
+    {
+        /// <summary>
+        /// Id of the app.
+        /// </summary>
+        public string AppId;
     }
 
     /// <summary>

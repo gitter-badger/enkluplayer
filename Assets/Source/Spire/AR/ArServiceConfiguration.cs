@@ -41,5 +41,15 @@ namespace CreateAR.SpirePlayer.AR
         /// Material for rendering camera feed.
         /// </summary>
         public Material CameraMaterial;
+
+        /// <summary>
+        /// Minimum seconds to search.
+        /// </summary>
+        public int MinSearchSec = 3;
+
+        /// <summary>
+        /// Maxiumum seconds to search.
+        /// </summary>
+        public int MaxSearchSec = 20;
     }
 }

@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using System;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
@@ -11,8 +12,8 @@ namespace CreateAR.SpirePlayer
         /// Props.
         /// </summary>
         private readonly ElementSchemaProp<float> _propFrameScale;
-        private readonly ElementSchemaProp<int> _propFrameColor;
-        private readonly ElementSchemaProp<int> _propTween;
+        private readonly ElementSchemaProp<string> _propFrameColor;
+        private readonly ElementSchemaProp<string> _propTween;
 
         /// <summary>
         /// Color of the button during this state.
@@ -21,7 +22,16 @@ namespace CreateAR.SpirePlayer
         {
             get
             {
-                return (VirtualColor)_propFrameColor.Value;
+                try
+                {
+                    return (VirtualColor) Enum.Parse(
+                        typeof(VirtualColor),
+                        _propFrameColor.Value);
+                }
+                catch
+                {
+                    return VirtualColor.Disabled;
+                }
             }
         }
 
@@ -43,7 +53,16 @@ namespace CreateAR.SpirePlayer
         {
             get
             {
-                return (TweenType)_propTween.Value;
+                try
+                {
+                    return (TweenType) Enum.Parse(
+                        typeof(TweenType),
+                        _propTween.Value);
+                }
+                catch
+                {
+                    return TweenType.Responsive;
+                }
             }
         }
 
@@ -54,8 +73,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="tween">Tween prop.</param>
         /// <param name="frameScale">Frame scale prop.</param>
         public ActivatorState(
-            ElementSchemaProp<int> frameColor,
-            ElementSchemaProp<int> tween,
+            ElementSchemaProp<string> frameColor,
+            ElementSchemaProp<string> tween,
             ElementSchemaProp<float> frameScale)
         {
             _propFrameColor = frameColor;

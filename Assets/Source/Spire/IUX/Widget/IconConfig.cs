@@ -5,6 +5,8 @@ namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Manages icons.
+    /// 
+    /// TODO: Move to resources and use src.
     /// </summary>
     [Serializable]
     public class IconConfig

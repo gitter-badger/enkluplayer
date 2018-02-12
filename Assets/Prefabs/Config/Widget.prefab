@@ -189,6 +189,13 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 3a8171ed0b21eb44e91156399c41ed24, type: 3}
     - {fileID: 21300000, guid: baf41c2c48d622948bc93eb03481e6a7, type: 3}
     - {fileID: 21300000, guid: cf579be53edf3554399dcd88d76d5537, type: 3}
+    - {fileID: 21300000, guid: 0596416de99945b4dbce0976349a17be, type: 3}
+    - {fileID: 21300000, guid: 4035f1ab0be094245adeb8a03e0566b4, type: 3}
+    - {fileID: 21300000, guid: 7d8dd6a5de27b3e4f91c8b90842d3ba9, type: 3}
+    - {fileID: 21300000, guid: 47d2bd846637a5a4cbabbf30edc10f43, type: 3}
+    - {fileID: 21300000, guid: 46fff84858ba4c24db4fb4bfd464b7af, type: 3}
+    - {fileID: 21300000, guid: 5bb770a9084d0fa409a83cbebdc64d1a, type: 3}
+    - {fileID: 21300000, guid: f4850e7189636ec47b39e30b5fcdb964, type: 3}
   AimFeedbackColor:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 0}
@@ -469,26 +476,14 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   CrawlFadeOutDepthScale: 5
-  ButtonReady:
-    Color: 1
-    CaptionColor: 4
-    Scale: {x: 1, y: 1, z: 1}
-    Tween: 1
-  ButtonActivating:
-    Color: 2
-    CaptionColor: 2
-    Scale: {x: 1.1, y: 1.1, z: 1.1}
-    Tween: 1
-  ButtonActivated:
-    Color: 2
-    CaptionColor: 2
-    Scale: {x: 1, y: 1, z: 1}
-    Tween: 1
   Text: {fileID: 114448120540335030, guid: 501ef06376b78954e9f6d81bcec3af57, type: 2}
   Reticle: {fileID: 114002837979368224, guid: 11a8156d5a2eb894286737b838756e38, type: 2}
   Activator: {fileID: 114629216621896330, guid: aa4acfa93557f6b41875423ab4c10aa4,
     type: 2}
   Float: {fileID: 114891288986271038, guid: e46ef3829b3cce546833a7154aa2c318, type: 2}
   HalfMoon: {fileID: 224793317094499598, guid: 36fa325fc61364646a0e467d65879938, type: 2}
+  GridShell: {fileID: 224793317094499598, guid: d3d24646e4585dc4586c9e0a5fb58a60,
+    type: 2}
+  Image: {fileID: 1595879130462960, guid: f9aad1ccf2c5e5e40b879a3b37c8aaf9, type: 2}
   DesignMenu: {fileID: 4900000, guid: bdfddba0a0fcb5f41b4051ccaeaae723, type: 3}
   PlayMenu: {fileID: 4900000, guid: 67608bf5e2dec664a802b806644825b8, type: 3}

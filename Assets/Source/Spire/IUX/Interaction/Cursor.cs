@@ -12,6 +12,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Dependencies.
         /// </summary>
         private readonly IIntentionManager _intention;
+        private readonly IInteractionManager _interaction;
         private readonly IPrimitiveFactory _primitives;
 
         /// <summary>
@@ -58,15 +59,17 @@ namespace CreateAR.SpirePlayer.IUX
         /// Constructor.
         /// </summary>
         public Cursor(
+            GameObject gameObject,
             WidgetConfig config,
-            IPrimitiveFactory primitives,
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
             IMessageRouter messages,
-            IIntentionManager intention)
+            IIntentionManager intention,
+            IInteractionManager interaction,
+            IPrimitiveFactory primitives)
             : base(
-                new GameObject("Cursor"),
+                gameObject,
                 config,
                 layers,
                 tweens,
@@ -74,15 +77,16 @@ namespace CreateAR.SpirePlayer.IUX
                 messages)
         {
             _intention = intention;
+            _interaction = interaction;
             _primitives = primitives;
         }
 
         /// <summary>
         /// Initialization
         /// </summary>
-        protected override void AfterLoadChildrenInternal()
+        protected override void LoadInternalAfterChildren()
         {
-            base.AfterLoadChildrenInternal();
+            base.LoadInternalAfterChildren();
 
             _reticle = _primitives.Reticle();
             _reticle.Parent = this;
@@ -111,8 +115,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateVisibility()
         {
-            LocalVisible = true;
-            // && Widgets.GetVisibleCount<InteractableWidget>() > 0;
+            LocalVisible = _interaction.Visible.Count > 0;
         }
 
         /// <summary>
@@ -175,7 +178,7 @@ namespace CreateAR.SpirePlayer.IUX
 
                 cursorPosition = Vec3.Lerp(
                     cursorPosition,
-                    interactive.GameObject.transform.position.ToVec(),
+                    interactive.Focus,
                     aimMagnet);
             }
 
@@ -193,10 +196,10 @@ namespace CreateAR.SpirePlayer.IUX
             var targetFocusDistance = Config.GetDefaultDistanceForCursor();
 
             var interactive = _intention.Focus;
-            if (interactive != null && interactive.GameObject != null)
+            if (interactive != null)
             {
                 // focus on the focus widget
-                var pos = interactive.GameObject.transform.position.ToVec();
+                var pos = interactive.Focus;
                 var eyeDeltaToFocusWidget = pos - eyePosition;
                 targetFocusDistance = eyeDeltaToFocusWidget.Magnitude;
             }
@@ -224,14 +227,13 @@ namespace CreateAR.SpirePlayer.IUX
             _aim = 0.0f;
 
             var interactive = _intention.Focus;
-            var activator = (interactive);
-            if (activator != null)
+            if (null != interactive)
             {
-                _aim = activator.Aim;
+                _aim = interactive.Aim;
             }
 
-            var buttonScale = interactive != null && interactive.GameObject != null
-                ? interactive.GameObject.transform.lossyScale.x
+            var buttonScale = interactive != null
+                ? interactive.FocusScale.x
                 : 1.0f;
 
             _spread = Config.GetReticleSpreadFromAim(_aim) * buttonScale;

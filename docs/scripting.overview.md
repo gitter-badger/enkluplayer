@@ -1,4 +1,4 @@
-# Overview
+### Overview
 
 The intent of the `spireplayer` scripting system is to allow content creators to write scripts that are able to be run on any platform without a new build. This flexible scripting system will also help iteration speed, even without hotloading of scripts.
 
@@ -10,21 +10,21 @@ To that end, we've chosen `javascript` as the language of choice for this task. 
 
 [Jint](https://github.com/sebastienros/jint) is a JS parser and interpreter written entirely in C#. Jint is important because it supports ES5 (soon ES6) and does not JIT code. There were other choices, but Jint was the easiest to get running in a restricted Unity environment.
 
-# Usage
+### Usage
 
-### ScriptManager
+##### ScriptManager
 
 `IScriptManager` is the entry point into the scripting system. Scripts are preloaded using the `Asset` system, then created and managed via `IScriptManager`. Scripts are actually executed via `MonoBehaviourSpireScript`, which adds some APIs useful for working in Unity.
 
-### UnityScriptingHost
+##### UnityScriptingHost
 
 `UnityScriptingHost` is an extension of Jint's `Engine` class. The scripting host adds some useful APIs like logging and require. The scripting host should generally not be touched.
 
-### Script Logic
+##### Script Logic
 
 `Jint` can parse and interpret any ES5 compatible code. Soon, it will have ES6 support, which will allow for mostly syntactic benefits. Because of this, feel free to write logic just like you would on any JS interpreter.
 
-### Require
+##### Require
 
 The `require` method is something common to `RequireJS` or `CommonJS` module systems, except that this one also supports C# interop very easily. Essentially, `require` allows you to include another script by id. In order to prepare a script for include, however, it needs to use the common `module.exports` method made popular by `node`.
 
@@ -62,7 +62,7 @@ Useful JS scripts can be put in Resources, then loaded via path instead of id:
 
 `var fsm = require("Resources/Common/StateMachine")();`
 
-### JsInterface
+##### JsInterface
 
 To call C# scripts from JS, use the `JsInterface` attribute on top of your class. This will automatically provide your class to JS scripts.
 
@@ -133,3 +133,7 @@ void Subscribe(Engine engine, string type, Func<JsValue, JsValue[], JsValue> cal
                 });
 }
 ```
+
+### Further Reading
+
+* [Ideas](scripting.ideas.md)

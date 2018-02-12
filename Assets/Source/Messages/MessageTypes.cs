@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
@@ -93,6 +94,7 @@ namespace CreateAR.SpirePlayer
         ///////////////////////////////////////////////////////////////////////
         public const int WIDGET_FOCUS = 10100;
         public const int WIDGET_UNFOCUS = 10101;
-        public const int BUTTON_ACTIVATE = 10102;
+
+        public const int BUTTON_ACTIVATE = 10200;
     }
 }

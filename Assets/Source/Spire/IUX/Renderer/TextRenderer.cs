@@ -10,9 +10,9 @@ namespace CreateAR.SpirePlayer.IUX
     public class TextRenderer : MonoBehaviour
     {
         /// <summary>
-        /// Alignment types
+        /// Alignment.
         /// </summary>
-        private int _alignment = AlignmentTypes.MID_LEFT;
+        private TextAlignmentType _alignment;
 
         /// <summary>
         /// Unity text rendering.
@@ -22,12 +22,16 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Alignment accessor/mutator.
         /// </summary>
-        public int Alignment
+        public TextAlignmentType Alignment
         {
-            get { return _alignment; }
+            get
+            {
+                return _alignment;
+            }
             set
             {
                 _alignment = value;
+
                 RefreshAlignment();
             }
         }
@@ -57,61 +61,61 @@ namespace CreateAR.SpirePlayer.IUX
         {
             switch (_alignment)
             {
-                case AlignmentTypes.MID_CENTER:
+                case TextAlignmentType.MidCenter:
                 {
                     Text.rectTransform.pivot = new Vector2(0.5f, 0.5f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
                 }
 
-                case AlignmentTypes.TOP_LEFT:
+                case TextAlignmentType.TopLeft:
                 {
-                    Text.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                    Text.rectTransform.pivot = new Vector2(0f, 0f);
                     Text.alignment = TextAnchor.UpperLeft;
                     break;
                 }
 
-                case AlignmentTypes.TOP_CENTER:
+                case TextAlignmentType.TopCenter:
                 {
                     Text.rectTransform.pivot = new Vector2(0.5f, 0.0f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
                 }
 
-                case AlignmentTypes.TOP_RIGHT:
+                case TextAlignmentType.TopRight:
                 {
                     Text.rectTransform.pivot = new Vector2(1.0f, 0.0f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
                 }
 
-                case AlignmentTypes.MID_RIGHT:
+                case TextAlignmentType.MidRight:
                 {
                     Text.rectTransform.pivot = new Vector2(1.0f, 0.5f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
                 }
 
-                case AlignmentTypes.BOT_RIGHT:
+                case TextAlignmentType.BotRight:
                     Text.rectTransform.pivot = new Vector2(1.0f, 1.0f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
 
-                case AlignmentTypes.BOT_CENTER:
+                case TextAlignmentType.BotCenter:
                 {
                     Text.rectTransform.pivot = new Vector2(0.5f, 1.0f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
                 }
 
-                case AlignmentTypes.BOT_LEFT:
+                case TextAlignmentType.BotLeft:
                 {
                     Text.rectTransform.pivot = new Vector2(0.0f, 1.0f);
                     Text.alignment = TextAnchor.MiddleCenter;
                     break;
                 }
 
-                case AlignmentTypes.MID_LEFT:
+                case TextAlignmentType.MidLeft:
                 {
                     Text.rectTransform.pivot = new Vector2(0.5f, 0.5f);
                     Text.alignment = TextAnchor.MiddleLeft;

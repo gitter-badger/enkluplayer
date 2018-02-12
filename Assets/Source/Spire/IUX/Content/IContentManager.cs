@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="contentId">Unique id of the <c>ContentData</c>.</param>
         /// <param name="content">List to add instances to.</param>
-        void FindAll(string contentId, List<Content> content);
+        void FindAll(string contentId, List<ContentWidget> content);
 
         /// <summary>
         /// Finds the shared instance of <c>Content</c> for a unique
@@ -20,7 +20,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="contentId"><c>ContentData</c> id.</param>
         /// <returns></returns>
-        Content FindShared(string contentId);
+        ContentWidget FindShared(string contentId);
 
         /// <summary>
         /// Requests a <c>Content</c> instance by id.
@@ -29,7 +29,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="tags">Associated meta. These are kept with the instance
         /// so that it may be cleaned up later.</param>
         /// <returns></returns>
-        Content Request(string contentId, params string[] tags);
+        ContentWidget Request(string contentId, params string[] tags);
 
         /// <summary>
         /// Releases an instance of <c>Content</c>. If the instance is shared,
@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer
         /// called.
         /// </summary>
         /// <param name="content">The content to release.</param>
-        void Release(Content content);
+        void Release(ContentWidget content);
 
         /// <summary>
         /// Releases all <c>Content</c> that have no tags other than these. This

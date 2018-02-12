@@ -54,7 +54,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Manages interactable objects.
         /// </summary>
         [Inject]
-        public IInteractableManager Interactables { get; set; }
+        public IInteractionManager Interactables { get; set; }
 
         /// <summary>
         /// Current focus.
@@ -143,10 +143,14 @@ namespace CreateAR.SpirePlayer.IUX
             return isLooking;
         }
 
-        /// <summary>
-        /// Updates the focus direction.
-        /// </summary>
-        public void Update()
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void Start()
+        {
+            Interactables.OnRemoved += Interactables_OnRemoved;
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void Update()
         {
             var deltaTime = Time.deltaTime;
 
@@ -283,6 +287,18 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     Focus = null;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Called when an interactable has been removed.
+        /// </summary>
+        /// <param name="interactable">The interactable in question.</param>
+        private void Interactables_OnRemoved(IInteractable interactable)
+        {
+            if (Focus == interactable)
+            {
+                Focus = null;
             }
         }
     }

@@ -26,7 +26,7 @@
             _appData.OnLoaded += () => IsReady = true;
             _appData.OnUnloaded += () => IsReady = false;
 
-            IsReady = !string.IsNullOrEmpty(_appData.LoadedApp);
+            IsReady = true;
         }
     }
 }

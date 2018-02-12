@@ -1,0 +1,10 @@
+<Menu
+	title='Clear All Props?'
+	description='This operation cannot be undone.'
+	header.width=700
+	header.padding=0.4
+	layout.radius=0.25
+	layout.degrees=35.5>
+	<Button id='btn-yes' label='Yes' icon='check' />
+	<Button id='btn-no' label='No' icon='cancel' />
+</Menu>

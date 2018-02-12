@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer.Test.UI
             return null;
         }
 
-        public ActivatorPrimitive Activator(ElementSchema elementSchema)
+        public ActivatorPrimitive Activator(ElementSchema elementSchema, Widget target)
         {
             return null;
         }
@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer.Test.UI
             return null;
         }
 
-        public Float Float(ElementSchema selementSchema)
+        public FloatWidget Float(ElementSchema selementSchema)
         {
             return null;
         }

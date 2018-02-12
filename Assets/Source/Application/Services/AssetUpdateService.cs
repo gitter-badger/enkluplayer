@@ -2,6 +2,7 @@ using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -17,15 +18,22 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
 
         /// <summary>
+        /// Manages elements.
+        /// </summary>
+        private readonly IElementManager _elements;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public AssetUpdateService(
             IBridge bridge,
             IMessageRouter messages,
-            IAssetManager assets)
+            IAssetManager assets,
+            IElementManager elements)
             : base(bridge, messages)
         {
             _assets = assets;
+            _elements = elements;
         }
 
         /// <inheritdoc cref="ApplicationService"/>
@@ -52,9 +60,7 @@ namespace CreateAR.SpirePlayer
         private void Messages_OnAssetUpdate(AssetUpdateEvent @event)
         {
             Log.Info(this, "Update asset.");
-
-            // ImportService marks AssetNames with guid
-            @event.Asset.AssetName = @event.Asset.Guid;
+            
             _assets.Manifest.Update(@event.Asset);
         }
 
@@ -101,6 +107,12 @@ namespace CreateAR.SpirePlayer
             {
                 var asset = assets[i];
 
+                if (null == asset.Stats.Bounds)
+                {
+                    Log.Warning(this, "Invalid asset : {0}.", asset);
+                    continue;
+                }
+
                 FormatAssetData(asset);
 
                 var info = manifest.Data(asset.Guid);
@@ -123,7 +135,7 @@ namespace CreateAR.SpirePlayer
                 var found = false;
                 for (int j = 0, jlen = assets.Length; j < jlen; j++)
                 {
-                    var asset = assets[i];
+                    var asset = assets[j];
                     if (data.Guid == asset.Guid)
                     {
                         found = true;
@@ -144,9 +156,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="asset">The asset received.</param>
         private void FormatAssetData(AssetData asset)
         {
-            // ImportService marks AssetNames with guid
-            asset.AssetName = asset.Guid;
-
             // append build target to URI
             var index = asset.Uri.IndexOf(".bundle", StringComparison.Ordinal);
             asset.Uri = string.Format(

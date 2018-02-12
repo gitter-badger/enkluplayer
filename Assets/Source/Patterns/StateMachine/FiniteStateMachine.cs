@@ -75,11 +75,7 @@ namespace CreateAR.SpirePlayer
                     break;
                 }
             }
-
-            Log.Info(this, "Change({0} -> {1})",
-                null == Current ? "[Null]" : Current.ToString(),
-                null == newState ? "[Null]" : newState.ToString());
-
+            
             if (null != Current)
             {
                 Current.Exit();

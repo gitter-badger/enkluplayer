@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Logging;
@@ -12,19 +14,19 @@ namespace CreateAR.SpirePlayer.IUX
     /// Flows:
     /// 
     /// Load()
-    ///     > BeforeLoadChildrenInternal
-    ///     > Children > Load()
-    ///     > AfterLoadChildrenInternal
+    ///     > LoadInternalBeforeChildren
+    ///     > Children > AddChild()
+    ///     > LoadInternalAfterChildren
     /// 
     /// Unload()
-    ///     > BeforeUnloadChildrenInternal
+    ///     > UnloadInternalBeforeChildren
     ///     > Children > Unload()
-    ///     > AfterUnloadChildrenInternal
+    ///     > UnloadInternalAfterChildren
     /// 
     /// Destroy()
-    ///     > BeforeUnloadChildrenInternal
+    ///     > UnloadInternalBeforeChildren
     ///     > Children > Destroy()
-    ///     > AfterUnloadChildrenInternal 
+    ///     > UnloadInternalAfterChildren 
     ///     > DestroyInternal
     /// 
     /// </summary>
@@ -39,6 +41,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Scratch list for FindAll.
         /// </summary>
         private readonly List<Element> _findAllScratch = new List<Element>();
+        
+        /// <summary>
+        /// Id prop.
+        /// </summary>
+        private ElementSchemaProp<string> _idProp;
 
         /// <summary>
         /// Unique internal id for this element.
@@ -49,7 +56,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Unique id stored in data for this element.
         /// </summary>
         public string Id { get; private set; }
-
+        
         /// <summary>
         /// State.
         /// </summary>
@@ -58,14 +65,13 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Copy of children collection.
         /// </summary>
-        public Element[] Children
-        {
-            get
-            {
-                return _children.ToArray();
-            }
-        }
+        public ReadOnlyCollection<Element> Children { get; private set; }
         
+        /// <summary>
+        /// The element's parent.
+        /// </summary>
+        public Element Parent { get; private set; }
+
         /// <summary>
         /// Invoked when element is destroyed.
         /// </summary>
@@ -91,6 +97,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public Element()
         {
+            Children = new ReadOnlyCollection<Element>(_children);
             Schema = new ElementSchema("Unknown");
         }
         
@@ -131,11 +138,14 @@ namespace CreateAR.SpirePlayer.IUX
             Element[] children)
         {
             Guid = System.Guid.NewGuid().ToString();
-            Id = data.Id;
             Schema = schema;
-            Schema.Identifier = data.Id;
 
-            BeforeLoadChildrenInternal();
+            _idProp = schema.GetOwn("id", data.Id ?? Guid);
+            _idProp.OnChanged += Id_OnChange;
+
+            Id = Schema.Identifier = _idProp.Value;
+
+            LoadInternalBeforeChildren();
 
             // child schemas wrap parent
             for (int i = 0, len = children.Length; i < len; i++)
@@ -148,17 +158,17 @@ namespace CreateAR.SpirePlayer.IUX
                 }
             }
 
-            Log.Info(this, "Load({0})", Guid);
+            LogVerbose("Load({0})", Guid);
 
-            AfterLoadChildrenInternal();
+            LoadInternalAfterChildren();
         }
 
         /// <summary>
         /// Unloads for reuse.
         /// </summary>
-        internal void Unload()
+        public void Unload()
         {
-            BeforeUnloadChildrenInternal();
+            UnloadInternalBeforeChildren();
 
             // unload children first
             for (var i = _children.Count - 1; i >= 0; i--)
@@ -167,10 +177,11 @@ namespace CreateAR.SpirePlayer.IUX
             }
             _children.Clear();
 
-            Log.Info(this, "Unload({0})", Guid);
+            LogVerbose("Unload({0})", Guid);
+            
+            UnloadInternalAfterChildren();
 
-            AfterUnloadChildrenInternal();
-
+            _idProp.OnChanged -= Id_OnChange;
             Id = string.Empty;
 
             // TODO: create on Load(), NOT constructor/Unload
@@ -198,17 +209,19 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public void Destroy()
         {
-            BeforeUnloadChildrenInternal();
+            UnloadInternalBeforeChildren();
 
             // destroy children
             for (var i = _children.Count - 1; i >= 0; i--)
             {
-                _children[i].Destroy();
+                var child = _children[i];
+                child.OnDestroyed -= Child_OnDestroyed;
+                child.Destroy();
             }
 
-            Log.Info(this, "Destroy({0})", Guid);
+            LogVerbose("Destroy({0})", Guid);
 
-            AfterUnloadChildrenInternal();
+            UnloadInternalAfterChildren();
             DestroyInternal();
 
             if (OnDestroyed != null)
@@ -235,12 +248,15 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 element.OnChildAdded -= Child_OnChildAdded;
                 element.OnChildRemoved -= Child_OnChildRemoved;
+                element.OnDestroyed -= Child_OnDestroyed;
                 _children.RemoveAt(index);
             }
 
             _children.Add(element);
+            element.Parent = this;
             element.OnChildAdded += Child_OnChildAdded;
             element.OnChildRemoved += Child_OnChildRemoved;
+            element.OnDestroyed += Child_OnDestroyed;
 
             // hook up schema
             element.Schema.Wrap(Schema);
@@ -268,8 +284,10 @@ namespace CreateAR.SpirePlayer.IUX
             var removed = _children.Remove(element);
             if (removed)
             {
+                element.Parent = null;
                 element.OnChildAdded -= Child_OnChildAdded;
                 element.OnChildRemoved -= Child_OnChildRemoved;
+                element.OnDestroyed -= Child_OnDestroyed;
 
                 // unwrap schema
                 element.Schema.Wrap(null);
@@ -433,7 +451,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// For base classes to override.
         /// </summary>
-        protected virtual void BeforeLoadChildrenInternal()
+        protected virtual void LoadInternalBeforeChildren()
         {
 
         }
@@ -441,7 +459,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// For base classes to override.
         /// </summary>
-        protected virtual void AfterLoadChildrenInternal()
+        protected virtual void LoadInternalAfterChildren()
         {
             
         }
@@ -449,7 +467,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// For base classes to override.
         /// </summary>
-        protected virtual void BeforeUnloadChildrenInternal()
+        protected virtual void UnloadInternalBeforeChildren()
         {
 
         }
@@ -457,7 +475,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// For base classes to override.
         /// </summary>
-        protected virtual void AfterUnloadChildrenInternal()
+        protected virtual void UnloadInternalAfterChildren()
         {
 
         }
@@ -512,7 +530,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             // test children
             var children = element.Children;
-            for (int i = 0, len = children.Length; i < len; i++)
+            for (int i = 0, len = children.Count; i < len; i++)
             {
                 var child = children[i];
                 if (query.Execute(child))
@@ -531,7 +549,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void ExecuteQueryRecursive(Element element, ElementQuery query, List<Element> results)
         {
             var children = element.Children;
-            for (int i = 0, len = children.Length; i < len; i++)
+            for (int i = 0, len = children.Count; i < len; i++)
             {
                 var child = children[i];
                 if (query.Execute(child))
@@ -570,6 +588,15 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Called when an immediate child has been destroyed.
+        /// </summary>
+        /// <param name="element">The child element.</param>
+        private void Child_OnDestroyed(Element element)
+        {
+            RemoveChild(element);
+        }
+
+        /// <summary>
         /// Recursive append method.
         /// </summary>
         /// <param name="builder">Constructs strings.</param>
@@ -588,10 +615,33 @@ namespace CreateAR.SpirePlayer.IUX
             builder.AppendFormat("{0}\n", element);
 
             var children = element.Children;
-            for (int i = 0, len = children.Length; i < len; i++)
+            for (int i = 0, len = children.Count; i < len; i++)
             {
                 Append(builder, children[i], tabs + 1);
             }
+        }
+
+        /// <summary>
+        /// Called when the id changes.
+        /// </summary>
+        /// <param name="prop">Prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Id_OnChange(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            Id = next;
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        [Conditional("VERBOSE_LOGGING")]
+        private void LogVerbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

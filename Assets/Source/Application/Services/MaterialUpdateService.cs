@@ -104,7 +104,7 @@ namespace CreateAR.SpirePlayer
         {
             // find content using this material + update
             var materialId = materialData.Id;
-            var matches = new List<Content>();
+            var matches = new List<ContentWidget>();
             var allContentData = _appData.GetAll<ContentData>();
             for (int i = 0, ilen = allContentData.Length; i < ilen; i++)
             {

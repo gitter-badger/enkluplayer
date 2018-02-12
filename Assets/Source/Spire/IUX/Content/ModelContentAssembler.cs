@@ -3,7 +3,6 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -89,6 +88,11 @@ namespace CreateAR.SpirePlayer
         {
             _data = data;
 
+            if (null == _data)
+            {
+                return;
+            }
+
             WatchMainAsset();
 
             var material = _appData.Get<MaterialData>(_data.MaterialId);
@@ -131,6 +135,9 @@ namespace CreateAR.SpirePlayer
             _progress.HideIndicator(_progressIndicatorId);
         }
 
+        /// <summary>
+        /// Watches main asset changes.
+        /// </summary>
         private void WatchMainAsset()
         {
             // get the corresponding asset
@@ -204,7 +211,7 @@ namespace CreateAR.SpirePlayer
             _instance = _pools.Get<GameObject>(value);
 
             // apply material
-            ApplyMaterial(_instance, _materialLoader.Material);
+            //ApplyMaterial(_instance, _materialLoader.Material);
 
             // asset is loaded
             if (null != OnAssemblyComplete)

@@ -60,7 +60,8 @@ namespace CreateAR.SpirePlayer.Assets
                 loader.Load();
             }
 
-            return loader.Asset(data.AssetName, out progress);
+            // AssetImportServer uses the Guid
+            return loader.Asset(data.Guid, out progress);
         }
 
         /// <inheritdoc cref="IAssetLoader"/>

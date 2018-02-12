@@ -6,7 +6,7 @@
     public static class FileProtocols
     {
         /// <summary>
-        /// For getting app data.
+        /// Protocol for app data.
         /// </summary>
         public const string APP = "app://";
     }

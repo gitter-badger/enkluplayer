@@ -8,6 +8,11 @@ namespace CreateAR.SpirePlayer.IUX
     public class ActivatorActivatedState : ActivatorState
     {
         /// <summary>
+        /// The target for events.
+        /// </summary>
+        private readonly Widget _target;
+
+        /// <summary>
         /// Activator.
         /// </summary>
         private readonly ActivatorPrimitive _activator;
@@ -20,18 +25,21 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
+        /// <param name="target">When dispatching events, this object will be the target.</param>
         /// <param name="activator">Activator.</param>
         /// <param name="messages">Routes messages.</param>
         /// <param name="schema">Schema to use.</param>
         public ActivatorActivatedState(
+            Widget target,
             ActivatorPrimitive activator,
             IMessageRouter messages,
             ElementSchema schema)
             : base(
-                schema.Get<int>("activated.frameColor"),
-                schema.Get<int>("activated.tween"),
+                schema.Get<string>("activated.color"),
+                schema.Get<string>("activated.tween"),
                 schema.Get<float>("activated.frameScale"))
         {
+            _target = target;
             _activator = activator;
             _messages = messages;
         }
@@ -45,7 +53,7 @@ namespace CreateAR.SpirePlayer.IUX
             _activator.AimEnabled = false;
             _messages.Publish(
                 MessageTypes.BUTTON_ACTIVATE,
-                new ButtonActivateEvent());
+                new ButtonActivateEvent(_target));
         }
 
         /// <summary>
@@ -58,7 +66,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (!_activator.Focused)
             {
-                _activator.ChangeState<ActivatorReadyState>();
+                _activator.Ready();
             }
         }
 

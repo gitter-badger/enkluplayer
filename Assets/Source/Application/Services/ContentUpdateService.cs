@@ -53,7 +53,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="event">The event.</param>
         private void OnContentAddEvent(ContentAddEvent @event)
         {
-            Log.Info(this, "Add content.");
+            Log.Info(this, "Add content {0}.", @event.Content.Id);
 
             _appData.Add(@event.Content);
         }
