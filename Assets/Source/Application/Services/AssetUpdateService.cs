@@ -2,6 +2,7 @@ using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -17,15 +18,22 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
 
         /// <summary>
+        /// Manages elements.
+        /// </summary>
+        private readonly IElementManager _elements;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public AssetUpdateService(
             IBridge bridge,
             IMessageRouter messages,
-            IAssetManager assets)
+            IAssetManager assets,
+            IElementManager elements)
             : base(bridge, messages)
         {
             _assets = assets;
+            _elements = elements;
         }
 
         /// <inheritdoc cref="ApplicationService"/>

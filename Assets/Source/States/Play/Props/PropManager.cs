@@ -235,7 +235,7 @@ namespace CreateAR.SpirePlayer
 
             return Async.Map(
                 bucket
-                    .Save(element)
+                    .Save(new ElementData(element))
                     .OnFailure(exception =>
                     {
                         Log.Error(this, string.Format(

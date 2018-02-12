@@ -135,6 +135,9 @@ namespace CreateAR.SpirePlayer
             _progress.HideIndicator(_progressIndicatorId);
         }
 
+        /// <summary>
+        /// Watches main asset changes.
+        /// </summary>
         private void WatchMainAsset()
         {
             // get the corresponding asset

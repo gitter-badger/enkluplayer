@@ -36,10 +36,57 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Copy constructor only provided for internal use.
+        /// Creates elementdata from an element.
+        /// </summary>
+        /// <param name="element">The element.</param>
+        public ElementData(Element element)
+        {
+            Id = element.Id;
+            Type = ElementTypes.TypeFromElement(element);
+            Schema = new ElementSchemaData();
+
+            foreach (var prop in element.Schema)
+            {
+                var type = prop.Type;
+                if (typeof(int) == type)
+                {
+                    Schema.Ints[prop.Name] = ((ElementSchemaProp<int>) prop).Value;
+                }
+                else if (typeof(float) == type)
+                {
+                    Schema.Floats[prop.Name] = ((ElementSchemaProp<float>) prop).Value;
+                }
+                else if (typeof(bool) == type)
+                {
+                    Schema.Bools[prop.Name] = ((ElementSchemaProp<bool>) prop).Value;
+                }
+                else if (typeof(string) == type)
+                {
+                    Schema.Strings[prop.Name] = ((ElementSchemaProp<string>) prop).Value;
+                }
+                else if (typeof(Col4) == type)
+                {
+                    Schema.Colors[prop.Name] = ((ElementSchemaProp<Col4>) prop).Value;
+                }
+                else if (typeof(Vec3) == type)
+                {
+                    Schema.Vectors[prop.Name] = ((ElementSchemaProp<Vec3>) prop).Value;
+                }
+            }
+
+            var numChildren = element.Children.Count;
+            Children = new ElementData[numChildren];
+            for (var i = 0; i < numChildren; i++)
+            {
+                Children[i] = new ElementData(element.Children[i]);
+            }
+        }
+
+        /// <summary>
+        /// Copy constructor.
         /// </summary>
         /// <param name="data">The data to create this from.</param>
-        internal ElementData(ElementData data)
+        public ElementData(ElementData data)
         {
             Id = data.Id;
             Type = data.Type;

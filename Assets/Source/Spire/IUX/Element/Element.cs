@@ -56,7 +56,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Unique id stored in data for this element.
         /// </summary>
         public string Id { get; private set; }
-
+        
         /// <summary>
         /// State.
         /// </summary>
