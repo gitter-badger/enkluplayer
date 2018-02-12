@@ -1,5 +1,6 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -43,15 +44,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private bool _isDirty;
 
-        /// <summary>
-        /// The PropData.
-        /// </summary>
-        public PropData Data { get; private set; }
+        private ElementSchemaProp<Vec3> _positionProp;
+        private ElementSchemaProp<Vec3> _rotationProp;
+        private ElementSchemaProp<Vec3> _scaleProp;
 
         /// <summary>
-        /// The ContentWidget.
+        /// The Element.
         /// </summary>
-        public ContentWidget Content { get; private set; }
+        public Element Element { get; private set; }
 
         /// <summary>
         /// Called when prop adjust is requested.
@@ -61,22 +61,20 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes the controller. Updates are sent through the delegate.
         /// </summary>
-        /// <param name="data">The data to edit.</param>
-        /// <param name="content">The content to watch.</param>
+        /// <param name="element">The elementto watch.</param>
         /// <param name="delegate">The delegate to push events through.</param>
         public void Initialize(
-            PropData data,
-            ContentWidget content,
+            Element element,
             IPropUpdateDelegate @delegate)
         {
-            Data = data;
-            Content = content;
-            
+            Element = element;
             _delegate = @delegate;
 
-            InitializeSplashMenu();
+            _positionProp = Element.Schema.Get<Vec3>("position");
+            _rotationProp = Element.Schema.Get<Vec3>("rotation");
+            _scaleProp = Element.Schema.Get<Vec3>("scale");
 
-            Resync(Data);
+            InitializeSplashMenu();
         }
 
         /// <summary>
@@ -84,27 +82,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Uninitialize()
         {
-            Data = null;
-            Content = null;
+            Element = null;
 
             _delegate = null;
         }
-
-        /// <summary>
-        /// Forcibly resyncs. Should only be called between Initialize and Uninitialize.
-        /// </summary>
-        /// <param name="data">The PropData to sync with.</param>
-        public void Resync(PropData data)
-        {
-            var trans = Content.GameObject.transform;
-
-            trans.position = data.Position.ToVector();
-            trans.localRotation = Quaternion.Euler(data.Rotation.ToVector());
-            trans.localScale = data.LocalScale.ToVector();
-
-            Data = data;
-        }
-
+        
         /// <summary>
         /// Hides the splash menu.
         /// </summary>
@@ -126,28 +108,23 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void InitializeSplashMenu()
         {
-            _splashController = Content.GameObject.AddComponent<PropSplashController>();
+            _splashController = gameObject.AddComponent<PropSplashController>();
             _splashController.OnOpen += Splash_OnOpen;
-            _splashController.Initialize(Data);
+            _splashController.Initialize(Element.Schema.Get<string>("name").Value);
         }
-
+        
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
         {
-            if (null == Data)
-            {
-                return;
-            }
-
-            var trans = Content.GameObject.transform;
+            var trans = gameObject.transform;
 
             // check for position changes
             {
                 if (!trans.position.Approximately(
-                    Data.Position.ToVector(),
+                    _positionProp.Value.ToVector(),
                     POSITION_EPSILON))
                 {
-                    Data.Position = trans.position.ToVec();
+                    _positionProp.Value = trans.position.ToVec();
 
                     _isDirty = true;
                 }
@@ -156,10 +133,10 @@ namespace CreateAR.SpirePlayer
             // check for rotation changes
             {
                 if (!trans.rotation.eulerAngles.Approximately(
-                    Data.Rotation.ToVector(),
+                    _rotationProp.Value.ToVector(),
                     ROTATION_EPSILON))
                 {
-                    Data.Rotation = trans.rotation.eulerAngles.ToVec();
+                    _rotationProp.Value = trans.rotation.eulerAngles.ToVec();
 
                     _isDirty = true;
                 }
@@ -168,10 +145,10 @@ namespace CreateAR.SpirePlayer
             // check for scale changes
             {
                 if (!trans.localScale.Approximately(
-                    Data.LocalScale.ToVector(),
+                    _scaleProp.Value.ToVector(),
                     SCALE_EPSILON))
                 {
-                    Data.LocalScale = trans.localScale.ToVec();
+                    _scaleProp.Value = trans.localScale.ToVec();
 
                     _isDirty = true;
                 }
@@ -185,11 +162,11 @@ namespace CreateAR.SpirePlayer
                 _isDirty = false;
                 _lastSave = now;
 
-                _saveToken = _delegate.Update(Data);
+                _saveToken = _delegate.Update(Element);
                 _saveToken.OnFinally(_ => _saveToken = null);
             }
         }
-
+        
         /// <summary>
         /// Called when the splash requests to open.
         /// </summary>

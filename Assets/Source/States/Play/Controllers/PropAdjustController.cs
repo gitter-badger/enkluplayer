@@ -107,20 +107,19 @@ namespace CreateAR.SpirePlayer
             if (SliderX.Visible)
             {
                 var offset = BtnX.GameObject.transform.position - Container.GameObject.transform.position;
-                _controller.Content.GameObject.transform.position = SliderX.Focus.ToVector() - offset;
+                _controller.transform.position = SliderX.Focus.ToVector() - offset;
             }
 
             if (SliderY.Visible)
             {
                 var offset = BtnY.GameObject.transform.position - Container.GameObject.transform.position;
-                _controller.Content.GameObject.transform.position = SliderY.Focus.ToVector() - offset;
+                _controller.transform.position = SliderY.Focus.ToVector() - offset;
             }
 
             if (SliderZ.Visible)
             {
                 var zScale = 10;
-                _controller.Content.GameObject.transform.position =
-                    _startPosition + new Vector3(0, 0, (SliderZ.Value - 0.5f) * zScale);
+                _controller.transform.position = _startPosition + new Vector3(0, 0, (SliderZ.Value - 0.5f) * zScale);
             }
 
             if (SliderScale.Visible)
@@ -128,14 +127,14 @@ namespace CreateAR.SpirePlayer
                 const float scaleDiff = 2f;
                 var start = _startScale.x;
                 var val = start + (SliderScale.Value - 0.5f) * scaleDiff;
-                _controller.Content.GameObject.transform.localScale = val * Vector3.one;
+                _controller.transform.localScale = val * Vector3.one;
             }
 
             if (SliderRotate.Visible)
             {
                 var start = _startRotation.y;
                 var val = start + (SliderRotate.Value - 0.5f) * 360;
-                _controller.Content.GameObject.transform.localRotation = Quaternion.Euler(0, val, 0);
+                _controller.transform.localRotation = Quaternion.Euler(0, val, 0);
             }
         }
 
@@ -144,7 +143,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ResetMenuPosition()
         {
-            transform.position = _controller.Content.GameObject.transform.position;
+            transform.position = _controller.transform.position;
         }
 
         /// <summary>
@@ -216,7 +215,7 @@ namespace CreateAR.SpirePlayer
         {
             Container.LocalVisible = false;
 
-            _startRotation = _controller.Content.GameObject.transform.localRotation.eulerAngles;
+            _startRotation = _controller.transform.localRotation.eulerAngles;
             SliderRotate.LocalVisible = true;
         }
 
@@ -227,7 +226,7 @@ namespace CreateAR.SpirePlayer
         {
             Container.LocalVisible = false;
 
-            _startScale = _controller.Content.GameObject.transform.localScale;
+            _startScale = _controller.transform.localScale;
             SliderScale.LocalVisible = true;
         }
         
@@ -254,7 +253,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
-            _startPosition = _controller.Content.GameObject.transform.position;
+            _startPosition = _controller.transform.position;
 
             Container.LocalVisible = false;
             SliderZ.LocalVisible = true;

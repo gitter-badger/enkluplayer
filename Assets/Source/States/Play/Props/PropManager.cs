@@ -86,10 +86,10 @@ namespace CreateAR.SpirePlayer
                     var props = _storage.FindAll(_appId + "." + PROPSET_TAG);
 
                     // load all PropData from buckets
-                    var tokens = new List<IAsyncToken<PropData>>();
+                    var tokens = new List<IAsyncToken<ElementData>>();
                     for (var i = 0; i < props.Length; i++)
                     {
-                        tokens.Add(props[i].Value<PropData>());
+                        tokens.Add(props[i].Value<ElementData>());
                     }
 
                     // wait for all loads to complete
@@ -137,7 +137,7 @@ namespace CreateAR.SpirePlayer
                 _elements,
                 this, this,
                 Guid.NewGuid().ToString(),
-                new PropData[0]);
+                new ElementData[0]);
 
             _sets.Add(propSet);
 
@@ -166,7 +166,7 @@ namespace CreateAR.SpirePlayer
             {
                 var prop = props[i];
 
-                tokens.Add(set.Destroy(prop.Data.Id));
+                tokens.Add(set.Destroy(prop.Element.Id));
             }
 
             _sets.Remove(set);
@@ -177,7 +177,7 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Add(PropSet set, PropData data)
+        public IAsyncToken<Void> Add(PropSet set, ElementData data)
         {
             var id = data.Id;
             if (_props.ContainsKey(id))
@@ -198,16 +198,16 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Remove(PropSet set, PropData data)
+        public IAsyncToken<Void> Remove(PropSet set, Element element)
         {
-            var id = data.Id;
+            var id = element.Id;
 
             StorageBucket bucket;
             if (!_props.TryGetValue(id, out bucket))
             {
                 return new AsyncToken<Void>(new Exception(string.Format(
                     "Could not find storage bucket for {0}.",
-                    data)));
+                    element)));
             }
 
             _props.Remove(id);
@@ -221,21 +221,21 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Update(PropData data)
+        public IAsyncToken<Void> Update(Element element)
         {
-            var id = data.Id;
+            var id = element.Id;
 
             StorageBucket bucket;
             if (!_props.TryGetValue(id, out bucket))
             {
                 return new AsyncToken<Void>(new Exception(string.Format(
                     "Could not find storage bucket to update {0}.",
-                    data)));
+                    element)));
             }
 
             return Async.Map(
                 bucket
-                    .Save(data)
+                    .Save(element)
                     .OnFailure(exception =>
                     {
                         Log.Error(this, string.Format(
@@ -251,8 +251,8 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates <c>PropSet</c> instances from props.
         /// </summary>
-        /// <param name="propSetToProps">Lookup from <c>PropSet</c> id to list of <c>PropData</c>.</param>
-        private void CreatePropSets(Dictionary<string, List<PropData>> propSetToProps)
+        /// <param name="propSetToProps">Lookup from <c>PropSet</c> id to list of <c>ElementData</c>.</param>
+        private void CreatePropSets(Dictionary<string, List<ElementData>> propSetToProps)
         {
             foreach (var pair in propSetToProps)
             {
@@ -273,11 +273,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="datas">The prop data.</param>
         /// <param name="props">The prop buckets.</param>
         /// <returns></returns>
-        private Dictionary<string, List<PropData>> ParitionProps(
-            PropData[] datas,
+        private Dictionary<string, List<ElementData>> ParitionProps(
+            ElementData[] datas,
             StorageBucket[] props)
         {
-            var propSetToProps = new Dictionary<string, List<PropData>>();
+            var propSetToProps = new Dictionary<string, List<ElementData>>();
             for (var i = 0; i < datas.Length; i++)
             {
                 var prop = props[i];
@@ -293,10 +293,10 @@ namespace CreateAR.SpirePlayer
                 }
 
                 var propSetId = substrings[2];
-                List<PropData> list;
+                List<ElementData> list;
                 if (!propSetToProps.TryGetValue(propSetId, out list))
                 {
-                    list = propSetToProps[propSetId] = new List<PropData>();
+                    list = propSetToProps[propSetId] = new List<ElementData>();
                 }
 
                 list.Add(data);

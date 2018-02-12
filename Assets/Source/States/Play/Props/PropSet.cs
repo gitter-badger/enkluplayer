@@ -5,6 +5,7 @@ using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -52,7 +53,7 @@ namespace CreateAR.SpirePlayer
             IPropUpdateDelegate propDelegate,
             IPropSetUpdateDelegate propSetDelegate,
             string id,
-            PropData[] data)
+            ElementData[] data)
         {
             _elements = elements;
             _propDelegate = propDelegate;
@@ -69,7 +70,7 @@ namespace CreateAR.SpirePlayer
                 if (null == controller)
                 {
                     Log.Warning(this,
-                        "Could not create PropController from PropData {0}.",
+                        "Could not create PropController from ElementData {0}.",
                         propData);
                     continue;
                 }
@@ -84,10 +85,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="data">The propdata.</param>
         /// <returns></returns>
-        public IAsyncToken<PropController> Create(PropData data)
+        public IAsyncToken<PropController> Create(ElementData data)
         {
             PropController controller = null;
-
+            
             return Async.Map(
                 _propSetDelegate
                     .Add(this, data)
@@ -114,7 +115,7 @@ namespace CreateAR.SpirePlayer
             }
 
             return _propSetDelegate
-                .Remove(this, prop.Data)
+                .Remove(this, prop.Element)
                 .OnSuccess(_ =>
                 {
                     _props.Remove(prop);
@@ -133,7 +134,7 @@ namespace CreateAR.SpirePlayer
                 Async.All(
                     _props
                         .ToArray()
-                        .Select(prop => Destroy(prop.Data.Id))
+                        .Select(prop => Destroy(prop.Element.Id))
                         .ToArray()),
                 _ => Void.Instance);
         }
@@ -143,20 +144,26 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
-        private PropController CreateInternal(PropData data)
+        private PropController CreateInternal(ElementData data)
         {
-            var content = (ContentWidget) _elements.Element(string.Format(
-                @"<Content assetSrc='{0}' />",
-                data.AssetId));
-            if (null == content)
+            var element = (ContentWidget) _elements.Element(new ElementDescription
             {
-                Log.Error(this, "Could not create content.");
+                Root = new ElementRef
+                {
+                    Id = data.Id
+                },
+                Elements = new[]
+                {
+                    data
+                }
+            });
 
-                return null;
-            }
-
-            var controller = content.GameObject.AddComponent<PropController>();
-            controller.Initialize(data, content, _propDelegate);
+            /*var content = (ContentWidget) _elements.Element(string.Format(
+                @"<Content assetSrc='{0}' />",
+                data.AssetId));*/
+            
+            var controller = element.GameObject.AddComponent<PropController>();
+            controller.Initialize(element,  _propDelegate);
 
             return controller;
         }
@@ -167,7 +174,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="prop"></param>
         private void DestroyInternal(PropController prop)
         {
-            var content = prop.Content;
+            var content = prop.Element;
 
             prop.Uninitialize();
 
@@ -185,7 +192,7 @@ namespace CreateAR.SpirePlayer
             for (var i = 0; i < _props.Count; i++)
             {
                 var controller = _props[i];
-                if (controller.Data.Id == id)
+                if (controller.Element.Id == id)
                 {
                     return controller;
                 }

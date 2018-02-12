@@ -1,16 +1,17 @@
 ﻿using CreateAR.Commons.Unity.Async;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// An interface for an object that handles <c>PropData</c> updates.
+    /// An interface for an object that handles <c>ElementData</c> updates.
     /// </summary>
     public interface IPropUpdateDelegate
     {
         /// <summary>
-        /// Called when <c>PropData</c> has been updated.
+        /// Called when element has been updated.
         /// </summary>
-        /// <param name="data">The data.</param>
-        IAsyncToken<Void> Update(PropData data);
+        /// <param name="element">The element.</param>
+        IAsyncToken<Void> Update(Element element);
     }
 }

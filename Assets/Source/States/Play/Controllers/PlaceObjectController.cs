@@ -1,7 +1,5 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -47,7 +45,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called to confirm placement.
         /// </summary>
-        public event Action<PropData> OnConfirm;
+        public event Action<ElementData> OnConfirm;
 
         /// <summary>
         /// Called to confirm placement.
@@ -72,7 +70,7 @@ namespace CreateAR.SpirePlayer
             _controller = controller;
             _controller.HideSplashMenu();
 
-            var controllerTransform = controller.Content.GameObject.transform;
+            var controllerTransform = controller.transform;
             
             Content.LocalVisible = false;
             Container.GameObject.transform.position = controllerTransform.position;
@@ -113,20 +111,27 @@ namespace CreateAR.SpirePlayer
 
                 return;
             }
-
-            var prop = PropData.Create(Content);
-            if (null == prop)
+            
+            var prop = new ElementData
             {
-                Log.Error(this,
-                    "Could not create PropData from ContentWidget {0}.", Content);
-                if (null != OnCancel)
+                Id = Guid.NewGuid().ToString(),
+                Type = ElementTypes.CONTENT,
+                Schema = new ElementSchemaData
                 {
-                    OnCancel();
+                    Strings =
+                    {
+                        { "assetSrc", Content.Data.Asset.AssetDataId },
+                        { "name", Content.Data.Name }
+                    },
+                    Vectors =
+                    {
+                        { "position", Content.GameObject.transform.position.ToVec() },
+                        { "rotation", Content.GameObject.transform.rotation.eulerAngles.ToVec() },
+                        { "scale", Content.GameObject.transform.localScale.ToVec() }
+                    }
                 }
-
-                return;
-            }
-
+            };
+            
             if (null != OnConfirm)
             {
                 OnConfirm(prop);

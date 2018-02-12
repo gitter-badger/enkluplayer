@@ -25,10 +25,10 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initiailizes the controller.
         /// </summary>
-        /// <param name="prop">The prop.</param>
-        public void Initialize(PropData prop)
+        /// <param name="propName">The name of the prop.</param>
+        public void Initialize(string propName)
         {
-            BtnSplash.Schema.Set("label", prop.Name);
+            BtnSplash.Schema.Set("label", propName);
             BtnSplash.Activator.OnActivated += Activator_OnActivated;
         }
         

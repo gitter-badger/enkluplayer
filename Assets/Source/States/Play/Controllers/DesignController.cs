@@ -376,7 +376,7 @@ namespace CreateAR.SpirePlayer
         /// Called when the place menu wants to confirm placement.
         /// </summary>
         /// <param name="propData">The prop.</param>
-        private void Place_OnConfirm(PropData propData)
+        private void Place_OnConfirm(ElementData propData)
         {
             _propManager
                 .Active
@@ -398,7 +398,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="controller">The prop controller.</param>
         private void Place_OnConfirmController(PropController controller)
         {
-            controller.Content.GameObject.transform.SetParent(null, true);
+            controller.transform.SetParent(null, true);
             controller.ShowSplashMenu();
 
             _place.enabled = false;
@@ -458,7 +458,7 @@ namespace CreateAR.SpirePlayer
         {
             ClosePropControls();
             
-            _propManager.Active.Destroy(propController.Data.Id);
+            _propManager.Active.Destroy(propController.Element.Id);
 
             _splash.enabled = true;
         }
