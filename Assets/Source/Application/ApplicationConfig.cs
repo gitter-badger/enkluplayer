@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -11,7 +10,8 @@ namespace CreateAR.SpirePlayer
         None,
         WaitForConnection,
         Tools,
-        Play
+        Play,
+        Insta
     }
 
     /// <summary>
