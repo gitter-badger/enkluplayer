@@ -58,5 +58,5 @@ MonoBehaviour:
   DrawPlanes: 1
   Rig: {fileID: 0}
   CameraMaterial: {fileID: 2100000, guid: f1d9352050a75486f878ab19fa578f16, type: 2}
-  MinSearchSec: 0
+  MinSearchSec: 1
   MaxSearchSec: 20

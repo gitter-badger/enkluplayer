@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -23,11 +24,19 @@ namespace CreateAR.SpirePlayer
         private readonly IBootstrapper _bootstrapper;
 
         /// <summary>
+        /// Elements.
+        /// </summary>
+        private readonly IElementFactory _elements;
+        
+        /// <summary>
         /// Constructor.
         /// </summary>
-        public InstaApplicationState(IBootstrapper bootstrapper)
+        public InstaApplicationState(
+            IBootstrapper bootstrapper,
+            IElementFactory elements)
         {
             _bootstrapper = bootstrapper;
+            _elements = elements;
         }
         
         /// <inheritdoc />
@@ -64,6 +73,8 @@ namespace CreateAR.SpirePlayer
             yield return op;
             
             Log.Info(this, "Loaded Insta scene.");
+
+            _elements.Element(@"<Content assetSrc='80a18c8a-a058-4d7a-a082-715636b58d6b' />");
         }
     }
 }
