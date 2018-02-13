@@ -1,3 +1,5 @@
+<?Vine>
+
 <Menu
 	title='Quit'
 	description='Exit the application?'

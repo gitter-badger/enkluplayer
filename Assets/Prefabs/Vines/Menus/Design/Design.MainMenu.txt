@@ -1,3 +1,5 @@
+<?Vine>
+
 <Menu id='menu' showBackButton=true>
 	<Button id='btn-play' label='Play' icon='play' />
 	<Button id='btn-new' label='New' icon='plus' />

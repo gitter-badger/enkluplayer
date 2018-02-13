@@ -114,7 +114,7 @@ namespace CreateAR.SpirePlayer
             _voice.Register("design", Voice_OnDesignCommand);
             
             // create float
-            _float = (FloatWidget) _elements.Element(@"<Float id='Root' position=(0, 0, 1)><ScaleTransition /></Float>");
+            _float = (FloatWidget) _elements.Element(@"<?Vine><Float id='Root' position=(0, 0, 1)><ScaleTransition /></Float>");
             _float.GameObject.transform.parent = _events.transform;
             _parent = (ScaleTransition) _float.Children[0];
 

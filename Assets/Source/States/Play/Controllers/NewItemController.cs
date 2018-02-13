@@ -115,7 +115,7 @@ namespace CreateAR.SpirePlayer
                 var group = groups[i];
                 var assets = group.Assets;
                 var vine = string.Format(
-                    "<OptionGroup value='{0}' label='{0}'>",
+                    "<?Vine><OptionGroup value='{0}' label='{0}'>",
                     group.GroupName);
                 for (int j = 0, jlen = assets.Count; j < jlen; j++)
                 {

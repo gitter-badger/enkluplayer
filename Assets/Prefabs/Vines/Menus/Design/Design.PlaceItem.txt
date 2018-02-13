@@ -1,3 +1,5 @@
+<?Vine>
+
 <Float id='container' position=(0, 0, 1) fov.reorient=0.36>
 	<Image
 		src='res://Art/Textures/Outer Gradient'

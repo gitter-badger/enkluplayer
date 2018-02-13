@@ -74,7 +74,7 @@ namespace CreateAR.SpirePlayer
             
             Log.Info(this, "Loaded Insta scene.");
 
-            _elements.Element(@"<Content
+            _elements.Element(@"<?Vine><Content
                 assetSrc='80a18c8a-a058-4d7a-a082-715636b58d6b'
                 position=(0, 1, 0)
                 scale=(2, 2, 2) />");

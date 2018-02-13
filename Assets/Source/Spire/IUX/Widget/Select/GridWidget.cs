@@ -135,15 +135,14 @@ namespace CreateAR.SpirePlayer.IUX
 
             // page select
             {
-                _pageSelect = (SelectWidget) _elements.Element(@"<Select position=(-0.241, -0.22, 0) />");
+                _pageSelect = (SelectWidget) _elements.Element(@"<?Vine><Select position=(-0.241, -0.22, 0) />");
                 _pageSelect.OnChanged += PageSelect_OnChanged;
                 AddChild(_pageSelect);
             }
 
             // group select
             {
-                var vine = @"<Select position=(-0.241, 0.22, 0) />";
-                _groupSelect = (SelectWidget) _elements.Element(vine);
+                _groupSelect = (SelectWidget) _elements.Element(@"<?Vine><Select position=(-0.241, 0.22, 0) />");
                 _groupSelect.OnChanged += GroupSelect_OnChange;
                 AddChild(_groupSelect);
 
@@ -204,7 +203,7 @@ namespace CreateAR.SpirePlayer.IUX
                 var group = groups[i];
 
                 var option = (Option) _elements.Element(string.Format(
-                    "<Option label='{0}' value='{1}' />",
+                    "<?Vine><Option label='{0}' value='{1}' />",
                     group.Label,
                     group.Value));
 
@@ -250,7 +249,7 @@ namespace CreateAR.SpirePlayer.IUX
             for (var i = 0; i < numPages; i++)
             {
                 var option = (Option) _elements.Element(string.Format(
-                    @"<Option value='{0}' label='{1}' />",
+                    @"<?Vine><Option value='{0}' label='{1}' />",
                     i,
                     string.Format(
                         "Page {0}/{1}",
@@ -294,7 +293,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 var option = options[i];
                 var button = (ButtonWidget) _elements.Element(string.Format(
-                    @"<Button
+                    @"<?Vine><Button
                     layout='vertical'
                     id='grid.btn-{0}'
                     label='{1}'
