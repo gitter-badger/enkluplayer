@@ -15,6 +15,23 @@ Run both the spire-react and spire-trellis projects.
 
 Run `spireplayer` in Unity. In the Spire Editor, be sure to setup the context to connect to `localhost` as shown in the [context documentation](https://github.com/create-ar/spire-react/blob/master/docs/contexts.md).
 
+### Building
+
+##### iOS
+
+Until we add support via the `Unity.iOS.Xcode.PBXProject` interface, you have to do a few things by hand:
+    * General > Signing - select valid team.
+    * _info.plist_ - Add:
+
+```
+<key>LSApplicationQueriesSchemes</key>
+<array>
+    <string>instagram</string>
+</array>
+```
+
+    * Build Phases > Link Binary with Libraries - Add Photos.framework.
+
 ### Event Flow
 
 In order to understand how `SpirePlayer` works, it's essential to understand how events flow through the application. In particular, much time has been spent on abstracting away the Spire Editor as the controlling portal for the device.
