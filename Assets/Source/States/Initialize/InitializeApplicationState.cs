@@ -178,7 +178,10 @@ namespace CreateAR.SpirePlayer
             _http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
                 "Authorization",
                 string.Format("Bearer {0}", creds.Token)));
+            
+            token.Succeed(Void.Instance);
 
+            /*
             _api
                 .Users
                 .RefreshToken(creds.UserId, new Trellis.Messages.RefreshToken.Request
@@ -205,7 +208,7 @@ namespace CreateAR.SpirePlayer
                     }
                 })
                 .OnFailure(token.Fail);
-
+            */
             return token;
         }
 
