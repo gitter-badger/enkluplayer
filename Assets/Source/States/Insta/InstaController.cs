@@ -2,6 +2,7 @@
 using System.Collections;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CreateAR.SpirePlayer
 {
@@ -14,6 +15,11 @@ namespace CreateAR.SpirePlayer
         /// Lazily created render cam.
         /// </summary>
         private Camera _renderCamera;
+
+        /// <summary>
+        /// Insta image.
+        /// </summary>
+        public Image Insta;
         
         /// <summary>
         /// Called when the Insta button has been clicked.
@@ -23,6 +29,8 @@ namespace CreateAR.SpirePlayer
             StartCoroutine(TakePic(texture =>
             {
                 Log.Info(this, "Screenshot saved to {0}.", texture);
+
+                Insta.enabled = true;
                 
                 NativeGallery.SaveToGallery(texture, "ScreenShots", "ss.png");
             }));
@@ -43,6 +51,10 @@ namespace CreateAR.SpirePlayer
                 _renderCamera.enabled = false;
                 _renderCamera.CopyFrom(Camera.main);
             }
+
+            Insta.enabled = false;
+            
+            yield return new WaitForSeconds(0.1f);
             
             _renderCamera.transform.position = Camera.main.transform.position;
             _renderCamera.transform.rotation = Camera.main.transform.rotation;
@@ -54,22 +66,12 @@ namespace CreateAR.SpirePlayer
                 width, height, 32,
                 RenderTextureFormat.ARGB32,
                 RenderTextureReadWrite.sRGB);
-            
-            // shut off UI
-            //cam.cullingMask &=  ~(1 << LayerMask.NameToLayer("UI"));
 
             RenderTexture.active = _renderCamera.targetTexture = rt;
 
             yield return new WaitForEndOfFrame();
             
-            // TODO: replace waiting a frame with new disabled camera
-            /*yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();*/
-            
             _renderCamera.Render();
-            
-            // restore UI layer
-            //cam.cullingMask |= 1 << LayerMask.NameToLayer("UI");
 
             var texture = new Texture2D(width, height, TextureFormat.ARGB32, false);
             texture.ReadPixels(new Rect(0, 0, width, height), 0, 0);

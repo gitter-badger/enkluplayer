@@ -397,6 +397,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ad81bd354da44ca9fd9e30335690869, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Insta: {fileID: 1504819433}
 --- !u!4 &1874440531
 Transform:
   m_ObjectHideFlags: 0
