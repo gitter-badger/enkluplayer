@@ -35,6 +35,7 @@ namespace CreateAR.SpirePlayer
             PlayApplicationState play,
             HierarchyApplicationState hierarchy,
             BleSearchApplicationState ble,
+            InstaApplicationState insta,
             // TODO: find a different pattern to do this
 #if NETFX_CORE
             MeshCaptureApplicationState meshCapture,
@@ -52,6 +53,7 @@ namespace CreateAR.SpirePlayer
                 play,
                 hierarchy,
                 ble,
+                insta,
 #if NETFX_CORE
                 meshCapture,
 #endif
@@ -101,6 +103,11 @@ namespace CreateAR.SpirePlayer
                         case ApplicationMode.Play:
                         {
                             _states.Change<PlayApplicationState>(_config);
+                            break;
+                        }
+                        case ApplicationMode.Insta:
+                        {
+                            _states.Change<InstaApplicationState>();
                             break;
                         }
                     }

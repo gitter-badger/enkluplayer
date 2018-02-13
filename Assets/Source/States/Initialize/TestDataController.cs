@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -53,6 +54,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void LoadAssetData(ApplicationTestData data)
         {
+            Log.Info(this, "Adding test asset data.");
+            
             var assets = Read<AssetData>(data.Asset);
 
             foreach (var asset in assets)

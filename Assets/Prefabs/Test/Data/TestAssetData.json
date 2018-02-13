@@ -1,3 +1,35 @@
 [
-	
+	{
+		"id": "80a18c8a-a058-4d7a-a082-715636b58d6b",
+		"owner": "bace4df0-584c-4a3d-aa34-de2d9312e775",
+		"name": "Balloon.zip",
+		"description": "Created by the Spire Editor.",
+		"type": "model",
+		"status": null,
+		"uri": "/bundles/80a18c8a-a058-4d7a-a082-715636b58d6b/80a18c8a-a058-4d7a-a082-715636b58d6b.bundle",
+		"uriThumb": "/thumbs/80a18c8a-a058-4d7a-a082-715636b58d6b.png",
+		"crc": "test",
+		"tags": "none",
+		"version": 0,
+		"stats": {
+			"vertCount": 18652,
+			"triCount": 21550,
+			"bounds": {
+				"min": {
+					"x": -0.2088927,
+					"y": -0.2965609,
+					"z": -0.1987388
+				},
+				"max": {
+					"x": 0.1799981,
+					"y": 0.3259413,
+					"z": 0.1921174
+				}
+			}
+		},
+		"webgl": "complete",
+		"wsaplayer": "inprogress",
+		"createdAt": "2018-02-13T19:27:52.205Z",
+		"updatedAt": "2018-02-13T19:28:48.851Z"
+	}
 ]

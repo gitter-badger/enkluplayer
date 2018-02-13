@@ -11,6 +11,7 @@ using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages;
+using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -236,7 +237,7 @@ namespace CreateAR.SpirePlayer
                 var deltaSec = (DateTime.Now.Subtract(_startFloorSearch).TotalSeconds);
                 
                 // wait at least min
-                if (deltaSec < _arConfig.MinSearchSec)
+                if (deltaSec < Mathf.Max(1, _arConfig.MinSearchSec))
                 {
                     //
                 }

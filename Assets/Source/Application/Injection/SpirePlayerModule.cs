@@ -9,14 +9,11 @@ using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
-using CreateAR.Trellis;
 using CreateAR.Trellis.Messages;
 using Jint.Parser;
 using Jint.Unity;
-using LightJson;
 using strange.extensions.injector.impl;
 using UnityEngine;
-using UnityEngine.XR.iOS;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
@@ -125,6 +122,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                     binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
+                    binder.Bind<InstaApplicationState>().To<InstaApplicationState>();
 
                     // tools
                     {
@@ -171,7 +169,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<ArCameraRig>().ToValue(LookupComponent<ArCameraRig>());
                 binder.Bind<ArServiceConfiguration>().ToValue(LookupComponent<ArServiceConfiguration>());
 #if !UNITY_EDITOR && UNITY_IOS
-                binder.Bind<UnityARSessionNativeInterface>().ToValue(UnityARSessionNativeInterface.GetARSessionNativeInterface());
+                binder.Bind<UnityEngine.XR.iOS.UnityARSessionNativeInterface>().ToValue(UnityEngine.XR.iOS.UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
 #elif !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();

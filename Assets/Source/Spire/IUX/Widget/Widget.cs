@@ -340,6 +340,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             GameObject.name = Schema.GetOwn("name", ToString()).Value;
             GameObject.transform.localPosition = _localPositionProp.Value.ToVector();
+            GameObject.transform.localScale = _localScaleProp.Value.ToVector();
             
             UpdateGlobalVisibility();
 
