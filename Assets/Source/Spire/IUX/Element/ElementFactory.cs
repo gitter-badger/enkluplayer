@@ -90,7 +90,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 Ints = new Dictionary<string, int>
                 {
-                    { "fontSize", 80 }
+                    { "fontSize", 70 }
                 },
                 Strings = new Dictionary<string, string>
                 {
