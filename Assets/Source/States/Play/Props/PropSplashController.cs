@@ -31,7 +31,19 @@ namespace CreateAR.SpirePlayer
             BtnSplash.Schema.Set("label", propName);
             BtnSplash.Activator.OnActivated += Activator_OnActivated;
         }
-        
+
+        /// <inheritdoc cref="MonoBehaviour" />
+        private void Update()
+        {
+            var scale = transform.localScale;
+            BtnSplash.Schema.Set(
+                "scale",
+                new Vec3(
+                    1f / scale.x,
+                    1f / scale.y,
+                    1f / scale.z));
+        }
+
         /// <summary>
         /// Called when the activator is activated.
         /// </summary>
