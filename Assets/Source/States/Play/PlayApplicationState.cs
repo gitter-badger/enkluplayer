@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -31,6 +32,11 @@ namespace CreateAR.SpirePlayer
         private readonly IFileManager _files;
 
         /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
+        /// <summary>
         /// Resolves script requires.
         /// </summary>
         private readonly IScriptRequireResolver _resolver;
@@ -46,17 +52,29 @@ namespace CreateAR.SpirePlayer
         private readonly AppController _app;
 
         /// <summary>
+        /// Time at which state was entered.
+        /// </summary>
+        private DateTime _enterTime;
+
+        /// <summary>
+        /// True iff status has been cleared.
+        /// </summary>
+        private bool _statusCleared;
+
+        /// <summary>
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
             IBootstrapper bootstrapper,
             IFileManager files,
+            IMessageRouter messages,
             IScriptRequireResolver resolver,
             AppController app,
             DesignController design)
         {
             _bootstrapper = bootstrapper;
             _files = files;
+            _messages = messages;
             _resolver = resolver;
             _app = app;
             _design = design;
@@ -65,6 +83,12 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
+            _enterTime = DateTime.Now;
+            _statusCleared = false;
+            _messages.Publish(
+                MessageTypes.STATUS,
+                WaitingForConnectionApplicationState.GetNetworkSummary());
+
             var config = (ApplicationConfig) context;
 
             _resolver.Initialize(
@@ -106,6 +130,13 @@ namespace CreateAR.SpirePlayer
         public void Update(float dt)
         {
             _app.Update(dt);
+
+            if (!_statusCleared
+                && DateTime.Now.Subtract(_enterTime).TotalSeconds > 5)
+            {
+                _messages.Publish(MessageTypes.STATUS, "");
+                _statusCleared = true;
+            }
         }
 
         /// <inheritdoc cref="IState"/>

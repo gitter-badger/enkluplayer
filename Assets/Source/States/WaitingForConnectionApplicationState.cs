@@ -44,7 +44,7 @@ namespace CreateAR.SpirePlayer
 		/// <summary>
 		/// Returns networking information.
 		/// </summary>
-		private string GetNetworkSummary()
+		public static string GetNetworkSummary()
 		{
 			var builder = new StringBuilder();
 
@@ -80,7 +80,7 @@ namespace CreateAR.SpirePlayer
             }
 #endif
 
-            Log.Info(this, builder.ToString());
+            Log.Info(builder, builder.ToString());
 			
             return builder.ToString();
 		}

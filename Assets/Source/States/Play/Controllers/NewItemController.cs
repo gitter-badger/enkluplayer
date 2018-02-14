@@ -123,7 +123,7 @@ namespace CreateAR.SpirePlayer
                     vine += string.Format(
                         "<Option value='{0}' label='{1}' src='assets://{2}' />",
                         asset.Guid,
-                        asset.AssetName,
+                        FormatLabel(asset.AssetName),
                         asset.UriThumb);
                 }
                 vine += "</OptionGroup>";
@@ -169,6 +169,22 @@ namespace CreateAR.SpirePlayer
             }
 
             return groups;
+        }
+
+        /// <summary>
+        /// Formats an assetname for a label.
+        /// </summary>
+        /// <param name="assetName">The asset's name.</param>
+        /// <returns></returns>
+        private string FormatLabel(string assetName)
+        {
+            if (string.IsNullOrEmpty(assetName))
+            {
+                return "Unknown";
+            }
+
+            var substrings = assetName.Split('.');
+            return substrings[0];
         }
 
         /// <summary>
