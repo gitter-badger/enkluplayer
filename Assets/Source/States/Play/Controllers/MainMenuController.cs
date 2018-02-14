@@ -107,13 +107,13 @@ namespace CreateAR.SpirePlayer
                 }
             };
 
-            ToggleDebugRender.OnValueChanged += _ =>
+            /*ToggleDebugRender.OnValueChanged += _ =>
             {
                 if (OnDebugRender != null)
                 {
                     OnDebugRender(ToggleDebugRender.Value);
                 }
-            };
+            };*/
         }
     }
 }

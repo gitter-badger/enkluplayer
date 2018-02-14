@@ -5,5 +5,5 @@
 	<Button id='btn-new' label='New' icon='plus' />
 	<Button id='btn-clearall' label='Clear All' icon='trash' />
 	<Button id='btn-quit' label='Quit' icon='x' />
-	<Toggle id='toggle-debugrender' label='Debug Render' />
+	/*<Toggle id='toggle-debugrender' label='Debug Render' />*/
 </Menu>

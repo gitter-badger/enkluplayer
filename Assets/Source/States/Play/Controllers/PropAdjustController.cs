@@ -31,6 +31,17 @@ namespace CreateAR.SpirePlayer
         private Vector3 _startPosition;
 
         /// <summary>
+        /// Forward at start.
+        /// </summary>
+        private Vector3 _startForward;
+
+        /// <summary>
+        /// Manages intentions.
+        /// </summary>
+        [Inject]
+        public IIntentionManager Intention { get; set; }
+
+        /// <summary>
         /// The container for all the control buttons.
         /// </summary>
         [InjectElements("..controls")]
@@ -107,19 +118,38 @@ namespace CreateAR.SpirePlayer
             if (SliderX.Visible)
             {
                 var offset = BtnX.GameObject.transform.position - Container.GameObject.transform.position;
-                _controller.transform.position = SliderX.Focus.ToVector() - offset;
+
+                var O = Container.GameObject.transform.position;
+                var d = Intention.Right.ToVector();
+
+                // project focus onto line
+                var focus = SliderX.Focus.ToVector();
+                var scalar = Vector3.Dot(focus - O, d);
+                var diff = scalar * d;
+                
+                _controller.transform.position = O + diff - offset;
             }
 
             if (SliderY.Visible)
             {
                 var offset = BtnY.GameObject.transform.position - Container.GameObject.transform.position;
-                _controller.transform.position = SliderY.Focus.ToVector() - offset;
+
+                var O = Container.GameObject.transform.position;
+                var d = Intention.Up.ToVector();
+
+                // project focus onto line
+                var focus = SliderY.Focus.ToVector();
+                var scalar = Vector3.Dot(focus - O, d);
+                var diff = scalar * d;
+
+                _controller.transform.position = O + diff - offset;
             }
 
             if (SliderZ.Visible)
             {
                 var zScale = 10;
-                _controller.transform.position = _startPosition + new Vector3(0, 0, (SliderZ.Value - 0.5f) * zScale);
+                var scalar = (SliderZ.Value - 0.5f) * zScale;
+                _controller.transform.position = _startPosition + scalar * _startForward;
             }
 
             if (SliderScale.Visible)
@@ -254,6 +284,7 @@ namespace CreateAR.SpirePlayer
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             _startPosition = _controller.transform.position;
+            _startForward = Intention.Forward.ToVector();
 
             Container.LocalVisible = false;
             SliderZ.LocalVisible = true;

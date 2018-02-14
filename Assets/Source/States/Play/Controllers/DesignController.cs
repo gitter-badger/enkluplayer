@@ -240,6 +240,30 @@ namespace CreateAR.SpirePlayer
             _quit.enabled = false;
             _place.enabled = false;
             _new.enabled = false;
+
+            CloseAllPropControllerSplashes();
+        }
+
+        /// <summary>
+        /// Closes all PropController splashes
+        /// </summary>
+        private void CloseAllPropControllerSplashes()
+        {
+            foreach (var prop in _propManager.Active.Props)
+            {
+                prop.HideSplashMenu();
+            }
+        }
+
+        /// <summary>
+        /// Opens all PropController splashes
+        /// </summary>
+        private void OpenAllPropControllerSplashes()
+        {
+            foreach (var prop in _propManager.Active.Props)
+            {
+                prop.ShowSplashMenu();
+            }
         }
 
         /// <summary>
@@ -276,6 +300,8 @@ namespace CreateAR.SpirePlayer
             _splash.enabled = true;
 
             _float.Schema.Set("visible", true);
+
+            OpenAllPropControllerSplashes();
         }
 
         /// <summary>
