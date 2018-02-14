@@ -114,7 +114,7 @@ namespace CreateAR.SpirePlayer
             _voice.Register("design", Voice_OnDesignCommand);
             
             // create float
-            _float = (FloatWidget) _elements.Element(@"<?Vine><Float id='Root' position=(0, 0, 1) face='camera'><ScaleTransition /></Float>");
+            _float = (FloatWidget) _elements.Element(@"<?Vine><Float id='Root' position=(0, 0, 2) face='camera'><ScaleTransition /></Float>");
             _float.GameObject.transform.parent = _events.transform;
             _parent = (ScaleTransition) _float.Children[0];
             
@@ -257,7 +257,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">The detected command.</param>
         private void Voice_OnDesignCommand(string command)
         {
-            _mainMenu.enabled = true;
+            _splash.enabled = true;
+
+            _float.Schema.Set("visible", true);
         }
 
         /// <summary>
@@ -284,6 +286,7 @@ namespace CreateAR.SpirePlayer
         private void MainMenu_OnQuit()
         {
             _mainMenu.enabled = false;
+            _float.Schema.Set("focus.visible", false);
             _quit.enabled = true;
         }
 
@@ -293,6 +296,7 @@ namespace CreateAR.SpirePlayer
         private void MainMenu_OnClearAll()
         {
             _mainMenu.enabled = false;
+            _float.Schema.Set("focus.visible", false);
             _clearAllProps.enabled = true;
         }
 
@@ -302,6 +306,7 @@ namespace CreateAR.SpirePlayer
         private void MainMenu_OnNew()
         {
             _mainMenu.enabled = false;
+            _float.Schema.Set("focus.visible", false);
             _new.enabled = true;
         }
 
@@ -319,6 +324,7 @@ namespace CreateAR.SpirePlayer
         private void ClearAll_OnCancel()
         {
             _clearAllProps.enabled = false;
+            _float.Schema.Set("focus.visible", true);
             _mainMenu.enabled = true;
         }
 
@@ -331,6 +337,7 @@ namespace CreateAR.SpirePlayer
 
             _propManager.Active.DestroyAll();
 
+            _float.Schema.Set("focus.visible", true);
             _mainMenu.enabled = true;
         }
 
@@ -340,6 +347,7 @@ namespace CreateAR.SpirePlayer
         private void Quit_OnCancel()
         {
             _quit.enabled = false;
+            _float.Schema.Set("focus.visible", true);
             _mainMenu.enabled = true;
         }
 
@@ -349,6 +357,7 @@ namespace CreateAR.SpirePlayer
         private void Quit_OnConfirm()
         {
             _quit.enabled = false;
+            _float.Schema.Set("focus.visible", true);
             _mainMenu.enabled = true;
         }
 
@@ -369,6 +378,7 @@ namespace CreateAR.SpirePlayer
         private void New_OnCancel()
         {
             _new.enabled = false;
+            _float.Schema.Set("focus.visible", true);
             _mainMenu.enabled = true;
         }
 
@@ -388,7 +398,7 @@ namespace CreateAR.SpirePlayer
                 });
 
             _place.enabled = false;
-
+            _float.Schema.Set("focus.visible", true);
             _splash.enabled = true;
         }
 
@@ -402,7 +412,7 @@ namespace CreateAR.SpirePlayer
             controller.ShowSplashMenu();
 
             _place.enabled = false;
-
+            _float.Schema.Set("focus.visible", true);
             _splash.enabled = true;
         }
 
@@ -428,7 +438,9 @@ namespace CreateAR.SpirePlayer
             // hide any other menus
             _splash.enabled = false;
             _mainMenu.enabled = false;
-            
+
+            _float.Schema.Set("focus.visible", false);
+
             _propAdjust.Initialize(controller);
             _propAdjust.enabled = true;
             
@@ -460,6 +472,7 @@ namespace CreateAR.SpirePlayer
             
             _propManager.Active.Destroy(propController.Element.Id);
 
+            _float.Schema.Set("focus.visible", true);
             _splash.enabled = true;
         }
 
@@ -472,6 +485,7 @@ namespace CreateAR.SpirePlayer
 
             controller.ShowSplashMenu();
 
+            _float.Schema.Set("focus.visible", true);
             _splash.enabled = true;
         }
     }

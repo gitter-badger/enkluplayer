@@ -175,6 +175,10 @@ namespace CreateAR.SpirePlayer.IUX
                 Floats = new Dictionary<string, float>
                 {
                     { "fov.reorient", 1.5f }
+                },
+                Bools = new Dictionary<string, bool>
+                {
+                    { "focus.visible", true }
                 }
             });
 

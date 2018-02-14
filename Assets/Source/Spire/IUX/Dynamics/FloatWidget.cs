@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Messaging;
+﻿using System;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -29,6 +30,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private ElementSchemaProp<Vec3> _positionProp;
         private ElementSchemaProp<Vec3> _focusProp;
+        private ElementSchemaProp<bool> _focusVisible;
         private ElementSchemaProp<float> _reorientProp;
 
         /// <summary>
@@ -83,6 +85,10 @@ namespace CreateAR.SpirePlayer.IUX
                 _focusProp.OnChanged += Focus_OnChanged;
                 UpdateFocus();
 
+                _focusVisible = Schema.Get<bool>("focus.visible");
+                _focusVisible.OnChanged += FocusVisible_OnChanged;
+                UpdateFocusVisibility();
+
                 _reorientProp = Schema.Get<float>("fov.reorient");
                 _reorientProp.OnChanged += Reorient_OnChanged;
                 UpdateReorient();
@@ -123,6 +129,14 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Updates the focus visibility.
+        /// </summary>
+        private void UpdateFocusVisibility()
+        {
+            _renderer.FocusSphere.SetActive(_focusVisible.Value);
+        }
+
+        /// <summary>
         /// Updates the reorient fov.
         /// </summary>
         private void UpdateReorient()
@@ -156,6 +170,20 @@ namespace CreateAR.SpirePlayer.IUX
             Vec3 next)
         {
             UpdateFocus();
+        }
+
+        /// <summary>
+        /// Called when focus visibility has changed.
+        /// </summary>
+        /// <param name="prop">Prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void FocusVisible_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            UpdateFocusVisibility();
         }
 
         /// <summary>

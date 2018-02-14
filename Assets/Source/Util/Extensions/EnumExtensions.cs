@@ -12,8 +12,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <typeparam name="T">The type.</typeparam>
         /// <param name="value">The string value.</param>
+        /// <param name="defaultValue">Default value.</param>
         /// <returns></returns>
-        public static T Parse<T>(string value) where T : struct
+        public static T Parse<T>(string value, T defaultValue = default(T)) where T : struct
         {
 #if NETFX_CORE
                 T type;
@@ -22,7 +23,7 @@ namespace CreateAR.SpirePlayer
                     return type;
                 }
 
-                return default(T);
+                return defaultValue;
 #else
             try
             {
@@ -32,7 +33,7 @@ namespace CreateAR.SpirePlayer
             }
             catch
             {
-                return default(T);
+                return defaultValue;
             }
 #endif
         }
