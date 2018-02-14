@@ -228,6 +228,21 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Closes all menus.
+        /// </summary>
+        private void CloseAll()
+        {
+            _propAdjust.enabled = false;
+            _propEdit.enabled = false;
+            _splash.enabled = false;
+            _mainMenu.enabled = false;
+            _clearAllProps.enabled = false;
+            _quit.enabled = false;
+            _place.enabled = false;
+            _new.enabled = false;
+        }
+
+        /// <summary>
         /// Listens to prop.
         /// </summary>
         /// <param name="controller">The PropController.</param>
@@ -257,6 +272,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">The detected command.</param>
         private void Voice_OnDesignCommand(string command)
         {
+            CloseAll();
             _splash.enabled = true;
 
             _float.Schema.Set("visible", true);
@@ -315,6 +331,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MainMenu_OnPlay()
         {
+            CloseAll();
             _float.Schema.Set("visible", false);
         }
 
