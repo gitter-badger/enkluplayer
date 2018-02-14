@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -211,6 +212,10 @@ namespace CreateAR.SpirePlayer
             _propAdjust = _staticRoot.AddComponent<PropAdjustController>();
             _propAdjust.OnExit += PropAdjust_OnExit;
             _propAdjust.enabled = false;
+            _propAdjust.SliderRotate.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
+            _propAdjust.SliderX.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
+            _propAdjust.SliderY.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
+            _propAdjust.SliderZ.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
 
             _propEdit = _staticRoot.AddComponent<PropEditController>();
             _propEdit.OnMove += PropEdit_OnMove;
@@ -532,6 +537,15 @@ namespace CreateAR.SpirePlayer
 
             _float.Schema.Set("focus.visible", true);
             _splash.enabled = true;
+        }
+
+        /// <summary>
+        /// Called when prop adjust control visibility is changed.
+        /// </summary>
+        /// <param name="interactable">Interactable.</param>
+        private void PropAdjustControl_OnVisibilityChanged(IInteractable interactable)
+        {
+            _propEdit.enabled = !interactable.Visible;
         }
     }
 }

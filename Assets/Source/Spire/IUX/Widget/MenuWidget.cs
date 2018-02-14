@@ -43,6 +43,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<int> _headerWidthProp;
         private ElementSchemaProp<float> _headerPaddingProp;
         private ElementSchemaProp<bool> _showBackButtonProp;
+        private ElementSchemaProp<float> _dividerOffset;
 
         /// <summary>
         /// Title text.
@@ -121,6 +122,9 @@ namespace CreateAR.SpirePlayer.IUX
             _showBackButtonProp = Schema.Get<bool>("showBackButton");
             _showBackButtonProp.OnChanged += ShowBackButton_OnChanged;
 
+            _dividerOffset = Schema.Get<float>("dividerOffset");
+            _dividerOffset.OnChanged += DividerOffset_OnChanged;
+
             // create + place title
             _titlePrimitive = _primitives.Text(Schema);
             AddChild(_titlePrimitive);
@@ -144,7 +148,7 @@ namespace CreateAR.SpirePlayer.IUX
             transform.SetParent(
                 GameObject.transform,
                 false);
-            transform.position = new Vector3(-0.54f, 0f, 0f);
+            UpdateDivider();
 
             UpdateHeaderLayout();
             UpdateChildLayout();
@@ -305,6 +309,20 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Called when the divider offset changes.
+        /// </summary>
+        /// <param name="prop">The property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void DividerOffset_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateDivider();
+        }
+
+        /// <summary>
         /// Updates the header layout.
         /// </summary>
         private void UpdateHeaderLayout()
@@ -346,6 +364,18 @@ namespace CreateAR.SpirePlayer.IUX
                 _backButton.Destroy();
                 _backButton = null;
             }
+        }
+
+        /// <summary>
+        /// Updates the divider.
+        /// </summary>
+        private void UpdateDivider()
+        {
+            _halfMoon
+                .GetComponent<RectTransform>()
+                .localPosition = new Vector3(
+                _dividerOffset.Value,
+                0f, 0f);
         }
 
         /// <summary>

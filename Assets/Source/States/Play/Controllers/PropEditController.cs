@@ -28,7 +28,7 @@ namespace CreateAR.SpirePlayer
         {
             _controller = controller;
 
-            BtnRename.Activator.OnActivated += Rename_OnActivated;
+            //BtnRename.Activator.OnActivated += Rename_OnActivated;
             BtnMove.Activator.OnActivated += Move_OnActivated;
             BtnDelete.Activator.OnActivated += Delete_OnActivated;
         }

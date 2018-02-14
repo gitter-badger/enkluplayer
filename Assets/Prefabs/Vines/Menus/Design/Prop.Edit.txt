@@ -1,8 +1,8 @@
 <?Vine>
 
 <Container face='camera'>
-	<Menu>
-		<Button id='btn-rename' label='Shoes' icon='ellipses' />
+	<Menu position=(0.3, 0, 0) layout.radius=0.18 dividerOffset=-0.6 >
+		/*<Button id='btn-rename' label='Shoes' icon='ellipses' />*/
 		<Button id='btn-move' label='Move' icon='move' />
 		<Button id='btn-delete' label='Delete' icon='trash' />
 		<Toggle toggle='toggle-fade' label='Fade' />
