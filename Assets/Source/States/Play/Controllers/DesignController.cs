@@ -453,7 +453,8 @@ namespace CreateAR.SpirePlayer
         {
             controller.transform.SetParent(null, true);
             controller.ShowSplashMenu();
-
+            controller.EnableUpdates();
+            
             _place.enabled = false;
             _float.Schema.Set("focus.visible", true);
             _splash.enabled = true;
@@ -477,7 +478,7 @@ namespace CreateAR.SpirePlayer
         {
             // hide the splash on the controller
             controller.HideSplashMenu();
-
+            
             // hide any other menus
             _splash.enabled = false;
             _mainMenu.enabled = false;
@@ -500,6 +501,7 @@ namespace CreateAR.SpirePlayer
             ClosePropControls();
 
             propController.HideSplashMenu();
+            propController.DisableUpdates();
             
             _place.Initialize(propController);
             _place.enabled = true;

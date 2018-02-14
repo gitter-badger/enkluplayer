@@ -44,6 +44,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private bool _isDirty;
 
+        /// <summary>
+        /// True iff updates should be pushed to Schema.
+        /// </summary>
+        private bool _updatesEnabled = true;
+
+        /// <summary>
+        /// Props.
+        /// </summary>
         private ElementSchemaProp<Vec3> _positionProp;
         private ElementSchemaProp<Vec3> _rotationProp;
         private ElementSchemaProp<Vec3> _scaleProp;
@@ -104,6 +112,22 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Disables pushing updates to schema.
+        /// </summary>
+        public void DisableUpdates()
+        {
+            _updatesEnabled = false;
+        }
+
+        /// <summary>
+        /// Enables pushing updates to schema.
+        /// </summary>
+        public void EnableUpdates()
+        {
+            _updatesEnabled = true;
+        }
+
+        /// <summary>
         /// Creates splash menu.
         /// </summary>
         private void InitializeSplashMenu()
@@ -116,6 +140,11 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
         {
+            if (!_updatesEnabled)
+            {
+                return;
+            }
+
             var trans = gameObject.transform;
 
             // check for position changes
