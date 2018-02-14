@@ -12,11 +12,6 @@ namespace CreateAR.SpirePlayer
     public class VineMonoBehaviour : InjectableMonoBehaviour
     {
         /// <summary>
-        /// Imports from vine.
-        /// </summary>
-        private readonly VineImporter _importer = new VineImporter(new JsVinePreProcessor());
-
-        /// <summary>
         /// Parsed script.
         /// </summary>
         private ElementDescription _description;
@@ -25,7 +20,13 @@ namespace CreateAR.SpirePlayer
         /// The element created.
         /// </summary>
         private Element _element;
-        
+
+        /// <summary>
+        /// Imports from vine.
+        /// </summary>
+        [Inject]
+        public VineImporter Importer { get; set; }
+
         /// <summary>
         /// Creates elements.
         /// </summary>
@@ -46,7 +47,7 @@ namespace CreateAR.SpirePlayer
 
             try
             {
-                _description = _importer.Parse(Script.Source);
+                _description = Importer.Parse(Script.Source);
             }
             catch (Exception exception)
             {

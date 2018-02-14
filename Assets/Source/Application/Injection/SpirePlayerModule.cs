@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Commons.Unity.Storage;
+using CreateAR.Commons.Vine;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
@@ -64,7 +65,8 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
                 binder.Bind<IVinePreProcessor>().To<JsVinePreProcessor>().ToSingleton();
                 binder.Bind<IVineTable>().To(LookupComponent<VineTable>());
-                binder.Bind<VineImporter>().To<VineImporter>();
+                binder.Bind<VineLoader>().To<VineLoader>().ToSingleton();
+                binder.Bind<VineImporter>().To<VineImporter>().ToSingleton();
 
                 binder.Bind<IStorageWorker>().To<StorageWorker>().ToSingleton();
                 binder.Bind<IStorageService>().To<StorageService>().ToSingleton();

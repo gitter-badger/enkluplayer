@@ -17,11 +17,6 @@ namespace CreateAR.SpirePlayer
         private const float TIMEOUT_SEC = 0.1f;
 
         /// <summary>
-        /// Imports from vine.
-        /// </summary>
-        private readonly VineImporter _importer = new VineImporter(new JsVinePreProcessor());
-
-        /// <summary>
         /// Last vine value.
         /// </summary>
         private string _lastVine;
@@ -52,6 +47,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [TextArea(10, 100)]
         public string Vine;
+
+        /// <summary>
+        /// Imports from vine.
+        /// </summary>
+        [Inject]
+        public VineImporter Importer { get; set; }
 
         /// <summary>
         /// Called when element has been created.
@@ -95,7 +96,7 @@ namespace CreateAR.SpirePlayer
                 ElementDescription description;
                 try
                 {
-                    description = _importer.Parse(Vine);
+                    description = Importer.Parse(Vine);
                 }
                 catch (Exception exception)
                 {

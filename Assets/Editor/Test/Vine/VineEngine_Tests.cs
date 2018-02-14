@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Vine;
 using CreateAR.SpirePlayer.Vine;
 using NUnit.Framework;
 
@@ -12,7 +13,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
         [SetUp]
         public void Setup()
         {
-            _importer = new VineImporter(new DummyVinePreProcessor());
+            _importer = new VineImporter(new DummyVinePreProcessor(), new VineLoader());
         }
 
         [Test]
