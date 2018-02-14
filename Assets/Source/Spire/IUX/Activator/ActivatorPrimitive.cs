@@ -262,14 +262,14 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void LoadInternalAfterChildren()
         {
             base.LoadInternalAfterChildren();
-
+            
             _renderer = Object.Instantiate(
                 _config.Activator,
                 Vector3.zero,
                 Quaternion.identity);
             _renderer.transform.SetParent(GameObject.transform, false);
             _renderer.Initialize(this, _config, Layers, Tweens, Colors, Messages, _intention, _interaction);
-
+            
             SetIcon();
 
             AimEnabled = true;
@@ -369,15 +369,7 @@ namespace CreateAR.SpirePlayer.IUX
             _propInteractionEnabled = Schema.GetOwn<bool>("interactionEnabled", true);
 
             _propActivationType = Schema.GetOwn("activation.type", ActivationType.Fill.ToString());
-            try
-            {
-                _renderer.Activation = (ActivationType) Enum.Parse(typeof(ActivationType), _propActivationType.Value);
-            }
-            catch
-            {
-                // default to fill
-            }
-
+            _renderer.Activation = EnumExtensions.Parse<ActivationType>(_propActivationType.Value);
             _propSliderBehavior = Schema.GetOwn("activation.slider", false);
         }
 

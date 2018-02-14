@@ -1,6 +1,6 @@
 ﻿#if NETFX_CORE
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Networking.Sockets;
@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Producer/Consumer queue.
         /// </summary>
-        private readonly BlockingCollection<string> _queue = new BlockingCollection<string>();
+        private readonly Queue<string> _queue = new Queue<string>();
 
         /// <summary>
         /// Allows for cancellation.
@@ -184,7 +184,7 @@ namespace CreateAR.SpirePlayer
         {
             var message = "{" + command + "}:" + value;
 
-            _queue.Add(message);
+            _queue.Enqueue(message);
         }
 
         /// <summary>
@@ -200,7 +200,7 @@ namespace CreateAR.SpirePlayer
 
             while (!_cancelSource.IsCancellationRequested)
             {
-                var message = _queue.Take();
+                var message = _queue.Dequeue();
 
                 _writer.WriteString(message);
 

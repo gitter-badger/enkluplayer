@@ -261,17 +261,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void CalculatePlane()
         {
-            var axis = AxisType.X;
-            try
-            {
-                axis = (AxisType) Enum.Parse(
-                    typeof(AxisType),
-                    _axisProp.Value.ToUpperInvariant());
-            }
-            catch
-            {
-                //
-            }
+            var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
 
             var offset = _intentions.Right;
             if (axis == AxisType.X)

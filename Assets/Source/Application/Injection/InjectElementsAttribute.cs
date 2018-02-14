@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using CreateAR.SpirePlayer.IUX;
 
@@ -44,13 +45,16 @@ namespace CreateAR.SpirePlayer
             for (int i = 0, len = props.Length; i < len; i++)
             {
                 var prop = props[i];
-                var attributes = prop.GetCustomAttributes(typeof(InjectElementsAttribute), true);
+                var attributes = prop
+                    .GetCustomAttributes(typeof(InjectElementsAttribute), true)
+                    // for UWP
+                    .ToArray();
                 if (0 == attributes.Length)
                 {
                     continue;
                 }
 
-                var query = ((InjectElementsAttribute)attributes[0]).Query;
+                var query = ((InjectElementsAttribute) attributes[0]).Query;
 
                 // single injection or multiple
                 var type = prop.PropertyType;

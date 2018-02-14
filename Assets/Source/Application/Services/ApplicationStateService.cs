@@ -70,7 +70,7 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Application ready.");
 
-                    ApplicationMode mode = ApplicationMode.WaitForConnection;
+                    var mode = ApplicationMode.WaitForConnection;
                     try
                     {
                         mode = (ApplicationMode) Enum.Parse(

@@ -145,16 +145,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private TweenType ParseTween(string tween)
         {
-            try
-            {
-                return (TweenType) Enum.Parse(
-                    typeof(TweenType),
-                    tween);
-            }
-            catch
-            {
-                return TweenType.Responsive;
-            }
+            return EnumExtensions.Parse<TweenType>(tween);
         }
 
         /// <summary>
@@ -164,16 +155,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private VirtualColor ParseColor(string color)
         {
-            try
-            {
-                return (VirtualColor) Enum.Parse(
-                    typeof(VirtualColor),
-                    color);
-            }
-            catch
-            {
-                return VirtualColor.Disabled;
-            }
+            return EnumExtensions.Parse<VirtualColor>(color);
         }
 
         /// <summary>

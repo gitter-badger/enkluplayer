@@ -168,12 +168,12 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void LoadInternalAfterChildren()
         {
             base.LoadInternalAfterChildren();
-
+            
             // Activator
             {
                 _activator = _primitives.Activator(Schema, this);
                 AddChild(_activator);
-
+                
                 _srcProp = Schema.Get<string>("src");
                 _srcProp.OnChanged += Src_OnChanged;
 
@@ -254,7 +254,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LateUpdateInternal();
 
-            _stateRenderer.Update(Time.smoothDeltaTime);
+            //_stateRenderer.Update(Time.smoothDeltaTime);
         }
 
         /// <inheritdoc />

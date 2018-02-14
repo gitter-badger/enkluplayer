@@ -29,16 +29,17 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void Awake()
         {
             base.Awake();
-
+            
             var attributes = GetType().GetCustomAttributes(typeof(InjectVineAttribute), true);
             if (1 != attributes.Length)
             {
                 Log.Error(this, "Could not fine InjectVineAttribute on {0}.", name);
                 return;
             }
-
+            
             var identifier = ((InjectVineAttribute) attributes[0]).Identifier;
             var vine = Vines.Vine(identifier);
+            
             if (null != vine)
             {
                 Root = Elements.Element(vine.Text);

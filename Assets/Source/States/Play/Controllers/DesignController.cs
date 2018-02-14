@@ -117,7 +117,7 @@ namespace CreateAR.SpirePlayer
             _float = (FloatWidget) _elements.Element(@"<?Vine><Float id='Root' position=(0, 0, 1) face='camera'><ScaleTransition /></Float>");
             _float.GameObject.transform.parent = _events.transform;
             _parent = (ScaleTransition) _float.Children[0];
-
+            
             SetupMenus();
 
             // initialize with hardcoded app id
@@ -172,7 +172,7 @@ namespace CreateAR.SpirePlayer
             _splash.enabled = false;
             _splash.OnOpenMenu += Splash_OnOpenMenu;
             _parent.AddChild(_splash.Root);
-
+            
             _mainMenu = _events.gameObject.AddComponent<MainMenuController>();
             _mainMenu.enabled = false;
             _mainMenu.OnBack += MainMenu_OnBack;

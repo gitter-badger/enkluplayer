@@ -38,14 +38,7 @@ namespace CreateAR.SpirePlayer.IUX
                 // Capitalcase
                 type = type[0].ToString().ToUpperInvariant() + type.Substring(1).ToLowerInvariant();
 
-                try
-                {
-                    _type = (FaceType) Enum.Parse(typeof(FaceType), type);
-                }
-                catch
-                {
-                    _type = 0;
-                }
+                _type = EnumExtensions.Parse<FaceType>(type);
             }
         }
 

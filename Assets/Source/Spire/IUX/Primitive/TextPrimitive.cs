@@ -307,16 +307,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="alignment">String value.</param>
         private void UpdateAlignment(string alignment)
         {
-            try
-            {
-                _renderer.Alignment = (TextAlignmentType)Enum.Parse(
-                    typeof(TextAlignmentType),
-                    alignment);
-            }
-            catch
-            {
-                //
-            }
+            _renderer.Alignment = EnumExtensions.Parse<TextAlignmentType>(alignment);
         }
 
         /// <summary>

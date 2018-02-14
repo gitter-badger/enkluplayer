@@ -99,16 +99,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             var value = _alignmentProp.Value;
 
-            try
-            {
-                _text.Alignment = (TextAlignmentType)Enum.Parse(
-                    typeof(TextAlignmentType),
-                    value);
-            }
-            catch
-            {
-                // invalid type
-            }
+            _text.Alignment = EnumExtensions.Parse<TextAlignmentType>(value);
         }
 
         /// <summary>
@@ -118,16 +109,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             var value = _overflowProp.Value;
 
-            try
-            {
-                _text.Overflow = (HorizontalWrapMode)Enum.Parse(
-                    typeof(HorizontalWrapMode),
-                    value);
-            }
-            catch
-            {
-                // invalid
-            }
+            _text.Overflow = EnumExtensions.Parse<HorizontalWrapMode>(value);
         }
 
         /// <summary>

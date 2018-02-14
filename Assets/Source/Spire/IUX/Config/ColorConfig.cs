@@ -160,17 +160,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// Color.</returns>
         public bool TryGetColor(string virtualColorStr, out Col4 color)
         {
-            VirtualColor virtualColor;
-            try
-            {
-                virtualColor = (VirtualColor) Enum.Parse(typeof(VirtualColor), virtualColorStr);
-            }
-            catch
-            {
-                color = Col4.White;
-                return false;
-            }
-            
+            var virtualColor = EnumExtensions.Parse<VirtualColor>(virtualColorStr);
+
             return TryGetColor(virtualColor, out color);
         }
 

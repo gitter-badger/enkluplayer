@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.SpirePlayer.IUX;
+﻿using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
@@ -22,16 +21,7 @@ namespace CreateAR.SpirePlayer
         {
             get
             {
-                try
-                {
-                    return (VirtualColor) Enum.Parse(
-                        typeof(VirtualColor),
-                        _propFrameColor.Value);
-                }
-                catch
-                {
-                    return VirtualColor.Disabled;
-                }
+                return EnumExtensions.Parse<VirtualColor>(_propFrameColor.Value);
             }
         }
 
@@ -53,16 +43,7 @@ namespace CreateAR.SpirePlayer
         {
             get
             {
-                try
-                {
-                    return (TweenType) Enum.Parse(
-                        typeof(TweenType),
-                        _propTween.Value);
-                }
-                catch
-                {
-                    return TweenType.Responsive;
-                }
+                return EnumExtensions.Parse<TweenType>(_propTween.Value);
             }
         }
 

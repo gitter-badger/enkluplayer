@@ -103,7 +103,7 @@ namespace CreateAR.SpirePlayer.Vine
             {
                 throw new Exception("No root element found.");
             }
-
+            
             Description = new ElementDescription
             {
                 Elements = new[]

@@ -677,16 +677,7 @@ namespace CreateAR.SpirePlayer.IUX
             string prev,
             string next)
         {
-            try
-            {
-                _virtualColor = (VirtualColor) Enum.Parse(
-                    typeof(VirtualColor),
-                    next);
-            }
-            catch
-            {
-                //
-            }
+            _virtualColor = EnumExtensions.Parse<VirtualColor>(next);
         }
 
         /// <summary>

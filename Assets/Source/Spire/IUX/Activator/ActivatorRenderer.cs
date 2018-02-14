@@ -235,7 +235,6 @@ namespace CreateAR.SpirePlayer.IUX
         private void UpdateFrameWidget(float deltaTime)
         {
             var activatorState = _activator.CurrentState;
-
             var tweenDuration = _tweens.DurationSeconds(activatorState.Tween);
             var tweenLerp = tweenDuration > Mathf.Epsilon
                 ? deltaTime / tweenDuration
