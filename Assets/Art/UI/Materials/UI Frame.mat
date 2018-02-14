@@ -7,7 +7,7 @@ Material:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: UI Frame
-  m_Shader: {fileID: 200, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: f65fb7bdad1a4fe4189dee81d8c7388d, type: 3}
   m_ShaderKeywords: ETC1_EXTERNAL_ALPHA _ALPHABLEND_ON _USECOLOR_ON _USEMAINTEX_ON
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
@@ -65,6 +65,7 @@ Material:
     m_Floats:
     - PixelSnap: 0
     - _BumpScale: 1
+    - _ColorMask: 15
     - _ColorWriteMask: 15
     - _Cull: 2
     - _Cutoff: 0.5
@@ -81,9 +82,15 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 5
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
     - _UVSec: 0
     - _UseColor: 1
     - _UseMainTex: 1
+    - _UseUIAlphaClip: 0
     - _ZTest: 4
     - _ZWrite: 0
     m_Colors:
