@@ -36,6 +36,20 @@ namespace CreateAR.SpirePlayer
             ElementActionData action,
             out string error)
         {
+            var parent = Element;
+            if (parent.Id != action.ParentId)
+            {
+                parent = Element.FindOne<Element>(".." + action.ParentId);
+            }
+
+            if (null == parent)
+            {
+                error = string.Format(
+                    "Could not find parent '{0}'.",
+                    action.ParentId);
+                return false;
+            }
+
             var element = _elements.Element(new ElementDescription
             {
                 Root = new ElementRef
@@ -52,7 +66,7 @@ namespace CreateAR.SpirePlayer
                 }
             });
 
-            Element.AddChild(element);
+            parent.AddChild(element);
 
             error = string.Empty;
             return true;

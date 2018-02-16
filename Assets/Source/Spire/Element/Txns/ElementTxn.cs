@@ -42,13 +42,15 @@ namespace CreateAR.SpirePlayer
         /// Creates a create action and returns self.
         /// </summary>
         /// <param name="parentId">Parent id.</param>
+        /// <param name="elementId">Id of the element.</param>
         /// <param name="elementType">Type of element.</param>
         /// <returns></returns>
-        public ElementTxn Create(string parentId, int elementType)
+        public ElementTxn Create(string parentId, string elementId, int elementType)
         {
             Actions.Add(new ElementActionData
             {
                 Type = ElementActionTypes.CREATE,
+                ElementId = elementId,
                 ParentId = parentId,
                 ElementType = elementType
             });
@@ -87,6 +89,7 @@ namespace CreateAR.SpirePlayer
             Actions.Add(new ElementActionData
             {
                 Type = ElementActionTypes.UPDATE,
+                ElementId = elementId,
                 SchemaType = ElementActionSchemaTypes.INT,
                 Key = key,
                 Value = value.ToString()
@@ -110,6 +113,7 @@ namespace CreateAR.SpirePlayer
             Actions.Add(new ElementActionData
             {
                 Type = ElementActionTypes.UPDATE,
+                ElementId = elementId,
                 SchemaType = ElementActionSchemaTypes.FLOAT,
                 Key = key,
                 Value = value.ToString(CultureInfo.InvariantCulture)
@@ -133,6 +137,7 @@ namespace CreateAR.SpirePlayer
             Actions.Add(new ElementActionData
             {
                 Type = ElementActionTypes.UPDATE,
+                ElementId = elementId,
                 SchemaType = ElementActionSchemaTypes.STRING,
                 Key = key,
                 Value = value
@@ -156,6 +161,7 @@ namespace CreateAR.SpirePlayer
             Actions.Add(new ElementActionData
             {
                 Type = ElementActionTypes.UPDATE,
+                ElementId = elementId,
                 SchemaType = ElementActionSchemaTypes.BOOL,
                 Key = key,
                 Value = value.ToString()
@@ -179,9 +185,10 @@ namespace CreateAR.SpirePlayer
             Actions.Add(new ElementActionData
             {
                 Type = ElementActionTypes.UPDATE,
+                ElementId = elementId,
                 SchemaType = ElementActionSchemaTypes.VEC3,
                 Key = key,
-                Value = string.Format("{{ \"x\": {0}, \"y\": {1}, \"z\": {2} }}",
+                Value = string.Format("{0},{1},{2}",
                     value.x,
                     value.y,
                     value.z)
@@ -205,9 +212,10 @@ namespace CreateAR.SpirePlayer
             Actions.Add(new ElementActionData
             {
                 Type = ElementActionTypes.UPDATE,
-                SchemaType = ElementActionSchemaTypes.VEC3,
+                ElementId = elementId,
+                SchemaType = ElementActionSchemaTypes.COL4,
                 Key = key,
-                Value = string.Format("{{ \"r\": {0}, \"g\": {1}, \"b\": {2}, \"a\": {3} }}",
+                Value = string.Format("{0},{1},{2},{3}",
                     value.r,
                     value.g,
                     value.b,
