@@ -7,8 +7,8 @@
     public interface IElementTxnStore
     {
         /// <summary>
-        /// Applies a transaction and keeps a record of past state. This record
-        /// is kept until either Rollback or Commit are called.
+        /// Requests that a transaction take place. The store decides whether
+        /// to precommit and rollback on failure, or to wait for commit.
         /// 
         /// If there is an error on application, the transaction is
         /// automatically rolled back and the error parameter will be filled.
@@ -16,15 +16,7 @@
         /// <param name="txn">The transaction.</param>
         /// <param name="error">Error, if any.</param>
         /// <returns>True iff the txn was applied.</returns>
-        bool Apply(ElementTxn txn, out string error);
-
-        /// <summary>
-        /// Applies a transaction without keeping a record of past state. This
-        /// is used for txns we already know should be committed, regardless
-        /// of whether the actions fail or succeed.
-        /// </summary>
-        /// <param name="txn">The transaction.</param>
-        void ApplyAndCommit(ElementTxn txn);
+        bool Request(ElementTxn txn, out string error);
         
         /// <summary>
         /// Used in conjunction with Apply. This tells the store it can forget
@@ -39,5 +31,13 @@
         /// </summary>
         /// <param name="id">Unique id of txn.</param>
         void Rollback(uint id);
+
+        /// <summary>
+        /// Applies a transaction without keeping a record of past state. This
+        /// is used for txns we already know should be committed, regardless
+        /// of whether the actions fail or succeed.
+        /// </summary>
+        /// <param name="txn">The transaction.</param>
+        void Apply(ElementTxn txn);
     }
 }

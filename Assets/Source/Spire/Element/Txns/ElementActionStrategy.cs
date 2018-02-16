@@ -1,5 +1,4 @@
-﻿using System.Text;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
@@ -7,19 +6,13 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Strategy to apply actions to elements.
     /// </summary>
-    public class ElementActionStrategy : IElementActionStrategy
+    public class ElementActionStrategy
     {
         /// <summary>
         /// Creates elements.
         /// </summary>
         private readonly IElementFactory _elements;
-
-        /// <summary>
-        /// Json-izer.
-        /// </summary>
-        private readonly JsonSerializer _serializer;
-
-        /// <inheritdoc />
+        
         public Element Element { get; private set; }
         
         /// <summary>
@@ -27,55 +20,19 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public ElementActionStrategy(
             IElementFactory elements,
-            JsonSerializer serializer,
             Element root)
         {
             _elements = elements;
-            _serializer = serializer;
 
             Element = root;
         }
-
-        /// <inheritdoc />
-        public bool Apply(ElementActionData action, out string error)
-        {
-            if (null == Element)
-            {
-                error = "Root element is null. Did you forget to call Initialize first?";
-                return false;
-            }
-            
-            switch (action.Type)
-            {
-                case ElementActionTypes.CREATE:
-                {
-                    return ApplyCreateAction(action, out error);
-                }
-                case ElementActionTypes.DELETE:
-                {
-                    return ApplyDeleteAction(action, out error);
-                }
-                case ElementActionTypes.UPDATE:
-                {
-                    return ApplyUpdateAction(action, out error);
-                }
-                default:
-                {
-                    error = string.Format(
-                        "Unknown action type '{0}'.",
-                        action.Type);
-
-                    return false;
-                }
-            }
-        }
-
+        
         /// <summary>
         /// Appllies a create action.
         /// </summary>
         /// <param name="action">The action to apply.</param>
         /// <param name="error">The error, if any.</param>
-        private bool ApplyCreateAction(
+        public bool ApplyCreateAction(
             ElementActionData action,
             out string error)
         {
@@ -106,17 +63,17 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="action">The action to apply.</param>
         /// <param name="error">The error, if any.</param>
-        private bool ApplyDeleteAction(
+        public bool ApplyDeleteAction(
             ElementActionData action,
             out string error)
         {
             // cannot delete root, so just find with ..
-            var element = Element.FindOne<Element>(".." + action.Id);
+            var element = Element.FindOne<Element>(".." + action.ElementId);
             if (null == element)
             {
                 error = string.Format(
                     "Could not find element {0} to delete it!",
-                    action.Id);
+                    action.ElementId);
                 return false;
             }
 
@@ -125,147 +82,113 @@ namespace CreateAR.SpirePlayer
             error = string.Empty;
             return true;
         }
-
+        
         /// <summary>
-        /// Applies an update action.
+        /// Applies an update record.
         /// </summary>
-        /// <param name="action">The action.</param>
+        /// <param name="record">Record that contains new state and allows storing prev state.</param>
         /// <param name="error">The error, if any.</param>
-        private bool ApplyUpdateAction(
-            ElementActionData action,
+        public bool ApplyUpdateAction(
+            ElementActionUpdateRecord record,
             out string error)
         {
-            var element = Element.Id == action.Id
-                ? Element
-                : Element.FindOne<Element>(".." + action.Id);
-            if (null == element)
-            {
-                error = string.Format(
-                    "Could not find element {0} to delete it!",
-                    action.Id);
-                return false;
-            }
-
-            switch (action.SchemaType)
+            var element = record.Element;
+            
+            switch (record.SchemaType)
             {
                 case ElementActionSchemaTypes.STRING:
                 {
                     LogVerbose(
                         "Setting [Element id={0}].strings[{1}] = {2}",
-                        action.Id,
-                        action.Key,
-                        action.Value);
+                        record.Element.Id,
+                        record.Key,
+                        record.NextValue);
 
-                    element.Schema.Set(action.Key, action.Value);
+                    var prop = element.Schema.Get<string>(record.Key);
+
+                    record.PrevValue = prop.Value;
+                    
+                    prop.Value = record.NextValue.ToString();
+
                     break;
                 }
                 case ElementActionSchemaTypes.INT:
                 {
-                    int val;
-                    if (int.TryParse(action.Value, out val))
-                    {
-                        LogVerbose(
-                            "Setting [Element id={0}].ints[{1}] = {2}",
-                            action.Id,
-                            action.Key,
-                            val);
+                    LogVerbose(
+                        "Setting [Element id={0}].ints[{1}] = {2}",
+                        record.Element.Id,
+                        record.Key,
+                        record.NextValue);
 
-                        element.Schema.Set(action.Key, val);
-                    }
-                    else
-                    {
-                        error = string.Format(
-                            "Could not parse int value from {0}.",
-                            action.Value);
-                        return false;
-                    }
+                    var prop = element.Schema.Get<int>(record.Key);
+
+                    record.PrevValue = prop.Value;
+
+                    prop.Value = (int) record.NextValue;
 
                     break;
                 }
                 case ElementActionSchemaTypes.FLOAT:
                 {
-                    float val;
-                    if (float.TryParse(action.Value, out val))
-                    {
-                        LogVerbose(
-                            "Setting [Element id={0}].floats[{1}] = {2}",
-                            action.Id,
-                            action.Key,
-                            val);
+                    LogVerbose(
+                        "Setting [Element id={0}].float[{1}] = {2}",
+                        record.Element.Id,
+                        record.Key,
+                        record.NextValue);
 
-                        element.Schema.Set(action.Key, val);
-                    }
-                    else
-                    {
-                        error = string.Format(
-                            "Could not parse float value from {0}.",
-                            action.Value);
-                        return false;
-                    }
+                    var prop = element.Schema.Get<float>(record.Key);
+
+                    record.PrevValue = prop.Value;
+
+                    prop.Value = (float) record.NextValue;
 
                     break;
                 }
                 case ElementActionSchemaTypes.BOOL:
                 {
-                    if (action.Value == "true")
-                    {
-                        LogVerbose(
-                            "Setting [Element id={0}].bools[{1}] = {2}",
-                            action.Id,
-                            action.Key,
-                            true);
+                    LogVerbose(
+                        "Setting [Element id={0}].bools[{1}] = {2}",
+                        record.Element.Id,
+                        record.Key,
+                        record.NextValue);
 
-                        element.Schema.Set(action.Key, true);
-                    }
-                    else if (action.Value == "false")
-                    {
-                        LogVerbose(
-                            "Setting [Element id={0}].bools[{1}] = {2}",
-                            action.Id,
-                            action.Key,
-                            false);
+                    var prop = element.Schema.Get<bool>(record.Key);
 
-                        element.Schema.Set(action.Key, false);
-                    }
-                    else
-                    {
-                        error = string.Format(
-                            "Could not parse bool from {0}.",
-                            action.Value);
-                        return false;
-                    }
+                    record.PrevValue = prop.Value;
+
+                    prop.Value = (bool) record.NextValue;
 
                     break;
                 }
                 case ElementActionSchemaTypes.VEC3:
                 {
-                    object val;
-                    var bytes = Encoding.UTF8.GetBytes(action.Value);
-                    _serializer.Deserialize(typeof(Vec3), ref bytes, out val);
-
                     LogVerbose(
                         "Setting [Element id={0}].vectors[{1}] = {2}",
-                        action.Id,
-                        action.Key,
-                        val);
+                        record.Element.Id,
+                        record.Key,
+                        record.NextValue);
 
-                    element.Schema.Set(action.Key, (Vec3) val);
-                    
+                    var prop = element.Schema.Get<Vec3>(record.Key);
+
+                    record.PrevValue = prop.Value;
+
+                    prop.Value = (Vec3) record.NextValue;
+
                     break;
                 }
                 case ElementActionSchemaTypes.COL4:
                 {
-                    object val;
-                    var bytes = Encoding.UTF8.GetBytes(action.Value);
-                    _serializer.Deserialize(typeof(Col4), ref bytes, out val);
-
                     LogVerbose(
                         "Setting [Element id={0}].colors[{1}] = {2}",
-                        action.Id,
-                        action.Key,
-                        val);
+                        record.Element.Id,
+                        record.Key,
+                        record.NextValue);
 
-                    element.Schema.Set(action.Key, (Col4) val);
+                    var prop = element.Schema.Get<Col4>(record.Key);
+
+                    record.PrevValue = prop.Value;
+
+                    prop.Value = (Col4) record.NextValue;
 
                     break;
                 }
@@ -273,7 +196,7 @@ namespace CreateAR.SpirePlayer
                 {
                     error = string.Format(
                         "Invalid schema type '{0}'.",
-                        action.SchemaType);
+                        record.SchemaType);
 
                     return false;
                 }
