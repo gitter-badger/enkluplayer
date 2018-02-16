@@ -44,6 +44,7 @@ namespace CreateAR.SpirePlayer
             // misc dependencies
             {
                 binder.Bind<ISerializer>().To<JsonSerializer>();
+                binder.Bind<JsonSerializer>().To<JsonSerializer>();
                 binder.Bind<BridgeMessageHandler>().To<BridgeMessageHandler>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
                 binder.Bind<IHttpService>()
