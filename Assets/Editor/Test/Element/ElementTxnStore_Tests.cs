@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using CreateAR.SpirePlayer.IUX;
+using CreateAR.SpirePlayer.Test.UI;
+using NUnit.Framework;
 
 namespace CreateAR.SpirePlayer.Test.Txn
 {
@@ -10,7 +12,26 @@ namespace CreateAR.SpirePlayer.Test.Txn
         [SetUp]
         public void Setup()
         {
-            _store = new ElementTxnStore();
+            var factory = new DummyElementFactory();
+            var root = factory.Element(new ElementDescription
+            {
+                Root = new ElementRef
+                {
+                    Id = "root"
+                },
+                Elements = new[]
+                {
+                    new ElementData
+                    {
+                        Id = "root"
+                    }
+                }
+            });
+
+            _store = new ElementTxnStore(new ElementActionStrategy(
+                factory,
+                new JsonSerializer(),
+                root));
         }
 
         [Test]

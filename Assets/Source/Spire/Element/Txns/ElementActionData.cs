@@ -8,12 +8,6 @@ namespace CreateAR.SpirePlayer
     public class ElementActionData
     {
         /// <summary>
-        /// Unique id of action.
-        /// </summary>
-        [JsonName("id")]
-        public string Id;
-
-        /// <summary>
         /// Type of action.
         /// </summary>
         [JsonName("type")]

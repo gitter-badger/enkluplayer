@@ -10,6 +10,11 @@ namespace CreateAR.SpirePlayer
     public class ElementTxn
     {
         /// <summary>
+        /// Unique id.
+        /// </summary>
+        public readonly uint Id;
+
+        /// <summary>
         /// Actions.
         /// </summary>
         public readonly List<ElementActionData> Actions = new List<ElementActionData>();
@@ -17,16 +22,18 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ElementTxn()
+        public ElementTxn(uint id)
         {
-            //
+            Id = id;
         }
 
         /// <summary>
         /// Constructor.
         /// </summary>
+        /// <param name="id">Unique id.</param>
         /// <param name="actions">Actions.</param>
-        public ElementTxn(ElementActionData[] actions)
+        public ElementTxn(uint id, ElementActionData[] actions)
+            : this(id)
         {
             Actions.AddRange(actions);
         }

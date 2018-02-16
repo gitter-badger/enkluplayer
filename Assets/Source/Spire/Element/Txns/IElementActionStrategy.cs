@@ -11,18 +11,7 @@ namespace CreateAR.SpirePlayer
         /// The root element.
         /// </summary>
         Element Element { get; }
-
-        /// <summary>
-        /// Initializes strategy with root element.
-        /// </summary>
-        /// <param name="root">The root element.</param>
-        void Initialize(Element root);
-
-        /// <summary>
-        /// Uninitializes strategy.
-        /// </summary>
-        void Uninitialize();
-
+        
         /// <summary>
         /// Applies an action to elements.
         /// </summary>

@@ -27,22 +27,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public ElementActionStrategy(
             IElementFactory elements,
-            JsonSerializer serializer)
+            JsonSerializer serializer,
+            Element root)
         {
             _elements = elements;
             _serializer = serializer;
-        }
 
-        /// <inheritdoc />
-        public void Initialize(Element root)
-        {
             Element = root;
-        }
-
-        /// <inheritdoc />
-        public void Uninitialize()
-        {
-            Element = null;
         }
 
         /// <inheritdoc />
