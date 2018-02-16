@@ -30,7 +30,6 @@ namespace CreateAR.SpirePlayer.Test.Txn
 
             _store = new ElementTxnStore(new ElementActionStrategy(
                 factory,
-                new JsonSerializer(),
                 root));
         }
 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 
@@ -45,7 +44,7 @@ namespace CreateAR.SpirePlayer
 
         public bool Request(ElementTxn txn, out string error)
         {
-            var record = CreateRecord(txn);
+            var record = SetupRecord(txn);
 
             // this txn supports precommiting + potentially rolling back later
             if (record.AllowsPreCommit)
@@ -59,10 +58,11 @@ namespace CreateAR.SpirePlayer
         
         public void Apply(ElementTxn txn)
         {
-            string error;
             for (int i = 0, len = txn.Actions.Count; i < len; i++)
             {
                 var action = txn.Actions[i];
+
+                string error;
                 switch (action.Type)
                 {
                     case ElementActionTypes.CREATE:
@@ -137,6 +137,12 @@ namespace CreateAR.SpirePlayer
                 var record = _records[i];
                 if (record.Id == id)
                 {
+                    // was not precommitted, need to Apply() now
+                    if (!record.AllowsPreCommit)
+                    {
+                        Apply(record.Txn);
+                    }
+
                     _records.RemoveAt(i);
 
                     break;
@@ -153,7 +159,7 @@ namespace CreateAR.SpirePlayer
             var record = RetrieveRecord(id);
             if (null != record)
             {
-                Rollback(record, record.UndoActions.Count - 1);
+                Rollback(record, record.UpdateRecords.Count - 1);
             }
             else
             {
@@ -311,7 +317,7 @@ namespace CreateAR.SpirePlayer
             return true;
         }
 
-        private TxnRecord CreateRecord(ElementTxn txn)
+        private TxnRecord SetupRecord(ElementTxn txn)
         {
             // TODO: Pool.
             var record = new TxnRecord();
@@ -365,10 +371,10 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            var actions = record.UndoActions;
+            var precommits = record.UpdateRecords;
             
             // nothing to rollback
-            if (0 == actions.Count)
+            if (0 == precommits.Count)
             {
                 return;
             }
@@ -376,10 +382,10 @@ namespace CreateAR.SpirePlayer
             // rollback in reverse order, starting at index
             while (index >= 0)
             {
-                var action = actions[index];
+                var precommit = precommits[index];
 
                 string error;
-                if (!_strategy.Apply(action, out error))
+                if (!_strategy.ApplyUpdateAction(precommit, out error))
                 {
                     Log.Warning(this,
                         "Rollback action failed : {0}.",
