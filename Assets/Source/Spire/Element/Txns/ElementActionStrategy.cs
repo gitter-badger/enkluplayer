@@ -56,15 +56,15 @@ namespace CreateAR.SpirePlayer
             
             switch (action.Type)
             {
-                case "create":
+                case ElementActionTypes.CREATE:
                 {
                     return ApplyCreateAction(action, out error);
                 }
-                case "delete":
+                case ElementActionTypes.DELETE:
                 {
                     return ApplyDeleteAction(action, out error);
                 }
-                case "update":
+                case ElementActionTypes.UPDATE:
                 {
                     return ApplyUpdateAction(action, out error);
                 }
@@ -157,7 +157,7 @@ namespace CreateAR.SpirePlayer
 
             switch (action.SchemaType)
             {
-                case "string":
+                case ElementActionSchemaTypes.STRING:
                 {
                     LogVerbose(
                         "Setting [Element id={0}].strings[{1}] = {2}",
@@ -168,7 +168,7 @@ namespace CreateAR.SpirePlayer
                     element.Schema.Set(action.Key, action.Value);
                     break;
                 }
-                case "int":
+                case ElementActionSchemaTypes.INT:
                 {
                     int val;
                     if (int.TryParse(action.Value, out val))
@@ -191,7 +191,7 @@ namespace CreateAR.SpirePlayer
 
                     break;
                 }
-                case "float":
+                case ElementActionSchemaTypes.FLOAT:
                 {
                     float val;
                     if (float.TryParse(action.Value, out val))
@@ -214,7 +214,7 @@ namespace CreateAR.SpirePlayer
 
                     break;
                 }
-                case "bool":
+                case ElementActionSchemaTypes.BOOL:
                 {
                     if (action.Value == "true")
                     {
@@ -246,7 +246,7 @@ namespace CreateAR.SpirePlayer
 
                     break;
                 }
-                case "vec3":
+                case ElementActionSchemaTypes.VEC3:
                 {
                     object val;
                     var bytes = Encoding.UTF8.GetBytes(action.Value);
@@ -262,7 +262,7 @@ namespace CreateAR.SpirePlayer
                     
                     break;
                 }
-                case "col4":
+                case ElementActionSchemaTypes.COL4:
                 {
                     object val;
                     var bytes = Encoding.UTF8.GetBytes(action.Value);
