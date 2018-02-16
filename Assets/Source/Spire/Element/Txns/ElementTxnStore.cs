@@ -4,44 +4,69 @@ using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
-    public class ElementActionUpdateRecord
-    {
-        public Element Element;
-        public string SchemaType;
-        
-        public string Key;
-        
-        public object PrevValue;
-        public object NextValue;
-    }
-
     /// <summary>
     /// Applies actions, but can roll them back or forget about them later.
     /// </summary>
     public class ElementTxnStore : IElementTxnStore
     {
+        /// <summary>
+        /// Tracks a transaction.
+        /// </summary>
         private class TxnRecord
         {
+            /// <summary>
+            /// List of records to we can rollback updates.
+            /// </summary>
             public readonly List<ElementActionUpdateRecord> UpdateRecords = new List<ElementActionUpdateRecord>();
 
+            /// <summary>
+            /// The transaction.
+            /// </summary>
             public ElementTxn Txn;
 
-            public uint Id;
-
+            /// <summary>
+            /// True iff precommits are allowed for this transaction.
+            /// </summary>
             public bool AllowsPreCommit;
+
+            /// <summary>
+            /// Returns id of transaction.
+            /// </summary>
+            public uint Id
+            {
+                get { return Txn.Id; }
+            }
         }
 
+        /// <summary>
+        /// Max number of transactions we're allowed to track.
+        /// </summary>
         private const int MAX_TXNS = 1000;
 
-        private readonly ElementActionStrategy _strategy;
+        /// <summary>
+        /// The strategy to affect elements with.
+        /// </summary>
+        private readonly IElementActionStrategy _strategy;
+
+        /// <summary>
+        /// List of transactions we're currently tracking.
+        /// </summary>
         private readonly List<TxnRecord> _records = new List<TxnRecord>();
+
+        /// <summary>
+        /// Used over and over again.
+        /// </summary>
         private readonly ElementActionUpdateRecord _scratchRecord = new ElementActionUpdateRecord();
 
-        public ElementTxnStore(ElementActionStrategy strategy)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public ElementTxnStore(IElementActionStrategy strategy)
         {
             _strategy = strategy;
         }
 
+        /// <inheritdoc />
         public bool Request(ElementTxn txn, out string error)
         {
             var record = SetupRecord(txn);
@@ -55,7 +80,8 @@ namespace CreateAR.SpirePlayer
             error = string.Empty;
             return true;
         }
-        
+
+        /// <inheritdoc />
         public void Apply(ElementTxn txn)
         {
             for (int i = 0, len = txn.Actions.Count; i < len; i++)
@@ -130,6 +156,7 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc />
         public void Commit(uint id)
         {
             for (var i = 0; i < _records.Count; i++)
@@ -154,6 +181,7 @@ namespace CreateAR.SpirePlayer
                 id);
         }
 
+        /// <inheritdoc />
         public void Rollback(uint id)
         {
             var record = RetrieveRecord(id);
@@ -169,6 +197,12 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Applies information from an action to an update record.
+        /// </summary>
+        /// <param name="action">The action.</param>
+        /// <param name="record">The update record.</param>
+        /// <returns></returns>
         private bool ApplyActionToUpdateRecord(
             ElementActionData action,
             ElementActionUpdateRecord record)
@@ -280,6 +314,12 @@ namespace CreateAR.SpirePlayer
             return true;
         }
 
+        /// <summary>
+        /// Applies actions before commit.
+        /// </summary>
+        /// <param name="record">The record to apply.</param>
+        /// <param name="error">The error, if any.</param>
+        /// <returns></returns>
         private bool PreCommit(TxnRecord record, out string error)
         {
             var precommits = record.UpdateRecords;
@@ -304,6 +344,11 @@ namespace CreateAR.SpirePlayer
             return true;
         }
 
+        /// <summary>
+        /// True iff a transaction allows a precommit.
+        /// </summary>
+        /// <param name="txn">The transaction.</param>
+        /// <returns></returns>
         private bool AllowsPreCommit(ElementTxn txn)
         {
             for (int i = 0, len = txn.Actions.Count; i < len; i++)
@@ -317,11 +362,15 @@ namespace CreateAR.SpirePlayer
             return true;
         }
 
+        /// <summary>
+        /// Sets up a record based on a transaction.
+        /// </summary>
+        /// <param name="txn">The transaction.</param>
+        /// <returns></returns>
         private TxnRecord SetupRecord(ElementTxn txn)
         {
             // TODO: Pool.
             var record = new TxnRecord();
-            record.Id = txn.Id;
             record.Txn = txn;
             record.AllowsPreCommit = AllowsPreCommit(txn);
 
@@ -350,6 +399,11 @@ namespace CreateAR.SpirePlayer
             return record;
         }
         
+        /// <summary>
+        /// Retrieves an existing transaction record by id.
+        /// </summary>
+        /// <param name="id">The is of the record.</param>
+        /// <returns></returns>
         private TxnRecord RetrieveRecord(uint id)
         {
             for (var i = 0; i < _records.Count; i++)
@@ -364,6 +418,11 @@ namespace CreateAR.SpirePlayer
             return null;
         }
 
+        /// <summary>
+        /// Rolls back a transaction and removes it from tracking.
+        /// </summary>
+        /// <param name="record">The record.</param>
+        /// <param name="index">The index into the record.</param>
         private void Rollback(TxnRecord record, int index)
         {
             if (!_records.Remove(record))

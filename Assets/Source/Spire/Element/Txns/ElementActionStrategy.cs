@@ -6,13 +6,14 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Strategy to apply actions to elements.
     /// </summary>
-    public class ElementActionStrategy
+    public class ElementActionStrategy : IElementActionStrategy
     {
         /// <summary>
         /// Creates elements.
         /// </summary>
         private readonly IElementFactory _elements;
         
+        /// <inheritdoc />
         public Element Element { get; private set; }
         
         /// <summary>
@@ -26,12 +27,8 @@ namespace CreateAR.SpirePlayer
 
             Element = root;
         }
-        
-        /// <summary>
-        /// Appllies a create action.
-        /// </summary>
-        /// <param name="action">The action to apply.</param>
-        /// <param name="error">The error, if any.</param>
+
+        /// <inheritdoc />
         public bool ApplyCreateAction(
             ElementActionData action,
             out string error)
@@ -72,11 +69,7 @@ namespace CreateAR.SpirePlayer
             return true;
         }
 
-        /// <summary>
-        /// Applies a delete action.
-        /// </summary>
-        /// <param name="action">The action to apply.</param>
-        /// <param name="error">The error, if any.</param>
+        /// <inheritdoc />
         public bool ApplyDeleteAction(
             ElementActionData action,
             out string error)
@@ -96,12 +89,8 @@ namespace CreateAR.SpirePlayer
             error = string.Empty;
             return true;
         }
-        
-        /// <summary>
-        /// Applies an update record.
-        /// </summary>
-        /// <param name="record">Record that contains new state and allows storing prev state.</param>
-        /// <param name="error">The error, if any.</param>
+
+        /// <inheritdoc />
         public bool ApplyUpdateAction(
             ElementActionUpdateRecord record,
             out string error)
