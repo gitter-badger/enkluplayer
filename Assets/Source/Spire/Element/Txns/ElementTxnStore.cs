@@ -145,7 +145,7 @@ namespace CreateAR.SpirePlayer
 
                     _records.RemoveAt(i);
 
-                    break;
+                    return;
                 }
             }
 
@@ -333,7 +333,8 @@ namespace CreateAR.SpirePlayer
 
                     // TODO: Pool.
                     var updateRec = new ElementActionUpdateRecord();
-                    updateRec.SchemaType = action.SchemaType;
+
+                    ApplyActionToUpdateRecord(action, updateRec);   
 
                     record.UpdateRecords.Add(updateRec);
                 }
@@ -383,6 +384,7 @@ namespace CreateAR.SpirePlayer
             while (index >= 0)
             {
                 var precommit = precommits[index];
+                precommit.NextValue = precommit.PrevValue;
 
                 string error;
                 if (!_strategy.ApplyUpdateAction(precommit, out error))

@@ -1,6 +1,10 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Test.UI;
 using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace CreateAR.SpirePlayer.Test.Txn
 {
@@ -35,7 +39,14 @@ namespace CreateAR.SpirePlayer.Test.Txn
                                 {
                                     new ElementData
                                     {
-                                        Id = "b"
+                                        Id = "b",
+                                        Schema = new ElementSchemaData
+                                        {
+                                            Strings = new Dictionary<string, string>
+                                            {
+                                                { "foo", "buzz" }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -124,6 +135,79 @@ namespace CreateAR.SpirePlayer.Test.Txn
 
             Assert.AreSame("bar", aa.Schema.Get<string>("foo").Value);
             Assert.IsNull(_root.FindOne<Element>("..b"));
+        }
+
+        [Test]
+        public void ApplyBad()
+        {
+            LogAssert.Expect(LogType.Error, new Regex("Invalid action type"));
+
+            var txn = new ElementTxn(Id());
+            txn.Actions.Add(new ElementActionData());
+            txn.Create("a", "aa", 0);
+
+            _store.Apply(txn);
+
+            // should not have created "aa"
+            Assert.IsNull(_root.FindOne<Element>("..aa"));
+        }
+
+        [Test]
+        public void RequestAndCommit()
+        {
+            var txn = new ElementTxn(Id())
+                .Create("a", "aa", 0)
+                .Update("aa", "foo", "bar");
+
+            string error;
+            
+            Assert.IsTrue(_store.Request(txn, out error));
+            Assert.IsTrue(string.IsNullOrEmpty(error));
+
+            Assert.IsNull(_root.FindOne<Element>("..aa"));
+
+            _store.Commit(txn.Id);
+
+            var aa = _root.FindOne<Element>("..aa");
+            Assert.AreEqual("bar", aa.Schema.Get<string>("foo").Value);
+        }
+
+        [Test]
+        public void RequestPreCommitAndCommit()
+        {
+            var txn = new ElementTxn(Id()).Update("b", "foo", "bar");
+
+            string error;
+
+            Assert.IsTrue(_store.Request(txn, out error));
+            Assert.IsTrue(string.IsNullOrEmpty(error));
+
+            var b = _root.FindOne<Element>("..b");
+
+            Assert.AreEqual("bar", b.Schema.Get<string>("foo").Value);
+
+            _store.Commit(txn.Id);
+
+            Assert.AreEqual("bar", b.Schema.Get<string>("foo").Value);
+        }
+
+        [Test]
+        public void RequestPreCommitAndRollback()
+        {
+            var txn = new ElementTxn(Id()).Update("b", "foo", "bar");
+
+            string error;
+
+            Assert.IsTrue(_store.Request(txn, out error));
+            Assert.IsTrue(string.IsNullOrEmpty(error));
+
+            var b = _root.FindOne<Element>("..b");
+
+            Assert.AreEqual("bar", b.Schema.Get<string>("foo").Value);
+
+            _store.Rollback(txn.Id);
+
+            Assert.AreEqual("buzz", b.Schema.Get<string>("foo").Value);
         }
     }
 }
