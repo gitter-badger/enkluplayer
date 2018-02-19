@@ -231,77 +231,27 @@ namespace CreateAR.SpirePlayer
                 }
                 case ElementActionSchemaTypes.INT:
                 {
-                    int val;
-                    if (int.TryParse(action.Value, out val))
-                    {
-                        record.NextValue = val;
-
-                        break;
-                    }
-
-                    return false;
+                    record.NextValue = (int) action.Value;
+                    break;
                 }
                 case ElementActionSchemaTypes.FLOAT:
                 {
-                    float val;
-                    if (float.TryParse(action.Value, out val))
-                    {
-                        record.NextValue = val;
-
-                        break;
-                    }
-
-                    return false;
+                    record.NextValue = (float) action.Value;
+                    break;
                 }
                 case ElementActionSchemaTypes.BOOL:
                 {
-                    bool val;
-                    if (bool.TryParse(action.Value, out val))
-                    {
-                        record.NextValue = val;
-
-                        break;
-                    }
-
-                    return false;
+                    record.NextValue = (bool) action.Value;
+                    break;
                 }
                 case ElementActionSchemaTypes.VEC3:
                 {
-                    var vals = action.Value.Split(',');
-                    if (3 != vals.Length)
-                    {
-                        return false;
-                    }
-
-                    float x, y, z;
-                    if (!float.TryParse(vals[0], out x)
-                        || !float.TryParse(vals[1], out y)
-                        || !float.TryParse(vals[2], out z))
-                    {
-                        return false;
-                    }
-
-                    record.NextValue = new Vec3(x, y, z);
+                    record.NextValue = (Vec3) action.Value;
                     break;
                 }
                 case ElementActionSchemaTypes.COL4:
                 {
-                    var vals = action.Value.Split(',');
-                    if (4 != vals.Length)
-                    {
-                        return false;
-                    }
-
-                    float r, g, b, a;
-                    if (!float.TryParse(vals[0], out r)
-                        || !float.TryParse(vals[1], out g)
-                        || !float.TryParse(vals[2], out b)
-                        || !float.TryParse(vals[3], out a))
-                    {
-                        return false;
-                    }
-
-                    record.NextValue = new Col4(r, g, b, a);
+                    record.NextValue = (Col4) action.Value;
 
                     break;
                 }

@@ -51,6 +51,11 @@ namespace CreateAR.SpirePlayer
         /// Controls design mode.
         /// </summary>
         private readonly DesignController _design;
+
+        /// <summary>
+        /// Application-wide configuration.
+        /// </summary>
+        private ApplicationConfig _appConfig;
         
         /// <summary>
         /// Time at which state was entered.
@@ -86,6 +91,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
+            _appConfig = (ApplicationConfig) context;
+
             _enterTime = DateTime.Now;
             _statusCleared = false;
             _messages.Publish(
@@ -155,7 +162,7 @@ namespace CreateAR.SpirePlayer
 
             // initialize with hardcoded app id
             _app
-                .Initialize("ec0d4c9e-a641-49b8-8394-ab1ff26c4559")
+                .Initialize(_appConfig.Play.AppId)
                 .OnSuccess(_ =>
                 {
                     Log.Info(this, "AppController initialized.");

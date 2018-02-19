@@ -219,14 +219,6 @@ namespace CreateAR.SpirePlayer
             }
 
             var token = new AsyncToken<ElementResponse>();
-
-            // translate txn actions into network requests
-            var requestedActions = new ElementRequest[txn.Actions.Count];
-            for (var i = 0; i < txn.Actions.Count; i++)
-            {
-                var action = txn.Actions[i];
-                requestedActions[i] = ToElementRequest(action);
-            }
             
             // send
             _http
@@ -234,7 +226,7 @@ namespace CreateAR.SpirePlayer
                     _http.UrlBuilder.Url(string.Format("/editor/app/{0}/scene/{1}", _appId, txn.SceneId)),
                     new ElementTxnRequest
                     {
-                        Actions = requestedActions.ToArray()
+                        Actions = txn.Actions.ToArray()
                     })
                 .OnSuccess(response =>
                 {
@@ -319,131 +311,7 @@ namespace CreateAR.SpirePlayer
 
             return token;
         }
-
-        /// <summary>
-        /// Creates <c>ElementRequest</c> from <c>ElementActionData</c>.
-        /// </summary>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        private ElementRequest ToElementRequest(ElementActionData action)
-        {
-            switch (action.Type)
-            {
-                case ElementActionTypes.CREATE:
-                    {
-                        return new CreateElementRequest
-                        {
-                            Type = ElementActionTypes.CREATE,
-                            ElementId = action.ElementId,
-                            ParentId = action.ParentId,
-                            Data = action.Element
-                        };
-                    }
-                case ElementActionTypes.UPDATE:
-                    {
-                        switch (action.SchemaType)
-                        {
-                            case ElementActionSchemaTypes.INT:
-                                {
-                                    return new UpdateElementIntRequest
-                                    {
-                                        Type = ElementActionTypes.UPDATE,
-                                        ElementId = action.ElementId,
-                                        SchemaType = action.SchemaType,
-                                        Key = action.Key,
-                                        Value = int.Parse(action.Value)
-                                    };
-                                }
-                            case ElementActionSchemaTypes.FLOAT:
-                                {
-                                    return new UpdateElementFloatRequest
-                                    {
-                                        Type = ElementActionTypes.UPDATE,
-                                        ElementId = action.ElementId,
-                                        SchemaType = action.SchemaType,
-                                        Key = action.Key,
-                                        Value = float.Parse(action.Value)
-                                    };
-                                }
-                            case ElementActionSchemaTypes.BOOL:
-                                {
-                                    return new UpdateElementBoolRequest
-                                    {
-                                        Type = ElementActionTypes.UPDATE,
-                                        ElementId = action.ElementId,
-                                        SchemaType = action.SchemaType,
-                                        Key = action.Key,
-                                        Value = bool.Parse(action.Value)
-                                    };
-                                }
-                            case ElementActionSchemaTypes.STRING:
-                                {
-                                    return new UpdateElementStringRequest
-                                    {
-                                        Type = ElementActionTypes.UPDATE,
-                                        ElementId = action.ElementId,
-                                        SchemaType = action.SchemaType,
-                                        Key = action.Key,
-                                        Value = action.Value
-                                    };
-                                }
-                            case ElementActionSchemaTypes.VEC3:
-                                {
-                                    var split = action.Value.Split(',');
-
-                                    return new UpdateElementVec3Request
-                                    {
-                                        Type = ElementActionTypes.UPDATE,
-                                        ElementId = action.ElementId,
-                                        SchemaType = action.SchemaType,
-                                        Key = action.Key,
-                                        Value = new Vec3(
-                                            float.Parse(split[0]),
-                                            float.Parse(split[1]),
-                                            float.Parse(split[2]))
-                                    };
-                                }
-                            case ElementActionSchemaTypes.COL4:
-                                {
-                                    var split = action.Value.Split(',');
-
-                                    return new UpdateElementCol4Request
-                                    {
-                                        Type = ElementActionTypes.UPDATE,
-                                        ElementId = action.ElementId,
-                                        SchemaType = action.SchemaType,
-                                        Key = action.Key,
-                                        Value = new Col4(
-                                            float.Parse(split[0]),
-                                            float.Parse(split[1]),
-                                            float.Parse(split[2]),
-                                            float.Parse(split[3]))
-                                    };
-                                }
-                            default:
-                                {
-                                    Log.Error(this,
-                                        "Unknown schemaType '{0}'.",
-                                        action.SchemaType);
-                                    return null;
-                                }
-                        }
-                    }
-                case ElementActionTypes.DELETE:
-                    {
-                        return new DeleteElementRequest
-                        {
-                            Type = ElementActionTypes.DELETE,
-                            ElementId = action.ElementId
-                        };
-                    }
-                default:
-                    {
-                        return null;
-                    }
-            }
-        }
-
+        
         /// <summary>
         /// Finds affected elements and adds them to the response.
         /// </summary>

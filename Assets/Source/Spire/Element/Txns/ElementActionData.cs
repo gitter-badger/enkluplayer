@@ -29,7 +29,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// The element structure, used for create actions.
         /// </summary>
-        [JsonName("element")]
+        [JsonName("data")]
         public ElementData Element;
 
         /// <summary>
@@ -45,9 +45,9 @@ namespace CreateAR.SpirePlayer
         public string Key;
 
         /// <summary>
-        /// Serialized value of schema data, used for update actions.
+        /// Value of schema data, used for update actions.
         /// </summary>
         [JsonName("value")]
-        public string Value;
+        public object Value;
     }
 }

@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer
         /// Actions.
         /// </summary>
         [JsonName("actions")]
-        public ElementRequest[] Actions;
+        public ElementActionData[] Actions;
     }
 
     /// <summary>

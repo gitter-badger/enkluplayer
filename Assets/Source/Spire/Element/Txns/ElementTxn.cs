@@ -123,7 +123,7 @@ namespace CreateAR.SpirePlayer
                 ElementId = elementId,
                 SchemaType = ElementActionSchemaTypes.INT,
                 Key = key,
-                Value = value.ToString()
+                Value = value
             });
 
             return this;
@@ -147,7 +147,7 @@ namespace CreateAR.SpirePlayer
                 ElementId = elementId,
                 SchemaType = ElementActionSchemaTypes.FLOAT,
                 Key = key,
-                Value = value.ToString(CultureInfo.InvariantCulture)
+                Value = value
             });
 
             return this;
@@ -195,7 +195,7 @@ namespace CreateAR.SpirePlayer
                 ElementId = elementId,
                 SchemaType = ElementActionSchemaTypes.BOOL,
                 Key = key,
-                Value = value.ToString()
+                Value = value
             });
 
             return this;
@@ -219,10 +219,7 @@ namespace CreateAR.SpirePlayer
                 ElementId = elementId,
                 SchemaType = ElementActionSchemaTypes.VEC3,
                 Key = key,
-                Value = string.Format("{0},{1},{2}",
-                    value.x,
-                    value.y,
-                    value.z)
+                Value = value
             });
 
             return this;
@@ -246,11 +243,7 @@ namespace CreateAR.SpirePlayer
                 ElementId = elementId,
                 SchemaType = ElementActionSchemaTypes.COL4,
                 Key = key,
-                Value = string.Format("{0},{1},{2},{3}",
-                    value.r,
-                    value.g,
-                    value.b,
-                    value.a)
+                Value = value
             });
 
             return this;
