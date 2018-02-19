@@ -119,40 +119,7 @@ namespace CreateAR.SpirePlayer
             _parent = (ScaleTransition) _float.Children[0];
             
             SetupMenus();
-
-            // initialize with hardcoded app id
-            _appController
-                .Initialize("test")
-                .OnSuccess(_ =>
-                {
-                    Log.Info(this, "IPropManager initialized.");
-
-                    // create a default propset if there isn't one
-                    if (null == _appController.Active)
-                    {
-                        Log.Info(this, "No active PropSet, creating a default.");
-
-                        _appController
-                            .Create()
-                            .OnSuccess(set => Start())
-                            .OnFailure(exception =>
-                            {
-                                Log.Error(this, "Could not create PropSet!");
-
-                                _splash.enabled = true;
-                            });
-                    }
-                    else
-                    {
-                        Start();
-                    }
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this, string.Format(
-                        "Could not initialize IPropManager : {0}.",
-                        exception));
-                });
+            Start();
         }
 
         /// <summary>

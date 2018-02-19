@@ -1,4 +1,5 @@
-﻿using LightJson;
+﻿using CreateAR.SpirePlayer.IUX;
+using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
@@ -18,18 +19,18 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonName("elementId")]
         public string ElementId;
-
-        /// <summary>
-        /// Element type, used for create actions.
-        /// </summary>
-        [JsonName("elementType")]
-        public int ElementType;
-
+        
         /// <summary>
         /// Id of the parent node, used for create actions.
         /// </summary>
         [JsonName("parentId")]
         public string ParentId;
+
+        /// <summary>
+        /// The element structure, used for create actions.
+        /// </summary>
+        [JsonName("element")]
+        public ElementData Element;
 
         /// <summary>
         /// Type of schema data to affect, used for update actions.
@@ -44,7 +45,7 @@ namespace CreateAR.SpirePlayer
         public string Key;
 
         /// <summary>
-        /// Serialized valus of schema data, used for update actions.
+        /// Serialized value of schema data, used for update actions.
         /// </summary>
         [JsonName("value")]
         public string Value;

@@ -2,7 +2,9 @@
 using System.Collections;
 using System.IO;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.IUX;
 using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -39,7 +41,12 @@ namespace CreateAR.SpirePlayer
         /// Resolves script requires.
         /// </summary>
         private readonly IScriptRequireResolver _resolver;
-        
+
+        /// <summary>
+        /// Manages app.
+        /// </summary>
+        private readonly IAppController _app;
+
         /// <summary>
         /// Controls design mode.
         /// </summary>
@@ -63,13 +70,17 @@ namespace CreateAR.SpirePlayer
             IFileManager files,
             IMessageRouter messages,
             IScriptRequireResolver resolver,
-            DesignController design)
+            IAppController app,
+            IElementFactory elements,
+            IVoiceCommandManager voice)
         {
             _bootstrapper = bootstrapper;
             _files = files;
             _messages = messages;
             _resolver = resolver;
-            _design = design;
+            _app = app;
+
+            _design = new DesignController(elements, _app, voice);
         }
 
         /// <inheritdoc cref="IState"/>
@@ -141,9 +152,43 @@ namespace CreateAR.SpirePlayer
             {
                 throw new Exception("Could not find PlayModeConfig.");
             }
-            
-            // TODO: only with connection
-            _design.Setup(config);
+
+            // initialize with hardcoded app id
+            _app
+                .Initialize("ec0d4c9e-a641-49b8-8394-ab1ff26c4559")
+                .OnSuccess(_ =>
+                {
+                    Log.Info(this, "AppController initialized.");
+
+                    // create a default propset if there isn't one
+                    if (null == _app.Active)
+                    {
+                        Log.Info(this, "No active Scene, creating a default.");
+
+                        _app
+                            .Create()
+                            .OnSuccess(scene =>
+                            {
+                                // TODO: only with connection
+                                _design.Setup(config);
+                            })
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this, "Could not create Scene!");
+                            });
+                    }
+                    else
+                    {
+                        // TODO: only with connection
+                        _design.Setup(config);
+                    }
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, string.Format(
+                        "Could not initialize Scene : {0}.",
+                        exception));
+                });
         }
     }
 }

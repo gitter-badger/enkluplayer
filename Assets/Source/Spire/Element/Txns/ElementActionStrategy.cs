@@ -46,7 +46,7 @@ namespace CreateAR.SpirePlayer
                     action.ParentId);
                 return false;
             }
-
+            
             var element = _elements.Element(new ElementDescription
             {
                 Root = new ElementRef
@@ -55,11 +55,7 @@ namespace CreateAR.SpirePlayer
                 },
                 Elements = new[]
                 {
-                    new ElementData
-                    {
-                        Id = action.ElementId,
-                        Type = action.ElementType
-                    }
+                    action.Element
                 }
             });
 

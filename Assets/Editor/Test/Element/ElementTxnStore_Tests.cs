@@ -93,8 +93,14 @@ namespace CreateAR.SpirePlayer.Test.Txn
         public void ApplyCreate()
         {
             var txn = new ElementTxn("test")
-                .Create("root", "aa", 0)
-                .Create("b", "c", 0);
+                .Create("root", new ElementData
+                {
+                    Id = "aa"
+                })
+                .Create("b", new ElementData
+                {
+                    Id = "b"
+                });
 
             _store.Apply(txn);
 
@@ -119,7 +125,10 @@ namespace CreateAR.SpirePlayer.Test.Txn
         public void ApplyAll()
         {
             var txn = new ElementTxn("test")
-                .Create("a", "aa", 0)
+                .Create("a", new ElementData
+                {
+                    Id = "aa"
+                })
                 .Update("aa", "foo", "bar")
                 .Delete("b");
 
@@ -138,7 +147,10 @@ namespace CreateAR.SpirePlayer.Test.Txn
 
             var txn = new ElementTxn("test");
             txn.Actions.Add(new ElementActionData());
-            txn.Create("a", "aa", 0);
+            txn.Create("a", new ElementData
+            {
+                Id = "aa"
+            });
 
             _store.Apply(txn);
 
@@ -150,7 +162,10 @@ namespace CreateAR.SpirePlayer.Test.Txn
         public void RequestAndCommit()
         {
             var txn = new ElementTxn("test")
-                .Create("a", "aa", 0)
+                .Create("a", new ElementData
+                {
+                    Id = "aa"
+                })
                 .Update("aa", "foo", "bar");
 
             string error;

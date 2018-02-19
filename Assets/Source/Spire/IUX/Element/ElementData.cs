@@ -1,4 +1,5 @@
 using System.Linq;
+using LightJson;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -10,21 +11,25 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Unique to this set element.
         /// </summary>
+        [JsonName("id")]
         public string Id;
 
         /// <summary>
         /// Type of element to construct.
         /// </summary>
+        [JsonName("type")]
         public int Type;
-        
+
         /// <summary>
         /// Set of children.
         /// </summary>
+        [JsonName("children")]
         public ElementData[] Children = new ElementData[0];
 
         /// <summary>
         /// Schema object.
         /// </summary>
+        [JsonName("schema")]
         public ElementSchemaData Schema = new ElementSchemaData();
         
         /// <summary>

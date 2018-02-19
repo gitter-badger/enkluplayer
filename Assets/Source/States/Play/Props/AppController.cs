@@ -178,9 +178,9 @@ namespace CreateAR.SpirePlayer
             {
                 return new AsyncToken<Element>(new Exception("Could not Add element: no active scene."));
             }
-
+            
             return Async.Map(
-                _txns.Request(new ElementTxn(Active.Id).Create("root", data.Id, data.Type)),
+                _txns.Request(new ElementTxn(Active.Id).Create("root", data)),
                 response => response.Elements[0]);
         }
 

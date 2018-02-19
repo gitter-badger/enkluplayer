@@ -331,7 +331,8 @@ namespace CreateAR.SpirePlayer
                         {
                             Type = ElementActionTypes.CREATE,
                             ElementId = action.ElementId,
-                            ParentId = action.ParentId
+                            ParentId = action.ParentId,
+                            Data = action.Element
                         };
                     }
                 case ElementActionTypes.UPDATE:

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
@@ -21,6 +22,11 @@ namespace CreateAR.SpirePlayer
         /// Used to generate session-unique id.
         /// </summary>
         private static uint IDS = 1;
+
+        /// <summary>
+        /// Serializer.
+        /// </summary>
+        private static readonly JsonSerializer _serializer = new JsonSerializer();
 
         /// <summary>
         /// Unique id.
@@ -61,22 +67,24 @@ namespace CreateAR.SpirePlayer
         /// Creates a create action and returns self.
         /// </summary>
         /// <param name="parentId">Parent id.</param>
-        /// <param name="elementId">Id of the element.</param>
-        /// <param name="elementType">Type of element.</param>
+        /// <param name="data">The data.</param>
         /// <returns></returns>
-        public ElementTxn Create(string parentId, string elementId, int elementType)
+        public ElementTxn Create(string parentId, ElementData data)
         {
+            byte[] bytes;
+            _serializer.Serialize(data, out bytes);
+
             Actions.Add(new ElementActionData
             {
                 Type = ElementActionTypes.CREATE,
-                ElementId = elementId,
                 ParentId = parentId,
-                ElementType = elementType
+                ElementId = data.Id,
+                Element = data
             });
 
             return this;
         }
-
+        
         /// <summary>
         /// Creates a delete element action and returns self.
         /// </summary>
