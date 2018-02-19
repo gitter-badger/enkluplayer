@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Manages props.
         /// </summary>
-        private readonly IPropManager _propManager;
+        private readonly IAppController _appController;
 
         /// <summary>
         /// Voice commands.
@@ -96,11 +96,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public DesignController(
             IElementFactory elements,
-            IPropManager propManager,
+            IAppController appController,
             IVoiceCommandManager voice)
         {
             _elements = elements;
-            _propManager = propManager;
+            _appController = appController;
             _voice = voice;
         }
 
@@ -122,18 +122,18 @@ namespace CreateAR.SpirePlayer
             SetupMenus();
 
             // initialize with hardcoded app id
-            _propManager
+            _appController
                 .Initialize("test")
                 .OnSuccess(_ =>
                 {
                     Log.Info(this, "IPropManager initialized.");
 
                     // create a default propset if there isn't one
-                    if (null == _propManager.Active)
+                    if (null == _appController.Active)
                     {
                         Log.Info(this, "No active PropSet, creating a default.");
 
-                        _propManager
+                        _appController
                             .Create()
                             .OnSuccess(set => Start())
                             .OnFailure(exception =>
@@ -254,7 +254,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void CloseAllPropControllerSplashes()
         {
-            foreach (var prop in _propManager.Active.Props)
+            foreach (var prop in _appController.Active.Controllers)
             {
                 prop.HideSplashMenu();
             }
@@ -265,7 +265,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void OpenAllPropControllerSplashes()
         {
-            foreach (var prop in _propManager.Active.Props)
+            foreach (var prop in _appController.Active.Controllers)
             {
                 prop.ShowSplashMenu();
             }
@@ -275,7 +275,7 @@ namespace CreateAR.SpirePlayer
         /// Listens to prop.
         /// </summary>
         /// <param name="controller">The PropController.</param>
-        private void ListenToProp(PropController controller)
+        private void ListenToProp(ElementController controller)
         {
             controller.OnAdjust += Controller_OnAdjust;
         }
@@ -286,7 +286,7 @@ namespace CreateAR.SpirePlayer
         private void Start()
         {
             // listen to all prop controllers
-            var controllers = _propManager.Active.Props;
+            var controllers = _appController.Active.Controllers;
             for (int i = 0, len = controllers.Count; i < len; i++)
             {
                 ListenToProp(controllers[i]);
@@ -383,7 +383,7 @@ namespace CreateAR.SpirePlayer
         {
             _clearAllProps.enabled = false;
 
-            _propManager.Active.DestroyAll();
+            _appController.Active.DestroyAll();
 
             _float.Schema.Set("focus.visible", true);
             _mainMenu.enabled = true;
@@ -436,7 +436,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="propData">The prop.</param>
         private void Place_OnConfirm(ElementData propData)
         {
-            _propManager
+            _appController
                 .Active
                 .Create(propData)
                 .OnSuccess(ListenToProp)
@@ -454,7 +454,7 @@ namespace CreateAR.SpirePlayer
         /// Called when the place menu wants to confirm placement.
         /// </summary>
         /// <param name="controller">The prop controller.</param>
-        private void Place_OnConfirmController(PropController controller)
+        private void Place_OnConfirmController(ElementController controller)
         {
             controller.transform.SetParent(null, true);
             controller.ShowSplashMenu();
@@ -479,7 +479,7 @@ namespace CreateAR.SpirePlayer
         /// Called when the controller asks to open the menu.
         /// </summary>
         /// <param name="controller">The prop controller.</param>
-        private void Controller_OnAdjust(PropController controller)
+        private void Controller_OnAdjust(ElementController controller)
         {
             // hide the splash on the controller
             controller.HideSplashMenu();
@@ -500,27 +500,27 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called to move the prop.
         /// </summary>
-        /// <param name="propController">The controller.</param>
-        private void PropEdit_OnMove(PropController propController)
+        /// <param name="elementController">The controller.</param>
+        private void PropEdit_OnMove(ElementController elementController)
         {
             ClosePropControls();
 
-            propController.HideSplashMenu();
-            propController.DisableUpdates();
+            elementController.HideSplashMenu();
+            elementController.DisableUpdates();
             
-            _place.Initialize(propController);
+            _place.Initialize(elementController);
             _place.enabled = true;
         }
 
         /// <summary>
         /// Called to delete the prop.
         /// </summary>
-        /// <param name="propController">The controller.</param>
-        private void PropEdit_OnDelete(PropController propController)
+        /// <param name="elementController">The controller.</param>
+        private void PropEdit_OnDelete(ElementController elementController)
         {
             ClosePropControls();
             
-            _propManager.Active.Destroy(propController.Element.Id);
+            _appController.Active.Destroy(elementController.Element.Id);
 
             _float.Schema.Set("focus.visible", true);
             _splash.enabled = true;
@@ -529,7 +529,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the prop adjust wishes to exit.
         /// </summary>
-        private void PropAdjust_OnExit(PropController controller)
+        private void PropAdjust_OnExit(ElementController controller)
         {
             ClosePropControls();
 

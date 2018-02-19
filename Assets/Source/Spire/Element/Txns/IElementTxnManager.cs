@@ -34,7 +34,7 @@ namespace CreateAR.SpirePlayer
         void UntrackScene(string sceneId);
 
         /// <summary>
-        /// Requests that
+        /// Requests a scene change.
         /// </summary>
         /// <param name="txn"></param>
         void Request(ElementTxn txn);

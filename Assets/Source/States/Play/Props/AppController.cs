@@ -12,11 +12,9 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Manages PropData, WorldAnchorData, and creating PropControllers.
-    /// 
-    /// Content + PropData + PropController.
+    /// Manages <c>Scene</c> objects.
     /// </summary>
-    public class PropManager : IPropManager, IPropSetUpdateDelegate, IPropUpdateDelegate
+    public class AppController : IAppController, ISceneUpdateDelegate, IElementUpdateDelegate
     {
         /// <summary>
         /// Propset.
@@ -36,7 +34,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Backing variable for Sets prpoperty.
         /// </summary>
-        private readonly List<PropSet> _sets = new List<PropSet>();
+        private readonly List<SceneController> _sets = new List<SceneController>();
 
         /// <summary>
         /// PropData id to StorageBucket.
@@ -49,19 +47,19 @@ namespace CreateAR.SpirePlayer
         private string _appId;
 
         /// <inheritdoc />
-        public ReadOnlyCollection<PropSet> Sets { get; private set; }
+        public ReadOnlyCollection<SceneController> Scenes { get; private set; }
 
         /// <inheritdoc />
-        public PropSet Active { get; set; }
+        public SceneController Active { get; set; }
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public PropManager(
+        public AppController(
             IStorageService storage,
             IElementFactory elements)
         {
-            Sets = new ReadOnlyCollection<PropSet>(_sets);
+            Scenes = new ReadOnlyCollection<SceneController>(_sets);
 
             _storage = storage;
             _elements = elements;
@@ -130,10 +128,10 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<PropSet> Create()
+        public IAsyncToken<SceneController> Create()
         {
             // create an empty propset
-            var propSet = new PropSet(
+            var propSet = new SceneController(
                 _elements,
                 this, this,
                 Guid.NewGuid().ToString(),
@@ -146,22 +144,22 @@ namespace CreateAR.SpirePlayer
                 Active = propSet;
             }
 
-            return new AsyncToken<PropSet>(propSet);
+            return new AsyncToken<SceneController>(propSet);
         }
 
         /// <inheritdoc />
-        public IAsyncToken<PropSet> Destroy(string id)
+        public IAsyncToken<SceneController> Destroy(string id)
         {
             var set = ById(id);
             if (null == set)
             {
-                return new AsyncToken<PropSet>(new Exception(string.Format(
+                return new AsyncToken<SceneController>(new Exception(string.Format(
                     "Could not find PropSet with id {0}.",
                     id)));
             }
 
             var tokens = new List<IAsyncToken<Void>>();
-            var props = set.Props.ToArray();
+            var props = set.Controllers.ToArray();
             for (var i = 0; i < props.Length; i++)
             {
                 var prop = props[i];
@@ -177,7 +175,7 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Add(PropSet set, ElementData data)
+        public IAsyncToken<Void> Add(SceneController scene, ElementData data)
         {
             var id = data.Id;
             if (_props.ContainsKey(id))
@@ -188,7 +186,7 @@ namespace CreateAR.SpirePlayer
             }
 
             return Async.Map(
-                _storage.Create(data, _appId + "." + PROPSET_TAG + "." + set.Id),
+                _storage.Create(data, _appId + "." + PROPSET_TAG + "." + scene.Id),
                 bucket =>
                 {
                     _props[id] = bucket;
@@ -198,7 +196,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Remove(PropSet set, Element element)
+        public IAsyncToken<Void> Remove(SceneController scene, Element element)
         {
             var id = element.Id;
 
@@ -259,7 +257,7 @@ namespace CreateAR.SpirePlayer
                 var id = pair.Key;
                 var data = pair.Value.ToArray();
 
-                _sets.Add(new PropSet(
+                _sets.Add(new SceneController(
                     _elements,
                     this, this,
                     id,
@@ -310,7 +308,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="id">The id of the set.</param>
         /// <returns></returns>
-        private PropSet ById(string id)
+        private SceneController ById(string id)
         {
             for (int i = 0, len = _sets.Count; i < len; i++)
             {

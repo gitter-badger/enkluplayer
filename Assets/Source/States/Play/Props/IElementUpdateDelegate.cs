@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// An interface for an object that handles <c>ElementData</c> updates.
     /// </summary>
-    public interface IPropUpdateDelegate
+    public interface IElementUpdateDelegate
     {
         /// <summary>
         /// Called when element has been updated.

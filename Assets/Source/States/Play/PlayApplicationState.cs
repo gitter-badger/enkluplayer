@@ -2,7 +2,6 @@
 using System.Collections;
 using System.IO;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using Jint.Unity;
 using UnityEngine;
@@ -45,12 +44,7 @@ namespace CreateAR.SpirePlayer
         /// Controls design mode.
         /// </summary>
         private readonly DesignController _design;
-
-        /// <summary>
-        /// Manages App.
-        /// </summary>
-        private readonly AppController _app;
-
+        
         /// <summary>
         /// Time at which state was entered.
         /// </summary>
@@ -69,14 +63,12 @@ namespace CreateAR.SpirePlayer
             IFileManager files,
             IMessageRouter messages,
             IScriptRequireResolver resolver,
-            AppController app,
             DesignController design)
         {
             _bootstrapper = bootstrapper;
             _files = files;
             _messages = messages;
             _resolver = resolver;
-            _app = app;
             _design = design;
         }
 
@@ -88,9 +80,7 @@ namespace CreateAR.SpirePlayer
             _messages.Publish(
                 MessageTypes.STATUS,
                 WaitingForConnectionApplicationState.GetNetworkSummary());
-
-            var config = (ApplicationConfig) context;
-
+            
             _resolver.Initialize(
 #if NETFX_CORE
                 // reference by hand
@@ -112,25 +102,11 @@ namespace CreateAR.SpirePlayer
                 new LocalFileSystem(Path.Combine(
                     UnityEngine.Application.persistentDataPath,
                     "App")));
-            
-            // start app
-            _app
-                .Startup(new AppExecutionConfiguration
-                {
-                    AppName = config.Play.AppId
-                })
-                .OnSuccess(_ =>
-                {
-                    Log.Info(this, "App successfully started.");
-                })
-                .OnFailure(exception => Log.Error(this, "Could not start app : {0}.", exception));
         }
 
         /// <inheritdoc cref="IState"/>
         public void Update(float dt)
         {
-            _app.Update(dt);
-
             if (!_statusCleared
                 && DateTime.Now.Subtract(_enterTime).TotalSeconds > 5)
             {

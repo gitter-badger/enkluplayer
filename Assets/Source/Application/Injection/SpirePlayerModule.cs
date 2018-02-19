@@ -233,7 +233,7 @@ namespace CreateAR.SpirePlayer
             // design
             {
                 binder.Bind<DesignController>().To<DesignController>().ToSingleton();
-                binder.Bind<IPropManager>().To<PropManager>().ToSingleton();
+                binder.Bind<IAppController>().To<AppController>().ToSingleton();
             }
 
             // hierarchy

@@ -7,9 +7,9 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Associates a <c>ContentWidget</c> and a <c>PropData</c>.
+    /// Pushes Element updates to a delegate.
     /// </summary>
-    public class PropController : MonoBehaviour
+    public class ElementController : MonoBehaviour
     {
         /// <summary>
         /// Constants.
@@ -22,12 +22,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// The delegate to push updates through.
         /// </summary>
-        private IPropUpdateDelegate _delegate;
+        private IElementUpdateDelegate _delegate;
 
         /// <summary>
         /// Controls the prop splash menu.
         /// </summary>
-        private PropSplashController _splashController;
+        private ElementSplashController _splashController;
         
         /// <summary>
         /// Time of last save.
@@ -62,9 +62,9 @@ namespace CreateAR.SpirePlayer
         public Element Element { get; private set; }
 
         /// <summary>
-        /// Called when prop adjust is requested.
+        /// Called when adjust is requested.
         /// </summary>
-        public event Action<PropController> OnAdjust;
+        public event Action<ElementController> OnAdjust;
         
         /// <summary>
         /// Initializes the controller. Updates are sent through the delegate.
@@ -73,7 +73,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="delegate">The delegate to push events through.</param>
         public void Initialize(
             Element element,
-            IPropUpdateDelegate @delegate)
+            IElementUpdateDelegate @delegate)
         {
             Element = element;
             _delegate = @delegate;
@@ -132,7 +132,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void InitializeSplashMenu()
         {
-            _splashController = gameObject.AddComponent<PropSplashController>();
+            _splashController = gameObject.AddComponent<ElementSplashController>();
             _splashController.OnOpen += Splash_OnOpen;
             _splashController.Initialize(Element.Schema.Get<string>("name").Value);
         }

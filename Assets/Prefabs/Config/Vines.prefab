@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   References:
-  - Identifier: Prop.Splash
+  - Identifier: Element.Splash
     Source: {fileID: 4900000, guid: add8b6920ca4d6d44a4c4a0dd31d564f, type: 3}
   - Identifier: Prop.Adjust
     Source: {fileID: 4900000, guid: 75d72ca1956fc9f439c0408c09818ff3, type: 3}

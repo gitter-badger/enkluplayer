@@ -4,19 +4,20 @@ using CreateAR.Commons.Unity.Async;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Describes an object that manages <c>PropSet</c> instances.
+    /// Describes an object that manages <c>SceneController</c> instances.
     /// </summary>
-    public interface IPropManager
+    public interface IAppController
     {
         /// <summary>
-        /// The sets currently managed.
+        /// The scenes currently managed.
         /// </summary>
-        ReadOnlyCollection<PropSet> Sets { get; }
+        ReadOnlyCollection<SceneController> Scenes { get; }
 
         /// <summary>
-        /// Gets/sets the active <c>PropSet</c>.
+        /// Gets/sets the active <c>Scene</c>. This is the Scene that new
+        /// elements will be added to, or elements will be deleted from.
         /// </summary>
-        PropSet Active { get; set; }
+        SceneController Active { get; set; }
 
         /// <summary>
         /// Initializes the manager. This should be called before any other calls.
@@ -31,16 +32,16 @@ namespace CreateAR.SpirePlayer
         void Uninitialize();
 
         /// <summary>
-        /// Creates a <c>PropSet</c>.
+        /// Creates a <c>Scene</c>.
         /// </summary>
         /// <returns></returns>
-        IAsyncToken<PropSet> Create();
+        IAsyncToken<SceneController> Create();
 
         /// <summary>
-        /// Destroys a <c>PropSet</c> by id.
+        /// Destroys a <c>Scene</c> by id.
         /// </summary>
-        /// <param name="id">The id of the <c>PropSet</c>.</param>
+        /// <param name="id">The id of the <c>Scene</c>.</param>
         /// <returns></returns>
-        IAsyncToken<PropSet> Destroy(string id);
+        IAsyncToken<SceneController> Destroy(string id);
     }
 }
