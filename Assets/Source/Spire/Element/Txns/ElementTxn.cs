@@ -5,10 +5,14 @@ using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Response from <c>IElementTxnManager::Request</c>.
+    /// </summary>
     public class ElementResponse
     {
-        public bool Success;
-        public string Error;
+        /// <summary>
+        /// List of affected elements.
+        /// </summary>
         public readonly List<Element> Elements = new List<Element>();
     }
 

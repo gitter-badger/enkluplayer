@@ -204,6 +204,12 @@ namespace CreateAR.SpirePlayer
                     "Cannot make transaction request against untracked scene. Did you forget to call Track() first?"));
             }
 
+            var elementResponse = new ElementResponse();
+
+            // find affected elements
+            AddAffectedElements(txn, elementResponse, ElementActionTypes.DELETE);
+            AddAffectedElements(txn, elementResponse, ElementActionTypes.UPDATE);
+
             // send txn to store
             string error;
             if (!store.Request(txn, out error))
@@ -236,10 +242,8 @@ namespace CreateAR.SpirePlayer
                     {
                         store.Commit(txn.Id);
 
-                        var elementResponse = new ElementResponse();
-
-                        // find affected elements
-                        AddAffectedElements(txn, elementResponse);
+                        // add created elements
+                        AddAffectedElements(txn, elementResponse, ElementActionTypes.CREATE);
 
                         token.Succeed(elementResponse);
                     }
@@ -445,14 +449,22 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="txn">The txn.</param>
         /// <param name="elementResponse">The response object.</param>
-        private void AddAffectedElements(ElementTxn txn, ElementResponse elementResponse)
+        /// <param name="actionType">Type of action to inspect.</param>
+        private void AddAffectedElements(
+            ElementTxn txn,
+            ElementResponse elementResponse,
+            string actionType)
         {
             var root = Root(txn.SceneId);
             for (var i = 0; i < txn.Actions.Count; i++)
             {
                 var action = txn.Actions[i];
-                var elementId = action.ElementId;
+                if (actionType != action.Type)
+                {
+                    continue;
+                }
 
+                var elementId = action.ElementId;
                 var element = root.Id == elementId
                     ? root
                     : root.FindOne<Element>(".." + elementId);
