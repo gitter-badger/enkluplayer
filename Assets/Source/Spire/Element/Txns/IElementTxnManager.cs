@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Async;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
@@ -8,6 +9,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public interface IElementTxnManager
     {
+        /// <summary>
+        /// Collection of loaded scenes.
+        /// </summary>
+        string[] TrackedScenes { get; }
+        
         /// <summary>
         /// Initializes the manager for an app.
         /// </summary>
@@ -22,10 +28,17 @@ namespace CreateAR.SpirePlayer
         IAsyncToken<Void> Uninitialize();
 
         /// <summary>
-        /// Watches a scene updates.
+        /// Retrieves the root element of a scene.
+        /// </summary>
+        /// <param name="sceneId">The id of a scene.</param>
+        /// <returns></returns>
+        Element Root(string sceneId);
+
+        /// <summary>
+        /// Watches for scene updates.
         /// </summary>
         /// <param name="sceneId">The id of the scene.</param>
-        void TrackScene(string sceneId);
+        IAsyncToken<Void> TrackScene(string sceneId);
 
         /// <summary>
         /// Stops watching a scene.
@@ -36,7 +49,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Requests a scene change.
         /// </summary>
-        /// <param name="txn"></param>
-        void Request(ElementTxn txn);
+        /// <param name="txn">The transaction we're requesting.</param>
+        IAsyncToken<ElementResponse> Request(ElementTxn txn);
     }
 }

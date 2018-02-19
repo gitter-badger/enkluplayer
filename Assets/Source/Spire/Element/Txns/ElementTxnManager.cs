@@ -57,9 +57,17 @@ namespace CreateAR.SpirePlayer
         private readonly Dictionary<string, IElementTxnStore> _stores = new Dictionary<string, IElementTxnStore>();
 
         /// <summary>
+        /// Lookup from sceneId -> root element.
+        /// </summary>
+        private readonly Dictionary<string, Element> _scenes = new Dictionary<string, Element>();
+        
+        /// <summary>
         /// App id.
         /// </summary>
         private string _appId;
+
+        /// <inheritdoc />
+        public string[] TrackedScenes { get { return _scenes.Keys.ToArray(); } }
 
         /// <summary>
         /// Constructor.
@@ -79,13 +87,48 @@ namespace CreateAR.SpirePlayer
             _strategyFactory = strategyFactory;
             _storeFactory = storeFactory;
         }
-
+        
         /// <inheritdoc />
         public IAsyncToken<Void> Initialize(string appId)
         {
             _appId = appId;
 
-            return new AsyncToken<Void>(Void.Instance);
+            var token = new AsyncToken<Void>();
+
+            // get app
+            _api
+                .Apps
+                .GetApp(appId)
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        Log.Info(this,
+                            "Loaded app data for '{0}'. Now loading scenes.",
+                            appId);
+
+                        // load each scene
+                        var scenes = response.Payload.Body.Scenes;
+                        Async
+                            .All(scenes.Select(LoadScene).ToArray())
+                            .OnSuccess(_ =>
+                            {
+                                Log.Info(this,
+                                    "Successfully loaded {0} scenes.",
+                                    scenes.Length);
+
+                                token.Succeed(Void.Instance);
+                            })
+                            .OnFailure(token.Fail);
+                    }
+                    else
+                    {
+                        token.Fail(new Exception(response.Payload.Error));
+                    }
+                })
+                .OnFailure(token.Fail);
+
+            return token;
         }
 
         /// <inheritdoc />
@@ -109,13 +152,27 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void TrackScene(string sceneId)
+        public Element Root(string sceneId)
+        {
+            Element element;
+            if (_scenes.TryGetValue(sceneId, out element))
+            {
+                return element;
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc />
+        public IAsyncToken<Void> TrackScene(string sceneId)
         {
             IAsyncToken<Void> token;
             if (!_sceneLoads.TryGetValue(sceneId, out token))
             {
-                _sceneLoads[sceneId] = LoadScene(sceneId);
+                token = _sceneLoads[sceneId] = LoadScene(sceneId);
             }
+
+            return token;
         }
 
         /// <inheritdoc />
@@ -137,35 +194,37 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Request(ElementTxn txn)
+        public IAsyncToken<ElementResponse> Request(ElementTxn txn)
         {
             // find scene
             IElementTxnStore store;
             if (!_stores.TryGetValue(txn.SceneId, out store))
             {
-                Log.Warning(this, "Cannot make transaction request against untracked scene. Did you forget to call Track() first?");
-                return;
+                return new AsyncToken<ElementResponse>(new Exception(
+                    "Cannot make transaction request against untracked scene. Did you forget to call Track() first?"));
             }
 
-            // send to store
+            // send txn to store
             string error;
             if (!store.Request(txn, out error))
             {
-                Log.Warning(this, "Could not process txn : {0}.", error);
-                return;
+                return new AsyncToken<ElementResponse>(new Exception(string.Format(
+                    "Could not process txn : {0}.", error)));
             }
-            
-            // translate into network requests
+
+            var token = new AsyncToken<ElementResponse>();
+
+            // translate txn actions into network requests
             var requestedActions = new ElementRequest[txn.Actions.Count];
             for (var i = 0; i < txn.Actions.Count; i++)
             {
                 var action = txn.Actions[i];
                 requestedActions[i] = ToElementRequest(action);
             }
-
+            
             // send
             _http
-                .Put<Trellis.Messages.UpdateSceneElement.Response>(
+                .Put<ElementTxnResponse>(
                     _http.UrlBuilder.Url(string.Format("/editor/app/{0}/scene/{1}", _appId, txn.SceneId)),
                     new ElementTxnRequest
                     {
@@ -176,27 +235,36 @@ namespace CreateAR.SpirePlayer
                     if (response.Payload.Success)
                     {
                         store.Commit(txn.Id);
+
+                        var elementResponse = new ElementResponse();
+
+                        // find affected elements
+                        AddAffectedElements(txn, elementResponse);
+
+                        token.Succeed(elementResponse);
                     }
                     else
                     {
-                        Log.Error(this,
-                            "Error updating element : {0}.",
-                            response.Payload.Error);
-
                         store.Rollback(txn.Id);
+
+                        token.Fail(new Exception(string.Format(
+                            "Error updating element : {0}.",
+                            response.Payload.Error)));
                     }
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this,
-                        "Error sending element txn : {0}.",
-                        exception);
-
                     // rollback txn
                     store.Rollback(txn.Id);
-                });
-        }
 
+                    token.Fail(new Exception(string.Format(
+                        "Error sending element txn : {0}.",
+                        exception)));
+                });
+
+            return token;
+        }
+        
         /// <summary>
         /// Loads a scene by id.
         /// </summary>
@@ -231,9 +299,10 @@ namespace CreateAR.SpirePlayer
                                 (ElementData) obj
                             }
                         });
-
+                        
                         var strategy = _strategyFactory.Instance(root);
                         _stores[sceneId] = _storeFactory.Instance(strategy);
+                        _scenes[sceneId] = root;
 
                         token.Succeed(Void.Instance);
                     }
@@ -367,6 +436,35 @@ namespace CreateAR.SpirePlayer
                     {
                         return null;
                     }
+            }
+        }
+
+        /// <summary>
+        /// Finds affected elements and adds them to the response.
+        /// </summary>
+        /// <param name="txn">The txn.</param>
+        /// <param name="elementResponse">The response object.</param>
+        private void AddAffectedElements(ElementTxn txn, ElementResponse elementResponse)
+        {
+            var root = Root(txn.SceneId);
+            for (var i = 0; i < txn.Actions.Count; i++)
+            {
+                var action = txn.Actions[i];
+                var elementId = action.ElementId;
+
+                var element = root.Id == elementId
+                    ? root
+                    : root.FindOne<Element>(".." + elementId);
+                if (null == element)
+                {
+                    Log.Warning(this,
+                        "Could not find affected Element : {0}.",
+                        elementId);
+                }
+                else
+                {
+                    elementResponse.Elements.Add(element);
+                }
             }
         }
     }

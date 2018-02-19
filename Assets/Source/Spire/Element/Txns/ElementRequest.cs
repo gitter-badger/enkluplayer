@@ -12,5 +12,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonName("type")]
         public string Type;
+
+        /// <summary>
+        /// Id of element to affect.
+        /// </summary>
+        [JsonName("elementId")]
+        public string ElementId;
     }
 }

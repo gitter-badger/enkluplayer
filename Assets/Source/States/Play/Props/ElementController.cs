@@ -30,15 +30,10 @@ namespace CreateAR.SpirePlayer
         private ElementSplashController _splashController;
         
         /// <summary>
-        /// Time of last save.
+        /// Time of last finalize.
         /// </summary>
-        private DateTime _lastSave;
-
-        /// <summary>
-        /// Save token.
-        /// </summary>
-        private IAsyncToken<Void> _saveToken;
-
+        private DateTime _lastFinalize;
+        
         /// <summary>
         /// True iff needs to save.
         /// </summary>
@@ -146,14 +141,19 @@ namespace CreateAR.SpirePlayer
             }
 
             var trans = gameObject.transform;
+            var now = DateTime.Now;
+            var isUpdateable = now.Subtract(_lastFinalize).TotalSeconds > TIME_EPSILON;
 
             // check for position changes
             {
-                if (!trans.position.Approximately(
-                    _positionProp.Value.ToVector(),
-                    POSITION_EPSILON))
+                if (isUpdateable
+                    && !trans.position.Approximately(
+                        _positionProp.Value.ToVector(),
+                        POSITION_EPSILON))
                 {
                     _positionProp.Value = trans.position.ToVec();
+
+                    _delegate.Update(Element, "position", _positionProp.Value);
 
                     _isDirty = true;
                 }
@@ -161,11 +161,14 @@ namespace CreateAR.SpirePlayer
 
             // check for rotation changes
             {
-                if (!trans.rotation.eulerAngles.Approximately(
-                    _rotationProp.Value.ToVector(),
-                    ROTATION_EPSILON))
+                if (isUpdateable
+                    && !trans.rotation.eulerAngles.Approximately(
+                        _rotationProp.Value.ToVector(),
+                        ROTATION_EPSILON))
                 {
                     _rotationProp.Value = trans.rotation.eulerAngles.ToVec();
+
+                    _delegate.Update(Element, "rotation", _rotationProp.Value);
 
                     _isDirty = true;
                 }
@@ -173,26 +176,25 @@ namespace CreateAR.SpirePlayer
 
             // check for scale changes
             {
-                if (!trans.localScale.Approximately(
-                    _scaleProp.Value.ToVector(),
-                    SCALE_EPSILON))
+                if (isUpdateable
+                    && !trans.localScale.Approximately(
+                        _scaleProp.Value.ToVector(),
+                        SCALE_EPSILON))
                 {
                     _scaleProp.Value = trans.localScale.ToVec();
+
+                    _delegate.Update(Element, "scale", _scaleProp.Value);
 
                     _isDirty = true;
                 }
             }
 
-            var now = DateTime.Now;
-            if (_isDirty
-                && null == _saveToken
-                && now.Subtract(_lastSave).TotalSeconds > TIME_EPSILON)
+            if (_isDirty)
             {
                 _isDirty = false;
-                _lastSave = now;
+                _lastFinalize = now;
 
-                _saveToken = _delegate.Update(Element);
-                _saveToken.OnFinally(_ => _saveToken = null);
+                _delegate.Finalize(Element);
             }
         }
         

@@ -1,14 +1,27 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
+    public class ElementResponse
+    {
+        public bool Success;
+        public string Error;
+        public readonly List<Element> Elements = new List<Element>();
+    }
+
     /// <summary>
     /// Container for a list of <c>ElementActionData</c>. Entire transaction is
     /// applied atomically, i.e. all or nothing.
     /// </summary>
     public class ElementTxn
     {
+        /// <summary>
+        /// Used to generate session-unique id.
+        /// </summary>
+        private static uint IDS = 1;
+
         /// <summary>
         /// Unique id.
         /// </summary>
@@ -23,24 +36,23 @@ namespace CreateAR.SpirePlayer
         /// Actions.
         /// </summary>
         public readonly List<ElementActionData> Actions = new List<ElementActionData>();
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ElementTxn(string sceneId, uint id)
+        public ElementTxn(string sceneId)
         {
             SceneId = sceneId;
-            Id = id;
+            Id = IDS++;
         }
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="sceneId">Id of the scene.</param>
-        /// <param name="id">Unique id.</param>
         /// <param name="actions">Actions.</param>
-        public ElementTxn(string sceneId, uint id, ElementActionData[] actions)
-            : this(sceneId, id)
+        public ElementTxn(string sceneId, ElementActionData[] actions)
+            : this(sceneId)
         {
             Actions.AddRange(actions);
         }

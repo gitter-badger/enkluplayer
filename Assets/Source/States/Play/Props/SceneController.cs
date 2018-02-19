@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -15,11 +14,6 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class SceneController
     {
-        /// <summary>
-        /// Creates elements.
-        /// </summary>
-        private readonly IElementFactory _elements;
-        
         /// <summary>
         /// Receives update requests from Elements.
         /// </summary>
@@ -49,13 +43,11 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public SceneController(
-            IElementFactory elements,
             IElementUpdateDelegate elementUpdateDelegate,
             ISceneUpdateDelegate sceneDelegate,
             string id,
-            ElementData[] data)
+            Element root)
         {
-            _elements = elements;
             _elementUpdateDelegate = elementUpdateDelegate;
             _sceneDelegate = sceneDelegate;
 
@@ -63,20 +55,16 @@ namespace CreateAR.SpirePlayer
             Controllers = new ReadOnlyCollection<ElementController>(_controllers);
 
             // create controllers
-            for (var i = 0; i < data.Length; i++)
-            {
-                var elementData = data[i];
-                var controller = CreateInternal(elementData);
-                if (null == controller)
+            ElementUtil.Walk(
+                root,
+                element =>
                 {
-                    Log.Warning(this,
-                        "Could not create ElementController from ElementData {0}.",
-                        elementData);
-                    continue;
-                }
-                
-                _controllers.Add(controller);
-            }
+                    var controller = CreateController(element);
+                    if (null != controller)
+                    {
+                        _controllers.Add(controller);
+                    }
+                });
         }
 
         /// <summary>
@@ -87,18 +75,24 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public IAsyncToken<ElementController> Create(ElementData data)
         {
-            ElementController controller = null;
-            
-            return Async.Map(
-                _sceneDelegate
-                    .Add(this, data)
-                    .OnSuccess(_ =>
-                    {
-                        controller = CreateInternal(data);
+            var token = new AsyncToken<ElementController>();
 
+            _sceneDelegate
+                .Add(this, data)
+                .OnSuccess(element =>
+                {
+                    var controller = CreateController(element);
+
+                    if (null != controller)
+                    {
                         _controllers.Add(controller);
-                    }),
-                _ => controller);
+                    }
+
+                    token.Succeed(controller);
+                })
+                .OnFailure(token.Fail);
+
+            return token;
         }
         
         /// <summary>
@@ -114,14 +108,20 @@ namespace CreateAR.SpirePlayer
                 return new AsyncToken<Void>(new Exception("Could not find element by id."));
             }
 
-            return _sceneDelegate
+            var token = new AsyncToken<Void>();
+            _sceneDelegate
                 .Remove(this, element.Element)
                 .OnSuccess(_ =>
                 {
                     _controllers.Remove(element);
 
                     DestroyInternal(element);
-                });
+
+                    token.Succeed(Void.Instance);
+                })
+                .OnFailure(token.Fail);
+
+            return token;
         }
 
         /// <summary>
@@ -142,26 +142,20 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Internal Create method which creates a <c>ContentWidget</c> and
-        /// <c>ElementController</c>.
+        /// Internal Create method which creates an <c>ElementController</c> for
+        /// an <c>Element</c>.
         /// </summary>
-        /// <param name="data">The data.</param>
+        /// <param name="element">The element.</param>
         /// <returns></returns>
-        private ElementController CreateInternal(ElementData data)
+        private ElementController CreateController(Element element)
         {
-            var element = (ContentWidget) _elements.Element(new ElementDescription
+            var unityElement = element as IUnityElement;
+            if (null == unityElement)
             {
-                Root = new ElementRef
-                {
-                    Id = data.Id
-                },
-                Elements = new[]
-                {
-                    data
-                }
-            });
-            
-            var controller = element.GameObject.AddComponent<ElementController>();
+                return null;
+            }
+
+            var controller = unityElement.GameObject.AddComponent<ElementController>();
             controller.Initialize(element,  _elementUpdateDelegate);
 
             return controller;

@@ -8,12 +8,6 @@ namespace CreateAR.SpirePlayer
     public class CreateElementRequest : ElementRequest
     {
         /// <summary>
-        /// Id of element to create.
-        /// </summary>
-        [JsonName("id")]
-        public string ElementId;
-
-        /// <summary>
         /// Id of parent.
         /// </summary>
         [JsonName("parent")]

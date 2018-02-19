@@ -5,8 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Storage;
 using CreateAR.SpirePlayer.IUX;
+using CreateAR.Trellis.Messages;
+using CreateAR.Trellis.Messages.CreateScene;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -17,30 +18,20 @@ namespace CreateAR.SpirePlayer
     public class AppController : IAppController, ISceneUpdateDelegate, IElementUpdateDelegate
     {
         /// <summary>
-        /// Propset.
+        /// Trellis api.
         /// </summary>
-        private const string PROPSET_TAG = "propset";
+        public readonly ApiController _api;
 
         /// <summary>
-        /// Handles storage needs.
+        /// Pipe for all element updates.
         /// </summary>
-        private readonly IStorageService _storage;
-
-        /// <summary>
-        /// Creates elements.
-        /// </summary>
-        private readonly IElementFactory _elements;
+        private readonly IElementTxnManager _txns;
         
         /// <summary>
-        /// Backing variable for Sets prpoperty.
+        /// Backing variable for Scenes prpoperty.
         /// </summary>
-        private readonly List<SceneController> _sets = new List<SceneController>();
-
-        /// <summary>
-        /// PropData id to StorageBucket.
-        /// </summary>
-        private readonly Dictionary<string, StorageBucket> _props = new Dictionary<string, StorageBucket>();
-
+        private readonly List<SceneController> _sceneControllers = new List<SceneController>();
+        
         /// <summary>
         /// The current app id.
         /// </summary>
@@ -56,13 +47,13 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public AppController(
-            IStorageService storage,
-            IElementFactory elements)
+            ApiController api,
+            IElementTxnManager txns)
         {
-            Scenes = new ReadOnlyCollection<SceneController>(_sets);
+            Scenes = new ReadOnlyCollection<SceneController>(_sceneControllers);
 
-            _storage = storage;
-            _elements = elements;
+            _api = api;
+            _txns = txns;
         }
 
         /// <inheritdoc />
@@ -73,48 +64,31 @@ namespace CreateAR.SpirePlayer
             var token = new AsyncToken<Void>();
 
             LogVerbose("Initialize().");
-            LogVerbose("Refreshing list of all buckets.");
             
-            // get a list of all our buckets
-            _storage
-                .Refresh()
+            _txns
+                .Initialize(appId)
                 .OnSuccess(_ =>
                 {
-                    // get buckets for just our app
-                    var props = _storage.FindAll(_appId + "." + PROPSET_TAG);
-
-                    // load all PropData from buckets
-                    var tokens = new List<IAsyncToken<ElementData>>();
-                    for (var i = 0; i < props.Length; i++)
+                    // create scene controllers
+                    var scenes = _txns.TrackedScenes;
+                    for (var i = 0; i < scenes.Length; i++)
                     {
-                        tokens.Add(props[i].Value<ElementData>());
+                        var sceneId = scenes[i];
+                        var controller = new SceneController(
+                            this, this,
+                            sceneId,
+                            _txns.Root(sceneId));
+
+                        _sceneControllers.Add(controller);
                     }
 
-                    // wait for all loads to complete
-                    Async
-                        .All(tokens.ToArray())
-                        .OnSuccess(datas =>
-                        {
-                            LogVerbose("All buckets loaded.");
+                    // select a default scene
+                    if (_sceneControllers.Count > 0)
+                    {
+                        Active = _sceneControllers[0];
+                    }
 
-                            // keep lookup from prop id to bucket
-                            for (var i = 0; i < datas.Length; i++)
-                            {
-                                _props[datas[i].Id] = props[i];
-                            }
-
-                            // create propsets of course
-                            CreatePropSets(ParitionProps(datas, props));
-
-                            // select a default propset
-                            if (_sets.Count > 0)
-                            {
-                                Active = _sets[0];
-                            }
-
-                            token.Succeed(Void.Instance);
-                        })
-                        .OnFailure(token.Fail);
+                    token.Succeed(Void.Instance);
                 })
                 .OnFailure(token.Fail);
             
@@ -124,27 +98,50 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Uninitialize()
         {
-            _props.Clear();
+            //_props.Clear();
         }
 
         /// <inheritdoc />
         public IAsyncToken<SceneController> Create()
         {
-            // create an empty propset
-            var propSet = new SceneController(
-                _elements,
-                this, this,
-                Guid.NewGuid().ToString(),
-                new ElementData[0]);
+            var token = new AsyncToken<SceneController>();
 
-            _sets.Add(propSet);
+            // create a scene
+            _api
+                .Scenes
+                .CreateScene(_appId, new Request())
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        var sceneId = response.Payload.Body.Id;
+                        _txns
+                            .TrackScene(sceneId)
+                            .OnSuccess(_ =>
+                            {
+                                var controller = new SceneController(
+                                    this, this,
+                                    sceneId,
+                                    _txns.Root(sceneId));
+                                _sceneControllers.Add(controller);
 
-            if (null == Active)
-            {
-                Active = propSet;
-            }
+                                if (null == Active)
+                                {
+                                    Active = controller;
+                                }
 
-            return new AsyncToken<SceneController>(propSet);
+                                token.Succeed(controller);
+                            })
+                            .OnFailure(token.Fail);
+                    }
+                    else
+                    {
+                        token.Fail(new Exception(response.Payload.Error));
+                    }
+                })
+                .OnFailure(token.Fail);
+
+            return token;
         }
 
         /// <inheritdoc />
@@ -167,7 +164,7 @@ namespace CreateAR.SpirePlayer
                 tokens.Add(set.Destroy(prop.Element.Id));
             }
 
-            _sets.Remove(set);
+            _sceneControllers.Remove(set);
 
             return Async.Map(
                 Async.All(tokens.ToArray()),
@@ -175,134 +172,142 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Add(SceneController scene, ElementData data)
+        public IAsyncToken<Element> Add(SceneController scene, ElementData data)
         {
-            var id = data.Id;
-            if (_props.ContainsKey(id))
+            if (null == Active)
             {
-                return new AsyncToken<Void>(new Exception(string.Format(
-                    "PropData with id {0} already exists.",
-                    id)));
+                return new AsyncToken<Element>(new Exception("Could not Add element: no active scene."));
             }
 
             return Async.Map(
-                _storage.Create(data, _appId + "." + PROPSET_TAG + "." + scene.Id),
-                bucket =>
-                {
-                    _props[id] = bucket;
-
-                    return Void.Instance;
-                });
+                _txns.Request(new ElementTxn(Active.Id).Create("root", data.Id, data.Type)),
+                response => response.Elements[0]);
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Remove(SceneController scene, Element element)
+        public IAsyncToken<Element> Remove(SceneController scene, Element element)
         {
-            var id = element.Id;
-
-            StorageBucket bucket;
-            if (!_props.TryGetValue(id, out bucket))
+            if (null == Active)
             {
-                return new AsyncToken<Void>(new Exception(string.Format(
-                    "Could not find storage bucket for {0}.",
-                    element)));
-            }
-
-            _props.Remove(id);
-
-            return bucket
-                .Delete()
-                .OnFailure(exception => Log.Error(this, string.Format(
-                    "Could not delete bucket {0} : {1}.",
-                    id,
-                    exception)));
-        }
-
-        /// <inheritdoc />
-        public IAsyncToken<Void> Update(Element element)
-        {
-            var id = element.Id;
-
-            StorageBucket bucket;
-            if (!_props.TryGetValue(id, out bucket))
-            {
-                return new AsyncToken<Void>(new Exception(string.Format(
-                    "Could not find storage bucket to update {0}.",
-                    element)));
+                return new AsyncToken<Element>(new Exception("Could not Delete element: no active scene."));
             }
 
             return Async.Map(
-                bucket
-                    .Save(new ElementData(element))
-                    .OnFailure(exception =>
-                    {
-                        Log.Error(this, string.Format(
-                            "Could not save bucket {0} : {1}.",
-                            id,
-                            exception));
-
-                        // TODO: refresh specific bucket, not all buckets
-                    }),
-                _ => Void.Instance);
+                _txns.Request(new ElementTxn(Active.Id).Delete(element.Id)),
+                response => response.Elements[0]);
         }
 
         /// <summary>
-        /// Creates <c>PropSet</c> instances from props.
+        /// Element transactions.
         /// </summary>
-        /// <param name="propSetToProps">Lookup from <c>PropSet</c> id to list of <c>ElementData</c>.</param>
-        private void CreatePropSets(Dictionary<string, List<ElementData>> propSetToProps)
+        private readonly Dictionary<Element, ElementTxn> _transactions = new Dictionary<Element, ElementTxn>();
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, string value)
         {
-            foreach (var pair in propSetToProps)
+            if (null == Active)
             {
-                var id = pair.Key;
-                var data = pair.Value.ToArray();
-
-                _sets.Add(new SceneController(
-                    _elements,
-                    this, this,
-                    id,
-                    data));
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
             }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, int value)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
+            }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, float value)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
+            }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, bool value)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
+            }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, Vec3 value)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
+            }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, Col4 value)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
+            }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Finalize(Element element)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Finalize element: no active scene.");
+                return;
+            }
+
+            var txn = Txn(element);
+            if (0 != txn.Actions.Count)
+            {
+                _txns.Request(txn);
+            }
+
+            _transactions.Remove(element);
         }
 
         /// <summary>
-        /// Returns a dictionary from PropSet id -> PropData.
+        /// Creates or retrieves an element txn.
         /// </summary>
-        /// <param name="datas">The prop data.</param>
-        /// <param name="props">The prop buckets.</param>
+        /// <param name="element">The element in question</param>
         /// <returns></returns>
-        private Dictionary<string, List<ElementData>> ParitionProps(
-            ElementData[] datas,
-            StorageBucket[] props)
+        private ElementTxn Txn(Element element)
         {
-            var propSetToProps = new Dictionary<string, List<ElementData>>();
-            for (var i = 0; i < datas.Length; i++)
+            ElementTxn txn;
+            if (!_transactions.TryGetValue(element, out txn))
             {
-                var prop = props[i];
-                var data = datas[i];
-
-                var substrings = prop.Tags.Split('.');
-                if (3 != substrings.Length)
-                {
-                    Log.Error(this,
-                        "Invalid prop StorageBucket, malformed tag : {0}.",
-                        prop.Key);
-                    continue;
-                }
-
-                var propSetId = substrings[2];
-                List<ElementData> list;
-                if (!propSetToProps.TryGetValue(propSetId, out list))
-                {
-                    list = propSetToProps[propSetId] = new List<ElementData>();
-                }
-
-                list.Add(data);
+                txn = _transactions[element] = new ElementTxn(Active.Id);
             }
 
-            return propSetToProps;
+            return txn;
         }
-
+        
         /// <summary>
         /// Returns a <c>PropSet</c> by id.
         /// </summary>
@@ -310,9 +315,9 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private SceneController ById(string id)
         {
-            for (int i = 0, len = _sets.Count; i < len; i++)
+            for (int i = 0, len = _sceneControllers.Count; i < len; i++)
             {
-                var set = _sets[i];
+                var set = _sceneControllers[i];
                 if (set.Id == id)
                 {
                     return set;

@@ -13,8 +13,7 @@ namespace CreateAR.SpirePlayer.Test.Txn
     {
         private ElementTxnStore _store;
         private Element _root;
-        private uint _ids = 1000;
-
+        
         [SetUp]
         public void Setup()
         {
@@ -60,11 +59,6 @@ namespace CreateAR.SpirePlayer.Test.Txn
                 _root));
         }
 
-        private uint Id()
-        {
-            return _ids++;
-        }
-
         [Test]
         public void ApplyUpdates()
         {
@@ -75,7 +69,7 @@ namespace CreateAR.SpirePlayer.Test.Txn
             var vecVal = new Vec3(0.1f, 2, 34.5f);
             var colVal = new Col4(0.2f, 12, 345f, 1);
 
-            var txn = new ElementTxn("test", Id())
+            var txn = new ElementTxn("test")
                 .Update("a", "foo", intVal)
                 .Update("a", "foo", floatVal)
                 .Update("a", "foo", stringVal)
@@ -98,7 +92,7 @@ namespace CreateAR.SpirePlayer.Test.Txn
         [Test]
         public void ApplyCreate()
         {
-            var txn = new ElementTxn("test", Id())
+            var txn = new ElementTxn("test")
                 .Create("root", "aa", 0)
                 .Create("b", "c", 0);
 
@@ -114,7 +108,7 @@ namespace CreateAR.SpirePlayer.Test.Txn
         [Test]
         public void ApplyDelete()
         {
-            var txn = new ElementTxn("test", Id()).Delete("b");
+            var txn = new ElementTxn("test").Delete("b");
 
             _store.Apply(txn);
 
@@ -124,7 +118,7 @@ namespace CreateAR.SpirePlayer.Test.Txn
         [Test]
         public void ApplyAll()
         {
-            var txn = new ElementTxn("test", Id())
+            var txn = new ElementTxn("test")
                 .Create("a", "aa", 0)
                 .Update("aa", "foo", "bar")
                 .Delete("b");
@@ -142,7 +136,7 @@ namespace CreateAR.SpirePlayer.Test.Txn
         {
             LogAssert.Expect(LogType.Error, new Regex("Invalid action type"));
 
-            var txn = new ElementTxn("test", Id());
+            var txn = new ElementTxn("test");
             txn.Actions.Add(new ElementActionData());
             txn.Create("a", "aa", 0);
 
@@ -155,7 +149,7 @@ namespace CreateAR.SpirePlayer.Test.Txn
         [Test]
         public void RequestAndCommit()
         {
-            var txn = new ElementTxn("test", Id())
+            var txn = new ElementTxn("test")
                 .Create("a", "aa", 0)
                 .Update("aa", "foo", "bar");
 
@@ -175,7 +169,7 @@ namespace CreateAR.SpirePlayer.Test.Txn
         [Test]
         public void RequestPreCommitAndCommit()
         {
-            var txn = new ElementTxn("test", Id()).Update("b", "foo", "bar");
+            var txn = new ElementTxn("test").Update("b", "foo", "bar");
 
             string error;
 
@@ -194,7 +188,7 @@ namespace CreateAR.SpirePlayer.Test.Txn
         [Test]
         public void RequestPreCommitAndRollback()
         {
-            var txn = new ElementTxn("test", Id()).Update("b", "foo", "bar");
+            var txn = new ElementTxn("test").Update("b", "foo", "bar");
 
             string error;
 
