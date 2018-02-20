@@ -140,7 +140,7 @@ namespace CreateAR.SpirePlayer
         /// WebSocket server.
         /// </summary>
         private readonly WebSocketServer _server;
-
+        
         /// <summary>
         /// True iff we should broadcast ready.
         /// </summary>

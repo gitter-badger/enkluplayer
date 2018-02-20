@@ -96,12 +96,14 @@ namespace CreateAR.SpirePlayer
             {
 #if UNITY_EDITOR || UNITY_IOS
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+                    binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
 #elif UNITY_WEBGL
                     binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
 #elif NETFX_CORE
                     binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
 #endif
-                
+
+
                 // spire-specific bindings
                 AddSpireBindings(binder);
 
@@ -147,6 +149,7 @@ namespace CreateAR.SpirePlayer
                 // service manager + appplication
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IBridge>(),
+                    binder.GetInstance<IConnection>(),
                     new ApplicationService[]
                     {
                         binder.GetInstance<ApplicationStateService>(),
