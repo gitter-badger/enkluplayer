@@ -26,11 +26,11 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public AssetUpdateService(
-            IBridge bridge,
+            MessageTypeBinder binder,
             IMessageRouter messages,
             IAssetManager assets,
             IElementManager elements)
-            : base(bridge, messages)
+            : base(binder, messages)
         {
             _assets = assets;
             _elements = elements;

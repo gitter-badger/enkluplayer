@@ -18,10 +18,10 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public HierarchyUpdateService(
-            IBridge bridge,
+            MessageTypeBinder binder,
             IMessageRouter messages,
             HierarchyDatabase database)
-            : base(bridge, messages)
+            : base(binder, messages)
         {
             _database = database;
         }
@@ -30,7 +30,7 @@ namespace CreateAR.SpirePlayer
         public override void Start()
         {
             // TODO: REMOVE
-            _bridge.Binder.Add<HierarchySelectEvent>(MessageTypes.HIERARCHY_SELECT);
+            _binder.Add<HierarchySelectEvent>(MessageTypes.HIERARCHY_SELECT);
 
             Subscribe<HierarchyListEvent>(MessageTypes.HIERARCHY_LIST, OnHierarchyListEvent);
             Subscribe<HierarchyAddEvent>(MessageTypes.HIERARCHY_ADD, OnHierarchyAddEvent);

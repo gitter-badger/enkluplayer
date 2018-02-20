@@ -51,5 +51,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="txn">The transaction we're requesting.</param>
         IAsyncToken<ElementResponse> Request(ElementTxn txn);
+
+        /// <summary>
+        /// Applies a scene change.
+        /// </summary>
+        /// <param name="txn">The transaction we're requesting.</param>
+        ElementResponse Apply(ElementTxn txn);
     }
 }

@@ -18,10 +18,10 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public AuthorizationService(
-            IBridge bridge,
+            MessageTypeBinder binder,
             IMessageRouter messages,
             IHttpService http)
-            : base(bridge, messages)
+            : base(binder, messages)
         {
             _http = http;
         }

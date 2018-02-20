@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -109,7 +110,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
             else
             {
-                Log.Info(this, "Requesting image at {0}.", url);
+                LogVerbose("Requesting image at {0}.", url);
 
                 if (url.StartsWith(RESOURCE_PROTOCOL))
                 {
@@ -225,6 +226,17 @@ namespace CreateAR.SpirePlayer.IUX
         private ManagedTexture ManagedTexture(Texture2D texture = null)
         {
             return new ManagedTexture(texture ?? new Texture2D(2, 2));
+        }
+
+        /// <summary>
+        /// Verbose logging!
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="replacements">Replacements.</param>
+        [Conditional("LOGGING_VERBOSE")]
+        private void LogVerbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

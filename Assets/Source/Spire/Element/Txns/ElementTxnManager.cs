@@ -260,7 +260,35 @@ namespace CreateAR.SpirePlayer
 
             return token;
         }
-        
+
+        /// <inheritdoc />
+        public ElementResponse Apply(ElementTxn txn)
+        {
+            // find scene
+            IElementTxnStore store;
+            if (!_stores.TryGetValue(txn.SceneId, out store))
+            {
+                Log.Warning(
+                    this,
+                    "Cannot apply transaction against untracked scene. Did you forget to call Track() first?");
+                return new ElementResponse();
+            }
+
+            var elementResponse = new ElementResponse();
+
+            // find affected elements
+            AddAffectedElements(txn, elementResponse, ElementActionTypes.DELETE);
+            AddAffectedElements(txn, elementResponse, ElementActionTypes.UPDATE);
+
+            // apply!
+            store.Apply(txn);
+            
+            // add created elements
+            AddAffectedElements(txn, elementResponse, ElementActionTypes.CREATE);
+
+            return elementResponse;
+        }
+
         /// <summary>
         /// Loads a scene by id.
         /// </summary>

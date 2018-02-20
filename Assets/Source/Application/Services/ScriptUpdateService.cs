@@ -17,10 +17,10 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public ScriptUpdateService(
-            IBridge bridge,
+            MessageTypeBinder binder,
             IMessageRouter messages,
             IAdminAppDataManager appData)
-            : base(bridge, messages)
+            : base(binder, messages)
         {
             _appData = appData;
         }

@@ -75,9 +75,6 @@ namespace CreateAR.SpirePlayer
         public const int SCENE_CREATE = 3100;
         public const int SCENE_UPDATE = 3101;
         public const int SCENE_DELETE = 3102;
-        public const int ELEMENT_CREATE = 3200;
-        public const int ELEMENT_UPDATE = 3201;
-        public const int ELEMENT_DELETE = 3202;
 
         ///////////////////////////////////////////////////////////////////////
         // Hierarchy State

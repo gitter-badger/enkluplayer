@@ -24,7 +24,7 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public ApplicationStateService(
-            IBridge bridge,
+            MessageTypeBinder binder,
             IMessageRouter messages,
             ApplicationConfig config,
 
@@ -41,7 +41,7 @@ namespace CreateAR.SpirePlayer
             MeshCaptureApplicationState meshCapture,
 #endif
             ToolModeApplicationState tools)
-            : base(bridge, messages)
+            : base(binder, messages)
         {
             _config = config;
             _states = new FiniteStateMachine(new IState[]

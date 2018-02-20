@@ -12,9 +12,9 @@ namespace CreateAR.SpirePlayer
     public abstract class ApplicationService
     {
         /// <summary>
-        /// <c>IBridge</c> implementation.
+        /// Binds messagetype to message type.
         /// </summary>
-        protected readonly IBridge _bridge;
+        protected readonly MessageTypeBinder _binder;
 
         /// <summary>
         /// <c>IMessageRouter</c> implementation.
@@ -30,10 +30,10 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         protected ApplicationService(
-            IBridge bridge,
+            MessageTypeBinder binder,
             IMessageRouter messages)
         {
-            _bridge = bridge;
+            _binder = binder;
             _messages = messages;
         }
 
@@ -74,7 +74,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="handler">Handler to handle the message.</param>
         protected void Subscribe<T>(int messageType, Action<T> handler)
         {
-            _bridge.Binder.Add<T>(messageType);
+            _binder.Add<T>(messageType);
 
             _unsubscribeList.Add(_messages.Subscribe(
                 messageType,
