@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using LightJson;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -14,9 +13,9 @@ namespace CreateAR.SpirePlayer
     public class BridgeMessageHandler
     {
         /// <summary>
-        /// Routes messages.
+        /// Filters messages.
         /// </summary>
-        private readonly IMessageRouter _router;
+        public MessageFilter Filter { get; private set; }
         
         /// <summary>
         /// Binds message types.
@@ -26,11 +25,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates a new <c>BridgeMessageHandler</c>.
         /// </summary>
-        public BridgeMessageHandler(IMessageRouter router)
+        public BridgeMessageHandler(
+            MessageFilter filter,
+            MessageTypeBinder binder)
         {
-            _router = router;
-
-            Binder = new MessageTypeBinder();
+            Filter = filter;
+            Binder = binder;
         }
         
         /// <summary>
@@ -88,16 +88,15 @@ namespace CreateAR.SpirePlayer
             // handle strings
             if (typeof(string) == payloadType)
             {
-                _router.Publish(messageType, payloadString);
+                Filter.Publish(messageType, payloadString);
                 return;
             }
 
             // deserialize
+            object payload = null;
             try
             {
-                var payload = JsonValue.Parse(payloadString).As(payloadType);
-
-                _router.Publish(messageType, payload);
+                payload = JsonValue.Parse(payloadString).As(payloadType);
             }
             catch (Exception exception)
             {
@@ -106,7 +105,11 @@ namespace CreateAR.SpirePlayer
                     payloadString,
                     payloadType,
                     exception);
+
+                return;
             }
+
+            Filter.Publish(messageType, payload);
         }
 
         /// <summary>
@@ -140,8 +143,8 @@ namespace CreateAR.SpirePlayer
                     payloadType);
                 return;
             }
-            
-            _router.Publish(messageType, Void.Instance);
+
+            Filter.Publish(messageType, Void.Instance);
         }
 
         /// <summary>

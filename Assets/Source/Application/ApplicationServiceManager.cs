@@ -26,20 +26,28 @@ namespace CreateAR.SpirePlayer
         private readonly ApplicationService[] _services;
 
         /// <summary>
+        /// Handles messages from the bridge.
+        /// </summary>
+        private readonly BridgeMessageHandler _handler;
+
+        /// <summary>
         /// Creates a new WebApplicationHost.
         /// </summary>
         /// <param name="bridge">The WebBridge.</param>
         /// <param name="connection">Connection to Trellis.</param>
+        /// <param name="handler">The object that handles messages.</param>
         /// <param name="config">Application wide config.</param>
         /// <param name="services">Services to monitor host.</param>
         public ApplicationServiceManager(
             IBridge bridge,
             IConnection connection,
+            BridgeMessageHandler handler,
             ApplicationConfig config,
             ApplicationService[] services)
         {
             _bridge = bridge;
             _connection = connection;
+            _handler = handler;
             _config = config;
             _services = services;
         }
@@ -47,7 +55,10 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IApplicationServiceManager"/>
         public void Start()
         {
-            _bridge.Initialize();
+            // add filters
+
+
+            _bridge.Initialize(_handler);
             _connection.Connect(_config);
 
             for (int i = 0, len = _services.Length; i < len; i++)

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Remoting;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -14,7 +13,7 @@ namespace CreateAR.SpirePlayer
         IAsyncToken<Void> Connect(ApplicationConfig config);
     }
 
-    public class WebSocketRequestData
+    public class WebSocketRequestRequest
     {
         public class HeaderData
         {
@@ -32,6 +31,18 @@ namespace CreateAR.SpirePlayer
 
         [JsonName("data")]
         public object Data;
+
+        public WebSocketRequestRequest(string url, string method)
+        {
+            Url = url;
+            Method = method;
+        }
+
+        public WebSocketRequestRequest(string url, string method, object payload)
+            : this(url, method)
+        {
+            Data = payload;
+        }
     }
 
     public class WebSocketSharpConnection : IConnection
@@ -56,8 +67,7 @@ namespace CreateAR.SpirePlayer
                 "ws://{0}:{1}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
                 substring,
                 environment.Port);
-            Log.Info(this, "Connecting to {0}.", wsUrl);
-
+            
             _socket = new WebSocket(wsUrl);
             {
                 _socket.OnOpen += Socket_OnOpen;
@@ -70,30 +80,46 @@ namespace CreateAR.SpirePlayer
             return token;
         }
 
-        private void Socket_OnOpen(object sender, EventArgs eventArgs)
+        public void Send(WebSocketRequestRequest req)
         {
-            Log.Info(this, "Open.");
-
-            var req = new WebSocketRequestData
+            req.Headers = new WebSocketRequestRequest.HeaderData
             {
-                Method = "post",
-                Url = string.Format(
-                    "/v1/editor/app/{0}/subscribe",
-                    _config.Play.AppId),
-                Headers = new WebSocketRequestData.HeaderData
-                {
-                    Authorization = "Bearer " + _config.Network.Credentials(_config.Network.Current).Token
-                }
+                Authorization = "Bearer " + _config.Network.Credentials(_config.Network.Current).Token
             };
 
             byte[] bytes;
             _json.Serialize(req, out bytes);
 
             var str = "42[\"post\", " + Encoding.UTF8.GetString(bytes) + "]";
-            Log.Info(this, "Sending: " + str);
+
+            if (null != req.Data)
+            {
+                LogVerbose("{0} {1}: {2}",
+                    req.Method,
+                    req.Url,
+                    req.Data);
+            }
+            else
+            {
+                LogVerbose("{0} {1}",
+                    req.Method,
+                    req.Url);
+            }
+
             _socket.Send(str);
         }
 
+        private void Socket_OnOpen(object sender, EventArgs eventArgs)
+        {
+            Log.Info(this, "Open.");
+
+            Send(new WebSocketRequestRequest(
+                string.Format(
+                    "/v1/editor/app/{0}/subscribe",
+                    _config.Play.AppId),
+                "post"));
+        }
+        
         private void Socket_OnClose(object sender, CloseEventArgs closeEventArgs)
         {
             Log.Info(this, "Close.");
@@ -107,6 +133,12 @@ namespace CreateAR.SpirePlayer
         private void Socket_OnError(object sender, ErrorEventArgs errorEventArgs)
         {
             Log.Error(this, "Error : {0}.", errorEventArgs.Message);
+        }
+
+        //[Conditional("LOGGING_VERBOSE")]
+        private void LogVerbose(string format, params object[] replacements)
+        {
+            Log.Info(this, format, replacements);
         }
     }
 }

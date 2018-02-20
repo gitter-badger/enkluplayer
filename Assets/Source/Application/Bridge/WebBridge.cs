@@ -9,21 +9,20 @@ namespace CreateAR.SpirePlayer
     public class WebBridge : InjectableMonoBehaviour, IBridge
     {
         /// <summary>
+        /// Handler.
+        /// </summary>
+        private BridgeMessageHandler _handler;
+
+        /// <summary>
         /// Routes messages.
         /// </summary>
         [Inject]
         public IMessageRouter Router { get; set; }
-
-        /// <summary>
-        /// Parses messages.
-        /// </summary>
-        [Inject]
-        public BridgeMessageHandler Handler { get; set; }
-
+        
         /// <summary>
         /// Allows binding between message types and C# types.
         /// </summary>
-        public MessageTypeBinder Binder { get { return Handler.Binder; } }
+        public MessageTypeBinder Binder { get { return _handler.Binder; } }
 
 #if !UNITY_EDITOR && UNITY_WEBGL
         [System.Runtime.InteropServices.DllImport("__Internal")]
@@ -34,8 +33,10 @@ namespace CreateAR.SpirePlayer
 #endif
         
         /// <inheritdoc cref="IBridge"/>
-        public void Initialize()
+        public void Initialize(BridgeMessageHandler handler)
         {
+            _handler = handler;
+
 #if !UNITY_EDITOR && UNITY_WEBGL
             UnityEngine.WebGLInput.captureAllKeyboardInput = false;
 

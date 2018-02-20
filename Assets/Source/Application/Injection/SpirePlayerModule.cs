@@ -45,6 +45,8 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<ISerializer>().To<JsonSerializer>();
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
+                binder.Bind<MessageTypeBinder>().To<MessageTypeBinder>();
+                binder.Bind<MessageFilter>().To<MessageFilter>();
                 binder.Bind<BridgeMessageHandler>().To<BridgeMessageHandler>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
                 binder.Bind<IHttpService>()
@@ -150,6 +152,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IBridge>(),
                     binder.GetInstance<IConnection>(),
+                    binder.GetInstance<BridgeMessageHandler>(),
                     binder.GetInstance<ApplicationConfig>(),
                     new ApplicationService[]
                     {

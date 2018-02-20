@@ -130,17 +130,17 @@ namespace CreateAR.SpirePlayer
         /// Routes messages.
         /// </summary>
         private readonly IMessageRouter _router;
-
-        /// <summary>
-        /// Handles messages.
-        /// </summary>
-        private readonly BridgeMessageHandler _handler;
         
         /// <summary>
         /// WebSocket server.
         /// </summary>
         private readonly WebSocketServer _server;
         
+        /// <summary>
+        /// Handles messages.
+        /// </summary>
+        private BridgeMessageHandler _handler;
+
         /// <summary>
         /// True iff we should broadcast ready.
         /// </summary>
@@ -171,14 +171,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="router">Routes messages.</param>
         /// <param name="bootstrapper">Bootstraps coroutines.</param>
-        /// <param name="handler">Object to handle messages.</param>
         public WebSocketBridge(
             IMessageRouter router,
-            IBootstrapper bootstrapper,
-            BridgeMessageHandler handler)
+            IBootstrapper bootstrapper)
         {
             _router = router;
-            _handler = handler;
             
             // start watcher "thread" -- can persiste between goes
             bootstrapper.BootstrapCoroutine(ConsumeMessages());
@@ -216,9 +213,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IBridge"/>
-        public void Initialize()
+        public void Initialize(BridgeMessageHandler handler)
         {
-            
+            _handler = handler;
         }
 
         /// <inheritdoc cref="IBridge"/>

@@ -32,7 +32,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Handles messages from the client.
         /// </summary>
-        private readonly BridgeMessageHandler _handler;
+        private BridgeMessageHandler _handler;
 
         /// <summary>
         /// Set to true when <c>BroadcastReady</c> is called.
@@ -51,10 +51,7 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         /// <param name="bootstrapper">Bootstraps coroutines.</param>
-        /// <param name="handler">Handles messages.</param>
-        public UwpBridge(
-            IBootstrapper bootstrapper,
-            BridgeMessageHandler handler)
+        public UwpBridge(IBootstrapper bootstrapper)
         {
             _handler = handler;
             _server = new UwpWebsocketServer(bootstrapper, this);
@@ -98,9 +95,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IBridge"/>
-        public void Initialize()
+        public void Initialize(BridgeMessageHandler handler)
         {
-            //
+            _handler = handler;
         }
 
         /// <inheritdoc cref="IBridge"/>
