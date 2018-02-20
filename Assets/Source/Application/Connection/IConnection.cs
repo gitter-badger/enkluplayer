@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Remoting;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using WebSocketSharp;
@@ -19,7 +20,16 @@ namespace CreateAR.SpirePlayer
         {
             var token = new AsyncToken<Void>();
 
-            var wsUrl = "ws://127.0.0.1:9999/socket.io/?EIO=2&transport=websocket";
+            var environment = config.Environment(config.Current);
+
+            // shave off protocol
+            var substring = environment.BaseUrl.Substring(
+                environment.BaseUrl.IndexOf("://") + 3);
+
+            var wsUrl = string.Format(
+                "ws://{0}:{1}/socket.io/?EIO=2&transport=websocket",
+                substring,
+                environment.Port);
             Log.Info(this, "Connecting to {0}.", wsUrl);
 
             _socket = new WebSocket(wsUrl);

@@ -150,6 +150,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IBridge>(),
                     binder.GetInstance<IConnection>(),
+                    binder.GetInstance<ApplicationConfig>(),
                     new ApplicationService[]
                     {
                         binder.GetInstance<ApplicationStateService>(),

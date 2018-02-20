@@ -16,6 +16,11 @@ namespace CreateAR.SpirePlayer
         private readonly IConnection _connection;
 
         /// <summary>
+        /// Application config.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
+        /// <summary>
         /// Services to monitor host.
         /// </summary>
         private readonly ApplicationService[] _services;
@@ -25,14 +30,17 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="bridge">The WebBridge.</param>
         /// <param name="connection">Connection to Trellis.</param>
+        /// <param name="config">Application wide config.</param>
         /// <param name="services">Services to monitor host.</param>
         public ApplicationServiceManager(
             IBridge bridge,
             IConnection connection,
+            ApplicationConfig config,
             ApplicationService[] services)
         {
             _bridge = bridge;
             _connection = connection;
+            _config = config;
             _services = services;
         }
 
@@ -40,7 +48,7 @@ namespace CreateAR.SpirePlayer
         public void Start()
         {
             _bridge.Initialize();
-            _connection.Connect(null);
+            _connection.Connect(_config.Network);
 
             for (int i = 0, len = _services.Length; i < len; i++)
             {
