@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
         public void Start()
         {
             _bridge.Initialize();
-            _connection.Connect(_config.Network);
+            _connection.Connect(_config);
 
             for (int i = 0, len = _services.Length; i < len; i++)
             {
