@@ -1,8 +1,6 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Async;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -14,10 +12,8 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constants.
         /// </summary>
-        private const float POSITION_EPSILON = 0.1f;
-        private const float ROTATION_EPSILON = 0.1f;
-        private const float SCALE_EPSILON = 0.1f;
-        private const float TIME_EPSILON = 0.5f;
+        private const float EPSILON = 0.05f;
+        private const float TIME_EPSILON = 0.1f;
         
         /// <summary>
         /// The delegate to push updates through.
@@ -123,6 +119,14 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Pushes a final, exact state.
+        /// </summary>
+        public void FinalizeState()
+        {
+            UpdateDelegate(float.Epsilon);
+        }
+
+        /// <summary>
         /// Creates splash menu.
         /// </summary>
         private void InitializeSplashMenu()
@@ -140,16 +144,27 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            var trans = gameObject.transform;
             var now = DateTime.Now;
             var isUpdateable = now.Subtract(_lastFinalize).TotalSeconds > TIME_EPSILON;
 
+            if (isUpdateable)
+            {
+                UpdateDelegate(EPSILON);
+            }
+        }
+
+        /// <summary>
+        /// Pushes an update through the delegate.
+        /// </summary>
+        private void UpdateDelegate(float epsilon)
+        {
+            var trans = gameObject.transform;
+
             // check for position changes
             {
-                if (isUpdateable
-                    && !trans.position.Approximately(
-                        _positionProp.Value.ToVector(),
-                        POSITION_EPSILON))
+                if (!trans.position.Approximately(
+                    _positionProp.Value.ToVector(),
+                    epsilon))
                 {
                     _positionProp.Value = trans.position.ToVec();
 
@@ -161,10 +176,9 @@ namespace CreateAR.SpirePlayer
 
             // check for rotation changes
             {
-                if (isUpdateable
-                    && !trans.rotation.eulerAngles.Approximately(
-                        _rotationProp.Value.ToVector(),
-                        ROTATION_EPSILON))
+                if (!trans.rotation.eulerAngles.Approximately(
+                    _rotationProp.Value.ToVector(),
+                    epsilon))
                 {
                     _rotationProp.Value = trans.rotation.eulerAngles.ToVec();
 
@@ -176,10 +190,9 @@ namespace CreateAR.SpirePlayer
 
             // check for scale changes
             {
-                if (isUpdateable
-                    && !trans.localScale.Approximately(
-                        _scaleProp.Value.ToVector(),
-                        SCALE_EPSILON))
+                if (!trans.localScale.Approximately(
+                    _scaleProp.Value.ToVector(),
+                    epsilon))
                 {
                     _scaleProp.Value = trans.localScale.ToVec();
 
@@ -192,12 +205,12 @@ namespace CreateAR.SpirePlayer
             if (_isDirty)
             {
                 _isDirty = false;
-                _lastFinalize = now;
+                _lastFinalize = DateTime.Now;
 
                 _delegate.Finalize(Element);
             }
         }
-        
+
         /// <summary>
         /// Called when the splash requests to open.
         /// </summary>

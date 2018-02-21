@@ -72,6 +72,13 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IApplicationServiceManager"/>
         public void Start()
         {
+            _bridge.Initialize(_handler);
+
+            for (int i = 0, len = _services.Length; i < len; i++)
+            {
+                _services[i].Start();
+            }
+            
             // add filter after application is ready
             _messages.Subscribe(
                 MessageTypes.APPLICATION_INITIALIZED,
@@ -82,18 +89,12 @@ namespace CreateAR.SpirePlayer
                         .Network
                         .Credentials(_config.Network.Current)
                         .UserId));
-                });
-            
-            _bridge.Initialize(_handler);
-            //_connection.Connect(_config.Network.Environment(_config.Network.Current));
 
-            for (int i = 0, len = _services.Length; i < len; i++)
-            {
-                _services[i].Start();
-            }
-            
-            // tell the webpage
-            _bridge.BroadcastReady();
+                    _connection.Connect(_config.Network.Environment(_config.Network.Current));
+
+                    // ready for action
+                    _bridge.BroadcastReady();
+                });
         }
 
         /// <inheritdoc cref="IApplicationServiceManager"/>

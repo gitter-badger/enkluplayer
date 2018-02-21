@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -31,7 +30,12 @@ namespace CreateAR.SpirePlayer
         /// Backing variable for Scenes prpoperty.
         /// </summary>
         private readonly List<SceneController> _sceneControllers = new List<SceneController>();
-        
+
+        /// <summary>
+        /// Element transactions currently tracked.
+        /// </summary>
+        private readonly Dictionary<Element, ElementTxn> _transactions = new Dictionary<Element, ElementTxn>();
+
         /// <summary>
         /// The current app id.
         /// </summary>
@@ -198,11 +202,6 @@ namespace CreateAR.SpirePlayer
                 _txns.Request(new ElementTxn(Active.Id).Delete(element.Id)),
                 response => response.Elements[0]);
         }
-
-        /// <summary>
-        /// Element transactions.
-        /// </summary>
-        private readonly Dictionary<Element, ElementTxn> _transactions = new Dictionary<Element, ElementTxn>();
 
         /// <inheritdoc />
         public void Update(Element element, string key, string value)
