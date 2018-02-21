@@ -69,7 +69,7 @@ namespace CreateAR.SpirePlayer
         public void OnNetworkEvent(string message)
         {
 #if !UNITY_EDITOR && UNITY_WEBGL
-            Handler.OnMessage(message);
+            _handler.OnMessage(message);
 #else
             throw new Exception("WebBridge should not be used outside of WebGL target.");
 #endif
