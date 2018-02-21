@@ -45,6 +45,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates a new WebApplicationHost.
         /// </summary>
+        /// <param name="messages">Pub/sub.</param>
         /// <param name="bridge">The WebBridge.</param>
         /// <param name="connection">Connection to Trellis.</param>
         /// <param name="filter">Filters messages.</param>
@@ -90,6 +91,7 @@ namespace CreateAR.SpirePlayer
                         .Credentials(_config.Network.Current)
                         .UserId));
 
+                    // connect to Trellis
                     _connection.Connect(_config.Network.Environment(_config.Network.Current));
 
                     // ready for action
