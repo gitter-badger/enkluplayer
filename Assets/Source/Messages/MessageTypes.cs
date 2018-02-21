@@ -1,7 +1,4 @@
-﻿using System.Runtime.Serialization;
-using CreateAR.SpirePlayer.IUX;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Application-wide message types.
@@ -72,6 +69,7 @@ namespace CreateAR.SpirePlayer
         ///////////////////////////////////////////////////////////////////////
         public const int PLAY = 3000;
         public const int MUSIC = 3010;
+
         public const int SCENE_CREATE = 3100;
         public const int SCENE_UPDATE = 3101;
         public const int SCENE_DELETE = 3102;

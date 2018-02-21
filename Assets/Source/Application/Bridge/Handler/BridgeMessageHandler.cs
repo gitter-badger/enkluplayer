@@ -108,7 +108,7 @@ namespace CreateAR.SpirePlayer
 
                 return;
             }
-
+            
             Filter.Publish(messageType, payload);
         }
 

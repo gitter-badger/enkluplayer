@@ -13,31 +13,4 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         bool Exclude(int messageType, object message);
     }
-
-    public class ElementUpdateFilter : IMessageExclusionFilter
-    {
-        private readonly string _userId;
-
-        public ElementUpdateFilter(string userId)
-        {
-
-        }
-
-        public bool Exclude(int messageType, object message)
-        {
-            switch (messageType)
-            {
-                case MessageTypes.SCENE_CREATE:
-                case MessageTypes.SCENE_UPDATE:
-                case MessageTypes.SCENE_DELETE:
-                {
-                    return ((SceneEvent) message).User == _userId;
-                }
-                default:
-                {
-                    return false;
-                }
-            }
-        }
-    }
 }

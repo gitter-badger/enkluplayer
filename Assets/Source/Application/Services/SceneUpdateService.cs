@@ -4,12 +4,24 @@ using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Handles scene updates.
+    /// </summary>
     public class SceneUpdateService : ApplicationService
     {
+        /// <summary>
+        /// Serializer.
+        /// </summary>
         private readonly JsonSerializer _serializer = new JsonSerializer();
 
+        /// <summary>
+        /// Txns.
+        /// </summary>
         private readonly IElementTxnManager _txns;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public SceneUpdateService(
             MessageTypeBinder binder,
             IMessageRouter messages,
@@ -19,6 +31,7 @@ namespace CreateAR.SpirePlayer
             _txns = txns;
         }
 
+        /// <inheritdoc />
         public override void Start()
         {
             base.Start();
@@ -37,6 +50,10 @@ namespace CreateAR.SpirePlayer
                 });
         }
 
+        /// <summary>
+        /// Preps actions by parsing action values.
+        /// </summary>
+        /// <param name="message">The message.</param>
         private void PrepActions(SceneUpdateEvent message)
         {
             foreach (var action in message.Actions)
@@ -74,6 +91,12 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Parses into a T.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="value">The string value.</param>
+        /// <returns></returns>
         private T Parse<T>(string value)
         {
             object instance;

@@ -66,7 +66,7 @@ namespace CreateAR.SpirePlayer
             var current = _config.Network.Current;
 
             // add filters
-            _filter.Filter(new ElementUpdateFilter(_config
+            _filter.Filter(new ElementUpdateExclusionFilter(_config
                 .Network
                 .Credentials(current)
                 .UserId));

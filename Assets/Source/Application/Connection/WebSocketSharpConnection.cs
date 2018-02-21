@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
@@ -154,7 +155,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Socket_OnOpen(object sender, EventArgs eventArgs)
         {
-            Log.Info(this, "Open.");
+            LogVerbose("Open.");
 
             // immediately subscribe
             Send(new WebSocketRequestRequest(
@@ -169,7 +170,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Socket_OnClose(object sender, CloseEventArgs closeEventArgs)
         {
-            Log.Info(this, "Close.");
+            LogVerbose("Close.");
         }
 
         /// <summary>
@@ -177,7 +178,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Socket_OnMessage(object sender, MessageEventArgs messageEventArgs)
         {
-            Log.Info(this, "Message : {0}.", messageEventArgs.Data);
+            LogVerbose("Message : {0}.", messageEventArgs.Data);
 
             lock (_messages)
             {
@@ -190,13 +191,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Socket_OnError(object sender, ErrorEventArgs errorEventArgs)
         {
-            Log.Error(this, "Error : {0}.", errorEventArgs.Message);
+            LogVerbose("Error : {0}.", errorEventArgs.Message);
         }
 
         /// <summary>
         /// Verbose logs.
         /// </summary>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);
