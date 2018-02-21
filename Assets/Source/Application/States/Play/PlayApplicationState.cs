@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.IO;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -26,12 +25,7 @@ namespace CreateAR.SpirePlayer
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
-
-        /// <summary>
-        /// Gets + sets files.
-        /// </summary>
-        private readonly IFileManager _files;
-
+        
         /// <summary>
         /// Messages.
         /// </summary>
@@ -55,7 +49,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Application-wide configuration.
         /// </summary>
-        private ApplicationConfig _appConfig;
+        private readonly ApplicationConfig _appConfig;
         
         /// <summary>
         /// Time at which state was entered.
@@ -72,18 +66,18 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public PlayApplicationState(
             IBootstrapper bootstrapper,
-            IFileManager files,
             IMessageRouter messages,
             IScriptRequireResolver resolver,
             IAppController app,
             IElementFactory elements,
-            IVoiceCommandManager voice)
+            IVoiceCommandManager voice,
+            ApplicationConfig config)
         {
             _bootstrapper = bootstrapper;
-            _files = files;
             _messages = messages;
             _resolver = resolver;
             _app = app;
+            _appConfig = config;
 
             _design = new DesignController(elements, _app, voice);
         }
@@ -92,14 +86,12 @@ namespace CreateAR.SpirePlayer
         public void Enter(object context)
         {
             Log.Info(this, "PlayApplicationState::Enter()");
-
-            _appConfig = (ApplicationConfig) context;
-
+            
             _enterTime = DateTime.Now;
             _statusCleared = false;
             _messages.Publish(
                 MessageTypes.STATUS,
-                WaitingForConnectionApplicationState.GetNetworkSummary());
+                NetworkUtils.GetNetworkSummary());
             
             _resolver.Initialize(
 #if NETFX_CORE
@@ -114,14 +106,6 @@ namespace CreateAR.SpirePlayer
                 UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
                     SCENE_NAME,
                     LoadSceneMode.Additive)));
-
-            // configure
-            _files.Register(
-                FileProtocols.APP,
-                new JsonSerializer(),
-                new LocalFileSystem(Path.Combine(
-                    UnityEngine.Application.persistentDataPath,
-                    "App")));
         }
 
         /// <inheritdoc cref="IState"/>
@@ -141,9 +125,7 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "PlayApplicationState::Exit()");
 
             _design.Teardown();
-
-            _files.Unregister(FileProtocols.APP);
-
+            
             // unload playmode scene
             UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
                 UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));

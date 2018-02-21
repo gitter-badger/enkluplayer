@@ -5,19 +5,22 @@
     /// </summary>
     public static class MessageTypes
     {
+        public const int RESTART = -1000;
+
         ///////////////////////////////////////////////////////////////////////
         // Error.
         ///////////////////////////////////////////////////////////////////////
         public const int FATAL_ERROR = -1;
-        
+
+        public const int STATUS = 0;
+
         ///////////////////////////////////////////////////////////////////////
         // Initialization
         ///////////////////////////////////////////////////////////////////////
-        public const int READY = 1;
-        public const int AUTHORIZED = 2;
-        public const int RESTART = 3;
-        public const int STATUS = 4;
-        public const int DEFAULT_STATE = 5;
+        public const int APPLICATION_INITIALIZED = 1;
+        public const int RECV_CREDENTIALS = 2;
+        public const int RECV_APP_INFO = 3;
+        public const int LOAD_APP = 4;
 
         // Assets
         public const int ASSET_LIST = 10;
@@ -58,12 +61,7 @@
         // Preview State
         ///////////////////////////////////////////////////////////////////////
         public const int PREVIEW = 1000;
-
-        ///////////////////////////////////////////////////////////////////////
-        // Edit State
-        ///////////////////////////////////////////////////////////////////////
-        public const int EDIT = 2000;
-
+        
         ///////////////////////////////////////////////////////////////////////
         // Play State
         ///////////////////////////////////////////////////////////////////////

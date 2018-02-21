@@ -115,7 +115,6 @@ namespace CreateAR.SpirePlayer
                 // services
                 {
                     binder.Bind<ApplicationStateService>().To<ApplicationStateService>().ToSingleton();
-                    binder.Bind<AuthorizationService>().To<AuthorizationService>().ToSingleton();
                     binder.Bind<AssetUpdateService>().To<AssetUpdateService>().ToSingleton();
                     binder.Bind<HierarchyUpdateService>().To<HierarchyUpdateService>().ToSingleton();
                     binder.Bind<ContentUpdateService>().To<ContentUpdateService>().ToSingleton();
@@ -130,8 +129,8 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<TestDataConfig>().To(LookupComponent<TestDataConfig>());
                     binder.Bind<ITestDataController>().To<TestDataController>();
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
-                    binder.Bind<WaitingForConnectionApplicationState>().To<WaitingForConnectionApplicationState>();
-                    binder.Bind<EditApplicationState>().To<EditApplicationState>();
+                    binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
+                    binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
@@ -163,7 +162,6 @@ namespace CreateAR.SpirePlayer
                     new ApplicationService[]
                     {
                         binder.GetInstance<ApplicationStateService>(),
-                        binder.GetInstance<AuthorizationService>(),
                         binder.GetInstance<AssetUpdateService>(),
                         binder.GetInstance<HierarchyUpdateService>(),
                         binder.GetInstance<ContentUpdateService>(),

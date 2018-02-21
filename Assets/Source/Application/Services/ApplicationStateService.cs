@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -29,11 +30,10 @@ namespace CreateAR.SpirePlayer
             ApplicationConfig config,
 
             InitializeApplicationState initialize,
-            WaitingForConnectionApplicationState wait,
-            EditApplicationState edit,
-            PreviewApplicationState preview,
+            LoadAppApplicationState load,
+            ReceiveAppApplicationState receive,
             PlayApplicationState play,
-            HierarchyApplicationState hierarchy,
+            PreviewApplicationState preview,
             BleSearchApplicationState ble,
             InstaApplicationState insta,
             // TODO: find a different pattern to do this
@@ -47,11 +47,10 @@ namespace CreateAR.SpirePlayer
             _states = new FiniteStateMachine(new IState[]
             {
                 initialize,
-                wait,
-                edit,
-                preview,
+                load,
+                receive,
                 play,
-                hierarchy,
+                preview,
                 ble,
                 insta,
 #if NETFX_CORE
@@ -65,53 +64,8 @@ namespace CreateAR.SpirePlayer
         public override void Start()
         {
             Subscribe<Void>(
-                MessageTypes.READY,
-                _ =>
-                {
-                    Log.Info(this, "Application ready.");
-
-                    var mode = ApplicationMode.WaitForConnection;
-                    try
-                    {
-                        mode = (ApplicationMode) Enum.Parse(
-                            typeof(ApplicationMode),
-                            _config.Mode);
-                    }
-                    catch (Exception exception)
-                    {
-                        Log.Warning(this,
-                            "Could not parse mode in ApplicationConfig : {0}.",
-                            exception);
-                    }
-
-                    switch (mode)
-                    {
-                        case ApplicationMode.None:
-                        {
-                            break;
-                        }
-                        case ApplicationMode.Tools:
-                        {
-                            _states.Change<ToolModeApplicationState>();
-                            break;
-                        }
-                        case ApplicationMode.WaitForConnection:
-                        {
-                            _states.Change<WaitingForConnectionApplicationState>();
-                            break;
-                        }
-                        case ApplicationMode.Play:
-                        {
-                            _states.Change<PlayApplicationState>(_config);
-                            break;
-                        }
-                        case ApplicationMode.Insta:
-                        {
-                            _states.Change<InstaApplicationState>();
-                            break;
-                        }
-                    }
-                });
+                MessageTypes.APPLICATION_INITIALIZED,
+                Messages_OnApplicationInitialized);
 
             Subscribe<PreviewEvent>(
                 MessageTypes.PREVIEW,
@@ -123,14 +77,14 @@ namespace CreateAR.SpirePlayer
                 });
 
             Subscribe<Void>(
-                MessageTypes.EDIT,
+                MessageTypes.LOAD_APP,
                 _ =>
                 {
-                    Log.Info(this, "Edit requested.");
+                    Log.Info(this, "Load app requested.");
 
-                    _states.Change<EditApplicationState>();
+                    _states.Change<LoadAppApplicationState>();
                 });
-
+            
             Subscribe<Void>(
                 MessageTypes.PLAY,
                 _ =>
@@ -139,16 +93,7 @@ namespace CreateAR.SpirePlayer
 
                     _states.Change<PlayApplicationState>();
                 });
-
-            Subscribe<Void>(
-                MessageTypes.HIERARCHY,
-                _ =>
-                {
-                    Log.Info(this, "Hierarchy requested.");
-
-                    _states.Change<HierarchyApplicationState>();
-                });
-
+            
             Subscribe<Void>(
                 MessageTypes.TOOLS,
                 _ =>
@@ -186,6 +131,79 @@ namespace CreateAR.SpirePlayer
             base.Stop();
 
             _states.Change(null);
+        }
+
+        /// <summary>
+        /// Changes to the state given by the state enums.
+        /// </summary>
+        /// <param name="state">The state to change to.</param>
+        private void ChangeState(ApplicationStateTypes state)
+        {
+            switch (state)
+            {
+                case ApplicationStateTypes.Tool:
+                {
+                    _states.Change<ToolModeApplicationState>();
+                    break;
+                }
+                case ApplicationStateTypes.LoadApp:
+                {
+                    _states.Change<LoadAppApplicationState>();
+                    break;
+                }
+                case ApplicationStateTypes.ReceiveApp:
+                {
+                    _states.Change<ReceiveAppApplicationState>();
+                    break;
+                }
+                case ApplicationStateTypes.Insta:
+                {
+                    _states.Change<InstaApplicationState>();
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when application initialized message is published.
+        /// </summary>
+        /// <param name="_">Void.</param>
+        private void Messages_OnApplicationInitialized(Void _)
+        {
+            Log.Info(this, "Application initialized.");
+
+            var state = ApplicationStateTypes.Invalid;
+            try
+            {
+                state = (ApplicationStateTypes)Enum.Parse(
+                    typeof(ApplicationStateTypes),
+                    _config.StateOverride);
+            }
+            catch
+            {
+                //
+            }
+
+            if (state == ApplicationStateTypes.Invalid)
+            {
+                // determine if we should load app or wait to be given app to load
+                var load = UnityEngine.Application.platform != RuntimePlatform.WebGLPlayer;
+                if (UnityEngine.Application.isEditor)
+                {
+                    load = !_config.SimulateWebgl;
+                }
+
+                if (load)
+                {
+                    state = ApplicationStateTypes.LoadApp;
+                }
+                else
+                {
+                    state = ApplicationStateTypes.ReceiveApp;
+                }
+            }
+
+            ChangeState(state);
         }
     }
 }

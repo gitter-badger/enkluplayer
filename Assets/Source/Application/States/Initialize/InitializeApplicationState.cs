@@ -119,31 +119,14 @@ namespace CreateAR.SpirePlayer
                 }),
                 FindFloor()
             };
-
-            // if we're logging in automatically, also wait for login
-            var autoLogin = UnityEngine.Application.platform != RuntimePlatform.WebGLPlayer;
-            if (UnityEngine.Application.isEditor)
-            {
-                autoLogin = !_appConfig.SimulateWebgl;
-            }
-
-            if (autoLogin)
-            {
-                tasks.Add(Login(_appConfig.Network));
-            }
-
+            
             Async
                 .All(tasks.ToArray())
                 .OnSuccess(_ =>
                 {
-                    if (!autoLogin)
-                    {
-                        WaitForCredentials(() => _messages.Publish(MessageTypes.READY, Void.Instance));
-                    }
-                    else
-                    {
-                        _messages.Publish(MessageTypes.READY, Void.Instance);
-                    }
+                    _messages.Publish(
+                        MessageTypes.APPLICATION_INITIALIZED,
+                        Void.Instance);
                 })
                 .OnFailure(exception =>
                 {
@@ -167,77 +150,11 @@ namespace CreateAR.SpirePlayer
                 anchor.ClearTags();
             }
         }
-
-        /// <summary>
-        /// Waits for credentials to be passed in.
-        /// </summary>
-        /// <param name="callback">The action to call once credentials have been received.</param>
-        private void WaitForCredentials(Action callback)
-        {
-            Log.Info(this, "Waiting on credentials.");
-
-            _messages.SubscribeOnce(
-                MessageTypes.AUTHORIZED,
-                _ =>
-                {
-                    Log.Info(this, "Credentials received.");
-
-                    callback();
-                });
-        }
-
-        /// <summary>
-        /// Automatically connects to Trellis.
-        /// </summary>
-        /// <param name="config">Configuration.</param>
-        /// <returns></returns>
-        private IAsyncToken<Void> Login(NetworkConfig config)
-        {
-            var token = new AsyncToken<Void>();
-
-            Log.Info(this, "AutoLogin");
-
-            // setup
-            var creds = config.Credentials(config.Current);
-            _http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
-                "Authorization",
-                string.Format("Bearer {0}", creds.Token)));
-            
-            token.Succeed(Void.Instance);
-
-            /*
-            _api
-                .Users
-                .RefreshToken(creds.UserId, new Trellis.Messages.RefreshToken.Request
-                {
-                    Token = creds.Token
-                })
-                .OnSuccess(response =>
-                {
-                    if (null == response.Payload || !response.Payload.Success)
-                    {
-                        var message = string.Format("Could not refresh token : {0}.",
-                            null != response.Payload
-                                ? response.Payload.Error
-                                : "Unknown");
-                        Log.Error(this, message);
-
-                        token.Fail(new Exception(message));
-                    }
-                    else
-                    {
-                        // TODO: resave token
-
-                        token.Succeed(Void.Instance);
-                    }
-                })
-                .OnFailure(token.Fail);
-            */
-            return token;
-        }
-
+        
         /// <summary>
         /// Finds the floor, tags it, then resolves the token.
+        /// 
+        /// TODO: Should be part of <c>IArService</c>.
         /// </summary>
         /// <returns></returns>
         private IAsyncToken<Void> FindFloor()

@@ -37,7 +37,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Authorization information.
     /// </summary>
-    public class AuthorizedEvent
+    public class UserCredentialsEvent
     {
         [JsonName("credentials")]
         public UserCredentialsModel Credentials;
@@ -47,7 +47,7 @@ namespace CreateAR.SpirePlayer
 
         public override string ToString()
         {
-            return string.Format("[AuthorizedEvent credentials={0}, profile={1}]",
+            return string.Format("[UserCredentialsEvent credentials={0}, profile={1}]",
                 Credentials,
                 Profile);
         }

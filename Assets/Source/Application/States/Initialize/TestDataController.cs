@@ -33,7 +33,7 @@ namespace CreateAR.SpirePlayer
             Action unsub = null;
 
             _messages.Subscribe(
-                MessageTypes.READY,
+                MessageTypes.APPLICATION_INITIALIZED,
                 _ =>
                 {
                     if (null != unsub)

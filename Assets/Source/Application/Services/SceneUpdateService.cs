@@ -36,6 +36,15 @@ namespace CreateAR.SpirePlayer
         {
             base.Start();
 
+            Subscribe<SceneCreateEvent>(
+                MessageTypes.SCENE_CREATE,
+                message =>
+                {
+                    Log.Info(this, "Received scene create event.");
+
+                    _txns.TrackScene(message.Scene);
+                });
+
             Subscribe<SceneUpdateEvent>(
                 MessageTypes.SCENE_UPDATE,
                 message =>

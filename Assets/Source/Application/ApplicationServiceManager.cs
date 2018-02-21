@@ -74,7 +74,7 @@ namespace CreateAR.SpirePlayer
         {
             // add filter after application is ready
             _messages.Subscribe(
-                MessageTypes.READY,
+                MessageTypes.APPLICATION_INITIALIZED,
                 _ =>
                 {
                     // add filters
@@ -85,7 +85,7 @@ namespace CreateAR.SpirePlayer
                 });
             
             _bridge.Initialize(_handler);
-            _connection.Connect(_config.Network.Environment(_config.Network.Current));
+            //_connection.Connect(_config.Network.Environment(_config.Network.Current));
 
             for (int i = 0, len = _services.Length; i < len; i++)
             {

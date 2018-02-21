@@ -332,7 +332,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Logging.
         /// </summary>
-        [Conditional("VERBOSE_LOGGING")]
+        //[Conditional("VERBOSE_LOGGING")]
         private void LogVerbose(string message, params object[] replacements)
         {
             Log.Info(this, message, replacements);

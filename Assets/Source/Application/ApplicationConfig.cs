@@ -3,15 +3,16 @@
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Determines the mode of the application.
+    /// Enumeration of the major application states.
     /// </summary>
-    public enum ApplicationMode
+    public enum ApplicationStateTypes
     {
+        Invalid = -1,
         None,
-        WaitForConnection,
-        Tools,
-        Play,
-        Insta
+        LoadApp,
+        ReceiveApp,
+        Tool,
+        Insta,
     }
 
     /// <summary>
@@ -21,9 +22,9 @@ namespace CreateAR.SpirePlayer
     public class ApplicationConfig
     {
         /// <summary>
-        /// Defines the main application mode.
+        /// If set, overrides the initial state after application is initialized.
         /// </summary>
-        public string Mode;
+        public string StateOverride;
 
         /// <summary>
         /// If true, simulates webgl player. Used only in the Unity Editor.
