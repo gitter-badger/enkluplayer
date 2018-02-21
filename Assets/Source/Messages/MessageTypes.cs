@@ -23,16 +23,16 @@
         public const int LOAD_APP = 4;
 
         // Assets
-        public const int ASSET_LIST = 10;
-        public const int ASSET_ADD = 11;
-        public const int ASSET_REMOVE = 12;
-        public const int ASSET_UPDATE = 13;
+        public const int RECV_ASSET_LIST = 10;
+        public const int RECV_ASSET_ADD = 11;
+        public const int RECV_ASSET_REMOVE = 12;
+        public const int RECV_ASSET_UPDATE = 13;
 
         // Scripts
-        public const int SCRIPT_LIST = 20;
-        public const int SCRIPT_ADD = 21;
-        public const int SCRIPT_REMOVE = 22;
-        public const int SCRIPT_UPDATE = 23;
+        public const int RECV_SCRIPT_LIST = 20;
+        public const int RECV_SCRIPT_ADD = 21;
+        public const int RECV_SCRIPT_REMOVE = 22;
+        public const int RECV_SCRIPT_UPDATE = 23;
 
         // Content
         public const int CONTENT_LIST = 30;

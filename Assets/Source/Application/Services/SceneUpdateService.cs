@@ -57,6 +57,15 @@ namespace CreateAR.SpirePlayer
                     // APPLY
                     _txns.Apply(new ElementTxn(message.Scene, message.Actions));
                 });
+
+            Subscribe<SceneDeleteEvent>(
+                MessageTypes.SCENE_DELETE,
+                message =>
+                {
+                    Log.Info(this, "Received scene delete event.");
+
+                    _txns.UntrackScene(message.Scene);
+                });
         }
 
         /// <summary>

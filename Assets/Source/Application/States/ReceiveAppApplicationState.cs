@@ -4,11 +4,25 @@ using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// State that waits for receiving all necessary data before progressing to
+    /// play. This state is used when the editor is connected.
+    /// </summary>
     public class ReceiveAppApplicationState : IState
     {
+        /// <summary>
+        /// Messages.
+        /// </summary>
         private readonly IMessageRouter _messages;
+
+        /// <summary>
+        /// Config.
+        /// </summary>
         private readonly ApplicationConfig _config;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public ReceiveAppApplicationState(
             IMessageRouter messages,
             ApplicationConfig config,
@@ -21,12 +35,15 @@ namespace CreateAR.SpirePlayer
             binder.Add<AppInfoEvent>(MessageTypes.RECV_APP_INFO);
         }
 
+        /// <inheritdoc />
         public void Enter(object context)
         {
             var waits = new Action<Action>[]
             {
                 WaitForCredentials,
-                WaitForAppInfo
+                WaitForAppInfo,
+                WaitForAssets,
+                WaitForScripts
             };
 
             var calls = 0;
@@ -34,6 +51,8 @@ namespace CreateAR.SpirePlayer
             {
                 if (++calls == waits.Length)
                 {
+                    Log.Info(this, "Prerequisites accounted for. Proceed to load app!");
+
                     _messages.Publish(MessageTypes.LOAD_APP);
                 }
             };
@@ -44,11 +63,13 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc />
         public void Update(float dt)
         {
             // 
         }
 
+        /// <inheritdoc />
         public void Exit()
         {
             // 
@@ -99,6 +120,46 @@ namespace CreateAR.SpirePlayer
 
                     // update application config
                     _config.Play.AppId = info.AppId;
+
+                    callback();
+                });
+        }
+
+        /// <summary>
+        /// Waits for assets.
+        /// </summary>
+        /// <param name="callback">Callback.</param>
+        private void WaitForAssets(Action callback)
+        {
+            Log.Info(this, "Waiting for assets.");
+
+            _messages.SubscribeOnce(
+                MessageTypes.RECV_ASSET_LIST,
+                obj =>
+                {
+                    Log.Info(this, "Assets received.");
+
+                    // assets service takes care of them
+
+                    callback();
+                });
+        }
+
+        /// <summary>
+        /// Waits for scripts.
+        /// </summary>
+        /// <param name="callback">Callback.</param>
+        private void WaitForScripts(Action callback)
+        {
+            Log.Info(this, "Waiting for scripts.");
+
+            _messages.SubscribeOnce(
+                MessageTypes.RECV_SCRIPT_LIST,
+                obj =>
+                {
+                    Log.Info(this, "Scripts received.");
+
+                    // scripts service takes care of them
 
                     callback();
                 });

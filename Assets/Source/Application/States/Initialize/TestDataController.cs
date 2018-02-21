@@ -42,7 +42,7 @@ namespace CreateAR.SpirePlayer
                     }
 
                     unsub = _messages.Subscribe(
-                        MessageTypes.ASSET_LIST,
+                        MessageTypes.RECV_ASSET_LIST,
                         __ => LoadAssetData(_config.Data));
 
                     LoadAssetData(_config.Data);
@@ -60,7 +60,7 @@ namespace CreateAR.SpirePlayer
 
             foreach (var asset in assets)
             {
-                _messages.Publish(MessageTypes.ASSET_ADD, new AssetAddEvent
+                _messages.Publish(MessageTypes.RECV_ASSET_ADD, new AssetAddEvent
                 {
                     Asset = asset
                 });

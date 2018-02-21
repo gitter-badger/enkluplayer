@@ -2,7 +2,6 @@ using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
-using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -16,33 +15,26 @@ namespace CreateAR.SpirePlayer
         /// Manages assets.
         /// </summary>
         private readonly IAssetManager _assets;
-
-        /// <summary>
-        /// Manages elements.
-        /// </summary>
-        private readonly IElementManager _elements;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
         public AssetUpdateService(
             MessageTypeBinder binder,
             IMessageRouter messages,
-            IAssetManager assets,
-            IElementManager elements)
+            IAssetManager assets)
             : base(binder, messages)
         {
             _assets = assets;
-            _elements = elements;
         }
 
         /// <inheritdoc cref="ApplicationService"/>
         public override void Start()
         {
-            Subscribe<AssetListEvent>(MessageTypes.ASSET_LIST, Messages_OnAssetList);
-            Subscribe<AssetAddEvent>(MessageTypes.ASSET_ADD, Messages_OnAssetAdd);
-            Subscribe<AssetRemoveEvent>(MessageTypes.ASSET_REMOVE, Messages_OnAssetRemove);
-            Subscribe<AssetUpdateEvent>(MessageTypes.ASSET_UPDATE, Messages_OnAssetUpdate);
+            Subscribe<AssetListEvent>(MessageTypes.RECV_ASSET_LIST, Messages_OnAssetList);
+            Subscribe<AssetAddEvent>(MessageTypes.RECV_ASSET_ADD, Messages_OnAssetAdd);
+            Subscribe<AssetRemoveEvent>(MessageTypes.RECV_ASSET_REMOVE, Messages_OnAssetRemove);
+            Subscribe<AssetUpdateEvent>(MessageTypes.RECV_ASSET_UPDATE, Messages_OnAssetUpdate);
         }
 
         /// <inheritdoc cref="ApplicationService"/>

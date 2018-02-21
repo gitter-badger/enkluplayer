@@ -4,12 +4,30 @@ using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// State that loads necessary data before progressing to play. This is used
+    /// when the player is running without a connected editor to push it data.
+    /// </summary>
     public class LoadAppApplicationState : IState
     {
+        /// <summary>
+        /// Configuration.
+        /// </summary>
         private readonly ApplicationConfig _config;
+
+        /// <summary>
+        /// For Http.
+        /// </summary>
         private readonly IHttpService _http;
+
+        /// <summary>
+        /// Messages.
+        /// </summary>
         private readonly IMessageRouter _messages;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public LoadAppApplicationState(
             ApplicationConfig config,
             IHttpService http,
@@ -20,24 +38,27 @@ namespace CreateAR.SpirePlayer
             _messages = messages;
         }
 
+        /// <inheritdoc />
         public void Enter(object context)
         {
             ApplyCredentials(_config.Network);
 
-            // TODO: get assets
+            // TODO: load assets
 
-            // TODO: get scripts
+            // TODO: load scripts
 
             Log.Info(this, "App loaded, proceeding to play.");
 
             _messages.Publish(MessageTypes.PLAY);
         }
 
+        /// <inheritdoc />
         public void Update(float dt)
         {
             
         }
 
+        /// <inheritdoc />
         public void Exit()
         {
             
