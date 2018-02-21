@@ -42,7 +42,7 @@ namespace CreateAR.SpirePlayer
             // no body means void message
             if (!message.Contains(":"))
             {
-                Silly("Received : {0}", message);
+                Silly("Received : {0}::Void", message);
 
                 HandleVoidMessage(message);
                 return;
@@ -62,8 +62,9 @@ namespace CreateAR.SpirePlayer
             if (null == payloadType)
             {
                 Log.Error(this,
-                    "Received a message of type {0}, but there was no binding.",
-                    substrings[0]);
+                    "Received a message of type {0}, but there was no binding :: {1}",
+                    messageType,
+                    message);
                 return;
             }
             
@@ -82,12 +83,12 @@ namespace CreateAR.SpirePlayer
                     exception);
                 return;
             }
-
-            Silly("Received : {0} : {1}", message, payloadString);
-
+            
             // handle strings
             if (typeof(string) == payloadType)
             {
+                Silly("Received : {0}::", message, payloadString);
+
                 Filter.Publish(messageType, payloadString);
                 return;
             }
@@ -108,7 +109,9 @@ namespace CreateAR.SpirePlayer
 
                 return;
             }
-            
+
+            Silly("Received : {0}::", message, payload);
+
             Filter.Publish(messageType, payload);
         }
 
@@ -168,7 +171,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="message">Message.</param>
         /// <param name="replacements">Replacements.</param>
-        [Conditional("UNITY_EDITOR")]
+        //[Conditional("LOGGING_VERBOSE")]
         private void Silly(object message, params object[] replacements)
         {
             Log.Debug(this, "<color=green>" +  message + "</color>", replacements);

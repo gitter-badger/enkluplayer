@@ -16,11 +16,6 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
 
         /// <summary>
-        /// Configuration.
-        /// </summary>
-        private readonly TestDataConfig _config;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         public TestDataController(
@@ -28,7 +23,6 @@ namespace CreateAR.SpirePlayer
             TestDataConfig config)
         {
             _messages = message;
-            _config = config;
 
             Action unsub = null;
 
@@ -43,9 +37,9 @@ namespace CreateAR.SpirePlayer
 
                     unsub = _messages.Subscribe(
                         MessageTypes.RECV_ASSET_LIST,
-                        __ => LoadAssetData(_config.Data));
+                        __ => LoadAssetData(config.Data));
 
-                    LoadAssetData(_config.Data);
+                    LoadAssetData(config.Data);
                 });
         }
         
@@ -63,22 +57,6 @@ namespace CreateAR.SpirePlayer
                 _messages.Publish(MessageTypes.RECV_ASSET_ADD, new AssetAddEvent
                 {
                     Asset = asset
-                });
-            }
-        }
-
-        /// <summary>
-        /// Loads static content data.
-        /// </summary>
-        private void LoadContentData(ApplicationTestData data)
-        {
-            var contents = Read<ContentData>(data.Content);
-
-            foreach (var content in contents)
-            {
-                _messages.Publish(MessageTypes.CONTENT_ADD, new ContentAddEvent
-                {
-                    Content = content
                 });
             }
         }

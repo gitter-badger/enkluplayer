@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
@@ -88,13 +89,14 @@ namespace CreateAR.SpirePlayer
         /// <param name="event">The event.</param>
         private void Messages_OnAssetList(AssetListEvent @event)
         {
-            Log.Info(this,
-                "Updating AssetManifest with {0} assets.",
-                @event.Assets.Length);
-
-            // handle adds + updates
             var manifest = _assets.Manifest;
             var assets = @event.Assets;
+
+            Log.Info(this,
+                "Updating AssetManifest with {0} assets.",
+                assets.Length);
+
+            // handle adds + updates
             for (int i = 0, len = assets.Length; i < len; i++)
             {
                 var asset = assets[i];
@@ -110,10 +112,14 @@ namespace CreateAR.SpirePlayer
                 var info = manifest.Data(asset.Guid);
                 if (null == info)
                 {
+                    Verbose("Adding asset {0}.", asset.Guid);
+
                     _assets.Manifest.Add(asset);
                 }
                 else
                 {
+                    Verbose("Updating asset {0}.", asset.Guid);
+
                     manifest.Update(asset);
                 }
             }
@@ -137,6 +143,8 @@ namespace CreateAR.SpirePlayer
 
                 if (!found)
                 {
+                    Verbose("Removing asset {0}.", data.Guid);
+
                     manifest.Remove(data.Guid);
                 }
             }
@@ -189,6 +197,15 @@ namespace CreateAR.SpirePlayer
                     return "UNKNOWN";
                 }
             }
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        [Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }
