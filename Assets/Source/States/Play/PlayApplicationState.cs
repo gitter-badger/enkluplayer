@@ -193,7 +193,7 @@ namespace CreateAR.SpirePlayer
                 .OnFailure(exception =>
                 {
                     Log.Error(this, string.Format(
-                        "Could not initialize Scene : {0}.",
+                        "Could not initialize App : {0}.",
                         exception));
                 });
         }

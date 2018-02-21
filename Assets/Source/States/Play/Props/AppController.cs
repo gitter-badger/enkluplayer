@@ -69,6 +69,8 @@ namespace CreateAR.SpirePlayer
                 .Initialize(appId)
                 .OnSuccess(_ =>
                 {
+                    LogVerbose("Txns initialized.");
+
                     // create scene controllers
                     var scenes = _txns.TrackedScenes;
                     for (var i = 0; i < scenes.Length; i++)
