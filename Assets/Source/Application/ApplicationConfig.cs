@@ -26,6 +26,11 @@ namespace CreateAR.SpirePlayer
         public string Mode;
 
         /// <summary>
+        /// If true, simulates webgl player. Used only in the Unity Editor.
+        /// </summary>
+        public bool SimulateWebgl;
+
+        /// <summary>
         /// Configuration for playing an app.
         /// </summary>
         public PlayAppConfig Play = new PlayAppConfig();
@@ -78,11 +83,6 @@ namespace CreateAR.SpirePlayer
         /// List of credentials.
         /// </summary>
         public CredentialsData[] AllCredentials;
-
-        /// <summary>
-        /// True iff the app should login automatically.
-        /// </summary>
-        public bool AutoLogin;
         
         /// <summary>
         /// Retrieves an environment by name.

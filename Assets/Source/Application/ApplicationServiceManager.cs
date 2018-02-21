@@ -1,3 +1,5 @@
+using CreateAR.Commons.Unity.Messaging;
+
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
@@ -5,6 +7,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class ApplicationServiceManager : IApplicationServiceManager
     {
+        /// <summary>
+        /// Message dispatch system.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
         /// <summary>
         /// The bridge into the web world.
         /// </summary>
@@ -45,6 +52,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="config">Application wide config.</param>
         /// <param name="services">Services to monitor host.</param>
         public ApplicationServiceManager(
+            IMessageRouter messages,
             IBridge bridge,
             IConnection connection,
             MessageFilter filter,
@@ -52,6 +60,7 @@ namespace CreateAR.SpirePlayer
             ApplicationConfig config,
             ApplicationService[] services)
         {
+            _messages = messages;
             _bridge = bridge;
             _connection = connection;
             _filter = filter;
@@ -63,16 +72,20 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IApplicationServiceManager"/>
         public void Start()
         {
-            var current = _config.Network.Current;
-
-            // add filters
-            _filter.Filter(new ElementUpdateExclusionFilter(_config
-                .Network
-                .Credentials(current)
-                .UserId));
-
+            // add filter after application is ready
+            _messages.Subscribe(
+                MessageTypes.READY,
+                _ =>
+                {
+                    // add filters
+                    _filter.Filter(new ElementUpdateExclusionFilter(_config
+                        .Network
+                        .Credentials(_config.Network.Current)
+                        .UserId));
+                });
+            
             _bridge.Initialize(_handler);
-            _connection.Connect(_config.Network.Environment(current));
+            _connection.Connect(_config.Network.Environment(_config.Network.Current));
 
             for (int i = 0, len = _services.Length; i < len; i++)
             {

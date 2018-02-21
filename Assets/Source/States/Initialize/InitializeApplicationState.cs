@@ -10,7 +10,6 @@ using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
-using CreateAR.Trellis.Messages;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -33,8 +32,6 @@ namespace CreateAR.SpirePlayer
         private readonly IArService _ar;
         private readonly BleServiceConfiguration _bleConfig;
         private readonly IBleService _ble;
-        private readonly ApiController _api;
-        private readonly ITestDataController _testData;
 
         /// <summary>
         /// App config.
@@ -59,9 +56,7 @@ namespace CreateAR.SpirePlayer
             IArService ar,
             BleServiceConfiguration bleConfig,
             IBleService ble,
-            ApiController api,
-            IImageLoader imageLoader,
-            ITestDataController testData)
+            IImageLoader imageLoader)
         {
             _messages = messages;
             _http = http;
@@ -72,8 +67,6 @@ namespace CreateAR.SpirePlayer
             _ar = ar;
             _bleConfig = bleConfig;
             _ble = ble;
-            _api = api;
-            _testData = testData;
 
             imageLoader.ReplaceProtocol(
                 "assets",
@@ -128,7 +121,13 @@ namespace CreateAR.SpirePlayer
             };
 
             // if we're logging in automatically, also wait for login
-            if (_appConfig.Network.AutoLogin)
+            var autoLogin = UnityEngine.Application.platform != RuntimePlatform.WebGLPlayer;
+            if (UnityEngine.Application.isEditor)
+            {
+                autoLogin = !_appConfig.SimulateWebgl;
+            }
+
+            if (autoLogin)
             {
                 tasks.Add(Login(_appConfig.Network));
             }
@@ -137,7 +136,14 @@ namespace CreateAR.SpirePlayer
                 .All(tasks.ToArray())
                 .OnSuccess(_ =>
                 {
-                    _messages.Publish(MessageTypes.READY, Void.Instance);
+                    if (!autoLogin)
+                    {
+                        WaitForCredentials(() => _messages.Publish(MessageTypes.READY, Void.Instance));
+                    }
+                    else
+                    {
+                        _messages.Publish(MessageTypes.READY, Void.Instance);
+                    }
                 })
                 .OnFailure(exception =>
                 {
@@ -160,6 +166,24 @@ namespace CreateAR.SpirePlayer
             {
                 anchor.ClearTags();
             }
+        }
+
+        /// <summary>
+        /// Waits for credentials to be passed in.
+        /// </summary>
+        /// <param name="callback">The action to call once credentials have been received.</param>
+        private void WaitForCredentials(Action callback)
+        {
+            Log.Info(this, "Waiting on credentials.");
+
+            _messages.SubscribeOnce(
+                MessageTypes.AUTHORIZED,
+                _ =>
+                {
+                    Log.Info(this, "Credentials received.");
+
+                    callback();
+                });
         }
 
         /// <summary>

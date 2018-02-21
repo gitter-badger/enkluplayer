@@ -10,6 +10,11 @@ namespace CreateAR.SpirePlayer
     public class AuthorizationService : ApplicationService
     {
         /// <summary>
+        /// Application wide configuration.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
+        /// <summary>
         /// Makes http requests.
         /// </summary>
         private readonly IHttpService _http;
@@ -18,11 +23,13 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public AuthorizationService(
+            ApplicationConfig config,
             MessageTypeBinder binder,
             IMessageRouter messages,
             IHttpService http)
             : base(binder, messages)
         {
+            _config = config;
             _http = http;
         }
 
@@ -44,6 +51,12 @@ namespace CreateAR.SpirePlayer
                     _http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
                         "Authorization",
                         string.Format("Bearer {0}", message.Credentials.Token)));
+
+                    // fill-out ApplicationConfig
+                    var creds = _config.Network.Credentials(_config.Network.Current);
+                    creds.UserId = message.Profile.Id;
+                    creds.Token = message.Credentials.Token;
+                    creds.Email = message.Profile.Email;
                 });
         }
     }

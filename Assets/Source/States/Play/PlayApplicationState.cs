@@ -91,6 +91,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
+            Log.Info(this, "PlayApplicationState::Enter()");
+
             _appConfig = (ApplicationConfig) context;
 
             _enterTime = DateTime.Now;
@@ -136,6 +138,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Exit()
         {
+            Log.Info(this, "PlayApplicationState::Exit()");
+
             _design.Teardown();
 
             _files.Unregister(FileProtocols.APP);
