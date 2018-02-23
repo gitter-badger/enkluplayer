@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
@@ -16,6 +17,11 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        /// Http service.
+        /// </summary>
+        private readonly IHttpService _http;
+
+        /// <summary>
         /// Config.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -25,10 +31,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public ReceiveAppApplicationState(
             IMessageRouter messages,
+            IHttpService http,
             ApplicationConfig config,
             MessageTypeBinder binder)
         {
             _messages = messages;
+            _http = http;
             _config = config;
             
             binder.Add<UserCredentialsEvent>(MessageTypes.RECV_CREDENTIALS);
@@ -51,9 +59,9 @@ namespace CreateAR.SpirePlayer
             {
                 if (++calls == waits.Length)
                 {
-                    Log.Info(this, "Prerequisites accounted for. Proceed to load app!");
+                    Log.Info(this, "Prerequisites accounted for. Proceed to play app!");
 
-                    _messages.Publish(MessageTypes.LOAD_APP);
+                    _messages.Publish(MessageTypes.PLAY);
                 }
             };
 
@@ -96,6 +104,9 @@ namespace CreateAR.SpirePlayer
                     creds.UserId = message.Profile.Id;
                     creds.Token = message.Credentials.Token;
                     creds.Email = message.Profile.Email;
+
+                    // setup http service
+                    creds.Apply(_http);
 
                     // return flow
                     callback();

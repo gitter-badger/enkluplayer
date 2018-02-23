@@ -170,9 +170,15 @@ namespace CreateAR.SpirePlayer
                 }
                 else
                 {
+                    var bounds = assetData.Stats.Bounds ?? new AssetStatsBoundsData
+                    {
+                        Min = -0.5f * Vec3.One,
+                        Max = 0.5f * Vec3.One
+                    };
+
                     _progressIndicatorId = _progress.ShowIndicator(
-                        assetData.Stats.Bounds.Min,
-                        assetData.Stats.Bounds.Max,
+                        bounds.Min,
+                        bounds.Max,
                         _asset.Progress);
                 }
             }

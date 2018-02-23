@@ -55,7 +55,11 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Enter(object context)
         {
-            ApplyCredentials(_config.Network);
+            // setup http service
+            _config
+                .Network
+                .Credentials(_config.Network.Current)
+                .Apply(_http);
 
             Async
                 .All(
@@ -86,22 +90,7 @@ namespace CreateAR.SpirePlayer
         {
             
         }
-
-        /// <summary>
-        /// Applies credentials.
-        /// </summary>
-        private void ApplyCredentials(NetworkConfig config)
-        {
-            // setup http service
-            var creds = config.Credentials(config.Current);
-            _http.UrlBuilder.Replacements.Add(Commons.Unity.DataStructures.Tuple.Create(
-                "userId",
-                creds.UserId));
-            _http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
-                "Authorization",
-                string.Format("Bearer {0}", creds.Token)));
-        }
-
+        
         /// <summary>
         /// Retrieves AssetData.
         /// </summary>
@@ -112,7 +101,7 @@ namespace CreateAR.SpirePlayer
 
             _api
                 .Assets
-                .GetAssets()
+                .GetAssets(_config.Play.AppId)
                 .OnSuccess(response =>
                 {
                     if (response.Payload.Success)

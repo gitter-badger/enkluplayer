@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Http;
 
 namespace CreateAR.SpirePlayer
 {
@@ -212,6 +213,20 @@ namespace CreateAR.SpirePlayer
                 Email,
                 Password,
                 Token);
+        }
+
+        /// <summary>
+        /// Applies credentials to HTTP service.
+        /// </summary>
+        /// <param name="http">Makes http calls.</param>
+        public void Apply(IHttpService http)
+        {
+            http.UrlBuilder.Replacements.Add(Commons.Unity.DataStructures.Tuple.Create(
+                "userId",
+                UserId));
+            http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
+                "Authorization",
+                string.Format("Bearer {0}", Token)));
         }
     }
 }

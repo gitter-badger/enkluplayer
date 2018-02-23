@@ -164,9 +164,15 @@ namespace CreateAR.SpirePlayer.IUX
             // otherwise, show a load indicator
             else
             {
+                var bounds = _asset.Data.Stats.Bounds ?? new AssetStatsBoundsData
+                {
+                    Min = -0.5f * Vec3.One,
+                    Max = 0.5f * Vec3.One
+                };
+
                 _progressIndicatorId = _progress.ShowIndicator(
-                    _asset.Data.Stats.Bounds.Min,
-                    _asset.Data.Stats.Bounds.Max,
+                    bounds.Min,
+                    bounds.Max,
                     _asset.Progress);
             }
 
