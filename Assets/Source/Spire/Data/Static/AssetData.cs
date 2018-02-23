@@ -70,6 +70,12 @@ namespace CreateAR.SpirePlayer
         public string Owner;
 
         /// <summary>
+        /// Owning app.
+        /// </summary>
+        [JsonName("app")]
+        public string App;
+
+        /// <summary>
         /// The URI at which to download the asset. This is not a complete URI
         /// but used to create a complete URI.
         /// </summary>

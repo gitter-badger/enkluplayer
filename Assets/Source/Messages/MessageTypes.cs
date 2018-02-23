@@ -1,38 +1,38 @@
-﻿using System.Runtime.Serialization;
-using CreateAR.SpirePlayer.IUX;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Application-wide message types.
     /// </summary>
     public static class MessageTypes
     {
+        public const int RESTART = -1000;
+
         ///////////////////////////////////////////////////////////////////////
         // Error.
         ///////////////////////////////////////////////////////////////////////
         public const int FATAL_ERROR = -1;
-        
+
+        public const int STATUS = 0;
+
         ///////////////////////////////////////////////////////////////////////
         // Initialization
         ///////////////////////////////////////////////////////////////////////
-        public const int READY = 1;
-        public const int AUTHORIZED = 2;
-        public const int RESTART = 3;
-        public const int STATUS = 4;
-        public const int DEFAULT_STATE = 5;
+        public const int APPLICATION_INITIALIZED = 1;
+        public const int RECV_CREDENTIALS = 2;
+        public const int RECV_APP_INFO = 3;
+        public const int LOAD_APP = 4;
 
         // Assets
-        public const int ASSET_LIST = 10;
-        public const int ASSET_ADD = 11;
-        public const int ASSET_REMOVE = 12;
-        public const int ASSET_UPDATE = 13;
+        public const int RECV_ASSET_LIST = 10;
+        public const int RECV_ASSET_ADD = 11;
+        public const int RECV_ASSET_REMOVE = 12;
+        public const int RECV_ASSET_UPDATE = 13;
 
         // Scripts
-        public const int SCRIPT_LIST = 20;
-        public const int SCRIPT_ADD = 21;
-        public const int SCRIPT_REMOVE = 22;
-        public const int SCRIPT_UPDATE = 23;
+        public const int RECV_SCRIPT_LIST = 20;
+        public const int RECV_SCRIPT_ADD = 21;
+        public const int RECV_SCRIPT_REMOVE = 22;
+        public const int RECV_SCRIPT_UPDATE = 23;
 
         // Content
         public const int CONTENT_LIST = 30;
@@ -61,17 +61,16 @@ namespace CreateAR.SpirePlayer
         // Preview State
         ///////////////////////////////////////////////////////////////////////
         public const int PREVIEW = 1000;
-
-        ///////////////////////////////////////////////////////////////////////
-        // Edit State
-        ///////////////////////////////////////////////////////////////////////
-        public const int EDIT = 2000;
-
+        
         ///////////////////////////////////////////////////////////////////////
         // Play State
         ///////////////////////////////////////////////////////////////////////
         public const int PLAY = 3000;
         public const int MUSIC = 3010;
+
+        public const int SCENE_CREATE = 3100;
+        public const int SCENE_UPDATE = 3101;
+        public const int SCENE_DELETE = 3102;
 
         ///////////////////////////////////////////////////////////////////////
         // Hierarchy State

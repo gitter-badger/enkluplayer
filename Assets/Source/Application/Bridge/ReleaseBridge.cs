@@ -28,7 +28,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IBridge"/>
-        public void Initialize()
+        public void Initialize(BridgeMessageHandler handler)
         {
             // nothing
         }

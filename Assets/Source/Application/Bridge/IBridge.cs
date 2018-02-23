@@ -11,9 +11,12 @@
         MessageTypeBinder Binder { get; }
 
         /// <summary>
-        /// Initializes the bridge.
+        /// Initializes the bridge and provides an object to pass messages to.
         /// </summary>
-        void Initialize();
+        /// <param name="handler">The object that receives messages from the bridge.
+        /// These messages are unpacked, filtered, and pushed onto the application
+        /// message router.</param>
+        void Initialize(BridgeMessageHandler handler);
 
         /// <summary>
         /// Uninitializes the bridge.

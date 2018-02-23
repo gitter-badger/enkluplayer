@@ -1,8 +1,8 @@
 using System;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
-using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -16,33 +16,26 @@ namespace CreateAR.SpirePlayer
         /// Manages assets.
         /// </summary>
         private readonly IAssetManager _assets;
-
-        /// <summary>
-        /// Manages elements.
-        /// </summary>
-        private readonly IElementManager _elements;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
         public AssetUpdateService(
-            IBridge bridge,
+            MessageTypeBinder binder,
             IMessageRouter messages,
-            IAssetManager assets,
-            IElementManager elements)
-            : base(bridge, messages)
+            IAssetManager assets)
+            : base(binder, messages)
         {
             _assets = assets;
-            _elements = elements;
         }
 
         /// <inheritdoc cref="ApplicationService"/>
         public override void Start()
         {
-            Subscribe<AssetListEvent>(MessageTypes.ASSET_LIST, Messages_OnAssetList);
-            Subscribe<AssetAddEvent>(MessageTypes.ASSET_ADD, Messages_OnAssetAdd);
-            Subscribe<AssetRemoveEvent>(MessageTypes.ASSET_REMOVE, Messages_OnAssetRemove);
-            Subscribe<AssetUpdateEvent>(MessageTypes.ASSET_UPDATE, Messages_OnAssetUpdate);
+            Subscribe<AssetListEvent>(MessageTypes.RECV_ASSET_LIST, Messages_OnAssetList);
+            Subscribe<AssetAddEvent>(MessageTypes.RECV_ASSET_ADD, Messages_OnAssetAdd);
+            Subscribe<AssetRemoveEvent>(MessageTypes.RECV_ASSET_REMOVE, Messages_OnAssetRemove);
+            Subscribe<AssetUpdateEvent>(MessageTypes.RECV_ASSET_UPDATE, Messages_OnAssetUpdate);
         }
 
         /// <inheritdoc cref="ApplicationService"/>
@@ -96,13 +89,14 @@ namespace CreateAR.SpirePlayer
         /// <param name="event">The event.</param>
         private void Messages_OnAssetList(AssetListEvent @event)
         {
-            Log.Info(this,
-                "Updating AssetManifest with {0} assets.",
-                @event.Assets.Length);
-
-            // handle adds + updates
             var manifest = _assets.Manifest;
             var assets = @event.Assets;
+
+            Log.Info(this,
+                "Updating AssetManifest with {0} assets.",
+                assets.Length);
+
+            // handle adds + updates
             for (int i = 0, len = assets.Length; i < len; i++)
             {
                 var asset = assets[i];
@@ -118,10 +112,14 @@ namespace CreateAR.SpirePlayer
                 var info = manifest.Data(asset.Guid);
                 if (null == info)
                 {
+                    Verbose("Adding asset {0}.", asset.Guid);
+
                     _assets.Manifest.Add(asset);
                 }
                 else
                 {
+                    Verbose("Updating asset {0}.", asset.Guid);
+
                     manifest.Update(asset);
                 }
             }
@@ -145,6 +143,8 @@ namespace CreateAR.SpirePlayer
 
                 if (!found)
                 {
+                    Verbose("Removing asset {0}.", data.Guid);
+
                     manifest.Remove(data.Guid);
                 }
             }
@@ -197,6 +197,15 @@ namespace CreateAR.SpirePlayer
                     return "UNKNOWN";
                 }
             }
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        [Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

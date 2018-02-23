@@ -17,10 +17,10 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public ScriptUpdateService(
-            IBridge bridge,
+            MessageTypeBinder binder,
             IMessageRouter messages,
             IAdminAppDataManager appData)
-            : base(bridge, messages)
+            : base(binder, messages)
         {
             _appData = appData;
         }
@@ -28,10 +28,10 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="ApplicationService"/>
         public override void Start()
         {
-            Subscribe<ScriptListEvent>(MessageTypes.SCRIPT_LIST, OnScriptListEvent);
-            Subscribe<ScriptAddEvent>(MessageTypes.SCRIPT_ADD, OnScriptAddEvent);
-            Subscribe<ScriptUpdateEvent>(MessageTypes.SCRIPT_UPDATE, OnScriptUpdateEvent);
-            Subscribe<ScriptRemoveEvent>(MessageTypes.SCRIPT_REMOVE, OnScriptRemoveEvent);
+            Subscribe<ScriptListEvent>(MessageTypes.RECV_SCRIPT_LIST, OnScriptListEvent);
+            Subscribe<ScriptAddEvent>(MessageTypes.RECV_SCRIPT_ADD, OnScriptAddEvent);
+            Subscribe<ScriptUpdateEvent>(MessageTypes.RECV_SCRIPT_UPDATE, OnScriptUpdateEvent);
+            Subscribe<ScriptRemoveEvent>(MessageTypes.RECV_SCRIPT_REMOVE, OnScriptRemoveEvent);
         }
 
         /// <summary>

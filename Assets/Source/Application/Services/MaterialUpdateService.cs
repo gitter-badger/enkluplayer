@@ -23,11 +23,11 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public MaterialUpdateService(
-            IBridge bridge,
+            MessageTypeBinder binder,
             IMessageRouter messages,
             IAdminAppDataManager appData,
             IContentManager content)
-            : base(bridge, messages)
+            : base(binder, messages)
         {
             _appData = appData;
             _content = content;

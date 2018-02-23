@@ -6,5 +6,7 @@
 	
 	<assembly fullname="CreateAR.Trellis.Messages">
 		<namespace fullname="CreateAR.Trellis.Messages" preserve="all" />
+		<namespace fullname="CreateAR.Trellis.Messages.GetApp" preserve="all" />
+		<namespace fullname="CreateAR.Trellis.Messages.GetScene" preserve="all" />
 	</assembly>
 </linker>

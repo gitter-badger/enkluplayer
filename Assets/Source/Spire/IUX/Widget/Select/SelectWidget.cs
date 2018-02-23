@@ -247,6 +247,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="activatorPrimitive">The activator.</param>
         private void Right_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            if (_options.Count < 2)
+            {
+                return;
+            }
+
             UpdateLabel((_selection + 1) % _options.Count);
         }
 
@@ -256,7 +261,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="activatorPrimitive">The activator.</param>
         private void Left_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
-            if (_options.Count == 1)
+            if (_options.Count < 2)
             {
                 return;
             }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using LightJson;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -10,31 +11,37 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Name to string value.
         /// </summary>
+        [JsonName("strings")]
         public Dictionary<string, string> Strings = new Dictionary<string, string>();
 
         /// <summary>
         /// Name to int value.
         /// </summary>
+        [JsonName("ints")]
         public Dictionary<string, int> Ints = new Dictionary<string, int>();
 
         /// <summary>
         /// Name to float value.
         /// </summary>
+        [JsonName("floats")]
         public Dictionary<string, float> Floats = new Dictionary<string, float>();
 
         /// <summary>
         /// Name to bool value.
         /// </summary>
+        [JsonName("bools")]
         public Dictionary<string, bool> Bools = new Dictionary<string, bool>();
 
         /// <summary>
         /// Name to Vec3 value.
         /// </summary>
+        [JsonName("vectors")]
         public Dictionary<string, Vec3> Vectors = new Dictionary<string, Vec3>();
 
         /// <summary>
         /// Name to Vec3 value.
         /// </summary>
+        [JsonName("colors")]
         public Dictionary<string, Col4> Colors = new Dictionary<string, Col4>();
 
         /// <summary>
