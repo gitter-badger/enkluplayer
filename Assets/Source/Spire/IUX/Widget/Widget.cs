@@ -304,8 +304,8 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 return string.Format("<{0} Name={1} Id={2} Guid={3} />",
                     GetType().Name,
-                    Id,
                     _nameProp.Value,
+                    Id,
                     Guid);
             }
 
