@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System.Diagnostics;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
@@ -104,10 +105,14 @@ namespace CreateAR.SpirePlayer
                         record.NextValue);
 
                     var prop = element.Schema.Get<string>(record.Key);
-
-                    record.PrevValue = prop.Value;
                     
-                    prop.Value = record.NextValue.ToString();
+                    record.PrevValue = prop.Value;
+
+                    // un-escape if necessary
+                    var value = record.NextValue.ToString();
+                    value = value.Trim('"');
+
+                    prop.Value = value;
 
                     break;
                 }
@@ -205,7 +210,7 @@ namespace CreateAR.SpirePlayer
             return true;
         }
 
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string message, params object[] replacements)
         {
             Log.Info(this, message, replacements);
