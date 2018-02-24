@@ -360,7 +360,9 @@ namespace CreateAR.SpirePlayer
                     continue;
                 }
 
-                var elementId = action.ElementId;
+                var elementId = null == action.Element
+                    ? action.ElementId
+                    : action.Element.Id;
                 var element = root.Id == elementId
                     ? root
                     : root.FindOne<Element>(".." + elementId);

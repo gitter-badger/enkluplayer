@@ -51,7 +51,7 @@ namespace CreateAR.SpirePlayer
             {
                 Root = new ElementRef
                 {
-                    Id = action.ElementId
+                    Id = action.Element.Id
                 },
                 Elements = new[]
                 {

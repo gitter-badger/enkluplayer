@@ -76,6 +76,11 @@ namespace CreateAR.SpirePlayer
         {
             foreach (var action in message.Actions)
             {
+                if (null == action.Value)
+                {
+                    continue;
+                }
+
                 var valueString = action.Value.ToString();
 
                 switch (action.SchemaType)
