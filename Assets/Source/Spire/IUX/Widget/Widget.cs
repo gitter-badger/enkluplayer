@@ -31,10 +31,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Parent widget, updated every frame.
         /// </summary>
         private Widget _parentWidget;
-        
+
         /// <summary>
         /// Props.
         /// </summary>
+        private ElementSchemaProp<string> _nameProp;
         private ElementSchemaProp<Col4> _localColorProp;
         private ElementSchemaProp<Vec3> _localPositionProp;
         private ElementSchemaProp<Vec3> _localScaleProp;
@@ -292,7 +293,25 @@ namespace CreateAR.SpirePlayer.IUX
             Colors = colors;
             Messages = messages;
         }
-        
+
+        /// <summary>
+        /// String override
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            if (null != _nameProp && !string.IsNullOrEmpty(_nameProp.Value))
+            {
+                return string.Format("<{0} Name={1} Id={2} Guid={3} />",
+                    GetType().Name,
+                    _nameProp.Value,
+                    Id,
+                    Guid);
+            }
+
+            return base.ToString();
+        }
+
         /// <summary>
         /// Brings the layer to the foreground
         /// </summary>
@@ -319,6 +338,8 @@ namespace CreateAR.SpirePlayer.IUX
             // default to gameobject
             Visible = GameObject.activeSelf;
 
+            _nameProp = Schema.GetOwn("name", ToString());
+            _nameProp.OnChanged += Name_OnChanged;
             _localVisibleProp = Schema.GetOwn("visible", true);
             _localVisibleProp.OnChanged += LocalVisible_OnChanged;
             _localColorProp = Schema.GetOwn("color", Col4.White);
@@ -338,7 +359,7 @@ namespace CreateAR.SpirePlayer.IUX
             _faceProp.OnChanged += Face_OnChanged;
             UpdateFace(_faceProp.Value);
 
-            GameObject.name = Schema.GetOwn("name", ToString()).Value;
+            GameObject.name = ToString();
             GameObject.transform.localPosition = _localPositionProp.Value.ToVector();
             GameObject.transform.localScale = _localScaleProp.Value.ToVector();
             
@@ -692,6 +713,20 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             UpdateFace(next);
+        }
+
+        /// <summary>
+        /// Called when the name prop changes.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Name_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            GameObject.name = ToString();
         }
 
         /// <summary>
