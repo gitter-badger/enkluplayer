@@ -47,7 +47,6 @@ namespace CreateAR.SpirePlayer.IUX
         {
             var textPrimitive = new TextPrimitive(
                 _config,
-                _messages,
                 _layers,
                 _tweens,
                 _colors);

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using CreateAR.Commons.Unity.Messaging;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -205,17 +203,14 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public TextPrimitive(
             WidgetConfig config,
-            IMessageRouter messages,
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors)
             : base(
                 new GameObject("Text"),
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
             _config = config;
         }

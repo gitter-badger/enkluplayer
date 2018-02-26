@@ -107,7 +107,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         protected InteractableWidget(
             GameObject gameObject,
-            WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
@@ -115,11 +114,9 @@ namespace CreateAR.SpirePlayer.IUX
             IInteractionManager interactions)
             : base(
                 gameObject,
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
             _interactions = interactions;
             _messages = messages;

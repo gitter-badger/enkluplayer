@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using CreateAR.Commons.Unity.Messaging;
 using UnityEngine; 
 
 namespace CreateAR.SpirePlayer.IUX
@@ -33,6 +32,11 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Config.
+        /// </summary>
+        private readonly WidgetConfig _config;
+
+        /// <summary>
         /// Primitives!
         /// </summary>
         private readonly IPrimitiveFactory _primitives;
@@ -56,16 +60,14 @@ namespace CreateAR.SpirePlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IMessageRouter messages,
             IPrimitiveFactory primitives)
             : base(
                 gameObject,
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
+            _config = config;
             _primitives = primitives;
         }
 
@@ -106,7 +108,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
             }
 
-            var keys = Config.CrawlFadeOutOffset.keys;
+            var keys = _config.CrawlFadeOutOffset.keys;
             var fadeOutDuration = keys[keys.Length - 1].time;
 
             // Color and position entries
@@ -119,9 +121,9 @@ namespace CreateAR.SpirePlayer.IUX
                 var localOffset = 0.0f;
                 float alpha;
 
-                if (elapsed > Config.CrawlDuration)
+                if (elapsed > _config.CrawlDuration)
                 {
-                    var fadeOutElapsed = elapsed - Config.CrawlDuration;
+                    var fadeOutElapsed = elapsed - _config.CrawlDuration;
                     if (fadeOutElapsed > fadeOutDuration)
                     {
                         entry.TextPrimitive.Destroy();
@@ -129,12 +131,12 @@ namespace CreateAR.SpirePlayer.IUX
                         continue;
                     }
 
-                    localOffset = Config.CrawlFadeOutOffset.Evaluate(fadeOutElapsed);
-                    alpha = Config.CrawlFadeOutAlpha.Evaluate(fadeOutElapsed);
+                    localOffset = _config.CrawlFadeOutOffset.Evaluate(fadeOutElapsed);
+                    alpha = _config.CrawlFadeOutAlpha.Evaluate(fadeOutElapsed);
                 }
                 else
                 {
-                    alpha = Config.CrawlFadeInAlpha.Evaluate(elapsed);
+                    alpha = _config.CrawlFadeInAlpha.Evaluate(elapsed);
                 }
 
                 var lerp = elapsed;
@@ -144,12 +146,12 @@ namespace CreateAR.SpirePlayer.IUX
                 color.a *= alpha;
                 text.LocalColor = color;
 
-                var scale = Config.CrawlScale.Evaluate(lerp);
+                var scale = _config.CrawlScale.Evaluate(lerp);
                 text.LocalScale = Vector3.one * scale;
                 text.LocalPosition = Vector3.up
                     * (offset + localOffset)
-                    - text.Forward * localOffset * Config.CrawlFadeOutDepthScale;
-                offset += Config.CrawlSeperation * scale;
+                    - text.Forward * localOffset * _config.CrawlFadeOutDepthScale;
+                offset += _config.CrawlSeperation * scale;
             }
         }
     }

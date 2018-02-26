@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
 
@@ -22,7 +21,6 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly ILayerManager _layers;
         private readonly ColorConfig _colors;
         private readonly TweenConfig _tweens;
-        private readonly IMessageRouter _messages;
         private readonly IVoiceCommandManager _voice;
         private readonly WidgetConfig _config;
         private readonly IImageLoader _imageLoader;
@@ -51,7 +49,6 @@ namespace CreateAR.SpirePlayer.IUX
             ILayerManager layers,
             ColorConfig colors,
             TweenConfig tweens,
-            IMessageRouter messages,
             IVoiceCommandManager voice,
             WidgetConfig config,
             IImageLoader imageLoader,
@@ -66,7 +63,6 @@ namespace CreateAR.SpirePlayer.IUX
             _layers = layers;
             _colors = colors;
             _tweens = tweens;
-            _messages = messages;
             _voice = voice;
             _config = config;
             _imageLoader = imageLoader;
@@ -261,51 +257,51 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 case ElementTypes.CONTAINER:
                 {
-                    return new ContainerWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages);
+                    return new ContainerWidget(new GameObject("Element"), _layers, _tweens, _colors);
                 }
                 case ElementTypes.IMAGE:
                 {
-                    return new ImageWidget(UnityEngine.Object.Instantiate(_config.Image), _config, _layers, _tweens, _colors, _messages, _imageLoader);
+                    return new ImageWidget(UnityEngine.Object.Instantiate(_config.Image), _layers, _tweens, _colors, _imageLoader);
                 }
                 case ElementTypes.CAPTION:
                 {
-                    return new CaptionWidget(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages);
+                    return new CaptionWidget(new GameObject("Element"), _primitives, _layers, _tweens, _colors);
                 }
                 case ElementTypes.BUTTON:
                 {
-                    return new ButtonWidget(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _messages, _voice, _imageLoader);
+                    return new ButtonWidget(new GameObject("Element"), _config, _primitives, _layers, _tweens, _colors, _voice, _imageLoader);
                 }
                 case ElementTypes.CURSOR:
                 {
-                    return new Cursor(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _intention, _interaction, _primitives);
+                    return new Cursor(new GameObject("Element"), _config, _layers, _tweens, _colors, _intention, _interaction, _primitives);
                 }
                 case ElementTypes.MENU:
                 {
-                    return new MenuWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, this);
+                    return new MenuWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _primitives, this);
                 }
                 case ElementTypes.TEXTCRAWL:
                 {
-                    return new TextCrawlWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new TextCrawlWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _primitives);
                 }
                 case ElementTypes.FLOAT:
                 {
-                    return new FloatWidget(new GameObject("Element"), _config, _intention, _messages, _layers, _tweens, _colors);
+                    return new FloatWidget(new GameObject("Element"), _config, _intention, _layers, _tweens, _colors);
                 }
                 case ElementTypes.TOGGLE:
                 {
-                    return new ToggleWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives, _voice, _imageLoader);
+                    return new ToggleWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _primitives, _voice, _imageLoader);
                 }
                 case ElementTypes.SLIDER:
                 {
-                    return new SliderWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _interaction, this, _intention);
+                    return new SliderWidget(new GameObject("Element"), _layers, _tweens, _colors, _interaction, this, _intention);
                 }
                 case ElementTypes.SELECT:
                 {
-                    return new SelectWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, _primitives);
+                    return new SelectWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _primitives);
                 }
                 case ElementTypes.GRID:
                 {
-                    return new GridWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _messages, this);
+                    return new GridWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, this);
                 }
                 case ElementTypes.OPTION:
                 {

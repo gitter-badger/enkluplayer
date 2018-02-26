@@ -14,13 +14,7 @@ namespace CreateAR.SpirePlayer
         /// Type to list of data.
         /// </summary>
         private readonly Dictionary<Type, List<StaticData>> _dataByType = new Dictionary<Type, List<StaticData>>();
-
-        /// <inheritdoc cref="IAppDataManager"/>
-        public event Action OnLoaded;
-
-        /// <inheritdoc cref="IAppDataManager"/>
-        public event Action OnUnloaded;
-
+        
         /// <inheritdoc cref="IAppDataManager"/>
         public event Action<StaticData> OnRemoved;
 

@@ -141,10 +141,7 @@ namespace CreateAR.SpirePlayer
                     // tools
                     {
                         binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
-                        binder.Bind<WorldScanPipelineConfiguration>().ToValue(new WorldScanPipelineConfiguration
-                        {
-
-                        });
+                        binder.Bind<WorldScanPipelineConfiguration>().ToValue(new WorldScanPipelineConfiguration());
                         binder.Bind<WorldScanPipeline>().To<WorldScanPipeline>().ToSingleton();
 #if NETFX_CORE
                         binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
@@ -272,7 +269,6 @@ namespace CreateAR.SpirePlayer
 
                 // scripting interfaces
                 {
-                    binder.Bind<AppDataScriptingInterface>().To<AppDataScriptingInterface>().ToSingleton();
                     binder.Bind<MessageRouterScriptingInterface>().To<MessageRouterScriptingInterface>().ToSingleton();
                 }
             }

@@ -1,5 +1,4 @@
 ﻿using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
 
@@ -21,10 +20,8 @@ namespace CreateAR.SpirePlayer
         private readonly ILoadProgressManager _progress;
         private readonly ILayerManager _layers;
         private readonly ColorConfig _colors;
-        private readonly IMessageRouter _messages;
         private readonly TweenConfig _tweens;
-        private readonly WidgetConfig _config;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -37,9 +34,7 @@ namespace CreateAR.SpirePlayer
             ILoadProgressManager progress,
             ILayerManager layers,
             ColorConfig colors,
-            IMessageRouter messages,
-            TweenConfig tweens,
-            WidgetConfig config)
+            TweenConfig tweens)
         {
             _appData = appData;
             _assets = assets;
@@ -50,8 +45,6 @@ namespace CreateAR.SpirePlayer
             _layers = layers;
             _colors = colors;
             _tweens = tweens;
-            _messages = messages;
-            _config = config;
         }
 
         /// <inheritdoc cref="IContentFactory"/>
@@ -64,12 +57,9 @@ namespace CreateAR.SpirePlayer
                 _assets,
                 _pools,
                 _progress);
-            var instance = new ContentWidget(
-                _config,
-                _layers,
+            var instance = new ContentWidget(_layers,
                 _tweens, 
                 _colors,
-                _messages,
                 _scripts,
                 assembler,
                 _appData);

@@ -60,7 +60,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the DebugRender button is pressed.
         /// </summary>
-        public event Action<bool> OnDebugRender;
+        //public event Action<bool> OnDebugRender;
 
         /// <inheritdoc />
         protected override void Awake()

@@ -28,7 +28,7 @@ using IToken = Antlr4.Runtime.IToken;
 /// <see cref="VineParser"/>.
 /// </summary>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.7.1")]
-[System.CLSCompliant(false)]
+//[System.CLSCompliant(false)]
 public interface IVineParserListener : IParseTreeListener {
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="VineParser.document"/>.

@@ -8,16 +8,6 @@ namespace CreateAR.SpirePlayer
     public interface IAppDataManager
     {
         /// <summary>
-        /// This is called when loaded.
-        /// </summary>
-        event Action OnLoaded;
-
-        /// <summary>
-        /// This is called when unloaded.
-        /// </summary>
-        event Action OnUnloaded;
-
-        /// <summary>
         /// Called when a piece of <c>StaticData</c> has been removed.
         /// </summary>
         event Action<StaticData> OnRemoved;

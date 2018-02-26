@@ -8,6 +8,11 @@ namespace CreateAR.SpirePlayer.IUX
     public class ActivatorActivatingState : ActivatorState
     {
         /// <summary>
+        /// Configuration for widgets.
+        /// </summary>
+        private readonly WidgetConfig _config;
+
+        /// <summary>
         /// Activator.
         /// </summary>
         private readonly ActivatorPrimitive _activator;
@@ -25,11 +30,13 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
+        /// <param name="config">Config for widgets.</param>
         /// <param name="activator">Activator.</param>
         /// <param name="intention">Manages intention.</param>
         /// <param name="schema">Schema to use.</param>
         /// <param name="autoActivate">If true, calls Activate.</param>
         public ActivatorActivatingState(
+            WidgetConfig config,
             ActivatorPrimitive activator,
             IIntentionManager intention,
             ElementSchema schema,
@@ -39,6 +46,7 @@ namespace CreateAR.SpirePlayer.IUX
                 schema.Get<string>("activating.tween"),
                 schema.Get<float>("activating.frameScale"))
         {
+            _config = config;
             _activator = activator;
             _intention = intention;
             _autoActivate = autoActivate;
@@ -59,9 +67,9 @@ namespace CreateAR.SpirePlayer.IUX
             // aim affects fill rate.
             var aim = _activator.Aim;
             var stability = _intention.Stability;
-            var fillDuration = _activator.Config.GetFillDuration();
-            var aimMultiplier = _activator.Config.GetFillRateMultiplierFromAim(aim);
-            var stabilityMultiplier = _activator.Config.GetFillRateMultiplierFromStability(stability);
+            var fillDuration = _config.GetFillDuration();
+            var aimMultiplier = _config.GetFillRateMultiplierFromAim(aim);
+            var stabilityMultiplier = _config.GetFillRateMultiplierFromStability(stability);
             var fillRate = aimMultiplier * stabilityMultiplier / fillDuration;
             var deltaFill = deltaTime * fillRate;
 

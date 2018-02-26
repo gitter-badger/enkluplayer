@@ -1,5 +1,4 @@
-﻿using CreateAR.Commons.Unity.Messaging;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -11,6 +10,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Dependencies.
         /// </summary>
+        private readonly WidgetConfig _config;
+        private readonly TweenConfig _tweens;
         private readonly IIntentionManager _intention;
         private readonly IInteractionManager _interaction;
         private readonly IPrimitiveFactory _primitives;
@@ -64,18 +65,17 @@ namespace CreateAR.SpirePlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IMessageRouter messages,
             IIntentionManager intention,
             IInteractionManager interaction,
             IPrimitiveFactory primitives)
             : base(
                 gameObject,
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
+            _config = config;
+            _tweens = tweens;
             _intention = intention;
             _interaction = interaction;
             _primitives = primitives;
@@ -91,7 +91,7 @@ namespace CreateAR.SpirePlayer.IUX
             _reticle = _primitives.Reticle();
             _reticle.Parent = this;
 
-            _cursorDistance = Config.GetDefaultDistanceForCursor();
+            _cursorDistance = _config.GetDefaultDistanceForCursor();
         }
 
         /// <summary>
@@ -133,14 +133,14 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             var targetAngularVelocityRadians = _aim > Mathf.Epsilon
-                ? Config.GetFillRateMultiplierFromAim(_aim)
-                    * Config.GetFillRateMultiplierFromStability(_intention.Stability)
-                    * Config.GetReticleSpinRateForCursor()
+                ? _config.GetFillRateMultiplierFromAim(_aim)
+                    * _config.GetFillRateMultiplierFromStability(_intention.Stability)
+                    * _config.GetReticleSpinRateForCursor()
                     * Mathf.PI
                     * 2.0f
                 : 0.0f;
 
-            var tweenDuration = Tweens.DurationSeconds(
+            var tweenDuration = _tweens.DurationSeconds(
                 _aim > Mathf.Epsilon
                     ? TweenIn
                     : TweenOut);
@@ -174,7 +174,7 @@ namespace CreateAR.SpirePlayer.IUX
             var interactive = _intention.Focus;
             if (_aim > Mathf.Epsilon)
             {
-                var aimMagnet = Config.GetMagnetFromAim(_aim);
+                var aimMagnet = _config.GetMagnetFromAim(_aim);
 
                 cursorPosition = Vec3.Lerp(
                     cursorPosition,
@@ -193,7 +193,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="eyePosition"></param>
         private void UpdateCursorDistance(float deltaTime, Vec3 eyePosition)
         {
-            var targetFocusDistance = Config.GetDefaultDistanceForCursor();
+            var targetFocusDistance = _config.GetDefaultDistanceForCursor();
 
             var interactive = _intention.Focus;
             if (interactive != null)
@@ -204,7 +204,7 @@ namespace CreateAR.SpirePlayer.IUX
                 targetFocusDistance = eyeDeltaToFocusWidget.Magnitude;
             }
 
-            var tweenDuration = Tweens.DurationSeconds(
+            var tweenDuration = _tweens.DurationSeconds(
                 interactive != null
                     ? TweenIn
                     : TweenOut);
@@ -236,11 +236,11 @@ namespace CreateAR.SpirePlayer.IUX
                 ? interactive.FocusScale.x
                 : 1.0f;
 
-            _spread = Config.GetReticleSpreadFromAim(_aim) * buttonScale;
+            _spread = _config.GetReticleSpreadFromAim(_aim) * buttonScale;
 
-            LocalColor = Config.GetReticleColorFromAim(_aim);
+            LocalColor = _config.GetReticleColorFromAim(_aim);
 
-            _scale = Config.GetReticleScaleFromAim(_aim) * buttonScale;
+            _scale = _config.GetReticleScaleFromAim(_aim) * buttonScale;
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void UpdateReticle(float deltaTime)
         {
             var isAiming = _intention.Focus != null;
-            var tweenDuration = Tweens.DurationSeconds(
+            var tweenDuration = _tweens.DurationSeconds(
                 isAiming
                     ? TweenType.Instant
                     : TweenOut);

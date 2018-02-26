@@ -1,7 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -36,14 +35,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public WorldAnchorWidget(
             GameObject gameObject,
-            WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IMessageRouter messages,
             IHttpService http,
             IWorldAnchorProvider provider)
-            : base(gameObject, config, layers, tweens, colors, messages)
+            : base(gameObject, layers, tweens, colors)
         {
             _http = http;
             _provider = provider;

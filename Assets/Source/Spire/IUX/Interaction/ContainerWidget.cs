@@ -1,5 +1,4 @@
-﻿using CreateAR.Commons.Unity.Messaging;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -13,12 +12,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public ContainerWidget(
             GameObject gameObject,
-            WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
-            ColorConfig colors,
-            IMessageRouter messages)
-            : base(gameObject, config, layers, tweens, colors, messages)
+            ColorConfig colors)
+            : base(gameObject, layers, tweens, colors)
         {
             //
         }
