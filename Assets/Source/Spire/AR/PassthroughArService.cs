@@ -1,9 +1,9 @@
 ﻿namespace CreateAR.SpirePlayer.AR
 {
     /// <summary>
-    /// Editor implementation of <c>IArService</c> that provides a floor.
+    /// Passthrough implementation of <c>IArService</c> that provides a floor.
     /// </summary>
-    public class EditorArService : IArService
+    public class PassthroughArService : IArService
     {
         /// <inheritdoc cref="IArService"/>
         public ArAnchor[] Anchors
@@ -16,7 +16,7 @@
                     {
                         Extents = new Vec3(1, 0, 1),
                         Position = new Vec3(0f, 0f, 0f),
-                        Rotation = Quat.Euler(0, 45, 0)
+                        Rotation = Quat.Euler(0, 0, 0)
                     },
                 };
             }

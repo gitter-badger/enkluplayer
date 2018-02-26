@@ -187,13 +187,17 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<ArCameraRig>().ToValue(LookupComponent<ArCameraRig>());
                 binder.Bind<ArServiceConfiguration>().ToValue(LookupComponent<ArServiceConfiguration>());
+
 #if !UNITY_EDITOR && UNITY_IOS
                 binder.Bind<UnityEngine.XR.iOS.UnityARSessionNativeInterface>().ToValue(UnityEngine.XR.iOS.UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
+                binder.Bind<IWorldAnchorProvider>().To<ArKitWorldAnchorProvider>().ToSingleton();
 #elif !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
+                binder.Bind<IWorldAnchorProvider>().To<HoloLensWorldAnchorProvider>().ToSingleton();
 #else
-                binder.Bind<IArService>().To<EditorArService>().ToSingleton();
+                binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
+                binder.Bind<IArService>().To<PassthroughArService>().ToSingleton();
 #endif
             }
 
