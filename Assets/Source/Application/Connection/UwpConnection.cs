@@ -30,9 +30,19 @@ namespace CreateAR.SpirePlayer
         /// Serializes JSON.
         /// </summary>
         private readonly JsonSerializer _json = new JsonSerializer();
-        
+
         /// <summary>
-        /// Underlying socket.
+        /// Environment we are connected to.
+        /// </summary>
+        private EnvironmentData _environment;
+
+        /// <summary>
+        /// Token used during connection. If null, we are not connecting.
+        /// </summary>
+        private AsyncToken<Void> _connectToken;
+
+        /// <summary>
+        /// Underlying socket. If null, we are not connected.
         /// </summary>
         private MessageWebSocket _socket;
 
@@ -55,19 +65,29 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Connect(EnvironmentData environment)
         {
-            var token = new AsyncToken<Void>();
+            if (null != _connectToken)
+            {
+                return _connectToken.Token();
+            }
 
-            var substring = environment.BaseUrl.Substring(
-                environment.BaseUrl.IndexOf("://") + 3);
+            _environment = environment;
+            _connectToken = new AsyncToken<Void>();
+
+            // clear token after resolve
+            _connectToken.OnFinally(_ => _connectToken = null);
+
+            // strip protocol
+            var substring = _environment.BaseUrl.Substring(
+                _environment.BaseUrl.IndexOf("://", StringComparison.Ordinal) + 3);
 
             var wsUrl = string.Format(
                 "ws://{0}:{1}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
                 substring,
                 environment.Port);
 
-            ConnectAsync(token, wsUrl);
+            ConnectAsync(_connectToken, wsUrl);
 
-            return token;
+            return _connectToken.Token();
         }
 
         /// <summary>
@@ -158,7 +178,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Socket_OnClosed(IWebSocket sender, WebSocketClosedEventArgs args)
         {
-            Log.Info(this, "Socket closed.");
+            Log.Info(this, "Socket closed. Attempting reconnect.");
+
+            Connect(_environment)
+                .OnSuccess(_ => LogVerbose("Reconnect successful."))
+                .OnFailure(_ => LogVerbose("Reconnect failed!"));
         }
 
         /// <summary>
