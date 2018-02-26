@@ -1,11 +1,8 @@
 ﻿#if UNITY_EDITOR || UNITY_IOS
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using WebSocketSharp;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -21,12 +18,7 @@ namespace CreateAR.SpirePlayer
         /// Serializer.
         /// </summary>
         private readonly JsonSerializer _json = new JsonSerializer();
-
-        /// <summary>
-        /// Message queue. This is added to from another thread.
-        /// </summary>
-        private readonly List<MessageEventArgs> _messages = new List<MessageEventArgs>();
-
+        
         /// <summary>
         /// Configuration.
         /// </summary>
@@ -36,12 +28,7 @@ namespace CreateAR.SpirePlayer
         /// Handles messages from connections.
         /// </summary>
         private readonly ConnectionMessageHandler _handler;
-
-        /// <summary>
-        /// Bootstraps coroutines.
-        /// </summary>
-        private readonly IBootstrapper _bootstrapper;
-
+        
         /// <summary>
         /// The underlying WebSocket.
         /// </summary>
@@ -52,15 +39,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public WebSocketSharpConnection(
             ApplicationConfig config,
-            ConnectionMessageHandler handler,
-            IBootstrapper bootstrapper)
+            ConnectionMessageHandler handler)
         {
             _config = config;
             _handler = handler;
-            _bootstrapper = bootstrapper;
-
-            _bootstrapper.BootstrapCoroutine(ConsumeMessages());
         }
+        
         /// <inheritdoc />
         public IAsyncToken<Void> Connect(EnvironmentData environment)
         {
@@ -91,9 +75,9 @@ namespace CreateAR.SpirePlayer
         /// Sends a request.
         /// </summary>
         /// <param name="req">The request.</param>
-        public void Send(WebSocketRequestRequest req)
+        public void Send(WebSocketRequest req)
         {
-            req.Headers = new WebSocketRequestRequest.HeaderData
+            req.Headers = new WebSocketRequest.HeaderData
             {
                 Authorization = "Bearer " + _config.Network.Credentials(_config.Network.Current).Token
             };
@@ -119,38 +103,7 @@ namespace CreateAR.SpirePlayer
 
             _socket.Send(str);
         }
-
-        /// <summary>
-        /// Long running generator to pull messages off the queue.
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerator ConsumeMessages()
-        {
-            while (true)
-            {
-                MessageEventArgs[] messages = null;
-                lock (_messages)
-                {
-                    if (_messages.Count > 0)
-                    {
-                        messages = _messages.ToArray();
-                        _messages.Clear();
-                    }
-                }
-
-                if (null != messages)
-                {
-                    for (var i = 0; i < messages.Length; i++)
-                    {
-                        var message = messages[i];
-                        _handler.OnMessage(message.Data);
-                    }
-                }
-
-                yield return null;
-            }
-        }
-
+        
         /// <summary>
         /// Called when socket is opened.
         /// </summary>
@@ -159,7 +112,7 @@ namespace CreateAR.SpirePlayer
             LogVerbose("Open.");
 
             // immediately subscribe
-            Send(new WebSocketRequestRequest(
+            Send(new WebSocketRequest(
                 string.Format(
                     "/v1/editor/app/{0}/subscribe",
                     _config.Play.AppId),
@@ -181,10 +134,7 @@ namespace CreateAR.SpirePlayer
         {
             LogVerbose("Message : {0}.", messageEventArgs.Data);
 
-            lock (_messages)
-            {
-                _messages.Add(messageEventArgs);
-            }
+            _handler.OnMessage(messageEventArgs.Data);
         }
 
         /// <summary>

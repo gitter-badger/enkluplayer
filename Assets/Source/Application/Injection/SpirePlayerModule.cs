@@ -105,6 +105,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
                 binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
 #elif NETFX_CORE
+                binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
                 binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
 #endif
 

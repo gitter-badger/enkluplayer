@@ -5,7 +5,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Object that forms data how Trellis expects.
     /// </summary>
-    public class WebSocketRequestRequest
+    public class WebSocketRequest
     {
         /// <summary>
         /// Contains header information.
@@ -45,7 +45,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates a request.
         /// </summary
-        public WebSocketRequestRequest(string url, string method)
+        public WebSocketRequest(string url, string method)
         {
             Url = url;
             Method = method;
@@ -54,7 +54,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates a request.
         /// </summary>
-        public WebSocketRequestRequest(string url, string method, object payload)
+        public WebSocketRequest(string url, string method, object payload)
             : this(url, method)
         {
             Data = payload;
