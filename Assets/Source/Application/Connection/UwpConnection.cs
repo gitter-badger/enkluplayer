@@ -76,6 +76,14 @@ namespace CreateAR.SpirePlayer
         /// <param name="req">the request.</param>
         public void Send(WebSocketRequest req)
         {
+            if (null == req.Headers)
+            {
+                req.Headers = new WebSocketRequest.HeaderData();
+            }
+
+            req.Headers.Authorization = "Bearer " + _config.Network.Credentials(
+                                            _config.Network.Current).Token;
+
             _json.Serialize(req, out var bytes);
 
             var message = "42[\"post\", " + Encoding.UTF8.GetString(bytes) + "]";
@@ -90,6 +98,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="wsUrl">The websocket URL.</param>
         private async void ConnectAsync(AsyncToken<Void> token, string wsUrl)
         {
+            LogVerbose("ConnectAsync({0})", wsUrl);
+
             _socket = new MessageWebSocket();
             _socket.Control.MessageType = SocketMessageType.Utf8;
             _socket.SetRequestHeader(
@@ -103,6 +113,9 @@ namespace CreateAR.SpirePlayer
             try
             {
                 await _socket.ConnectAsync(new Uri(wsUrl));
+
+                LogVerbose("Connected to {0}", wsUrl);
+
                 _writer = new DataWriter(_socket.OutputStream);
 
                 // subscribe
@@ -189,7 +202,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Verbose logs.
         /// </summary>
-        [Conditional("LOGGING_VERBOSE")]
+//        [Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);

@@ -1,3 +1,4 @@
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
@@ -92,6 +93,7 @@ namespace CreateAR.SpirePlayer
                         .UserId));
 
                     // connect to Trellis
+                    Log.Info(this, "Connect to Trellis...");
                     _connection.Connect(_config.Network.Environment(_config.Network.Current));
 
                     // ready for action
