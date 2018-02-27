@@ -8,5 +8,7 @@
 		<namespace fullname="CreateAR.Trellis.Messages" preserve="all" />
 		<namespace fullname="CreateAR.Trellis.Messages.GetApp" preserve="all" />
 		<namespace fullname="CreateAR.Trellis.Messages.GetScene" preserve="all" />
+        <namespace fullname="CreateAR.Trellis.Messages.GetAssets" preserve="all" />
+        <namespace fullname="CreateAR.Trellis.Messages.GetAppScripts" preserve="all" />
 	</assembly>
 </linker>

@@ -59,6 +59,8 @@ namespace CreateAR.SpirePlayer
                 substring,
                 environment.Port);
             
+            Log.Info(this, "Connecting to {0}.", wsUrl);
+            
             _socket = new WebSocket(wsUrl);
             {
                 _socket.OnOpen += Socket_OnOpen;
@@ -109,7 +111,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Socket_OnOpen(object sender, EventArgs eventArgs)
         {
-            LogVerbose("Open.");
+            Log.Info(this, "Socket connected.");
 
             // immediately subscribe
             Send(new WebSocketRequest(
@@ -124,7 +126,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Socket_OnClose(object sender, CloseEventArgs closeEventArgs)
         {
-            LogVerbose("Close.");
+            LogVerbose("Socket closed.");
         }
 
         /// <summary>
