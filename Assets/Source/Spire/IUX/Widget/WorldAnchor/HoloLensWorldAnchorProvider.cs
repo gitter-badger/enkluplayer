@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !UNITY_EDITOR && UNITY_WSA
+
+using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -128,3 +130,5 @@ namespace CreateAR.SpirePlayer.IUX
         }
     }
 }
+
+#endif
