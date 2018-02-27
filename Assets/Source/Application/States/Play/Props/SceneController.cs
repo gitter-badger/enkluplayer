@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -27,7 +28,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Backing property for Controllers..
         /// </summary>
-        private readonly List<ElementController> _controllers = new List<ElementController>();
+        private readonly List<ContentDesignController> _controllers = new List<ContentDesignController>();
+        
+        /// <summary>
+        /// Manages line rendering.
+        /// </summary>
+        private readonly LineManager _lines;
 
         /// <summary>
         /// The unique id of this scene.
@@ -37,7 +43,16 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// All element controllers.
         /// </summary>
-        public ReadOnlyCollection<ElementController> Controllers { get; private set; }
+        public ReadOnlyCollection<ContentDesignController> ContentControllers { get; private set; }
+
+        /// <summary>
+        /// True iff anchors should show children.
+        /// </summary>
+        public bool ShowAnchorChildren
+        {
+            get { return _lines.enabled; }
+            set { _lines.enabled = value; }
+        }
 
         /// <summary>
         /// Constructor.
@@ -52,13 +67,32 @@ namespace CreateAR.SpirePlayer
             _sceneDelegate = sceneDelegate;
 
             Id = id;
-            Controllers = new ReadOnlyCollection<ElementController>(_controllers);
+            ContentControllers = new ReadOnlyCollection<ContentDesignController>(_controllers);
+            
+            // setup line manager
+            var unityEle = root as IUnityElement;
+            if (null != unityEle)
+            {
+                _lines = unityEle.GameObject.AddComponent<LineManager>();
+            }
+            else
+            {
+                Log.Error(this,
+                    "Root of scene {0} is not an IUnityElement! The root of a scene MUST be an IUnityElement.",
+                    id);
+            }
 
             // create controllers
             ElementUtil.Walk(
                 root,
                 element =>
                 {
+                    var content = element as ContentWidget;
+                    if (null == content)
+                    {
+                        return;
+                    }
+
                     var controller = CreateController(element);
                     if (null != controller)
                     {
@@ -73,9 +107,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="data">The propdata.</param>
         /// <returns></returns>
-        public IAsyncToken<ElementController> Create(ElementData data)
+        public IAsyncToken<ContentDesignController> Create(ElementData data)
         {
-            var token = new AsyncToken<ElementController>();
+            var token = new AsyncToken<ContentDesignController>();
 
             _sceneDelegate
                 .Add(this, data)
@@ -147,7 +181,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="element">The element.</param>
         /// <returns></returns>
-        private ElementController CreateController(Element element)
+        private ContentDesignController CreateController(Element element)
         {
             var unityElement = element as IUnityElement;
             if (null == unityElement)
@@ -155,7 +189,7 @@ namespace CreateAR.SpirePlayer
                 return null;
             }
 
-            var controller = unityElement.GameObject.AddComponent<ElementController>();
+            var controller = unityElement.GameObject.AddComponent<ContentDesignController>();
             controller.Initialize(element,  _elementUpdateDelegate);
 
             return controller;
@@ -165,7 +199,7 @@ namespace CreateAR.SpirePlayer
         /// Safely destroys an Element.
         /// </summary>
         /// <param name="element">The element to destroy</param>
-        private void DestroyInternal(ElementController element)
+        private void DestroyInternal(ContentDesignController element)
         {
             var content = element.Element;
 
@@ -181,7 +215,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="id">The unique id of the element.</param>
         /// <returns></returns>
-        private ElementController ById(string id)
+        private ContentDesignController ById(string id)
         {
             for (var i = 0; i < _controllers.Count; i++)
             {

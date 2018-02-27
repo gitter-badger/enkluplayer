@@ -162,7 +162,7 @@ namespace CreateAR.SpirePlayer
             }
 
             var tokens = new List<IAsyncToken<Void>>();
-            var props = set.Controllers.ToArray();
+            var props = set.ContentControllers.ToArray();
             for (var i = 0; i < props.Length; i++)
             {
                 var prop = props[i];

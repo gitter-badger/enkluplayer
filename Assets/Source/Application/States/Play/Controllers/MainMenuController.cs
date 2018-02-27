@@ -23,6 +23,9 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..btn-new")]
         public ButtonWidget BtnNew { get; private set; }
 
+        [InjectElements("..btn-anchors")]
+        public ButtonWidget BtnAnchors { get; private set; }
+
         [InjectElements("..btn-clearall")]
         public ButtonWidget BtnClearAll { get; private set; }
 
@@ -41,6 +44,11 @@ namespace CreateAR.SpirePlayer
         /// Called when the play button is pressed.
         /// </summary>
         public event Action OnPlay;
+
+        /// <summary>
+        /// Shows/hides anchors.
+        /// </summary>
+        public event Action OnShowAnchors;
 
         /// <summary>
         /// Called when the new button is pressed.
@@ -69,7 +77,7 @@ namespace CreateAR.SpirePlayer
 
             Menu.OnBack += _ =>
             {
-                if (null != OnBack)
+                if (OnBack != null)
                 {
                     OnBack();
                 }
@@ -80,6 +88,14 @@ namespace CreateAR.SpirePlayer
                 if (OnPlay != null)
                 {
                     OnPlay();
+                }
+            };
+
+            BtnQuit.Activator.OnActivated += _ =>
+            {
+                if (OnShowAnchors != null)
+                {
+                    OnShowAnchors();
                 }
             };
 

@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Pushes Element updates to a delegate.
     /// </summary>
-    public class ElementController : MonoBehaviour
+    public class ContentDesignController : MonoBehaviour
     {
         /// <summary>
         /// Constants.
@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when adjust is requested.
         /// </summary>
-        public event Action<ElementController> OnAdjust;
+        public event Action<ContentDesignController> OnAdjust;
         
         /// <summary>
         /// Initializes the controller. Updates are sent through the delegate.

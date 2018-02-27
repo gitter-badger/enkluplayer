@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// The controller.
         /// </summary>
-        private ElementController _controller;
+        private ContentDesignController _controller;
         
         /// <summary>
         /// Elements.
@@ -50,7 +50,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called to confirm placement.
         /// </summary>
-        public event Action<ElementController> OnConfirmController;
+        public event Action<ContentDesignController> OnConfirmController;
 
         /// <inheritdoc />
         protected override void Awake()
@@ -65,7 +65,7 @@ namespace CreateAR.SpirePlayer
         /// Initializes the menu with an existing prop.
         /// </summary>
         /// <param name="controller">The prop.</param>
-        public void Initialize(ElementController controller)
+        public void Initialize(ContentDesignController controller)
         {
             _controller = controller;
             _controller.HideSplashMenu();

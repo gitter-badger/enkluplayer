@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -44,6 +45,11 @@ namespace CreateAR.SpirePlayer
         /// Main menu.
         /// </summary>
         private MainMenuController _mainMenu;
+        
+        /// <summary>
+        /// Anchor menu.
+        /// </summary>
+        private AnchorMenuController _anchors;
 
         /// <summary>
         /// Clear all menu.
@@ -146,9 +152,16 @@ namespace CreateAR.SpirePlayer
             _mainMenu.OnQuit += MainMenu_OnQuit;
             _mainMenu.OnClearAll += MainMenu_OnClearAll;
             _mainMenu.OnNew += MainMenu_OnNew;
+            _mainMenu.OnShowAnchors += MainMenu_OnShowAnchors;
             _mainMenu.OnPlay += MainMenu_OnPlay;
             _parent.AddChild(_mainMenu.Root);
 
+            _anchors = _events.gameObject.AddComponent<AnchorMenuController>();
+            _anchors.enabled = false;
+            _anchors.OnBack += Anchors_OnBack;
+            _anchors.OnNew += Anchors_OnNew;
+            _anchors.OnShowChildrenChanged += Anchors_OnShowChildrenChanged;
+            
             _clearAllProps = _events.gameObject.AddComponent<ClearAllPropsController>();
             _clearAllProps.enabled = false;
             _clearAllProps.OnCancel += ClearAll_OnCancel;
@@ -207,6 +220,7 @@ namespace CreateAR.SpirePlayer
             _propEdit.enabled = false;
             _splash.enabled = false;
             _mainMenu.enabled = false;
+            _anchors.enabled = false;
             _clearAllProps.enabled = false;
             _quit.enabled = false;
             _place.enabled = false;
@@ -220,7 +234,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void CloseAllPropControllerSplashes()
         {
-            foreach (var prop in _appController.Active.Controllers)
+            foreach (var prop in _appController.Active.ContentControllers)
             {
                 prop.HideSplashMenu();
             }
@@ -231,7 +245,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void OpenAllPropControllerSplashes()
         {
-            foreach (var prop in _appController.Active.Controllers)
+            foreach (var prop in _appController.Active.ContentControllers)
             {
                 prop.ShowSplashMenu();
             }
@@ -241,7 +255,7 @@ namespace CreateAR.SpirePlayer
         /// Listens to prop.
         /// </summary>
         /// <param name="controller">The PropController.</param>
-        private void ListenToProp(ElementController controller)
+        private void ListenToProp(ContentDesignController controller)
         {
             controller.OnAdjust += Controller_OnAdjust;
         }
@@ -252,7 +266,7 @@ namespace CreateAR.SpirePlayer
         private void Start()
         {
             // listen to all prop controllers
-            var controllers = _appController.Active.Controllers;
+            var controllers = _appController.Active.ContentControllers;
             for (int i = 0, len = controllers.Count; i < len; i++)
             {
                 ListenToProp(controllers[i]);
@@ -324,12 +338,52 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called when the main menu wants to display anchors.
+        /// </summary>
+        private void MainMenu_OnShowAnchors()
+        {
+            _mainMenu.enabled = false;
+            _anchors.enabled = true;
+
+            foreach (var controller in _appController.Active.ContentControllers)
+            {
+                
+            }
+        }
+
+        /// <summary>
         /// Move to play mode.
         /// </summary>
         private void MainMenu_OnPlay()
         {
             CloseAll();
             _float.Schema.Set("visible", false);
+        }
+
+        /// <summary>
+        /// Called when show children option has changed on anchors.
+        /// </summary>
+        /// <param name="value">The value.</param>
+        private void Anchors_OnShowChildrenChanged(bool value)
+        {
+            _appController.Active.ShowAnchorChildren = value;
+        }
+
+        /// <summary>
+        /// Called when new anchor is requested.
+        /// </summary>
+        private void Anchors_OnNew()
+        {
+            
+        }
+
+        /// <summary>
+        /// Called when back button is pressed on anchor menu.
+        /// </summary>
+        private void Anchors_OnBack()
+        {
+            _anchors.enabled = false;
+            _splash.enabled = true;
         }
 
         /// <summary>
@@ -376,7 +430,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when the new menu wants to create a prop.
+        /// Called when the new menu wants to create an element.
         /// </summary>
         private void New_OnConfirm(string assetId)
         {
@@ -420,7 +474,7 @@ namespace CreateAR.SpirePlayer
         /// Called when the place menu wants to confirm placement.
         /// </summary>
         /// <param name="controller">The prop controller.</param>
-        private void Place_OnConfirmController(ElementController controller)
+        private void Place_OnConfirmController(ContentDesignController controller)
         {
             controller.transform.SetParent(null, true);
             controller.ShowSplashMenu();
@@ -445,7 +499,7 @@ namespace CreateAR.SpirePlayer
         /// Called when the controller asks to open the menu.
         /// </summary>
         /// <param name="controller">The prop controller.</param>
-        private void Controller_OnAdjust(ElementController controller)
+        private void Controller_OnAdjust(ContentDesignController controller)
         {
             // hide the splash on the controller
             controller.HideSplashMenu();
@@ -467,7 +521,7 @@ namespace CreateAR.SpirePlayer
         /// Called to move the prop.
         /// </summary>
         /// <param name="elementController">The controller.</param>
-        private void PropEdit_OnMove(ElementController elementController)
+        private void PropEdit_OnMove(ContentDesignController elementController)
         {
             ClosePropControls();
 
@@ -482,7 +536,7 @@ namespace CreateAR.SpirePlayer
         /// Called to delete the prop.
         /// </summary>
         /// <param name="elementController">The controller.</param>
-        private void PropEdit_OnDelete(ElementController elementController)
+        private void PropEdit_OnDelete(ContentDesignController elementController)
         {
             ClosePropControls();
             
@@ -495,7 +549,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the prop adjust wishes to exit.
         /// </summary>
-        private void PropAdjust_OnExit(ElementController controller)
+        private void PropAdjust_OnExit(ContentDesignController controller)
         {
             ClosePropControls();
 

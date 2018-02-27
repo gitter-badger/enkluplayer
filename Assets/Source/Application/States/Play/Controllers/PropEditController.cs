@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer
     [InjectVine("Prop.Edit")]
     public class PropEditController : InjectableIUXController
     {
-        private ElementController _controller;
+        private ContentDesignController _controller;
 
         [InjectElements("..btn-rename")]
         public ButtonWidget BtnRename { get; private set; }
@@ -20,11 +20,11 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..toggle-fade")]
         public ToggleWidget ToggleFade { get; private set; }
 
-        public event Action<ElementController> OnRename;
-        public event Action<ElementController> OnMove;
-        public event Action<ElementController> OnDelete;
+        public event Action<ContentDesignController> OnRename;
+        public event Action<ContentDesignController> OnMove;
+        public event Action<ContentDesignController> OnDelete;
 
-        public void Initialize(ElementController controller)
+        public void Initialize(ContentDesignController controller)
         {
             _controller = controller;
 
