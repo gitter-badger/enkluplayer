@@ -38,18 +38,25 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        /// Trellis connection.
+        /// </summary>
+        private readonly IConnection _connection;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public LoadAppApplicationState(
             ApplicationConfig config,
             ApiController api,
             IHttpService http,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            IConnection connection)
         {
             _config = config;
             _api = api;
             _http = http;
             _messages = messages;
+            _connection = connection;
         }
 
         /// <inheritdoc />
@@ -61,8 +68,11 @@ namespace CreateAR.SpirePlayer
                 .Credentials(_config.Network.Current)
                 .Apply(_http);
 
+            Log.Info(this, "Connect to Trellis...");
+
             Async
                 .All(
+                    _connection.Connect(_config.Network.Environment(_config.Network.Current)),
                     GetAssets(),
                     GetScripts())
                 .OnSuccess(_ =>

@@ -13,6 +13,8 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class ConnectionMessageHandler
     {
+        private const int PONG_DELTA_MS = 3000;
+
         /// <summary>
         /// Filters messages for router.
         /// </summary>
@@ -32,6 +34,23 @@ namespace CreateAR.SpirePlayer
         /// List we read from.
         /// </summary>
         private readonly List<string> _messageReadBuffer = new List<string>();
+
+        /// <summary>
+        /// Last time we received a ping.
+        /// </summary>
+        private DateTime _lastPing = DateTime.MinValue;
+
+        /// <summary>
+        /// Last time we sent a pong.
+        /// </summary>
+        private DateTime _lastPong = DateTime.MinValue;
+
+        /// <summary>
+        /// Init packet.
+        /// </summary>
+        private WebSocketInitPacket _initPacket;
+
+        public event Action OnHeartbeatRequested;
 
         /// <summary>
         /// Constructor.
@@ -67,7 +86,43 @@ namespace CreateAR.SpirePlayer
         /// <param name="message">The string message.</param>
         private void ProcessMessage(string message)
         {
-            var header = "42[\"message\",";
+            // process init
+            var header = "0";
+            if (message.StartsWith(header))
+            {
+                message = message.Substring(header.Length);
+
+                try
+                {
+                    _initPacket = (WebSocketInitPacket) JsonValue
+                        .Parse(message)
+                        .As(typeof(WebSocketInitPacket));
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(this,
+                        "Could not parse init packet : {0}.",
+                        exception);
+                }
+
+                LogVerbose("Received init packet.");
+
+                return;
+            }
+
+            // process ping
+            header = "40";
+            if (message == header)
+            {
+                _lastPing = DateTime.Now;
+
+                LogVerbose("Ping()");
+
+                return;
+            }
+
+            // process messages
+            header = "42[\"message\",";
             if (message.StartsWith(header))
             {
                 message = message.Substring(header.Length);
@@ -143,6 +198,21 @@ namespace CreateAR.SpirePlayer
                     }
 
                     _messageReadBuffer.Clear();
+                }
+
+                // ping
+                var now = DateTime.Now;
+                if (null != _initPacket
+                    && _lastPing != DateTime.MinValue
+                    && now.Subtract(_lastPing).TotalMilliseconds > _initPacket.PingInterval / 2f
+                    && now.Subtract(_lastPong).TotalMilliseconds > PONG_DELTA_MS)
+                {
+                    _lastPong = DateTime.Now;
+
+                    if (null != OnHeartbeatRequested)
+                    {
+                        OnHeartbeatRequested();
+                    }
                 }
 
                 yield return null;

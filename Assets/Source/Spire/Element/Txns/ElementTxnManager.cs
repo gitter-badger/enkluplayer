@@ -360,7 +360,7 @@ namespace CreateAR.SpirePlayer
                     continue;
                 }
 
-                var elementId = null == action.Element
+                var elementId = null == action.Element || string.IsNullOrEmpty(action.Element.Id)
                     ? action.ElementId
                     : action.Element.Id;
                 var element = root.Id == elementId
@@ -369,7 +369,8 @@ namespace CreateAR.SpirePlayer
                 if (null == element)
                 {
                     Log.Warning(this,
-                        "Could not find affected Element : {0}.",
+                        "Could not find affected Element for action {0} : {1}.",
+                        action,
                         elementId);
                 }
                 else

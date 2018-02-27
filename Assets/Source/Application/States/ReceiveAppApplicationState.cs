@@ -22,6 +22,11 @@ namespace CreateAR.SpirePlayer
         private readonly IHttpService _http;
 
         /// <summary>
+        /// Connection to Trellis.
+        /// </summary>
+        private readonly IConnection _connection;
+
+        /// <summary>
         /// Config.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -32,11 +37,13 @@ namespace CreateAR.SpirePlayer
         public ReceiveAppApplicationState(
             IMessageRouter messages,
             IHttpService http,
+            IConnection connection,
             ApplicationConfig config,
             MessageTypeBinder binder)
         {
             _messages = messages;
             _http = http;
+            _connection = connection;
             _config = config;
             
             binder.Add<UserCredentialsEvent>(MessageTypes.RECV_CREDENTIALS);
@@ -108,8 +115,16 @@ namespace CreateAR.SpirePlayer
                     // setup http service
                     creds.Apply(_http);
 
-                    // return flow
-                    callback();
+                    // connect to Trellis
+                    _connection
+                        .Connect(_config.Network.Environment(_config.Network.Current))
+                        .OnSuccess(_ => callback())
+                        .OnFailure(exception =>
+                        {
+                            Log.Error(this, "Could not connect to Trellis : {0}.", exception);
+
+                            callback();
+                        });
                 });
         }
 

@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
 using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer

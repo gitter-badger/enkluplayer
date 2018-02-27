@@ -28,12 +28,12 @@ namespace CreateAR.SpirePlayer
         /// Handles messages from connections.
         /// </summary>
         private readonly ConnectionMessageHandler _handler;
-        
+
         /// <summary>
         /// The underlying WebSocket.
         /// </summary>
         private WebSocket _socket;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -43,8 +43,9 @@ namespace CreateAR.SpirePlayer
         {
             _config = config;
             _handler = handler;
+            _handler.OnHeartbeatRequested += Handler_OnSendPong;
         }
-        
+
         /// <inheritdoc />
         public IAsyncToken<Void> Connect(EnvironmentData environment)
         {
@@ -61,6 +62,7 @@ namespace CreateAR.SpirePlayer
             
             _socket = new WebSocket(wsUrl);
             {
+                _socket.EmitOnPing = true;
                 _socket.OnOpen += Socket_OnOpen;
                 _socket.OnClose += Socket_OnClose;
                 _socket.OnMessage += Socket_OnMessage;
@@ -133,7 +135,7 @@ namespace CreateAR.SpirePlayer
         private void Socket_OnMessage(object sender, MessageEventArgs messageEventArgs)
         {
             LogVerbose("Message : {0}.", messageEventArgs.Data);
-
+            
             _handler.OnMessage(messageEventArgs.Data);
         }
 
@@ -143,6 +145,16 @@ namespace CreateAR.SpirePlayer
         private void Socket_OnError(object sender, ErrorEventArgs errorEventArgs)
         {
             LogVerbose("Error : {0}.", errorEventArgs.Message);
+        }
+
+        /// <summary>
+        /// Called when the handler tells the connection to send a pong.
+        /// </summary>
+        private void Handler_OnSendPong()
+        {
+            LogVerbose("Pong()");
+
+            _socket.Send("40");
         }
 
         /// <summary>

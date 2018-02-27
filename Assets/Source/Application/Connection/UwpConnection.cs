@@ -60,6 +60,7 @@ namespace CreateAR.SpirePlayer
         {
             _config = config;
             _handler = handler;
+            _handler.OnHeartbeatRequested += Handler_OnSendPong;
         }
 
         /// <inheritdoc />
@@ -224,9 +225,19 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called when the handler tells the connection to send a pong.
+        /// </summary>
+        private void Handler_OnSendPong()
+        {
+            LogVerbose("Pong()");
+
+            _socket.Send("40");
+        }
+
+        /// <summary>
         /// Verbose logs.
         /// </summary>
-//        [Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);
