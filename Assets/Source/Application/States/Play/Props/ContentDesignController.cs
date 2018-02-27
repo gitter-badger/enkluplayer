@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer
         /// The delegate to push updates through.
         /// </summary>
         private IElementUpdateDelegate _delegate;
-
+        
         /// <summary>
         /// Controls the prop splash menu.
         /// </summary>
@@ -53,22 +53,30 @@ namespace CreateAR.SpirePlayer
         public Element Element { get; private set; }
 
         /// <summary>
+        /// Additional data scene needs to store on this object.
+        /// </summary>
+        public SceneController.SceneElementContext Context { get; private set; }
+
+        /// <summary>
         /// Called when adjust is requested.
         /// </summary>
         public event Action<ContentDesignController> OnAdjust;
-        
+
         /// <summary>
         /// Initializes the controller. Updates are sent through the delegate.
         /// </summary>
         /// <param name="element">The elementto watch.</param>
+        /// <param name="context">Additional data SceneController stores on this object.</param>
         /// <param name="delegate">The delegate to push events through.</param>
         public void Initialize(
             Element element,
+            SceneController.SceneElementContext context,
             IElementUpdateDelegate @delegate)
         {
             Element = element;
+            Context = context;
             _delegate = @delegate;
-
+            
             _positionProp = Element.Schema.Get<Vec3>("position");
             _rotationProp = Element.Schema.Get<Vec3>("rotation");
             _scaleProp = Element.Schema.Get<Vec3>("scale");
@@ -139,6 +147,15 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
         {
+            // update world anchod line
+            if (null != Context)
+            {
+                Context.AnchorLine.Start = transform.position;
+                Context.AnchorLine.End = null == Context.ParentAnchor
+                    ? transform.position
+                    : Context.ParentAnchor.GameObject.transform.position;
+            }
+
             if (!_updatesEnabled)
             {
                 return;

@@ -16,6 +16,22 @@ namespace CreateAR.SpirePlayer
     public class SceneController
     {
         /// <summary>
+        /// Additional data to store about elements.
+        /// </summary>
+        public class SceneElementContext
+        {
+            /// <summary>
+            /// Anchor data.
+            /// </summary>
+            public readonly LineData AnchorLine = new LineData();
+
+            /// <summary>
+            /// Nearest WorldAnchor up the hierarchy.
+            /// </summary>
+            public WorldAnchorWidget ParentAnchor;
+        }
+
+        /// <summary>
         /// Receives update requests from Elements.
         /// </summary>
         private readonly IElementUpdateDelegate _elementUpdateDelegate;
@@ -26,14 +42,24 @@ namespace CreateAR.SpirePlayer
         private readonly ISceneUpdateDelegate _sceneDelegate;
 
         /// <summary>
-        /// Backing property for Controllers..
+        /// Backing property for Controllers.
         /// </summary>
         private readonly List<ContentDesignController> _controllers = new List<ContentDesignController>();
+
+        /// <summary>
+        /// Map from anchor to list of child controllers.
+        /// </summary>
+        private readonly Dictionary<WorldAnchorWidget, ContentDesignController[]> _anchorGraph = new Dictionary<WorldAnchorWidget, ContentDesignController[]>();
         
         /// <summary>
         /// Manages line rendering.
         /// </summary>
         private readonly LineManager _lines;
+
+        /// <summary>
+        /// Root of the scene.
+        /// </summary>
+        private readonly Element _root;
 
         /// <summary>
         /// The unique id of this scene.
@@ -65,6 +91,7 @@ namespace CreateAR.SpirePlayer
         {
             _elementUpdateDelegate = elementUpdateDelegate;
             _sceneDelegate = sceneDelegate;
+            _root = root;
 
             Id = id;
             ContentControllers = new ReadOnlyCollection<ContentDesignController>(_controllers);
@@ -99,6 +126,32 @@ namespace CreateAR.SpirePlayer
                         _controllers.Add(controller);
                     }
                 });
+
+            Reindex();
+        }
+
+        /// <summary>
+        /// Should be called when hierarchy changes.
+        /// </summary>
+        public void Reindex()
+        {
+            var anchors = new List<WorldAnchorWidget>();
+            _root.Find("..(@type=WorldAnchorWidget)", anchors);
+                
+            for (var i = 0; i < anchors.Count; i++)
+            {
+                var anchor = anchors[i];
+
+                // we're assuming a world anchor can't be a child of another
+                // world anchor
+                var controllers
+                    = _anchorGraph[anchor]
+                    = anchor.GameObject.GetComponentsInChildren<ContentDesignController>();
+                for (var j = 0; j < controllers.Length; j++)
+                {
+                    controllers[j].Context.ParentAnchor = anchor;
+                }
+            }
         }
 
         /// <summary>
@@ -147,6 +200,7 @@ namespace CreateAR.SpirePlayer
                 .Remove(this, element.Element)
                 .OnSuccess(_ =>
                 {
+                    _lines.Remove(element.Context.AnchorLine);
                     _controllers.Remove(element);
 
                     DestroyInternal(element);
@@ -190,7 +244,13 @@ namespace CreateAR.SpirePlayer
             }
 
             var controller = unityElement.GameObject.AddComponent<ContentDesignController>();
-            controller.Initialize(element,  _elementUpdateDelegate);
+            var context = new SceneElementContext();
+            controller.Initialize(
+                element,
+                context,
+                _elementUpdateDelegate);
+
+            _lines.Add(context.AnchorLine);
 
             return controller;
         }

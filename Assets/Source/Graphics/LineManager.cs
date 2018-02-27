@@ -1,29 +1,37 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Renders a collection of lines.
+    /// Basic implementation of <c>ILineManager</c> using Unity builtins.
     /// 
     /// TODO: Move away from LineRenderer, bake out single mesh for all lines.
     /// </summary>
-    public class LineManager : MonoBehaviour
+    public class LineManager : MonoBehaviour, ILineManager
     {
-        public class LineData
-        {
-            private static uint IDS = 0;
-
-            public readonly uint Id = ++IDS;
-
-            public Vector3 Start;
-            public Vector3 End;
-            public float Thickness;
-        }
-
+        /// <summary>
+        /// Parallel lists of line data and the associated renderer.
+        /// </summary>
         private readonly List<LineData> _lines = new List<LineData>();
         private readonly List<LineRenderer> _renderer = new List<LineRenderer>();
 
+        /// <summary>
+        /// True iff the manager should render the lines.
+        /// </summary>
+        public bool IsEnabled
+        {
+            get { return enabled; }
+            set { enabled = value; }
+        }
+
+        /// <summary>
+        /// The collection of lines.
+        /// </summary>
+        public ReadOnlyCollection<LineData> Lines { get; private set; }
+
+        /// <inheritdoc />
         public void Add(LineData line)
         {
             if (_lines.Contains(line))
@@ -35,6 +43,7 @@ namespace CreateAR.SpirePlayer
             _renderer.Add(NewRenderer(line));
         }
 
+        /// <inheritdoc />
         public void Remove(LineData line)
         {
             var index = _lines.IndexOf(line);
@@ -45,6 +54,14 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void Awake()
+        {
+            Lines = new ReadOnlyCollection<LineData>(_lines);
+        }
+
+
+        /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
         {
             // update renderers
@@ -57,6 +74,11 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Creates a new renderer.
+        /// </summary>
+        /// <param name="line">The line to create a renderer for.</param>
+        /// <returns></returns>
         private LineRenderer NewRenderer(LineData line)
         {
             var instance = new GameObject("Line");
