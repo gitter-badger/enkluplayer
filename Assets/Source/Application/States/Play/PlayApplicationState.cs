@@ -148,7 +148,7 @@ namespace CreateAR.SpirePlayer
 
             // initialize with hardcoded app id
             _app
-                .Initialize(_appConfig.Play.AppId)
+                .Initialize(_appConfig.Play.AppId, config)
                 .OnSuccess(_ =>
                 {
                     Log.Info(this, "AppController initialized.");

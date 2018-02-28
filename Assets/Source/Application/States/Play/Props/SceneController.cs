@@ -32,6 +32,11 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Play mode configuration.
+        /// </summary>
+        private readonly PlayModeConfig _config;
+
+        /// <summary>
         /// Receives update requests from Elements.
         /// </summary>
         private readonly IElementUpdateDelegate _elementUpdateDelegate;
@@ -40,11 +45,16 @@ namespace CreateAR.SpirePlayer
         /// Received propset update events.
         /// </summary>
         private readonly ISceneUpdateDelegate _sceneDelegate;
+        
+        /// <summary>
+        /// Backing property for ContentControllers.
+        /// </summary>
+        private readonly List<ContentDesignController> _contentControllers = new List<ContentDesignController>();
 
         /// <summary>
-        /// Backing property for Controllers.
+        /// Backing property for AnchorControllers.
         /// </summary>
-        private readonly List<ContentDesignController> _controllers = new List<ContentDesignController>();
+        private readonly List<AnchorDesignController> _anchorControllers = new List<AnchorDesignController>();
 
         /// <summary>
         /// Map from anchor to list of child controllers.
@@ -67,9 +77,14 @@ namespace CreateAR.SpirePlayer
         public string Id { get; private set; }
 
         /// <summary>
-        /// All element controllers.
+        /// All content controllers.
         /// </summary>
         public ReadOnlyCollection<ContentDesignController> ContentControllers { get; private set; }
+
+        /// <summary>
+        // All anchor controllers.
+        /// </summary>
+        public ReadOnlyCollection<AnchorDesignController> AnchorControllers { get; private set; }
 
         /// <summary>
         /// True iff anchors should show children.
@@ -84,17 +99,20 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public SceneController(
+            PlayModeConfig config,
             IElementUpdateDelegate elementUpdateDelegate,
             ISceneUpdateDelegate sceneDelegate,
             string id,
             Element root)
         {
+            _config = config;
             _elementUpdateDelegate = elementUpdateDelegate;
             _sceneDelegate = sceneDelegate;
             _root = root;
 
             Id = id;
-            ContentControllers = new ReadOnlyCollection<ContentDesignController>(_controllers);
+            ContentControllers = new ReadOnlyCollection<ContentDesignController>(_contentControllers);
+            AnchorControllers = new ReadOnlyCollection<AnchorDesignController>(_anchorControllers);
             
             // setup line manager
             var unityEle = root as IUnityElement;
@@ -117,14 +135,17 @@ namespace CreateAR.SpirePlayer
                     var content = element as ContentWidget;
                     if (null == content)
                     {
+                        var anchor = element as WorldAnchorWidget;
+                        if (null == anchor)
+                        {
+                            return;
+                        }
+
+                        _anchorControllers.Add(AnchorController(anchor));
                         return;
                     }
 
-                    var controller = CreateController(element);
-                    if (null != controller)
-                    {
-                        _controllers.Add(controller);
-                    }
+                    _contentControllers.Add(ContentController(content));
                 });
 
             Reindex();
@@ -168,12 +189,15 @@ namespace CreateAR.SpirePlayer
                 .Add(this, data)
                 .OnSuccess(element =>
                 {
-                    var controller = CreateController(element);
-
-                    if (null != controller)
+                    var content = element as ContentWidget;
+                    if (null == content)
                     {
-                        _controllers.Add(controller);
+                        token.Fail(new Exception("Element was not of type ContentWidget."));
+                        return;
                     }
+
+                    var controller = ContentController(content);
+                    _contentControllers.Add(controller);
 
                     token.Succeed(controller);
                 })
@@ -201,7 +225,7 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(_ =>
                 {
                     _lines.Remove(element.Context.AnchorLine);
-                    _controllers.Remove(element);
+                    _contentControllers.Remove(element);
 
                     DestroyInternal(element);
 
@@ -220,7 +244,7 @@ namespace CreateAR.SpirePlayer
         {
             return Async.Map(
                 Async.All(
-                    _controllers
+                    _contentControllers
                         // copy first
                         .ToArray()
                         // then destroy, which removes them from _controllers
@@ -230,27 +254,34 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Internal Create method which creates an <c>ElementController</c> for
-        /// an <c>Element</c>.
+        /// Internal Create method which creates an <c>ContentDesignController</c> for
+        /// a <c>ContentWidget</c>.
         /// </summary>
-        /// <param name="element">The element.</param>
+        /// <param name="content">The ContentWidget.</param>
         /// <returns></returns>
-        private ContentDesignController CreateController(Element element)
+        private ContentDesignController ContentController(ContentWidget content)
         {
-            var unityElement = element as IUnityElement;
-            if (null == unityElement)
-            {
-                return null;
-            }
-
-            var controller = unityElement.GameObject.AddComponent<ContentDesignController>();
+            var controller = content.GameObject.AddComponent<ContentDesignController>();
             var context = new SceneElementContext();
             controller.Initialize(
-                element,
+                content,
                 context,
                 _elementUpdateDelegate);
 
             _lines.Add(context.AnchorLine);
+
+            return controller;
+        }
+
+        /// <summary>
+        /// Creates a controller for an anchor.
+        /// </summary>
+        /// <param name="anchor">The anchor.</param>
+        /// <returns></returns>
+        private AnchorDesignController AnchorController(WorldAnchorWidget anchor)
+        {
+            var controller = anchor.GameObject.AddComponent<AnchorDesignController>();
+            controller.Initialize(_config, anchor);
 
             return controller;
         }
@@ -277,9 +308,9 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private ContentDesignController ById(string id)
         {
-            for (var i = 0; i < _controllers.Count; i++)
+            for (var i = 0; i < _contentControllers.Count; i++)
             {
-                var controller = _controllers[i];
+                var controller = _contentControllers[i];
                 if (controller.Element.Id == id)
                 {
                     return controller;

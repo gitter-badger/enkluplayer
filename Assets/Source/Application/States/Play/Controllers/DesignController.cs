@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -152,7 +151,7 @@ namespace CreateAR.SpirePlayer
             _mainMenu.OnQuit += MainMenu_OnQuit;
             _mainMenu.OnClearAll += MainMenu_OnClearAll;
             _mainMenu.OnNew += MainMenu_OnNew;
-            _mainMenu.OnShowAnchors += MainMenu_OnShowAnchors;
+            _mainMenu.OnShowAnchorMenu += MainMenu_OnShowAnchorMenu;
             _mainMenu.OnPlay += MainMenu_OnPlay;
             _parent.AddChild(_mainMenu.Root);
 
@@ -338,17 +337,12 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when the main menu wants to display anchors.
+        /// Called when the main menu wants to display the anchor menu.
         /// </summary>
-        private void MainMenu_OnShowAnchors()
+        private void MainMenu_OnShowAnchorMenu()
         {
             _mainMenu.enabled = false;
             _anchors.enabled = true;
-
-            foreach (var controller in _appController.Active.ContentControllers)
-            {
-                
-            }
         }
 
         /// <summary>

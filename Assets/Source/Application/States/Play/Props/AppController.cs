@@ -41,6 +41,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private string _appId;
 
+        /// <summary>
+        /// Configuration for play mode.
+        /// </summary>
+        private PlayModeConfig _config;
+
         /// <inheritdoc />
         public ReadOnlyCollection<SceneController> Scenes { get; private set; }
 
@@ -61,9 +66,10 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Initialize(string appId)
+        public IAsyncToken<Void> Initialize(string appId, PlayModeConfig config)
         {
             _appId = appId;
+            _config = config;
 
             var token = new AsyncToken<Void>();
 
@@ -81,6 +87,7 @@ namespace CreateAR.SpirePlayer
                     {
                         var sceneId = scenes[i];
                         var controller = new SceneController(
+                            _config,
                             this, this,
                             sceneId,
                             _txns.Root(sceneId));
@@ -126,6 +133,7 @@ namespace CreateAR.SpirePlayer
                             .OnSuccess(_ =>
                             {
                                 var controller = new SceneController(
+                                    _config,
                                     this, this,
                                     sceneId,
                                     _txns.Root(sceneId));

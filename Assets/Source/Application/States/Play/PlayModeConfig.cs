@@ -12,5 +12,10 @@ namespace CreateAR.SpirePlayer
         /// Events.
         /// </summary>
         public IUXEventHandler Events;
+
+        /// <summary>
+        /// Prefab for an anchor.
+        /// </summary>
+        public GameObject AnchorPrefab;
     }
 }

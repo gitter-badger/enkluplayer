@@ -23,8 +23,9 @@ namespace CreateAR.SpirePlayer
         /// Initializes the manager. This should be called before any other calls.
         /// </summary>
         /// <param name="appId">The id of the app.</param>
+        /// <param name="config">Config for play mode only.</param>
         /// <returns></returns>
-        IAsyncToken<Void> Initialize(string appId);
+        IAsyncToken<Void> Initialize(string appId, PlayModeConfig config);
 
         /// <summary>
         /// Uninitializes the manager.

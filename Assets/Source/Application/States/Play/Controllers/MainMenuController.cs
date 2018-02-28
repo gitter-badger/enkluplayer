@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Shows/hides anchors.
         /// </summary>
-        public event Action OnShowAnchors;
+        public event Action OnShowAnchorMenu;
 
         /// <summary>
         /// Called when the new button is pressed.
@@ -93,9 +93,9 @@ namespace CreateAR.SpirePlayer
 
             BtnQuit.Activator.OnActivated += _ =>
             {
-                if (OnShowAnchors != null)
+                if (OnShowAnchorMenu != null)
                 {
-                    OnShowAnchors();
+                    OnShowAnchorMenu();
                 }
             };
 

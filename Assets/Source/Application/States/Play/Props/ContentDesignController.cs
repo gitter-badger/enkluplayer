@@ -50,7 +50,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// The Element.
         /// </summary>
-        public Element Element { get; private set; }
+        public ContentWidget Element { get; private set; }
 
         /// <summary>
         /// Additional data scene needs to store on this object.
@@ -65,11 +65,11 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes the controller. Updates are sent through the delegate.
         /// </summary>
-        /// <param name="element">The elementto watch.</param>
+        /// <param name="element">The content to watch.</param>
         /// <param name="context">Additional data SceneController stores on this object.</param>
         /// <param name="delegate">The delegate to push events through.</param>
         public void Initialize(
-            Element element,
+            ContentWidget element,
             SceneController.SceneElementContext context,
             IElementUpdateDelegate @delegate)
         {
