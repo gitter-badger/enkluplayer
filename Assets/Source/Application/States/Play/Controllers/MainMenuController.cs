@@ -91,6 +91,14 @@ namespace CreateAR.SpirePlayer
                 }
             };
 
+            BtnAnchors.Activator.OnActivated += _ =>
+            {
+                if (OnShowAnchorMenu != null)
+                {
+                    OnShowAnchorMenu();
+                }
+            };
+
             BtnQuit.Activator.OnActivated += _ =>
             {
                 if (OnShowAnchorMenu != null)

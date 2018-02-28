@@ -72,3 +72,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 295f6564a49d4b44c9ced1133f453c22, type: 3}
   - Identifier: Anchors.Menu
     Source: {fileID: 4900000, guid: 8771d5998a774114291cb737b7f9c7f2, type: 3}
+  - Identifier: Anchors.Place
+    Source: {fileID: 4900000, guid: c51669c74895c7341abcddf9a9866e92, type: 3}

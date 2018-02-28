@@ -28,8 +28,7 @@ namespace CreateAR.SpirePlayer.Test.UI
                 new DummyPrimitiveFactory(),
                 null, null,
                 new DummyElementManager(),
-                null, null, null,
-                null, null, null, null, null).Element(description);
+                null, null, null, null, null,  null, null, null, null, null).Element(description);
         }
         
         private ElementRef GenerateRefs(int index)

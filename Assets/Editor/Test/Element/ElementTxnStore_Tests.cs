@@ -107,8 +107,8 @@ namespace CreateAR.SpirePlayer.Test.Txn
             var aa = _root.FindOne<Element>("aa");
             Assert.AreEqual("root", aa.Parent.Id);
 
-            var c = _root.FindOne<Element>("..c");
-            Assert.AreEqual("b", c.Parent.Id);
+            var b = _root.FindOne<Element>("..b");
+            Assert.AreEqual("a", b.Parent.Id);
         }
 
         [Test]

@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -49,6 +50,11 @@ namespace CreateAR.SpirePlayer
         /// Anchor menu.
         /// </summary>
         private AnchorMenuController _anchors;
+
+        /// <summary>
+        /// Menu for placing anchors.
+        /// </summary>
+        private PlaceAnchorController _placeAnchor;
 
         /// <summary>
         /// Clear all menu.
@@ -160,6 +166,7 @@ namespace CreateAR.SpirePlayer
             _anchors.OnBack += Anchors_OnBack;
             _anchors.OnNew += Anchors_OnNew;
             _anchors.OnShowChildrenChanged += Anchors_OnShowChildrenChanged;
+            _parent.AddChild(_anchors.Root);
             
             _clearAllProps = _events.gameObject.AddComponent<ClearAllPropsController>();
             _clearAllProps.enabled = false;
@@ -199,6 +206,10 @@ namespace CreateAR.SpirePlayer
             _propEdit.OnMove += PropEdit_OnMove;
             _propEdit.OnDelete += PropEdit_OnDelete;
             _propEdit.enabled = false;
+
+            _placeAnchor = _staticRoot.AddComponent<PlaceAnchorController>();
+            _placeAnchor.OnCancel += PlaceAnchor_OnCancel;
+            _placeAnchor.OnOk += PlaceAnchor_OnOk;
         }
 
         /// <summary>
@@ -342,6 +353,7 @@ namespace CreateAR.SpirePlayer
         private void MainMenu_OnShowAnchorMenu()
         {
             _mainMenu.enabled = false;
+            CloseAllPropControllerSplashes();
             _anchors.enabled = true;
         }
 
@@ -368,7 +380,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Anchors_OnNew()
         {
-            
+            _anchors.enabled = false;
+            _placeAnchor.Initialize();
+            _placeAnchor.enabled = true;
         }
 
         /// <summary>
@@ -377,6 +391,7 @@ namespace CreateAR.SpirePlayer
         private void Anchors_OnBack()
         {
             _anchors.enabled = false;
+            OpenAllPropControllerSplashes();
             _splash.enabled = true;
         }
 
@@ -560,6 +575,22 @@ namespace CreateAR.SpirePlayer
         private void PropAdjustControl_OnVisibilityChanged(IInteractable interactable)
         {
             _propEdit.enabled = !interactable.Visible;
+        }
+
+        /// <summary>
+        /// Called when place anchor confirms placement.
+        /// </summary>
+        private void PlaceAnchor_OnOk(ElementData data)
+        {
+            _placeAnchor.enabled = false;
+        }
+
+        /// <summary>
+        /// Called when place anchor cancels placement.
+        /// </summary>
+        private void PlaceAnchor_OnCancel()
+        {
+            _placeAnchor.enabled = false;
         }
     }
 }

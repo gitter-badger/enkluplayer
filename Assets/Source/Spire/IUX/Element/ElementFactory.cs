@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
 
@@ -26,6 +27,8 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IImageLoader _imageLoader;
         private readonly IContentFactory _content;
         private readonly IContentManager _contentManager;
+        private readonly IHttpService _http;
+        private readonly IWorldAnchorProvider _provider;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -53,7 +56,9 @@ namespace CreateAR.SpirePlayer.IUX
             WidgetConfig config,
             IImageLoader imageLoader,
             IContentFactory content,
-            IContentManager contentManager)
+            IContentManager contentManager,
+            IHttpService http,
+            IWorldAnchorProvider provider)
         {
             _parser = parser;
             _primitives = primitives;
@@ -68,6 +73,8 @@ namespace CreateAR.SpirePlayer.IUX
             _imageLoader = imageLoader;
             _content = content;
             _contentManager = contentManager;
+            _http = http;
+            _provider = provider;
             
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -318,6 +325,10 @@ namespace CreateAR.SpirePlayer.IUX
                 case ElementTypes.TRANSITION_SCALE:
                 {
                     return new ScaleTransition(new GameObject("ScaleTransition"), _tweens);
+                }
+                case ElementTypes.WORLD_ANCHOR:
+                {
+                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _provider);
                 }
                 default:
                 {

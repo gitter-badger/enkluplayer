@@ -8,13 +8,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
     [TestFixture]
     public class VineEngine_Tests
     {
-        private VineImporter _importer;
-
-        [SetUp]
-        public void Setup()
-        {
-            _importer = new VineImporter(new DummyVinePreProcessor(), new VineLoader());
-        }
+        private readonly VineImporter _importer = new VineImporter(new DummyVinePreProcessor(), new VineLoader());
 
         [Test]
         public void MultipleRoots()

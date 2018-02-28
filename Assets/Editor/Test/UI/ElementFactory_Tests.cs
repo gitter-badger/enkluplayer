@@ -60,7 +60,7 @@ namespace CreateAR.SpirePlayer.Test.UI
                 new DummyPrimitiveFactory(), 
                 null, null,
                 new DummyElementManager(),
-                null, null, null, null, null, null, null, null);
+                null, null, null, null, null, null, null, null, null, null);
         }
 
         [Test]
