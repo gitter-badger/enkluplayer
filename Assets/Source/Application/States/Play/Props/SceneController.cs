@@ -92,7 +92,12 @@ namespace CreateAR.SpirePlayer
         public bool ShowAnchorChildren
         {
             get { return _lines.enabled; }
-            set { _lines.enabled = value; }
+            set
+            {
+                _lines.enabled = value;
+
+                SetAnchorControllerVisibility(value);
+            }
         }
 
         /// <summary>
@@ -282,6 +287,7 @@ namespace CreateAR.SpirePlayer
         {
             var controller = anchor.GameObject.AddComponent<AnchorDesignController>();
             controller.Initialize(_config, anchor);
+            controller.IsVisualEnabled = false;
 
             return controller;
         }
@@ -318,6 +324,18 @@ namespace CreateAR.SpirePlayer
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Sets visibility on anchors.
+        /// </summary>
+        /// <param name="value">True iff visible.</param>
+        private void SetAnchorControllerVisibility(bool value)
+        {
+            for (var i = 0; i < _anchorControllers.Count; i++)
+            {
+                _anchorControllers[i].IsVisualEnabled = value;
+            }
         }
     }
 }

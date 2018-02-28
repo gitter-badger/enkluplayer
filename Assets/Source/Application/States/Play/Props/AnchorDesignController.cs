@@ -10,6 +10,18 @@ namespace CreateAR.SpirePlayer
 
         public WorldAnchorWidget Element { get; private set; }
 
+        public bool IsVisualEnabled
+        {
+            get
+            {
+                return _marker.activeSelf;
+            }
+            set
+            {
+                _marker.SetActive(value);
+            }
+        }
+
         public void Initialize(
             PlayModeConfig config,
             WorldAnchorWidget element)
@@ -21,22 +33,6 @@ namespace CreateAR.SpirePlayer
             _marker = Instantiate(_config.AnchorPrefab, transform);
             _marker.transform.position = Vector3.zero;
             _marker.transform.localRotation = Quaternion.identity;
-        }
-
-        private void OnEnable()
-        {
-            if (null != _marker)
-            {
-                _marker.SetActive(true);
-            }
-        }
-
-        private void OnDisable()
-        {
-            if (null != _marker)
-            {
-                _marker.SetActive(false);
-            }
         }
     }
 }
