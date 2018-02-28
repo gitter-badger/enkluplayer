@@ -70,6 +70,10 @@ namespace CreateAR.SpirePlayer
 
                     _messages.Publish(MessageTypes.PLAY);
                 }
+                else
+                {
+                    Log.Info(this, "Still waiting on {0} item(s).", waits.Length - calls);
+                }
             };
 
             for (int i = 0, len = waits.Length; i < len; i++)
@@ -118,7 +122,12 @@ namespace CreateAR.SpirePlayer
                     // connect to Trellis
                     _connection
                         .Connect(_config.Network.Environment(_config.Network.Current))
-                        .OnSuccess(_ => callback())
+                        .OnSuccess(_ =>
+                        {
+                            Log.Info(this, "Connected to Trellis.");
+
+                            callback();
+                        })
                         .OnFailure(exception =>
                         {
                             Log.Error(this, "Could not connect to Trellis : {0}.", exception);

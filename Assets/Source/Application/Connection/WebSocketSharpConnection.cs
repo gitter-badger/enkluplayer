@@ -33,6 +33,11 @@ namespace CreateAR.SpirePlayer
         /// The underlying WebSocket.
         /// </summary>
         private WebSocket _socket;
+
+        /// <summary>
+        /// Token for connection.
+        /// </summary>
+        private AsyncToken<Void> _connectToken;
         
         /// <summary>
         /// Constructor.
@@ -49,7 +54,12 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Connect(EnvironmentData environment)
         {
-            var token = new AsyncToken<Void>();
+            if (null != _connectToken)
+            {
+                return _connectToken.Token();
+            }
+
+            _connectToken = new AsyncToken<Void>();
 
             // shave off protocol
             var substring = environment.BaseUrl.Substring(
@@ -72,7 +82,7 @@ namespace CreateAR.SpirePlayer
                 _socket.Connect();
             }
             
-            return token;
+            return _connectToken.Token();
         }
 
         /// <summary>
@@ -121,6 +131,8 @@ namespace CreateAR.SpirePlayer
                     "/v1/editor/app/{0}/subscribe",
                     _config.Play.AppId),
                 "post"));
+            
+            _connectToken.Succeed(Void.Instance);
         }
         
         /// <summary>
@@ -129,6 +141,9 @@ namespace CreateAR.SpirePlayer
         private void Socket_OnClose(object sender, CloseEventArgs closeEventArgs)
         {
             LogVerbose("Socket closed.");
+
+            _connectToken.Fail(new Exception("Socket closed."));
+            _connectToken = null;
         }
 
         /// <summary>
