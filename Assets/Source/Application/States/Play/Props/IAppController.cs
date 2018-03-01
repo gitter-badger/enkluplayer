@@ -11,13 +11,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// The scenes currently managed.
         /// </summary>
-        ReadOnlyCollection<SceneController> Scenes { get; }
+        ReadOnlyCollection<SceneDesignController> Scenes { get; }
 
         /// <summary>
         /// Gets/sets the active <c>Scene</c>. This is the Scene that new
         /// elements will be added to, or elements will be deleted from.
         /// </summary>
-        SceneController Active { get; set; }
+        SceneDesignController Active { get; set; }
 
         /// <summary>
         /// Initializes the manager. This should be called before any other calls.
@@ -36,13 +36,13 @@ namespace CreateAR.SpirePlayer
         /// Creates a <c>Scene</c>.
         /// </summary>
         /// <returns></returns>
-        IAsyncToken<SceneController> Create();
+        IAsyncToken<SceneDesignController> Create();
 
         /// <summary>
         /// Destroys a <c>Scene</c> by id.
         /// </summary>
         /// <param name="id">The id of the <c>Scene</c>.</param>
         /// <returns></returns>
-        IAsyncToken<SceneController> Destroy(string id);
+        IAsyncToken<SceneDesignController> Destroy(string id);
     }
 }

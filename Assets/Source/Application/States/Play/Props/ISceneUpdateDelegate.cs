@@ -14,13 +14,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="scene">The scene to add to.</param>
         /// <param name="data">The data.</param>
-        IAsyncToken<Element> Add(SceneController scene, ElementData data);
+        IAsyncToken<Element> Add(SceneDesignController scene, ElementData data);
 
         /// <summary>
         /// Called when an <c>Element</c> has been removed.
         /// </summary>
         /// <param name="scene">The scene to remove from.</param>
         /// <param name="element">The element.</param>
-        IAsyncToken<Element> Remove(SceneController scene, Element element);
+        IAsyncToken<Element> Remove(SceneDesignController scene, Element element);
     }
 }

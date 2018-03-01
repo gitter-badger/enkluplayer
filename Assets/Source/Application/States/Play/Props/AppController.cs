@@ -40,7 +40,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Backing variable for Scenes prpoperty.
         /// </summary>
-        private readonly List<SceneController> _sceneControllers = new List<SceneController>();
+        private readonly List<SceneDesignController> _sceneControllers = new List<SceneDesignController>();
 
         /// <summary>
         /// Element transactions currently tracked.
@@ -58,10 +58,10 @@ namespace CreateAR.SpirePlayer
         private PlayModeConfig _config;
 
         /// <inheritdoc />
-        public ReadOnlyCollection<SceneController> Scenes { get; private set; }
+        public ReadOnlyCollection<SceneDesignController> Scenes { get; private set; }
 
         /// <inheritdoc />
-        public SceneController Active { get; set; }
+        public SceneDesignController Active { get; set; }
 
         /// <summary>
         /// Constructor.
@@ -72,7 +72,7 @@ namespace CreateAR.SpirePlayer
             IWorldAnchorProvider provider,
             IHttpService http)
         {
-            Scenes = new ReadOnlyCollection<SceneController>(_sceneControllers);
+            Scenes = new ReadOnlyCollection<SceneDesignController>(_sceneControllers);
 
             _api = api;
             _txns = txns;
@@ -96,26 +96,9 @@ namespace CreateAR.SpirePlayer
                 {
                     LogVerbose("Txns initialized.");
 
-                    // create scene controllers
-                    var scenes = _txns.TrackedScenes;
-                    for (var i = 0; i < scenes.Length; i++)
+                    if (_config.EditModeEnabled)
                     {
-                        var sceneId = scenes[i];
-                        var controller = new SceneController(
-                            _config,
-                            _provider,
-                            _http,
-                            this, this,
-                            sceneId,
-                            _txns.Root(sceneId));
-
-                        _sceneControllers.Add(controller);
-                    }
-
-                    // select a default scene
-                    if (_sceneControllers.Count > 0)
-                    {
-                        Active = _sceneControllers[0];
+                        SetupDesignControllers();
                     }
 
                     token.Succeed(Void.Instance);
@@ -132,9 +115,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<SceneController> Create()
+        public IAsyncToken<SceneDesignController> Create()
         {
-            var token = new AsyncToken<SceneController>();
+            var token = new AsyncToken<SceneDesignController>();
 
             // create a scene
             _api
@@ -149,7 +132,7 @@ namespace CreateAR.SpirePlayer
                             .TrackScene(sceneId)
                             .OnSuccess(_ =>
                             {
-                                var controller = new SceneController(
+                                var controller = new SceneDesignController(
                                     _config,
                                     _provider,
                                     _http,
@@ -178,12 +161,12 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<SceneController> Destroy(string id)
+        public IAsyncToken<SceneDesignController> Destroy(string id)
         {
             var set = ById(id);
             if (null == set)
             {
-                return new AsyncToken<SceneController>(new Exception(string.Format(
+                return new AsyncToken<SceneDesignController>(new Exception(string.Format(
                     "Could not find PropSet with id {0}.",
                     id)));
             }
@@ -205,7 +188,7 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Element> Add(SceneController scene, ElementData data)
+        public IAsyncToken<Element> Add(SceneDesignController scene, ElementData data)
         {
             if (null == Active)
             {
@@ -218,7 +201,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Element> Remove(SceneController scene, Element element)
+        public IAsyncToken<Element> Remove(SceneDesignController scene, Element element)
         {
             if (null == Active)
             {
@@ -321,6 +304,34 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Sets up all design controllers.
+        /// </summary>
+        private void SetupDesignControllers()
+        {
+            // create scene controllers
+            var scenes = _txns.TrackedScenes;
+            for (var i = 0; i < scenes.Length; i++)
+            {
+                var sceneId = scenes[i];
+                var controller = new SceneDesignController(
+                    _config,
+                    _provider,
+                    _http,
+                    this, this,
+                    sceneId,
+                    _txns.Root(sceneId));
+
+                _sceneControllers.Add(controller);
+            }
+
+            // select a default scene
+            if (_sceneControllers.Count > 0)
+            {
+                Active = _sceneControllers[0];
+            }
+        }
+
+        /// <summary>
         /// Creates or retrieves an element txn.
         /// </summary>
         /// <param name="element">The element in question</param>
@@ -341,7 +352,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="id">The id of the set.</param>
         /// <returns></returns>
-        private SceneController ById(string id)
+        private SceneDesignController ById(string id)
         {
             for (int i = 0, len = _sceneControllers.Count; i < len; i++)
             {

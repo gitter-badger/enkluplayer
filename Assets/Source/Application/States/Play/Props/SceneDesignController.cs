@@ -14,7 +14,7 @@ namespace CreateAR.SpirePlayer
     /// Manages a set of Element controllers for a scene, and pipes updates
     /// about.
     /// </summary>
-    public class SceneController
+    public class SceneDesignController
     {
         /// <summary>
         /// Additional data to store about elements.
@@ -109,7 +109,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public SceneController(
+        public SceneDesignController(
             PlayModeConfig config,
             IWorldAnchorProvider provider,
             IHttpService http,
@@ -128,11 +128,8 @@ namespace CreateAR.SpirePlayer
             Id = id;
             ContentControllers = new ReadOnlyCollection<ContentDesignController>(_contentControllers);
             AnchorControllers = new ReadOnlyCollection<AnchorDesignController>(_anchorControllers);
-
-            if (_config.EditModeEnabled)
-            {
-                SetupEditMode(id, root);
-            }
+            
+            SetupElementControllers(id, root);
         }
         
         /// <summary>
@@ -322,7 +319,7 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        private void SetupEditMode(string id, Element root)
+        private void SetupElementControllers(string id, Element root)
         {
             // setup line manager
             var unityEle = root as IUnityElement;

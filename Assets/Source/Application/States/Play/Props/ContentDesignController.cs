@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Additional data scene needs to store on this object.
         /// </summary>
-        public SceneController.SceneElementContext Context { get; private set; }
+        public SceneDesignController.SceneElementContext Context { get; private set; }
 
         /// <summary>
         /// Called when adjust is requested.
@@ -70,7 +70,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="delegate">The delegate to push events through.</param>
         public void Initialize(
             ContentWidget element,
-            SceneController.SceneElementContext context,
+            SceneDesignController.SceneElementContext context,
             IElementUpdateDelegate @delegate)
         {
             Element = element;
