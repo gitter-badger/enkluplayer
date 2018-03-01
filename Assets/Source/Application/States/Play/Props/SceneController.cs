@@ -66,16 +66,11 @@ namespace CreateAR.SpirePlayer
         /// Backing property for AnchorControllers.
         /// </summary>
         private readonly List<AnchorDesignController> _anchorControllers = new List<AnchorDesignController>();
-
-        /// <summary>
-        /// Map from anchor to list of child controllers.
-        /// </summary>
-        private readonly Dictionary<WorldAnchorWidget, ContentDesignController[]> _anchorGraph = new Dictionary<WorldAnchorWidget, ContentDesignController[]>();
         
         /// <summary>
         /// Manages line rendering.
         /// </summary>
-        private readonly LineManager _lines;
+        private LineManager _lines;
 
         /// <summary>
         /// Root of the scene.
@@ -133,68 +128,13 @@ namespace CreateAR.SpirePlayer
             Id = id;
             ContentControllers = new ReadOnlyCollection<ContentDesignController>(_contentControllers);
             AnchorControllers = new ReadOnlyCollection<AnchorDesignController>(_anchorControllers);
-            
-            // setup line manager
-            var unityEle = root as IUnityElement;
-            if (null != unityEle)
+
+            if (_config.EditModeEnabled)
             {
-                _lines = unityEle.GameObject.AddComponent<LineManager>();
-            }
-            else
-            {
-                Log.Error(this,
-                    "Root of scene {0} is not an IUnityElement! The root of a scene MUST be an IUnityElement.",
-                    id);
-            }
-
-            // create controllers
-            ElementUtil.Walk(
-                root,
-                element =>
-                {
-                    var content = element as ContentWidget;
-                    if (null == content)
-                    {
-                        var anchor = element as WorldAnchorWidget;
-                        if (null == anchor)
-                        {
-                            return;
-                        }
-
-                        _anchorControllers.Add(AnchorController(anchor));
-                        return;
-                    }
-
-                    _contentControllers.Add(ContentController(content));
-                });
-
-            Reindex();
-        }
-
-        /// <summary>
-        /// Should be called when hierarchy changes.
-        /// </summary>
-        public void Reindex()
-        {
-            var anchors = new List<WorldAnchorWidget>();
-            _root.Find("..(@type=WorldAnchorWidget)", anchors);
-                
-            for (var i = 0; i < anchors.Count; i++)
-            {
-                var anchor = anchors[i];
-
-                // we're assuming a world anchor can't be a child of another
-                // world anchor
-                var controllers
-                    = _anchorGraph[anchor]
-                    = anchor.GameObject.GetComponentsInChildren<ContentDesignController>();
-                for (var j = 0; j < controllers.Length; j++)
-                {
-                    controllers[j].Context.ParentAnchor = anchor;
-                }
+                SetupEditMode(id, root);
             }
         }
-
+        
         /// <summary>
         /// Creates a ContentDesignController from an ElementData.
         /// </summary>
@@ -379,6 +319,67 @@ namespace CreateAR.SpirePlayer
             for (var i = 0; i < _anchorControllers.Count; i++)
             {
                 _anchorControllers[i].IsVisualEnabled = value;
+            }
+        }
+
+        private void SetupEditMode(string id, Element root)
+        {
+            // setup line manager
+            var unityEle = root as IUnityElement;
+            if (null != unityEle)
+            {
+                _lines = unityEle.GameObject.AddComponent<LineManager>();
+            }
+            else
+            {
+                Log.Error(this,
+                    "Root of scene {0} is not an IUnityElement! The root of a scene MUST be an IUnityElement.",
+                    id);
+            }
+
+            // create controllers
+            ElementUtil.Walk(
+                root,
+                element =>
+                {
+                    var content = element as ContentWidget;
+                    if (null == content)
+                    {
+                        var anchor = element as WorldAnchorWidget;
+                        if (null == anchor)
+                        {
+                            return;
+                        }
+
+                        _anchorControllers.Add(AnchorController(anchor));
+                        return;
+                    }
+
+                    _contentControllers.Add(ContentController(content));
+                });
+
+            Reindex();
+        }
+
+        /// <summary>
+        /// Should be called when hierarchy changes.
+        /// </summary>
+        private void Reindex()
+        {
+            var anchors = new List<WorldAnchorWidget>();
+            _root.Find("..(@type=WorldAnchorWidget)", anchors);
+
+            for (var i = 0; i < anchors.Count; i++)
+            {
+                var anchor = anchors[i];
+
+                // we're assuming a world anchor can't be a child of another
+                // world anchor
+                var controllers = anchor.GameObject.GetComponentsInChildren<ContentDesignController>();
+                for (var j = 0; j < controllers.Length; j++)
+                {
+                    controllers[j].Context.ParentAnchor = anchor;
+                }
             }
         }
     }

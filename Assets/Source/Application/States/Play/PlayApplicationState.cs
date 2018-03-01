@@ -163,7 +163,7 @@ namespace CreateAR.SpirePlayer
                             .OnSuccess(scene =>
                             {
                                 // TODO: only with connection
-                                _design.Setup(config);
+                                _design.Setup();
                             })
                             .OnFailure(exception =>
                             {
@@ -173,7 +173,7 @@ namespace CreateAR.SpirePlayer
                     else
                     {
                         // TODO: only with connection
-                        _design.Setup(config);
+                        _design.Setup();
                     }
                 })
                 .OnFailure(exception =>

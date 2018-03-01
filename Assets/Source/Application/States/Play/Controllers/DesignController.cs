@@ -26,14 +26,9 @@ namespace CreateAR.SpirePlayer
         private readonly IVoiceCommandManager _voice;
         
         /// <summary>
-        /// Play mode.
+        /// Root of controls.
         /// </summary>
-        private PlayModeConfig _playConfig;
-
-        /// <summary>
-        /// Event handler.
-        /// </summary>
-        private IUXEventHandler _events;
+        private GameObject _root;
 
         /// <summary>
         /// Splash menu.
@@ -116,16 +111,15 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Starts controllers.
         /// </summary>
-        public void Setup(PlayModeConfig config)
+        public void Setup()
         {
-            _playConfig = config;
-            _events = _playConfig.Events;
+            _root = new GameObject("Design");
 
             _voice.Register("design", Voice_OnDesignCommand);
             
             // create float
             _float = (FloatWidget) _elements.Element(@"<?Vine><Float id='Root' position=(0, 0, 2) face='camera'><ScaleTransition /></Float>");
-            _float.GameObject.transform.parent = _events.transform;
+            _float.GameObject.transform.parent = _root.transform;
             _parent = (ScaleTransition) _float.Children[0];
             
             SetupMenus();
@@ -137,7 +131,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Teardown()
         {
-            Object.Destroy(_events.gameObject);
+            Object.Destroy(_root);
         }
 
         /// <summary>
@@ -145,12 +139,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SetupMenus()
         {
-            _splash = _events.gameObject.AddComponent<SplashMenuController>();
+            _splash = _root.AddComponent<SplashMenuController>();
             _splash.enabled = false;
             _splash.OnOpenMenu += Splash_OnOpenMenu;
             _parent.AddChild(_splash.Root);
             
-            _mainMenu = _events.gameObject.AddComponent<MainMenuController>();
+            _mainMenu = _root.AddComponent<MainMenuController>();
             _mainMenu.enabled = false;
             _mainMenu.OnBack += MainMenu_OnBack;
             _mainMenu.OnQuit += MainMenu_OnQuit;
@@ -160,26 +154,26 @@ namespace CreateAR.SpirePlayer
             _mainMenu.OnPlay += MainMenu_OnPlay;
             _parent.AddChild(_mainMenu.Root);
 
-            _anchors = _events.gameObject.AddComponent<AnchorMenuController>();
+            _anchors = _root.AddComponent<AnchorMenuController>();
             _anchors.enabled = false;
             _anchors.OnBack += Anchors_OnBack;
             _anchors.OnNew += Anchors_OnNew;
             _anchors.OnShowChildrenChanged += Anchors_OnShowChildrenChanged;
             _parent.AddChild(_anchors.Root);
             
-            _clearAllProps = _events.gameObject.AddComponent<ClearAllPropsController>();
+            _clearAllProps = _root.AddComponent<ClearAllPropsController>();
             _clearAllProps.enabled = false;
             _clearAllProps.OnCancel += ClearAll_OnCancel;
             _clearAllProps.OnConfirm += ClearAll_OnConfirm;
             _parent.AddChild(_clearAllProps.Root);
 
-            _quit = _events.gameObject.AddComponent<QuitController>();
+            _quit = _root.AddComponent<QuitController>();
             _quit.enabled = false;
             _quit.OnCancel += Quit_OnCancel;
             _quit.OnConfirm += Quit_OnConfirm;
             _parent.AddChild(_quit.Root);
 
-            _new = _events.gameObject.AddComponent<NewItemController>();
+            _new = _root.AddComponent<NewItemController>();
             _new.enabled = false;
             _new.OnCancel += New_OnCancel;
             _new.OnConfirm += New_OnConfirm;
