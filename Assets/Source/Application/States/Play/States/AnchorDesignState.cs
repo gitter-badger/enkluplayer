@@ -94,9 +94,9 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             _controllers
+                .Remove<AnchorDesignController>()
                 .Unfilter(_distanceFilter)
-                .Unfilter(_anchorFilter)
-                .Remove<AnchorDesignController>();
+                .Unfilter(_anchorFilter);
 
             CloseAll();
         }
