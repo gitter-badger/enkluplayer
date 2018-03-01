@@ -4,10 +4,10 @@ using CreateAR.SpirePlayer.IUX;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Manages quit controller.
+    /// Controls clear scene menu.
     /// </summary>
-    [InjectVine("Design.Quit")]
-    public class QuitController : InjectableIUXController
+    [InjectVine("Design.ClearScene")]
+    public class ClearSceneController : InjectableIUXController
     {
         /// <summary>
         /// Elements.

@@ -5,5 +5,4 @@
 	<Button id='btn-anchors' label='Anchors' icon='frame' />
 	<Button id='btn-new' label='New' icon='plus' />
 	<Button id='btn-clearall' label='Clear All' icon='trash' />
-	<Button id='btn-quit' label='Quit' icon='x' />
 </Menu>

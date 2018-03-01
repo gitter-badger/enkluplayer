@@ -4,9 +4,9 @@ using CreateAR.Commons.Unity.Async;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Describes an object that manages <c>SceneController</c> instances.
+    /// Describes an object that can update an app.
     /// </summary>
-    public interface IAppController
+    public interface IAdminAppController : IAppController
     {
         /// <summary>
         /// The scenes currently managed.
@@ -18,19 +18,6 @@ namespace CreateAR.SpirePlayer
         /// elements will be added to, or elements will be deleted from.
         /// </summary>
         SceneDesignController Active { get; set; }
-
-        /// <summary>
-        /// Initializes the manager. This should be called before any other calls.
-        /// </summary>
-        /// <param name="appId">The id of the app.</param>
-        /// <param name="config">Config for play mode only.</param>
-        /// <returns></returns>
-        IAsyncToken<Void> Initialize(string appId, PlayModeConfig config);
-
-        /// <summary>
-        /// Uninitializes the manager.
-        /// </summary>
-        void Uninitialize();
 
         /// <summary>
         /// Creates a <c>Scene</c>.

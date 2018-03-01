@@ -13,9 +13,9 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Manages <c>Scene</c> objects.
+    /// Loads and manages an app.
     /// </summary>
-    public class AppController : IAppController, ISceneUpdateDelegate, IElementUpdateDelegate
+    public class AppController : IAdminAppController, ISceneUpdateDelegate, IElementUpdateDelegate
     {
         /// <summary>
         /// Trellis api.

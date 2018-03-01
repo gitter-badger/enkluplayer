@@ -149,7 +149,10 @@ namespace CreateAR.SpirePlayer
                     }
                 }
 
-                // service manager + appplication
+                binder.Bind<IAppController>().To<AppController>();
+                binder.Bind<IAdminAppController>().To<AppController>();
+
+                // service manager + application
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<IBridge>(),
@@ -177,8 +180,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="binder">Object to add bindings to.</param>
         private void AddSpireBindings(InjectionBinder binder)
         {
-            binder.Bind<AppController>().To<AppController>();
-
             // AR
             {
                 binder.Bind<ArCameraRig>().ToValue(LookupComponent<ArCameraRig>());
@@ -248,8 +249,10 @@ namespace CreateAR.SpirePlayer
 
             // design
             {
+                binder.Bind<MainDesignState>().To<MainDesignState>();
+                binder.Bind<ContentDesignState>().To<ContentDesignState>();
+                binder.Bind<AnchorDesignState>().To<AnchorDesignState>();
                 binder.Bind<DesignController>().To<DesignController>().ToSingleton();
-                binder.Bind<IAppController>().To<AppController>().ToSingleton();
             }
 
             // hierarchy

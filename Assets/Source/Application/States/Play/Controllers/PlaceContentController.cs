@@ -6,8 +6,8 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the menu for placing objects.
     /// </summary>
-    [InjectVine("Design.PlaceItem")]
-    public class PlaceObjectController : InjectableIUXController
+    [InjectVine("Design.PlaceContent")]
+    public class PlaceContentController : InjectableIUXController
     {
         /// <summary>
         /// The controller.

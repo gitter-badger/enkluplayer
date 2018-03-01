@@ -5,7 +5,7 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Pushes Element updates to a delegate.
+    /// Design mode controller for a ContentWidget.
     /// </summary>
     public class ContentDesignController : MonoBehaviour
     {

@@ -3,7 +3,6 @@ using System.Collections;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.IUX;
 using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -39,7 +38,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Manages app.
         /// </summary>
-        private readonly IAppController _app;
+        private readonly IAdminAppController _app;
 
         /// <summary>
         /// Controls design mode.
@@ -68,18 +67,16 @@ namespace CreateAR.SpirePlayer
             IBootstrapper bootstrapper,
             IMessageRouter messages,
             IScriptRequireResolver resolver,
-            IAppController app,
-            IElementFactory elements,
-            IVoiceCommandManager voice,
-            ApplicationConfig config)
+            IAdminAppController app,
+            ApplicationConfig config,
+            DesignController design)
         {
             _bootstrapper = bootstrapper;
             _messages = messages;
             _resolver = resolver;
             _app = app;
             _appConfig = config;
-
-            _design = new DesignController(elements, _app, voice);
+            _design = design;
         }
 
         /// <inheritdoc cref="IState"/>

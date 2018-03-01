@@ -18,23 +18,17 @@ namespace CreateAR.SpirePlayer
         }
 
         [InjectElements("..btn-play")]
-        public ButtonWidget BtnPlay { get; private set; }
+        public ButtonWidget BtnPlay { get; set; }
 
         [InjectElements("..btn-new")]
-        public ButtonWidget BtnNew { get; private set; }
+        public ButtonWidget BtnNew { get; set; }
 
         [InjectElements("..btn-anchors")]
-        public ButtonWidget BtnAnchors { get; private set; }
+        public ButtonWidget BtnAnchors { get; set; }
 
         [InjectElements("..btn-clearall")]
-        public ButtonWidget BtnClearAll { get; private set; }
-
-        [InjectElements("..btn-quit")]
-        public ButtonWidget BtnQuit { get; private set; }
-
-        [InjectElements("..toggle-debugrender")]
-        public ToggleWidget ToggleDebugRender { get; private set; }
-
+        public ButtonWidget BtnClearAll { get; set; }
+        
         /// <summary>
         /// Called when we wish to go back.
         /// </summary>
@@ -59,17 +53,7 @@ namespace CreateAR.SpirePlayer
         /// Called when the clearall button is pressed.
         /// </summary>
         public event Action OnClearAll;
-
-        /// <summary>
-        /// Called when the quit button is pressed.
-        /// </summary>
-        public event Action OnQuit;
-
-        /// <summary>
-        /// Called when the DebugRender button is pressed.
-        /// </summary>
-        //public event Action<bool> OnDebugRender;
-
+        
         /// <inheritdoc />
         protected override void Awake()
         {
@@ -98,15 +82,7 @@ namespace CreateAR.SpirePlayer
                     OnShowAnchorMenu();
                 }
             };
-
-            BtnQuit.Activator.OnActivated += _ =>
-            {
-                if (OnShowAnchorMenu != null)
-                {
-                    OnShowAnchorMenu();
-                }
-            };
-
+            
             BtnNew.Activator.OnActivated += _ =>
             {
                 if (OnNew != null)
@@ -122,22 +98,6 @@ namespace CreateAR.SpirePlayer
                     OnClearAll();
                 }
             };
-
-            BtnQuit.Activator.OnActivated += _ =>
-            {
-                if (OnQuit != null)
-                {
-                    OnQuit();
-                }
-            };
-
-            /*ToggleDebugRender.OnValueChanged += _ =>
-            {
-                if (OnDebugRender != null)
-                {
-                    OnDebugRender(ToggleDebugRender.Value);
-                }
-            };*/
         }
     }
 }

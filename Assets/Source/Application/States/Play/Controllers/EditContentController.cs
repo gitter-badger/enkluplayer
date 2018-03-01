@@ -3,14 +3,14 @@ using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
-    [InjectVine("Prop.Edit")]
-    public class PropEditController : InjectableIUXController
+    /// <summary>
+    /// Controller for editing a prop.
+    /// </summary>
+    [InjectVine("Content.Edit")]
+    public class EditContentController : InjectableIUXController
     {
         private ContentDesignController _controller;
-
-        [InjectElements("..btn-rename")]
-        public ButtonWidget BtnRename { get; private set; }
-
+        
         [InjectElements("..btn-move")]
         public ButtonWidget BtnMove { get; private set; }
 
@@ -19,28 +19,18 @@ namespace CreateAR.SpirePlayer
 
         [InjectElements("..toggle-fade")]
         public ToggleWidget ToggleFade { get; private set; }
-
-        public event Action<ContentDesignController> OnRename;
+        
         public event Action<ContentDesignController> OnMove;
         public event Action<ContentDesignController> OnDelete;
 
         public void Initialize(ContentDesignController controller)
         {
             _controller = controller;
-
-            //BtnRename.Activator.OnActivated += Rename_OnActivated;
+            
             BtnMove.Activator.OnActivated += Move_OnActivated;
             BtnDelete.Activator.OnActivated += Delete_OnActivated;
         }
-
-        private void Rename_OnActivated(ActivatorPrimitive activatorPrimitive)
-        {
-            if (null != OnRename)
-            {
-                OnRename(_controller);
-            }
-        }
-
+        
         private void Move_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             if (null != OnMove)

@@ -8,8 +8,8 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the new item menu.
     /// </summary>
-    [InjectVine("Design.NewItem")]
-    public class NewItemController : InjectableIUXController
+    [InjectVine("Design.NewContent")]
+    public class NewContentController : InjectableIUXController
     {
         /// <summary>
         /// Internal class to group assets by tag.
