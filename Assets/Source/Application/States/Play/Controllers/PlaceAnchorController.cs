@@ -44,12 +44,15 @@ namespace CreateAR.SpirePlayer
                 {
                     OnOk(new ElementData
                     {
+                        Id = Guid.NewGuid().ToString(),
                         Type = ElementTypes.WORLD_ANCHOR,
                         Schema = new ElementSchemaData
                         {
                             Vectors =
                             {
-                                { "position", transform.position.ToVec() }
+                                { "position", PrefabContainer.GameObject.transform.position.ToVec() },
+                                { "rotation", PrefabContainer.GameObject.transform.rotation.eulerAngles.ToVec() },
+                                { "scale", PrefabContainer.GameObject.transform.localScale.ToVec() }
                             }
                         }
                     });

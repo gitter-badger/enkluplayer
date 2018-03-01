@@ -53,7 +53,7 @@ namespace CreateAR.SpirePlayer
             Element = element;
 
             _marker = Instantiate(_config.AnchorPrefab, transform);
-            _marker.transform.position = Vector3.zero;
+            _marker.transform.localPosition = Vector3.zero;
             _marker.transform.localRotation = Quaternion.identity;
 
             var materials = new List<Material>();
