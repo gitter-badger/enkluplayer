@@ -25,7 +25,12 @@ namespace CreateAR.SpirePlayer
         /// Elements!
         /// </summary>
         private readonly IElementFactory _elements;
-        
+
+        /// <summary>
+        /// Manages controllers for all elements.
+        /// </summary>
+        private readonly IElementControllerManager _controllers;
+
         /// <summary>
         /// All states.
         /// </summary>
@@ -97,6 +102,7 @@ namespace CreateAR.SpirePlayer
         public DesignController(
             IElementTxnManager txns,
             IElementFactory elements,
+            IElementControllerManager controllers,
             ApiController api,
 
             // design states
@@ -106,6 +112,7 @@ namespace CreateAR.SpirePlayer
         {
             _txns = txns;
             _elements = elements;
+            _controllers = controllers;
             _api = api;
 
             _states = new IDesignState[]
@@ -129,7 +136,7 @@ namespace CreateAR.SpirePlayer
             _app = app;
             _root = new GameObject("Design");
 
-            SetupDesignControllers();
+            SetupSceneControllers();
 
             if (null == Active)
             {
@@ -155,6 +162,8 @@ namespace CreateAR.SpirePlayer
         public void Teardown()
         {
             _fsm.Change(null);
+
+            _controllers.Active = false;
 
             _float.Destroy();
             _staticRoot.Destroy();
@@ -361,6 +370,8 @@ namespace CreateAR.SpirePlayer
                 _staticRoot.GameObject.transform.parent = _root.transform;
             }
 
+            _controllers.Active = true;
+
             // initialize states
             for (var i = 0; i < _states.Length; i++)
             {
@@ -378,7 +389,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Sets up all design controllers.
         /// </summary>
-        private void SetupDesignControllers()
+        private void SetupSceneControllers()
         {
             // create scene controllers
             var scenes = _txns.TrackedScenes;

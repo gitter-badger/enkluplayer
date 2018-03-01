@@ -264,7 +264,10 @@ namespace CreateAR.SpirePlayer
             for (int i = 0, len = _bindings.Count; i < len; i++)
             {
                 var binding = _bindings[i];
-                binding.Controllers.Add(AddController(binding, unityElement));
+                if (binding.Active)
+                {
+                    binding.Controllers.Add(AddController(binding, unityElement));
+                }
             }
         }
 
