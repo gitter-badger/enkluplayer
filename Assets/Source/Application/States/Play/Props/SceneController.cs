@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -35,6 +36,16 @@ namespace CreateAR.SpirePlayer
         /// Play mode configuration.
         /// </summary>
         private readonly PlayModeConfig _config;
+
+        /// <summary>
+        /// Provider.
+        /// </summary>
+        private readonly IWorldAnchorProvider _provider;
+
+        /// <summary>
+        /// Http.
+        /// </summary>
+        private readonly IHttpService _http;
 
         /// <summary>
         /// Receives update requests from Elements.
@@ -105,12 +116,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public SceneController(
             PlayModeConfig config,
+            IWorldAnchorProvider provider,
+            IHttpService http,
             IElementUpdateDelegate elementUpdateDelegate,
             ISceneUpdateDelegate sceneDelegate,
             string id,
             Element root)
         {
             _config = config;
+            _provider = provider;
+            _http = http;
             _elementUpdateDelegate = elementUpdateDelegate;
             _sceneDelegate = sceneDelegate;
             _root = root;
@@ -181,12 +196,11 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Creates an ElementController from an ElementData. The ElementData
-        /// is expected to have a valid Content Id.
+        /// Creates a ContentDesignController from an ElementData.
         /// </summary>
-        /// <param name="data">The propdata.</param>
+        /// <param name="data">The ElementData.</param>
         /// <returns></returns>
-        public IAsyncToken<ContentDesignController> Create(ElementData data)
+        public IAsyncToken<ContentDesignController> CreateContent(ElementData data)
         {
             var token = new AsyncToken<ContentDesignController>();
 
@@ -210,7 +224,37 @@ namespace CreateAR.SpirePlayer
 
             return token;
         }
-        
+
+        /// <summary>
+        /// Creates a AnchorDesignController from an ElementData.
+        /// </summary>
+        /// <param name="data">The ElementData.</param>
+        /// <returns></returns>
+        public IAsyncToken<AnchorDesignController> CreateAnchor(ElementData data)
+        {
+            var token = new AsyncToken<AnchorDesignController>();
+
+            _sceneDelegate
+                .Add(this, data)
+                .OnSuccess(element =>
+                {
+                    var anchor = element as WorldAnchorWidget;
+                    if (null == anchor)
+                    {
+                        token.Fail(new Exception("Element was not of type AnchorWidget."));
+                        return;
+                    }
+
+                    var controller = AnchorController(anchor);
+                    _anchorControllers.Add(controller);
+
+                    token.Succeed(controller);
+                })
+                .OnFailure(token.Fail);
+
+            return token;
+        }
+
         /// <summary>
         /// Destroys an Element by id.
         /// </summary>
@@ -286,7 +330,7 @@ namespace CreateAR.SpirePlayer
         private AnchorDesignController AnchorController(WorldAnchorWidget anchor)
         {
             var controller = anchor.GameObject.AddComponent<AnchorDesignController>();
-            controller.Initialize(_config, anchor);
+            controller.Initialize(_config, anchor, _provider, _http);
             controller.IsVisualEnabled = false;
 
             return controller;

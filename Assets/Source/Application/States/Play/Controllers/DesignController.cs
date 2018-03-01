@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -210,6 +209,7 @@ namespace CreateAR.SpirePlayer
             _placeAnchor = _staticRoot.AddComponent<PlaceAnchorController>();
             _placeAnchor.OnCancel += PlaceAnchor_OnCancel;
             _placeAnchor.OnOk += PlaceAnchor_OnOk;
+            _placeAnchor.enabled = false;
         }
 
         /// <summary>
@@ -262,12 +262,21 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Listens to prop.
+        /// Listens to content controller.
         /// </summary>
-        /// <param name="controller">The PropController.</param>
-        private void ListenToProp(ContentDesignController controller)
+        /// <param name="controller">The content..</param>
+        private void ListenToContentController(ContentDesignController controller)
         {
             controller.OnAdjust += Controller_OnAdjust;
+        }
+
+        /// <summary>
+        /// Listens to an anchor.
+        /// </summary>
+        /// <param name="anchor">The anchor.</param>
+        private void ListenToAnchorController(AnchorDesignController anchor)
+        {
+            //
         }
 
         /// <summary>
@@ -279,7 +288,7 @@ namespace CreateAR.SpirePlayer
             var controllers = _appController.Active.ContentControllers;
             for (int i = 0, len = controllers.Count; i < len; i++)
             {
-                ListenToProp(controllers[i]);
+                ListenToContentController(controllers[i]);
             }
 
             _splash.enabled = true;
@@ -462,16 +471,16 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the place menu wants to confirm placement.
         /// </summary>
-        /// <param name="propData">The prop.</param>
-        private void Place_OnConfirm(ElementData propData)
+        /// <param name="contentData">The prop.</param>
+        private void Place_OnConfirm(ElementData contentData)
         {
             _appController
                 .Active
-                .Create(propData)
-                .OnSuccess(ListenToProp)
+                .CreateContent(contentData)
+                .OnSuccess(ListenToContentController)
                 .OnFailure(exception =>
                 {
-                    Log.Error(this, "Could not place prop : {0}.", exception);
+                    Log.Error(this, "Could not place content : {0}.", exception);
                 });
 
             _place.enabled = false;
@@ -583,6 +592,15 @@ namespace CreateAR.SpirePlayer
         private void PlaceAnchor_OnOk(ElementData data)
         {
             _placeAnchor.enabled = false;
+            _anchors.enabled = true;
+
+            _appController
+                .Active
+                .CreateAnchor(data)
+                .OnSuccess(ListenToAnchorController)
+                .OnFailure(exception => Log.Error(this,
+                    "Could not create anchor : {0}.",
+                    exception));
         }
 
         /// <summary>

@@ -28,7 +28,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Prop for anchoring url.
         /// </summary>
-        private ElementSchemaProp<string> _anchorProp;
+        private ElementSchemaProp<int> _versionProp;
 
         /// <summary>
         /// Constructor.
@@ -51,8 +51,8 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LoadInternalBeforeChildren();
             
-            _anchorProp = Schema.GetOwn("anchorSrc", string.Empty);
-            _anchorProp.OnChanged += Anchor_OnChanged;
+            _versionProp = Schema.GetOwn("version", -1);
+            _versionProp.OnChanged += Version_OnChanged;
 
             UpdateWorldAnchor();
         }
@@ -68,7 +68,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _downloadToken = null;
             }
 
-            _anchorProp.OnChanged -= Anchor_OnChanged;
+            _versionProp.OnChanged -= Version_OnChanged;
         }
 
         /// <summary>
@@ -76,21 +76,39 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateWorldAnchor()
         {
+            // abort previous
             if (null != _downloadToken)
             {
                 _downloadToken.Abort();
                 _downloadToken = null;
             }
 
-            var url = _anchorProp.Value;
-            if (string.IsNullOrEmpty(url))
+            var version = _versionProp.Value;
+            if (-1 == version)
             {
+                // anchor has not completed initial upload yet
                 return;
             }
 
+            var url = string.Format(
+                "/v1/editor/app/{0}/scene/{1}/anchor/{2}",
+                "appId",
+                "sceneId",
+                Id);
+
             _downloadToken = _http
-                .Download(_anchorProp.Value)
-                .OnSuccess(response => _provider.Import(GameObject, response.Payload))
+                .Download(_http.UrlBuilder.Url(url))
+                .OnSuccess(response =>
+                {
+                    Log.Info(this, "Anchor downloaded. Importing.");
+
+                    _provider
+                        .Import(GameObject, response.Payload)
+                        .OnSuccess(_ => Log.Info(this, "Successfully imported anchor."))
+                        .OnFailure(exception => Log.Error(this,
+                            "Could not import anchor : {0}.",
+                            exception));
+                })
                 .OnFailure(exception => Log.Error(this, 
                     "Could not download {0} : {1}.",
                     url,
@@ -105,12 +123,12 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Called when the anchor URL changes.
+        /// Called when the file id changes.
         /// </summary>
-        private void Anchor_OnChanged(
-            ElementSchemaProp<string> prop,
-            string prev,
-            string next)
+        private void Version_OnChanged(
+            ElementSchemaProp<int> prop,
+            int prev,
+            int next)
         {
             UpdateWorldAnchor();
         }

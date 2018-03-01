@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages;
@@ -25,6 +26,16 @@ namespace CreateAR.SpirePlayer
         /// Pipe for all element updates.
         /// </summary>
         private readonly IElementTxnManager _txns;
+
+        /// <summary>
+        /// Provides anchoring.
+        /// </summary>
+        private readonly IWorldAnchorProvider _provider;
+
+        /// <summary>
+        /// Http service.
+        /// </summary>
+        private readonly IHttpService _http;
         
         /// <summary>
         /// Backing variable for Scenes prpoperty.
@@ -57,12 +68,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public AppController(
             ApiController api,
-            IElementTxnManager txns)
+            IElementTxnManager txns,
+            IWorldAnchorProvider provider,
+            IHttpService http)
         {
             Scenes = new ReadOnlyCollection<SceneController>(_sceneControllers);
 
             _api = api;
             _txns = txns;
+            _provider = provider;
+            _http = http;
         }
 
         /// <inheritdoc />
@@ -88,6 +103,8 @@ namespace CreateAR.SpirePlayer
                         var sceneId = scenes[i];
                         var controller = new SceneController(
                             _config,
+                            _provider,
+                            _http,
                             this, this,
                             sceneId,
                             _txns.Root(sceneId));
@@ -134,6 +151,8 @@ namespace CreateAR.SpirePlayer
                             {
                                 var controller = new SceneController(
                                     _config,
+                                    _provider,
+                                    _http,
                                     this, this,
                                     sceneId,
                                     _txns.Root(sceneId));
