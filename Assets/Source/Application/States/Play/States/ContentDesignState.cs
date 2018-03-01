@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer
 {
     public class ContentDesignState : IDesignState
     {
-        private readonly IAdminAppController _app;
+        private readonly IElementControllerManager _controllers;
 
         /// <summary>
         /// Design controller.
@@ -39,9 +39,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private EditContentController _editContent;
 
-        public ContentDesignState(IAdminAppController app)
+        public ContentDesignState(IElementControllerManager controllers)
         {
-            _app = app;
+            _controllers = controllers;
         }
 
         public void Initialize(
@@ -157,10 +157,10 @@ namespace CreateAR.SpirePlayer
         /// <param name="contentData">The prop.</param>
         private void Place_OnConfirm(ElementData contentData)
         {
-            _app
+            _design
                 .Active
-                .CreateContent(contentData)
-                .OnSuccess(controller => controller.OnAdjust += Controller_OnAdjust)
+                .Create(contentData)
+                //.OnSuccess(controller => controller.OnAdjust += Controller_OnAdjust)
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not place content : {0}.", exception);
@@ -241,7 +241,7 @@ namespace CreateAR.SpirePlayer
         {
             ClosePropControls();
 
-            _app.Active.Destroy(elementController.Element.Id);
+            _design.Active.Destroy(elementController.Element.Id);
 
             _dynamicRoot.Schema.Set("focus.visible", true);
 

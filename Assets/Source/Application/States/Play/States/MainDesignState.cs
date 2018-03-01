@@ -1,23 +1,24 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using System.Collections.Generic;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     public class MainDesignState : IDesignState
     {
-        private readonly IAdminAppController _appController;
+        private readonly IElementUpdateDelegate _elementUpdateDelegate;
+        private readonly IElementControllerManager _controllers;
 
         /// <summary>
         /// Design controller.
         /// </summary>
         private DesignController _design;
-
-        private GameObject _unityRoot;
-
+        
+        /// <summary>
+        /// Root of dynamic menus.
+        /// </summary>
         private Element _dynamicRoot;
-
-        private Element _staticRoot;
-
+        
         /// <summary>
         /// Splash menu.
         /// </summary>
@@ -32,10 +33,23 @@ namespace CreateAR.SpirePlayer
         /// Clear all menu.
         /// </summary>
         private ClearSceneController _clearScene;
-        
-        public MainDesignState(IAdminAppController app)
+
+        /// <summary>
+        /// Distance filter.
+        /// </summary>
+        private readonly DistanceElementControllerFilter _distanceFilter = new DistanceElementControllerFilter();
+
+        /// <summary>
+        /// Content filter.
+        /// </summary>
+        private readonly TypeElementControllerFilter _contentFilter = new TypeElementControllerFilter(typeof(ContentWidget));
+
+        public MainDesignState(
+            IElementUpdateDelegate elementUpdateDelegate,
+            IElementControllerManager controllers)
         {
-            _appController = app;
+            _elementUpdateDelegate = elementUpdateDelegate;
+            _controllers = controllers;
         }
 
         public void Initialize(
@@ -45,9 +59,7 @@ namespace CreateAR.SpirePlayer
             Element staticRoot)
         {
             _design = design;
-            _unityRoot = unityRoot;
             _dynamicRoot = dynamicRoot;
-            _staticRoot = staticRoot;
             
             // splash menu
             {
@@ -81,6 +93,15 @@ namespace CreateAR.SpirePlayer
 
         public void Enter(object context)
         {
+            _controllers
+                .Filter(_distanceFilter)
+                .Filter(_contentFilter)
+                .Add<ContentDesignController>(
+                    new ContentDesignController.ContentDesignControllerContext
+                    {
+                        Delegate = _elementUpdateDelegate
+                    });
+
             _splash.enabled = true;
         }
 
@@ -91,6 +112,11 @@ namespace CreateAR.SpirePlayer
 
         public void Exit()
         {
+            _controllers
+                .Remove<ContentDesignController>()
+                .Unfilter(_contentFilter)
+                .Unfilter(_distanceFilter);
+
             CloseAll();
         }
 
@@ -107,13 +133,16 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <summary>
-        /// Closes all PropController splashes
+        /// Closes all splash menus.
         /// </summary>
         private void CloseAllPropControllerSplashes()
         {
-            foreach (var prop in _appController.Active.ContentControllers)
+            var designControllers = new List<ContentDesignController>();
+            _controllers.All(designControllers);
+
+            for (var i = 0; i < designControllers.Count; i++)
             {
-                prop.HideSplashMenu();
+                designControllers[i].HideSplashMenu();
             }
         }
         
@@ -195,7 +224,7 @@ namespace CreateAR.SpirePlayer
         {
             _clearScene.enabled = false;
 
-            _appController.Active.DestroyAll();
+            _design.Active.DestroyAll();
 
             _dynamicRoot.Schema.Set("focus.visible", true);
             _mainMenu.enabled = true;

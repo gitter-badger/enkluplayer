@@ -1,14 +1,24 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Design mode controller for a ContentWidget.
     /// </summary>
-    public class ContentDesignController : MonoBehaviour
+    public class ContentDesignController : ElementDesignController
     {
+        /// <summary>
+        /// Context for this type of controller.
+        /// </summary>
+        public class ContentDesignControllerContext
+        {
+            /// <summary>
+            /// The delegate to push updates to.
+            /// </summary>
+            public IElementUpdateDelegate Delegate;
+        }
+
         /// <summary>
         /// Constants.
         /// </summary>
@@ -46,36 +56,20 @@ namespace CreateAR.SpirePlayer
         private ElementSchemaProp<Vec3> _positionProp;
         private ElementSchemaProp<Vec3> _rotationProp;
         private ElementSchemaProp<Vec3> _scaleProp;
-
-        /// <summary>
-        /// The Element.
-        /// </summary>
-        public ContentWidget Element { get; private set; }
-
-        /// <summary>
-        /// Additional data scene needs to store on this object.
-        /// </summary>
-        public SceneDesignController.SceneElementContext Context { get; private set; }
-
+        
         /// <summary>
         /// Called when adjust is requested.
         /// </summary>
         public event Action<ContentDesignController> OnAdjust;
-
-        /// <summary>
-        /// Initializes the controller. Updates are sent through the delegate.
-        /// </summary>
-        /// <param name="element">The content to watch.</param>
-        /// <param name="context">Additional data SceneController stores on this object.</param>
-        /// <param name="delegate">The delegate to push events through.</param>
-        public void Initialize(
-            ContentWidget element,
-            SceneDesignController.SceneElementContext context,
-            IElementUpdateDelegate @delegate)
+        
+        /// <inheritdoc />
+        public override void Initialize(Element element, object context)
         {
-            Element = element;
-            Context = context;
-            _delegate = @delegate;
+            base.Initialize(element, context);
+
+            var contentContext = (ContentDesignControllerContext) context;
+
+            _delegate = contentContext.Delegate;
             
             _positionProp = Element.Schema.Get<Vec3>("position");
             _rotationProp = Element.Schema.Get<Vec3>("rotation");
@@ -84,14 +78,12 @@ namespace CreateAR.SpirePlayer
             InitializeSplashMenu();
         }
 
-        /// <summary>
-        /// Stops the controller from updating data anymore.
-        /// </summary>
-        public void Uninitialize()
+        /// <inheritdoc />
+        public override void Uninitialize()
         {
-            Element = null;
-
             _delegate = null;
+
+            base.Uninitialize();
         }
         
         /// <summary>
@@ -147,15 +139,6 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
         {
-            // update world anchod line
-            if (null != Context)
-            {
-                Context.AnchorLine.Start = transform.position;
-                Context.AnchorLine.End = null == Context.ParentAnchor
-                    ? transform.position
-                    : Context.ParentAnchor.GameObject.transform.position;
-            }
-
             if (!_updatesEnabled)
             {
                 return;

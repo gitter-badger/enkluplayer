@@ -8,6 +8,11 @@ namespace CreateAR.SpirePlayer
     public interface IAppController
     {
         /// <summary>
+        /// Current App id.
+        /// </summary>
+        string Id { get; }
+
+        /// <summary>
         /// Initializes the manager. This should be called before any other calls.
         /// </summary>
         /// <param name="appId">The id of the app.</param>

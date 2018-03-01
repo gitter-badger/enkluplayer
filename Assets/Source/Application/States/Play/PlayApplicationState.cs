@@ -38,7 +38,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Manages app.
         /// </summary>
-        private readonly IAdminAppController _app;
+        private readonly IAppController _app;
 
         /// <summary>
         /// Controls design mode.
@@ -67,7 +67,7 @@ namespace CreateAR.SpirePlayer
             IBootstrapper bootstrapper,
             IMessageRouter messages,
             IScriptRequireResolver resolver,
-            IAdminAppController app,
+            IAppController app,
             ApplicationConfig config,
             DesignController design)
         {
@@ -121,7 +121,14 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "PlayApplicationState::Exit()");
 
-            _design.Teardown();
+            // teardown app
+            _app.Uninitialize();
+
+            // teardown designer
+            if (null != _design)
+            {
+                _design.Teardown();
+            }
             
             // unload playmode scene
             UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
@@ -143,35 +150,15 @@ namespace CreateAR.SpirePlayer
                 throw new Exception("Could not find PlayModeConfig.");
             }
 
-            // initialize with hardcoded app id
+            // initialize with app id
             _app
                 .Initialize(_appConfig.Play.AppId, config)
                 .OnSuccess(_ =>
                 {
                     Log.Info(this, "AppController initialized.");
 
-                    // create a default propset if there isn't one
-                    if (null == _app.Active)
-                    {
-                        Log.Info(this, "No active Scene, creating a default.");
-
-                        _app
-                            .Create()
-                            .OnSuccess(scene =>
-                            {
-                                // TODO: only with connection
-                                _design.Setup();
-                            })
-                            .OnFailure(exception =>
-                            {
-                                Log.Error(this, "Could not create Scene!");
-                            });
-                    }
-                    else
-                    {
-                        // TODO: only with connection
-                        _design.Setup();
-                    }
+                    // TODO: Only if some condition is true
+                    _design.Setup(_app);
                 })
                 .OnFailure(exception =>
                 {

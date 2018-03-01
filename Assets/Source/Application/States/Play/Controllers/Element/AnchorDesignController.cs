@@ -9,8 +9,15 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
-    public class AnchorDesignController : MonoBehaviour
+    public class AnchorDesignController : ElementDesignController
     {
+        public class AnchorDesignControllerContext
+        {
+            public PlayModeConfig Config;
+            public IWorldAnchorProvider Provider;
+            public IHttpService Http;
+        }
+
         private const float SAVE_MIN_SECS = 3f;
 
         private PlayModeConfig _config;
@@ -25,9 +32,7 @@ namespace CreateAR.SpirePlayer
 
         private DateTime _lastSave = DateTime.MinValue;
         private AsyncToken<Void> _exportToken;
-
-        public WorldAnchorWidget Element { get; private set; }
-
+        
         public bool IsVisualEnabled
         {
             get
@@ -40,18 +45,16 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        public void Initialize(
-            PlayModeConfig config,
-            WorldAnchorWidget element,
-            IWorldAnchorProvider provider,
-            IHttpService http)
+        public override void Initialize(Element element, object context)
         {
-            _config = config;
-            _provider = provider;
-            _http = http;
+            base.Initialize(element, context);
 
-            Element = element;
+            var anchorContext = (AnchorDesignControllerContext) context;
 
+            _config = anchorContext.Config;
+            _provider = anchorContext.Provider;
+            _http = anchorContext.Http;
+            
             _marker = Instantiate(_config.AnchorPrefab, transform);
             _marker.transform.localPosition = Vector3.zero;
             _marker.transform.localRotation = Quaternion.identity;
@@ -95,7 +98,7 @@ namespace CreateAR.SpirePlayer
 
             // first, export anchor
             _provider
-                .Export(Element.GameObject)
+                .Export(((WorldAnchorWidget) Element).GameObject)
                 .OnSuccess(bytes =>
                 {
                     // next, upload anchor

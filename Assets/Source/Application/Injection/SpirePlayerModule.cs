@@ -150,8 +150,7 @@ namespace CreateAR.SpirePlayer
                 }
 
                 binder.Bind<IAppController>().To<AppController>();
-                binder.Bind<IAdminAppController>().To<AppController>();
-
+                
                 // service manager + application
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IMessageRouter>(),
@@ -249,9 +248,15 @@ namespace CreateAR.SpirePlayer
 
             // design
             {
-                binder.Bind<MainDesignState>().To<MainDesignState>();
-                binder.Bind<ContentDesignState>().To<ContentDesignState>();
-                binder.Bind<AnchorDesignState>().To<AnchorDesignState>();
+                binder.Bind<IElementControllerManager>().To<ElementControllerManager>().ToSingleton();
+
+                // states
+                {
+                    binder.Bind<MainDesignState>().To<MainDesignState>();
+                    binder.Bind<ContentDesignState>().To<ContentDesignState>();
+                    binder.Bind<AnchorDesignState>().To<AnchorDesignState>();
+                }
+                
                 binder.Bind<DesignController>().To<DesignController>().ToSingleton();
             }
 

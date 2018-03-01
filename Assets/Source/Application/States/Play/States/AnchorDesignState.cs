@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -6,7 +7,10 @@ namespace CreateAR.SpirePlayer
 {
     public class AnchorDesignState : IDesignState
     {
-        private readonly IAdminAppController _app;
+        private readonly IElementControllerManager _controllers;
+        private readonly PlayModeConfig _playConfig;
+        private readonly IHttpService _http;
+        private readonly IWorldAnchorProvider _provider;
 
         /// <summary>
         /// Design controller.
@@ -23,9 +27,26 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private PlaceAnchorController _placeAnchor;
 
-        public AnchorDesignState(IAdminAppController app)
+        /// <summary>
+        /// Distance filter.
+        /// </summary>
+        private readonly DistanceElementControllerFilter _distanceFilter = new DistanceElementControllerFilter();
+
+        /// <summary>
+        /// Content filter.
+        /// </summary>
+        private readonly TypeElementControllerFilter _anchorFilter = new TypeElementControllerFilter(typeof(WorldAnchorWidget));
+
+        public AnchorDesignState(
+            IElementControllerManager controllers,
+            PlayModeConfig playConfig,
+            IHttpService http,
+            IWorldAnchorProvider provider)
         {
-            _app = app;
+            _controllers = controllers;
+            _playConfig = playConfig;
+            _http = http;
+            _provider = provider;
         }
 
         public void Initialize(
@@ -57,7 +78,15 @@ namespace CreateAR.SpirePlayer
 
         public void Enter(object context)
         {
-            
+            _controllers
+                .Filter(_distanceFilter)
+                .Filter(_anchorFilter)
+                .Add<AnchorDesignController>(new AnchorDesignController.AnchorDesignControllerContext
+                {
+                    Config = _playConfig,
+                    Http = _http,
+                    Provider = _provider
+                });
         }
 
         public void Update(float dt)
@@ -67,7 +96,18 @@ namespace CreateAR.SpirePlayer
 
         public void Exit()
         {
-            
+            _controllers
+                .Unfilter(_distanceFilter)
+                .Unfilter(_anchorFilter)
+                .Remove<AnchorDesignController>();
+
+            CloseAll();
+        }
+
+        private void CloseAll()
+        {
+            _anchors.enabled = false;
+            _placeAnchor.enabled = false;
         }
 
         /// <summary>
@@ -76,7 +116,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="value">The value.</param>
         private void Anchors_OnShowChildrenChanged(bool value)
         {
-            _app.Active.ShowAnchorChildren = value;
+            //_design.Active.ShowAnchorChildren = value;
         }
 
         /// <summary>
@@ -108,13 +148,10 @@ namespace CreateAR.SpirePlayer
             _placeAnchor.enabled = false;
             _anchors.enabled = true;
 
-            _app
+            _design
                 .Active
-                .CreateAnchor(data)
-                .OnSuccess(controller =>
-                {
-                    _design.ChangeState<MainDesignState>();
-                })
+                .Create(data)
+                .OnSuccess(element => _design.ChangeState<MainDesignState>())
                 .OnFailure(exception => Log.Error(this,
                     "Could not create anchor : {0}.",
                     exception));
