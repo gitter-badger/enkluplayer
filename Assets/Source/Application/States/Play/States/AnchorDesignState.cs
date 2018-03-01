@@ -8,7 +8,6 @@ namespace CreateAR.SpirePlayer
     public class AnchorDesignState : IDesignState
     {
         private readonly IElementControllerManager _controllers;
-        private readonly PlayModeConfig _playConfig;
         private readonly IHttpService _http;
         private readonly IWorldAnchorProvider _provider;
 
@@ -39,12 +38,10 @@ namespace CreateAR.SpirePlayer
 
         public AnchorDesignState(
             IElementControllerManager controllers,
-            PlayModeConfig playConfig,
             IHttpService http,
             IWorldAnchorProvider provider)
         {
             _controllers = controllers;
-            _playConfig = playConfig;
             _http = http;
             _provider = provider;
         }
@@ -83,7 +80,7 @@ namespace CreateAR.SpirePlayer
                 .Filter(_anchorFilter)
                 .Add<AnchorDesignController>(new AnchorDesignController.AnchorDesignControllerContext
                 {
-                    Config = _playConfig,
+                    Config = _design.Config,
                     Http = _http,
                     Provider = _provider
                 });

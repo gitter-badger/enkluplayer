@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages;
@@ -31,17 +30,7 @@ namespace CreateAR.SpirePlayer
         /// All states.
         /// </summary>
         private readonly IDesignState[] _states;
-
-        /// <summary>
-        /// Provides anchoring.
-        /// </summary>
-        private readonly IWorldAnchorProvider _provider;
-
-        /// <summary>
-        /// Http service.
-        /// </summary>
-        private readonly IHttpService _http;
-
+        
         /// <summary>
         /// Trellis API.
         /// </summary>
@@ -98,13 +87,16 @@ namespace CreateAR.SpirePlayer
         public SceneDesignController Active { get; set; }
 
         /// <summary>
+        /// Config for play mode.
+        /// </summary>
+        public PlayModeConfig Config { get; private set; }
+
+        /// <summary>
         /// Constuctor.
         /// </summary>
         public DesignController(
             IElementTxnManager txns,
             IElementFactory elements,
-            IWorldAnchorProvider provider,
-            IHttpService http,
             ApiController api,
 
             // design states
@@ -114,8 +106,6 @@ namespace CreateAR.SpirePlayer
         {
             _txns = txns;
             _elements = elements;
-            _provider = provider;
-            _http = http;
             _api = api;
 
             _states = new IDesignState[]
@@ -133,8 +123,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Starts controllers.
         /// </summary>
-        public void Setup(IAppController app)
+        public void Setup(PlayModeConfig config, IAppController app)
         {
+            Config = config;
             _app = app;
             _root = new GameObject("Design");
 

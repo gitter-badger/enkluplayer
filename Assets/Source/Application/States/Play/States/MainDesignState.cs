@@ -6,7 +6,9 @@ namespace CreateAR.SpirePlayer
 {
     public class MainDesignState : IDesignState
     {
-        private readonly IElementUpdateDelegate _elementUpdateDelegate;
+        /// <summary>
+        /// Manages controllers.
+        /// </summary>
         private readonly IElementControllerManager _controllers;
 
         /// <summary>
@@ -44,11 +46,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly TypeElementControllerFilter _contentFilter = new TypeElementControllerFilter(typeof(ContentWidget));
 
-        public MainDesignState(
-            IElementUpdateDelegate elementUpdateDelegate,
-            IElementControllerManager controllers)
+        public MainDesignState(IElementControllerManager controllers)
         {
-            _elementUpdateDelegate = elementUpdateDelegate;
             _controllers = controllers;
         }
 
@@ -99,7 +98,7 @@ namespace CreateAR.SpirePlayer
                 .Add<ContentDesignController>(
                     new ContentDesignController.ContentDesignControllerContext
                     {
-                        Delegate = _elementUpdateDelegate
+                        Delegate = _design
                     });
 
             _splash.enabled = true;
