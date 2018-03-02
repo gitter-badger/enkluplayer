@@ -76,7 +76,15 @@ namespace CreateAR.SpirePlayer
 
             InitializeSplashMenu();
         }
-        
+
+        /// <inheritdoc />
+        public override void Uninitialize()
+        {
+            base.Uninitialize();
+
+            UninitializeSplashController();
+        }
+
         /// <summary>
         /// Hides the splash menu.
         /// </summary>
@@ -122,11 +130,21 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void InitializeSplashMenu()
         {
-            _splashController = gameObject.AddComponent<ContentSplashController>();
+            _splashController = gameObject.GetComponent<ContentSplashController>() ?? gameObject.AddComponent<ContentSplashController>();
             _splashController.OnOpen += Splash_OnOpen;
             _splashController.Initialize(Element.Schema.Get<string>("name").Value);
+            _splashController.enabled = true;
         }
-        
+
+        /// <summary>
+        /// Uninits the splash controller.
+        /// </summary>
+        private void UninitializeSplashController()
+        {
+            _splashController.OnOpen -= Splash_OnOpen;
+            _splashController.enabled = false;
+        }
+
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
         {

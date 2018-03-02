@@ -14,7 +14,7 @@ namespace CreateAR.SpirePlayer
 
         public virtual void Uninitialize()
         {
-            Element = null;
+            //
         }
     }
 }
