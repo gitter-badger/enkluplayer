@@ -5,10 +5,24 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Design state for editing anchors.
+    /// </summary>
     public class AnchorDesignState : IDesignState
     {
+        /// <summary>
+        /// Manages controllers on elements.
+        /// </summary>
         private readonly IElementControllerManager _controllers;
+
+        /// <summary>
+        /// Makes Http requests.
+        /// </summary>
         private readonly IHttpService _http;
+
+        /// <summary>
+        /// Provides anchor import/export.
+        /// </summary>
         private readonly IWorldAnchorProvider _provider;
 
         /// <summary>
@@ -36,6 +50,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly TypeElementControllerFilter _anchorFilter = new TypeElementControllerFilter(typeof(WorldAnchorWidget));
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public AnchorDesignState(
             IElementControllerManager controllers,
             IHttpService http,
@@ -46,6 +63,7 @@ namespace CreateAR.SpirePlayer
             _provider = provider;
         }
 
+        /// <inheritdoc />
         public void Initialize(
             DesignController design,
             GameObject unityRoot,
@@ -73,6 +91,7 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc />
         public void Enter(object context)
         {
             Log.Info(this, "Entering {0}", GetType().Name);
@@ -88,11 +107,13 @@ namespace CreateAR.SpirePlayer
                 });
         }
 
+        /// <inheritdoc />
         public void Update(float dt)
         {
             
         }
 
+        /// <inheritdoc />
         public void Exit()
         {
             _controllers
@@ -105,6 +126,9 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Exited {0}", GetType().Name);
         }
 
+        /// <summary>
+        /// Closes all menus.
+        /// </summary>
         private void CloseAll()
         {
             _anchors.enabled = false;

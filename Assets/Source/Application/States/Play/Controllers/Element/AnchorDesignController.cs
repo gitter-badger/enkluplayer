@@ -9,12 +9,29 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Design controller for anchor widgets.
+    /// </summary>
     public class AnchorDesignController : ElementDesignController
     {
+        /// <summary>
+        /// The context passed in.
+        /// </summary>
         public class AnchorDesignControllerContext
         {
+            /// <summary>
+            /// Configuration for playmode.
+            /// </summary>
             public PlayModeConfig Config;
+
+            /// <summary>
+            /// Provides world anchor import/export.
+            /// </summary>
             public IWorldAnchorProvider Provider;
+
+            /// <summary>
+            /// Http service.
+            /// </summary>
             public IHttpService Http;
         }
 

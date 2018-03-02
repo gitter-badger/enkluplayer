@@ -1,5 +1,4 @@
-﻿using CreateAR.Commons.Unity.Async;
-using CreateAR.SpirePlayer.IUX;
+﻿using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {

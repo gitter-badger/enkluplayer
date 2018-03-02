@@ -71,6 +71,7 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc />
         public void Enter(object context)
         {
             Log.Info("Entering {0}.", GetType().Name);
@@ -89,11 +90,13 @@ namespace CreateAR.SpirePlayer
             _editContent.enabled = true;
         }
 
+        /// <inheritdoc />
         public void Update(float dt)
         {
             
         }
 
+        /// <inheritdoc />
         public void Exit()
         {
             CloseAll();
@@ -101,7 +104,10 @@ namespace CreateAR.SpirePlayer
             Log.Info("Exiting {0}.", GetType().Name);
         }
 
-        public void CloseAll()
+        /// <summary>
+        /// Closes all dialogs.
+        /// </summary>
+        private void CloseAll()
         {
             _adjustContent.enabled = false;
             _editContent.enabled = false;
