@@ -271,33 +271,26 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        private void Txns_OnSceneBeforeUntracked(string sceneId)
+        private void ElementRemoved(Element root)
         {
-            var root = _txns.Root(sceneId);
-            if (_roots.Remove(root))
+            // gather all unity elements
+            _elementScratch.Clear();
+            AddUnityElements(root, _elementScratch);
+
+            // remove all controllers
+            for (var i = _elementScratch.Count - 1; i >= 0; i--)
             {
-                // gather all unity elements
-                _elementScratch.Clear();
-                AddUnityElements(root, _elementScratch);
+                var element = _elementScratch[i];
 
-                // remove all controllers
-                for (var i = _elementScratch.Count - 1; i >= 0; i--)
+                if (_filteredElements.Remove(element))
                 {
-                    var element = _elementScratch[i];
-
-                    if (_filteredElements.Remove(element))
-                    {
-                        RemoveControllers(element);
-                    }
+                    RemoveControllers(element);
                 }
             }
         }
 
-        private void Txns_OnSceneAfterTracked(string sceneId)
+        private void ElementAdded(Element root)
         {
-            var root = _txns.Root(sceneId);
-            _roots.Add(root);
-
             // gather all unity elements
             _elementScratch.Clear();
             AddUnityElements(root, _elementScratch);
@@ -306,13 +299,48 @@ namespace CreateAR.SpirePlayer
             for (var i = _elementScratch.Count - 1; i >= 0; i--)
             {
                 var element = _elementScratch[i];
-                if (Include((Element) element))
+                if (Include((Element)element))
                 {
                     _filteredElements.Add(element);
 
                     AddControllerToAllBindings(element);
                 }
             }
+        }
+
+        private void Txns_OnSceneBeforeUntracked(string sceneId)
+        {
+            var root = _txns.Root(sceneId);
+            if (_roots.Remove(root))
+            {
+                // stop listening
+                root.OnChildAdded -= SceneRoot_OnChildAdded;
+                root.OnChildRemoved -= SceneRoot_OnChildRemoved;
+
+                ElementRemoved(root);
+            }
+        }
+
+        private void Txns_OnSceneAfterTracked(string sceneId)
+        {
+            var root = _txns.Root(sceneId);
+            _roots.Add(root);
+
+            ElementAdded(root);
+
+            // listen for future child updates
+            root.OnChildAdded += SceneRoot_OnChildAdded;
+            root.OnChildRemoved += SceneRoot_OnChildRemoved;
+        }
+        
+        private void SceneRoot_OnChildAdded(Element root, Element element)
+        {
+            ElementAdded(element);
+        }
+
+        private void SceneRoot_OnChildRemoved(Element root, Element element)
+        {
+            ElementRemoved(element);
         }
     }
 }
