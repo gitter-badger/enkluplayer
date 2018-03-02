@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -58,6 +59,7 @@ namespace CreateAR.SpirePlayer
             {
                 _editContent = unityRoot.AddComponent<EditContentController>();
                 _editContent.OnMove += Edit_OnMove;
+                _editContent.OnReparent += Edit_OnReparent;
                 _editContent.OnDelete += Edit_OnDelete;
                 _editContent.enabled = false;
             }
@@ -74,7 +76,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Enter(object context)
         {
-            Log.Info("Entering {0}.", GetType().Name);
+            Log.Info(this, "Entering {0}.", GetType().Name);
 
             var controller = (ContentDesignController) context;
 
@@ -101,7 +103,7 @@ namespace CreateAR.SpirePlayer
         {
             CloseAll();
 
-            Log.Info("Exiting {0}.", GetType().Name);
+            Log.Info(this, "Exiting {0}.", GetType().Name);
         }
 
         /// <summary>
@@ -141,7 +143,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called to move the prop.
+        /// Called to move the content.
         /// </summary>
         /// <param name="elementController">The controller.</param>
         private void Edit_OnMove(ContentDesignController elementController)
@@ -153,6 +155,17 @@ namespace CreateAR.SpirePlayer
 
             _move.Initialize(elementController);
             _move.enabled = true;
+        }
+
+        /// <summary>
+        /// Called to reparent.
+        /// </summary>
+        /// <param name="controller">The controller.</param>
+        private void Edit_OnReparent(ContentDesignController controller)
+        {
+            CloseAll();
+
+            _design.ChangeState<ReparentDesignState>();
         }
 
         /// <summary>

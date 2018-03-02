@@ -80,7 +80,7 @@ namespace CreateAR.SpirePlayer
         /// Root element of static menus.
         /// </summary>
         private ContainerWidget _staticRoot;
-
+        
         /// <summary>
         /// Scenes.
         /// </summary>
@@ -137,6 +137,7 @@ namespace CreateAR.SpirePlayer
             Config = config;
             _app = app;
             _root = new GameObject("Design");
+            _root.AddComponent<LineManager>();
 
             SetupSceneControllers();
 

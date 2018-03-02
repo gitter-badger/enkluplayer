@@ -20,16 +20,21 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..btn-move")]
         public ButtonWidget BtnMove { get; private set; }
 
+        [InjectElements("..btn-setparent")]
+        public ButtonWidget BtnReparent { get; private set; }
+
         [InjectElements("..btn-delete")]
         public ButtonWidget BtnDelete { get; private set; }
-
-        [InjectElements("..toggle-fade")]
-        public ToggleWidget ToggleFade { get; private set; }
         
         /// <summary>
         /// Called when a move is requested.
         /// </summary>
         public event Action<ContentDesignController> OnMove;
+
+        /// <summary>
+        /// Called when a reparent is requested.
+        /// </summary>
+        public event Action<ContentDesignController> OnReparent;
 
         /// <summary>
         /// Called when a delete is requested.
@@ -45,6 +50,7 @@ namespace CreateAR.SpirePlayer
             _controller = controller;
             
             BtnMove.Activator.OnActivated += Move_OnActivated;
+            BtnReparent.Activator.OnActivated += Reparent_OnActivated;
             BtnDelete.Activator.OnActivated += Delete_OnActivated;
         }
         
@@ -57,6 +63,18 @@ namespace CreateAR.SpirePlayer
             if (null != OnMove)
             {
                 OnMove(_controller);
+            }
+        }
+
+        /// <summary>
+        /// Called when the reparent button is activated.
+        /// </summary>
+        /// <param name="activatorPrimitive">The activator.</param>
+        private void Reparent_OnActivated(ActivatorPrimitive activatorPrimitive)
+        {
+            if (null != OnReparent)
+            {
+                OnReparent(_controller);
             }
         }
 

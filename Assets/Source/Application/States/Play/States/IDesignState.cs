@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer
     public interface IDesignState : IState
     {
         /// <summary>
-        /// Called just before enter.
+        /// Called once for the lifetime of the object to initialize the state.
         /// </summary>
         /// <param name="design">The design controller.</param>
         /// <param name="unityRoot">The root to add unity components.</param>

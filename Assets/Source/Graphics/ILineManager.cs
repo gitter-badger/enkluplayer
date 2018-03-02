@@ -32,6 +32,11 @@ namespace CreateAR.SpirePlayer
         /// Thickness of line.
         /// </summary>
         public float Thickness;
+
+        /// <summary>
+        /// True iff line should be drawn.
+        /// </summary>
+        public bool Enabled;
     }
 
     /// <summary>
