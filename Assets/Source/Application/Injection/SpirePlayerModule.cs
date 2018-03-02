@@ -253,7 +253,8 @@ namespace CreateAR.SpirePlayer
                 // states
                 {
                     binder.Bind<MainDesignState>().To<MainDesignState>();
-                    binder.Bind<ContentDesignState>().To<ContentDesignState>();
+                    binder.Bind<NewContentDesignState>().To<NewContentDesignState>();
+                    binder.Bind<EditContentDesignState>().To<EditContentDesignState>();
                     binder.Bind<AnchorDesignState>().To<AnchorDesignState>();
                 }
 

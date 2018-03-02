@@ -197,7 +197,7 @@ namespace CreateAR.SpirePlayer
             _dynamicRoot.Schema.Set("focus.visible", false);
 
             // content design!
-            _design.ChangeState<ContentDesignState>();
+            _design.ChangeState<NewContentDesignState>();
         }
 
         /// <summary>

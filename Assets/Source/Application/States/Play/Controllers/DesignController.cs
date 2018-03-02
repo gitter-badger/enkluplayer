@@ -107,7 +107,8 @@ namespace CreateAR.SpirePlayer
 
             // design states
             MainDesignState main,
-            ContentDesignState content,
+            NewContentDesignState newContent,
+            EditContentDesignState editContent,
             AnchorDesignState anchors)
         {
             _txns = txns;
@@ -118,7 +119,8 @@ namespace CreateAR.SpirePlayer
             _states = new IDesignState[]
             {
                 main,
-                content,
+                newContent,
+                editContent,
                 anchors
             };
 
@@ -175,9 +177,9 @@ namespace CreateAR.SpirePlayer
         /// Changes design state.
         /// </summary>
         /// <typeparam name="T">The type of design state.</typeparam>
-        public void ChangeState<T>() where T : IDesignState
+        public void ChangeState<T>(object context = null) where T : IDesignState
         {
-            _fsm.Change<T>();
+            _fsm.Change<T>(context);
         }
 
         public IAsyncToken<SceneDesignController> Create()
