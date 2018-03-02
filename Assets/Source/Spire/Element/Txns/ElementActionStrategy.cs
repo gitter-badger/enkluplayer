@@ -210,7 +210,49 @@ namespace CreateAR.SpirePlayer
             return true;
         }
 
-        //[Conditional("LOGGING_VERBOSE")]
+        /// <inheritdoc />
+        public bool ApplyMoveAction(ElementActionData action, out string error)
+        {
+            // find element (non-root only)
+            var element = Element.FindOne<Element>(".." + action.ElementId);
+            if (null == element)
+            {
+                error = string.Format(
+                    "Could not find element with id '{0}'.",
+                    action.ElementId);
+                return false;
+            }
+
+            // find parent
+            Element parent = null;
+            if (Element.Id == action.ParentId)
+            {
+                parent = Element;
+            }
+            else
+            {
+                parent = Element.FindOne<Element>(".." + action.ParentId);
+            }
+
+            if (null == parent)
+            {
+                error = string.Format(
+                    "Could not find parent with id '{0}'.",
+                    action.ParentId);
+                return false;
+            }
+
+            parent.AddChild(element);
+            element.Schema.Set("position", (Vec3) action.Value);
+
+            error = string.Empty;
+            return true;
+        }
+
+        /// <summary>
+        /// Verbose logging method.
+        /// </summary>
+        [Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string message, params object[] replacements)
         {
             Log.Info(this, message, replacements);

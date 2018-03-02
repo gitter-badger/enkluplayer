@@ -28,6 +28,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private ReparentDesignControllerContext _context;
 
+        /// <summary>
+        /// Selection menu.
+        /// </summary>
+        private ElementSelectionMenuController _selectionMenu;
+
         /// <inheritdoc />
         public override void Initialize(Element element, object context)
         {
@@ -36,8 +41,10 @@ namespace CreateAR.SpirePlayer
             _context = (ReparentDesignControllerContext) context;
             _context.Lines.Add(_line);
             _context.Lines.IsEnabled = true;
-        }
 
+            InitializeSelectionMenu();
+        }
+        
         /// <inheritdoc />
         public override void Uninitialize()
         {
@@ -45,8 +52,10 @@ namespace CreateAR.SpirePlayer
 
             _context.Lines.Remove(_line);
             _context.Lines.IsEnabled = false;
-        }
 
+            UninitializeSelectionMenu();
+        }
+        
         /// <summary>
         /// Update the line to parent.
         /// </summary>
@@ -88,6 +97,24 @@ namespace CreateAR.SpirePlayer
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Turns on the selection menu.
+        /// </summary>
+        private void InitializeSelectionMenu()
+        {
+            _selectionMenu = gameObject.GetComponent<ElementSelectionMenuController>()
+                       ?? gameObject.AddComponent<ElementSelectionMenuController>();
+            _selectionMenu.enabled = true;
+        }
+
+        /// <summary>
+        /// Turns off the selection menu.
+        /// </summary>
+        private void UninitializeSelectionMenu()
+        {
+            _selectionMenu.enabled = false;
         }
     }
 }

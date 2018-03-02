@@ -4,21 +4,40 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// State for reparenting.
+    /// </summary>
     public class ReparentDesignState : IDesignState
     {
+        /// <summary>
+        /// Manages controllers.
+        /// </summary>
         private readonly IElementControllerManager _controllers;
 
+        /// <summary>
+        /// Filter.
+        /// </summary>
         private readonly DistanceElementControllerFilter _distance = new DistanceElementControllerFilter();
 
+        /// <summary>
+        /// Designer.
+        /// </summary>
         private DesignController _design;
 
+        /// <summary>
+        /// Unity root.
+        /// </summary>
         private GameObject _unityRoot;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public ReparentDesignState(IElementControllerManager controllers)
         {
             _controllers = controllers;
         }
 
+        /// <inheritdoc />
         public void Initialize(
             DesignController design,
             GameObject unityRoot,
@@ -29,6 +48,7 @@ namespace CreateAR.SpirePlayer
             _unityRoot = unityRoot;
         }
 
+        /// <inheritdoc />
         public void Enter(object context)
         {
             Log.Info(this, "Entering {0}.", GetType().Name);
@@ -41,11 +61,13 @@ namespace CreateAR.SpirePlayer
                 });
         }
 
+        /// <inheritdoc />
         public void Update(float dt)
         {
             
         }
 
+        /// <inheritdoc />
         public void Exit()
         {
             _controllers

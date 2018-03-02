@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Test.UI;
@@ -119,6 +120,23 @@ namespace CreateAR.SpirePlayer.Test.Txn
             _store.Apply(txn);
 
             Assert.IsNull(_root.FindOne<Element>("..b"));
+        }
+
+        [Test]
+        public void ApplyMove()
+        {
+            var newLocal = new Vec3(1, 12, 0);
+            var txn = new ElementTxn("test").Move("b", "root", newLocal);
+
+            _store.Apply(txn);
+
+            var b = _root.FindOne<Element>("..b");
+            Assert.AreEqual("root", b.Parent.Id);
+
+            var pos = b.Schema.Get<Vec3>("position").Value;
+            Assert.IsTrue(Math.Abs(newLocal.x - pos.x) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(newLocal.y - pos.y) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(newLocal.z - pos.z) < Mathf.Epsilon);
         }
 
         [Test]

@@ -104,6 +104,29 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Creates a move element action and returns self.
+        /// </summary>
+        /// <param name="elementId">The id of the element.</param>
+        /// <param name="parentId">The id of the new parent.</param>
+        /// <param name="newPosition">The local position of the element after the move.</param>
+        /// <returns></returns>
+        public ElementTxn Move(
+            string elementId,
+            string parentId,
+            Vec3 newPosition)
+        {
+            Actions.Add(new ElementActionData
+            {
+                Type = ElementActionTypes.MOVE,
+                ElementId = elementId,
+                ParentId = parentId,
+                Value = newPosition
+            });
+
+            return this;
+        }
+
+        /// <summary>
         /// Creates an update action and returns self.
         /// </summary>
         /// <param name="elementId">Id of the element to update.</param>
