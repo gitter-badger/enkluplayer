@@ -54,7 +54,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// True iff updates should be pushed to Schema.
         /// </summary>
-        private bool _updatesEnabled = true;
+        private bool _updatesEnabled = false;
 
         /// <summary>
         /// Props.
@@ -83,6 +83,8 @@ namespace CreateAR.SpirePlayer
             base.Uninitialize();
 
             UninitializeSplashController();
+
+            _updatesEnabled = false;
         }
 
         /// <summary>
@@ -171,11 +173,11 @@ namespace CreateAR.SpirePlayer
 
             // check for position changes
             {
-                if (!trans.position.Approximately(
+                if (!trans.localPosition.Approximately(
                     _positionProp.Value.ToVector(),
                     epsilon))
                 {
-                    _positionProp.Value = trans.position.ToVec();
+                    _positionProp.Value = trans.localPosition.ToVec();
 
                     _context.Delegate.Update(Element, "position", _positionProp.Value);
 
@@ -185,11 +187,11 @@ namespace CreateAR.SpirePlayer
 
             // check for rotation changes
             {
-                if (!trans.rotation.eulerAngles.Approximately(
+                if (!trans.localRotation.eulerAngles.Approximately(
                     _rotationProp.Value.ToVector(),
                     epsilon))
                 {
-                    _rotationProp.Value = trans.rotation.eulerAngles.ToVec();
+                    _rotationProp.Value = trans.localRotation.eulerAngles.ToVec();
 
                     _context.Delegate.Update(Element, "rotation", _rotationProp.Value);
 

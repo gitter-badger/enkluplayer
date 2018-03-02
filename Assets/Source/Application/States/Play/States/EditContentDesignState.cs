@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -35,6 +34,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private MoveContentController _move;
 
+        /// <summary>
+        /// Content controller.
+        /// </summary>
+        private ContentDesignController _controller;
+
+        /// <inheritdoc />
         public void Initialize(
             DesignController design,
             GameObject unityRoot,
@@ -49,10 +54,10 @@ namespace CreateAR.SpirePlayer
                 _adjustContent = unityRoot.AddComponent<AdjustContentController>();
                 _adjustContent.OnExit += PropAdjust_OnExit;
                 _adjustContent.enabled = false;
-                _adjustContent.SliderRotate.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
-                _adjustContent.SliderX.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
-                _adjustContent.SliderY.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
-                _adjustContent.SliderZ.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
+                _adjustContent.SliderRotate.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
+                _adjustContent.SliderX.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
+                _adjustContent.SliderY.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
+                _adjustContent.SliderZ.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
             }
 
             // edit content
@@ -78,17 +83,17 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Entering {0}.", GetType().Name);
 
-            var controller = (ContentDesignController) context;
+            _controller = (ContentDesignController) context;
 
             // hide the splash on the controller
-            controller.HideSplashMenu();
+            _controller.HideSplashMenu();
 
             _dynamicRoot.Schema.Set("focus.visible", false);
 
-            _adjustContent.Initialize(controller);
+            _adjustContent.Initialize(_controller);
             _adjustContent.enabled = true;
 
-            _editContent.Initialize(controller);
+            _editContent.Initialize(_controller);
             _editContent.enabled = true;
         }
 
@@ -102,7 +107,7 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             CloseAll();
-
+            
             Log.Info(this, "Exiting {0}.", GetType().Name);
         }
 
@@ -200,12 +205,23 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when prop adjust control visibility is changed.
+        /// Called when adjust control visibility is changed.
         /// </summary>
         /// <param name="interactable">Interactable.</param>
-        private void PropAdjustControl_OnVisibilityChanged(IInteractable interactable)
+        private void AdjustControl_OnVisibilityChanged(IInteractable interactable)
         {
-            _editContent.enabled = !interactable.Visible;
+            var visible = interactable.Visible;
+
+            _editContent.enabled = !visible;
+
+            if (visible)
+            {
+                _controller.EnableUpdates();
+            }
+            else
+            {
+                _controller.DisableUpdates();
+            }
         }
     }
 }
