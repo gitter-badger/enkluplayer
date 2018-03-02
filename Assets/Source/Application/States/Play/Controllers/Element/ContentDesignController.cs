@@ -1,5 +1,6 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -14,6 +15,11 @@ namespace CreateAR.SpirePlayer
         public class ContentDesignControllerContext
         {
             /// <summary>
+            /// Call when adjust is requested.
+            /// </summary>
+            public Action<ContentDesignController> OnAdjust;
+
+            /// <summary>
             /// The delegate to push updates to.
             /// </summary>
             public IElementUpdateDelegate Delegate;
@@ -24,12 +30,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private const float EPSILON = 0.05f;
         private const float TIME_EPSILON = 0.1f;
-        
+
         /// <summary>
-        /// The delegate to push updates through.
+        /// The context passed in.
         /// </summary>
-        private IElementUpdateDelegate _delegate;
-        
+        private ContentDesignControllerContext _context;
+
         /// <summary>
         /// Controls the prop splash menu.
         /// </summary>
@@ -57,33 +63,18 @@ namespace CreateAR.SpirePlayer
         private ElementSchemaProp<Vec3> _rotationProp;
         private ElementSchemaProp<Vec3> _scaleProp;
         
-        /// <summary>
-        /// Called when adjust is requested.
-        /// </summary>
-        public event Action<ContentDesignController> OnAdjust;
-        
         /// <inheritdoc />
         public override void Initialize(Element element, object context)
         {
             base.Initialize(element, context);
 
-            var contentContext = (ContentDesignControllerContext) context;
-
-            _delegate = contentContext.Delegate;
+            _context = (ContentDesignControllerContext) context;
             
             _positionProp = Element.Schema.Get<Vec3>("position");
             _rotationProp = Element.Schema.Get<Vec3>("rotation");
             _scaleProp = Element.Schema.Get<Vec3>("scale");
 
             InitializeSplashMenu();
-        }
-
-        /// <inheritdoc />
-        public override void Uninitialize()
-        {
-            _delegate = null;
-
-            base.Uninitialize();
         }
         
         /// <summary>
@@ -168,7 +159,7 @@ namespace CreateAR.SpirePlayer
                 {
                     _positionProp.Value = trans.position.ToVec();
 
-                    _delegate.Update(Element, "position", _positionProp.Value);
+                    _context.Delegate.Update(Element, "position", _positionProp.Value);
 
                     _isDirty = true;
                 }
@@ -182,7 +173,7 @@ namespace CreateAR.SpirePlayer
                 {
                     _rotationProp.Value = trans.rotation.eulerAngles.ToVec();
 
-                    _delegate.Update(Element, "rotation", _rotationProp.Value);
+                    _context.Delegate.Update(Element, "rotation", _rotationProp.Value);
 
                     _isDirty = true;
                 }
@@ -196,7 +187,7 @@ namespace CreateAR.SpirePlayer
                 {
                     _scaleProp.Value = trans.localScale.ToVec();
 
-                    _delegate.Update(Element, "scale", _scaleProp.Value);
+                    _context.Delegate.Update(Element, "scale", _scaleProp.Value);
 
                     _isDirty = true;
                 }
@@ -207,7 +198,7 @@ namespace CreateAR.SpirePlayer
                 _isDirty = false;
                 _lastFinalize = DateTime.Now;
 
-                _delegate.Finalize(Element);
+                _context.Delegate.Finalize(Element);
             }
         }
 
@@ -216,10 +207,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Splash_OnOpen()
         {
-            if (null != OnAdjust)
-            {
-                OnAdjust(this);
-            }
+            _context.OnAdjust(this);
         }
     }
 }

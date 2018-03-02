@@ -109,7 +109,8 @@ namespace CreateAR.SpirePlayer
                 .Add<ContentDesignController>(
                     new ContentDesignController.ContentDesignControllerContext
                     {
-                        Delegate = _design
+                        Delegate = _design,
+                        OnAdjust = Content_OnAdjust
                     });
 
             _splash.enabled = true;
@@ -242,6 +243,15 @@ namespace CreateAR.SpirePlayer
 
             _dynamicRoot.Schema.Set("focus.visible", true);
             _mainMenu.enabled = true;
+        }
+
+        /// <summary>
+        /// Called when content requests an adjustment.
+        /// </summary>
+        /// <param name="controller">The controller.</param>
+        private void Content_OnAdjust(ContentDesignController controller)
+        {
+            _design.ChangeState<EditContentDesignState>(controller);
         }
     }
 }

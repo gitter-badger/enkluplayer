@@ -72,31 +72,8 @@ namespace CreateAR.SpirePlayer
 
         public void Enter(object context)
         {
-            
-        }
+            var controller = (ContentDesignController) context;
 
-        public void Update(float dt)
-        {
-            
-        }
-
-        public void Exit()
-        {
-            
-        }
-
-        public void CloseAll()
-        {
-            _adjustContent.enabled = false;
-            _editContent.enabled = false;
-        }
-
-        /// <summary>
-        /// Called when a controller asks to open the menu.
-        /// </summary>
-        /// <param name="controller">The prop controller.</param>
-        private void Controller_OnAdjust(ContentDesignController controller)
-        {
             // hide the splash on the controller
             controller.HideSplashMenu();
 
@@ -109,6 +86,22 @@ namespace CreateAR.SpirePlayer
             _editContent.enabled = true;
         }
 
+        public void Update(float dt)
+        {
+            
+        }
+
+        public void Exit()
+        {
+            CloseAll();
+        }
+
+        public void CloseAll()
+        {
+            _adjustContent.enabled = false;
+            _editContent.enabled = false;
+        }
+        
         /// <summary>
         /// Called when the place menu wants to confirm placement.
         /// </summary>
