@@ -233,7 +233,7 @@ namespace CreateAR.SpirePlayer.IUX
 
         /// <summary>
         /// Adds an element as a child of this element. If the element is
-        /// already a child, moves it to the end of the list.
+        /// already a child, this does nothing.
         /// </summary>
         /// <param name="element">Element to add as a child.</param>
         public void AddChild(Element element)
@@ -243,15 +243,19 @@ namespace CreateAR.SpirePlayer.IUX
                 throw new ArgumentNullException("element");
             }
 
-            var index = _children.IndexOf(element);
-            if (-1 != index)
+            // trivial case
+            if (element.Parent == this)
             {
-                element.OnChildAdded -= Child_OnChildAdded;
-                element.OnChildRemoved -= Child_OnChildRemoved;
-                element.OnDestroyed -= Child_OnDestroyed;
-                _children.RemoveAt(index);
+                return;
             }
 
+            // remove from previous parent
+            if (null != element.Parent)
+            {
+                element.Parent.RemoveChild(element);
+            }
+            
+            // add to this element's list
             _children.Add(element);
             element.Parent = this;
             element.OnChildAdded += Child_OnChildAdded;

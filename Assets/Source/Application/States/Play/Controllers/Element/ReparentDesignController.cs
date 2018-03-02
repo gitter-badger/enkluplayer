@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using System;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
@@ -13,9 +14,24 @@ namespace CreateAR.SpirePlayer
         public class ReparentDesignControllerContext
         {
             /// <summary>
+            /// the content being moved.
+            /// </summary>
+            public ContentDesignController Content;
+
+            /// <summary>
             /// Manages line rendering.
             /// </summary>
             public ILineManager Lines;
+
+            /// <summary>
+            /// Call to request reparent.
+            /// </summary>
+            public Action<Element> Reparent;
+
+            /// <summary>
+            /// Call to cancel reparent.
+            /// </summary>
+            public Action Cancel;
         }
 
         /// <summary>
@@ -32,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// Selection menu.
         /// </summary>
         private ElementSelectionMenuController _selectionMenu;
-
+        
         /// <inheritdoc />
         public override void Initialize(Element element, object context)
         {
@@ -40,7 +56,6 @@ namespace CreateAR.SpirePlayer
 
             _context = (ReparentDesignControllerContext) context;
             _context.Lines.Add(_line);
-            _context.Lines.IsEnabled = true;
 
             InitializeSelectionMenu();
         }
@@ -51,14 +66,11 @@ namespace CreateAR.SpirePlayer
             base.Uninitialize();
 
             _context.Lines.Remove(_line);
-            _context.Lines.IsEnabled = false;
-
+            
             UninitializeSelectionMenu();
         }
         
-        /// <summary>
-        /// Update the line to parent.
-        /// </summary>
+        /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
         {
             _line.Start = _line.End = transform.position;
@@ -106,7 +118,13 @@ namespace CreateAR.SpirePlayer
         {
             _selectionMenu = gameObject.GetComponent<ElementSelectionMenuController>()
                        ?? gameObject.AddComponent<ElementSelectionMenuController>();
+            _selectionMenu.OnSelected += SelectionMenu_OnSelected;
             _selectionMenu.enabled = true;
+
+            if (_context.Content.Element == Element)
+            {
+                _selectionMenu.MarkAsTarget();
+            }
         }
 
         /// <summary>
@@ -114,7 +132,23 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UninitializeSelectionMenu()
         {
+            _selectionMenu.OnSelected -= SelectionMenu_OnSelected;
             _selectionMenu.enabled = false;
+        }
+
+        /// <summary>
+        /// Called when we make a selection.
+        /// </summary>
+        private void SelectionMenu_OnSelected()
+        {
+            if (_selectionMenu.IsTarget)
+            {
+                _context.Cancel();
+            }
+            else
+            {
+                _context.Reparent(Element);
+            }
         }
     }
 }

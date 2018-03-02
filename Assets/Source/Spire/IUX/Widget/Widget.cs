@@ -394,7 +394,7 @@ namespace CreateAR.SpirePlayer.IUX
                     false);
             }
         }
-
+        
         /// <summary>
         /// Frame based update
         /// </summary>

@@ -185,6 +185,27 @@ namespace CreateAR.SpirePlayer
             _fsm.Change<T>(context);
         }
 
+        /// <summary>
+        /// Moves an element.
+        /// </summary>
+        /// <param name="element">The element to move.</param>
+        /// <param name="parent">The new parent.</param>
+        /// <returns></returns>
+        public IAsyncToken<Element> Move(
+            Element element,
+            Element parent)
+        {
+            return Async.Map(
+                _txns.Request(new ElementTxn(Active.Id).Move(
+                    element.Id,
+                    parent.Id,
+                    TransformedPosition(element, parent))),
+                response => element);
+        }
+
+        /// <summary>
+        /// Creates a scene.
+        /// </summary>
         public IAsyncToken<SceneDesignController> Create()
         {
             var token = new AsyncToken<SceneDesignController>();
@@ -223,6 +244,11 @@ namespace CreateAR.SpirePlayer
             return token;
         }
 
+        /// <summary>
+        /// Destroys a scene.
+        /// </summary>
+        /// <param name="id">The id of the scene.</param>
+        /// <returns></returns>
         public IAsyncToken<SceneDesignController> Destroy(string id)
         {
             var cenet = ById(id);
@@ -457,6 +483,55 @@ namespace CreateAR.SpirePlayer
                 {
                     return set;
                 }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Retrieves a transformed position from one element to another.
+        /// </summary>
+        /// <param name="element">The element that is to be moved.</param>
+        /// <param name="parent">The new parent.</param>
+        /// <returns></returns>
+        private Vec3 TransformedPosition(Element element, Element parent)
+        {
+            var unityElement = NearestUnityElement(element);
+            var unityParent = NearestUnityElement(parent);
+
+            // trivial case
+            if (unityParent == unityElement)
+            {
+                return element.Schema.Get<Vec3>("position").Value;
+            }
+
+            // transform to new parent's local space
+            var pos = unityElement.GameObject.transform.position;
+            return unityParent
+                .GameObject
+                .transform
+                .worldToLocalMatrix
+                .MultiplyPoint3x4(pos)
+                .ToVec();
+        }
+
+        /// <summary>
+        /// Traverses upward till a unity element is found. The initial element
+        /// is also tested.
+        /// </summary>
+        /// <param name="element">The element.</param>
+        /// <returns></returns>
+        private IUnityElement NearestUnityElement(Element element)
+        {
+            while (null != element)
+            {
+                var unityElement = element as IUnityElement;
+                if (null != unityElement)
+                {
+                    return unityElement;
+                }
+
+                element = element.Parent;
             }
 
             return null;

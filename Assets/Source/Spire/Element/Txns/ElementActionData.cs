@@ -23,7 +23,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Id of the parent node, used for create actions.
         /// </summary>
-        [JsonName("parent")]
+        [JsonName("parentId")]
         public string ParentId;
 
         /// <summary>

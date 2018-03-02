@@ -32,8 +32,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public bool IsEnabled
         {
-            get { return enabled; }
-            set { enabled = value; }
+            get
+            {
+                return _root.gameObject.activeSelf;
+            }
+            set
+            {
+                _root.gameObject.SetActive(value);
+            }
         }
 
         /// <summary>
@@ -60,6 +66,10 @@ namespace CreateAR.SpirePlayer
             if (-1 != index)
             {
                 _lines.RemoveAt(index);
+
+                var lineRenderer = _renderer[index];
+                Destroy(lineRenderer);
+
                 _renderer.RemoveAt(index);
             }
         }

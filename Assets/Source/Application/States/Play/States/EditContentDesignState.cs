@@ -170,7 +170,7 @@ namespace CreateAR.SpirePlayer
         {
             CloseAll();
 
-            _design.ChangeState<ReparentDesignState>();
+            _design.ChangeState<ReparentDesignState>(controller);
         }
 
         /// <summary>
