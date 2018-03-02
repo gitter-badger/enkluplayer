@@ -95,7 +95,9 @@ namespace CreateAR.SpirePlayer
 
         public void Enter(object context)
         {
-            
+            Log.Info(this, "Entering {0}", GetType().Name);
+
+            _newContent.enabled = true;
         }
 
         public void Update(float dt)
@@ -106,6 +108,8 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             CloseAll();
+
+            Log.Info(this, "Exited {0}", GetType().Name);
         }
 
         /// <summary>

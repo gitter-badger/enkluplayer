@@ -75,6 +75,8 @@ namespace CreateAR.SpirePlayer
 
         public void Enter(object context)
         {
+            Log.Info(this, "Entering {0}", GetType().Name);
+
             _controllers
                 .Filter(_distanceFilter)
                 .Filter(_anchorFilter)
@@ -99,6 +101,8 @@ namespace CreateAR.SpirePlayer
                 .Unfilter(_anchorFilter);
 
             CloseAll();
+
+            Log.Info(this, "Exited {0}", GetType().Name);
         }
 
         private void CloseAll()

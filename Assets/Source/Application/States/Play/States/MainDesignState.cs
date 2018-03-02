@@ -1,9 +1,13 @@
 ﻿using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Entry state of design controller.
+    /// </summary>
     public class MainDesignState : IDesignState
     {
         /// <summary>
@@ -46,11 +50,15 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly TypeElementControllerFilter _contentFilter = new TypeElementControllerFilter(typeof(ContentWidget));
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public MainDesignState(IElementControllerManager controllers)
         {
             _controllers = controllers;
         }
 
+        /// <inheritdoc />
         public void Initialize(
             DesignController design,
             GameObject unityRoot,
@@ -90,8 +98,11 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc />
         public void Enter(object context)
         {
+            Log.Info(this, "Entering {0}", GetType().Name);
+
             _controllers
                 .Filter(_distanceFilter)
                 .Filter(_contentFilter)
@@ -104,11 +115,13 @@ namespace CreateAR.SpirePlayer
             _splash.enabled = true;
         }
 
+        /// <inheritdoc />
         public void Update(float dt)
         {
             
         }
 
+        /// <inheritdoc />
         public void Exit()
         {
             _controllers
@@ -117,6 +130,8 @@ namespace CreateAR.SpirePlayer
                 .Unfilter(_distanceFilter);
 
             CloseAll();
+
+            Log.Info(this, "Exited {0}", GetType().Name);
         }
 
         /// <summary>

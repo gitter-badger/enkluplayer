@@ -378,7 +378,7 @@ namespace CreateAR.SpirePlayer
                 _states[i].Initialize(
                     this,
                     _root,
-                    _float,
+                    _dynamicRoot,
                     _staticRoot);
             }
 
