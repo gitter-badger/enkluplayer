@@ -109,6 +109,7 @@ namespace CreateAR.SpirePlayer
             MainDesignState main,
             NewContentDesignState newContent,
             EditContentDesignState editContent,
+            ReparentDesignState reparent,
             AnchorDesignState anchors)
         {
             _txns = txns;
@@ -121,6 +122,7 @@ namespace CreateAR.SpirePlayer
                 main,
                 newContent,
                 editContent,
+                reparent,
                 anchors
             };
 

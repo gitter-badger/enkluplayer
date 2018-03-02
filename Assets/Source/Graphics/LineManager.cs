@@ -18,6 +18,16 @@ namespace CreateAR.SpirePlayer
         private readonly List<LineRenderer> _renderer = new List<LineRenderer>();
 
         /// <summary>
+        /// Parent of all line renderers.
+        /// </summary>
+        private Transform _root;
+
+        /// <summary>
+        /// Material.
+        /// </summary>
+        private Material _material;
+
+        /// <summary>
         /// True iff the manager should render the lines.
         /// </summary>
         public bool IsEnabled
@@ -58,9 +68,15 @@ namespace CreateAR.SpirePlayer
         private void Awake()
         {
             Lines = new ReadOnlyCollection<LineData>(_lines);
+
+            var go = new GameObject("LineRoot");
+            _root = go.transform;
+            _root.parent = transform;
+
+            _material = new Material(Shader.Find("Unlit/Color"));
+            _material.SetColor("_Color", new Color(0, 1, 76f / 255f, 1));
         }
-
-
+        
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
         {
@@ -69,6 +85,7 @@ namespace CreateAR.SpirePlayer
             {
                 var line = _lines[i];
                 var lineRenderer = _renderer[i];
+                lineRenderer.widthMultiplier = line.Thickness;
                 lineRenderer.SetPosition(0, line.Start);
                 lineRenderer.SetPosition(1, line.End);
             }
@@ -82,12 +99,13 @@ namespace CreateAR.SpirePlayer
         private LineRenderer NewRenderer(LineData line)
         {
             var instance = new GameObject("Line");
-            instance.transform.SetParent(transform);
+            instance.transform.SetParent(_root);
             instance.transform.localPosition = Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
 
             var lineRenderer = instance.AddComponent<LineRenderer>();
             lineRenderer.useWorldSpace = true;
+            lineRenderer.sharedMaterial = _material;
             lineRenderer.SetPositions(new []
             {
                 line.Start,
