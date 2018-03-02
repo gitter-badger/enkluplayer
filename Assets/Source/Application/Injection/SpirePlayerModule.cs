@@ -224,7 +224,6 @@ namespace CreateAR.SpirePlayer
                 {
                     binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
                     binder.Bind<IContentFactory>().To<ContentFactory>();
-                    binder.Bind<IAnchorReferenceFrameFactory>().To<AnchorReferenceFrameFactory>();
                 }
 
                 // configs

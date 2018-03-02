@@ -35,6 +35,7 @@ namespace CreateAR.SpirePlayer
 
             _context = (ReparentDesignControllerContext) context;
             _context.Lines.Add(_line);
+            _context.Lines.IsEnabled = true;
         }
 
         /// <inheritdoc />
@@ -43,6 +44,7 @@ namespace CreateAR.SpirePlayer
             base.Uninitialize();
 
             _context.Lines.Remove(_line);
+            _context.Lines.IsEnabled = false;
         }
 
         /// <summary>

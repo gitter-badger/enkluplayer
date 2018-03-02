@@ -16,7 +16,6 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
         private readonly IScriptManager _scripts;
         private readonly IAssetPoolManager _pools;
-        private readonly IAnchorReferenceFrameFactory _frames;
         private readonly ILoadProgressManager _progress;
         private readonly ILayerManager _layers;
         private readonly ColorConfig _colors;
@@ -30,7 +29,6 @@ namespace CreateAR.SpirePlayer
             IAssetManager assets,
             IScriptManager scripts,
             IAssetPoolManager pools,
-            IAnchorReferenceFrameFactory frames,
             ILoadProgressManager progress,
             ILayerManager layers,
             ColorConfig colors,
@@ -40,7 +38,6 @@ namespace CreateAR.SpirePlayer
             _assets = assets;
             _scripts = scripts;
             _pools = pools;
-            _frames = frames;
             _progress = progress;
             _layers = layers;
             _colors = colors;
@@ -75,11 +72,6 @@ namespace CreateAR.SpirePlayer
                 schema,
                 new Element[0]);
             
-            // setup the Anchor
-            var frame = _frames.Instance(content, data.Anchor.Type);
-            var anchor = instance.GameObject.AddComponent<Anchor>();
-            anchor.Initialize(frame, data.Anchor);
-
             return instance;
         }
     }
