@@ -219,7 +219,8 @@ namespace CreateAR.SpirePlayer
             for (var i = 0; i < _bindings.Count; i++)
             {
                 var binding = _bindings[i];
-                var controller = (ElementDesignController)element.GameObject.GetComponent(binding.ControllerType);
+                var controller = (ElementDesignController) element.GameObject.GetComponent(binding.ControllerType);
+                controller.OnDestroyed -= Controller_OnDestroyed;
                 controller.Uninitialize();
 
                 binding.Controllers.Remove(controller);
@@ -251,9 +252,13 @@ namespace CreateAR.SpirePlayer
         {
             var gameObject = unityElement.GameObject;
 
-            var controller = (ElementDesignController) (
-                gameObject.GetComponent(binding.ControllerType)
-                ?? gameObject.AddComponent(binding.ControllerType));
+            var controller = (ElementDesignController) gameObject.GetComponent(binding.ControllerType);
+            if (null == controller)
+            {
+                controller = (ElementDesignController) gameObject.AddComponent(binding.ControllerType);
+            }
+
+            controller.OnDestroyed += Controller_OnDestroyed;
             controller.Initialize((Element) unityElement, binding.Context);
 
             return controller;
@@ -340,7 +345,31 @@ namespace CreateAR.SpirePlayer
 
         private void SceneRoot_OnChildRemoved(Element root, Element element)
         {
-            ElementRemoved(element);
+            // the controllers have already been removed via Controller_OnDestroyed flow
+            var unityElement = element as IUnityElement;
+            if (null != unityElement)
+            {
+                _filteredElements.Remove(unityElement);
+            }
+        }
+
+        private void Controller_OnDestroyed(ElementDesignController controller)
+        {
+            // finding binding + remove it
+            var type = controller.GetType();
+            for (var i = 0; i < _bindings.Count; i++)
+            {
+                var binding = _bindings[i];
+                if (binding.ControllerType == type)
+                {
+                    if (binding.Controllers.Remove(controller))
+                    {
+                        controller.Uninitialize();
+                    }
+
+                    break;
+                }
+            }
         }
     }
 }

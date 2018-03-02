@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -72,6 +73,8 @@ namespace CreateAR.SpirePlayer
 
         public void Enter(object context)
         {
+            Log.Info("Entering {0}.", GetType().Name);
+
             var controller = (ContentDesignController) context;
 
             // hide the splash on the controller
@@ -94,6 +97,8 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             CloseAll();
+
+            Log.Info("Exiting {0}.", GetType().Name);
         }
 
         public void CloseAll()
