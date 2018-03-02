@@ -4,10 +4,10 @@ using CreateAR.SpirePlayer.IUX;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Controls the splash menu for an element.
+    /// Controls the splash menu for content.
     /// </summary>
-    [InjectVine("Element.Splash")]
-    public class ElementSplashController : InjectableIUXController
+    [InjectVine("Content.Splash")]
+    public class ContentSplashController : InjectableIUXController
     {
         /// <summary>
         /// Splash button.

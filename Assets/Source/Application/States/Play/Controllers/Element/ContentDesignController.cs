@@ -39,7 +39,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Controls the prop splash menu.
         /// </summary>
-        private ElementSplashController _splashController;
+        private ContentSplashController _splashController;
         
         /// <summary>
         /// Time of last finalize.
@@ -122,7 +122,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void InitializeSplashMenu()
         {
-            _splashController = gameObject.AddComponent<ElementSplashController>();
+            _splashController = gameObject.AddComponent<ContentSplashController>();
             _splashController.OnOpen += Splash_OnOpen;
             _splashController.Initialize(Element.Schema.Get<string>("name").Value);
         }
