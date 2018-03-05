@@ -1,5 +1,4 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -36,7 +35,6 @@ namespace CreateAR.SpirePlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IMessageRouter messages,
             IPrimitiveFactory primitives,
             IVoiceCommandManager voice,
             IImageLoader imageLoader)
@@ -47,7 +45,6 @@ namespace CreateAR.SpirePlayer.IUX
                 layers,
                 tweens,
                 colors,
-                messages,
                 voice,
                 imageLoader)
         {

@@ -1,0 +1,6 @@
+<?Vine>
+
+<Menu id='menu' showBackButton=true>
+	<Button id='btn-new' label='New Anchor' icon='plus' />
+	<Toggle id='toggle-showchildren' label='Show Children' />
+</Menu>

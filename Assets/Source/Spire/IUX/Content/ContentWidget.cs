@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -95,22 +94,17 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ContentWidget(
-            WidgetConfig config,
-            ILayerManager layers,
+        public ContentWidget(ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IMessageRouter messages,
             IScriptManager scripts,
             IContentAssembler assembler,
             IAppDataManager appData)
             : base(
                 new GameObject("Content"),
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
             _scripts = scripts;
             _assembler = assembler;

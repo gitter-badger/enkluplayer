@@ -145,6 +145,20 @@ namespace CreateAR.SpirePlayer
                         
                         break;
                     }
+                    case ElementActionTypes.MOVE:
+                    {
+                        if (!_strategy.ApplyMoveAction(action, out error))
+                        {
+                            Log.Error(this,
+                                "ApplyAndCommit: Could not apply delete action : {0}.",
+                                error);
+
+                            // don't finish actions
+                            return;
+                        }
+
+                        break;
+                    }
                     default:
                     {
                         Log.Error(this,

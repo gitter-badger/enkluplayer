@@ -23,7 +23,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Id of the parent node, used for create actions.
         /// </summary>
-        [JsonName("parent")]
+        [JsonName("parentId")]
         public string ParentId;
 
         /// <summary>
@@ -49,5 +49,22 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonName("value")]
         public object Value;
+
+        /// <summary>
+        /// Useful ToString.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format(
+                "[ElementActionData Type={0}, ElementId={1}, ParentId={2}, Element={3}, SchemaType={4}, Key={5}, Value={6}]",
+                Type,
+                ElementId,
+                ParentId,
+                Element,
+                SchemaType,
+                Key,
+                Value);
+        }
     }
 }

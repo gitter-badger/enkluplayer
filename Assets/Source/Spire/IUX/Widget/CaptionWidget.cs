@@ -1,6 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Messaging;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -33,19 +31,15 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public CaptionWidget(
             GameObject gameObject,
-            WidgetConfig config,
             IPrimitiveFactory primitives,
             ILayerManager layers,
             TweenConfig tweens,
-            ColorConfig colors,
-            IMessageRouter messages)
+            ColorConfig colors)
             : base(
                 gameObject,
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
             _primitives = primitives;
         }

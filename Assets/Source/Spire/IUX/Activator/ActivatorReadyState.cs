@@ -7,6 +7,11 @@ namespace CreateAR.SpirePlayer.IUX
     public class ActivatorReadyState : ActivatorState
     {
         /// <summary>
+        /// Configuration for widgets.
+        /// </summary>
+        private readonly WidgetConfig _config;
+
+        /// <summary>
         /// Activator.
         /// </summary>
         private readonly ActivatorPrimitive _activator;
@@ -24,9 +29,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
+        /// <param name="config">Configuration for widgets.</param>
         /// <param name="activator">Activator.</param>
         /// <param name="schema">Schema to use.</param>
         public ActivatorReadyState(
+            WidgetConfig config,
             ActivatorPrimitive activator,
             ElementSchema schema)
             : base(
@@ -34,6 +41,7 @@ namespace CreateAR.SpirePlayer.IUX
                 schema.Get<string>("ready.color"),
                 schema.Get<float>("ready.frameScale"))
         {
+            _config = config;
             _activator = activator;
         }
 
@@ -62,9 +70,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _elapsed += deltaTime;
 
                 // recede the activation percentage over time
-                _activator.Activation = _initialActivation * _activator
-                    .Config
-                    .GetFillDelay(_elapsed);
+                _activator.Activation = _initialActivation * _config.GetFillDelay(_elapsed);
             }
         }
     }

@@ -133,7 +133,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.RemoveChildInternal(element);
 
-            for (int i = 0, len = _records.Count; i < len; i++)
+            for (var i = _records.Count - 1; i >= 0; i--)
             {
                 if (_records[i].Element == element)
                 {

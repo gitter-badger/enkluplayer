@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer.IUX
     /// <summary>
     /// Updates the visual components related to a <c>Widget</c>.
     /// </summary>
-    public class WidgetRenderer : MonoBehaviour
+    public class WidgetRenderer : InjectableMonoBehaviour
     {
         /// <summary>
         /// Cached list of materials.
@@ -62,6 +62,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// Name of the color in the primary material of the target renderer.
         /// </summary>
         public string MaterialColorName = "_Color";
+
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
+        [Inject]
+        public TweenConfig Tweens { get; set; }
 
         /// <summary>
         /// Local color accessor, ignores parent color.
@@ -185,7 +191,7 @@ namespace CreateAR.SpirePlayer.IUX
                 ? _source.TweenIn
                 : _source.TweenOut;
 
-            var tweenDuration = _source.Tweens.DurationSeconds(tweenType);
+            var tweenDuration = Tweens.DurationSeconds(tweenType);
             if (tweenDuration < Mathf.Epsilon)
             {
                 _localTween = Visible

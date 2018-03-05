@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -11,6 +10,11 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     public class MenuWidget : Widget
     {
+        /// <summary>
+        /// Configs.
+        /// </summary>
+        private readonly WidgetConfig _config;
+
         /// <summary>
         /// Creates elements.
         /// </summary>
@@ -74,17 +78,15 @@ namespace CreateAR.SpirePlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IMessageRouter messages,
             IPrimitiveFactory primitives,
             IElementFactory elements)
             : base(
                   gameObject,
-                  config,
                   layers,
                   tweens,
-                  colors,
-                  messages)
+                  colors)
         {
+            _config = config;
             _primitives = primitives;
             _elements = elements;
         }
@@ -141,7 +143,7 @@ namespace CreateAR.SpirePlayer.IUX
             _descriptionPrimitive.FontSize = _fontSizeProp.Value;
 
             _halfMoon = Object.Instantiate(
-                Config.HalfMoon.gameObject,
+                _config.HalfMoon.gameObject,
                 Vector3.zero,
                 Quaternion.identity);
             var transform = _halfMoon.GetComponent<RectTransform>();
