@@ -69,6 +69,12 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public string[] TrackedScenes { get { return _scenes.Keys.ToArray(); } }
 
+        /// <inheritdoc />
+        public event Action<string> OnSceneAfterTracked;
+
+        /// <inheritdoc />
+        public event Action<string> OnSceneBeforeUntracked;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -178,6 +184,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void UntrackScene(string sceneId)
         {
+            // abort load
             IAsyncToken<Void> token;
             if (_sceneLoads.TryGetValue(sceneId, out token))
             {
@@ -185,10 +192,16 @@ namespace CreateAR.SpirePlayer
             }
             _sceneLoads.Remove(sceneId);
 
+            // destroy store
             IElementTxnStore store;
             if (_stores.TryGetValue(sceneId, out store))
             {
-                // TODO: teardown necessary?
+                if (null != OnSceneBeforeUntracked)
+                {
+                    OnSceneBeforeUntracked(sceneId);
+                }
+
+                // TODO: teardown scene
             }
             _stores.Remove(sceneId);
         }
@@ -329,6 +342,11 @@ namespace CreateAR.SpirePlayer
                         _scenes[sceneId] = root;
 
                         token.Succeed(Void.Instance);
+
+                        if (null != OnSceneAfterTracked)
+                        {
+                            OnSceneAfterTracked(sceneId);
+                        }
                     }
                     else
                     {
@@ -360,7 +378,7 @@ namespace CreateAR.SpirePlayer
                     continue;
                 }
 
-                var elementId = null == action.Element
+                var elementId = null == action.Element || string.IsNullOrEmpty(action.Element.Id)
                     ? action.ElementId
                     : action.Element.Id;
                 var element = root.Id == elementId
@@ -369,7 +387,8 @@ namespace CreateAR.SpirePlayer
                 if (null == element)
                 {
                     Log.Warning(this,
-                        "Could not find affected Element : {0}.",
+                        "Could not find affected Element for action {0} : {1}.",
+                        action,
                         elementId);
                 }
                 else

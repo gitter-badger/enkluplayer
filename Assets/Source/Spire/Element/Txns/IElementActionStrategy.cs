@@ -38,5 +38,14 @@ namespace CreateAR.SpirePlayer
         bool ApplyUpdateAction(
             ElementActionUpdateRecord record,
             out string error);
+
+        /// <summary>
+        /// Applies a move action.
+        /// </summary>
+        /// <param name="action">The action to apply.</param>
+        /// <param name="error">The error, if any.</param>
+        bool ApplyMoveAction(
+            ElementActionData action,
+            out string error);
     }
 }

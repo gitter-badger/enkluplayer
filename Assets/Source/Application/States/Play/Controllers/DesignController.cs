@@ -1,5 +1,11 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using CreateAR.Trellis.Messages;
+using CreateAR.Trellis.Messages.CreateScene;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -8,510 +14,527 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls design mode menus.
     /// </summary>
-    public class DesignController
+    public class DesignController : ISceneUpdateDelegate, IElementUpdateDelegate
     {
+        /// <summary>
+        /// Transactions.
+        /// </summary>
+        private readonly IElementTxnManager _txns;
+
         /// <summary>
         /// Elements!
         /// </summary>
         private readonly IElementFactory _elements;
 
         /// <summary>
-        /// Manages props.
+        /// Manages controllers for all elements.
         /// </summary>
-        private readonly IAppController _appController;
+        private readonly IElementControllerManager _controllers;
 
         /// <summary>
-        /// Voice commands.
+        /// All states.
         /// </summary>
-        private readonly IVoiceCommandManager _voice;
+        private readonly IDesignState[] _states;
         
         /// <summary>
-        /// Play mode.
+        /// Trellis API.
         /// </summary>
-        private PlayModeConfig _playConfig;
+        private readonly ApiController _api;
 
         /// <summary>
-        /// Event handler.
+        /// State machine.
         /// </summary>
-        private IUXEventHandler _events;
+        private readonly FiniteStateMachine _fsm;
 
         /// <summary>
-        /// Splash menu.
+        /// Backing variable for Scenes prpoperty.
         /// </summary>
-        private SplashMenuController _splash;
+        private readonly List<SceneDesignController> _sceneControllers = new List<SceneDesignController>();
 
         /// <summary>
-        /// Main menu.
+        /// Element transactions currently tracked.
         /// </summary>
-        private MainMenuController _mainMenu;
+        private readonly Dictionary<Element, ElementTxn> _transactions = new Dictionary<Element, ElementTxn>();
 
         /// <summary>
-        /// Clear all menu.
+        /// The app.
         /// </summary>
-        private ClearAllPropsController _clearAllProps;
-
+        private IAppController _app;
+        
         /// <summary>
-        /// Quit menu.
+        /// Root of controls.
         /// </summary>
-        private QuitController _quit;
-
-        /// <summary>
-        /// New item menu.
-        /// </summary>
-        private NewItemController _new;
-
-        /// <summary>
-        /// Menu to place objects.
-        /// </summary>
-        private PlaceObjectController _place;
-
-        /// <summary>
-        /// Menu to adjust prop.
-        /// </summary>
-        private PropAdjustController _propAdjust;
-
-        /// <summary>
-        /// Menu to edit prop.
-        /// </summary>
-        private PropEditController _propEdit;
-
+        private GameObject _root;
+        
         /// <summary>
         /// Root float.
         /// </summary>
         private FloatWidget _float;
 
         /// <summary>
-        /// Parent container.
+        /// Root element of dynamic menus.
         /// </summary>
-        private ScaleTransition _parent;
+        private ScaleTransition _dynamicRoot;
 
         /// <summary>
-        /// Root for static menus.
+        /// Root element of static menus.
         /// </summary>
-        private GameObject _staticRoot;
+        private ContainerWidget _staticRoot;
+        
+        /// <summary>
+        /// Scenes.
+        /// </summary>
+        public ReadOnlyCollection<SceneDesignController> Scenes { get; private set; }
+
+        /// <summary>
+        /// Active scene.
+        /// </summary>
+        public SceneDesignController Active { get; set; }
+
+        /// <summary>
+        /// Config for play mode.
+        /// </summary>
+        public PlayModeConfig Config { get; private set; }
 
         /// <summary>
         /// Constuctor.
         /// </summary>
         public DesignController(
+            IElementTxnManager txns,
             IElementFactory elements,
-            IAppController appController,
-            IVoiceCommandManager voice)
+            IElementControllerManager controllers,
+            ApiController api,
+
+            // design states
+            MainDesignState main,
+            NewContentDesignState newContent,
+            EditContentDesignState editContent,
+            ReparentDesignState reparent,
+            AnchorDesignState anchors)
         {
+            _txns = txns;
             _elements = elements;
-            _appController = appController;
-            _voice = voice;
+            _controllers = controllers;
+            _api = api;
+
+            _states = new IDesignState[]
+            {
+                main,
+                newContent,
+                editContent,
+                reparent,
+                anchors
+            };
+
+            _fsm = new FiniteStateMachine(_states);
+
+            Scenes = new ReadOnlyCollection<SceneDesignController>(_sceneControllers);
         }
 
         /// <summary>
         /// Starts controllers.
         /// </summary>
-        public void Setup(PlayModeConfig config)
+        public void Setup(PlayModeConfig config, IAppController app)
         {
-            _playConfig = config;
-            _events = _playConfig.Events;
+            Config = config;
+            _app = app;
+            _root = new GameObject("Design");
+            _root.AddComponent<LineManager>();
 
-            _voice.Register("design", Voice_OnDesignCommand);
-            
-            // create float
-            _float = (FloatWidget) _elements.Element(@"<?Vine><Float id='Root' position=(0, 0, 2) face='camera'><ScaleTransition /></Float>");
-            _float.GameObject.transform.parent = _events.transform;
-            _parent = (ScaleTransition) _float.Children[0];
-            
-            SetupMenus();
-            Start();
+            SetupSceneControllers();
+
+            if (null == Active)
+            {
+                Log.Info(this, "No active Scene, creating a default.");
+
+                Create()
+                    .OnSuccess(scene => Start())
+                    .OnFailure(exception =>
+                    {
+                        Log.Error(this, "Could not create Scene!");
+                    });
+            }
+            else
+            {
+                Start();
+            }
         }
 
+        
         /// <summary>
-        /// Tears down all controllers and destroys them.
+        /// Tears down controller.
         /// </summary>
         public void Teardown()
         {
-            Object.Destroy(_events.gameObject);
+            _fsm.Change(null);
+
+            _controllers.Active = false;
+
+            _float.Destroy();
+            _staticRoot.Destroy();
+
+            Object.Destroy(_root);
         }
 
         /// <summary>
-        /// Creates and initializes all menus.
+        /// Changes design state.
         /// </summary>
-        private void SetupMenus()
+        /// <typeparam name="T">The type of design state.</typeparam>
+        public void ChangeState<T>(object context = null) where T : IDesignState
         {
-            _splash = _events.gameObject.AddComponent<SplashMenuController>();
-            _splash.enabled = false;
-            _splash.OnOpenMenu += Splash_OnOpenMenu;
-            _parent.AddChild(_splash.Root);
-            
-            _mainMenu = _events.gameObject.AddComponent<MainMenuController>();
-            _mainMenu.enabled = false;
-            _mainMenu.OnBack += MainMenu_OnBack;
-            _mainMenu.OnQuit += MainMenu_OnQuit;
-            _mainMenu.OnClearAll += MainMenu_OnClearAll;
-            _mainMenu.OnNew += MainMenu_OnNew;
-            _mainMenu.OnPlay += MainMenu_OnPlay;
-            _parent.AddChild(_mainMenu.Root);
-
-            _clearAllProps = _events.gameObject.AddComponent<ClearAllPropsController>();
-            _clearAllProps.enabled = false;
-            _clearAllProps.OnCancel += ClearAll_OnCancel;
-            _clearAllProps.OnConfirm += ClearAll_OnConfirm;
-            _parent.AddChild(_clearAllProps.Root);
-
-            _quit = _events.gameObject.AddComponent<QuitController>();
-            _quit.enabled = false;
-            _quit.OnCancel += Quit_OnCancel;
-            _quit.OnConfirm += Quit_OnConfirm;
-            _parent.AddChild(_quit.Root);
-
-            _new = _events.gameObject.AddComponent<NewItemController>();
-            _new.enabled = false;
-            _new.OnCancel += New_OnCancel;
-            _new.OnConfirm += New_OnConfirm;
-            _parent.AddChild(_new.Root);
-
-            _staticRoot = new GameObject("Static Menus");
-
-            _place = _staticRoot.AddComponent<PlaceObjectController>();
-            _place.OnConfirm += Place_OnConfirm;
-            _place.OnConfirmController += Place_OnConfirmController;
-            _place.OnCancel += Place_OnCancel;
-            _place.enabled = false;
-
-            _propAdjust = _staticRoot.AddComponent<PropAdjustController>();
-            _propAdjust.OnExit += PropAdjust_OnExit;
-            _propAdjust.enabled = false;
-            _propAdjust.SliderRotate.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
-            _propAdjust.SliderX.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
-            _propAdjust.SliderY.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
-            _propAdjust.SliderZ.OnVisibilityChanged += PropAdjustControl_OnVisibilityChanged;
-
-            _propEdit = _staticRoot.AddComponent<PropEditController>();
-            _propEdit.OnMove += PropEdit_OnMove;
-            _propEdit.OnDelete += PropEdit_OnDelete;
-            _propEdit.enabled = false;
+            _fsm.Change<T>(context);
         }
 
         /// <summary>
-        /// Closes prop menus.
+        /// Moves an element.
         /// </summary>
-        private void ClosePropControls()
+        /// <param name="element">The element to move.</param>
+        /// <param name="parent">The new parent.</param>
+        /// <returns></returns>
+        public IAsyncToken<Element> Move(
+            Element element,
+            Element parent)
         {
-            _propAdjust.enabled = false;
-            _propEdit.enabled = false;
+            return Async.Map(
+                _txns.Request(new ElementTxn(Active.Id).Move(
+                    element.Id,
+                    parent.Id,
+                    TransformedPosition(element, parent))),
+                response => element);
         }
 
         /// <summary>
-        /// Closes all menus.
+        /// Creates a scene.
         /// </summary>
-        private void CloseAll()
+        public IAsyncToken<SceneDesignController> Create()
         {
-            _propAdjust.enabled = false;
-            _propEdit.enabled = false;
-            _splash.enabled = false;
-            _mainMenu.enabled = false;
-            _clearAllProps.enabled = false;
-            _quit.enabled = false;
-            _place.enabled = false;
-            _new.enabled = false;
+            var token = new AsyncToken<SceneDesignController>();
 
-            CloseAllPropControllerSplashes();
+            // create a scene
+            _api
+                .Scenes
+                .CreateScene(_app.Id, new Request())
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        var sceneId = response.Payload.Body.Id;
+                        _txns
+                            .TrackScene(sceneId)
+                            .OnSuccess(_ =>
+                            {
+                                var controller = CreateSceneDesignController(sceneId);
+
+                                if (null == Active)
+                                {
+                                    Active = controller;
+                                }
+
+                                token.Succeed(controller);
+                            })
+                            .OnFailure(token.Fail);
+                    }
+                    else
+                    {
+                        token.Fail(new Exception(response.Payload.Error));
+                    }
+                })
+                .OnFailure(token.Fail);
+
+            return token;
         }
 
         /// <summary>
-        /// Closes all PropController splashes
+        /// Destroys a scene.
         /// </summary>
-        private void CloseAllPropControllerSplashes()
+        /// <param name="id">The id of the scene.</param>
+        /// <returns></returns>
+        public IAsyncToken<SceneDesignController> Destroy(string id)
         {
-            foreach (var prop in _appController.Active.Controllers)
+            var cenet = ById(id);
+            if (null == cenet)
             {
-                prop.HideSplashMenu();
+                return new AsyncToken<SceneDesignController>(new Exception(string.Format(
+                    "Could not find scene with id {0}.",
+                    id)));
             }
-        }
 
-        /// <summary>
-        /// Opens all PropController splashes
-        /// </summary>
-        private void OpenAllPropControllerSplashes()
-        {
-            foreach (var prop in _appController.Active.Controllers)
+            /*var tokens = new List<IAsyncToken<Void>>();
+            var props = cenet.ContentControllers.ToArray();
+            for (var i = 0; i < props.Length; i++)
             {
-                prop.ShowSplashMenu();
+                var prop = props[i];
+
+                tokens.Add(cenet.Destroy(prop.Element.Id));
             }
+
+            _sceneControllers.Remove(cenet);
+
+            return Async.Map(
+                Async.All(tokens.ToArray()),
+                _ => cenet);*/
+            return new AsyncToken<SceneDesignController>(new NotImplementedException());
         }
 
-        /// <summary>
-        /// Listens to prop.
-        /// </summary>
-        /// <param name="controller">The PropController.</param>
-        private void ListenToProp(ElementController controller)
+        /// <inheritdoc />
+        public IAsyncToken<Element> Add(string sceneId, ElementData data)
         {
-            controller.OnAdjust += Controller_OnAdjust;
+            return Async.Map(
+                _txns.Request(new ElementTxn(sceneId).Create("root", data)),
+                response => response.Elements[0]);
+        }
+
+        /// <inheritdoc />
+        public IAsyncToken<Element> Remove(string sceneId, Element element)
+        {
+            return Async.Map(
+                _txns.Request(new ElementTxn(sceneId).Delete(element.Id)),
+                response => response.Elements[0]);
+        }
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, string value)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
+            }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, int value)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
+            }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, float value)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
+            }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, bool value)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
+            }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, Vec3 value)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
+            }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Update(Element element, string key, Col4 value)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Update element: no active scene.");
+                return;
+            }
+
+            Txn(element).Update(element.Id, key, value);
+        }
+
+        /// <inheritdoc />
+        public void Finalize(Element element)
+        {
+            if (null == Active)
+            {
+                Log.Warning(this, "Could not Finalize element: no active scene.");
+                return;
+            }
+
+            var txn = Txn(element);
+            if (0 != txn.Actions.Count)
+            {
+                _txns.Request(txn);
+            }
+
+            _transactions.Remove(element);
         }
 
         /// <summary>
-        /// Starts design mode after everything is ready.
+        /// Starts design mode.
         /// </summary>
         private void Start()
         {
-            // listen to all prop controllers
-            var controllers = _appController.Active.Controllers;
-            for (int i = 0, len = controllers.Count; i < len; i++)
+            // create dynamic root
             {
-                ListenToProp(controllers[i]);
+                _float = (FloatWidget)_elements.Element(
+                    @"<?Vine><Float id='Root' position=(0, 0, 2) face='camera'><ScaleTransition /></Float>");
+                _float.GameObject.transform.parent = _root.transform;
+                _dynamicRoot = (ScaleTransition)_float.Children[0];
             }
 
-            _splash.enabled = true;
+            // create static root
+            {
+                _staticRoot = (ContainerWidget)_elements.Element(@"<?Vine><Container />");
+                _staticRoot.GameObject.transform.parent = _root.transform;
+            }
+
+            _controllers.Active = true;
+
+            // initialize states
+            for (var i = 0; i < _states.Length; i++)
+            {
+                _states[i].Initialize(
+                    this,
+                    _root,
+                    _dynamicRoot,
+                    _staticRoot);
+            }
+
+            // start initial state
+            _fsm.Change<MainDesignState>();
         }
 
         /// <summary>
-        /// Called when voice command is detected.
+        /// Sets up all design controllers.
         /// </summary>
-        /// <param name="command">The detected command.</param>
-        private void Voice_OnDesignCommand(string command)
+        private void SetupSceneControllers()
         {
-            CloseAll();
-            _splash.enabled = true;
+            // create scene controllers
+            var scenes = _txns.TrackedScenes;
+            for (var i = 0; i < scenes.Length; i++)
+            {
+                CreateSceneDesignController(scenes[i]);
+            }
 
-            _float.Schema.Set("visible", true);
-
-            OpenAllPropControllerSplashes();
+            // select a default scene
+            if (_sceneControllers.Count > 0)
+            {
+                Active = _sceneControllers[0];
+            }
         }
 
         /// <summary>
-        /// Called when splash wants to open the menu.
+        /// Factory method for scenes.
         /// </summary>
-        private void Splash_OnOpenMenu()
+        /// <param name="sceneId">The id of the scene.</param>
+        /// <returns></returns>
+        private SceneDesignController CreateSceneDesignController(string sceneId)
         {
-            _splash.enabled = false;
-            _mainMenu.enabled = true;
+            var controller = new SceneDesignController(
+                this,
+                sceneId,
+                _txns.Root(sceneId));
+
+            _sceneControllers.Add(controller);
+
+            return controller;
         }
 
         /// <summary>
-        /// Called when main menu wants to go back.
+        /// Creates or retrieves an element txn.
         /// </summary>
-        private void MainMenu_OnBack()
+        /// <param name="element">The element in question</param>
+        /// <returns></returns>
+        private ElementTxn Txn(Element element)
         {
-            _mainMenu.enabled = false;
-            _splash.enabled = true;
+            ElementTxn txn;
+            if (!_transactions.TryGetValue(element, out txn))
+            {
+                txn = _transactions[element] = new ElementTxn(Active.Id);
+            }
+
+            return txn;
         }
 
         /// <summary>
-        /// Called when main menu wants to quit.
+        /// Returns a <c>PropSet</c> by id.
         /// </summary>
-        private void MainMenu_OnQuit()
+        /// <param name="id">The id of the set.</param>
+        /// <returns></returns>
+        private SceneDesignController ById(string id)
         {
-            _mainMenu.enabled = false;
-            _float.Schema.Set("focus.visible", false);
-            _quit.enabled = true;
-        }
-
-        /// <summary>
-        /// Called when main menu wants to clear all props.
-        /// </summary>
-        private void MainMenu_OnClearAll()
-        {
-            _mainMenu.enabled = false;
-            _float.Schema.Set("focus.visible", false);
-            _clearAllProps.enabled = true;
-        }
-
-        /// <summary>
-        /// Called when main menu wants to create a new prop.
-        /// </summary>
-        private void MainMenu_OnNew()
-        {
-            _mainMenu.enabled = false;
-            _float.Schema.Set("focus.visible", false);
-            _new.enabled = true;
-        }
-
-        /// <summary>
-        /// Move to play mode.
-        /// </summary>
-        private void MainMenu_OnPlay()
-        {
-            CloseAll();
-            _float.Schema.Set("visible", false);
-        }
-
-        /// <summary>
-        /// Called when clear all menu wants to cancel.
-        /// </summary>
-        private void ClearAll_OnCancel()
-        {
-            _clearAllProps.enabled = false;
-            _float.Schema.Set("focus.visible", true);
-            _mainMenu.enabled = true;
-        }
-
-        /// <summary>
-        /// Called when clear all menu wants to clear all.
-        /// </summary>
-        private void ClearAll_OnConfirm()
-        {
-            _clearAllProps.enabled = false;
-
-            _appController.Active.DestroyAll();
-
-            _float.Schema.Set("focus.visible", true);
-            _mainMenu.enabled = true;
-        }
-
-        /// <summary>
-        /// Called when ther quit menu wants to cancel.
-        /// </summary>
-        private void Quit_OnCancel()
-        {
-            _quit.enabled = false;
-            _float.Schema.Set("focus.visible", true);
-            _mainMenu.enabled = true;
-        }
-
-        /// <summary>
-        /// Called when the quit menu wants to quit.
-        /// </summary>
-        private void Quit_OnConfirm()
-        {
-            _quit.enabled = false;
-            _float.Schema.Set("focus.visible", true);
-            _mainMenu.enabled = true;
-        }
-
-        /// <summary>
-        /// Called when the new menu wants to create a prop.
-        /// </summary>
-        private void New_OnConfirm(string assetId)
-        {
-            _new.enabled = false;
-
-            _place.Initialize(assetId);
-            _place.enabled = true;
-        }
-
-        /// <summary>
-        /// Called when the new menu wants to cancel.
-        /// </summary>
-        private void New_OnCancel()
-        {
-            _new.enabled = false;
-            _float.Schema.Set("focus.visible", true);
-            _mainMenu.enabled = true;
-        }
-
-        /// <summary>
-        /// Called when the place menu wants to confirm placement.
-        /// </summary>
-        /// <param name="propData">The prop.</param>
-        private void Place_OnConfirm(ElementData propData)
-        {
-            _appController
-                .Active
-                .Create(propData)
-                .OnSuccess(ListenToProp)
-                .OnFailure(exception =>
+            for (int i = 0, len = _sceneControllers.Count; i < len; i++)
+            {
+                var set = _sceneControllers[i];
+                if (set.Id == id)
                 {
-                    Log.Error(this, "Could not place prop : {0}.", exception);
-                });
+                    return set;
+                }
+            }
 
-            _place.enabled = false;
-            _float.Schema.Set("focus.visible", true);
-            _splash.enabled = true;
+            return null;
         }
 
         /// <summary>
-        /// Called when the place menu wants to confirm placement.
+        /// Retrieves a transformed position from one element to another.
         /// </summary>
-        /// <param name="controller">The prop controller.</param>
-        private void Place_OnConfirmController(ElementController controller)
+        /// <param name="element">The element that is to be moved.</param>
+        /// <param name="parent">The new parent.</param>
+        /// <returns></returns>
+        private Vec3 TransformedPosition(Element element, Element parent)
         {
-            controller.transform.SetParent(null, true);
-            controller.ShowSplashMenu();
-            controller.EnableUpdates();
-            
-            _place.enabled = false;
-            _float.Schema.Set("focus.visible", true);
-            _splash.enabled = true;
+            var unityElement = NearestUnityElement(element);
+            var unityParent = NearestUnityElement(parent);
+
+            // trivial case
+            if (unityParent == unityElement)
+            {
+                return element.Schema.Get<Vec3>("position").Value;
+            }
+
+            // transform to new parent's local space
+            var pos = unityElement.GameObject.transform.position;
+            return unityParent
+                .GameObject
+                .transform
+                .worldToLocalMatrix
+                .MultiplyPoint3x4(pos)
+                .ToVec();
         }
 
         /// <summary>
-        /// Called when the place menu wants to cancel placement.
+        /// Traverses upward till a unity element is found. The initial element
+        /// is also tested.
         /// </summary>
-        private void Place_OnCancel()
+        /// <param name="element">The element.</param>
+        /// <returns></returns>
+        private IUnityElement NearestUnityElement(Element element)
         {
-            _place.enabled = false;
+            while (null != element)
+            {
+                var unityElement = element as IUnityElement;
+                if (null != unityElement)
+                {
+                    return unityElement;
+                }
 
-            _new.enabled = true;
-        }
-        
-        /// <summary>
-        /// Called when the controller asks to open the menu.
-        /// </summary>
-        /// <param name="controller">The prop controller.</param>
-        private void Controller_OnAdjust(ElementController controller)
-        {
-            // hide the splash on the controller
-            controller.HideSplashMenu();
-            
-            // hide any other menus
-            _splash.enabled = false;
-            _mainMenu.enabled = false;
+                element = element.Parent;
+            }
 
-            _float.Schema.Set("focus.visible", false);
-
-            _propAdjust.Initialize(controller);
-            _propAdjust.enabled = true;
-            
-            _propEdit.Initialize(controller);
-            _propEdit.enabled = true;
-        }
-
-        /// <summary>
-        /// Called to move the prop.
-        /// </summary>
-        /// <param name="elementController">The controller.</param>
-        private void PropEdit_OnMove(ElementController elementController)
-        {
-            ClosePropControls();
-
-            elementController.HideSplashMenu();
-            elementController.DisableUpdates();
-            
-            _place.Initialize(elementController);
-            _place.enabled = true;
-        }
-
-        /// <summary>
-        /// Called to delete the prop.
-        /// </summary>
-        /// <param name="elementController">The controller.</param>
-        private void PropEdit_OnDelete(ElementController elementController)
-        {
-            ClosePropControls();
-            
-            _appController.Active.Destroy(elementController.Element.Id);
-
-            _float.Schema.Set("focus.visible", true);
-            _splash.enabled = true;
-        }
-
-        /// <summary>
-        /// Called when the prop adjust wishes to exit.
-        /// </summary>
-        private void PropAdjust_OnExit(ElementController controller)
-        {
-            ClosePropControls();
-
-            controller.ShowSplashMenu();
-
-            _float.Schema.Set("focus.visible", true);
-            _splash.enabled = true;
-        }
-
-        /// <summary>
-        /// Called when prop adjust control visibility is changed.
-        /// </summary>
-        /// <param name="interactable">Interactable.</param>
-        private void PropAdjustControl_OnVisibilityChanged(IInteractable interactable)
-        {
-            _propEdit.enabled = !interactable.Visible;
+            return null;
         }
     }
 }

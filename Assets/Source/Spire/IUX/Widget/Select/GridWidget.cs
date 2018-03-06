@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -21,6 +20,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// We secretly put the Option on the Button using this prop.
         /// </summary>
         private const string OPTION_PROPNAME = "__option__";
+
+        /// <summary>
+        /// Config.
+        /// </summary>
+        private readonly WidgetConfig _config;
 
         /// <summary>
         /// For creating elements.
@@ -72,16 +76,14 @@ namespace CreateAR.SpirePlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IMessageRouter messages,
             IElementFactory elements)
             : base(
                 gameObject,
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
+            _config = config;
             _elements = elements;
 
             _events = gameObject.GetComponent<IUXEventHandler>()
@@ -124,7 +126,7 @@ namespace CreateAR.SpirePlayer.IUX
             // shell
             {
                 _shell = Object.Instantiate(
-                    Config.GridShell.gameObject,
+                    _config.GridShell.gameObject,
                     Vector3.zero,
                     Quaternion.identity);
                 var transform = _shell.GetComponent<RectTransform>();

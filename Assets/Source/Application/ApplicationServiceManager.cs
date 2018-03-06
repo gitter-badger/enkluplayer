@@ -16,12 +16,7 @@ namespace CreateAR.SpirePlayer
         /// The bridge into the web world.
         /// </summary>
         private readonly IBridge _bridge;
-
-        /// <summary>
-        /// Connection to Trellis.
-        /// </summary>
-        private readonly IConnection _connection;
-
+        
         /// <summary>
         /// Filters messages.
         /// </summary>
@@ -47,7 +42,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="messages">Pub/sub.</param>
         /// <param name="bridge">The WebBridge.</param>
-        /// <param name="connection">Connection to Trellis.</param>
         /// <param name="filter">Filters messages.</param>
         /// <param name="handler">The object that handles messages.</param>
         /// <param name="config">Application wide config.</param>
@@ -55,7 +49,6 @@ namespace CreateAR.SpirePlayer
         public ApplicationServiceManager(
             IMessageRouter messages,
             IBridge bridge,
-            IConnection connection,
             MessageFilter filter,
             BridgeMessageHandler handler,
             ApplicationConfig config,
@@ -63,7 +56,6 @@ namespace CreateAR.SpirePlayer
         {
             _messages = messages;
             _bridge = bridge;
-            _connection = connection;
             _filter = filter;
             _handler = handler;
             _config = config;
@@ -90,10 +82,7 @@ namespace CreateAR.SpirePlayer
                         .Network
                         .Credentials(_config.Network.Current)
                         .UserId));
-
-                    // connect to Trellis
-                    _connection.Connect(_config.Network.Environment(_config.Network.Current));
-
+                    
                     // ready for action
                     _bridge.BroadcastReady();
                 });

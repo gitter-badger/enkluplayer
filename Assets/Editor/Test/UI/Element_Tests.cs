@@ -62,8 +62,8 @@ namespace CreateAR.SpirePlayer.Test.UI
             _root.AddChild(b);
             _root.AddChild(a);
 
-            Assert.AreSame(a, _root.Children[1]);
-            Assert.AreSame(b, _root.Children[0]);
+            Assert.AreSame(a, _root.Children[0]);
+            Assert.AreSame(b, _root.Children[1]);
         }
 
         [Test]

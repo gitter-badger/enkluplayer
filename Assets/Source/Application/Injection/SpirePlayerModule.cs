@@ -105,6 +105,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
                 binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
 #elif NETFX_CORE
+                binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
                 binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
 #endif
 
@@ -140,10 +141,7 @@ namespace CreateAR.SpirePlayer
                     // tools
                     {
                         binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
-                        binder.Bind<WorldScanPipelineConfiguration>().ToValue(new WorldScanPipelineConfiguration
-                        {
-
-                        });
+                        binder.Bind<WorldScanPipelineConfiguration>().ToValue(new WorldScanPipelineConfiguration());
                         binder.Bind<WorldScanPipeline>().To<WorldScanPipeline>().ToSingleton();
 #if NETFX_CORE
                         binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
@@ -151,11 +149,12 @@ namespace CreateAR.SpirePlayer
                     }
                 }
 
-                // service manager + appplication
+                binder.Bind<IAppController>().To<AppController>();
+                
+                // service manager + application
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<IBridge>(),
-                    binder.GetInstance<IConnection>(),
                     binder.GetInstance<MessageFilter>(),
                     binder.GetInstance<BridgeMessageHandler>(),
                     binder.GetInstance<ApplicationConfig>(),
@@ -180,19 +179,21 @@ namespace CreateAR.SpirePlayer
         /// <param name="binder">Object to add bindings to.</param>
         private void AddSpireBindings(InjectionBinder binder)
         {
-            binder.Bind<AppController>().To<AppController>();
-
             // AR
             {
                 binder.Bind<ArCameraRig>().ToValue(LookupComponent<ArCameraRig>());
                 binder.Bind<ArServiceConfiguration>().ToValue(LookupComponent<ArServiceConfiguration>());
+
 #if !UNITY_EDITOR && UNITY_IOS
                 binder.Bind<UnityEngine.XR.iOS.UnityARSessionNativeInterface>().ToValue(UnityEngine.XR.iOS.UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
+                binder.Bind<IWorldAnchorProvider>().To<ArKitWorldAnchorProvider>().ToSingleton();
 #elif !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
+                binder.Bind<IWorldAnchorProvider>().To<HoloLensWorldAnchorProvider>().ToSingleton();
 #else
-                binder.Bind<IArService>().To<EditorArService>().ToSingleton();
+                binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
+                binder.Bind<IArService>().To<PassthroughArService>().ToSingleton();
 #endif
             }
 
@@ -223,7 +224,6 @@ namespace CreateAR.SpirePlayer
                 {
                     binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
                     binder.Bind<IContentFactory>().To<ContentFactory>();
-                    binder.Bind<IAnchorReferenceFrameFactory>().To<AnchorReferenceFrameFactory>();
                 }
 
                 // configs
@@ -247,8 +247,20 @@ namespace CreateAR.SpirePlayer
 
             // design
             {
+                binder.Bind<IElementControllerManager>().To<ElementControllerManager>().ToSingleton();
+
+                // states
+                {
+                    binder.Bind<MainDesignState>().To<MainDesignState>();
+                    binder.Bind<NewContentDesignState>().To<NewContentDesignState>();
+                    binder.Bind<EditContentDesignState>().To<EditContentDesignState>();
+                    binder.Bind<ReparentDesignState>().To<ReparentDesignState>();
+                    binder.Bind<AnchorDesignState>().To<AnchorDesignState>();
+                }
+
+                binder.Bind<IElementUpdateDelegate>().To<DesignController>().ToSingleton();
+                binder.Bind<ISceneUpdateDelegate>().To<DesignController>().ToSingleton();
                 binder.Bind<DesignController>().To<DesignController>().ToSingleton();
-                binder.Bind<IAppController>().To<AppController>().ToSingleton();
             }
 
             // hierarchy
@@ -267,7 +279,6 @@ namespace CreateAR.SpirePlayer
 
                 // scripting interfaces
                 {
-                    binder.Bind<AppDataScriptingInterface>().To<AppDataScriptingInterface>().ToSingleton();
                     binder.Bind<MessageRouterScriptingInterface>().To<MessageRouterScriptingInterface>().ToSingleton();
                 }
             }

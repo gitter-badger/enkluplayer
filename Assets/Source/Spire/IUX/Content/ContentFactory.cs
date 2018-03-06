@@ -1,5 +1,4 @@
 ﻿using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
 
@@ -17,14 +16,11 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
         private readonly IScriptManager _scripts;
         private readonly IAssetPoolManager _pools;
-        private readonly IAnchorReferenceFrameFactory _frames;
         private readonly ILoadProgressManager _progress;
         private readonly ILayerManager _layers;
         private readonly ColorConfig _colors;
-        private readonly IMessageRouter _messages;
         private readonly TweenConfig _tweens;
-        private readonly WidgetConfig _config;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -33,25 +29,19 @@ namespace CreateAR.SpirePlayer
             IAssetManager assets,
             IScriptManager scripts,
             IAssetPoolManager pools,
-            IAnchorReferenceFrameFactory frames,
             ILoadProgressManager progress,
             ILayerManager layers,
             ColorConfig colors,
-            IMessageRouter messages,
-            TweenConfig tweens,
-            WidgetConfig config)
+            TweenConfig tweens)
         {
             _appData = appData;
             _assets = assets;
             _scripts = scripts;
             _pools = pools;
-            _frames = frames;
             _progress = progress;
             _layers = layers;
             _colors = colors;
             _tweens = tweens;
-            _messages = messages;
-            _config = config;
         }
 
         /// <inheritdoc cref="IContentFactory"/>
@@ -64,12 +54,9 @@ namespace CreateAR.SpirePlayer
                 _assets,
                 _pools,
                 _progress);
-            var instance = new ContentWidget(
-                _config,
-                _layers,
+            var instance = new ContentWidget(_layers,
                 _tweens, 
                 _colors,
-                _messages,
                 _scripts,
                 assembler,
                 _appData);
@@ -85,11 +72,6 @@ namespace CreateAR.SpirePlayer
                 schema,
                 new Element[0]);
             
-            // setup the Anchor
-            var frame = _frames.Instance(content, data.Anchor.Type);
-            var anchor = instance.GameObject.AddComponent<Anchor>();
-            anchor.Initialize(frame, data.Anchor);
-
             return instance;
         }
     }

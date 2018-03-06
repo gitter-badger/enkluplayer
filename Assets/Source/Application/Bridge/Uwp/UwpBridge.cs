@@ -53,7 +53,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="bootstrapper">Bootstraps coroutines.</param>
         public UwpBridge(IBootstrapper bootstrapper)
         {
-            _handler = handler;
             _server = new UwpWebsocketServer(bootstrapper, this);
             
             _server.Listen();

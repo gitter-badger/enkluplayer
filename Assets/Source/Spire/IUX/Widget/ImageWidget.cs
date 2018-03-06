@@ -1,6 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -43,19 +42,15 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public ImageWidget(
             GameObject gameObject,
-            WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IMessageRouter messages,
             IImageLoader loader)
             : base(
                 gameObject,
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
             _loader = loader;
             _image = gameObject.GetComponentInChildren<Image>();

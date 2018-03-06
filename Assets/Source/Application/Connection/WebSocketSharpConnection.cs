@@ -1,11 +1,8 @@
 ﻿#if UNITY_EDITOR || UNITY_IOS
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using WebSocketSharp;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -21,12 +18,7 @@ namespace CreateAR.SpirePlayer
         /// Serializer.
         /// </summary>
         private readonly JsonSerializer _json = new JsonSerializer();
-
-        /// <summary>
-        /// Message queue. This is added to from another thread.
-        /// </summary>
-        private readonly List<MessageEventArgs> _messages = new List<MessageEventArgs>();
-
+        
         /// <summary>
         /// Configuration.
         /// </summary>
@@ -38,33 +30,36 @@ namespace CreateAR.SpirePlayer
         private readonly ConnectionMessageHandler _handler;
 
         /// <summary>
-        /// Bootstraps coroutines.
-        /// </summary>
-        private readonly IBootstrapper _bootstrapper;
-
-        /// <summary>
         /// The underlying WebSocket.
         /// </summary>
         private WebSocket _socket;
 
         /// <summary>
+        /// Token for connection.
+        /// </summary>
+        private AsyncToken<Void> _connectToken;
+        
+        /// <summary>
         /// Constructor.
         /// </summary>
         public WebSocketSharpConnection(
             ApplicationConfig config,
-            ConnectionMessageHandler handler,
-            IBootstrapper bootstrapper)
+            ConnectionMessageHandler handler)
         {
             _config = config;
             _handler = handler;
-            _bootstrapper = bootstrapper;
-
-            _bootstrapper.BootstrapCoroutine(ConsumeMessages());
+            _handler.OnHeartbeatRequested += Handler_OnSendPong;
         }
+
         /// <inheritdoc />
         public IAsyncToken<Void> Connect(EnvironmentData environment)
         {
-            var token = new AsyncToken<Void>();
+            if (null != _connectToken)
+            {
+                return _connectToken.Token();
+            }
+
+            _connectToken = new AsyncToken<Void>();
 
             // shave off protocol
             var substring = environment.BaseUrl.Substring(
@@ -75,8 +70,11 @@ namespace CreateAR.SpirePlayer
                 substring,
                 environment.Port);
             
+            Log.Info(this, "Connecting to {0}.", wsUrl);
+            
             _socket = new WebSocket(wsUrl);
             {
+                _socket.EmitOnPing = true;
                 _socket.OnOpen += Socket_OnOpen;
                 _socket.OnClose += Socket_OnClose;
                 _socket.OnMessage += Socket_OnMessage;
@@ -84,16 +82,16 @@ namespace CreateAR.SpirePlayer
                 _socket.Connect();
             }
             
-            return token;
+            return _connectToken.Token();
         }
 
         /// <summary>
         /// Sends a request.
         /// </summary>
         /// <param name="req">The request.</param>
-        public void Send(WebSocketRequestRequest req)
+        public void Send(WebSocketRequest req)
         {
-            req.Headers = new WebSocketRequestRequest.HeaderData
+            req.Headers = new WebSocketRequest.HeaderData
             {
                 Authorization = "Bearer " + _config.Network.Credentials(_config.Network.Current).Token
             };
@@ -119,51 +117,22 @@ namespace CreateAR.SpirePlayer
 
             _socket.Send(str);
         }
-
-        /// <summary>
-        /// Long running generator to pull messages off the queue.
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerator ConsumeMessages()
-        {
-            while (true)
-            {
-                MessageEventArgs[] messages = null;
-                lock (_messages)
-                {
-                    if (_messages.Count > 0)
-                    {
-                        messages = _messages.ToArray();
-                        _messages.Clear();
-                    }
-                }
-
-                if (null != messages)
-                {
-                    for (var i = 0; i < messages.Length; i++)
-                    {
-                        var message = messages[i];
-                        _handler.OnMessage(message.Data);
-                    }
-                }
-
-                yield return null;
-            }
-        }
-
+        
         /// <summary>
         /// Called when socket is opened.
         /// </summary>
         private void Socket_OnOpen(object sender, EventArgs eventArgs)
         {
-            LogVerbose("Open.");
+            Log.Info(this, "Socket connected.");
 
             // immediately subscribe
-            Send(new WebSocketRequestRequest(
+            Send(new WebSocketRequest(
                 string.Format(
                     "/v1/editor/app/{0}/subscribe",
                     _config.Play.AppId),
                 "post"));
+            
+            _connectToken.Succeed(Void.Instance);
         }
         
         /// <summary>
@@ -171,7 +140,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Socket_OnClose(object sender, CloseEventArgs closeEventArgs)
         {
-            LogVerbose("Close.");
+            LogVerbose("Socket closed.");
+
+            _connectToken.Fail(new Exception("Socket closed."));
+            _connectToken = null;
         }
 
         /// <summary>
@@ -180,11 +152,8 @@ namespace CreateAR.SpirePlayer
         private void Socket_OnMessage(object sender, MessageEventArgs messageEventArgs)
         {
             LogVerbose("Message : {0}.", messageEventArgs.Data);
-
-            lock (_messages)
-            {
-                _messages.Add(messageEventArgs);
-            }
+            
+            _handler.OnMessage(messageEventArgs.Data);
         }
 
         /// <summary>
@@ -193,6 +162,16 @@ namespace CreateAR.SpirePlayer
         private void Socket_OnError(object sender, ErrorEventArgs errorEventArgs)
         {
             LogVerbose("Error : {0}.", errorEventArgs.Message);
+        }
+
+        /// <summary>
+        /// Called when the handler tells the connection to send a pong.
+        /// </summary>
+        private void Handler_OnSendPong()
+        {
+            LogVerbose("Pong()");
+
+            _socket.Send("40");
         }
 
         /// <summary>

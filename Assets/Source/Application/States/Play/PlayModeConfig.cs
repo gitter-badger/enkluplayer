@@ -1,5 +1,4 @@
-﻿using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -9,8 +8,8 @@ namespace CreateAR.SpirePlayer
     public class PlayModeConfig : MonoBehaviour
     {
         /// <summary>
-        /// Events.
+        /// Prefab for an anchor.
         /// </summary>
-        public IUXEventHandler Events;
+        public GameObject AnchorPrefab;
     }
 }

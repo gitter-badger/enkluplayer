@@ -1,6 +1,5 @@
 using System;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using System.Diagnostics;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -53,22 +52,13 @@ namespace CreateAR.SpirePlayer.IUX
         /// Cached virtual color.
         /// </summary>
         private VirtualColor _virtualColor;
-        
+
         /// <summary>
         /// Dependencies.
-        /// 
-        /// TODO: Switch to protected.
         /// </summary>
-        [Obsolete]
-        public ILayerManager Layers { get; private set; }
-        [Obsolete]
-        public ColorConfig Colors { get; private set; }
-        [Obsolete]
-        public TweenConfig Tweens { get; private set; }
-        [Obsolete]
-        public WidgetConfig Config { get; private set; }
-        [Obsolete]
-        public IMessageRouter Messages { get; private set; }
+        private readonly ILayerManager _layers;
+        private readonly ColorConfig _colors;
+        private readonly TweenConfig _tweens;
 
         /// <summary>
         /// True iff <c>LoadInternal</c> has been called.
@@ -251,7 +241,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                var modalLayer = Layers.ModalLayer;
+                var modalLayer = _layers.ModalLayer;
                 var layerInteractive = modalLayer == null || modalLayer == Layer;
 
                 return layerInteractive;
@@ -274,11 +264,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public Widget(
             GameObject gameObject,
-            WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
-            ColorConfig colors,
-            IMessageRouter messages)
+            ColorConfig colors)
         {
             if (null == gameObject)
             {
@@ -287,11 +275,9 @@ namespace CreateAR.SpirePlayer.IUX
 
             GameObject = gameObject;
 
-            Config = config;
-            Layers = layers;
-            Tweens = tweens;
-            Colors = colors;
-            Messages = messages;
+            _layers = layers;
+            _tweens = tweens;
+            _colors = colors;
         }
 
         /// <summary>
@@ -321,11 +307,11 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (_layer != null)
             {
-                Layers.Release(_layer);
+                _layers.Release(_layer);
                 _layer = null;
             }
 
-            _layer = Layers.Request(this);
+            _layer = _layers.Request(this);
         }
         
         /// <summary>
@@ -389,7 +375,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (_layer != null)
             {
-                Layers.Release(_layer);
+                _layers.Release(_layer);
             }
 
             base.UnloadInternalAfterChildren();
@@ -408,7 +394,7 @@ namespace CreateAR.SpirePlayer.IUX
                     false);
             }
         }
-
+        
         /// <summary>
         /// Frame based update
         /// </summary>
@@ -574,7 +560,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (virtualColor != VirtualColor.None)
             {
-                var newColor = Colors.GetColor(virtualColor);
+                var newColor = _colors.GetColor(virtualColor);
                 newColor.a = LocalColor.a;
                 LocalColor = Visible
                     ? Col4.Lerp(LocalColor, newColor, deltaTime * 5.0f)
@@ -606,7 +592,7 @@ namespace CreateAR.SpirePlayer.IUX
                 ? TweenIn
                 : TweenOut;
 
-            var tweenDuration = Tweens.DurationSeconds(tweenType);
+            var tweenDuration = _tweens.DurationSeconds(tweenType);
             if (tweenDuration < Mathf.Epsilon)
             {
                 _localTween = Visible

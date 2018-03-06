@@ -8,5 +8,6 @@
         public const string CREATE = "create";
         public const string DELETE = "delete";
         public const string UPDATE = "update";
+        public const string MOVE = "move";
     }
 }

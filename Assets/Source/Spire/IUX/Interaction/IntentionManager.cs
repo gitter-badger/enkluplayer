@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Diagnostics;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -34,6 +35,16 @@ namespace CreateAR.SpirePlayer.IUX
         /// Widget which is currently focused
         /// </summary>
         private IInteractable _focusWidget;
+
+        /// <summary>
+        /// Last state of mouse down.
+        /// </summary>
+        private Vec3 _lastMouseOrigin;
+
+        /// <summary>
+        /// Last state of mouse do
+        /// </summary>
+        private Vec3 _lastMouseForward;
 
         /// <summary>
         /// For aiming with a hand.
@@ -144,6 +155,18 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>
+        protected override void Awake()
+        {
+            base.Awake();
+
+            var camTransform = Camera.main.transform;
+            _lastMouseOrigin = Origin = camTransform.position.ToVec();
+            _lastMouseForward = Forward = camTransform.forward.ToVec();
+            Right = camTransform.right.ToVec();
+            Up = camTransform.up.ToVec();
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
         private void Start()
         {
             Interactables.OnRemoved += Interactables_OnRemoved;
@@ -153,9 +176,9 @@ namespace CreateAR.SpirePlayer.IUX
         private void Update()
         {
             var deltaTime = Time.deltaTime;
-
+            
             UpdatePerspective();
-            UpdatePeripherals();
+            UpdateMouse();
             UpdateHands();
             UpdateStability(deltaTime);
             UpdateFocus();
@@ -178,18 +201,29 @@ namespace CreateAR.SpirePlayer.IUX
             Up = cameraTransform.up.ToVec();
             Right = cameraTransform.right.ToVec();
         }
-
+        
         /// <summary>
         /// Updates peripherals.
         /// </summary>
-        private void UpdatePeripherals()
+        private void UpdateMouse()
         {
+            if (!UnityEngine.Application.isEditor
+                && UnityEngine.Application.platform != RuntimePlatform.WebGLPlayer)
+            {
+                return;
+            }
+
             if (Input.GetMouseButton(0))
             {
                 var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-                Origin = mouseRay.origin.ToVec();
-                Forward = mouseRay.direction.ToVec();
+                _lastMouseOrigin = Origin = mouseRay.origin.ToVec();
+                _lastMouseForward = Forward = mouseRay.direction.ToVec();
+            }
+            else
+            {
+                Origin = _lastMouseOrigin;
+                Forward = _lastMouseForward;
             }
         }
 

@@ -1,6 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Messaging;
-using UnityEngine;
+﻿using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -40,17 +38,14 @@ namespace CreateAR.SpirePlayer.IUX
             GameObject gameObject,
             WidgetConfig config,
             IIntentionManager intention,
-            IMessageRouter messages,
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors)
             : base(
                 gameObject,
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
             _config = config;
             _intention = intention;

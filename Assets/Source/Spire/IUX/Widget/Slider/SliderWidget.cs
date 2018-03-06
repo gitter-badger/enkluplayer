@@ -1,5 +1,4 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -126,21 +125,17 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public SliderWidget(
             GameObject gameObject,
-            WidgetConfig config,
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IMessageRouter messages,
             IInteractionManager interactions,
             IElementFactory elements,
             IIntentionManager intentions)
             : base(
                 gameObject,
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
             _elements = elements;
             _intentions = intentions;

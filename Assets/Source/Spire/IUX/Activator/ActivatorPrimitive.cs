@@ -26,6 +26,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private readonly IInteractionManager _interaction;
         private readonly IIntentionManager _intention;
+        private readonly ILayerManager _layers;
+        private readonly TweenConfig _tweens;
+        private readonly ColorConfig _colors;
         private readonly IMessageRouter _messages;
 
         /// <summary>
@@ -229,15 +232,16 @@ namespace CreateAR.SpirePlayer.IUX
             Widget target)
             : base(
                 new GameObject("Activator"),
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
             _config = config;
             _interaction = interaction;
             _intention = intention;
+            _tweens = tweens;
+            _layers = layers;
+            _colors = colors;
             _messages = messages;
             _target = target;
         }
@@ -268,7 +272,7 @@ namespace CreateAR.SpirePlayer.IUX
                 Vector3.zero,
                 Quaternion.identity);
             _renderer.transform.SetParent(GameObject.transform, false);
-            _renderer.Initialize(this, _config, Layers, Tweens, Colors, Messages, _intention, _interaction);
+            _renderer.Initialize(this, _config, _layers, _tweens, _colors, _messages, _intention, _interaction);
             
             SetIcon();
 
@@ -366,7 +370,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _propHighlighted = Schema.Get<bool>("highlighted");
             _propHighlightPriority = Schema.Get<int>("highlightPriority");
-            _propInteractionEnabled = Schema.GetOwn<bool>("interactionEnabled", true);
+            _propInteractionEnabled = Schema.GetOwn("interactionEnabled", true);
 
             _propActivationType = Schema.GetOwn("activation.type", ActivationType.Fill.ToString());
             _renderer.Activation = EnumExtensions.Parse<ActivationType>(_propActivationType.Value);
@@ -382,7 +386,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _states = new FiniteStateMachine(new IState[]
                 {
-                    new ActivatorActivatingState(this, _intention, Schema, false)
+                    new ActivatorActivatingState(_config, this, _intention, Schema, false)
                 });
                 _states.Change<ActivatorActivatingState>();
             }
@@ -390,8 +394,8 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _states = new FiniteStateMachine(new IState[]
                 {
-                    new ActivatorReadyState(this, Schema),
-                    new ActivatorActivatingState(this, _intention, Schema, true),
+                    new ActivatorReadyState(_config, this, Schema),
+                    new ActivatorActivatingState(_config, this, _intention, Schema, true),
                     new ActivatorActivatedState(_target, this, _messages, Schema)
                 });
                 _states.Change<ActivatorReadyState>();

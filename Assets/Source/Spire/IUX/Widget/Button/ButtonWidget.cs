@@ -1,7 +1,6 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -21,6 +20,11 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     public class ButtonWidget : Widget, IInteractable
     {
+        /// <summary>
+        /// Config.
+        /// </summary>
+        private readonly WidgetConfig _config;
+
         /// <summary>
         /// For primitives.
         /// </summary>
@@ -147,17 +151,15 @@ namespace CreateAR.SpirePlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IMessageRouter messages,
             IVoiceCommandManager voice,
             IImageLoader loader)
             : base(
                 gameObject,
-                config,
                 layers,
                 tweens,
-                colors,
-                messages)
+                colors)
         {
+            _config = config;
             _primitives = primitives;
             _voice = voice;
             _loader = loader;
@@ -254,7 +256,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LateUpdateInternal();
 
-            //_stateRenderer.Update(Time.smoothDeltaTime);
+            _stateRenderer.Update(Time.smoothDeltaTime);
         }
 
         /// <inheritdoc />
@@ -308,7 +310,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             // load icon
-            _activator.Icon = Config.Icons.Icon(_iconProp.Value);
+            _activator.Icon = _config.Icons.Icon(_iconProp.Value);
 
             // if there is a src, load it
             var src = _srcProp.Value;

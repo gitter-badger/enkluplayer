@@ -1,5 +1,7 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.SpirePlayer.IUX;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -10,10 +12,20 @@ namespace CreateAR.SpirePlayer
     public interface IElementTxnManager
     {
         /// <summary>
-        /// Collection of loaded scenes.
+        /// Ids of loaded scenes.
         /// </summary>
         string[] TrackedScenes { get; }
-        
+
+        /// <summary>
+        /// Called when a new scene is being tracked.
+        /// </summary>
+        event Action<string> OnSceneAfterTracked;
+
+        /// <summary>
+        /// Called when an existing scene is no longer being tracked.
+        /// </summary>
+        event Action<string> OnSceneBeforeUntracked;
+
         /// <summary>
         /// Initializes the manager for an app.
         /// </summary>
