@@ -4,16 +4,28 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Provides configuration based on platform.
+    /// </summary>
     public class UnityPlatformConfigManager : InjectableMonoBehaviour
     {
+        /// <summary>
+        /// The configs.
+        /// </summary>
         public UnityPlatformConfig[] Configs;
 
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         [Inject]
         public MainCamera Camera { get; set; }
-
         [Inject]
         public GridRenderer GridRenderer { get; set; }
 
+        /// <summary>
+        /// Retrieves the current config.
+        /// </summary>
+        /// <returns></returns>
         public UnityPlatformConfig GetConfig()
         {
             for (var i = 0; i < Configs.Length; i++)
@@ -28,6 +40,7 @@ namespace CreateAR.SpirePlayer
             return null;
         }
 
+        /// <inheritdoc />
         protected override void Awake()
         {
             base.Awake();
@@ -50,23 +63,44 @@ namespace CreateAR.SpirePlayer
         }
     }
 
+    /// <summary>
+    /// Configuration for a set of platforms.
+    /// </summary>
     [Serializable]
     public class UnityPlatformConfig
     {
+        /// <summary>
+        /// The platforms to match.
+        /// </summary>
         public RuntimePlatform[] Platforms;
 
+        /// <summary>
+        /// Config for the grid.
+        /// </summary>
         public GridConfig Grid;
+
+        /// <summary>
+        /// Config for the camera.
+        /// </summary>
         public CameraConfig Camera;
 
+        /// <summary>
+        /// True iff active.
+        /// </summary>
+        /// <returns></returns>
         public bool IsActive()
         {
             return Platforms.Contains(UnityEngine.Application.platform);
         }
     }
 
+    /// <summary>
+    /// Config for camera.
+    /// </summary>
     [Serializable]
     public class CameraConfig
     {
+        [Tooltip("Clear color.")]
         public Color BackgroundColor;
     }
 }
