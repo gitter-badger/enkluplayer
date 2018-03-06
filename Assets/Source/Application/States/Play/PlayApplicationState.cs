@@ -43,7 +43,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Controls design mode.
         /// </summary>
-        private readonly DesignController _design;
+        private readonly IDesignController _design;
 
         /// <summary>
         /// Application-wide configuration.
@@ -68,15 +68,15 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IScriptRequireResolver resolver,
             IAppController app,
-            ApplicationConfig config,
-            DesignController design)
+            IDesignController design,
+            ApplicationConfig config)
         {
             _bootstrapper = bootstrapper;
             _messages = messages;
             _resolver = resolver;
             _app = app;
-            _appConfig = config;
             _design = design;
+            _appConfig = config;
         }
 
         /// <inheritdoc cref="IState"/>

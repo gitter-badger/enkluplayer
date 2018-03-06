@@ -1,12 +1,35 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using CreateAR.Commons.Unity.Async;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// An interface for an object that handles <c>ElementData</c> updates.
+    /// An interface for an object that updates elements.
     /// </summary>
     public interface IElementUpdateDelegate
     {
+        /// <summary>
+        /// Gets and sets the active scene id.
+        /// </summary>
+        string Active { get; set; }
+
+        /// <summary>
+        /// Creates a new element in active scene.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        IAsyncToken<Element> Create(ElementData data);
+
+        /// <summary>
+        /// Deletes an element from active scene.
+        /// </summary>
+        /// <param name="element">The element.</param>
+        IAsyncToken<Element> Destroy(Element element);
+
+        /// <summary>
+        /// Deletes all elements from active scene.
+        /// </summary>
+        IAsyncToken<Void> DestroyAll();
+
         /// <summary>
         /// Called when element has been updated.
         /// </summary>
@@ -40,6 +63,14 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Finalizes update.
         /// </summary>
-        void Finalize(Element element);
+        void FinalizeUpdate(Element element);
+
+        /// <summary>
+        /// Reparents an element.
+        /// </summary>
+        /// <param name="element">The element to move.</param>
+        /// <param name="parent">The new parent.</param>
+        /// <returns></returns>
+        IAsyncToken<Element> Reparent(Element element, Element parent);
     }
 }

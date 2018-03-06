@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Entry state of design controller.
     /// </summary>
-    public class MainDesignState : IDesignState
+    public class MainDesignState : IArDesignState
     {
         /// <summary>
         /// Manages controllers.
@@ -18,7 +18,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Design controller.
         /// </summary>
-        private DesignController _design;
+        private ArDesignController _design;
         
         /// <summary>
         /// Root of dynamic menus.
@@ -60,7 +60,7 @@ namespace CreateAR.SpirePlayer
 
         /// <inheritdoc />
         public void Initialize(
-            DesignController design,
+            ArDesignController design,
             GameObject unityRoot,
             Element dynamicRoot,
             Element staticRoot)
@@ -109,7 +109,7 @@ namespace CreateAR.SpirePlayer
                 .Add<ContentDesignController>(
                     new ContentDesignController.ContentDesignControllerContext
                     {
-                        Delegate = _design,
+                        Delegate = _design.Elements,
                         OnAdjust = Content_OnAdjust
                     });
 
@@ -239,10 +239,21 @@ namespace CreateAR.SpirePlayer
         {
             _clearScene.enabled = false;
 
-            _design.Active.DestroyAll();
+            _design
+                .Elements
+                .DestroyAll()
+                .OnSuccess(_ =>
+                {
+                    _mainMenu.enabled = true;
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not destroy all elements in active scene : {0}.",
+                        exception);
+                });
 
             _dynamicRoot.Schema.Set("focus.visible", true);
-            _mainMenu.enabled = true;
         }
 
         /// <summary>

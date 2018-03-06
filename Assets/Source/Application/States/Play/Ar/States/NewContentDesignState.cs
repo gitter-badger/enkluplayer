@@ -7,12 +7,12 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// State for craeting new content.
     /// </summary>
-    public class NewContentDesignState : IDesignState
+    public class NewContentDesignState : IArDesignState
     {
         /// <summary>
         /// Design controller.
         /// </summary>
-        private DesignController _design;
+        private ArDesignController _design;
         
         /// <summary>
         /// Root of dynamic menus.
@@ -31,7 +31,7 @@ namespace CreateAR.SpirePlayer
         
         /// <inheritdoc />
         public void Initialize(
-            DesignController design,
+            ArDesignController design,
             GameObject unityRoot,
             Element dynamicRoot,
             Element staticRoot)
@@ -118,7 +118,7 @@ namespace CreateAR.SpirePlayer
         private void Place_OnConfirm(ElementData contentData)
         {
             _design
-                .Active
+                .Elements
                 .Create(contentData)
                 .OnFailure(exception =>
                 {

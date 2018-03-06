@@ -7,12 +7,12 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls editing content.
     /// </summary>
-    public class EditContentDesignState : IDesignState
+    public class EditContentDesignState : IArDesignState
     {
         /// <summary>
         /// Design controller.
         /// </summary>
-        private DesignController _design;
+        private ArDesignController _design;
         
         /// <summary>
         /// Root element for dynamic content.
@@ -41,7 +41,7 @@ namespace CreateAR.SpirePlayer
 
         /// <inheritdoc />
         public void Initialize(
-            DesignController design,
+            ArDesignController design,
             GameObject unityRoot,
             Element dynamicRoot,
             Element staticRoot)
@@ -181,7 +181,7 @@ namespace CreateAR.SpirePlayer
         {
             CloseAll();
 
-            _design.Active.Destroy(elementController.Element.Id);
+            _design.Elements.Destroy(elementController.Element);
 
             _dynamicRoot.Schema.Set("focus.visible", true);
 

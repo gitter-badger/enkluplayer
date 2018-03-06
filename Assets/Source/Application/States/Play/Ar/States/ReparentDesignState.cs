@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// State for reparenting.
     /// </summary>
-    public class ReparentDesignState : IDesignState
+    public class ReparentDesignState : IArDesignState
     {
         /// <summary>
         /// Manages controllers.
@@ -22,7 +22,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Designer.
         /// </summary>
-        private DesignController _design;
+        private ArDesignController _design;
 
         /// <summary>
         /// Unity root.
@@ -44,7 +44,7 @@ namespace CreateAR.SpirePlayer
 
         /// <inheritdoc />
         public void Initialize(
-            DesignController design,
+            ArDesignController design,
             GameObject unityRoot,
             Element dynamicRoot,
             Element staticRoot)
@@ -101,7 +101,8 @@ namespace CreateAR.SpirePlayer
         private void Reparent(Element parent)
         {
             _design
-                .Move(_content.Element, parent)
+                .Elements
+                .Reparent(_content.Element, parent)
                 .OnSuccess(_ => _design.ChangeState<MainDesignState>())
                 .OnFailure(exception => Log.Error(
                     this,

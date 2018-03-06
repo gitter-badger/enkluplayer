@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Design state for editing anchors.
     /// </summary>
-    public class AnchorDesignState : IDesignState
+    public class AnchorDesignState : IArDesignState
     {
         /// <summary>
         /// Manages controllers on elements.
@@ -26,9 +26,14 @@ namespace CreateAR.SpirePlayer
         private readonly IWorldAnchorProvider _provider;
 
         /// <summary>
+        /// Updates elements.
+        /// </summary>
+        private readonly IElementUpdateDelegate _elementUpdater;
+        
+        /// <summary>
         /// Design controller.
         /// </summary>
-        private DesignController _design;
+        private ArDesignController _design;
 
         /// <summary>
         /// Anchor menu.
@@ -56,16 +61,18 @@ namespace CreateAR.SpirePlayer
         public AnchorDesignState(
             IElementControllerManager controllers,
             IHttpService http,
-            IWorldAnchorProvider provider)
+            IWorldAnchorProvider provider,
+            IElementUpdateDelegate elementUpdater)
         {
             _controllers = controllers;
             _http = http;
             _provider = provider;
+            _elementUpdater = elementUpdater;
         }
 
         /// <inheritdoc />
         public void Initialize(
-            DesignController design,
+            ArDesignController design,
             GameObject unityRoot,
             Element dynamicRoot,
             Element staticRoot)
@@ -173,8 +180,7 @@ namespace CreateAR.SpirePlayer
             _placeAnchor.enabled = false;
             _anchors.enabled = true;
 
-            _design
-                .Active
+            _elementUpdater
                 .Create(data)
                 .OnSuccess(element => _design.ChangeState<MainDesignState>())
                 .OnFailure(exception => Log.Error(this,

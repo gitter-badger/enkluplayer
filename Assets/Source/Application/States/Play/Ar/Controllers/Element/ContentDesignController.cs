@@ -218,7 +218,7 @@ namespace CreateAR.SpirePlayer
                 _isDirty = false;
                 _lastFinalize = DateTime.Now;
 
-                _context.Delegate.Finalize(Element);
+                _context.Delegate.FinalizeUpdate(Element);
             }
         }
 
