@@ -155,6 +155,18 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>
+        protected override void Awake()
+        {
+            base.Awake();
+
+            var camTransform = Camera.main.transform;
+            _lastMouseOrigin = Origin = camTransform.position.ToVec();
+            _lastMouseForward = Forward = camTransform.forward.ToVec();
+            Right = camTransform.right.ToVec();
+            Up = camTransform.up.ToVec();
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
         private void Start()
         {
             Interactables.OnRemoved += Interactables_OnRemoved;
@@ -164,7 +176,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void Update()
         {
             var deltaTime = Time.deltaTime;
-
+            
             UpdatePerspective();
             UpdateMouse();
             UpdateHands();
