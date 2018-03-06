@@ -1,29 +1,42 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Renders an okay-looking grid from GL.LINES.
+    /// Configuration for a grid.
     /// </summary>
-    public class Grid : MonoBehaviour
+    [Serializable]
+    public class GridConfig
     {
+        [Tooltip("True iff grid is enabled.")]
+        public bool Enabled;
+
         [Tooltip("The size of each cell, in world space.")]
         public float CellSize = 1f;
 
         [Tooltip("The worldspace size of the grid.")]
-        public Vector2 GridSize = new Vector2(10, 10);
+        public Vector2 GridSize = new Vector2(52, 52);
 
         [Tooltip("The color of the emphasized lines.")]
         public Color PrimaryColor = new Color(0f, 0f, 0f, 1f);
 
         [Tooltip("The color of the unemphasized lines.")]
         public Color SecondaryColor = new Color(0f, 0f, 0f, 1f);
+    }
 
+    /// <summary>
+    /// Renders an okay-looking grid from GL.LINES.
+    /// </summary>
+    public class GridRenderer : MonoBehaviour
+    {
         [Tooltip("The material to render with. Auto generated and only useful for viewing at runtime.")]
         public Material Material;
 
-        [Tooltip("Enables/disables rendering.")]
-        public bool Enabled;
+        /// <summary>
+        /// The configuration to use.
+        /// </summary>
+        public GridConfig Config;
         
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Awake()
@@ -45,13 +58,13 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="MonoBehaviour"/>
         private void OnPostRender()
         {
-            if (!Enabled)
+            if (!Config.Enabled)
             {
                 return;
             }
             
-            DrawGrid(GridSize, CellSize, SecondaryColor);
-            DrawGrid(GridSize, CellSize * 4, PrimaryColor);
+            DrawGrid(Config.GridSize, Config.CellSize, Config.SecondaryColor);
+            DrawGrid(Config.GridSize, Config.CellSize * 4, Config.PrimaryColor);
         }
 
         /// <summary>

@@ -88,6 +88,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
                     binder.Bind<WebBridge>().ToValue(LookupComponent<WebBridge>());
                     binder.Bind<ILoadProgressManager>().ToValue(LookupComponent<LoadProgressManager>());
+                    binder.Bind<GridRenderer>().ToValue(LookupComponent<GridRenderer>());
                 }
             }
 

@@ -41,7 +41,7 @@ namespace CreateAR.SpirePlayer
         /// Network configuration.
         /// </summary>
         public NetworkConfig Network = new NetworkConfig();
-
+        
         /// <summary>
         /// ToString override.
         /// </summary>
