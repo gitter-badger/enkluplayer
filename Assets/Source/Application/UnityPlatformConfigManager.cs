@@ -21,13 +21,25 @@ namespace CreateAR.SpirePlayer
         public MainCamera Camera { get; set; }
         [Inject]
         public GridRenderer GridRenderer { get; set; }
-
+        
         /// <summary>
         /// Retrieves the current config.
         /// </summary>
         /// <returns></returns>
         public UnityPlatformConfig GetConfig()
         {
+            if (UnityEngine.Application.isEditor)
+            {
+                for (var i = 0; i < Configs.Length; i++)
+                {
+                    var config = Configs[i];
+                    if (config.Debug)
+                    {
+                        return config;
+                    }
+                }
+            }
+
             for (var i = 0; i < Configs.Length; i++)
             {
                 var config = Configs[i];
@@ -59,7 +71,10 @@ namespace CreateAR.SpirePlayer
             GridRenderer.Config = config.Grid;
             
             // camera
-            Camera.GetComponent<Camera>().backgroundColor = config.Camera.BackgroundColor;
+            var cam = Camera.GetComponent<Camera>();
+            cam.backgroundColor = config.Camera.BackgroundColor;
+            cam.transform.position = config.Camera.StartingPosition;
+            cam.transform.LookAt(Vector3.zero);
         }
     }
 
@@ -73,6 +88,9 @@ namespace CreateAR.SpirePlayer
         /// The platforms to match.
         /// </summary>
         public RuntimePlatform[] Platforms;
+
+        [Tooltip("If true, then the editor will use this config. Only applies in editor.")]
+        public bool Debug;
 
         /// <summary>
         /// Config for the grid.
@@ -102,5 +120,8 @@ namespace CreateAR.SpirePlayer
     {
         [Tooltip("Clear color.")]
         public Color BackgroundColor;
+
+        [Tooltip("Starting position of camera.")]
+        public Vector3 StartingPosition;
     }
 }
