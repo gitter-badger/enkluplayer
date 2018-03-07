@@ -53,9 +53,12 @@ namespace CreateAR.SpirePlayer
         public void Setup(PlayModeConfig config, IAppController app)
         {
             _runtimeGizmos = Object.Instantiate(config.RuntimeGizmoSystem);
+
             var selectionSettings = _runtimeGizmos.GetComponentInChildren<EditorObjectSelection>().ObjectSelectionSettings;
             selectionSettings.CanSelectSpriteObjects = false;
             selectionSettings.CanSelectEmptyObjects = true;
+
+            _runtimeGizmos.GetComponentInChildren<SceneGizmo>().Corner = SceneGizmoCorner.BottomRight;
 
             _mainCamera.enabled = false;
 
