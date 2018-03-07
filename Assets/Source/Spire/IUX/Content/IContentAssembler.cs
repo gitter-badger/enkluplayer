@@ -9,6 +9,11 @@ namespace CreateAR.SpirePlayer
     public interface IContentAssembler
     {
         /// <summary>
+        /// Retrieves the bounds.
+        /// </summary>
+        Bounds Bounds { get; }
+
+        /// <summary>
         /// Called when assembly is complete.
         /// </summary>
         event Action<GameObject> OnAssemblyComplete;

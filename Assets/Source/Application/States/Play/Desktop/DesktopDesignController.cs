@@ -1,7 +1,10 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
 using RTEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -14,6 +17,11 @@ namespace CreateAR.SpirePlayer
         /// Transactions.
         /// </summary>
         private readonly IElementTxnManager _txns;
+
+        /// <summary>
+        /// Elements.
+        /// </summary>
+        private readonly IElementUpdateDelegate _elements;
 
         /// <summary>
         /// Manages element controllers.
@@ -40,10 +48,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public DesktopDesignController(
             IElementTxnManager txns,
+            IElementUpdateDelegate elements,
             IElementControllerManager controllers,
             MainCamera mainCamera)
         {
             _txns = txns;
+            _elements = elements;
             _controllers = controllers;
             _mainCamera = mainCamera.GetComponent<Camera>();
         }
@@ -64,12 +74,19 @@ namespace CreateAR.SpirePlayer
             _controllers.Active = true;
             _controllers
                 .Filter(_contentFilter)
-                .Add<DesktopContentDesignController>(null);
+                .Add<DesktopContentDesignController>(new DesktopContentDesignController.DesktopContentDesignControllerContext
+                {
+                    Delegate = _elements
+                });
+
+            EditorObjectSelection.Instance.SelectionChanged += Editor_OnSelectionChanged;
         }
 
         /// <inheritdoc />
         public void Teardown()
         {
+            EditorObjectSelection.Instance.SelectionChanged -= Editor_OnSelectionChanged;
+
             _controllers
                 .Remove<DesktopContentDesignController>()
                 .Unfilter(_contentFilter);
@@ -82,7 +99,36 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public IAsyncToken<string> Create()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Called when the selection has changed.
+        /// </summary>
+        /// <param name="args">Event args.</param>
+        private void Editor_OnSelectionChanged(ObjectSelectionChangedEventArgs args)
+        {
+            // disable updates
+            for (var i = 0; i < args.DeselectedObjects.Count; i++)
+            {
+                var gameObject = args.DeselectedObjects[i];
+                var controller = gameObject.GetComponent<DesktopContentDesignController>();
+                if (null != controller)
+                {
+                    controller.DisableUpdates();
+                }
+            }
+
+            // enable updates
+            for (var i = 0; i < args.SelectedObjects.Count; i++)
+            {
+                var gameObject = args.SelectedObjects[i];
+                var controller = gameObject.GetComponent<DesktopContentDesignController>();
+                if (null != controller)
+                {
+                    controller.EnableUpdates();
+                }
+            }
         }
     }
 }

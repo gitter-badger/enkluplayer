@@ -66,6 +66,23 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private ContentData _data;
 
+        /// <inheritdoc />
+        public Bounds Bounds
+        {
+            get
+            {
+                return new Bounds(
+                    new Vector3(
+                        _bounds.Min.x + (_bounds.Max.x - _bounds.Min.x) / 2f,
+                        _bounds.Min.y + (_bounds.Max.y - _bounds.Min.y) / 2f,
+                        _bounds.Min.z + (_bounds.Max.z - _bounds.Min.z) / 2f),
+                    new Vector3(
+                        _bounds.Max.x - _bounds.Min.x,
+                        _bounds.Max.y - _bounds.Min.y,
+                        _bounds.Max.z - _bounds.Min.z));
+            }
+        }
+
         /// <summary>
         /// Called when asset is setup.
         /// </summary>
@@ -220,18 +237,7 @@ namespace CreateAR.SpirePlayer
 
             // get a new one
             _instance = _pools.Get<GameObject>(value);
-
-            var collider = _instance.AddComponent<BoxCollider>();
-            collider.isTrigger = true;
-            collider.center = new Vector3(
-                _bounds.Min.x + (_bounds.Max.x - _bounds.Min.x) / 2f,
-                _bounds.Min.y + (_bounds.Max.y - _bounds.Min.y) / 2f,
-                _bounds.Min.z + (_bounds.Max.z - _bounds.Min.z) / 2f);
-            collider.size = new Vector3(
-                _bounds.Max.x - _bounds.Min.x,
-                _bounds.Max.y - _bounds.Min.y,
-                _bounds.Max.z - _bounds.Min.z);
-
+            
             // apply material
             //ApplyMaterial(_instance, _materialLoader.Material);
 
