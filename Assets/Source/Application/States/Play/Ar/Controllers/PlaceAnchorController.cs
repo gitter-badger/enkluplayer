@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controller for UI to place an anchor.
     /// </summary>
-    [InjectVine("Anchors.Place")]
+    [InjectVine("Anchor.Place")]
     public class PlaceAnchorController : InjectableIUXController
     {
         /// <summary>

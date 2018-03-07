@@ -1,0 +1,10 @@
+<?Vine>
+
+<Container>
+	<Button
+		id='btn-back'
+		position=(-0.1,0,0)
+		icon='arrow-left'
+		ready.color='Negative' />
+	<Button id='btn-new' label='New Anchor' icon='plus' />
+</Container>

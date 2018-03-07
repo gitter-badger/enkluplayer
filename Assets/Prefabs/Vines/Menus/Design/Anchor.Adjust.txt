@@ -1,0 +1,17 @@
+<?Vine>
+
+<Container face='camera'>
+	/* Menu for controls */
+	<Container id='controls'>
+		<Button id='btn-back' icon='arrow-left' position=(-0.3, 0.25, 0) ready.color='Negative' />
+		<Button id='btn-x' icon='arrow-double' position=(-0.2, 0, 0) ready.color='Highlight' />
+		<Button id='btn-z' icon='arrow-double-z' position=(0, 0, 0) ready.color='Highlight' />
+		<Button id='btn-y' icon='arrow-double-z' position=(0, 0.2, 0) ready.color='Highlight' />
+		<Button id='btn-delete' icon='trash' position=(0, -0.2, 0) ready.color='Negative' />
+	</Container>
+	
+	/* Axes */
+	<Slider id='slider-x' visible=false length=0.35 axis='x' position=(-0.2, 0, 0) />
+	<Slider id='slider-y' visible=false length=0.35 axis='y' position=(0, 0.2, 0) />
+	<Slider id='slider-z' visible=false length=0.35 axis='y' position=(0, 0, 0) />
+</Container>

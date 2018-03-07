@@ -33,6 +33,11 @@ namespace CreateAR.SpirePlayer
             /// Http service.
             /// </summary>
             public IHttpService Http;
+
+            /// <summary>
+            /// Called to open adjust menu.
+            /// </summary>
+            public Action<AnchorDesignController> OnAdjust;
         }
 
         private const float SAVE_MIN_SECS = 3f;
@@ -40,6 +45,10 @@ namespace CreateAR.SpirePlayer
         private PlayModeConfig _config;
         private IWorldAnchorProvider _provider;
         private IHttpService _http;
+
+        private AnchorDesignControllerContext _context;
+
+        private AnchorSplashController _splash;
 
         private GameObject _marker;
 
@@ -49,33 +58,26 @@ namespace CreateAR.SpirePlayer
 
         private DateTime _lastSave = DateTime.MinValue;
         private AsyncToken<Void> _exportToken;
-        
-        public bool IsVisualEnabled
-        {
-            get
-            {
-                return _marker.activeSelf;
-            }
-            set
-            {
-                _marker.SetActive(value);
-            }
-        }
 
         public override void Initialize(Element element, object context)
         {
             base.Initialize(element, context);
 
-            var anchorContext = (AnchorDesignControllerContext) context;
+            _context = (AnchorDesignControllerContext) context;
 
-            _config = anchorContext.Config;
-            _provider = anchorContext.Provider;
-            _http = anchorContext.Http;
+            _config = _context.Config;
+            _provider = _context.Provider;
+            _http = _context.Http;
+
+            if (null == _marker)
+            {
+                _marker = Instantiate(_config.AnchorPrefab, transform);
+                _marker.transform.localPosition = Vector3.zero;
+                _marker.transform.localRotation = Quaternion.identity;
+            }
+
+            _marker.SetActive(true);
             
-            _marker = Instantiate(_config.AnchorPrefab, transform);
-            _marker.transform.localPosition = Vector3.zero;
-            _marker.transform.localRotation = Quaternion.identity;
-
             var materials = new List<Material>();
             var renderers = _marker.GetComponentsInChildren<MeshRenderer>();
             for (int i = 0, len = renderers.Length; i < len; i++)
@@ -84,6 +86,32 @@ namespace CreateAR.SpirePlayer
             }
 
             _materials = materials.ToArray();
+
+            SetupSplash();
+        }
+
+        public override void Uninitialize()
+        {
+            base.Uninitialize();
+
+            TeardownSplash();
+
+            _marker.SetActive(false);
+        }
+
+        public void FinalizeState()
+        {
+
+        }
+
+        public void HideSplash()
+        {
+            _splash.enabled = false;
+        }
+
+        public void ShowSplash()
+        {
+            _splash.enabled = true;
         }
 
         private void Update()
@@ -157,6 +185,29 @@ namespace CreateAR.SpirePlayer
 
                     token.Fail(exception);
                 });
+        }
+
+        private void SetupSplash()
+        {
+            _splash = gameObject.GetComponent<AnchorSplashController>();
+            if (null == _splash)
+            {
+                _splash = gameObject.AddComponent<AnchorSplashController>();
+            }
+
+            _splash.enabled = true;
+            _splash.OnOpen += Splash_OnOpen;
+        }
+
+        private void TeardownSplash()
+        {
+            _splash.OnOpen -= Splash_OnOpen;
+            _splash.enabled = false;
+        }
+
+        private void Splash_OnOpen()
+        {
+            _context.OnAdjust(this);
         }
     }
 }
