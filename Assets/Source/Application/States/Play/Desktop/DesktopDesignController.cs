@@ -1,9 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Logging;
 using RTEditor;
 using UnityEngine;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer

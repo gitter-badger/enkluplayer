@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using NUnit.Framework.Internal.Filters;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -34,6 +36,8 @@ namespace CreateAR.SpirePlayer
         public ElementUpdateDelegate(IElementTxnManager txns)
         {
             _txns = txns;
+            _txns.OnSceneAfterTracked += Txns_OnSceneTracked;
+            _txns.OnSceneBeforeUntracked += Txns_OnSceneUntracked;
         }
 
         /// <inheritdoc />
@@ -244,6 +248,30 @@ namespace CreateAR.SpirePlayer
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Called when a scene is untracked.
+        /// </summary>
+        /// <param name="id">Scene id.</param>
+        private void Txns_OnSceneUntracked(string id)
+        {
+            if (Active == id)
+            {
+                Active = _txns.TrackedScenes.FirstOrDefault();
+            }
+        }
+
+        /// <summary>
+        /// Called when a scene is tracked.
+        /// </summary>
+        /// <param name="id">Scene id.</param>
+        private void Txns_OnSceneTracked(string id)
+        {
+            if (null == Active)
+            {
+                Active = id;
+            }
         }
     }
 }

@@ -156,7 +156,7 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(_ =>
                 {
                     Log.Info(this, "AppController initialized.");
-
+                    
                     // TODO: Only if some condition is true
                     _design.Setup(config, _app);
                 })
