@@ -64,7 +64,7 @@ MonoBehaviour:
       BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
       StartingPosition: {x: 0, y: 0, z: 0}
   - Platforms: 11000000
-    Debug: 1
+    Debug: 0
     Grid:
       Enabled: 1
       CellSize: 0.5

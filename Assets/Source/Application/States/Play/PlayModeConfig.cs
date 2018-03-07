@@ -11,5 +11,10 @@ namespace CreateAR.SpirePlayer
         /// Prefab for an anchor.
         /// </summary>
         public GameObject AnchorPrefab;
+
+        /// <summary>
+        /// Prefab for runtime gizmos.
+        /// </summary>
+        public GameObject RuntimeGizmoSystem;
     }
 }

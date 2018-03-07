@@ -90,6 +90,8 @@ namespace CreateAR.SpirePlayer
                     _txns.OnSceneAfterTracked -= Txns_OnSceneAfterTracked;
                     _txns.OnSceneBeforeUntracked -= Txns_OnSceneBeforeUntracked;
                 }
+
+                Reapply();
             }
         }
         
@@ -129,39 +131,7 @@ namespace CreateAR.SpirePlayer
         {
             _filters.Remove(filter);
             
-            // gather all unity elements in all scenes
-            _elementScratch.Clear();
-            var sceneIds = _txns.TrackedScenes;
-            for (var i = 0; i < sceneIds.Length; i++)
-            {
-                AddUnityElements(_txns.Root(sceneIds[i]), _elementScratch);
-            }
-
-            // compare with current filtered list of elements
-            for (int i = 0, len = _elementScratch.Count; i < len; i++)
-            {
-                var element = _elementScratch[i];
-
-                // if the element is already part of the filtered list, we can
-                // safely ignore
-                var found = false;
-                for (int j = 0, jlen = _filteredElements.Count; j < jlen; j++)
-                {
-                    if (_filteredElements[j] == element)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-
-                // otherwise, this element needs to be added to the filtered list
-                if (!found)
-                {
-                    AddAllControllersToElement(element);
-
-                    _filteredElements.Add(element);
-                }
-            }
+            Reapply();
 
             return this;
         }
@@ -221,7 +191,47 @@ namespace CreateAR.SpirePlayer
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Full reapply.
+        /// </summary>
+        private void Reapply()
+        {
+            // gather all unity elements in all scenes
+            _elementScratch.Clear();
+            var sceneIds = _txns.TrackedScenes;
+            for (var i = 0; i < sceneIds.Length; i++)
+            {
+                AddUnityElements(_txns.Root(sceneIds[i]), _elementScratch);
+            }
+
+            // compare with current filtered list of elements
+            for (int i = 0, len = _elementScratch.Count; i < len; i++)
+            {
+                var element = _elementScratch[i];
+
+                // if the element is already part of the filtered list, we can
+                // safely ignore
+                var found = false;
+                for (int j = 0, jlen = _filteredElements.Count; j < jlen; j++)
+                {
+                    if (_filteredElements[j] == element)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                // otherwise, this element needs to be added to the filtered list
+                if (!found)
+                {
+                    AddAllControllersToElement(element);
+
+                    _filteredElements.Add(element);
+                }
+            }
+        }
+
         /// <summary>
         /// Retrieves a binding for a controller type.
         /// </summary>

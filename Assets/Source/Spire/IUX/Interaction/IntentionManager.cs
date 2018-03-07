@@ -47,6 +47,11 @@ namespace CreateAR.SpirePlayer.IUX
         private Vec3 _lastMouseForward;
 
         /// <summary>
+        /// Camera to use.
+        /// </summary>
+        private Camera _camera;
+
+        /// <summary>
         /// For aiming with a hand.
         /// </summary>
         public Vector3 LocalHandOffset;
@@ -66,6 +71,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         [Inject]
         public IInteractionManager Interactables { get; set; }
+
+        /// <summary>
+        /// Main camera tag.
+        /// </summary>
+        [Inject]
+        public MainCamera Main { get; set; }
 
         /// <summary>
         /// Current focus.
@@ -132,12 +143,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public bool IsVisible(Vec3 position, float fovScale = 1.0f)
         {
-            var mainCamera = Camera.main;
-            if (mainCamera == null)
-            {
-                return false;
-            }
-
             var delta = position - Origin;
             var deltaDirection = delta.ToVector().normalized;
             var lookCosTheta = Vector3.Dot(
@@ -147,7 +152,7 @@ namespace CreateAR.SpirePlayer.IUX
                 ? 0.0f
                 : Mathf.Acos(lookCosTheta) * Mathf.Rad2Deg;
             var maxLookThetaDegrees 
-                = mainCamera.fieldOfView 
+                = _camera.fieldOfView 
                 * fovScale;
 
             var isLooking = lookThetaDegrees < maxLookThetaDegrees;
@@ -159,7 +164,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.Awake();
 
-            var camTransform = Camera.main.transform;
+            _camera = Main.GetComponent<Camera>();
+
+            var camTransform = Main.transform;
             _lastMouseOrigin = Origin = camTransform.position.ToVec();
             _lastMouseForward = Forward = camTransform.forward.ToVec();
             Right = camTransform.right.ToVec();
@@ -189,13 +196,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdatePerspective()
         {
-            var perspectiveCamera = Camera.main;
-            if (perspectiveCamera == null)
-            {
-                return;
-            }
-
-            var cameraTransform = perspectiveCamera.transform;
+            var cameraTransform = Main.transform;
             Origin = cameraTransform.position.ToVec();
             Forward = cameraTransform.forward.ToVec();
             Up = cameraTransform.up.ToVec();
@@ -215,7 +216,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (Input.GetMouseButton(0))
             {
-                var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                var mouseRay = _camera.ScreenPointToRay(Input.mousePosition);
 
                 _lastMouseOrigin = Origin = mouseRay.origin.ToVec();
                 _lastMouseForward = Forward = mouseRay.direction.ToVec();
@@ -235,13 +236,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void UpdateHands()
         {
 #if UNITY_WSA
-            var mainCamera = Camera.main;
-            if (mainCamera == null)
-            {
-                return;
-            }
-
-            var cameraTransform = mainCamera.transform;
+            var cameraTransform = Main.transform;
 
             var count = UnityEngine.XR.WSA.Input.InteractionManager.GetCurrentReading(_interactionSourceStates);
             for (var i = 0; i < count; ++i)

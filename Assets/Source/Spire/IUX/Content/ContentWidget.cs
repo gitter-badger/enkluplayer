@@ -120,8 +120,8 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Data updated for content {0}.", data);
 
             var assetRefresh = null != Data && null == data
-                               || null != data && null == Data
-                               || null != data && null != Data && Data.Asset.AssetDataId != data.Asset.AssetDataId;
+                || null != data && null == Data
+                || null != data && null != Data && Data.Asset.AssetDataId != data.Asset.AssetDataId;
             var scriptRefresh = ScriptRefreshRequired(data);
 
             Data = data;
