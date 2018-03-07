@@ -53,6 +53,7 @@ namespace CreateAR.SpirePlayer
                     _timeToClear = 0;
 
                     Text.text = "";
+                    Text.enabled = false;
                 }
             }
         }
@@ -82,6 +83,7 @@ namespace CreateAR.SpirePlayer
             }
 
             Text.text = status.ToString();
+            Text.enabled = !string.IsNullOrEmpty(status.ToString());
         }
     }
 }

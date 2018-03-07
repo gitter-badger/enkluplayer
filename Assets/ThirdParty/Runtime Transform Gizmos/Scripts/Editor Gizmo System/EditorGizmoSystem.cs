@@ -426,7 +426,7 @@ namespace RTEditor
         /// Calling this method will set the '_areGizmosTurnedOff' boolean to false (i.e. will
         /// reenable gizmos).
         /// </remarks>
-        private void ChangeActiveGizmo(GizmoType gizmoType)
+        public void ChangeActiveGizmo(GizmoType gizmoType)
         {
             if (!IsGizmoTypeAvailable(gizmoType)) return;
 

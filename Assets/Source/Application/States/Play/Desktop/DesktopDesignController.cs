@@ -12,11 +12,6 @@ namespace CreateAR.SpirePlayer
     public class DesktopDesignController : IDesignController
     {
         /// <summary>
-        /// Transactions.
-        /// </summary>
-        private readonly IElementTxnManager _txns;
-
-        /// <summary>
         /// Elements.
         /// </summary>
         private readonly IElementUpdateDelegate _elements;
@@ -45,12 +40,10 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public DesktopDesignController(
-            IElementTxnManager txns,
             IElementUpdateDelegate elements,
             IElementControllerManager controllers,
             MainCamera mainCamera)
         {
-            _txns = txns;
             _elements = elements;
             _controllers = controllers;
             _mainCamera = mainCamera.GetComponent<Camera>();

@@ -86,9 +86,12 @@ namespace CreateAR.SpirePlayer
             
             _enterTime = DateTime.Now;
             _statusCleared = false;
+
+#if NETFX_CORE || UNITY_IOS || UNITY_ANDROID
             _messages.Publish(
                 MessageTypes.STATUS,
                 NetworkUtils.GetNetworkSummary());
+#endif
             
             _resolver.Initialize(
 #if NETFX_CORE

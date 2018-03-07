@@ -1050,7 +1050,6 @@ namespace RTEditor
         /// </summary>
         private bool WereAnyUIElementsHovered()
         {
-            return false;
             if (EventSystem.current == null) return false;
 
             Vector2 inputDevPos;
