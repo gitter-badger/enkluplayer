@@ -198,9 +198,13 @@ namespace CreateAR.SpirePlayer
                 {
                     stats.Bounds = new AssetStatsBoundsData
                     {
-                        Min = new Vec3((float) data.Stats.Bounds.Min.X, (float) data.Stats.Bounds.Min.Y,
+                        Min = new Vec3(
+                            (float) data.Stats.Bounds.Min.X,
+                            (float) data.Stats.Bounds.Min.Y,
                             (float) data.Stats.Bounds.Min.Z),
-                        Max = new Vec3((float) data.Stats.Bounds.Max.X, (float) data.Stats.Bounds.Max.Y,
+                        Max = new Vec3(
+                            (float) data.Stats.Bounds.Max.X,
+                            (float) data.Stats.Bounds.Max.Y,
                             (float) data.Stats.Bounds.Max.Z)
                     };
                 }

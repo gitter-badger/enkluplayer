@@ -20,7 +20,7 @@ namespace CreateAR.SpirePlayer.AR
         /// <summary>
         /// Grid.
         /// </summary>
-        public Grid Grid;
+        public GridRenderer GridRenderer;
         
         /// <summary>
         /// Sets the floor anchor.

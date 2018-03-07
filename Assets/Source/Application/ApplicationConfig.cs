@@ -41,7 +41,7 @@ namespace CreateAR.SpirePlayer
         /// Network configuration.
         /// </summary>
         public NetworkConfig Network = new NetworkConfig();
-
+        
         /// <summary>
         /// ToString override.
         /// </summary>
@@ -61,9 +61,44 @@ namespace CreateAR.SpirePlayer
     public class PlayAppConfig
     {
         /// <summary>
+        /// Enumerates all potential designer types.
+        /// </summary>
+        public enum DesignerType
+        {
+            Ar,
+            Desktop,
+            Mobile
+        }
+
+        /// <summary>
         /// Id of the app.
         /// </summary>
         public string AppId;
+
+        /// <summary>
+        /// Type of designer to use.
+        /// </summary>
+        public string DesignerName;
+
+        /// <summary>
+        /// Parses designer name.
+        /// </summary>
+        public DesignerType Designer
+        {
+            get
+            {
+                try
+                {
+                    return (DesignerType) Enum.Parse(
+                        typeof(DesignerType),
+                        DesignerName);
+                }
+                catch
+                {
+                    return DesignerType.Ar;
+                }
+            }
+        }
     }
 
     /// <summary>

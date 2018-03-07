@@ -88,6 +88,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
                     binder.Bind<WebBridge>().ToValue(LookupComponent<WebBridge>());
                     binder.Bind<ILoadProgressManager>().ToValue(LookupComponent<LoadProgressManager>());
+                    binder.Bind<GridRenderer>().ToValue(LookupComponent<GridRenderer>());
                 }
             }
 
@@ -111,7 +112,7 @@ namespace CreateAR.SpirePlayer
 
 
                 // spire-specific bindings
-                AddSpireBindings(binder);
+                AddSpireBindings(config, binder);
 
                 // services
                 {
@@ -176,8 +177,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Adds bindings for spire.
         /// </summary>
-        /// <param name="binder">Object to add bindings to.</param>
-        private void AddSpireBindings(InjectionBinder binder)
+        private void AddSpireBindings(
+            ApplicationConfig config,
+            InjectionBinder binder)
         {
             // AR
             {
@@ -258,9 +260,16 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<AnchorDesignState>().To<AnchorDesignState>();
                 }
 
-                binder.Bind<IElementUpdateDelegate>().To<DesignController>().ToSingleton();
-                binder.Bind<ISceneUpdateDelegate>().To<DesignController>().ToSingleton();
-                binder.Bind<DesignController>().To<DesignController>().ToSingleton();
+                binder.Bind<IElementUpdateDelegate>().To<ElementUpdateDelegate>().ToSingleton();
+                
+                if (config.Play.Designer == PlayAppConfig.DesignerType.Desktop)
+                {
+                    binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
+                }
+                else
+                {
+                    binder.Bind<IDesignController>().To<ArDesignController>().ToSingleton();
+                }
             }
 
             // hierarchy

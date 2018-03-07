@@ -32,6 +32,11 @@ namespace CreateAR.SpirePlayer
         private readonly ILoadProgressManager _progress;
 
         /// <summary>
+        /// Bounds of the asset.
+        /// </summary>
+        private AssetStatsBoundsData _bounds;
+
+        /// <summary>
         /// Instance of Asset's prefab.
         /// </summary>
         private GameObject _instance;
@@ -60,6 +65,23 @@ namespace CreateAR.SpirePlayer
         /// Data.
         /// </summary>
         private ContentData _data;
+
+        /// <inheritdoc />
+        public Bounds Bounds
+        {
+            get
+            {
+                return new Bounds(
+                    new Vector3(
+                        _bounds.Min.x + (_bounds.Max.x - _bounds.Min.x) / 2f,
+                        _bounds.Min.y + (_bounds.Max.y - _bounds.Min.y) / 2f,
+                        _bounds.Min.z + (_bounds.Max.z - _bounds.Min.z) / 2f),
+                    new Vector3(
+                        _bounds.Max.x - _bounds.Min.x,
+                        _bounds.Max.y - _bounds.Min.y,
+                        _bounds.Max.z - _bounds.Min.z));
+            }
+        }
 
         /// <summary>
         /// Called when asset is setup.
@@ -170,15 +192,15 @@ namespace CreateAR.SpirePlayer
                 }
                 else
                 {
-                    var bounds = assetData.Stats.Bounds ?? new AssetStatsBoundsData
+                    _bounds = assetData.Stats.Bounds ?? new AssetStatsBoundsData
                     {
                         Min = -0.5f * Vec3.One,
                         Max = 0.5f * Vec3.One
                     };
 
                     _progressIndicatorId = _progress.ShowIndicator(
-                        bounds.Min,
-                        bounds.Max,
+                        _bounds.Min,
+                        _bounds.Max,
                         _asset.Progress);
                 }
             }
@@ -215,7 +237,7 @@ namespace CreateAR.SpirePlayer
 
             // get a new one
             _instance = _pools.Get<GameObject>(value);
-
+            
             // apply material
             //ApplyMaterial(_instance, _materialLoader.Material);
 

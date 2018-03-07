@@ -43,7 +43,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Controls design mode.
         /// </summary>
-        private readonly DesignController _design;
+        private readonly IDesignController _design;
 
         /// <summary>
         /// Application-wide configuration.
@@ -68,15 +68,15 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IScriptRequireResolver resolver,
             IAppController app,
-            ApplicationConfig config,
-            DesignController design)
+            IDesignController design,
+            ApplicationConfig config)
         {
             _bootstrapper = bootstrapper;
             _messages = messages;
             _resolver = resolver;
             _app = app;
-            _appConfig = config;
             _design = design;
+            _appConfig = config;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -86,9 +86,12 @@ namespace CreateAR.SpirePlayer
             
             _enterTime = DateTime.Now;
             _statusCleared = false;
+
+#if NETFX_CORE || UNITY_IOS || UNITY_ANDROID
             _messages.Publish(
                 MessageTypes.STATUS,
                 NetworkUtils.GetNetworkSummary());
+#endif
             
             _resolver.Initialize(
 #if NETFX_CORE
@@ -156,7 +159,7 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(_ =>
                 {
                     Log.Info(this, "AppController initialized.");
-
+                    
                     // TODO: Only if some condition is true
                     _design.Setup(config, _app);
                 })
