@@ -12,6 +12,11 @@ namespace CreateAR.SpirePlayer
     public class PlaceAnchorController : InjectableIUXController
     {
         /// <summary>
+        /// Configuration for playmode.
+        /// </summary>
+        private PlayModeConfig _config;
+
+        /// <summary>
         /// Elements.
         /// </summary>
         [InjectElements("..anchor-container")]
@@ -65,27 +70,18 @@ namespace CreateAR.SpirePlayer
                     OnCancel();
                 }
             };
-
-            var path = "Scene/Tetrahedron";
-            var tetrahedron = Resources.Load<GameObject>(path);
-            if (null == tetrahedron)
-            {
-                Log.Error(this,
-                    "Could not find asset '{0}' in Resources.",
-                    path);
-            }
-            else
-            {
-                Instantiate(tetrahedron, PrefabContainer.GameObject.transform);
-            }
         }
 
         /// <summary>
         /// Preps creating a new anchor.
         /// </summary>
-        public void Initialize()
+        public void Initialize(PlayModeConfig config)
         {
-            // 
+            _config = config;
+
+            Instantiate(
+                config.AnchorPrefab,
+                PrefabContainer.GameObject.transform);
         }
     }
 }

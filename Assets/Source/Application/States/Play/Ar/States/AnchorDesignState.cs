@@ -211,7 +211,7 @@ namespace CreateAR.SpirePlayer
         private void Anchors_OnNew()
         {
             _anchors.enabled = false;
-            _placeAnchor.Initialize();
+            _placeAnchor.Initialize(_design.Config);
             _placeAnchor.enabled = true;
         }
 
@@ -239,8 +239,10 @@ namespace CreateAR.SpirePlayer
                 data.Id);
 
             // create placeholder
-            var placeholder = new GameObject("WorldAnchorPlaceholder");
-            placeholder.transform.position = data.Schema.Vectors["position"].ToVector();
+            var placeholder = Object.Instantiate(
+                _design.Config.LoadingPrefab,
+                data.Schema.Vectors["position"].ToVector(),
+                Quaternion.identity);
 
             // cleans up after all potential code paths
             Action cleanup = () => { Object.Destroy(placeholder); };
