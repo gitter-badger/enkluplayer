@@ -161,6 +161,7 @@ namespace CreateAR.SpirePlayer
         {
             _anchors.enabled = false;
             _placeAnchor.enabled = false;
+            _adjustAnchor.enabled = false;
         }
 
         /// <summary>
