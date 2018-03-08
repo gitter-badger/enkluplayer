@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer
         public void Enter(object context)
         {
             _controller.Lock();
-            _controller.Color = Color.grey;
+            _controller.Renderer.Loading();
             
             var widget = (WorldAnchorWidget) _controller.Element;
             if (widget.IsAnchorLoading)

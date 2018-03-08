@@ -241,7 +241,7 @@ namespace CreateAR.SpirePlayer
 
             // create placeholder
             var placeholder = Object.Instantiate(
-                _design.Config.LoadingPrefab,
+                _design.Config.AnchorPrefab,
                 data.Schema.Vectors["position"].ToVector(),
                 Quaternion.identity);
 
@@ -252,7 +252,7 @@ namespace CreateAR.SpirePlayer
             Verbose("Exporting placeholder.");
 
             _provider
-                .Export(placeholder)
+                .Export(placeholder.gameObject)
                 .OnSuccess(bytes =>
                 {
                     Verbose("Successfully exported. Progressing to upload.");

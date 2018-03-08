@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Default state of anchor.
@@ -24,7 +22,7 @@ namespace CreateAR.SpirePlayer
         public void Enter(object context)
         {
             _controller.Unlock();
-            _controller.Color = Color.white;
+            _controller.Renderer.Ready();
         }
 
         /// <inheritdoc />

@@ -154,9 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7401ed17eacc06f4eba766720f574419, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AnchorPrefab: {fileID: 1025604323001548, guid: 76ea9059f3639e0499c44d842a022f17,
-    type: 2}
-  LoadingPrefab: {fileID: 1220576008988632, guid: b2279f11c97f2394baa17c76cb989e6e,
+  AnchorPrefab: {fileID: 114783692072840098, guid: 76ea9059f3639e0499c44d842a022f17,
     type: 2}
   RuntimeGizmoSystem: {fileID: 1596101862925214, guid: 692874079b67b2d46b3a4b6fdf52ab53,
     type: 2}

@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -53,7 +52,7 @@ namespace CreateAR.SpirePlayer
         public void Enter(object context)
         {
             _controller.Lock();
-            _controller.Color = Color.yellow;
+            _controller.Renderer.Saving();
 
             Export();
         }

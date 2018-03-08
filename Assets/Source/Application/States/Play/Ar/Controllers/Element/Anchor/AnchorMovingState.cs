@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// State while anchor is being moved.
@@ -23,8 +21,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Enter(object context)
         {
-            _controller.Color = Color.green;
-            
+            _controller.Renderer.Editing();
+
         }
 
         /// <inheritdoc />

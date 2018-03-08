@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
@@ -71,12 +70,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// GameObject representation.
         /// </summary>
-        private GameObject _marker;
-
-        /// <summary>
-        /// Materials.
-        /// </summary>
-        private Material[] _materials;
+        private AnchorRenderer _renderer;
 
         /// <summary>
         /// True iff locked.
@@ -89,33 +83,19 @@ namespace CreateAR.SpirePlayer
         private bool _isSplashRequested;
 
         /// <summary>
-        /// Backing variable for Color prop.
-        /// </summary>
-        private Color _color;
-
-        /// <summary>
-        /// Sets the marker color.
-        /// </summary>
-        public Color Color
-        {
-            get { return _color; }
-            set
-            {
-                _color = value;
-
-                for (var i = 0; i < _materials.Length; i++)
-                {
-                    _materials[i].SetColor("_Color", _color);
-                }
-            }
-        }
-
-        /// <summary>
         /// The anchor widget.
         /// </summary>
         public WorldAnchorWidget Anchor
         {
             get { return (WorldAnchorWidget) Element; }
+        }
+
+        /// <summary>
+        /// Renders an object.
+        /// </summary>
+        public AnchorRenderer Renderer
+        {
+            get { return _renderer; }
         }
 
         /// <inheritdoc />
@@ -130,7 +110,6 @@ namespace CreateAR.SpirePlayer
             _http = _context.Http;
 
             SetupMarker();
-            SetupMaterials();
             SetupSplash();
 
             // initialize() -> load state (lock) -> ready state
@@ -161,7 +140,7 @@ namespace CreateAR.SpirePlayer
 
             TeardownSplash();
 
-            _marker.SetActive(false);
+            _renderer.gameObject.SetActive(false);
         }
 
         /// <summary>
@@ -254,31 +233,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SetupMarker()
         {
-            if (null == _marker)
+            if (null == _renderer)
             {
-                _marker = Instantiate(_config.AnchorPrefab, transform);
-                _marker.transform.localPosition = Vector3.zero;
-                _marker.transform.localRotation = Quaternion.identity;
+                _renderer = Instantiate(_config.AnchorPrefab, transform);
+                _renderer.transform.localPosition = Vector3.zero;
+                _renderer.transform.localRotation = Quaternion.identity;
             }
 
-            _marker.SetActive(true);
-        }
-
-        /// <summary>
-        /// Sets up materials.
-        /// </summary>
-        private void SetupMaterials()
-        {
-            var materials = new List<Material>();
-            var renderers = _marker.GetComponentsInChildren<MeshRenderer>();
-            for (int i = 0, len = renderers.Length; i < len; i++)
-            {
-                materials.AddRange(renderers[i].materials);
-            }
-
-            _materials = materials.ToArray();
-
-            Color = Color.white;
+            _renderer.gameObject.SetActive(true);
         }
 
         /// <summary>
