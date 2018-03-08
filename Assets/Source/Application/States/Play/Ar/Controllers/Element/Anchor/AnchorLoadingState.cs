@@ -28,6 +28,7 @@ namespace CreateAR.SpirePlayer
             _controller.Color = Color.grey;
             _controller.CloseSplash();
 
+            return;
             ((WorldAnchorWidget) _controller.Element)
                 .Import()
                 .OnSuccess(_ => _controller.ChangeState<AnchorReadyState>())

@@ -100,12 +100,15 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            var url = string.Format(
-                "/v1/editor/app/{0}/scene/{1}/anchor/{2}",
-                "appId",
-                "sceneId",
-                Id);
-
+            var url = Schema.Get<string>("src").Value;
+            if (string.IsNullOrEmpty(url))
+            {
+                Log.Warning(this,
+                    "Anchor [{0}] has invalid src prop.",
+                    Id);
+                return;
+            }
+            
             _downloadToken = _http
                 .Download(_http.UrlBuilder.Url(url))
                 .OnSuccess(response =>

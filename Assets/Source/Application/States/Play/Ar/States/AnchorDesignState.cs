@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -220,7 +222,7 @@ namespace CreateAR.SpirePlayer
         {
             _design.ChangeState<MainDesignState>();
         }
-
+        
         /// <summary>
         /// Called when place anchor confirms placement.
         /// </summary>
@@ -229,11 +231,71 @@ namespace CreateAR.SpirePlayer
             _placeAnchor.enabled = false;
             _anchors.enabled = true;
 
-            _elementUpdater
-                .Create(data)
-                .OnFailure(exception => Log.Error(this,
-                    "Could not create anchor : {0}.",
-                    exception));
+            // create anchor first
+            var url = data.Schema.Strings["src"] = string.Format(
+                "/editor/app/{0}/scene/{1}/anchor/{2}",
+                _design.App.Id,
+                _elementUpdater.Active,
+                data.Id);
+
+            // create placeholder
+            var placeholder = new GameObject("WorldAnchorPlaceholder");
+            placeholder.transform.position = data.Schema.Vectors["position"].ToVector();
+
+            // cleans up after all potential code paths
+            Action cleanup = () => { Object.Destroy(placeholder); };
+
+            // export
+            Verbose("Exporting placeholder.");
+
+            _provider
+                .Export(placeholder)
+                .OnSuccess(bytes =>
+                {
+                    Verbose("Successfully exported. Progressing to upload.");
+
+                    _http
+                        .PostFile<Trellis.Messages.UploadAnchor.Response>(
+                            _http.UrlBuilder.Url(url),
+                            new Commons.Unity.DataStructures.Tuple<string, string>[0],
+                            ref bytes)
+                        .OnSuccess(response =>
+                        {
+                            if (response.Payload.Success)
+                            {
+                                Verbose("Successfully uploaded anchor.");
+
+                                // complete, now create corresponding element
+                                _elementUpdater
+                                    .Create(data)
+                                    .OnSuccess(_ => Verbose("Successfully created anchor element."))
+                                    .OnFailure(exception => Log.Error(this,
+                                        "Could not create anchor : {0}.",
+                                        exception));
+                            }
+                            else
+                            {
+                                Log.Error(this,
+                                    "Anchor upload error : {0}.",
+                                    response.Payload.Error);
+                            }
+                        })
+                        .OnFailure(exception =>
+                        {
+                            Log.Error(this,
+                                "Could not upload anchor : {0}.",
+                                exception);
+                        })
+                        .OnFinally(_ => cleanup());
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not export anchor : {0}.",
+                        exception);
+
+                    cleanup();
+                });
         }
 
         /// <summary>
@@ -275,6 +337,15 @@ namespace CreateAR.SpirePlayer
         private void PlaceAnchor_OnCancel()
         {
             _placeAnchor.enabled = false;
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        //[Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

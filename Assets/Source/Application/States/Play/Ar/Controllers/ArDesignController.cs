@@ -88,6 +88,14 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Controls the app.
+        /// </summary>
+        public IAppController App
+        {
+            get { return _app; }
+        }
+
+        /// <summary>
         /// Constuctor.
         /// </summary>
         public ArDesignController(
