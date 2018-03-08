@@ -17,10 +17,20 @@ namespace CreateAR.SpirePlayer
         public class AnchorDesignControllerContext
         {
             /// <summary>
+            /// Id of the app.
+            /// </summary>
+            public string AppId;
+
+            /// <summary>
+            /// Retrieves the scene id for an element.
+            /// </summary>
+            public Func<Element, string> SceneId;
+
+            /// <summary>
             /// Configuration for playmode.
             /// </summary>
             public PlayModeConfig Config;
-
+            
             /// <summary>
             /// Provides world anchor import/export.
             /// </summary>
@@ -83,6 +93,11 @@ namespace CreateAR.SpirePlayer
         private bool _isSplashRequested;
 
         /// <summary>
+        /// True iff controller is currently being edited.
+        /// </summary>
+        private bool _isEditing;
+
+        /// <summary>
         /// The anchor widget.
         /// </summary>
         public WorldAnchorWidget Anchor
@@ -122,7 +137,12 @@ namespace CreateAR.SpirePlayer
             _fsm = new FiniteStateMachine(new IState[]
             {
                 new AnchorLoadingState(this),
-                new AnchorSavingState(this, _provider, _http),
+                new AnchorSavingState(
+                    this,
+                    _provider,
+                    _http,
+                    _context.AppId,
+                    _context.SceneId(Element)),
                 new AnchorReadyState(this),
                 new AnchorMovingState(this),
                 new AnchorErrorState(this)
@@ -159,6 +179,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void BeginEdit()
         {
+            _isEditing = true;
+            UpdateSplash();
+
             ChangeState<AnchorMovingState>();
         }
 
@@ -167,6 +190,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void FinalizeEdit()
         {
+            _isEditing = false;
+            UpdateSplash();
+
             ChangeState<AnchorSavingState>();
         }
 
@@ -175,6 +201,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void AbortEdit()
         {
+            _isEditing = false;
+            UpdateSplash();
+
             ChangeState<AnchorLoadingState>();
         }
 
@@ -223,9 +252,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateSplash()
         {
-            Log.Info(this, "{0}: {1} - {2}", Element.Id, _isLocked, _isSplashRequested);
-
-            _splash.enabled = !_isLocked && _isSplashRequested;
+            _splash.enabled = !_isLocked && _isSplashRequested && !_isEditing;
         }
         
         /// <summary>

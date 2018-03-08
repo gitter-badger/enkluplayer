@@ -130,6 +130,8 @@ namespace CreateAR.SpirePlayer
                 .Filter(_anchorFilter)
                 .Add<AnchorDesignController>(new AnchorDesignController.AnchorDesignControllerContext
                 {
+                    AppId = _design.App.Id,
+                    SceneId = SceneIdForElement,
                     Config = _design.Config,
                     Http = _http,
                     Provider = _provider,
@@ -193,6 +195,41 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Scene id for element.
+        /// </summary>
+        /// <param name="element">Element.</param>
+        /// <returns></returns>
+        private string SceneIdForElement(Element element)
+        {
+            // find root
+            var parent = element;
+            while (true)
+            {
+                if (null != parent.Parent)
+                {
+                    parent = parent.Parent;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // find id of root
+            var sceneIds = _design.Txns.TrackedScenes;
+            foreach (var sceneId in sceneIds)
+            {
+                var root = _design.Txns.Root(sceneId);
+                if (root == parent)
+                {
+                    return sceneId;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Called by anchor to open adjust menu.
         /// </summary>
         /// <param name="controller"></param>
@@ -244,9 +281,10 @@ namespace CreateAR.SpirePlayer
                 _design.Config.AnchorPrefab,
                 data.Schema.Vectors["position"].ToVector(),
                 Quaternion.identity);
+            placeholder.Saving();
 
             // cleans up after all potential code paths
-            Action cleanup = () => { Object.Destroy(placeholder); };
+            Action cleanup = () => { Object.Destroy(placeholder.gameObject); };
 
             // export
             Verbose("Exporting placeholder.");
@@ -345,7 +383,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Verbose logging.
         /// </summary>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void Verbose(string message, params object[] replacements)
         {
             Log.Info(this, message, replacements);

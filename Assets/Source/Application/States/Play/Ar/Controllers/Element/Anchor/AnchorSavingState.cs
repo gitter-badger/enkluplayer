@@ -26,6 +26,16 @@ namespace CreateAR.SpirePlayer
         private readonly IHttpService _http;
 
         /// <summary>
+        /// Id of the app.
+        /// </summary>
+        private readonly string _appId;
+
+        /// <summary>
+        /// Id of the scene.
+        /// </summary>
+        private readonly string _sceneId;
+
+        /// <summary>
         /// Token for export.
         /// </summary>
         private IAsyncToken<byte[]> _exportToken;
@@ -41,11 +51,15 @@ namespace CreateAR.SpirePlayer
         public AnchorSavingState(
             AnchorDesignController controller,
             IWorldAnchorProvider provider,
-            IHttpService http)
+            IHttpService http,
+            string appId,
+            string sceneId)
         {
             _controller = controller;
             _provider = provider;
             _http = http;
+            _appId = appId;
+            _sceneId = sceneId;
         }
 
         /// <inheritdoc />
@@ -91,11 +105,11 @@ namespace CreateAR.SpirePlayer
                 {
                     // next, upload anchor
                     _uploadToken = _http
-                        .PostFile<Trellis.Messages.UploadAnchor.Response>(
+                        .PutFile<Trellis.Messages.UploadAnchor.Response>(
                             _http.UrlBuilder.Url(string.Format(
-                                "/v1/editor/app/{0}/scene/{1}/anchor/{2}",
-                                "appId",
-                                "sceneId",
+                                "/editor/app/{0}/scene/{1}/anchor/{2}",
+                                _appId,
+                                _sceneId,
                                 _controller.Element.Id)),
                             new Commons.Unity.DataStructures.Tuple<string, string>[0],
                             ref bytes)

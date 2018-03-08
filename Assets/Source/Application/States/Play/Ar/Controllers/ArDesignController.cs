@@ -96,6 +96,14 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Manages element transactions.
+        /// </summary>
+        public IElementTxnManager Txns
+        {
+            get { return _txns; }
+        }
+
+        /// <summary>
         /// Constuctor.
         /// </summary>
         public ArDesignController(

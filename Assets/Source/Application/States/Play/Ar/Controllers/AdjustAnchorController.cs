@@ -206,6 +206,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnX_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            _controller.BeginEdit();
+
             Container.LocalVisible = false;
             SliderX.LocalVisible = true;
         }
@@ -215,6 +217,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnY_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            _controller.BeginEdit();
+
             Container.LocalVisible = false;
             SliderY.LocalVisible = true;
         }
@@ -224,6 +228,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            _controller.BeginEdit();
+
             _startPosition = _controller.transform.position;
             _startForward = Intention.Forward.ToVector();
 
