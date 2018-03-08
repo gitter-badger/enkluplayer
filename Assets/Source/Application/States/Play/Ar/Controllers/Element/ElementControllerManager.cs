@@ -84,11 +84,23 @@ namespace CreateAR.SpirePlayer
                 {
                     _txns.OnSceneAfterTracked += Txns_OnSceneAfterTracked;
                     _txns.OnSceneBeforeUntracked += Txns_OnSceneBeforeUntracked;
+
+                    // track all
+                    for (int i = 0, len = _txns.TrackedScenes.Length; i < len; i++)
+                    {
+                        TrackScene(_txns.TrackedScenes[i]);
+                    }
                 }
                 else
                 {
                     _txns.OnSceneAfterTracked -= Txns_OnSceneAfterTracked;
                     _txns.OnSceneBeforeUntracked -= Txns_OnSceneBeforeUntracked;
+
+                    // untrack all
+                    for (int i = 0, len = _txns.TrackedScenes.Length; i < len; i++)
+                    {
+                        UntrackScene(_txns.TrackedScenes[i]);
+                    }
                 }
 
                 Reapply();
@@ -430,10 +442,25 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called before a scene becomes untracked.
+        /// Tracks a scene.
+        /// </summary>
+        /// <param name="sceneId">Id of the scene.</param>
+        private void TrackScene(string sceneId)
+        {
+            var root = _txns.Root(sceneId);
+
+            ElementAdded(root);
+
+            // listen for future child updates
+            root.OnChildAdded += SceneRoot_OnChildAdded;
+            root.OnChildRemoved += SceneRoot_OnChildRemoved;
+        }
+
+        /// <summary>
+        /// Untracks a scene.
         /// </summary>
         /// <param name="sceneId">The id of the scene.</param>
-        private void Txns_OnSceneBeforeUntracked(string sceneId)
+        private void UntrackScene(string sceneId)
         {
             var root = _txns.Root(sceneId);
 
@@ -446,20 +473,23 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called before a scene becomes untracked.
+        /// </summary>
+        /// <param name="sceneId">The id of the scene.</param>
+        private void Txns_OnSceneBeforeUntracked(string sceneId)
+        {
+            UntrackScene(sceneId);
+        }
+
+        /// <summary>
         /// Called after a scene is tracked.
         /// </summary>
         /// <param name="sceneId">The id of the scene.</param>
         private void Txns_OnSceneAfterTracked(string sceneId)
         {
-            var root = _txns.Root(sceneId);
-
-            ElementAdded(root);
-
-            // listen for future child updates
-            root.OnChildAdded += SceneRoot_OnChildAdded;
-            root.OnChildRemoved += SceneRoot_OnChildRemoved;
+            TrackScene(sceneId);
         }
-        
+
         /// <summary>
         /// Called after a child is added to a scene.
         /// </summary>
