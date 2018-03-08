@@ -9,6 +9,222 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
+    public class AnchorMovingState : IState
+    {
+        private readonly AnchorDesignController _controller;
+
+        public AnchorMovingState(AnchorDesignController controller)
+        {
+            _controller = controller;
+        }
+
+        public void Enter(object context)
+        {
+            _controller.Color = Color.green;
+        }
+
+        public void Update(float dt)
+        {
+            if (IsDirty() && CanExport())
+            {
+                _controller.ChangeState<AnchorSavingState>();
+            }
+        }
+
+        private bool IsDirty()
+        {
+            return false;
+        }
+
+        private bool CanExport()
+        {
+            return true;
+        }
+
+        public void Exit()
+        {
+            
+        }
+    }
+
+    public class AnchorSavingState : IState
+    {
+        private readonly AnchorDesignController _controller;
+        private readonly IWorldAnchorProvider _provider;
+        private readonly IHttpService _http;
+
+        private IAsyncToken<byte[]> _exportToken;
+        private IAsyncToken<HttpResponse<Trellis.Messages.UploadAnchor.Response>> _uploadToken;
+
+        public AnchorSavingState(
+            AnchorDesignController controller,
+            IWorldAnchorProvider provider,
+            IHttpService http)
+        {
+            _controller = controller;
+            _provider = provider;
+            _http = http;
+        }
+
+        public void Enter(object context)
+        {
+            _controller.Color = Color.yellow;
+            _controller.CloseSplash();
+
+            Export();
+        }
+
+        public void Update(float dt)
+        {
+
+        }
+
+        public void Exit()
+        {
+            if (null != _exportToken)
+            {
+                _exportToken.Abort();
+                _exportToken = null;
+            }
+
+            if (null != _uploadToken)
+            {
+                _uploadToken.Abort();
+                _uploadToken = null;
+            }
+        }
+        
+        private void Export()
+        {
+            // first, export anchor
+            _exportToken = _provider
+                .Export(_controller.gameObject)
+                .OnSuccess(bytes =>
+                {
+                    // next, upload anchor
+                    _uploadToken = _http
+                        .PostFile<Trellis.Messages.UploadAnchor.Response>(
+                            _http.UrlBuilder.Url(string.Format(
+                                "/v1/editor/app/{0}/scene/{1}/anchor/{2}",
+                                "appId",
+                                "sceneId",
+                                _controller.Element.Id)),
+                            new Commons.Unity.DataStructures.Tuple<string, string>[0],
+                            ref bytes)
+                        .OnSuccess(response =>
+                        {
+                            if (response.Payload.Success)
+                            {
+                                Log.Info(this, "Successfully uploaded world anchor.");
+
+                                _controller.ChangeState<AnchorReadyState>();
+                            }
+                            else
+                            {
+                                Log.Error(this, "Could not upload world anchor : {0}.", response.Payload.Error);
+                            }
+                        })
+                        .OnFailure(exception =>
+                        {
+                            Log.Error(this,
+                                "Could not upload world anchor : {0}.",
+                                exception);
+                        });
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not export anchor for {0} : {1}.",
+                        _controller,
+                        exception);
+                });
+        }
+    }
+
+    public class AnchorLoadingState : IState
+    {
+        private readonly AnchorDesignController _controller;
+        private readonly IWorldAnchorProvider _provider;
+
+        public AnchorLoadingState(
+            AnchorDesignController controller,
+            IWorldAnchorProvider provider)
+        {
+            _controller = controller;
+            _provider = provider;
+        }
+
+        public void Enter(object context)
+        {
+            _controller.Color = Color.grey;
+            _controller.CloseSplash();
+
+            ((WorldAnchorWidget) _controller.Element)
+                .Import()
+                .OnSuccess(_ => _controller.ChangeState<AnchorReadyState>())
+                .OnFailure(_ => _controller.ChangeState<AnchorReadyState>());
+        }
+
+        public void Update(float dt)
+        {
+
+        }
+
+        public void Exit()
+        {
+            
+        }
+    }
+
+    public class AnchorReadyState : IState
+    {
+        private readonly AnchorDesignController _controller;
+
+        public AnchorReadyState(AnchorDesignController controller)
+        {
+            _controller = controller;
+        }
+
+        public void Enter(object context)
+        {
+            _controller.Color = Color.white;
+        }
+
+        public void Update(float dt)
+        {
+
+        }
+
+        public void Exit()
+        {
+
+        }
+    }
+
+    public class AnchorErrorState : IState
+    {
+        private readonly AnchorDesignController _controller;
+
+        public AnchorErrorState(AnchorDesignController controller)
+        {
+            _controller = controller;
+        }
+
+        public void Enter(object context)
+        {
+            _controller.Color = Color.red;
+        }
+
+        public void Update(float dt)
+        {
+            
+        }
+
+        public void Exit()
+        {
+            
+        }
+    }
+
     /// <summary>
     /// Design controller for anchor widgets.
     /// </summary>
@@ -40,7 +256,7 @@ namespace CreateAR.SpirePlayer
             public Action<AnchorDesignController> OnAdjust;
         }
 
-        private const float SAVE_MIN_SECS = 3f;
+        private FiniteStateMachine _fsm;
 
         private PlayModeConfig _config;
         private IWorldAnchorProvider _provider;
@@ -54,10 +270,21 @@ namespace CreateAR.SpirePlayer
 
         private Material[] _materials;
 
-        private bool _isUpdateEnabled = false;
+        private Color _color;
 
-        private DateTime _lastSave = DateTime.MinValue;
-        private AsyncToken<Void> _exportToken;
+        public Color Color
+        {
+            get { return _color; }
+            set
+            {
+                _color = value;
+
+                for (var i = 0; i < _materials.Length; i++)
+                {
+                    _materials[i].SetColor("_Color", _color);
+                }
+            }
+        }
 
         public override void Initialize(Element element, object context)
         {
@@ -69,25 +296,19 @@ namespace CreateAR.SpirePlayer
             _provider = _context.Provider;
             _http = _context.Http;
 
-            if (null == _marker)
-            {
-                _marker = Instantiate(_config.AnchorPrefab, transform);
-                _marker.transform.localPosition = Vector3.zero;
-                _marker.transform.localRotation = Quaternion.identity;
-            }
-
-            _marker.SetActive(true);
-            
-            var materials = new List<Material>();
-            var renderers = _marker.GetComponentsInChildren<MeshRenderer>();
-            for (int i = 0, len = renderers.Length; i < len; i++)
-            {
-                materials.AddRange(renderers[i].sharedMaterials);
-            }
-
-            _materials = materials.ToArray();
-
+            SetupMarker();
+            SetupMaterials();
             SetupSplash();
+
+            _fsm = new FiniteStateMachine(new IState[]
+            {
+                new AnchorLoadingState(this, _provider),
+                new AnchorReadyState(this),
+                new AnchorMovingState(this),
+                new AnchorSavingState(this, _provider, _http),
+                new AnchorErrorState(this)
+            });
+            _fsm.Change<AnchorLoadingState>();
         }
 
         public override void Uninitialize()
@@ -99,12 +320,17 @@ namespace CreateAR.SpirePlayer
             _marker.SetActive(false);
         }
 
+        public void ChangeState<T>() where T : IState
+        {
+            _fsm.Change<T>();
+        }
+
         public void FinalizeState()
         {
 
         }
 
-        public void HideSplash()
+        public void CloseSplash()
         {
             _splash.enabled = false;
         }
@@ -113,78 +339,31 @@ namespace CreateAR.SpirePlayer
         {
             _splash.enabled = true;
         }
-
-        private void Update()
+        
+        private void SetupMarker()
         {
-            if (!_isUpdateEnabled)
+            if (null == _marker)
             {
-                return;
+                _marker = Instantiate(_config.AnchorPrefab, transform);
+                _marker.transform.localPosition = Vector3.zero;
+                _marker.transform.localRotation = Quaternion.identity;
             }
-            
-            if (IsDirty() && CanExport())
+
+            _marker.SetActive(true);
+        }
+
+        private void SetupMaterials()
+        {
+            var materials = new List<Material>();
+            var renderers = _marker.GetComponentsInChildren<MeshRenderer>();
+            for (int i = 0, len = renderers.Length; i < len; i++)
             {
-                Export();
+                materials.AddRange(renderers[i].sharedMaterials);
             }
-        }
 
-        private bool IsDirty()
-        {
-            return false;
-        }
+            _materials = materials.ToArray();
 
-        private bool CanExport()
-        {
-            return null == _exportToken;
-        }
-
-        private void Export()
-        {
-            _exportToken = new AsyncToken<Void>();
-
-            // first, export anchor
-            _provider
-                .Export(((WorldAnchorWidget) Element).GameObject)
-                .OnSuccess(bytes =>
-                {
-                    // next, upload anchor
-                    _http
-                        .PostFile<Trellis.Messages.UploadAnchor.Response>(
-                            _http.UrlBuilder.Url(string.Format(
-                                "/v1/editor/app/{0}/scene/{1}/anchor/{2}",
-                                "appId",
-                                "sceneId",
-                                Element.Id)),
-                            new Commons.Unity.DataStructures.Tuple<string, string>[0],
-                            ref bytes)
-                        .OnSuccess(response =>
-                        {
-                            if (response.Payload.Success)
-                            {
-                                Log.Info(this, "Successfully uploaded world anchor.");
-                            }
-                            else
-                            {
-                                Log.Error(this, "Could not upload world anchor : {0}.", response.Payload.Error);
-                            }
-                        })
-                        .OnFailure(exception =>
-                        {
-                            Log.Error(this,
-                                "Could not upload world anchor : {0}.",
-                                exception);
-                        });
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this,"Could not export anchor for {0} : {1}.",
-                        Element,
-                        exception);
-
-                    var token = _exportToken;
-                    _exportToken = null;
-
-                    token.Fail(exception);
-                });
+            Color = Color.white;
         }
 
         private void SetupSplash()

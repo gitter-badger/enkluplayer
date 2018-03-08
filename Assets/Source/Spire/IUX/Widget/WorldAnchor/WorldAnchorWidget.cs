@@ -1,7 +1,9 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -29,7 +31,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Prop for anchoring url.
         /// </summary>
         private ElementSchemaProp<int> _versionProp;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -44,6 +46,14 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _http = http;
             _provider = provider;
+        }
+
+        /// <summary>
+        /// Imports anchor.
+        /// </summary>
+        public IAsyncToken<Void> Import()
+        {
+            return new AsyncToken<Void>(new NotImplementedException());
         }
 
         /// <inheritdoc />
