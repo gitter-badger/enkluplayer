@@ -74,9 +74,19 @@ namespace CreateAR.SpirePlayer
         public void Initialize(AnchorDesignController controller)
         {
             _controller = controller;
+            
+            ResetMenuPosition();
+
+            enabled = true;
+        }
+
+        /// <inheritdoc />
+        protected override void Awake()
+        {
+            base.Awake();
 
             BtnBack.Activator.OnActivated += BtnBack_OnActivated;
-            
+
             BtnX.Activator.OnActivated += BtnX_OnActivated;
             BtnY.Activator.OnActivated += BtnY_OnActivated;
             BtnZ.Activator.OnActivated += BtnZ_OnActivated;
@@ -85,12 +95,8 @@ namespace CreateAR.SpirePlayer
             SliderX.OnUnfocused += SliderX_OnUnfocused;
             SliderY.OnUnfocused += SliderY_OnUnfocused;
             SliderZ.OnUnfocused += SliderZ_OnUnfocused;
-            
-            ResetMenuPosition();
-
-            enabled = true;
         }
-        
+
         /// <inheritdoc cref="MonoBehaviour" />
         private void Update()
         {

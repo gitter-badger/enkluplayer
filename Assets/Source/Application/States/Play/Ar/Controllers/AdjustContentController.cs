@@ -85,6 +85,16 @@ namespace CreateAR.SpirePlayer
         public void Initialize(ContentDesignController controller)
         {
             _controller = controller;
+            
+            ResetMenuPosition();
+
+            enabled = true;
+        }
+
+        /// <inheritdoc />
+        protected override void Awake()
+        {
+            base.Awake();
 
             BtnBack.Activator.OnActivated += BtnBack_OnActivated;
 
@@ -101,10 +111,6 @@ namespace CreateAR.SpirePlayer
 
             SliderScale.OnUnfocused += SliderScale_OnUnfocused;
             SliderRotate.OnUnfocused += SliderRotate_OnUnfocused;
-
-            ResetMenuPosition();
-
-            enabled = true;
         }
 
         /// <inheritdoc cref="MonoBehaviour" />
