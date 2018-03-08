@@ -161,7 +161,7 @@ namespace CreateAR.SpirePlayer
             ResetMenuPosition();
             Container.LocalVisible = true;
 
-            _controller.FinalizeState();
+            _controller.FinalizeEdit();
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace CreateAR.SpirePlayer
             ResetMenuPosition();
             Container.LocalVisible = true;
 
-            _controller.FinalizeState();
+            _controller.FinalizeEdit();
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace CreateAR.SpirePlayer
             ResetMenuPosition();
             Container.LocalVisible = true;
 
-            _controller.FinalizeState();
+            _controller.FinalizeEdit();
         }
         
         /// <summary>
