@@ -54,7 +54,6 @@ namespace CreateAR.SpirePlayer
         {
             _controller.Lock();
             _controller.Color = Color.yellow;
-            _controller.CloseSplash();
 
             Export();
         }
@@ -106,6 +105,8 @@ namespace CreateAR.SpirePlayer
                             if (response.Payload.Success)
                             {
                                 Log.Info(this, "Successfully uploaded world anchor.");
+
+                                // TODO: next update version
 
                                 _controller.ChangeState<AnchorReadyState>();
                             }

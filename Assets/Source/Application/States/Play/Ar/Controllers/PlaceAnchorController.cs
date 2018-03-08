@@ -12,11 +12,6 @@ namespace CreateAR.SpirePlayer
     public class PlaceAnchorController : InjectableIUXController
     {
         /// <summary>
-        /// Configuration for playmode.
-        /// </summary>
-        private PlayModeConfig _config;
-
-        /// <summary>
         /// Elements.
         /// </summary>
         [InjectElements("..anchor-container")]
@@ -77,8 +72,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Initialize(PlayModeConfig config)
         {
-            _config = config;
-
             Instantiate(
                 config.AnchorPrefab,
                 PrefabContainer.GameObject.transform);

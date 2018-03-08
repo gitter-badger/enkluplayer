@@ -1,4 +1,6 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -26,13 +28,23 @@ namespace CreateAR.SpirePlayer
         {
             _controller.Lock();
             _controller.Color = Color.grey;
-            _controller.CloseSplash();
+            
+            var widget = (WorldAnchorWidget) _controller.Element;
+            if (widget.IsAnchorLoading)
+            {
+                widget.OnAnchorLoadError += Widget_OnAnchorLoadError;
+                widget.OnAnchorLoadSuccess += Widget_OnAnchorLoadSuccess;
+            }
+            else if (widget.IsAnchorLoaded)
+            {
+                _controller.ChangeState<AnchorReadyState>();
+            }
+            else
+            {
+                Log.Warning(this, "Bad state: anchor is neither loaded nor loading.");
 
-            return;
-            ((WorldAnchorWidget) _controller.Element)
-                .Import()
-                .OnSuccess(_ => _controller.ChangeState<AnchorReadyState>())
-                .OnFailure(_ => _controller.ChangeState<AnchorErrorState>());
+                _controller.ChangeState<AnchorReadyState>();
+            }
         }
 
         /// <inheritdoc />
@@ -44,7 +56,26 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            
+            var widget = (WorldAnchorWidget) _controller.Element;
+
+            widget.OnAnchorLoadError += Widget_OnAnchorLoadError;
+            widget.OnAnchorLoadSuccess += Widget_OnAnchorLoadSuccess;
+        }
+
+        /// <summary>
+        /// Called when the widget loads its anchor successfully.
+        /// </summary>
+        private void Widget_OnAnchorLoadSuccess()
+        {
+            _controller.ChangeState<AnchorReadyState>();
+        }
+
+        /// <summary>
+        /// Called when the widget could not load its anchor.
+        /// </summary>
+        private void Widget_OnAnchorLoadError()
+        {
+            _controller.ChangeState<AnchorErrorState>();
         }
     }
 }

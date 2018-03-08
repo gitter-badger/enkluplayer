@@ -3,7 +3,6 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -33,6 +32,26 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<int> _versionProp;
         
         /// <summary>
+        /// True iff anchor data is loaded.
+        /// </summary>
+        public bool IsAnchorLoaded { get; private set; }
+
+        /// <summary>
+        /// True iff anchor data is loading.
+        /// </summary>
+        public bool IsAnchorLoading { get; private set; }
+
+        /// <summary>
+        /// Called on load success.
+        /// </summary>
+        public event Action OnAnchorLoadSuccess;
+
+        /// <summary>
+        /// Called on load error.
+        /// </summary>
+        public event Action OnAnchorLoadError;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public WorldAnchorWidget(
@@ -47,15 +66,7 @@ namespace CreateAR.SpirePlayer.IUX
             _http = http;
             _provider = provider;
         }
-
-        /// <summary>
-        /// Imports anchor.
-        /// </summary>
-        public IAsyncToken<Void> Import()
-        {
-            return new AsyncToken<Void>(new NotImplementedException());
-        }
-
+        
         /// <inheritdoc />
         protected override void LoadInternalBeforeChildren()
         {
@@ -93,19 +104,38 @@ namespace CreateAR.SpirePlayer.IUX
                 _downloadToken = null;
             }
 
+            IsAnchorLoaded = false;
+            IsAnchorLoading = true;
+
             var version = _versionProp.Value;
-            if (-1 == version)
+            if (version < 0)
             {
-                // anchor has not completed initial upload yet
+                IsAnchorLoading = false;
+
+                if (null != OnAnchorLoadError)
+                {
+                    OnAnchorLoadError();
+                }
+
+                Log.Error(this, "Invalid version : {0}.", version);
+
                 return;
             }
 
             var url = Schema.Get<string>("src").Value;
             if (string.IsNullOrEmpty(url))
             {
-                Log.Warning(this,
+                Log.Error(this, string.Format(
                     "Anchor [{0}] has invalid src prop.",
-                    Id);
+                    Id));
+
+                IsAnchorLoading = false;
+
+                if (null != OnAnchorLoadError)
+                {
+                    OnAnchorLoadError();
+                }
+
                 return;
             }
             
@@ -117,15 +147,46 @@ namespace CreateAR.SpirePlayer.IUX
 
                     _provider
                         .Import(GameObject, response.Payload)
-                        .OnSuccess(_ => Log.Info(this, "Successfully imported anchor."))
-                        .OnFailure(exception => Log.Error(this,
-                            "Could not import anchor : {0}.",
-                            exception));
+                        .OnSuccess(_ =>
+                        {
+                            Log.Info(this, "Successfully imported anchor.");
+
+                            IsAnchorLoading = false;
+                            IsAnchorLoaded = true;
+
+                            if (null != OnAnchorLoadSuccess)
+                            {
+                                OnAnchorLoadSuccess();
+                            }
+                        })
+                        .OnFailure(exception =>
+                        {
+                            Log.Error(this,
+                                "Could not import anchor : {0}.",
+                                exception);
+
+                            IsAnchorLoading = false;
+
+                            if (null != OnAnchorLoadError)
+                            {
+                                OnAnchorLoadError();
+                            }
+                        });
                 })
-                .OnFailure(exception => Log.Error(this, 
-                    "Could not download {0} : {1}.",
-                    url,
-                    exception))
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not download {0} : {1}.",
+                        url,
+                        exception);
+
+                    IsAnchorLoading = false;
+
+                    if (null != OnAnchorLoadError)
+                    {
+                        OnAnchorLoadError();
+                    }
+                })
                 .OnFinally(token =>
                 {
                     if (token == _downloadToken)

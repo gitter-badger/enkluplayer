@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -78,6 +79,16 @@ namespace CreateAR.SpirePlayer
         private Material[] _materials;
 
         /// <summary>
+        /// True iff locked.
+        /// </summary>
+        private bool _isLocked;
+
+        /// <summary>
+        /// True iff show splash is requested.
+        /// </summary>
+        private bool _isSplashRequested;
+
+        /// <summary>
         /// Backing variable for Color prop.
         /// </summary>
         private Color _color;
@@ -138,7 +149,7 @@ namespace CreateAR.SpirePlayer
                 new AnchorErrorState(this)
             });
             
-            _fsm.Change<AnchorLoadingState>();
+            ChangeState<AnchorLoadingState>();
         }
 
         /// <inheritdoc />
@@ -159,6 +170,8 @@ namespace CreateAR.SpirePlayer
         /// <typeparam name="T">The state to change to.</typeparam>
         public void ChangeState<T>() where T : IState
         {
+            Log.Info(this, "Change state to {0}.", typeof(T).Name);
+
             _fsm.Change<T>();
         }
 
@@ -191,7 +204,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Lock()
         {
-            
+            _isLocked = true;
+
+            UpdateSplash();
         }
 
         /// <summary>
@@ -199,7 +214,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Unlock()
         {
+            _isLocked = false;
 
+            UpdateSplash();
         }
 
         /// <summary>
@@ -207,7 +224,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void CloseSplash()
         {
-            _splash.enabled = false;
+            _isSplashRequested = false;
+
+            UpdateSplash();
         }
 
         /// <summary>
@@ -215,7 +234,19 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void ShowSplash()
         {
-            _splash.enabled = true;
+            _isSplashRequested = true;
+
+            UpdateSplash();
+        }
+
+        /// <summary>
+        /// Updates the splash menu visibility.
+        /// </summary>
+        private void UpdateSplash()
+        {
+            Log.Info(this, "{0}: {1} - {2}", Element.Id, _isLocked, _isSplashRequested);
+
+            _splash.enabled = !_isLocked && _isSplashRequested;
         }
         
         /// <summary>
@@ -249,7 +280,7 @@ namespace CreateAR.SpirePlayer
 
             Color = Color.white;
         }
-        
+
         /// <summary>
         /// Sets up the splash menu.
         /// </summary>
@@ -261,8 +292,10 @@ namespace CreateAR.SpirePlayer
                 _splash = gameObject.AddComponent<AnchorSplashController>();
             }
 
-            _splash.enabled = true;
+            _isSplashRequested = true;
             _splash.OnOpen += Splash_OnOpen;
+
+            UpdateSplash();
         }
 
         /// <summary>

@@ -237,6 +237,7 @@ namespace CreateAR.SpirePlayer
                 _design.App.Id,
                 _elementUpdater.Active,
                 data.Id);
+            data.Schema.Ints["version"] = 0;
 
             // create placeholder
             var placeholder = Object.Instantiate(
