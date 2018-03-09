@@ -14,13 +14,21 @@ namespace CreateAR.SpirePlayer
         /// The controller.
         /// </summary>
         private readonly AnchorDesignController _controller;
-        
+
+        /// <summary>
+        /// Provides world anchors.
+        /// </summary>
+        private readonly IWorldAnchorProvider _provider;
+
         /// <summary>
         /// Constructor.
         /// </summary>
-        public AnchorLoadingState(AnchorDesignController controller)
+        public AnchorLoadingState(
+            AnchorDesignController controller,
+            IWorldAnchorProvider provider)
         {
             _controller = controller;
+            _provider = provider;
         }
 
         /// <inheritdoc />

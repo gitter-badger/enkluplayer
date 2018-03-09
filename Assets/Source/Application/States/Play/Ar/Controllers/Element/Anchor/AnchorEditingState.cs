@@ -1,9 +1,9 @@
 ﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// State while anchor is being moved.
+    /// State while anchor is being edited.
     /// </summary>
-    public class AnchorMovingState : IState
+    public class AnchorEditingState : IState
     {
         /// <summary>
         /// The controller.
@@ -13,7 +13,7 @@
         /// <summary>
         /// Constructor.
         /// </summary>
-        public AnchorMovingState(AnchorDesignController controller)
+        public AnchorEditingState(AnchorDesignController controller)
         {
             _controller = controller;
         }
@@ -22,7 +22,6 @@
         public void Enter(object context)
         {
             _controller.Renderer.Editing();
-
         }
 
         /// <inheritdoc />

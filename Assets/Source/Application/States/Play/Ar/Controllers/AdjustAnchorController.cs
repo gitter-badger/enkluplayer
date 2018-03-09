@@ -162,6 +162,11 @@ namespace CreateAR.SpirePlayer
             Container.LocalVisible = true;
 
             _controller.FinalizeEdit();
+
+            if (null != OnExit)
+            {
+                OnExit(_controller);
+            }
         }
 
         /// <summary>
@@ -175,6 +180,11 @@ namespace CreateAR.SpirePlayer
             Container.LocalVisible = true;
 
             _controller.FinalizeEdit();
+
+            if (null != OnExit)
+            {
+                OnExit(_controller);
+            }
         }
 
         /// <summary>
@@ -188,6 +198,11 @@ namespace CreateAR.SpirePlayer
             Container.LocalVisible = true;
 
             _controller.FinalizeEdit();
+
+            if (null != OnExit)
+            {
+                OnExit(_controller);
+            }
         }
         
         /// <summary>

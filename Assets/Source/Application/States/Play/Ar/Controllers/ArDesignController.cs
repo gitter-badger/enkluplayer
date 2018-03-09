@@ -232,7 +232,7 @@ namespace CreateAR.SpirePlayer
             // create dynamic root
             {
                 _float = (FloatWidget)_elements.Element(
-                    @"<?Vine><Float id='Root' position=(0, 0, 2) face='camera'><ScaleTransition /></Float>");
+                    @"<?Vine><Float id='Root' position=(0, 0, 2) face='camera' focus.visible=false><ScaleTransition /></Float>");
                 _float.GameObject.transform.parent = _root.transform;
                 _dynamicRoot = (ScaleTransition)_float.Children[0];
             }

@@ -62,6 +62,18 @@ namespace CreateAR.SpirePlayer.IUX
             return token;
         }
 
+        /// <inheritdoc />
+        public void Disable(GameObject gameObject)
+        {
+            //
+        }
+
+        /// <inheritdoc />
+        public void Enable(GameObject gameObject)
+        {
+            
+        }
+
         /// <summary>
         /// Delays a callback.
         /// </summary>

@@ -5,7 +5,7 @@
 	<Container id='controls'>
 		<Button id='btn-back' icon='arrow-left' position=(-0.3, 0.25, 0) ready.color='Negative' />
 		<Button id='btn-x' icon='arrow-double' position=(-0.2, 0, 0) ready.color='Highlight' />
-		<Button id='btn-z' icon='arrow-double-z' position=(0, 0, 0) ready.color='Highlight' />
+		<Button id='btn-z' icon='arrow-double-z' position=(0, -0.1, 0) ready.color='Highlight' />
 		<Button id='btn-y' icon='arrow-double-z' position=(0, 0.2, 0) ready.color='Highlight' />
 		<Button id='btn-delete' icon='trash' position=(0, -0.2, 0) ready.color='Negative' />
 	</Container>

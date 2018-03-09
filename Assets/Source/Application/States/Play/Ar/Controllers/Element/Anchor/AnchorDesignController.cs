@@ -144,7 +144,7 @@ namespace CreateAR.SpirePlayer
                     _context.AppId,
                     _context.SceneId(Element)),
                 new AnchorReadyState(this),
-                new AnchorMovingState(this),
+                new AnchorEditingState(this),
                 new AnchorErrorState(this)
             });
             
@@ -182,7 +182,8 @@ namespace CreateAR.SpirePlayer
             _isEditing = true;
             UpdateSplash();
 
-            ChangeState<AnchorMovingState>();
+            _provider.Disable(gameObject);
+            ChangeState<AnchorEditingState>();
         }
 
         /// <summary>
@@ -204,6 +205,7 @@ namespace CreateAR.SpirePlayer
             _isEditing = false;
             UpdateSplash();
 
+            _provider.Enable(gameObject);
             ChangeState<AnchorLoadingState>();
         }
 
@@ -240,7 +242,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Opens splash.
         /// </summary>
-        public void ShowSplash()
+        public void OpenSplash()
         {
             _isSplashRequested = true;
 

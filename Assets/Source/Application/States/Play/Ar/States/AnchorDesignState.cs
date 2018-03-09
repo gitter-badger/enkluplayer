@@ -177,7 +177,7 @@ namespace CreateAR.SpirePlayer
             _controllers.All(_scratchList);
             for (int i = 0, len = _scratchList.Count; i < len; i++)
             {
-                _scratchList[i].enabled = false;
+                _scratchList[i].CloseSplash();
             }
         }
 
@@ -190,7 +190,7 @@ namespace CreateAR.SpirePlayer
             _controllers.All(_scratchList);
             for (int i = 0, len = _scratchList.Count; i < len; i++)
             {
-                _scratchList[i].enabled = true;
+                _scratchList[i].OpenSplash();
             }
         }
 
