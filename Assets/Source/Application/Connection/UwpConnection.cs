@@ -231,7 +231,7 @@ namespace CreateAR.SpirePlayer
         {
             LogVerbose("Pong()");
 
-            _socket.Send("40");
+            SendAsync("40");
         }
 
         /// <summary>

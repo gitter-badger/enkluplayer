@@ -135,7 +135,7 @@ namespace CreateAR.SpirePlayer.IUX
             var anchor = gameObject.GetComponent<WorldAnchor>();
             if (null != anchor)
             {
-                anchor.enabled = false;
+                //anchor.enabled = false;
             }
         }
 
@@ -145,7 +145,7 @@ namespace CreateAR.SpirePlayer.IUX
             var anchor = gameObject.GetComponent<WorldAnchor>();
             if (null != anchor)
             {
-                anchor.enabled = true;
+                //anchor.enabled = true;
             }
         }
     }

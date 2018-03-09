@@ -136,7 +136,7 @@ namespace CreateAR.SpirePlayer
 
             _fsm = new FiniteStateMachine(new IState[]
             {
-                new AnchorLoadingState(this),
+                new AnchorLoadingState(this, _provider),
                 new AnchorSavingState(
                     this,
                     _provider,
