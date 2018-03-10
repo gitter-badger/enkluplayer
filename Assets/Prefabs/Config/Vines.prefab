@@ -70,9 +70,13 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 54042b0ce1069b040ba18b9e17466430, type: 3}
   - Identifier: Design.NewContent
     Source: {fileID: 4900000, guid: 295f6564a49d4b44c9ced1133f453c22, type: 3}
-  - Identifier: Anchors.Menu
+  - Identifier: Anchor.Menu
     Source: {fileID: 4900000, guid: 8771d5998a774114291cb737b7f9c7f2, type: 3}
-  - Identifier: Anchors.Place
+  - Identifier: Anchor.Place
     Source: {fileID: 4900000, guid: c51669c74895c7341abcddf9a9866e92, type: 3}
   - Identifier: Element.Select
     Source: {fileID: 4900000, guid: 65496b679d2a9ea4a93b832e5df87217, type: 3}
+  - Identifier: Anchor.Splash
+    Source: {fileID: 4900000, guid: 649a8b01b19c7114a8b869182006b61e, type: 3}
+  - Identifier: Anchor.Adjust
+    Source: {fileID: 4900000, guid: 8899113ba5d749c49955ec6b512134a8, type: 3}

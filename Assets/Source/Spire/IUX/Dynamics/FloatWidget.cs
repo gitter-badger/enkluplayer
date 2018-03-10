@@ -129,6 +129,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void UpdateFocusVisibility()
         {
             _renderer.FocusSphere.SetActive(_focusVisible.Value);
+            _renderer.MotionWidget.gameObject.SetActive(_focusVisible.Value);
         }
 
         /// <summary>

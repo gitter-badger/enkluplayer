@@ -128,6 +128,26 @@ namespace CreateAR.SpirePlayer.IUX
 
             return token;
         }
+
+        /// <inheritdoc />
+        public void Disable(GameObject gameObject)
+        {
+            var anchor = gameObject.GetComponent<WorldAnchor>();
+            if (null != anchor)
+            {
+                //anchor.enabled = false;
+            }
+        }
+
+        /// <inheritdoc />
+        public void Enable(GameObject gameObject)
+        {
+            var anchor = gameObject.GetComponent<WorldAnchor>();
+            if (null != anchor)
+            {
+                //anchor.enabled = true;
+            }
+        }
     }
 }
 

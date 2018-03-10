@@ -88,6 +88,22 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Controls the app.
+        /// </summary>
+        public IAppController App
+        {
+            get { return _app; }
+        }
+
+        /// <summary>
+        /// Manages element transactions.
+        /// </summary>
+        public IElementTxnManager Txns
+        {
+            get { return _txns; }
+        }
+
+        /// <summary>
         /// Constuctor.
         /// </summary>
         public ArDesignController(
@@ -216,7 +232,7 @@ namespace CreateAR.SpirePlayer
             // create dynamic root
             {
                 _float = (FloatWidget)_elements.Element(
-                    @"<?Vine><Float id='Root' position=(0, 0, 2) face='camera'><ScaleTransition /></Float>");
+                    @"<?Vine><Float id='Root' position=(0, 0, 2) face='camera' focus.visible=false><ScaleTransition /></Float>");
                 _float.GameObject.transform.parent = _root.transform;
                 _dynamicRoot = (ScaleTransition)_float.Children[0];
             }

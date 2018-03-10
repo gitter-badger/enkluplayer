@@ -21,5 +21,17 @@ namespace CreateAR.SpirePlayer.IUX
         {
             return new AsyncToken<Void>(new NotImplementedException());
         }
+
+        /// <inheritdoc />
+        public void Disable(GameObject gameObject)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public void Enable(GameObject gameObject)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

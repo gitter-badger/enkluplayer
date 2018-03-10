@@ -5,25 +5,15 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Controls the menu for adjusting a prop.
+    /// Controls the menu for adjusting an anchor.
     /// </summary>
-    [InjectVine("Content.Adjust")]
-    public class AdjustContentController : InjectableIUXController
+    [InjectVine("Anchor.Adjust")]
+    public class AdjustAnchorController : InjectableIUXController
     {
         /// <summary>
-        /// Ties together the propdata and content.
+        /// Controller.
         /// </summary>
-        private ContentDesignController _controller;
-
-        /// <summary>
-        /// Starting scale.
-        /// </summary>
-        private Vector3 _startScale;
-
-        /// <summary>
-        /// Starting rotation.
-        /// </summary>
-        private Vector3 _startRotation;
+        private AnchorDesignController _controller;
 
         /// <summary>
         /// Starting position.
@@ -31,10 +21,10 @@ namespace CreateAR.SpirePlayer
         private Vector3 _startPosition;
 
         /// <summary>
-        /// Forward at start.
+        /// Starting forward.
         /// </summary>
         private Vector3 _startForward;
-
+        
         /// <summary>
         /// Manages intentions.
         /// </summary>
@@ -52,37 +42,36 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [InjectElements("..btn-back")]
         public ButtonWidget BtnBack { get; private set; }
-        [InjectElements("..btn-rotate")]
-        public ButtonWidget BtnRotate{ get; private set; }
-        [InjectElements("..btn-scale")]
-        public ButtonWidget BtnScale { get; private set; }
         [InjectElements("..btn-x")]
         public ButtonWidget BtnX { get; private set; }
         [InjectElements("..btn-y")]
         public ButtonWidget BtnY { get; private set; }
         [InjectElements("..btn-z")]
         public ButtonWidget BtnZ { get; private set; }
+        [InjectElements("..btn-delete")]
+        public ButtonWidget BtnTrash { get; private set; }
         [InjectElements("..slider-x")]
         public SliderWidget SliderX { get; private set; }
         [InjectElements("..slider-y")]
         public SliderWidget SliderY { get; private set; }
         [InjectElements("..slider-z")]
         public SliderWidget SliderZ { get; private set; }
-        [InjectElements("..slider-scale")]
-        public SliderWidget SliderScale { get; private set; }
-        [InjectElements("..slider-rotate")]
-        public SliderWidget SliderRotate { get; private set; }
 
         /// <summary>
         /// Called when the menu should be exited.
         /// </summary>
-        public event Action<ContentDesignController> OnExit;
+        public event Action<AnchorDesignController> OnExit;
 
         /// <summary>
-        /// Initiailizes the menu.
+        /// Called when delete is requested.
+        /// </summary>
+        public event Action<AnchorDesignController> OnDelete;
+
+        /// <summary>
+        /// Initializes the menu.
         /// </summary>
         /// <param name="controller">The prop controller.</param>
-        public void Initialize(ContentDesignController controller)
+        public void Initialize(AnchorDesignController controller)
         {
             _controller = controller;
             
@@ -98,19 +87,14 @@ namespace CreateAR.SpirePlayer
 
             BtnBack.Activator.OnActivated += BtnBack_OnActivated;
 
-            BtnRotate.Activator.OnActivated += BtnRotate_OnActivated;
-            BtnScale.Activator.OnActivated += BtnScale_OnActivated;
-
             BtnX.Activator.OnActivated += BtnX_OnActivated;
             BtnY.Activator.OnActivated += BtnY_OnActivated;
             BtnZ.Activator.OnActivated += BtnZ_OnActivated;
+            BtnTrash.Activator.OnActivated += BtnTrash_OnActivated;
 
             SliderX.OnUnfocused += SliderX_OnUnfocused;
             SliderY.OnUnfocused += SliderY_OnUnfocused;
             SliderZ.OnUnfocused += SliderZ_OnUnfocused;
-
-            SliderScale.OnUnfocused += SliderScale_OnUnfocused;
-            SliderRotate.OnUnfocused += SliderRotate_OnUnfocused;
         }
 
         /// <inheritdoc cref="MonoBehaviour" />
@@ -120,7 +104,7 @@ namespace CreateAR.SpirePlayer
             {
                 return;
             }
-            
+
             if (SliderX.Visible)
             {
                 var offset = BtnX.GameObject.transform.position - Container.GameObject.transform.position;
@@ -132,7 +116,7 @@ namespace CreateAR.SpirePlayer
                 var focus = SliderX.Focus.ToVector();
                 var scalar = Vector3.Dot(focus - O, d);
                 var diff = scalar * d;
-                
+
                 _controller.transform.position = O + diff - offset;
             }
 
@@ -157,21 +141,6 @@ namespace CreateAR.SpirePlayer
                 var scalar = (SliderZ.Value - 0.5f) * zScale;
                 _controller.transform.position = _startPosition + scalar * _startForward;
             }
-
-            if (SliderScale.Visible)
-            {
-                const float scaleDiff = 2f;
-                var start = _startScale.x;
-                var val = start + (SliderScale.Value - 0.5f) * scaleDiff;
-                _controller.transform.localScale = val * Vector3.one;
-            }
-
-            if (SliderRotate.Visible)
-            {
-                var start = _startRotation.y;
-                var val = start + (SliderRotate.Value - 0.5f) * 360;
-                _controller.transform.localRotation = Quaternion.Euler(0, val, 0);
-            }
         }
 
         /// <summary>
@@ -192,7 +161,12 @@ namespace CreateAR.SpirePlayer
             ResetMenuPosition();
             Container.LocalVisible = true;
 
-            _controller.FinalizeState();
+            _controller.FinalizeEdit();
+
+            if (null != OnExit)
+            {
+                OnExit(_controller);
+            }
         }
 
         /// <summary>
@@ -205,7 +179,12 @@ namespace CreateAR.SpirePlayer
             ResetMenuPosition();
             Container.LocalVisible = true;
 
-            _controller.FinalizeState();
+            _controller.FinalizeEdit();
+
+            if (null != OnExit)
+            {
+                OnExit(_controller);
+            }
         }
 
         /// <summary>
@@ -218,31 +197,14 @@ namespace CreateAR.SpirePlayer
             ResetMenuPosition();
             Container.LocalVisible = true;
 
-            _controller.FinalizeState();
+            _controller.FinalizeEdit();
+
+            if (null != OnExit)
+            {
+                OnExit(_controller);
+            }
         }
-
-        /// <summary>
-        /// Called when the scale slider has unfocused.
-        /// </summary>
-        private void SliderScale_OnUnfocused()
-        {
-            SliderScale.LocalVisible = false;
-            Container.LocalVisible = true;
-
-            _controller.FinalizeState();
-        }
-
-        /// <summary>
-        /// Called when the rotate slider has unfocused.
-        /// </summary>
-        private void SliderRotate_OnUnfocused()
-        {
-            SliderRotate.LocalVisible = false;
-            Container.LocalVisible = true;
-
-            _controller.FinalizeState();
-        }
-
+        
         /// <summary>
         /// Called when the back button has been activated.
         /// </summary>
@@ -253,34 +215,14 @@ namespace CreateAR.SpirePlayer
                 OnExit(_controller);
             }
         }
-
-        /// <summary>
-        /// Called when the rotate button has been activated.
-        /// </summary>
-        private void BtnRotate_OnActivated(ActivatorPrimitive activatorPrimitive)
-        {
-            Container.LocalVisible = false;
-
-            _startRotation = _controller.transform.localRotation.eulerAngles;
-            SliderRotate.LocalVisible = true;
-        }
-
-        /// <summary>
-        /// Called when the scale button has been activated.
-        /// </summary>
-        private void BtnScale_OnActivated(ActivatorPrimitive activatorPrimitive)
-        {
-            Container.LocalVisible = false;
-
-            _startScale = _controller.transform.localScale;
-            SliderScale.LocalVisible = true;
-        }
         
         /// <summary>
         /// Called when the x button has been activated.
         /// </summary>
         private void BtnX_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            _controller.BeginEdit();
+
             Container.LocalVisible = false;
             SliderX.LocalVisible = true;
         }
@@ -290,6 +232,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnY_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            _controller.BeginEdit();
+
             Container.LocalVisible = false;
             SliderY.LocalVisible = true;
         }
@@ -299,11 +243,24 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            _controller.BeginEdit();
+
             _startPosition = _controller.transform.position;
             _startForward = Intention.Forward.ToVector();
 
             Container.LocalVisible = false;
             SliderZ.LocalVisible = true;
+        }
+
+        /// <summary>
+        /// Called when the delete button has been activated.
+        /// </summary>
+        private void BtnTrash_OnActivated(ActivatorPrimitive activatorPrimitive)
+        {
+            if (null != OnDelete)
+            {
+                OnDelete(_controller);
+            }
         }
     }
 }
