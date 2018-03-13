@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
-using CreateAR.Trellis.Messages;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -17,19 +15,14 @@ namespace CreateAR.SpirePlayer
     public class ElementTxnManager : IElementTxnManager
     {
         /// <summary>
-        /// Api.
-        /// </summary>
-        private readonly ApiController _api;
-
-        /// <summary>
         /// Json.
         /// </summary>
-        private readonly JsonSerializer _json;
+        private readonly JsonSerializer _json = new JsonSerializer();
 
         /// <summary>
-        /// Makes Http services.
+        /// Transport implementation.
         /// </summary>
-        private readonly IHttpService _http;
+        private readonly IElementTxnTransport _transport;
 
         /// <summary>
         /// Creates elements.
@@ -79,16 +72,12 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public ElementTxnManager(
-            ApiController api,
-            JsonSerializer json,
-            IHttpService http,
+            IElementTxnTransport transport,
             IElementFactory elements,
             IElementActionStrategyFactory strategyFactory,
             IElementTxnStoreFactory storeFactory)
         {
-            _api = api;
-            _json = json;
-            _http = http;
+            _transport = transport;
             _elements = elements;
             _strategyFactory = strategyFactory;
             _storeFactory = storeFactory;
@@ -102,35 +91,27 @@ namespace CreateAR.SpirePlayer
             var token = new AsyncToken<Void>();
 
             // get app
-            _api
-                .Apps
+            _transport
                 .GetApp(appId)
                 .OnSuccess(response =>
                 {
-                    if (response.Payload.Success)
-                    {
-                        Log.Info(this,
-                            "Loaded app data for '{0}'. Now loading scenes.",
-                            appId);
+                    Log.Info(this,
+                        "Loaded app data for '{0}'. Now loading scenes.",
+                        appId);
 
-                        // load each scene
-                        var scenes = response.Payload.Body.Scenes;
-                        Async
-                            .All(scenes.Select(LoadScene).ToArray())
-                            .OnSuccess(_ =>
-                            {
-                                Log.Info(this,
-                                    "Successfully loaded {0} scenes.",
-                                    scenes.Length);
+                    // load each scene
+                    var scenes = response.Body.Scenes;
+                    Async
+                        .All(scenes.Select(LoadScene).ToArray())
+                        .OnSuccess(_ =>
+                        {
+                            Log.Info(this,
+                                "Successfully loaded {0} scenes.",
+                                scenes.Length);
 
-                                token.Succeed(Void.Instance);
-                            })
-                            .OnFailure(token.Fail);
-                    }
-                    else
-                    {
-                        token.Fail(new Exception(response.Payload.Error));
-                    }
+                            token.Succeed(Void.Instance);
+                        })
+                        .OnFailure(token.Fail);
                 })
                 .OnFailure(token.Fail);
 
@@ -234,32 +215,16 @@ namespace CreateAR.SpirePlayer
             var token = new AsyncToken<ElementResponse>();
             
             // send
-            _http
-                .Put<ElementTxnResponse>(
-                    _http.UrlBuilder.Url(string.Format("/editor/app/{0}/scene/{1}", _appId, txn.SceneId)),
-                    new ElementTxnRequest
-                    {
-                        Actions = txn.Actions.ToArray()
-                    })
-                .OnSuccess(response =>
+            _transport
+                .Request(_appId, txn.SceneId, txn.Actions.ToArray())
+                .OnSuccess(_ =>
                 {
-                    if (response.Payload.Success)
-                    {
-                        store.Commit(txn.Id);
+                    store.Commit(txn.Id);
 
-                        // add created elements
-                        AddAffectedElements(txn, elementResponse, ElementActionTypes.CREATE);
+                    // add created elements
+                    AddAffectedElements(txn, elementResponse, ElementActionTypes.CREATE);
 
-                        token.Succeed(elementResponse);
-                    }
-                    else
-                    {
-                        store.Rollback(txn.Id);
-
-                        token.Fail(new Exception(string.Format(
-                            "Error updating element : {0}.",
-                            response.Payload.Error)));
-                    }
+                    token.Succeed(elementResponse);
                 })
                 .OnFailure(exception =>
                 {
@@ -311,46 +276,38 @@ namespace CreateAR.SpirePlayer
         {
             var token = new AsyncToken<Void>();
 
-            _api
-                .Scenes
+            _transport
                 .GetScene(_appId, sceneId)
                 .OnSuccess(response =>
                 {
-                    if (response.Payload.Success)
+                    object obj;
+                    var bytes = Encoding.UTF8.GetBytes(response.Body.Elements);
+                    _json.Deserialize(
+                        typeof(ElementData),
+                        ref bytes,
+                        out obj);
+
+                    var root = _elements.Element(new ElementDescription
                     {
-                        object obj;
-                        var bytes = Encoding.UTF8.GetBytes(response.Payload.Body.Elements);
-                        _json.Deserialize(
-                            typeof(ElementData),
-                            ref bytes,
-                            out obj);
-
-                        var root = _elements.Element(new ElementDescription
+                        Root = new ElementRef
                         {
-                            Root = new ElementRef
-                            {
-                                Id = "root"
-                            },
-                            Elements = new []
-                            {
-                                (ElementData) obj
-                            }
-                        });
-                        
-                        var strategy = _strategyFactory.Instance(root);
-                        _stores[sceneId] = _storeFactory.Instance(strategy);
-                        _scenes[sceneId] = root;
-
-                        token.Succeed(Void.Instance);
-
-                        if (null != OnSceneAfterTracked)
+                            Id = "root"
+                        },
+                        Elements = new[]
                         {
-                            OnSceneAfterTracked(sceneId);
+                            (ElementData) obj
                         }
-                    }
-                    else
+                    });
+
+                    var strategy = _strategyFactory.Instance(root);
+                    _stores[sceneId] = _storeFactory.Instance(strategy);
+                    _scenes[sceneId] = root;
+
+                    token.Succeed(Void.Instance);
+
+                    if (null != OnSceneAfterTracked)
                     {
-                        token.Fail(new Exception(response.Payload.Error));
+                        OnSceneAfterTracked(sceneId);
                     }
                 })
                 .OnFailure(token.Fail);

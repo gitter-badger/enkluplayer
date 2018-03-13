@@ -71,6 +71,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IStorageWorker>().To<StorageWorker>().ToSingleton();
                 binder.Bind<IStorageService>().To<StorageService>().ToSingleton();
                 binder.Bind<IElementActionStrategyFactory>().To<ElementActionStrategyFactory>();
+                binder.Bind<IElementTxnTransport>().To<HttpElementTxnTransport>();
                 binder.Bind<IElementTxnStoreFactory>().To<ElementTxnStoreFactory>();
                 binder.Bind<IElementTxnManager>().To<ElementTxnManager>().ToSingleton();
 
@@ -261,14 +262,27 @@ namespace CreateAR.SpirePlayer
                 }
 
                 binder.Bind<IElementUpdateDelegate>().To<ElementUpdateDelegate>().ToSingleton();
-                
-                if (config.Play.Designer == PlayAppConfig.DesignerType.Desktop)
+
+                if (UnityEngine.Application.isEditor)
                 {
-                    binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
+                    if (config.Play.Designer == PlayAppConfig.DesignerType.Desktop)
+                    {
+                        binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
+                    }
+                    else
+                    {
+                        binder.Bind<IDesignController>().To<ArDesignController>().ToSingleton();
+                    }
                 }
                 else
                 {
+#if NETFX_CORE || UNITY_IOS || UNITY_ANDROID
                     binder.Bind<IDesignController>().To<ArDesignController>().ToSingleton();
+#elif UNITY_WEBGL
+                    binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
+#else
+                    binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
+#endif
                 }
             }
 

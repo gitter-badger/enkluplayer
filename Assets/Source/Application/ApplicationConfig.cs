@@ -78,7 +78,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Type of designer to use.
         /// </summary>
-        public string DesignerName;
+        public string DesignerOverride;
 
         /// <summary>
         /// Parses designer name.
@@ -91,7 +91,7 @@ namespace CreateAR.SpirePlayer
                 {
                     return (DesignerType) Enum.Parse(
                         typeof(DesignerType),
-                        DesignerName);
+                        DesignerOverride);
                 }
                 catch
                 {

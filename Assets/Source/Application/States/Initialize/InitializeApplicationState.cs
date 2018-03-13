@@ -70,7 +70,7 @@ namespace CreateAR.SpirePlayer
 
             imageLoader.ReplaceProtocol(
                 "assets",
-                "http://ec2-54-202-152-140.us-west-2.compute.amazonaws.com:9091");
+                "https://assets.enklu.com:9091");
         }
 
         /// <inheritdoc cref="IState"/>
@@ -101,9 +101,9 @@ namespace CreateAR.SpirePlayer
                         "Bundles")), 
                 new UrlBuilder
                 {
-                    BaseUrl = "ec2-54-202-152-140.us-west-2.compute.amazonaws.com",
+                    BaseUrl = "assets.enklu.com",
                     Port = 9091,
-                    Protocol = "http"
+                    Protocol = "https"
                 });
 
             // reset assets

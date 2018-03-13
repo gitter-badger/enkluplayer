@@ -14,7 +14,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Trellis api.
         /// </summary>
-        public readonly ApiController _api;
+        private readonly ApiController _api;
 
         /// <summary>
         /// Pipe for all element updates.

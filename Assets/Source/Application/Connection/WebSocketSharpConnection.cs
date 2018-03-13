@@ -62,11 +62,13 @@ namespace CreateAR.SpirePlayer
             _connectToken = new AsyncToken<Void>();
 
             // shave off protocol
+            var secure = environment.BaseUrl.StartsWith("https");
             var substring = environment.BaseUrl.Substring(
                 environment.BaseUrl.IndexOf("://") + 3);
 
             var wsUrl = string.Format(
-                "ws://{0}:{1}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
+                "{0}://{1}:{2}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
+                secure ? "wss" : "ws",
                 substring,
                 environment.Port);
             
