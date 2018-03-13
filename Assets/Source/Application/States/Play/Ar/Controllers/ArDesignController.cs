@@ -148,14 +148,7 @@ namespace CreateAR.SpirePlayer
             
             if (null == _elementUpdater.Active)
             {
-                Log.Info(this, "No active Scene, creating a default.");
-
-                Create()
-                    .OnSuccess(scene => Start())
-                    .OnFailure(exception =>
-                    {
-                        Log.Error(this, "Could not create Scene!");
-                    });
+                Log.Info(this, "No active Scene!");
             }
             else
             {

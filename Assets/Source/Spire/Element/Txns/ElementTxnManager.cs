@@ -216,7 +216,7 @@ namespace CreateAR.SpirePlayer
             
             // send
             _transport
-                .Request(_appId, txn.SceneId, txn.Actions.ToArray())
+                .Request(txn.Id, _appId, txn.SceneId, txn.Actions.ToArray())
                 .OnSuccess(_ =>
                 {
                     store.Commit(txn.Id);
@@ -303,12 +303,12 @@ namespace CreateAR.SpirePlayer
                     _stores[sceneId] = _storeFactory.Instance(strategy);
                     _scenes[sceneId] = root;
 
-                    token.Succeed(Void.Instance);
-
                     if (null != OnSceneAfterTracked)
                     {
                         OnSceneAfterTracked(sceneId);
                     }
+
+                    token.Succeed(Void.Instance);
                 })
                 .OnFailure(token.Fail);
 

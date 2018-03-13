@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
@@ -21,14 +22,19 @@ namespace CreateAR.SpirePlayer
     public class ElementTxn
     {
         /// <summary>
-        /// Used to generate session-unique id.
+        /// PRNG.
         /// </summary>
-        private static uint IDS = 1;
+        private static readonly Random _Random = new Random();
 
+        /// <summary>
+        /// Buffer used to generate random uints.
+        /// </summary>
+        private static readonly byte[] _Buffer = new byte[4];
+        
         /// <summary>
         /// Serializer.
         /// </summary>
-        private static readonly JsonSerializer _serializer = new JsonSerializer();
+        private static readonly JsonSerializer _Serializer = new JsonSerializer();
 
         /// <summary>
         /// Unique id.
@@ -51,7 +57,7 @@ namespace CreateAR.SpirePlayer
         public ElementTxn(string sceneId)
         {
             SceneId = sceneId;
-            Id = IDS++;
+            Id = GenerateTxnId();
         }
         
         /// <summary>
@@ -74,7 +80,7 @@ namespace CreateAR.SpirePlayer
         public ElementTxn Create(string parentId, ElementData data)
         {
             byte[] bytes;
-            _serializer.Serialize(data, out bytes);
+            _Serializer.Serialize(data, out bytes);
 
             Actions.Add(new ElementActionData
             {
@@ -268,6 +274,17 @@ namespace CreateAR.SpirePlayer
             });
 
             return this;
+        }
+
+        /// <summary>
+        /// Probably-unique id.
+        /// </summary>
+        /// <returns></returns>
+        private static uint GenerateTxnId()
+        {
+            _Random.NextBytes(_Buffer);
+
+            return BitConverter.ToUInt32(_Buffer, 0);
         }
     }
 }

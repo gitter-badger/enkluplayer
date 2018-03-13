@@ -267,8 +267,10 @@ namespace CreateAR.SpirePlayer
         /// <param name="id">Scene id.</param>
         private void Txns_OnSceneTracked(string id)
         {
+            Log.Info(this, "Scene tracked.");
             if (null == Active)
             {
+                Log.Info(this, "Setting active");
                 Active = id;
             }
         }

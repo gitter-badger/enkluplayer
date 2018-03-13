@@ -8,10 +8,23 @@ namespace CreateAR.SpirePlayer
     public class ElementTxnRequest
     {
         /// <summary>
+        /// Id of the transaction.
+        /// </summary>
+        public uint Id;
+
+        /// <summary>
         /// Actions.
         /// </summary>
         [JsonName("actions")]
         public ElementActionData[] Actions;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public ElementTxnRequest(uint id)
+        {
+            Id = id;
+        }
     }
 
     /// <summary>
