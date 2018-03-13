@@ -51,27 +51,31 @@ namespace CreateAR.SpirePlayer
 	        UnityEngine.Application.runInBackground = true;
 
             // setup logging
-	        Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
-	        {
-	            Level = false,
-	            Timestamp = false,
-                TypeName = true
-	        }));
-	        
 	        Log.Filter = LogLevel.Debug;
-            
-#if NETFX_CORE
-            /*
+
+	        if (UnityEngine.Application.platform != RuntimePlatform.WebGLPlayer)
+	        {
+	            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
+	            {
+	                Level = false,
+	                Timestamp = false,
+	                TypeName = true
+	            }));
+            }
+
+#if FALSE && NETFX_CORE
             Log.AddLogTarget(new UwpSocketLogger(
                 "Spire",
-                new System.Uri("ws://127.0.0.1:9999")));*/
-#else
+                new System.Uri("ws://127.0.0.1:9999")));
+#endif // NETFX_CORE
+
+#if !UNITY_WEBGL
             Log.AddLogTarget(new FileLogTarget(
 				new DefaultLogFormatter(),
                 System.IO.Path.Combine(
                     UnityEngine.Application.persistentDataPath,
                     "Application.log")));
-#endif
+#endif // UNITY_WEBGL
 
             // setup debug renderer
             var host = FindObjectOfType<DebugRendererMonoBehaviour>();

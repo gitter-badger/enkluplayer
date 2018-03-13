@@ -148,9 +148,7 @@ namespace CreateAR.SpirePlayer.Editor
                 return;
             }
 
-            Http.UrlBuilder.BaseUrl = env.BaseUrl;
-            Http.UrlBuilder.Port = env.Port;
-            Http.UrlBuilder.Version = env.ApiVersion;
+            Http.UrlBuilder.FromUrl(env.Url);
 
             var credentials = Config.Credentials;
             if (null != credentials)

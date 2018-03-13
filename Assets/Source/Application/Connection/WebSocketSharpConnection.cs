@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR || UNITY_IOS
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -61,16 +62,20 @@ namespace CreateAR.SpirePlayer
 
             _connectToken = new AsyncToken<Void>();
 
-            // shave off protocol
-            var secure = environment.BaseUrl.StartsWith("https");
-            var substring = environment.BaseUrl.Substring(
-                environment.BaseUrl.IndexOf("://") + 3);
+            // replace protocol (works for https too)
+            var url = environment.Url.Replace("http", "ws");
 
+            // shave off version
+            var substrings = url.Split('/');
+            if (substrings.Length > 3)
+            {
+                url = string.Join("/", substrings.Take(3).ToArray());
+            }
+
+            // make websocket url
             var wsUrl = string.Format(
-                "{0}://{1}:{2}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
-                secure ? "wss" : "ws",
-                substring,
-                environment.Port);
+                "{0}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
+                url);
             
             Log.Info(this, "Connecting to {0}.", wsUrl);
             

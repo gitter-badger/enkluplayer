@@ -86,9 +86,7 @@ namespace CreateAR.SpirePlayer
             
             // setup http
             var env = _appConfig.Network.Environment(_appConfig.Network.Current);
-            _http.UrlBuilder.BaseUrl = env.BaseUrl;
-            _http.UrlBuilder.Version = env.ApiVersion;
-            _http.UrlBuilder.Port = env.Port;
+            _http.UrlBuilder.FromUrl(env.Url);
 
             // setup assets
             var loader = new StandardAssetLoader(

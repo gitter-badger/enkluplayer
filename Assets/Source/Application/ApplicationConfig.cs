@@ -192,19 +192,9 @@ namespace CreateAR.SpirePlayer
         public string Name = "local";
 
         /// <summary>
-        /// Hostname.
+        /// The Url.
         /// </summary>
-        public string BaseUrl = "localhost";
-
-        /// <summary>
-        /// Port.
-        /// </summary>
-        public int Port = 9999;
-
-        /// <summary>
-        /// Api version.
-        /// </summary>
-        public string ApiVersion = "v1";
+        public string Url = "localhost";
     }
 
     /// <summary>
