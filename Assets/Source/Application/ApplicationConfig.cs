@@ -14,6 +14,7 @@ namespace CreateAR.SpirePlayer
         ReceiveApp,
         Tool,
         Insta,
+        Qr
     }
 
     /// <summary>

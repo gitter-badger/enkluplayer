@@ -132,6 +132,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<TestDataConfig>().To(LookupComponent<TestDataConfig>());
                     binder.Bind<ITestDataController>().To<TestDataController>();
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
+                    binder.Bind<QrApplicationState>().To<QrApplicationState>();
                     binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
@@ -198,6 +199,11 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
                 binder.Bind<IArService>().To<PassthroughArService>().ToSingleton();
 #endif
+            }
+
+            // QR
+            {
+                binder.Bind<IQrReaderService>().To<WsaQrReaderService>().ToSingleton();
             }
 
             // BLE

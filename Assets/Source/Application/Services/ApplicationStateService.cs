@@ -30,6 +30,7 @@ namespace CreateAR.SpirePlayer
             ApplicationConfig config,
 
             InitializeApplicationState initialize,
+            QrApplicationState qr,
             LoadAppApplicationState load,
             ReceiveAppApplicationState receive,
             PlayApplicationState play,
@@ -47,6 +48,7 @@ namespace CreateAR.SpirePlayer
             _states = new FiniteStateMachine(new IState[]
             {
                 initialize,
+                qr,
                 load,
                 receive,
                 play,
@@ -161,6 +163,11 @@ namespace CreateAR.SpirePlayer
                     _states.Change<InstaApplicationState>();
                     break;
                 }
+                case ApplicationStateTypes.Qr:
+                {
+                    _states.Change<QrApplicationState>();
+                    break;
+                }
             }
         }
 
@@ -203,7 +210,8 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
-            ChangeState(state);
+            //ChangeState(state);
+            ChangeState(ApplicationStateTypes.Qr);
         }
     }
 }
