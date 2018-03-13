@@ -1,7 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
@@ -79,7 +76,7 @@ namespace CreateAR.SpirePlayer
 
         private void Qr_OnRead(string value)
         {
-            Log.Info(this, "Read '{0}'.", value);
+            _qr.Stop();
         }
     }
 }

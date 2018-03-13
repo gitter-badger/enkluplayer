@@ -112,8 +112,8 @@ PluginImporter:
       settings:
         CPU: AnyCPU
         DontProcess: False
-        PlaceholderPath: Assets/Plugins/ThirdParty/zxing/zxing.unity.dll
-        SDK: UWP
+        PlaceholderPath: Assets/Plugins/ThirdParty/Qr/standalone/zxing.unity.dll
+        SDK: AnySDK
         ScriptingBackend: AnyScriptingBackend
   - first:
       iPhone: iOS

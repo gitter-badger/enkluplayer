@@ -1,6 +1,7 @@
 ﻿#if NETFX_CORE
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
@@ -77,14 +78,20 @@ namespace CreateAR.SpirePlayer
             // clear token after resolve
             _connectToken.OnFinally(_ => _connectToken = null);
 
-            // strip protocol
-            var substring = _environment.BaseUrl.Substring(
-                _environment.BaseUrl.IndexOf("://", StringComparison.Ordinal) + 3);
+            // replace protocol (works for https too)
+            var url = environment.Url.Replace("http", "ws");
 
+            // shave off version
+            var substrings = url.Split('/');
+            if (substrings.Length > 3)
+            {
+                url = string.Join("/", substrings.Take(3).ToArray());
+            }
+
+            // make websocket url
             var wsUrl = string.Format(
-                "ws://{0}:{1}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
-                substring,
-                environment.Port);
+                "{0}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
+                url);
 
             ConnectAsync(_connectToken, wsUrl);
 
