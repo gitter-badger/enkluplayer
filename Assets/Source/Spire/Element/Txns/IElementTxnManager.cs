@@ -69,5 +69,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="txn">The transaction we're requesting.</param>
         ElementResponse Apply(ElementTxn txn);
+
+        /// <summary>
+        /// Determines whether or not a txn originated here.
+        /// </summary>
+        /// <param name="txnId">Id of the transaction.</param>
+        /// <returns></returns>
+        bool IsTracked(long txnId);
     }
 }

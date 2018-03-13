@@ -157,9 +157,9 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<IBridge>(),
+                    binder.GetInstance<IElementTxnManager>(),
                     binder.GetInstance<MessageFilter>(),
                     binder.GetInstance<BridgeMessageHandler>(),
-                    binder.GetInstance<ApplicationConfig>(),
                     new ApplicationService[]
                     {
                         binder.GetInstance<ApplicationStateService>(),

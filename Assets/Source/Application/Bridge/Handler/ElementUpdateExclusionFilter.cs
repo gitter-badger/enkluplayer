@@ -6,16 +6,16 @@ namespace CreateAR.SpirePlayer
     public class ElementUpdateExclusionFilter : IMessageExclusionFilter
     {
         /// <summary>
-        /// Userid.
+        /// Txn manager.
         /// </summary>
-        private readonly string _userId;
-
+        private readonly IElementTxnManager _txns;
+        
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ElementUpdateExclusionFilter(string userId)
+        public ElementUpdateExclusionFilter(IElementTxnManager txns)
         {
-            _userId = userId;
+            _txns = txns;
         }
 
         /// <inheritdoc />
@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer
                 case MessageTypes.SCENE_UPDATE:
                 case MessageTypes.SCENE_DELETE:
                 {
-                    return ((SceneEvent) message).User == _userId;
+                    return _txns.IsTracked(((SceneEvent) message).Id);
                 }
                 default:
                 {

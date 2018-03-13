@@ -16,16 +16,16 @@ namespace CreateAR.SpirePlayer
         /// The bridge into the web world.
         /// </summary>
         private readonly IBridge _bridge;
+
+        /// <summary>
+        /// Manages txns.
+        /// </summary>
+        private readonly IElementTxnManager _txns;
         
         /// <summary>
         /// Filters messages.
         /// </summary>
         private readonly MessageFilter _filter;
-
-        /// <summary>
-        /// Application config.
-        /// </summary>
-        private readonly ApplicationConfig _config;
 
         /// <summary>
         /// Services to monitor host.
@@ -42,23 +42,23 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="messages">Pub/sub.</param>
         /// <param name="bridge">The WebBridge.</param>
+        /// <param name="txns">Manages txns.</param>
         /// <param name="filter">Filters messages.</param>
         /// <param name="handler">The object that handles messages.</param>
-        /// <param name="config">Application wide config.</param>
         /// <param name="services">Services to monitor host.</param>
         public ApplicationServiceManager(
             IMessageRouter messages,
             IBridge bridge,
+            IElementTxnManager txns,
             MessageFilter filter,
             BridgeMessageHandler handler,
-            ApplicationConfig config,
             ApplicationService[] services)
         {
             _messages = messages;
             _bridge = bridge;
+            _txns = txns;
             _filter = filter;
             _handler = handler;
-            _config = config;
             _services = services;
         }
 
@@ -78,10 +78,7 @@ namespace CreateAR.SpirePlayer
                 _ =>
                 {
                     // add filters
-                    _filter.Filter(new ElementUpdateExclusionFilter(_config
-                        .Network
-                        .Credentials(_config.Network.Current)
-                        .UserId));
+                    _filter.Filter(new ElementUpdateExclusionFilter(_txns));
                     
                     // ready for action
                     _bridge.BroadcastReady();

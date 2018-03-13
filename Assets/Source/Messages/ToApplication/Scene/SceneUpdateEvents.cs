@@ -8,16 +8,16 @@ namespace CreateAR.SpirePlayer
     public abstract class SceneEvent
     {
         /// <summary>
+        /// Txn id.
+        /// </summary>
+        [JsonName("id")]
+        public long Id;
+
+        /// <summary>
         /// Type of event.
         /// </summary>
         [JsonName("type")]
         public int Type;
-
-        /// <summary>
-        /// Source user id.
-        /// </summary>
-        [JsonName("user")]
-        public string User;
 
         /// <summary>
         /// Id of scene.

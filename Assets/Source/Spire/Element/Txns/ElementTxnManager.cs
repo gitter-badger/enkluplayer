@@ -53,6 +53,11 @@ namespace CreateAR.SpirePlayer
         /// Lookup from sceneId -> root element.
         /// </summary>
         private readonly Dictionary<string, Element> _scenes = new Dictionary<string, Element>();
+
+        /// <summary>
+        /// Ids of transactions.
+        /// </summary>
+        private readonly HashSet<long> _txnIds = new HashSet<long>();
         
         /// <summary>
         /// App id.
@@ -215,6 +220,7 @@ namespace CreateAR.SpirePlayer
             var token = new AsyncToken<ElementResponse>();
             
             // send
+            _txnIds.Add(txn.Id);
             _transport
                 .Request(txn.Id, _appId, txn.SceneId, txn.Actions.ToArray())
                 .OnSuccess(_ =>
@@ -234,7 +240,8 @@ namespace CreateAR.SpirePlayer
                     token.Fail(new Exception(string.Format(
                         "Error sending element txn : {0}.",
                         exception)));
-                });
+                })
+                .OnFinally(_ => _txnIds.Remove(txn.Id));
 
             return token;
         }
@@ -265,6 +272,12 @@ namespace CreateAR.SpirePlayer
             AddAffectedElements(txn, elementResponse, ElementActionTypes.CREATE);
 
             return elementResponse;
+        }
+
+        /// <inheritdoc />
+        public bool IsTracked(long txnId)
+        {
+            return _txnIds.Contains(txnId);
         }
 
         /// <summary>
