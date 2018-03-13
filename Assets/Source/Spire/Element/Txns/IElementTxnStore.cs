@@ -23,14 +23,14 @@
         /// about the txns state. Rollback cannot be called later.
         /// </summary>
         /// <param name="id">Unique id of txn.</param>
-        void Commit(uint id);
+        void Commit(int id);
 
         /// <summary>
         /// Used in conjunction with Apply. Tells the store to apply an undo
         /// operation for a txn. Commit cannot be called later.
         /// </summary>
         /// <param name="id">Unique id of txn.</param>
-        void Rollback(uint id);
+        void Rollback(int id);
 
         /// <summary>
         /// Applies a transaction without keeping a record of past state. This

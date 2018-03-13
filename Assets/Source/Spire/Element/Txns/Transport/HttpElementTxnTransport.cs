@@ -81,7 +81,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Request(uint id, string appId, string sceneId, ElementActionData[] actions)
+        public IAsyncToken<Void> Request(int id, string appId, string sceneId, ElementActionData[] actions)
         {
             var token = new AsyncToken<Void>();
 

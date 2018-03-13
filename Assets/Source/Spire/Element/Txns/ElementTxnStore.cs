@@ -32,7 +32,7 @@ namespace CreateAR.SpirePlayer
             /// <summary>
             /// Returns id of transaction.
             /// </summary>
-            public uint Id
+            public int Id
             {
                 get { return Txn.Id; }
             }
@@ -171,7 +171,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Commit(uint id)
+        public void Commit(int id)
         {
             for (var i = 0; i < _records.Count; i++)
             {
@@ -196,7 +196,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Rollback(uint id)
+        public void Rollback(int id)
         {
             var record = RetrieveRecord(id);
             if (null != record)
@@ -368,7 +368,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="id">The is of the record.</param>
         /// <returns></returns>
-        private TxnRecord RetrieveRecord(uint id)
+        private TxnRecord RetrieveRecord(int id)
         {
             for (var i = 0; i < _records.Count; i++)
             {

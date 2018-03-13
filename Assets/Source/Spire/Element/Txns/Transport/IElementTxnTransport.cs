@@ -30,6 +30,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="sceneId">Scene id.</param>
         /// <param name="actions">The actions to request.</param>
         /// <returns></returns>
-        IAsyncToken<Void> Request(uint id, string appId, string sceneId, ElementActionData[] actions);
+        IAsyncToken<Void> Request(int id, string appId, string sceneId, ElementActionData[] actions);
     }
 }

@@ -10,7 +10,8 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Id of the transaction.
         /// </summary>
-        public uint Id;
+        [JsonName("id")]
+        public int Id;
 
         /// <summary>
         /// Actions.
@@ -21,7 +22,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ElementTxnRequest(uint id)
+        public ElementTxnRequest(int id)
         {
             Id = id;
         }

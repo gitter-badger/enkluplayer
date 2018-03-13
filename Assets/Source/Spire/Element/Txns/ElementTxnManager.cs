@@ -57,7 +57,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Ids of transactions.
         /// </summary>
-        private readonly HashSet<long> _txnIds = new HashSet<long>();
+        private readonly List<long> _txnIds = new List<long>();
         
         /// <summary>
         /// App id.
@@ -221,6 +221,12 @@ namespace CreateAR.SpirePlayer
             
             // send
             _txnIds.Add(txn.Id);
+
+            while (_txnIds.Count > 1000)
+            {
+                _txnIds.RemoveAt(0);
+            }
+
             _transport
                 .Request(txn.Id, _appId, txn.SceneId, txn.Actions.ToArray())
                 .OnSuccess(_ =>
@@ -240,8 +246,7 @@ namespace CreateAR.SpirePlayer
                     token.Fail(new Exception(string.Format(
                         "Error sending element txn : {0}.",
                         exception)));
-                })
-                .OnFinally(_ => _txnIds.Remove(txn.Id));
+                });
 
             return token;
         }

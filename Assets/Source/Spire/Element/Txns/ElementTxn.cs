@@ -27,11 +27,6 @@ namespace CreateAR.SpirePlayer
         private static readonly Random _Random = new Random();
 
         /// <summary>
-        /// Buffer used to generate random uints.
-        /// </summary>
-        private static readonly byte[] _Buffer = new byte[4];
-        
-        /// <summary>
         /// Serializer.
         /// </summary>
         private static readonly JsonSerializer _Serializer = new JsonSerializer();
@@ -39,7 +34,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Unique id.
         /// </summary>
-        public readonly uint Id;
+        public readonly int Id;
 
         /// <summary>
         /// Id of the scene.
@@ -280,11 +275,9 @@ namespace CreateAR.SpirePlayer
         /// Probably-unique id.
         /// </summary>
         /// <returns></returns>
-        private static uint GenerateTxnId()
+        private static int GenerateTxnId()
         {
-            _Random.NextBytes(_Buffer);
-
-            return BitConverter.ToUInt32(_Buffer, 0);
+            return _Random.Next();
         }
     }
 }
