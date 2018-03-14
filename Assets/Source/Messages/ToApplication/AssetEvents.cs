@@ -14,15 +14,24 @@ namespace CreateAR.SpirePlayer
         public AssetData Asset;
     }
 
-    public class AssetRemoveEvent
-    {
-        [JsonName("id")]
-        public string Id;
-    }
-
     public class AssetUpdateEvent
     {
         [JsonName("asset")]
         public AssetData Asset;
+    }
+
+    public class AssetStatsEvent
+    {
+        [JsonName("assetId")]
+        public string Id;
+
+        [JsonName("stats")]
+        public AssetStatsData Stats;
+    }
+
+    public class AssetDeleteEvent
+    {
+        [JsonName("assetId")]
+        public string Id;
     }
 }

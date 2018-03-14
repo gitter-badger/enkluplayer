@@ -34,8 +34,9 @@ namespace CreateAR.SpirePlayer
         {
             Subscribe<AssetListEvent>(MessageTypes.RECV_ASSET_LIST, Messages_OnAssetList);
             Subscribe<AssetAddEvent>(MessageTypes.RECV_ASSET_ADD, Messages_OnAssetAdd);
-            Subscribe<AssetRemoveEvent>(MessageTypes.RECV_ASSET_REMOVE, Messages_OnAssetRemove);
+            Subscribe<AssetDeleteEvent>(MessageTypes.RECV_ASSET_REMOVE, Messages_OnAssetRemove);
             Subscribe<AssetUpdateEvent>(MessageTypes.RECV_ASSET_UPDATE, Messages_OnAssetUpdate);
+            Subscribe<AssetStatsEvent>(MessageTypes.RECV_ASSET_UPDATE_STATS, Messages_OnAssetStatsUpdate);
         }
 
         /// <inheritdoc cref="ApplicationService"/>
@@ -58,10 +59,29 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called when an assets stats are updated.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void Messages_OnAssetStatsUpdate(AssetStatsEvent @event)
+        {
+            var data = _assets.Manifest.Data(@event.Id);
+            if (null == data)
+            {
+                Log.Warning(this,
+                    "Received an asset stats event without a corresponding asset : {0}.",
+                    @event.Id);
+                return;
+            }
+
+            data.Stats = @event.Stats;
+            _assets.Manifest.Update(data);
+        }
+
+        /// <summary>
         /// Called when an <c>Asset</c> has been removed.
         /// </summary>
         /// <param name="event">The event.</param>
-        private void Messages_OnAssetRemove(AssetRemoveEvent @event)
+        private void Messages_OnAssetRemove(AssetDeleteEvent @event)
         {
             Log.Info(this, "Remove asset.");
 

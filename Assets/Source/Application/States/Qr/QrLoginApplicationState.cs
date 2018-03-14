@@ -9,6 +9,7 @@ using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.HoloSignin;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using ZXing.Datamatrix.Encoder;
 
 namespace CreateAR.SpirePlayer
@@ -92,6 +93,9 @@ namespace CreateAR.SpirePlayer
             _qr.Stop();
             _qr.OnRead -= Qr_OnRead;
 
+            var qr = GameObject.Find("Qr");
+            qr.GetComponent<Image>().enabled = false;
+
             // unload scene
             UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
                 UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
@@ -107,6 +111,9 @@ namespace CreateAR.SpirePlayer
             yield return op;
 
             Log.Info(this, "Loaded Qr scene.");
+
+            var qr = GameObject.Find("Qr");
+            qr.GetComponent<Image>().enabled = true;
             
             // start qr reader
             _qr.OnRead += Qr_OnRead;

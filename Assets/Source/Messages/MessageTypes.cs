@@ -28,6 +28,7 @@
         public const int RECV_ASSET_ADD = 11;
         public const int RECV_ASSET_REMOVE = 12;
         public const int RECV_ASSET_UPDATE = 13;
+        public const int RECV_ASSET_UPDATE_STATS = 14;
 
         // Scripts
         public const int RECV_SCRIPT_LIST = 20;

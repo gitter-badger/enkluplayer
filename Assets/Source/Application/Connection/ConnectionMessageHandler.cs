@@ -13,6 +13,9 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class ConnectionMessageHandler
     {
+        /// <summary>
+        /// MS between pongs.
+        /// </summary>
         private const int PONG_DELTA_MS = 3000;
 
         /// <summary>
@@ -50,6 +53,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private WebSocketInitPacket _initPacket;
 
+        /// <summary>
+        /// Called when the handler requests a heartbeat to be sent.
+        /// </summary>
         public event Action OnHeartbeatRequested;
 
         /// <summary>
@@ -86,90 +92,230 @@ namespace CreateAR.SpirePlayer
         /// <param name="message">The string message.</param>
         private void ProcessMessage(string message)
         {
-            // process init
-            var header = "0";
-            if (message.StartsWith(header))
-            {
-                message = message.Substring(header.Length);
-
-                try
-                {
-                    _initPacket = (WebSocketInitPacket) JsonValue
-                        .Parse(message)
-                        .As(typeof(WebSocketInitPacket));
-                }
-                catch (Exception exception)
-                {
-                    Log.Error(this,
-                        "Could not parse init packet : {0}.",
-                        exception);
-                }
-
-                LogVerbose("Received init packet.");
-
-                return;
-            }
-
-            // process ping
-            header = "40";
-            if (message == header)
-            {
-                _lastPing = DateTime.Now;
-
-                LogVerbose("Ping()");
-
-                return;
-            }
-
-            // process messages
-            header = "42[\"message\",";
-            if (message.StartsWith(header))
-            {
-                message = message.Substring(header.Length);
-                message = message.TrimEnd(']');
-            }
-            else
+            if (ProcessInitMessage(message))
             {
                 return;
             }
 
-            LogVerbose("Message Received: {0}", message);
+            if (ProcessHeartbeatMessage(message))
+            {
+                return;
+            }
 
+            if (ProcessTrellisMessage(message))
+            {
+                return;
+            }
+
+            Log.Warning(this, "Received message we don't know how to handle : {0}.", message);
+        }
+
+        private bool ProcessInitMessage(string message)
+        {
+            const string header = "0";
+            if (!message.StartsWith(header))
+            {
+                return false;
+            }
+
+            message = message.Substring(header.Length);
+
+            try
+            {
+                _initPacket = (WebSocketInitPacket) JsonValue
+                    .Parse(message)
+                    .As(typeof(WebSocketInitPacket));
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this,
+                    "Could not parse init packet : {0}.",
+                    exception);
+            }
+
+            LogVerbose("Received init.");
+
+            return true;
+
+        }
+
+        private bool ProcessHeartbeatMessage(string message)
+        {
+            const string header = "40";
+            if (message != header)
+            {
+                return false;
+            }
+
+            _lastPing = DateTime.Now;
+
+            LogVerbose("Received ping.");
+
+            return true;
+
+        }
+
+        private bool ProcessTrellisMessage(string message)
+        {
+            const string header = "42[\"message\",";
+            if (!message.StartsWith(header))
+            {
+                return false;
+            }
+
+            message = message.Substring(header.Length);
+            message = message.TrimEnd(']');
+
+            LogVerbose("Received Trellis message : {0}", message);
+
+            // try to parse using 'type'-- these are messages from the editor
             JsonValue parsed;
-            int messageType;
 
             try
             {
                 parsed = JsonValue.Parse(message);
-                messageType = parsed["type"].AsInteger;
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException exception)
             {
                 // invalid json
-                return;
+                Log.Error(this, "Received invalid JSON : {0}.", exception);
+
+                return true;
             }
 
-            LogVerbose("\tMessage type: {0}", messageType);
-
-            var type = _binder.ByMessageType(messageType);
-
-            LogVerbose("\tBound type: {0}", type);
-
-            if (null == type)
+            if (HandleEditorMessage(parsed))
             {
-                Log.Warning(this,
-                    "Binder had no type for [{0}] : {1}.",
-                    messageType,
-                    message);
-
-                return;
+                return true;
             }
 
-            var typedMessage = parsed.As(type);
+            if (HandleAssetMessage(parsed))
+            {
+                return true;
+            }
 
-            LogVerbose("\tMessage: {0}", typedMessage);
+            return false;
+        }
 
-            _filter.Publish(messageType, typedMessage);
+        private bool HandleEditorMessage(JsonValue parsed)
+        {
+            var messageType = parsed["type"].AsInteger;
+            if (0 != messageType)
+            {
+                var type = _binder.ByMessageType(messageType);
+                if (null != type)
+                {
+                    LogVerbose("\tMessage is bound to type: {0}", type);
+
+                    object typedMessage = null;
+                    try
+                    {
+                        typedMessage = parsed.As(type);
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(this, "Could not parse message as {0} : {1}.",
+                            type.Name,
+                            exception);
+                    }
+
+                    if (null != typedMessage)
+                    {
+                        LogVerbose("\tHandling message : {0}", typedMessage);
+
+                        _filter.Publish(messageType, typedMessage);
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private bool HandleAssetMessage(JsonValue parsed)
+        {
+            var messageType = parsed["messageType"].AsString;
+            switch (messageType)
+            {
+                case "assetcreation":
+                {
+                    AssetData asset;
+                    try
+                    {
+                        var assetData = parsed["payload"]["asset"];
+
+                        // first, parse stats
+                        var statsString = assetData["stats"].AsString;
+                        var stats = (AssetStatsData) JsonValue
+                            .Parse(statsString)
+                            .As(typeof(AssetStatsData));
+                        assetData["stats"] = new JsonValue();
+
+                        asset = (AssetData) assetData.As(typeof(AssetData));
+                        asset.Stats = stats;
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Warning(this, "Could not parse asset creation event : {0}.", exception);
+                        return false;
+                    }
+
+                    _filter.Publish(
+                        MessageTypes.RECV_ASSET_ADD,
+                        new AssetAddEvent
+                        {
+                            Asset = asset
+                        });
+                    break;
+                }
+                case "assetstats":
+                {
+                    AssetStatsEvent @event;
+                    try
+                    {
+                        // first, parse stats
+                        var statsString = parsed["payload"]["stats"].AsString;
+                        var stats = (AssetStatsData) JsonValue
+                            .Parse(statsString)
+                            .As(typeof(AssetStatsData));
+
+                        @event = new AssetStatsEvent
+                        {
+                            Id = parsed["payload"]["assetId"].AsString,
+                            Stats = stats
+                        };
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Warning(this, "Could not parse asset stats event : {0}.", exception);
+                        return false;
+                    }
+
+                    _filter.Publish(
+                        MessageTypes.RECV_ASSET_UPDATE_STATS,
+                        @event);
+                    break;
+                }
+                case "assetdeleted":
+                {
+                    var id = parsed["payload"]["assetId"].AsString;
+
+                    _filter.Publish(
+                        MessageTypes.RECV_ASSET_REMOVE,
+                        new AssetDeleteEvent
+                        {
+                            Id = id
+                        });
+                    break;
+                }
+                case "assetupdate":
+                {
+                    // discard
+                    break;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

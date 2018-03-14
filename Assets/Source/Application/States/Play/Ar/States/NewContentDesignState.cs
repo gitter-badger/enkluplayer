@@ -5,7 +5,7 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// State for craeting new content.
+    /// State for creating new content.
     /// </summary>
     public class NewContentDesignState : IArDesignState
     {
@@ -117,16 +117,20 @@ namespace CreateAR.SpirePlayer
         /// <param name="contentData">The prop.</param>
         private void Place_OnConfirm(ElementData contentData)
         {
+            _place.enabled = false;
+            _dynamicRoot.Schema.Set("focus.visible", true);
+
             _design
                 .Elements
                 .Create(contentData)
+                .OnSuccess(element =>
+                {
+                    Log.Info(this, "Successfully created content : {0}.", element);
+                })
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not place content : {0}.", exception);
                 });
-
-            _place.enabled = false;
-            _dynamicRoot.Schema.Set("focus.visible", true);
 
             // back to main
             _design.ChangeState<MainDesignState>();
