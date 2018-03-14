@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
@@ -36,6 +37,9 @@ namespace CreateAR.SpirePlayer
 
         [InjectElements("..content-container")]
         public ContainerWidget ContentContainer { get; set; }
+
+        [Inject]
+        public IAssetManager Assets { get; private set; }
 
         /// <summary>
         /// Called to cancel placement.
@@ -111,8 +115,9 @@ namespace CreateAR.SpirePlayer
 
                 return;
             }
-            
-            var prop = new ElementData
+
+            var assetData = Assets.Manifest.Data(Content.Data.Asset.AssetDataId);
+            var element = new ElementData
             {
                 Id = Guid.NewGuid().ToString(),
                 Type = ElementTypes.CONTENT,
@@ -121,7 +126,7 @@ namespace CreateAR.SpirePlayer
                     Strings =
                     {
                         { "assetSrc", Content.Data.Asset.AssetDataId },
-                        { "name", Content.Data.Name }
+                        { "name", assetData.AssetName }
                     },
                     Vectors =
                     {
@@ -134,7 +139,7 @@ namespace CreateAR.SpirePlayer
             
             if (null != OnConfirm)
             {
-                OnConfirm(prop);
+                OnConfirm(element);
             }
         }
 
