@@ -75,6 +75,8 @@ namespace CreateAR.SpirePlayer
 
             data.Stats = @event.Stats;
             _assets.Manifest.Update(data);
+
+            Log.Info(this, "Updated stats : {0}.", data.Stats);
         }
 
         /// <summary>

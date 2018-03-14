@@ -173,6 +173,12 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            _bounds = _asset.Data.Stats.Bounds ?? new AssetStatsBoundsData
+            {
+                Min = -0.5f * Vec3.One,
+                Max = 0.5f * Vec3.One
+            };
+
             // watch to unload
             _asset.OnRemoved += Asset_OnRemoved;
 
@@ -185,19 +191,12 @@ namespace CreateAR.SpirePlayer
             // otherwise, show a load indicator
             else
             {
-                var assetData = _assets.Manifest.Data(_data.Asset.AssetDataId);
-                if (null == assetData)
+                if (null == _asset.Data)
                 {
                     Log.Warning(this, "Could not find AssetData for {0}.", _data);
                 }
                 else
                 {
-                    _bounds = assetData.Stats.Bounds ?? new AssetStatsBoundsData
-                    {
-                        Min = -0.5f * Vec3.One,
-                        Max = 0.5f * Vec3.One
-                    };
-
                     _progressIndicatorId = _progress.ShowIndicator(
                         _bounds.Min,
                         _bounds.Max,
