@@ -12,6 +12,9 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Service that reads in QR codes from webcam. This implementation is for Wsa.
+    /// </summary>
     public class WsaQrReaderService : IQrReaderService
     {
         private readonly IBootstrapper _bootstrapper;
@@ -23,7 +26,7 @@ namespace CreateAR.SpirePlayer
         private AsyncToken<Void> _start;
         private AsyncToken<Void> _stop;
 
-        private DateTime _lastPoll = DateTime.MinValue;
+        private DateTime _lastCapture = DateTime.MinValue;
 
         private PhotoCapture _captureObject;
 
@@ -38,6 +41,7 @@ namespace CreateAR.SpirePlayer
             _bootstrapper = bootstrapper;
         }
 
+        /// <inheritdoc />
         public IAsyncToken<Void> Start()
         {
             _start = new AsyncToken<Void>();
@@ -56,11 +60,12 @@ namespace CreateAR.SpirePlayer
             _bootstrapper.BootstrapCoroutine(StartSynchronizeLoop());
 
             // start capture process
-            PhotoCapture.CreateAsync(false, Thread_OnCapture);
+            PhotoCapture.CreateAsync(false, Thread_OnCaptureModeStarted);
 
             return _start;
         }
 
+        /// <inheritdoc />
         public IAsyncToken<Void> Stop()
         {
             _stop = new AsyncToken<Void>();
@@ -79,6 +84,9 @@ namespace CreateAR.SpirePlayer
             return _stop;
         }
 
+        /// <summary>
+        /// Starts a coroutine that pulls messages to the main thread.
+        /// </summary>
         private IEnumerator StartSynchronizeLoop()
         {
             _isAlive = true;
@@ -86,9 +94,9 @@ namespace CreateAR.SpirePlayer
             while (_isAlive)
             {
                 // pool if necessary
-                if (_isReady && DateTime.Now.Subtract(_lastPoll).TotalSeconds > 0.5f)
+                if (_isReady && DateTime.Now.Subtract(_lastCapture).TotalSeconds > 0.5f)
                 {
-                    Poll();
+                    StartCapture();
                 }
 
                 // copy queued actions
@@ -115,18 +123,26 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        private void Poll()
+        /// <summary>
+        /// Starts a capture.
+        /// </summary>
+        private void StartCapture()
         {
-            Log.Info(this, "Take snapshot.");
-
-            _lastPoll = DateTime.Now;
-            _captureObject.TakePhotoAsync(OnCapturedToMemory);
+            _lastCapture = DateTime.Now;
+            _captureObject.TakePhotoAsync(EndCapture);
         }
 
-        private void OnCapturedToMemory(PhotoCapture.PhotoCaptureResult result, PhotoCaptureFrame photoCaptureFrame)
+        /// <summary>
+        /// Called by MS API when a capture is complete.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <param name="photoCaptureFrame">Captured image.</param>
+        private void EndCapture(PhotoCapture.PhotoCaptureResult result, PhotoCaptureFrame photoCaptureFrame)
         {
+            // only worry about success
             if (result.success)
             {
+                // This MUST happen on main thread.
                 lock (_queuedActions)
                 {
                     _queuedActions.Add(() =>
@@ -141,6 +157,12 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Called when the decoder has decoded something. This is guaranteed to
+        /// be called on the main thread.
+        /// </summary>
+        /// <param name="id">Id of the capture.</param>
+        /// <param name="value">Value.</param>
         private void Decoder_OnDecoded(int id, string value)
         {
             if (null != OnRead)
@@ -149,12 +171,22 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Called when the decoder fails to decode something. This is guaranteed
+        /// to be called on the main thread.
+        /// </summary>
+        /// <param name="id">Id of the capture.</param>
         private void Decoder_OnFail(int id)
         {
 
         }
 
-        private void Thread_OnCapture(PhotoCapture captureObject)
+        /// <summary>
+        /// Called by the MS API in a threadpool when capture mode has been
+        /// enabled.
+        /// </summary>
+        /// <param name="captureObject">The API.</param>
+        private void Thread_OnCaptureModeStarted(PhotoCapture captureObject)
         {
             var cameraResolution = PhotoCapture
                 .SupportedResolutions
@@ -176,6 +208,10 @@ namespace CreateAR.SpirePlayer
             _captureObject.StartPhotoModeAsync(parameters, Thread_OnPhotoModeStarted);
         }
 
+        /// <summary>
+        /// Called by the MS API in a threadpool when the photo mode has started.
+        /// </summary>
+        /// <param name="result">Result indicating success.</param>
         private void Thread_OnPhotoModeStarted(PhotoCapture.PhotoCaptureResult result)
         {
             if (result.success)
@@ -198,6 +234,11 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Called by the MS API in a threadpool when photo mode has been shut
+        /// off.
+        /// </summary>
+        /// <param name="result">True iff successful.</param>
         private void Thread_OnPhotoModeStopped(PhotoCapture.PhotoCaptureResult result)
         {
             _captureObject.Dispose();

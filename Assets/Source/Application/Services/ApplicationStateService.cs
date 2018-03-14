@@ -30,7 +30,7 @@ namespace CreateAR.SpirePlayer
             ApplicationConfig config,
 
             InitializeApplicationState initialize,
-            QrApplicationState qr,
+            QrLoginApplicationState qrLogin,
             LoadAppApplicationState load,
             ReceiveAppApplicationState receive,
             PlayApplicationState play,
@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
             _states = new FiniteStateMachine(new IState[]
             {
                 initialize,
-                qr,
+                qrLogin,
                 load,
                 receive,
                 play,
@@ -163,9 +163,9 @@ namespace CreateAR.SpirePlayer
                     _states.Change<InstaApplicationState>();
                     break;
                 }
-                case ApplicationStateTypes.Qr:
+                case ApplicationStateTypes.QrLogin:
                 {
-                    _states.Change<QrApplicationState>();
+                    _states.Change<QrLoginApplicationState>();
                     break;
                 }
             }
@@ -193,25 +193,39 @@ namespace CreateAR.SpirePlayer
 
             if (state == ApplicationStateTypes.Invalid)
             {
-                // determine if we should load app or wait to be given app to load
-                var load = UnityEngine.Application.platform != RuntimePlatform.WebGLPlayer;
-                if (UnityEngine.Application.isEditor)
+                switch (UnityEngine.Application.platform)
                 {
-                    load = !_config.SimulateWebgl;
+                    case RuntimePlatform.WebGLPlayer:
+                    {
+                        state = ApplicationStateTypes.ReceiveApp;
+                        break;
+                    }
+                    case RuntimePlatform.IPhonePlayer:
+                    case RuntimePlatform.Android:
+                    case RuntimePlatform.WSAPlayerX86:
+                    case RuntimePlatform.WSAPlayerARM:
+                    case RuntimePlatform.WSAPlayerX64:
+                    {
+                        state = ApplicationStateTypes.QrLogin;
+                        break;
+                    }
                 }
 
-                if (load)
+                // editor can do what it wants
+                if (UnityEngine.Application.isEditor)
                 {
-                    state = ApplicationStateTypes.LoadApp;
-                }
-                else
-                {
-                    state = ApplicationStateTypes.ReceiveApp;
+                    if (_config.SimulateWebgl)
+                    {
+                        state = ApplicationStateTypes.ReceiveApp;
+                    }
+                    else
+                    {
+                        state = ApplicationStateTypes.LoadApp;
+                    }
                 }
             }
 
-            //ChangeState(state);
-            ChangeState(ApplicationStateTypes.Qr);
+            ChangeState(state);
         }
     }
 }

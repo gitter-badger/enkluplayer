@@ -23,19 +23,19 @@ namespace CreateAR.SpirePlayer
         }
 
         [InjectElements("..(@type==ImageWidget)")]
-        public ImageWidget[] Images { get; private set; }
+        public ImageWidget[] Images { get; set; }
 
         [InjectElements("..btn-ok")]
-        public ButtonWidget BtnOk { get; private set; }
+        public ButtonWidget BtnOk { get; set; }
 
         [InjectElements("..btn-cancel")]
-        public ButtonWidget BtnCancel { get; private set; }
+        public ButtonWidget BtnCancel { get; set; }
 
         [InjectElements("..(@type==ContentWidget)")]
-        public ContentWidget Content { get; private set; }
+        public ContentWidget Content { get; set; }
 
         [InjectElements("..content-container")]
-        public ContainerWidget ContentContainer { get; private set; }
+        public ContainerWidget ContentContainer { get; set; }
 
         /// <summary>
         /// Called to cancel placement.

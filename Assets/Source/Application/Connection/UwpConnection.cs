@@ -93,6 +93,8 @@ namespace CreateAR.SpirePlayer
                 "{0}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
                 url);
 
+            Log.Info(this, "Connecting to {0}.", wsUrl);
+
             ConnectAsync(_connectToken, wsUrl);
 
             return _connectToken.Token();
