@@ -290,7 +290,7 @@ namespace CreateAR.SpirePlayer
             Verbose("Exporting placeholder.");
 
             _provider
-                .Export(placeholder.gameObject)
+                .Export(data.Id, placeholder.gameObject)
                 .OnSuccess(bytes =>
                 {
                     Verbose("Successfully exported. Progressing to upload.");
@@ -383,7 +383,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Verbose logging.
         /// </summary>
-        [Conditional("LOGGING_VERBOSE")]
+        //[Conditional("LOGGING_VERBOSE")]
         private void Verbose(string message, params object[] replacements)
         {
             Log.Info(this, message, replacements);

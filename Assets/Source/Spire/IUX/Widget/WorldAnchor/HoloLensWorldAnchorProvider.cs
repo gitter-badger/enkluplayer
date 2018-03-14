@@ -27,8 +27,10 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly Dictionary<GameObject, AsyncToken<byte[]>> _exports = new Dictionary<GameObject, AsyncToken<byte[]>>();
 
         /// <inheritdoc />
-        public IAsyncToken<byte[]> Export(GameObject gameObject)
+        public IAsyncToken<byte[]> Export(string id, GameObject gameObject)
         {
+            Log.Info(this, "Export({0})", gameObject.name);
+
             AsyncToken<byte[]> token;
             if (_exports.TryGetValue(gameObject, out token))
             {
@@ -49,8 +51,8 @@ namespace CreateAR.SpirePlayer.IUX
                 // resize buffer
                 while (len > delta)
                 {
-                    var target = len * 2;
-                    Log.Warning(this, "Increasing size to {0} bytes.", target);
+                    var target = buffer.Length * 2;
+                    Log.Debug(this, "Increasing buffer size to {0} bytes.", target);
 
                     var newBuffer = new byte[target];
                     Array.Copy(buffer, 0, newBuffer, 0, index);
@@ -65,6 +67,8 @@ namespace CreateAR.SpirePlayer.IUX
 
             Action<SerializationCompletionReason> onExportComplete = reason =>
             {
+                Log.Info(this, "WorldAnchor export complete.");
+
                 _exports.Remove(gameObject);
 
                 if (reason == SerializationCompletionReason.Succeeded)
@@ -87,7 +91,7 @@ namespace CreateAR.SpirePlayer.IUX
                 ?? gameObject.AddComponent<WorldAnchor>();
 
             var batch = new WorldAnchorTransferBatch();
-            batch.AddWorldAnchor(gameObject.name, anchor);
+            batch.AddWorldAnchor(id, anchor);
             WorldAnchorTransferBatch.ExportAsync(
                 batch,
                 new WorldAnchorTransferBatch.SerializationDataAvailableDelegate(onExportDataAvailable),
@@ -97,8 +101,10 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Import(GameObject gameObject, byte[] bytes)
+        public IAsyncToken<Void> Import(string id, GameObject gameObject, byte[] bytes)
         {
+            Log.Info(this, "Import({0})", gameObject.name);
+
             AsyncToken<Void> token;
             if (_imports.TryGetValue(gameObject, out token))
             {
@@ -119,7 +125,11 @@ namespace CreateAR.SpirePlayer.IUX
                     return;
                 }
 
-                batch.LockObject(gameObject.name, gameObject);
+                batch.LockObject(id, gameObject);
+
+                Log.Info(this, "Import complete.");
+
+                token.Succeed(Void.Instance);
             };
 
             WorldAnchorTransferBatch.ImportAsync(

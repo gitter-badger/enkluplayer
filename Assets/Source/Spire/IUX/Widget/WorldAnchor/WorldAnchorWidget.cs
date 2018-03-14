@@ -146,7 +146,7 @@ namespace CreateAR.SpirePlayer.IUX
                     Log.Info(this, "Anchor downloaded. Importing.");
 
                     _provider
-                        .Import(GameObject, response.Payload)
+                        .Import(Id, GameObject, response.Payload)
                         .OnSuccess(_ =>
                         {
                             Log.Info(this, "Successfully imported anchor.");

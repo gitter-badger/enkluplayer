@@ -11,13 +11,13 @@ namespace CreateAR.SpirePlayer.IUX
     public class ArKitWorldAnchorProvider : IWorldAnchorProvider
     {
         /// <inheritdoc />
-        public IAsyncToken<byte[]> Export(GameObject gameObject)
+        public IAsyncToken<byte[]> Export(string id, GameObject gameObject)
         {
             return new AsyncToken<byte[]>(new NotImplementedException());
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Import(GameObject gameObject, byte[] bytes)
+        public IAsyncToken<Void> Import(string id, GameObject gameObject, byte[] bytes)
         {
             return new AsyncToken<Void>(new NotImplementedException());
         }

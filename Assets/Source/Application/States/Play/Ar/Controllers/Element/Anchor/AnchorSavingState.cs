@@ -100,7 +100,7 @@ namespace CreateAR.SpirePlayer
         {
             // first, export anchor
             _exportToken = _provider
-                .Export(_controller.gameObject)
+                .Export(_controller.Element.Id, _controller.gameObject)
                 .OnSuccess(bytes =>
                 {
                     // next, upload anchor
