@@ -129,6 +129,7 @@ namespace CreateAR.SpirePlayer
         private void StartCapture()
         {
             _lastCapture = DateTime.Now;
+            
             _captureObject.TakePhotoAsync(EndCapture);
         }
 
@@ -149,7 +150,7 @@ namespace CreateAR.SpirePlayer
                     {
                         // Copy the raw image data into our target texture
                         photoCaptureFrame.UploadImageDataToTexture(_texture);
-
+                        
                         // queue for read
                         _worker.Enqueue(_texture.GetPixels32(), _texture.width, _texture.height);
                     });

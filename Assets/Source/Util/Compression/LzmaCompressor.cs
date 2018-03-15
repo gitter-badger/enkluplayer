@@ -19,17 +19,20 @@ namespace CreateAR.SpirePlayer.Util
         /// Compresses bytes via LZMA.
         /// </summary>
         /// <param name="bytes">Reference to input bytes.</param>
+        /// <param name="len">Byte length.</param>
         /// <param name="progress">Output progress.</param>
+        /// <param name="offset">Offset into bytes.</param>
         /// <returns>Result object.</returns>
         public LzmaResult Compress(
-            ref byte[] bytes,
+            byte[] bytes,
+            int offset,
+            int len,
             out LoadProgress progress)
         {
             progress = new LoadProgress();
 
-            var inputLength = bytes.Length;
-            var coderProgress = new LzmaProgressWrapper(progress, inputLength);
-            using (var input = new MemoryStream(bytes))
+            var coderProgress = new LzmaProgressWrapper(progress, len);
+            using (var input = new MemoryStream(bytes, offset, len))
             {
                 using (var output = new MemoryStream())
                 {
@@ -40,7 +43,7 @@ namespace CreateAR.SpirePlayer.Util
                         _encoder.Code(
                             input,
                             output,
-                            inputLength,
+                            len,
                             -1,
                             coderProgress);
                     }

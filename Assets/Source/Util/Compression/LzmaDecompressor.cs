@@ -22,7 +22,7 @@ namespace CreateAR.SpirePlayer.Util
         /// <param name="progress">Decompression progress.</param>
         /// <returns>Result object.</returns>
         public LzmaResult Decompress(
-            ref byte[] bytes,
+            byte[] bytes,
             out LoadProgress progress)
         {
             progress = new LoadProgress();

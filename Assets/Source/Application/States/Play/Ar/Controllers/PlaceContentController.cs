@@ -39,7 +39,7 @@ namespace CreateAR.SpirePlayer
         public ContainerWidget ContentContainer { get; set; }
 
         [Inject]
-        public IAssetManager Assets { get; private set; }
+        public IAssetManager Assets { get; set; }
 
         /// <summary>
         /// Called to cancel placement.
