@@ -47,6 +47,10 @@ namespace CreateAR.SpirePlayer
                         Type = ElementTypes.WORLD_ANCHOR,
                         Schema = new ElementSchemaData
                         {
+                            Strings =
+                            {
+                                { "name", "World Anchor" }
+                            },
                             Vectors =
                             {
                                 { "position", PrefabContainer.GameObject.transform.position.ToVec() }

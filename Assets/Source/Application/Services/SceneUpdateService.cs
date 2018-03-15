@@ -54,6 +54,8 @@ namespace CreateAR.SpirePlayer
                     // all values come in as strings
                     PrepActions(message);
 
+                    Log.Info(this, "{0} actions prepped.", message.Actions.Length);
+
                     // APPLY
                     _txns.Apply(new ElementTxn(message.Scene, message.Actions));
                 });

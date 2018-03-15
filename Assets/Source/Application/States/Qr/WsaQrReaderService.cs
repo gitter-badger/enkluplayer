@@ -71,6 +71,7 @@ namespace CreateAR.SpirePlayer
             _stop = new AsyncToken<Void>();
 
             _isAlive = false;
+            _worker.Stop();
 
             if (null != _captureObject)
             {
