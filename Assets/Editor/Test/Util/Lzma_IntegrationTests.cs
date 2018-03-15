@@ -27,12 +27,14 @@ namespace CreateAR.SpirePlayer.Test.Util
 
             LoadProgress progress;
             var writerResults = _compressor.Compress(
-                ref original,
+                original,
+                0,
+                original.Length,
                 out progress);
 
             var compressed = writerResults.Bytes;
             var readerResults = _decompressor.Decompress(
-                ref compressed,
+                compressed,
                 out progress);
 
             var final = readerResults.Bytes;
