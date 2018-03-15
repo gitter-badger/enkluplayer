@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using LightJson;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -160,10 +163,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SetupScripts()
         {
-            /*var scriptsSrc = _scriptsProp.Value;
-            var len = scripts.Length;
+            var scriptsSrc = _scriptsProp.Value;
+            var value = JsonValue.Parse(scriptsSrc).AsJsonArray;
 
-            Log.Info(this, "\t-Loading {0} scripts.", len);
+            var len = value.Count;
+
+            Log.Info(this, "\tLoading {0} scripts.", len);
 
             if (0 == len)
             {
@@ -174,18 +179,20 @@ namespace CreateAR.SpirePlayer
             var tokens = new IMutableAsyncToken<SpireScript>[len];
             for (var i = 0; i < len; i++)
             {
-                var data = scripts[i];
-                var script = _scripts.Create(data.ScriptDataId, _scriptTag);
+                var data = value[i];
+                var scriptId = data["id"].AsString;
+                var script = _scripts.Create(scriptId, _scriptTag);
                 if (null == script)
                 {
                     var error = string.Format(
                         "Could not create script from id {0}.",
-                        data.ScriptDataId);
+                        scriptId);
 
                     Log.Error(this, error);
 
                     tokens[i] = new MutableAsyncToken<SpireScript>(new Exception(
                         error));
+
                     continue;
                 }
 
@@ -197,7 +204,7 @@ namespace CreateAR.SpirePlayer
             Async
                 .All(tokens)
                 .OnSuccess(_ => _onScriptsLoaded.Succeed(this))
-                .OnFailure(_onScriptsLoaded.Fail);*/
+                .OnFailure(_onScriptsLoaded.Fail);
         }
 
         /// <summary>

@@ -193,6 +193,11 @@ namespace CreateAR.SpirePlayer
                 return true;
             }
 
+            if (HandleScriptMessage(parsed))
+            {
+                return true;
+            }
+
             return false;
         }
 
@@ -266,7 +271,8 @@ namespace CreateAR.SpirePlayer
                         {
                             Asset = asset
                         });
-                    break;
+
+                    return true;
                 }
                 case "assetstats":
                 {
@@ -294,7 +300,8 @@ namespace CreateAR.SpirePlayer
                     _filter.Publish(
                         MessageTypes.RECV_ASSET_UPDATE_STATS,
                         @event);
-                    break;
+
+                    return true;
                 }
                 case "assetdeleted":
                 {
@@ -306,16 +313,86 @@ namespace CreateAR.SpirePlayer
                         {
                             Id = id
                         });
-                    break;
+
+                    return true;
                 }
                 case "assetupdate":
                 {
                     // discard
-                    break;
+                    return true;
                 }
             }
 
-            return true;
+            return false;
+        }
+
+        private bool HandleScriptMessage(JsonValue parsed)
+        {
+            var messageType = parsed["messageType"].AsString;
+            switch (messageType)
+            {
+                case "scriptcreated":
+                {
+                    ScriptData payload;
+                    try
+                    {
+                        payload = (ScriptData) parsed["payload"].As(typeof(ScriptData));
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(this, "Script creation event couldn't be parsed : {0}.",
+                            exception);
+                        return true;
+                    }
+
+                    _filter.Publish(
+                        MessageTypes.RECV_SCRIPT_ADD,
+                        new ScriptAddEvent
+                        {
+                            Script = payload
+                        });
+
+                    return true;
+                    }
+                case "scriptupdated":
+                {
+                    ScriptData payload;
+                    try
+                    {
+                        payload = (ScriptData) parsed["payload"].As(typeof(ScriptData));
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(this, "Script update event couldn't be parsed : {0}.",
+                            exception);
+                        return true;
+                    }
+
+                    _filter.Publish(
+                        MessageTypes.RECV_SCRIPT_UPDATE,
+                        new ScriptUpdateEvent
+                        {
+                            Script = payload
+                        });
+
+                    return true;
+                }
+                case "scriptdeleted":
+                {
+                    var id = parsed["payload"].AsString;
+
+                    _filter.Publish(
+                        MessageTypes.RECV_SCRIPT_REMOVE,
+                        new ScriptRemoveEvent
+                        {
+                            Id = id
+                        });
+
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
