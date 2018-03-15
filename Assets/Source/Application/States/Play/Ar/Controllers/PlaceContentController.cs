@@ -116,7 +116,8 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            var assetData = Assets.Manifest.Data(Content.Data.Asset.AssetDataId);
+            var assetId = Content.Schema.GetOwn("assetSrc", string.Empty).Value;
+            var assetData = Assets.Manifest.Data(assetId);
             var element = new ElementData
             {
                 Id = Guid.NewGuid().ToString(),
@@ -125,7 +126,7 @@ namespace CreateAR.SpirePlayer
                 {
                     Strings =
                     {
-                        { "assetSrc", Content.Data.Asset.AssetDataId },
+                        { "assetSrc", assetId },
                         { "name", assetData.AssetName }
                     },
                     Vectors =

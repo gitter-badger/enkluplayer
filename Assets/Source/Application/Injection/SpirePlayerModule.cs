@@ -119,8 +119,6 @@ namespace CreateAR.SpirePlayer
                 {
                     binder.Bind<ApplicationStateService>().To<ApplicationStateService>().ToSingleton();
                     binder.Bind<AssetUpdateService>().To<AssetUpdateService>().ToSingleton();
-                    binder.Bind<HierarchyUpdateService>().To<HierarchyUpdateService>().ToSingleton();
-                    binder.Bind<ContentUpdateService>().To<ContentUpdateService>().ToSingleton();
                     binder.Bind<ScriptUpdateService>().To<ScriptUpdateService>().ToSingleton();
                     binder.Bind<MaterialUpdateService>().To<MaterialUpdateService>().ToSingleton();
                     binder.Bind<ShaderUpdateService>().To<ShaderUpdateService>().ToSingleton();
@@ -137,7 +135,6 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
-                    binder.Bind<HierarchyApplicationState>().To<HierarchyApplicationState>();
                     binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
                     binder.Bind<InstaApplicationState>().To<InstaApplicationState>();
 
@@ -165,8 +162,6 @@ namespace CreateAR.SpirePlayer
                     {
                         binder.GetInstance<ApplicationStateService>(),
                         binder.GetInstance<AssetUpdateService>(),
-                        binder.GetInstance<HierarchyUpdateService>(),
-                        binder.GetInstance<ContentUpdateService>(),
                         binder.GetInstance<ScriptUpdateService>(),
                         binder.GetInstance<MaterialUpdateService>(),
                         binder.GetInstance<ShaderUpdateService>(),
@@ -229,12 +224,6 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<IPrimitiveFactory>().To<PrimitiveFactory>().ToSingleton();
 
-                // content
-                {
-                    binder.Bind<IContentManager>().To<ContentManager>().ToSingleton();
-                    binder.Bind<IContentFactory>().To<ContentFactory>();
-                }
-
                 // configs
                 {
                     binder.Bind<WidgetConfig>().ToValue(LookupComponent<WidgetConfig>());
@@ -249,7 +238,6 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<IElementManager>().ToValue(LookupComponent<ElementManager>());
                     binder.Bind<IIntentionManager>().ToValue(LookupComponent<IntentionManager>());
                     binder.Bind<IInteractionManager>().ToValue(LookupComponent<InteractionManager>());
-                    binder.Bind<ISceneManager>().ToValue(LookupComponent<SceneManager>());
                     binder.Bind<ILayerManager>().ToValue(LookupComponent<LayerManager>());
                 }
             }
@@ -290,12 +278,6 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
 #endif
                 }
-            }
-
-            // hierarchy
-            {
-                binder.Bind<HierarchyDatabase>().To<HierarchyDatabase>().ToSingleton();
-                binder.Bind<HierarchyManager>().To<HierarchyManager>().ToSingleton();
             }
 
             // scripting

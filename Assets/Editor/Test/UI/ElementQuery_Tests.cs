@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Test.UI
 {
@@ -23,12 +21,8 @@ namespace CreateAR.SpirePlayer.Test.UI
                 Root = GenerateRefs(0)
             };
 
-            _element = new ElementFactory(
-                null,
-                new DummyPrimitiveFactory(),
-                null, null,
-                new DummyElementManager(),
-                null, null, null, null, null,  null, null, null, null, null).Element(description);
+            _element = new ElementFactory(new DummyElementManager(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)
+                .Element(description);
         }
         
         private ElementRef GenerateRefs(int index)

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
@@ -15,22 +14,15 @@ namespace CreateAR.SpirePlayer
         private readonly IAdminAppDataManager _appData;
 
         /// <summary>
-        /// Manages content.
-        /// </summary>
-        private readonly IContentManager _content;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         public MaterialUpdateService(
             MessageTypeBinder binder,
             IMessageRouter messages,
-            IAdminAppDataManager appData,
-            IContentManager content)
+            IAdminAppDataManager appData)
             : base(binder, messages)
         {
             _appData = appData;
-            _content = content;
         }
 
         /// <inheritdoc cref="ApplicationService"/>
@@ -80,8 +72,6 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Update Material {0}.", material);
 
             _appData.Update(material);
-
-            UpdateContent(material);
         }
 
         /// <summary>
@@ -94,41 +84,6 @@ namespace CreateAR.SpirePlayer
 
             var data = _appData.Get<MaterialData>(@event.Id);
             _appData.Remove(data);
-        }
-
-        /// <summary>
-        /// Updates all active content with matching material.
-        /// </summary>
-        /// <param name="materialData">Material to update.</param>
-        private void UpdateContent(MaterialData materialData)
-        {
-            // find content using this material + update
-            var materialId = materialData.Id;
-            var matches = new List<ContentWidget>();
-            var allContentData = _appData.GetAll<ContentData>();
-            for (int i = 0, ilen = allContentData.Length; i < ilen; i++)
-            {
-                var contentData = allContentData[i];
-                if (contentData.MaterialId == materialId)
-                {
-                    // find active content
-                    _content.FindAll(contentData.Id, matches);
-                    
-                    // send update to all related content
-                    var jlen = matches.Count;
-                    if (jlen > 0)
-                    {
-                        Log.Info(this, "Pushing material update to active content.");
-
-                        for (var j = 0; j < jlen; j++)
-                        {
-                            matches[j].UpdateMaterialData(materialData);
-                        }
-
-                        matches.Clear();
-                    }
-                }
-            }
         }
     }
 }

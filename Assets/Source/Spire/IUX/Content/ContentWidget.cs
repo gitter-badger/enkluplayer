@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
@@ -18,11 +17,6 @@ namespace CreateAR.SpirePlayer
         private readonly string _scriptTag = System.Guid.NewGuid().ToString();
 
         /// <summary>
-        /// App data.
-        /// </summary>
-        private readonly IAppDataManager _appData;
-
-        /// <summary>
         /// Loads and executes scripts.
         /// </summary>
         private readonly IScriptManager _scripts;
@@ -35,8 +29,8 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Props.
         /// </summary>
-        private ElementSchemaProp<string> _srcProp;
         private ElementSchemaProp<string> _srcAssetProp;
+        private ElementSchemaProp<string> _scriptsProp;
 
         /// <summary>
         /// Token for asset readiness.
@@ -69,11 +63,6 @@ namespace CreateAR.SpirePlayer
         private IMutableAsyncToken<ContentWidget> _onLoaded;
 
         /// <summary>
-        /// Content data.
-        /// </summary>
-        public ContentData Data { get; private set; }
-        
-        /// <summary>
         /// A token that is fired whenever the content has loaded.
         /// </summary>
         public IMutableAsyncToken<ContentWidget> OnLoaded
@@ -94,14 +83,15 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ContentWidget(ILayerManager layers,
+        public ContentWidget(
+            GameObject gameObject,
+            ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
             IScriptManager scripts,
-            IContentAssembler assembler,
-            IAppDataManager appData)
+            IContentAssembler assembler)
             : base(
-                new GameObject("Content"),
+                gameObject,
                 layers,
                 tweens,
                 colors)
@@ -109,41 +99,6 @@ namespace CreateAR.SpirePlayer
             _scripts = scripts;
             _assembler = assembler;
             _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
-            _appData = appData;
-        }
-
-        /// <summary>
-        /// Updates <c>ContentData</c> for this instance.
-        /// </summary>
-        public void UpdateData(ContentData data)
-        {
-            Log.Info(this, "Data updated for content {0}.", data);
-
-            var assetRefresh = null != Data && null == data
-                || null != data && null == Data
-                || null != data && null != Data && Data.Asset.AssetDataId != data.Asset.AssetDataId;
-            var scriptRefresh = ScriptRefreshRequired(data);
-
-            Data = data;
-
-            if (assetRefresh)
-            {
-                RefreshAsset();
-            }
-
-            if (scriptRefresh)
-            {
-                RefreshScripts();
-            }
-        }
-
-        /// <summary>
-        /// Updates the underlying material data.
-        /// </summary>
-        /// <param name="data">Material data to update with.</param>
-        public void UpdateMaterialData(MaterialData data)
-        {
-            _assembler.UpdateMaterialData(data);
         }
 
         /// <inheritdoc />
@@ -156,13 +111,14 @@ namespace CreateAR.SpirePlayer
                 null,
                 _scripts);
 
-            _srcProp = Schema.Get<string>("src");
-            _srcProp.OnChanged += Src_OnChanged;
-
             _srcAssetProp = Schema.Get<string>("assetSrc");
             _srcAssetProp.OnChanged += AssetSrc_OnChanged;
 
-            UpdateData(GetContent());
+            _scriptsProp = Schema.GetOwn("scripts", "[]");
+            _scriptsProp.OnChanged += Scripts_OnChanged;
+
+            UpdateAsset();
+            UpdateScripts();
         }
 
         /// <inheritdoc />
@@ -170,7 +126,8 @@ namespace CreateAR.SpirePlayer
         {
             base.UnloadInternalAfterChildren();
 
-            _srcProp.OnChanged -= Src_OnChanged;
+            _srcAssetProp.OnChanged -= AssetSrc_OnChanged;
+            _scriptsProp.OnChanged -= Scripts_OnChanged;
 
             _assembler.Teardown();
             TeardownScripts();
@@ -179,20 +136,20 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Tears down the asset and sets it back up.
         /// </summary>
-        private void RefreshAsset()
+        private void UpdateAsset()
         {
-            Log.Info(this, "Refresh asset for {0}.", Data);
+            Log.Info(this, "Refresh asset for {0}.", Id);
 
             _assembler.Teardown();
-            _assembler.Setup(Data);
+            _assembler.Setup(_srcAssetProp.Value);
         }
 
         /// <summary>
         /// Tears down scripts and sets them back up.
         /// </summary>
-        private void RefreshScripts()
+        private void UpdateScripts()
         {
-            Log.Info(this, "Refresh scripts for {0}.", Data);
+            Log.Info(this, "Refresh scripts for {0}.", Id);
 
             TeardownScripts();
             SetupScripts();
@@ -203,12 +160,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SetupScripts()
         {
-            if (null == Data)
-            {
-                return;
-            }
-
-            var scripts = Data.Scripts;
+            /*var scriptsSrc = _scriptsProp.Value;
             var len = scripts.Length;
 
             Log.Info(this, "\t-Loading {0} scripts.", len);
@@ -245,7 +197,7 @@ namespace CreateAR.SpirePlayer
             Async
                 .All(tokens)
                 .OnSuccess(_ => _onScriptsLoaded.Succeed(this))
-                .OnFailure(_onScriptsLoaded.Fail);
+                .OnFailure(_onScriptsLoaded.Fail);*/
         }
 
         /// <summary>
@@ -260,7 +212,7 @@ namespace CreateAR.SpirePlayer
             {
                 var component = _scriptComponents[i];
                 component.Exit();
-                UnityEngine.Object.Destroy(component);
+                Object.Destroy(component);
             }
             _scriptComponents.Clear();
 
@@ -357,78 +309,12 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <summary>
-        /// True iff scripts need to be torn down and setup.
-        /// </summary>
-        /// <param name="data">New data.</param>
-        /// <returns></returns>
-        private bool ScriptRefreshRequired(ContentData data)
-        {
-            if (null == Data && null != data)
-            {
-                return true;
-            }
-
-            if (null == data && null != Data)
-            {
-                return true;
-            }
-
-            if (null != data && null != Data)
-            {
-                var currentScripts = Data.Scripts;
-                var newScripts = data.Scripts;
-                if (currentScripts.Length != newScripts.Length)
-                {
-                    return true;
-                }
-
-                for (int i = 0, len = currentScripts.Length; i < len; i++)
-                {
-                    if (currentScripts[i].ScriptDataId != newScripts[i].ScriptDataId)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Retrieves <c>ContentData</c>. The src prop takes precedence over the
-        /// assetSrc prop.
-        /// </summary>
-        /// <returns></returns>
-        private ContentData GetContent()
-        {
-            var content = _appData.Get<ContentData>(_srcProp.Value);
-            if (null == content)
-            {
-                var assetId = _srcAssetProp.Value;
-                if (!string.IsNullOrEmpty(assetId))
-                {
-                    content = new ContentData
-                    {
-                        Asset = new AssetReference
-                        {
-                            AssetDataId = assetId,
-                            Pooling = new PoolData()
-                        },
-                        Id = System.Guid.NewGuid().ToString()
-                    };
-                }
-            }
-
-            return content;
-        }
-
-        /// <summary>
         /// Called when the assembler has completed seting up the asset.
         /// </summary>
         private void Assembler_OnAssemblyComplete(GameObject instance)
         {
             // parent + orient
-            instance.name = Data.Asset.AssetDataId;
+            instance.name = _srcAssetProp.Value;
             instance.transform.SetParent(GameObject.transform, false);
             instance.SetActive(true);
 
@@ -448,20 +334,6 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when the source changes.
-        /// </summary>
-        /// <param name="prop">The prop.</param>
-        /// <param name="prev">Previous value.</param>
-        /// <param name="next">Next value.</param>
-        private void Src_OnChanged(
-            ElementSchemaProp<string> prop,
-            string prev,
-            string next)
-        {
-            UpdateData(GetContent());
-        }
-
-        /// <summary>
         /// Called when the asset src changes.
         /// </summary>
         /// <param name="prop">The prop.</param>
@@ -472,7 +344,15 @@ namespace CreateAR.SpirePlayer
             string prev,
             string next)
         {
-            UpdateData(GetContent());
+            UpdateAsset();
+        }
+
+        private void Scripts_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            UpdateScripts();
         }
     }
 }

@@ -36,12 +36,6 @@
         public const int RECV_SCRIPT_REMOVE = 22;
         public const int RECV_SCRIPT_UPDATE = 23;
 
-        // Content
-        public const int CONTENT_LIST = 30;
-        public const int CONTENT_ADD = 31;
-        public const int CONTENT_REMOVE = 32;
-        public const int CONTENT_UPDATE = 33;
-
         // Materials
         public const int MATERIAL_LIST = 40;
         public const int MATERIAL_ADD = 41;

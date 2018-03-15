@@ -210,6 +210,11 @@ namespace CreateAR.SpirePlayer.Assets
         /// <returns></returns>
         public Asset Asset(string guid)
         {
+            if (string.IsNullOrEmpty(guid))
+            {
+                return null;
+            }
+
             Asset reference;
             _guidToReference.TryGetValue(guid, out reference);
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
 
@@ -25,10 +26,12 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IVoiceCommandManager _voice;
         private readonly WidgetConfig _config;
         private readonly IImageLoader _imageLoader;
-        private readonly IContentFactory _content;
-        private readonly IContentManager _contentManager;
         private readonly IHttpService _http;
         private readonly IWorldAnchorProvider _provider;
+        private readonly IScriptManager _scripts;
+        private readonly IAssetManager _assets;
+        private readonly IAssetPoolManager _pools;
+        private readonly ILoadProgressManager _loads;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -44,21 +47,23 @@ namespace CreateAR.SpirePlayer.IUX
         /// Constructor.
         /// </summary>
         public ElementFactory(
+            IElementManager elements,
             VineImporter parser,
             IPrimitiveFactory primitives,
             IIntentionManager intention,
             IInteractionManager interaction,
-            IElementManager elements,
             ILayerManager layers,
             ColorConfig colors,
             TweenConfig tweens,
             IVoiceCommandManager voice,
             WidgetConfig config,
             IImageLoader imageLoader,
-            IContentFactory content,
-            IContentManager contentManager,
             IHttpService http,
-            IWorldAnchorProvider provider)
+            IWorldAnchorProvider provider,
+            IScriptManager scripts,
+            IAssetManager assets,
+            IAssetPoolManager pools,
+            ILoadProgressManager loads)
         {
             _parser = parser;
             _primitives = primitives;
@@ -71,10 +76,12 @@ namespace CreateAR.SpirePlayer.IUX
             _voice = voice;
             _config = config;
             _imageLoader = imageLoader;
-            _content = content;
-            _contentManager = contentManager;
             _http = http;
             _provider = provider;
+            _scripts = scripts;
+            _assets = assets;
+            _pools = pools;
+            _loads = loads;
             
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -320,7 +327,13 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.CONTENT:
                 {
-                    return _content.Instance(_contentManager, new ContentData());
+                    return new ContentWidget(
+                        new GameObject("Content"),
+                        _layers,
+                        _tweens,
+                        _colors,
+                        _scripts,
+                        new ModelContentAssembler(_assets, _pools, _loads));
                 }
                 case ElementTypes.TRANSITION_SCALE:
                 {

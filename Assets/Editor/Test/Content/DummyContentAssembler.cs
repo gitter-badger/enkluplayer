@@ -8,17 +8,12 @@ namespace CreateAR.SpirePlayer.Test
         public Bounds Bounds { get; private set; }
         public event Action<GameObject> OnAssemblyComplete;
 
-        public void Setup(ContentData data)
+        public void Setup(string assetId)
         {
             if (null != OnAssemblyComplete)
             {
                 OnAssemblyComplete(null);
             }
-        }
-
-        public void UpdateMaterialData(MaterialData material)
-        {
-            
         }
 
         public void Teardown()

@@ -55,12 +55,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [SetUp]
         public void Setup()
         {
-            _elements = new ElementFactory(
-                null,
-                new DummyPrimitiveFactory(), 
-                null, null,
-                new DummyElementManager(),
-                null, null, null, null, null, null, null, null, null, null);
+            _elements = new ElementFactory(new DummyElementManager(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         }
 
         [Test]
