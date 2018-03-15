@@ -10,7 +10,6 @@ using CreateAR.Trellis.Messages.HoloSignin;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using ZXing.Datamatrix.Encoder;
 
 namespace CreateAR.SpirePlayer
 {
@@ -76,7 +75,7 @@ namespace CreateAR.SpirePlayer
         {
             // load scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
-                UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
+                SceneManager.LoadSceneAsync(
                     SCENE_NAME,
                     LoadSceneMode.Additive)));
         }
@@ -97,8 +96,8 @@ namespace CreateAR.SpirePlayer
             qr.GetComponent<Image>().enabled = false;
 
             // unload scene
-            UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
-                UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
+            SceneManager.UnloadSceneAsync(
+                SceneManager.GetSceneByName(SCENE_NAME));
         }
 
         /// <summary>

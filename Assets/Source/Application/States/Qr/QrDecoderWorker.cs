@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETFX_CORE
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -228,3 +229,4 @@ namespace CreateAR.SpirePlayer
         }
     }
 }
+#endif

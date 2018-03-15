@@ -53,7 +53,7 @@ namespace CreateAR.SpirePlayer
             // setup logging
 	        Log.Filter = LogLevel.Debug;
 
-	        if (UnityEngine.Application.platform != RuntimePlatform.WebGLPlayer)
+	        //if (UnityEngine.Application.platform != RuntimePlatform.WebGLPlayer)
 	        {
 	            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
 	            {

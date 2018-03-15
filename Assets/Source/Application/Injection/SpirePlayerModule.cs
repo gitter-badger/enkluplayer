@@ -198,7 +198,11 @@ namespace CreateAR.SpirePlayer
 
             // QR
             {
+#if NETFX_CORE
                 binder.Bind<IQrReaderService>().To<WsaQrReaderService>().ToSingleton();
+#else
+                binder.Bind<IQrReaderService>().To<UnsupportedQrReaderService>().ToSingleton();
+#endif
             }
 
             // BLE

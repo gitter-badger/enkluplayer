@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETFX_CORE
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,11 +51,8 @@ namespace CreateAR.SpirePlayer
             _worker = new QrDecoderWorker(_bootstrapper);
             _worker.OnSuccess += Decoder_OnDecoded;
             _worker.OnFail += Decoder_OnFail;
-#if NETFX_CORE
+
             Windows.System.Threading.ThreadPool.RunAsync(_ => _worker.Start());
-#else
-            ThreadPool.QueueUserWorkItem(_ => _worker.Start());
-#endif
 
             // start main thread poll
             _bootstrapper.BootstrapCoroutine(StartSynchronizeLoop());
@@ -252,3 +250,4 @@ namespace CreateAR.SpirePlayer
         }
     }
 }
+#endif
