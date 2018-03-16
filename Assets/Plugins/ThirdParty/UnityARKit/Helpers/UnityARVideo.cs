@@ -15,6 +15,16 @@ namespace UnityEngine.XR.iOS
 
 		private bool bCommandBufferInitialized;
 
+	    public Texture2D VideoY
+	    {
+		    get { return _videoTextureY; }
+	    }
+	    
+	    public Texture2D VideoCbCr
+	    {
+		    get { return _videoTextureCbCr; }
+	    }
+	    
 		public void Start()
 		{
 			UnityARSessionNativeInterface.ARFrameUpdatedEvent += UpdateFrame;

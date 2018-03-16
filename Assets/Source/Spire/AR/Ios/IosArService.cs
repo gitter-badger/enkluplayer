@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer.AR
         /// The camera rig.
         /// </summary>
         private ArCameraRig _rig;
-        
+
         /// <summary>
         /// A set of anchors.
         /// </summary>
@@ -37,6 +37,11 @@ namespace CreateAR.SpirePlayer.AR
         /// Configuration for the service.
         /// </summary>
         public ArServiceConfiguration Config { get; private set; }
+
+        /// <summary>
+        /// Video.
+        /// </summary>
+        public UnityARVideo Video { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -127,8 +132,8 @@ namespace CreateAR.SpirePlayer.AR
             
             if (Config.ShowCameraFeed)
             {
-                var video = _rig.Camera.gameObject.AddComponent<UnityARVideo>();
-                video.m_ClearMaterial = Config.CameraMaterial;
+                Video = _rig.Camera.gameObject.AddComponent<UnityARVideo>();
+                Video.m_ClearMaterial = Config.CameraMaterial;
             }
         }
         

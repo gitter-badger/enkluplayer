@@ -200,6 +200,8 @@ namespace CreateAR.SpirePlayer
             {
 #if NETFX_CORE
                 binder.Bind<IQrReaderService>().To<WsaQrReaderService>().ToSingleton();
+#elif UNITY_IOS
+                binder.Bind<IQrReaderService>().To<IosQrReaderService>().ToSingleton();
 #else
                 binder.Bind<IQrReaderService>().To<UnsupportedQrReaderService>().ToSingleton();
 #endif

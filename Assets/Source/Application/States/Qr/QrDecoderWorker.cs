@@ -1,4 +1,5 @@
-﻿#if NETFX_CORE
+﻿#if UNITY_IOS || NETFX_CORE
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +11,27 @@ using ZXing;
 
 namespace CreateAR.SpirePlayer
 {
+    public class LumSource : Color32LuminanceSource
+    {
+        public LumSource(int width, int height, Color32[] colors)
+            : base(width, height)
+        {
+            var z = 0;
+
+            for (var y = height - 1; y >= 0; y--)
+            {
+                // This is flipped vertically because the Color32 array from Unity is reversed vertically,
+                // it means that the top most row of the image would be the bottom most in the array.
+                for (var x = 0; x < width; x++)
+                {
+                    var color32 = colors[y * Width + x];
+                    
+                    luminances[z++] = color32.r;
+                }
+            }
+        }
+    }
+    
     /// <summary>
     /// Worker that decodes QR codes and sychronizes with main thread.
     /// </summary>
@@ -163,7 +185,16 @@ namespace CreateAR.SpirePlayer
                     }
 
                     var record = _records.Dequeue();
-                    var result = _reader.Decode(record.Colors, record.Width, record.Height);
+#if UNITY_IOS
+                    var source = new LumSource(
+                        record.Width,
+                        record.Height,
+                        record.Colors);
+					var result = _reader.Decode(source);
+#elif
+					var result = _reader.Decode(record.Colors, record.Width, record.Height);
+#endif
+                    
 
                     lock (_results)
                     {
@@ -229,4 +260,5 @@ namespace CreateAR.SpirePlayer
         }
     }
 }
+
 #endif

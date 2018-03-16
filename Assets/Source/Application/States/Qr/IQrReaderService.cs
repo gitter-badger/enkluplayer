@@ -4,21 +4,6 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
-    public class UnsupportedQrReaderService : IQrReaderService
-    {
-        public event Action<string> OnRead;
-
-        public IAsyncToken<Void> Start()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncToken<Void> Stop()
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     /// <summary>
     /// Describes a long running service that scans QR codes through the camera.
     /// </summary>
@@ -38,5 +23,20 @@ namespace CreateAR.SpirePlayer
         /// Stops the service.
         /// </summary>
         IAsyncToken<Void> Stop();
+    }
+
+    public class UnsupportedQrReaderService : IQrReaderService
+    {
+        public event Action<string> OnRead;
+
+        public IAsyncToken<Void> Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncToken<Void> Stop()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
