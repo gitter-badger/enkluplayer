@@ -83,9 +83,9 @@ namespace CreateAR.SpirePlayer.IUX
                         transform.position + delta,
                         mainCamera.transform.up);
 
-                    var localEuler = transform.localEulerAngles;
-                    localEuler.z = 0;
-                    transform.localEulerAngles = localEuler;
+                    var euler = transform.eulerAngles;
+                    euler.z = 0;
+                    transform.eulerAngles = euler;
 
                     break;
                 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -35,13 +36,10 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="MonoBehaviour" />
         private void Update()
         {
-            var scale = transform.localScale;
-            BtnSplash.Schema.Set(
-                "scale",
-                new Vec3(
-                    1f / scale.x,
-                    1f / scale.y,
-                    1f / scale.z));
+            // scale
+            var scale = transform.lossyScale;
+            var max = Mathf.Max(scale.x, scale.y, scale.z);
+            BtnSplash.GameObject.transform.localScale = 1f / max * Vector3.one;
         }
 
         /// <summary>

@@ -15,7 +15,7 @@ PlayerSettings:
   productName: spireplayer
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
-  m_SplashScreenBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+  m_SplashScreenBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_ShowUnitySplashScreen: 1
   m_ShowUnitySplashLogo: 0
   m_SplashScreenOverlayOpacity: 1
@@ -39,9 +39,10 @@ PlayerSettings:
     width: 1
     height: 1
   m_SplashScreenLogos:
-  - logo: {fileID: 21300000, guid: 7ccb47205a47746a18cb9e50ac0438b6, type: 3}
+  - logo: {fileID: 21300000, guid: d2a94f7fa411f8f45ab8f5c14ba11e9b, type: 3}
     duration: 2
-  m_VirtualRealitySplashScreen: {fileID: 0}
+  m_VirtualRealitySplashScreen: {fileID: 2800000, guid: d2a94f7fa411f8f45ab8f5c14ba11e9b,
+    type: 3}
   m_HolographicTrackingLossScreen: {fileID: 0}
   defaultScreenWidth: 1024
   defaultScreenHeight: 768
@@ -280,97 +281,97 @@ PlayerSettings:
   - m_BuildTarget: iPhone
     m_Icons:
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 722491254cf0449a193d80a2752c78ec, type: 3}
+      m_Icon: {fileID: 2800000, guid: d2a94f7fa411f8f45ab8f5c14ba11e9b, type: 3}
       m_Width: 180
       m_Height: 180
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 3e0fb7c2bc69b42ceb0a211cea1ad1e4, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 167
       m_Height: 167
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: a6bd5de9b23d44c9092d56214c945f66, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 152
       m_Height: 152
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 5e9a3a945388b4ce6afab13814121b2e, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 144
       m_Height: 144
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 3692a8dc384b14cd5ad34d317692e356, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 120
       m_Height: 120
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 2b63f97d37f614bf391f90261a07ecad, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 114
       m_Height: 114
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: e5a51c91f79e046d5bb4fb486532b71f, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 76
       m_Height: 76
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 5d61b0bd8489447d8800ef544995ab5a, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 72
       m_Height: 72
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 3411ba4c8a665422a9646c16cfcc228d, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 57
       m_Height: 57
       m_Kind: 0
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 3692a8dc384b14cd5ad34d317692e356, type: 3}
+      m_Icon: {fileID: 2800000, guid: d2a94f7fa411f8f45ab8f5c14ba11e9b, type: 3}
       m_Width: 120
       m_Height: 120
       m_Kind: 3
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 9857ab982013642168f68d11952e96bc, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 80
       m_Height: 80
       m_Kind: 3
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 49c9f9438661444709c7ff73f976d88e, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 40
       m_Height: 40
       m_Kind: 3
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 2107a36f08ebc47f39838fec00a98837, type: 3}
+      m_Icon: {fileID: 2800000, guid: d2a94f7fa411f8f45ab8f5c14ba11e9b, type: 3}
       m_Width: 87
       m_Height: 87
       m_Kind: 1
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 7cafc753bca684c8483261e7ed95105a, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 58
       m_Height: 58
       m_Kind: 1
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 1801ea242c16e454ebb7514136000585, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 29
       m_Height: 29
       m_Kind: 1
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 57a06cf149dc44e529b9d42c07239bf8, type: 3}
+      m_Icon: {fileID: 2800000, guid: d2a94f7fa411f8f45ab8f5c14ba11e9b, type: 3}
       m_Width: 60
       m_Height: 60
       m_Kind: 2
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 49c9f9438661444709c7ff73f976d88e, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 40
       m_Height: 40
       m_Kind: 2
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 854f1172b7443473cb258c47539e0147, type: 3}
+      m_Icon: {fileID: 0}
       m_Width: 20
       m_Height: 20
       m_Kind: 2
     - serializedVersion: 2
-      m_Icon: {fileID: 2800000, guid: 4340cd25598e640eda77a167010aea2f, type: 3}
+      m_Icon: {fileID: 2800000, guid: d2a94f7fa411f8f45ab8f5c14ba11e9b, type: 3}
       m_Width: 1024
       m_Height: 1024
       m_Kind: 4
@@ -657,6 +658,7 @@ PlayerSettings:
   webGLUseWasm: 0
   webGLCompressionFormat: 2
   scriptingDefineSymbols:
+    7: 
     13: DEBUG_RENDERING
   platformArchitecture: {}
   scriptingBackend:
