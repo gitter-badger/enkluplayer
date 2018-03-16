@@ -31,6 +31,7 @@ namespace CreateAR.SpirePlayer
 
             InitializeApplicationState initialize,
             QrLoginApplicationState qrLogin,
+            InputLoginApplicationState inputLogin,
             LoadAppApplicationState load,
             ReceiveAppApplicationState receive,
             PlayApplicationState play,
@@ -49,6 +50,7 @@ namespace CreateAR.SpirePlayer
             {
                 initialize,
                 qrLogin,
+                inputLogin,
                 load,
                 receive,
                 play,
@@ -168,6 +170,15 @@ namespace CreateAR.SpirePlayer
                     _states.Change<QrLoginApplicationState>();
                     break;
                 }
+                case ApplicationStateTypes.InputLogin:
+                {
+                    _states.Change<InputLoginApplicationState>();
+                    break;
+                }
+                default:
+                {
+                    throw new Exception(string.Format("Invalid ApplicationState : {0}.", state));
+                }
             }
         }
 
@@ -202,6 +213,10 @@ namespace CreateAR.SpirePlayer
                     }
                     case RuntimePlatform.IPhonePlayer:
                     case RuntimePlatform.Android:
+                    {
+                        state = ApplicationStateTypes.InputLogin;
+                        break;
+                    }
                     case RuntimePlatform.WSAPlayerX86:
                     case RuntimePlatform.WSAPlayerARM:
                     case RuntimePlatform.WSAPlayerX64:

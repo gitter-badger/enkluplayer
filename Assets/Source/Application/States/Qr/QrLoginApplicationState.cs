@@ -119,6 +119,10 @@ namespace CreateAR.SpirePlayer
             _qr.Start();
         }
 
+        /// <summary>
+        /// Called when the QR service reads a value.
+        /// </summary>
+        /// <param name="value">The value!</param>
         private void Qr_OnRead(string value)
         {
             if (null != _holoAuthToken)

@@ -131,6 +131,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ITestDataController>().To<TestDataController>();
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                     binder.Bind<QrLoginApplicationState>().To<QrLoginApplicationState>();
+                    binder.Bind<InputLoginApplicationState>().To<InputLoginApplicationState>();
                     binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
                     binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
