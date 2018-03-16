@@ -21,8 +21,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Sets up the assembler.
         /// </summary>
+        /// <param name="transformPosition"></param>
         /// <param name="assetId">The id of the asset to setup..</param>
-        void Setup(string assetId);
+        void Setup(Vec3 transformPosition, string assetId);
 
         /// <summary>
         /// Tears down any internal structures.

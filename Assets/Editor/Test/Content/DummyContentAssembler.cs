@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer.Test
         public Bounds Bounds { get; private set; }
         public event Action<GameObject> OnAssemblyComplete;
 
-        public void Setup(string assetId)
+        public void Setup(Vec3 transformPosition, string assetId)
         {
             if (null != OnAssemblyComplete)
             {

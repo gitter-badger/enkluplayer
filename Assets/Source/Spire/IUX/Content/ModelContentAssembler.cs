@@ -86,9 +86,9 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <inheritdoc cref="IContentAssembler"/>
-        public void Setup(string assetId)
+        public void Setup(Vec3 transformPosition, string assetId)
         {
-            WatchMainAsset(assetId);
+            WatchMainAsset(transformPosition, assetId);
         }
 
         /// <inheritdoc cref="IContentAssembler"/>
@@ -118,7 +118,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Watches main asset changes.
         /// </summary>
-        private void WatchMainAsset(string assetId)
+        private void WatchMainAsset(Vec3 transformPosition, string assetId)
         {
             // get the corresponding asset
             _asset = _assets.Manifest.Asset(assetId);
@@ -150,6 +150,7 @@ namespace CreateAR.SpirePlayer
             else
             {
                 _progressIndicatorId = _progress.ShowIndicator(
+                    transformPosition,
                     _bounds.Min,
                     _bounds.Max,
                     _asset.Progress);

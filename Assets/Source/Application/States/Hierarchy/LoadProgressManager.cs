@@ -59,7 +59,7 @@ namespace CreateAR.SpirePlayer
         public IAssetPoolManager Pools { get; set; }
 
         /// <inheritdoc cref="ILoadProgressManager"/>
-        public uint ShowIndicator(Vec3 min, Vec3 max, LoadProgress progress)
+        public uint ShowIndicator(Vec3 origin, Vec3 min, Vec3 max, LoadProgress progress)
         {
             var behaviour = Pools.Get<LoadProgressBehaviour>(LoadProgressPrefab.gameObject);
             if (null == behaviour)
@@ -71,6 +71,7 @@ namespace CreateAR.SpirePlayer
             var bounds = Bounds(min, max);
             behaviour.Bounds = bounds;
             behaviour.Progress = progress;
+            behaviour.transform.position = origin.ToVector();
 
             var record = new LoadProgressRecord(
                 ++_ids,

@@ -1,14 +1,12 @@
-﻿using System;
+﻿#if UNITY_IOS
+using System;
 using System.Collections;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.AR;
 using UnityEngine;
-using UnityEngine.UI;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -140,3 +138,4 @@ namespace CreateAR.SpirePlayer
         }
     }
 }
+#endif

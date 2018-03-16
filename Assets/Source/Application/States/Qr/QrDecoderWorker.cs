@@ -191,7 +191,7 @@ namespace CreateAR.SpirePlayer
                         record.Height,
                         record.Colors);
 					var result = _reader.Decode(source);
-#elif
+#else
 					var result = _reader.Decode(record.Colors, record.Width, record.Height);
 #endif
                     

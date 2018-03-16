@@ -144,7 +144,9 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Refresh asset for {0}.", Id);
 
             _assembler.Teardown();
-            _assembler.Setup(_srcAssetProp.Value);
+            _assembler.Setup(
+                GameObject.transform.position.ToVec(),
+                _srcAssetProp.Value);
         }
 
         /// <summary>

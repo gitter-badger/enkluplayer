@@ -15,6 +15,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private const int NUM_COLS = 3;
         private const int NUM_ROWS = 2;
+        private const int BUTTONS_PER_PAGE = NUM_COLS * NUM_ROWS;
 
         /// <summary>
         /// We secretly put the Option on the Button using this prop.
@@ -99,6 +100,7 @@ namespace CreateAR.SpirePlayer.IUX
                 int index;
                 if (int.TryParse(id.Split('-')[1], out index))
                 {
+                    index = index % BUTTONS_PER_PAGE;
                     var option = _buttons[index];
                     if (null != OnSelected)
                     {
@@ -240,12 +242,11 @@ namespace CreateAR.SpirePlayer.IUX
 
             var options = group.Options;
             var total = options.Count;
-            var buttonsPerPage = NUM_COLS * NUM_ROWS;
             var numPages = 0;
             while (total > 0)
             {
                 numPages++;
-                total -= buttonsPerPage;
+                total -= BUTTONS_PER_PAGE;
             }
 
             for (var i = 0; i < numPages; i++)
