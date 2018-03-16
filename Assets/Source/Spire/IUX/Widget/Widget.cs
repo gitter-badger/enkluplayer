@@ -37,6 +37,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _nameProp;
         private ElementSchemaProp<Col4> _localColorProp;
         private ElementSchemaProp<Vec3> _localPositionProp;
+        private ElementSchemaProp<Vec3> _localRotationProp;
         private ElementSchemaProp<Vec3> _localScaleProp;
         private ElementSchemaProp<bool> _localVisibleProp;
         private ElementSchemaProp<TweenType> _tweenInProp;
@@ -331,6 +332,8 @@ namespace CreateAR.SpirePlayer.IUX
             _localColorProp = Schema.GetOwn("color", Col4.White);
             _localPositionProp = Schema.GetOwn("position", Vec3.Zero);
             _localPositionProp.OnChanged += LocalPosition_OnChanged;
+            _localRotationProp = Schema.GetOwn("rotation", Vec3.Zero);
+            _localRotationProp.OnChanged += LocalRotation_OnChanged;
             _localScaleProp = Schema.GetOwn("scale", Vec3.One);
             _localScaleProp.OnChanged += LocalScale_OnChanged;
             _tweenInProp = Schema.GetOwn("tweenIn", TweenType.Responsive);
@@ -347,6 +350,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             GameObject.name = ToString();
             GameObject.transform.localPosition = _localPositionProp.Value.ToVector();
+            GameObject.transform.localRotation = Quaternion.Euler(_localRotationProp.Value.ToVector());
             GameObject.transform.localScale = _localScaleProp.Value.ToVector();
             
             UpdateGlobalVisibility();
@@ -657,6 +661,20 @@ namespace CreateAR.SpirePlayer.IUX
             Vec3 next)
         {
             GameObject.transform.localPosition = next.ToVector();
+        }
+
+        /// <summary>
+        /// Called when the local rotation changes.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">The previous value.</param>
+        /// <param name="next">The next value.</param>
+        private void LocalRotation_OnChanged(
+            ElementSchemaProp<Vec3> prop,
+            Vec3 prev,
+            Vec3 next)
+        {
+            GameObject.transform.localRotation = Quaternion.Euler(next.ToVector());
         }
 
         /// <summary>
