@@ -1,3 +1,3 @@
 <?Vine>
 
-<Button face='camera' id='btn-splash' icon='gear' />
+<Button position=(0,-0.2,0) face='camera' id='btn-splash' icon='gear' />

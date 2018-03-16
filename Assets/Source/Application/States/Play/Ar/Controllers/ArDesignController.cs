@@ -48,12 +48,7 @@ namespace CreateAR.SpirePlayer
         /// State machine.
         /// </summary>
         private readonly FiniteStateMachine _fsm;
-        
-        /// <summary>
-        /// The app.
-        /// </summary>
-        private IAppController _app;
-        
+
         /// <summary>
         /// Root of controls.
         /// </summary>
@@ -90,10 +85,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Controls the app.
         /// </summary>
-        public IAppController App
-        {
-            get { return _app; }
-        }
+        public IAppController App { get; private set; }
 
         /// <summary>
         /// Manages element transactions.
@@ -142,7 +134,7 @@ namespace CreateAR.SpirePlayer
         public void Setup(PlayModeConfig config, IAppController app)
         {
             Config = config;
-            _app = app;
+            App = app;
             _root = new GameObject("Design");
             _root.AddComponent<LineManager>();
             
@@ -188,7 +180,7 @@ namespace CreateAR.SpirePlayer
             // create a scene
             _api
                 .Scenes
-                .CreateScene(_app.Id, new Request())
+                .CreateScene(App.Id, new Request())
                 .OnSuccess(response =>
                 {
                     if (response.Payload.Success)

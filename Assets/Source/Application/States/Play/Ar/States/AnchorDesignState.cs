@@ -115,6 +115,7 @@ namespace CreateAR.SpirePlayer
                 _adjustAnchor = unityRoot.AddComponent<AdjustAnchorController>();
                 _adjustAnchor.OnDelete += Adjust_OnDelete;
                 _adjustAnchor.OnExit += Adjust_OnExit;
+                _adjustAnchor.enabled = false;
             }
         }
 
