@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
 using UnityEngine;
@@ -18,22 +19,30 @@ namespace CreateAR.SpirePlayer
             /// <summary>
             /// Unique id.
             /// </summary>
-            public uint Id { get; private set; }
+            public uint Id;
 
-            /// <summary>
-            /// Display.
-            /// </summary>
-            public LoadProgressBehaviour Behaviour { get; private set; }
+            public Transform Transform;
 
-            /// <summary>
-            /// Constructor.
-            /// </summary>
-            public LoadProgressRecord(
-                uint id,
-                LoadProgressBehaviour behaviour)
+            public Bounds Bounds;
+            
+            public LoadProgress Progress;
+            
+            public Vector3[] Positions;
+
+            public void Recalculate()
             {
-                Id = id;
-                Behaviour = behaviour;
+                Positions = new []
+                {
+                    new Vector3(Bounds.min.x, Bounds.min.y, Bounds.min.z),
+                    new Vector3(Bounds.max.x, Bounds.min.y, Bounds.min.z),
+                    new Vector3(Bounds.max.x, Bounds.min.y, Bounds.max.z),
+                    new Vector3(Bounds.min.x, Bounds.min.y, Bounds.max.z),
+
+                    new Vector3(Bounds.min.x, Bounds.max.y, Bounds.min.z),
+                    new Vector3(Bounds.max.x, Bounds.max.y, Bounds.min.z),
+                    new Vector3(Bounds.max.x, Bounds.max.y, Bounds.max.z),
+                    new Vector3(Bounds.min.x, Bounds.max.y, Bounds.max.z),
+                };
             }
         }
 
@@ -43,59 +52,39 @@ namespace CreateAR.SpirePlayer
         private static uint _ids = 0;
 
         /// <summary>
+        /// For drawing.
+        /// </summary>
+        private static Material _lineMaterial;
+
+        /// <summary>
         /// List of all records we are currently tracking.
         /// </summary>
         private readonly List<LoadProgressRecord> _records = new List<LoadProgressRecord>();
 
         /// <summary>
-        /// Prefab for load progress indication.
+        /// Color of lines.
         /// </summary>
-        public LoadProgressBehaviour LoadProgressPrefab;
-
-        /// <summary>
-        /// Pools!
-        /// </summary>
-        [Inject]
-        public IAssetPoolManager Pools { get; set; }
-
+        public Color LineColor;
+        
         /// <inheritdoc cref="ILoadProgressManager"/>
-        public uint ShowIndicator(Vec3 origin, Vec3 min, Vec3 max, LoadProgress progress)
+        public uint ShowIndicator(Transform rootTransform, Bounds bounds, LoadProgress progress)
         {
-            var behaviour = Pools.Get<LoadProgressBehaviour>(LoadProgressPrefab.gameObject);
-            if (null == behaviour)
+            var record = new LoadProgressRecord
             {
-                Log.Warning(this, "Could not create LoadProgressBehaviour.");
-                return 0;
-            }
-
-            var bounds = Bounds(min, max);
-            behaviour.Bounds = bounds;
-            behaviour.Progress = progress;
-            behaviour.transform.position = origin.ToVector();
-
-            var record = new LoadProgressRecord(
-                ++_ids,
-                behaviour);
+                Id = _ids++,
+                Transform = rootTransform,
+                Bounds = bounds,
+                Progress = progress
+            };
+            record.Recalculate();
 
             _records.Add(record);
 
-            Log.Info(this, "Show load progress indicator. [id={0}]", record.Id);
+            Verbose("Show load progress indicator. [id={0}]", record.Id);
 
             return record.Id;
         }
-
-        /// <inheritdoc cref="ILoadProgressManager"/>
-        public void UpdateIndicator(uint id, Vec3 min, Vec3 max)
-        {
-            var record = Record(id);
-            if (null != record)
-            {
-                record.Behaviour.Bounds = Bounds(min, max);
-
-                Log.Info(this, "Update load progress indicator. [id={0}]", record.Id);
-            }
-        }
-
+        
         /// <inheritdoc cref="ILoadProgressManager"/>
         public void HideIndicator(uint id)
         {
@@ -103,10 +92,8 @@ namespace CreateAR.SpirePlayer
             if (null != record)
             {
                 _records.Remove(record);
-
-                Pools.Put(record.Behaviour.gameObject);
-
-                Log.Info(this, "Hide load progress indicator. [id={0}]", record.Id);
+                
+                Verbose("Hide load progress indicator. [id={0}]", record.Id);
             }
         }
 
@@ -138,7 +125,7 @@ namespace CreateAR.SpirePlayer
             for (var i = _records.Count - 1; i >= 0; i--)
             {
                 var record = _records[i];
-                if (record.Behaviour.Progress.IsComplete)
+                if (record.Progress.IsComplete)
                 {
                     HideIndicator(record.Id);
                 }
@@ -146,22 +133,100 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Creates a Bounds object from Vec3 min/max.
+        /// Render!
         /// </summary>
-        /// <param name="min">Minimum.</param>
-        /// <param name="max">Maximum.</param>
-        /// <returns>The <c>Bounds</c> object.</returns>
-        private static Bounds Bounds(Vec3 min, Vec3 max)
+        private void OnRenderObject()
         {
-            return new Bounds(
-                new Vector3(
-                    min.x + (max.x - min.x) / 2f,
-                    min.y + (max.y - min.y) / 2f,
-                    min.z + (max.z - min.z) / 2f),
-                new Vector3(
-                    max.x - min.x,
-                    max.y - min.y,
-                    max.z - min.z));
+            CreateLineMaterial();
+
+            _lineMaterial.SetPass(0);
+            
+            GL.Begin(GL.LINES);
+            {
+                GL.Color(LineColor);
+
+                for (int i = 0, len = _records.Count; i < len; i++)
+                {
+                    var record = _records[i];
+                    var positions = _records[i].Positions;
+
+                    GL.PushMatrix();
+                    GL.MultMatrix(record.Transform.localToWorldMatrix);
+                    {
+                        var pos = positions[0]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[1]; GL.Vertex3(pos.x, pos.y, pos.z);
+
+                        pos = positions[1]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[2]; GL.Vertex3(pos.x, pos.y, pos.z);
+
+                        pos = positions[2]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[3]; GL.Vertex3(pos.x, pos.y, pos.z);
+
+                        pos = positions[3]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[0]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        
+                        pos = positions[4]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[5]; GL.Vertex3(pos.x, pos.y, pos.z);
+
+                        pos = positions[5]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[6]; GL.Vertex3(pos.x, pos.y, pos.z);
+
+                        pos = positions[6]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[7]; GL.Vertex3(pos.x, pos.y, pos.z);
+
+                        pos = positions[7]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[4]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        
+                        pos = positions[0]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[4]; GL.Vertex3(pos.x, pos.y, pos.z);
+
+                        pos = positions[1]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[5]; GL.Vertex3(pos.x, pos.y, pos.z);
+
+                        pos = positions[2]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[6]; GL.Vertex3(pos.x, pos.y, pos.z);
+
+                        pos = positions[3]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = positions[7]; GL.Vertex3(pos.x, pos.y, pos.z);
+                    }
+                    GL.PopMatrix();
+                }
+            }
+            GL.End();
+        }
+
+        /// <summary>
+        /// Lazily creates material for drawing lines.
+        /// </summary>
+        private static void CreateLineMaterial()
+        {
+            if (!_lineMaterial)
+            {
+                // Unity has a built-in shader that is useful for drawing
+                // simple colored things.
+                Shader shader = Shader.Find("Hidden/Internal-Colored");
+                _lineMaterial = new Material(shader);
+                _lineMaterial.hideFlags = HideFlags.HideAndDontSave;
+
+                // Turn on alpha blending
+                _lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                _lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+
+                // Turn backface culling off
+                _lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+
+                // Turn off depth writes
+                _lineMaterial.SetInt("_ZWrite", 0);
+            }
+        }
+
+        /// <summary>
+        /// Logging.
+        /// </summary>
+        [Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

@@ -145,7 +145,7 @@ namespace CreateAR.SpirePlayer
 
             _assembler.Teardown();
             _assembler.Setup(
-                GameObject.transform.position.ToVec(),
+                GameObject.transform,
                 _srcAssetProp.Value);
         }
 

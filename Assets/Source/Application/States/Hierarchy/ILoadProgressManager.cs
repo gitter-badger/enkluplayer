@@ -1,4 +1,5 @@
 ﻿using CreateAR.SpirePlayer.Assets;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -11,20 +12,11 @@ namespace CreateAR.SpirePlayer
         /// Shows load progress for an area. When the progress object is complete,
         /// the load indicator is automatically removed.
         /// </summary>
-        /// <param name="center">Center of the load.</param>
-        /// <param name="min">Minimum of bounds in world space.</param>
-        /// <param name="max">Maximum of bounds in world space.</param>
+        /// <param name="transform">The transform.</param>
+        /// <param name="bounds">Asset bounds.</param>
         /// <param name="progress">The progress.</param>
         /// <returns>A unique id corresponding to the load progress indicator.</returns>
-        uint ShowIndicator(Vec3 center, Vec3 min, Vec3 max, LoadProgress progress);
-
-        /// <summary>
-        /// Updates a load progress indicator with new bounds.
-        /// </summary>
-        /// <param name="id">The unique id returned by <c>Show</c>.</param>
-        /// <param name="min">Minimum of bounds in world space.</param>
-        /// <param name="max">Maximum of bounds in world space.</param>
-        void UpdateIndicator(uint id, Vec3 min, Vec3 max);
+        uint ShowIndicator(Transform transform, Bounds bounds, LoadProgress progress);
 
         /// <summary>
         /// Hides a load progress indicator.

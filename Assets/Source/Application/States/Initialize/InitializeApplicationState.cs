@@ -89,7 +89,9 @@ namespace CreateAR.SpirePlayer
             _http.UrlBuilder.FromUrl(env.Url);
 
             // setup assets
+            // TODO: pull out of here!
             var loader = new StandardAssetLoader(
+                _appConfig.Network,
                 _bootstrapper,
                 new StandardAssetBundleCache(
                     _bootstrapper,

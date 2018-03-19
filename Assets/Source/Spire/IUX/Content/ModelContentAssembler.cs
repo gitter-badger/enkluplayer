@@ -19,12 +19,7 @@ namespace CreateAR.SpirePlayer
         /// Manages pooling.
         /// </summary>
         private readonly IAssetPoolManager _pools;
-
-        /// <summary>
-        /// Displays load progress.
-        /// </summary>
-        private readonly ILoadProgressManager _progress;
-
+        
         /// <summary>
         /// Bounds of the asset.
         /// </summary>
@@ -46,10 +41,10 @@ namespace CreateAR.SpirePlayer
         private Action _unwatch;
 
         /// <summary>
-        /// Id for load progress indicator.
+        /// Outlines model bounds.
         /// </summary>
-        private uint _progressIndicatorId;
-
+        private ModelLoadingOutline _outline;
+        
         /// <inheritdoc />
         public Bounds Bounds
         {
@@ -77,18 +72,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public ModelContentAssembler(
             IAssetManager assets,
-            IAssetPoolManager pools,
-            ILoadProgressManager progress)
+            IAssetPoolManager pools)
         {
             _assets = assets;
             _pools = pools;
-            _progress = progress;
         }
         
         /// <inheritdoc cref="IContentAssembler"/>
-        public void Setup(Vec3 transformPosition, string assetId)
+        public void Setup(Transform transform, string assetId)
         {
-            WatchMainAsset(transformPosition, assetId);
+            WatchMainAsset(transform, assetId);
         }
 
         /// <inheritdoc cref="IContentAssembler"/>
@@ -112,14 +105,22 @@ namespace CreateAR.SpirePlayer
                 _asset = null;
             }
 
-            _progress.HideIndicator(_progressIndicatorId);
+            if (null != _outline)
+            {
+                UnityEngine.Object.Destroy(_outline);
+            }
         }
 
         /// <summary>
         /// Watches main asset changes.
         /// </summary>
-        private void WatchMainAsset(Vec3 transformPosition, string assetId)
+        private void WatchMainAsset(Transform transform, string assetId)
         {
+            if (string.IsNullOrEmpty(assetId))
+            {
+                return;
+            }
+
             // get the corresponding asset
             _asset = _assets.Manifest.Asset(assetId);
             if (null == _asset)
@@ -149,11 +150,10 @@ namespace CreateAR.SpirePlayer
             // otherwise, show a load indicator
             else
             {
-                _progressIndicatorId = _progress.ShowIndicator(
-                    transformPosition,
-                    _bounds.Min,
-                    _bounds.Max,
-                    _asset.Progress);
+                _outline = transform
+                    .gameObject
+                    .AddComponent<ModelLoadingOutline>();
+                _outline.Init(Bounds);
             }
 
             // watch for asset reloads
@@ -188,7 +188,13 @@ namespace CreateAR.SpirePlayer
 
             // get a new one
             _instance = _pools.Get<GameObject>(value);
-            
+
+            // shut off outline
+            if (null != _outline)
+            {
+                UnityEngine.Object.Destroy(_outline);
+            }
+
             // asset is loaded
             if (null != OnAssemblyComplete)
             {

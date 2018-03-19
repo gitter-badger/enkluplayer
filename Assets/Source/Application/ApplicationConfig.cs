@@ -1,5 +1,6 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
@@ -35,6 +36,11 @@ namespace CreateAR.SpirePlayer
         public bool SimulateWebgl;
 
         /// <summary>
+        /// Logging.
+        /// </summary>
+        public LogAppConfig Log = new LogAppConfig();
+
+        /// <summary>
         /// Configuration for playing an app.
         /// </summary>
         public PlayAppConfig Play = new PlayAppConfig();
@@ -54,6 +60,35 @@ namespace CreateAR.SpirePlayer
                 "[ApplicationConfig Network={0}, Play={1}]",
                 Network,
                 Play);
+        }
+    }
+
+    /// <summary>
+    /// Logging.
+    /// </summary>
+    public class LogAppConfig
+    {
+        /// <summary>
+        /// Log level.
+        /// </summary>
+        public string Level;
+
+        /// <summary>
+        /// Parsed level.
+        /// </summary>
+        public LogLevel ParsedLevel
+        {
+            get
+            {
+                try
+                {
+                    return (LogLevel) Enum.Parse(typeof(LogLevel), Level);
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
         }
     }
     
@@ -108,6 +143,16 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class NetworkConfig
     {
+        /// <summary>
+        /// Lag, in seconds, to add to asset downloads.
+        /// </summary>
+        public float AssetDownloadLagSec;
+
+        /// <summary>
+        /// True iff asset cache is enabled.
+        /// </summary>
+        public bool AssetCacheEnabled;
+
         /// <summary>
         /// Current environment we should connect to.
         /// </summary>

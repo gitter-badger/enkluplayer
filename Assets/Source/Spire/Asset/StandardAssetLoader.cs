@@ -11,10 +11,15 @@ namespace CreateAR.SpirePlayer.Assets
     public class StandardAssetLoader : IAssetLoader
     {
         /// <summary>
+        /// Network configuration.
+        /// </summary>
+        private readonly NetworkConfig _config;
+
+        /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
-
+        
         /// <summary>
         /// Cache for bundles.
         /// </summary>
@@ -34,10 +39,12 @@ namespace CreateAR.SpirePlayer.Assets
         /// Constructor.
         /// </summary>
         public StandardAssetLoader(
+            NetworkConfig config,
             IBootstrapper bootstrapper,
             IAssetBundleCache cache,
             UrlBuilder urls)
         {
+            _config = config;
             _bootstrapper = bootstrapper;
             _cache = cache;
             _urls = urls;
@@ -54,6 +61,7 @@ namespace CreateAR.SpirePlayer.Assets
             if (!_bundles.TryGetValue(url, out loader))
             {
                 loader = _bundles[url] = new AssetBundleLoader(
+                    _config,
                     _bootstrapper,
                     _cache,
                     url);

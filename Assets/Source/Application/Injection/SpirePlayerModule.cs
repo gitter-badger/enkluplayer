@@ -37,7 +37,10 @@ namespace CreateAR.SpirePlayer
             serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
 
             var config = (ApplicationConfig) app;
+
             Log.Info(this, "ApplicationConfig:\n{0}", config);
+
+            Log.Filter = config.Log.ParsedLevel;
 
             binder.Bind<ApplicationConfig>().ToValue(config);
 

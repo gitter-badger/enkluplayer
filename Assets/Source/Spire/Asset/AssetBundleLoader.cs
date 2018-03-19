@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -16,10 +17,15 @@ namespace CreateAR.SpirePlayer.Assets
     public class AssetBundleLoader
     {
         /// <summary>
+        /// Configuration for networking.
+        /// </summary>
+        private readonly NetworkConfig _config;
+
+        /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
-
+        
         /// <summary>
         /// Caches bundles.
         /// </summary>
@@ -54,10 +60,12 @@ namespace CreateAR.SpirePlayer.Assets
         /// Constructor.
         /// </summary>
         public AssetBundleLoader(
+            NetworkConfig config,
             IBootstrapper bootstrapper,
             IAssetBundleCache cache,
             string url)
         {
+            _config = config;
             _bootstrapper = bootstrapper;
             _cache = cache;
             _url = url;
@@ -68,7 +76,7 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         public void Destroy()
         {
-            Trace("Destroy");
+            Verbose("Destroy");
             
             _destroy = true;
 
@@ -76,7 +84,7 @@ namespace CreateAR.SpirePlayer.Assets
             {
                 Bundle.Unload(true);
                 
-                Trace("Bundle unloaded.");
+                Verbose("Bundle unloaded.");
             }
         }
 
@@ -86,11 +94,13 @@ namespace CreateAR.SpirePlayer.Assets
         public void Load()
         {
             // check cache
-            Trace("Checking cache.");
+            Verbose("Checking cache.");
 
-            if (_cache.Contains(_url))
+            if (Math.Abs(_config.AssetDownloadLagSec) < Mathf.Epsilon
+                && _config.AssetCacheEnabled
+                && _cache.Contains(_url))
             {
-                Trace("Cache hit.");
+                Verbose("Cache hit.");
 
                 LoadProgress progress;
                 _bundleLoad = _cache.Load(_url, out progress);
@@ -99,7 +109,7 @@ namespace CreateAR.SpirePlayer.Assets
             }
             else
             {
-                Trace("Cache miss.");
+                Verbose("Cache miss.");
                 
                 _bootstrapper.BootstrapCoroutine(DownloadBundle());
             }
@@ -118,7 +128,7 @@ namespace CreateAR.SpirePlayer.Assets
                 throw new ArgumentException(assetName);
             }
 
-            Trace("Load Asset {0}.", assetName);
+            Verbose("Load Asset {0}.", assetName);
 
             var token = new AsyncToken<Object>();
             var load = new LoadProgress();
@@ -126,7 +136,7 @@ namespace CreateAR.SpirePlayer.Assets
             _bundleLoad
                 .OnSuccess(bundle =>
                 {
-                    Trace("Load Asset {0}: bundle load complete.", assetName);
+                    Verbose("Load Asset {0}: bundle load complete.", assetName);
 
                     Bundle = bundle;
                     
@@ -162,7 +172,13 @@ namespace CreateAR.SpirePlayer.Assets
             var token = new AsyncToken<AssetBundle>();
             _bundleLoad = token;
 
-            /*var request = new UnityWebRequest(
+            // artificial lag
+            if (_config.AssetDownloadLagSec > Mathf.Epsilon)
+            {
+                yield return new WaitForSecondsRealtime(_config.AssetDownloadLagSec);
+            }
+            
+            var request = new UnityWebRequest(
                 _url,
                 "GET",
                 new AssetBundleDownloadHandler(_bootstrapper, _url),
@@ -174,32 +190,31 @@ namespace CreateAR.SpirePlayer.Assets
                 Progress.Value = request.downloadProgress;
 
                 yield return null;
-            }*/
-
-            var request = UnityWebRequest.GetAssetBundle(_url);
-            yield return request.SendWebRequest();
+            }
             
-            Trace("DownloadBundle complete.");
+            //var request = UnityWebRequest.GetAssetBundle(_url);
+            //yield return request.SendWebRequest();
+            
+            Verbose("DownloadBundle complete.");
 
             if (_destroy)
             {
                 request.Dispose();
                 
-                Trace("Loader was destroyed when load came back. Disposing bundle.");
+                Verbose("Loader was destroyed when load came back. Disposing bundle.");
                 
                 yield break;
             }
 
             if (request.isNetworkError || request.isHttpError)
             {
-                Trace("Network or Http error: {0}.", request.error);
+                Verbose("Network or Http error: {0}.", request.error);
                 
                 token.Fail(new Exception(request.error));
             }
             else
             {
                 // wait for bundle to complete
-                /*
                 var handler = (AssetBundleDownloadHandler) request.downloadHandler;
                 handler
                     .OnReady
@@ -209,9 +224,9 @@ namespace CreateAR.SpirePlayer.Assets
 
                         token.Succeed(bundle);
                     })
-                    .OnFailure(token.Fail);*/
+                    .OnFailure(token.Fail);
 
-                var bundle = DownloadHandlerAssetBundle.GetContent(request);
+                /*var bundle = DownloadHandlerAssetBundle.GetContent(request);
                 if (null != bundle)
                 {
                     token.Succeed(bundle);
@@ -219,7 +234,7 @@ namespace CreateAR.SpirePlayer.Assets
                 else
                 {
                     token.Fail(new Exception("Could not create bundle."));
-                }
+                }*/
             }
 
             request.Dispose();
@@ -269,7 +284,8 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         /// <param name="message">Message to log.</param>
         /// <param name="replacements">Logging replacements.</param>
-        private void Trace(string message, params object[] replacements)
+        [Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] replacements)
         {
             Log.Info(this,
                 "[{0}] {1}",
