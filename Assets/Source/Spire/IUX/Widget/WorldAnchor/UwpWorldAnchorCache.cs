@@ -1,23 +1,31 @@
-﻿#if !UNITY_EDITOR && UNITY_WSA
-
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
 
-using Windows.Storage;
-
 namespace CreateAR.SpirePlayer.IUX
 {
+    /// <summary>
+    /// Uwp implementation of anchor cache.
+    /// </summary>
     public class UwpWorldAnchorCache : IWorldAnchorCache
     {
+        /// <summary>
+        /// Hashes names.
+        /// </summary>
         private readonly IHashProvider _hashProvider;
+
+        /// <summary>
+        /// Base path to write to.
+        /// </summary>
         private readonly string _basePath;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public UwpWorldAnchorCache(IHashProvider hashProvider)
         {
             _hashProvider = hashProvider;
@@ -31,13 +39,17 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <inheritdoc />
         public bool Contains(string id)
         {
+            Log.Info(this, "Contains({0})", id);
+
             var path = GetDiskPath(id);
 
             return File.Exists(path);
         }
 
+        /// <inheritdoc />
         public void Save(string id, byte[] bytes)
         {
             var path = GetDiskPath(id);
@@ -45,10 +57,11 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 return;
             }
-
-            WriteBytes(path, bytes);
+            
+            File.WriteAllBytes(path, bytes);
         }
 
+        /// <inheritdoc />
         public IAsyncToken<byte[]> Load(string id)
         {
             var path = GetDiskPath(id);
@@ -58,26 +71,12 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             var token = new AsyncToken<byte[]>();
-
-            Load(path, token);
-
+            
+            token.Succeed(File.ReadAllBytes(path));
+            
             return token;
         }
-
-        private static async Task Load(string path, AsyncToken<byte[]> token)
-        {
-            var file = await StorageFile.GetFileFromPathAsync(path);
-            using (var stream = await file.OpenStreamForReadAsync())
-            {
-                using (var memory = new MemoryStream())
-                {
-                    await stream.CopyToAsync(memory);
-
-                    token.Succeed(memory.ToArray());
-                }
-            }
-        }
-
+        
         /// <summary>
         /// Retrieves a unique, deterministic file path for an id.
         /// </summary>
@@ -99,29 +98,5 @@ namespace CreateAR.SpirePlayer.IUX
 
             return path;
         }
-
-        /// <summary>
-        /// Writes bytes to disk, asynchronously.
-        /// </summary>
-        /// <param name="path">The path at which to write.</param>
-        /// <param name="bytes">The bytes to write.</param>
-        private async void WriteBytes(string path, byte[] bytes)
-        {
-            using (var file = File.OpenWrite(path))
-            {
-                try
-                {
-                    await file.WriteAsync(bytes, 0, bytes.Length);
-                }
-                catch (Exception exception)
-                {
-                    Log.Error(this, "Could not write to {0} : {1}.",
-                        path,
-                        exception);
-                }
-            }
-        }
     }
 }
-
-#endif

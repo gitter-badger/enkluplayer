@@ -305,7 +305,7 @@ namespace CreateAR.SpirePlayer
                     Verbose("Successfully exported. Progressing to upload.");
 
                     // save to cache
-                    _cache.Save(data.Id, bytes);
+                    _cache.Save(url, bytes);
 
                     _http
                         .PostFile<Trellis.Messages.UploadAnchor.Response>(

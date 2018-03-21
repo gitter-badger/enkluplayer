@@ -111,6 +111,9 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     LogVerbose("Anchor downloaded. Importing.");
 
+                    // cache
+                    _cache.Save(url, response.Payload);
+
                     Import(response.Payload);
                 })
                 .OnFailure(exception =>
@@ -142,6 +145,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="bytes">The world anchor bytes.</param>
         private void Import(byte[] bytes)
         {
+            Log.Info(this, "Bytes available, starting import.");
+
             _provider
                 .Import(Id, GameObject, bytes)
                 .OnSuccess(_ =>
@@ -221,10 +226,10 @@ namespace CreateAR.SpirePlayer.IUX
             // check cache
             if (_cache.Contains(url))
             {
-                LogVerbose("World anchor cache hit.");
+                Log.Info(this, "World anchor cache hit.");
 
                 _cache
-                    .Load(Id)
+                    .Load(url)
                     .OnSuccess(Import)
                     .OnFailure(exception =>
                     {
@@ -238,7 +243,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
             else
             {
-                LogVerbose("World anchor cache miss.");
+                Log.Info(this, "World anchor cache miss.");
 
                 DownloadAndImport(url);
             }

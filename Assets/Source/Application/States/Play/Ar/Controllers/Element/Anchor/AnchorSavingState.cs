@@ -112,7 +112,9 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(bytes =>
                 {
                     // cache
-                    _cache.Save(anchorId, bytes);
+                    _cache.Save(
+                        _controller.Element.Schema.Get<string>("src").Value,
+                        bytes);
 
                     // next, upload anchor
                     _uploadToken = _http
