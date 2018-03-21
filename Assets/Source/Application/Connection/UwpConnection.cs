@@ -170,16 +170,16 @@ namespace CreateAR.SpirePlayer
         private async void SendAsync(string message)
         {
             LogVerbose("Sending : {0}.", message);
-
-            _writer.WriteString(message);
-
+            
             try
             {
+                _writer.WriteString(message);
+
                 await _writer.StoreAsync();
             }
             catch (Exception exception)
             {
-                Log.Error(this, "Could not send message : {0}.", exception);
+                LogVerbose("Could not send message : {0}.", exception);
             }
         }
 
@@ -188,7 +188,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Socket_OnClosed(IWebSocket sender, WebSocketClosedEventArgs args)
         {
-            Log.Info(this, "Socket closed. Attempting reconnect.");
+            LogVerbose("Socket closed. Attempting reconnect.");
 
             Connect(_environment)
                 .OnSuccess(_ => LogVerbose("Reconnect successful."))
@@ -216,7 +216,7 @@ namespace CreateAR.SpirePlayer
                 }
                 catch (Exception exception)
                 {
-                    Log.Error(this,
+                    LogVerbose(
                         "Error reading message : {0}.",
                         exception);
                 }
@@ -230,7 +230,7 @@ namespace CreateAR.SpirePlayer
             MessageWebSocket sender,
             WebSocketServerCustomValidationRequestedEventArgs args)
         {
-            Log.Info(this, "Socket requesting validation.");
+            LogVerbose("Socket requesting validation.");
         }
 
         /// <summary>

@@ -752,7 +752,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         /// <param name="message">Verbose logging.</param>
         [Conditional("VERBOSE_LOGGING")]
-        private void LogVerbose(string message)
+        protected void LogVerbose(string message)
         {
             Log.Info(this, message);
         }

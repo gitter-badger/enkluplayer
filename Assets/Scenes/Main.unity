@@ -112,47 +112,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &27699453
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 27699454}
-  - component: {fileID: 27699455}
-  m_Layer: 0
-  m_Name: YSlider
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &27699454
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 27699453}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 10
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &27699455
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 27699453}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<Float position=(0, 0, 1)>\n\t<Slider length=1.0 axis='y' />\n</Float>"
 --- !u!1 &73268387
 GameObject:
   m_ObjectHideFlags: 0
@@ -308,7 +267,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 130951154}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -326.93307, y: -327.04758, z: 0}
+  m_LocalPosition: {x: -445.24347, y: -229.51544, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1693554495}
@@ -375,48 +334,6 @@ Camera:
   m_PrefabParentObject: {fileID: 20471498526555526, guid: d6dd476a3d362c04186289bedca18a7f,
     type: 2}
   m_PrefabInternal: {fileID: 1291600364}
---- !u!1 &158951883
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 158951884}
-  - component: {fileID: 158951885}
-  m_Layer: 0
-  m_Name: ButtonColor
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &158951884
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 158951883}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 12
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &158951885
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 158951883}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: <Button label='Hello' color=#FF0000 position=(0.1, 0, 2) ready.color='Tertiary'
-    />
 --- !u!1001 &358864088
 Prefab:
   m_ObjectHideFlags: 0
@@ -769,93 +686,6 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 510111172}
---- !u!1 &531348133
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 531348134}
-  - component: {fileID: 531348135}
-  m_Layer: 0
-  m_Name: Grid-Groups
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &531348134
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 531348133}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &531348135
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 531348133}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<?Vine>\r\n<Float position=(0, 0, 1)>\r\n\t<Grid fontSize=20>\r\n\t\t<OptionGroup
-    label='Plants' value='plants' />\n\t\t<OptionGroup label='Animals' value='animals'
-    />\n\t\t<OptionGroup label='Props' value='props' />\n\t</Grid>\r\n</Float>"
---- !u!1 &540517788
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 540517789}
-  - component: {fileID: 540517790}
-  m_Layer: 0
-  m_Name: PropEdit
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &540517789
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 540517788}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 13
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &540517790
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 540517788}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<Container position=(0, 0, 2)>\r\n\t<Menu>\r\n\t\t<Button id='btn-move' label='Shoes'
-    icon='ellipses' />\r\n\t\t<Button id='btn-move' label='Move' icon='move' />\r\n\t\t<Button
-    id='btn-delete' label='Delete' icon='trash' />\r\n\t\t<Toggle toggle='toggle-fade'
-    label='Fade' />\r\n\t</Menu>\r\n</Container>"
 --- !u!1001 &558283089
 Prefab:
   m_ObjectHideFlags: 0
@@ -945,47 +775,6 @@ Transform:
   m_PrefabParentObject: {fileID: 4940769856721062, guid: 13b146fc68006724aba77b040bacf1fa,
     type: 2}
   m_PrefabInternal: {fileID: 563702154}
---- !u!1 &572678535
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 572678536}
-  - component: {fileID: 572678537}
-  m_Layer: 0
-  m_Name: Slider
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &572678536
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 572678535}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &572678537
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 572678535}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<Container position=(0, 0, 2)>\n\t<Slider />\n</Container>"
 --- !u!1 &615226714
 GameObject:
   m_ObjectHideFlags: 0
@@ -1159,47 +948,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &789404040
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 789404041}
-  - component: {fileID: 789404042}
-  m_Layer: 0
-  m_Name: ZSlider
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &789404041
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 789404040}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 11
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &789404042
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 789404040}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<Float position=(0, 0, 1)>\n\t<Slider length=1.0 axis='z' />\n</Float>"
 --- !u!1001 &795452454
 Prefab:
   m_ObjectHideFlags: 0
@@ -1242,48 +990,6 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7af591af75f6af9479f3c4f743039865, type: 2}
   m_IsPrefabParent: 0
---- !u!1 &855948602
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 855948603}
-  - component: {fileID: 855948604}
-  m_Layer: 0
-  m_Name: ButtonImage
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &855948603
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 855948602}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &855948604
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 855948602}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<Float position=(0, 0, 1)>\n\t<Button label='Test' src='https://test-ipv6.com/images/hires_ok.png'
-    />\n</Float>"
 --- !u!1001 &871239358
 Prefab:
   m_ObjectHideFlags: 0
@@ -1676,186 +1382,11 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1049999942}
---- !u!1 &1103116629
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1103116630}
-  - component: {fileID: 1103116631}
-  m_Layer: 0
-  m_Name: ScaleTransition
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1103116630
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1103116629}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 14
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1103116631
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1103116629}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<Float position=(0.1, 0, 1)>\n\t<ScaleTransition>\n\t\t<Button label='Hello
-    World' />\n\t</ScaleTransition>\n</Float>"
 --- !u!4 &1135421043 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4757842970413260, guid: 8a32a9c478ab0e54a9a57cb1bd087b28,
     type: 2}
   m_PrefabInternal: {fileID: 640012429}
---- !u!1 &1138689486
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1138689487}
-  - component: {fileID: 1138689488}
-  m_Layer: 0
-  m_Name: Scan Menu
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1138689487
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1138689486}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1138689488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1138689486}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<?Vine>\n\n<Float position=(0,0,2) face='billboard'>\n\t<Menu title='Scan'
-    header.width=100>\n\t\t<Button label='New Scan' color=#FFFFFF />\n\t\t<Select>\n\t\t\t<Option
-    label='Rendering On' />\n\t\t\t<Option label='Rendering Off' />\n\t\t</Select>\n\t\t<Button
-    label='Exit' />\n\t</Menu>\n</Float>"
---- !u!1 &1217937925
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1217937926}
-  - component: {fileID: 1217937927}
-  m_Layer: 0
-  m_Name: TransformMenu
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1217937926
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1217937925}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 7
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1217937927
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1217937925}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<Float position=(0, 0, 2)>\n\t<Button id='btn-back' icon='arrow-left' position=(-0.3,
-    0.25, 0) />\n\t<Button id='btn-rotate' icon='arrow-rotate' position=(0.2, 0, 0)
-    />\n\t<Button id='btn-scale' icon='scale' position=(0, 0.1, 0) />\n\t<Button id='btn-x'
-    icon='arrow-double' position=(-0.2, 0, 0) />\n\t<Button id='btn-z' icon='arrow-double-z'
-    position=(0, 0, 0) />\n\t<Button id='btn-y' icon='arrow-double-z' position=(0,
-    0.2, 0) />\n</Float>"
---- !u!1 &1232127254
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1232127255}
-  - component: {fileID: 1232127256}
-  m_Layer: 0
-  m_Name: Cursor
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1232127255
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1232127254}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1232127256
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1232127254}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: '<?Vine>
-
-    <Cursor />'
 --- !u!1001 &1250373631
 Prefab:
   m_ObjectHideFlags: 0
@@ -1992,63 +1523,6 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1064e98892a50634b8b966be19de3987, type: 2}
   m_IsPrefabParent: 0
---- !u!1 &1302617288
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1302617289}
-  - component: {fileID: 1302617290}
-  m_Layer: 0
-  m_Name: Grid-Pages
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1302617289
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1302617288}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1302617290
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1302617288}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<?Vine>\r\n<Float position=(0, 0, 1)>\r\n\t<Grid fontSize=20>\r\n\t\t<OptionGroup
-    label='Plants' value='plants'>\r\n\t\t\t<Option label='Oak' value='oaktree' />\r\n\t\t\t<Option
-    label='Shrub' value='shrub' />\r\n\t\t\t<Option label='Shrub2' value='redshub'
-    />\r\n\t\t\t<Option label='Vine' value='vine' />\r\n\t\t\t<Option label='Succulent'
-    value='succulent' />\r\n\t\t\t<Option label='Cactus' value='cactus' />\r\n\t\t\t<Option
-    label='Ivy' value='ivy' />\r\n\t\t\t<Option label='Ivy 2' value='redivy' />\r\n\t\t\t<Option
-    label='Ivy 3' value='poisonivy' />\r\n\t\t\t<Option label='Maple' value='sugarmaple'
-    />\r\n\t\t\t<Option label='Pine' value='lambsear' />\r\n\t\t\t<Option label='Flower'
-    value='petunia' />\r\n\t\t\t<Option label='Flower2' value='flower2' />\r\n\t\t\t<Option
-    label='Plant' value='plant' />\r\n\t\t</OptionGroup>\r\n\t\t<OptionGroup label='Animals'
-    value='animals'>\r\n\t\t\t<Option label='Skunk' value='skunk' />\r\n\t\t\t<Option
-    label='Crab' value='crab' />\r\n\t\t\t<Option label='Skink' value='skink' />\r\n\t\t\t<Option
-    label='Fox' value='fox' />\r\n\t\t\t<Option label='Deer' value='deer' />\r\n\t\t\t<Option
-    label='Elephant' value='elephant' />\r\n\t\t\t<Option label='Giraffe' value='giraffe'
-    />\r\n\t\t\t<Option label='Lizard' value='lizard' />\r\n\t\t\t<Option label='Dinosaur'
-    value='dinosaur' />\r\n\t\t\t<Option label='Cat' value='cat' />\r\n\t\t\t<Option
-    label='Dog' value='dog' />\r\n\t\t\t<Option label='Hyena' value='hyena' />\r\n\t\t</OptionGroup>\r\n\t</Grid>\r\n</Float>"
 --- !u!4 &1322888684 stripped
 Transform:
   m_PrefabParentObject: {fileID: 4806941493528534, guid: 7af591af75f6af9479f3c4f743039865,
@@ -2079,21 +1553,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 1232127255}
-  - {fileID: 1138689487}
-  - {fileID: 1662866789}
-  - {fileID: 531348134}
-  - {fileID: 1302617289}
-  - {fileID: 855948603}
-  - {fileID: 1999305311}
-  - {fileID: 1217937926}
-  - {fileID: 572678536}
-  - {fileID: 1935605571}
-  - {fileID: 27699454}
-  - {fileID: 789404041}
-  - {fileID: 158951884}
-  - {fileID: 540517789}
-  - {fileID: 1103116630}
+  - {fileID: 1498003518}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2171,6 +1631,48 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1465701587}
+--- !u!1 &1498003517
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 1498003518}
+  - component: {fileID: 1498003519}
+  m_Layer: 0
+  m_Name: UserSplash
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1498003518
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1498003517}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1389533282}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1498003519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1498003517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Vine: "<?Vine>\r\n\r\n<Float position=(0, 0, 2) />\r\n\t<Menu id='menu-user'>\r\n\t\t<Select
+    id='select-app' />\r\n\t\t<Button id='btn-worldscan' label='World Scans' />\r\n\t</Menu>\r\n</Float>"
 --- !u!1001 &1541775436
 Prefab:
   m_ObjectHideFlags: 0
@@ -2452,52 +1954,6 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1661757512}
---- !u!1 &1662866787
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1662866789}
-  - component: {fileID: 1662866788}
-  m_Layer: 0
-  m_Name: Design Menu
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1662866788
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1662866787}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<?Vine>\r\n\r\n<Menu id='menu' showBackButton=true>\r\n\t<Button id='btn-play'
-    label='Play' icon='play' />\r\n\t<Button id='btn-new' label='New' icon='plus'
-    />\r\n\t<Button id='btn-anchors' label='Anchors' icon='frame' />\r\n\t<Button
-    id='btn-clearall' label='Clear All' icon='trash' />\r\n\t<Button id='btn-quit'
-    label='Quit' icon='x' />\r\n\t/*<Toggle id='toggle-debugrender' label='Debug Render'
-    />*/\r\n</Menu>"
---- !u!4 &1662866789
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1662866787}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.080907114, y: -0.4637057, z: 0.050329924}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1693554491
 GameObject:
   m_ObjectHideFlags: 0
@@ -2581,7 +2037,7 @@ RectTransform:
   m_GameObject: {fileID: 1693554491}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 10}
-  m_LocalScale: {x: 0.011285011, y: 0.011285011, z: 0.011285011}
+  m_LocalScale: {x: 0.015368824, y: 0.015368824, z: 0.015368824}
   m_Children:
   - {fileID: 130951155}
   - {fileID: 73268388}
@@ -2854,47 +2310,6 @@ Transform:
   m_PrefabParentObject: {fileID: 4923481271847002, guid: 9fe2780469bed07418592fc3778c189e,
     type: 2}
   m_PrefabInternal: {fileID: 1934403337}
---- !u!1 &1935605570
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1935605571}
-  - component: {fileID: 1935605572}
-  m_Layer: 0
-  m_Name: XSlider
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1935605571
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1935605570}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 9
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1935605572
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1935605570}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<Float position=(0, 0, 1)>\n\t<Slider length=1.0 />\n</Float>"
 --- !u!1 &1959840421
 GameObject:
   m_ObjectHideFlags: 0
@@ -2928,46 +2343,3 @@ Transform:
   m_PrefabParentObject: {fileID: 4852938194233400, guid: c801950da83edd1419423a7a798ba363,
     type: 2}
   m_PrefabInternal: {fileID: 1805182022}
---- !u!1 &1999305310
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1999305311}
-  - component: {fileID: 1999305312}
-  m_Layer: 0
-  m_Name: Image
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &1999305311
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1999305310}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1389533282}
-  m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1999305312
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1999305310}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Vine: "<?Vine>\n<Container position=(0, 0, 2) >\n\t<Image src='https://test-ipv6.com/images/hires_ok.png'
-    />\n\t<Image\n\t\tsrc='res://Art/Textures/Outer Gradient'\n\t\twidth=0.13\n\t\theight=0.13
-    />\n</Container>"

@@ -17,6 +17,11 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IHttpService _http;
 
         /// <summary>
+        /// Caches world anchod data.
+        /// </summary>
+        private readonly IWorldAnchorCache _cache;
+
+        /// <summary>
         /// Abstracts anchoring method.
         /// </summary>
         private readonly IWorldAnchorProvider _provider;
@@ -60,10 +65,12 @@ namespace CreateAR.SpirePlayer.IUX
             TweenConfig tweens,
             ColorConfig colors,
             IHttpService http,
+            IWorldAnchorCache cache,
             IWorldAnchorProvider provider)
             : base(gameObject, layers, tweens, colors)
         {
             _http = http;
+            _cache = cache;
             _provider = provider;
         }
         
@@ -90,6 +97,78 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             _versionProp.OnChanged -= Version_OnChanged;
+        }
+
+        /// <summary>
+        /// Downloads world anchor data and imports it.
+        /// </summary>
+        /// <param name="url">Absolute url at which to download.</param>
+        private void DownloadAndImport(string url)
+        {
+            _downloadToken = _http
+                .Download(_http.UrlBuilder.Url(url))
+                .OnSuccess(response =>
+                {
+                    LogVerbose("Anchor downloaded. Importing.");
+
+                    Import(response.Payload);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not download {0} : {1}.",
+                        url,
+                        exception);
+
+                    IsAnchorLoading = false;
+
+                    if (null != OnAnchorLoadError)
+                    {
+                        OnAnchorLoadError();
+                    }
+                })
+                .OnFinally(token =>
+                {
+                    if (token == _downloadToken)
+                    {
+                        _downloadToken = null;
+                    }
+                });
+        }
+
+        /// <summary>
+        /// Imports bytes into a world anchor.
+        /// </summary>
+        /// <param name="bytes">The world anchor bytes.</param>
+        private void Import(byte[] bytes)
+        {
+            _provider
+                .Import(Id, GameObject, bytes)
+                .OnSuccess(_ =>
+                {
+                    LogVerbose("Successfully imported anchor.");
+
+                    IsAnchorLoading = false;
+                    IsAnchorLoaded = true;
+
+                    if (null != OnAnchorLoadSuccess)
+                    {
+                        OnAnchorLoadSuccess();
+                    }
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not import anchor : {0}.",
+                        exception);
+
+                    IsAnchorLoading = false;
+
+                    if (null != OnAnchorLoadError)
+                    {
+                        OnAnchorLoadError();
+                    }
+                });
         }
 
         /// <summary>
@@ -138,62 +217,31 @@ namespace CreateAR.SpirePlayer.IUX
 
                 return;
             }
-            
-            _downloadToken = _http
-                .Download(_http.UrlBuilder.Url(url))
-                .OnSuccess(response =>
-                {
-                    Log.Info(this, "Anchor downloaded. Importing.");
 
-                    _provider
-                        .Import(Id, GameObject, response.Payload)
-                        .OnSuccess(_ =>
-                        {
-                            Log.Info(this, "Successfully imported anchor.");
+            // check cache
+            if (_cache.Contains(url))
+            {
+                LogVerbose("World anchor cache hit.");
 
-                            IsAnchorLoading = false;
-                            IsAnchorLoaded = true;
-
-                            if (null != OnAnchorLoadSuccess)
-                            {
-                                OnAnchorLoadSuccess();
-                            }
-                        })
-                        .OnFailure(exception =>
-                        {
-                            Log.Error(this,
-                                "Could not import anchor : {0}.",
-                                exception);
-
-                            IsAnchorLoading = false;
-
-                            if (null != OnAnchorLoadError)
-                            {
-                                OnAnchorLoadError();
-                            }
-                        });
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this,
-                        "Could not download {0} : {1}.",
-                        url,
-                        exception);
-
-                    IsAnchorLoading = false;
-
-                    if (null != OnAnchorLoadError)
+                _cache
+                    .Load(Id)
+                    .OnSuccess(Import)
+                    .OnFailure(exception =>
                     {
-                        OnAnchorLoadError();
-                    }
-                })
-                .OnFinally(token =>
-                {
-                    if (token == _downloadToken)
-                    {
-                        _downloadToken = null;
-                    }
-                });
+                        // on cache error, try downloading
+                        Log.Error(this, "There was an error loading world anchor {0} from the cache : {1}.",
+                            Id,
+                            exception);
+
+                        DownloadAndImport(url);
+                    });
+            }
+            else
+            {
+                LogVerbose("World anchor cache miss.");
+
+                DownloadAndImport(url);
+            }
         }
 
         /// <summary>
