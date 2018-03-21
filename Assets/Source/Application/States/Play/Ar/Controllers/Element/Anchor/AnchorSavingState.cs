@@ -16,6 +16,11 @@ namespace CreateAR.SpirePlayer
         private readonly AnchorDesignController _controller;
 
         /// <summary>
+        /// Caches anchor data.
+        /// </summary>
+        private readonly IWorldAnchorCache _cache;
+
+        /// <summary>
         /// Exports anchor data.
         /// </summary>
         private readonly IWorldAnchorProvider _provider;
@@ -50,12 +55,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public AnchorSavingState(
             AnchorDesignController controller,
+            IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
             IHttpService http,
             string appId,
             string sceneId)
         {
             _controller = controller;
+            _cache = cache;
             _provider = provider;
             _http = http;
             _appId = appId;
@@ -99,10 +106,16 @@ namespace CreateAR.SpirePlayer
         private void Export()
         {
             // first, export anchor
+            var anchorId = _controller.Element.Id;
             _exportToken = _provider
-                .Export(_controller.Element.Id, _controller.gameObject)
+                .Export(anchorId, _controller.gameObject)
                 .OnSuccess(bytes =>
                 {
+                    // cache
+                    _cache.Save(
+                        _controller.Element.Schema.Get<string>("src").Value,
+                        bytes);
+
                     // next, upload anchor
                     _uploadToken = _http
                         .PutFile<Trellis.Messages.UploadAnchor.Response>(
@@ -110,7 +123,7 @@ namespace CreateAR.SpirePlayer
                                 "/editor/app/{0}/scene/{1}/anchor/{2}",
                                 _appId,
                                 _sceneId,
-                                _controller.Element.Id)),
+                                anchorId)),
                             new Commons.Unity.DataStructures.Tuple<string, string>[0],
                             ref bytes)
                         .OnSuccess(response =>

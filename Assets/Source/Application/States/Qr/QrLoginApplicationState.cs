@@ -39,6 +39,11 @@ namespace CreateAR.SpirePlayer
         private readonly IQrReaderService _qr;
 
         /// <summary>
+        /// Http service.
+        /// </summary>
+        private readonly IHttpService _http;
+        
+        /// <summary>
         /// Makes API calls.
         /// </summary>
         private readonly ApiController _api;
@@ -47,7 +52,7 @@ namespace CreateAR.SpirePlayer
         /// App-wide config.
         /// </summary>
         private readonly ApplicationConfig _config;
-
+        
         /// <summary>
         /// Token returned from network.
         /// </summary>
@@ -60,12 +65,14 @@ namespace CreateAR.SpirePlayer
             IBootstrapper bootstrapper,
             IMessageRouter messages,
             IQrReaderService qr,
+            IHttpService http,
             ApiController api,
             ApplicationConfig config)
         {
             _bootstrapper = bootstrapper;
             _messages = messages;
             _qr = qr;
+            _http = http;
             _api = api;
             _config = config;
         }
@@ -89,6 +96,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
+            // shutdown qr
             _qr.Stop();
             _qr.OnRead -= Qr_OnRead;
 
@@ -110,15 +118,15 @@ namespace CreateAR.SpirePlayer
             yield return op;
 
             Log.Info(this, "Loaded Qr scene.");
-
+            
+            // start qr
             var qr = GameObject.Find("Qr");
             qr.GetComponent<Image>().enabled = true;
             
-            // start qr reader
             _qr.OnRead += Qr_OnRead;
             _qr.Start();
         }
-
+        
         /// <summary>
         /// Called when the QR service reads a value.
         /// </summary>
@@ -158,11 +166,14 @@ namespace CreateAR.SpirePlayer
                         creds.UserId = response.Payload.Body.UserId;
                         creds.Token = response.Payload.Body.Token;
 
+                        creds.Apply(_http);
+
                         // fill out app data
                         _config.Play.AppId = appId;
 
-                        // load app
-                        _messages.Publish(MessageTypes.LOAD_APP);
+                        Log.Info(this, "HoloLogin complete.");
+                        
+                        _messages.Publish(MessageTypes.LOGIN_COMPLETE);
                     }
                     else
                     {
@@ -172,8 +183,9 @@ namespace CreateAR.SpirePlayer
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not sign in with holocode : {0}.", exception);
-                })
-                .OnFailure(_ => _holoAuthToken = null);
+
+                    _holoAuthToken = null;
+                });
         }
     }
 }

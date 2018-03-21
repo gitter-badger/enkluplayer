@@ -16,7 +16,8 @@ namespace CreateAR.SpirePlayer
         Tool,
         Insta,
         QrLogin,
-        InputLogin
+        InputLogin,
+        UserProfile
     }
 
     /// <summary>

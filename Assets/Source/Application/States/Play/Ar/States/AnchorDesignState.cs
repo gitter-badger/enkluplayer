@@ -25,6 +25,11 @@ namespace CreateAR.SpirePlayer
         private readonly IHttpService _http;
 
         /// <summary>
+        /// Caches world anchor data.
+        /// </summary>
+        private readonly IWorldAnchorCache _cache;
+
+        /// <summary>
         /// Provides anchor import/export.
         /// </summary>
         private readonly IWorldAnchorProvider _provider;
@@ -75,11 +80,13 @@ namespace CreateAR.SpirePlayer
         public AnchorDesignState(
             IElementControllerManager controllers,
             IHttpService http,
+            IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
             IElementUpdateDelegate elementUpdater)
         {
             _controllers = controllers;
             _http = http;
+            _cache = cache;
             _provider = provider;
             _elementUpdater = elementUpdater;
         }
@@ -135,6 +142,7 @@ namespace CreateAR.SpirePlayer
                     SceneId = SceneIdForElement,
                     Config = _design.Config,
                     Http = _http,
+                    Cache = _cache,
                     Provider = _provider,
                     OnAdjust = Controller_OnAdjust
                 });
@@ -296,6 +304,9 @@ namespace CreateAR.SpirePlayer
                 {
                     Verbose("Successfully exported. Progressing to upload.");
 
+                    // save to cache
+                    _cache.Save(url, bytes);
+
                     _http
                         .PostFile<Trellis.Messages.UploadAnchor.Response>(
                             _http.UrlBuilder.Url(url),
@@ -384,7 +395,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Verbose logging.
         /// </summary>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void Verbose(string message, params object[] replacements)
         {
             Log.Info(this, message, replacements);

@@ -27,6 +27,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly WidgetConfig _config;
         private readonly IImageLoader _imageLoader;
         private readonly IHttpService _http;
+        private readonly IWorldAnchorCache _cache;
         private readonly IWorldAnchorProvider _provider;
         private readonly IScriptManager _scripts;
         private readonly IAssetManager _assets;
@@ -58,6 +59,7 @@ namespace CreateAR.SpirePlayer.IUX
             WidgetConfig config,
             IImageLoader imageLoader,
             IHttpService http,
+            IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
             IScriptManager scripts,
             IAssetManager assets,
@@ -75,6 +77,7 @@ namespace CreateAR.SpirePlayer.IUX
             _config = config;
             _imageLoader = imageLoader;
             _http = http;
+            _cache = cache;
             _provider = provider;
             _scripts = scripts;
             _assets = assets;
@@ -338,7 +341,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.WORLD_ANCHOR:
                 {
-                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _provider);
+                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _cache, _provider);
                 }
                 default:
                 {

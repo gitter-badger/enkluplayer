@@ -1,0 +1,10 @@
+<?Vine>
+
+<Container>
+	<Cursor />
+	<Float face='camera' position=(0, 0, 2) >
+		<Menu id='menu-user'>
+			<Button id='btn-worldscan' label='New World Scan' icon='location' />
+		</Menu>
+	</Float>
+</Container>
