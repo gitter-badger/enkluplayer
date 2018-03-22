@@ -178,6 +178,10 @@ namespace CreateAR.SpirePlayer.Assets
                 yield return new WaitForSecondsRealtime(_config.AssetDownloadLagSec);
             }
             
+#if UNITY_IOS
+            var request = UnityWebRequest.GetAssetBundle(_url);
+            yield return request.SendWebRequest();
+#else
             var request = new UnityWebRequest(
                 _url,
                 "GET",
@@ -191,9 +195,7 @@ namespace CreateAR.SpirePlayer.Assets
 
                 yield return null;
             }
-            
-            //var request = UnityWebRequest.GetAssetBundle(_url);
-            //yield return request.SendWebRequest();
+#endif
             
             Verbose("DownloadBundle complete.");
 
@@ -214,6 +216,17 @@ namespace CreateAR.SpirePlayer.Assets
             }
             else
             {
+#if UNITY_IOS
+                var bundle = DownloadHandlerAssetBundle.GetContent(request);
+                if (null != bundle)
+                {
+                    token.Succeed(bundle);
+                }
+                else
+                {
+                    token.Fail(new Exception("Could not create bundle."));
+                }
+#else           
                 // wait for bundle to complete
                 var handler = (AssetBundleDownloadHandler) request.downloadHandler;
                 handler
@@ -225,16 +238,7 @@ namespace CreateAR.SpirePlayer.Assets
                         token.Succeed(bundle);
                     })
                     .OnFailure(token.Fail);
-
-                /*var bundle = DownloadHandlerAssetBundle.GetContent(request);
-                if (null != bundle)
-                {
-                    token.Succeed(bundle);
-                }
-                else
-                {
-                    token.Fail(new Exception("Could not create bundle."));
-                }*/
+#endif
             }
 
             request.Dispose();

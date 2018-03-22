@@ -215,7 +215,13 @@ namespace CreateAR.SpirePlayer.Assets
         {
             var bytes = Encoding.UTF8.GetBytes(uri);
             var hash = _hashProvider.Hash(bytes);
-            var encodedHash = Convert.ToBase64String(hash);
+            var encodedHash = Convert
+                .ToBase64String(hash)
+                // invalid path characters 
+                .Replace("/", "")
+                .Replace("+", "")
+                .Replace("=", "");
+            
             var path = Path.Combine(
                 _basePath,
                 encodedHash);
