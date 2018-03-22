@@ -80,3 +80,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 649a8b01b19c7114a8b869182006b61e, type: 3}
   - Identifier: Anchor.Adjust
     Source: {fileID: 4900000, guid: 8899113ba5d749c49955ec6b512134a8, type: 3}
+  - Identifier: User.Splash
+    Source: {fileID: 4900000, guid: 032cea51e5c91ce44bbb287875293078, type: 3}

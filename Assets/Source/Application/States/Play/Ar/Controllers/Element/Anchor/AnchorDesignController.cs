@@ -30,6 +30,11 @@ namespace CreateAR.SpirePlayer
             /// Configuration for playmode.
             /// </summary>
             public PlayModeConfig Config;
+
+            /// <summary>
+            /// Caches world anchor data.
+            /// </summary>
+            public IWorldAnchorCache Cache;
             
             /// <summary>
             /// Provides world anchor import/export.
@@ -56,6 +61,11 @@ namespace CreateAR.SpirePlayer
         /// Configuration for play mode.
         /// </summary>
         private PlayModeConfig _config;
+
+        /// <summary>
+        /// Caches world anchor data.
+        /// </summary>
+        private IWorldAnchorCache _cache;
 
         /// <summary>
         /// Provides anchoring import + export.
@@ -121,6 +131,7 @@ namespace CreateAR.SpirePlayer
             _context = (AnchorDesignControllerContext) context;
 
             _config = _context.Config;
+            _cache = _context.Cache;
             _provider = _context.Provider;
             _http = _context.Http;
 
@@ -139,6 +150,7 @@ namespace CreateAR.SpirePlayer
                 new AnchorLoadingState(this, _provider),
                 new AnchorSavingState(
                     this,
+                    _cache,
                     _provider,
                     _http,
                     _context.AppId,

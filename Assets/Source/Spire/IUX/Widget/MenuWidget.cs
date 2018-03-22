@@ -154,11 +154,15 @@ namespace CreateAR.SpirePlayer.IUX
 
             UpdateHeaderLayout();
             UpdateChildLayout();
+
+            OnChildAdded += This_OnChildAdded;
         }
 
         /// <inheritdoc cref="Element"/>
         protected override void UnloadInternalAfterChildren()
         {
+            OnChildAdded -= This_OnChildAdded;
+
             _titleProp.OnChanged -= Title_OnChanged;
             _fontSizeProp.OnChanged -= FontSize_OnChanged;
             _descriptionProp.OnChanged -= Description_OnChanged;
@@ -183,7 +187,22 @@ namespace CreateAR.SpirePlayer.IUX
 
             base.DestroyInternal();
         }
-        
+
+        /// <summary>
+        /// Called when a child was added.
+        /// </summary>
+        /// <param name="parent">Parent.</param>
+        /// <param name="child">Added element.</param>
+        private void This_OnChildAdded(Element parent, Element child)
+        {
+            if (parent != this)
+            {
+                return;
+            }
+
+            UpdateChildLayout();
+        }
+
         /// <summary>
         /// Called when the title value has changed.
         /// </summary>

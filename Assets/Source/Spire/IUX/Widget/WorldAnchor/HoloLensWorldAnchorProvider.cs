@@ -1,16 +1,14 @@
 ﻿#if !UNITY_EDITOR && UNITY_WSA
 
 using System;
+
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Threading;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.Assets;
-using CreateAR.SpirePlayer.Util;
 using UnityEngine;
 using UnityEngine.XR.WSA;
 using UnityEngine.XR.WSA.Sharing;
@@ -27,7 +25,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
-
+        
         /// <summary>
         /// Queue of actions to run on the main thread.
         /// </summary>
@@ -126,7 +124,7 @@ namespace CreateAR.SpirePlayer.IUX
                         Synchronize(() =>
                         {
                             _exports.Remove(gameObject);
-
+                            
                             Log.Info(this,
                                 "Compression complete. Saved {0} bytes.",
                                 index - compressed.Length);

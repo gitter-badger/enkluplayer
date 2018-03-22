@@ -37,6 +37,9 @@ namespace CreateAR.SpirePlayer
             serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
 
             var config = (ApplicationConfig) app;
+#if UNITY_WEBGL
+            config.Network.AssetCacheEnabled = false;
+#endif
 
             Log.Info(this, "ApplicationConfig:\n{0}", config);
 
@@ -134,6 +137,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ITestDataController>().To<TestDataController>();
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                     binder.Bind<QrLoginApplicationState>().To<QrLoginApplicationState>();
+                    binder.Bind<UserProfileApplicationState>().To<UserProfileApplicationState>();
                     binder.Bind<InputLoginApplicationState>().To<InputLoginApplicationState>();
                     binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
@@ -190,11 +194,14 @@ namespace CreateAR.SpirePlayer
 #if !UNITY_EDITOR && UNITY_IOS
                 binder.Bind<UnityEngine.XR.iOS.UnityARSessionNativeInterface>().ToValue(UnityEngine.XR.iOS.UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
+                binder.Bind<IWorldAnchorCache>().To<PassthroughWorldAnchorCache>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<ArKitWorldAnchorProvider>().ToSingleton();
 #elif !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
+                binder.Bind<IWorldAnchorCache>().To<UwpWorldAnchorCache>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<HoloLensWorldAnchorProvider>().ToSingleton();
 #else
+                binder.Bind<IWorldAnchorCache>().To<PassthroughWorldAnchorCache>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
                 binder.Bind<IArService>().To<PassthroughArService>().ToSingleton();
 #endif

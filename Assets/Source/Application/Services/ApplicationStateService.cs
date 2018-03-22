@@ -31,6 +31,7 @@ namespace CreateAR.SpirePlayer
 
             InitializeApplicationState initialize,
             QrLoginApplicationState qrLogin,
+            UserProfileApplicationState userProfile,
             InputLoginApplicationState inputLogin,
             LoadAppApplicationState load,
             ReceiveAppApplicationState receive,
@@ -50,6 +51,7 @@ namespace CreateAR.SpirePlayer
             {
                 initialize,
                 qrLogin,
+                userProfile,
                 inputLogin,
                 load,
                 receive,
@@ -87,6 +89,15 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Load app requested.");
 
                     _states.Change<LoadAppApplicationState>();
+                });
+
+            Subscribe<Void>(
+                MessageTypes.LOGIN_COMPLETE,
+                _ =>
+                {
+                    Log.Info(this, "Login completed.");
+
+                    _states.Change<UserProfileApplicationState>();
                 });
             
             Subscribe<Void>(
@@ -155,6 +166,11 @@ namespace CreateAR.SpirePlayer
                     _states.Change<LoadAppApplicationState>();
                     break;
                 }
+                case ApplicationStateTypes.UserProfile:
+                {
+                    _states.Change<UserProfileApplicationState>();
+                    break;
+                }
                 case ApplicationStateTypes.ReceiveApp:
                 {
                     _states.Change<ReceiveAppApplicationState>();
@@ -173,6 +189,11 @@ namespace CreateAR.SpirePlayer
                 case ApplicationStateTypes.InputLogin:
                 {
                     _states.Change<InputLoginApplicationState>();
+                    break;
+                }
+                case ApplicationStateTypes.None:
+                {
+                    _states.Change(null);
                     break;
                 }
                 default:
