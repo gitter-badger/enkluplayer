@@ -32,6 +32,10 @@ Until we add support via the `Unity.iOS.Xcode.PBXProject` interface, you have to
 
     * Build Phases > Link Binary with Libraries - Add Photos.framework.
 
+##### HoloLens
+
+The HoloLens doesn't like our SSL certs, so we need to include our root cert in the app. Open `Package.appxmanifest` in VS. Under `Declarations`, add `ca_bundle.crt` with the Store Name `Root`.
+
 ### Event Flow
 
 In order to understand how `SpirePlayer` works, it's essential to understand how events flow through the application. In particular, much time has been spent on abstracting away the Spire Editor as the controlling portal for the device.
