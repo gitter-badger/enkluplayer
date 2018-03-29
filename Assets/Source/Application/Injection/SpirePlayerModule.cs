@@ -129,6 +129,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<MaterialUpdateService>().To<MaterialUpdateService>().ToSingleton();
                     binder.Bind<ShaderUpdateService>().To<ShaderUpdateService>().ToSingleton();
                     binder.Bind<SceneUpdateService>().To<SceneUpdateService>().ToSingleton();
+                    binder.Bind<ElementActionHelperService>().To<ElementActionHelperService>().ToSingleton();
                 }
 
                 // application states
@@ -173,7 +174,10 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<ScriptUpdateService>(),
                         binder.GetInstance<MaterialUpdateService>(),
                         binder.GetInstance<ShaderUpdateService>(),
-                        binder.GetInstance<SceneUpdateService>()
+                        binder.GetInstance<SceneUpdateService>(),
+#if UNITY_WEBGL
+                        binder.GetInstance<ElementActionHelperService>()
+#endif
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }

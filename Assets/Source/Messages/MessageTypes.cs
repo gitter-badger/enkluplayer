@@ -69,6 +69,8 @@
         public const int SCENE_UPDATE = 3101;
         public const int SCENE_DELETE = 3102;
 
+        public const int BRIDGE_HELPER_REPARENT = 3990;
+
         ///////////////////////////////////////////////////////////////////////
         // Hierarchy State
         ///////////////////////////////////////////////////////////////////////

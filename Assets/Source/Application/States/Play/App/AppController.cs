@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Trellis.Messages;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -11,11 +10,6 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class AppController : IAppController
     {
-        /// <summary>
-        /// Trellis api.
-        /// </summary>
-        private readonly ApiController _api;
-
         /// <summary>
         /// Pipe for all element updates.
         /// </summary>
@@ -27,11 +21,8 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public AppController(
-            ApiController api,
-            IElementTxnManager txns)
+        public AppController(IElementTxnManager txns)
         {
-            _api = api;
             _txns = txns;
         }
         

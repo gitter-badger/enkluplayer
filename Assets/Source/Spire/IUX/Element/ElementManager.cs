@@ -46,7 +46,26 @@ namespace CreateAR.SpirePlayer.IUX
 
             return null;
         }
-        
+
+        /// <summary>
+        /// Retrieves an <c>Element</c> by Id.
+        /// </summary>
+        /// <param name="id">Id.</param>
+        /// <returns></returns>
+        public Element ById(string id)
+        {
+            for (int i = 0, len = _all.Count; i < len; i++)
+            {
+                var element = _all[i];
+                if (element.Id == id)
+                {
+                    return element;
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Updates highlighted elements based on visibility.
         /// </summary>
