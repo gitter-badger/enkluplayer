@@ -17,13 +17,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PreviewMode.unity
     guid: 4cfe3125ec3363e4581f7f49c8c23abf
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/HierarchyMode.unity
     guid: 275448d136b055c4596fefe103d2e821
   - enabled: 1
     path: Assets/Scenes/WorldMeshCaptureMode.unity
     guid: 0ff1757ef907f624a927ea591585d0a8
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Insta.unity
     guid: 2bdde62a3a54a4b0b88004310a1ae435
   - enabled: 1
