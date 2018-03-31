@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Behaviors.
         /// </summary>
-        private readonly List<SpireScriptMonoBehaviour> _scriptComponents = new List<SpireScriptMonoBehaviour>();
+        private readonly List<SpireScriptElementBehavior> _scriptComponents = new List<SpireScriptElementBehavior>();
         
         /// <summary>
         /// Vines.
@@ -135,7 +135,18 @@ namespace CreateAR.SpirePlayer
             _assembler.Teardown();
             TeardownScripts();
         }
-        
+
+        /// <inheritdoc />
+        protected override void UpdateInternal()
+        {
+            base.UpdateInternal();
+
+            for (int i = 0, len = _scriptComponents.Count; i < len; i++)
+            {
+                _scriptComponents[i].Update();
+            }
+        }
+
         /// <summary>
         /// Tears down the asset and sets it back up.
         /// </summary>
@@ -219,9 +230,7 @@ namespace CreateAR.SpirePlayer
             // destroy components
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
             {
-                var component = _scriptComponents[i];
-                component.Exit();
-                Object.Destroy(component);
+                _scriptComponents[i].Exit();
             }
             _scriptComponents.Clear();
 
@@ -259,7 +268,7 @@ namespace CreateAR.SpirePlayer
         private void RunBehavior(SpireScript script)
         {
             // restart or create new component
-            SpireScriptMonoBehaviour component = null;
+            SpireScriptElementBehavior component = null;
 
             var found = false;
             for (int j = 0, jlen = _scriptComponents.Count; j < jlen; j++)
@@ -276,11 +285,11 @@ namespace CreateAR.SpirePlayer
 
             if (!found)
             {
-                component = GameObject.AddComponent<SpireScriptMonoBehaviour>();
+                component = new SpireScriptElementBehavior();
                 _scriptComponents.Add(component);
             }
 
-            component.Initialize(_host, script);
+            component.Initialize(_host, script, this);
             component.Enter();
         }
         

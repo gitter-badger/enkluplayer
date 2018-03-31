@@ -362,6 +362,15 @@ namespace Jint.Native
         /// Converts a <see cref="JsValue"/> to its underlying CLR value.
         /// </summary>
         /// <returns>The underlying CLR value of the <see cref="JsValue"/> instance.</returns>
+        public T To<T>()
+        {
+            return (T) ToObject();
+        }
+
+        /// <summary>
+        /// Converts a <see cref="JsValue"/> to its underlying CLR value.
+        /// </summary>
+        /// <returns>The underlying CLR value of the <see cref="JsValue"/> instance.</returns>
         public object ToObject()
         {
             switch (_type)

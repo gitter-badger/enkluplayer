@@ -1,21 +1,16 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using Jint.Native;
-using Jint.Unity;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// This object is able to run a JS script as if it were a MonoBehaviour.
+    /// This object is able to run a JS script on an Element similar to a MonoBehaviour.
     /// </summary>
-    public class SpireScriptMonoBehaviour : MonoBehaviour
+    public class SpireScriptElementBehavior
     {
-        /// <summary>
-        /// Properties that need to be serialized for the script.
-        /// </summary>
-        public ScriptingPropertyBucket Properties;
-
         /// <summary>
         /// An engine to run the scripts with.
         /// </summary>
@@ -58,9 +53,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="engine">JS Engine.</param>
         /// <param name="script">The script to execute.</param>
+        /// <param name="element">The element.</param>
         public void Initialize(
             UnityScriptingHost engine,
-            SpireScript script)
+            SpireScript script,
+            Element element)
         {
             if (_isStarted)
             {
@@ -70,8 +67,17 @@ namespace CreateAR.SpirePlayer
             _engine = engine;
             _script = script;
 
-            _engine.SetValue("transform", new TransformJsApi(transform));
-            _engine.SetValue("vec3", new Func<float, float, float, Vector3Js>((x, y, z) => new Vector3Js(x, y, z)));
+            var thisBinding = JsValue.FromObject(
+                _engine,
+                new ElementJs(_engine, element));
+            _engine.ExecutionContext.ThisBinding = thisBinding;
+            
+            // common apis
+            _engine.SetValue("v", Vec3Methods.Instance);
+            _engine.SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
+            _engine.SetValue("q", QuatMethods.Instance);
+            _engine.SetValue("quat", new Func<float, float, float, Quat>(QuatMethods.create));
+            _engine.SetValue("time", TimeJsApi.Instance);
 
             try
             {
@@ -84,7 +90,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            _this = JsValue.FromObject(_engine, this);
+            _this = thisBinding;
 
             _enter = _engine.GetFunction("enter");
             _update = _engine.GetFunction("update");
@@ -131,8 +137,10 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        /// <inheritdoc cref="MonoBehaviour"/>
-        private void Update()
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
+        public void Update()
         {
             if (_isStarted && null != _update)
             {

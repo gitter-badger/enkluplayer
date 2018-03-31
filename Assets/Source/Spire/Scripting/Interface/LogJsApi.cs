@@ -5,7 +5,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Wraps logging interface for Js.
     /// </summary>
-    public class JsLogWrapper
+    public class LogJsApi
     {
         /// <summary>
         /// Context to pass to each method.
@@ -16,7 +16,7 @@ namespace CreateAR.SpirePlayer
         /// Creates a new JsLogWrapper.
         /// </summary>
         /// <param name="context">The context.</param>
-        public JsLogWrapper(object context)
+        public LogJsApi(object context)
         {
             _context = context;
         }

@@ -8,6 +8,11 @@ namespace CreateAR.SpirePlayer
     public class TimeJsApi
     {
         /// <summary>
+        /// Static instance.
+        /// </summary>
+        public static readonly TimeJsApi Instance = new TimeJsApi();
+        
+        /// <summary>
         /// Retrieves the current time.
         /// </summary>
         /// <returns></returns>
