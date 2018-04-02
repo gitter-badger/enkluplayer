@@ -16,6 +16,11 @@ namespace CreateAR.SpirePlayer.Test
         {
             RuntimeAssert.IsTrue(condition, message);
         }
+
+        public void isNull(object obj, string message)
+        {
+            RuntimeAssert.IsNull(obj, message);
+        }
     }
     
     public static class RuntimeAssert
@@ -34,7 +39,15 @@ namespace CreateAR.SpirePlayer.Test
         {
             if (!condition)
             {
-                throw new Exception(message);
+                throw new Exception(string.Format("Expected true but got false : {0}.", message));
+            }
+        }
+
+        public static void IsNull(object obj, string message)
+        {
+            if (null != obj)
+            {
+                throw new Exception(string.Format("Expected null but got {0} : {1}.", obj, message));
             }
         }
     }

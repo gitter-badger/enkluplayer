@@ -138,7 +138,7 @@ namespace CreateAR.SpirePlayer.Test
             {
                 foreach (var type in assembly.GetTypes())
                 {
-                    if (type.GetCustomAttributes(typeof(RuntimeTestFixtureAttribute), false).Any())
+                    if (type.GetCustomAttributes(typeof(RuntimeTestFixtureAttribute), true).Any())
                     {
                         var methods = type.GetMethods();
                         
@@ -147,15 +147,15 @@ namespace CreateAR.SpirePlayer.Test
                         
                         foreach (var method in methods)
                         {
-                            if (method.GetCustomAttributes(typeof(RuntimeSetUpAttribute), false).Any())
+                            if (method.GetCustomAttributes(typeof(RuntimeSetUpAttribute), true).Any())
                             {
                                 setup = method;
                             }
-                            else if (method.GetCustomAttributes(typeof(RuntimeSetUpFixtureAttribute), false).Any())
+                            else if (method.GetCustomAttributes(typeof(RuntimeSetUpFixtureAttribute), true).Any())
                             {
                                 setupFixture = method;
                             }
-                            else if (method.GetCustomAttributes(typeof(RuntimeTestAttribute), false).Any())
+                            else if (method.GetCustomAttributes(typeof(RuntimeTestAttribute), true).Any())
                             {
                                 tests.Add(method);
                             }

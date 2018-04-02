@@ -1,51 +1,21 @@
 ﻿#if UNITY_EDITOR
 
-using System;
-using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.IUX;
-using Jint;
-using Jint.Native;
-using NUnit.Framework;
-using UnityEngine;
-
 namespace CreateAR.SpirePlayer.Test.Scripting
 {
-    [RuntimeTestFixture]
-    public class AppElementsJsApi_Tests
+    public class AppElementsJsApi_Tests : JsTestBase
     {
-        private Engine _engine;
         private AppElementsJsApi _elementsApi;
         
-        [Inject]
-        public IElementManager Elements { get; set; }
-        
-        [Inject]
-        public IElementFactory ElementFactory { get; set; }
-
         [RuntimeSetUpFixture]
-        public void SetUp()
+        public override void SetUp()
         {
-            Main.Inject(this);
-            
-            _engine = new Engine(options =>
-            {
-                options.CatchClrExceptions(exception => { throw exception; });
-                options.AllowClr();
-            });
+            base.SetUp();
             
             var cache = new ElementJsCache(_engine);
             _elementsApi = new AppElementsJsApi(cache, ElementFactory, Elements);
             _engine.SetValue("elements", _elementsApi);
-            _engine.SetValue("assert", AssertJsApi.Instance);
         }
 
-        [RuntimeTest]
-        public void Asserts()
-        {
-            Assert.Throws<Exception>(() => Run("assert.areEqual(1, 2, 'Error!');"));
-            Assert.Throws<Exception>(() => Run("assert.isTrue(false, 'Error!');"));
-        }
-        
         [RuntimeTest]
         public void Create()
         {
@@ -124,14 +94,14 @@ namespace CreateAR.SpirePlayer.Test.Scripting
                 assert.areEqual('c', children[2].id, 'C should be child 2.');");
         }
         
-        private JsValue Run(string program)
+        [RuntimeTest]
+        public void Destroy()
         {
-            return _engine.GetValue(_engine.Execute(program).GetCompletionValue());
-        }
-
-        private T Run<T>(string program)
-        {
-            return _engine.GetValue(_engine.Execute(program).GetCompletionValue()).To<T>();
+            Run(@"
+                var d = elements.byId('d');
+                d.destroy();
+                
+                assert.isNull(elements.byId('d'), 'Element was not destroyed.');");
         }
     }
 }
