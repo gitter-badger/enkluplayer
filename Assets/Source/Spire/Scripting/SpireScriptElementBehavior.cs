@@ -69,7 +69,7 @@ namespace CreateAR.SpirePlayer
 
             var thisBinding = JsValue.FromObject(
                 _engine,
-                new ElementJs(_engine, element));
+                new ElementJs(_engine, null, element));
             _engine.ExecutionContext.ThisBinding = thisBinding;
             
             // common apis

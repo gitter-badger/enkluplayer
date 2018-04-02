@@ -1,7 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer.Test
 {
+    public class AssertJsApi
+    {
+        public static readonly AssertJsApi Instance = new AssertJsApi();
+         
+        public void areEqual(object a, object b, string message)
+        {
+            RuntimeAssert.AreEqual(a, b, message);
+        }
+
+        public void isTrue(bool condition, string message)
+        {
+            RuntimeAssert.IsTrue(condition, message);
+        }
+    }
+    
     public static class RuntimeAssert
     {
         public static void AreEqual(object a, object b, string message)

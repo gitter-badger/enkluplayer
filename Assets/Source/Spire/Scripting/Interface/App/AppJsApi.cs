@@ -7,25 +7,62 @@ using Jint;
 
 namespace CreateAR.SpirePlayer
 {
-    public class AppElementsJsApi
+    public interface IElementJsCache
     {
-        private readonly IElementFactory _elementFactory;
-        private readonly IElementManager _elements;
+        ElementJs Element(Element element);
+    }
+    
+    public class ElementJsCache : IElementJsCache
+    {
         private readonly Engine _engine;
-        
-        private readonly Dictionary<string, ElementJs> _elementMap = new Dictionary<string, ElementJs>();
+        private readonly Dictionary<Element, ElementJs> _elementMap = new Dictionary<Element, ElementJs>();
 
-        public AppElementsJsApi(
-            IElementFactory elementFactory,
-            IElementManager elements,
-            Engine engine)
+        public ElementJsCache(Engine engine)
         {
-            _elementFactory = elementFactory;
-            _elements = elements;
             _engine = engine;
         }
         
+        public ElementJs Element(Element element)
+        {
+            if (null == element)
+            {
+                return null;
+            }
+
+            ElementJs el;
+            if (_elementMap.TryGetValue(element, out el))
+            {
+                return el;
+            }
+
+            el = _elementMap[element] = new ElementJs(_engine, this, element);
+
+            return el;
+        }
+    }
+    
+    public class AppElementsJsApi
+    {
+        private readonly IElementJsCache _cache;
+        private readonly IElementFactory _elementFactory;
+        private readonly IElementManager _elements;
+        
+        public AppElementsJsApi(
+            IElementJsCache cache,
+            IElementFactory elementFactory,
+            IElementManager elements)
+        {
+            _cache = cache;
+            _elementFactory = elementFactory;
+            _elements = elements;
+        }
+
         public ElementJs create(string type)
+        {
+            return create(type, Guid.NewGuid().ToString());
+        }
+        
+        public ElementJs create(string type, string id)
         {
             Element element;
             try
@@ -33,7 +70,7 @@ namespace CreateAR.SpirePlayer
                 element = _elementFactory.Element(string.Format(
                     @"<?Vine><{0} id='{1}' />",
                     type,
-                    Guid.NewGuid().ToString()));
+                    id));
             }
             catch (Exception exception)
             {
@@ -43,37 +80,12 @@ namespace CreateAR.SpirePlayer
                 return null;
             }
             
-            element.OnDestroyed += Element_OnDestroyed;
-            
-            var wrapper = _elementMap[element.Id] = new ElementJs(_engine, element);
-
-            return wrapper;
+            return _cache.Element(element);
         }
 
         public ElementJs byId(string id)
         {
-            ElementJs element;
-            if (_elementMap.TryGetValue(id, out element))
-            {
-                return element;
-            }
-
-            // lazily create wrappers
-            var el = _elements.ById(id);
-            if (null == el)
-            {
-                return null;
-            }
-            
-            element = new ElementJs(_engine, el);
-            _elementMap[id] = element;
-            
-            return element;
-        }
-        
-        private void Element_OnDestroyed(Element element)
-        {
-            _elementMap.Remove(element.Id);
+            return _cache.Element(_elements.ById(id));
         }
     }
     
