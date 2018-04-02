@@ -12,6 +12,16 @@ namespace CreateAR.SpirePlayer
         public readonly ElementSchemaJsApi props;
         public readonly ElementTransformJsApi transform;
 
+        public string id
+        {
+            get { return _element.Id; }
+        }
+
+        public string type
+        {
+            get { return _element.GetType().Name; }
+        }
+
         public ElementJs(Engine engine, Element element)
         {
             _element = element;

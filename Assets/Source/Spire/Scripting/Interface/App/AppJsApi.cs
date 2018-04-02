@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Jint;
 
@@ -28,21 +30,24 @@ namespace CreateAR.SpirePlayer
             Element element;
             try
             {
-                element = _elementFactory.Element(string.Format(@"<?Vine><{0} />", type));
+                element = _elementFactory.Element(string.Format(
+                    @"<?Vine><{0} id='{1}' />",
+                    type,
+                    Guid.NewGuid().ToString()));
             }
-            catch
+            catch (Exception exception)
             {
+                Log.Error(this,
+                    "Could not create Element : {0}.",
+                    exception);
                 return null;
             }
             
             element.OnDestroyed += Element_OnDestroyed;
             
-            return new ElementJs(_engine, element);
-        }
+            var wrapper = _elementMap[element.Id] = new ElementJs(_engine, element);
 
-        private void Element_OnDestroyed(Element element)
-        {
-            _elementMap.Remove(element.Id);
+            return wrapper;
         }
 
         public ElementJs byId(string id)
@@ -53,7 +58,22 @@ namespace CreateAR.SpirePlayer
                 return element;
             }
 
-            return null;
+            // lazily create wrappers
+            var el = _elements.ById(id);
+            if (null == el)
+            {
+                return null;
+            }
+            
+            element = new ElementJs(_engine, el);
+            _elementMap[id] = element;
+            
+            return element;
+        }
+        
+        private void Element_OnDestroyed(Element element)
+        {
+            _elementMap.Remove(element.Id);
         }
     }
     
