@@ -52,6 +52,11 @@ namespace CreateAR.SpirePlayer
         /// App-wide config.
         /// </summary>
         private readonly ApplicationConfig _config;
+
+        /// <summary>
+        /// Root of UI.
+        /// </summary>
+        private GameObject _root;
         
         /// <summary>
         /// Token returned from network.
@@ -100,8 +105,7 @@ namespace CreateAR.SpirePlayer
             _qr.Stop();
             _qr.OnRead -= Qr_OnRead;
 
-            var qr = GameObject.Find("Qr");
-            qr.GetComponent<Image>().enabled = false;
+            UnityEngine.Object.Destroy(_root);
 
             // unload scene
             SceneManager.UnloadSceneAsync(
@@ -119,10 +123,10 @@ namespace CreateAR.SpirePlayer
 
             Log.Info(this, "Loaded Qr scene.");
             
+            _root = new GameObject("Qr");
+            _root.AddComponent<QrViewController>();
+
             // start qr
-            var qr = GameObject.Find("Qr");
-            qr.GetComponent<Image>().enabled = true;
-            
             _qr.OnRead += Qr_OnRead;
             _qr.Start();
         }

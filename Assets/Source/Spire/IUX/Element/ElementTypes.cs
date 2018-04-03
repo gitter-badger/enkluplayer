@@ -62,6 +62,9 @@ namespace CreateAR.SpirePlayer
         [ElementLink(typeof(FloatWidget))]
         public const int FLOAT = 130;
 
+        [ElementLink(typeof(ScreenWidget))]
+        public const int SCREEN = 131;
+
         [ElementLink(typeof(ToggleWidget))]
         public const int TOGGLE = 140;
 

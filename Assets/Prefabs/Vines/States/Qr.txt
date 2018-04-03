@@ -1,0 +1,6 @@
+<?Vine>
+<Screen distance=3.2>
+	<Caption position=(0, 0.4, 0) label='Please scan your HoloLogin code.' width=1200.0 alignment='MidCenter' fontSize=100 />
+	<Image src='res://Art/UI/qr-frame' width=0.7 />
+	<Caption position=(0, -0.5, 0) label='Need an account? Create one at https://editor.enklu.com.' width=1500.0 alignment='MidCenter' fontSize=100 />
+</Screen>

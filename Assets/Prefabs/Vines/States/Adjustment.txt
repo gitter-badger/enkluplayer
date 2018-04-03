@@ -1,0 +1,10 @@
+<?Vine> 
+<Screen distance=3.0>
+	<Image id='image-adjustment' src='res://Art/UI/Adjustment' width=0.2 position=(0, 0.06, 0) />
+	<Image id='image-corner-topleft' src='res://Art/UI/Corner' width=0.01 position=(-0.3, 0.15, 0) />
+	<Image id='image-corner-topright' src='res://Art/UI/Corner' width=0.01 scale=(-1.0, 1, 1) position=(0.3, 0.15, 0) />
+	<Image id='image-corner-bottomleft' src='res://Art/UI/Corner' width=0.01 scale=(1, -1.0, 1)  position=(-0.3, -0.15, 0) />
+	<Image id='image-corner-bottomright' src='res://Art/UI/Corner' width=0.01 scale=(-1.0, -1.0, 1) position=(0.3, -0.15, 0) />
+	<Caption alignment='MidCenter' position=(0, -0.08, 0) label='Make sure the headband sits snugly on your forehead. Rest the node pad lightly on your nose. You may also slide the headset forward and backward. Turn the adjustment wheel to tighten the handle for a snug fit.' width=420.0 />
+	<Caption alignment='MidCenter' position=(0, -0.15, 0) width=200.0 label='When ready, say "continue."' />
+</Float>

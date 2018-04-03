@@ -92,6 +92,29 @@ namespace CreateAR.SpirePlayer
                 });
 
             Subscribe<Void>(
+                MessageTypes.LOGIN,
+                _ =>
+                {
+                    Log.Info(this, "Login requested.");
+
+                    switch (UnityEngine.Application.platform)
+                    {
+                        case RuntimePlatform.WSAPlayerX86:
+                        case RuntimePlatform.WSAPlayerX64:
+                        case RuntimePlatform.WSAPlayerARM:
+                        {
+                            _states.Change<QrLoginApplicationState>();
+                            break;
+                        }
+                        default:
+                        {
+                            _states.Change<InputLoginApplicationState>();
+                            break;
+                        }
+                    }
+                });
+
+            Subscribe<Void>(
                 MessageTypes.LOGIN_COMPLETE,
                 _ =>
                 {
@@ -191,6 +214,11 @@ namespace CreateAR.SpirePlayer
                     _states.Change<InputLoginApplicationState>();
                     break;
                 }
+                case ApplicationStateTypes.Orientation:
+                {
+                    _states.Change<OrientationApplicationState>();
+                    break;
+                }
                 case ApplicationStateTypes.None:
                 {
                     _states.Change(null);
@@ -242,7 +270,7 @@ namespace CreateAR.SpirePlayer
                     case RuntimePlatform.WSAPlayerARM:
                     case RuntimePlatform.WSAPlayerX64:
                     {
-                        state = ApplicationStateTypes.QrLogin;
+                        state = ApplicationStateTypes.Orientation;
                         break;
                     }
                 }
