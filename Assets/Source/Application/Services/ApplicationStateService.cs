@@ -117,10 +117,10 @@ namespace CreateAR.SpirePlayer
                 });
 
             Subscribe<Void>(
-                MessageTypes.LOGIN_COMPLETE,
+                MessageTypes.USER_PROFILE,
                 _ =>
                 {
-                    Log.Info(this, "Login completed.");
+                    Log.Info(this, "User profile state.");
 
                     _states.Change<UserProfileApplicationState>();
                 });

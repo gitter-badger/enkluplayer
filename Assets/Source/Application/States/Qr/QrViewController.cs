@@ -8,12 +8,18 @@ namespace CreateAR.SpirePlayer
     [InjectVine("Qr.Scanning")]
     public class QrViewController : InjectableIUXController
     {
+        /// <summary>
+        /// Elements.
+        /// </summary>
         [InjectElements("..img-qr")]
         public ImageWidget Qr { get; set; }
-        
         [InjectElements("..caption-progress")]
         public CaptionWidget Progress { get; set; }
 
+        /// <summary>
+        /// Shows a message instead of the QR image.
+        /// </summary>
+        /// <param name="message">The message to show.</param>
         public void ShowMessage(string message)
         {
             Qr.Schema.Set("visible", false);

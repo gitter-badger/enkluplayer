@@ -171,6 +171,12 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
+        public void Destroy()
+        {
+            _records.Clear();
+        }
+
+        /// <inheritdoc />
         public void Commit(int id)
         {
             for (var i = 0; i < _records.Count; i++)

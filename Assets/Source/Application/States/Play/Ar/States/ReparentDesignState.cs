@@ -54,6 +54,12 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
+        public void Uninitialize()
+        {
+            //
+        }
+
+        /// <inheritdoc />
         public void Enter(object context)
         {
             Log.Info(this, "Entering {0}.", GetType().Name);

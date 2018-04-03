@@ -291,7 +291,10 @@ namespace CreateAR.SpirePlayer.IUX
             _interaction.Remove(this);
             _interactable = false;
 
-            Object.Destroy(_renderer.gameObject);
+            if (_renderer)
+            {
+                Object.Destroy(_renderer.gameObject);
+            }
 
             base.UnloadInternalAfterChildren();
         }

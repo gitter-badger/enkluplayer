@@ -103,7 +103,7 @@ namespace CreateAR.SpirePlayer
 
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
-                UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
+                SceneManager.LoadSceneAsync(
                     SCENE_NAME,
                     LoadSceneMode.Additive)));
         }
@@ -134,8 +134,7 @@ namespace CreateAR.SpirePlayer
             }
             
             // unload playmode scene
-            UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
-                UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
+            SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(SCENE_NAME));
         }
 
         /// <summary>

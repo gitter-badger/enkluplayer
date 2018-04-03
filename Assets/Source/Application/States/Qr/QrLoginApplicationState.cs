@@ -201,7 +201,7 @@ namespace CreateAR.SpirePlayer
 
                         Log.Info(this, "HoloLogin complete.");
                         
-                        _messages.Publish(MessageTypes.LOGIN_COMPLETE);
+                        _messages.Publish(MessageTypes.USER_PROFILE);
                     }
                     else
                     {

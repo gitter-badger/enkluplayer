@@ -39,7 +39,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// Properties.
         /// </summary>
         private ElementSchemaProp<string> _titleProp;
+        private ElementSchemaProp<int> _titleFontSizeProp;
         private ElementSchemaProp<string> _descriptionProp;
+        private ElementSchemaProp<int> _descriptionFontSizeProp;
         private ElementSchemaProp<int> _fontSizeProp;
         private ElementSchemaProp<string> _layoutProp;
         private ElementSchemaProp<float> _layoutRadiusProp;
@@ -99,7 +101,7 @@ namespace CreateAR.SpirePlayer.IUX
             // retrieve properties
             _titleProp = Schema.Get<string>("title");
             _titleProp.OnChanged += Title_OnChanged;
-
+            
             _descriptionProp = Schema.Get<string>("description");
             _descriptionProp.OnChanged += Description_OnChanged;
 
@@ -127,11 +129,12 @@ namespace CreateAR.SpirePlayer.IUX
             _dividerOffset = Schema.Get<float>("dividerOffset");
             _dividerOffset.OnChanged += DividerOffset_OnChanged;
 
+            Schema.OnSelfPropAdded += Schema_OnPropAdded;
+
             // create + place title
             _titlePrimitive = _primitives.Text(Schema);
             AddChild(_titlePrimitive);
             _titlePrimitive.Text = _titleProp.Value;
-            _titlePrimitive.FontSize = _fontSizeProp.Value;
 
             // create + place description
             _descriptionPrimitive = _primitives.Text(Schema);
@@ -140,7 +143,8 @@ namespace CreateAR.SpirePlayer.IUX
             _descriptionPrimitive.Overflow = HorizontalWrapMode.Wrap;
             _descriptionPrimitive.Alignment = TextAlignmentType.TopLeft;
             _descriptionPrimitive.Text = _descriptionProp.Value;
-            _descriptionPrimitive.FontSize = _fontSizeProp.Value;
+
+            UpdateFontSizes();
 
             _halfMoon = Object.Instantiate(
                 _config.HalfMoon.gameObject,
@@ -165,6 +169,17 @@ namespace CreateAR.SpirePlayer.IUX
 
             _titleProp.OnChanged -= Title_OnChanged;
             _fontSizeProp.OnChanged -= FontSize_OnChanged;
+
+            if (null != _titleFontSizeProp)
+            {
+                _titleFontSizeProp.OnChanged -= FontSize_OnChanged;
+            }
+
+            if (null != _descriptionFontSizeProp)
+            {
+                _descriptionFontSizeProp.OnChanged -= FontSize_OnChanged;
+            }
+
             _descriptionProp.OnChanged -= Description_OnChanged;
             _layoutProp.OnChanged -= Layout_OnChanged;
             _layoutDegreesProp.OnChanged -= LayoutDegrees_OnChanged;
@@ -201,6 +216,19 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             UpdateChildLayout();
+        }
+
+        /// <summary>
+        /// Called when a prop has been added to a schema.
+        /// </summary>
+        /// <param name="name">The name of the prop.</param>
+        /// <param name="type">The type of the prop.</param>
+        private void Schema_OnPropAdded(string name, Type type)
+        {
+            if (name.Contains("fontSize"))
+            {
+                UpdateFontSizes();
+            }
         }
 
         /// <summary>
@@ -242,7 +270,7 @@ namespace CreateAR.SpirePlayer.IUX
             int previous,
             int next)
         {
-            _titlePrimitive.FontSize = _descriptionPrimitive.FontSize = next;
+            UpdateFontSizes();
         }
 
         /// <summary>
@@ -343,6 +371,42 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateDivider();
         }
 
+        /// <summary>
+        /// Updates the font sizes across the board.
+        /// </summary>
+        private void UpdateFontSizes()
+        {
+            var defaultFontSize = _fontSizeProp.Value;
+
+            // title
+            var titleFontSize = defaultFontSize;
+            if (null != _titleFontSizeProp)
+            {
+                titleFontSize = _titleFontSizeProp.Value;
+            }
+            else if (Schema.HasProp("title.fontSize"))
+            {
+                _titleFontSizeProp = Schema.Get<int>("title.fontSize");
+                _titleFontSizeProp.OnChanged += FontSize_OnChanged;
+                titleFontSize = _titleFontSizeProp.Value;
+            }
+            _titlePrimitive.FontSize = titleFontSize;
+
+            // description
+            var descriptionFontSize = defaultFontSize;
+            if (null != _descriptionFontSizeProp)
+            {
+                descriptionFontSize = _descriptionFontSizeProp.Value;
+            }
+            else if (Schema.HasProp("description.fontSize"))
+            {
+                _descriptionFontSizeProp = Schema.Get<int>("description.fontSize");
+                _descriptionFontSizeProp.OnChanged += FontSize_OnChanged;
+                descriptionFontSize = _descriptionFontSizeProp.Value;
+            }
+            _descriptionPrimitive.FontSize = descriptionFontSize;
+        }
+        
         /// <summary>
         /// Updates the header layout.
         /// </summary>

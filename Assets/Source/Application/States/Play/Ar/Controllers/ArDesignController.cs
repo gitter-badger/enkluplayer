@@ -151,6 +151,12 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Teardown()
         {
+            // uninitialize states
+            for (var i = 0; i < _states.Length; i++)
+            {
+                _states[i].Uninitialize();
+            }
+
             _fsm.Change(null);
 
             _controllers.Active = false;

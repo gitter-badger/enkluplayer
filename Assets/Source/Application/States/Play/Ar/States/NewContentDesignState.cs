@@ -58,6 +58,13 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
+        public void Uninitialize()
+        {
+            Object.Destroy(_newContent);
+            Object.Destroy(_place);
+        }
+        
+        /// <inheritdoc />
         public void Enter(object context)
         {
             Log.Info(this, "Entering {0}", GetType().Name);

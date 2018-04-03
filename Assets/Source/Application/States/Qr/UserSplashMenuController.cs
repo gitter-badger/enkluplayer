@@ -15,19 +15,11 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..menu-user")]
         public MenuWidget Menu { get; set; }
         
-        [InjectElements("..btn-worldscan")]
-        public ButtonWidget BtnWorldScan { get; set; }
-        
         /// <summary>
         /// Called when an app has been selected.
         /// </summary>
         public event Action<string> OnAppSelected;
-
-        /// <summary>
-        /// Called when world scan button is activated..
-        /// </summary>
-        public event Action OnWorldScan;
-
+        
         /// <summary>
         /// Initializes the view with data.
         /// </summary>
@@ -43,26 +35,6 @@ namespace CreateAR.SpirePlayer
                 var button = (ButtonWidget) Elements.Element(vine);
                 button.Activator.OnActivated += AppButton_OnActivated(app.Id);
                 Menu.AddChild(button);
-            }
-        }
-
-        /// <inheritdoc />
-        protected override void Awake()
-        {
-            base.Awake();
-            
-            BtnWorldScan.Activator.OnActivated += WorldScan_OnActivated;
-        }
-        
-        /// <summary>
-        /// Called when the worldscan button is activated.
-        /// </summary>
-        /// <param name="activatorPrimitive">The primitive.</param>
-        private void WorldScan_OnActivated(ActivatorPrimitive activatorPrimitive)
-        {
-            if (null != OnWorldScan)
-            {
-                OnWorldScan();
             }
         }
 

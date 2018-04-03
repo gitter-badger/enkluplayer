@@ -66,7 +66,6 @@ namespace CreateAR.SpirePlayer
                     {
                         _userSplash = _root.AddComponent<UserSplashMenuController>();
                         _userSplash.OnAppSelected += UserSplash_OnAppSelected;
-                        _userSplash.OnWorldScan += UserSplash_OnWorldScan;
                         _userSplash.Initialize(response.Payload.Body);
                     }
                     else

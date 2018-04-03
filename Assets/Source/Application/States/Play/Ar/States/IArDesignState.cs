@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer
     public interface IArDesignState : IState
     {
         /// <summary>
-        /// Called once for the lifetime of the object to initialize the state.
+        /// Called on all IArDesignStates before any state is entered to activate the state.
         /// </summary>
         /// <param name="designer">Design controller.</param>
         /// <param name="unityRoot">The root to add unity components.</param>
@@ -20,5 +20,10 @@ namespace CreateAR.SpirePlayer
             GameObject unityRoot,
             Element dynamicRoot,
             Element staticRoot);
+
+        /// <summary>
+        /// Called to deactivate the state.
+        /// </summary>
+        void Uninitialize();
     }
 }

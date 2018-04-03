@@ -2,9 +2,14 @@
 
 <Container>
 	<Cursor />
-	<Float face='camera' position=(0, 0, 2) >
-		<Menu id='menu-user'>
-			<Button id='btn-worldscan' label='New World Scan (beta)' icon='location' />
+	<Float face='camera' position=(0, 0, 2) focus.visible=false >
+		<Menu
+			id='menu-user'
+			title='Your Apps'
+			description='Create new apps in the web editor.'
+			header.padding=0.4
+			description.fontSize=50 >
+			
 		</Menu>
 	</Float>
 </Container>
