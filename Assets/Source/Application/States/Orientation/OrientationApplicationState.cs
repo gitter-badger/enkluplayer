@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Messaging;
+﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -30,6 +31,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Enter(object context)
         {
+            Log.Info(this, "Enter {0}.", GetType().Name);
+
             _root = new GameObject("Orientation");
             _root
                 .AddComponent<OrientationViewController>()
@@ -45,6 +48,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
+            Log.Info(this, "Exit {0}.", GetType().Name);
+
             Object.Destroy(_root);
         }
 

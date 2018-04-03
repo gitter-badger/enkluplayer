@@ -31,6 +31,7 @@ namespace CreateAR.SpirePlayer
 
             InitializeApplicationState initialize,
             QrLoginApplicationState qrLogin,
+            OrientationApplicationState orientation,
             UserProfileApplicationState userProfile,
             InputLoginApplicationState inputLogin,
             LoadAppApplicationState load,
@@ -51,6 +52,7 @@ namespace CreateAR.SpirePlayer
             {
                 initialize,
                 qrLogin,
+                orientation,
                 userProfile,
                 inputLogin,
                 load,
