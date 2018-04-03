@@ -3,28 +3,14 @@ using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer.Test
 {
-    public class AssertJsApi
-    {
-        public static readonly AssertJsApi Instance = new AssertJsApi();
-         
-        public void areEqual(object a, object b, string message)
-        {
-            RuntimeAssert.AreEqual(a, b, message);
-        }
-
-        public void isTrue(bool condition, string message)
-        {
-            RuntimeAssert.IsTrue(condition, message);
-        }
-
-        public void isNull(object obj, string message)
-        {
-            RuntimeAssert.IsNull(obj, message);
-        }
-    }
-    
+    /// <summary>
+    /// Asserts for runtime.
+    /// </summary>
     public static class RuntimeAssert
     {
+        /// <summary>
+        /// Asserts that two objects are equal.
+        /// </summary>
         public static void AreEqual(object a, object b, string message)
         {
             if (!a.Equals(b))
@@ -35,6 +21,9 @@ namespace CreateAR.SpirePlayer.Test
             }
         }
 
+        /// <summary>
+        /// Asserts that a condition is true.
+        /// </summary>
         public static void IsTrue(bool condition, string message)
         {
             if (!condition)
@@ -43,6 +32,9 @@ namespace CreateAR.SpirePlayer.Test
             }
         }
 
+        /// <summary>
+        /// Asserts that an object is null.
+        /// </summary>
         public static void IsNull(object obj, string message)
         {
             if (null != obj)

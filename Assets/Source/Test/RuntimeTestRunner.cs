@@ -9,32 +9,61 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Test
 {
+    /// <summary>
+    /// Test result for a single test.
+    /// </summary>
     public class RuntimeTestResult
     {
+        /// <summary>
+        /// Name of the test.
+        /// </summary>
         public string Name;
+        
+        /// <summary>
+        /// True iff successful.
+        /// </summary>
         public bool Success;
+        
+        /// <summary>
+        /// The error, if Success is false.
+        /// </summary>
         public string Error;
 
+        /// <inheritdoc />
         public override string ToString()
         {
             if (Success)
             {
-                return string.Format("\t{0}\t:\tSuccess",
+                return string.Format(
+                    "\tSuccess\t: [{0}]",
                     Name);
             }
 
             return string.Format(
-                "\t{0}\t:\tFailure - {1}",
+                "\tFailure\t: [{0}] {1}",
                 Name,
                 Error);
         }
     }
     
+    /// <summary>
+    /// Result for a whole fixture of tests.
+    /// </summary>
     public class RuntimeTestFixtureResult
     {
+        /// <summary>
+        /// Name of the test.
+        /// </summary>
         public string Name;
+        
+        /// <summary>
+        /// List of all tests.
+        /// </summary>
         public readonly List<RuntimeTestResult> Tests = new List<RuntimeTestResult>();
 
+        /// <summary>
+        /// True iff all tests in fixture were successful.
+        /// </summary>
         public bool Success
         {
             get
@@ -50,7 +79,8 @@ namespace CreateAR.SpirePlayer.Test
                 return true;
             }
         }
-
+        
+        /// <inheritdoc />
         public override string ToString()
         {
             var builder = new StringBuilder();
@@ -67,10 +97,19 @@ namespace CreateAR.SpirePlayer.Test
         }
     }
 
+    /// <summary>
+    /// Test results for multiple fixtures.
+    /// </summary>
     public class RuntimeTestSuiteResult
     {
+        /// <summary>
+        /// Results of fixtures.
+        /// </summary>
         public readonly List<RuntimeTestFixtureResult> Fixtures = new List<RuntimeTestFixtureResult>();
-
+    
+        /// <summary>
+        /// True iff all fixtures report success.
+        /// </summary>
         public bool Success
         {
             get
@@ -87,6 +126,7 @@ namespace CreateAR.SpirePlayer.Test
             }
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             var builder = new StringBuilder();
@@ -104,13 +144,27 @@ namespace CreateAR.SpirePlayer.Test
         }
     }
     
+    /// <summary>
+    /// Runs all unit tests.
+    /// </summary>
     public class RuntimeTestRunner : MonoBehaviour
     {
+        /// <summary>
+        /// When true, runs tests.
+        /// </summary>
         public bool Run;
 
+        /// <summary>
+        /// True iff tests are currently running.
+        /// </summary>
         private bool _isRunning = false;
+        
+        /// <summary>
+        /// The result of all tests.
+        /// </summary>
         private RuntimeTestSuiteResult _result;
 
+        /// <inheritdoc />
         private void Update()
         {
             if (!Run)
@@ -129,6 +183,9 @@ namespace CreateAR.SpirePlayer.Test
             StartCoroutine(StartTests());
         }
 
+        /// <summary>
+        /// Runs tests.
+        /// </summary>
         private IEnumerator StartTests()
         {
             _result = new RuntimeTestSuiteResult();

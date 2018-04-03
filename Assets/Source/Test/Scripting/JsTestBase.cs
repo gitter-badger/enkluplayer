@@ -26,7 +26,8 @@ namespace CreateAR.SpirePlayer.Test.Scripting
                 options.AllowClr();
             });
             
-            _engine.SetValue("assert", AssertJsApi.Instance);
+            _engine.SetValue("assert", RuntimeAssertJsApi.Instance);
+            _engine.SetValue("log", new LogJsApi(this));
         }
         
         protected JsValue Run(string program)

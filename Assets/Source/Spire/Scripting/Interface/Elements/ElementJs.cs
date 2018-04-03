@@ -3,24 +3,50 @@ using Jint;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Js API for an element.
+    /// </summary>
     public class ElementJs
     {
+        /// <summary>
+        /// Element we're wrapping.
+        /// </summary>
         private readonly Element _element;
+        
+        /// <summary>
+        /// Caches ElementJs instances for an engine.
+        /// </summary>
         private readonly ElementJsCache _cache;
 
-        public readonly ElementSchemaJsApi props;
+        /// <summary>
+        /// The schema interface.
+        /// </summary>
+        public readonly ElementSchemaJsApi schema;
+        
+        /// <summary>
+        /// The transform interface.
+        /// </summary>
         public readonly ElementTransformJsApi transform;
 
+        /// <summary>
+        /// Unique id of the element.
+        /// </summary>
         public string id
         {
             get { return _element.Id; }
         }
 
+        /// <summary>
+        /// Type name of the element.
+        /// </summary>
         public string type
         {
             get { return _element.GetType().Name; }
         }
         
+        /// <summary>
+        /// Array of children.
+        /// </summary>
         public ElementJs[] children
         {
             get
@@ -36,25 +62,39 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public ElementJs(Engine engine, ElementJsCache cache, Element element)
         {
             _element = element;
             _cache = cache;
             
-            props = new ElementSchemaJsApi(engine, _element.Schema);
+            schema = new ElementSchemaJsApi(engine, _element.Schema);
             transform = new ElementTransformJsApi(_element);
         }
         
+        /// <summary>
+        /// Adds a child.
+        /// </summary>
+        /// <param name="element">The element to add as a child.</param>
         public void addChild(ElementJs element)
         {
             _element.AddChild(element._element);
         }
 
+        /// <summary>
+        /// Removes a child.
+        /// </summary>
+        /// <param name="element">The child to remove.</param>
         public void removeChild(ElementJs element)
         {
             _element.RemoveChild(element._element);
         }
 
+        /// <summary>
+        /// Destroys the element.
+        /// </summary>
         public void destroy()
         {
             _element.Destroy();

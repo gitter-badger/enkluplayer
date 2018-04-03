@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System.ComponentModel;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
@@ -6,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// Wraps logging interface for Js.
     /// </summary>
     public class LogJsApi
-    {
+    {   
         /// <summary>
         /// Context to pass to each method.
         /// </summary>
