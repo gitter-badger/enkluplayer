@@ -7,7 +7,7 @@ PlayerSettings:
   productGUID: 300b6ce0c8a970642b23d2771901412e
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
-  defaultScreenOrientation: 4
+  defaultScreenOrientation: 0
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
@@ -15,7 +15,7 @@ PlayerSettings:
   productName: Enklu Play
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
-  m_SplashScreenBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_SplashScreenBackgroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_ShowUnitySplashScreen: 1
   m_ShowUnitySplashLogo: 0
   m_SplashScreenOverlayOpacity: 1
@@ -43,8 +43,7 @@ PlayerSettings:
     duration: 2
   m_VirtualRealitySplashScreen: {fileID: 2800000, guid: 709dae82a8c9ccd4aba29dffed2c7574,
     type: 3}
-  m_HolographicTrackingLossScreen: {fileID: 2800000, guid: 709dae82a8c9ccd4aba29dffed2c7574,
-    type: 3}
+  m_HolographicTrackingLossScreen: {fileID: 0}
   defaultScreenWidth: 1024
   defaultScreenHeight: 768
   defaultScreenWidthWeb: 960
@@ -60,9 +59,9 @@ PlayerSettings:
   displayResolutionDialog: 1
   iosAllowHTTPDownload: 1
   allowedAutorotateToPortrait: 1
-  allowedAutorotateToPortraitUpsideDown: 1
-  allowedAutorotateToLandscapeRight: 1
-  allowedAutorotateToLandscapeLeft: 1
+  allowedAutorotateToPortraitUpsideDown: 0
+  allowedAutorotateToLandscapeRight: 0
+  allowedAutorotateToLandscapeLeft: 0
   useOSAutorotation: 1
   use32BitDisplayBuffer: 1
   disableDepthAndStencilBuffers: 0
@@ -127,7 +126,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 1.0
+  bundleVersion: 0.1
   preloadedAssets: []
   metroInputSource: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -152,7 +151,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    iOS: com.createar.spireplayer
+    iOS: com.enklu.player
   buildNumber: {}
   AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 16
@@ -687,42 +686,13 @@ PlayerSettings:
   metroCertificateIssuer: CreateAR
   metroCertificateNotAfter: 002687d9e698d401
   metroApplicationDescription: SpirePlayer
-  wsaImages:
-    2031632: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-16.png
-    2031640: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-24.png
-    2031664: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-48.png
-    2031716: Assets/Art/Logo/UWP/Square44x44Logo.scale-100.png
-    2031741: Assets/Art/Logo/UWP/Square44x44Logo.scale-125.png
-    2031766: Assets/Art/Logo/UWP/Square44x44Logo.scale-150.png
-    2031816: Assets/Art/Logo/UWP/Square44x44Logo.scale-200.png
-    2031872: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-256.png
-    2032016: Assets/Art/Logo/UWP/Square44x44Logo.scale-400.png
-    2097252: Assets/Art/Logo/UWP/Square71x71Logo.scale-100.png
-    2097277: Assets/Art/Logo/UWP/Square71x71Logo.scale-125.png
-    2097302: Assets/Art/Logo/UWP/Square71x71Logo.scale-150.png
-    2097352: Assets/Art/Logo/UWP/Square71x71Logo.scale-200.png
-    2097552: Assets/Art/Logo/UWP/Square71x71Logo.scale-400.png
-    2162788: Assets/Art/Logo/UWP/Square150x150Logo.scale-100.png
-    2162813: Assets/Art/Logo/UWP/Square150x150Logo.scale-125.png
-    2162838: Assets/Art/Logo/UWP/Square150x150Logo.scale-150.png
-    2162888: Assets/Art/Logo/UWP/Square150x150Logo.scale-200.png
-    2163088: Assets/Art/Logo/UWP/Square150x150Logo.scale-400.png
-    2228324: Assets/Art/Logo/UWP/Square310x310Logo.scale-100.png
-    2228349: Assets/Art/Logo/UWP/Square310x310Logo.scale-125.png
-    2228374: Assets/Art/Logo/UWP/Square310x310Logo.scale-150.png
-    2228424: Assets/Art/Logo/UWP/Square310x310Logo.scale-200.png
-    2228624: Assets/Art/Logo/UWP/Square310x310Logo.scale-400.png
-    2293860: Assets/Art/Logo/UWP/Wide310x150Logo.scale-100.png
-    2293885: Assets/Art/Logo/UWP/Wide310x150Logo.scale-125.png
-    2293910: Assets/Art/Logo/UWP/Wide310x150Logo.scale-150.png
-    2293960: Assets/Art/Logo/UWP/Wide310x150Logo.scale-200.png
-    2294160: Assets/Art/Logo/UWP/Wide310x150Logo.scale-400.png
-  metroTileShortName: Enklu Play
+  wsaImages: {}
+  metroTileShortName: SpirePlayer
   metroCommandLineArgsFile: 
   metroTileShowName: 0
   metroMediumTileShowName: 0
-  metroLargeTileShowName: 1
-  metroWideTileShowName: 1
+  metroLargeTileShowName: 0
+  metroWideTileShowName: 0
   metroDefaultTileSize: 1
   metroTileForegroundText: 2
   metroTileBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21568628, a: 0}
