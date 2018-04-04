@@ -86,8 +86,8 @@ namespace CreateAR.SpirePlayer
 
                     Log.Info(this, "Start capture.");
 
-                    var tex = ((IosArService) _ar).Video.VideoY;
-                    _worker.Enqueue(tex.GetPixels32(), tex.width, tex.height);
+                    //var tex = ((IosArService) _ar).Video.VideoY;
+                    //_worker.Enqueue(tex.GetPixels32(), tex.width, tex.height);
 
                     /*
                     _grabber

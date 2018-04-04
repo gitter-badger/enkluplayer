@@ -1,7 +1,9 @@
 ﻿#if UNITY_IOS
 
+using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using UnityEngine.XR.iOS;
 using Object = UnityEngine.Object;
@@ -13,6 +15,11 @@ namespace CreateAR.SpirePlayer.AR
     /// </summary>
     public class IosArService : IArService
     {
+        /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+        
         /// <summary>
         /// Native interface, provided by Unity.
         /// </summary>
@@ -46,13 +53,16 @@ namespace CreateAR.SpirePlayer.AR
         /// <summary>
         /// Constructor.
         /// </summary>
-        public IosArService(UnityARSessionNativeInterface @interface)
+        public IosArService(
+            IMessageRouter messages,
+            UnityARSessionNativeInterface @interface)
         {
+            _messages = messages;
             _interface = @interface;
         }
     
-        /// <inheritdoc cref="IArService"/>
-        public void Setup(ArServiceConfiguration config)
+        /// <inheritdoc />
+        public void Setup(ArServiceConfiguration config) 
         {
             Config = config;
             _rig = config.Rig;
@@ -64,6 +74,7 @@ namespace CreateAR.SpirePlayer.AR
             UnityARSessionNativeInterface.ARAnchorAddedEvent += Interface_OnAnchorAdded;
             UnityARSessionNativeInterface.ARAnchorUpdatedEvent += Interface_OnAnchorUpdated;
             UnityARSessionNativeInterface.ARAnchorRemovedEvent += Interface_OnAnchorRemoved;
+            UnityARSessionNativeInterface.ARSessionFailedEvent += Interface_OnSessionFailed;
             
             // startup!
             _interface.RunWithConfigAndOptions(
@@ -81,7 +92,7 @@ namespace CreateAR.SpirePlayer.AR
             InitializeCameraRig();
         }
 
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
         public void Teardown()
         {
             UninitializeCameraRig();
@@ -89,6 +100,7 @@ namespace CreateAR.SpirePlayer.AR
             UnityARSessionNativeInterface.ARAnchorAddedEvent -= Interface_OnAnchorAdded;
             UnityARSessionNativeInterface.ARAnchorUpdatedEvent -= Interface_OnAnchorUpdated;
             UnityARSessionNativeInterface.ARAnchorRemovedEvent -= Interface_OnAnchorRemoved;
+            UnityARSessionNativeInterface.ARSessionFailedEvent -= Interface_OnSessionFailed;
             
             _interface.Pause();
         }
@@ -135,6 +147,17 @@ namespace CreateAR.SpirePlayer.AR
                 Video = _rig.Camera.gameObject.AddComponent<UnityARVideo>();
                 Video.m_ClearMaterial = Config.CameraMaterial;
             }
+        }
+        
+        /// <summary>
+        /// Called if the AR the session fails.
+        /// </summary>
+        /// <param name="error">The error.</param>
+        private void Interface_OnSessionFailed(string error)
+        {
+            _messages.Publish(
+                MessageTypes.ARSERVICE_EXCEPTION,
+                new Exception(error));
         }
         
         /// <summary>

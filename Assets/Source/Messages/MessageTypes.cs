@@ -8,8 +8,11 @@
         public const int RESTART = -1000;
 
         ///////////////////////////////////////////////////////////////////////
-        // Error.
+        // Errors.
         ///////////////////////////////////////////////////////////////////////
+        public const int ARSERVICE_EXCEPTION = -10;
+        public const int ARSERVICE_INTERRUPTED = -11;
+
         public const int FATAL_ERROR = -1;
 
         public const int STATUS = 0;

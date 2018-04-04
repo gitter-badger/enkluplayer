@@ -153,6 +153,15 @@ namespace CreateAR.SpirePlayer
                     _states.Change<MeshCaptureApplicationState>();
 #endif
                 });
+            
+            Subscribe<Exception>(
+                MessageTypes.ARSERVICE_EXCEPTION,
+                exception =>
+                {
+                    Log.Error(this, "AR Service exception!");
+                    
+                    
+                });
 
             _states.Change<InitializeApplicationState>(_config);
         }
