@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Runtime.InteropServices;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -10,13 +11,22 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// State that guides a user through AR setup.
+    /// </summary>
     public class ArSetupApplicationState : IState
     {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
         private readonly IMessageRouter _messages;
         private readonly IBootstrapper _bootstrapper;
         private readonly IArService _ar;
         private readonly ArServiceConfiguration _arConfig;
         
+        /// <summary>
+        /// Various views.
+        /// </summary>
         private ArPromptViewController _prompt;
         private ArScanningViewController _scanning;
         private ArErrorViewController _error;
@@ -54,12 +64,15 @@ namespace CreateAR.SpirePlayer
             _error = root.GetComponentInChildren<ArErrorViewController>(true);
             _error.OnEnableCamera += Error_OnEnableCamera;
             
-            // show the correct one
             var exception = context as Exception;
-            if (null != exception)
+            
+            // if an exception has been passed in OR camera permissions have
+            // been specifically denied, open the error view
+            if (null != exception || CameraUtilsNativeInterface.HasDeniedCameraPermissions)
             {
                 _error.gameObject.SetActive(true);
             }
+            // otherwise, open the prompt
             else
             {
                 _prompt.gameObject.SetActive(true);
@@ -79,6 +92,23 @@ namespace CreateAR.SpirePlayer
             _prompt.gameObject.SetActive(false);
             _scanning.gameObject.SetActive(false);
             _error.gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// Starts the Ar service.
+        /// </summary>
+        private void StartArService()
+        {
+            _ar.Setup(_arConfig);
+
+            FindFloor()
+                .OnSuccess(_ => _messages.Publish(MessageTypes.FLOOR_FOUND))
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not find floor : {0}", exception);
+                    
+                    // TODO: error prompt
+                });
         }
         
         /// <summary>
@@ -165,17 +195,39 @@ namespace CreateAR.SpirePlayer
             _prompt.gameObject.SetActive(false);
             _scanning.gameObject.SetActive(true);
             _error.gameObject.SetActive(false);
-            
-            _ar.Setup(_arConfig);
 
-            FindFloor()
-                .OnSuccess(_ => _messages.Publish(MessageTypes.FLOOR_FOUND))
-                .OnFailure(exception =>
-                {
-                    Log.Error(this, "Could not find floor : {0}", exception);
-                    
-                    // TODO: error prompt
-                });
+            // we have camera permission
+            if (CameraUtilsNativeInterface.HasCameraPermissions)
+            {
+                Log.Info(this, "Application has camera access, proceed to starting AR service.");
+                
+                StartArService();
+            }
+            // we have never asked for camera permission
+            else
+            {
+                Log.Info(this, "Requesting camera access.");
+                
+                CameraUtilsNativeInterface.RequestCameraAccess(
+                    _bootstrapper,
+                    granted =>
+                    {
+                        if (granted)
+                        {
+                            Log.Info(this, "Camera access has been granted.");
+                            
+                            StartArService();
+                        }
+                        else
+                        {
+                            Log.Info(this, "Camera access was denied. Show error.");
+                            
+                            // the user denied access
+                            _scanning.gameObject.SetActive(false);
+                            _error.gameObject.SetActive(true);
+                        }
+                    });
+            }
         }
         
         /// <summary>
@@ -187,7 +239,7 @@ namespace CreateAR.SpirePlayer
             _scanning.gameObject.SetActive(true);
             _prompt.gameObject.SetActive(false);
             
-            Log.Info(this, "Requesting access to the camera.");
+            Log.Info(this, "Open settings.");
             
             CameraUtilsNativeInterface.OpenSettings();
         }
