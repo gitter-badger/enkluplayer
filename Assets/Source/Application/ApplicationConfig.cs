@@ -18,7 +18,8 @@ namespace CreateAR.SpirePlayer
         QrLogin,
         InputLogin,
         UserProfile,
-        Orientation
+        Orientation,
+        ArSetup
     }
 
     /// <summary>

@@ -2,6 +2,7 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
+using UnityEngine.Experimental.UIElements;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -32,6 +33,7 @@ namespace CreateAR.SpirePlayer
             InitializeApplicationState initialize,
             QrLoginApplicationState qrLogin,
             OrientationApplicationState orientation,
+            ArSetupApplicationState ar,
             UserProfileApplicationState userProfile,
             InputLoginApplicationState inputLogin,
             LoadAppApplicationState load,
@@ -53,6 +55,7 @@ namespace CreateAR.SpirePlayer
                 initialize,
                 qrLogin,
                 orientation,
+                ar,
                 userProfile,
                 inputLogin,
                 load,
@@ -158,9 +161,19 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.ARSERVICE_EXCEPTION,
                 exception =>
                 {
-                    Log.Error(this, "AR Service exception!");
+                    Log.Error(this, "AR Service exception : {0}.", exception.Message);
                     
+                    // head back to AR setup
+                    _states.Change<ArSetupApplicationState>(exception);
+                });
+            
+            Subscribe<Void>(
+                MessageTypes.FLOOR_FOUND,
+                _ =>
+                {
+                    Log.Info(this, "Floor found, proceeding to login.");
                     
+                    _states.Change<InputLoginApplicationState>();
                 });
 
             _states.Change<InitializeApplicationState>(_config);
@@ -225,6 +238,11 @@ namespace CreateAR.SpirePlayer
                     _states.Change<InputLoginApplicationState>();
                     break;
                 }
+                case ApplicationStateTypes.ArSetup:
+                {
+                    _states.Change<ArSetupApplicationState>();
+                    break;
+                }
                 case ApplicationStateTypes.Orientation:
                 {
                     _states.Change<OrientationApplicationState>();
@@ -251,15 +269,20 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Application initialized.");
 
             var state = ApplicationStateTypes.Invalid;
-            try
+
+            // respect override only in editor
+            if (UnityEngine.Application.isEditor)
             {
-                state = (ApplicationStateTypes)Enum.Parse(
-                    typeof(ApplicationStateTypes),
-                    _config.StateOverride);
-            }
-            catch
-            {
-                //
+                try
+                {
+                    state = (ApplicationStateTypes) Enum.Parse(
+                        typeof(ApplicationStateTypes),
+                        _config.StateOverride);
+                }
+                catch
+                {
+                    //
+                }   
             }
 
             if (state == ApplicationStateTypes.Invalid)
@@ -274,7 +297,7 @@ namespace CreateAR.SpirePlayer
                     case RuntimePlatform.IPhonePlayer:
                     case RuntimePlatform.Android:
                     {
-                        state = ApplicationStateTypes.InputLogin;
+                        state = ApplicationStateTypes.ArSetup;
                         break;
                     }
                     case RuntimePlatform.WSAPlayerX86:

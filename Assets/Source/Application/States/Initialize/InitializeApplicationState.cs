@@ -28,8 +28,6 @@ namespace CreateAR.SpirePlayer
         private readonly IBootstrapper _bootstrapper;
         private readonly IHashProvider _hashMethod;
         private readonly IAssetManager _assets;
-        private readonly ArServiceConfiguration _arConfig;
-        private readonly IArService _ar;
         private readonly BleServiceConfiguration _bleConfig;
         private readonly IBleService _ble;
 
@@ -37,11 +35,6 @@ namespace CreateAR.SpirePlayer
         /// App config.
         /// </summary>
         private ApplicationConfig _appConfig;
-
-        /// <summary>
-        /// Time at which we started looking for the floor.
-        /// </summary>
-        private DateTime _startFloorSearch;
         
         /// <summary>
         /// Constructor.
@@ -52,8 +45,6 @@ namespace CreateAR.SpirePlayer
             IBootstrapper bootstrapper,
             IHashProvider hashMethod,
             IAssetManager assets,
-            ArServiceConfiguration arConfig,
-            IArService ar,
             BleServiceConfiguration bleConfig,
             IBleService ble,
             IImageLoader imageLoader)
@@ -63,8 +54,6 @@ namespace CreateAR.SpirePlayer
             _bootstrapper = bootstrapper;
             _hashMethod = hashMethod;
             _assets = assets;
-            _arConfig = arConfig;
-            _ar = ar;
             _bleConfig = bleConfig;
             _ble = ble;
 
@@ -78,9 +67,6 @@ namespace CreateAR.SpirePlayer
         {
             _appConfig = (ApplicationConfig) context;
 
-            // ar
-            _ar.Setup(_arConfig);
-
             // ble
             _ble.Setup(_bleConfig);
             
@@ -89,7 +75,7 @@ namespace CreateAR.SpirePlayer
             _http.UrlBuilder.FromUrl(env.Url);
 
             // setup assets
-            // TODO: pull out of here!
+            // TODO: factory
             var loader = new StandardAssetLoader(
                 _appConfig.Network,
                 _bootstrapper,
@@ -109,15 +95,14 @@ namespace CreateAR.SpirePlayer
             // reset assets
             _assets.Uninitialize();
             
-            // wait for assets to initialize and for the floor to be recognized
+            // wait for tasks to finish
             var tasks = new List<IAsyncToken<Void>>
             {
                 _assets.Initialize(new AssetManagerConfiguration
                 {
                     Loader = loader,
                     Queries = new StandardQueryResolver()
-                }),
-                FindFloor()
+                })
             };
             
             Async
@@ -144,87 +129,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Exit()
         {
-            // untag all anchors
-            foreach (var anchor in _ar.Anchors)
-            {
-                anchor.ClearTags();
-            }
-        }
-        
-        /// <summary>
-        /// Finds the floor, tags it, then resolves the token.
-        /// 
-        /// TODO: Should be part of <c>IArService</c>.
-        /// </summary>
-        /// <returns></returns>
-        private IAsyncToken<Void> FindFloor()
-        {
-            var token = new AsyncToken<Void>();
-
-            Log.Info(this, "Attempting to find the floor.");
             
-            _startFloorSearch = DateTime.Now;
-            _bootstrapper.BootstrapCoroutine(PollAnchors(token));
-
-            return token;
-        }
-
-        /// <summary>
-        /// Polls the list of anchors for a floor. 
-        /// </summary>
-        /// <param name="token">The token to resolve when found.</param>
-        /// <returns></returns>
-        private IEnumerator PollAnchors(AsyncToken<Void> token)
-        {
-            while (true)
-            {
-                var deltaSec = (DateTime.Now.Subtract(_startFloorSearch).TotalSeconds);
-                
-                // wait at least min
-                if (deltaSec < Mathf.Max(1, _arConfig.MinSearchSec))
-                {
-                    //
-                }
-                else
-                {
-                    // look for lowest anchor to call floor
-                    var anchors = _ar.Anchors;
-                    ArAnchor lowest = null;
-                    for (int i = 0, len = anchors.Length; i < len; i++)
-                    {
-                        var anchor = anchors[i];
-                        if (null == lowest
-                            || anchor.Position.y < lowest.Position.y)
-                        {
-                            lowest = anchor;
-                        }
-                    }
-                
-                    // floor found!
-                    if (null != lowest)
-                    {
-                        Log.Info(this, "Floor found : {0}.", lowest);
-                    
-                        // tag it
-                        lowest.Tag(ArAnchorTags.FLOOR);
-                        
-                        // set camera rig
-                        _arConfig.Rig.SetFloor(lowest);
-                    
-                        token.Succeed(Void.Instance);
-                        yield break;
-                    }
-                
-                    // waited too long!
-                    if (deltaSec > _arConfig.MaxSearchSec)
-                    {
-                        token.Fail(new Exception("Timeout."));
-                        yield break;
-                    }
-                }
-                
-                yield return null;
-            }
         }
     }
 }

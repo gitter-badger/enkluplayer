@@ -27,6 +27,7 @@
         public const int LOAD_APP = 5;
         public const int USER_PROFILE = 6;
         public const int LOGIN = 7;
+        public const int FLOOR_FOUND = 8;
 
         // Assets
         public const int RECV_ASSET_LIST = 10;
