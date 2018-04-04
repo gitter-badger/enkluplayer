@@ -173,11 +173,7 @@ namespace CreateAR.SpirePlayer.IUX
             var imageSchema = _typeSchema[ElementTypes.IMAGE] = new ElementSchema("Base.Image");
             imageSchema.Load(new ElementSchemaData
             {
-                Floats = new Dictionary<string, float>
-                {
-                    { "width", 0.1f },
-                    { "height", 0.1f }
-                }
+                
             });
 
             var floatSchema = _typeSchema[ElementTypes.FLOAT] = new ElementSchema("Base.Float");
@@ -300,6 +296,10 @@ namespace CreateAR.SpirePlayer.IUX
                 case ElementTypes.FLOAT:
                 {
                     return new FloatWidget(new GameObject("Element"), _config, _intention, _layers, _tweens, _colors);
+                }
+                case ElementTypes.SCREEN:
+                {
+                    return new ScreenWidget(new GameObject("Element"), _layers, _tweens, _colors, _intention);
                 }
                 case ElementTypes.TOGGLE:
                 {

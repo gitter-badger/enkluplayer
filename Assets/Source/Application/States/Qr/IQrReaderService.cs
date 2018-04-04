@@ -24,19 +24,4 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         IAsyncToken<Void> Stop();
     }
-
-    public class UnsupportedQrReaderService : IQrReaderService
-    {
-        public event Action<string> OnRead;
-
-        public IAsyncToken<Void> Start()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncToken<Void> Stop()
-        {
-            throw new NotImplementedException();
-        }
-    }
 }

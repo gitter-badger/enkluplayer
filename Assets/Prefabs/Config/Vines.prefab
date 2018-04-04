@@ -82,3 +82,7 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 8899113ba5d749c49955ec6b512134a8, type: 3}
   - Identifier: User.Splash
     Source: {fileID: 4900000, guid: 032cea51e5c91ce44bbb287875293078, type: 3}
+  - Identifier: Orientation.Adjust
+    Source: {fileID: 4900000, guid: c0e24cc1b32205740ad339e2a6fc5ce2, type: 3}
+  - Identifier: Qr.Scanning
+    Source: {fileID: 4900000, guid: 17a8ca9aa2743a647a0a6a5a1fb78cdf, type: 3}

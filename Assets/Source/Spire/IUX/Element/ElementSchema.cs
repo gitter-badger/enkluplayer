@@ -93,22 +93,19 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly List<ElementSchemaProp> _defaultValueProps = new List<ElementSchemaProp>();
 
         /// <summary>
-        /// Parent schema.
-        /// </summary>
-        private ElementSchema _parent;
-
-        /// <summary>
         /// Retrieves the parent schema.
         /// </summary>
-        public ElementSchema Parent
-        {
-            get { return _parent; }
-        }
+        public ElementSchema Parent { get; private set; }
 
         /// <summary>
         /// Identifier.
         /// </summary>
         public string Identifier { get; set; }
+
+        /// <summary>
+        /// Called when a new property has been added to self.
+        /// </summary>
+        public event Action<string, Type> OnSelfPropAdded;
 
         /// <summary>
         /// Constructor.
@@ -150,9 +147,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="IEnumerable"/>
         IEnumerator IEnumerable.GetEnumerator()
         {
-            if (null != _parent)
+            if (null != Parent)
             {
-                yield return _parent.GetEnumerator();
+                yield return Parent.GetEnumerator();
             }
 
             for (int i = 0, len = _props.Count; i < len; i++)
@@ -264,7 +261,7 @@ namespace CreateAR.SpirePlayer.IUX
                 node = node.Parent;
             }
 
-            _parent = schema;
+            Parent = schema;
 
             if (null == schema)
             {
@@ -332,6 +329,11 @@ namespace CreateAR.SpirePlayer.IUX
             if (null == prop)
             {
                 _props.Add(new ElementSchemaProp<T>(name, value, false));
+
+                if (null != OnSelfPropAdded)
+                {
+                    OnSelfPropAdded(name, typeof(T));
+                }
             }
             else
             {
@@ -357,13 +359,13 @@ namespace CreateAR.SpirePlayer.IUX
             if (null == prop)
             {
                 // check parent
-                if (null == _parent)
+                if (null == Parent)
                 {
                     prop = new ElementSchemaProp<T>(name, default(T), true);
                 }
                 else
                 {
-                    prop = new ElementSchemaProp<T>(name, _parent.Get<T>(name));
+                    prop = new ElementSchemaProp<T>(name, Parent.Get<T>(name));
                 }
 
                 if (type == prop.Type)
@@ -397,6 +399,11 @@ namespace CreateAR.SpirePlayer.IUX
                 prop = new ElementSchemaProp<T>(name, @default, false);
                 _props.Add(prop);
 
+                if (null != OnSelfPropAdded)
+                {
+                    OnSelfPropAdded(name, typeof(T));
+                }
+
                 return (ElementSchemaProp<T>) prop;
             }
 
@@ -421,7 +428,7 @@ namespace CreateAR.SpirePlayer.IUX
                 return true;
             }
 
-            var parent = _parent;
+            var parent = Parent;
             while (null != parent)
             {
                 if (parent.HasOwnProp(name))
@@ -429,7 +436,7 @@ namespace CreateAR.SpirePlayer.IUX
                     return true;
                 }
 
-                parent = parent._parent;
+                parent = parent.Parent;
             }
 
             return false;

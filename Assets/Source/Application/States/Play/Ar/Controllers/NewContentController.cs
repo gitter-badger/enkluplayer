@@ -78,6 +78,16 @@ namespace CreateAR.SpirePlayer
             UpdateOptions();
         }
 
+        /// <inheritdoc />
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            Assets.Manifest.OnAssetAdded -= Manifest_OnAssetEvent;
+            Assets.Manifest.OnAssetRemoved -= Manifest_OnAssetEvent;
+            Assets.Manifest.OnAssetUpdated -= Manifest_OnAssetEvent;
+        }
+
         /// <summary>
         /// Deletes old options and creates new ones.
         /// </summary>

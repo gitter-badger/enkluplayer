@@ -24,6 +24,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Props!
         /// </summary>
         private ElementSchemaProp<string> _srcProp;
+        private ElementSchemaProp<Sprite> _spriteProp;
         private ElementSchemaProp<float> _widthProp;
         private ElementSchemaProp<float> _heightProp;
 
@@ -63,14 +64,17 @@ namespace CreateAR.SpirePlayer.IUX
 
             // props
             {
-                _widthProp = Schema.Get<float>("width");
+                _widthProp = Schema.GetOwn("width", 0f);
                 _widthProp.OnChanged += Width_OnChanged;
 
-                _heightProp = Schema.Get<float>("height");
+                _heightProp = Schema.GetOwn("height", 0f);
                 _heightProp.OnChanged += Height_OnChanged;
 
                 _srcProp = Schema.Get<string>("src");
                 _srcProp.OnChanged += Src_OnChanged;
+
+                _spriteProp = Schema.Get<Sprite>("sprite");
+                _spriteProp.OnChanged += Sprite_OnChanged;
             }
 
             UpdateSrc();
@@ -104,13 +108,39 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateDimensions()
         {
-            _image.rectTransform.SetSizeWithCurrentAnchors(
-                RectTransform.Axis.Horizontal,
-                _widthProp.Value);
+            var texture = null == _image.sprite ? null : _image.sprite.texture;
+            var sourceWidth = null == texture ? 0 : texture.width;
+            var sourceHeight = null == texture ? 0 : texture.height;
+
+            var width = _widthProp.Value;
+            var height = _heightProp.Value;
+
+            if (width < Mathf.Epsilon)
+            {
+                if (height < Mathf.Epsilon)
+                {
+                    // both auto
+                    width = sourceWidth;
+                    height = sourceHeight;
+                }
+                else
+                {
+                    // auto based on height
+                    width = (height / sourceHeight) * sourceWidth;
+                }
+            }
+            else if (height < Mathf.Epsilon)
+            {
+                // auto based on width
+                height = (width / sourceWidth) * sourceHeight;
+            }
 
             _image.rectTransform.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Horizontal,
+                width);
+            _image.rectTransform.SetSizeWithCurrentAnchors(
                 RectTransform.Axis.Vertical,
-                _heightProp.Value);
+                height);
         }
 
         /// <summary>
@@ -144,19 +174,28 @@ namespace CreateAR.SpirePlayer.IUX
                 .OnSuccess(texture =>
                 {
                     _texture = texture;
-                    
-                    _image.enabled = true;
-                    _image.sprite = Sprite.Create(
+
+                    UpdateSprite(Sprite.Create(
                         _texture.Source,
                         Rect.MinMaxRect(0, 0, _texture.Source.width, _texture.Source.height),
-                        new Vector2(0.5f, 0.5f));
-
-                    UpdateDimensions();
+                        new Vector2(0.5f, 0.5f)));
                 })
                 .OnFailure(exception => Log.Error(this,
                     "Could not load {0} : {1}.",
                     src,
                     exception));
+        }
+
+        /// <summary>
+        /// Updates the images sprite.
+        /// </summary>
+        /// <param name="sprite">The sprite!</param>
+        private void UpdateSprite(Sprite sprite)
+        {
+            _image.enabled = true;
+            _image.sprite = sprite;
+
+            UpdateDimensions();
         }
 
         /// <summary>
@@ -199,6 +238,20 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             UpdateSrc();
+        }
+
+        /// <summary>
+        /// Called when the sprite property has changed.
+        /// </summary>
+        /// <param name="prop">Prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Sprite_OnChanged(
+            ElementSchemaProp<Sprite> prop,
+            Sprite prev,
+            Sprite next)
+        {
+            UpdateSprite(next);
         }
     }
 }

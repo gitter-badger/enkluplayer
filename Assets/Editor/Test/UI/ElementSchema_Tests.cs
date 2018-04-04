@@ -515,5 +515,61 @@ namespace CreateAR.SpirePlayer.Test.UI
 
             Assert.AreEqual("b", b.Get<string>("a").Value);
         }
+
+        [Test]
+        public void NewPropEvent()
+        {
+            var called = false;
+
+            var a = new ElementSchema();
+            a.OnSelfPropAdded += (name, type) =>
+            {
+                called = true;
+
+                Assert.AreEqual("foo", name);
+                Assert.AreEqual(typeof(string), type);
+            };
+
+            a.Set("foo", "test");
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void NewPropEventGetOwn()
+        {
+            var called = false;
+
+            var a = new ElementSchema();
+            a.OnSelfPropAdded += (name, type) =>
+            {
+                called = true;
+
+                Assert.AreEqual("foo", name);
+                Assert.AreEqual(typeof(string), type);
+            };
+
+            a.GetOwn("foo", "tball");
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void NewPropEventNotCalled()
+        {
+            var called = false;
+
+            var a = new ElementSchema();
+            a.Set("foo", "bar");
+
+            a.OnSelfPropAdded += (name, type) =>
+            {
+                called = true;
+            };
+
+            a.Set("foo", "test");
+
+            Assert.IsFalse(called);
+        }
     }
 }

@@ -31,6 +31,7 @@ namespace CreateAR.SpirePlayer
 
             InitializeApplicationState initialize,
             QrLoginApplicationState qrLogin,
+            OrientationApplicationState orientation,
             UserProfileApplicationState userProfile,
             InputLoginApplicationState inputLogin,
             LoadAppApplicationState load,
@@ -51,6 +52,7 @@ namespace CreateAR.SpirePlayer
             {
                 initialize,
                 qrLogin,
+                orientation,
                 userProfile,
                 inputLogin,
                 load,
@@ -92,10 +94,33 @@ namespace CreateAR.SpirePlayer
                 });
 
             Subscribe<Void>(
-                MessageTypes.LOGIN_COMPLETE,
+                MessageTypes.LOGIN,
                 _ =>
                 {
-                    Log.Info(this, "Login completed.");
+                    Log.Info(this, "Login requested.");
+
+                    switch (UnityEngine.Application.platform)
+                    {
+                        case RuntimePlatform.WSAPlayerX86:
+                        case RuntimePlatform.WSAPlayerX64:
+                        case RuntimePlatform.WSAPlayerARM:
+                        {
+                            _states.Change<QrLoginApplicationState>();
+                            break;
+                        }
+                        default:
+                        {
+                            _states.Change<InputLoginApplicationState>();
+                            break;
+                        }
+                    }
+                });
+
+            Subscribe<Void>(
+                MessageTypes.USER_PROFILE,
+                _ =>
+                {
+                    Log.Info(this, "User profile state.");
 
                     _states.Change<UserProfileApplicationState>();
                 });
@@ -191,6 +216,11 @@ namespace CreateAR.SpirePlayer
                     _states.Change<InputLoginApplicationState>();
                     break;
                 }
+                case ApplicationStateTypes.Orientation:
+                {
+                    _states.Change<OrientationApplicationState>();
+                    break;
+                }
                 case ApplicationStateTypes.None:
                 {
                     _states.Change(null);
@@ -242,7 +272,7 @@ namespace CreateAR.SpirePlayer
                     case RuntimePlatform.WSAPlayerARM:
                     case RuntimePlatform.WSAPlayerX64:
                     {
-                        state = ApplicationStateTypes.QrLogin;
+                        state = ApplicationStateTypes.Orientation;
                         break;
                     }
                 }
