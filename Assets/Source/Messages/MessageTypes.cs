@@ -58,6 +58,8 @@
         // Global
         ///////////////////////////////////////////////////////////////////////
         public const int LOADPROGRESS = 100;
+        public const int APPLICATION_SUSPEND = 110;
+        public const int APPLICATION_RESUME = 111;
 
         ///////////////////////////////////////////////////////////////////////
         // Preview State

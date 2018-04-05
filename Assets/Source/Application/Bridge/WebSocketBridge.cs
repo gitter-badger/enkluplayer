@@ -130,11 +130,16 @@ namespace CreateAR.SpirePlayer
         /// Routes messages.
         /// </summary>
         private readonly IMessageRouter _router;
+
+        /// <summary>
+        /// Bootstrapper implementation.
+        /// </summary>
+        private readonly IBootstrapper _bootstrapper;
         
         /// <summary>
         /// WebSocket server.
         /// </summary>
-        private readonly WebSocketServer _server;
+        private WebSocketServer _server;
         
         /// <summary>
         /// Handles messages.
@@ -176,10 +181,21 @@ namespace CreateAR.SpirePlayer
             IBootstrapper bootstrapper)
         {
             _router = router;
-            
-            // start watcher "thread" -- can persiste between goes
-            bootstrapper.BootstrapCoroutine(ConsumeMessages());
+            _bootstrapper = bootstrapper;
+        }
 
+        /// <inheritdoc cref="IDisposable" />
+        public void Dispose()
+        {
+            ReleaseUnmanagedResources();
+            GC.SuppressFinalize(this);
+        }
+
+        /// <inheritdoc />
+        public void Initialize(BridgeMessageHandler handler)
+        {
+            _handler = handler;
+            
             // create new server
             _server = new WebSocketServer(4649);
             _server.Log.Level = LogLevel.Trace;
@@ -201,26 +217,15 @@ namespace CreateAR.SpirePlayer
                     return service;
                 });
             _server.Start();
+            
+            // start watcher "thread"
+            _bootstrapper.BootstrapCoroutine(ConsumeMessages());
         }
 
-        /// <summary>
-        /// IDisposable implementation.
-        /// </summary>
-        public void Dispose()
-        {
-            ReleaseUnmanagedResources();
-            GC.SuppressFinalize(this);
-        }
-
-        /// <inheritdoc cref="IBridge"/>
-        public void Initialize(BridgeMessageHandler handler)
-        {
-            _handler = handler;
-        }
-
-        /// <inheritdoc cref="IBridge"/>
+        /// <inheritdoc />
         public void Uninitialize()
         {
+            _server.Stop();
             _service = null;
             _broadcastReady = false;
             _clientLeft = false;
@@ -233,7 +238,7 @@ namespace CreateAR.SpirePlayer
             Binder.Clear();
         }
 
-        /// <inheritdoc cref="IBridge"/>
+        /// <inheritdoc />
         public void BroadcastReady()
         {
             _broadcastReady = true;
@@ -293,7 +298,7 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private IEnumerator ConsumeMessages()
         {
-            while (true)
+            while (null != _server)
             {
                 string[] messages = null;
                 lock (_messages)
@@ -313,7 +318,7 @@ namespace CreateAR.SpirePlayer
                     }
                 }
 
-                if (_clientLeft)
+                if (_clientLeft && UnityEngine.Application.isEditor)
                 {
                     _router.Publish(MessageTypes.RESTART, Void.Instance);
                 }
@@ -349,7 +354,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ReleaseUnmanagedResources()
         {
-            _server.Stop();
+            if (null != _server)
+            {
+                _server.Stop();   
+            }
         }
 
         /// <summary>

@@ -20,5 +20,15 @@
         /// Call when the application is being shutdown.
         /// </summary>
         void Stop();
+
+        /// <summary>
+        /// Called when the application is suspended.
+        /// </summary>
+        void Suspend();
+
+        /// <summary>
+        /// Called when the application is resumed.
+        /// </summary>
+        void Resume();
     }
 }

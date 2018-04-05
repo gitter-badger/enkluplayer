@@ -127,6 +127,22 @@ namespace CreateAR.SpirePlayer
 	        _app.Update(Time.deltaTime);
 	    }
 
+		/// <summary>
+		/// Called for application suspend/resume.
+		/// </summary>
+		/// <param name="status">True iff the application is paused.</param>
+		private void OnApplicationPause(bool status)
+		{
+			if (status)
+			{
+				_app.Suspend();
+			}
+			else
+			{
+				_app.Resume();
+			}
+		}
+
         /// <summary>
         /// Called when the application quits.
         /// </summary>

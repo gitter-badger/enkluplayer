@@ -38,7 +38,7 @@ namespace CreateAR.SpirePlayer
         private readonly BridgeMessageHandler _handler;
 
         /// <summary>
-        /// Creates a new WebApplicationHost.
+        /// Constructor.
         /// </summary>
         /// <param name="messages">Pub/sub.</param>
         /// <param name="bridge">The WebBridge.</param>
@@ -62,7 +62,7 @@ namespace CreateAR.SpirePlayer
             _services = services;
         }
 
-        /// <inheritdoc cref="IApplicationServiceManager"/>
+        /// <inheritdoc />
         public void Start()
         {
             _bridge.Initialize(_handler);
@@ -85,7 +85,7 @@ namespace CreateAR.SpirePlayer
                 });
         }
 
-        /// <inheritdoc cref="IApplicationServiceManager"/>
+        /// <inheritdoc />
         public void Update(float dt)
         {
             for (int i = 0, len = _services.Length; i < len; i++)
@@ -94,7 +94,7 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        /// <inheritdoc cref="IApplicationServiceManager"/>
+        /// <inheritdoc />
         public void Stop()
         {
             for (int i = 0, len = _services.Length; i < len; i++)
@@ -103,6 +103,18 @@ namespace CreateAR.SpirePlayer
             }
 
             _bridge.Uninitialize();
+        }
+
+        /// <inheritdoc />
+        public void Suspend()
+        {
+            _messages.Publish(MessageTypes.APPLICATION_SUSPEND);
+        }
+
+        /// <inheritdoc />
+        public void Resume()
+        {
+            _messages.Publish(MessageTypes.APPLICATION_RESUME);
         }
     }
 }
