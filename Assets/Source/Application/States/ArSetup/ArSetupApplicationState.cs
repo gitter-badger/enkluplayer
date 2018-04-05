@@ -30,6 +30,7 @@ namespace CreateAR.SpirePlayer
         private ArPromptViewController _prompt;
         private ArScanningViewController _scanning;
         private ArErrorViewController _error;
+        private ArInterruptedViewController _interrupted;
         
         /// <summary>
         /// Time at which we started looking for the floor.
@@ -63,6 +64,8 @@ namespace CreateAR.SpirePlayer
             
             _error = root.GetComponentInChildren<ArErrorViewController>(true);
             _error.OnEnableCamera += Error_OnEnableCamera;
+
+            _interrupted = root.GetComponentInChildren<ArInterruptedViewController>(true);
             
             var exception = context as Exception;
             
@@ -102,7 +105,14 @@ namespace CreateAR.SpirePlayer
             _ar.Setup(_arConfig);
 
             FindFloor()
-                .OnSuccess(_ => _messages.Publish(MessageTypes.FLOOR_FOUND))
+                .OnSuccess(_ =>
+                {
+                    // watch tracking
+                    _ar.OnTrackingOffline += Ar_OnTrackingOffline;
+                    _ar.OnTrackingOnline += Ar_OnTrackingOnline;
+                    
+                    _messages.Publish(MessageTypes.FLOOR_FOUND);
+                })
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not find floor : {0}", exception);
@@ -110,7 +120,7 @@ namespace CreateAR.SpirePlayer
                     // TODO: error prompt
                 });
         }
-        
+
         /// <summary>
         /// Finds the floor, tags it, then resolves the token.
         /// 
@@ -176,6 +186,7 @@ namespace CreateAR.SpirePlayer
                     }
                 
                     // waited too long!
+                    // TODO: change the dialog.
                     /*if (deltaSec > _arConfig.MaxSearchSec)
                     {
                         token.Fail(new Exception("Timeout."));
@@ -185,6 +196,26 @@ namespace CreateAR.SpirePlayer
                 
                 yield return null;
             }
+        }
+        
+        /// <summary>
+        /// Called when we've lost AR tracking.
+        /// </summary>
+        private void Ar_OnTrackingOffline()
+        {
+            Log.Info(this, "Ar tracking lost!");
+            
+            _interrupted.gameObject.SetActive(true);
+        }
+        
+        /// <summary>
+        /// Called when AR tracking is back online.
+        /// </summary>
+        private void Ar_OnTrackingOnline()
+        {
+            Log.Info(this, "Ar tracking back online.");
+            
+            _interrupted.gameObject.SetActive(false);
         }
         
         /// <summary>

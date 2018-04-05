@@ -49,6 +49,12 @@ namespace CreateAR.SpirePlayer.AR
         /// Video.
         /// </summary>
         public UnityARVideo Video { get; private set; }
+        
+        /// <inheritdoc />
+        public event Action OnTrackingOffline;
+        
+        /// <inheritdoc />
+        public event Action OnTrackingOnline;
 
         /// <summary>
         /// Constructor.
@@ -75,6 +81,8 @@ namespace CreateAR.SpirePlayer.AR
             UnityARSessionNativeInterface.ARAnchorUpdatedEvent += Interface_OnAnchorUpdated;
             UnityARSessionNativeInterface.ARAnchorRemovedEvent += Interface_OnAnchorRemoved;
             UnityARSessionNativeInterface.ARSessionFailedEvent += Interface_OnSessionFailed;
+            UnityARSessionNativeInterface.ARSessionInterruptedEvent += Interface_OnInterrupted;
+            UnityARSessionNativeInterface.ARSessioninterruptionEndedEvent += Interface_OnInterruptEnded;
             
             // startup!
             _interface.RunWithConfigAndOptions(
@@ -101,6 +109,8 @@ namespace CreateAR.SpirePlayer.AR
             UnityARSessionNativeInterface.ARAnchorUpdatedEvent -= Interface_OnAnchorUpdated;
             UnityARSessionNativeInterface.ARAnchorRemovedEvent -= Interface_OnAnchorRemoved;
             UnityARSessionNativeInterface.ARSessionFailedEvent -= Interface_OnSessionFailed;
+            UnityARSessionNativeInterface.ARSessionInterruptedEvent -= Interface_OnInterrupted;
+            UnityARSessionNativeInterface.ARSessioninterruptionEndedEvent -= Interface_OnInterruptEnded;
             
             _interface.Pause();
         }
@@ -207,6 +217,28 @@ namespace CreateAR.SpirePlayer.AR
             if (null != anchor)
             {
                 _anchors.Remove(anchor);
+            }
+        }
+        
+        /// <summary>
+        /// Called by the native interface when tracking is lost.
+        /// </summary>
+        private void Interface_OnInterrupted()
+        {
+            if (null != OnTrackingOffline)
+            {
+                OnTrackingOffline();
+            }
+        }
+        
+        /// <summary>
+        /// Called by the native interface when tracking is reestablished.
+        /// </summary>
+        private void Interface_OnInterruptEnded()
+        {
+            if (null != OnTrackingOnline)
+            {
+                OnTrackingOnline();
             }
         }
     

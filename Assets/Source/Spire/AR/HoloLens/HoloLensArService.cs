@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.AR;
+﻿using System;
+using CreateAR.SpirePlayer.AR;
 
 namespace CreateAR.SpirePlayer
 {
@@ -7,10 +8,16 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class HoloLensArService : IArService
     {
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
+        public event Action OnTrackingOffline;
+        
+        /// <inheritdoc />
+        public event Action OnTrackingOnline;
+
+        /// <inheritdoc />
         public ArAnchor[] Anchors { get; private set; }
 
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
         public ArServiceConfiguration Config { get; private set; }
 
         /// <summary>
@@ -29,13 +36,13 @@ namespace CreateAR.SpirePlayer
             };
         }
 
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
         public void Setup(ArServiceConfiguration config)
         {
             
         }
 
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
         public void Teardown()
         {
             

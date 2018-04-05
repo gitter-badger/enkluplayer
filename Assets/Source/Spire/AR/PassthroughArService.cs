@@ -1,11 +1,19 @@
-﻿namespace CreateAR.SpirePlayer.AR
+﻿using System;
+
+namespace CreateAR.SpirePlayer.AR
 {
     /// <summary>
     /// Passthrough implementation of <c>IArService</c> that provides a floor.
     /// </summary>
     public class PassthroughArService : IArService
     {
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
+        public event Action OnTrackingOffline;
+        
+        /// <inheritdoc />
+        public event Action OnTrackingOnline;
+        
+        /// <inheritdoc />
         public ArAnchor[] Anchors
         {
             get
@@ -22,16 +30,16 @@
             }
         }
 
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
         public ArServiceConfiguration Config { get; private set; }
 
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
         public void Setup(ArServiceConfiguration config)
         {
             Config = config;
         }
 
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
         public void Teardown()
         {
             //
