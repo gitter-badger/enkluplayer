@@ -1,56 +1,41 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis.Messages.GetMyApps;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Controls view for loading app.
+    /// </summary>
     public class LoadAppController : MonoBehaviour
     {
-        private Body[] _apps;
+        /// <summary>
+        /// Prefab for app list.
+        /// </summary>
+        public AppsListElementController AppListElement;
 
+        /// <summary>
+        /// Container for content.
+        /// </summary>
+        public Transform Content;
+        
+        /// <summary>
+        /// Called when an app has been selected to load.
+        /// </summary>
         public event Action<string> OnAppSelected; 
         
+        /// <summary>
+        /// Shows information for apps.
+        /// </summary>
+        /// <param name="apps">The apps to show in the list.</param>
         public void Show(Body[] apps)
         {
-            _apps = apps;
-            
-            Log.Info(this, "Show {0} apps.", _apps.Length);
-        }
-
-        private void OnGUI()
-        {
-            if (null == _apps)
+            foreach (var app in apps)
             {
-                return;
+                var controller = Instantiate(AppListElement, Content);
+                controller.OnSelected += OnAppSelected;   
+                controller.Init(app);
             }
-            
-            GUILayout.BeginHorizontal(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-            {
-                GUILayout.FlexibleSpace();
-                
-                GUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-                {
-                    foreach (var app in _apps)
-                    {
-                        GUILayout.BeginHorizontal("box");
-                        {
-                            if (GUILayout.Button(app.Name, GUILayout.Height(60), GUILayout.Width(400)))
-                            {
-                                if (null != OnAppSelected)
-                                {
-                                    OnAppSelected(app.Id);
-                                }
-                            }
-                        }
-                        GUILayout.EndHorizontal();
-                    }
-                }
-                GUILayout.EndVertical();
-                
-                GUILayout.FlexibleSpace();
-            }
-            GUILayout.EndHorizontal();
         }
     }
 }

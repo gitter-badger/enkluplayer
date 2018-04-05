@@ -49,7 +49,7 @@ namespace CreateAR.SpirePlayer
 #if UNITY_IOS && !UNITY_EDITOR
 				return unity_hasDeniedCameraPermissions();
 #endif
-				return true;
+				return false;
 			}
 		}
 		
