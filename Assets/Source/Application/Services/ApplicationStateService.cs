@@ -157,6 +157,15 @@ namespace CreateAR.SpirePlayer
 #endif
                 });
             
+            Subscribe<Void>(
+                MessageTypes.AR_SETUP,
+                _ =>
+                {
+                    Log.Info(this, "AR setup requested.");
+                    
+                    _states.Change<ArSetupApplicationState>();
+                });
+            
             Subscribe<Exception>(
                 MessageTypes.ARSERVICE_EXCEPTION,
                 exception =>
@@ -171,9 +180,9 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.FLOOR_FOUND,
                 _ =>
                 {
-                    Log.Info(this, "Floor found, proceeding to login.");
+                    Log.Info(this, "Floor found.");
                     
-                    _states.Change<InputLoginApplicationState>();
+                    _states.Change<LoadAppApplicationState>();
                 });
 
             _states.Change<InitializeApplicationState>(_config);
@@ -297,7 +306,7 @@ namespace CreateAR.SpirePlayer
                     case RuntimePlatform.IPhonePlayer:
                     case RuntimePlatform.Android:
                     {
-                        state = ApplicationStateTypes.ArSetup;
+                        state = ApplicationStateTypes.InputLogin;
                         break;
                     }
                     case RuntimePlatform.WSAPlayerX86:

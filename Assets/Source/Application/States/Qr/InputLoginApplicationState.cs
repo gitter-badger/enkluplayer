@@ -132,7 +132,7 @@ namespace CreateAR.SpirePlayer
             _config.Play.AppId = appId;
 
             // load app
-            _messages.Publish(MessageTypes.LOAD_APP);
+            _messages.Publish(MessageTypes.AR_SETUP);
         }
 
         /// <summary>
