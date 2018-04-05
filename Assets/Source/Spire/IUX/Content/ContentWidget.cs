@@ -5,7 +5,6 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using LightJson;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -28,6 +27,11 @@ namespace CreateAR.SpirePlayer
         /// Assembles <c>Content</c>.
         /// </summary>
         private readonly IContentAssembler _assembler;
+
+        /// <summary>
+        /// Caches js objects.
+        /// </summary>
+        private IElementJsCache _jsCache;
 
         /// <summary>
         /// Props.
@@ -113,6 +117,8 @@ namespace CreateAR.SpirePlayer
                 this,
                 null,
                 _scripts);
+            _jsCache = new ElementJsCache(_host);
+            _host.SetValue("this", _jsCache.Element(this));
 
             _srcAssetProp = Schema.Get<string>("assetSrc");
             _srcAssetProp.OnChanged += AssetSrc_OnChanged;
@@ -177,7 +183,24 @@ namespace CreateAR.SpirePlayer
         private void SetupScripts()
         {
             var scriptsSrc = _scriptsProp.Value;
-            var value = JsonValue.Parse(scriptsSrc).AsJsonArray;
+            
+            // unescape-- this is dumb obviously
+            scriptsSrc = scriptsSrc.Replace("\\\"", "\"");
+            
+            JsonArray value;
+            try
+            {
+                value = JsonValue.Parse(scriptsSrc).AsJsonArray;
+            }
+            catch (Exception exception)
+            {
+                Log.Info(this, "Could not parse \"{0}\" : {1}.",
+                    scriptsSrc,
+                    exception);
+                
+                _onScriptsLoaded.Succeed(this);
+                return;
+            }
 
             var len = value.Count;
 
