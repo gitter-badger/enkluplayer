@@ -128,17 +128,25 @@ namespace CreateAR.SpirePlayer
         {
             _appId = string.Empty;
 
+            // stop loads
             foreach (var pair in _sceneLoads)
             {
                 pair.Value.Abort();
             }
             _sceneLoads.Clear();
 
+            // destroy scene stores
             foreach (var pair in _stores)
             {
-                // TODO: destroy?
+                pair.Value.Destroy();
             }
             _stores.Clear();
+
+            // unload all scenes
+            foreach (var scene in TrackedScenes)
+            {
+                UnloadScene(scene);
+            }
 
             return new AsyncToken<Void>(Void.Instance);
         }
@@ -283,6 +291,21 @@ namespace CreateAR.SpirePlayer
         public bool IsTracked(long txnId)
         {
             return _txnIds.Contains(txnId);
+        }
+
+        /// <summary>
+        /// Unloads a scene.
+        /// </summary>
+        /// <param name="sceneId">The id of the scene.</param>
+        private void UnloadScene(string sceneId)
+        {
+            var root = Root(sceneId);
+            if (null != root)
+            {
+                _scenes.Remove(sceneId);
+
+                root.Destroy();
+            }
         }
 
         /// <summary>

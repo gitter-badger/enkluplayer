@@ -39,5 +39,10 @@
         /// </summary>
         /// <param name="txn">The transaction.</param>
         void Apply(ElementTxn txn);
+
+        /// <summary>
+        /// Destroys the store.
+        /// </summary>
+        void Destroy();
     }
 }

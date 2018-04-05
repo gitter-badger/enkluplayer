@@ -12,7 +12,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: CreateAR
-  productName: spireplayer
+  productName: Enklu Play
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0, g: 0, b: 0, a: 0}
@@ -39,11 +39,12 @@ PlayerSettings:
     width: 1
     height: 1
   m_SplashScreenLogos:
-  - logo: {fileID: 21300000, guid: d2a94f7fa411f8f45ab8f5c14ba11e9b, type: 3}
+  - logo: {fileID: 21300000, guid: 709dae82a8c9ccd4aba29dffed2c7574, type: 3}
     duration: 2
-  m_VirtualRealitySplashScreen: {fileID: 2800000, guid: d2a94f7fa411f8f45ab8f5c14ba11e9b,
+  m_VirtualRealitySplashScreen: {fileID: 2800000, guid: 709dae82a8c9ccd4aba29dffed2c7574,
     type: 3}
-  m_HolographicTrackingLossScreen: {fileID: 0}
+  m_HolographicTrackingLossScreen: {fileID: 2800000, guid: 709dae82a8c9ccd4aba29dffed2c7574,
+    type: 3}
   defaultScreenWidth: 1024
   defaultScreenHeight: 768
   defaultScreenWidthWeb: 960
@@ -375,6 +376,13 @@ PlayerSettings:
       m_Width: 1024
       m_Height: 1024
       m_Kind: 4
+  - m_BuildTarget: 
+    m_Icons:
+    - serializedVersion: 2
+      m_Icon: {fileID: 2800000, guid: 709dae82a8c9ccd4aba29dffed2c7574, type: 3}
+      m_Width: 128
+      m_Height: 128
+      m_Kind: 0
   m_BuildTargetBatching: []
   m_BuildTargetGraphicsAPIs:
   - m_BuildTarget: WebGLSupport
@@ -679,13 +687,42 @@ PlayerSettings:
   metroCertificateIssuer: CreateAR
   metroCertificateNotAfter: 002687d9e698d401
   metroApplicationDescription: SpirePlayer
-  wsaImages: {}
-  metroTileShortName: SpirePlayer
+  wsaImages:
+    2031632: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-16.png
+    2031640: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-24.png
+    2031664: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-48.png
+    2031716: Assets/Art/Logo/UWP/Square44x44Logo.scale-100.png
+    2031741: Assets/Art/Logo/UWP/Square44x44Logo.scale-125.png
+    2031766: Assets/Art/Logo/UWP/Square44x44Logo.scale-150.png
+    2031816: Assets/Art/Logo/UWP/Square44x44Logo.scale-200.png
+    2031872: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-256.png
+    2032016: Assets/Art/Logo/UWP/Square44x44Logo.scale-400.png
+    2097252: Assets/Art/Logo/UWP/Square71x71Logo.scale-100.png
+    2097277: Assets/Art/Logo/UWP/Square71x71Logo.scale-125.png
+    2097302: Assets/Art/Logo/UWP/Square71x71Logo.scale-150.png
+    2097352: Assets/Art/Logo/UWP/Square71x71Logo.scale-200.png
+    2097552: Assets/Art/Logo/UWP/Square71x71Logo.scale-400.png
+    2162788: Assets/Art/Logo/UWP/Square150x150Logo.scale-100.png
+    2162813: Assets/Art/Logo/UWP/Square150x150Logo.scale-125.png
+    2162838: Assets/Art/Logo/UWP/Square150x150Logo.scale-150.png
+    2162888: Assets/Art/Logo/UWP/Square150x150Logo.scale-200.png
+    2163088: Assets/Art/Logo/UWP/Square150x150Logo.scale-400.png
+    2228324: Assets/Art/Logo/UWP/Square310x310Logo.scale-100.png
+    2228349: Assets/Art/Logo/UWP/Square310x310Logo.scale-125.png
+    2228374: Assets/Art/Logo/UWP/Square310x310Logo.scale-150.png
+    2228424: Assets/Art/Logo/UWP/Square310x310Logo.scale-200.png
+    2228624: Assets/Art/Logo/UWP/Square310x310Logo.scale-400.png
+    2293860: Assets/Art/Logo/UWP/Wide310x150Logo.scale-100.png
+    2293885: Assets/Art/Logo/UWP/Wide310x150Logo.scale-125.png
+    2293910: Assets/Art/Logo/UWP/Wide310x150Logo.scale-150.png
+    2293960: Assets/Art/Logo/UWP/Wide310x150Logo.scale-200.png
+    2294160: Assets/Art/Logo/UWP/Wide310x150Logo.scale-400.png
+  metroTileShortName: Enklu Play
   metroCommandLineArgsFile: 
   metroTileShowName: 0
   metroMediumTileShowName: 0
-  metroLargeTileShowName: 0
-  metroWideTileShowName: 0
+  metroLargeTileShowName: 1
+  metroWideTileShowName: 1
   metroDefaultTileSize: 1
   metroTileForegroundText: 2
   metroTileBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21568628, a: 0}

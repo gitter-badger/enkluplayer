@@ -19,6 +19,11 @@ namespace CreateAR.SpirePlayer
     public class QrLoginApplicationState : IState
     {
         /// <summary>
+        /// How long to wait for timeout.
+        /// </summary>
+        private const int TIMEOUT_SEC = 3;
+
+        /// <summary>
         /// Name of the playmode scene to load.
         /// </summary>
         private const string SCENE_NAME = "Qr";
@@ -52,11 +57,26 @@ namespace CreateAR.SpirePlayer
         /// App-wide config.
         /// </summary>
         private readonly ApplicationConfig _config;
+
+        /// <summary>
+        /// Root of UI.
+        /// </summary>
+        private GameObject _root;
+
+        /// <summary>
+        /// View controller.
+        /// </summary>
+        private QrViewController _view;
         
         /// <summary>
         /// Token returned from network.
         /// </summary>
         private IAsyncToken<HttpResponse<Response>> _holoAuthToken;
+
+        /// <summary>
+        /// Time at which request was sent.
+        /// </summary>
+        private DateTime _startRequest;
 
         /// <summary>
         /// Constructor.
@@ -90,7 +110,13 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-
+            if (null != _holoAuthToken)
+            {
+                if (DateTime.Now.Subtract(_startRequest).TotalSeconds > TIMEOUT_SEC)
+                {
+                    _view.ShowMessage("Request has timed out. Please double check your wifi connection.");
+                }
+            }
         }
 
         /// <inheritdoc />
@@ -100,8 +126,7 @@ namespace CreateAR.SpirePlayer
             _qr.Stop();
             _qr.OnRead -= Qr_OnRead;
 
-            var qr = GameObject.Find("Qr");
-            qr.GetComponent<Image>().enabled = false;
+            UnityEngine.Object.Destroy(_root);
 
             // unload scene
             SceneManager.UnloadSceneAsync(
@@ -119,10 +144,10 @@ namespace CreateAR.SpirePlayer
 
             Log.Info(this, "Loaded Qr scene.");
             
+            _root = new GameObject("Qr");
+            _view = _root.AddComponent<QrViewController>();
+
             // start qr
-            var qr = GameObject.Find("Qr");
-            qr.GetComponent<Image>().enabled = true;
-            
             _qr.OnRead += Qr_OnRead;
             _qr.Start();
         }
@@ -143,12 +168,15 @@ namespace CreateAR.SpirePlayer
             var substrings = decoded.Split(':');
             if (2 != substrings.Length)
             {
+                _view.ShowMessage("Invalid QR code. Look at HoloLogin code at https://editor.enklu.com.");
                 Log.Warning(this, "Invalid QR code value : {0}.", value);
                 return;
             }
 
             var code = substrings[0];
             var appId = substrings[1];
+
+            _startRequest = DateTime.Now;
 
             // make the call
             _holoAuthToken = _api
@@ -173,11 +201,13 @@ namespace CreateAR.SpirePlayer
 
                         Log.Info(this, "HoloLogin complete.");
                         
-                        _messages.Publish(MessageTypes.LOGIN_COMPLETE);
+                        _messages.Publish(MessageTypes.USER_PROFILE);
                     }
                     else
                     {
                         Log.Error(this, "Server refused our code : {0}.", response.Payload.Error);
+
+                        _view.ShowMessage("Could not login. Invalid account. Please contact support@enklu.com if this persists.");
                     }
                 })
                 .OnFailure(exception =>
@@ -185,6 +215,8 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this, "Could not sign in with holocode : {0}.", exception);
 
                     _holoAuthToken = null;
+
+                    _view.ShowMessage("Could not login. Please try again later. Please contact support@enklu.com if this persists.");
                 });
         }
     }

@@ -101,6 +101,9 @@ namespace CreateAR.SpirePlayer
                     {
                         UntrackScene(_txns.TrackedScenes[i]);
                     }
+
+                    // remove all filtered items
+                    _filteredElements.Clear();
                 }
 
                 Reapply();
@@ -114,7 +117,7 @@ namespace CreateAR.SpirePlayer
         {
             _txns = txns;
         }
-
+        
         /// <inheritdoc />
         public IElementControllerManager Filter(IElementControllerFilter filter)
         {

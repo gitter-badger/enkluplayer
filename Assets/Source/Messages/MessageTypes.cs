@@ -22,7 +22,8 @@
         public const int RECV_APP_INFO = 3;
         public const int RECV_ENV_INFO = 4;
         public const int LOAD_APP = 5;
-        public const int LOGIN_COMPLETE = 6;
+        public const int USER_PROFILE = 6;
+        public const int LOGIN = 7;
 
         // Assets
         public const int RECV_ASSET_LIST = 10;

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -10,6 +12,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class MainDesignState : IArDesignState
     {
+        /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
         /// <summary>
         /// Manages controllers.
         /// </summary>
@@ -53,8 +60,11 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public MainDesignState(IElementControllerManager controllers)
+        public MainDesignState(
+            IMessageRouter messages,
+            IElementControllerManager controllers)
         {
+            _messages = messages;
             _controllers = controllers;
         }
 
@@ -73,6 +83,7 @@ namespace CreateAR.SpirePlayer
                 _splash = unityRoot.AddComponent<SplashMenuController>();
                 _splash.enabled = false;
                 _splash.OnOpenMenu += Splash_OnOpenMenu;
+                _splash.OnBack += Splash_OnBack;
                 dynamicRoot.AddChild(_splash.Root);
             }
 
@@ -96,6 +107,14 @@ namespace CreateAR.SpirePlayer
                 _clearScene.OnConfirm += ClearAll_OnConfirm;
                 dynamicRoot.AddChild(_clearScene.Root);
             }
+        }
+
+        /// <inheritdoc />
+        public void Uninitialize()
+        {
+            UnityEngine.Object.Destroy(_splash);
+            UnityEngine.Object.Destroy(_mainMenu);
+            UnityEngine.Object.Destroy(_clearScene);
         }
 
         /// <inheritdoc />
@@ -160,7 +179,15 @@ namespace CreateAR.SpirePlayer
                 designControllers[i].HideSplashMenu();
             }
         }
-        
+
+        /// <summary>
+        /// Called when the splash menu wants to go back.
+        /// </summary>
+        private void Splash_OnBack()
+        {
+            _messages.Publish(MessageTypes.USER_PROFILE);
+        }
+
         /// <summary>
         /// Called when splash wants to open the menu.
         /// </summary>
