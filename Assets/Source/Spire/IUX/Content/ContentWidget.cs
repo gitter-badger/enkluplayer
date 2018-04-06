@@ -5,7 +5,6 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using LightJson;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -30,6 +29,11 @@ namespace CreateAR.SpirePlayer
         private readonly IContentAssembler _assembler;
 
         /// <summary>
+        /// Caches js objects.
+        /// </summary>
+        private IElementJsCache _jsCache;
+
+        /// <summary>
         /// Props.
         /// </summary>
         private ElementSchemaProp<string> _srcAssetProp;
@@ -48,7 +52,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Behaviors.
         /// </summary>
-        private readonly List<SpireScriptMonoBehaviour> _scriptComponents = new List<SpireScriptMonoBehaviour>();
+        private readonly List<SpireScriptElementBehavior> _scriptComponents = new List<SpireScriptElementBehavior>();
         
         /// <summary>
         /// Vines.
@@ -113,6 +117,8 @@ namespace CreateAR.SpirePlayer
                 this,
                 null,
                 _scripts);
+            _jsCache = new ElementJsCache(_host);
+            _host.SetValue("this", _jsCache.Element(this));
 
             _srcAssetProp = Schema.Get<string>("assetSrc");
             _srcAssetProp.OnChanged += AssetSrc_OnChanged;
@@ -135,7 +141,18 @@ namespace CreateAR.SpirePlayer
             _assembler.Teardown();
             TeardownScripts();
         }
-        
+
+        /// <inheritdoc />
+        protected override void UpdateInternal()
+        {
+            base.UpdateInternal();
+
+            for (int i = 0, len = _scriptComponents.Count; i < len; i++)
+            {
+                _scriptComponents[i].Update();
+            }
+        }
+
         /// <summary>
         /// Tears down the asset and sets it back up.
         /// </summary>
@@ -166,7 +183,24 @@ namespace CreateAR.SpirePlayer
         private void SetupScripts()
         {
             var scriptsSrc = _scriptsProp.Value;
-            var value = JsonValue.Parse(scriptsSrc).AsJsonArray;
+            
+            // unescape-- this is dumb obviously
+            scriptsSrc = scriptsSrc.Replace("\\\"", "\"");
+            
+            JsonArray value;
+            try
+            {
+                value = JsonValue.Parse(scriptsSrc).AsJsonArray;
+            }
+            catch (Exception exception)
+            {
+                Log.Info(this, "Could not parse \"{0}\" : {1}.",
+                    scriptsSrc,
+                    exception);
+                
+                _onScriptsLoaded.Succeed(this);
+                return;
+            }
 
             var len = value.Count;
 
@@ -219,9 +253,7 @@ namespace CreateAR.SpirePlayer
             // destroy components
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
             {
-                var component = _scriptComponents[i];
-                component.Exit();
-                Object.Destroy(component);
+                _scriptComponents[i].Exit();
             }
             _scriptComponents.Clear();
 
@@ -259,7 +291,7 @@ namespace CreateAR.SpirePlayer
         private void RunBehavior(SpireScript script)
         {
             // restart or create new component
-            SpireScriptMonoBehaviour component = null;
+            SpireScriptElementBehavior component = null;
 
             var found = false;
             for (int j = 0, jlen = _scriptComponents.Count; j < jlen; j++)
@@ -276,11 +308,11 @@ namespace CreateAR.SpirePlayer
 
             if (!found)
             {
-                component = GameObject.AddComponent<SpireScriptMonoBehaviour>();
+                component = new SpireScriptElementBehavior();
                 _scriptComponents.Add(component);
             }
 
-            component.Initialize(_host, script);
+            component.Initialize(_host, script, this);
             component.Enter();
         }
         

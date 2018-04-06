@@ -1,4 +1,6 @@
-﻿namespace CreateAR.SpirePlayer.IUX
+﻿using System;
+
+namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Describes an object that manages all elements.

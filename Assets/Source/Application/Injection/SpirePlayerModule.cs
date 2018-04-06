@@ -11,6 +11,7 @@ using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
 using CreateAR.Trellis.Messages;
+using Jint;
 using Jint.Parser;
 using Jint.Unity;
 using strange.extensions.injector.impl;
