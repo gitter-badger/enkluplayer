@@ -66,5 +66,20 @@
         {
             return a.Magnitude;
         }
+
+        /// <summary>
+        /// Normalizes a vector.
+        /// </summary>
+        /// <param name="a">The vector to normalize.</param>
+        /// <returns></returns>
+        public Vec3 normalize(Vec3 a)
+        {
+            var mag = a.Magnitude;
+            
+            return new Vec3(
+                a.x / mag,
+                a.y / mag,
+                a.z / mag);
+        }
     }
 }

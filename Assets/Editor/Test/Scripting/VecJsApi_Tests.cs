@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.Remoting;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using Jint;
 using Jint.Native;
 using NUnit.Framework;
@@ -77,6 +79,14 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             var result = Run(@"v.len(vec3(1, 0, 0))").AsNumber();
             
             Assert.IsTrue(Math.Abs(result - 1f) < Mathf.Epsilon);
+        }
+
+        public void Vec3Normalize()
+        {
+            var normalized = Run<Vec3>(@"v.normalize(vec3(10, 0, 0))");
+            
+            Assert.IsTrue(Math.Abs(normalized.x - 1f) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(normalized.Magnitude - 1f) < Mathf.Epsilon);
         }
 
         private JsValue Run(string program)
