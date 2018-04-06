@@ -8,6 +8,11 @@ namespace CreateAR.SpirePlayer.Test.Assets
 {
     public class DummyAssetLoader : IAssetLoader
     {
+        public void Initialize()
+        {
+            
+        }
+
         public IAsyncToken<Object> Load(AssetData data, out LoadProgress progress)
         {
             var token = new AsyncToken<Object>();

@@ -97,7 +97,6 @@ namespace CreateAR.SpirePlayer.Assets
             Verbose("Checking cache.");
 
             if (Math.Abs(_config.AssetDownloadLagSec) < Mathf.Epsilon
-                && _config.AssetCacheEnabled
                 && _cache.Contains(_url))
             {
                 Verbose("Cache hit.");
@@ -178,7 +177,7 @@ namespace CreateAR.SpirePlayer.Assets
                 yield return new WaitForSecondsRealtime(_config.AssetDownloadLagSec);
             }
             
-#if UNITY_IOS
+#if UNITY_IOS || UNITY_WEBGL
             var request = UnityWebRequest.GetAssetBundle(_url);
             yield return request.SendWebRequest();
 #else
@@ -216,7 +215,7 @@ namespace CreateAR.SpirePlayer.Assets
             }
             else
             {
-#if UNITY_IOS
+#if UNITY_IOS || UNITY_WEBGL
                 var bundle = DownloadHandlerAssetBundle.GetContent(request);
                 if (null != bundle)
                 {

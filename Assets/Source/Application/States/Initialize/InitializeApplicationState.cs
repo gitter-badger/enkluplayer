@@ -28,6 +28,8 @@ namespace CreateAR.SpirePlayer
         private readonly IBootstrapper _bootstrapper;
         private readonly IHashProvider _hashMethod;
         private readonly IAssetManager _assets;
+        private readonly IAssetLoader _assetLoader;
+        private readonly IAssetBundleCache _assetCache;
         private readonly ArServiceConfiguration _arConfig;
         private readonly IArService _ar;
         private readonly BleServiceConfiguration _bleConfig;
@@ -52,6 +54,8 @@ namespace CreateAR.SpirePlayer
             IBootstrapper bootstrapper,
             IHashProvider hashMethod,
             IAssetManager assets,
+            IAssetLoader assetLoader,
+            IAssetBundleCache assetCache,
             ArServiceConfiguration arConfig,
             IArService ar,
             BleServiceConfiguration bleConfig,
@@ -63,11 +67,14 @@ namespace CreateAR.SpirePlayer
             _bootstrapper = bootstrapper;
             _hashMethod = hashMethod;
             _assets = assets;
+            _assetLoader = assetLoader;
+            _assetCache = assetCache;
             _arConfig = arConfig;
             _ar = ar;
             _bleConfig = bleConfig;
             _ble = ble;
 
+            // TODO: replace with url builder
             imageLoader.ReplaceProtocol(
                 "assets",
                 "https://assets.enklu.com:9091");
@@ -88,23 +95,8 @@ namespace CreateAR.SpirePlayer
             var env = _appConfig.Network.Environment(_appConfig.Network.Current);
             _http.UrlBuilder.FromUrl(env.Url);
 
-            // setup assets
-            // TODO: pull out of here!
-            var loader = new StandardAssetLoader(
-                _appConfig.Network,
-                _bootstrapper,
-                new StandardAssetBundleCache(
-                    _bootstrapper,
-                    _hashMethod,
-                    Path.Combine(
-                        UnityEngine.Application.persistentDataPath,
-                        "Bundles")), 
-                new UrlBuilder
-                {
-                    BaseUrl = "assets.enklu.com",
-                    Port = 9091,
-                    Protocol = "https"
-                });
+            // setup asset loading
+            _assetLoader.Initialize();
 
             // reset assets
             _assets.Uninitialize();
@@ -114,7 +106,7 @@ namespace CreateAR.SpirePlayer
             {
                 _assets.Initialize(new AssetManagerConfiguration
                 {
-                    Loader = loader,
+                    Loader = _assetLoader,
                     Queries = new StandardQueryResolver()
                 }),
                 FindFloor()
