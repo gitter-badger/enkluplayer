@@ -9,6 +9,11 @@ namespace CreateAR.SpirePlayer.Assets
     public interface IAssetBundleCache
     {
         /// <summary>
+        /// Readies the cache.
+        /// </summary>
+        void Initialize();
+
+        /// <summary>
         /// True iff the cache contains the bundle.
         /// </summary>
         /// <param name="uri">Effectively the key of the bundle.</param>

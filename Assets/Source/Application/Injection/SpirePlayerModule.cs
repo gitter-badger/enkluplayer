@@ -37,9 +37,6 @@ namespace CreateAR.SpirePlayer
             serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
 
             var config = (ApplicationConfig) app;
-#if UNITY_WEBGL
-            config.Network.AssetCacheEnabled = false;
-#endif
 
             Log.Info(this, "ApplicationConfig:\n{0}", config);
 
@@ -51,6 +48,7 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<ISerializer>().To<JsonSerializer>();
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
+                binder.Bind<UrlBuilder>().To<UrlBuilder>();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
                 binder.Bind<IHttpService>()
                     .To(new HttpService(
@@ -64,8 +62,20 @@ namespace CreateAR.SpirePlayer
 #else
                 binder.Bind<IHashProvider>().To<Sha256HashProvider>();
 #endif
-                binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
-                binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
+
+                // assets
+                {
+#if !UNITY_EDITOR && UNITY_WEBGL
+                    // no cache on web
+                    binder.Bind<IAssetBundleCache>().To<PassthroughAssetBundleCache>().ToSingleton();
+#else
+                    binder.Bind<IAssetBundleCache>().To<StandardAssetBundleCache>().ToSingleton();
+#endif
+                    binder.Bind<IAssetLoader>().To<StandardAssetLoader>().ToSingleton();
+                    binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
+                    binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
+                }
+                
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
                 binder.Bind<IImageLoader>().To<StandardImageLoader>().ToSingleton();
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
