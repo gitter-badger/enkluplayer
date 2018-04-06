@@ -76,7 +76,7 @@ namespace CreateAR.SpirePlayer
             _engine.SetValue("v", Vec3Methods.Instance);
             _engine.SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
             _engine.SetValue("q", QuatMethods.Instance);
-            _engine.SetValue("quat", new Func<float, float, float, Quat>(QuatMethods.create));
+            _engine.SetValue("quat", new Func<float, float, float, float, Quat>(QuatMethods.create));
             _engine.SetValue("time", TimeJsApi.Instance);
 
             try
