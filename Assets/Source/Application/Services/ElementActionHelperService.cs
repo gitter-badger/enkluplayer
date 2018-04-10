@@ -57,14 +57,16 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            var element = root.FindOne<Element>(@event.ElementId);
+            var element = root.FindOne<Element>(".." + @event.ElementId);
             if (null == element)
             {
                 Log.Info(this, "Could not find element for reparent. ElementId = {0}", @event.ElementId);
                 return;
             }
 
-            var parent = root.FindOne<Element>(@event.ParentId);
+            var parent = @event.ParentId == root.Id
+                ? root
+                : root.FindOne<Element>(".." + @event.ParentId);
             if (null == parent)
             {
                 Log.Info(this, "Could not find parent for reparent. ParentId = {0}", @event.ParentId);
