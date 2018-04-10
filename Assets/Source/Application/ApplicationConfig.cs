@@ -152,11 +152,6 @@ namespace CreateAR.SpirePlayer
         public float AssetDownloadLagSec;
 
         /// <summary>
-        /// True iff asset cache is enabled.
-        /// </summary>
-        public bool AssetCacheEnabled;
-
-        /// <summary>
         /// Current environment we should connect to.
         /// </summary>
         public string Current;

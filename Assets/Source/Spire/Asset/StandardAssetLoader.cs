@@ -13,7 +13,7 @@ namespace CreateAR.SpirePlayer.Assets
         /// <summary>
         /// Network configuration.
         /// </summary>
-        private readonly NetworkConfig _config;
+        private readonly ApplicationConfig _config;
 
         /// <summary>
         /// Bootstraps coroutines.
@@ -39,7 +39,7 @@ namespace CreateAR.SpirePlayer.Assets
         /// Constructor.
         /// </summary>
         public StandardAssetLoader(
-            NetworkConfig config,
+            ApplicationConfig config,
             IBootstrapper bootstrapper,
             IAssetBundleCache cache,
             UrlBuilder urls)
@@ -50,7 +50,17 @@ namespace CreateAR.SpirePlayer.Assets
             _urls = urls;
         }
 
-        /// <inheritdoc cref="IAssetLoader"/>
+        /// <inheritdoc />
+        public void Initialize()
+        {
+            _cache.Initialize();
+
+            _urls.BaseUrl = "assets.enklu.com";
+            _urls.Port = 9091;
+            _urls.Protocol = "https";
+        }
+
+        /// <inheritdoc />
         public IAsyncToken<Object> Load(
             AssetData data,
             out LoadProgress progress)
@@ -61,7 +71,7 @@ namespace CreateAR.SpirePlayer.Assets
             if (!_bundles.TryGetValue(url, out loader))
             {
                 loader = _bundles[url] = new AssetBundleLoader(
-                    _config,
+                    _config.Network,
                     _bootstrapper,
                     _cache,
                     url);
@@ -72,7 +82,7 @@ namespace CreateAR.SpirePlayer.Assets
             return loader.Asset(data.Guid, out progress);
         }
 
-        /// <inheritdoc cref="IAssetLoader"/>
+        /// <inheritdoc />
         public void Destroy()
         {
             foreach (var pair in _bundles)

@@ -110,7 +110,7 @@ namespace CreateAR.SpirePlayer
         private IAsyncToken<Void> GetAssets()
         {
             var token = new AsyncToken<Void>();
-
+            
             _api
                 .Assets
                 .GetAssets(_config.Play.AppId)

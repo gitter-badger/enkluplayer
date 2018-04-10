@@ -54,31 +54,36 @@ namespace CreateAR.SpirePlayer.Assets
         /// <summary>
         /// Base path on disk.
         /// </summary>
-        private readonly string _basePath;
+        private string _basePath;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="bootstrapper">For coroutines.</param>
         /// <param name="hashing">Hashing method.</param>
-        /// <param name="basePath">Base path on disk.</param>
         public StandardAssetBundleCache(
             IBootstrapper bootstrapper,
-            IHashProvider hashing,
-            string basePath)
+            IHashProvider hashing)
         {
             _bootstrapper = bootstrapper;
             _hashProvider = hashing;
-            _basePath = basePath;
         }
-        
-        /// <inheritdoc cref="IAssetBundleCache"/>
+
+        /// <inheritdoc />
+        public void Initialize()
+        {
+            _basePath = Path.Combine(
+                UnityEngine.Application.persistentDataPath,
+                "Bundles");
+        }
+
+        /// <inheritdoc />
         public bool Contains(string uri)
         {
             return File.Exists(FilePath(uri));
         }
 
-        /// <inheritdoc cref="IAssetBundleCache"/>
+        /// <inheritdoc />
         public IAsyncToken<AssetBundle> Load(string uri, out LoadProgress progress)
         {
             var token = new AsyncToken<AssetBundle>();
@@ -104,8 +109,8 @@ namespace CreateAR.SpirePlayer.Assets
             
             return token;
         }
-        
-        /// <inheritdoc cref="IAssetBundleCache"/>
+
+        /// <inheritdoc />
         public void Save(string uri, byte[] bytes)
         {
             var path = FilePath(uri);

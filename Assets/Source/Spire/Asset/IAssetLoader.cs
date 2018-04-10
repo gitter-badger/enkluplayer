@@ -9,6 +9,11 @@ namespace CreateAR.SpirePlayer.Assets
     public interface IAssetLoader
     {
         /// <summary>
+        /// Initializes the loader.
+        /// </summary>
+        void Initialize();
+
+        /// <summary>
         /// Loads an asset.
         /// </summary>
         /// <param name="data">The <c>AssetInfo</c> to load the accompanying

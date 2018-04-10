@@ -26,10 +26,9 @@ namespace CreateAR.SpirePlayer
                 });
             })
         {
-            SetValue("log", new JsLogWrapper(context));
+            SetValue("log", new LogJsApi(context));
             SetValue("require", new Func<string, JsValue>(
                 value => resolver.Resolve(scripts, this, value)));
-            SetValue("time", new TimeJsApi());
         }
     }
 }
