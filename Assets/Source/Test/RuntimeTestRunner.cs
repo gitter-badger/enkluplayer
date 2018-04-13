@@ -184,6 +184,20 @@ namespace CreateAR.SpirePlayer.Test
         }
 
         /// <summary>
+        /// Retrieves assemblies.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<Assembly> GetAssemblies()
+        {
+#if NETFX_CORE
+            // TODO: https://stackoverflow.com/questions/44813060/equivalence-for-appdomain-getassemblies-in-uwp
+            return new Assembly[0];
+#else
+            return AppDomain.CurrentDomain.GetAssemblies();
+#endif
+        }
+
+        /// <summary>
         /// Runs tests.
         /// </summary>
         private IEnumerator StartTests()
@@ -191,7 +205,8 @@ namespace CreateAR.SpirePlayer.Test
             _result = new RuntimeTestSuiteResult();
             
             var tests = new List<MethodInfo>();
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+
+            foreach (var assembly in GetAssemblies())
             {
                 foreach (var type in assembly.GetTypes())
                 {
