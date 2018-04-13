@@ -214,7 +214,13 @@ namespace CreateAR.SpirePlayer
 
             return token;
         }
-        
+
+        /// <inheritdoc />
+        public void Select(string sceneId, string elementId)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Starts design mode.
         /// </summary>

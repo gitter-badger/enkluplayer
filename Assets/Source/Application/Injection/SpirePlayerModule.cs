@@ -155,7 +155,6 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<InputLoginApplicationState>().To<InputLoginApplicationState>();
                     binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
-                    binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
                     binder.Bind<InstaApplicationState>().To<InstaApplicationState>();

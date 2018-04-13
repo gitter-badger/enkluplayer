@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using RTEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -20,7 +24,12 @@ namespace CreateAR.SpirePlayer
         /// Manages element controllers.
         /// </summary>
         private readonly IElementControllerManager _controllers;
-        
+
+        /// <summary>
+        /// Txns.
+        /// </summary>
+        private readonly IElementTxnManager _txns;
+
         /// <summary>
         /// Main camera.
         /// </summary>
@@ -42,10 +51,12 @@ namespace CreateAR.SpirePlayer
         public DesktopDesignController(
             IElementUpdateDelegate elements,
             IElementControllerManager controllers,
+            IElementTxnManager txns,
             MainCamera mainCamera)
         {
             _elements = elements;
             _controllers = controllers;
+            _txns = txns;
             _mainCamera = mainCamera.GetComponent<Camera>();
         }
 
@@ -94,6 +105,40 @@ namespace CreateAR.SpirePlayer
         public IAsyncToken<string> Create()
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public void Select(string sceneId, string elementId)
+        {
+            // find scene
+            var scene = _txns.Root(sceneId);
+            if (null == scene)
+            {
+                Log.Error(this, "Could not find scene root to select : {0}.", sceneId);
+                return;
+            }
+
+            var element = scene.FindOne<Element>(elementId);
+            if (null == element)
+            {
+                Log.Error(this,
+                    "Could not find element to select : {0}.",
+                    elementId);
+                return;
+            }
+
+            var unityElement = element as IUnityElement;
+            if (null == unityElement)
+            {
+                Log.Error(this,
+                    "Selected element is not an IUnityElement : {0}.",
+                    elementId);
+                return;
+            }
+
+            EditorObjectSelection.Instance.SetSelectedObjects(
+                new List<GameObject>{ unityElement.GameObject },
+                false);
         }
 
         /// <summary>
