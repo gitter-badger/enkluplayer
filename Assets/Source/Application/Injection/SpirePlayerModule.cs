@@ -11,7 +11,6 @@ using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
 using CreateAR.Trellis.Messages;
-using Jint;
 using Jint.Parser;
 using Jint.Unity;
 using strange.extensions.injector.impl;
@@ -187,9 +186,7 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<MaterialUpdateService>(),
                         binder.GetInstance<ShaderUpdateService>(),
                         binder.GetInstance<SceneUpdateService>(),
-#if UNITY_WEBGL
                         binder.GetInstance<ElementActionHelperService>()
-#endif
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }
