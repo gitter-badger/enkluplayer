@@ -202,14 +202,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void PropAdjust_OnExit(ContentDesignController controller)
         {
-            CloseAll();
-
-            controller.ShowSplashMenu();
-
-            _dynamicRoot.Schema.Set("focus.visible", true);
-
             // force final state update
             controller.FinalizeState();
+
+            // close splash menu
+            controller.ShowSplashMenu();
+
+            // reenable dynamic
+            _dynamicRoot.Schema.Set("focus.visible", true);
 
             // back to main
             _design.ChangeState<MainDesignState>();
