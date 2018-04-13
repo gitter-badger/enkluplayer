@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
@@ -31,6 +30,11 @@ namespace CreateAR.SpirePlayer
         private readonly IElementTxnManager _txns;
 
         /// <summary>
+        /// Bridge.
+        /// </summary>
+        private readonly IBridge _bridge;
+
+        /// <summary>
         /// Main camera.
         /// </summary>
         private readonly Camera _mainCamera;
@@ -52,11 +56,13 @@ namespace CreateAR.SpirePlayer
             IElementUpdateDelegate elements,
             IElementControllerManager controllers,
             IElementTxnManager txns,
+            IBridge bridge,
             MainCamera mainCamera)
         {
             _elements = elements;
             _controllers = controllers;
             _txns = txns;
+            _bridge = bridge;
             _mainCamera = mainCamera.GetComponent<Camera>();
         }
 
@@ -167,6 +173,24 @@ namespace CreateAR.SpirePlayer
                 {
                     controller.EnableUpdates();
                 }
+            }
+            
+            // send to the OTHER SIDE
+            if (args.SelectedObjects.Count == 1)
+            {
+                var selected = args.SelectedObjects[0].GetComponent<DesktopContentDesignController>();
+
+                _bridge.Send(string.Format(
+                    @"{{""type"":{0}, ""sceneId"":""{1}"", ""elementId"":""{2}""}}",
+                    MessageTypes.BRIDGE_HELPER_SELECT,
+                    _txns.TrackedScenes[0],
+                    selected.Element.Id));
+            }
+            else
+            {
+                _bridge.Send(string.Format(
+                    @"{{""type"":{0}}}",
+                    MessageTypes.BRIDGE_HELPER_SELECT));
             }
         }
     }

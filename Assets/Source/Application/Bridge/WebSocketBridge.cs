@@ -6,6 +6,7 @@ using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using RTEditor;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -119,6 +120,14 @@ namespace CreateAR.SpirePlayer
             // ReSharper disable once InconsistentNaming
             public string methodName;
 #pragma warning restore 414
+
+            /// <summary>
+            /// Payload, if any.
+            /// </summary>
+#pragma warning disable 414
+            // ReSharper disable once InconsistentNaming
+            public string payload;
+#pragma warning restore 414
         }
 
         /// <summary>
@@ -212,13 +221,13 @@ namespace CreateAR.SpirePlayer
             GC.SuppressFinalize(this);
         }
 
-        /// <inheritdoc cref="IBridge"/>
+        /// <inheritdoc />
         public void Initialize(BridgeMessageHandler handler)
         {
             _handler = handler;
         }
 
-        /// <inheritdoc cref="IBridge"/>
+        /// <inheritdoc />
         public void Uninitialize()
         {
             _service = null;
@@ -233,7 +242,7 @@ namespace CreateAR.SpirePlayer
             Binder.Clear();
         }
 
-        /// <inheritdoc cref="IBridge"/>
+        /// <inheritdoc />
         public void BroadcastReady()
         {
             _broadcastReady = true;
@@ -245,6 +254,12 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc />
+        public void Send(string message)
+        {
+            CallMethod("message", _service, message);
+        }
+
         /// <summary>
         /// Called when a client joins a service.
         /// </summary>
@@ -252,15 +267,13 @@ namespace CreateAR.SpirePlayer
         private void Service_OnClientJoined(BridgeService service)
         {
             CallMethod("init", service);
-
+            
             if (_broadcastReady)
             {
                 CallMethod("ready", service);
             }
-            else
-            {
-                _service = service;
-            }
+
+            _service = service;
         }
 
         /// <summary>
@@ -327,7 +340,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="methodName">The message type to send.</param>
         /// <param name="service">Optional service to send to.</param>
-        private void CallMethod(string methodName, BridgeService service)
+        /// <param name="payload">Optional payload.</param>
+        private void CallMethod(string methodName, BridgeService service, string payload = null)
         {
             Log.Info(this, "{0}()", methodName);
 
@@ -335,13 +349,24 @@ namespace CreateAR.SpirePlayer
             _serializer.Serialize(
                 new Method
                 {
-                    methodName = methodName
+                    methodName = methodName,
+                    payload = payload ?? string.Empty
                 },
                 out bytes);
 
-            var payload = Encoding.UTF8.GetString(bytes);
+            if (null == bytes)
+            {
+                throw new Exception("WAT");
+            }
+
+            Log.Info(this, "Send " + bytes.Length + " bytes.");
+
+            if (null == service)
+            {
+                throw new Exception("WATTTTT");
+            }
             
-            service.SendMessage(payload);
+            service.SendMessage(Encoding.UTF8.GetString(bytes));
         }
 
         /// <summary>

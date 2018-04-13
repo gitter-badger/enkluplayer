@@ -218,7 +218,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Select(string sceneId, string elementId)
         {
-            throw new NotImplementedException();
+            // ignore forced selection in AR mode
         }
 
         /// <summary>
