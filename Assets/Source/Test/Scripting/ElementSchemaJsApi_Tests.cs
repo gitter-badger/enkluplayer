@@ -1,10 +1,7 @@
-﻿using CreateAR.Commons.Unity.Async;
-
-namespace CreateAR.SpirePlayer.Test.Scripting
+﻿namespace CreateAR.SpirePlayer.Test.Scripting
 {
     public class ElementSchemaJsApi_Tests : JsTestBase
     {
-        private ElementJs _element;
         private AppElementsJsApi _elementsApi;
         
         [RuntimeSetUpFixture]
@@ -16,7 +13,7 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             _elementsApi = new AppElementsJsApi(cache, ElementFactory, Elements);
             _engine.SetValue("elements", _elementsApi);
 
-            _element = _elementsApi.create("Container", "a");
+            _elementsApi.create("Container", "a");
         }
 
         [RuntimeTest]

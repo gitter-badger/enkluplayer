@@ -47,6 +47,7 @@ namespace CreateAR.SpirePlayer
 
             // misc dependencies
             {
+                binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>().ToSingleton();
                 binder.Bind<ISerializer>().To<JsonSerializer>();
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
                 binder.Bind<UrlBuilder>().To<UrlBuilder>();

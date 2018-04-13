@@ -1,3 +1,4 @@
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using strange.extensions.injector.impl;
@@ -53,7 +54,7 @@ namespace CreateAR.SpirePlayer
             // setup logging
 	        Log.Filter = LogLevel.Debug;
 
-	        
+	        // log to unity
 	        Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
 	        {
 	            Level = false,
@@ -61,12 +62,14 @@ namespace CreateAR.SpirePlayer
 	            TypeName = true
 	        }));
             
+            // UWP should log to socket
 #if FALSE && NETFX_CORE
             Log.AddLogTarget(new UwpSocketLogger(
                 "Spire",
                 new System.Uri("ws://127.0.0.1:9999")));
 #endif // NETFX_CORE
 
+            // non-webgl should log to file
 #if !UNITY_WEBGL
             Log.AddLogTarget(new FileLogTarget(
 				new DefaultLogFormatter(),
@@ -88,6 +91,19 @@ namespace CreateAR.SpirePlayer
 
             // load bindings
             _binder.Load(new SpirePlayerModule());
+
+	        // non-editor builds should log to loggly
+	        if (!UnityEngine.Application.isEditor)
+	        {
+	            Log.AddLogTarget(new LogglyLogTarget(
+	                "1f0810f5-db28-4ea3-aeea-ec83d8cb3c0f",
+	                "EnkluPlayer",
+	                _binder.GetInstance<ILogglyMetadataProvider>(),
+	                _binder.GetInstance<IBootstrapper>())
+	            {
+                    Filter = LogLevel.Error
+	            });
+            }
 
             // create application!
             _app = _binder.GetInstance<Application>();

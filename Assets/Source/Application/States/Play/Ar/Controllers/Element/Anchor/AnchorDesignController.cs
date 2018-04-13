@@ -88,11 +88,6 @@ namespace CreateAR.SpirePlayer
         private AnchorSplashController _splash;
 
         /// <summary>
-        /// GameObject representation.
-        /// </summary>
-        private AnchorRenderer _renderer;
-
-        /// <summary>
         /// True iff locked.
         /// </summary>
         private bool _isLocked;
@@ -118,10 +113,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Renders an object.
         /// </summary>
-        public AnchorRenderer Renderer
-        {
-            get { return _renderer; }
-        }
+        public AnchorRenderer Renderer { get; private set; }
 
         /// <inheritdoc />
         public override void Initialize(Element element, object context)
@@ -147,7 +139,7 @@ namespace CreateAR.SpirePlayer
 
             _fsm = new FiniteStateMachine(new IState[]
             {
-                new AnchorLoadingState(this, _provider),
+                new AnchorLoadingState(this),
                 new AnchorSavingState(
                     this,
                     _cache,
@@ -172,7 +164,7 @@ namespace CreateAR.SpirePlayer
 
             TeardownSplash();
 
-            _renderer.gameObject.SetActive(false);
+            Renderer.gameObject.SetActive(false);
         }
 
         /// <summary>
@@ -274,14 +266,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SetupMarker()
         {
-            if (null == _renderer)
+            if (null == Renderer)
             {
-                _renderer = Instantiate(_config.AnchorPrefab, transform);
-                _renderer.transform.localPosition = Vector3.zero;
-                _renderer.transform.localRotation = Quaternion.identity;
+                Renderer = Instantiate(_config.AnchorPrefab, transform);
+                Renderer.transform.localPosition = Vector3.zero;
+                Renderer.transform.localRotation = Quaternion.identity;
             }
 
-            _renderer.gameObject.SetActive(true);
+            Renderer.gameObject.SetActive(true);
         }
 
         /// <summary>
