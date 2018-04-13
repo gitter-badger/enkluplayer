@@ -208,6 +208,9 @@ namespace CreateAR.SpirePlayer
 
             _dynamicRoot.Schema.Set("focus.visible", true);
 
+            // force final state update
+            controller.FinalizeState();
+
             // back to main
             _design.ChangeState<MainDesignState>();
         }

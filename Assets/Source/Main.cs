@@ -101,6 +101,7 @@ namespace CreateAR.SpirePlayer
 	                _binder.GetInstance<ILogglyMetadataProvider>(),
 	                _binder.GetInstance<IBootstrapper>())
 	            {
+                    // only log errors + above
                     Filter = LogLevel.Error
 	            });
             }
