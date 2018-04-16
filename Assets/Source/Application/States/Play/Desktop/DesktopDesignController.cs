@@ -124,7 +124,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            var element = scene.FindOne<Element>(elementId);
+            var element = scene.FindOne<Element>(".." + elementId);
             if (null == element)
             {
                 Log.Error(this,
@@ -142,6 +142,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            EditorObjectSelection.Instance.ClearSelection(false);
             EditorObjectSelection.Instance.SetSelectedObjects(
                 new List<GameObject>{ unityElement.GameObject },
                 false);

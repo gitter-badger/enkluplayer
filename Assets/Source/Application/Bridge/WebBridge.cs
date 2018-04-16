@@ -81,11 +81,11 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Sends a message across the bridge.
         /// </summary>
-        /// <param name="message">The message.</param>
-        public void Send(string message)
+        /// <param name="msg">The message.</param>
+        public void Send(string msg)
         {
 #if !UNITY_EDITOR && UNITY_WEBGL
-            message(message);
+            message(msg);
 #else
             throw new Exception("WebBridge should not be used outside of WebGL target.");
 #endif
