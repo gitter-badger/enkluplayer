@@ -28,5 +28,11 @@
         /// must be called between Initialize and Uninitialize.
         /// </summary>
         void BroadcastReady();
+
+        /// <summary>
+        /// Sends a message.
+        /// </summary>
+        /// <param name="message"></param>
+        void Send(string message);
     }
 }

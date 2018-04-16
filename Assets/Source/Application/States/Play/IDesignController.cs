@@ -22,5 +22,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <returns></returns>
         IAsyncToken<string> Create();
+
+        /// <summary>
+        /// Selects an element.
+        /// </summary>
+        /// <param name="sceneId">The id of the scene.</param>
+        /// <param name="elementId">The id of the element.</param>
+        void Select(string sceneId, string elementId);
     }
 }

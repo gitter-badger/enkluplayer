@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using RTEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -20,7 +23,17 @@ namespace CreateAR.SpirePlayer
         /// Manages element controllers.
         /// </summary>
         private readonly IElementControllerManager _controllers;
-        
+
+        /// <summary>
+        /// Txns.
+        /// </summary>
+        private readonly IElementTxnManager _txns;
+
+        /// <summary>
+        /// Bridge.
+        /// </summary>
+        private readonly IBridge _bridge;
+
         /// <summary>
         /// Main camera.
         /// </summary>
@@ -42,10 +55,14 @@ namespace CreateAR.SpirePlayer
         public DesktopDesignController(
             IElementUpdateDelegate elements,
             IElementControllerManager controllers,
+            IElementTxnManager txns,
+            IBridge bridge,
             MainCamera mainCamera)
         {
             _elements = elements;
             _controllers = controllers;
+            _txns = txns;
+            _bridge = bridge;
             _mainCamera = mainCamera.GetComponent<Camera>();
         }
 
@@ -96,6 +113,41 @@ namespace CreateAR.SpirePlayer
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc />
+        public void Select(string sceneId, string elementId)
+        {
+            // find scene
+            var scene = _txns.Root(sceneId);
+            if (null == scene)
+            {
+                Log.Error(this, "Could not find scene root to select : {0}.", sceneId);
+                return;
+            }
+
+            var element = scene.FindOne<Element>(".." + elementId);
+            if (null == element)
+            {
+                Log.Error(this,
+                    "Could not find element to select : {0}.",
+                    elementId);
+                return;
+            }
+
+            var unityElement = element as IUnityElement;
+            if (null == unityElement)
+            {
+                Log.Error(this,
+                    "Selected element is not an IUnityElement : {0}.",
+                    elementId);
+                return;
+            }
+
+            EditorObjectSelection.Instance.ClearSelection(false);
+            EditorObjectSelection.Instance.SetSelectedObjects(
+                new List<GameObject>{ unityElement.GameObject },
+                false);
+        }
+
         /// <summary>
         /// Called when the selection has changed.
         /// </summary>
@@ -122,6 +174,24 @@ namespace CreateAR.SpirePlayer
                 {
                     controller.EnableUpdates();
                 }
+            }
+            
+            // send to the OTHER SIDE
+            if (args.SelectedObjects.Count == 1)
+            {
+                var selected = args.SelectedObjects[0].GetComponent<DesktopContentDesignController>();
+
+                _bridge.Send(string.Format(
+                    @"{{""type"":{0}, ""sceneId"":""{1}"", ""elementId"":""{2}""}}",
+                    MessageTypes.BRIDGE_HELPER_SELECT,
+                    _txns.TrackedScenes[0],
+                    selected.Element.Id));
+            }
+            else
+            {
+                _bridge.Send(string.Format(
+                    @"{{""type"":{0}}}",
+                    MessageTypes.BRIDGE_HELPER_SELECT));
             }
         }
     }

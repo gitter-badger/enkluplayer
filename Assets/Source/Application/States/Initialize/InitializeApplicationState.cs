@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -26,10 +25,8 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
         private readonly IHttpService _http;
         private readonly IBootstrapper _bootstrapper;
-        private readonly IHashProvider _hashMethod;
         private readonly IAssetManager _assets;
         private readonly IAssetLoader _assetLoader;
-        private readonly IAssetBundleCache _assetCache;
         private readonly ArServiceConfiguration _arConfig;
         private readonly IArService _ar;
         private readonly BleServiceConfiguration _bleConfig;
@@ -52,10 +49,8 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IHttpService http,
             IBootstrapper bootstrapper,
-            IHashProvider hashMethod,
             IAssetManager assets,
             IAssetLoader assetLoader,
-            IAssetBundleCache assetCache,
             ArServiceConfiguration arConfig,
             IArService ar,
             BleServiceConfiguration bleConfig,
@@ -65,10 +60,8 @@ namespace CreateAR.SpirePlayer
             _messages = messages;
             _http = http;
             _bootstrapper = bootstrapper;
-            _hashMethod = hashMethod;
             _assets = assets;
             _assetLoader = assetLoader;
-            _assetCache = assetCache;
             _arConfig = arConfig;
             _ar = ar;
             _bleConfig = bleConfig;

@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 
@@ -20,17 +21,24 @@ namespace CreateAR.SpirePlayer
         private readonly IElementTxnManager _txns;
 
         /// <summary>
+        /// Designer.
+        /// </summary>
+        private readonly IDesignController _designer;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ElementActionHelperService(
             MessageTypeBinder binder,
             IMessageRouter messages,
             IElementUpdateDelegate elements,
-            IElementTxnManager txns)
+            IElementTxnManager txns,
+            IDesignController designer)
             : base(binder, messages)
         {
             _elements = elements;
             _txns = txns;
+            _designer = designer;
         }
 
         /// <inheritdoc />
@@ -41,6 +49,9 @@ namespace CreateAR.SpirePlayer
             Subscribe<BridgeHelperReparentEvent>(
                 MessageTypes.BRIDGE_HELPER_REPARENT,
                 OnReparent);
+            Subscribe<BridgeHelperSelectEvent>(
+                MessageTypes.BRIDGE_HELPER_SELECT,
+                OnSelect);
         }
 
         /// <summary>
@@ -76,6 +87,15 @@ namespace CreateAR.SpirePlayer
             _elements
                 .Reparent(element, parent)
                 .OnFailure(exception => Log.Error(this, "Could not reparent : {0}.", exception));
+        }
+
+        /// <summary>
+        /// Called on select.
+        /// </summary>
+        /// <param name="event">Select event.</param>
+        private void OnSelect(BridgeHelperSelectEvent @event)
+        {
+            _designer.Select(@event.SceneId, @event.ElementId);
         }
     }
 }

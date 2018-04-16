@@ -27,25 +27,31 @@ namespace CreateAR.SpirePlayer
             Binder = new MessageTypeBinder();
         }
 
-        /// <inheritdoc cref="IBridge"/>
+        /// <inheritdoc />
         public void Initialize(BridgeMessageHandler handler)
         {
             // nothing
         }
 
-        /// <inheritdoc cref="IBridge"/>
+        /// <inheritdoc />
         public void Uninitialize()
         {
             Binder.Clear();
         }
 
-        /// <inheritdoc cref="IBridge"/>
+        /// <inheritdoc />
         public void BroadcastReady()
         {
             // play immediately
             _messages.Publish(
                 MessageTypes.PLAY,
                 Void.Instance);
+        }
+
+        /// <inheritdoc />
+        public void Send(string message)
+        {
+            //
         }
     }
 }

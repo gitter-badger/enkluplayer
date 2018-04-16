@@ -37,7 +37,6 @@ namespace CreateAR.SpirePlayer
             LoadAppApplicationState load,
             ReceiveAppApplicationState receive,
             PlayApplicationState play,
-            PreviewApplicationState preview,
             BleSearchApplicationState ble,
             InstaApplicationState insta,
             // TODO: find a different pattern to do this
@@ -58,7 +57,6 @@ namespace CreateAR.SpirePlayer
                 load,
                 receive,
                 play,
-                preview,
                 ble,
                 insta,
 #if NETFX_CORE
@@ -74,15 +72,6 @@ namespace CreateAR.SpirePlayer
             Subscribe<Void>(
                 MessageTypes.APPLICATION_INITIALIZED,
                 Messages_OnApplicationInitialized);
-
-            Subscribe<PreviewEvent>(
-                MessageTypes.PREVIEW,
-                @event =>
-                {
-                    Log.Info(this, "Preview requested.");
-
-                    _states.Change<PreviewApplicationState>(@event);
-                });
 
             Subscribe<Void>(
                 MessageTypes.LOAD_APP,

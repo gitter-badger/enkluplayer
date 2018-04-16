@@ -30,8 +30,11 @@ namespace CreateAR.SpirePlayer
 
         [System.Runtime.InteropServices.DllImport("__Internal")]
         public static extern void ready();
+
+        [System.Runtime.InteropServices.DllImport("__Internal")]
+        public static extern void message(string message);
 #endif
-        
+
         /// <inheritdoc cref="IBridge"/>
         public void Initialize(BridgeMessageHandler handler)
         {
@@ -70,6 +73,19 @@ namespace CreateAR.SpirePlayer
         {
 #if !UNITY_EDITOR && UNITY_WEBGL
             _handler.OnMessage(message);
+#else
+            throw new Exception("WebBridge should not be used outside of WebGL target.");
+#endif
+        }
+
+        /// <summary>
+        /// Sends a message across the bridge.
+        /// </summary>
+        /// <param name="msg">The message.</param>
+        public void Send(string msg)
+        {
+#if !UNITY_EDITOR && UNITY_WEBGL
+            message(msg);
 #else
             throw new Exception("WebBridge should not be used outside of WebGL target.");
 #endif

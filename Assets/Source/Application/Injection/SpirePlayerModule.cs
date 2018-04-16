@@ -11,7 +11,6 @@ using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
 using CreateAR.Trellis.Messages;
-using Jint;
 using Jint.Parser;
 using Jint.Unity;
 using strange.extensions.injector.impl;
@@ -47,6 +46,7 @@ namespace CreateAR.SpirePlayer
 
             // misc dependencies
             {
+                binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>().ToSingleton();
                 binder.Bind<ISerializer>().To<JsonSerializer>();
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
                 binder.Bind<UrlBuilder>().To<UrlBuilder>();
@@ -154,7 +154,6 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<InputLoginApplicationState>().To<InputLoginApplicationState>();
                     binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
-                    binder.Bind<PreviewApplicationState>().To<PreviewApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
                     binder.Bind<InstaApplicationState>().To<InstaApplicationState>();
@@ -187,9 +186,7 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<MaterialUpdateService>(),
                         binder.GetInstance<ShaderUpdateService>(),
                         binder.GetInstance<SceneUpdateService>(),
-#if UNITY_WEBGL
                         binder.GetInstance<ElementActionHelperService>()
-#endif
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }
