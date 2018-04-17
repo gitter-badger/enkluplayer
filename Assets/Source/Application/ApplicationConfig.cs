@@ -244,6 +244,11 @@ namespace CreateAR.SpirePlayer
         /// Url for assets.
         /// </summary>
         public string AssetsUrl = "localhost";
+
+        /// <summary>
+        /// Url for thumbs.
+        /// </summary>
+        public string ThumbsUrl = "localhost";
     }
 
     /// <summary>
@@ -295,12 +300,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="http">Makes http calls.</param>
         public void Apply(IHttpService http)
         {
-            http.UrlBuilder.Replacements.Add(Commons.Unity.DataStructures.Tuple.Create(
-                "userId",
-                UserId));
-            http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
-                "Authorization",
-                string.Format("Bearer {0}", Token)));
+            http.Urls.Formatter("trellis").Replacements["userId"] = UserId;
+            http.Headers["Authorization"] = string.Format("Bearer {0}", Token);
         }
     }
 }

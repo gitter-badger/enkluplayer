@@ -148,7 +148,10 @@ namespace CreateAR.SpirePlayer.Editor
                 return;
             }
 
-            Http.UrlBuilder.FromUrl(env.Url);
+            var formatter = new UrlFormatter();
+            formatter.FromUrl(env.Url);
+
+            Http.Urls.Register("trellis", formatter);
 
             var credentials = Config.Credentials;
             if (null != credentials)
@@ -162,21 +165,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// </summary>
         private static void SetAuthenticationHeader(string token)
         {
-            // remove Authentication
-            for (int i = 0, len = Http.Headers.Count; i < len; i++)
-            {
-                var header = Http.Headers[i];
-                if (header.Item1.StartsWith("Authorization"))
-                {
-                    Http.Headers.RemoveAt(i);
-
-                    break;
-                }
-            }
-            
-            Http.Headers.Add(Commons.Unity.DataStructures.Tuple.Create(
-                "Authorization",
-                string.Format("Bearer {0}", token)));
+            Http.Headers["Authorization"] = string.Format("Bearer {0}", token);
         }
     }
 }

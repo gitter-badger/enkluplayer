@@ -31,10 +31,10 @@ namespace CreateAR.Commons.Unity.Http.Editor
         private readonly IBootstrapper _bootstrapper;
 
         /// <inheritdoc cref="IHttpService"/>
-        public UrlBuilder UrlBuilder { get; private set; }
+        public UrlFormatterCollection Urls { get; private set; }
 
         /// <inheritdoc cref="IHttpService"/>
-        public List<Tuple<string, string>> Headers { get; private set; }
+        public Dictionary<string, string> Headers { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -46,8 +46,8 @@ namespace CreateAR.Commons.Unity.Http.Editor
             _serializer = serializer;
             _bootstrapper = bootstrapper;
 
-            UrlBuilder = new UrlBuilder();
-            Headers = new List<Tuple<string, string>>();
+            Urls = new UrlFormatterCollection();
+            Headers = new Dictionary<string, string>();
         }
 
         /// <inheritdoc cref="IHttpService"/>
@@ -116,6 +116,11 @@ namespace CreateAR.Commons.Unity.Http.Editor
             string url,
             object payload)
         {
+            Log.Info(this,
+                "{0} {1}",
+                verb.ToString().ToUpperInvariant(),
+                url);
+
             var token = new AsyncToken<HttpResponse<T>>();
 
             byte[] bytes = null;
@@ -124,21 +129,13 @@ namespace CreateAR.Commons.Unity.Http.Editor
                 _serializer.Serialize(payload, out bytes);
             }
 
-            var headers = HeaderDictionary();
-            if (verb == HttpVerb.Delete
-                || verb == HttpVerb.Patch
-                || verb == HttpVerb.Put)
-            {
-                headers["X-HTTP-Method-Override"] = verb.ToString().ToUpperInvariant();
-            }
-
             var request = new WWW(
                 url,
                 bytes,
-                headers);
+                HeaderDictionary());
 
             _bootstrapper.BootstrapCoroutine(Wait(request, token));
-            
+
             return token;
         }
 
@@ -156,7 +153,7 @@ namespace CreateAR.Commons.Unity.Http.Editor
             {
                 yield return null;
             }
-            
+
             var httpResponse = new HttpResponse<T>
             {
                 StatusCode = GetStatusCode(request),
@@ -168,7 +165,7 @@ namespace CreateAR.Commons.Unity.Http.Editor
                         .ToList(),
                 Raw = request.bytes
             };
-            
+
             var bytes = request.bytes;
 
             object value = null;
@@ -189,18 +186,18 @@ namespace CreateAR.Commons.Unity.Http.Editor
                 value = bytes;
             }
 
-            httpResponse.Payload = (T) value;
+            httpResponse.Payload = (T)value;
 
-            if (Successful((int) httpResponse.StatusCode))
+            if (Successful((int)httpResponse.StatusCode))
             {
                 httpResponse.NetworkSuccess = true;
             }
             else
             {
                 httpResponse.NetworkSuccess = false;
-                httpResponse.NetworkError = Encoding.UTF8.GetString(bytes ?? new byte[0]);
+                httpResponse.NetworkError = Encoding.UTF8.GetString(bytes);
             }
-        
+
             token.Succeed(httpResponse);
         }
 
@@ -211,17 +208,7 @@ namespace CreateAR.Commons.Unity.Http.Editor
         /// <returns></returns>
         private int GetStatusCode(WWW request)
         {
-            Dictionary<string, string> headers;
-            try
-            {
-                // Unity bug-- accessing responseHeaders may throw NPE
-                headers = request.responseHeaders;
-            }
-            catch
-            {
-                return 0;
-            }
-            
+            var headers = request.responseHeaders;
             if (null == headers)
             {
                 return 0;
@@ -261,7 +248,7 @@ namespace CreateAR.Commons.Unity.Http.Editor
 
             foreach (var pair in Headers)
             {
-                dictionary[pair.Item1] = pair.Item2;
+                dictionary[pair.Key] = pair.Value;
             }
 
             dictionary["Content-Type"] = CONTENT_TYPE_JSON;
@@ -269,7 +256,7 @@ namespace CreateAR.Commons.Unity.Http.Editor
 
             return dictionary;
         }
-        
+
         /// <summary>
         /// Returns true iff status code indicates a success.
         /// </summary>

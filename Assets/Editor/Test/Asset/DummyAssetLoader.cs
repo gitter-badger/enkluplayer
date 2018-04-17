@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer.Test.Assets
 {
     public class DummyAssetLoader : IAssetLoader
     {
-        public UrlBuilder UrlBuilder { get; private set; }
+        public UrlFormatterCollection Urls { get; private set; }
         
         public IAsyncToken<Object> Load(AssetData data, out LoadProgress progress)
         {

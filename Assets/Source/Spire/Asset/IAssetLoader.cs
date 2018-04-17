@@ -10,9 +10,9 @@ namespace CreateAR.SpirePlayer.Assets
     public interface IAssetLoader
     {
         /// <summary>
-        /// Url builder.
+        /// Builds URLs.
         /// </summary>
-        UrlBuilder UrlBuilder { get; }
+        UrlFormatterCollection Urls { get; }
 
         /// <summary>
         /// Loads an asset.

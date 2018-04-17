@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Editor;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis.Messages.EmailSignIn;
 using UnityEditor;
@@ -71,8 +72,10 @@ namespace CreateAR.SpirePlayer.Editor
             }
 
             // setup HTTP
-            var builder = EditorApplication.Http.UrlBuilder;
-            builder.FromUrl(environment.Url);
+            var formatter = new UrlFormatter();
+            formatter.FromUrl(environment.Url);
+
+            EditorApplication.Http.Urls.Register("trellis", formatter);
 
             Log.Info(this, "Attempting to connect to Trellis.");
 

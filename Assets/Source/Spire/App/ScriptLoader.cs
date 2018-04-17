@@ -29,7 +29,7 @@ namespace CreateAR.SpirePlayer
         {
             var token = new AsyncToken<string>();
 
-            var url = _http.UrlBuilder.Url(script.Uri);
+            var url = _http.Urls.Url("trellis://" + script.Uri);
             
             Log.Info(this, "Downloading script at {0}.", url);
             

@@ -131,7 +131,7 @@ namespace CreateAR.SpirePlayer
                 {
                     var asset = assets[j];
                     vine += string.Format(
-                        "<Option value='{0}' label='{1}' src='assets://{2}' />",
+                        "<Option value='{0}' label='{1}' src='thumbs:/{2}' />",
                         asset.Guid,
                         FormatLabel(asset.AssetName),
                         asset.UriThumb);

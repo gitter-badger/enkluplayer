@@ -49,12 +49,13 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>().ToSingleton();
                 binder.Bind<ISerializer>().To<JsonSerializer>();
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
-                binder.Bind<UrlBuilder>().To<UrlBuilder>();
+                binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
                 binder.Bind<IHttpService>()
                     .To(new HttpService(
                         new JsonSerializer(),
-                        LookupComponent<MonoBehaviourBootstrapper>()))
+                        LookupComponent<MonoBehaviourBootstrapper>(),
+                        binder.GetInstance<UrlFormatterCollection>()))
                     .ToSingleton();
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 
@@ -66,7 +67,6 @@ namespace CreateAR.SpirePlayer
 
                 // assets
                 {
-                    binder.Bind<AssetUrlBuilder>().To<AssetUrlBuilder>().ToSingleton();
 #if !UNITY_EDITOR && UNITY_WEBGL
                     // no cache on web
                     binder.Bind<IAssetBundleCache>().To<PassthroughAssetBundleCache>().ToSingleton();

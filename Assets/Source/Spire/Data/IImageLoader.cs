@@ -28,9 +28,9 @@ namespace CreateAR.SpirePlayer.IUX
     public interface IImageLoader
     {
         /// <summary>
-        /// Url builder.
+        /// For building URLs.
         /// </summary>
-        UrlBuilder UrlBuilder { get; }
+        UrlFormatterCollection Urls { get; }
 
         /// <summary>
         /// Loads an image into a texture.

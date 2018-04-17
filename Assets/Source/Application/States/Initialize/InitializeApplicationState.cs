@@ -2,19 +2,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
-using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
+    public class LoggedUrlFormatter : UrlFormatter
+    {
+        public override string Url(string endpoint, string version, int port, string protocol, Dictionary<string, string> replacements = null)
+        {
+            var newUrl = base.Url(endpoint, version, port, protocol, replacements);
+
+            Log.Info(this, "UrlFormatter({0}) -> {1}",
+                endpoint,
+                newUrl);
+
+            return newUrl;
+        }
+    }
+
     /// <summary>
     /// Initializes the application.
     /// </summary>
@@ -24,15 +36,15 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly IMessageRouter _messages;
-        private readonly IHttpService _http;
+        
         private readonly IBootstrapper _bootstrapper;
         private readonly IAssetManager _assets;
         private readonly IAssetLoader _assetLoader;
-        private readonly IImageLoader _imageLoader;
-        private readonly ArServiceConfiguration _arConfig;
         private readonly IArService _ar;
-        private readonly BleServiceConfiguration _bleConfig;
         private readonly IBleService _ble;
+        private readonly ArServiceConfiguration _arConfig;
+        private readonly BleServiceConfiguration _bleConfig;
+        private readonly UrlFormatterCollection _urls;
 
         /// <summary>
         /// App config.
@@ -49,26 +61,24 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public InitializeApplicationState(
             IMessageRouter messages,
-            IHttpService http,
             IBootstrapper bootstrapper,
             IAssetManager assets,
             IAssetLoader assetLoader,
-            IImageLoader imageLoader,
-            ArServiceConfiguration arConfig,
             IArService ar,
+            IBleService ble,
+            ArServiceConfiguration arConfig,
             BleServiceConfiguration bleConfig,
-            IBleService ble)
+            UrlFormatterCollection urls)
         {
             _messages = messages;
-            _http = http;
             _bootstrapper = bootstrapper;
             _assets = assets;
             _assetLoader = assetLoader;
-            _imageLoader = imageLoader;
             _arConfig = arConfig;
             _ar = ar;
             _bleConfig = bleConfig;
             _ble = ble;
+            _urls = urls;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -84,12 +94,19 @@ namespace CreateAR.SpirePlayer
             
             // setup URL builders from environment
             var env = _appConfig.Network.Environment(_appConfig.Network.Current);
-            _http.UrlBuilder.FromUrl(env.Url);
-            _assetLoader.UrlBuilder.FromUrl(env.AssetsUrl);
-            _imageLoader.UrlBuilder.FromUrl(env.AssetsUrl);
-            _imageLoader.UrlBuilder.ProtocolReplacements.Add(Tuple.Create(
-                "assets://",
-                env.AssetsUrl));
+
+            var trellisFormatter = new LoggedUrlFormatter();
+            trellisFormatter.FromUrl(env.Url);
+
+            var assetsFormatter = new LoggedUrlFormatter();
+            assetsFormatter.FromUrl(env.AssetsUrl);
+
+            var thumbsFormatter = new LoggedUrlFormatter();
+            thumbsFormatter.FromUrl(env.ThumbsUrl);
+
+            _urls.Register("trellis", trellisFormatter);
+            _urls.Register("assets", assetsFormatter);
+            _urls.Register("thumbs", thumbsFormatter);
 
             // reset assets
             _assets.Uninitialize();

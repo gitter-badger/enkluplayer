@@ -18,10 +18,9 @@ namespace CreateAR.SpirePlayer.IUX
     public class StandardImageLoader : IImageLoader
     {
         /// <summary>
-        /// Custom protocols.
+        /// Custom handling for Resources.
         /// </summary>
         private const string RESOURCE_PROTOCOL = "res://";
-        private const string ASSETS_PROTOCOL = "assets://";
 
         /// <summary>
         /// Dumb in-memory cache.
@@ -34,18 +33,18 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IBootstrapper _bootstrapper;
 
         /// <inheritdoc />
-        public UrlBuilder UrlBuilder { get; private set; }
+        public UrlFormatterCollection Urls { get; private set; }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         public StandardImageLoader(
             IBootstrapper bootstrapper,
-            UrlBuilder builder)
+            UrlFormatterCollection urls)
         {
             _bootstrapper = bootstrapper;
 
-            UrlBuilder = builder;
+            Urls = urls;
         }
         
         /// <inheritdoc />
@@ -73,11 +72,12 @@ namespace CreateAR.SpirePlayer.IUX
             }
             else
             {
-                LogVerbose("Requesting image at {0}.", url);
-
                 if (url.StartsWith(RESOURCE_PROTOCOL))
                 {
                     var path = url.Substring(RESOURCE_PROTOCOL.Length);
+
+                    LogVerbose("Requesting image from resources at {0}.", url);
+
                     var source = Resources.Load<Texture2D>(path);
                     if (null == source)
                     {
@@ -94,10 +94,7 @@ namespace CreateAR.SpirePlayer.IUX
                     return token;
                 }
 
-                if (url.StartsWith(ASSETS_PROTOCOL))
-                {
-                    url = UrlBuilder.Url(url.Substring(ASSETS_PROTOCOL.Length));
-                }
+                url = Urls.Url(url);
 
                 try
                 {
@@ -168,7 +165,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="replacements">Replacements.</param>
-        [Conditional("LOGGING_VERBOSE")]
+        //[Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string message, params object[] replacements)
         {
             Log.Info(this, message, replacements);
