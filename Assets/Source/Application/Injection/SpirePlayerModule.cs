@@ -66,6 +66,7 @@ namespace CreateAR.SpirePlayer
 
                 // assets
                 {
+                    binder.Bind<AssetUrlBuilder>().To<AssetUrlBuilder>().ToSingleton();
 #if !UNITY_EDITOR && UNITY_WEBGL
                     // no cache on web
                     binder.Bind<IAssetBundleCache>().To<PassthroughAssetBundleCache>().ToSingleton();

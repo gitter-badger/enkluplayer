@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -27,6 +28,7 @@ namespace CreateAR.SpirePlayer
         private readonly IBootstrapper _bootstrapper;
         private readonly IAssetManager _assets;
         private readonly IAssetLoader _assetLoader;
+        private readonly IImageLoader _imageLoader;
         private readonly ArServiceConfiguration _arConfig;
         private readonly IArService _ar;
         private readonly BleServiceConfiguration _bleConfig;
@@ -51,26 +53,22 @@ namespace CreateAR.SpirePlayer
             IBootstrapper bootstrapper,
             IAssetManager assets,
             IAssetLoader assetLoader,
+            IImageLoader imageLoader,
             ArServiceConfiguration arConfig,
             IArService ar,
             BleServiceConfiguration bleConfig,
-            IBleService ble,
-            IImageLoader imageLoader)
+            IBleService ble)
         {
             _messages = messages;
             _http = http;
             _bootstrapper = bootstrapper;
             _assets = assets;
             _assetLoader = assetLoader;
+            _imageLoader = imageLoader;
             _arConfig = arConfig;
             _ar = ar;
             _bleConfig = bleConfig;
             _ble = ble;
-
-            // TODO: replace with url builder
-            imageLoader.ReplaceProtocol(
-                "assets",
-                "https://assets.enklu.com:9091");
         }
 
         /// <inheritdoc cref="IState"/>
@@ -84,12 +82,14 @@ namespace CreateAR.SpirePlayer
             // ble
             _ble.Setup(_bleConfig);
             
-            // setup http
+            // setup URL builders from environment
             var env = _appConfig.Network.Environment(_appConfig.Network.Current);
             _http.UrlBuilder.FromUrl(env.Url);
-
-            // setup asset loading
-            _assetLoader.Initialize();
+            _assetLoader.UrlBuilder.FromUrl(env.AssetsUrl);
+            _imageLoader.UrlBuilder.FromUrl(env.AssetsUrl);
+            _imageLoader.UrlBuilder.ProtocolReplacements.Add(Tuple.Create(
+                "assets://",
+                env.AssetsUrl));
 
             // reset assets
             _assets.Uninitialize();

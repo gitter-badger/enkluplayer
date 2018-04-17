@@ -6,6 +6,14 @@ using Object = UnityEngine.Object;
 namespace CreateAR.SpirePlayer.Assets
 {
     /// <summary>
+    /// Overload for assets.
+    /// </summary>
+    public class AssetUrlBuilder : UrlBuilder
+    {
+        //
+    }
+
+    /// <summary>
     /// Standard implementation of <c>IAssetLoader</c>.
     /// </summary>
     public class StandardAssetLoader : IAssetLoader
@@ -24,16 +32,14 @@ namespace CreateAR.SpirePlayer.Assets
         /// Cache for bundles.
         /// </summary>
         private readonly IAssetBundleCache _cache;
-
-        /// <summary>
-        /// Builds URL.
-        /// </summary>
-        private readonly UrlBuilder _urls;
-
+        
         /// <summary>
         /// URI to loader.
         /// </summary>
         private readonly Dictionary<string, AssetBundleLoader> _bundles = new Dictionary<string, AssetBundleLoader>();
+
+        /// <inheritdoc />
+        public UrlBuilder UrlBuilder { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -42,22 +48,13 @@ namespace CreateAR.SpirePlayer.Assets
             ApplicationConfig config,
             IBootstrapper bootstrapper,
             IAssetBundleCache cache,
-            UrlBuilder urls)
+            AssetUrlBuilder urls)
         {
             _config = config;
             _bootstrapper = bootstrapper;
             _cache = cache;
-            _urls = urls;
-        }
 
-        /// <inheritdoc />
-        public void Initialize()
-        {
-            _cache.Initialize();
-
-            _urls.BaseUrl = "assets.enklu.com";
-            _urls.Port = 9091;
-            _urls.Protocol = "https";
+            UrlBuilder = urls;
         }
 
         /// <inheritdoc />
@@ -65,7 +62,7 @@ namespace CreateAR.SpirePlayer.Assets
             AssetData data,
             out LoadProgress progress)
         {
-            var url = _urls.Url(data.Uri);
+            var url = UrlBuilder.Url(data.Uri);
 
             AssetBundleLoader loader;
             if (!_bundles.TryGetValue(url, out loader))

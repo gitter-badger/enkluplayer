@@ -1,4 +1,5 @@
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Assets
@@ -9,9 +10,9 @@ namespace CreateAR.SpirePlayer.Assets
     public interface IAssetLoader
     {
         /// <summary>
-        /// Initializes the loader.
+        /// Url builder.
         /// </summary>
-        void Initialize();
+        UrlBuilder UrlBuilder { get; }
 
         /// <summary>
         /// Loads an asset.

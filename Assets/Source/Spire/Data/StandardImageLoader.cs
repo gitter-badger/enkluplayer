@@ -17,72 +17,37 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     public class StandardImageLoader : IImageLoader
     {
-        private class ReplacementRecord
-        {
-            public readonly string Template;
-            public readonly string Replacement;
-
-            public ReplacementRecord(string template, string replacement)
-            {
-                Template = template;
-                Replacement = replacement;
-            }
-        }
-
         /// <summary>
-        /// Protocol for resources.
+        /// Custom protocols.
         /// </summary>
         private const string RESOURCE_PROTOCOL = "res://";
+        private const string ASSETS_PROTOCOL = "assets://";
 
         /// <summary>
         /// Dumb in-memory cache.
         /// </summary>
         private readonly Dictionary<string, byte[]> _cache = new Dictionary<string, byte[]>();
-
-        /// <summary>
-        /// List of replacements.
-        /// </summary>
-        private readonly List<ReplacementRecord> _replacements = new List<ReplacementRecord>();
-
-        /// <summary>
-        /// List of protocol replacements.
-        /// </summary>
-        private readonly List<ReplacementRecord> _protocols = new List<ReplacementRecord>();
-
+        
         /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
-        
+
+        /// <inheritdoc />
+        public UrlBuilder UrlBuilder { get; private set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
-        public StandardImageLoader(IBootstrapper bootstrapper)
+        public StandardImageLoader(
+            IBootstrapper bootstrapper,
+            UrlBuilder builder)
         {
             _bootstrapper = bootstrapper;
+
+            UrlBuilder = builder;
         }
-
-        /// <inheritdoc />
-        public IImageLoader Replace(string template, string replacement)
-        {
-            _replacements.Add(new ReplacementRecord(template, replacement));
-
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IImageLoader ReplaceProtocol(string protocol, string replacement)
-        {
-            if (!protocol.EndsWith("://"))
-            {
-                protocol += "://";
-            }
-
-            _protocols.Add(new ReplacementRecord(protocol, replacement));
-
-            return this;
-        }
-
+        
         /// <inheritdoc />
         public IAsyncToken<ManagedTexture> Load(string url)
         {
@@ -92,9 +57,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 throw new ArgumentException("'url' must be non-empty.");
             }
-
-            url = Replace(url);
-
+            
             byte[] bytes;
             if (_cache.TryGetValue(url, out bytes))
             {
@@ -131,9 +94,15 @@ namespace CreateAR.SpirePlayer.IUX
                     return token;
                 }
 
+                if (url.StartsWith(ASSETS_PROTOCOL))
+                {
+                    url = UrlBuilder.Url(url.Substring(ASSETS_PROTOCOL.Length));
+                }
+
                 try
                 {
-                    new Uri(url);
+                    // ReSharper disable once UnusedVariable
+                    var test = new Uri(url);
                 }
                 catch (Exception exception)
                 {
@@ -182,41 +151,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
             }
         }
-
-        /// <summary>
-        /// Replaces replacements in url.
-        /// </summary>
-        /// <param name="url">Url to replace.</param>
-        /// <returns></returns>
-        private string Replace(string url)
-        {
-            var index = url.IndexOf("://", StringComparison.Ordinal);
-            if (-1 != index)
-            {
-                var protocol = url.Substring(0, index + 3);
-                for (int i = 0, len = _protocols.Count; i < len; i++)
-                {
-                    if (_protocols[i].Template == protocol)
-                    {
-                        url = _protocols[i].Replacement + url.Substring(index + 3);
-
-                        break;
-                    }
-                }
-            }
-
-            for (var i = 0; i < _replacements.Count; i++)
-            {
-                var replacement = _replacements[i];
-
-                url = url.Replace(
-                    string.Format(@"{{{0}}}", replacement.Template),
-                    replacement.Replacement);
-            }
-
-            return url;
-        }
-
+        
         /// <summary>
         /// Retrieves a texture.
         /// 

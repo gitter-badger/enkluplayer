@@ -239,6 +239,11 @@ namespace CreateAR.SpirePlayer
         /// The Url.
         /// </summary>
         public string Url = "localhost";
+
+        /// <summary>
+        /// Url for assets.
+        /// </summary>
+        public string AssetsUrl = "localhost";
     }
 
     /// <summary>

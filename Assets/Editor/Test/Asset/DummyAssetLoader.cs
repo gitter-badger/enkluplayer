@@ -1,5 +1,6 @@
 using System;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.SpirePlayer.Assets;
 using UnityEditor;
 using Object = UnityEngine.Object;
@@ -8,11 +9,8 @@ namespace CreateAR.SpirePlayer.Test.Assets
 {
     public class DummyAssetLoader : IAssetLoader
     {
-        public void Initialize()
-        {
-            
-        }
-
+        public UrlBuilder UrlBuilder { get; private set; }
+        
         public IAsyncToken<Object> Load(AssetData data, out LoadProgress progress)
         {
             var token = new AsyncToken<Object>();
