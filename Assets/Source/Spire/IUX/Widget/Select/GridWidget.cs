@@ -296,9 +296,7 @@ namespace CreateAR.SpirePlayer.IUX
                 i++)
             {
                 var option = options[i];
-
-                Log.Info(this, "+++" + option.Schema.Get<string>("src").Value);
-
+                
                 var button = (ButtonWidget) _elements.Element(string.Format(
                     @"<?Vine><Button
                     layout='vertical'

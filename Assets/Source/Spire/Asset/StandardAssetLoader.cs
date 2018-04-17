@@ -54,7 +54,9 @@ namespace CreateAR.SpirePlayer.Assets
             AssetData data,
             out LoadProgress progress)
         {
-            var url = Urls.Url("assets://" + data.Uri);
+            // strip off file name
+            var substrings = data.Uri.Split('/');
+            var url = Urls.Url("assets://" + substrings[substrings.Length - 1]);
 
             AssetBundleLoader loader;
             if (!_bundles.TryGetValue(url, out loader))

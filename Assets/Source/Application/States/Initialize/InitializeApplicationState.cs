@@ -99,7 +99,10 @@ namespace CreateAR.SpirePlayer
             trellisFormatter.FromUrl(env.Url);
 
             var assetsFormatter = new LoggedUrlFormatter();
-            assetsFormatter.FromUrl(env.AssetsUrl);
+            if (!assetsFormatter.FromUrl(env.AssetsUrl))
+            {
+                Log.Error(this, "Invalid assets URL : " + env.AssetsUrl);
+            }
 
             var thumbsFormatter = new LoggedUrlFormatter();
             thumbsFormatter.FromUrl(env.ThumbsUrl);
