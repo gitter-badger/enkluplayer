@@ -63,7 +63,7 @@ namespace CreateAR.SpirePlayer
             _connectToken = new AsyncToken<Void>();
 
             // replace protocol (works for https too)
-            var url = environment.Url.Replace("http", "ws");
+            var url = environment.TrellisUrl.Replace("http", "ws");
 
             // shave off version
             var substrings = url.Split('/');

@@ -149,7 +149,7 @@ namespace CreateAR.SpirePlayer.Editor
             }
 
             var formatter = new UrlFormatter();
-            formatter.FromUrl(env.Url);
+            formatter.FromUrl(env.TrellisUrl);
 
             Http.Urls.Register("trellis", formatter);
 

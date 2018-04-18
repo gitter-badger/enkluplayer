@@ -238,7 +238,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// The Url.
         /// </summary>
-        public string Url = "localhost";
+        public string TrellisUrl = "localhost";
 
         /// <summary>
         /// Url for assets.

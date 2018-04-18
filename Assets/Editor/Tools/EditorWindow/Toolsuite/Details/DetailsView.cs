@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer.Editor
                     GUILayout.Label(string.Format(
                         "Connected to '{0}'.",
                         env.Name));
-                    GUILayout.Label(string.Format("Url: {0}", env.Url));
+                    GUILayout.Label(string.Format("Url: {0}", env.TrellisUrl));
                 }
 
                 var creds = EditorApplication.Config.Credentials;

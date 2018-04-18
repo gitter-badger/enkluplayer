@@ -73,7 +73,7 @@ namespace CreateAR.SpirePlayer.Editor
 
             // setup HTTP
             var formatter = new UrlFormatter();
-            formatter.FromUrl(environment.Url);
+            formatter.FromUrl(environment.TrellisUrl);
 
             EditorApplication.Http.Urls.Register("trellis", formatter);
 

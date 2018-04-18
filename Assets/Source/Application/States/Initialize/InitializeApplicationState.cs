@@ -96,7 +96,10 @@ namespace CreateAR.SpirePlayer
             var env = _appConfig.Network.Environment(_appConfig.Network.Current);
 
             var trellisFormatter = new LoggedUrlFormatter();
-            trellisFormatter.FromUrl(env.Url);
+            if (!trellisFormatter.FromUrl(env.TrellisUrl))
+            {
+                Log.Error(this, "Invalid trellis URL : " + env.TrellisUrl);
+            }
 
             var assetsFormatter = new LoggedUrlFormatter();
             if (!assetsFormatter.FromUrl(env.AssetsUrl))
@@ -105,7 +108,10 @@ namespace CreateAR.SpirePlayer
             }
 
             var thumbsFormatter = new LoggedUrlFormatter();
-            thumbsFormatter.FromUrl(env.ThumbsUrl);
+            if (!thumbsFormatter.FromUrl(env.ThumbsUrl))
+            {
+                Log.Error(this, "Invalid thumbs URL : " + env.ThumbsUrl);
+            }
 
             _urls.Register("trellis", trellisFormatter);
             _urls.Register("assets", assetsFormatter);
