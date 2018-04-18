@@ -13,20 +13,6 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
-    public class LoggedUrlFormatter : UrlFormatter
-    {
-        public override string Url(string endpoint, string version, int port, string protocol, Dictionary<string, string> replacements = null)
-        {
-            var newUrl = base.Url(endpoint, version, port, protocol, replacements);
-
-            Log.Info(this, "UrlFormatter({0}) -> {1}",
-                endpoint,
-                newUrl);
-
-            return newUrl;
-        }
-    }
-
     /// <summary>
     /// Initializes the application.
     /// </summary>
