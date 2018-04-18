@@ -6,7 +6,6 @@ using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using RTEditor;
 using UnityEngine;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -363,7 +362,8 @@ namespace CreateAR.SpirePlayer
 
             if (null == service)
             {
-                throw new Exception("WATTTTT");
+                // no connected services
+                return;
             }
             
             service.SendMessage(Encoding.UTF8.GetString(bytes));

@@ -74,7 +74,7 @@ namespace CreateAR.SpirePlayer
 
             // make websocket url
             var wsUrl = string.Format(
-                "{0}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
+                "{0}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=1.0.0",
                 url);
             
             Log.Info(this, "Connecting to {0}.", wsUrl);
