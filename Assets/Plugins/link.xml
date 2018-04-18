@@ -4,6 +4,10 @@
 		<namespace fullname="CreateAR.Commons.Unity.Messaging" preserve="all" />
 	</assembly>
 	
+	<assembly fullname="CreateAR.Commons.Unity.Http">
+		<namespace fullname="CreateAR.Commons.Unity.Http" preserve="all" />
+	</assembly>
+	
 	<assembly fullname="CreateAR.Trellis.Messages">
 		<namespace fullname="CreateAR.Trellis.Messages" preserve="all" />
 		<namespace fullname="CreateAR.Trellis.Messages.EmailSignIn" preserve="all" />

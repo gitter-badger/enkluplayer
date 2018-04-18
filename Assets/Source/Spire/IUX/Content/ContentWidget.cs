@@ -158,7 +158,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateAsset()
         {
-            Log.Info(this, "Refresh asset for {0}.", Id);
+            LogVerbose("Refresh asset for {0}.", Id);
 
             _assembler.Teardown();
             _assembler.Setup(
@@ -171,7 +171,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateScripts()
         {
-            Log.Info(this, "Refresh scripts for {0}.", Id);
+            LogVerbose("Refresh scripts for {0}.", Id);
 
             TeardownScripts();
             SetupScripts();
@@ -194,7 +194,7 @@ namespace CreateAR.SpirePlayer
             }
             catch (Exception exception)
             {
-                Log.Info(this, "Could not parse \"{0}\" : {1}.",
+                LogVerbose("Could not parse \"{0}\" : {1}.",
                     scriptsSrc,
                     exception);
                 
@@ -204,7 +204,7 @@ namespace CreateAR.SpirePlayer
 
             var len = value.Count;
 
-            Log.Info(this, "\tLoading {0} scripts.", len);
+            LogVerbose("\tLoading {0} scripts.", len);
 
             if (0 == len)
             {
@@ -248,7 +248,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void TeardownScripts()
         {
-            Log.Info(this, "\t-Destroying {0} scripts.", _scriptComponents.Count);
+            LogVerbose("\t-Destroying {0} scripts.", _scriptComponents.Count);
 
             // destroy components
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
@@ -267,7 +267,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="script">The script to run.</param>
         private void RunScript(SpireScript script)
         {
-            Log.Info(this, "Run script {0}.", script.Data);
+            LogVerbose("Run script {0}.", script.Data);
             
             switch (script.Data.Type)
             {

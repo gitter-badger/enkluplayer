@@ -49,12 +49,13 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>().ToSingleton();
                 binder.Bind<ISerializer>().To<JsonSerializer>();
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
-                binder.Bind<UrlBuilder>().To<UrlBuilder>();
+                binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
                 binder.Bind<IHttpService>()
                     .To(new HttpService(
                         new JsonSerializer(),
-                        LookupComponent<MonoBehaviourBootstrapper>()))
+                        LookupComponent<MonoBehaviourBootstrapper>(),
+                        binder.GetInstance<UrlFormatterCollection>()))
                     .ToSingleton();
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 

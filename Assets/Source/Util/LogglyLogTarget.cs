@@ -180,7 +180,7 @@ namespace CreateAR.SpirePlayer
         {
             yield return new WWW(
                 string.Format(
-                    "http://logs-01.loggly.com/inputs/{0}/tag/{1}",
+                    "https://logs-01.loggly.com/inputs/{0}/tag/{1}",
                     _customerToken,
                     _tag),
                 form);

@@ -160,8 +160,6 @@ namespace CreateAR.SpirePlayer
             // TODO: No way to see if asset load failed!
             _unwatch = _asset.Watch<GameObject>(value =>
             {
-                Log.Info(this, "Asset loaded.");
-
                 SetupInstance(value);
             });
 

@@ -63,7 +63,7 @@ namespace CreateAR.SpirePlayer
             _connectToken = new AsyncToken<Void>();
 
             // replace protocol (works for https too)
-            var url = environment.Url.Replace("http", "ws");
+            var url = environment.TrellisUrl.Replace("http", "ws");
 
             // shave off version
             var substrings = url.Split('/');
@@ -74,7 +74,7 @@ namespace CreateAR.SpirePlayer
 
             // make websocket url
             var wsUrl = string.Format(
-                "{0}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
+                "{0}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=1.0.0",
                 url);
             
             Log.Info(this, "Connecting to {0}.", wsUrl);

@@ -24,16 +24,14 @@ namespace CreateAR.SpirePlayer.Assets
         /// Cache for bundles.
         /// </summary>
         private readonly IAssetBundleCache _cache;
-
-        /// <summary>
-        /// Builds URL.
-        /// </summary>
-        private readonly UrlBuilder _urls;
-
+        
         /// <summary>
         /// URI to loader.
         /// </summary>
         private readonly Dictionary<string, AssetBundleLoader> _bundles = new Dictionary<string, AssetBundleLoader>();
+
+        /// <inheritdoc />
+        public UrlFormatterCollection Urls { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -42,22 +40,13 @@ namespace CreateAR.SpirePlayer.Assets
             ApplicationConfig config,
             IBootstrapper bootstrapper,
             IAssetBundleCache cache,
-            UrlBuilder urls)
+            UrlFormatterCollection urls)
         {
             _config = config;
             _bootstrapper = bootstrapper;
             _cache = cache;
-            _urls = urls;
-        }
 
-        /// <inheritdoc />
-        public void Initialize()
-        {
-            _cache.Initialize();
-
-            _urls.BaseUrl = "assets.enklu.com";
-            _urls.Port = 9091;
-            _urls.Protocol = "https";
+            Urls = urls;
         }
 
         /// <inheritdoc />
@@ -65,7 +54,9 @@ namespace CreateAR.SpirePlayer.Assets
             AssetData data,
             out LoadProgress progress)
         {
-            var url = _urls.Url(data.Uri);
+            // strip off file name
+            var substrings = data.Uri.Split('/');
+            var url = Urls.Url("assets://" + substrings[substrings.Length - 1]);
 
             AssetBundleLoader loader;
             if (!_bundles.TryGetValue(url, out loader))

@@ -8,7 +8,6 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
-using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -23,14 +22,15 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly IMessageRouter _messages;
-        private readonly IHttpService _http;
+        
         private readonly IBootstrapper _bootstrapper;
         private readonly IAssetManager _assets;
         private readonly IAssetLoader _assetLoader;
-        private readonly ArServiceConfiguration _arConfig;
         private readonly IArService _ar;
-        private readonly BleServiceConfiguration _bleConfig;
         private readonly IBleService _ble;
+        private readonly ArServiceConfiguration _arConfig;
+        private readonly BleServiceConfiguration _bleConfig;
+        private readonly UrlFormatterCollection _urls;
 
         /// <summary>
         /// App config.
@@ -47,18 +47,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public InitializeApplicationState(
             IMessageRouter messages,
-            IHttpService http,
             IBootstrapper bootstrapper,
             IAssetManager assets,
             IAssetLoader assetLoader,
-            ArServiceConfiguration arConfig,
             IArService ar,
-            BleServiceConfiguration bleConfig,
             IBleService ble,
-            IImageLoader imageLoader)
+            ArServiceConfiguration arConfig,
+            BleServiceConfiguration bleConfig,
+            UrlFormatterCollection urls)
         {
             _messages = messages;
-            _http = http;
             _bootstrapper = bootstrapper;
             _assets = assets;
             _assetLoader = assetLoader;
@@ -66,11 +64,7 @@ namespace CreateAR.SpirePlayer
             _ar = ar;
             _bleConfig = bleConfig;
             _ble = ble;
-
-            // TODO: replace with url builder
-            imageLoader.ReplaceProtocol(
-                "assets",
-                "https://assets.enklu.com:9091");
+            _urls = urls;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -84,12 +78,30 @@ namespace CreateAR.SpirePlayer
             // ble
             _ble.Setup(_bleConfig);
             
-            // setup http
+            // setup URL builders from environment
             var env = _appConfig.Network.Environment(_appConfig.Network.Current);
-            _http.UrlBuilder.FromUrl(env.Url);
 
-            // setup asset loading
-            _assetLoader.Initialize();
+            var trellisFormatter = new LoggedUrlFormatter();
+            if (!trellisFormatter.FromUrl(env.TrellisUrl))
+            {
+                Log.Error(this, "Invalid trellis URL : " + env.TrellisUrl);
+            }
+
+            var assetsFormatter = new LoggedUrlFormatter();
+            if (!assetsFormatter.FromUrl(env.AssetsUrl))
+            {
+                Log.Error(this, "Invalid assets URL : " + env.AssetsUrl);
+            }
+
+            var thumbsFormatter = new LoggedUrlFormatter();
+            if (!thumbsFormatter.FromUrl(env.ThumbsUrl))
+            {
+                Log.Error(this, "Invalid thumbs URL : " + env.ThumbsUrl);
+            }
+
+            _urls.Register("trellis", trellisFormatter);
+            _urls.Register("assets", assetsFormatter);
+            _urls.Register("thumbs", thumbsFormatter);
 
             // reset assets
             _assets.Uninitialize();

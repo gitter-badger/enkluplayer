@@ -132,7 +132,7 @@ namespace CreateAR.SpirePlayer
 
             _http
                 .PostFile<Response>(
-                    _http.UrlBuilder.Url("file"),
+                    _http.Urls.Url("trellis://file"),
                     new List<Tuple<string, string>>
                     {
                         Tuple.Create("tags", _tags)
@@ -180,7 +180,7 @@ namespace CreateAR.SpirePlayer
 
             _http
                 .PutFile<Trellis.Messages.UpdateFile.Response>(
-                    _http.UrlBuilder.Url("file/" + _fileId),
+                    _http.Urls.Url("trellis://file/" + _fileId),
                     new List<Tuple<string, string>>(),
                     ref bytes)
                 .OnSuccess(response =>
