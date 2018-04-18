@@ -676,7 +676,7 @@ PlayerSettings:
   scriptingRuntimeVersion: 0
   apiCompatibilityLevelPerPlatform:
     Metro: 2
-    WebGL: 1
+    WebGL: 2
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: spireplayer
