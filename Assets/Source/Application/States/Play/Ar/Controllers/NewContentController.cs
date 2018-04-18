@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
 
@@ -131,10 +134,10 @@ namespace CreateAR.SpirePlayer
                 {
                     var asset = assets[j];
                     vine += string.Format(
-                        "<Option value='{0}' label='{1}' src='thumbs:/{2}' />",
+                        "<Option value='{0}' label='{1}' src='thumbs://{2}' />",
                         asset.Guid,
                         FormatLabel(asset.AssetName),
-                        asset.UriThumb);
+                        Path.GetFileName(asset.UriThumb));
                 }
                 vine += "</OptionGroup>";
 
@@ -151,34 +154,85 @@ namespace CreateAR.SpirePlayer
         private List<AssetGroup> GroupAssets()
         {
             var assets = Assets.Manifest.All;
+            Log.Info(this, "Grouping {0} assets.", assets.Length);
+
             var groups = new List<AssetGroup>();
             for (int i = 0, ilen = assets.Length; i < ilen; i++)
             {
                 var asset = assets[i];
+                var tags = (asset.Tags ?? string.Empty).Split(',');
 
-                var found = false;
-                for (int j = 0, jlen = groups.Count; j < jlen; j++)
+                for (int k = 0, klen = tags.Length; k < klen; k++)
                 {
-                    var group = groups[j];
-                    if (group.GroupName == asset.Tags)
+                    var assetTag = tags[k];
+                    if (assetTag == "none")
                     {
-                        group.Assets.Add(asset);
-                        found = true;
-
-                        break;
+                        if (1 == klen)
+                        {
+                            assetTag = "Uncategorized";
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     }
-                }
 
-                if (!found)
-                {
-                    var group = new AssetGroup(asset.Tags);
-                    group.Assets.Add(asset);
+                    assetTag = FormatTag(assetTag);
 
-                    groups.Add(group);
+                    var found = false;
+                    for (int j = 0, jlen = groups.Count; j < jlen; j++)
+                    {
+                        var group = groups[j];
+                        if (group.GroupName == assetTag)
+                        {
+                            group.Assets.Add(asset);
+                            found = true;
+
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        var group = new AssetGroup(assetTag);
+                        group.Assets.Add(asset);
+
+                        groups.Add(group);
+                    }
                 }
             }
 
             return groups;
+        }
+
+        /// <summary>
+        /// Formats a tag name for display.
+        /// </summary>
+        /// <param name="assetTag">The tag.</param>
+        /// <returns></returns>
+        private string FormatTag(string assetTag)
+        {
+            return string.Join(
+                " ",
+                assetTag
+                    .Split(' ')
+                    .Select(Capitalize)
+                    .ToArray());
+        }
+
+        /// <summary>
+        /// Capitalizes a string.
+        /// </summary>
+        /// <param name="value">The string value.</param>
+        /// <returns></returns>
+        private string Capitalize(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+
+            return value[0].ToString().ToUpperInvariant() + value.Substring(1);
         }
 
         /// <summary>
