@@ -166,51 +166,51 @@ namespace CreateAR.SpirePlayer
         /// Changes to the state given by the state enums.
         /// </summary>
         /// <param name="state">The state to change to.</param>
-        private void ChangeState(ApplicationStateTypes state)
+        private void ChangeState(ApplicationStateType state)
         {
             switch (state)
             {
-                case ApplicationStateTypes.Tool:
+                case ApplicationStateType.Tool:
                 {
                     _states.Change<ToolModeApplicationState>();
                     break;
                 }
-                case ApplicationStateTypes.LoadApp:
+                case ApplicationStateType.LoadApp:
                 {
                     _states.Change<LoadAppApplicationState>();
                     break;
                 }
-                case ApplicationStateTypes.UserProfile:
+                case ApplicationStateType.UserProfile:
                 {
                     _states.Change<UserProfileApplicationState>();
                     break;
                 }
-                case ApplicationStateTypes.ReceiveApp:
+                case ApplicationStateType.ReceiveApp:
                 {
                     _states.Change<ReceiveAppApplicationState>();
                     break;
                 }
-                case ApplicationStateTypes.Insta:
+                case ApplicationStateType.Insta:
                 {
                     _states.Change<InstaApplicationState>();
                     break;
                 }
-                case ApplicationStateTypes.QrLogin:
+                case ApplicationStateType.QrLogin:
                 {
                     _states.Change<QrLoginApplicationState>();
                     break;
                 }
-                case ApplicationStateTypes.InputLogin:
+                case ApplicationStateType.InputLogin:
                 {
                     _states.Change<InputLoginApplicationState>();
                     break;
                 }
-                case ApplicationStateTypes.Orientation:
+                case ApplicationStateType.Orientation:
                 {
                     _states.Change<OrientationApplicationState>();
                     break;
                 }
-                case ApplicationStateTypes.None:
+                case ApplicationStateType.None:
                 {
                     _states.Change(null);
                     break;
@@ -230,52 +230,52 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Application initialized.");
 
-            var state = ApplicationStateTypes.Invalid;
+            var state = ApplicationStateType.Invalid;
             try
             {
-                state = (ApplicationStateTypes)Enum.Parse(
-                    typeof(ApplicationStateTypes),
-                    _config.StateOverride);
+                state = (ApplicationStateType) Enum.Parse(
+                    typeof(ApplicationStateType),
+                    _config.State);
             }
             catch
             {
                 //
             }
 
-            if (state == ApplicationStateTypes.Invalid)
+            if (state == ApplicationStateType.Invalid)
             {
                 switch (UnityEngine.Application.platform)
                 {
                     case RuntimePlatform.WebGLPlayer:
                     {
-                        state = ApplicationStateTypes.ReceiveApp;
+                        state = ApplicationStateType.ReceiveApp;
                         break;
                     }
                     case RuntimePlatform.IPhonePlayer:
                     case RuntimePlatform.Android:
                     {
-                        state = ApplicationStateTypes.InputLogin;
+                        state = ApplicationStateType.InputLogin;
                         break;
                     }
                     case RuntimePlatform.WSAPlayerX86:
                     case RuntimePlatform.WSAPlayerARM:
                     case RuntimePlatform.WSAPlayerX64:
                     {
-                        state = ApplicationStateTypes.Orientation;
+                        state = ApplicationStateType.Orientation;
                         break;
                     }
-                }
+                    default:
+                    {
+                        if (!string.IsNullOrEmpty(_config.Play.AppId))
+                        {
+                            state = ApplicationStateType.LoadApp;
+                        }
+                        else
+                        {
+                            state = ApplicationStateType.ReceiveApp;
+                        }
 
-                // editor can do what it wants
-                if (UnityEngine.Application.isEditor)
-                {
-                    if (_config.SimulateWebgl)
-                    {
-                        state = ApplicationStateTypes.ReceiveApp;
-                    }
-                    else
-                    {
-                        state = ApplicationStateTypes.LoadApp;
+                        break;
                     }
                 }
             }

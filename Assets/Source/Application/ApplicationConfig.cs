@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Linq;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Enumeration of the major application states.
     /// </summary>
-    public enum ApplicationStateTypes
+    public enum ApplicationStateType
     {
         Invalid = -1,
         None,
@@ -28,15 +30,15 @@ namespace CreateAR.SpirePlayer
     public class ApplicationConfig
     {
         /// <summary>
-        /// If set, overrides the initial state after application is initialized.
+        /// Sets the initial state. Leave empty for the application to decide.
         /// </summary>
-        public string StateOverride;
+        public string State;
 
         /// <summary>
-        /// If true, simulates webgl player. Used only in the Unity Editor.
+        /// Sets the platform. Leave empty for the application to decide.
         /// </summary>
-        public bool SimulateWebgl;
-
+        public string Platform;
+        
         /// <summary>
         /// Logging.
         /// </summary>
@@ -51,6 +53,29 @@ namespace CreateAR.SpirePlayer
         /// Network configuration.
         /// </summary>
         public NetworkConfig Network = new NetworkConfig();
+
+        /// <summary>
+        /// Platform to use.
+        /// </summary>
+        public RuntimePlatform ParsedPlatform
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Platform))
+                {
+                    try
+                    {
+                        return (RuntimePlatform)Enum.Parse(typeof(RuntimePlatform), Platform);
+                    }
+                    catch
+                    {
+                        // fallthrough
+                    }
+                }
+
+                return UnityEngine.Application.platform;
+            }
+        }
         
         /// <summary>
         /// ToString override.
@@ -62,6 +87,27 @@ namespace CreateAR.SpirePlayer
                 "[ApplicationConfig Network={0}, Play={1}]",
                 Network,
                 Play);
+        }
+
+        /// <summary>
+        /// Applies the settings from a config to this config.
+        /// </summary>
+        /// <param name="overrideConfig">The config to override with.</param>
+        public void Override(ApplicationConfig overrideConfig)
+        {
+            if (!string.IsNullOrEmpty(overrideConfig.Platform))
+            {
+                Platform = overrideConfig.Platform;
+            }
+
+            if (!string.IsNullOrEmpty(overrideConfig.State))
+            {
+                State = overrideConfig.State;
+            }
+
+            Log.Override(overrideConfig.Log);
+            Network.Override(overrideConfig.Network);
+            Play.Override(overrideConfig.Play);
         }
     }
 
@@ -92,6 +138,18 @@ namespace CreateAR.SpirePlayer
                 }
             }
         }
+
+        /// <summary>
+        /// Applies the settings from a config to this config.
+        /// </summary>
+        /// <param name="overrideConfig">The config to override with.</param>
+        public void Override(LogAppConfig overrideConfig)
+        {
+            if (!string.IsNullOrEmpty(overrideConfig.Level))
+            {
+                Level = overrideConfig.Level;
+            }
+        }
     }
     
     /// <summary>
@@ -115,14 +173,14 @@ namespace CreateAR.SpirePlayer
         public string AppId;
 
         /// <summary>
-        /// Type of designer to use.
+        /// Type of designer to use. Leave empty for application to decide.
         /// </summary>
-        public string DesignerOverride;
+        public string Designer;
 
         /// <summary>
         /// Parses designer name.
         /// </summary>
-        public DesignerType Designer
+        public DesignerType ParsedDesigner
         {
             get
             {
@@ -130,12 +188,29 @@ namespace CreateAR.SpirePlayer
                 {
                     return (DesignerType) Enum.Parse(
                         typeof(DesignerType),
-                        DesignerOverride);
+                        Designer);
                 }
                 catch
                 {
                     return DesignerType.Ar;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Overrides configuration values with passed in values.
+        /// </summary>
+        /// <param name="overrideConfig">Override config.</param>
+        public void Override(PlayAppConfig overrideConfig)
+        {
+            if (!string.IsNullOrEmpty(overrideConfig.AppId))
+            {
+                AppId = overrideConfig.AppId;
+            }
+
+            if (!string.IsNullOrEmpty(overrideConfig.Designer))
+            {
+                Designer = overrideConfig.Designer;
             }
         }
     }
@@ -222,6 +297,27 @@ namespace CreateAR.SpirePlayer
             return string.Format(
                 "[EnvironmentConfig Count={0}]",
                 null == AllEnvironments ? 0 : AllEnvironments.Length);
+        }
+
+        /// <summary>
+        /// Applies the settings from a config to this config.
+        /// </summary>
+        /// <param name="overrideConfig">The config to override with.</param>
+        public void Override(NetworkConfig overrideConfig)
+        {
+            if (overrideConfig.AssetDownloadLagSec > double.Epsilon)
+            {
+                AssetDownloadLagSec = overrideConfig.AssetDownloadLagSec;
+            }
+
+            if (!string.IsNullOrEmpty(overrideConfig.Current))
+            {
+                Current = overrideConfig.Current;
+            }
+
+            // combine arrays
+            AllEnvironments = AllEnvironments.Concat(overrideConfig.AllEnvironments).ToArray();
+            AllCredentials = AllCredentials.Concat(overrideConfig.AllCredentials).ToArray();
         }
     }
 

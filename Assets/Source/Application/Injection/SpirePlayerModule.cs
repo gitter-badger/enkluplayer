@@ -28,15 +28,7 @@ namespace CreateAR.SpirePlayer
         public void Load(InjectionBinder binder)
         {
             // main configuration
-            var configAsset = Resources.Load<TextAsset>("ApplicationConfig");
-            Log.Info(this, "ApplicationConfig Source:\n{0}", configAsset.text);
-
-            var serializer = new JsonSerializer();
-            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
-            object app;
-            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
-
-            var config = (ApplicationConfig) app;
+            var config = LoadConfig();
 
             Log.Info(this, "ApplicationConfig:\n{0}", config);
 
@@ -194,6 +186,43 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Loads application config.
+        /// </summary>
+        /// <returns></returns>
+        private ApplicationConfig LoadConfig()
+        {
+            // TODO: override at JSON level instead.
+
+            // load base
+            var config = Config("ApplicationConfig");
+
+            // load override
+            var overrideConfig = Config("ApplicationConfig.Override");
+            if (null != overrideConfig)
+            {
+                config.Override(overrideConfig);
+            }
+
+            return config;
+        }
+
+        /// <summary>
+        /// Loads a config at a path.
+        /// </summary>
+        /// <param name="path">The path to load the config from.</param>
+        /// <returns></returns>
+        private ApplicationConfig Config(string path)
+        {
+            var configAsset = Resources.Load<TextAsset>(path);
+            var serializer = new JsonSerializer();
+            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
+            object app;
+            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
+
+            return (ApplicationConfig) app;
+        }
+
+        /// <summary>
         /// Adds bindings for spire.
         /// </summary>
         private void AddSpireBindings(
@@ -290,7 +319,7 @@ namespace CreateAR.SpirePlayer
 
                 if (UnityEngine.Application.isEditor)
                 {
-                    if (config.Play.Designer == PlayAppConfig.DesignerType.Desktop)
+                    if (config.Play.ParsedDesigner == PlayAppConfig.DesignerType.Desktop)
                     {
                         binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
                     }

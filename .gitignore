@@ -42,3 +42,6 @@ sysinfo.txt
 # vim
 *.swp
 *~
+
+# app config overrides
+Assets/Resources/ApplicationConfig.Override*
