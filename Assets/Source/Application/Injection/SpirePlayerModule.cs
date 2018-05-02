@@ -137,16 +137,30 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ElementActionHelperService>().To<ElementActionHelperService>().ToSingleton();
                 }
 
+                // login
+                {
+                    if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86
+                        || config.ParsedPlatform == RuntimePlatform.WSAPlayerARM
+                        || config.ParsedPlatform == RuntimePlatform.WSAPlayerX64)
+                    {
+                        binder.Bind<ILoginStrategy>().To<QrLoginStrategy>();
+                    }
+                    else
+                    {
+                        binder.Bind<ILoginStrategy>().To<InputLoginStrategy>();
+                    }
+                }
+
                 // application states
                 {
                     binder.Bind<TestDataConfig>().To(LookupComponent<TestDataConfig>());
                     binder.Bind<ITestDataController>().To<TestDataController>();
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                     binder.Bind<LoginApplicationState>().To<LoginApplicationState>();
-                    binder.Bind<QrLoginState>().To<QrLoginState>();
+                    binder.Bind<QrLoginStrategy>().To<QrLoginStrategy>();
                     binder.Bind<OrientationApplicationState>().To<OrientationApplicationState>();
                     binder.Bind<UserProfileApplicationState>().To<UserProfileApplicationState>();
-                    binder.Bind<InputLoginState>().To<InputLoginState>();
+                    binder.Bind<InputLoginStrategy>().To<InputLoginStrategy>();
                     binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();

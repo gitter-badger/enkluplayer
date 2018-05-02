@@ -11,6 +11,6 @@ namespace CreateAR.SpirePlayer
         /// Logs in.
         /// </summary>
         /// <returns></returns>
-        IAsyncToken<Void> Login();
+        IAsyncToken<CredentialsData> Login();
     }
 }

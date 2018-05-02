@@ -4,19 +4,17 @@ using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.HoloSignin;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Logs a user in via Qr code.
     /// </summary>
-    public class QrLoginState : ILoginStrategy
+    public class QrLoginStrategy : ILoginStrategy
     {
         /// <summary>
         /// How long to wait for timeout.
@@ -34,29 +32,14 @@ namespace CreateAR.SpirePlayer
         private readonly IBootstrapper _bootstrapper;
 
         /// <summary>
-        /// Messages.
-        /// </summary>
-        private readonly IMessageRouter _messages;
-
-        /// <summary>
         /// Service that reads QR codes from camera.
         /// </summary>
         private readonly IQrReaderService _qr;
 
         /// <summary>
-        /// Http service.
-        /// </summary>
-        private readonly IHttpService _http;
-        
-        /// <summary>
         /// Makes API calls.
         /// </summary>
         private readonly ApiController _api;
-
-        /// <summary>
-        /// App-wide config.
-        /// </summary>
-        private readonly ApplicationConfig _config;
 
         /// <summary>
         /// Root of UI.
@@ -81,33 +64,34 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Internal token.
         /// </summary>
-        private AsyncToken<Void> _loginToken;
+        private AsyncToken<CredentialsData> _loginToken;
+
+        /// <summary>
+        /// True iff login is executing.
+        /// </summary>
+        private bool _isAlive;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public QrLoginState(
+        public QrLoginStrategy(
             IBootstrapper bootstrapper,
-            IMessageRouter messages,
             IQrReaderService qr,
-            IHttpService http,
-            ApiController api,
-            ApplicationConfig config)
+            ApiController api)
         {
             _bootstrapper = bootstrapper;
-            _messages = messages;
             _qr = qr;
-            _http = http;
             _api = api;
-            _config = config;
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Login()
+        public IAsyncToken<CredentialsData> Login()
         {
-            _loginToken = new AsyncToken<Void>();
+            _loginToken = new AsyncToken<CredentialsData>();
             _loginToken.OnFinally(_ =>
             {
+                _isAlive = false;
+
                 // shutdown qr
                 _qr.Stop();
                 _qr.OnRead -= Qr_OnRead;
@@ -125,18 +109,29 @@ namespace CreateAR.SpirePlayer
                     SCENE_NAME,
                     LoadSceneMode.Additive)));
 
+            _bootstrapper.BootstrapCoroutine(WatchToken());
+
             return _loginToken.Token();
         }
 
-        /// <inheritdoc />
-        public void Update(float dt)
+        /// <summary>
+        /// Watches for timeouts.
+        /// </summary>
+        private IEnumerator WatchToken()
         {
-            if (null != _holoAuthToken)
+            _isAlive = true;
+
+            while (_isAlive)
             {
-                if (DateTime.Now.Subtract(_startRequest).TotalSeconds > TIMEOUT_SEC)
+                if (null != _holoAuthToken)
                 {
-                    _view.ShowMessage("Request has timed out. Please double check your wifi connection.");
+                    if (DateTime.Now.Subtract(_startRequest).TotalSeconds > TIMEOUT_SEC)
+                    {
+                        _view.ShowMessage("Request has timed out. Please double check your wifi connection.");
+                    }
                 }
+
+                yield return null;
             }
         }
         
@@ -176,13 +171,14 @@ namespace CreateAR.SpirePlayer
             if (2 != substrings.Length)
             {
                 _view.ShowMessage("Invalid QR code. Look at HoloLogin code at https://editor.enklu.com.");
+
                 Log.Warning(this, "Invalid QR code value : {0}.", value);
+
                 return;
             }
 
             var code = substrings[0];
-            var appId = substrings[1];
-
+            
             _startRequest = DateTime.Now;
 
             // make the call
@@ -192,38 +188,40 @@ namespace CreateAR.SpirePlayer
                 {
                     Code = code
                 });
-            _holoAuthToken.OnSuccess(response =>
+            _holoAuthToken
+                .OnFinally(_ => _holoAuthToken = null)
+                .OnSuccess(response =>
                 {
                     if (response.Payload.Success)
                     {
                         // fill out credentials
-                        var creds = _config.Network.Credentials(_config.Network.Current);
-                        creds.UserId = response.Payload.Body.UserId;
-                        creds.Token = response.Payload.Body.Token;
-
-                        creds.Apply(_http);
-
-                        // fill out app data
-                        _config.Play.AppId = appId;
-
+                        var creds = new CredentialsData
+                        {
+                            UserId = response.Payload.Body.UserId,
+                            Token = response.Payload.Body.Token
+                        };
+                        
                         Log.Info(this, "HoloLogin complete.");
                         
-                        _messages.Publish(MessageTypes.USER_PROFILE);
+                        _loginToken.Succeed(creds);
                     }
                     else
                     {
-                        Log.Error(this, "Server refused our code : {0}.", response.Payload.Error);
+                        _view.ShowMessage("Could not login. Invalid QR code. Please contact support@enklu.com if this persists.");
 
-                        _view.ShowMessage("Could not login. Invalid account. Please contact support@enklu.com if this persists.");
+                        _loginToken.Fail(new Exception(string.Format(
+                            "Server refused our code : {0}.",
+                            response.Payload.Error)));
                     }
                 })
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not sign in with holocode : {0}.", exception);
 
+                    // allow retry
                     _holoAuthToken = null;
 
-                    _view.ShowMessage("Could not login. Please try again later. Please contact support@enklu.com if this persists.");
+                    _view.ShowMessage("Network error. Are you sure you're connected to the Internet? Please contact support@enklu.com if this persists.");
                 });
         }
     }

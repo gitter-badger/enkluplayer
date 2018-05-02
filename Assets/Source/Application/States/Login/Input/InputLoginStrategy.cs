@@ -7,14 +7,13 @@ using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.EmailSignIn;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Application state that just prompts for login.
     /// </summary>
-    public class InputLoginState : ILoginStrategy
+    public class InputLoginStrategy : ILoginStrategy
     {
         /// <summary>
         /// Name of the playmode scene to load.
@@ -26,16 +25,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
 
-        /// <summary>
-        /// Http service.
-        /// </summary>
-        private readonly IHttpService _http;
-        
-        /// <summary>
-        /// Application wide config.
-        /// </summary>
-        private readonly ApplicationConfig _config;
-        
         /// <summary>
         /// Api calls.
         /// </summary>
@@ -49,27 +38,23 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Tracks login internally.
         /// </summary>
-        private AsyncToken<Void> _loginToken;
+        private AsyncToken<CredentialsData> _loginToken;
     
         /// <summary>
         /// Constructor.
         /// </summary>
-        public InputLoginState(
+        public InputLoginStrategy(
             IBootstrapper bootstrapper,
-            IHttpService http,
-            ApplicationConfig config,
             ApiController api)
         {
             _bootstrapper = bootstrapper;
-            _http = http;
-            _config = config;
             _api = api;
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Login()
+        public IAsyncToken<CredentialsData> Login()
         {
-            _loginToken = new AsyncToken<Void>();
+            _loginToken = new AsyncToken<CredentialsData>();
             _loginToken.OnFinally(_ =>
             {
                 _inputController.gameObject.SetActive(false);
@@ -125,12 +110,13 @@ namespace CreateAR.SpirePlayer
                     if (response.Payload.Success)
                     {
                         // fill out credentials
-                        var creds = _config.Network.Credentials(_config.Network.Current);
-                        creds.UserId = response.Payload.Body.User.Id;
-                        creds.Token = response.Payload.Body.Token;
-                        creds.Apply(_http);
+                        var creds = new CredentialsData
+                        {
+                            UserId = response.Payload.Body.User.Id,
+                            Token = response.Payload.Body.Token
+                        };
                         
-                        _loginToken.Succeed(Void.Instance);
+                        _loginToken.Succeed(creds);
                     }
                     else
                     {
