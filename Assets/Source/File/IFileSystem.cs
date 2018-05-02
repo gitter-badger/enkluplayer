@@ -8,6 +8,13 @@ namespace CreateAR.SpirePlayer
     public interface IFileSystem
     {
         /// <summary>
+        /// True iff a file exists at a uri.
+        /// </summary>
+        /// <param name="uri">the uri.</param>
+        /// <returns></returns>
+        bool Exists(string uri);
+
+        /// <summary>
         /// Retrieves a file.
         /// </summary>
         /// <param name="uri">Uri of the file.</param>

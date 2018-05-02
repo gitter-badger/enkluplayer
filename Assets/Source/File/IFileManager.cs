@@ -26,6 +26,13 @@ namespace CreateAR.SpirePlayer
         bool Unregister(string protocol);
 
         /// <summary>
+        /// True iff a file exists at a Uri.
+        /// </summary>
+        /// <param name="uri">The uri.</param>
+        /// <returns></returns>
+        bool Exists(string uri);
+
+        /// <summary>
         /// Retrieves a file.
         /// </summary>
         /// <param name="uri">Uri of the File to retrieve.</param>
@@ -33,10 +40,11 @@ namespace CreateAR.SpirePlayer
         IAsyncToken<File<T>> Get<T>(string uri);
 
         /// <summary>
-        /// Sets a file.
+        /// Writes a file.
         /// </summary>
-        /// <param name="file">The file to set.</param>
-        /// <returns>The file that was set.</returns>
-        IAsyncToken<File<T>> Set<T>(File<T> file);
+        /// <param name="uri">The Uri to write to.</param>
+        /// <param name="value">The value to write.</param>
+        /// <returns></returns>
+        IAsyncToken<File<T>> Set<T>(string uri, T value);
     }
 }
