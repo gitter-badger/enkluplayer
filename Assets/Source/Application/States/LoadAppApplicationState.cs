@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
@@ -28,12 +26,7 @@ namespace CreateAR.SpirePlayer
         /// API.
         /// </summary>
         private readonly ApiController _api;
-
-        /// <summary>
-        /// For Http.
-        /// </summary>
-        private readonly IHttpService _http;
-
+        
         /// <summary>
         /// Messages.
         /// </summary>
@@ -50,13 +43,11 @@ namespace CreateAR.SpirePlayer
         public LoadAppApplicationState(
             ApplicationConfig config,
             ApiController api,
-            IHttpService http,
             IMessageRouter messages,
             IConnection connection)
         {
             _config = config;
             _api = api;
-            _http = http;
             _messages = messages;
             _connection = connection;
         }
@@ -64,17 +55,11 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Enter(object context)
         {
-            // setup http service
-            _config
-                .Network
-                .Credentials(_config.Network.Current)
-                .Apply(_http);
-
             Log.Info(this, "Connect to Trellis...");
 
             Async
                 .All(
-                    _connection.Connect(_config.Network.Environment(_config.Network.Current)),
+                    _connection.Connect(_config.Network.Environment),
                     GetAssets(),
                     GetScripts())
                 .OnSuccess(_ =>

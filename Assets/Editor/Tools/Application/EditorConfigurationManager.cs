@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer.Editor
 {
@@ -44,14 +43,10 @@ namespace CreateAR.SpirePlayer.Editor
         {
             get
             {
-                var current = UserConfig.Network.Environment(UserConfig.Network.Current);
+                var current = UserConfig.Network.Environment;
                 if (null == current)
                 {
-                    current = AppConfig.Network.Environment(UserConfig.Network.Current);
-                    if (null == current)
-                    {
-                        current = AppConfig.Network.Environment(AppConfig.Network.Current);
-                    }
+                    current = AppConfig.Network.Environment;
                 }
 
                 return current;
@@ -65,14 +60,10 @@ namespace CreateAR.SpirePlayer.Editor
         {
             get
             {
-                var current = UserConfig.Network.Credentials(UserConfig.Network.Current);
+                var current = UserConfig.Network.Credentials;
                 if (null == current)
                 {
-                    current = AppConfig.Network.Credentials(UserConfig.Network.Current);
-                    if (null == current)
-                    {
-                        current = AppConfig.Network.Credentials(AppConfig.Network.Current);
-                    }
+                    current = AppConfig.Network.Credentials;
                 }
 
                 return current;

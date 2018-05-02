@@ -111,7 +111,7 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Credentials received : {0}.", message);
                     
                     // update ApplicationConfig
-                    var creds = _config.Network.Credentials(_config.Network.Current);
+                    var creds = _config.Network.Credentials;
                     creds.UserId = message.Profile.Id;
                     creds.Token = message.Credentials.Token;
                     creds.Email = message.Profile.Email;
@@ -121,7 +121,7 @@ namespace CreateAR.SpirePlayer
 
                     // connect to Trellis
                     _connection
-                        .Connect(_config.Network.Environment(_config.Network.Current))
+                        .Connect(_config.Network.Environment)
                         .OnSuccess(_ =>
                         {
                             Log.Info(this, "Connected to Trellis.");

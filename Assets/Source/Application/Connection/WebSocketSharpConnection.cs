@@ -100,7 +100,7 @@ namespace CreateAR.SpirePlayer
         {
             req.Headers = new WebSocketRequest.HeaderData
             {
-                Authorization = "Bearer " + _config.Network.Credentials(_config.Network.Current).Token
+                Authorization = "Bearer " + _config.Network.Credentials.Token
             };
 
             byte[] bytes;

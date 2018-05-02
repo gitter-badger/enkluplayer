@@ -79,7 +79,7 @@ namespace CreateAR.SpirePlayer
             _ble.Setup(_bleConfig);
             
             // setup URL builders from environment
-            var env = _appConfig.Network.Environment(_appConfig.Network.Current);
+            var env = _appConfig.Network.Environment;
 
             var trellisFormatter = new LoggedUrlFormatter();
             if (!trellisFormatter.FromUrl(env.TrellisUrl))

@@ -235,63 +235,58 @@ namespace CreateAR.SpirePlayer
         public EnvironmentData[] AllEnvironments;
 
         /// <summary>
-        /// List of credentials.
+        /// List of environments.
         /// </summary>
         public CredentialsData[] AllCredentials;
-        
+
         /// <summary>
-        /// Retrieves an environment by name.
+        /// Retrieves the current environment.
         /// </summary>
-        /// <param name="name">Environment name.</param>
-        /// <returns></returns>
-        public EnvironmentData Environment(string name)
+        public EnvironmentData Environment
         {
-            if (null == AllEnvironments || 0 == AllEnvironments.Length)
+            get
             {
+                if (null == AllEnvironments || 0 == AllEnvironments.Length)
+                {
+                    return null;
+                }
+
+                for (int i = 0, len = AllEnvironments.Length; i < len; i++)
+                {
+                    var env = AllEnvironments[i];
+                    if (env.Name == Current)
+                    {
+                        return env;
+                    }
+                }
+
                 return null;
             }
-
-            for (int i = 0, len = AllEnvironments.Length; i < len; i++)
-            {
-                var env = AllEnvironments[i];
-                if (env.Name == name)
-                {
-                    return env;
-                }
-            }
-
-            return null;
         }
 
         /// <summary>
-        /// Retrieves credentials by environment.
+        /// Retrieves the current credentials.
         /// </summary>
-        /// <param name="env">The name of the environment.</param>
-        /// <returns></returns>
-        public CredentialsData Credentials(string env)
+        public CredentialsData Credentials
         {
-            if (null == AllCredentials)
+            get
             {
-                AllCredentials = new CredentialsData[0];
-            }
-
-            for (int i = 0, len = AllCredentials.Length; i < len; i++)
-            {
-                var creds = AllCredentials[i];
-                if (creds.Environment == env)
+                if (null == AllCredentials || 0 == AllCredentials.Length)
                 {
-                    return creds;
+                    return null;
                 }
+
+                for (int i = 0, len = AllCredentials.Length; i < len; i++)
+                {
+                    var creds = AllCredentials[i];
+                    if (creds.Environment == Current)
+                    {
+                        return creds;
+                    }
+                }
+
+                return null;
             }
-
-            var newCreds = new CredentialsData
-            {
-                Environment = env
-            };
-
-            AllCredentials = AllCredentials.Add(newCreds);
-
-            return newCreds;
         }
 
         /// <summary>
@@ -323,7 +318,6 @@ namespace CreateAR.SpirePlayer
 
             // combine arrays
             AllEnvironments = AllEnvironments.Concat(overrideConfig.AllEnvironments).ToArray();
-            AllCredentials = AllCredentials.Concat(overrideConfig.AllCredentials).ToArray();
         }
     }
 

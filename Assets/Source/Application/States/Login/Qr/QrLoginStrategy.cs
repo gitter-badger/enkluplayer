@@ -128,6 +128,9 @@ namespace CreateAR.SpirePlayer
                     if (DateTime.Now.Subtract(_startRequest).TotalSeconds > TIMEOUT_SEC)
                     {
                         _view.ShowMessage("Request has timed out. Please double check your wifi connection.");
+
+                        _holoAuthToken.Abort();
+                        _holoAuthToken = null;
                     }
                 }
 
@@ -189,6 +192,7 @@ namespace CreateAR.SpirePlayer
                     Code = code
                 });
             _holoAuthToken
+                // always null for retries
                 .OnFinally(_ => _holoAuthToken = null)
                 .OnSuccess(response =>
                 {
@@ -208,19 +212,12 @@ namespace CreateAR.SpirePlayer
                     else
                     {
                         _view.ShowMessage("Could not login. Invalid QR code. Please contact support@enklu.com if this persists.");
-
-                        _loginToken.Fail(new Exception(string.Format(
-                            "Server refused our code : {0}.",
-                            response.Payload.Error)));
                     }
                 })
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not sign in with holocode : {0}.", exception);
-
-                    // allow retry
-                    _holoAuthToken = null;
-
+                    
                     _view.ShowMessage("Network error. Are you sure you're connected to the Internet? Please contact support@enklu.com if this persists.");
                 });
         }
