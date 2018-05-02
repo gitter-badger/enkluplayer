@@ -9,14 +9,14 @@ using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.HoloSignin;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Logs a user in via Qr code.
     /// </summary>
-    public class QrLoginApplicationState : IState
+    public class QrLoginState : ILoginStrategy
     {
         /// <summary>
         /// How long to wait for timeout.
@@ -79,9 +79,14 @@ namespace CreateAR.SpirePlayer
         private DateTime _startRequest;
 
         /// <summary>
+        /// Internal token.
+        /// </summary>
+        private AsyncToken<Void> _loginToken;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
-        public QrLoginApplicationState(
+        public QrLoginState(
             IBootstrapper bootstrapper,
             IMessageRouter messages,
             IQrReaderService qr,
@@ -98,13 +103,29 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Enter(object context)
+        public IAsyncToken<Void> Login()
         {
+            _loginToken = new AsyncToken<Void>();
+            _loginToken.OnFinally(_ =>
+            {
+                // shutdown qr
+                _qr.Stop();
+                _qr.OnRead -= Qr_OnRead;
+
+                UnityEngine.Object.Destroy(_root);
+
+                // unload scene
+                SceneManager.UnloadSceneAsync(
+                    SceneManager.GetSceneByName(SCENE_NAME));
+            });
+
             // load scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
                     SCENE_NAME,
                     LoadSceneMode.Additive)));
+
+            return _loginToken.Token();
         }
 
         /// <inheritdoc />
@@ -118,21 +139,7 @@ namespace CreateAR.SpirePlayer
                 }
             }
         }
-
-        /// <inheritdoc />
-        public void Exit()
-        {
-            // shutdown qr
-            _qr.Stop();
-            _qr.OnRead -= Qr_OnRead;
-
-            UnityEngine.Object.Destroy(_root);
-
-            // unload scene
-            SceneManager.UnloadSceneAsync(
-                SceneManager.GetSceneByName(SCENE_NAME));
-        }
-
+        
         /// <summary>
         /// Waits for scene to load.
         /// </summary>

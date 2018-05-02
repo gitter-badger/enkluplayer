@@ -24,6 +24,7 @@
         public const int LOAD_APP = 5;
         public const int USER_PROFILE = 6;
         public const int LOGIN = 7;
+        public const int CHANGE_STATE = 8;
 
         // Assets
         public const int RECV_ASSET_LIST = 10;

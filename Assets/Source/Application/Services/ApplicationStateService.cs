@@ -30,10 +30,9 @@ namespace CreateAR.SpirePlayer
             ApplicationConfig config,
 
             InitializeApplicationState initialize,
-            QrLoginApplicationState qrLogin,
+            LoginApplicationState login,
             OrientationApplicationState orientation,
             UserProfileApplicationState userProfile,
-            InputLoginApplicationState inputLogin,
             LoadAppApplicationState load,
             ReceiveAppApplicationState receive,
             PlayApplicationState play,
@@ -50,10 +49,9 @@ namespace CreateAR.SpirePlayer
             _states = new FiniteStateMachine(new IState[]
             {
                 initialize,
-                qrLogin,
+                login,
                 orientation,
                 userProfile,
-                inputLogin,
                 load,
                 receive,
                 play,
@@ -73,6 +71,10 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.APPLICATION_INITIALIZED,
                 Messages_OnApplicationInitialized);
 
+            Subscribe<Type>(
+                MessageTypes.CHANGE_STATE,
+                _states.Change);
+
             Subscribe<Void>(
                 MessageTypes.LOAD_APP,
                 _ =>
@@ -88,21 +90,7 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Login requested.");
 
-                    switch (UnityEngine.Application.platform)
-                    {
-                        case RuntimePlatform.WSAPlayerX86:
-                        case RuntimePlatform.WSAPlayerX64:
-                        case RuntimePlatform.WSAPlayerARM:
-                        {
-                            _states.Change<QrLoginApplicationState>();
-                            break;
-                        }
-                        default:
-                        {
-                            _states.Change<InputLoginApplicationState>();
-                            break;
-                        }
-                    }
+                    _states.Change<LoginApplicationState>();
                 });
 
             Subscribe<Void>(
@@ -195,14 +183,9 @@ namespace CreateAR.SpirePlayer
                     _states.Change<InstaApplicationState>();
                     break;
                 }
-                case ApplicationStateType.QrLogin:
+                case ApplicationStateType.Login:
                 {
-                    _states.Change<QrLoginApplicationState>();
-                    break;
-                }
-                case ApplicationStateType.InputLogin:
-                {
-                    _states.Change<InputLoginApplicationState>();
+                    _states.Change<LoginApplicationState>();
                     break;
                 }
                 case ApplicationStateType.Orientation:
@@ -254,7 +237,7 @@ namespace CreateAR.SpirePlayer
                     case RuntimePlatform.IPhonePlayer:
                     case RuntimePlatform.Android:
                     {
-                        state = ApplicationStateType.InputLogin;
+                        state = ApplicationStateType.Login;
                         break;
                     }
                     case RuntimePlatform.WSAPlayerX86:
@@ -270,9 +253,13 @@ namespace CreateAR.SpirePlayer
                         {
                             state = ApplicationStateType.LoadApp;
                         }
-                        else
+                        else if (_config.ParsedPlatform == RuntimePlatform.WebGLPlayer)
                         {
                             state = ApplicationStateType.ReceiveApp;
+                        }
+                        else
+                        {
+                            state = ApplicationStateType.Login;
                         }
 
                         break;

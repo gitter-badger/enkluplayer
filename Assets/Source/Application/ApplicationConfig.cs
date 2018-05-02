@@ -17,8 +17,7 @@ namespace CreateAR.SpirePlayer
         ReceiveApp,
         Tool,
         Insta,
-        QrLogin,
-        InputLogin,
+        Login,
         UserProfile,
         Orientation
     }
@@ -271,9 +270,9 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public CredentialsData Credentials(string env)
         {
-            if (null == AllCredentials || 0 == AllCredentials.Length)
+            if (null == AllCredentials)
             {
-                return null;
+                AllCredentials = new CredentialsData[0];
             }
 
             for (int i = 0, len = AllCredentials.Length; i < len; i++)
@@ -285,7 +284,14 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
-            return null;
+            var newCreds = new CredentialsData
+            {
+                Environment = env
+            };
+
+            AllCredentials = AllCredentials.Add(newCreds);
+
+            return newCreds;
         }
 
         /// <summary>

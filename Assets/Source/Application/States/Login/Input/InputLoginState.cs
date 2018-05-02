@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.EmailSignIn;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using Object = UnityEngine.Object;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Application state that just prompts for login.
     /// </summary>
-    public class InputLoginApplicationState : IState
+    public class InputLoginState : ILoginStrategy
     {
         /// <summary>
         /// Name of the playmode scene to load.
@@ -26,11 +25,6 @@ namespace CreateAR.SpirePlayer
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
-
-        /// <summary>
-        /// Messages.
-        /// </summary>
-        private readonly IMessageRouter _messages;
 
         /// <summary>
         /// Http service.
@@ -51,54 +45,47 @@ namespace CreateAR.SpirePlayer
         /// Controls input.
         /// </summary>
         private InputLoginController _inputController;
-
+        
         /// <summary>
-        /// Apps.
+        /// Tracks login internally.
         /// </summary>
-        private LoadAppController _apps;
+        private AsyncToken<Void> _loginToken;
     
         /// <summary>
         /// Constructor.
         /// </summary>
-        public InputLoginApplicationState(
+        public InputLoginState(
             IBootstrapper bootstrapper,
-            IMessageRouter messages,
             IHttpService http,
             ApplicationConfig config,
             ApiController api)
         {
             _bootstrapper = bootstrapper;
-            _messages = messages;
             _http = http;
             _config = config;
             _api = api;
         }
-        
+
         /// <inheritdoc />
-        public void Enter(object context)
+        public IAsyncToken<Void> Login()
         {
+            _loginToken = new AsyncToken<Void>();
+            _loginToken.OnFinally(_ =>
+            {
+                _inputController.gameObject.SetActive(false);
+                
+                // unload scene
+                SceneManager.UnloadSceneAsync(
+                    SceneManager.GetSceneByName(SCENE_NAME));
+            });
+
             // load scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
                     SCENE_NAME,
                     LoadSceneMode.Additive)));
-        }
 
-        /// <inheritdoc />
-        public void Update(float dt)
-        {    
-            
-        }
-
-        /// <inheritdoc />
-        public void Exit()
-        {
-            _inputController.gameObject.SetActive(false);
-            _apps.gameObject.SetActive(false);
-            
-            // unload scene
-            SceneManager.UnloadSceneAsync(
-                SceneManager.GetSceneByName(SCENE_NAME));
+            return _loginToken.Token();
         }
         
         /// <summary>
@@ -117,24 +104,8 @@ namespace CreateAR.SpirePlayer
             _inputController = root.GetComponentInChildren<InputLoginController>(true);
             _inputController.OnSubmit += Controller_OnSubmit;
             _inputController.gameObject.SetActive(true);
-
-            _apps = root.GetComponentInChildren<LoadAppController>(true);
-            _apps.OnAppSelected += Controller_AppSelected;
         }
-
-        /// <summary>
-        /// Called when app has been selected.
-        /// </summary>
-        /// <param name="appId">The id of the app.</param>
-        private void Controller_AppSelected(string appId)
-        {
-            // fill out app data
-            _config.Play.AppId = appId;
-
-            // load app
-            _messages.Publish(MessageTypes.LOAD_APP);
-        }
-
+        
         /// <summary>
         /// Called when the view controller submit button has been pressed.
         /// </summary>
@@ -158,36 +129,22 @@ namespace CreateAR.SpirePlayer
                         creds.UserId = response.Payload.Body.User.Id;
                         creds.Token = response.Payload.Body.Token;
                         creds.Apply(_http);
-
-                        // deactivate
-                        _inputController.gameObject.SetActive(false);
-                        _apps.gameObject.SetActive(true);
                         
-                        // get my apps
-                        _api
-                            .Apps
-                            .GetMyApps()
-                            .OnSuccess(appsResponse =>
-                            {
-                                if (appsResponse.Payload.Success)
-                                {
-                                    _apps.Show(appsResponse.Payload.Body);
-                                }
-                                else
-                                {
-                                    Log.Error(this,
-                                        "There was an error getting my apps : {0}.",
-                                        appsResponse.Payload.Error);
-                                }
-                            })
-                            .OnFailure(exception => Log.Error(this, "Could not get apps : {0}.", exception));
+                        _loginToken.Succeed(Void.Instance);
                     }
                     else
                     {
                         Log.Error(this, "There was an error signing in : {0}.", response.Payload.Error);
+
+                        _loginToken.Fail(new Exception(response.Payload.Error));
                     }
                 })
-                .OnFailure(exception => Log.Error(this, "Could not signin : {0}.", exception));
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not signin : {0}.", exception);
+
+                    _loginToken.Fail(exception);
+                });
         }
     }
 }

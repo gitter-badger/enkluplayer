@@ -41,6 +41,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>().ToSingleton();
                 binder.Bind<ISerializer>().To<JsonSerializer>();
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
+                binder.Bind<IDiskCache>().To(new StandardDiskCache("DiskCache"));
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
                 binder.Bind<IHttpService>()
@@ -141,10 +142,11 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<TestDataConfig>().To(LookupComponent<TestDataConfig>());
                     binder.Bind<ITestDataController>().To<TestDataController>();
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
-                    binder.Bind<QrLoginApplicationState>().To<QrLoginApplicationState>();
+                    binder.Bind<LoginApplicationState>().To<LoginApplicationState>();
+                    binder.Bind<QrLoginState>().To<QrLoginState>();
                     binder.Bind<OrientationApplicationState>().To<OrientationApplicationState>();
                     binder.Bind<UserProfileApplicationState>().To<UserProfileApplicationState>();
-                    binder.Bind<InputLoginApplicationState>().To<InputLoginApplicationState>();
+                    binder.Bind<InputLoginState>().To<InputLoginState>();
                     binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
