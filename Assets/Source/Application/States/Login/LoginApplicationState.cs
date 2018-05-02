@@ -1,7 +1,8 @@
-﻿using System;
+﻿using System.IO;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.Test;
 using CreateAR.Trellis.Messages;
 
 namespace CreateAR.SpirePlayer
@@ -14,13 +15,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Credentials.
         /// </summary>
-        private const string CREDS = "login.creds";
-        private const string PREFERENCES_PREFIX = "login.preferences.";
+        private const string CREDS = "login://DefaultCredentials";
+        private const string PREFERENCES_PREFIX = "login://Preferences/";
 
         /// <summary>
-        /// Caches bytes on disk.
+        /// Reads and writes files.
         /// </summary>
-        private readonly IDiskCache _cache;
+        private readonly IFileManager _files;
 
         /// <summary>
         /// Pub/sub interface.
@@ -31,12 +32,7 @@ namespace CreateAR.SpirePlayer
         /// Http implementation.
         /// </summary>
         private readonly IHttpService _http;
-
-        /// <summary>
-        /// Serializer.
-        /// </summary>
-        private readonly ISerializer _serializer;
-
+        
         /// <summary>
         /// Strategy for logging in.
         /// </summary>
@@ -56,21 +52,26 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public LoginApplicationState(
-            IDiskCache cache,
+            IFileManager files,
             IMessageRouter messages,
-            ISerializer serializer,
             ILoginStrategy strategy,
             IHttpService http,
             ApiController api,
             ApplicationConfig config)
         {
-            _cache = cache;
+            _files = files;
             _messages = messages;
-            _serializer = serializer;
             _strategy = strategy;
             _http = http;
             _api = api;
             _config = config;
+
+            _files.Register(
+                "login://",
+                new JsonSerializer(),
+                new LocalFileSystem(Path.Combine(
+                    UnityEngine.Application.persistentDataPath,
+                    "Login")));
         }
 
         /// <inheritdoc />
@@ -79,35 +80,16 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "LoginApplicationState::Enter");
 
             // check disk cache for credentials
-            if (_cache.Contains(CREDS))
+            if (_files.Exists(CREDS))
             {
-                _cache
-                    .Load(CREDS)
-                    .OnSuccess(bytes =>
+                _files
+                    .Get<CredentialsData>(CREDS)
+                    .OnSuccess(file =>
                     {
-                        var data = bytes;
-                        object obj;
-
-                        try
-                        {
-                            _serializer.Deserialize(
-                                typeof(CredentialsData),
-                                ref data,
-                                out obj);
-                        }
-                        catch (Exception exception)
-                        {
-                            Log.Error(this, "Could not deserialize saved credentials: {0}", exception);
-
-                            // skip this and login
-                            Login();
-                            return;
-                        }
-
                         // load into default app
                         Log.Info(this, "Credentials loaded from disk.");
 
-                        LoadDefaultApp((CredentialsData) obj);
+                        LoadDefaultApp(file.Data);
                     })
                     .OnFailure(exception =>
                     {
@@ -146,23 +128,11 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(credentials =>
                 {
                     Log.Info(this, "Logged in.");
-                    
-                    try
-                    {
-                        byte[] bytes;
-                        _serializer.Serialize(credentials, out bytes);
+                    Log.Info(this, "Saving credentials to disk.");
 
-                        // save to cache
-                        Log.Info(this, "Saving credentials to disk.");
-
-                        _cache.Save(CREDS, bytes);
-                    }
-                    catch (Exception exception)
-                    {
-                        var message = string.Format("Could not serialize login credentials : {0}.", exception);
-
-                        Log.Error(this, message);
-                    }
+                    _files
+                        .Set(CREDS, credentials)
+                        .OnFailure(exception => Log.Error(this, "Could not write credentials to disk : {0}.", exception));
 
                     LoadDefaultApp(credentials);
                 })
@@ -195,29 +165,15 @@ namespace CreateAR.SpirePlayer
 
             // load preferences from cache
             var path = PREFERENCES_PREFIX + credentials.UserId;
-            if (_cache.Contains(path))
+            if (_files.Exists(path))
             {
-                _cache
-                    .Load(path)
-                    .OnSuccess(bytes =>
+                _files
+                    .Get<LoginPreferenceData>(path)
+                    .OnSuccess(file =>
                     {
-                        object obj;
-                        try
-                        {
-                            _serializer.Deserialize(typeof(LoginPreferenceData), ref bytes, out obj);
-                        }
-                        catch (Exception exception)
-                        {
-                            Log.Error(this, "Could not deserialize preferences: {0}.", exception);
-
-                            // preference fail, we'll need to regenerate them
-                            ChooseDefaultApp();
-                            return;
-                        }
-
                         Log.Info(this, "Most recent app id found on disk.");
 
-                        LoadApp(((LoginPreferenceData) obj).MostRecentAppId);
+                        LoadApp(file.Data.MostRecentAppId);
                     });
             }
             else
@@ -244,26 +200,13 @@ namespace CreateAR.SpirePlayer
                     if (apps.Length > 0)
                     {
                         var appId = apps[0].Id;
-                        var preferences = new LoginPreferenceData
-                        {
-                            MostRecentAppId = appId
-                        };
 
-                        byte[] bytes;
-                        try
-                        {
-                            _serializer.Serialize(preferences, out bytes);
-
-                            Log.Info(this, "Writing preferences to disk.");
-
-                            _cache.Save(
-                                PREFERENCES_PREFIX + _config.Network.Credentials.UserId,
-                                bytes);
-                        }
-                        catch (Exception exception)
-                        {
-                            Log.Error(this, "Could not write preferences to disk: {0}.", exception);
-                        }
+                        _files.Set(
+                            PREFERENCES_PREFIX + _config.Network.Credentials.UserId,
+                            new LoginPreferenceData
+                            {
+                                MostRecentAppId = appId
+                            });
 
                         // good gravy, load the app already
                         LoadApp(appId);
