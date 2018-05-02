@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -122,14 +121,14 @@ namespace CreateAR.SpirePlayer
                     {
                         Log.Error(this, "There was an error signing in : {0}.", response.Payload.Error);
 
-                        _loginToken.Fail(new Exception(response.Payload.Error));
+                        _inputController.Error.text = response.Payload.Error;
                     }
                 })
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not signin : {0}.", exception);
 
-                    _loginToken.Fail(exception);
+                    _inputController.Error.text = "Could not sign in. Please try again.";
                 });
         }
     }

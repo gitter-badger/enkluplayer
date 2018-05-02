@@ -78,7 +78,7 @@ namespace CreateAR.SpirePlayer
         {
             return Path.Combine(
                 _basePath,
-                Path.Combine(id, ".file"));
+                id + ".file");
         }
     }
 }

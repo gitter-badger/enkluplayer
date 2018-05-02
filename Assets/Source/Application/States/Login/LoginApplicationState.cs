@@ -32,6 +32,11 @@ namespace CreateAR.SpirePlayer
         private readonly ApiController _api;
 
         /// <summary>
+        /// Http implementation.
+        /// </summary>
+        private readonly IHttpService _http;
+
+        /// <summary>
         /// Serializer.
         /// </summary>
         private readonly ISerializer _serializer;
@@ -48,12 +53,16 @@ namespace CreateAR.SpirePlayer
             IDiskCache cache,
             IMessageRouter messages,
             ISerializer serializer,
-            ILoginStrategy strategy)
+            ILoginStrategy strategy,
+            IHttpService http,
+            ApiController api)
         {
             _cache = cache;
             _messages = messages;
             _serializer = serializer;
             _strategy = strategy;
+            _http = http;
+            _api = api;
         }
 
         /// <inheritdoc />
@@ -81,12 +90,15 @@ namespace CreateAR.SpirePlayer
                         catch (Exception exception)
                         {
                             Log.Error(this, "Could not deserialize saved credentials: {0}", exception);
+
+                            Login();
+                            return;
                         }
 
                         // load into default app
                         Log.Info(this, "Credentials loaded from disk.");
 
-                        LoadDefaultApp();
+                        LoadDefaultApp((CredentialsData) obj);
                     })
                     .OnFailure(exception =>
                     {
@@ -121,7 +133,7 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(credentials =>
                 {
                     Log.Info(this, "Logged in.");
-
+                    
                     try
                     {
                         byte[] bytes;
@@ -137,7 +149,7 @@ namespace CreateAR.SpirePlayer
                         Log.Error(this, message);
                     }
 
-                    LoadDefaultApp();
+                    LoadDefaultApp(credentials);
                 })
                 .OnFailure(exception =>
                 {
@@ -148,8 +160,11 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Loads default app.
         /// </summary>
-        private void LoadDefaultApp()
+        /// <param name="credentials"></param>
+        private void LoadDefaultApp(CredentialsData credentials)
         {
+            credentials.Apply(_http);
+
             _api
                 .Apps
                 .GetMyApps()

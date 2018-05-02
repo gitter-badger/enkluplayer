@@ -25,6 +25,11 @@ namespace CreateAR.SpirePlayer
         public InputField Password;
 
         /// <summary>
+        /// Error field.
+        /// </summary>
+        public Text Error;
+
+        /// <summary>
         /// Called when submit button has been pressed.
         /// </summary>
         public void Submit_OnClicked()
@@ -33,6 +38,12 @@ namespace CreateAR.SpirePlayer
             {
                 OnSubmit(UserName.text, Password.text);
             }
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnDisable()
+        {
+            Error.text = string.Empty;
         }
     }
 }
