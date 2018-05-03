@@ -114,7 +114,7 @@ namespace CreateAR.SpirePlayer
             {
                 if (null != disk && null != network)
                 {
-                    Log.Warning(this, "Both disk and network asset loads have failed.");
+                    Log.Info(this, "Both disk and network asset loads have failed.");
                     token.Fail(network);
                 }
             };
@@ -134,7 +134,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Warning(this, "Could not load assets from disk : {0}.", exception);
+                    Log.Info(this, "Could not load assets from disk : {0}.", exception);
 
                     disk = exception;
 
@@ -164,7 +164,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this, "Could not load assets from network : {0}.", exception);
+                    Log.Info(this, "Could not load assets from network : {0}.", exception);
 
                     network = exception;
                     checkForFailure();
@@ -235,7 +235,7 @@ namespace CreateAR.SpirePlayer
             {
                 if (null != disk && null != network)
                 {
-                    Log.Warning(this, "Both disk and network script loads have failed.");
+                    Log.Info(this, "Both disk and network script loads have failed.");
                     token.Fail(network);
                 }
             };
@@ -255,7 +255,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Warning(this, "Could not load scripts from disk : {0}.", exception);
+                    Log.Info(this, "Could not load scripts from disk : {0}.", exception);
 
                     disk = exception;
 
@@ -285,7 +285,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this, "Could not load scripts from network : {0}.", exception);
+                    Log.Info(this, "Could not load scripts from network : {0}.", exception);
 
                     network = exception;
                     checkForFailure();

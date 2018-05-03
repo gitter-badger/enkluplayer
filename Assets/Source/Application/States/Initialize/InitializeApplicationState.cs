@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -111,7 +112,9 @@ namespace CreateAR.SpirePlayer
                 _files.Register(
                     "appdata://",
                     new JsonSerializer(),
-                    new LocalFileSystem("AppData"));
+                    new LocalFileSystem(Path.Combine(
+                        UnityEngine.Application.persistentDataPath,
+                        "AppData")));
             }
 
             // reset assets
