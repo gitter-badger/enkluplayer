@@ -19,14 +19,14 @@ namespace CreateAR.SpirePlayer
         /// Called when an app has been selected.
         /// </summary>
         public event Action<string> OnAppSelected;
-        
+
         /// <summary>
         /// Initializes the view with data.
         /// </summary>
-        /// <param name="apps">App data.</param>
-        public void Initialize(Trellis.Messages.GetMyApps.Body[] apps)
+        /// <param name="profile">Profile data.</param>
+        public void Initialize(UserProfileCacheData profile)
         {
-            foreach (var app in apps)
+            foreach (var app in profile.Apps)
             {
                 var vine = string.Format(
                     @"<?Vine><Button label='{0}' />",

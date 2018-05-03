@@ -147,6 +147,20 @@ namespace CreateAR.SpirePlayer
         /// <param name="credentials"></param>
         private void LoadDefaultApp(CredentialsData credentials)
         {
+            // setup filemanager
+            _files.Register(
+                "appdata://",
+                new JsonSerializer(),
+                new LocalFileSystem(Path.Combine(
+                    UnityEngine.Application.persistentDataPath,
+                    Path.Combine("AppData", credentials.UserId))));
+            _files.Register(
+                "userdata://",
+                new JsonSerializer(),
+                new LocalFileSystem(Path.Combine(
+                    UnityEngine.Application.persistentDataPath,
+                    Path.Combine("UserData", credentials.UserId))));
+
             // apply credentials to http service
             credentials.Apply(_http);
 

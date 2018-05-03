@@ -15,7 +15,7 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
-    public class AppSceneListData
+    public class AppSceneListCacheData
     {
         public string[] Scenes;
     }
@@ -191,7 +191,7 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Loaded scene list from network.");
 
                     _files
-                        .Set(uri, new AppSceneListData
+                        .Set(uri, new AppSceneListCacheData
                         {
                             Scenes = response.Body.Scenes
                         })
@@ -204,7 +204,7 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Could not get app from network : {0}.", exception);
 
                     _files
-                        .Get<AppSceneListData>(uri)
+                        .Get<AppSceneListCacheData>(uri)
                         .OnSuccess(file =>
                         {
                             Log.Info(this, "Loaded scene list from disk.");

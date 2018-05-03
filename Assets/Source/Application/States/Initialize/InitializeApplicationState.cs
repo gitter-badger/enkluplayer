@@ -107,15 +107,6 @@ namespace CreateAR.SpirePlayer
                 _urls.Register("assets", assetsFormatter);
                 _urls.Register("thumbs", thumbsFormatter);
             }
-            // files
-            {
-                _files.Register(
-                    "appdata://",
-                    new JsonSerializer(),
-                    new LocalFileSystem(Path.Combine(
-                        UnityEngine.Application.persistentDataPath,
-                        "AppData")));
-            }
 
             // reset assets
             _assets.Uninitialize();
