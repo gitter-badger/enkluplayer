@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.Test;
 using CreateAR.Trellis.Messages;
 
 namespace CreateAR.SpirePlayer
@@ -213,12 +212,12 @@ namespace CreateAR.SpirePlayer
                     }
                     else
                     {
-                        // user has no apps, display special screen
+                        // TODO: user has no apps, display special screen
                     }
                 })
                 .OnFailure(exception =>
                 {
-                    // error retrieving apps, allow retry
+                    // TODO: error retrieving apps, allow retry
                 });
         }
 

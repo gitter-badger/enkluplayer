@@ -225,6 +225,11 @@ namespace CreateAR.SpirePlayer
         public float AssetDownloadLagSec;
 
         /// <summary>
+        /// If true, forces all Http requests to fail.
+        /// </summary>
+        public bool Offline;
+
+        /// <summary>
         /// Current environment we should connect to.
         /// </summary>
         public string Current;
@@ -315,6 +320,8 @@ namespace CreateAR.SpirePlayer
             {
                 Current = overrideConfig.Current;
             }
+
+            Offline = overrideConfig.Offline;
 
             // combine arrays
             AllEnvironments = AllEnvironments.Concat(overrideConfig.AllEnvironments).ToArray();

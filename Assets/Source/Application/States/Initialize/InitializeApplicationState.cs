@@ -22,7 +22,6 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly IMessageRouter _messages;
-        
         private readonly IBootstrapper _bootstrapper;
         private readonly IAssetManager _assets;
         private readonly IAssetLoader _assetLoader;

@@ -44,12 +44,22 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IDiskCache>().To(new StandardDiskCache("DiskCache"));
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
-                binder.Bind<IHttpService>()
-                    .To(new HttpService(
-                        new JsonSerializer(),
-                        LookupComponent<MonoBehaviourBootstrapper>(),
-                        binder.GetInstance<UrlFormatterCollection>()))
-                    .ToSingleton();
+
+                if (config.Network.Offline)
+                {
+                    Log.Info(this, "Using OfflineHttpService.");
+                    binder.Bind<IHttpService>().To<OfflineHttpService>().ToSingleton();
+                }
+                else
+                {
+                    binder.Bind<IHttpService>()
+                        .To(new HttpService(
+                            new JsonSerializer(),
+                            LookupComponent<MonoBehaviourBootstrapper>(),
+                            binder.GetInstance<UrlFormatterCollection>()))
+                        .ToSingleton();
+                }
+                
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_WSA
