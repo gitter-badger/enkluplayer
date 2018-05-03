@@ -78,7 +78,7 @@ namespace CreateAR.SpirePlayer
 
             _unsubscribeList.Add(_messages.Subscribe(
                 messageType,
-                @event => handler((T)@event)));
+                @event => handler((T) @event)));
         }
 
         /// <summary>

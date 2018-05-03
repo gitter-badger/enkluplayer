@@ -18,6 +18,11 @@ namespace CreateAR.SpirePlayer
         /// Transactions.
         /// </summary>
         private readonly IElementTxnManager _txns;
+
+        /// <summary>
+        /// Manages scenes.
+        /// </summary>
+        private readonly IAppSceneManager _scenes;
         
         /// <summary>
         /// Updates elements.
@@ -96,10 +101,19 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Manages scenes.
+        /// </summary>
+        public IAppSceneManager Scenes
+        {
+            get { return _scenes; }
+        }
+
+        /// <summary>
         /// Constuctor.
         /// </summary>
         public ArDesignController(
             IElementTxnManager txns,
+            IAppSceneManager scenes,
             IElementUpdateDelegate elementUpdater,
             IElementFactory elements,
             IElementControllerManager controllers,
@@ -113,6 +127,7 @@ namespace CreateAR.SpirePlayer
             AnchorDesignState anchors)
         {
             _txns = txns;
+            _scenes = scenes;
             _elementUpdater = elementUpdater;
             _elements = elements;
             _controllers = controllers;
@@ -191,7 +206,10 @@ namespace CreateAR.SpirePlayer
                 {
                     if (response.Payload.Success)
                     {
+                        // TODO: FIX THIS
+                        /*
                         var sceneId = response.Payload.Body.Id;
+                        
                         _txns
                             .TrackScene(sceneId)
                             .OnSuccess(_ =>
@@ -203,7 +221,7 @@ namespace CreateAR.SpirePlayer
 
                                 token.Succeed(sceneId);
                             })
-                            .OnFailure(token.Fail);
+                            .OnFailure(token.Fail);*/
                     }
                     else
                     {

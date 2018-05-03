@@ -36,19 +36,14 @@ namespace CreateAR.SpirePlayer
         private readonly IScriptRequireResolver _resolver;
 
         /// <summary>
-        /// Manages app.
-        /// </summary>
-        private readonly IAppController _app;
-
-        /// <summary>
         /// Controls design mode.
         /// </summary>
         private readonly IDesignController _design;
 
         /// <summary>
-        /// Application-wide configuration.
+        /// Manages app.
         /// </summary>
-        private readonly ApplicationConfig _appConfig;
+        private readonly IAppController _app;
         
         /// <summary>
         /// Time at which state was entered.
@@ -67,23 +62,21 @@ namespace CreateAR.SpirePlayer
             IBootstrapper bootstrapper,
             IMessageRouter messages,
             IScriptRequireResolver resolver,
-            IAppController app,
             IDesignController design,
-            ApplicationConfig config)
+            IAppController app)
         {
             _bootstrapper = bootstrapper;
             _messages = messages;
             _resolver = resolver;
-            _app = app;
             _design = design;
-            _appConfig = config;
+            _app = app;
         }
 
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
             Log.Info(this, "PlayApplicationState::Enter()");
-            
+
             _enterTime = DateTime.Now;
             _statusCleared = false;
 
@@ -125,7 +118,7 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "PlayApplicationState::Exit()");
 
             // teardown app
-            _app.Uninitialize();
+            _app.Unload();
 
             // teardown designer
             if (null != _design)
@@ -153,21 +146,10 @@ namespace CreateAR.SpirePlayer
             }
 
             // initialize with app id
-            _app
-                .Initialize(_appConfig.Play.AppId, config)
-                .OnSuccess(_ =>
-                {
-                    Log.Info(this, "AppController initialized.");
-                    
-                    // TODO: Only if some condition is true
-                    _design.Setup(config, _app);
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this, string.Format(
-                        "Could not initialize App : {0}.",
-                        exception));
-                });
+            _app.Play();
+
+            // TODO: iff we have permissions and we're online
+            _design.Setup(config, _app);
         }
     }
 }

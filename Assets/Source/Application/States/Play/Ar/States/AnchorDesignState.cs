@@ -233,10 +233,10 @@ namespace CreateAR.SpirePlayer
             }
 
             // find id of root
-            var sceneIds = _design.Txns.TrackedScenes;
+            var sceneIds = _design.Scenes.All;
             foreach (var sceneId in sceneIds)
             {
-                var root = _design.Txns.Root(sceneId);
+                var root = _design.Scenes.Root(sceneId);
                 if (root == parent)
                 {
                     return sceneId;

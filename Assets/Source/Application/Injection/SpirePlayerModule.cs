@@ -94,6 +94,8 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IElementActionStrategyFactory>().To<ElementActionStrategyFactory>();
                 binder.Bind<IElementTxnTransport>().To<HttpElementTxnTransport>();
                 binder.Bind<IElementTxnStoreFactory>().To<ElementTxnStoreFactory>();
+                binder.Bind<IAppSceneManager>().To<AppSceneManager>().ToSingleton();
+                binder.Bind<IAppDataLoader>().To<AppDataLoader>().ToSingleton();
                 binder.Bind<IElementTxnManager>().To<ElementTxnManager>().ToSingleton();
 
                 // input
@@ -207,7 +209,7 @@ namespace CreateAR.SpirePlayer
                     }
                 }
 
-                binder.Bind<IAppController>().To<AppController>();
+                binder.Bind<IAppController>().To<AppController>().ToSingleton();
                 
                 // service manager + application
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(

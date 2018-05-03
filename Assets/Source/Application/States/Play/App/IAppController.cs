@@ -3,7 +3,7 @@
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Describes an object that can load an app.
+    /// Describes an object that controls an App.
     /// </summary>
     public interface IAppController
     {
@@ -13,16 +13,20 @@ namespace CreateAR.SpirePlayer
         string Id { get; }
 
         /// <summary>
-        /// Initializes the manager. This should be called before any other calls.
+        /// Loads the app.
         /// </summary>
         /// <param name="appId">The id of the app.</param>
-        /// <param name="config">Config for play mode only.</param>
         /// <returns></returns>
-        IAsyncToken<Void> Initialize(string appId, PlayModeConfig config);
+        IAsyncToken<Void> Load(string appId);
 
         /// <summary>
-        /// Uninitializes the manager.
+        /// Unloads the app.
         /// </summary>
-        void Uninitialize();
+        void Unload();
+
+        /// <summary>
+        /// Plays the app.
+        /// </summary>
+        void Play();
     }
 }
