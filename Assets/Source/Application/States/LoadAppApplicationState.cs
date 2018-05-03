@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -38,18 +37,26 @@ namespace CreateAR.SpirePlayer
         private readonly IConnection _connection;
 
         /// <summary>
+        /// Files.
+        /// </summary>
+        private readonly IFileManager _files;
+        
+        /// <summary>
         /// Constructor.
         /// </summary>
         public LoadAppApplicationState(
             ApplicationConfig config,
             ApiController api,
             IMessageRouter messages,
-            IConnection connection)
+            IConnection connection,
+            IFileManager files)
         {
             _config = config;
             _api = api;
             _messages = messages;
             _connection = connection;
+            _files = files;
+            
         }
 
         /// <inheritdoc />
@@ -60,8 +67,8 @@ namespace CreateAR.SpirePlayer
             Async
                 .All(
                     _connection.Connect(_config.Network.Environment),
-                    GetAssets(),
-                    GetScripts())
+                    GetAssets(_config.Play.AppId),
+                    GetScripts(_config.Play.AppId))
                 .OnSuccess(_ =>
                 {
                     Log.Info(this, "App loaded, proceeding to play.");
@@ -92,40 +99,119 @@ namespace CreateAR.SpirePlayer
         /// Retrieves AssetData.
         /// </summary>
         /// <returns></returns>
-        private IAsyncToken<Void> GetAssets()
+        private IAsyncToken<Void> GetAssets(string appId)
         {
             var token = new AsyncToken<Void>();
+
+            // Start loads from both disk and network at the same time.
+            // If both fail, the token fails. Whichever one succeeds first 
+            // succeeds the token. Network is treated as the authority, so it
+            // will cancel disk and reapply assets if necessary.
+
+            // fail token if both disk and network retrieval fails
+            Exception disk = null, network = null;
+            Action checkForFailure = () =>
+            {
+                if (null != disk && null != network)
+                {
+                    Log.Warning(this, "Both disk and network asset loads have failed.");
+                    token.Fail(network);
+                }
+            };
             
+            // load from disk
+            var diskLoad = GetAssetsFromDisk(appId)
+                .OnSuccess(assets =>
+                {
+                    _messages.Publish(
+                        MessageTypes.RECV_ASSET_LIST,
+                        new AssetListEvent
+                        {
+                            Assets = assets
+                        });
+
+                    token.Succeed(Void.Instance);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Warning(this, "Could not load assets from disk : {0}.", exception);
+
+                    disk = exception;
+
+                    checkForFailure();
+                });
+
+            // load from network
+            GetAssetsFromNetwork(appId)
+                .OnSuccess(assets =>
+                {
+                    // write to disk for next time
+                    _files
+                        .Set(string.Format("appdata://{0}/assets", appId), assets)
+                        .OnFailure(exception => Log.Error(this, "Could not write assets data to disk : {0}.", exception));
+
+                    // cancel disk load
+                    diskLoad.Abort();
+
+                    _messages.Publish(
+                        MessageTypes.RECV_ASSET_LIST,
+                        new AssetListEvent
+                        {
+                            Assets = assets
+                        });
+
+                    token.Succeed(Void.Instance);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not load assets from network : {0}.", exception);
+
+                    network = exception;
+                    checkForFailure();
+                });
+            
+            return token;
+        }
+
+        /// <summary>
+        /// Retrieves assets from disk.
+        /// </summary>
+        /// <param name="appId">Id of the app.</param>
+        /// <returns></returns>
+        private IAsyncToken<AssetData[]> GetAssetsFromDisk(string appId)
+        {
+            return Async.Map(
+                _files.Get<AssetData[]>(string.Format("appdata://{0}/assets", appId)),
+                file => file.Data);
+        }
+
+        /// <summary>
+        /// Retrieve assets from the network.
+        /// </summary>
+        /// <param name="appId">The id of the app.</param>
+        /// <returns></returns>
+        private IAsyncToken<AssetData[]> GetAssetsFromNetwork(string appId)
+        {
+            var token = new AsyncToken<AssetData[]>();
+
             _api
                 .Assets
-                .GetAssets(_config.Play.AppId)
+                .GetAssets(appId)
                 .OnSuccess(response =>
                 {
                     if (response.Payload.Success)
                     {
-                        var assets = new List<AssetData>();
-                        var data = response.Payload.Body.Assets;
-                        for (int i = 0, len = data.Length; i < len; i++)
-                        {
-                            var element = data[i];
-                            assets.Add(ToAssetData(element));
-                        }
-                        
-                        _messages.Publish(
-                            MessageTypes.RECV_ASSET_LIST,
-                            new AssetListEvent
-                            {
-                                Assets = assets.ToArray()
-                            });
-
-                        token.Succeed(Void.Instance);
+                        token.Succeed(response.Payload.Body.Assets.Select(ToAssetData).ToArray());
                     }
                     else
                     {
                         token.Fail(new Exception(response.Payload.Error));
                     }
                 })
-                .OnFailure(token.Fail);
+                .OnFailure(exception =>
+                {
+                    token.Fail(new Exception(string.Format("Could not get assets from network: {0}.", exception)));
+                });
 
             return token;
         }
@@ -134,34 +220,119 @@ namespace CreateAR.SpirePlayer
         /// Retrieves ScriptData.
         /// </summary>
         /// <returns></returns>
-        private IAsyncToken<Void> GetScripts()
+        private IAsyncToken<Void> GetScripts(string appId)
         {
             var token = new AsyncToken<Void>();
 
+            // Start loads from both disk and network at the same time.
+            // If both fail, the token fails. Whichever one succeeds first 
+            // succeeds the token. Network is treated as the authority, so it
+            // will cancel disk and reapply assets if necessary.
+
+            // fail token if both disk and network retrieval fails
+            Exception disk = null, network = null;
+            Action checkForFailure = () =>
+            {
+                if (null != disk && null != network)
+                {
+                    Log.Warning(this, "Both disk and network script loads have failed.");
+                    token.Fail(network);
+                }
+            };
+
+            // load from disk
+            var diskLoad = GetScriptsFromDisk(appId)
+                .OnSuccess(scripts =>
+                {
+                    _messages.Publish(
+                        MessageTypes.RECV_SCRIPT_LIST,
+                        new ScriptListEvent
+                        {
+                            Scripts = scripts
+                        });
+
+                    token.Succeed(Void.Instance);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Warning(this, "Could not load scripts from disk : {0}.", exception);
+
+                    disk = exception;
+
+                    checkForFailure();
+                });
+
+            // load from network
+            GetScriptsFromNetwork(appId)
+                .OnSuccess(scripts =>
+                {
+                    // write to disk for next time
+                    _files
+                        .Set(string.Format("appdata://{0}/scripts", appId), scripts)
+                        .OnFailure(exception => Log.Error(this, "Could not write scripts data to disk : {0}.", exception));
+
+                    // cancel disk load
+                    diskLoad.Abort();
+
+                    _messages.Publish(
+                        MessageTypes.RECV_SCRIPT_LIST,
+                        new ScriptListEvent
+                        {
+                            Scripts = scripts
+                        });
+
+                    token.Succeed(Void.Instance);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not load scripts from network : {0}.", exception);
+
+                    network = exception;
+                    checkForFailure();
+                });
+
+            return token;
+        }
+
+        /// <summary>
+        /// Retrieves scripts from disk.
+        /// </summary>
+        /// <param name="appId">Id of the app.</param>
+        /// <returns></returns>
+        private IAsyncToken<ScriptData[]> GetScriptsFromDisk(string appId)
+        {
+            return Async.Map(
+                _files.Get<ScriptData[]>(string.Format("appdata://{0}/scripts", appId)),
+                file => file.Data);
+        }
+
+        /// <summary>
+        /// Retrieve scripts from the network.
+        /// </summary>
+        /// <param name="appId">The id of the app.</param>
+        /// <returns></returns>
+        private IAsyncToken<ScriptData[]> GetScriptsFromNetwork(string appId)
+        {
+            var token = new AsyncToken<ScriptData[]>();
+
             _api
                 .Scripts
-                .GetAppScripts(_config.Play.AppId)
+                .GetAppScripts(appId)
                 .OnSuccess(response =>
                 {
                     if (response.Payload.Success)
                     {
-                        _messages.Publish(
-                            MessageTypes.RECV_SCRIPT_LIST,
-                            new ScriptListEvent
-                            {
-                                Scripts = null != response.Payload.Body
-                                    ? response.Payload.Body.Select(ToScriptData).ToArray()
-                                    : new ScriptData[0]
-                            });
-
-                        token.Succeed(Void.Instance);
+                        token.Succeed(response.Payload.Body.Select(ToScriptData).ToArray());
                     }
                     else
                     {
                         token.Fail(new Exception(response.Payload.Error));
                     }
                 })
-                .OnFailure(token.Fail);
+                .OnFailure(exception =>
+                {
+                    token.Fail(new Exception(string.Format("Could not get scripts from network: {0}.", exception)));
+                });
 
             return token;
         }
