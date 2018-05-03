@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
@@ -14,6 +15,11 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
+    public class AppSceneListData
+    {
+        public string[] Scenes;
+    }
+
     /// <summary>
     /// Loads app data.
     /// </summary>
@@ -47,7 +53,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Lookup from sceneId -> scene loads.
         /// </summary>
-        private readonly Dictionary<string, IAsyncToken<Response>> _sceneLoads = new Dictionary<string, IAsyncToken<Response>>();
+        private readonly Dictionary<string, IAsyncToken<HttpResponse<Response>>> _sceneLoads = new Dictionary<string, IAsyncToken<HttpResponse<Response>>>();
 
         /// <summary>
         /// Data for each loaded scene.
@@ -137,32 +143,76 @@ namespace CreateAR.SpirePlayer
         {
             var token = new AsyncToken<Void>();
 
+            // callback called after scene list is retrieved
+            Action<string[], bool> load = (scenes, offline) =>
+            {
+                if (offline)
+                {
+                    Log.Info(this, "Loading scenes from disk.");
+                }
+                else
+                {
+                    Log.Info(this, "Loading scenes from network.");
+                }
+
+                // load each scene
+                Async
+                    .All(scenes
+                        .Select(scene =>
+                        {
+                            if (offline)
+                            {
+                                return LoadSceneFromDisk(appId, scene)
+                                    .OnSuccess(description => _sceneData[appId] = description);
+                            }
+
+                            return LoadSceneFromNetwork(appId, scene)
+                                    .OnSuccess(description => _sceneData[appId] = description);
+                        })
+                        .ToArray())
+                    .OnSuccess(_ =>
+                    {
+                        Log.Info(this,
+                            "Successfully loaded {0} scenes.",
+                            scenes.Length);
+
+                        token.Succeed(Void.Instance);
+                    })
+                    .OnFailure(token.Fail);
+            };
+
+            var uri = string.Format("appdata://{0}/scenelist", appId);
+
             // get app
             _transport
                 .GetApp(appId)
                 .OnSuccess(response =>
                 {
-                    Log.Info(this,
-                        "Loaded app data for '{0}'. Now loading scenes.",
-                        appId);
+                    Log.Info(this, "Loaded scene list from network.");
 
-                    // load each scene
-                    var scenes = response.Body.Scenes;
-                    Async
-                        .All(scenes
-                            .Select(scene => LoadScene(appId, scene))
-                            .ToArray())
-                        .OnSuccess(_ =>
+                    _files
+                        .Set(uri, new AppSceneListData
                         {
-                            Log.Info(this,
-                                "Successfully loaded {0} scenes.",
-                                scenes.Length);
+                            Scenes = response.Body.Scenes
+                        })
+                        .OnFailure(exception => Log.Error(this, "Could not save scene list to disk : {0}.", exception));
 
-                            token.Succeed(Void.Instance);
+                    load(response.Body.Scenes, false);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Info(this, "Could not get app from network : {0}.", exception);
+
+                    _files
+                        .Get<AppSceneListData>(uri)
+                        .OnSuccess(file =>
+                        {
+                            Log.Info(this, "Loaded scene list from disk.");
+
+                            load(file.Data.Scenes, true);
                         })
                         .OnFailure(token.Fail);
-                })
-                .OnFailure(token.Fail);
+                });
 
             return token;
         }
@@ -415,18 +465,21 @@ namespace CreateAR.SpirePlayer
         /// <param name="appId">Id of the app.</param>
         /// <param name="sceneId">The id of the scene.</param>
         /// <returns></returns>
-        private IAsyncToken<Void> LoadScene(string appId, string sceneId)
+        private IAsyncToken<ElementDescription> LoadSceneFromNetwork(
+            string appId,
+            string sceneId)
         {
-            var token = new AsyncToken<Void>();
+            var token = new AsyncToken<ElementDescription>();
 
-            _sceneLoads[sceneId] = _transport
+            _sceneLoads[sceneId] = _api
+                .Scenes
                 .GetScene(appId, sceneId)
                 .OnSuccess(response =>
                 {
                     object obj;
                     try
                     {
-                        var bytes = Encoding.UTF8.GetBytes(response.Body.Elements);
+                        var bytes = Encoding.UTF8.GetBytes(response.Payload.Body.Elements);
                         _json.Deserialize(
                             typeof(ElementData),
                             ref bytes,
@@ -439,8 +492,7 @@ namespace CreateAR.SpirePlayer
                         return;
                     }
 
-                    // save data
-                    _sceneData[appId] = new ElementDescription
+                    var description = new ElementDescription
                     {
                         Root = new ElementRef
                         {
@@ -451,12 +503,33 @@ namespace CreateAR.SpirePlayer
                             (ElementData) obj
                         }
                     };
-                    
-                    token.Succeed(Void.Instance);
+
+                    _files
+                        .Set(
+                            string.Format("appdata://{0}/Scene/{1}", appId, sceneId),
+                            description)
+                        .OnFailure(exception => Log.Error(this, "Could not write scene to disk : {0}.", exception));
+
+                    token.Succeed(description);
                 })
                 .OnFailure(token.Fail);
 
             return token;
+        }
+
+        /// <summary>
+        /// Loads a scene by id.
+        /// </summary>
+        /// <param name="appId">Id of the app.</param>
+        /// <param name="sceneId">The id of the scene.</param>
+        /// <returns></returns>
+        private IAsyncToken<ElementDescription> LoadSceneFromDisk(
+            string appId,
+            string sceneId)
+        {
+            return Async.Map(
+                _files.Get<ElementDescription>(string.Format("appdata://{0}/Scene/{1}", appId, sceneId)),
+                file => file.Data);
         }
 
         /// <summary>
