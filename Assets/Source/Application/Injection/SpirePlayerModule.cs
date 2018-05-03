@@ -121,16 +121,35 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<ConnectionMessageHandler>().To<ConnectionMessageHandler>().ToSingleton();
                 binder.Bind<BridgeMessageHandler>().To<BridgeMessageHandler>().ToSingleton();
 
+                if (config.Network.Offline)
+                {
+                    binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
+                }
+                else
+                {
 #if UNITY_EDITOR || UNITY_IOS
-                binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
-                binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
-                binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-                binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
+                    binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
 #elif NETFX_CORE
-                binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
-                binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
+                    binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
 #endif
+                }
+
+                if (config.Network.Offline)
+                {
+                    binder.Bind<IConnection>().To<OfflineConnection>().ToSingleton();
+                }
+                else
+                {
+#if UNITY_EDITOR || UNITY_IOS
+                    binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
+#elif UNITY_WEBGL
+                    binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
+#elif NETFX_CORE
+                    binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
+#endif
+                }
 
 
                 // spire-specific bindings

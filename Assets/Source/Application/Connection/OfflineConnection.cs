@@ -1,17 +1,18 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Connection that does nothing.
+    /// Offline connections.
     /// </summary>
-    public class PassthroughConnection : IConnection
+    public class OfflineConnection : IConnection
     {
         /// <inheritdoc />
         public IAsyncToken<Void> Connect(EnvironmentData environment)
         {
-            return new AsyncToken<Void>(Void.Instance);
+            return new AsyncToken<Void>(new Exception("Offline."));
         }
     }
 }

@@ -1,29 +1,18 @@
-using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Messaging;
-
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Bridge that pushes straight to play a specific scene.
+    /// Bridge that does nothing.
     /// </summary>
-    public class ReleaseBridge : IBridge
+    public class OfflineBridge : IBridge
     {
-        /// <summary>
-        /// Messages.
-        /// </summary>
-        private readonly IMessageRouter _messages;
-
         /// <inheritdoc cref="IBridge"/>
         public MessageTypeBinder Binder { get; private set; }
 
         /// <summary>
-        /// Creates a new bridge for release mode.
+        /// Constructor.
         /// </summary>
-        /// <param name="messages">Messages.</param>
-        public ReleaseBridge(IMessageRouter messages)
+        public OfflineBridge()
         {
-            _messages = messages;
-
             Binder = new MessageTypeBinder();
         }
 
@@ -42,10 +31,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void BroadcastReady()
         {
-            // play immediately
-            _messages.Publish(
-                MessageTypes.PLAY,
-                Void.Instance);
+            // 
         }
 
         /// <inheritdoc />
