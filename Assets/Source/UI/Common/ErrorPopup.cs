@@ -1,18 +1,30 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Generic error popup.
+    /// </summary>
     public class ErrorPopup : MonoBehaviourIUXController
     {
+        /// <summary>
+        /// Elements.
+        /// </summary>
         [InjectElements("..cpn-error")]
         public CaptionWidget CpnError { get; set; }
-
         [InjectElements("..btn-ok")]
         public ButtonWidget BtnOk { get; set; }
 
+        /// <summary>
+        /// Called when the ok button has been pressed.
+        /// </summary>
         public event Action OnOk;
 
+        /// <summary>
+        /// Error message.
+        /// </summary>
         public string Message
         {
             get
@@ -25,6 +37,22 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// The label on the button.
+        /// </summary>
+        public string Action
+        {
+            get
+            {
+                return BtnOk.Schema.Get<string>("label").Value;
+            }
+            set
+            {
+                BtnOk.Schema.Set("label", value);
+            }
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
         protected override void Awake()
         {
             base.Awake();

@@ -100,6 +100,7 @@ namespace CreateAR.SpirePlayer
                         .OnSuccess(element =>
                         {
                             element.Message = "Oops! Could not load this app.";
+                            element.Action = "Back to My Apps";
                             element.OnOk += Error_OnOk;
                         })
                         .OnFailure(ex =>
@@ -121,9 +122,15 @@ namespace CreateAR.SpirePlayer
             // TODO: Hide loading screen.
         }
 
+        /// <summary>
+        /// Called when the error UI is complete.
+        /// </summary>
         private void Error_OnOk()
         {
             _ui.Close(_errorStackId);
+
+            // go to user profile
+            _messages.Publish(MessageTypes.USER_PROFILE);
         }
     }
 }
