@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
@@ -20,45 +19,38 @@ namespace CreateAR.SpirePlayer
         public string[] Scenes;
     }
 
-    /// <summary>
-    /// Loads app data.
-    /// </summary>
+    /// <inheritdoc />
     public class AppDataLoader : IAppDataLoader
     {
         /// <summary>
         /// Json.
         /// </summary>
         private readonly JsonSerializer _json = new JsonSerializer();
-
+        
         /// <summary>
         /// API.
         /// </summary>
         private readonly ApiController _api;
-
-        /// <summary>
-        /// Transport implementation.
-        /// </summary>
-        private readonly IElementTxnTransport _transport;
-
+        
         /// <summary>
         /// Messages.
         /// </summary>
         private readonly IMessageRouter _messages;
         
         /// <summary>
-        /// Files.
-        /// </summary>
-        private readonly IFileManager _files;
-
-        /// <summary>
         /// Lookup from sceneId -> scene loads.
         /// </summary>
-        private readonly Dictionary<string, IAsyncToken<HttpResponse<Response>>> _sceneLoads = new Dictionary<string, IAsyncToken<HttpResponse<Response>>>();
+        private readonly Dictionary<string, IAsyncToken<Response>> _sceneLoads = new Dictionary<string, IAsyncToken<Response>>();
 
         /// <summary>
         /// Data for each loaded scene.
         /// </summary>
         private readonly Dictionary<string, ElementDescription> _sceneData = new Dictionary<string, ElementDescription>();
+
+        /// <summary>
+        /// Http helper.
+        /// </summary>
+        private readonly HttpRequestCacher _helper;
 
         /// <inheritdoc />
         public string[] Scenes
@@ -74,14 +66,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public AppDataLoader(
             ApiController api,
-            IElementTxnTransport transport,
             IMessageRouter messages,
             IFileManager files)
         {
             _api = api;
-            _transport = transport;
             _messages = messages;
-            _files = files;
+            
+            _helper = new HttpRequestCacher(files);
         }
 
         /// <inheritdoc />
@@ -142,77 +133,32 @@ namespace CreateAR.SpirePlayer
         private IAsyncToken<Void> LoadScenes(string appId)
         {
             var token = new AsyncToken<Void>();
-
-            // callback called after scene list is retrieved
-            Action<string[], bool> load = (scenes, offline) =>
-            {
-                if (offline)
-                {
-                    Log.Info(this, "Loading scenes from disk.");
-                }
-                else
-                {
-                    Log.Info(this, "Loading scenes from network.");
-                }
-
-                // load each scene
-                Async
-                    .All(scenes
-                        .Select(scene =>
-                        {
-                            if (offline)
-                            {
-                                return LoadSceneFromDisk(appId, scene)
-                                    .OnSuccess(description => _sceneData[appId] = description);
-                            }
-
-                            return LoadSceneFromNetwork(appId, scene)
-                                    .OnSuccess(description => _sceneData[appId] = description);
-                        })
-                        .ToArray())
-                    .OnSuccess(_ =>
-                    {
-                        Log.Info(this,
-                            "Successfully loaded {0} scenes.",
-                            scenes.Length);
-
-                        token.Succeed(Void.Instance);
-                    })
-                    .OnFailure(token.Fail);
-            };
-
-            var uri = string.Format("appdata://{0}/scenelist", appId);
-
+            
             // get app
-            _transport
-                .GetApp(appId)
+            _helper.Request(
+                    HttpRequestCacher.LoadBehavior.NetworkFirst,
+                    "appdata://" + appId + "/scenelist",
+                    () => _api.Apps.GetApp(appId))
                 .OnSuccess(response =>
                 {
-                    Log.Info(this, "Loaded scene list from network.");
+                    Log.Info(this, "Retrieved scene list.");
 
-                    _files
-                        .Set(uri, new AppSceneListCacheData
+                    // load each scene
+                    Async
+                        .All(response
+                            .Body
+                            .Scenes
+                            .Select(scene => LoadScene(appId, scene).OnSuccess(description => _sceneData[appId] = description))
+                            .ToArray())
+                        .OnSuccess(_ =>
                         {
-                            Scenes = response.Body.Scenes
-                        })
-                        .OnFailure(exception => Log.Error(this, "Could not save scene list to disk : {0}.", exception));
+                            Log.Info(this, "Successfully loaded app scenes.");
 
-                    load(response.Body.Scenes, false);
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Info(this, "Could not get app from network : {0}.", exception);
-
-                    _files
-                        .Get<AppSceneListCacheData>(uri)
-                        .OnSuccess(file =>
-                        {
-                            Log.Info(this, "Loaded scene list from disk.");
-
-                            load(file.Data.Scenes, true);
+                            token.Succeed(Void.Instance);
                         })
                         .OnFailure(token.Fail);
-                });
+                })
+                .OnFailure(token.Fail);
 
             return token;
         }
@@ -224,121 +170,33 @@ namespace CreateAR.SpirePlayer
         private IAsyncToken<Void> GetAssets(string appId)
         {
             var token = new AsyncToken<Void>();
-
-            // Start loads from both disk and network at the same time.
-            // If both fail, the token fails. Whichever one succeeds first 
-            // succeeds the token. Network is treated as the authority, so it
-            // will cancel disk and reapply assets if necessary.
-
-            // fail token if both disk and network retrieval fails
-            Exception disk = null, network = null;
-            Action checkForFailure = () =>
-            {
-                if (null != disk && null != network)
-                {
-                    Log.Info(this, "Both disk and network asset loads have failed.");
-                    token.Fail(network);
-                }
-            };
-
-            // load from disk
-            var diskLoad = GetAssetsFromDisk(appId)
-                .OnSuccess(@event =>
-                {
-                    _messages.Publish(
-                        MessageTypes.RECV_ASSET_LIST,
-                        @event);
-
-                    token.Succeed(Void.Instance);
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Info(this, "Could not load assets from disk : {0}.", exception);
-
-                    disk = exception;
-
-                    checkForFailure();
-                });
-
+            
             // load from network
-            GetAssetsFromNetwork(appId)
-                .OnSuccess(assets =>
+            _helper.Request(
+                    HttpRequestCacher.LoadBehavior.NetworkFirst,
+                    "appdata://" + appId + "/assets",
+                    () => _api.Assets.GetAssets(appId))
+                .OnSuccess(response =>
                 {
+                    var assets = response.Body.Assets.Select(ToAssetData).ToArray();
                     var @event = new AssetListEvent
                     {
                         Assets = assets
                     };
 
-                    Log.Info(this, "Assets recevied from network. Writing to disk.");
-
-                    // write to disk for next time
-                    _files
-                        .Set(string.Format("appdata://{0}/assets", appId), @event)
-                        .OnFailure(exception => Log.Error(this, "Could not write assets data to disk : {0}.", exception));
-
-                    // cancel disk load
-                    diskLoad.Abort();
-
+                    Log.Info(this, "Assets retrieved.");
+                    
                     _messages.Publish(
                         MessageTypes.RECV_ASSET_LIST,
                         @event);
 
                     token.Succeed(Void.Instance);
                 })
-                .OnFailure(exception =>
-                {
-                    Log.Info(this, "Could not load assets from network : {0}.", exception);
-
-                    network = exception;
-                    checkForFailure();
-                });
+                .OnFailure(token.Fail);
 
             return token;
         }
-
-        /// <summary>
-        /// Retrieves assets from disk.
-        /// </summary>
-        /// <param name="appId">Id of the app.</param>
-        /// <returns></returns>
-        private IAsyncToken<AssetListEvent> GetAssetsFromDisk(string appId)
-        {
-            return Async.Map(
-                _files.Get<AssetListEvent>(string.Format("appdata://{0}/assets", appId)),
-                file => file.Data);
-        }
-
-        /// <summary>
-        /// Retrieve assets from the network.
-        /// </summary>
-        /// <param name="appId">The id of the app.</param>
-        /// <returns></returns>
-        private IAsyncToken<AssetData[]> GetAssetsFromNetwork(string appId)
-        {
-            var token = new AsyncToken<AssetData[]>();
-
-            _api
-                .Assets
-                .GetAssets(appId)
-                .OnSuccess(response =>
-                {
-                    if (response.Payload.Success)
-                    {
-                        token.Succeed(response.Payload.Body.Assets.Select(ToAssetData).ToArray());
-                    }
-                    else
-                    {
-                        token.Fail(new Exception(response.Payload.Error));
-                    }
-                })
-                .OnFailure(exception =>
-                {
-                    token.Fail(new Exception(string.Format("Could not get assets from network: {0}.", exception)));
-                });
-
-            return token;
-        }
-
+        
         /// <summary>
         /// Retrieves ScriptData.
         /// </summary>
@@ -347,114 +205,28 @@ namespace CreateAR.SpirePlayer
         {
             var token = new AsyncToken<Void>();
 
-            // Start loads from both disk and network at the same time.
-            // If both fail, the token fails. Whichever one succeeds first 
-            // succeeds the token. Network is treated as the authority, so it
-            // will cancel disk and reapply assets if necessary.
-
-            // fail token if both disk and network retrieval fails
-            Exception disk = null, network = null;
-            Action checkForFailure = () =>
-            {
-                if (null != disk && null != network)
-                {
-                    Log.Info(this, "Both disk and network script loads have failed.");
-                    token.Fail(network);
-                }
-            };
-
-            // load from disk
-            var diskLoad = GetScriptsFromDisk(appId)
-                .OnSuccess(@event =>
-                {
-                    _messages.Publish(
-                        MessageTypes.RECV_SCRIPT_LIST,
-                        @event);
-
-                    token.Succeed(Void.Instance);
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Info(this, "Could not load scripts from disk : {0}.", exception);
-
-                    disk = exception;
-
-                    checkForFailure();
-                });
-
             // load from network
-            GetScriptsFromNetwork(appId)
-                .OnSuccess(scripts =>
+            _helper.Request(
+                    HttpRequestCacher.LoadBehavior.NetworkFirst,
+                    "appdata://" + appId + "/scripts",
+                    () => _api.Scripts.GetAppScripts(appId))
+                .OnSuccess(response =>
                 {
+                    var scripts = response.Body.Select(ToScriptData).ToArray();
                     var @event = new ScriptListEvent
                     {
                         Scripts = scripts
                     };
 
-                    // write to disk for next time
-                    _files
-                        .Set(string.Format("appdata://{0}/scripts", appId), @event)
-                        .OnFailure(exception => Log.Error(this, "Could not write scripts data to disk : {0}.", exception));
-
-                    // cancel disk load
-                    diskLoad.Abort();
-
+                    Log.Info(this, "Scripts retrieved.");
+                    
                     _messages.Publish(
                         MessageTypes.RECV_SCRIPT_LIST,
                         @event);
 
                     token.Succeed(Void.Instance);
                 })
-                .OnFailure(exception =>
-                {
-                    Log.Info(this, "Could not load scripts from network : {0}.", exception);
-
-                    network = exception;
-                    checkForFailure();
-                });
-
-            return token;
-        }
-
-        /// <summary>
-        /// Retrieves scripts from disk.
-        /// </summary>
-        /// <param name="appId">Id of the app.</param>
-        /// <returns></returns>
-        private IAsyncToken<ScriptListEvent> GetScriptsFromDisk(string appId)
-        {
-            return Async.Map(
-                _files.Get<ScriptListEvent>(string.Format("appdata://{0}/scripts", appId)),
-                file => file.Data);
-        }
-
-        /// <summary>
-        /// Retrieve scripts from the network.
-        /// </summary>
-        /// <param name="appId">The id of the app.</param>
-        /// <returns></returns>
-        private IAsyncToken<ScriptData[]> GetScriptsFromNetwork(string appId)
-        {
-            var token = new AsyncToken<ScriptData[]>();
-
-            _api
-                .Scripts
-                .GetAppScripts(appId)
-                .OnSuccess(response =>
-                {
-                    if (response.Payload.Success)
-                    {
-                        token.Succeed(response.Payload.Body.Select(ToScriptData).ToArray());
-                    }
-                    else
-                    {
-                        token.Fail(new Exception(response.Payload.Error));
-                    }
-                })
-                .OnFailure(exception =>
-                {
-                    token.Fail(new Exception(string.Format("Could not get scripts from network: {0}.", exception)));
-                });
+                .OnFailure(token.Fail);
 
             return token;
         }
@@ -465,21 +237,22 @@ namespace CreateAR.SpirePlayer
         /// <param name="appId">Id of the app.</param>
         /// <param name="sceneId">The id of the scene.</param>
         /// <returns></returns>
-        private IAsyncToken<ElementDescription> LoadSceneFromNetwork(
+        private IAsyncToken<ElementDescription> LoadScene(
             string appId,
             string sceneId)
         {
             var token = new AsyncToken<ElementDescription>();
 
-            _sceneLoads[sceneId] = _api
-                .Scenes
-                .GetScene(appId, sceneId)
+            _sceneLoads[sceneId] = _helper.Request(
+                    HttpRequestCacher.LoadBehavior.NetworkFirst,
+                    "appdata://" + appId + "/Scenes/" + sceneId,
+                    () => _api.Scenes.GetScene(appId, sceneId))
                 .OnSuccess(response =>
                 {
                     object obj;
                     try
                     {
-                        var bytes = Encoding.UTF8.GetBytes(response.Payload.Body.Elements);
+                        var bytes = Encoding.UTF8.GetBytes(response.Body.Elements);
                         _json.Deserialize(
                             typeof(ElementData),
                             ref bytes,
@@ -503,35 +276,14 @@ namespace CreateAR.SpirePlayer
                             (ElementData) obj
                         }
                     };
-
-                    _files
-                        .Set(
-                            string.Format("appdata://{0}/Scene/{1}", appId, sceneId),
-                            description)
-                        .OnFailure(exception => Log.Error(this, "Could not write scene to disk : {0}.", exception));
-
+                    
                     token.Succeed(description);
                 })
                 .OnFailure(token.Fail);
 
             return token;
         }
-
-        /// <summary>
-        /// Loads a scene by id.
-        /// </summary>
-        /// <param name="appId">Id of the app.</param>
-        /// <param name="sceneId">The id of the scene.</param>
-        /// <returns></returns>
-        private IAsyncToken<ElementDescription> LoadSceneFromDisk(
-            string appId,
-            string sceneId)
-        {
-            return Async.Map(
-                _files.Get<ElementDescription>(string.Format("appdata://{0}/Scene/{1}", appId, sceneId)),
-                file => file.Data);
-        }
-
+        
         /// <summary>
         /// Creates AssetData from response body.
         /// </summary>

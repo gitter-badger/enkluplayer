@@ -1,39 +1,12 @@
-﻿using System.Linq;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
+using CreateAR.Trellis.Messages.GetMyApps;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
-    /// <summary>
-    /// Network data cached on disk.
-    /// </summary>
-    public class UserProfileCacheData
-    {
-        /// <summary>
-        /// Info about an app.
-        /// </summary>
-        public class AppInfo
-        {
-            /// <summary>
-            /// Name of the app.
-            /// </summary>
-            public string Name;
-
-            /// <summary>
-            /// Id of the app.
-            /// </summary>
-            public string Id;
-        }
-
-        /// <summary>
-        /// List of all apps.
-        /// </summary>
-        public AppInfo[] Apps;
-    }
-
     /// <summary>
     /// State for user information.
     /// </summary>
@@ -53,11 +26,11 @@ namespace CreateAR.SpirePlayer
         /// Messages.
         /// </summary>
         private readonly IMessageRouter _messages;
-
+        
         /// <summary>
-        /// Files.
+        /// Caches http requests.
         /// </summary>
-        private readonly IFileManager _files;
+        private readonly HttpRequestCacher _http;
 
         /// <summary>
         /// Root game object.
@@ -81,7 +54,8 @@ namespace CreateAR.SpirePlayer
             _config = config;
             _messages = messages;
             _api = api;
-            _files = files;
+
+            _http = new HttpRequestCacher(files);
         }
 
         /// <inheritdoc />
@@ -93,53 +67,31 @@ namespace CreateAR.SpirePlayer
 
             var uri = "userdata://userprofile";
 
-            // get apps
-            _api
-                .Apps
-                .GetMyApps()
+            _http
+                .Request(
+                    HttpRequestCacher.LoadBehavior.NetworkFirst,
+                    uri,
+                    () => _api.Apps.GetMyApps())
                 .OnSuccess(response =>
                 {
-                    if (response.Payload.Success)
+                    if (response.Success)
                     {
                         Log.Info(this, "Loaded UserProfileCacheData from network.");
-
-                        var cacheData = new UserProfileCacheData
-                        {
-                            Apps = response.Payload.Body
-                                .Select(body => new UserProfileCacheData.AppInfo
-                                {
-                                    Id = body.Id,
-                                    Name = body.Name
-                                })
-                                .ToArray()
-                        };
-
-                        _files
-                            .Set(uri, cacheData)
-                            .OnFailure(exception => Log.Error(this, "Could not save UserProfileCacheData : {0}.", exception));
-
-                        OpenUserSplash(cacheData);
+                        
+                        OpenUserSplash(response.Body);
                     }
                     else
                     {
-                        Log.Error(this, "Server refused to get my apps : {0}.", response.Payload.Error);
+                        Log.Error(this, "Server refused to get my apps : {0}.", response.Error);
 
                         // TODO: Show error panel.
                     }
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Info(this, "Could not get my apps : {0}.", exception);
+                    Log.Error(this, "Could not get my apps : {0}.", exception);
 
-                    // okay... try from disk
-                    _files
-                        .Get<UserProfileCacheData>(uri)
-                        .OnSuccess(file =>
-                        {
-                            Log.Info(this, "Loaded UserProfileCacheData from disk.");
-
-                            OpenUserSplash(file.Data);
-                        });
+                    // TODO: Show error panel.
                 });
         }
 
@@ -158,12 +110,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Opens the splash.
         /// </summary>
-        /// <param name="cacheData">Cache data.</param>
-        private void OpenUserSplash(UserProfileCacheData cacheData)
+        /// <param name="apps"></param>
+        private void OpenUserSplash(Body[] apps)
         {
             _userSplash = _root.AddComponent<UserSplashMenuController>();
             _userSplash.OnAppSelected += UserSplash_OnAppSelected;
-            _userSplash.Initialize(cacheData);
+            _userSplash.Initialize(apps);
         }
 
         /// <summary>
@@ -177,6 +129,7 @@ namespace CreateAR.SpirePlayer
             _messages.Publish(MessageTypes.LOAD_APP);
         }
 
+        /*
         /// <summary>
         /// Called when the user asks to take a world scan.
         /// </summary>
@@ -184,5 +137,6 @@ namespace CreateAR.SpirePlayer
         {
             _messages.Publish(MessageTypes.MESHCAPTURE);
         }
+        */
     }
 }

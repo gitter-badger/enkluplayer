@@ -1,5 +1,6 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
+using CreateAR.Trellis.Messages.GetMyApps;
 
 namespace CreateAR.SpirePlayer
 {
@@ -23,10 +24,10 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes the view with data.
         /// </summary>
-        /// <param name="profile">Profile data.</param>
-        public void Initialize(UserProfileCacheData profile)
+        /// <param name="apps">Data for all apps.</param>
+        public void Initialize(Body[] apps)
         {
-            foreach (var app in profile.Apps)
+            foreach (var app in apps)
             {
                 var vine = string.Format(
                     @"<?Vine><Button label='{0}' />",
