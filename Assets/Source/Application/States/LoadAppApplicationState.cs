@@ -75,6 +75,8 @@ namespace CreateAR.SpirePlayer
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not load app : {0}.", exception);
+
+                    // show panel
                 });
         }
 
