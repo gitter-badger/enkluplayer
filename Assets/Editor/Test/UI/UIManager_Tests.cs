@@ -154,7 +154,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         public void RevealOpen()
         {
             // Arrange
-            uint aId, _;
+            uint aId;
             DummyUIElement a = null;
 
             // Act

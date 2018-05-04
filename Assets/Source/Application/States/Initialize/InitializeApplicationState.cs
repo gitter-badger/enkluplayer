@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -24,7 +23,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly IMessageRouter _messages;
         private readonly IBootstrapper _bootstrapper;
-        private readonly IFileManager _files;
         private readonly IAssetManager _assets;
         private readonly IAssetLoader _assetLoader;
         private readonly IArService _ar;
@@ -49,7 +47,6 @@ namespace CreateAR.SpirePlayer
         public InitializeApplicationState(
             IMessageRouter messages,
             IBootstrapper bootstrapper,
-            IFileManager files,
             IAssetManager assets,
             IAssetLoader assetLoader,
             IArService ar,
@@ -60,7 +57,6 @@ namespace CreateAR.SpirePlayer
         {
             _messages = messages;
             _bootstrapper = bootstrapper;
-            _files = files;
             _assets = assets;
             _assetLoader = assetLoader;
             _arConfig = arConfig;
