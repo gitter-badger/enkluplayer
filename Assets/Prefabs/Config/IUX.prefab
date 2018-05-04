@@ -57,9 +57,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Libraries:
   - Platforms: 140000001300000012000000
-    Links: []
+    Links:
+    - UIDataId: Common.Error
+      Element: {fileID: 114848466823277412, guid: 819d2872f55d96c44b1b8d9dfb80d678,
+        type: 2}
   - Platforms: 08000000
-    Links: []
+    Links:
+    - UIDataId: Common.Error
+      Element: {fileID: 114848466823277412, guid: 819d2872f55d96c44b1b8d9dfb80d678,
+        type: 2}
 --- !u!114 &114844777624392520
 MonoBehaviour:
   m_ObjectHideFlags: 1

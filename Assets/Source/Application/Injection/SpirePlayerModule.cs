@@ -327,6 +327,12 @@ namespace CreateAR.SpirePlayer
 #endif
             }
 
+            // UI
+            {
+                binder.Bind<IUIManager>().To<UIManager>().ToSingleton();
+                binder.Bind<IUIElementFactory>().To(LookupComponent<SceneUIElementFactory>());
+            }
+
             // IUX
             {
                 binder.Bind<IPrimitiveFactory>().To<PrimitiveFactory>().ToSingleton();

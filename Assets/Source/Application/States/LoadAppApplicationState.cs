@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
@@ -30,18 +31,30 @@ namespace CreateAR.SpirePlayer
         private readonly IAppController _app;
 
         /// <summary>
+        /// UI.
+        /// </summary>
+        private readonly IUIManager _ui;
+
+        /// <summary>
+        /// Id of the error stack.
+        /// </summary>
+        private uint _errorStackId;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public LoadAppApplicationState(
             ApplicationConfig config,
             IMessageRouter messages,
             IConnection connection,
-            IAppController app)
+            IAppController app,
+            IUIManager ui)
         {
             _config = config;
             _messages = messages;
             _connection = connection;
             _app = app;
+            _ui = ui;
         }
 
         /// <inheritdoc />
@@ -64,6 +77,8 @@ namespace CreateAR.SpirePlayer
                         .OnFailure(exception =>
                         {
                             Log.Error(this, "Could not connect to Trellis : {0}.", exception);
+
+                            // That's okay.
                         })
                         .OnFinally(__ =>
                         {
@@ -77,6 +92,20 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this, "Could not load app : {0}.", exception);
 
                     // show panel
+                    _ui
+                        .Open<ErrorPopup>(new UIReference
+                        {
+                            UIDataId = UIDataIds.ERROR
+                        }, out _errorStackId)
+                        .OnSuccess(element =>
+                        {
+                            element.Message = "Oops! Could not load this app.";
+                            element.OnOk += Error_OnOk;
+                        })
+                        .OnFailure(ex =>
+                        {
+                            Log.Error(this, "Could not open ERROR POPUP : {0}", ex);
+                        });
                 });
         }
 
@@ -90,6 +119,11 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             // TODO: Hide loading screen.
+        }
+
+        private void Error_OnOk()
+        {
+            _ui.Close(_errorStackId);
         }
     }
 }

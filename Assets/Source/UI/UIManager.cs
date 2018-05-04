@@ -64,7 +64,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<IUIElement> Open(UIReference reference, out uint stackId)
+        public IAsyncToken<T> Open<T>(UIReference reference, out uint stackId) where T : IUIElement
         {
             stackId = IDS++;
 
@@ -83,24 +83,25 @@ namespace CreateAR.SpirePlayer
             // add record to the end
             _records.Add(record);
 
-            return record
-                .Load
-                .OnSuccess(element =>
-                {
-                    record.Element = element;
-                    element.Created();
-                    element.Added();
-
-                    // cover previous
-                    var index = _records.IndexOf(record);
-                    if (index > 0)
+            return Async.Map(
+                record
+                    .Load
+                    .OnSuccess(element =>
                     {
-                        _records[index - 1].Element.Covered();
-                    }
+                        record.Element = element;
+                        element.Created();
+                        element.Added();
 
-                    element.Revealed();
-                })
-                .Token();
+                        // cover previous
+                        var index = _records.IndexOf(record);
+                        if (index > 0)
+                        {
+                            _records[index - 1].Element.Covered();
+                        }
+
+                        element.Revealed();
+                    }),
+                element => (T) element);
         }
 
         /// <inheritdoc />

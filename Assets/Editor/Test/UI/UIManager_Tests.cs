@@ -75,7 +75,7 @@ namespace CreateAR.SpirePlayer.Test.UI
 
             uint id;
             _ui
-                .Open(new UIReference(), out id)
+                .Open<DummyUIElement>(new UIReference(), out id)
                 .OnSuccess(element =>
                 {
                     success = true;
@@ -84,10 +84,9 @@ namespace CreateAR.SpirePlayer.Test.UI
                     Assert.AreEqual(element.StackId, id);
 
                     // check lifecycke
-                    var dummy = (DummyUIElement) element;
-                    Assert.AreEqual(0, dummy.CreatedCalled);
-                    Assert.AreEqual(1, dummy.AddedCalled);
-                    Assert.AreEqual(2, dummy.RevealedCalled);
+                    Assert.AreEqual(0, element.CreatedCalled);
+                    Assert.AreEqual(1, element.AddedCalled);
+                    Assert.AreEqual(2, element.RevealedCalled);
                 });
 
             // make sure success was called
@@ -99,24 +98,23 @@ namespace CreateAR.SpirePlayer.Test.UI
         {
             // Arrange
             uint _;
-            IUIElement c = null;
+            DummyUIElement c = null;
 
             // Act
-            _ui.Open(new UIReference(), out _).OnSuccess(el => c = el); ;
-            _ui.Open(new UIReference(), out _);
+            _ui.Open<DummyUIElement>(new UIReference(), out _).OnSuccess(el => c = el); ;
+            _ui.Open<DummyUIElement>(new UIReference(), out _);
 
             // Assert
-            var dummy = (DummyUIElement) c;
-            Assert.AreEqual(3, dummy.CoveredCalled);
+            Assert.AreEqual(3, c.CoveredCalled);
         }
 
         [Test]
         public void OpenUniqueId()
         {
             uint a, b, c;
-            _ui.Open(new UIReference(), out a);
-            _ui.Open(new UIReference(), out b);
-            _ui.Open(new UIReference(), out c);
+            _ui.Open<DummyUIElement>(new UIReference(), out a);
+            _ui.Open<DummyUIElement>(new UIReference(), out b);
+            _ui.Open<DummyUIElement>(new UIReference(), out c);
 
             Assert.AreNotEqual(a, b);
             Assert.AreNotEqual(a, c);
@@ -127,10 +125,10 @@ namespace CreateAR.SpirePlayer.Test.UI
         public void OpenUniqueElement()
         {
             uint _;
-            IUIElement a = null, b = null;
+            DummyUIElement a = null, b = null;
 
-            _ui.Open(new UIReference(), out _).OnSuccess(el => a = el);
-            _ui.Open(new UIReference(), out _).OnSuccess(el => b = el);
+            _ui.Open<DummyUIElement>(new UIReference(), out _).OnSuccess(el => a = el);
+            _ui.Open<DummyUIElement>(new UIReference(), out _).OnSuccess(el => b = el);
 
             Assert.AreNotEqual(a, b);
         }
@@ -140,18 +138,16 @@ namespace CreateAR.SpirePlayer.Test.UI
         {
             // Arrange
             uint aId, bId;
-            IUIElement a = null, b = null;
+            DummyUIElement a = null, b = null;
             
             // Act
-            _ui.Open(new UIReference(), out aId).OnSuccess(el => a = el);
-            _ui.Open(new UIReference(), out bId).OnSuccess(el => b = el);
+            _ui.Open<DummyUIElement>(new UIReference(), out aId).OnSuccess(el => a = el);
+            _ui.Open<DummyUIElement>(new UIReference(), out bId).OnSuccess(el => b = el);
             _ui.Reveal(aId);
             
             // lifecycle
-            var dummyA = (DummyUIElement) a;
-            var dummyB = (DummyUIElement) b;
-            Assert.AreEqual(4, dummyA.RevealedCalled);
-            Assert.AreEqual(3, dummyB.RemovedCalled);
+            Assert.AreEqual(4, a.RevealedCalled);
+            Assert.AreEqual(3, b.RemovedCalled);
         }
 
         [Test]
@@ -159,15 +155,14 @@ namespace CreateAR.SpirePlayer.Test.UI
         {
             // Arrange
             uint aId, _;
-            IUIElement a = null;
+            DummyUIElement a = null;
 
             // Act
-            _ui.Open(new UIReference(), out aId).OnSuccess(el => a = el);
+            _ui.Open<DummyUIElement>(new UIReference(), out aId).OnSuccess(el => a = el);
             _ui.Reveal(aId);
 
             // Assert
-            var dummyA = (DummyUIElement) a;
-            Assert.AreEqual(2, dummyA.RevealedCalled); // Revealed should not have been called by reveal
+            Assert.AreEqual(2, a.RevealedCalled); // Revealed should not have been called by reveal
         }
 
         [Test]
@@ -175,18 +170,17 @@ namespace CreateAR.SpirePlayer.Test.UI
         {
             // Arrange
             uint aId, _;
-            IUIElement a = null;
+            DummyUIElement a = null;
 
             // Act
-            _ui.Open(new UIReference(), out aId).OnSuccess(el => a = el);
-            _ui.Open(new UIReference(), out _);
+            _ui.Open<DummyUIElement>(new UIReference(), out aId).OnSuccess(el => a = el);
+            _ui.Open<DummyUIElement>(new UIReference(), out _);
             _ui.Reveal(aId);
             _ui.Reveal(aId);
             _ui.Reveal(aId);
 
             // Assert
-            var dummyA = (DummyUIElement) a;
-            Assert.AreEqual(4, dummyA.RevealedCalled); // Revealed should only be called once
+            Assert.AreEqual(4, a.RevealedCalled); // Revealed should only be called once
         }
 
         [Test]
@@ -194,14 +188,14 @@ namespace CreateAR.SpirePlayer.Test.UI
         {
             // Arrange
             uint aId;
-            IUIElement a = null;
+            DummyUIElement a = null;
 
             // Act
-            _ui.Open(new UIReference(), out aId).OnSuccess(el => a = el);
+            _ui.Open<DummyUIElement>(new UIReference(), out aId).OnSuccess(el => a = el);
             _ui.Close(aId);
 
             // Assert
-            Assert.AreEqual(3, ((DummyUIElement) a).RemovedCalled);
+            Assert.AreEqual(3,  a.RemovedCalled);
         }
 
         [Test]
@@ -209,18 +203,18 @@ namespace CreateAR.SpirePlayer.Test.UI
         {
             // Arrange
             uint aId, _;
-            IUIElement a = null, b = null, c = null;
+            DummyUIElement a = null, b = null, c = null;
 
             // Act
-            _ui.Open(new UIReference(), out aId).OnSuccess(el => a = el);
-            _ui.Open(new UIReference(), out _).OnSuccess(el => b = el);
-            _ui.Open(new UIReference(), out _).OnSuccess(el => c = el);
+            _ui.Open<DummyUIElement>(new UIReference(), out aId).OnSuccess(el => a = el);
+            _ui.Open<DummyUIElement>(new UIReference(), out _).OnSuccess(el => b = el);
+            _ui.Open<DummyUIElement>(new UIReference(), out _).OnSuccess(el => c = el);
             _ui.Close(aId);
 
             // Assert
-            Assert.AreEqual(4, ((DummyUIElement) a).RemovedCalled);
-            Assert.AreEqual(4, ((DummyUIElement) b).RemovedCalled);
-            Assert.AreEqual(3, ((DummyUIElement) c).RemovedCalled);
+            Assert.AreEqual(4, a.RemovedCalled);
+            Assert.AreEqual(4, b.RemovedCalled);
+            Assert.AreEqual(3, c.RemovedCalled);
         }
     }
 }

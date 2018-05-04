@@ -13,7 +13,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="reference">Reference to a UI element.</param>
         /// <param name="stackId">Stack id used to reference element in API.</param>
         /// <returns></returns>
-        IAsyncToken<IUIElement> Open(UIReference reference, out uint stackId);
+        IAsyncToken<T> Open<T>(UIReference reference, out uint stackId) where T : IUIElement;
 
         /// <summary>
         /// Moves down the stack, removing UI elements until the element with
