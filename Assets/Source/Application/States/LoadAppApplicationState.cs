@@ -1,6 +1,7 @@
-﻿using System;
+﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -36,6 +37,16 @@ namespace CreateAR.SpirePlayer
         private readonly IUIManager _ui;
 
         /// <summary>
+        /// Tracks app load.
+        /// </summary>
+        private IAsyncToken<Void> _loadToken;
+
+        /// <summary>
+        /// Id of the loading stack.
+        /// </summary>
+        private uint _loadingStackId;
+
+        /// <summary>
         /// Id of the error stack.
         /// </summary>
         private uint _errorStackId;
@@ -62,10 +73,16 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Loading app...");
 
-            // TODO: Show loading screen.
+            // open loading UI
+            _ui
+                .Open<LoadingUIView>(new UIReference
+                {
+                    UIDataId = UIDataIds.LOADING
+                }, out _loadingStackId);
 
-            _app
-                .Load(_config.Play.AppId)
+            // load app
+            _loadToken = _app.Load(_config.Play.AppId);
+            _loadToken
                 .OnSuccess(_ =>
                 {
                     Log.Info(this, "App loaded.");
@@ -91,15 +108,17 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Error(this, "Could not load app : {0}.", exception);
 
+                    _ui.Close(_loadingStackId);
+
                     // show panel
                     _ui
-                        .Open<ErrorPopup>(new UIReference
+                        .Open<ErrorPopupUIView>(new UIReference
                         {
                             UIDataId = UIDataIds.ERROR
                         }, out _errorStackId)
                         .OnSuccess(element =>
                         {
-                            element.Message = "Oops! Could not load this app.";
+                            element.Message = "Oops! Could not load this app. Please check your connection.";
                             element.Action = "Back to My Apps";
                             element.OnOk += Error_OnOk;
                         })
@@ -119,7 +138,10 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            // TODO: Hide loading screen.
+            _loadToken.Abort();
+
+            _ui.Close(_loadingStackId);
+            _ui.Close(_errorStackId);
         }
 
         /// <summary>

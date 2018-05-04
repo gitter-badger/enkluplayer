@@ -1,13 +1,12 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Generic error popup.
     /// </summary>
-    public class ErrorPopup : MonoBehaviourIUXController
+    public class ErrorPopupUIView : MonoBehaviourIUXController
     {
         /// <summary>
         /// Elements.
@@ -52,7 +51,9 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        /// <inheritdoc cref="MonoBehaviour"/>
+        /// <summary>
+        /// MonoBehaviour.
+        /// </summary>
         protected override void Awake()
         {
             base.Awake();

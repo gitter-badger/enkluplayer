@@ -61,10 +61,16 @@ MonoBehaviour:
     - UIDataId: Common.Error
       Element: {fileID: 114848466823277412, guid: 819d2872f55d96c44b1b8d9dfb80d678,
         type: 2}
+    - UIDataId: Common.Loading
+      Element: {fileID: 114042847877177962, guid: 25feb0bbeda04e549961c70ed8438968,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error
       Element: {fileID: 114848466823277412, guid: 819d2872f55d96c44b1b8d9dfb80d678,
+        type: 2}
+    - UIDataId: Common.Loading
+      Element: {fileID: 114042847877177962, guid: 25feb0bbeda04e549961c70ed8438968,
         type: 2}
 --- !u!114 &114844777624392520
 MonoBehaviour:
