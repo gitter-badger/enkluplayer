@@ -374,13 +374,24 @@ namespace CreateAR.SpirePlayer
 
                 if (UnityEngine.Application.isEditor)
                 {
-                    if (config.Play.ParsedDesigner == PlayAppConfig.DesignerType.Desktop)
+                    switch (config.Play.ParsedDesigner)
                     {
-                        binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
-                    }
-                    else
-                    {
-                        binder.Bind<IDesignController>().To<ArDesignController>().ToSingleton();
+                        case PlayAppConfig.DesignerType.Desktop:
+                        {
+                            binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
+                            break;
+                        }
+                        case PlayAppConfig.DesignerType.Ar:
+                        case PlayAppConfig.DesignerType.Mobile:
+                        {
+                            binder.Bind<IDesignController>().To<ArDesignController>().ToSingleton();
+                            break;
+                        }
+                        case PlayAppConfig.DesignerType.None:
+                        {
+                            binder.Bind<IDesignController>().To<PassthroughDesignController>().ToSingleton();
+                            break;
+                        }
                     }
                 }
                 else

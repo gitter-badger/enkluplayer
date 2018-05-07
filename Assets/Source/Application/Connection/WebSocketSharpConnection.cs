@@ -39,7 +39,10 @@ namespace CreateAR.SpirePlayer
         /// Token for connection.
         /// </summary>
         private AsyncToken<Void> _connectToken;
-        
+
+        /// <inheritdoc />
+        public bool IsConnected { get; private set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -138,7 +141,9 @@ namespace CreateAR.SpirePlayer
                     "/v1/editor/app/{0}/subscribe",
                     _config.Play.AppId),
                 "post"));
-            
+
+            IsConnected = true;
+
             _connectToken.Succeed(Void.Instance);
         }
         

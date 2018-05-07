@@ -13,6 +13,16 @@ namespace CreateAR.SpirePlayer
         string Id { get; }
 
         /// <summary>
+        /// True iff we have edit permissions.
+        /// </summary>
+        bool CanEdit { get; }
+
+        /// <summary>
+        /// True iff we have delete permissions.
+        /// </summary>
+        bool CanDelete { get; }
+
+        /// <summary>
         /// Loads the app.
         /// </summary>
         /// <param name="appId">The id of the app.</param>

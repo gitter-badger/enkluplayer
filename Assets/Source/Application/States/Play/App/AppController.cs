@@ -28,6 +28,12 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public string Id { get; private set; }
 
+        /// <inheritdoc />
+        public bool CanEdit { get; private set; }
+
+        /// <inheritdoc />
+        public bool CanDelete { get; private set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -45,6 +51,9 @@ namespace CreateAR.SpirePlayer
         public IAsyncToken<Void> Load(string appId)
         {
             Id = appId;
+
+            CanEdit = true;
+            CanDelete = true;
 
             LogVerbose("Load().");
 

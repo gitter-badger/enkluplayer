@@ -163,7 +163,8 @@ namespace CreateAR.SpirePlayer
         {
             Ar,
             Desktop,
-            Mobile
+            Mobile,
+            None
         }
 
         /// <summary>

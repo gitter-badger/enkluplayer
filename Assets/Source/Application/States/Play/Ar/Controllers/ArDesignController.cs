@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateScene;
@@ -15,29 +16,17 @@ namespace CreateAR.SpirePlayer
     public class ArDesignController : IDesignController
     {
         /// <summary>
-        /// Transactions.
+        /// Dependencies.
         /// </summary>
         private readonly IElementTxnManager _txns;
-
-        /// <summary>
-        /// Manages scenes.
-        /// </summary>
         private readonly IAppSceneManager _scenes;
-        
-        /// <summary>
-        /// Updates elements.
-        /// </summary>
         private readonly IElementUpdateDelegate _elementUpdater;
-
-        /// <summary>
-        /// Elements!
-        /// </summary>
         private readonly IElementFactory _elements;
-
-        /// <summary>
-        /// Manages controllers for all elements.
-        /// </summary>
         private readonly IElementControllerManager _controllers;
+        private readonly IConnection _connection;
+        private readonly IVoiceCommandManager _voice;
+        private readonly IUIManager _ui;
+        private readonly IMessageRouter _messages;
 
         /// <summary>
         /// All states.
@@ -117,6 +106,10 @@ namespace CreateAR.SpirePlayer
             IElementUpdateDelegate elementUpdater,
             IElementFactory elements,
             IElementControllerManager controllers,
+            IConnection connection,
+            IVoiceCommandManager voice,
+            IUIManager ui,
+            IMessageRouter messages,
             ApiController api,
 
             // design states
@@ -131,6 +124,10 @@ namespace CreateAR.SpirePlayer
             _elementUpdater = elementUpdater;
             _elements = elements;
             _controllers = controllers;
+            _connection = connection;
+            _voice = voice;
+            _ui = ui;
+            _messages = messages;
             _api = api;
 
             _states = new IArDesignState[]
@@ -146,26 +143,75 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Setup(PlayModeConfig config, IAppController app)
+        public void Setup(DesignerContext context, IAppController app)
         {
-            Config = config;
+            Config = context.PlayConfig;
             App = app;
+
             _root = new GameObject("Design");
             _root.AddComponent<LineManager>();
-            
+
             if (null == _elementUpdater.Active)
             {
-                Log.Info(this, "No active Scene!");
+                Log.Error(this, "No active Scene!");
+
+                int id;
+                _ui
+                    .Open<ErrorPopupUIView>(
+                        new UIReference
+                        {
+                            UIDataId = UIDataIds.ERROR
+                        },
+                        out id)
+                    .OnSuccess(el =>
+                    {
+                        el.Message = "An error occurred when playing this app: there are no scenes.";
+                        el.Action = "Okay";
+                        el.OnOk += () => _messages.Publish(MessageTypes.USER_PROFILE);
+                    })
+                    .OnFailure(exception => Log.Error(this, "Could not load error popup : {0}.", exception));
+                return;
+            }
+            
+            if (context.Edit)
+            {
+                if (_connection.IsConnected)
+                {
+                    StartEdit();
+                }
+                else
+                {
+                    StartPlay();
+
+                    int id;
+                    _ui
+                        .Open<ErrorPopupUIView>(
+                            new UIReference
+                            {
+                                UIDataId = UIDataIds.ERROR
+                            },
+                            out id)
+                        .OnSuccess(el =>
+                        {
+                            el.Message = "It appears that you are currently offline. Edit mode will be disabled.";
+                            el.Action = "Ok";
+                            el.OnOk += () => _ui.Pop();
+                        })
+                        .OnFailure(exception => Log.Error(this, "Could not open ErrorPopupUIView : {0}.", exception));
+                }
             }
             else
             {
-                Start();
+                StartPlay();
             }
         }
-        
+
         /// <inheritdoc />
         public void Teardown()
         {
+            _voice.Unregister("play");
+            _voice.Unregister("edit");
+
             // uninitialize states
             for (var i = 0; i < _states.Length; i++)
             {
@@ -242,8 +288,10 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Starts design mode.
         /// </summary>
-        private void Start()
+        private void StartEdit()
         {
+            _voice.Register("play", Voice_OnPlay);
+
             // create dynamic root
             {
                 _float = (FloatWidget)_elements.Element(
@@ -272,6 +320,42 @@ namespace CreateAR.SpirePlayer
 
             // start initial state
             _fsm.Change<MainDesignState>();
+        }
+
+        /// <summary>
+        /// Starts play.
+        /// </summary>
+        private void StartPlay()
+        {
+            _voice.Register("edit", Voice_OnEdit);
+        }
+
+        /// <summary>
+        /// Called when the word "play" is heard.
+        /// </summary>
+        /// <param name="command">The voice command.</param>
+        private void Voice_OnPlay(string command)
+        {
+            _messages.Publish(
+                MessageTypes.CHANGE_STATE,
+                new DesignerContext
+                {
+                    Edit = false
+                });
+        }
+
+        /// <summary>
+        /// Called when the word "edit" is heard.
+        /// </summary>
+        /// <param name="command">The voice command.</param>
+        private void Voice_OnEdit(string command)
+        {
+            _messages.Publish(
+                MessageTypes.CHANGE_STATE,
+                new DesignerContext
+                {
+                    Edit = true
+                });
         }
     }
 }

@@ -44,7 +44,17 @@ namespace CreateAR.SpirePlayer
         /// Manages app.
         /// </summary>
         private readonly IAppController _app;
-        
+
+        /// <summary>
+        /// Connection.
+        /// </summary>
+        private readonly IConnection _connection;
+
+        /// <summary>
+        /// Context for designer.
+        /// </summary>
+        private DesignerContext _context;
+
         /// <summary>
         /// Time at which state was entered.
         /// </summary>
@@ -63,19 +73,23 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IScriptRequireResolver resolver,
             IDesignController design,
-            IAppController app)
+            IAppController app,
+            IConnection connection)
         {
             _bootstrapper = bootstrapper;
             _messages = messages;
             _resolver = resolver;
             _design = design;
             _app = app;
+            _connection = connection;
         }
 
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
-            Log.Info(this, "PlayApplicationState::Enter()");
+            Log.Info(this, "PlayApplicationState::Enter({0})", context);
+
+            _context = context as DesignerContext ?? new DesignerContext();
 
             _enterTime = DateTime.Now;
             _statusCleared = false;
@@ -139,7 +153,7 @@ namespace CreateAR.SpirePlayer
         {
             yield return op;
 
-            var config = Object.FindObjectOfType<PlayModeConfig>();
+            var config = _context.PlayConfig = Object.FindObjectOfType<PlayModeConfig>();
             if (null == config)
             {
                 throw new Exception("Could not find PlayModeConfig.");
@@ -148,8 +162,10 @@ namespace CreateAR.SpirePlayer
             // initialize with app id
             _app.Play();
 
-            // TODO: iff we have permissions and we're online
-            _design.Setup(config, _app);
+            if (_app.CanEdit && _connection.IsConnected)
+            {
+                _design.Setup(_context, _app);
+            }
         }
     }
 }

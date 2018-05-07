@@ -67,9 +67,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Setup(PlayModeConfig config, IAppController app)
+        public void Setup(DesignerContext context, IAppController app)
         {
-            _runtimeGizmos = Object.Instantiate(config.RuntimeGizmoSystem);
+            _runtimeGizmos = Object.Instantiate(context.PlayConfig.RuntimeGizmoSystem);
 
             var selectionSettings = _runtimeGizmos.GetComponentInChildren<EditorObjectSelection>().ObjectSelectionSettings;
             selectionSettings.CanSelectSpriteObjects = false;

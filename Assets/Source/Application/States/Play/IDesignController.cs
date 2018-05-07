@@ -10,7 +10,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Starts controllers.
         /// </summary>
-        void Setup(PlayModeConfig config, IAppController app);
+        void Setup(DesignerContext context, IAppController app);
 
         /// <summary>
         /// Tears down controller.

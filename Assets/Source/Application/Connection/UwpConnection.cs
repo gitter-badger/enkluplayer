@@ -52,6 +52,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private DataWriter _writer;
 
+        /// <inheritdoc />
+        public bool IsConnected { get; private set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -145,6 +148,8 @@ namespace CreateAR.SpirePlayer
                 await _socket.ConnectAsync(new Uri(wsUrl));
 
                 LogVerbose("Connected to {0}", wsUrl);
+
+                IsConnected = true;
 
                 _writer = new DataWriter(_socket.OutputStream);
 
