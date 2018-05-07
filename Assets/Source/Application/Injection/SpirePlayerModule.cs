@@ -166,6 +166,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ShaderUpdateService>().To<ShaderUpdateService>().ToSingleton();
                     binder.Bind<SceneUpdateService>().To<SceneUpdateService>().ToSingleton();
                     binder.Bind<ElementActionHelperService>().To<ElementActionHelperService>().ToSingleton();
+                    binder.Bind<UserPreferenceService>().To<UserPreferenceService>().ToSingleton();
                 }
 
                 // login
@@ -226,7 +227,8 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<MaterialUpdateService>(),
                         binder.GetInstance<ShaderUpdateService>(),
                         binder.GetInstance<SceneUpdateService>(),
-                        binder.GetInstance<ElementActionHelperService>()
+                        binder.GetInstance<ElementActionHelperService>(),
+                        binder.GetInstance<UserPreferenceService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }

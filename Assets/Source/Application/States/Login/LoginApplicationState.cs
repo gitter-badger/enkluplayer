@@ -14,8 +14,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Credentials.
         /// </summary>
-        private const string CREDS = "login://DefaultCredentials";
-        private const string PREFERENCES_PREFIX = "login://Preferences/";
+        public const string CREDS = "login://DefaultCredentials";
 
         /// <summary>
         /// Reads and writes files.
@@ -48,6 +47,11 @@ namespace CreateAR.SpirePlayer
         private readonly ApplicationConfig _config;
 
         /// <summary>
+        /// Manages preferences.
+        /// </summary>
+        private readonly UserPreferenceService _preferences;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public LoginApplicationState(
@@ -56,7 +60,8 @@ namespace CreateAR.SpirePlayer
             ILoginStrategy strategy,
             IHttpService http,
             ApiController api,
-            ApplicationConfig config)
+            ApplicationConfig config,
+            UserPreferenceService preferences)
         {
             _files = files;
             _messages = messages;
@@ -64,6 +69,7 @@ namespace CreateAR.SpirePlayer
             _http = http;
             _api = api;
             _config = config;
+            _preferences = preferences;
 
             _files.Register(
                 "login://",
@@ -168,7 +174,8 @@ namespace CreateAR.SpirePlayer
             var creds = _config.Network.Credentials;
             if (null == creds)
             {
-                _config.Network.AllCredentials = _config.Network.AllCredentials.Add(credentials);
+                creds = credentials;
+                _config.Network.AllCredentials = _config.Network.AllCredentials.Add(creds);
             }
             else
             {
@@ -177,23 +184,19 @@ namespace CreateAR.SpirePlayer
             }
 
             // load preferences from cache
-            var path = PREFERENCES_PREFIX + credentials.UserId;
-            if (_files.Exists(path))
-            {
-                _files
-                    .Get<LoginPreferenceData>(path)
-                    .OnSuccess(file =>
+            _preferences.Preferences(
+                creds.UserId,
+                prefs =>
+                {
+                    if (string.IsNullOrEmpty(prefs.MostRecentAppId))
                     {
-                        Log.Info(this, "Most recent app id found on disk.");
-
-                        LoadApp(file.Data.MostRecentAppId);
-                    });
-            }
-            else
-            {
-                // nothing cached, choose an app to load into
-                ChooseDefaultApp();
-            }    
+                        ChooseDefaultApp();
+                    }
+                    else
+                    {
+                        LoadApp(prefs.MostRecentAppId);
+                    }
+                });
         }
 
         /// <summary>
@@ -212,17 +215,7 @@ namespace CreateAR.SpirePlayer
                     var apps = response.Payload.Body;
                     if (apps.Length > 0)
                     {
-                        var appId = apps[0].Id;
-
-                        _files.Set(
-                            PREFERENCES_PREFIX + _config.Network.Credentials.UserId,
-                            new LoginPreferenceData
-                            {
-                                MostRecentAppId = appId
-                            });
-
-                        // good gravy, load the app already
-                        LoadApp(appId);
+                        LoadApp(apps[0].Id);
                     }
                     else
                     {
