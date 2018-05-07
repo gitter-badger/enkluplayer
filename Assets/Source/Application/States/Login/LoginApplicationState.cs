@@ -37,6 +37,11 @@ namespace CreateAR.SpirePlayer
         private readonly ILoginStrategy _strategy;
 
         /// <summary>
+        /// Manages UI.
+        /// </summary>
+        private readonly IUIManager _ui;
+
+        /// <summary>
         /// Controls API.
         /// </summary>
         private readonly ApiController _api;
@@ -59,6 +64,7 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             ILoginStrategy strategy,
             IHttpService http,
+            IUIManager ui,
             ApiController api,
             ApplicationConfig config,
             UserPreferenceService preferences)
@@ -67,6 +73,7 @@ namespace CreateAR.SpirePlayer
             _messages = messages;
             _strategy = strategy;
             _http = http;
+            _ui = ui;
             _api = api;
             _config = config;
             _preferences = preferences;
@@ -183,8 +190,8 @@ namespace CreateAR.SpirePlayer
                 creds.UserId = credentials.UserId;
             }
 
-            // load preferences from cache
-            _preferences.Preferences(
+            // load preferences
+            _preferences.ForUser(
                 creds.UserId,
                 prefs =>
                 {
@@ -219,12 +226,26 @@ namespace CreateAR.SpirePlayer
                     }
                     else
                     {
+                        
                         // TODO: user has no apps, display special screen
                     }
                 })
                 .OnFailure(exception =>
                 {
-                    // TODO: error retrieving apps, allow retry
+                    int id;
+                    _ui
+                        .Open<ErrorPopupUIView>(
+                            new UIReference
+                            {
+                                UIDataId = UIDataIds.ERROR
+                            },
+                            out id)
+                        .OnSuccess(popup =>
+                        {
+                            popup.Message = "Could not retrieve apps. Are you sure you're online?";
+                            popup.Action = "Retry";
+                            popup.OnOk += Retry_OnOk;
+                        });
                 });
         }
 
@@ -237,6 +258,16 @@ namespace CreateAR.SpirePlayer
             _config.Play.AppId = appId;
             
             _messages.Publish(MessageTypes.LOAD_APP);
+        }
+
+        /// <summary>
+        /// Called on retry.
+        /// </summary>
+        private void Retry_OnOk()
+        {
+            _ui.Pop();
+
+            ChooseDefaultApp();
         }
     }
 }

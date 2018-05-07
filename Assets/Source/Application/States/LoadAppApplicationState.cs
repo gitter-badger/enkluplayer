@@ -44,12 +44,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Id of the loading stack.
         /// </summary>
-        private uint _loadingStackId;
+        private int _loadingStackId;
 
         /// <summary>
         /// Id of the error stack.
         /// </summary>
-        private uint _errorStackId;
+        private int _errorStackId;
 
         /// <summary>
         /// Constructor.

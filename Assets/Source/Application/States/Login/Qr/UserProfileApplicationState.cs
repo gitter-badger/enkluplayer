@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.GetMyApps;
@@ -26,6 +27,11 @@ namespace CreateAR.SpirePlayer
         /// Messages.
         /// </summary>
         private readonly IMessageRouter _messages;
+
+        /// <summary>
+        /// Manages UI.
+        /// </summary>
+        private readonly IUIManager _ui;
         
         /// <summary>
         /// Caches http requests.
@@ -43,17 +49,24 @@ namespace CreateAR.SpirePlayer
         private UserSplashMenuController _userSplash;
 
         /// <summary>
+        /// Token to get my apps.
+        /// </summary>
+        private IAsyncToken<Response> _myAppsToken;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public UserProfileApplicationState(
             ApplicationConfig config,
             ApiController api,
             IMessageRouter messages,
-            IFileManager files)
+            IFileManager files,
+            IUIManager ui)
         {
             _config = config;
             _messages = messages;
             _api = api;
+            _ui = ui;
 
             _http = new HttpRequestCacher(files);
         }
@@ -65,34 +78,7 @@ namespace CreateAR.SpirePlayer
 
             _root = new GameObject("UserRoot");
 
-            var uri = "userdata://userprofile";
-
-            _http
-                .Request(
-                    HttpRequestCacher.LoadBehavior.NetworkFirst,
-                    uri,
-                    () => _api.Apps.GetMyApps())
-                .OnSuccess(response =>
-                {
-                    if (response.Success)
-                    {
-                        Log.Info(this, "Loaded UserProfileCacheData from network.");
-                        
-                        OpenUserSplash(response.Body);
-                    }
-                    else
-                    {
-                        Log.Error(this, "Server refused to get my apps : {0}.", response.Error);
-
-                        // TODO: Show error panel.
-                    }
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this, "Could not get my apps : {0}.", exception);
-
-                    // TODO: Show error panel.
-                });
+            LoadProfile();
         }
 
         /// <inheritdoc />
@@ -104,7 +90,82 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
+            if (null != _myAppsToken)
+            {
+                _myAppsToken.Abort();
+            }
+
             Object.Destroy(_root);
+        }
+
+        /// <summary>
+        /// Loads proile.
+        /// </summary>
+        private void LoadProfile()
+        {
+            const string uri = "userdata://userprofile";
+
+            _myAppsToken = _http.Request(
+                HttpRequestCacher.LoadBehavior.NetworkFirst,
+                uri,
+                () => _api.Apps.GetMyApps());
+            
+            _myAppsToken
+                .OnSuccess(response =>
+                {
+                    if (response.Success)
+                    {
+                        Log.Info(this, "Loaded UserProfileCacheData.");
+
+                        OpenUserSplash(response.Body);
+                    }
+                    else
+                    {
+                        Log.Error(this, "Server refused to get my apps : {0}.", response.Error);
+
+                        int errorId;
+                        _ui
+                            .Open<ErrorPopupUIView>(
+                                new UIReference
+                                {
+                                    UIDataId = UIDataIds.ERROR
+                                },
+                                out errorId)
+                            .OnSuccess(popup =>
+                            {
+                                popup.Message = "Could not load your apps. Are you sure you're online?";
+                                popup.Action = "Retry";
+                                popup.OnOk += Retry_OnOk;
+                            })
+                            .OnFailure(ex => Log.Fatal(
+                                this,
+                                "Could not open error popup : {0}.",
+                                ex));
+                    }
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not get my apps : {0}.", exception);
+
+                    int errorId;
+                    _ui
+                        .Open<ErrorPopupUIView>(
+                            new UIReference
+                            {
+                                UIDataId = UIDataIds.ERROR
+                            },
+                            out errorId)
+                        .OnSuccess(popup =>
+                        {
+                            popup.Message = "Could not load your apps. Are you sure you're online?";
+                            popup.Action = "Retry";
+                            popup.OnOk += Retry_OnOk;
+                        })
+                        .OnFailure(ex => Log.Fatal(
+                            this,
+                            "Could not open error popup : {0}.",
+                            ex));
+                });
         }
 
         /// <summary>
@@ -138,5 +199,15 @@ namespace CreateAR.SpirePlayer
             _messages.Publish(MessageTypes.MESHCAPTURE);
         }
         */
+
+        /// <summary>
+        /// Called to try retrieving apps.
+        /// </summary>
+        private void Retry_OnOk()
+        {
+            _ui.Pop();
+            
+            LoadProfile();
+        }
     }
 }

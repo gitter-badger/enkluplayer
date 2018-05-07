@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="userId">User id.</param>
         /// <param name="preferences">Action that receives preferences.</param>
-        public void Preferences(string userId, Action<UserPreferenceData> preferences)
+        public void ForUser(string userId, Action<UserPreferenceData> preferences)
         {
             IAsyncToken<SynchronizedObject<UserPreferenceData>> prefs;
             if (!_preferences.TryGetValue(userId, out prefs))
