@@ -10,13 +10,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Stack id.
         /// </summary>
-        public uint StackId { get; private set; }
+        public int StackId { get; private set; }
 
         /// <summary>
         /// Inits the element with a stack id.
         /// </summary>
         /// <param name="stackId">The stack id.</param>
-        public void Init(uint stackId)
+        public void Init(int stackId)
         {
             StackId = stackId;
         }

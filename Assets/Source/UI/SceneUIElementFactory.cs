@@ -58,7 +58,7 @@ namespace CreateAR.SpirePlayer
         public ElementLinkLibrary[] Libraries;
 
         /// <inheritdoc />
-        public IAsyncToken<IUIElement> Element(UIReference reference, uint id)
+        public IAsyncToken<IUIElement> Element(UIReference reference, int id)
         {
             var link = Link(reference);
             if (null == link)

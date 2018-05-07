@@ -13,6 +13,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="reference">The reference to an element.</param>
         /// <param name="id">The returned stack id.</param>
         /// <returns></returns>
-        IAsyncToken<IUIElement> Element(UIReference reference, uint id);
+        IAsyncToken<IUIElement> Element(UIReference reference, int id);
     }
 }

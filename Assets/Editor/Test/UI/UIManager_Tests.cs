@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer.Test.UI
     {
         private int _ordinal = 0;
 
-        public uint StackId { get; set; }
+        public int StackId { get; set; }
 
         public int CreatedCalled { get; private set; }
         public int AddedCalled { get; private set; }
@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer.Test.UI
 
     public class DummyElementLoader : IUIElementFactory
     {
-        public IAsyncToken<IUIElement> Element(UIReference reference, uint id)
+        public IAsyncToken<IUIElement> Element(UIReference reference, int id)
         {
             return new AsyncToken<IUIElement>(new DummyUIElement
             {
@@ -73,7 +73,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         {
             var success = false;
 
-            uint id;
+            int id;
             _ui
                 .Open<DummyUIElement>(new UIReference(), out id)
                 .OnSuccess(element =>
@@ -97,7 +97,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         public void OpenCovered()
         {
             // Arrange
-            uint _;
+            int _;
             DummyUIElement c = null;
 
             // Act
@@ -111,7 +111,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void OpenUniqueId()
         {
-            uint a, b, c;
+            int a, b, c;
             _ui.Open<DummyUIElement>(new UIReference(), out a);
             _ui.Open<DummyUIElement>(new UIReference(), out b);
             _ui.Open<DummyUIElement>(new UIReference(), out c);
@@ -124,7 +124,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [Test]
         public void OpenUniqueElement()
         {
-            uint _;
+            int _;
             DummyUIElement a = null, b = null;
 
             _ui.Open<DummyUIElement>(new UIReference(), out _).OnSuccess(el => a = el);
@@ -137,7 +137,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         public void Reveal()
         {
             // Arrange
-            uint aId, bId;
+            int aId, bId;
             DummyUIElement a = null, b = null;
             
             // Act
@@ -154,7 +154,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         public void RevealOpen()
         {
             // Arrange
-            uint aId;
+            int aId;
             DummyUIElement a = null;
 
             // Act
@@ -169,7 +169,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         public void RevealMultiple()
         {
             // Arrange
-            uint aId, _;
+            int aId, _;
             DummyUIElement a = null;
 
             // Act
@@ -187,7 +187,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         public void Close()
         {
             // Arrange
-            uint aId;
+            int aId;
             DummyUIElement a = null;
 
             // Act
@@ -202,7 +202,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         public void CloseMany()
         {
             // Arrange
-            uint aId, _;
+            int aId, _;
             DummyUIElement a = null, b = null, c = null;
 
             // Act
@@ -215,6 +215,25 @@ namespace CreateAR.SpirePlayer.Test.UI
             Assert.AreEqual(4, a.RemovedCalled);
             Assert.AreEqual(4, b.RemovedCalled);
             Assert.AreEqual(3, c.RemovedCalled);
+        }
+
+        [Test]
+        public void PopNothing()
+        {
+            Assert.AreEqual(-1, _ui.Pop());
+        }
+
+        [Test]
+        public void Pop()
+        {
+            int aId;
+            DummyUIElement a = null;
+
+            _ui.Open<DummyUIElement>(new UIReference(), out aId).OnSuccess(el => a = el);
+            var id = _ui.Pop();
+
+            Assert.AreEqual(aId, id);
+            Assert.AreEqual(3, a.RemovedCalled);
         }
     }
 }

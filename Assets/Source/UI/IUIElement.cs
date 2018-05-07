@@ -8,7 +8,7 @@
         /// <summary>
         /// Id in the stack.
         /// </summary>
-        uint StackId { get; }
+        int StackId { get; }
 
         /// <summary>
         /// Called when the element has first been created.

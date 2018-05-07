@@ -17,7 +17,7 @@ namespace CreateAR.SpirePlayer
             /// <summary>
             /// Id in stack.
             /// </summary>
-            public readonly uint StackId;
+            public readonly int StackId;
 
             /// <summary>
             /// Load.
@@ -33,7 +33,7 @@ namespace CreateAR.SpirePlayer
             /// Constructor.
             /// </summary>
             /// <param name="stackId">Stack id.</param>
-            public UIRecord(uint stackId)
+            public UIRecord(int stackId)
             {
                 StackId = stackId;
             }
@@ -42,7 +42,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Id.
         /// </summary>
-        private static uint IDS = 0;
+        private static int IDS;
 
         /// <summary>
         /// Creates elements.
@@ -64,7 +64,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<T> Open<T>(UIReference reference, out uint stackId) where T : IUIElement
+        public IAsyncToken<T> Open<T>(UIReference reference, out int stackId) where T : IUIElement
         {
             stackId = IDS++;
 
@@ -105,7 +105,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Reveal(uint stackId)
+        public void Reveal(int stackId)
         {
             // first, make sure element exists in stack at all
             var found = false;
@@ -140,6 +140,9 @@ namespace CreateAR.SpirePlayer
                 }
 
                 _records.RemoveAt(_records.Count - 1);
+
+                peek.Load.Abort();
+
                 if (null != peek.Element)
                 {
                     peek.Element.Removed();
@@ -150,7 +153,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Close(uint stackId)
+        public void Close(int stackId)
         {
             // first, make sure element exists in stack at all
             var found = false;
@@ -174,6 +177,8 @@ namespace CreateAR.SpirePlayer
                 var record = _records[_records.Count - 1];
                 _records.RemoveAt(_records.Count - 1);
 
+                record.Load.Abort();
+
                 if (null != record.Element)
                 {
                     record.Element.Removed();
@@ -184,6 +189,27 @@ namespace CreateAR.SpirePlayer
                     return;
                 }
             }
+        }
+
+        /// <inheritdoc />
+        public int Pop()
+        {
+            if (0 == _records.Count)
+            {
+                return -1;
+            }
+
+            var record = _records[_records.Count - 1];
+            _records.RemoveAt(_records.Count - 1);
+
+            record.Load.Abort();
+
+            if (null != record.Element)
+            {
+                record.Element.Removed();
+            }
+
+            return record.StackId;
         }
     }
 }
