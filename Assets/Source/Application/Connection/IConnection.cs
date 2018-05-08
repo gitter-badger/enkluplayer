@@ -9,6 +9,11 @@ namespace CreateAR.SpirePlayer
     public interface IConnection
     {
         /// <summary>
+        /// True iff connection is connected.
+        /// </summary>
+        bool IsConnected { get; }
+
+        /// <summary>
         /// Connect.
         /// </summary>
         /// <param name="environment">The environment to connect to.</param>

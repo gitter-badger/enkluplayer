@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateScene;
@@ -15,24 +16,18 @@ namespace CreateAR.SpirePlayer
     public class ArDesignController : IDesignController
     {
         /// <summary>
-        /// Transactions.
+        /// Dependencies.
         /// </summary>
+        private readonly ApplicationConfig _config;
         private readonly IElementTxnManager _txns;
-        
-        /// <summary>
-        /// Updates elements.
-        /// </summary>
+        private readonly IAppSceneManager _scenes;
         private readonly IElementUpdateDelegate _elementUpdater;
-
-        /// <summary>
-        /// Elements!
-        /// </summary>
         private readonly IElementFactory _elements;
-
-        /// <summary>
-        /// Manages controllers for all elements.
-        /// </summary>
         private readonly IElementControllerManager _controllers;
+        private readonly IConnection _connection;
+        private readonly IVoiceCommandManager _voice;
+        private readonly IUIManager _ui;
+        private readonly IMessageRouter _messages;
 
         /// <summary>
         /// All states.
@@ -68,7 +63,17 @@ namespace CreateAR.SpirePlayer
         /// Root element of static menus.
         /// </summary>
         private ContainerWidget _staticRoot;
-        
+
+        /// <summary>
+        /// Id of play menu.
+        /// </summary>
+        private int _playMenuId;
+
+        /// <summary>
+        /// Saves whether it was edit or play mode that was setup.
+        /// </summary>
+        private bool _setupEdit;
+
         /// <summary>
         /// Config for play mode.
         /// </summary>
@@ -96,13 +101,27 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Manages scenes.
+        /// </summary>
+        public IAppSceneManager Scenes
+        {
+            get { return _scenes; }
+        }
+
+        /// <summary>
         /// Constuctor.
         /// </summary>
         public ArDesignController(
+            ApplicationConfig config,
             IElementTxnManager txns,
+            IAppSceneManager scenes,
             IElementUpdateDelegate elementUpdater,
             IElementFactory elements,
             IElementControllerManager controllers,
+            IConnection connection,
+            IVoiceCommandManager voice,
+            IUIManager ui,
+            IMessageRouter messages,
             ApiController api,
 
             // design states
@@ -112,10 +131,16 @@ namespace CreateAR.SpirePlayer
             ReparentDesignState reparent,
             AnchorDesignState anchors)
         {
+            _config = config;
             _txns = txns;
+            _scenes = scenes;
             _elementUpdater = elementUpdater;
             _elements = elements;
             _controllers = controllers;
+            _connection = connection;
+            _voice = voice;
+            _ui = ui;
+            _messages = messages;
             _api = api;
 
             _states = new IArDesignState[]
@@ -131,40 +156,52 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Setup(PlayModeConfig config, IAppController app)
+        public void Setup(DesignerContext context, IAppController app)
         {
-            Config = config;
+            Config = context.PlayConfig;
             App = app;
+
             _root = new GameObject("Design");
             _root.AddComponent<LineManager>();
-            
+
             if (null == _elementUpdater.Active)
             {
-                Log.Info(this, "No active Scene!");
+                Log.Error(this, "No active Scene!");
+
+                ShowFatalError();
+                return;
+            }
+            
+            if (context.Edit)
+            {
+                if (_connection.IsConnected)
+                {
+                    SetupEdit();
+                }
+                else
+                {
+                    SetupPlay();
+
+                    ShowOfflineModeNotice();
+                }
             }
             else
             {
-                Start();
+                SetupPlay();
             }
         }
-        
+
         /// <inheritdoc />
         public void Teardown()
         {
-            // uninitialize states
-            for (var i = 0; i < _states.Length; i++)
+            if (_setupEdit)
             {
-                _states[i].Uninitialize();
+                TeardownEdit();
             }
-
-            _fsm.Change(null);
-
-            _controllers.Active = false;
-
-            _float.Destroy();
-            _staticRoot.Destroy();
-
-            Object.Destroy(_root);
+            else
+            {
+                TeardownPlay();
+            }
         }
 
         /// <summary>
@@ -191,7 +228,10 @@ namespace CreateAR.SpirePlayer
                 {
                     if (response.Payload.Success)
                     {
+                        // TODO: FIX THIS
+                        /*
                         var sceneId = response.Payload.Body.Id;
+                        
                         _txns
                             .TrackScene(sceneId)
                             .OnSuccess(_ =>
@@ -203,7 +243,7 @@ namespace CreateAR.SpirePlayer
 
                                 token.Succeed(sceneId);
                             })
-                            .OnFailure(token.Fail);
+                            .OnFailure(token.Fail);*/
                     }
                     else
                     {
@@ -224,8 +264,10 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Starts design mode.
         /// </summary>
-        private void Start()
+        private void SetupEdit()
         {
+            _setupEdit = true;
+
             // create dynamic root
             {
                 _float = (FloatWidget)_elements.Element(
@@ -254,6 +296,128 @@ namespace CreateAR.SpirePlayer
 
             // start initial state
             _fsm.Change<MainDesignState>();
+        }
+
+        /// <summary>
+        /// Tears down edit mode.
+        /// </summary>
+        private void TeardownEdit()
+        {
+            // uninitialize states
+            for (var i = 0; i < _states.Length; i++)
+            {
+                _states[i].Uninitialize();
+            }
+
+            _fsm.Change(null);
+
+            _controllers.Active = false;
+
+            _float.Destroy();
+            _staticRoot.Destroy();
+
+            Object.Destroy(_root);
+        }
+
+        /// <summary>
+        /// Starts play.
+        /// </summary>
+        private void SetupPlay()
+        {
+            _setupEdit = false;
+
+            _voice.Register("menu", Voice_OnPlayMenu);
+
+            // for editor only
+            if (UnityEngine.Application.isEditor)
+            {
+                Voice_OnPlayMenu("menu");
+            }
+        }
+
+        /// <summary>
+        /// Tears down play mode.
+        /// </summary>
+        private void TeardownPlay()
+        {
+            _voice.Unregister("menu");
+            _ui.Close(_playMenuId);
+        }
+
+        /// <summary>
+        /// Displays a fatal error popup.
+        /// </summary>
+        private void ShowFatalError()
+        {
+            int id;
+            _ui
+                .Open<ErrorPopupUIView>(
+                    new UIReference
+                    {
+                        UIDataId = UIDataIds.ERROR
+                    },
+                    out id)
+                .OnSuccess(el =>
+                {
+                    el.Message = "An error occurred when playing this app: there are no scenes.";
+                    el.Action = "Okay";
+                    el.OnOk += () =>
+                    {
+                        _ui.Pop();
+
+                        _messages.Publish(MessageTypes.USER_PROFILE);
+                    };
+                })
+                .OnFailure(exception => Log.Error(this, "Could not load error popup : {0}.", exception));
+        }
+
+        /// <summary>
+        /// Displays a menu that offline mode is on.
+        /// </summary>
+        private void ShowOfflineModeNotice()
+        {
+            int id;
+            _ui
+                .Open<ErrorPopupUIView>(
+                    new UIReference
+                    {
+                        UIDataId = UIDataIds.ERROR
+                    },
+                    out id)
+                .OnSuccess(el =>
+                {
+                    el.Message =
+                        "You appear to be offline. Edit mode will be disabled.";
+                    el.Action = "Got it";
+                    el.OnOk += () => _ui.Pop();
+                });
+        }
+
+        /// <summary>
+        /// Called when play menu is called for.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnPlayMenu(string command)
+        {
+            _ui
+                .Open<PlayMenuUIView>(
+                    new UIReference
+                    {
+                        UIDataId = "Play.Main"
+                    },
+                    out _playMenuId)
+                .OnSuccess(el =>
+                {
+                    el.OnEdit += () =>
+                    {
+                        _config.Play.Edit = true;
+
+                        _messages.Publish(MessageTypes.LOAD_APP);
+                    };
+
+                    el.OnBack += () => _messages.Publish(MessageTypes.USER_PROFILE);
+                })
+                .OnFailure(exception => Log.Error(this, "Could not open play menu : {0}.", exception));
         }
     }
 }

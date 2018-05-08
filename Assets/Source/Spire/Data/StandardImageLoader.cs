@@ -98,8 +98,8 @@ namespace CreateAR.SpirePlayer.IUX
 
                 try
                 {
-                    // ReSharper disable once UnusedVariable
-                    var test = new Uri(url);
+                    // ReSharper disable once ObjectCreationAsStatement
+                    new Uri(url);
                 }
                 catch (Exception exception)
                 {

@@ -78,7 +78,17 @@ namespace CreateAR.SpirePlayer
 
             _unsubscribeList.Add(_messages.Subscribe(
                 messageType,
-                @event => handler((T)@event)));
+                @event => handler((T) @event)));
+        }
+
+        /// <summary>
+        /// Listens for a message, but no binding.
+        /// </summary>
+        protected void SubscribeMessage(int messageType, Action<object> handler)
+        {
+            _unsubscribeList.Add(_messages.Subscribe(
+                messageType,
+                handler));
         }
 
         /// <summary>

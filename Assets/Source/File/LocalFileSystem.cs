@@ -26,6 +26,14 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IFileSystem"/>
+        public bool Exists(string uri)
+        {
+            return File.Exists(Path.Combine(
+                _basePath,
+                RelativeUri(uri) + ".local"));
+        }
+
+        /// <inheritdoc cref="IFileSystem"/>
         public IAsyncToken<File<byte[]>> Get(string uri)
         {
             var relUri = RelativeUri(uri);

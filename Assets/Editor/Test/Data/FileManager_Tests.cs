@@ -92,9 +92,7 @@ namespace CreateAR.SpirePlayer.Test.Files
             var data = new Test();
 
             _files
-                .Set(new File<Test>(
-                    uri,
-                    data))
+                .Set(uri, data)
                 .OnSuccess(file =>
                 {
                     Assert.AreEqual(uri, file.Uri);

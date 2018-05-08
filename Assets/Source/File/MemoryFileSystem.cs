@@ -14,6 +14,12 @@ namespace CreateAR.SpirePlayer.Test
         /// </summary>
         private readonly Dictionary<string, File<byte[]>> _files = new Dictionary<string, File<byte[]>>();
 
+        /// <inheritdoc />
+        public bool Exists(string uri)
+        {
+            return _files.ContainsKey(uri);
+        }
+
         /// <inheritdoc cref="IFileSystem"/>
         public IAsyncToken<File<byte[]>> Get(string uri)
         {

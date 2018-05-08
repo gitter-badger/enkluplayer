@@ -52,6 +52,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private DataWriter _writer;
 
+        /// <inheritdoc />
+        public bool IsConnected { get; private set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -79,7 +82,7 @@ namespace CreateAR.SpirePlayer
             _connectToken.OnFinally(_ => _connectToken = null);
 
             // replace protocol (works for https too)
-            var url = environment.Url.Replace("http", "ws");
+            var url = environment.TrellisUrl.Replace("http", "ws");
 
             // shave off version
             var substrings = url.Split('/');
@@ -90,7 +93,7 @@ namespace CreateAR.SpirePlayer
 
             // make websocket url
             var wsUrl = string.Format(
-                "{0}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
+                "{0}/socket.io/?nosession=true&__sails_io_sdk_version=1.2.1&__sails_io_sdk_platform=browser&__sails_io_sdk_language=javascript&EIO=3&transport=websocket",
                 url);
 
             Log.Info(this, "Connecting to {0}.", wsUrl);
@@ -111,8 +114,7 @@ namespace CreateAR.SpirePlayer
                 req.Headers = new WebSocketRequest.HeaderData();
             }
 
-            req.Headers.Authorization = "Bearer " + _config.Network.Credentials(
-                                            _config.Network.Current).Token;
+            req.Headers.Authorization = "Bearer " + _config.Network.Credentials.Token;
 
             _json.Serialize(req, out var bytes);
 
@@ -134,7 +136,7 @@ namespace CreateAR.SpirePlayer
             _socket.Control.MessageType = SocketMessageType.Utf8;
             _socket.SetRequestHeader(
                 "Authorization",
-                "Bearer " + _config.Network.Credentials(_config.Network.Current).Token);
+                "Bearer " + _config.Network.Credentials.Token);
 
             _socket.Closed += Socket_OnClosed;
             _socket.MessageReceived += Socket_OnMessageReceived;
@@ -145,6 +147,8 @@ namespace CreateAR.SpirePlayer
                 await _socket.ConnectAsync(new Uri(wsUrl));
 
                 LogVerbose("Connected to {0}", wsUrl);
+
+                IsConnected = true;
 
                 _writer = new DataWriter(_socket.OutputStream);
 
@@ -159,6 +163,8 @@ namespace CreateAR.SpirePlayer
             }
             catch (Exception exception)
             {
+                LogVerbose("Could not connect : {0}.", exception);
+
                 token.Fail(exception);
             }
         }
@@ -246,7 +252,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Verbose logs.
         /// </summary>
-        [Conditional("LOGGING_VERBOSE")]
+        //[Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);

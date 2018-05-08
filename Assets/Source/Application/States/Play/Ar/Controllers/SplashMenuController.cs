@@ -22,6 +22,12 @@ namespace CreateAR.SpirePlayer
         public ButtonWidget BtnBack{ get; set; }
 
         /// <summary>
+        /// Main menu button.
+        /// </summary>
+        [InjectElements("btn-play")]
+        public ButtonWidget BtnPlay { get; set; }
+
+        /// <summary>
         /// Called when the main menu should be opened.
         /// </summary>
         public event Action OnOpenMenu;
@@ -31,6 +37,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public event Action OnBack;
 
+        /// <summary>
+        /// Called to move to play mode.
+        /// </summary>
+        public event Action OnPlay;
+
         /// <inheritdoc />
         protected override void Awake()
         {
@@ -38,6 +49,19 @@ namespace CreateAR.SpirePlayer
 
             BtnMenu.Activator.OnActivated += Btn_OnActivated;
             BtnBack.Activator.OnActivated += BtnBack_OnActivated;
+            BtnPlay.Activator.OnActivated += BtnPlay_OnActivated;
+        }
+
+        /// <summary>
+        /// Called when the play button has been activated.
+        /// </summary>
+        /// <param name="activatorPrimitive">The activator.</param>
+        private void BtnPlay_OnActivated(ActivatorPrimitive activatorPrimitive)
+        {
+            if (null != OnPlay)
+            {
+                OnPlay();
+            }
         }
 
         /// <summary>

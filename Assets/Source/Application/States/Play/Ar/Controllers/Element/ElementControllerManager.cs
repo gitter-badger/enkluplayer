@@ -34,11 +34,11 @@ namespace CreateAR.SpirePlayer
             /// </summary>
             public readonly List<ElementDesignController> Controllers = new List<ElementDesignController>();
         }
-
+        
         /// <summary>
-        /// Manages the scene.
+        /// Manages app scenes.
         /// </summary>
-        private readonly IElementTxnManager _txns;
+        private readonly IAppSceneManager _scenes;
 
         /// <summary>
         /// Scratch list used in a few methods.
@@ -82,24 +82,18 @@ namespace CreateAR.SpirePlayer
 
                 if (_isActive)
                 {
-                    _txns.OnSceneAfterTracked += Txns_OnSceneAfterTracked;
-                    _txns.OnSceneBeforeUntracked += Txns_OnSceneBeforeUntracked;
-
                     // track all
-                    for (int i = 0, len = _txns.TrackedScenes.Length; i < len; i++)
+                    for (int i = 0, len = _scenes.All.Length; i < len; i++)
                     {
-                        TrackScene(_txns.TrackedScenes[i]);
+                        TrackScene(_scenes.All[i]);
                     }
                 }
                 else
                 {
-                    _txns.OnSceneAfterTracked -= Txns_OnSceneAfterTracked;
-                    _txns.OnSceneBeforeUntracked -= Txns_OnSceneBeforeUntracked;
-
                     // untrack all
-                    for (int i = 0, len = _txns.TrackedScenes.Length; i < len; i++)
+                    for (int i = 0, len = _scenes.All.Length; i < len; i++)
                     {
-                        UntrackScene(_txns.TrackedScenes[i]);
+                        UntrackScene(_scenes.All[i]);
                     }
 
                     // remove all filtered items
@@ -113,9 +107,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ElementControllerManager(IElementTxnManager txns)
+        public ElementControllerManager(IAppSceneManager scenes)
         {
-            _txns = txns;
+            _scenes = scenes;
         }
         
         /// <inheritdoc />
@@ -214,10 +208,10 @@ namespace CreateAR.SpirePlayer
         {
             // gather all unity elements in all scenes
             _elementScratch.Clear();
-            var sceneIds = _txns.TrackedScenes;
+            var sceneIds = _scenes.All;
             for (var i = 0; i < sceneIds.Length; i++)
             {
-                AddUnityElements(_txns.Root(sceneIds[i]), _elementScratch);
+                AddUnityElements(_scenes.Root(sceneIds[i]), _elementScratch);
             }
 
             // compare with current filtered list of elements
@@ -450,7 +444,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="sceneId">Id of the scene.</param>
         private void TrackScene(string sceneId)
         {
-            var root = _txns.Root(sceneId);
+            var root = _scenes.Root(sceneId);
 
             ElementAdded(root);
 
@@ -465,7 +459,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="sceneId">The id of the scene.</param>
         private void UntrackScene(string sceneId)
         {
-            var root = _txns.Root(sceneId);
+            var root = _scenes.Root(sceneId);
 
             // stop listening to root
             root.OnChildAdded -= SceneRoot_OnChildAdded;
@@ -474,25 +468,7 @@ namespace CreateAR.SpirePlayer
             // remove controllers
             ElementRemoved(root);
         }
-
-        /// <summary>
-        /// Called before a scene becomes untracked.
-        /// </summary>
-        /// <param name="sceneId">The id of the scene.</param>
-        private void Txns_OnSceneBeforeUntracked(string sceneId)
-        {
-            UntrackScene(sceneId);
-        }
-
-        /// <summary>
-        /// Called after a scene is tracked.
-        /// </summary>
-        /// <param name="sceneId">The id of the scene.</param>
-        private void Txns_OnSceneAfterTracked(string sceneId)
-        {
-            TrackScene(sceneId);
-        }
-
+        
         /// <summary>
         /// Called after a child is added to a scene.
         /// </summary>

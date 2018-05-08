@@ -8,6 +8,12 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class NullFileSystem : IFileSystem
     {
+        /// <inheritdoc />
+        public bool Exists(string uri)
+        {
+            return false;
+        }
+
         /// <inheritdoc cref="IFileSystem"/>
         public IAsyncToken<File<byte[]>> Get(string uri)
         {
