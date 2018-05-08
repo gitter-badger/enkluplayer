@@ -51,6 +51,16 @@ namespace CreateAR.SpirePlayer
         private readonly IConnection _connection;
 
         /// <summary>
+        /// UI.
+        /// </summary>
+        private readonly IUIManager _ui;
+
+        /// <summary>
+        /// Voice controls.
+        /// </summary>
+        private readonly IVoiceCommandManager _voice;
+
+        /// <summary>
         /// Context for designer.
         /// </summary>
         private DesignerContext _context;
@@ -74,7 +84,9 @@ namespace CreateAR.SpirePlayer
             IScriptRequireResolver resolver,
             IDesignController design,
             IAppController app,
-            IConnection connection)
+            IConnection connection,
+            IUIManager ui,
+            IVoiceCommandManager voice)
         {
             _bootstrapper = bootstrapper;
             _messages = messages;
@@ -82,6 +94,8 @@ namespace CreateAR.SpirePlayer
             _design = design;
             _app = app;
             _connection = connection;
+            _ui = ui;
+            _voice = voice;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -131,11 +145,13 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "PlayApplicationState::Exit()");
 
+            _voice.Unregister("profile");
+
             // teardown app
             _app.Unload();
 
             // teardown designer
-            if (null != _design)
+            if (IsDesignerEnabled())
             {
                 _design.Teardown();
             }
@@ -162,10 +178,51 @@ namespace CreateAR.SpirePlayer
             // initialize with app id
             _app.Play();
 
-            if (_app.CanEdit && _connection.IsConnected)
+            if (IsDesignerEnabled())
             {
                 _design.Setup(_context, _app);
             }
+            else
+            {
+                int id;
+                _ui
+                    .Open<ErrorPopupUIView>(
+                        new UIReference
+                        {
+                            UIDataId = UIDataIds.ERROR
+                        },
+                        out id)
+                    .OnSuccess(el =>
+                    {
+                        el.Message =
+                            "You appear to be offline. Because of this, edit mode has been disabled. At any time, say 'profile' to go back to your profile.";
+                        el.Action = "Got it";
+                        el.OnOk += () =>
+                        {
+                            _ui.Pop();
+
+                            _voice.Register("profile", Voice_OnProfile);
+                        };
+                    });
+            }
+        }
+
+        /// <summary>
+        /// True iff designer is enabled.
+        /// </summary>
+        /// <returns></returns>
+        private bool IsDesignerEnabled()
+        {
+            return _app.CanEdit && _connection.IsConnected;
+        }
+
+        /// <summary>
+        /// Called when voice commands say go back.
+        /// </summary>
+        /// <param name="command">The command that was said.</param>
+        private void Voice_OnProfile(string command)
+        {
+            _messages.Publish(MessageTypes.USER_PROFILE);
         }
     }
 }

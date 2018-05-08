@@ -123,34 +123,23 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<MessageFilter>().To<MessageFilter>().ToSingleton();
                 binder.Bind<ConnectionMessageHandler>().To<ConnectionMessageHandler>().ToSingleton();
                 binder.Bind<BridgeMessageHandler>().To<BridgeMessageHandler>().ToSingleton();
-
+                
                 if (config.Network.Offline)
                 {
+                    binder.Bind<IConnection>().To<OfflineConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
                 }
                 else
                 {
 #if UNITY_EDITOR || UNITY_IOS
+                    binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
                     binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
+                    binder.Bind<IBridge>().To<WebBridge>().ToSingleton();
 #elif NETFX_CORE
                     binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
-#endif
-                }
-
-                if (config.Network.Offline)
-                {
-                    binder.Bind<IConnection>().To<OfflineConnection>().ToSingleton();
-                }
-                else
-                {
-#if UNITY_EDITOR || UNITY_IOS
-                    binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
-#elif UNITY_WEBGL
-                    binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-#elif NETFX_CORE
-                    binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
+                    binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
 #endif
                 }
 
@@ -264,6 +253,11 @@ namespace CreateAR.SpirePlayer
         private ApplicationConfig Config(string path)
         {
             var configAsset = Resources.Load<TextAsset>(path);
+            if (null == configAsset)
+            {
+                return null;
+            }
+
             var serializer = new JsonSerializer();
             var bytes = Encoding.UTF8.GetBytes(configAsset.text);
             object app;

@@ -216,7 +216,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this, "Could not sign in with holocode : {0}.", exception);
+                    Log.Error(this, "Could not sign in with holocode : {0}", exception);
                     
                     _view.ShowMessage("Network error. Are you sure you're connected to the Internet? Please contact support@enklu.com if this persists.");
                 });

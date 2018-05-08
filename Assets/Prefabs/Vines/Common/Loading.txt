@@ -1,5 +1,5 @@
 <?Vine>
-<Float position=(0, 0, 2) focus.visible=false>
+<Float position=(0, 0, 2) focus.visible=false face='camera'>
 	<Image src='res://Art/UI/Logo' width=0.5 />
 	<Caption id='cpn-status' label='Loading app...' fontSize=100 width=1000.0 alignment='MidCenter' position=(0, -0.3, 0) />
 </Float>
