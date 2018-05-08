@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.EmailSignIn;
@@ -14,16 +13,6 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class InputLoginStrategy : ILoginStrategy
     {
-        /// <summary>
-        /// Name of the playmode scene to load.
-        /// </summary>
-        private const string SCENE_NAME = "InputLogin";
-    
-        /// <summary>
-        /// Bootstraps coroutines.
-        /// </summary>
-        private readonly IBootstrapper _bootstrapper;
-
         /// <summary>
         /// Api calls.
         /// </summary>
@@ -42,11 +31,8 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public InputLoginStrategy(
-            IBootstrapper bootstrapper,
-            ApiController api)
+        public InputLoginStrategy(ApiController api)
         {
-            _bootstrapper = bootstrapper;
             _api = api;
         }
 
@@ -57,39 +43,16 @@ namespace CreateAR.SpirePlayer
             _loginToken.OnFinally(_ =>
             {
                 _inputController.gameObject.SetActive(false);
-                
-                // unload scene
-                SceneManager.UnloadSceneAsync(
-                    SceneManager.GetSceneByName(SCENE_NAME));
             });
-
-            // load scene
-            _bootstrapper.BootstrapCoroutine(WaitForScene(
-                SceneManager.LoadSceneAsync(
-                    SCENE_NAME,
-                    LoadSceneMode.Additive)));
-
-            return _loginToken.Token();
-        }
-        
-        /// <summary>
-        /// Waits for scene to load.
-        /// </summary>
-        /// <param name="op">The scene load operation.</param>
-        /// <returns></returns>
-        private IEnumerator WaitForScene(AsyncOperation op)
-        {
-            yield return op;
-
-            Log.Info(this, "Loaded input login scene.");
-
+            
             var root = GameObject.Find("InputLogin");
 
             _inputController = root.GetComponentInChildren<InputLoginController>(true);
             _inputController.OnSubmit += Controller_OnSubmit;
             _inputController.gameObject.SetActive(true);
+
+            return _loginToken.Token();
         }
-        
         /// <summary>
         /// Called when the view controller submit button has been pressed.
         /// </summary>

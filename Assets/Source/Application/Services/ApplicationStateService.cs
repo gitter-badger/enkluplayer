@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
-using UnityEngine.Experimental.UIElements;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -73,10 +72,6 @@ namespace CreateAR.SpirePlayer
             Subscribe<Void>(
                 MessageTypes.APPLICATION_INITIALIZED,
                 Messages_OnApplicationInitialized);
-
-            Subscribe<Type>(
-                MessageTypes.CHANGE_STATE,
-                _states.Change);
 
             Subscribe<Void>(
                 MessageTypes.LOAD_APP,
@@ -219,14 +214,12 @@ namespace CreateAR.SpirePlayer
                     _states.Change<LoginApplicationState>();
                     break;
                 }
-                case ApplicationStateType.Orientation:
-                {
-                case ApplicationStateTypes.ArSetup:
+                case ApplicationStateType.ArSetup:
                 {
                     _states.Change<ArSetupApplicationState>();
                     break;
                 }
-                case ApplicationStateTypes.Orientation:
+                case ApplicationStateType.Orientation:
                 {
                     _states.Change<OrientationApplicationState>();
                     break;
@@ -257,6 +250,10 @@ namespace CreateAR.SpirePlayer
                 state = (ApplicationStateType) Enum.Parse(
                     typeof(ApplicationStateType),
                     _config.State);
+            }
+            catch
+            {
+                //
             }
 
             if (state == ApplicationStateType.Invalid)
