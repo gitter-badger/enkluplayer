@@ -6,6 +6,7 @@ using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateScene;
 using UnityEngine;
+using Vuforia;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
@@ -63,7 +64,17 @@ namespace CreateAR.SpirePlayer
         /// Root element of static menus.
         /// </summary>
         private ContainerWidget _staticRoot;
-        
+
+        /// <summary>
+        /// Id of play menu.
+        /// </summary>
+        private int _playMenuId;
+
+        /// <summary>
+        /// Saves whether it was edit or play mode that was setup.
+        /// </summary>
+        private bool _setupEdit = false;
+
         /// <summary>
         /// Config for play mode.
         /// </summary>
@@ -158,21 +169,7 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Error(this, "No active Scene!");
 
-                int id;
-                _ui
-                    .Open<ErrorPopupUIView>(
-                        new UIReference
-                        {
-                            UIDataId = UIDataIds.ERROR
-                        },
-                        out id)
-                    .OnSuccess(el =>
-                    {
-                        el.Message = "An error occurred when playing this app: there are no scenes.";
-                        el.Action = "Okay";
-                        el.OnOk += () => _messages.Publish(MessageTypes.USER_PROFILE);
-                    })
-                    .OnFailure(exception => Log.Error(this, "Could not load error popup : {0}.", exception));
+                ShowFatalError();
                 return;
             }
             
@@ -180,55 +177,32 @@ namespace CreateAR.SpirePlayer
             {
                 if (_connection.IsConnected)
                 {
-                    StartEdit();
+                    SetupEdit();
                 }
                 else
                 {
-                    StartPlay();
+                    SetupPlay();
 
-                    int id;
-                    _ui
-                        .Open<ErrorPopupUIView>(
-                            new UIReference
-                            {
-                                UIDataId = UIDataIds.ERROR
-                            },
-                            out id)
-                        .OnSuccess(el =>
-                        {
-                            el.Message = "It appears that you are currently offline. Edit mode will be disabled.";
-                            el.Action = "Ok";
-                            el.OnOk += () => _ui.Pop();
-                        })
-                        .OnFailure(exception => Log.Error(this, "Could not open ErrorPopupUIView : {0}.", exception));
+                    ShowOfflineModeNotice();
                 }
             }
             else
             {
-                StartPlay();
+                SetupPlay();
             }
         }
 
         /// <inheritdoc />
         public void Teardown()
         {
-            _voice.Unregister("play");
-            _voice.Unregister("edit");
-
-            // uninitialize states
-            for (var i = 0; i < _states.Length; i++)
+            if (_setupEdit)
             {
-                _states[i].Uninitialize();
+                TeardownEdit();
             }
-
-            _fsm.Change(null);
-
-            _controllers.Active = false;
-
-            _float.Destroy();
-            _staticRoot.Destroy();
-
-            Object.Destroy(_root);
+            else
+            {
+                TeardownPlay();
+            }
         }
 
         /// <summary>
@@ -291,9 +265,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Starts design mode.
         /// </summary>
-        private void StartEdit()
+        private void SetupEdit()
         {
-            _voice.Register("play", Voice_OnPlay);
+            _setupEdit = true;
 
             // create dynamic root
             {
@@ -326,33 +300,125 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Tears down edit mode.
+        /// </summary>
+        private void TeardownEdit()
+        {
+            // uninitialize states
+            for (var i = 0; i < _states.Length; i++)
+            {
+                _states[i].Uninitialize();
+            }
+
+            _fsm.Change(null);
+
+            _controllers.Active = false;
+
+            _float.Destroy();
+            _staticRoot.Destroy();
+
+            Object.Destroy(_root);
+        }
+
+        /// <summary>
         /// Starts play.
         /// </summary>
-        private void StartPlay()
+        private void SetupPlay()
         {
-            _voice.Register("edit", Voice_OnEdit);
+            _setupEdit = false;
+
+            _voice.Register("menu", Voice_OnPlayMenu);
+
+            // for editor only
+            if (UnityEngine.Application.isEditor)
+            {
+                Voice_OnPlayMenu("menu");
+            }
         }
 
         /// <summary>
-        /// Called when the word "play" is heard.
+        /// Tears down play mode.
         /// </summary>
-        /// <param name="command">The voice command.</param>
-        private void Voice_OnPlay(string command)
+        private void TeardownPlay()
         {
-            _config.Play.Edit = false;
-
-            _messages.Publish(MessageTypes.LOAD_APP);
+            _voice.Unregister("menu");
+            _ui.Close(_playMenuId);
         }
 
         /// <summary>
-        /// Called when the word "edit" is heard.
+        /// Displays a fatal error popup.
         /// </summary>
-        /// <param name="command">The voice command.</param>
-        private void Voice_OnEdit(string command)
+        private void ShowFatalError()
         {
-            _config.Play.Edit = true;
+            int id;
+            _ui
+                .Open<ErrorPopupUIView>(
+                    new UIReference
+                    {
+                        UIDataId = UIDataIds.ERROR
+                    },
+                    out id)
+                .OnSuccess(el =>
+                {
+                    el.Message = "An error occurred when playing this app: there are no scenes.";
+                    el.Action = "Okay";
+                    el.OnOk += () =>
+                    {
+                        _ui.Pop();
 
-            _messages.Publish(MessageTypes.LOAD_APP);
+                        _messages.Publish(MessageTypes.USER_PROFILE);
+                    };
+                })
+                .OnFailure(exception => Log.Error(this, "Could not load error popup : {0}.", exception));
+        }
+
+        /// <summary>
+        /// Displays a menu that offline mode is on.
+        /// </summary>
+        private void ShowOfflineModeNotice()
+        {
+            int id;
+            _ui
+                .Open<ErrorPopupUIView>(
+                    new UIReference
+                    {
+                        UIDataId = UIDataIds.ERROR
+                    },
+                    out id)
+                .OnSuccess(el =>
+                {
+                    el.Message =
+                        "You appear to be offline. Edit mode will be disabled.";
+                    el.Action = "Got it";
+                    el.OnOk += () => _ui.Pop();
+                });
+        }
+
+        /// <summary>
+        /// Called when play menu is called for.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnPlayMenu(string command)
+        {
+            _ui
+                .Open<PlayMenuUIView>(
+                    new UIReference
+                    {
+                        UIDataId = "Play.Main"
+                    },
+                    out _playMenuId)
+                .OnSuccess(el =>
+                {
+                    el.OnEdit += () =>
+                    {
+                        _config.Play.Edit = true;
+
+                        _messages.Publish(MessageTypes.LOAD_APP);
+                    };
+
+                    el.OnBack += () => _messages.Publish(MessageTypes.USER_PROFILE);
+                })
+                .OnFailure(exception => Log.Error(this, "Could not open play menu : {0}.", exception));
         }
     }
 }

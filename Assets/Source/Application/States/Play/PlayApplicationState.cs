@@ -49,22 +49,7 @@ namespace CreateAR.SpirePlayer
         /// Manages app.
         /// </summary>
         private readonly IAppController _app;
-
-        /// <summary>
-        /// Connection.
-        /// </summary>
-        private readonly IConnection _connection;
-
-        /// <summary>
-        /// UI.
-        /// </summary>
-        private readonly IUIManager _ui;
-
-        /// <summary>
-        /// Voice controls.
-        /// </summary>
-        private readonly IVoiceCommandManager _voice;
-
+        
         /// <summary>
         /// Context for designer.
         /// </summary>
@@ -79,7 +64,7 @@ namespace CreateAR.SpirePlayer
         /// True iff status has been cleared.
         /// </summary>
         private bool _statusCleared;
-
+        
         /// <summary>
         /// Plays an App.
         /// </summary>
@@ -89,10 +74,7 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IScriptRequireResolver resolver,
             IDesignController design,
-            IAppController app,
-            IConnection connection,
-            IUIManager ui,
-            IVoiceCommandManager voice)
+            IAppController app)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -100,9 +82,6 @@ namespace CreateAR.SpirePlayer
             _resolver = resolver;
             _design = design;
             _app = app;
-            _connection = connection;
-            _ui = ui;
-            _voice = voice;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -154,17 +133,12 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             Log.Info(this, "PlayApplicationState::Exit()");
-
-            _voice.Unregister("profile");
-
+            
             // teardown app
             _app.Unload();
 
             // teardown designer
-            if (IsDesignerEnabled())
-            {
-                _design.Teardown();
-            }
+            _design.Teardown();
             
             // unload playmode scene
             SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(SCENE_NAME));
@@ -188,53 +162,8 @@ namespace CreateAR.SpirePlayer
             // initialize with app id
             _app.Play();
 
-            if (IsDesignerEnabled())
-            {
-                _design.Setup(_context, _app);
-
-                _voice.Register("profile", Voice_OnProfile);
-            }
-            else
-            {
-                int id;
-                _ui
-                    .Open<ErrorPopupUIView>(
-                        new UIReference
-                        {
-                            UIDataId = UIDataIds.ERROR
-                        },
-                        out id)
-                    .OnSuccess(el =>
-                    {
-                        el.Message =
-                            "You appear to be offline. Because of this, edit mode has been disabled. At any time, say 'profile' to go back to your profile.";
-                        el.Action = "Got it";
-                        el.OnOk += () =>
-                        {
-                            _ui.Pop();
-
-                            _voice.Register("profile", Voice_OnProfile);
-                        };
-                    });
-            }
-        }
-
-        /// <summary>
-        /// True iff designer is enabled.
-        /// </summary>
-        /// <returns></returns>
-        private bool IsDesignerEnabled()
-        {
-            return _app.CanEdit && _connection.IsConnected;
-        }
-
-        /// <summary>
-        /// Called when voice commands say go back.
-        /// </summary>
-        /// <param name="command">The command that was said.</param>
-        private void Voice_OnProfile(string command)
-        {
-            _messages.Publish(MessageTypes.USER_PROFILE);
+            // start designer
+            _design.Setup(_context, _app);
         }
     }
 }

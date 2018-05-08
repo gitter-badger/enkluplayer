@@ -64,6 +64,9 @@ MonoBehaviour:
     - UIDataId: Common.Loading
       Element: {fileID: 114042847877177962, guid: 25feb0bbeda04e549961c70ed8438968,
         type: 2}
+    - UIDataId: Play.Main
+      Element: {fileID: 114420890658654474, guid: 9715d0a87d9e0724f97b447754921ba5,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error
