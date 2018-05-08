@@ -287,17 +287,16 @@ namespace CreateAR.SpirePlayer
 #if !UNITY_EDITOR && UNITY_IOS
                 binder.Bind<UnityEngine.XR.iOS.UnityARSessionNativeInterface>().ToValue(UnityEngine.XR.iOS.UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
-                binder.Bind<IWorldAnchorCache>().To<PassthroughWorldAnchorCache>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<ArKitWorldAnchorProvider>().ToSingleton();
 #elif !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
-                binder.Bind<IWorldAnchorCache>().To<UwpWorldAnchorCache>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<HoloLensWorldAnchorProvider>().ToSingleton();
 #else
-                binder.Bind<IWorldAnchorCache>().To<PassthroughWorldAnchorCache>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
                 binder.Bind<IArService>().To<PassthroughArService>().ToSingleton();
 #endif
+
+                binder.Bind<IWorldAnchorCache>().To<StandardWorldAnchorCache>().ToSingleton();
             }
 
             // QR

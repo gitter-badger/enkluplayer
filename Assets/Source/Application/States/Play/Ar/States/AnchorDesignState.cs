@@ -291,7 +291,7 @@ namespace CreateAR.SpirePlayer
                 _design.App.Id,
                 _elementUpdater.Active,
                 data.Id);
-            data.Schema.Ints["version"] = 0;
+            var version = data.Schema.Ints["version"] = 0;
 
             // create placeholder
             var placeholder = Object.Instantiate(
@@ -313,7 +313,7 @@ namespace CreateAR.SpirePlayer
                     Verbose("Successfully exported. Progressing to upload.");
 
                     // save to cache
-                    _cache.Save(url, bytes);
+                    _cache.Save(data.Id, version, bytes);
 
                     _http
                         .PostFile<Trellis.Messages.UploadAnchor.Response>(

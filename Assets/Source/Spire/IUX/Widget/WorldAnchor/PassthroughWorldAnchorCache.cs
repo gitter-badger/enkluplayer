@@ -9,19 +9,19 @@ namespace CreateAR.SpirePlayer.IUX
     public class PassthroughWorldAnchorCache : IWorldAnchorCache
     {
         /// <inheritdoc />
-        public bool Contains(string id)
+        public bool Contains(string id, int version)
         {
             return false;
         }
 
         /// <inheritdoc />
-        public void Save(string id, byte[] bytes)
+        public void Save(string id, int version, byte[] bytes)
         {
             //
         }
 
         /// <inheritdoc />
-        public IAsyncToken<byte[]> Load(string id)
+        public IAsyncToken<byte[]> Load(string id, int version)
         {
             return new AsyncToken<byte[]>(new NotImplementedException());
         }
