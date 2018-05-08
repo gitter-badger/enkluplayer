@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer.Editor
     /// <summary>
     /// Hooks into Unity build pipeline.
     /// </summary>
-    public static class UnityBuilder
+    public static class UnityBuilderHooks
     {
         private static readonly BuildOptions _BuildOptions = BuildOptions.AllowDebugging
             | BuildOptions.Development
