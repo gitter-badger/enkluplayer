@@ -1,6 +1,9 @@
 <?Vine>
-<Float position=(0,0,3) focus.visible=false face='camera'>
-	<Image src='res://Art/UI/alert' width=0.4 position=(-0.6,0,0) />
-	<Caption id='cpn-error' label='There was an error, my friend.' fontSize=120 width=1800.0 alignment='MidLeft' position=(0.3,0,0) />
-	<Button id='btn-ok' position=(0,-0.3,0) label='Try Again' />
-</Float>
+<Container>
+	<Cursor />
+	<Float position=(0,0,3) focus.visible=false face='camera'>
+		<Image src='res://Art/UI/alert' width=0.4 position=(-0.6,0,0) />
+		<Caption id='cpn-error' label='There was an error, my friend.' fontSize=120 width=1800.0 alignment='MidLeft' position=(0.3,0,0) />
+		<Button id='btn-ok' position=(0,-0.3,0) label='Try Again' />
+	</Float>
+</Container>
