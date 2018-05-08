@@ -86,3 +86,7 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: c0e24cc1b32205740ad339e2a6fc5ce2, type: 3}
   - Identifier: Qr.Scanning
     Source: {fileID: 4900000, guid: 17a8ca9aa2743a647a0a6a5a1fb78cdf, type: 3}
+  - Identifier: Common.Error
+    Source: {fileID: 4900000, guid: 25a04d90206ce1f4a9be106e1ed884fc, type: 3}
+  - Identifier: Play.Main
+    Source: {fileID: 4900000, guid: e3bee189c5f3e034aac597483a57723f, type: 3}

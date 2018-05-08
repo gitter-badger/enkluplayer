@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 
@@ -14,11 +13,11 @@ namespace CreateAR.SpirePlayer
         /// Updates elements.
         /// </summary>
         private readonly IElementUpdateDelegate _elements;
-
+        
         /// <summary>
-        /// Manages transactions.
+        /// Scenes.
         /// </summary>
-        private readonly IElementTxnManager _txns;
+        private readonly IAppSceneManager _scenes;
 
         /// <summary>
         /// Designer.
@@ -32,12 +31,12 @@ namespace CreateAR.SpirePlayer
             MessageTypeBinder binder,
             IMessageRouter messages,
             IElementUpdateDelegate elements,
-            IElementTxnManager txns,
+            IAppSceneManager scenes,
             IDesignController designer)
             : base(binder, messages)
         {
             _elements = elements;
-            _txns = txns;
+            _scenes = scenes;
             _designer = designer;
         }
 
@@ -61,7 +60,7 @@ namespace CreateAR.SpirePlayer
         private void OnReparent(BridgeHelperReparentEvent @event)
         {
             // find element + parent
-            var root = _txns.Root(@event.SceneId);
+            var root = _scenes.Root(@event.SceneId);
             if (null == root)
             {
                 Log.Info(this, "Could not find scene root for reparent. SceneId = {0}", @event.SceneId);

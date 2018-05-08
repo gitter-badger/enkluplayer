@@ -28,35 +28,39 @@ namespace CreateAR.SpirePlayer
         public void Load(InjectionBinder binder)
         {
             // main configuration
-            var configAsset = Resources.Load<TextAsset>("ApplicationConfig");
-            Log.Info(this, "ApplicationConfig Source:\n{0}", configAsset.text);
-
-            var serializer = new JsonSerializer();
-            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
-            object app;
-            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
-
-            var config = (ApplicationConfig) app;
+            var config = LoadConfig();
 
             Log.Info(this, "ApplicationConfig:\n{0}", config);
 
             Log.Filter = config.Log.ParsedLevel;
 
             binder.Bind<ApplicationConfig>().ToValue(config);
+            binder.Bind<NetworkConfig>().ToValue(config.Network);
 
             // misc dependencies
             {
                 binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>().ToSingleton();
                 binder.Bind<ISerializer>().To<JsonSerializer>();
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
+                binder.Bind<IDiskCache>().To(new StandardDiskCache("DiskCache"));
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
-                binder.Bind<IHttpService>()
-                    .To(new HttpService(
-                        new JsonSerializer(),
-                        LookupComponent<MonoBehaviourBootstrapper>(),
-                        binder.GetInstance<UrlFormatterCollection>()))
-                    .ToSingleton();
+
+                if (config.Network.Offline)
+                {
+                    Log.Info(this, "Using OfflineHttpService.");
+                    binder.Bind<IHttpService>().To<OfflineHttpService>().ToSingleton();
+                }
+                else
+                {
+                    binder.Bind<IHttpService>()
+                        .To(new HttpService(
+                            new JsonSerializer(),
+                            LookupComponent<MonoBehaviourBootstrapper>(),
+                            binder.GetInstance<UrlFormatterCollection>()))
+                        .ToSingleton();
+                }
+                
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_WSA
@@ -91,6 +95,8 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IElementActionStrategyFactory>().To<ElementActionStrategyFactory>();
                 binder.Bind<IElementTxnTransport>().To<HttpElementTxnTransport>();
                 binder.Bind<IElementTxnStoreFactory>().To<ElementTxnStoreFactory>();
+                binder.Bind<IAppSceneManager>().To<AppSceneManager>().ToSingleton();
+                binder.Bind<IAppDataLoader>().To<AppDataLoader>().ToSingleton();
                 binder.Bind<IElementTxnManager>().To<ElementTxnManager>().ToSingleton();
 
                 // input
@@ -117,17 +123,25 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<MessageFilter>().To<MessageFilter>().ToSingleton();
                 binder.Bind<ConnectionMessageHandler>().To<ConnectionMessageHandler>().ToSingleton();
                 binder.Bind<BridgeMessageHandler>().To<BridgeMessageHandler>().ToSingleton();
-
+                
+                if (config.Network.Offline)
+                {
+                    binder.Bind<IConnection>().To<OfflineConnection>().ToSingleton();
+                    binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
+                }
+                else
+                {
 #if UNITY_EDITOR || UNITY_IOS
-                binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
-                binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+                    binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
+                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
-                binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-                binder.Bind<IBridge>().ToValue(LookupComponent<WebBridge>());
+                    binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
+                    binder.Bind<IBridge>().To<WebBridge>().ToSingleton();
 #elif NETFX_CORE
-                binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
-                binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
+                    binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
+                    binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
 #endif
+                }
 
 
                 // spire-specific bindings
@@ -142,6 +156,21 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ShaderUpdateService>().To<ShaderUpdateService>().ToSingleton();
                     binder.Bind<SceneUpdateService>().To<SceneUpdateService>().ToSingleton();
                     binder.Bind<ElementActionHelperService>().To<ElementActionHelperService>().ToSingleton();
+                    binder.Bind<UserPreferenceService>().To<UserPreferenceService>().ToSingleton();
+                }
+
+                // login
+                {
+                    if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86
+                        || config.ParsedPlatform == RuntimePlatform.WSAPlayerARM
+                        || config.ParsedPlatform == RuntimePlatform.WSAPlayerX64)
+                    {
+                        binder.Bind<ILoginStrategy>().To<QrLoginStrategy>();
+                    }
+                    else
+                    {
+                        binder.Bind<ILoginStrategy>().To<InputLoginStrategy>();
+                    }
                 }
 
                 // application states
@@ -149,10 +178,11 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<TestDataConfig>().To(LookupComponent<TestDataConfig>());
                     binder.Bind<ITestDataController>().To<TestDataController>();
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
-                    binder.Bind<QrLoginApplicationState>().To<QrLoginApplicationState>();
+                    binder.Bind<LoginApplicationState>().To<LoginApplicationState>();
+                    binder.Bind<QrLoginStrategy>().To<QrLoginStrategy>();
                     binder.Bind<OrientationApplicationState>().To<OrientationApplicationState>();
                     binder.Bind<UserProfileApplicationState>().To<UserProfileApplicationState>();
-                    binder.Bind<InputLoginApplicationState>().To<InputLoginApplicationState>();
+                    binder.Bind<InputLoginStrategy>().To<InputLoginStrategy>();
                     binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
@@ -170,7 +200,7 @@ namespace CreateAR.SpirePlayer
                     }
                 }
 
-                binder.Bind<IAppController>().To<AppController>();
+                binder.Bind<IAppController>().To<AppController>().ToSingleton();
                 
                 // service manager + application
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
@@ -187,10 +217,53 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<MaterialUpdateService>(),
                         binder.GetInstance<ShaderUpdateService>(),
                         binder.GetInstance<SceneUpdateService>(),
-                        binder.GetInstance<ElementActionHelperService>()
+                        binder.GetInstance<ElementActionHelperService>(),
+                        binder.GetInstance<UserPreferenceService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }
+        }
+
+        /// <summary>
+        /// Loads application config.
+        /// </summary>
+        /// <returns></returns>
+        private ApplicationConfig LoadConfig()
+        {
+            // TODO: override at JSON level instead.
+
+            // load base
+            var config = Config("ApplicationConfig");
+
+            // load override
+            var overrideConfig = Config("ApplicationConfig.Override");
+            if (null != overrideConfig)
+            {
+                config.Override(overrideConfig);
+            }
+
+            return config;
+        }
+
+        /// <summary>
+        /// Loads a config at a path.
+        /// </summary>
+        /// <param name="path">The path to load the config from.</param>
+        /// <returns></returns>
+        private ApplicationConfig Config(string path)
+        {
+            var configAsset = Resources.Load<TextAsset>(path);
+            if (null == configAsset)
+            {
+                return null;
+            }
+
+            var serializer = new JsonSerializer();
+            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
+            object app;
+            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
+
+            return (ApplicationConfig) app;
         }
 
         /// <summary>
@@ -208,17 +281,16 @@ namespace CreateAR.SpirePlayer
 #if !UNITY_EDITOR && UNITY_IOS
                 binder.Bind<UnityEngine.XR.iOS.UnityARSessionNativeInterface>().ToValue(UnityEngine.XR.iOS.UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
-                binder.Bind<IWorldAnchorCache>().To<PassthroughWorldAnchorCache>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<ArKitWorldAnchorProvider>().ToSingleton();
 #elif !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
-                binder.Bind<IWorldAnchorCache>().To<UwpWorldAnchorCache>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<HoloLensWorldAnchorProvider>().ToSingleton();
 #else
-                binder.Bind<IWorldAnchorCache>().To<PassthroughWorldAnchorCache>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
                 binder.Bind<IArService>().To<PassthroughArService>().ToSingleton();
 #endif
+
+                binder.Bind<IWorldAnchorCache>().To<StandardWorldAnchorCache>().ToSingleton();
             }
 
             // QR
@@ -249,6 +321,12 @@ namespace CreateAR.SpirePlayer
 #else
                 binder.Bind<IVoiceCommandManager>().To<PassthroughVoiceCommandManager>().ToSingleton();
 #endif
+            }
+
+            // UI
+            {
+                binder.Bind<IUIManager>().To<UIManager>().ToSingleton();
+                binder.Bind<IUIElementFactory>().To(LookupComponent<SceneUIElementFactory>());
             }
 
             // IUX
@@ -290,13 +368,24 @@ namespace CreateAR.SpirePlayer
 
                 if (UnityEngine.Application.isEditor)
                 {
-                    if (config.Play.Designer == PlayAppConfig.DesignerType.Desktop)
+                    switch (config.Play.ParsedDesigner)
                     {
-                        binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
-                    }
-                    else
-                    {
-                        binder.Bind<IDesignController>().To<ArDesignController>().ToSingleton();
+                        case PlayAppConfig.DesignerType.Desktop:
+                        {
+                            binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
+                            break;
+                        }
+                        case PlayAppConfig.DesignerType.Ar:
+                        case PlayAppConfig.DesignerType.Mobile:
+                        {
+                            binder.Bind<IDesignController>().To<ArDesignController>().ToSingleton();
+                            break;
+                        }
+                        case PlayAppConfig.DesignerType.None:
+                        {
+                            binder.Bind<IDesignController>().To<PassthroughDesignController>().ToSingleton();
+                            break;
+                        }
                     }
                 }
                 else
@@ -315,7 +404,8 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<JavaScriptParser>().ToValue(new JavaScriptParser(false));
                 binder.Bind<IScriptParser>().To<DefaultScriptParser>().ToSingleton();
-                binder.Bind<IScriptLoader>().To<ScriptLoader>().ToSingleton();
+                binder.Bind<IScriptCache>().To<StandardScriptCache>().ToSingleton();
+                binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();
                 binder.Bind<IScriptRequireResolver>().ToValue(new SpireScriptRequireResolver(binder));
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
 

@@ -21,6 +21,11 @@ namespace CreateAR.SpirePlayer
         private const string SCENE_NAME = "PlayMode";
 
         /// <summary>
+        /// Configuration.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
+        /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
@@ -36,20 +41,20 @@ namespace CreateAR.SpirePlayer
         private readonly IScriptRequireResolver _resolver;
 
         /// <summary>
-        /// Manages app.
-        /// </summary>
-        private readonly IAppController _app;
-
-        /// <summary>
         /// Controls design mode.
         /// </summary>
         private readonly IDesignController _design;
 
         /// <summary>
-        /// Application-wide configuration.
+        /// Manages app.
         /// </summary>
-        private readonly ApplicationConfig _appConfig;
+        private readonly IAppController _app;
         
+        /// <summary>
+        /// Context for designer.
+        /// </summary>
+        private DesignerContext _context;
+
         /// <summary>
         /// Time at which state was entered.
         /// </summary>
@@ -59,31 +64,36 @@ namespace CreateAR.SpirePlayer
         /// True iff status has been cleared.
         /// </summary>
         private bool _statusCleared;
-
+        
         /// <summary>
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
+            ApplicationConfig config,
             IBootstrapper bootstrapper,
             IMessageRouter messages,
             IScriptRequireResolver resolver,
-            IAppController app,
             IDesignController design,
-            ApplicationConfig config)
+            IAppController app)
         {
+            _config = config;
             _bootstrapper = bootstrapper;
             _messages = messages;
             _resolver = resolver;
-            _app = app;
             _design = design;
-            _appConfig = config;
+            _app = app;
         }
 
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
             Log.Info(this, "PlayApplicationState::Enter()");
-            
+
+            _context = new DesignerContext
+            {
+                Edit = _config.Play.Edit
+            };
+
             _enterTime = DateTime.Now;
             _statusCleared = false;
 
@@ -123,15 +133,12 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             Log.Info(this, "PlayApplicationState::Exit()");
-
+            
             // teardown app
-            _app.Uninitialize();
+            _app.Unload();
 
             // teardown designer
-            if (null != _design)
-            {
-                _design.Teardown();
-            }
+            _design.Teardown();
             
             // unload playmode scene
             SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(SCENE_NAME));
@@ -146,28 +153,17 @@ namespace CreateAR.SpirePlayer
         {
             yield return op;
 
-            var config = Object.FindObjectOfType<PlayModeConfig>();
+            var config = _context.PlayConfig = Object.FindObjectOfType<PlayModeConfig>();
             if (null == config)
             {
                 throw new Exception("Could not find PlayModeConfig.");
             }
 
             // initialize with app id
-            _app
-                .Initialize(_appConfig.Play.AppId, config)
-                .OnSuccess(_ =>
-                {
-                    Log.Info(this, "AppController initialized.");
-                    
-                    // TODO: Only if some condition is true
-                    _design.Setup(config, _app);
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this, string.Format(
-                        "Could not initialize App : {0}.",
-                        exception));
-                });
+            _app.Play();
+
+            // start designer
+            _design.Setup(_context, _app);
         }
     }
 }

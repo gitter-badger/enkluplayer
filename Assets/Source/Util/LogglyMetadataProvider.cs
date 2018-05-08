@@ -28,8 +28,7 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.PLAY,
                 _ =>
                 {
-                    var profile = config.Network.Credentials(
-                        config.Network.Current);
+                    var profile = config.Network.Credentials;
 
                     Meta["userId"] = profile.UserId;
                     Meta["email"] = profile.Email;

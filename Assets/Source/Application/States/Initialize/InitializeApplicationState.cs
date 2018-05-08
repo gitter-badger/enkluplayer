@@ -22,7 +22,6 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly IMessageRouter _messages;
-        
         private readonly IBootstrapper _bootstrapper;
         private readonly IAssetManager _assets;
         private readonly IAssetLoader _assetLoader;
@@ -77,31 +76,33 @@ namespace CreateAR.SpirePlayer
 
             // ble
             _ble.Setup(_bleConfig);
-            
+
             // setup URL builders from environment
-            var env = _appConfig.Network.Environment(_appConfig.Network.Current);
-
-            var trellisFormatter = new LoggedUrlFormatter();
-            if (!trellisFormatter.FromUrl(env.TrellisUrl))
             {
-                Log.Error(this, "Invalid trellis URL : " + env.TrellisUrl);
-            }
+                var env = _appConfig.Network.Environment;
 
-            var assetsFormatter = new LoggedUrlFormatter();
-            if (!assetsFormatter.FromUrl(env.AssetsUrl))
-            {
-                Log.Error(this, "Invalid assets URL : " + env.AssetsUrl);
-            }
+                var trellisFormatter = new LoggedUrlFormatter();
+                if (!trellisFormatter.FromUrl(env.TrellisUrl))
+                {
+                    Log.Error(this, "Invalid trellis URL : " + env.TrellisUrl);
+                }
 
-            var thumbsFormatter = new LoggedUrlFormatter();
-            if (!thumbsFormatter.FromUrl(env.ThumbsUrl))
-            {
-                Log.Error(this, "Invalid thumbs URL : " + env.ThumbsUrl);
-            }
+                var assetsFormatter = new LoggedUrlFormatter();
+                if (!assetsFormatter.FromUrl(env.AssetsUrl))
+                {
+                    Log.Error(this, "Invalid assets URL : " + env.AssetsUrl);
+                }
 
-            _urls.Register("trellis", trellisFormatter);
-            _urls.Register("assets", assetsFormatter);
-            _urls.Register("thumbs", thumbsFormatter);
+                var thumbsFormatter = new LoggedUrlFormatter();
+                if (!thumbsFormatter.FromUrl(env.ThumbsUrl))
+                {
+                    Log.Error(this, "Invalid thumbs URL : " + env.ThumbsUrl);
+                }
+
+                _urls.Register("trellis", trellisFormatter);
+                _urls.Register("assets", assetsFormatter);
+                _urls.Register("thumbs", thumbsFormatter);
+            }
 
             // reset assets
             _assets.Uninitialize();

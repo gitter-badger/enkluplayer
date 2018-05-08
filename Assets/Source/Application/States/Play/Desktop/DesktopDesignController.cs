@@ -23,11 +23,11 @@ namespace CreateAR.SpirePlayer
         /// Manages element controllers.
         /// </summary>
         private readonly IElementControllerManager _controllers;
-
+        
         /// <summary>
-        /// Txns.
+        /// Manages app scenes.
         /// </summary>
-        private readonly IElementTxnManager _txns;
+        private readonly IAppSceneManager _scenes;
 
         /// <summary>
         /// Bridge.
@@ -55,21 +55,21 @@ namespace CreateAR.SpirePlayer
         public DesktopDesignController(
             IElementUpdateDelegate elements,
             IElementControllerManager controllers,
-            IElementTxnManager txns,
+            IAppSceneManager scenes,
             IBridge bridge,
             MainCamera mainCamera)
         {
             _elements = elements;
             _controllers = controllers;
-            _txns = txns;
+            _scenes = scenes;
             _bridge = bridge;
             _mainCamera = mainCamera.GetComponent<Camera>();
         }
 
         /// <inheritdoc />
-        public void Setup(PlayModeConfig config, IAppController app)
+        public void Setup(DesignerContext context, IAppController app)
         {
-            _runtimeGizmos = Object.Instantiate(config.RuntimeGizmoSystem);
+            _runtimeGizmos = Object.Instantiate(context.PlayConfig.RuntimeGizmoSystem);
 
             var selectionSettings = _runtimeGizmos.GetComponentInChildren<EditorObjectSelection>().ObjectSelectionSettings;
             selectionSettings.CanSelectSpriteObjects = false;
@@ -117,7 +117,7 @@ namespace CreateAR.SpirePlayer
         public void Select(string sceneId, string elementId)
         {
             // find scene
-            var scene = _txns.Root(sceneId);
+            var scene = _scenes.Root(sceneId);
             if (null == scene)
             {
                 Log.Error(this, "Could not find scene root to select : {0}.", sceneId);
@@ -184,7 +184,7 @@ namespace CreateAR.SpirePlayer
                 _bridge.Send(string.Format(
                     @"{{""type"":{0}, ""sceneId"":""{1}"", ""elementId"":""{2}""}}",
                     MessageTypes.BRIDGE_HELPER_SELECT,
-                    _txns.TrackedScenes[0],
+                    _scenes.All[0],
                     selected.Element.Id));
             }
             else

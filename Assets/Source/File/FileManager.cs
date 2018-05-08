@@ -89,11 +89,13 @@ namespace CreateAR.SpirePlayer
             return false;
         }
 
-        /// <summary>
-        /// Retrieves a file.
-        /// </summary>
-        /// <param name="uri">Uri of the File to retrieve.</param>
-        /// <returns></returns>
+        /// <inheritdoc />
+        public bool Exists(string uri)
+        {
+            return Configuration(uri).FileSystem.Exists(uri);
+        }
+
+        /// <inheritdoc />
         public IAsyncToken<File<T>> Get<T>(string uri)
         {
             var token = new AsyncToken<File<T>>();
@@ -129,21 +131,17 @@ namespace CreateAR.SpirePlayer
 
             return token;
         }
-        
-        /// <summary>
-        /// Sets a file.
-        /// </summary>
-        /// <param name="file">The file to set.</param>
-        /// <returns>The file that was set.</returns>
-        public IAsyncToken<File<T>> Set<T>(File<T> file)
+
+        /// <inheritdoc />
+        public IAsyncToken<File<T>> Set<T>(string uri, T value)
         {
-            var configuration = Configuration(file.Uri);
+            var configuration = Configuration(uri);
             
             // serialize
             byte[] bytes;
             try
             {
-                configuration.Serializer.Serialize(file.Data, out bytes);
+                configuration.Serializer.Serialize(value, out bytes);
             }
             catch (Exception exception)
             {
@@ -155,9 +153,9 @@ namespace CreateAR.SpirePlayer
             configuration
                 .FileSystem
                 .Set(new File<byte[]>(
-                    file.Uri,
+                    uri,
                     bytes))
-                .OnSuccess(_ => token.Succeed(file))
+                .OnSuccess(_ => token.Succeed(new File<T>(uri, value)))
                 .OnFailure(token.Fail);
 
             return token;

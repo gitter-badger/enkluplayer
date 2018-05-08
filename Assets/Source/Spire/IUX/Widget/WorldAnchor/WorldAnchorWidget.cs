@@ -17,7 +17,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IHttpService _http;
 
         /// <summary>
-        /// Caches world anchod data.
+        /// Caches world anchor data.
         /// </summary>
         private readonly IWorldAnchorCache _cache;
 
@@ -100,6 +100,79 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Reloads the world anchor.
+        /// </summary>
+        private void UpdateWorldAnchor()
+        {
+            // abort previous
+            if (null != _downloadToken)
+            {
+                _downloadToken.Abort();
+                _downloadToken = null;
+            }
+
+            IsAnchorLoaded = false;
+            IsAnchorLoading = true;
+
+            var version = _versionProp.Value;
+            if (version < 0)
+            {
+                IsAnchorLoading = false;
+
+                if (null != OnAnchorLoadError)
+                {
+                    OnAnchorLoadError();
+                }
+
+                Log.Error(this, "Invalid version : {0}.", version);
+
+                return;
+            }
+
+            var url = Schema.Get<string>("src").Value;
+            if (string.IsNullOrEmpty(url))
+            {
+                Log.Error(this, string.Format(
+                    "Anchor [{0}] has invalid src prop.",
+                    Id));
+
+                IsAnchorLoading = false;
+
+                if (null != OnAnchorLoadError)
+                {
+                    OnAnchorLoadError();
+                }
+
+                return;
+            }
+
+            // check cache
+            if (_cache.Contains(Id, _versionProp.Value))
+            {
+                Log.Info(this, "World anchor cache hit.");
+
+                _cache
+                    .Load(Id, _versionProp.Value)
+                    .OnSuccess(Import)
+                    .OnFailure(exception =>
+                    {
+                        // on cache error, try downloading
+                        Log.Error(this, "There was an error loading world anchor {0} from the cache : {1}.",
+                            Id,
+                            exception);
+
+                        DownloadAndImport(url);
+                    });
+            }
+            else
+            {
+                Log.Info(this, "World anchor cache miss.");
+
+                DownloadAndImport(url);
+            }
+        }
+
+        /// <summary>
         /// Downloads world anchor data and imports it.
         /// </summary>
         /// <param name="url">Absolute url at which to download.</param>
@@ -112,7 +185,7 @@ namespace CreateAR.SpirePlayer.IUX
                     LogVerbose("Anchor downloaded. Importing.");
 
                     // cache
-                    _cache.Save(url, response.Payload);
+                    _cache.Save(Id, _versionProp.Value, response.Payload);
 
                     Import(response.Payload);
                 })
@@ -174,79 +247,6 @@ namespace CreateAR.SpirePlayer.IUX
                         OnAnchorLoadError();
                     }
                 });
-        }
-
-        /// <summary>
-        /// Reloads the world anchor.
-        /// </summary>
-        private void UpdateWorldAnchor()
-        {
-            // abort previous
-            if (null != _downloadToken)
-            {
-                _downloadToken.Abort();
-                _downloadToken = null;
-            }
-
-            IsAnchorLoaded = false;
-            IsAnchorLoading = true;
-
-            var version = _versionProp.Value;
-            if (version < 0)
-            {
-                IsAnchorLoading = false;
-
-                if (null != OnAnchorLoadError)
-                {
-                    OnAnchorLoadError();
-                }
-
-                Log.Error(this, "Invalid version : {0}.", version);
-
-                return;
-            }
-
-            var url = Schema.Get<string>("src").Value;
-            if (string.IsNullOrEmpty(url))
-            {
-                Log.Error(this, string.Format(
-                    "Anchor [{0}] has invalid src prop.",
-                    Id));
-
-                IsAnchorLoading = false;
-
-                if (null != OnAnchorLoadError)
-                {
-                    OnAnchorLoadError();
-                }
-
-                return;
-            }
-
-            // check cache
-            if (_cache.Contains(url))
-            {
-                Log.Info(this, "World anchor cache hit.");
-
-                _cache
-                    .Load(url)
-                    .OnSuccess(Import)
-                    .OnFailure(exception =>
-                    {
-                        // on cache error, try downloading
-                        Log.Error(this, "There was an error loading world anchor {0} from the cache : {1}.",
-                            Id,
-                            exception);
-
-                        DownloadAndImport(url);
-                    });
-            }
-            else
-            {
-                Log.Info(this, "World anchor cache miss.");
-
-                DownloadAndImport(url);
-            }
         }
 
         /// <summary>

@@ -19,24 +19,49 @@ namespace CreateAR.SpirePlayer
         private readonly IElementTxnManager _txns;
 
         /// <summary>
+        /// Tracks scenes.
+        /// </summary>
+        private readonly IAppSceneManager _scenes;
+
+        /// <summary>
         /// Element transactions currently tracked.
         /// </summary>
         private readonly Dictionary<Element, ElementTxn> _transactions = new Dictionary<Element, ElementTxn>();
 
         /// <summary>
+        /// Backing variable for Active property.
+        /// </summary>
+        private string _active;
+
+        /// <summary>
         /// Active scene.
         /// </summary>
-        public string Active { get; set; }
+        public string Active
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_active))
+                {
+                    _active = _scenes.All.FirstOrDefault();
+                }
+
+                return _active;
+            }
+            set
+            {
+                _active = value;
+            }
+        }
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="txns">Transactions.</param>
-        public ElementUpdateDelegate(IElementTxnManager txns)
+        public ElementUpdateDelegate(
+            IElementTxnManager txns,
+            IAppSceneManager scenes)
         {
             _txns = txns;
-            _txns.OnSceneAfterTracked += Txns_OnSceneTracked;
-            _txns.OnSceneBeforeUntracked += Txns_OnSceneUntracked;
+            _scenes = scenes;
         }
 
         /// <inheritdoc />
@@ -247,32 +272,6 @@ namespace CreateAR.SpirePlayer
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Called when a scene is untracked.
-        /// </summary>
-        /// <param name="id">Scene id.</param>
-        private void Txns_OnSceneUntracked(string id)
-        {
-            if (Active == id)
-            {
-                Active = _txns.TrackedScenes.FirstOrDefault();
-            }
-        }
-
-        /// <summary>
-        /// Called when a scene is tracked.
-        /// </summary>
-        /// <param name="id">Scene id.</param>
-        private void Txns_OnSceneTracked(string id)
-        {
-            Log.Info(this, "Scene tracked.");
-            if (null == Active)
-            {
-                Log.Info(this, "Setting active");
-                Active = id;
-            }
         }
     }
 }

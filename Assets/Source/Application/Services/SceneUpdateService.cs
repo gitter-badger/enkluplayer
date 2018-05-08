@@ -42,7 +42,8 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Received scene create event.");
 
-                    _txns.TrackScene(message.Scene);
+                    // TODO: THIS
+                    //_txns.TrackScene(message.Scene);
                 });
 
             Subscribe<SceneUpdateEvent>(
@@ -66,7 +67,8 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "Received scene delete event.");
 
-                    _txns.UntrackScene(message.Scene);
+                    // TODO: THIS
+                    //_txns.UntrackScene(message.Scene);
                 });
         }
 

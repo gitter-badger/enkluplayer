@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Linq;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Enumeration of the major application states.
     /// </summary>
-    public enum ApplicationStateTypes
+    public enum ApplicationStateType
     {
         Invalid = -1,
         None,
@@ -15,8 +17,7 @@ namespace CreateAR.SpirePlayer
         ReceiveApp,
         Tool,
         Insta,
-        QrLogin,
-        InputLogin,
+        Login,
         UserProfile,
         Orientation
     }
@@ -28,15 +29,15 @@ namespace CreateAR.SpirePlayer
     public class ApplicationConfig
     {
         /// <summary>
-        /// If set, overrides the initial state after application is initialized.
+        /// Sets the initial state. Leave empty for the application to decide.
         /// </summary>
-        public string StateOverride;
+        public string State;
 
         /// <summary>
-        /// If true, simulates webgl player. Used only in the Unity Editor.
+        /// Sets the platform. Leave empty for the application to decide.
         /// </summary>
-        public bool SimulateWebgl;
-
+        public string Platform;
+        
         /// <summary>
         /// Logging.
         /// </summary>
@@ -51,6 +52,29 @@ namespace CreateAR.SpirePlayer
         /// Network configuration.
         /// </summary>
         public NetworkConfig Network = new NetworkConfig();
+
+        /// <summary>
+        /// Platform to use.
+        /// </summary>
+        public RuntimePlatform ParsedPlatform
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Platform))
+                {
+                    try
+                    {
+                        return (RuntimePlatform)Enum.Parse(typeof(RuntimePlatform), Platform);
+                    }
+                    catch
+                    {
+                        // fallthrough
+                    }
+                }
+
+                return UnityEngine.Application.platform;
+            }
+        }
         
         /// <summary>
         /// ToString override.
@@ -62,6 +86,27 @@ namespace CreateAR.SpirePlayer
                 "[ApplicationConfig Network={0}, Play={1}]",
                 Network,
                 Play);
+        }
+
+        /// <summary>
+        /// Applies the settings from a config to this config.
+        /// </summary>
+        /// <param name="overrideConfig">The config to override with.</param>
+        public void Override(ApplicationConfig overrideConfig)
+        {
+            if (!string.IsNullOrEmpty(overrideConfig.Platform))
+            {
+                Platform = overrideConfig.Platform;
+            }
+
+            if (!string.IsNullOrEmpty(overrideConfig.State))
+            {
+                State = overrideConfig.State;
+            }
+
+            Log.Override(overrideConfig.Log);
+            Network.Override(overrideConfig.Network);
+            Play.Override(overrideConfig.Play);
         }
     }
 
@@ -92,6 +137,18 @@ namespace CreateAR.SpirePlayer
                 }
             }
         }
+
+        /// <summary>
+        /// Applies the settings from a config to this config.
+        /// </summary>
+        /// <param name="overrideConfig">The config to override with.</param>
+        public void Override(LogAppConfig overrideConfig)
+        {
+            if (!string.IsNullOrEmpty(overrideConfig.Level))
+            {
+                Level = overrideConfig.Level;
+            }
+        }
     }
     
     /// <summary>
@@ -106,7 +163,8 @@ namespace CreateAR.SpirePlayer
         {
             Ar,
             Desktop,
-            Mobile
+            Mobile,
+            None
         }
 
         /// <summary>
@@ -115,14 +173,19 @@ namespace CreateAR.SpirePlayer
         public string AppId;
 
         /// <summary>
-        /// Type of designer to use.
+        /// Type of designer to use. Leave empty for application to decide.
         /// </summary>
-        public string DesignerOverride;
+        public string Designer;
+
+        /// <summary>
+        /// Edit or play.
+        /// </summary>
+        public bool Edit = true;
 
         /// <summary>
         /// Parses designer name.
         /// </summary>
-        public DesignerType Designer
+        public DesignerType ParsedDesigner
         {
             get
             {
@@ -130,12 +193,29 @@ namespace CreateAR.SpirePlayer
                 {
                     return (DesignerType) Enum.Parse(
                         typeof(DesignerType),
-                        DesignerOverride);
+                        Designer);
                 }
                 catch
                 {
                     return DesignerType.Ar;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Overrides configuration values with passed in values.
+        /// </summary>
+        /// <param name="overrideConfig">Override config.</param>
+        public void Override(PlayAppConfig overrideConfig)
+        {
+            if (!string.IsNullOrEmpty(overrideConfig.AppId))
+            {
+                AppId = overrideConfig.AppId;
+            }
+
+            if (!string.IsNullOrEmpty(overrideConfig.Designer))
+            {
+                Designer = overrideConfig.Designer;
             }
         }
     }
@@ -151,6 +231,11 @@ namespace CreateAR.SpirePlayer
         public float AssetDownloadLagSec;
 
         /// <summary>
+        /// If true, forces all Http requests to fail.
+        /// </summary>
+        public bool Offline;
+
+        /// <summary>
         /// Current environment we should connect to.
         /// </summary>
         public string Current;
@@ -161,56 +246,58 @@ namespace CreateAR.SpirePlayer
         public EnvironmentData[] AllEnvironments;
 
         /// <summary>
-        /// List of credentials.
+        /// List of environments.
         /// </summary>
         public CredentialsData[] AllCredentials;
-        
+
         /// <summary>
-        /// Retrieves an environment by name.
+        /// Retrieves the current environment.
         /// </summary>
-        /// <param name="name">Environment name.</param>
-        /// <returns></returns>
-        public EnvironmentData Environment(string name)
+        public EnvironmentData Environment
         {
-            if (null == AllEnvironments || 0 == AllEnvironments.Length)
+            get
             {
+                if (null == AllEnvironments || 0 == AllEnvironments.Length)
+                {
+                    return null;
+                }
+
+                for (int i = 0, len = AllEnvironments.Length; i < len; i++)
+                {
+                    var env = AllEnvironments[i];
+                    if (env.Name == Current)
+                    {
+                        return env;
+                    }
+                }
+
                 return null;
             }
-
-            for (int i = 0, len = AllEnvironments.Length; i < len; i++)
-            {
-                var env = AllEnvironments[i];
-                if (env.Name == name)
-                {
-                    return env;
-                }
-            }
-
-            return null;
         }
 
         /// <summary>
-        /// Retrieves credentials by environment.
+        /// Retrieves the current credentials.
         /// </summary>
-        /// <param name="env">The name of the environment.</param>
-        /// <returns></returns>
-        public CredentialsData Credentials(string env)
+        public CredentialsData Credentials
         {
-            if (null == AllCredentials || 0 == AllCredentials.Length)
+            get
             {
+                if (null == AllCredentials || 0 == AllCredentials.Length)
+                {
+                    return null;
+                }
+
+                for (int i = 0, len = AllCredentials.Length; i < len; i++)
+                {
+                    var creds = AllCredentials[i];
+                    if (creds.Environment == Current)
+                    {
+                        return creds;
+                    }
+                }
+
                 return null;
             }
-
-            for (int i = 0, len = AllCredentials.Length; i < len; i++)
-            {
-                var creds = AllCredentials[i];
-                if (creds.Environment == env)
-                {
-                    return creds;
-                }
-            }
-
-            return null;
         }
 
         /// <summary>
@@ -222,6 +309,28 @@ namespace CreateAR.SpirePlayer
             return string.Format(
                 "[EnvironmentConfig Count={0}]",
                 null == AllEnvironments ? 0 : AllEnvironments.Length);
+        }
+
+        /// <summary>
+        /// Applies the settings from a config to this config.
+        /// </summary>
+        /// <param name="overrideConfig">The config to override with.</param>
+        public void Override(NetworkConfig overrideConfig)
+        {
+            if (overrideConfig.AssetDownloadLagSec > double.Epsilon)
+            {
+                AssetDownloadLagSec = overrideConfig.AssetDownloadLagSec;
+            }
+
+            if (!string.IsNullOrEmpty(overrideConfig.Current))
+            {
+                Current = overrideConfig.Current;
+            }
+
+            Offline = overrideConfig.Offline;
+
+            // combine arrays
+            AllEnvironments = AllEnvironments.Concat(overrideConfig.AllEnvironments).ToArray();
         }
     }
 

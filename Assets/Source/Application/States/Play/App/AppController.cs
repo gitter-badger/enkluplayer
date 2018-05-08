@@ -11,47 +11,79 @@ namespace CreateAR.SpirePlayer
     public class AppController : IAppController
     {
         /// <summary>
+        /// Loads app data.
+        /// </summary>
+        private readonly IAppDataLoader _loader;
+
+        /// <summary>
+        /// Creates scenes from data and manages them.
+        /// </summary>
+        private readonly IAppSceneManager _scenes;
+
+        /// <summary>
         /// Pipe for all element updates.
         /// </summary>
         private readonly IElementTxnManager _txns;
-        
+
         /// <inheritdoc />
         public string Id { get; private set; }
+
+        /// <inheritdoc />
+        public bool CanEdit { get; private set; }
+
+        /// <inheritdoc />
+        public bool CanDelete { get; private set; }
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public AppController(IElementTxnManager txns)
+        public AppController(
+            IAppDataLoader loader,
+            IAppSceneManager scenes,
+            IElementTxnManager txns)
         {
+            _loader = loader;
+            _scenes = scenes;
             _txns = txns;
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Initialize(string appId, PlayModeConfig config)
+        public IAsyncToken<Void> Load(string appId)
         {
             Id = appId;
 
-            var token = new AsyncToken<Void>();
+            CanEdit = true;
+            CanDelete = true;
 
-            LogVerbose("Initialize().");
-            
-            _txns
-                .Initialize(appId)
-                .OnSuccess(_ =>
-                {
-                    LogVerbose("Txns initialized.");
-                    
-                    token.Succeed(Void.Instance);
-                })
-                .OnFailure(token.Fail);
-            
-            return token;
+            LogVerbose("Load().");
+
+            return _loader.Load(appId);
         }
 
         /// <inheritdoc />
-        public void Uninitialize()
+        public void Unload()
         {
+            _loader.Unload();
+            _scenes.Uninitialize();
             _txns.Uninitialize();
+        }
+
+        /// <inheritdoc />
+        public void Play()
+        {
+            _scenes
+                .Initialize(Id, _loader)
+                .OnSuccess(_ =>
+                {
+                    _txns
+                        .Initialize(Id, _scenes)
+                        .OnSuccess(__ => Log.Info(this, "Txns initialized."))
+                        .OnFailure(exception => Log.Error(this, "Could not initialize txns : {0}.", exception));
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not initialize scenes : {0}.", exception);
+                });
         }
         
         /// <summary>

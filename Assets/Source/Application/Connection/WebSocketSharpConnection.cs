@@ -39,7 +39,10 @@ namespace CreateAR.SpirePlayer
         /// Token for connection.
         /// </summary>
         private AsyncToken<Void> _connectToken;
-        
+
+        /// <inheritdoc />
+        public bool IsConnected { get; private set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -100,7 +103,7 @@ namespace CreateAR.SpirePlayer
         {
             req.Headers = new WebSocketRequest.HeaderData
             {
-                Authorization = "Bearer " + _config.Network.Credentials(_config.Network.Current).Token
+                Authorization = "Bearer " + _config.Network.Credentials.Token
             };
 
             byte[] bytes;
@@ -138,7 +141,9 @@ namespace CreateAR.SpirePlayer
                     "/v1/editor/app/{0}/subscribe",
                     _config.Play.AppId),
                 "post"));
-            
+
+            IsConnected = true;
+
             _connectToken.Succeed(Void.Instance);
         }
         
