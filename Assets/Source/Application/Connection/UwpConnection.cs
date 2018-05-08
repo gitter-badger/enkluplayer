@@ -93,7 +93,7 @@ namespace CreateAR.SpirePlayer
 
             // make websocket url
             var wsUrl = string.Format(
-                "{0}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=0.11.0",
+                "{0}/socket.io/?nosession=true&__sails_io_sdk_version=1.2.1&__sails_io_sdk_platform=browser&__sails_io_sdk_language=javascript&EIO=3&transport=websocket",
                 url);
 
             Log.Info(this, "Connecting to {0}.", wsUrl);
@@ -114,7 +114,7 @@ namespace CreateAR.SpirePlayer
                 req.Headers = new WebSocketRequest.HeaderData();
             }
 
-            req.Headers.Authorization = "Bearer " + _config.Network.Credentials;
+            req.Headers.Authorization = "Bearer " + _config.Network.Credentials.Token;
 
             _json.Serialize(req, out var bytes);
 
