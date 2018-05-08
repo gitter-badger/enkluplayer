@@ -143,7 +143,8 @@ namespace CreateAR.SpirePlayer
             var token = new AsyncToken<Void>();
             
             // get app
-            _helper.Request(
+            _helper
+                .Request(
                     HttpRequestCacher.LoadBehavior.NetworkFirst,
                     "appdata://" + appId + "/scenelist",
                     () => _api.Apps.GetApp(appId))
@@ -156,7 +157,7 @@ namespace CreateAR.SpirePlayer
                         .All(response
                             .Body
                             .Scenes
-                            .Select(scene => LoadScene(appId, scene).OnSuccess(description => _sceneData[appId] = description))
+                            .Select(scene => LoadScene(appId, scene).OnSuccess(description => _sceneData[scene] = description))
                             .ToArray())
                         .OnSuccess(_ =>
                         {

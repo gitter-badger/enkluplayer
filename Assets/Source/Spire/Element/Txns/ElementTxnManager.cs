@@ -65,9 +65,7 @@ namespace CreateAR.SpirePlayer
         {
             _appId = appId;
             _scenes = scenes;
-
-            var token = new AsyncToken<Void>();
-
+            
             foreach (var sceneId in scenes.All)
             {
                 var root = scenes.Root(sceneId);
@@ -76,7 +74,7 @@ namespace CreateAR.SpirePlayer
                 _stores[sceneId] = store;
             }
 
-            return token;
+            return new AsyncToken<Void>(Void.Instance);
         }
 
         /// <inheritdoc />

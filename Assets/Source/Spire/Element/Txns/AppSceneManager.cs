@@ -40,8 +40,6 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Initialize(string appId, IAppDataLoader appData)
         {
-            var token = new AsyncToken<Void>();
-
             foreach (var sceneId in appData.Scenes)
             {
                 var description = appData.Scene(sceneId);
@@ -49,7 +47,7 @@ namespace CreateAR.SpirePlayer
                 _scenes[sceneId] = _elements.Element(description);
             }
 
-            return token;
+            return new AsyncToken<Void>(Void.Instance);
         }
 
         /// <inheritdoc />
