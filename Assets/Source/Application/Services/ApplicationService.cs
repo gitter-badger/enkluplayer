@@ -82,6 +82,16 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Listens for a message, but no binding.
+        /// </summary>
+        protected void SubscribeMessage(int messageType, Action<object> handler)
+        {
+            _unsubscribeList.Add(_messages.Subscribe(
+                messageType,
+                handler));
+        }
+
+        /// <summary>
         /// Silly level logging.
         /// </summary>
         [Conditional("UNITY_EDITOR")]

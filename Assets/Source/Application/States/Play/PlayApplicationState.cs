@@ -21,6 +21,11 @@ namespace CreateAR.SpirePlayer
         private const string SCENE_NAME = "PlayMode";
 
         /// <summary>
+        /// Configuration.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
+        /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
@@ -79,6 +84,7 @@ namespace CreateAR.SpirePlayer
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
+            ApplicationConfig config,
             IBootstrapper bootstrapper,
             IMessageRouter messages,
             IScriptRequireResolver resolver,
@@ -88,6 +94,7 @@ namespace CreateAR.SpirePlayer
             IUIManager ui,
             IVoiceCommandManager voice)
         {
+            _config = config;
             _bootstrapper = bootstrapper;
             _messages = messages;
             _resolver = resolver;
@@ -101,9 +108,12 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
-            Log.Info(this, "PlayApplicationState::Enter({0})", context);
+            Log.Info(this, "PlayApplicationState::Enter()");
 
-            _context = context as DesignerContext ?? new DesignerContext();
+            _context = new DesignerContext
+            {
+                Edit = _config.Play.Edit
+            };
 
             _enterTime = DateTime.Now;
             _statusCleared = false;
@@ -181,6 +191,8 @@ namespace CreateAR.SpirePlayer
             if (IsDesignerEnabled())
             {
                 _design.Setup(_context, _app);
+
+                _voice.Register("profile", Voice_OnProfile);
             }
             else
             {

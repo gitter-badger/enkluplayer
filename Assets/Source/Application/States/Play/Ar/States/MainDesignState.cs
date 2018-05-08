@@ -13,6 +13,11 @@ namespace CreateAR.SpirePlayer
     public class MainDesignState : IArDesignState
     {
         /// <summary>
+        /// Configuration values.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
+        /// <summary>
         /// Messages.
         /// </summary>
         private readonly IMessageRouter _messages;
@@ -61,9 +66,11 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public MainDesignState(
+            ApplicationConfig config,
             IMessageRouter messages,
             IElementControllerManager controllers)
         {
+            _config = config;
             _messages = messages;
             _controllers = controllers;
         }
@@ -84,6 +91,7 @@ namespace CreateAR.SpirePlayer
                 _splash.enabled = false;
                 _splash.OnOpenMenu += Splash_OnOpenMenu;
                 _splash.OnBack += Splash_OnBack;
+                _splash.OnPlay += Splash_OnPlay;
                 dynamicRoot.AddChild(_splash.Root);
             }
 
@@ -178,6 +186,15 @@ namespace CreateAR.SpirePlayer
             {
                 designControllers[i].HideSplashMenu();
             }
+        }
+
+        /// <summary>
+        /// Called when the splash menu wants to play.
+        /// </summary>
+        private void Splash_OnPlay()
+        {
+            _config.Play.Edit = false;
+            _messages.Publish(MessageTypes.LOAD_APP);
         }
 
         /// <summary>

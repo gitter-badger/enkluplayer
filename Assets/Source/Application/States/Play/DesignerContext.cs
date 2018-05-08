@@ -11,7 +11,7 @@
         public bool Edit = true;
 
         /// <summary>
-        /// Configuration values for play.
+        /// Play mode config.
         /// </summary>
         public PlayModeConfig PlayConfig;
     }

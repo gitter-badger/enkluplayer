@@ -101,7 +101,7 @@ namespace CreateAR.SpirePlayer
 
                     _states.Change<UserProfileApplicationState>();
                 });
-            
+
             Subscribe<Void>(
                 MessageTypes.PLAY,
                 _ =>

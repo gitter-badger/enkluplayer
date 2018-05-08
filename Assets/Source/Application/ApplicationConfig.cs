@@ -178,6 +178,11 @@ namespace CreateAR.SpirePlayer
         public string Designer;
 
         /// <summary>
+        /// Edit or play.
+        /// </summary>
+        public bool Edit = true;
+
+        /// <summary>
         /// Parses designer name.
         /// </summary>
         public DesignerType ParsedDesigner

@@ -163,6 +163,8 @@ namespace CreateAR.SpirePlayer
             }
             catch (Exception exception)
             {
+                LogVerbose("Could not connect : {0}.", exception);
+
                 token.Fail(exception);
             }
         }
@@ -250,7 +252,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Verbose logs.
         /// </summary>
-        [Conditional("LOGGING_VERBOSE")]
+        //[Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);

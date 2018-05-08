@@ -18,6 +18,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
+        private readonly ApplicationConfig _config;
         private readonly IElementTxnManager _txns;
         private readonly IAppSceneManager _scenes;
         private readonly IElementUpdateDelegate _elementUpdater;
@@ -101,6 +102,7 @@ namespace CreateAR.SpirePlayer
         /// Constuctor.
         /// </summary>
         public ArDesignController(
+            ApplicationConfig config,
             IElementTxnManager txns,
             IAppSceneManager scenes,
             IElementUpdateDelegate elementUpdater,
@@ -119,6 +121,7 @@ namespace CreateAR.SpirePlayer
             ReparentDesignState reparent,
             AnchorDesignState anchors)
         {
+            _config = config;
             _txns = txns;
             _scenes = scenes;
             _elementUpdater = elementUpdater;
@@ -336,12 +339,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">The voice command.</param>
         private void Voice_OnPlay(string command)
         {
-            _messages.Publish(
-                MessageTypes.CHANGE_STATE,
-                new DesignerContext
-                {
-                    Edit = false
-                });
+            _config.Play.Edit = false;
+
+            _messages.Publish(MessageTypes.LOAD_APP);
         }
 
         /// <summary>
@@ -350,12 +350,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">The voice command.</param>
         private void Voice_OnEdit(string command)
         {
-            _messages.Publish(
-                MessageTypes.CHANGE_STATE,
-                new DesignerContext
-                {
-                    Edit = true
-                });
+            _config.Play.Edit = true;
+
+            _messages.Publish(MessageTypes.LOAD_APP);
         }
     }
 }
