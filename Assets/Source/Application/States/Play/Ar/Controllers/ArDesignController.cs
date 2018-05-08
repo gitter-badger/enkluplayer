@@ -6,7 +6,6 @@ using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateScene;
 using UnityEngine;
-using Vuforia;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
@@ -73,7 +72,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Saves whether it was edit or play mode that was setup.
         /// </summary>
-        private bool _setupEdit = false;
+        private bool _setupEdit;
 
         /// <summary>
         /// Config for play mode.
