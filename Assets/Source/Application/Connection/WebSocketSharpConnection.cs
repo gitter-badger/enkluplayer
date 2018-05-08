@@ -230,7 +230,7 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private static string WsUrl(EnvironmentData environment)
         {
-            var url = environment.Url.Replace("http", "ws");
+            var url = environment.TrellisUrl.Replace("http", "ws");
 
             // shave off version
             var substrings = url.Split('/');

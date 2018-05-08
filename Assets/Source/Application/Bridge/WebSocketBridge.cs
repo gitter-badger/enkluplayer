@@ -230,21 +230,6 @@ namespace CreateAR.SpirePlayer
             _bootstrapper.BootstrapCoroutine(ConsumeMessages());
         }
 
-        /// <summary>
-        /// IDisposable implementation.
-        /// </summary>
-        public void Dispose()
-        {
-            ReleaseUnmanagedResources();
-            GC.SuppressFinalize(this);
-        }
-
-        /// <inheritdoc />
-        public void Initialize(BridgeMessageHandler handler)
-        {
-            _handler = handler;
-        }
-
         /// <inheritdoc />
         public void Uninitialize()
         {
