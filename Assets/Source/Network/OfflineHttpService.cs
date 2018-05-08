@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.DataStructures;
 using CreateAR.Commons.Unity.Http;
 
 namespace CreateAR.SpirePlayer
@@ -57,13 +56,13 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<HttpResponse<T>> PostFile<T>(string url, IEnumerable<Tuple<string, string>> fields, ref byte[] file)
+        public IAsyncToken<HttpResponse<T>> PostFile<T>(string url, IEnumerable<CreateAR.Commons.Unity.DataStructures.Tuple<string, string>> fields, ref byte[] file)
         {
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
         }
 
         /// <inheritdoc />
-        public IAsyncToken<HttpResponse<T>> PutFile<T>(string url, IEnumerable<Tuple<string, string>> fields, ref byte[] file)
+        public IAsyncToken<HttpResponse<T>> PutFile<T>(string url, IEnumerable<CreateAR.Commons.Unity.DataStructures.Tuple<string, string>> fields, ref byte[] file)
         {
             return new AsyncToken<HttpResponse<T>>(new Exception("Network error."));
         }

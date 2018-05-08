@@ -35,6 +35,7 @@ namespace CreateAR.SpirePlayer
             Log.Filter = config.Log.ParsedLevel;
 
             binder.Bind<ApplicationConfig>().ToValue(config);
+            binder.Bind<NetworkConfig>().ToValue(config.Network);
 
             // misc dependencies
             {
@@ -410,7 +411,8 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<JavaScriptParser>().ToValue(new JavaScriptParser(false));
                 binder.Bind<IScriptParser>().To<DefaultScriptParser>().ToSingleton();
-                binder.Bind<IScriptLoader>().To<ScriptLoader>().ToSingleton();
+                binder.Bind<IScriptCache>().To<StandardScriptCache>().ToSingleton();
+                binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();
                 binder.Bind<IScriptRequireResolver>().ToValue(new SpireScriptRequireResolver(binder));
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
 

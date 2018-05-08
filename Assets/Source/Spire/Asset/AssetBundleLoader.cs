@@ -176,6 +176,13 @@ namespace CreateAR.SpirePlayer.Assets
             {
                 yield return new WaitForSecondsRealtime(_config.AssetDownloadLagSec);
             }
+
+            // offline mode
+            if (_config.Offline)
+            {
+                token.Fail(new Exception("Could not load asset: Offline Mode enabled."));
+                yield break;
+            }
             
 #if UNITY_IOS || UNITY_WEBGL
             var request = UnityWebRequest.GetAssetBundle(_url);

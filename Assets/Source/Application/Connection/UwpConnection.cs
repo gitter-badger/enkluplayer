@@ -82,7 +82,7 @@ namespace CreateAR.SpirePlayer
             _connectToken.OnFinally(_ => _connectToken = null);
 
             // replace protocol (works for https too)
-            var url = environment.Url.Replace("http", "ws");
+            var url = environment.TrellisUrl.Replace("http", "ws");
 
             // shave off version
             var substrings = url.Split('/');
@@ -114,8 +114,7 @@ namespace CreateAR.SpirePlayer
                 req.Headers = new WebSocketRequest.HeaderData();
             }
 
-            req.Headers.Authorization = "Bearer " + _config.Network.Credentials(
-                                            _config.Network.Current).Token;
+            req.Headers.Authorization = "Bearer " + _config.Network.Credentials;
 
             _json.Serialize(req, out var bytes);
 
@@ -137,7 +136,7 @@ namespace CreateAR.SpirePlayer
             _socket.Control.MessageType = SocketMessageType.Utf8;
             _socket.SetRequestHeader(
                 "Authorization",
-                "Bearer " + _config.Network.Credentials(_config.Network.Current).Token);
+                "Bearer " + _config.Network.Credentials.Token);
 
             _socket.Closed += Socket_OnClosed;
             _socket.MessageReceived += Socket_OnMessageReceived;
