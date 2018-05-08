@@ -61,11 +61,6 @@
         public const int LOADPROGRESS = 100;
         public const int APPLICATION_SUSPEND = 110;
         public const int APPLICATION_RESUME = 111;
-
-        ///////////////////////////////////////////////////////////////////////
-        // Preview State
-        ///////////////////////////////////////////////////////////////////////
-        public const int PREVIEW = 1000;
         
         ///////////////////////////////////////////////////////////////////////
         // Play State
@@ -78,16 +73,7 @@
         public const int SCENE_DELETE = 3102;
 
         public const int BRIDGE_HELPER_REPARENT = 3990;
-
-        ///////////////////////////////////////////////////////////////////////
-        // Hierarchy State
-        ///////////////////////////////////////////////////////////////////////
-        public const int HIERARCHY = 4000;
-        public const int HIERARCHY_LIST = 4001;
-        public const int HIERARCHY_ADD = 4002;
-        public const int HIERARCHY_REMOVE = 4003;
-        public const int HIERARCHY_UPDATE = 4004;
-        public const int HIERARCHY_SELECT = 4005;
+        public const int BRIDGE_HELPER_SELECT = 3991;
 
         ///////////////////////////////////////////////////////////////////////
         // Tools

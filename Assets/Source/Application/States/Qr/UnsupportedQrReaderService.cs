@@ -23,5 +23,16 @@ namespace CreateAR.SpirePlayer
         {
             return new AsyncToken<Void>(new NotImplementedException());
         }
+
+        /// <summary>
+        /// Forces OnRead to be called.
+        /// </summary>
+        public void ForceRead()
+        {
+            if (null != OnRead)
+            {
+                OnRead(string.Empty);
+            }
+        }
     }
 }

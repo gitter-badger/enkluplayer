@@ -255,8 +255,6 @@ namespace CreateAR.SpirePlayer.Assets
             AsyncToken<Object> token,
             LoadProgress progress)
         {
-            Log.Info(this, "Loading asset from bundle.");
-
             while (!request.isDone)
             {
                 progress.Value = request.progress;
@@ -276,8 +274,6 @@ namespace CreateAR.SpirePlayer.Assets
             }
             else
             {
-                Log.Info(this, "Found asset in bundle.");
-
                 token.Succeed(asset);
             }
         }

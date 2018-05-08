@@ -106,7 +106,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void DownloadAndImport(string url)
         {
             _downloadToken = _http
-                .Download(_http.UrlBuilder.Url(url))
+                .Download(_http.Urls.Url(url))
                 .OnSuccess(response =>
                 {
                     LogVerbose("Anchor downloaded. Importing.");

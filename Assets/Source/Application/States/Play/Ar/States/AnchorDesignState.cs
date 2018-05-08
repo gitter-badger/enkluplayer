@@ -317,7 +317,7 @@ namespace CreateAR.SpirePlayer
 
                     _http
                         .PostFile<Trellis.Messages.UploadAnchor.Response>(
-                            _http.UrlBuilder.Url(url),
+                            _http.Urls.Url(url),
                             new Commons.Unity.DataStructures.Tuple<string, string>[0],
                             ref bytes)
                         .OnSuccess(response =>

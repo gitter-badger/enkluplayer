@@ -17,7 +17,7 @@ namespace CreateAR.Commons.Unity.Storage
         /// <summary>
         /// Root endpoint.
         /// </summary>
-        private const string ENDPOINT_KVS = "/kv";
+        private const string ENDPOINT_KVS = "trellis://kv";
 
         /// <summary>
         /// Dependencies.
@@ -49,7 +49,7 @@ namespace CreateAR.Commons.Unity.Storage
             LogVerbose("GetAll()");
             
             _http
-                .Get<GetAllKvsResponse>(_http.UrlBuilder.Url(ENDPOINT_KVS))
+                .Get<GetAllKvsResponse>(_http.Urls.Url(ENDPOINT_KVS))
                 .OnSuccess(response =>
                 {
                     if (null == response.Payload)
@@ -85,7 +85,7 @@ namespace CreateAR.Commons.Unity.Storage
 
             _http
                 .Post<CreateKvResponse>(
-                    _http.UrlBuilder.Url(ENDPOINT_KVS),
+                    _http.Urls.Url(ENDPOINT_KVS),
                     new CreateKvRequest
                     {
                         value = serialized,
@@ -122,7 +122,7 @@ namespace CreateAR.Commons.Unity.Storage
             LogVerbose("Load({0})", key);
 
             _http
-                .Get<GetKvResponse>(_http.UrlBuilder.Url(string.Format(
+                .Get<GetKvResponse>(_http.Urls.Url(string.Format(
                     "{0}/{1}",
                     ENDPOINT_KVS,
                     key)))
@@ -162,7 +162,7 @@ namespace CreateAR.Commons.Unity.Storage
             
             _http
                 .Put<UpdateKvResponse>(
-                    _http.UrlBuilder.Url(string.Format(
+                    _http.Urls.Url(string.Format(
                         "{0}/{1}",
                         ENDPOINT_KVS,
                         key)),
@@ -203,7 +203,7 @@ namespace CreateAR.Commons.Unity.Storage
             LogVerbose("Delete({0})");
 
             _http
-                .Delete<CreateKvResponse>(_http.UrlBuilder.Url(string.Format(
+                .Delete<CreateKvResponse>(_http.Urls.Url(string.Format(
                         "{0}/{1}",
                         ENDPOINT_KVS,
                         key)))

@@ -77,6 +77,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void DisableUpdates()
         {
+            FinalizeState();
             _updatesEnabled = false;
         }
 

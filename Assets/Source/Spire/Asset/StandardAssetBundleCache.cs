@@ -54,7 +54,7 @@ namespace CreateAR.SpirePlayer.Assets
         /// <summary>
         /// Base path on disk.
         /// </summary>
-        private string _basePath;
+        private readonly string _basePath;
 
         /// <summary>
         /// Constructor.
@@ -67,16 +67,12 @@ namespace CreateAR.SpirePlayer.Assets
         {
             _bootstrapper = bootstrapper;
             _hashProvider = hashing;
-        }
 
-        /// <inheritdoc />
-        public void Initialize()
-        {
             _basePath = Path.Combine(
                 UnityEngine.Application.persistentDataPath,
                 "Bundles");
         }
-
+        
         /// <inheritdoc />
         public bool Contains(string uri)
         {

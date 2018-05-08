@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
@@ -168,7 +169,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _options.Add(option);
 
-                Log.Info(this, "Added {0}. {1} total options.",
+                Verbose("Added {0}. {1} total options.",
                     option,
                     _options.Count);
 
@@ -189,7 +190,7 @@ namespace CreateAR.SpirePlayer.IUX
                     return;
                 }
 
-                Log.Info(this, "Removed {0}. {1} total options.",
+                Verbose("Removed {0}. {1} total options.",
                     option,
                     _options.Count);
                 
@@ -293,6 +294,15 @@ namespace CreateAR.SpirePlayer.IUX
             int next)
         {
             _text.FontSize = next;
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        [Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] parameters)
+        {
+            Log.Info(this, message, parameters);
         }
     }
 }

@@ -162,7 +162,7 @@ namespace CreateAR.SpirePlayer.Editor
 
                 var http = EditorApplication.Http;
                 var url = http
-                    .UrlBuilder
+                    .Urls
                     .Url(relUrl)
                     .Replace("/v1", "");
                 http

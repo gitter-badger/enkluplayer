@@ -119,8 +119,8 @@ namespace CreateAR.SpirePlayer
                     // next, upload anchor
                     _uploadToken = _http
                         .PutFile<Trellis.Messages.UploadAnchor.Response>(
-                            _http.UrlBuilder.Url(string.Format(
-                                "/editor/app/{0}/scene/{1}/anchor/{2}",
+                            _http.Urls.Url(string.Format(
+                                "trellis://editor/app/{0}/scene/{1}/anchor/{2}",
                                 _appId,
                                 _sceneId,
                                 anchorId)),

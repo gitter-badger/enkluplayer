@@ -1,7 +1,5 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -16,19 +14,11 @@ namespace CreateAR.SpirePlayer
         private readonly AnchorDesignController _controller;
 
         /// <summary>
-        /// Provides world anchors.
-        /// </summary>
-        private readonly IWorldAnchorProvider _provider;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
-        public AnchorLoadingState(
-            AnchorDesignController controller,
-            IWorldAnchorProvider provider)
+        public AnchorLoadingState(AnchorDesignController controller)
         {
             _controller = controller;
-            _provider = provider;
         }
 
         /// <inheritdoc />

@@ -750,11 +750,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Logs verbosely.
         /// </summary>
-        /// <param name="message">Verbose logging.</param>
         [Conditional("VERBOSE_LOGGING")]
-        protected void LogVerbose(string message)
+        protected void LogVerbose(string message, params object[] replacements)
         {
-            Log.Info(this, message);
+            Log.Info(this, message, replacements);
         }
     }
 }

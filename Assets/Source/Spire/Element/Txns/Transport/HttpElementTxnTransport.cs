@@ -87,8 +87,8 @@ namespace CreateAR.SpirePlayer
 
             _http
                 .Put<ElementTxnResponse>(
-                    _http.UrlBuilder.Url(string.Format(
-                        "/editor/app/{0}/scene/{1}",
+                    _http.Urls.Url(string.Format(
+                        "trellis://editor/app/{0}/scene/{1}",
                         appId,
                         sceneId)),
                     new ElementTxnRequest(id)

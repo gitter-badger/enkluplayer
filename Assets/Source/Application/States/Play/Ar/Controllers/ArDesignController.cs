@@ -214,7 +214,13 @@ namespace CreateAR.SpirePlayer
 
             return token;
         }
-        
+
+        /// <inheritdoc />
+        public void Select(string sceneId, string elementId)
+        {
+            // ignore forced selection in AR mode
+        }
+
         /// <summary>
         /// Starts design mode.
         /// </summary>

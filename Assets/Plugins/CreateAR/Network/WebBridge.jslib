@@ -39,5 +39,14 @@ mergeInto(
 			window.bridge.log.info("WebBridge.jslib::ready()");
 
 			window.bridge._isReadyCallback();
+		},
+		
+		/**
+		 * Receives a message.
+		 */
+		message: function(message) {
+			window.bridge.log.info("WebBridge.jslib::message()");
+		
+			window.bridge.onMessage(Pointer_stringify(message));
 		}
 	});

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -170,7 +171,18 @@ namespace CreateAR.SpirePlayer.Assets
                         _asset = asset;
                         IsAssetDirty = info != Data;
 
-                        token.Succeed(As<T>());
+                        var cast = As<T>();
+                        if (null == cast)
+                        {
+                            token.Fail(new Exception(string.Format(
+                                "Asset {0} was loaded, but could not be cast from {1} to {2}.",
+                                Data.Guid,
+                                _asset.GetType().Name,
+                                typeof(T).Name)));
+                            return;
+                        }
+
+                        token.Succeed(cast);
 
                         // create copy
                         var watchers = _watch.ToArray();
@@ -288,7 +300,21 @@ namespace CreateAR.SpirePlayer.Assets
             Action watcher = null;
             // ReSharper disable once AccessToModifiedClosure
             Action unwatcher = () => _watch.Remove(watcher);
-            watcher = () => callback(unwatcher, As<T>());
+            watcher = () =>
+            {
+                var cast = As<T>();
+                if (null == cast)
+                {
+                    Log.Error(this,
+                        "Asset {0} was loaded, but could not be cast from {1} to {2}.",
+                        Data.Guid,
+                        _asset.GetType().Name,
+                        typeof(T).Name);
+                    return;
+                }
+
+                callback(unwatcher, cast);
+            };
 
             _watch.Add(watcher);
         }
@@ -303,7 +329,21 @@ namespace CreateAR.SpirePlayer.Assets
         /// <returns></returns>
         public Action Watch<T>(Action<T> callback) where T : Object
         {
-            Action watcher = () => callback(As<T>());
+            Action watcher = () =>
+            {
+                var cast = As<T>();
+                if (null == cast)
+                {
+                    Log.Error(this,
+                        "Asset {0} was loaded, but could not be cast from {1} to {2}.",
+                        Data.Guid,
+                        _asset.GetType().Name,
+                        typeof(T).Name);
+                    return;
+                }
+
+                callback(cast);
+            };
             _watch.Add(watcher);
 
             return () => _watch.Remove(watcher);

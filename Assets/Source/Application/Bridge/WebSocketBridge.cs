@@ -119,6 +119,14 @@ namespace CreateAR.SpirePlayer
             // ReSharper disable once InconsistentNaming
             public string methodName;
 #pragma warning restore 414
+
+            /// <summary>
+            /// Payload, if any.
+            /// </summary>
+#pragma warning disable 414
+            // ReSharper disable once InconsistentNaming
+            public string payload;
+#pragma warning restore 414
         }
 
         /// <summary>
@@ -222,6 +230,21 @@ namespace CreateAR.SpirePlayer
             _bootstrapper.BootstrapCoroutine(ConsumeMessages());
         }
 
+        /// <summary>
+        /// IDisposable implementation.
+        /// </summary>
+        public void Dispose()
+        {
+            ReleaseUnmanagedResources();
+            GC.SuppressFinalize(this);
+        }
+
+        /// <inheritdoc />
+        public void Initialize(BridgeMessageHandler handler)
+        {
+            _handler = handler;
+        }
+
         /// <inheritdoc />
         public void Uninitialize()
         {
@@ -250,6 +273,12 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc />
+        public void Send(string message)
+        {
+            CallMethod("message", _service, message);
+        }
+
         /// <summary>
         /// Called when a client joins a service.
         /// </summary>
@@ -257,15 +286,13 @@ namespace CreateAR.SpirePlayer
         private void Service_OnClientJoined(BridgeService service)
         {
             CallMethod("init", service);
-
+            
             if (_broadcastReady)
             {
                 CallMethod("ready", service);
             }
-            else
-            {
-                _service = service;
-            }
+
+            _service = service;
         }
 
         /// <summary>
@@ -332,7 +359,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="methodName">The message type to send.</param>
         /// <param name="service">Optional service to send to.</param>
-        private void CallMethod(string methodName, BridgeService service)
+        /// <param name="payload">Optional payload.</param>
+        private void CallMethod(string methodName, BridgeService service, string payload = null)
         {
             Log.Info(this, "{0}()", methodName);
 
@@ -340,13 +368,25 @@ namespace CreateAR.SpirePlayer
             _serializer.Serialize(
                 new Method
                 {
-                    methodName = methodName
+                    methodName = methodName,
+                    payload = payload ?? string.Empty
                 },
                 out bytes);
 
-            var payload = Encoding.UTF8.GetString(bytes);
+            if (null == bytes)
+            {
+                throw new Exception("WAT");
+            }
+
+            Log.Info(this, "Send " + bytes.Length + " bytes.");
+
+            if (null == service)
+            {
+                // no connected services
+                return;
+            }
             
-            service.SendMessage(payload);
+            service.SendMessage(Encoding.UTF8.GetString(bytes));
         }
 
         /// <summary>

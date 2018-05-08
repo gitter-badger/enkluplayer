@@ -104,6 +104,12 @@ namespace CreateAR.SpirePlayer
         {
             Binder.Clear();
         }
+        
+        /// <inheritdoc />
+        public void Send(string message)
+        {
+            // TODO
+        }
 
         /// <summary>
         /// Sends a message to connected hosts.
