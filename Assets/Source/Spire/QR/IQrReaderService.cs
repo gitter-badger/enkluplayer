@@ -2,7 +2,7 @@
 using CreateAR.Commons.Unity.Async;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Qr
 {
     /// <summary>
     /// Describes a long running service that scans QR codes through the camera.

@@ -9,6 +9,7 @@ using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
+using CreateAR.SpirePlayer.Qr;
 using CreateAR.SpirePlayer.Vine;
 using CreateAR.Trellis.Messages;
 using Jint.Parser;

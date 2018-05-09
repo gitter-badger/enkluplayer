@@ -70,7 +70,7 @@ namespace CreateAR.SpirePlayer
                 Log.Info(this, "Exception.");
                 int errorId;
                 _ui
-                    .Open<ArErrorViewController>(new UIReference
+                    .Open<MobileArErrorViewController>(new UIReference
                         {
                             UIDataId = UIDataIds.ERROR
                         },
@@ -91,7 +91,7 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Info(this, "Prompt.");
                 _ui
-                    .Open<ArPromptViewController>(new UIReference
+                    .Open<MobileArPromptViewController>(new UIReference
                         {
                             UIDataId = "Ar.Prompt"
                         })
@@ -128,7 +128,7 @@ namespace CreateAR.SpirePlayer
         private void TryFindFloor()
         {
             _ui
-                .Open<ArScanningViewController>(new UIReference
+                .Open<MobileArScanningViewController>(new UIReference
                 {
                     UIDataId = "Ar.Scanning"
                 }, out _scanningId);
@@ -151,7 +151,7 @@ namespace CreateAR.SpirePlayer
                     _ui.Close(_scanningId);
 
                     _ui
-                        .Open<ArErrorViewController>(new UIReference
+                        .Open<MobileArErrorViewController>(new UIReference
                         {
                             UIDataId = UIDataIds.ERROR
                         })

@@ -1,7 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Async;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Qr
 {
     public class ScreenGrabber : MonoBehaviour
     {

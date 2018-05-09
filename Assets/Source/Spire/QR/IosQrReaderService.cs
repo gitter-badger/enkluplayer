@@ -8,7 +8,7 @@ using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Qr
 {
     public class IosQrReaderService : IQrReaderService
     {

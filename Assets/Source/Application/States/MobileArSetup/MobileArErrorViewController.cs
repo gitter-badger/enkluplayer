@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the view for an AR error.
     /// </summary>
-    public class ArErrorViewController : MonoBehaviourUIElement, ICommonErrorView
+    public class MobileArErrorViewController : MonoBehaviourUIElement, ICommonErrorView
     {
         /// <inheritdoc />
         public string Message

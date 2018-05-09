@@ -4,6 +4,7 @@ using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.Qr;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.HoloSignin;
 using UnityEngine;

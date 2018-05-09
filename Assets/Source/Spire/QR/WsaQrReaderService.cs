@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.XR.WSA.WebCam;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Qr
 {
     /// <summary>
     /// Service that reads in QR codes from webcam. This implementation is for Wsa.

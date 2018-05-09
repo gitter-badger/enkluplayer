@@ -9,29 +9,8 @@ using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using ZXing;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Qr
 {
-    public class LumSource : Color32LuminanceSource
-    {
-        public LumSource(int width, int height, Color32[] colors)
-            : base(width, height)
-        {
-            var z = 0;
-
-            for (var y = height - 1; y >= 0; y--)
-            {
-                // This is flipped vertically because the Color32 array from Unity is reversed vertically,
-                // it means that the top most row of the image would be the bottom most in the array.
-                for (var x = 0; x < width; x++)
-                {
-                    var color32 = colors[y * Width + x];
-                    
-                    luminances[z++] = color32.r;
-                }
-            }
-        }
-    }
-    
     /// <summary>
     /// Worker that decodes QR codes and sychronizes with main thread.
     /// </summary>
@@ -190,7 +169,7 @@ namespace CreateAR.SpirePlayer
                         record.Width,
                         record.Height,
                         record.Colors);
-					var result = _reader.Decode(source);
+                    var result = _reader.Decode(source);
 #else
 					var result = _reader.Decode(record.Colors, record.Width, record.Height);
 #endif
@@ -256,6 +235,27 @@ namespace CreateAR.SpirePlayer
                 _resultsReadBuffer.Clear();
 
                 yield return null;
+            }
+        }
+    }
+
+    public class LumSource : Color32LuminanceSource
+    {
+        public LumSource(int width, int height, Color32[] colors)
+            : base(width, height)
+        {
+            var z = 0;
+
+            for (var y = height - 1; y >= 0; y--)
+            {
+                // This is flipped vertically because the Color32 array from Unity is reversed vertically,
+                // it means that the top most row of the image would be the bottom most in the array.
+                for (var x = 0; x < width; x++)
+                {
+                    var color32 = colors[y * Width + x];
+                    
+                    luminances[z++] = color32.r;
+                }
             }
         }
     }
