@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls view for loading app.
     /// </summary>
-    public class LoadAppController : MonoBehaviour
+    public class LoadAppController : MonoBehaviourUIElement
     {
         /// <summary>
         /// Prefab for app list.

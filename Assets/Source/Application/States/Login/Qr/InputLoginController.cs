@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls input view.
     /// </summary>
-    public class InputLoginController : MonoBehaviour
+    public class InputLoginController : MonoBehaviourUIElement
     {
         /// <summary>
         /// Called with username and password.
@@ -40,9 +40,11 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        /// <inheritdoc cref="MonoBehaviour"/>
-        private void OnDisable()
+        /// <inheritdoc />
+        public override void Removed()
         {
+            base.Removed();
+        
             Error.text = string.Empty;
         }
     }

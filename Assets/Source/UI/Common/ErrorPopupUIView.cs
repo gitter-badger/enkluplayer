@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Generic error popup.
     /// </summary>
-    public class ErrorPopupUIView : MonoBehaviourIUXController
+    public class ErrorPopupUIView : MonoBehaviourIUXController, ICommonErrorView
     {
         /// <summary>
         /// Elements.

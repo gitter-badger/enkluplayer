@@ -41,6 +41,11 @@ namespace CreateAR.SpirePlayer
         private readonly ApplicationConfig _config;
 
         /// <summary>
+        /// Credentials.
+        /// </summary>
+        private CredentialsData _credentials;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public LoginApplicationState(
@@ -80,8 +85,6 @@ namespace CreateAR.SpirePlayer
                         Log.Info(this, "Credentials loaded from disk.");
 
                         ConfigureCredentials(file.Data);
-                        
-                        _messages.Publish(MessageTypes.APPLICATION_INITIALIZED);
                     })
                     .OnFailure(exception =>
                     {
@@ -100,13 +103,17 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-            
+            // we wait for the update loop to publish
+            if (null != _credentials)
+            {
+                _messages.Publish(MessageTypes.LOGIN_COMPLETE);
+            }
         }
 
         /// <inheritdoc />
         public void Exit()
         {
-            
+            _credentials = null;
         }
 
         /// <summary>
@@ -169,6 +176,8 @@ namespace CreateAR.SpirePlayer
                 creds.Token = credentials.Token;
                 creds.UserId = credentials.UserId;
             }
+
+            _credentials = credentials;
         }
     }
 }

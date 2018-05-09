@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
+using UnityEngine.Analytics;
 
 namespace CreateAR.SpirePlayer
 {

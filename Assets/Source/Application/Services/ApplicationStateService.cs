@@ -99,10 +99,14 @@ namespace CreateAR.SpirePlayer
 
                     if (_config.ParsedPlatform == RuntimePlatform.IPhonePlayer)
                     {
+                        Log.Info(this, "Passing to MobileArSetupApplicationState.");
+                        
                         _states.Change<MobileArSetupApplicationState>();
                     }
                     else
                     {
+                        Log.Info(this, "Passing to LoadDefaultAppState.");
+                        
                         _states.Change<LoadDefaultAppState>();   
                     }
                 });

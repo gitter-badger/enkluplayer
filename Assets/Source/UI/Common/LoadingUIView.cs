@@ -5,7 +5,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Simple loading UI.
     /// </summary>
-    public class LoadingUIView : MonoBehaviourIUXController
+    public class LoadingUIView : MonoBehaviourIUXController, ICommonLoadingView
     {
         /// <summary>
         /// The caption.

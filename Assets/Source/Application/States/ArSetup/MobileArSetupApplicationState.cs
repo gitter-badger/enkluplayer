@@ -22,20 +22,23 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
         private readonly IBootstrapper _bootstrapper;
         private readonly IArService _ar;
+        private readonly IUIManager _ui;
         private readonly ArServiceConfiguration _arConfig;
-        
-        /// <summary>
-        /// Various views.
-        /// </summary>
-        private ArPromptViewController _prompt;
-        private ArScanningViewController _scanning;
-        private ArErrorViewController _error;
-        private ArInterruptedViewController _interrupted;
         
         /// <summary>
         /// Time at which we started looking for the floor.
         /// </summary>
         private DateTime _startFloorSearch;
+
+        /// <summary>
+        /// UI frame.
+        /// </summary>
+        private UIManagerFrame _frame;
+        
+        /// <summary>
+        /// Scanning view ID.
+        /// </summary>
+        private int _scanningId;
 
         /// <summary>
         /// Constructor.
@@ -44,19 +47,25 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IBootstrapper bootstrapper,
             IArService ar,
+            IUIManager ui,
             ArServiceConfiguration arConfig)
         {
             _messages = messages;
             _bootstrapper = bootstrapper;
             _ar = ar;
+            _ui = ui;
             _arConfig = arConfig;
         }
         
         /// <inheritdoc />
         public void Enter(object context)
         {
+            _frame = _ui.CreateFrame();
+            
             // retrieve views
+            /*
             var root = GameObject.Find("ArSetup");
+             
             _prompt = root.GetComponentInChildren<ArPromptViewController>(true);
             _prompt.OnStartArService += Prompt_OnStartArService;
             
@@ -66,6 +75,7 @@ namespace CreateAR.SpirePlayer
             _error.OnEnableCamera += Error_OnEnableCamera;
 
             _interrupted = root.GetComponentInChildren<ArInterruptedViewController>(true);
+            */
             
             var exception = context as Exception;
             
@@ -73,12 +83,36 @@ namespace CreateAR.SpirePlayer
             // been specifically denied, open the error view
             if (null != exception || CameraUtilsNativeInterface.HasDeniedCameraPermissions)
             {
-                _error.gameObject.SetActive(true);
+                Log.Info(this, "Exception.");
+                int errorId;
+                _ui
+                    .Open<ArErrorViewController>(new UIReference
+                        {
+                            UIDataId = UIDataIds.ERROR
+                        },
+                        out errorId)
+                    .OnSuccess(el =>
+                    {
+                        el.OnOk += () =>
+                        {
+                            _ui.Close(errorId);
+                            
+                            OpenCameraSettings();
+                        };
+                    })
+                    .OnFailure(HandleCriticalFailure);
             }
             // otherwise, open the prompt
             else
             {
-                _prompt.gameObject.SetActive(true);
+                Log.Info(this, "Prompt.");
+                _ui
+                    .Open<ArPromptViewController>(new UIReference
+                        {
+                            UIDataId = "Ar.Prompt"
+                        })
+                    .OnSuccess(el => el.OnStartArService += Prompt_OnStartArService)
+                    .OnFailure(HandleCriticalFailure);
             }
         }
 
@@ -91,10 +125,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            _prompt.OnStartArService -= Prompt_OnStartArService;
-            _prompt.gameObject.SetActive(false);
-            _scanning.gameObject.SetActive(false);
-            _error.gameObject.SetActive(false);
+            _frame.Release();
         }
 
         /// <summary>
@@ -107,6 +138,8 @@ namespace CreateAR.SpirePlayer
             FindFloor()
                 .OnSuccess(_ =>
                 {
+                    _ui.Close(_scanningId);
+                    
                     // watch tracking
                     _ar.OnTrackingOffline += Ar_OnTrackingOffline;
                     _ar.OnTrackingOnline += Ar_OnTrackingOnline;
@@ -118,6 +151,7 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this, "Could not find floor : {0}", exception);
                     
                     // TODO: error prompt
+                    _ui.Close(_scanningId);
                 });
         }
 
@@ -205,7 +239,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Ar tracking lost!");
             
-            _interrupted.gameObject.SetActive(true);
+            //_interrupted.gameObject.SetActive(true);
         }
         
         /// <summary>
@@ -215,7 +249,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Ar tracking back online.");
             
-            _interrupted.gameObject.SetActive(false);
+            //_interrupted.gameObject.SetActive(false);
         }
         
         /// <summary>
@@ -223,9 +257,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Prompt_OnStartArService()
         {
-            _prompt.gameObject.SetActive(false);
-            _scanning.gameObject.SetActive(true);
-            _error.gameObject.SetActive(false);
+            _ui.Pop();
+
+            _ui
+                .Open<ArScanningViewController>(new UIReference
+                {
+                    UIDataId = "Ar.Scanning"
+                }, out _scanningId);
 
             // we have camera permission
             if (CameraUtilsNativeInterface.HasCameraPermissions)
@@ -254,25 +292,32 @@ namespace CreateAR.SpirePlayer
                             Log.Info(this, "Camera access was denied. Show error.");
                             
                             // the user denied access
-                            _scanning.gameObject.SetActive(false);
-                            _error.gameObject.SetActive(true);
+                            /*_scanning.gameObject.SetActive(false);
+                            _error.gameObject.SetActive(true);*/
                         }
                     });
             }
         }
         
         /// <summary>
-        /// Ask to enable camera.
+        /// Opens settings.
         /// </summary>
-        private void Error_OnEnableCamera()
+        private void OpenCameraSettings()
         {
-            _error.gameObject.SetActive(false);
-            _scanning.gameObject.SetActive(true);
-            _prompt.gameObject.SetActive(false);
-            
             Log.Info(this, "Open settings.");
             
             CameraUtilsNativeInterface.OpenSettings();
+        }
+        
+        /// <summary>
+        /// Handles a critical failure.
+        /// </summary>
+        /// <param name="ex">The exception.</param>
+        private void HandleCriticalFailure(Exception ex)
+        {
+            Log.Fatal(this, "Critical failure : {0}.", ex);
+
+            _messages.Publish(MessageTypes.FATAL_ERROR, ex);
         }
     }
 }

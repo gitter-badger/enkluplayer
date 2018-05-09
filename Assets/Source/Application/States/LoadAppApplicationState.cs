@@ -75,7 +75,7 @@ namespace CreateAR.SpirePlayer
 
             // open loading UI
             _ui
-                .Open<LoadingUIView>(new UIReference
+                .Open<ICommonLoadingView>(new UIReference
                 {
                     UIDataId = UIDataIds.LOADING
                 }, out _loadingStackId);
@@ -112,7 +112,7 @@ namespace CreateAR.SpirePlayer
 
                     // show panel
                     _ui
-                        .Open<ErrorPopupUIView>(new UIReference
+                        .Open<ICommonErrorView>(new UIReference
                         {
                             UIDataId = UIDataIds.ERROR
                         }, out _errorStackId)

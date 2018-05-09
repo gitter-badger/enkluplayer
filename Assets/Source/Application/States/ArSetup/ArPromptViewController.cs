@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the view for the AR prompt.
     /// </summary>
-    public class ArPromptViewController : MonoBehaviour
+    public class ArPromptViewController : MonoBehaviourUIElement
     {
         /// <summary>
         /// Called when the AR service should be started.

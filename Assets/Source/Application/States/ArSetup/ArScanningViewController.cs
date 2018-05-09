@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the view for the scanning prompt.
     /// </summary>
-    public class ArScanningViewController : MonoBehaviour
+    public class ArScanningViewController : MonoBehaviourUIElement
     {
         /// <summary>
         /// MS between scan text deltas.

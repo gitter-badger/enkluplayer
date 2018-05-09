@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public virtual void Removed()
         {
-            
+            Destroy(gameObject);
         }
     }
 }

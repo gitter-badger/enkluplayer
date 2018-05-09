@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -41,7 +42,7 @@ namespace CreateAR.SpirePlayer
                 _basePath,
                 relUri) + ".local";
 
-            Log.Info(this, "Get({0})", path);
+            Verbose("Get({0})", path);
             
             byte[] bytes;
             try
@@ -66,7 +67,7 @@ namespace CreateAR.SpirePlayer
                 _basePath,
                 relUri) + ".local";
 
-            Log.Info(this, "Set({0})", path);
+            Verbose("Set({0})", path);
 
             var directory = Path.GetDirectoryName(path) ?? ".";
 
@@ -99,6 +100,15 @@ namespace CreateAR.SpirePlayer
         private string RelativeUri(string uri)
         {
             return uri.Substring(uri.IndexOf("://", StringComparison.Ordinal) + 3);
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        [Conditional("LOGGING_VERBOSE")] 
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }
