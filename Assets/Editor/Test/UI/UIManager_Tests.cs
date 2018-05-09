@@ -1,5 +1,7 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using NUnit.Framework;
+using UnityEditor.VersionControl;
 
 namespace CreateAR.SpirePlayer.Test.UI
 {
@@ -234,6 +236,134 @@ namespace CreateAR.SpirePlayer.Test.UI
 
             Assert.AreEqual(aId, id);
             Assert.AreEqual(3, a.RemovedCalled);
+        }
+
+        [Test]
+        public void PopEvent()
+        {
+            var called = false;
+            
+            _ui.Open<DummyUIElement>(new UIReference());
+            _ui.OnPop += () => called = true;
+            _ui.Pop();
+            
+            Assert.IsTrue(called);
+        }
+        
+        [Test]
+        public void PopEventMultiple()
+        {
+            var called = 0;
+            
+            _ui.Open<DummyUIElement>(new UIReference());
+            _ui.OnPop += () => called++;
+            _ui.Pop();
+            _ui.Pop();
+            
+            Assert.AreEqual(1, called);
+        }
+        
+        [Test]
+        public void PopEventMany()
+        {
+            var called = 0;
+            _ui.OnPop += () => called++;
+
+            var id = 0;
+            _ui.Open<DummyUIElement>(new UIReference(), out id);
+            _ui.Open<DummyUIElement>(new UIReference());
+            _ui.Open<DummyUIElement>(new UIReference());
+            _ui.Open<DummyUIElement>(new UIReference());
+            _ui.Close(id);
+                        
+            Assert.AreEqual(4, called);
+        }
+        
+        [Test]
+        public void PopEventManyReveal()
+        {
+            var called = 0;
+            _ui.OnPop += () => called++;
+
+            var id = 0;
+            _ui.Open<DummyUIElement>(new UIReference(), out id);
+            _ui.Open<DummyUIElement>(new UIReference());
+            _ui.Open<DummyUIElement>(new UIReference());
+            _ui.Open<DummyUIElement>(new UIReference());
+            _ui.Reveal(id);
+                        
+            Assert.AreEqual(3, called);
+        }
+
+        [Test]
+        public void PushEvent()
+        {
+            var called = true;
+            _ui.OnPush += _ => called = true;
+
+            _ui.Open<DummyUIElement>(new UIReference());
+            
+            Assert.IsTrue(called);
+        }
+        
+        [Test]
+        public void Frame()
+        {
+            DummyUIElement a = null, b = null, c = null;
+
+            _ui.Open<DummyUIElement>(new UIReference()).OnSuccess(el => a = el);
+            
+            var frame = _ui.CreateFrame();
+            _ui.Open<DummyUIElement>(new UIReference()).OnSuccess(el => b = el);
+            _ui.Open<DummyUIElement>(new UIReference()).OnSuccess(el => c = el);
+            frame.Release();
+            
+            Assert.AreEqual(3, c.RemovedCalled);
+            Assert.AreEqual(4, b.RemovedCalled);
+            Assert.AreEqual(-1, a.RemovedCalled);
+        }
+        
+        [Test]
+        public void FrameEmpty()
+        {
+            DummyUIElement a = null;
+
+            _ui.Open<DummyUIElement>(new UIReference()).OnSuccess(el => a = el);
+            
+            var frame = _ui.CreateFrame();
+            frame.Release();
+            
+            Assert.AreEqual(-1, a.RemovedCalled);
+        }
+        
+        [Test]
+        public void FrameMultiple()
+        {
+            DummyUIElement a = null, b = null, c = null;
+
+            _ui.Open<DummyUIElement>(new UIReference()).OnSuccess(el => a = el);
+            
+            var aFrame = _ui.CreateFrame();
+            var bFrame = _ui.CreateFrame();
+            _ui.Open<DummyUIElement>(new UIReference()).OnSuccess(el => b = el);
+            _ui.Open<DummyUIElement>(new UIReference()).OnSuccess(el => c = el);
+            aFrame.Release();
+            bFrame.Release();
+            
+            Assert.AreEqual(3, c.RemovedCalled);
+            Assert.AreEqual(4, b.RemovedCalled);
+            Assert.AreEqual(-1, a.RemovedCalled);
+        }
+        
+        [Test]
+        public void FrameMultipleException()
+        {
+            var aFrame = _ui.CreateFrame();
+            _ui.Open<DummyUIElement>(new UIReference());
+            _ui.Open<DummyUIElement>(new UIReference());
+            aFrame.Release();   
+            
+            Assert.Throws<Exception>(aFrame.Release);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 
@@ -53,6 +54,12 @@ namespace CreateAR.SpirePlayer
         /// Element stack.
         /// </summary>
         private readonly List<UIRecord> _records = new List<UIRecord>();
+        
+        /// <inheritdoc />
+        public event Action<int> OnPush;
+        
+        /// <inheritdoc />
+        public event Action OnPop;
 
         /// <summary>
         /// Constructor.
@@ -61,6 +68,13 @@ namespace CreateAR.SpirePlayer
         public UIManager(IUIElementFactory factory)
         {
             _factory = factory;
+        }
+
+        /// <inheritdoc />
+        public IAsyncToken<T> Open<T>(UIReference reference) where T : IUIElement
+        {
+            int _;
+            return Open<T>(reference, out _);
         }
 
         /// <inheritdoc />
@@ -82,6 +96,11 @@ namespace CreateAR.SpirePlayer
 
             // add record to the end
             _records.Add(record);
+            
+            if (null != OnPush)
+            {
+                OnPush(stackId);
+            }
 
             return Async.Map(
                 record
@@ -140,6 +159,11 @@ namespace CreateAR.SpirePlayer
                 }
 
                 _records.RemoveAt(_records.Count - 1);
+                
+                if (null != OnPop)
+                {
+                    OnPop();
+                }
 
                 peek.Load.Abort();
 
@@ -176,6 +200,11 @@ namespace CreateAR.SpirePlayer
             {
                 var record = _records[_records.Count - 1];
                 _records.RemoveAt(_records.Count - 1);
+                
+                if (null != OnPop)
+                {
+                    OnPop();
+                }
 
                 record.Load.Abort();
 
@@ -201,6 +230,11 @@ namespace CreateAR.SpirePlayer
 
             var record = _records[_records.Count - 1];
             _records.RemoveAt(_records.Count - 1);
+            
+            if (null != OnPop)
+            {
+                OnPop();
+            }
 
             record.Load.Abort();
 
@@ -210,6 +244,12 @@ namespace CreateAR.SpirePlayer
             }
 
             return record.StackId;
+        }
+
+        /// <inheritdoc />
+        public UIManagerFrame CreateFrame()
+        {
+            return new UIManagerFrame(this);
         }
     }
 }
