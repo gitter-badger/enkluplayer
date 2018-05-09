@@ -30,9 +30,9 @@ namespace CreateAR.SpirePlayer
                 {
                     var profile = config.Network.Credentials;
 
-                    Meta["userId"] = profile.UserId;
-                    Meta["email"] = profile.Email;
-                    Meta["environment"] = profile.Environment;
+                    Meta["userId"] = profile.UserId ?? string.Empty;
+                    Meta["email"] = profile.Email ?? string.Empty;
+                    Meta["environment"] = profile.Environment ?? string.Empty;
                 });
         }
     }

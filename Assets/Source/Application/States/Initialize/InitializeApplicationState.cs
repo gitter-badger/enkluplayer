@@ -1,14 +1,10 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
-using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -22,12 +18,9 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly IMessageRouter _messages;
-        private readonly IBootstrapper _bootstrapper;
         private readonly IAssetManager _assets;
         private readonly IAssetLoader _assetLoader;
-        private readonly IArService _ar;
         private readonly IBleService _ble;
-        private readonly ArServiceConfiguration _arConfig;
         private readonly BleServiceConfiguration _bleConfig;
         private readonly UrlFormatterCollection _urls;
 
@@ -41,21 +34,15 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public InitializeApplicationState(
             IMessageRouter messages,
-            IBootstrapper bootstrapper,
             IAssetManager assets,
             IAssetLoader assetLoader,
-            IArService ar,
             IBleService ble,
-            ArServiceConfiguration arConfig,
             BleServiceConfiguration bleConfig,
             UrlFormatterCollection urls)
         {
             _messages = messages;
-            _bootstrapper = bootstrapper;
             _assets = assets;
             _assetLoader = assetLoader;
-            _arConfig = arConfig;
-            _ar = ar;
             _bleConfig = bleConfig;
             _ble = ble;
             _urls = urls;

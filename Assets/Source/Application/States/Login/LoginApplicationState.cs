@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.Trellis.Messages;
 
 namespace CreateAR.SpirePlayer
 {
@@ -14,17 +13,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Credentials.
         /// </summary>
-        public const string CREDS = "login://DefaultCredentials";
+        private const string CREDS = "login://DefaultCredentials";
 
         /// <summary>
         /// Reads and writes files.
         /// </summary>
         private readonly IFileManager _files;
-
-        /// <summary>
-        /// Pub/sub interface.
-        /// </summary>
-        private readonly IMessageRouter _messages;
 
         /// <summary>
         /// Http implementation.
@@ -37,14 +31,9 @@ namespace CreateAR.SpirePlayer
         private readonly ILoginStrategy _strategy;
 
         /// <summary>
-        /// Manages UI.
+        /// Messages.
         /// </summary>
-        private readonly IUIManager _ui;
-
-        /// <summary>
-        /// Controls API.
-        /// </summary>
-        private readonly ApiController _api;
+        private readonly IMessageRouter _messages;
 
         /// <summary>
         /// Application wide configuration.
@@ -52,31 +41,20 @@ namespace CreateAR.SpirePlayer
         private readonly ApplicationConfig _config;
 
         /// <summary>
-        /// Manages preferences.
-        /// </summary>
-        private readonly UserPreferenceService _preferences;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         public LoginApplicationState(
             IFileManager files,
-            IMessageRouter messages,
             ILoginStrategy strategy,
             IHttpService http,
-            IUIManager ui,
-            ApiController api,
-            ApplicationConfig config,
-            UserPreferenceService preferences)
+            IMessageRouter messages,
+            ApplicationConfig config)
         {
             _files = files;
-            _messages = messages;
             _strategy = strategy;
             _http = http;
-            _ui = ui;
-            _api = api;
+            _messages = messages;
             _config = config;
-            _preferences = preferences;
 
             _files.Register(
                 "login://",
@@ -101,7 +79,9 @@ namespace CreateAR.SpirePlayer
                         // load into default app
                         Log.Info(this, "Credentials loaded from disk.");
 
-                        LoadDefaultApp(file.Data);
+                        ConfigureCredentials(file.Data);
+                        
+                        _messages.Publish(MessageTypes.APPLICATION_INITIALIZED);
                     })
                     .OnFailure(exception =>
                     {
@@ -146,7 +126,7 @@ namespace CreateAR.SpirePlayer
                         .Set(CREDS, credentials)
                         .OnFailure(exception => Log.Error(this, "Could not write credentials to disk : {0}.", exception));
 
-                    LoadDefaultApp(credentials);
+                    ConfigureCredentials(credentials);
                 })
                 .OnFailure(exception =>
                 {
@@ -155,10 +135,10 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Loads default app.
+        /// Configures systems using the credentials.
         /// </summary>
-        /// <param name="credentials"></param>
-        private void LoadDefaultApp(CredentialsData credentials)
+        /// <param name="credentials">The credentials in question.</param>
+        private void ConfigureCredentials(CredentialsData credentials)
         {
             // setup filemanager
             _files.Register(
@@ -189,85 +169,6 @@ namespace CreateAR.SpirePlayer
                 creds.Token = credentials.Token;
                 creds.UserId = credentials.UserId;
             }
-
-            // load preferences
-            _preferences.ForUser(
-                creds.UserId,
-                prefs =>
-                {
-                    if (string.IsNullOrEmpty(prefs.MostRecentAppId))
-                    {
-                        ChooseDefaultApp();
-                    }
-                    else
-                    {
-                        LoadApp(prefs.MostRecentAppId);
-                    }
-                });
-        }
-
-        /// <summary>
-        /// Chooses a default app by peeking through all user's apps.
-        /// </summary>
-        private void ChooseDefaultApp()
-        {
-            Log.Info(this, "Choosing a default app.");
-
-            _api
-                .Apps
-                .GetMyApps()
-                .OnSuccess(response =>
-                {
-                    // for now, pick first app or null
-                    var apps = response.Payload.Body;
-                    if (apps.Length > 0)
-                    {
-                        LoadApp(apps[0].Id);
-                    }
-                    else
-                    {
-                        
-                        // TODO: user has no apps, display special screen
-                    }
-                })
-                .OnFailure(exception =>
-                {
-                    int id;
-                    _ui
-                        .Open<ErrorPopupUIView>(
-                            new UIReference
-                            {
-                                UIDataId = UIDataIds.ERROR
-                            },
-                            out id)
-                        .OnSuccess(popup =>
-                        {
-                            popup.Message = "Could not retrieve apps. Are you sure you're online?";
-                            popup.Action = "Retry";
-                            popup.OnOk += Retry_OnOk;
-                        });
-                });
-        }
-
-        /// <summary>
-        /// Loads an app.
-        /// </summary>
-        /// <param name="appId">The id of the app to load.</param>
-        private void LoadApp(string appId)
-        {
-            _config.Play.AppId = appId;
-            
-            _messages.Publish(MessageTypes.LOAD_APP);
-        }
-
-        /// <summary>
-        /// Called on retry.
-        /// </summary>
-        private void Retry_OnOk()
-        {
-            _ui.Pop();
-
-            ChooseDefaultApp();
         }
     }
 }

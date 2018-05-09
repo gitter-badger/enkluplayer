@@ -5,7 +5,6 @@ using System.Threading;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.AR;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -15,10 +14,9 @@ namespace CreateAR.SpirePlayer
     {
         private const float CAPTURE_INTERVAL_SEC = 0.5f;
 
-        private readonly IArService _ar;
         private readonly IBootstrapper _bootstrapper;
 
-        private bool _isAlive = false;
+        private bool _isAlive;
         private QrDecoderWorker _worker;
         private Color32[] _colors;
         private DateTime _lastCapture = DateTime.MinValue;
@@ -26,11 +24,8 @@ namespace CreateAR.SpirePlayer
 
         public event Action<string> OnRead;
 
-        public IosQrReaderService(
-            IArService ar,
-            IBootstrapper bootstrapper)
+        public IosQrReaderService(IBootstrapper bootstrapper)
         {
-            _ar = ar;
             _bootstrapper = bootstrapper;
         }
 

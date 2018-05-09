@@ -14,7 +14,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// State that guides a user through AR setup.
     /// </summary>
-    public class ArSetupApplicationState : IState
+    public class MobileArSetupApplicationState : IState
     {
         /// <summary>
         /// Dependencies.
@@ -40,7 +40,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ArSetupApplicationState(
+        public MobileArSetupApplicationState(
             IMessageRouter messages,
             IBootstrapper bootstrapper,
             IArService ar,

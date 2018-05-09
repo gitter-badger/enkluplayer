@@ -32,7 +32,7 @@ namespace CreateAR.SpirePlayer
             InitializeApplicationState initialize,
             LoginApplicationState login,
             OrientationApplicationState orientation,
-            ArSetupApplicationState ar,
+            MobileArSetupApplicationState mobileAr,
             UserProfileApplicationState userProfile,
             LoadAppApplicationState load,
             ReceiveAppApplicationState receive,
@@ -52,7 +52,7 @@ namespace CreateAR.SpirePlayer
                 initialize,
                 login,
                 orientation,
-                ar,
+                mobileAr,
                 userProfile,
                 load,
                 receive,
@@ -89,6 +89,22 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Login requested.");
 
                     _states.Change<LoginApplicationState>();
+                });
+            
+            Subscribe<Void>(
+                MessageTypes.LOGIN_COMPLETE,
+                _ =>
+                {
+                    Log.Info(this, "Login complete.");
+
+                    if (_config.ParsedPlatform == RuntimePlatform.IPhonePlayer)
+                    {
+                        _states.Change<MobileArSetupApplicationState>();
+                    }
+                    else
+                    {
+                        _states.Change<LoadDefaultAppState>();   
+                    }
                 });
 
             Subscribe<Void>(
@@ -135,7 +151,7 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Info(this, "AR setup requested.");
                     
-                    _states.Change<ArSetupApplicationState>();
+                    _states.Change<MobileArSetupApplicationState>();
                 });
             
             Subscribe<Exception>(
@@ -145,7 +161,7 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this, "AR Service exception : {0}.", exception.Message);
                     
                     // head back to AR setup
-                    _states.Change<ArSetupApplicationState>(exception);
+                    _states.Change<MobileArSetupApplicationState>(exception);
                 });
             
             Subscribe<Void>(
@@ -216,7 +232,7 @@ namespace CreateAR.SpirePlayer
                 }
                 case ApplicationStateType.ArSetup:
                 {
-                    _states.Change<ArSetupApplicationState>();
+                    _states.Change<MobileArSetupApplicationState>();
                     break;
                 }
                 case ApplicationStateType.Orientation:

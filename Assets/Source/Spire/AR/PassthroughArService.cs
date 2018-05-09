@@ -44,5 +44,27 @@ namespace CreateAR.SpirePlayer.AR
         {
             //
         }
+
+        /// <summary>
+        /// Forces trackingt offline.
+        /// </summary>
+        public void ForceOffline()
+        {
+            if (null != OnTrackingOffline)
+            {
+                OnTrackingOffline();
+            }
+        }
+
+        /// <summary>
+        /// Forces tracking online.
+        /// </summary>
+        public void ForceOnline()
+        {
+            if (null != OnTrackingOnline)
+            {
+                OnTrackingOnline();
+            }
+        }
     }
 }

@@ -12,7 +12,6 @@
         ///////////////////////////////////////////////////////////////////////
         public const int ARSERVICE_EXCEPTION = -10;
         public const int ARSERVICE_INTERRUPTED = -11;
-
         public const int FATAL_ERROR = -1;
 
         public const int STATUS = 0;
@@ -27,8 +26,9 @@
         public const int LOAD_APP = 5;
         public const int USER_PROFILE = 6;
         public const int LOGIN = 7;
-        public const int AR_SETUP = 9;
         public const int FLOOR_FOUND = 8;
+        public const int AR_SETUP = 9;
+        public const int LOGIN_COMPLETE = 1000001;
 
         // Assets
         public const int RECV_ASSET_LIST = 10;

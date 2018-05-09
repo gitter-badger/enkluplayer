@@ -1,5 +1,8 @@
-﻿using System;
+﻿#if !UNITY_EDITOR && UNITY_WSA
+
+using System;
 using CreateAR.SpirePlayer.AR;
+using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer
 {
@@ -39,7 +42,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Setup(ArServiceConfiguration config)
         {
-            
+            WorldManager.OnPositionalLocatorStateChanged += WorldManager_OnPositionalLocatorStateChanged;
         }
 
         /// <inheritdoc />
@@ -47,5 +50,30 @@ namespace CreateAR.SpirePlayer
         {
             
         }
+        
+        /// <summary>
+        /// Called by MS API.
+        /// </summary>
+        /// <param name="oldState">Previous state.</param>
+        /// <param name="newState">New state.</param>
+        private void WorldManager_OnPositionalLocatorStateChanged(PositionalLocatorState oldState, PositionalLocatorState newState)
+        {
+            if (newState == PositionalLocatorState.Active)
+            {
+                if (null != OnTrackingOnline)
+                {
+                    OnTrackingOnline();
+                }
+            }
+            else
+            {
+                if (null != OnTrackingOffline)
+                {
+                    OnTrackingOffline();
+                }
+            }
+        }
     }
 }
+
+#endif
