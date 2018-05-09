@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Runtime.InteropServices;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -62,21 +61,6 @@ namespace CreateAR.SpirePlayer
         {
             _frame = _ui.CreateFrame();
             
-            // retrieve views
-            /*
-            var root = GameObject.Find("ArSetup");
-             
-            _prompt = root.GetComponentInChildren<ArPromptViewController>(true);
-            _prompt.OnStartArService += Prompt_OnStartArService;
-            
-            _scanning = root.GetComponentInChildren<ArScanningViewController>(true);
-            
-            _error = root.GetComponentInChildren<ArErrorViewController>(true);
-            _error.OnEnableCamera += Error_OnEnableCamera;
-
-            _interrupted = root.GetComponentInChildren<ArInterruptedViewController>(true);
-            */
-            
             var exception = context as Exception;
             
             // if an exception has been passed in OR camera permissions have
@@ -135,6 +119,20 @@ namespace CreateAR.SpirePlayer
         {
             _ar.Setup(_arConfig);
 
+            TryFindFloor();
+        }
+
+        /// <summary>
+        /// Tries to find the floor. May call itself on retries.
+        /// </summary>
+        private void TryFindFloor()
+        {
+            _ui
+                .Open<ArScanningViewController>(new UIReference
+                {
+                    UIDataId = "Ar.Scanning"
+                }, out _scanningId);
+            
             FindFloor()
                 .OnSuccess(_ =>
                 {
@@ -150,11 +148,28 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Error(this, "Could not find floor : {0}", exception);
                     
-                    // TODO: error prompt
                     _ui.Close(_scanningId);
+
+                    _ui
+                        .Open<ArErrorViewController>(new UIReference
+                        {
+                            UIDataId = UIDataIds.ERROR
+                        })
+                        .OnSuccess(el =>
+                        {
+                            el.Message =
+                                "Enklu could not find a suitable surface. For best results, point the camera at a surface and move slowly from side to side.";
+                            el.Action = "Try again";
+                            el.OnOk += () =>
+                            {
+                                _ui.Pop();
+
+                                TryFindFloor();
+                            };
+                        });
                 });
         }
-
+        
         /// <summary>
         /// Finds the floor, tags it, then resolves the token.
         /// 
@@ -258,12 +273,6 @@ namespace CreateAR.SpirePlayer
         private void Prompt_OnStartArService()
         {
             _ui.Pop();
-
-            _ui
-                .Open<ArScanningViewController>(new UIReference
-                {
-                    UIDataId = "Ar.Scanning"
-                }, out _scanningId);
 
             // we have camera permission
             if (CameraUtilsNativeInterface.HasCameraPermissions)
