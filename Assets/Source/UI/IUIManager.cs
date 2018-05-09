@@ -1,53 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 
 namespace CreateAR.SpirePlayer
 {
-    public class UIManagerFrame
-    {
-        private readonly IUIManager _ui;
-        private readonly Stack<int> _ids = new Stack<int>();
-        private bool _isReleased;
-
-        public UIManagerFrame(IUIManager ui)
-        {
-            _ui = ui;
-            
-            _ui.OnPop += UI_OnPop;
-            _ui.OnPush += UI_OnPush;
-        }
-
-        private void UI_OnPop()
-        {
-            _ids.Pop();
-        }
-        
-        private void UI_OnPush(int stackId)
-        {
-            _ids.Push(stackId);
-        }
-
-        public void Release()
-        {
-            if (_isReleased)
-            {
-                throw new Exception("Frame already released.");
-            }
-
-            _isReleased = true;
-
-            _ui.OnPop -= UI_OnPop;
-            _ui.OnPush -= UI_OnPush;
-
-            while (_ids.Count > 0)
-            {
-                _ids.Pop();
-                _ui.Pop();
-            }
-        }
-    }
-
     /// <summary>
     /// Describes an object that creates and manages UI.
     /// </summary>
