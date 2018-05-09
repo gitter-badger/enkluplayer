@@ -125,7 +125,7 @@ namespace CreateAR.SpirePlayer
 
                         int errorId;
                         _ui
-                            .Open<ErrorPopupUIView>(
+                            .Open<ICommonErrorView>(
                                 new UIReference
                                 {
                                     UIDataId = UIDataIds.ERROR
@@ -149,7 +149,7 @@ namespace CreateAR.SpirePlayer
 
                     int errorId;
                     _ui
-                        .Open<ErrorPopupUIView>(
+                        .Open<ICommonErrorView>(
                             new UIReference
                             {
                                 UIDataId = UIDataIds.ERROR
@@ -189,16 +189,6 @@ namespace CreateAR.SpirePlayer
 
             _messages.Publish(MessageTypes.LOAD_APP);
         }
-
-        /*
-        /// <summary>
-        /// Called when the user asks to take a world scan.
-        /// </summary>
-        private void UserSplash_OnWorldScan()
-        {
-            _messages.Publish(MessageTypes.MESHCAPTURE);
-        }
-        */
 
         /// <summary>
         /// Called to try retrieving apps.
