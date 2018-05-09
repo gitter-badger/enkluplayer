@@ -5,7 +5,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Loading view.
     /// </summary>
-    public class MobileArLoadingViewController : MonoBehaviourUIElement, ICommonLoadingView
+    public class MobileLoadingUIView : MonoBehaviourUIElement, ICommonLoadingView
     {
         /// <summary>
         /// Text.

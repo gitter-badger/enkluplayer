@@ -70,7 +70,7 @@ namespace CreateAR.SpirePlayer
                 Log.Info(this, "Exception.");
                 int errorId;
                 _ui
-                    .Open<MobileArErrorViewController>(new UIReference
+                    .Open<MobileErrorUIView>(new UIReference
                         {
                             UIDataId = UIDataIds.ERROR
                         },
@@ -151,7 +151,7 @@ namespace CreateAR.SpirePlayer
                     _ui.Close(_scanningId);
 
                     _ui
-                        .Open<MobileArErrorViewController>(new UIReference
+                        .Open<MobileErrorUIView>(new UIReference
                         {
                             UIDataId = UIDataIds.ERROR
                         })

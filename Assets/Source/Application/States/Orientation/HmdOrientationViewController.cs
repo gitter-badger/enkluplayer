@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// Manu for orientation adjustment menu.
     /// </summary>
     [InjectVine("Orientation.Adjust")]
-    public class OrientationViewController : InjectableIUXController
+    public class HmdOrientationViewController : InjectableIUXController
     {
         /// <summary>
         /// Voice command manager.

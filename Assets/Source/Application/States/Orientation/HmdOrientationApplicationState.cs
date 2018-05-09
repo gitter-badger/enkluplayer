@@ -35,7 +35,7 @@ namespace CreateAR.SpirePlayer
 
             _root = new GameObject("Orientation");
             _root
-                .AddComponent<OrientationViewController>()
+                .AddComponent<HmdOrientationViewController>()
                 .OnContinue += Orientation_OnContinue;
         }
 
