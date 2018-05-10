@@ -182,6 +182,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<MobileArSetupApplicationState>().To<MobileArSetupApplicationState>();
                     binder.Bind<InputLoginStrategy>().To<InputLoginStrategy>();
                     binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
+                    binder.Bind<LoadDefaultAppApplicationState>().To<LoadDefaultAppApplicationState>();
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
                     binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                     binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
@@ -364,37 +365,61 @@ namespace CreateAR.SpirePlayer
 
                 binder.Bind<IElementUpdateDelegate>().To<ElementUpdateDelegate>().ToSingleton();
 
-                if (UnityEngine.Application.isEditor)
+                // designer
+                var designer = config.Play.ParsedDesigner;
+                if (designer == PlayAppConfig.DesignerType.Invalid)
                 {
-                    switch (config.Play.ParsedDesigner)
+                    switch (config.ParsedPlatform)
                     {
-                        case PlayAppConfig.DesignerType.Desktop:
+                        case RuntimePlatform.IPhonePlayer:
                         {
-                            binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
+                            designer = PlayAppConfig.DesignerType.Mobile;
                             break;
                         }
-                        case PlayAppConfig.DesignerType.Ar:
-                        case PlayAppConfig.DesignerType.Mobile:
+                        case RuntimePlatform.WebGLPlayer:
                         {
-                            binder.Bind<IDesignController>().To<ArDesignController>().ToSingleton();
+                            designer = PlayAppConfig.DesignerType.Desktop;
                             break;
                         }
-                        case PlayAppConfig.DesignerType.None:
+                        case RuntimePlatform.WSAPlayerX86:
                         {
-                            binder.Bind<IDesignController>().To<PassthroughDesignController>().ToSingleton();
+                            designer = PlayAppConfig.DesignerType.Ar;
+                            break;
+                        }
+                        default:
+                        {
+                            designer = PlayAppConfig.DesignerType.None;
                             break;
                         }
                     }
                 }
-                else
+
+                switch (designer)
                 {
-#if NETFX_CORE || UNITY_IOS || UNITY_ANDROID
-                    binder.Bind<IDesignController>().To<ArDesignController>().ToSingleton();
-#elif UNITY_WEBGL
-                    binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
-#else
-                    binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
-#endif
+                    case PlayAppConfig.DesignerType.Desktop:
+                    {
+                        binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
+                        break;
+                    }
+                    case PlayAppConfig.DesignerType.Ar:
+                    {
+                        binder.Bind<IDesignController>().To<ArDesignController>().ToSingleton();
+                        break;
+                    }
+                    case PlayAppConfig.DesignerType.Mobile:
+                    {
+                        binder.Bind<IDesignController>().To<MobileDesignController>().ToSingleton();
+                        break;
+                    }
+                    case PlayAppConfig.DesignerType.None:
+                    {
+                        binder.Bind<IDesignController>().To<PassthroughDesignController>().ToSingleton();
+                        break;
+                    }
+                    case PlayAppConfig.DesignerType.Invalid:
+                    {
+                        throw new Exception("Invalid designer.");
+                    }
                 }
             }
 

@@ -188,6 +188,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public enum DesignerType
         {
+            Invalid,
             Ar,
             Desktop,
             Mobile,
@@ -224,7 +225,7 @@ namespace CreateAR.SpirePlayer
                 }
                 catch
                 {
-                    return DesignerType.Ar;
+                    return DesignerType.Invalid;
                 }
             }
         }

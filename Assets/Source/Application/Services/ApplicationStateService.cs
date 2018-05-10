@@ -35,6 +35,7 @@ namespace CreateAR.SpirePlayer
             MobileArSetupApplicationState mobileAr,
             UserProfileApplicationState userProfile,
             LoadAppApplicationState load,
+            LoadDefaultAppApplicationState loadDefault,
             ReceiveAppApplicationState receive,
             PlayApplicationState play,
             BleSearchApplicationState ble,
@@ -55,6 +56,7 @@ namespace CreateAR.SpirePlayer
                 mobileAr,
                 userProfile,
                 load,
+                loadDefault,
                 receive,
                 play,
                 ble,
@@ -107,7 +109,7 @@ namespace CreateAR.SpirePlayer
                     {
                         Log.Info(this, "Passing to LoadDefaultAppState.");
                         
-                        _states.Change<LoadDefaultAppState>();   
+                        _states.Change<LoadDefaultAppApplicationState>();   
                     }
                 });
 
@@ -172,9 +174,7 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.FLOOR_FOUND,
                 _ =>
                 {
-                    Log.Info(this, "Floor found.");
-                    
-                    _states.Change<LoadAppApplicationState>();
+                    _states.Change<LoadDefaultAppApplicationState>();
                 });
 
             _states.Change<InitializeApplicationState>(_config);

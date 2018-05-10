@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// State responsible for loading the default app.
     /// </summary>
-    public class LoadDefaultAppState : IState
+    public class LoadDefaultAppApplicationState : IState
     {
         /// <summary>
         /// Manages UI.
@@ -54,7 +54,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public LoadDefaultAppState(
+        public LoadDefaultAppApplicationState(
             IUIManager ui,
             IMessageRouter messages,
             IFileManager files,
@@ -74,6 +74,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Enter(object context)
         {
+            Log.Info(this, "LoadDefaultAppState::Enter()");
+            
             // load preferences
             _preferences.ForUser(
                 _config.Network.Credentials.UserId,
