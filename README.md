@@ -30,6 +30,12 @@ Until we add support via the `Unity.iOS.Xcode.PBXProject` interface, you have to
 </array>
 ```
 
+And
+
+```
+Privacy - Photo Library Usage Description
+```
+
     * Build Phases > Link Binary with Libraries - Add Photos.framework.
 
 ##### HoloLens
