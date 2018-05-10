@@ -107,6 +107,9 @@ MonoBehaviour:
     - UIDataId: UserProfile.AppSelection
       Element: {fileID: 114517656887264788, guid: aac7d03097cea4d69b1b304a756b9bca,
         type: 2}
+    - UIDataId: Play.Main
+      Element: {fileID: 114643742505869008, guid: ae0343fee64634e38a6ec68fbbb219a0,
+        type: 2}
 --- !u!114 &114844777624392520
 MonoBehaviour:
   m_ObjectHideFlags: 1
