@@ -235,12 +235,11 @@ namespace CreateAR.SpirePlayer
                     }
                 
                     // waited too long!
-                    // TODO: change the dialog.
-                    /*if (deltaSec > _arConfig.MaxSearchSec)
+                    if (deltaSec > _arConfig.MaxSearchSec)
                     {
                         token.Fail(new Exception("Timeout."));
                         yield break;
-                    }*/
+                    }
                 }
                 
                 yield return null;
