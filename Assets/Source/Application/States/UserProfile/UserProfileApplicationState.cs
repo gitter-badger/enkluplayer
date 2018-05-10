@@ -39,15 +39,10 @@ namespace CreateAR.SpirePlayer
         private readonly HttpRequestCacher _http;
 
         /// <summary>
-        /// Root game object.
+        /// UI frame.
         /// </summary>
-        private GameObject _root;
-
-        /// <summary>
-        /// User splash menu.
-        /// </summary>
-        private UserSplashMenuController _userSplash;
-
+        private UIManagerFrame _frame;
+        
         /// <summary>
         /// Token to get my apps.
         /// </summary>
@@ -76,7 +71,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Entered {0}.", GetType().Name);
 
-            _root = new GameObject("UserRoot");
+            _frame = _ui.CreateFrame();
 
             LoadProfile();
         }
@@ -95,7 +90,7 @@ namespace CreateAR.SpirePlayer
                 _myAppsToken.Abort();
             }
 
-            Object.Destroy(_root);
+            _frame.Release();
         }
 
         /// <summary>
@@ -117,7 +112,7 @@ namespace CreateAR.SpirePlayer
                     {
                         Log.Info(this, "Loaded UserProfileCacheData.");
 
-                        OpenUserSplash(response.Body);
+                        OpenAppSelection(response.Body);
                     }
                     else
                     {
@@ -172,18 +167,25 @@ namespace CreateAR.SpirePlayer
         /// Opens the splash.
         /// </summary>
         /// <param name="apps"></param>
-        private void OpenUserSplash(Body[] apps)
+        private void OpenAppSelection(Body[] apps)
         {
-            _userSplash = _root.AddComponent<UserSplashMenuController>();
-            _userSplash.OnAppSelected += UserSplash_OnAppSelected;
-            _userSplash.Initialize(apps);
+            _ui
+                .Open<IAppSelectionUIView>(new UIReference
+                {
+                    UIDataId = "UserProfile.AppSelection"
+                })
+                .OnSuccess(el =>
+                {
+                    el.OnAppSelected += AppSelection_OnSelected;
+                    el.Apps = apps;
+                });
         }
 
         /// <summary>
         /// Called when the user splash controller selects an app.
         /// </summary>
         /// <param name="appId">The id of the app to load.</param>
-        private void UserSplash_OnAppSelected(string appId)
+        private void AppSelection_OnSelected(string appId)
         {
             _config.Play.AppId = appId;
 
