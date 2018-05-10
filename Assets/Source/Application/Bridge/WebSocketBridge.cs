@@ -157,7 +157,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// True iff we should broadcast ready.
         /// </summary>
-        private bool _broadcastReady = false;
+        private bool _broadcastReady;
         
         /// <summary>
         /// Messages received but not yet processed.
@@ -167,12 +167,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// True iff client left.
         /// </summary>
-        private bool _clientLeft = false;
+        private bool _clientLeft;
 
         /// <summary>
         /// Joined service.
         /// </summary>
-        private BridgeService _service = null;
+        private BridgeService _service;
 
         /// <summary>
         /// Allows binding between message type and C# type.

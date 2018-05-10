@@ -34,8 +34,9 @@ namespace CreateAR.SpirePlayer
 			{
 #if UNITY_IOS && !UNITY_EDITOR
 				return unity_hasCameraPermissions();
+#else
+				return true;				
 #endif
-				return true;
 			}
 		}
 		
@@ -48,8 +49,9 @@ namespace CreateAR.SpirePlayer
 			{
 #if UNITY_IOS && !UNITY_EDITOR
 				return unity_hasDeniedCameraPermissions();
-#endif
+#else
 				return false;
+#endif
 			}
 		}
 		

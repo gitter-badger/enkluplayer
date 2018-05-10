@@ -119,7 +119,7 @@ namespace CreateAR.SpirePlayer
                         .OnSuccess(element =>
                         {
                             element.Message = "Oops! Could not load this app. Please check your connection.";
-                            element.Action = "Back to My Apps";
+                            element.Action = "My Apps";
                             element.OnOk += Error_OnOk;
                         })
                         .OnFailure(ex =>
