@@ -31,6 +31,7 @@ namespace CreateAR.SpirePlayer
 
             InitializeApplicationState initialize,
             LoginApplicationState login,
+            SignOutApplicationState signOut,
             OrientationApplicationState orientation,
             MobileArSetupApplicationState mobileAr,
             UserProfileApplicationState userProfile,
@@ -52,6 +53,7 @@ namespace CreateAR.SpirePlayer
             {
                 initialize,
                 login,
+                signOut,
                 orientation,
                 mobileAr,
                 userProfile,
@@ -91,6 +93,15 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Login requested.");
 
                     _states.Change<LoginApplicationState>();
+                });
+            
+            Subscribe<Void>(
+                MessageTypes.SIGNOUT,
+                _ =>
+                {
+                    Log.Info(this, "Signout requested.");
+                    
+                    _states.Change<SignOutApplicationState>();
                 });
             
             Subscribe<Void>(

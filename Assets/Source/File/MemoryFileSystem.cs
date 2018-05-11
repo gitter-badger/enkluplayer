@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer.Test
 {
@@ -41,6 +42,14 @@ namespace CreateAR.SpirePlayer.Test
                 file.Data);
 
             return new AsyncToken<File<byte[]>>(setFile);
+        }
+
+        /// <inheritdoc />
+        public IAsyncToken<Void> Delete(string uri)
+        {
+            _files.Remove(uri);
+            
+            return new AsyncToken<Void>(Void.Instance);
         }
     }
 }

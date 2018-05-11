@@ -18,7 +18,7 @@ namespace CreateAR.SpirePlayer
         /// Prefab for app list.
         /// </summary>
         public AppsListElementController AppListElement;
-
+        
         /// <summary>
         /// Container for content.
         /// </summary>
@@ -26,6 +26,9 @@ namespace CreateAR.SpirePlayer
         
         /// <inheritdoc />
         public event Action<string> OnAppSelected;
+
+        /// <inheritdoc />
+        public event Action OnSignOut;
 
         /// <inheritdoc />
         public Body[] Apps
@@ -41,6 +44,17 @@ namespace CreateAR.SpirePlayer
                     controller.OnSelected += OnAppSelected;   
                     controller.Init(app);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Called by Unity UI.
+        /// </summary>
+        public void SignOutClicked()
+        {
+            if (null != OnSignOut)
+            {
+                OnSignOut();
             }
         }
     }

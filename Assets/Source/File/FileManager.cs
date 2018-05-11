@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -160,7 +161,15 @@ namespace CreateAR.SpirePlayer
 
             return token;
         }
-        
+
+        /// <inheritdoc />
+        public IAsyncToken<Void> Delete(string uri)
+        {
+            return Configuration(uri)
+                .FileSystem
+                .Delete(uri);
+        }
+
         /// <summary>
         /// Retrieves the configuration for a uri.
         /// </summary>

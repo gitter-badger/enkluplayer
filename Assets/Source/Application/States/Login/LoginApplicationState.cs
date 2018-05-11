@@ -13,7 +13,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Credentials.
         /// </summary>
-        private const string CREDS = "login://DefaultCredentials";
+        public const string CREDS = "login://DefaultCredentials";
 
         /// <summary>
         /// Reads and writes files.

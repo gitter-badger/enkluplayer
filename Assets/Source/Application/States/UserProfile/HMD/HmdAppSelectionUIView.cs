@@ -57,6 +57,9 @@ namespace CreateAR.SpirePlayer
 
         /// <inheritdoc />
         public event Action<string> OnAppSelected;
+        
+        /// <inheritdoc />
+        public event Action OnSignOut;
 
         /// <summary>
         /// Called when app button has been pressed.

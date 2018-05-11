@@ -3,8 +3,6 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.GetMyApps;
-using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -177,6 +175,7 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(el =>
                 {
                     el.OnAppSelected += AppSelection_OnSelected;
+                    el.OnSignOut += AppSelection_OnSignOut;
                     el.Apps = apps;
                 });
         }
@@ -190,6 +189,14 @@ namespace CreateAR.SpirePlayer
             _config.Play.AppId = appId;
 
             _messages.Publish(MessageTypes.LOAD_APP);
+        }
+        
+        /// <summary>
+        /// Called when the user requests to sign out.
+        /// </summary>
+        private void AppSelection_OnSignOut()
+        {
+            _messages.Publish(MessageTypes.SIGNOUT);
         }
 
         /// <summary>

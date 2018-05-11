@@ -27,5 +27,12 @@ namespace CreateAR.SpirePlayer
         /// <param name="file">The file that was set.</param>
         /// <returns></returns>
         IAsyncToken<File<byte[]>> Set(File<byte[]> file);
+
+        /// <summary>
+        /// Deletes a file.
+        /// </summary>
+        /// <param name="uri">The URI to be deleted.</param>
+        /// <returns></returns>
+        IAsyncToken<Void> Delete(string uri);
     }
 }

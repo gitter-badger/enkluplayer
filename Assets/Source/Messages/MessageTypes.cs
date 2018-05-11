@@ -29,6 +29,7 @@
         public const int FLOOR_FOUND = 8;
         public const int AR_SETUP = 9;
         public const int LOGIN_COMPLETE = 1000001;
+        public const int SIGNOUT = 1000002;
 
         // Assets
         public const int RECV_ASSET_LIST = 10;
