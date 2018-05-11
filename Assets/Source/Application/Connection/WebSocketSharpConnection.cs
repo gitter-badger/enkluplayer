@@ -127,7 +127,8 @@ namespace CreateAR.SpirePlayer
 
             _connectToken = new AsyncToken<Void>();
 
-            // because ios
+            // On iOS, WebSocket throws an exception deep inside (that for some
+            // reason is not caught) when offline.
             try
             {
                 Dns.GetHostAddresses(wsUrl);
