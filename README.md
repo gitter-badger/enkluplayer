@@ -35,6 +35,9 @@ And
 ```
 Privacy - Photo Library Usage Description
 ```
+```
+NSPhotoLibraryAddUsageDescription
+```
 
     * Build Phases > Link Binary with Libraries - Add Photos.framework.
 
