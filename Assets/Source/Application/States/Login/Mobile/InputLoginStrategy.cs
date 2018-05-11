@@ -71,6 +71,13 @@ namespace CreateAR.SpirePlayer
         /// <param name="password">Password.</param>
         private void View_OnSubmit(string username, string password)
         {
+            int loadingId;
+            _ui
+                .Open<IUIElement>(new UIReference
+                {
+                    UIDataId = UIDataIds.LOADING
+                }, out loadingId);
+            
             _api
                 .EmailAuths
                 .EmailSignIn(new Request
@@ -78,6 +85,7 @@ namespace CreateAR.SpirePlayer
                     Email = username,
                     Password = password
                 })
+                .OnFinally(_ => _ui.Close(loadingId))
                 .OnSuccess(response =>
                 {
                     if (response.Payload.Success)

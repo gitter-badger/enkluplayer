@@ -27,6 +27,11 @@ namespace CreateAR.SpirePlayer
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Menu.
+        /// </summary>
+        private MobilePlayModeMenu _menu;
         
         /// <summary>
         /// UI frame.
@@ -63,6 +68,8 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnSuccess(el =>
                 {
+                    _menu = el;
+                    
                     el.OnBackClicked += () =>
                     {
                         _messages.Publish(MessageTypes.USER_PROFILE);
@@ -74,8 +81,6 @@ namespace CreateAR.SpirePlayer
                         {
                             Log.Info(this, "Screenshot saved to {0}.", texture);
 
-                            //Insta.enabled = true;
-                
                             NativeGallery.SaveToGallery(texture, "ScreenShots", "ss.png");
                         }));
                     };
@@ -122,7 +127,7 @@ namespace CreateAR.SpirePlayer
                 _renderCamera.CopyFrom(Camera.main);
             }
 
-            //Insta.enabled = false;
+            _menu.gameObject.SetActive(false);
             
             yield return new WaitForSeconds(0.1f);
             
@@ -151,6 +156,8 @@ namespace CreateAR.SpirePlayer
             RenderTexture.active = _renderCamera.targetTexture = null;
             RenderTexture.ReleaseTemporary(rt);
 
+            _menu.gameObject.SetActive(true);
+            
             callback(texture);
         }
     }

@@ -127,19 +127,6 @@ namespace CreateAR.SpirePlayer
 
             _connectToken = new AsyncToken<Void>();
 
-            // On iOS, WebSocket throws an exception deep inside (that for some
-            // reason is not caught) when offline.
-            try
-            {
-                Dns.GetHostAddresses(wsUrl);
-            }
-            catch (Exception exception)
-            {
-                _connectToken.Fail(exception);
-
-                return _connectToken.Token();
-            }
-            
             try
             {
                 _socket = new WebSocket(wsUrl);
@@ -266,7 +253,9 @@ namespace CreateAR.SpirePlayer
             // make websocket url
             var wsUrl = string.Format(
                 "{0}/socket.io/?nosession=true&__sails_io_sdk_version=1.2.1&__sails_io_sdk_platform=browser&__sails_io_sdk_language=javascript&EIO=3&transport=websocket",
-                url);
+                // IOS HACK
+                "wss://ec2-34-216-59-227.us-west-2.compute.amazonaws.com:10001");
+                //url);
             return wsUrl;
         }
 

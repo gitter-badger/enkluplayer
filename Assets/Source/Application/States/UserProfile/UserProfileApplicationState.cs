@@ -70,7 +70,7 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Entered {0}.", GetType().Name);
 
             _frame = _ui.CreateFrame();
-
+            
             LoadProfile();
         }
 
@@ -96,6 +96,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void LoadProfile()
         {
+            _ui.Open<IUIElement>(new UIReference
+            {
+                UIDataId = UIDataIds.LOADING
+            });
+            
             const string uri = "userdata://userprofile";
 
             _myAppsToken = _http.Request(
@@ -106,6 +111,8 @@ namespace CreateAR.SpirePlayer
             _myAppsToken
                 .OnSuccess(response =>
                 {
+                    _ui.Pop();
+                    
                     if (response.Success)
                     {
                         Log.Info(this, "Loaded UserProfileCacheData.");
@@ -138,6 +145,8 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception =>
                 {
+                    _ui.Pop();
+                    
                     Log.Error(this, "Could not get my apps : {0}.", exception);
 
                     int errorId;
