@@ -1,10 +1,7 @@
-﻿using System.Collections;
-using CreateAR.Commons.Unity.Async;
+﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.EmailSignIn;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace CreateAR.SpirePlayer
 {
@@ -14,14 +11,19 @@ namespace CreateAR.SpirePlayer
     public class InputLoginStrategy : ILoginStrategy
     {
         /// <summary>
+        /// Manages UI.
+        /// </summary>
+        private readonly IUIManager _ui;
+        
+        /// <summary>
         /// Api calls.
         /// </summary>
         private readonly ApiController _api;
 
         /// <summary>
-        /// Controls input.
+        /// Login view.
         /// </summary>
-        private InputLoginController _inputController;
+        private InputLoginUIView _view;
         
         /// <summary>
         /// Tracks login internally.
@@ -31,34 +33,43 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public InputLoginStrategy(ApiController api)
+        public InputLoginStrategy(
+            IUIManager ui,
+            ApiController api)
         {
+            _ui = ui;
             _api = api;
         }
 
         /// <inheritdoc />
         public IAsyncToken<CredentialsData> Login()
         {
-            _loginToken = new AsyncToken<CredentialsData>();
-            _loginToken.OnFinally(_ =>
-            {
-                _inputController.gameObject.SetActive(false);
-            });
+            var frame = _ui.CreateFrame();
             
-            var root = GameObject.Find("InputLogin");
-
-            _inputController = root.GetComponentInChildren<InputLoginController>(true);
-            _inputController.OnSubmit += Controller_OnSubmit;
-            _inputController.gameObject.SetActive(true);
-
+            _loginToken = new AsyncToken<CredentialsData>();
+            _loginToken.OnFinally(_ => frame.Release());
+            
+            _ui
+                .Open<InputLoginUIView>(new UIReference
+                {
+                    UIDataId = "Login.Input"
+                })
+                .OnSuccess(el =>
+                {
+                    _view = el;
+                    _view.OnSubmit += View_OnSubmit;
+                })
+                .OnFailure(ex => Log.Error(this, "Could not open Login.Input : {0}.", ex));
+            
             return _loginToken.Token();
         }
+        
         /// <summary>
         /// Called when the view controller submit button has been pressed.
         /// </summary>
         /// <param name="username">Username.</param>
         /// <param name="password">Password.</param>
-        private void Controller_OnSubmit(string username, string password)
+        private void View_OnSubmit(string username, string password)
         {
             _api
                 .EmailAuths
@@ -84,14 +95,14 @@ namespace CreateAR.SpirePlayer
                     {
                         Log.Error(this, "There was an error signing in : {0}.", response.Payload.Error);
 
-                        _inputController.Error.text = response.Payload.Error;
+                        _view.Error.text = response.Payload.Error;
                     }
                 })
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not signin : {0}.", exception);
 
-                    _inputController.Error.text = "Could not sign in. Please try again.";
+                    _view.Error.text = "Could not sign in. Please try again.";
                 });
         }
     }

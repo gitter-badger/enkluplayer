@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls input view.
     /// </summary>
-    public class InputLoginController : MonoBehaviourUIElement
+    public class InputLoginUIView : MonoBehaviourUIElement
     {
         /// <summary>
         /// Called with username and password.
