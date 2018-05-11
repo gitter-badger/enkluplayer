@@ -95,7 +95,11 @@ namespace CreateAR.SpirePlayer
                         {
                             UIDataId = "Ar.Prompt"
                         })
-                    .OnSuccess(el => el.OnStartArService += Prompt_OnStartArService)
+                    .OnSuccess(el =>
+                    {
+                        el.OnCancelArSetup += Prompt_OnCancelArSetup;
+                        el.OnStartArService += Prompt_OnStartArService;
+                    })
                     .OnFailure(HandleCriticalFailure);
             }
         }
@@ -264,6 +268,14 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Ar tracking back online.");
             
             //_interrupted.gameObject.SetActive(false);
+        }
+        
+        /// <summary>
+        /// Called when the prompt view requests canceling.
+        /// </summary>
+        private void Prompt_OnCancelArSetup()
+        {
+            _messages.Publish(MessageTypes.USER_PROFILE);
         }
         
         /// <summary>

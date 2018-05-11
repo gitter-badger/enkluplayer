@@ -12,6 +12,11 @@ namespace CreateAR.SpirePlayer
         /// Called when the AR service should be started.
         /// </summary>
         public event Action OnStartArService;
+
+        /// <summary>
+        /// Called when the AR setup should be canceled.
+        /// </summary>
+        public event Action OnCancelArSetup;
         
         /// <summary>
         /// Called by the UI to start the AR service.
@@ -21,6 +26,17 @@ namespace CreateAR.SpirePlayer
             if (null != OnStartArService)
             {
                 OnStartArService();
+            }
+        }
+
+        /// <summary>
+        /// Called by the UI to cancel setup.
+        /// </summary>
+        public void OnCancelClicked()
+        {
+            if (null != OnCancelArSetup)
+            {
+                OnCancelArSetup();
             }
         }
     }
