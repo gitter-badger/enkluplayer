@@ -1,5 +1,6 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -24,6 +25,12 @@ namespace CreateAR.SpirePlayer
         public IAsyncToken<File<byte[]>> Set(File<byte[]> fileData)
         {
             return new AsyncToken<File<byte[]>>(new NotImplementedException());
+        }
+
+        /// <inheritdoc cref="IFileSystem"/>
+        public IAsyncToken<Void> Delete(string uri)
+        {
+            return new AsyncToken<Void>(new NotImplementedException()); 
         }
     }
 }

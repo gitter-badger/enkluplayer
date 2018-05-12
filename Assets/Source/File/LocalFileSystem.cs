@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -41,7 +43,7 @@ namespace CreateAR.SpirePlayer
                 _basePath,
                 relUri) + ".local";
 
-            Log.Info(this, "Get({0})", path);
+            Verbose("Get({0})", path);
             
             byte[] bytes;
             try
@@ -66,7 +68,7 @@ namespace CreateAR.SpirePlayer
                 _basePath,
                 relUri) + ".local";
 
-            Log.Info(this, "Set({0})", path);
+            Verbose("Set({0})", path);
 
             var directory = Path.GetDirectoryName(path) ?? ".";
 
@@ -91,6 +93,29 @@ namespace CreateAR.SpirePlayer
             return new AsyncToken<File<byte[]>>(file);
         }
 
+        /// <inheritdoc />
+        public IAsyncToken<Void> Delete(string uri)
+        {
+            var relUri = RelativeUri(uri);
+            var path = Path.Combine(
+                           _basePath,
+                           relUri) + ".local";
+
+            if (File.Exists(path))
+            {
+                try
+                {
+                    File.Delete(path);
+                }
+                catch (Exception exception)
+                {
+                    return new AsyncToken<Void>(exception);
+                }
+            }
+            
+            return new AsyncToken<Void>(new Exception("File not found."));
+        }
+
         /// <summary>
         /// Trims the protocol off a Uri.
         /// </summary>
@@ -99,6 +124,15 @@ namespace CreateAR.SpirePlayer
         private string RelativeUri(string uri)
         {
             return uri.Substring(uri.IndexOf("://", StringComparison.Ordinal) + 3);
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        [Conditional("LOGGING_VERBOSE")] 
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

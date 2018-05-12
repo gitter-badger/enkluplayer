@@ -18,12 +18,15 @@ GameObject:
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4806941493528534}
+  - component: {fileID: 224471594704686316}
   - component: {fileID: 114612234147596516}
   - component: {fileID: 114919105245345344}
   - component: {fileID: 114893721414513510}
   - component: {fileID: 114844777624392520}
   - component: {fileID: 114906811028345466}
+  - component: {fileID: 223554172899974718}
+  - component: {fileID: 114075585185544622}
+  - component: {fileID: 114853441264647598}
   m_Layer: 0
   m_Name: IUX
   m_TagString: Untagged
@@ -31,19 +34,27 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4806941493528534
-Transform:
+--- !u!114 &114075585185544622
+MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1933817679622306}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1980459831, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_UiScaleMode: 1
+  m_ReferencePixelsPerUnit: 100
+  m_ScaleFactor: 1
+  m_ReferenceResolution: {x: 1334, y: 750}
+  m_ScreenMatchMode: 0
+  m_MatchWidthOrHeight: 0
+  m_PhysicalUnit: 3
+  m_FallbackScreenDPI: 96
+  m_DefaultSpriteDPI: 96
+  m_DynamicPixelsPerUnit: 1
 --- !u!114 &114612234147596516
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -67,13 +78,40 @@ MonoBehaviour:
     - UIDataId: Play.Main
       Element: {fileID: 114420890658654474, guid: 9715d0a87d9e0724f97b447754921ba5,
         type: 2}
+    - UIDataId: UserProfile.AppSelection
+      Element: {fileID: 114517656887264788, guid: aac7d03097cea4d69b1b304a756b9bca,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error
-      Element: {fileID: 114848466823277412, guid: 819d2872f55d96c44b1b8d9dfb80d678,
+      Element: {fileID: 114720035430186584, guid: 9ab6779f5556643998d0a9ddf1231b99,
         type: 2}
     - UIDataId: Common.Loading
+      Element: {fileID: 114501148085500892, guid: b1eda9c4f3e3e463fa65026b893755ac,
+        type: 2}
+    - UIDataId: Profile.AppList
+      Element: {fileID: 114517656887264788, guid: aac7d03097cea4d69b1b304a756b9bca,
+        type: 2}
+    - UIDataId: Ar.Interrupted
+      Element: {fileID: 114407456361660404, guid: d91691079c18f4e76a900202c083b817,
+        type: 2}
+    - UIDataId: Ar.Scanning
+      Element: {fileID: 114973347364012360, guid: 6eafd0e854ca646148fe10a472ac4ccb,
+        type: 2}
+    - UIDataId: Login.SignIn
       Element: {fileID: 114042847877177962, guid: 25feb0bbeda04e549961c70ed8438968,
+        type: 2}
+    - UIDataId: Ar.Prompt
+      Element: {fileID: 114445339331604646, guid: e197aca3a7adc4f32a0122f32e9f83f0,
+        type: 2}
+    - UIDataId: UserProfile.AppSelection
+      Element: {fileID: 114517656887264788, guid: aac7d03097cea4d69b1b304a756b9bca,
+        type: 2}
+    - UIDataId: Play.Main
+      Element: {fileID: 114643742505869008, guid: ae0343fee64634e38a6ec68fbbb219a0,
+        type: 2}
+    - UIDataId: Login.Input
+      Element: {fileID: 114449291483723158, guid: 6feb5e587e70340e3bdbed2a6ea3a6b6,
         type: 2}
 --- !u!114 &114844777624392520
 MonoBehaviour:
@@ -86,6 +124,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c30d05faf89d7fd41b0642c7be3e55e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114853441264647598
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1933817679622306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1301386320, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &114893721414513510
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -121,3 +175,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LocalHandOffset: {x: 0, y: 0, z: 0}
   MaxAngularVelocity: 20
+--- !u!223 &223554172899974718
+Canvas:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1933817679622306}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!224 &224471594704686316
+RectTransform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1933817679622306}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}

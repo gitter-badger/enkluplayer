@@ -84,7 +84,7 @@ namespace CreateAR.SpirePlayer
             _app = app;
         }
 
-        /// <inheritdoc cref="IState"/>
+        /// <inheritdoc />
         public void Enter(object context)
         {
             Log.Info(this, "PlayApplicationState::Enter()");
@@ -118,7 +118,7 @@ namespace CreateAR.SpirePlayer
                     LoadSceneMode.Additive)));
         }
 
-        /// <inheritdoc cref="IState"/>
+        /// <inheritdoc />
         public void Update(float dt)
         {
             if (!_statusCleared
@@ -129,7 +129,7 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        /// <inheritdoc cref="IState"/>
+        /// <inheritdoc />
         public void Exit()
         {
             Log.Info(this, "PlayApplicationState::Exit()");

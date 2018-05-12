@@ -2,9 +2,11 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using WebSocketSharp;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -19,7 +21,7 @@ namespace CreateAR.SpirePlayer
         /// Serializer.
         /// </summary>
         private readonly JsonSerializer _json = new JsonSerializer();
-        
+
         /// <summary>
         /// Configuration.
         /// </summary>
@@ -44,62 +46,43 @@ namespace CreateAR.SpirePlayer
         public bool IsConnected { get; private set; }
 
         /// <summary>
+        /// Endpoint we are connecting to.
+        /// </summary>
+        private string _wsEndpoint;
+        
+        /// <summary>
         /// Constructor.
         /// </summary>
         public WebSocketSharpConnection(
+            IMessageRouter messages,
             ApplicationConfig config,
             ConnectionMessageHandler handler)
         {
             _config = config;
             _handler = handler;
             _handler.OnHeartbeatRequested += Handler_OnSendPong;
+
+            messages.Subscribe(
+                MessageTypes.APPLICATION_SUSPEND,
+                Messages_OnApplicationSuspend);
+            messages.Subscribe(
+                MessageTypes.APPLICATION_RESUME,
+                Messages_OnApplicationResume);
         }
 
         /// <inheritdoc />
         public IAsyncToken<Void> Connect(EnvironmentData environment)
         {
-            if (null != _connectToken)
-            {
-                return _connectToken.Token();
-            }
-
-            _connectToken = new AsyncToken<Void>();
-
-            // replace protocol (works for https too)
-            var url = environment.TrellisUrl.Replace("http", "ws");
-
-            // shave off version
-            var substrings = url.Split('/');
-            if (substrings.Length > 3)
-            {
-                url = string.Join("/", substrings.Take(3).ToArray());
-            }
-
-            // make websocket url
-            var wsUrl = string.Format(
-                "{0}/socket.io/?EIO=2&transport=websocket&__sails_io_sdk_version=1.0.0",
-                url);
+            _wsEndpoint = WsUrl(environment);
             
-            Log.Info(this, "Connecting to {0}.", wsUrl);
-            
-            _socket = new WebSocket(wsUrl);
-            {
-                _socket.EmitOnPing = true;
-                _socket.OnOpen += Socket_OnOpen;
-                _socket.OnClose += Socket_OnClose;
-                _socket.OnMessage += Socket_OnMessage;
-                _socket.OnError += Socket_OnError;
-                _socket.Connect();
-            }
-            
-            return _connectToken.Token();
+            return ConnectSocket(_wsEndpoint);
         }
 
         /// <summary>
         /// Sends a request.
         /// </summary>
         /// <param name="req">The request.</param>
-        public void Send(WebSocketRequest req)
+        private void Send(WebSocketRequest req)
         {
             req.Headers = new WebSocketRequest.HeaderData
             {
@@ -126,6 +109,40 @@ namespace CreateAR.SpirePlayer
             }
 
             _socket.Send(str);
+        }
+        
+        /// <summary>
+        /// Creates a new socket.
+        /// </summary>
+        /// <param name="wsUrl">The websocket url.</param>
+        /// <returns></returns>
+        private IAsyncToken<Void> ConnectSocket(string wsUrl)
+        {
+            if (null != _connectToken)
+            {
+                return _connectToken.Token();
+            }
+            
+            Log.Info(this, "Opening socket to {0}.", wsUrl);
+
+            _connectToken = new AsyncToken<Void>();
+
+            try
+            {
+                _socket = new WebSocket(wsUrl);
+                _socket.EmitOnPing = true;
+                _socket.OnOpen += Socket_OnOpen;
+                _socket.OnClose += Socket_OnClose;
+                _socket.OnMessage += Socket_OnMessage;
+                _socket.OnError += Socket_OnError;
+                _socket.Connect();
+            }
+            catch (Exception exception)
+            {
+                _connectToken.Fail(exception);
+            }
+
+            return _connectToken.Token();
         }
         
         /// <summary>
@@ -184,6 +201,62 @@ namespace CreateAR.SpirePlayer
             LogVerbose("Pong()");
 
             _socket.Send("40");
+        }
+        
+        /// <summary>
+        /// Called when the application is suspended.
+        /// </summary>
+        private void Messages_OnApplicationSuspend(object obj)
+        {
+            Log.Info(this, "App suspended, killing socket.");
+            
+            if (null != _socket)
+            {
+                _socket.Close();
+            }
+
+            if (null != _connectToken)
+            {
+                _connectToken.Fail(new Exception("Application suspended."));
+            }
+        }
+        
+        /// <summary>
+        /// Called when the application is resumed.
+        /// </summary>
+        private void Messages_OnApplicationResume(object obj)
+        {
+            if (!string.IsNullOrEmpty(_wsEndpoint))
+            {
+                Log.Info(this, "App resumed, reconnecting socket.");
+                
+                ConnectSocket(_wsEndpoint);
+            }
+        }
+        
+        /// <summary>
+        /// Creates the websocket URL.
+        /// </summary>
+        /// <param name="environment">The environment to connect to.</param>
+        /// <returns></returns>
+        private static string WsUrl(EnvironmentData environment)
+        {
+            var url = environment.TrellisUrl.Replace("http", "ws");
+
+            // shave off version
+            var substrings = url.Split('/');
+            if (substrings.Length > 3)
+            {
+                url = string.Join("/", substrings.Take(3).ToArray());
+            }
+
+            // make websocket url
+            var wsUrl = string.Format(
+                "{0}/socket.io/?nosession=true&__sails_io_sdk_version=1.2.1&__sails_io_sdk_platform=browser&__sails_io_sdk_language=javascript&EIO=3&transport=websocket",
+                // IOS HACK
+                "wss://ec2-34-216-59-227.us-west-2.compute.amazonaws.com:10001");
+                //url);
+            return wsUrl;
         }
 
         /// <summary>

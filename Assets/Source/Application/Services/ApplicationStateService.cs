@@ -31,9 +31,12 @@ namespace CreateAR.SpirePlayer
 
             InitializeApplicationState initialize,
             LoginApplicationState login,
+            SignOutApplicationState signOut,
             OrientationApplicationState orientation,
+            MobileArSetupApplicationState mobileAr,
             UserProfileApplicationState userProfile,
             LoadAppApplicationState load,
+            LoadDefaultAppApplicationState loadDefault,
             ReceiveAppApplicationState receive,
             PlayApplicationState play,
             BleSearchApplicationState ble,
@@ -50,9 +53,12 @@ namespace CreateAR.SpirePlayer
             {
                 initialize,
                 login,
+                signOut,
                 orientation,
+                mobileAr,
                 userProfile,
                 load,
+                loadDefault,
                 receive,
                 play,
                 ble,
@@ -71,10 +77,6 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.APPLICATION_INITIALIZED,
                 Messages_OnApplicationInitialized);
 
-            Subscribe<Type>(
-                MessageTypes.CHANGE_STATE,
-                _states.Change);
-
             Subscribe<Void>(
                 MessageTypes.LOAD_APP,
                 _ =>
@@ -91,6 +93,35 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Login requested.");
 
                     _states.Change<LoginApplicationState>();
+                });
+            
+            Subscribe<Void>(
+                MessageTypes.SIGNOUT,
+                _ =>
+                {
+                    Log.Info(this, "Signout requested.");
+                    
+                    _states.Change<SignOutApplicationState>();
+                });
+            
+            Subscribe<Void>(
+                MessageTypes.LOGIN_COMPLETE,
+                _ =>
+                {
+                    Log.Info(this, "Login complete.");
+
+                    if (_config.ParsedPlatform == RuntimePlatform.IPhonePlayer)
+                    {
+                        Log.Info(this, "Passing to MobileArSetupApplicationState.");
+                        
+                        _states.Change<MobileArSetupApplicationState>();
+                    }
+                    else
+                    {
+                        Log.Info(this, "Passing to LoadDefaultAppState.");
+                        
+                        _states.Change<LoadDefaultAppApplicationState>();   
+                    }
                 });
 
             Subscribe<Void>(
@@ -129,6 +160,32 @@ namespace CreateAR.SpirePlayer
 #if NETFX_CORE
                     _states.Change<MeshCaptureApplicationState>();
 #endif
+                });
+            
+            Subscribe<Void>(
+                MessageTypes.AR_SETUP,
+                _ =>
+                {
+                    Log.Info(this, "AR setup requested.");
+                    
+                    _states.Change<MobileArSetupApplicationState>();
+                });
+            
+            Subscribe<Exception>(
+                MessageTypes.ARSERVICE_EXCEPTION,
+                exception =>
+                {
+                    Log.Error(this, "AR Service exception : {0}.", exception.Message);
+                    
+                    // head back to AR setup
+                    _states.Change<MobileArSetupApplicationState>(exception);
+                });
+            
+            Subscribe<Void>(
+                MessageTypes.FLOOR_FOUND,
+                _ =>
+                {
+                    _states.Change<LoadDefaultAppApplicationState>();
                 });
 
             _states.Change<InitializeApplicationState>(_config);
@@ -186,6 +243,11 @@ namespace CreateAR.SpirePlayer
                 case ApplicationStateType.Login:
                 {
                     _states.Change<LoginApplicationState>();
+                    break;
+                }
+                case ApplicationStateType.ArSetup:
+                {
+                    _states.Change<MobileArSetupApplicationState>();
                     break;
                 }
                 case ApplicationStateType.Orientation:

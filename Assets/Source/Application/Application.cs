@@ -42,5 +42,21 @@
         {
             _services.Update(dt);
         }
+
+        /// <summary>
+        /// Called when the application is suspended.
+        /// </summary>
+        public void Suspend()
+        {
+            _services.Suspend();
+        }
+
+        /// <summary>
+        /// Called when the application is resumed.
+        /// </summary>
+        public void Resume()
+        {
+            _services.Resume();
+        }
     }
 }

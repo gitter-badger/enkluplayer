@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 
 namespace CreateAR.SpirePlayer
 {
@@ -8,12 +9,29 @@ namespace CreateAR.SpirePlayer
     public interface IUIManager
     {
         /// <summary>
+        /// Called when a new element has been opened and added to the stack.
+        /// </summary>
+        event Action<int> OnPush;
+        
+        /// <summary>
+        /// Called when an element has been removed from the stack.
+        /// </summary>
+        event Action OnPop;
+        
+        /// <summary>
         /// Opens a new UI element.
         /// </summary>
         /// <param name="reference">Reference to a UI element.</param>
         /// <param name="stackId">Stack id used to reference element in API.</param>
         /// <returns></returns>
         IAsyncToken<T> Open<T>(UIReference reference, out int stackId) where T : IUIElement;
+        
+        /// <summary>
+        /// Opens a new UI element and discards the id.
+        /// </summary>
+        /// <param name="reference">Reference to a UI element.</param>
+        /// <returns></returns>
+        IAsyncToken<T> Open<T>(UIReference reference) where T : IUIElement;
 
         /// <summary>
         /// Moves down the stack, removing UI elements until the element with
@@ -34,5 +52,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <returns>Stack id of closed UI or -1 if nothing was removed.</returns>
         int Pop();
+
+        /// <summary>
+        /// Creates an object that will track all future pushes and pops.
+        /// </summary>
+        UIManagerFrame CreateFrame();
     }
 }

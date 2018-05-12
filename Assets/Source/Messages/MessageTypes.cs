@@ -8,8 +8,10 @@
         public const int RESTART = -1000;
 
         ///////////////////////////////////////////////////////////////////////
-        // Error.
+        // Errors.
         ///////////////////////////////////////////////////////////////////////
+        public const int ARSERVICE_EXCEPTION = -10;
+        public const int ARSERVICE_INTERRUPTED = -11;
         public const int FATAL_ERROR = -1;
 
         public const int STATUS = 0;
@@ -24,7 +26,10 @@
         public const int LOAD_APP = 5;
         public const int USER_PROFILE = 6;
         public const int LOGIN = 7;
-        public const int CHANGE_STATE = 8;
+        public const int FLOOR_FOUND = 8;
+        public const int AR_SETUP = 9;
+        public const int LOGIN_COMPLETE = 1000001;
+        public const int SIGNOUT = 1000002;
 
         // Assets
         public const int RECV_ASSET_LIST = 10;
@@ -55,6 +60,8 @@
         // Global
         ///////////////////////////////////////////////////////////////////////
         public const int LOADPROGRESS = 100;
+        public const int APPLICATION_SUSPEND = 110;
+        public const int APPLICATION_RESUME = 111;
         
         ///////////////////////////////////////////////////////////////////////
         // Play State

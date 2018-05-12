@@ -1,7 +1,9 @@
 ﻿#if UNITY_IOS
 
+using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using UnityEngine.XR.iOS;
 using Object = UnityEngine.Object;
@@ -13,6 +15,11 @@ namespace CreateAR.SpirePlayer.AR
     /// </summary>
     public class IosArService : IArService
     {
+        /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+        
         /// <summary>
         /// Native interface, provided by Unity.
         /// </summary>
@@ -42,17 +49,26 @@ namespace CreateAR.SpirePlayer.AR
         /// Video.
         /// </summary>
         public UnityARVideo Video { get; private set; }
+        
+        /// <inheritdoc />
+        public event Action OnTrackingOffline;
+        
+        /// <inheritdoc />
+        public event Action OnTrackingOnline;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public IosArService(UnityARSessionNativeInterface @interface)
+        public IosArService(
+            IMessageRouter messages,
+            UnityARSessionNativeInterface @interface)
         {
+            _messages = messages;
             _interface = @interface;
         }
     
-        /// <inheritdoc cref="IArService"/>
-        public void Setup(ArServiceConfiguration config)
+        /// <inheritdoc />
+        public void Setup(ArServiceConfiguration config) 
         {
             Config = config;
             _rig = config.Rig;
@@ -64,6 +80,9 @@ namespace CreateAR.SpirePlayer.AR
             UnityARSessionNativeInterface.ARAnchorAddedEvent += Interface_OnAnchorAdded;
             UnityARSessionNativeInterface.ARAnchorUpdatedEvent += Interface_OnAnchorUpdated;
             UnityARSessionNativeInterface.ARAnchorRemovedEvent += Interface_OnAnchorRemoved;
+            UnityARSessionNativeInterface.ARSessionFailedEvent += Interface_OnSessionFailed;
+            UnityARSessionNativeInterface.ARSessionInterruptedEvent += Interface_OnInterrupted;
+            UnityARSessionNativeInterface.ARSessioninterruptionEndedEvent += Interface_OnInterruptEnded;
             
             // startup!
             _interface.RunWithConfigAndOptions(
@@ -81,7 +100,7 @@ namespace CreateAR.SpirePlayer.AR
             InitializeCameraRig();
         }
 
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
         public void Teardown()
         {
             UninitializeCameraRig();
@@ -89,6 +108,9 @@ namespace CreateAR.SpirePlayer.AR
             UnityARSessionNativeInterface.ARAnchorAddedEvent -= Interface_OnAnchorAdded;
             UnityARSessionNativeInterface.ARAnchorUpdatedEvent -= Interface_OnAnchorUpdated;
             UnityARSessionNativeInterface.ARAnchorRemovedEvent -= Interface_OnAnchorRemoved;
+            UnityARSessionNativeInterface.ARSessionFailedEvent -= Interface_OnSessionFailed;
+            UnityARSessionNativeInterface.ARSessionInterruptedEvent -= Interface_OnInterrupted;
+            UnityARSessionNativeInterface.ARSessioninterruptionEndedEvent -= Interface_OnInterruptEnded;
             
             _interface.Pause();
         }
@@ -138,6 +160,17 @@ namespace CreateAR.SpirePlayer.AR
         }
         
         /// <summary>
+        /// Called if the AR the session fails.
+        /// </summary>
+        /// <param name="error">The error.</param>
+        private void Interface_OnSessionFailed(string error)
+        {
+            _messages.Publish(
+                MessageTypes.ARSERVICE_EXCEPTION,
+                new Exception(error));
+        }
+        
+        /// <summary>
         /// Called when an anchor has been added.
         /// </summary>
         /// <param name="data">The native data.</param>
@@ -184,6 +217,28 @@ namespace CreateAR.SpirePlayer.AR
             if (null != anchor)
             {
                 _anchors.Remove(anchor);
+            }
+        }
+        
+        /// <summary>
+        /// Called by the native interface when tracking is lost.
+        /// </summary>
+        private void Interface_OnInterrupted()
+        {
+            if (null != OnTrackingOffline)
+            {
+                OnTrackingOffline();
+            }
+        }
+        
+        /// <summary>
+        /// Called by the native interface when tracking is reestablished.
+        /// </summary>
+        private void Interface_OnInterruptEnded()
+        {
+            if (null != OnTrackingOnline)
+            {
+                OnTrackingOnline();
             }
         }
     

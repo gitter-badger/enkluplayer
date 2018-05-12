@@ -1,4 +1,8 @@
-﻿using CreateAR.SpirePlayer.AR;
+﻿#if !UNITY_EDITOR && UNITY_WSA
+
+using System;
+using CreateAR.SpirePlayer.AR;
+using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer
 {
@@ -7,10 +11,16 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class HoloLensArService : IArService
     {
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
+        public event Action OnTrackingOffline;
+        
+        /// <inheritdoc />
+        public event Action OnTrackingOnline;
+
+        /// <inheritdoc />
         public ArAnchor[] Anchors { get; private set; }
 
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
         public ArServiceConfiguration Config { get; private set; }
 
         /// <summary>
@@ -29,16 +39,41 @@ namespace CreateAR.SpirePlayer
             };
         }
 
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
         public void Setup(ArServiceConfiguration config)
         {
-            
+            WorldManager.OnPositionalLocatorStateChanged += WorldManager_OnPositionalLocatorStateChanged;
         }
 
-        /// <inheritdoc cref="IArService"/>
+        /// <inheritdoc />
         public void Teardown()
         {
             
         }
+        
+        /// <summary>
+        /// Called by MS API.
+        /// </summary>
+        /// <param name="oldState">Previous state.</param>
+        /// <param name="newState">New state.</param>
+        private void WorldManager_OnPositionalLocatorStateChanged(PositionalLocatorState oldState, PositionalLocatorState newState)
+        {
+            if (newState == PositionalLocatorState.Active)
+            {
+                if (null != OnTrackingOnline)
+                {
+                    OnTrackingOnline();
+                }
+            }
+            else
+            {
+                if (null != OnTrackingOffline)
+                {
+                    OnTrackingOffline();
+                }
+            }
+        }
     }
 }
+
+#endif
