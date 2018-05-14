@@ -34,6 +34,13 @@ namespace CreateAR.SpirePlayer
         IAsyncToken<T> Open<T>(UIReference reference) where T : IUIElement;
 
         /// <summary>
+        /// Calls Open then removed the element beneath, effectively replacing the top.
+        /// </summary>
+        /// <param name="reference">Reference to a UI element.</param>
+        /// <returns></returns>
+        IAsyncToken<T> Replace<T>(UIReference reference) where T : IUIElement;
+
+        /// <summary>
         /// Moves down the stack, removing UI elements until the element with
         /// the passed in id is on top.
         /// </summary>

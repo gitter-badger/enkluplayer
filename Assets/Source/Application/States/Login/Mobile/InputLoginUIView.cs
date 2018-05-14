@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +14,11 @@ namespace CreateAR.SpirePlayer
         /// Called with username and password.
         /// </summary>
         public event Action<string, string> OnSubmit;
+
+        /// <summary>
+        /// Called to go to signup.
+        /// </summary>
+        public event Action OnSignUp;
 
         /// <summary>
         /// The username field.
@@ -37,6 +43,17 @@ namespace CreateAR.SpirePlayer
             if (null != OnSubmit)
             {
                 OnSubmit(UserName.text, Password.text);
+            }
+        }
+    
+        /// <summary>
+        /// Called when the signup button has been pressed.
+        /// </summary>
+        public void OnSignupClicked()
+        {
+            if (null != OnSignUp)
+            {
+                OnSignUp();
             }
         }
 
