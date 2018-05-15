@@ -125,6 +125,14 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
+        public IAsyncToken<T> Replace<T>(UIReference reference) where T : IUIElement
+        {
+            Pop();
+
+            return Open<T>(reference);
+        }
+        
+        /// <inheritdoc />
         public void Reveal(int stackId)
         {
             // first, make sure element exists in stack at all

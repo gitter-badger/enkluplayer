@@ -113,6 +113,15 @@ MonoBehaviour:
     - UIDataId: Login.Input
       Element: {fileID: 114449291483723158, guid: 6feb5e587e70340e3bdbed2a6ea3a6b6,
         type: 2}
+    - UIDataId: Signup
+      Element: {fileID: 114330516332367972, guid: 6e4d0505f36ab4015a58ffb0a2c92cf2,
+        type: 2}
+    - UIDataId: Signup.License
+      Element: {fileID: 114546051042185818, guid: 77651dc2ff07c4e2aa02c794a3827cf0,
+        type: 2}
+    - UIDataId: Common.Message
+      Element: {fileID: 114024106590981586, guid: 8ed40e1312e2c48f391dd38d115d3141,
+        type: 2}
 --- !u!114 &114844777624392520
 MonoBehaviour:
   m_ObjectHideFlags: 1
