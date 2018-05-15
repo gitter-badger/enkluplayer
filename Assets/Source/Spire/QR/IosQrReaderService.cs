@@ -18,7 +18,6 @@ namespace CreateAR.SpirePlayer.Qr
 
         private bool _isAlive;
         private QrDecoderWorker _worker;
-        private Color32[] _colors;
         private DateTime _lastCapture = DateTime.MinValue;
         private ScreenGrabber _grabber;
 
@@ -43,7 +42,7 @@ namespace CreateAR.SpirePlayer.Qr
             
             ThreadPool.QueueUserWorkItem(_ => _worker.Start());
 
-            // start capture on intreval
+            // start capture on interval
             _bootstrapper.BootstrapCoroutine(Capture());
 
             return token;
@@ -81,23 +80,14 @@ namespace CreateAR.SpirePlayer.Qr
 
                     Log.Info(this, "Start capture.");
 
-                    //var tex = ((IosArService) _ar).Video.VideoY;
-                    //_worker.Enqueue(tex.GetPixels32(), tex.width, tex.height);
-
-                    /*
                     _grabber
                         .Grab()
-                        .OnSuccess(texture =>
+                        .OnSuccess(path =>
                         {
                             Log.Info(this, "Grabber got! Queue work.");
                             
-                            _colors = texture.GetPixels32();
-                    
-                            _worker.Enqueue(
-                                _colors,
-                                texture.width,
-                                texture.height);
-                        });*/
+                            _worker.Enqueue(path);
+                        });
                 }
 
                 yield return null;

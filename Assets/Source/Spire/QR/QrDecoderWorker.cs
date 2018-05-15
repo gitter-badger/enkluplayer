@@ -7,7 +7,6 @@ using System.Threading;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
-using ZXing;
 
 namespace CreateAR.SpirePlayer.Qr
 {
@@ -31,20 +30,7 @@ namespace CreateAR.SpirePlayer.Qr
             /// </summary>
             public readonly int Id = IDS++;
 
-            /// <summary>
-            /// Color.
-            /// </summary>
-            public Color32[] Colors;
-
-            /// <summary>
-            /// Width of image.
-            /// </summary>
-            public int Width;
-
-            /// <summary>
-            /// Height of image.
-            /// </summary>
-            public int Height;
+            public string Path;
         }
 
         /// <summary>
@@ -67,11 +53,6 @@ namespace CreateAR.SpirePlayer.Qr
             /// </summary>
             public string Value;
         }
-
-        /// <summary>
-        /// Qr reader implementation.
-        /// </summary>
-        private readonly IBarcodeReader _reader = new BarcodeReader();
 
         /// <summary>
         /// Records to decode.
@@ -99,6 +80,11 @@ namespace CreateAR.SpirePlayer.Qr
         private bool _isAlive;
 
         /// <summary>
+        /// Reusable byte buffer.
+        /// </summary>
+        private byte[] _buffer = new byte[0];
+
+        /// <summary>
         /// Called when a QR code is successfully read. Guaranteed to be called on main thread.
         /// </summary>
         public event Action<int, string> OnSuccess;
@@ -122,17 +108,11 @@ namespace CreateAR.SpirePlayer.Qr
         /// <summary>
         /// Enqueues a texture to read.
         /// </summary>
-        /// <param name="colors">The colors.</param>
-        /// <param name="width">The width of the texture.</param>
-        /// <param name="height">The height of the texture.</param>
-        /// <returns></returns>
-        public int Enqueue(Color32[] colors, int width, int height)
+        public int Enqueue(string path)
         {
             var record = new QrDecoderRecord
             {
-                Colors = colors,
-                Width = width,
-                Height = height
+                Path = path
             };
             
             lock (_queueLock)
@@ -165,15 +145,10 @@ namespace CreateAR.SpirePlayer.Qr
 
                     var record = _records.Dequeue();
 #if UNITY_IOS
-                    var source = new LumSource(
-                        record.Width,
-                        record.Height,
-                        record.Colors);
-                    var result = _reader.Decode(source);
-#else
-					var result = _reader.Decode(record.Colors, record.Width, record.Height);
-#endif
-                    
+                    /*
+                    Marshal.Copy(record.Ptr, _buffer, 0, size);
+
+                    var result = _reader.Decode(_buffer, record.Width, record.Height, RGBLuminanceSource.BitmapFormat.BGRA32);
 
                     lock (_results)
                     {
@@ -183,7 +158,17 @@ namespace CreateAR.SpirePlayer.Qr
                             Success = null != result,
                             Value = null != result ? result.Text : string.Empty
                         });
+                    }*/
+#else
+                    lock (_results)
+                    {
+                        _results.Add(new QrDecoderResult
+                        {
+                            Id = record.Id,
+                            Success = false
+                        });
                     }
+#endif
                 }
             }
 
@@ -235,27 +220,6 @@ namespace CreateAR.SpirePlayer.Qr
                 _resultsReadBuffer.Clear();
 
                 yield return null;
-            }
-        }
-    }
-
-    public class LumSource : Color32LuminanceSource
-    {
-        public LumSource(int width, int height, Color32[] colors)
-            : base(width, height)
-        {
-            var z = 0;
-
-            for (var y = height - 1; y >= 0; y--)
-            {
-                // This is flipped vertically because the Color32 array from Unity is reversed vertically,
-                // it means that the top most row of the image would be the bottom most in the array.
-                for (var x = 0; x < width; x++)
-                {
-                    var color32 = colors[y * Width + x];
-                    
-                    luminances[z++] = color32.r;
-                }
             }
         }
     }

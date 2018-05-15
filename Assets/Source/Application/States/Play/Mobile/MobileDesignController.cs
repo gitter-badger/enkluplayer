@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.Qr;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -27,6 +28,11 @@ namespace CreateAR.SpirePlayer
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+        
+        /// <summary>
+        /// Qr reader.
+        /// </summary>
+        private readonly IQrReaderService _qr;
 
         /// <summary>
         /// Menu.
@@ -49,11 +55,13 @@ namespace CreateAR.SpirePlayer
         public MobileDesignController(
             IUIManager ui,
             IMessageRouter messages,
-            IBootstrapper bootstrapper)
+            IBootstrapper bootstrapper,
+            IQrReaderService qr)
         {
             _ui = ui;
             _messages = messages;
             _bootstrapper = bootstrapper;
+            _qr = qr;
         }
         
         /// <inheritdoc />
@@ -86,11 +94,17 @@ namespace CreateAR.SpirePlayer
                     };
                 })
                 .OnFailure(ex => Log.Error(this, "Could not open Play.Main : {0}.", ex));
+
+            _qr.OnRead += Qr_OnRead;
+            _qr.Start();
         }
 
         /// <inheritdoc />
         public void Teardown()
         {
+            _qr.Stop();
+            _qr.OnRead -= Qr_OnRead;
+            
             _frame.Release();
             
             if (null != _renderCamera)
@@ -159,6 +173,15 @@ namespace CreateAR.SpirePlayer
             _menu.gameObject.SetActive(true);
             
             callback(texture);
+        }
+        
+        /// <summary>
+        /// Called when qr code is successfully read.
+        /// </summary>
+        /// <param name="value">The string value.</param>
+        private void Qr_OnRead(string value)
+        {
+            Log.Info(this, "Qr successfully decoded : {0}.", value);
         }
     }
 }
