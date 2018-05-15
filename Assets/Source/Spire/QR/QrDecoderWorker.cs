@@ -3,10 +3,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Qr
 {
@@ -144,31 +144,19 @@ namespace CreateAR.SpirePlayer.Qr
                     }
 
                     var record = _records.Dequeue();
-#if UNITY_IOS
-                    /*
-                    Marshal.Copy(record.Ptr, _buffer, 0, size);
-
-                    var result = _reader.Decode(_buffer, record.Width, record.Height, RGBLuminanceSource.BitmapFormat.BGRA32);
+                    var decoded = IosQrNativeInterface.DecodeAtPath(record.Path);
+                    
+                    File.Delete(record.Path);
 
                     lock (_results)
                     {
                         _results.Add(new QrDecoderResult
                         {
                             Id = record.Id,
-                            Success = null != result,
-                            Value = null != result ? result.Text : string.Empty
-                        });
-                    }*/
-#else
-                    lock (_results)
-                    {
-                        _results.Add(new QrDecoderResult
-                        {
-                            Id = record.Id,
-                            Success = false
+                            Success = !string.IsNullOrEmpty(decoded),
+                            Value = decoded
                         });
                     }
-#endif
                 }
             }
 
