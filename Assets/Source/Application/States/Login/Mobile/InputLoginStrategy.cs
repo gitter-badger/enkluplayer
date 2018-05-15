@@ -34,7 +34,22 @@ namespace CreateAR.SpirePlayer
         /// Tracks login internally.
         /// </summary>
         private AsyncToken<CredentialsData> _loginToken;
-    
+        
+        /// <summary>
+        /// Id of login view.
+        /// </summary>
+        private int _loginViewId;
+        
+        /// <summary>
+        /// Id of signup view.
+        /// </summary>
+        private int _signupViewId;
+        
+        /// <summary>
+        /// Id of license view.
+        /// </summary>
+        private int _licenseViewId;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -64,18 +79,25 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void OpenLogin()
         {
-            _ui
-                .Open<InputLoginUIView>(new UIReference
-                {
-                    UIDataId = "Login.Input"
-                })
-                .OnSuccess(el =>
-                {
-                    _loginView = el;
-                    _loginView.OnSubmit += View_OnSubmit;
-                    _loginView.OnSignUp += View_OnSignup;
-                })
-                .OnFailure(ex => Log.Error(this, "Could not open Login.Input : {0}.", ex));
+            if (_loginViewId != 0)
+            {
+                _ui.Reveal(_loginViewId);
+            }
+            else
+            {
+                _ui
+                    .Open<InputLoginUIView>(new UIReference
+                    {
+                        UIDataId = "Login.Input"
+                    }, out _loginViewId)
+                    .OnSuccess(el =>
+                    {
+                        _loginView = el;
+                        _loginView.OnSubmit += View_OnSubmit;
+                        _loginView.OnSignUp += View_OnSignup;
+                    })
+                    .OnFailure(ex => Log.Error(this, "Could not open Login.Input : {0}.", ex));   
+            }
         }
 
         /// <summary>
@@ -117,7 +139,6 @@ namespace CreateAR.SpirePlayer
                     {
                         Log.Error(this, "There was an error signing in : {0}.", response.Payload.Error);
 
-                        _ui.Pop();
                         _loginView.Error.text = response.Payload.Error;
                     }
                 })
@@ -125,7 +146,6 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Error(this, "Could not signin : {0}.", exception);
 
-                    _ui.Pop();
                     _loginView.Error.text = "Could not sign in. Please try again.";
                 });
         }
@@ -135,40 +155,73 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void View_OnSignup()
         {
-            _ui.Pop();
             _ui
                 .Open<MobileSignupUIView>(new UIReference
                 {
                     UIDataId = "Signup"
-                })
+                }, out _signupViewId)
                 .OnSuccess(el =>
                 {
                     _signupView = el;
-                    _signupView.OnSignUp += Mobile_OnSignUp;
-                    _signupView.OnLicenseInfo += Mobile_OnLicenseInfo;
+                    _signupView.OnSubmit += SignUp_OnSubmit;
+                    _signupView.OnLicenseInfo += SignUp_OnLicenseInfo;
                 })
                 .OnFailure(exception => Log.Error(this, "Could not open mobile signup view."));
+        }
+        
+        /// <summary>
+        /// Called when the signup view has called submit.
+        /// </summary>
+        /// <param name="data">The data to make the request with.</param>
+        private void SignUp_OnSubmit(MobileSignupUIView.SignupRequestData data)
+        {
+            // show loading
+            int loadingId;
+            _ui.Open<IUIElement>(new UIReference
+            {
+                UIDataId = UIDataIds.LOADING
+            }, out loadingId);
+
+            // make request
+            _api
+                .EmailAuths
+                .EmailSignUpWithLicense(new Trellis.Messages.EmailSignUpWithLicense.Request
+                {
+                    DisplayName = data.DisplayName,
+                    Email = data.Email,
+                    LicenseKey = data.LicenseKey,
+                    Password = data.Password
+                })
+                .OnFinally(_ => _ui.Close(loadingId))
+                .OnSuccess(response =>
+                {
+                    _loginToken.Succeed(new CredentialsData
+                    {
+                        Email = data.Email,
+                        UserId = response.Payload.Body.User.Id,
+                        Token = response.Payload.Body.Token
+                    });
+                })
+                .OnFailure(exception =>
+                {
+                    _signupView.Error.text = exception.Message;
+                });
         }
 
         /// <summary>
         /// Called whebn license info button is pressed.
         /// </summary>
-        private void Mobile_OnLicenseInfo()
+        private void SignUp_OnLicenseInfo()
         {
-            _ui.Pop();
             _ui
                 .Open<MobileLicenseUIView>(new UIReference
                 {
                     UIDataId = "Signup.License"
-                })
+                },
+                out _licenseViewId)
                 .OnSuccess(el =>
                 {
-                    el.OnCancel += () =>
-                    {
-                        _ui.Pop();
-                        
-                        OpenLogin();
-                    };
+                    el.OnCancel += () => _ui.Reveal(_loginViewId);
                     el.OnRequest += License_OnSubmit;
                 })
                 .OnFailure(exception => Log.Error(this, "Could not open Signup.License : {0}", exception));
@@ -180,11 +233,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="data">Data to make request with.</param>
         private void License_OnSubmit(MobileLicenseUIView.LicenseRequestData data)
         {
-            _ui.Pop();
+            int loadingId;
             _ui.Open<IUIElement>(new UIReference
             {
                 UIDataId = UIDataIds.LOADING
-            });
+            }, out loadingId);
             
             _api
                 .GettingStarteds
@@ -198,7 +251,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnSuccess(response =>
                 {
-                    _ui.Pop();
+                    _ui.Close(loadingId);
                     _ui
                         .Open<MobileMessageUIView>(new UIReference
                         {
@@ -210,12 +263,7 @@ namespace CreateAR.SpirePlayer
                             el.Description =
                                 "Your request has been sent along. We should be getting back to you shortly. Thanks for your patience.";
                             el.Action = "Ok";
-                            el.OnOk += () =>
-                            {
-                                _ui.Pop();
-                                
-                                OpenLogin();
-                            };
+                            el.OnOk += OpenLogin;
                         })
                         .OnFailure(exception =>
                         {
@@ -226,7 +274,6 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception =>
                 {
-                    _ui.Pop();
                     _ui
                         .Open<ICommonErrorView>(new UIReference
                         {
@@ -238,45 +285,6 @@ namespace CreateAR.SpirePlayer
                             el.OnOk += OpenLogin;
                         })
                         .OnFailure(ex => Log.Error(this, "Could not open error view : {0}", ex));
-                });
-        }
-
-        /// <summary>
-        /// Called when the signup view has called submit.
-        /// </summary>
-        /// <param name="data">The data to make the request with.</param>
-        private void Mobile_OnSignUp(MobileSignupUIView.SignupRequestData data)
-        {
-            // show loading
-            _ui.Open<IUIElement>(new UIReference
-            {
-                UIDataId = UIDataIds.LOADING
-            });
-
-            // make request
-            _api
-                .EmailAuths
-                .EmailSignUpWithLicense(new Trellis.Messages.EmailSignUpWithLicense.Request
-                {
-                    DisplayName = data.DisplayName,
-                    Email = data.Email,
-                    LicenseKey = data.LicenseKey,
-                    Password = data.Password
-                })
-                .OnSuccess(response =>
-                {
-                    _loginToken.Succeed(new CredentialsData
-                    {
-                        Email = data.Email,
-                        UserId = response.Payload.Body.User.Id,
-                        Token = response.Payload.Body.Token
-                    });
-                })
-                .OnFailure(exception =>
-                {
-                    _ui.Pop();
-
-                    _signupView.Error.text = exception.Message;
                 });
         }
     }

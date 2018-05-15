@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when signup is requested.
         /// </summary>
-        public event Action<SignupRequestData> OnSignUp;
+        public event Action<SignupRequestData> OnSubmit;
 
         /// <summary>
         /// Called when license key info is requested.
@@ -90,9 +90,9 @@ namespace CreateAR.SpirePlayer
                 return;
             }
             
-            if (null != OnSignUp)
+            if (null != OnSubmit)
             {
-                OnSignUp(new SignupRequestData
+                OnSubmit(new SignupRequestData
                 {
                     Email = email,
                     LicenseKey = license,
