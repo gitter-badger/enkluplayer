@@ -23,27 +23,27 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Email element.
         /// </summary>
-        public Text Email;
+        public InputField Email;
 
         /// <summary>
         /// Name element.
         /// </summary>
-        public Text Name;
+        public InputField Name;
 
         /// <summary>
         /// Phone element.
         /// </summary>
-        public Text Phone;
+        public InputField Phone;
 
         /// <summary>
         /// Company element.
         /// </summary>
-        public Text Company;
+        public InputField Company;
 
         /// <summary>
         /// Story element.
         /// </summary>
-        public Text Story;
+        public InputField Story;
 
         /// <summary>
         /// Error element.

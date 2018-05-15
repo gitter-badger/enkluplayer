@@ -410,13 +410,13 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114532436065511120}
   m_TextComponent: {fileID: 114925928952205136}
   m_Placeholder: {fileID: 114474703545663970}
-  m_ContentType: 4
+  m_ContentType: 9
   m_InputType: 0
   m_AsteriskChar: 42
   m_KeyboardType: 1
   m_LineType: 0
   m_HideMobileInput: 0
-  m_CharacterValidation: 3
+  m_CharacterValidation: 0
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
@@ -621,10 +621,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 718b570cc7744f59a6a3042c69e0ef93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Email: {fileID: 114369248671690990}
-  DisplayName: {fileID: 114750520684957608}
-  Password: {fileID: 114944012258548876}
-  LicenseKey: {fileID: 114925928952205136}
+  Email: {fileID: 114111418594153208}
+  DisplayName: {fileID: 114837614543425948}
+  Password: {fileID: 114800807138977398}
+  LicenseKey: {fileID: 114092603354506348}
   Error: {fileID: 114755402575639596}
 --- !u!114 &114369248671690990
 MonoBehaviour:

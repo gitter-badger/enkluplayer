@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Annotations;
 using UnityEngine.UI;
 
 namespace CreateAR.SpirePlayer
@@ -23,22 +22,22 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Email.
         /// </summary>
-        public Text Email;
+        public InputField Email;
 
         /// <summary>
         /// Display name.
         /// </summary>
-        public Text DisplayName;
+        public InputField DisplayName;
         
         /// <summary>
         /// Password.
         /// </summary>
-        public Text Password;
+        public InputField Password;
         
         /// <summary>
         /// License key.
         /// </summary>
-        public Text LicenseKey;
+        public InputField LicenseKey;
 
         /// <summary>
         /// Error box.
@@ -72,6 +71,12 @@ namespace CreateAR.SpirePlayer
                 return;
             }
             
+            if (string.IsNullOrEmpty(displayName))
+            {
+                Error.text = "Display name required.";
+                return;
+            }
+            
             if (string.IsNullOrEmpty(password) || password.Length < 6)
             {
                 Error.text = "Password of length 6 or more required.";
@@ -81,12 +86,6 @@ namespace CreateAR.SpirePlayer
             if (string.IsNullOrEmpty(license))
             {
                 Error.text = "License required.";
-                return;
-            }
-            
-            if (string.IsNullOrEmpty(displayName))
-            {
-                Error.text = "Display name required.";
                 return;
             }
             

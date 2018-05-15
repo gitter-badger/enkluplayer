@@ -182,6 +182,8 @@ namespace CreateAR.SpirePlayer
                 UIDataId = UIDataIds.LOADING
             }, out loadingId);
 
+            Log.Info(this, "Submit : {0}.", data.LicenseKey);
+            
             // make request
             _api
                 .EmailAuths

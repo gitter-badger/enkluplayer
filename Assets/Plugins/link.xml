@@ -10,7 +10,9 @@
 	
 	<assembly fullname="CreateAR.Trellis.Messages">
 		<namespace fullname="CreateAR.Trellis.Messages" preserve="all" />
+		<namespace fullname="CreateAR.Trellis.Messages.GetStarted" preserve="all" />
 		<namespace fullname="CreateAR.Trellis.Messages.EmailSignIn" preserve="all" />
+		<namespace fullname="CreateAR.Trellis.Messages.EmailSignUpWithLicense" preserve="all" />
 		<namespace fullname="CreateAR.Trellis.Messages.GetMyApps" preserve="all" />
 		<namespace fullname="CreateAR.Trellis.Messages.GetApp" preserve="all" />
 		<namespace fullname="CreateAR.Trellis.Messages.GetScene" preserve="all" />
