@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.SpirePlayer.Assets;
+using CreateAR.SpirePlayer.Qr;
 using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
 

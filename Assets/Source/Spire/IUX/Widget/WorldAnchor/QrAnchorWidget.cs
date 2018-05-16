@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using CreateAR.SpirePlayer.Qr;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
