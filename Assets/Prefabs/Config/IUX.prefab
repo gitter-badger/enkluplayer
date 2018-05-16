@@ -122,6 +122,9 @@ MonoBehaviour:
     - UIDataId: Common.Message
       Element: {fileID: 114024106590981586, guid: 8ed40e1312e2c48f391dd38d115d3141,
         type: 2}
+    - UIDataId: HoloLogin
+      Element: {fileID: 114162643511251304, guid: 2b527e5afe70c4f1cba81a8eeea70003,
+        type: 2}
 --- !u!114 &114844777624392520
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -1,36 +1,62 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using System.Collections;
+using System.IO;
+using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Qr
 {
+    /// <summary>
+    /// Takes a screenshot asynchronously.
+    /// </summary>
     public class ScreenGrabber : MonoBehaviour
     {
-        private AsyncToken<Texture2D> _grabToken;
+        /// <summary>
+        /// Token for screen grab.
+        /// </summary>
+        private AsyncToken<string> _grabToken;
+        
+        /// <summary>
+        /// Texture.
+        /// </summary>
         private Texture2D _texture;
         
-        public IAsyncToken<Texture2D> Grab()
+        /// <summary>
+        /// Grabs the screen.
+        /// </summary>
+        /// <returns></returns>
+        public IAsyncToken<string> Grab()
         {
-            _grabToken = new AsyncToken<Texture2D>();
+            _grabToken = new AsyncToken<string>();
+            
+            StartCoroutine(StartGrab());
+
             return _grabToken;
         }
 
-        private void OnPostRender()
+        /// <summary>
+        /// Coroutine that checks for existence of screenshot before resolving.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator StartGrab()
         {
-            if (null != _grabToken)
+            var path = Guid.NewGuid() + ".png";
+            
+            ScreenCapture.CaptureScreenshot(path);
+
+            var fullPath = UnityEngine.Application.isMobilePlatform
+                ? Path.Combine(
+                    UnityEngine.Application.persistentDataPath,
+                    path)
+                : path;
+            
+            while (!File.Exists(fullPath))
             {
-                if (null == _texture)
-                {
-                    _texture = new Texture2D(Screen.width, Screen.height);
-                }
-                
-                _texture.ReadPixels(
-                    new Rect(0, 0, Screen.width, Screen.height),
-                    0, 0, false);
-                _texture.Apply(false);
-                
-                _grabToken.Succeed(_texture);
-                _grabToken = null;
+                yield return new WaitForSecondsRealtime(0.1f);   
             }
+            
+            _grabToken.Succeed(fullPath);
         }
     }
 }

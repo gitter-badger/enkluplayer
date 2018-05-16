@@ -10,6 +10,7 @@ using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Qr;
+using CreateAR.SpirePlayer.States.HoloLogin;
 using CreateAR.SpirePlayer.Vine;
 using CreateAR.Trellis.Messages;
 using Jint.Parser;
@@ -176,6 +177,7 @@ namespace CreateAR.SpirePlayer
                 {
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                     binder.Bind<LoginApplicationState>().To<LoginApplicationState>();
+                    binder.Bind<HoloLoginApplicationState>().To<HoloLoginApplicationState>();
                     binder.Bind<SignOutApplicationState>().To<SignOutApplicationState>();
                     binder.Bind<QrLoginStrategy>().To<QrLoginStrategy>();
                     binder.Bind<OrientationApplicationState>().To<OrientationApplicationState>();

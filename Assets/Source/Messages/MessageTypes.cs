@@ -30,6 +30,7 @@
         public const int AR_SETUP = 9;
         public const int LOGIN_COMPLETE = 1000001;
         public const int SIGNOUT = 1000002;
+        public const int HOLOLOGIN = 1000003;
 
         // Assets
         public const int RECV_ASSET_LIST = 10;

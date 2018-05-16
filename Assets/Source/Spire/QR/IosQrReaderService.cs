@@ -17,8 +17,7 @@ namespace CreateAR.SpirePlayer.Qr
         private readonly IBootstrapper _bootstrapper;
 
         private bool _isAlive;
-        private QrDecoderWorker _worker;
-        private Color32[] _colors;
+        private IosQrDecoderWorker _worker;
         private DateTime _lastCapture = DateTime.MinValue;
         private ScreenGrabber _grabber;
 
@@ -37,13 +36,13 @@ namespace CreateAR.SpirePlayer.Qr
             _grabber = Camera.main.gameObject.AddComponent<ScreenGrabber>();
 
             // start worker
-            _worker = new QrDecoderWorker(_bootstrapper);
+            _worker = new IosQrDecoderWorker(_bootstrapper);
             _worker.OnSuccess += Decoder_OnDecoded;
             _worker.OnFail += Decoder_OnFail;
             
             ThreadPool.QueueUserWorkItem(_ => _worker.Start());
 
-            // start capture on intreval
+            // start capture on interval
             _bootstrapper.BootstrapCoroutine(Capture());
 
             return token;
@@ -79,25 +78,9 @@ namespace CreateAR.SpirePlayer.Qr
                 {
                     _lastCapture = now;
 
-                    Log.Info(this, "Start capture.");
-
-                    //var tex = ((IosArService) _ar).Video.VideoY;
-                    //_worker.Enqueue(tex.GetPixels32(), tex.width, tex.height);
-
-                    /*
                     _grabber
                         .Grab()
-                        .OnSuccess(texture =>
-                        {
-                            Log.Info(this, "Grabber got! Queue work.");
-                            
-                            _colors = texture.GetPixels32();
-                    
-                            _worker.Enqueue(
-                                _colors,
-                                texture.width,
-                                texture.height);
-                        });*/
+                        .OnSuccess(path => _worker.Enqueue(path));
                 }
 
                 yield return null;
@@ -114,7 +97,7 @@ namespace CreateAR.SpirePlayer.Qr
         /// <param name="value">Value.</param>
         private void Decoder_OnDecoded(int id, string value)
         {
-            Log.Info(this, "Read : {0}.", value);
+            Log.Info(this, "Successfully read : {0}.", value);
             
             if (null != OnRead)
             {
@@ -129,7 +112,7 @@ namespace CreateAR.SpirePlayer.Qr
         /// <param name="id">Id of the capture.</param>
         private void Decoder_OnFail(int id)
         {
-            Log.Info(this, "Failed to read capture {0}.", id);
+            //
         }
     }
 }

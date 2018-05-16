@@ -41,16 +41,6 @@ namespace CreateAR.SpirePlayer
         private int _loginViewId;
         
         /// <summary>
-        /// Id of signup view.
-        /// </summary>
-        private int _signupViewId;
-        
-        /// <summary>
-        /// Id of license view.
-        /// </summary>
-        private int _licenseViewId;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         public InputLoginStrategy(
@@ -155,11 +145,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void View_OnSignup()
         {
+            int signupViewId;
             _ui
                 .Open<MobileSignupUIView>(new UIReference
                 {
                     UIDataId = "Signup"
-                }, out _signupViewId)
+                }, out signupViewId)
                 .OnSuccess(el =>
                 {
                     _signupView = el;
@@ -215,12 +206,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SignUp_OnLicenseInfo()
         {
+            int licenseViewId;
             _ui
                 .Open<MobileLicenseUIView>(new UIReference
                 {
                     UIDataId = "Signup.License"
                 },
-                out _licenseViewId)
+                out licenseViewId)
                 .OnSuccess(el =>
                 {
                     el.OnCancel += () => _ui.Reveal(_loginViewId);
