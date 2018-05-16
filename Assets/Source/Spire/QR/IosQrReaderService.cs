@@ -112,7 +112,7 @@ namespace CreateAR.SpirePlayer.Qr
         /// <param name="id">Id of the capture.</param>
         private void Decoder_OnFail(int id)
         {
-            //Log.Info(this, "Failed to read capture {0}.", id);
+            //
         }
     }
 }

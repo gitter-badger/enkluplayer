@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -181,7 +182,10 @@ namespace CreateAR.SpirePlayer
         /// <param name="value">The string value.</param>
         private void Qr_OnRead(string value)
         {
-            Log.Info(this, "Qr successfully decoded : {0}.", value);
+            var bytes = Convert.FromBase64String(value);
+            var decoded = Encoding.UTF8.GetString(bytes);
+            
+            Log.Info(this, "Decoded QR : {0}.", decoded);
         }
     }
 }
