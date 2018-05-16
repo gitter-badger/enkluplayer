@@ -32,6 +32,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IScriptManager _scripts;
         private readonly IAssetManager _assets;
         private readonly IAssetPoolManager _pools;
+        private readonly IQrReaderService _qr;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -63,7 +64,8 @@ namespace CreateAR.SpirePlayer.IUX
             IWorldAnchorProvider provider,
             IScriptManager scripts,
             IAssetManager assets,
-            IAssetPoolManager pools)
+            IAssetPoolManager pools,
+            IQrReaderService qr)
         {
             _parser = parser;
             _primitives = primitives;
@@ -82,6 +84,7 @@ namespace CreateAR.SpirePlayer.IUX
             _scripts = scripts;
             _assets = assets;
             _pools = pools;
+            _qr = qr;
             
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -202,6 +205,15 @@ namespace CreateAR.SpirePlayer.IUX
                 Strings = new Dictionary<string, string>
                 {
                     { "axis", "x" }
+                }
+            });
+
+            var qrAnchorSchema = _typeSchema[ElementTypes.QR_ANCHOR] = new ElementSchema("Base.QrAnchor");
+            qrAnchorSchema.Load(new ElementSchemaData
+            {
+                Bools = new Dictionary<string, bool>
+                {
+                    { "visible", false }
                 }
             });
         }
@@ -342,6 +354,16 @@ namespace CreateAR.SpirePlayer.IUX
                 case ElementTypes.WORLD_ANCHOR:
                 {
                     return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _cache, _provider);
+                }
+                case ElementTypes.QR_ANCHOR:
+                {
+                    return new QrAnchorWidget(
+                        new GameObject("QrAnchor"),
+                        _layers,
+                        _tweens,
+                        _colors,
+                        _qr,
+                        _intention);
                 }
                 default:
                 {
