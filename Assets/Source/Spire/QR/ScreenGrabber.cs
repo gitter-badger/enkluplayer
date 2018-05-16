@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Qr
@@ -13,20 +14,29 @@ namespace CreateAR.SpirePlayer.Qr
         
         public IAsyncToken<string> Grab()
         {
-            return _grabToken = new AsyncToken<string>();
+            _grabToken = new AsyncToken<string>();
+            
+            StartCoroutine(StartGrab());
+
+            return _grabToken;
         }
 
-        private IEnumerable StartGrab()
+        private IEnumerator StartGrab()
         {
-            var path = Guid.NewGuid().ToString() + ".png";
+            var path = Guid.NewGuid() + ".png";
             
             ScreenCapture.CaptureScreenshot(path);
 
-            yield return new WaitForSecondsRealtime(0.25f);
-            
-            _grabToken.Succeed(Path.Combine(
+            var fullPath = Path.Combine(
                 UnityEngine.Application.persistentDataPath,
-                path));
+                path);
+            
+            while (!File.Exists(fullPath))
+            {
+                yield return new WaitForSecondsRealtime(0.1f);   
+            }
+            
+            _grabToken.Succeed(fullPath);
         }
     }
 }

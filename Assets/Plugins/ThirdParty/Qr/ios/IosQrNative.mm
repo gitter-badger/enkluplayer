@@ -37,6 +37,6 @@ extern "C"
             }
         }
         
-        return cStringCopy([@"false" UTF8String]);
+        return cStringCopy([@"" UTF8String]);
     }
 }

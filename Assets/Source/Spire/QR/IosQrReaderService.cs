@@ -78,16 +78,9 @@ namespace CreateAR.SpirePlayer.Qr
                 {
                     _lastCapture = now;
 
-                    Log.Info(this, "Start capture.");
-
                     _grabber
                         .Grab()
-                        .OnSuccess(path =>
-                        {
-                            Log.Info(this, "Grabber got! Queue work.");
-                            
-                            _worker.Enqueue(path);
-                        });
+                        .OnSuccess(path => _worker.Enqueue(path));
                 }
 
                 yield return null;
@@ -104,7 +97,7 @@ namespace CreateAR.SpirePlayer.Qr
         /// <param name="value">Value.</param>
         private void Decoder_OnDecoded(int id, string value)
         {
-            Log.Info(this, "Read : {0}.", value);
+            Log.Info(this, "Successfully read : {0}.", value);
             
             if (null != OnRead)
             {
@@ -119,7 +112,7 @@ namespace CreateAR.SpirePlayer.Qr
         /// <param name="id">Id of the capture.</param>
         private void Decoder_OnFail(int id)
         {
-            Log.Info(this, "Failed to read capture {0}.", id);
+            //Log.Info(this, "Failed to read capture {0}.", id);
         }
     }
 }
