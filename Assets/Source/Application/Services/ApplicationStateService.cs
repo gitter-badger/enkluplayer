@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.States.HoloLogin;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -31,6 +32,7 @@ namespace CreateAR.SpirePlayer
 
             InitializeApplicationState initialize,
             LoginApplicationState login,
+            HoloLoginApplicationState holoLogin,
             SignOutApplicationState signOut,
             OrientationApplicationState orientation,
             MobileArSetupApplicationState mobileAr,
@@ -53,6 +55,7 @@ namespace CreateAR.SpirePlayer
             {
                 initialize,
                 login,
+                holoLogin,
                 signOut,
                 orientation,
                 mobileAr,
@@ -93,6 +96,15 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Login requested.");
 
                     _states.Change<LoginApplicationState>();
+                });
+
+            Subscribe<Void>(
+                MessageTypes.HOLOLOGIN,
+                _ =>
+                {
+                    Log.Info(this, "HoloLogin requested.");
+
+                    _states.Change<HoloLoginApplicationState>();
                 });
             
             Subscribe<Void>(

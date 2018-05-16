@@ -17,7 +17,7 @@ namespace CreateAR.SpirePlayer.Qr
         private readonly IBootstrapper _bootstrapper;
 
         private bool _isAlive;
-        private QrDecoderWorker _worker;
+        private IosQrDecoderWorker _worker;
         private DateTime _lastCapture = DateTime.MinValue;
         private ScreenGrabber _grabber;
 
@@ -36,7 +36,7 @@ namespace CreateAR.SpirePlayer.Qr
             _grabber = Camera.main.gameObject.AddComponent<ScreenGrabber>();
 
             // start worker
-            _worker = new QrDecoderWorker(_bootstrapper);
+            _worker = new IosQrDecoderWorker(_bootstrapper);
             _worker.OnSuccess += Decoder_OnDecoded;
             _worker.OnFail += Decoder_OnFail;
             

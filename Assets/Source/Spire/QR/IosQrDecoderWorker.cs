@@ -13,7 +13,7 @@ namespace CreateAR.SpirePlayer.Qr
     /// <summary>
     /// Worker that decodes QR codes and sychronizes with main thread.
     /// </summary>
-    public class QrDecoderWorker
+    public class IosQrDecoderWorker
     {
         /// <summary>
         /// Internal bookkeeping
@@ -30,6 +30,9 @@ namespace CreateAR.SpirePlayer.Qr
             /// </summary>
             public readonly int Id = IDS++;
 
+            /// <summary>
+            /// Path to the PNG.
+            /// </summary>
             public string Path;
         }
 
@@ -80,11 +83,6 @@ namespace CreateAR.SpirePlayer.Qr
         private bool _isAlive;
 
         /// <summary>
-        /// Reusable byte buffer.
-        /// </summary>
-        private byte[] _buffer = new byte[0];
-
-        /// <summary>
         /// Called when a QR code is successfully read. Guaranteed to be called on main thread.
         /// </summary>
         public event Action<int, string> OnSuccess;
@@ -97,7 +95,7 @@ namespace CreateAR.SpirePlayer.Qr
         /// <summary>
         /// Constructor.
         /// </summary>
-        public QrDecoderWorker(IBootstrapper bootstrapper)
+        public IosQrDecoderWorker(IBootstrapper bootstrapper)
         {
             _isAlive = true;
 
