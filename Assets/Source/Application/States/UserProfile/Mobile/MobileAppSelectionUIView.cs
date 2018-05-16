@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages.GetMyApps;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls view for loading app.
     /// </summary>
-    public class MobileAppSelectionUIView : MonoBehaviourUIElement, IAppSelectionUIView
+    public class MobileAppSelectionUIView : InjectableMonoBehaviourUIElement, IAppSelectionUIView
     {
         /// <summary>
         /// Backing variable for Apps property.
@@ -29,6 +30,12 @@ namespace CreateAR.SpirePlayer
 
         /// <inheritdoc />
         public event Action OnSignOut;
+        
+        /// <summary>
+        /// Messages.
+        /// </summary>
+        [Inject]
+        public IMessageRouter Messages { get; set; }
 
         /// <inheritdoc />
         public Body[] Apps
@@ -56,6 +63,14 @@ namespace CreateAR.SpirePlayer
             {
                 OnSignOut();
             }
+        }
+
+        /// <summary>
+        /// Called by Unity UI.
+        /// </summary>
+        public void HoloLoginClicked()
+        {
+            Messages.Publish(MessageTypes.HOLOLOGIN);
         }
     }
 }

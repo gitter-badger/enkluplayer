@@ -185,6 +185,7 @@ namespace CreateAR.SpirePlayer
                 {
                     el.OnAppSelected += AppSelection_OnSelected;
                     el.OnSignOut += AppSelection_OnSignOut;
+                    
                     el.Apps = apps;
                 });
         }
@@ -207,7 +208,7 @@ namespace CreateAR.SpirePlayer
         {
             _messages.Publish(MessageTypes.SIGNOUT);
         }
-
+        
         /// <summary>
         /// Called to try retrieving apps.
         /// </summary>

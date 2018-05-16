@@ -17,7 +17,7 @@ namespace CreateAR.SpirePlayer
         /// Called when sign out is requested.
         /// </summary>
         event Action OnSignOut;
-        
+
         /// <summary>
         /// Sets the apps to display.
         /// </summary>
