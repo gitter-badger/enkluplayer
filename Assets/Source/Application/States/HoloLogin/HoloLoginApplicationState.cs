@@ -69,25 +69,22 @@ namespace CreateAR.SpirePlayer.States.HoloLogin
                             el.Code = response.Payload.Body;
                             el.OnOk += () => _messages.Publish(MessageTypes.USER_PROFILE);
                         })
-                        .OnFailure(exception =>
-                        {
-                            _ui
-                                .Open<ICommonErrorView>(new UIReference
-                                {
-                                    UIDataId = UIDataIds.ERROR
-                                })
-                                .OnSuccess(err =>
-                                {
-                                    err.Message = "Could not retrieve holocode. Are you sure you're online?";
-                                    err.OnOk += () => _messages.Publish(MessageTypes.USER_PROFILE);
-                                });
-                            
-                            Log.Error(this, "Could not open HoloLogin : {0}.", exception);
-                        });
+                        .OnFailure(exception => Log.Error(this, "Could not open MobileHoloLoginUIView : {0}.", exception));
                 })
                 .OnFailure(exception =>
                 {
-                    
+                    _ui
+                        .Open<ICommonErrorView>(new UIReference
+                        {
+                            UIDataId = UIDataIds.ERROR
+                        })
+                        .OnSuccess(err =>
+                        {
+                            err.Message = "Could not retrieve holocode. Are you sure you're online?";
+                            err.OnOk += () => _messages.Publish(MessageTypes.USER_PROFILE);
+                        });
+                            
+                    Log.Error(this, "Could not open HoloLogin : {0}.", exception);
                 });
         }
 
