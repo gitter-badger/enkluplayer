@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.Qr;
+﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.Qr;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -44,7 +45,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LoadInternalAfterChildren();
 
-            _valueProp = Schema.GetOwn("value", "");
+            _valueProp = Schema.GetOwn("qr.value", "");
 
             _qr.OnRead += Qr_OnRead;
         }
@@ -65,6 +66,8 @@ namespace CreateAR.SpirePlayer.IUX
         {
             if (_valueProp.Value == value)
             {
+                Log.Info(this, "Matching QR value read! Toggling visibility.");
+                
                 // match-- we don't need this again
                 _qr.OnRead -= Qr_OnRead;
 
