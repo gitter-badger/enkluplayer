@@ -61,7 +61,7 @@ namespace CreateAR.SpirePlayer.States.HoloLogin
         {
             var generator = new QRCodeGenerator();
             var data = generator.CreateQrCode(
-                Convert.ToBase64String(Encoding.UTF8.GetBytes(_holoCode ?? "None")),
+                Convert.ToBase64String(Encoding.UTF8.GetBytes((_holoCode ?? "None") + ":foo")),
                 QRCodeGenerator.ECCLevel.M,
                 true);
             var qrCode = new UnityQRCode(data);
