@@ -65,13 +65,6 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Start()
         {
-            _bridge.Initialize(_handler);
-
-            for (int i = 0, len = _services.Length; i < len; i++)
-            {
-                _services[i].Start();
-            }
-            
             // add filter after application is ready
             _messages.Subscribe(
                 MessageTypes.APPLICATION_INITIALIZED,
@@ -79,10 +72,17 @@ namespace CreateAR.SpirePlayer
                 {
                     // add filters
                     _filter.Filter(new ElementUpdateExclusionFilter(_txns));
-                    
+
                     // ready for action
                     _bridge.BroadcastReady();
                 });
+
+            _bridge.Initialize(_handler);
+
+            for (int i = 0, len = _services.Length; i < len; i++)
+            {
+                _services[i].Start();
+            }
         }
 
         /// <inheritdoc />

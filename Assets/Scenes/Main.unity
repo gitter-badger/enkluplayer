@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641234, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -495,7 +495,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &948112011 stripped
 Transform:
@@ -517,54 +517,6 @@ Transform:
   m_PrefabParentObject: {fileID: 4757842970413260, guid: 8a32a9c478ab0e54a9a57cb1bd087b28,
     type: 2}
   m_PrefabInternal: {fileID: 640012429}
---- !u!1 &1161704317
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 1161704318}
-  - component: {fileID: 1161704319}
-  m_Layer: 0
-  m_Name: Hockey
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1161704318
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1161704317}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1161704319
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1161704317}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9988a4f0ea7cd451b957935d6ba405eb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  appID: a8172d31b0574903bfbd4e75bf4c0618
-  serverURL: 
-  authenticatorType: 0
-  secret: fbad03556861aeb05664080be215a924
-  autoUploadCrashes: 1
-  exceptionLogging: 1
-  userMetrics: 1
-  updateAlert: 1
 --- !u!1001 &1291600364
 Prefab:
   m_ObjectHideFlags: 0
@@ -773,7 +725,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!114 &1630144641 stripped
 MonoBehaviour:
@@ -833,12 +785,12 @@ Prefab:
     - target: {fileID: 224471594704686316, guid: 7af591af75f6af9479f3c4f743039865,
         type: 2}
       propertyPath: m_LocalPosition.x
-      value: 462
+      value: 192
       objectReference: {fileID: 0}
     - target: {fileID: 224471594704686316, guid: 7af591af75f6af9479f3c4f743039865,
         type: 2}
       propertyPath: m_LocalPosition.y
-      value: 693
+      value: 144
       objectReference: {fileID: 0}
     - target: {fileID: 224471594704686316, guid: 7af591af75f6af9479f3c4f743039865,
         type: 2}

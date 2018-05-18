@@ -45,7 +45,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LoadInternalAfterChildren();
 
-            _valueProp = Schema.GetOwn("qr.value", "");
+            _valueProp = Schema.GetOwn("qr_value", "");
 
             _qr.OnRead += Qr_OnRead;
         }

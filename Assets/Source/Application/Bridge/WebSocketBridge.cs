@@ -368,6 +368,7 @@ namespace CreateAR.SpirePlayer
             if (null == service)
             {
                 // no connected services
+                Log.Warning(this, "No connected service to send message to.");
                 return;
             }
             
