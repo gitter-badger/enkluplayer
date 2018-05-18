@@ -1,4 +1,5 @@
-﻿using LightJson;
+﻿using CreateAR.SpirePlayer.IUX;
+using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
@@ -12,7 +13,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonName("appId")]
         public string AppId;
-
+        
         /// <summary>
         /// Useful ToString.
         /// </summary>

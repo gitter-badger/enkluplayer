@@ -27,6 +27,11 @@ namespace CreateAR.SpirePlayer
         private readonly IConnection _connection;
 
         /// <summary>
+        /// Loads app data.
+        /// </summary>
+        private readonly IAppController _app;
+
+        /// <summary>
         /// Config.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -38,12 +43,14 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IHttpService http,
             IConnection connection,
+            IAppController app,
             ApplicationConfig config,
             MessageTypeBinder binder)
         {
             _messages = messages;
             _http = http;
             _connection = connection;
+            _app = app;
             _config = config;
             
             binder.Add<UserCredentialsEvent>(MessageTypes.RECV_CREDENTIALS);
@@ -93,7 +100,7 @@ namespace CreateAR.SpirePlayer
         {
             // 
         }
-
+        
         /// <summary>
         /// Waits for credentials to be passed in.
         /// </summary>
@@ -156,7 +163,11 @@ namespace CreateAR.SpirePlayer
                     // update application config
                     _config.Play.AppId = info.AppId;
 
-                    callback();
+                    // load
+                    _app
+                        .Load(info.AppId)
+                        .OnSuccess(_ => callback())
+                        .OnFailure(ex => Log.Error(this, "Could not load app : {0}", ex));
                 });
         }
 

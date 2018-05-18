@@ -386,6 +386,18 @@ namespace CreateAR.SpirePlayer
         /// Url for thumbs.
         /// </summary>
         public string ThumbsUrl = "localhost";
+
+        /// <summary>
+        /// Useful ToString.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[EnvironmentData TrellisUrl={0}, AssetsUrl={1}, ThumbsUrl={2}]",
+                TrellisUrl,
+                AssetsUrl,
+                ThumbsUrl);
+        }
     }
 
     /// <summary>

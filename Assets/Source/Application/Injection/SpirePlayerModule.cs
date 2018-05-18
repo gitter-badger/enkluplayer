@@ -98,6 +98,8 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IElementTxnStoreFactory>().To<ElementTxnStoreFactory>();
                 binder.Bind<IAppSceneManager>().To<AppSceneManager>().ToSingleton();
                 binder.Bind<IAppDataLoader>().To<AppDataLoader>().ToSingleton();
+
+
                 binder.Bind<IElementTxnManager>().To<ElementTxnManager>().ToSingleton();
 
                 // input
@@ -150,6 +152,7 @@ namespace CreateAR.SpirePlayer
                 // services
                 {
                     binder.Bind<ApplicationStateService>().To<ApplicationStateService>().ToSingleton();
+                    binder.Bind<EnvironmentUpdateService>().To<EnvironmentUpdateService>().ToSingleton();
                     binder.Bind<AssetUpdateService>().To<AssetUpdateService>().ToSingleton();
                     binder.Bind<ScriptUpdateService>().To<ScriptUpdateService>().ToSingleton();
                     binder.Bind<MaterialUpdateService>().To<MaterialUpdateService>().ToSingleton();
@@ -214,6 +217,7 @@ namespace CreateAR.SpirePlayer
                     new ApplicationService[]
                     {
                         binder.GetInstance<ApplicationStateService>(),
+                        binder.GetInstance<EnvironmentUpdateService>(),
                         binder.GetInstance<AssetUpdateService>(),
                         binder.GetInstance<ScriptUpdateService>(),
                         binder.GetInstance<MaterialUpdateService>(),

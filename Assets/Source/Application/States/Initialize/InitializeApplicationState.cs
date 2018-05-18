@@ -55,34 +55,7 @@ namespace CreateAR.SpirePlayer
 
             // ble
             _ble.Setup(_bleConfig);
-
-            // setup URL builders from environment
-            {
-                var env = _appConfig.Network.Environment;
-
-                var trellisFormatter = new LoggedUrlFormatter();
-                if (!trellisFormatter.FromUrl(env.TrellisUrl))
-                {
-                    Log.Error(this, "Invalid trellis URL : " + env.TrellisUrl);
-                }
-
-                var assetsFormatter = new LoggedUrlFormatter();
-                if (!assetsFormatter.FromUrl(env.AssetsUrl))
-                {
-                    Log.Error(this, "Invalid assets URL : " + env.AssetsUrl);
-                }
-
-                var thumbsFormatter = new LoggedUrlFormatter();
-                if (!thumbsFormatter.FromUrl(env.ThumbsUrl))
-                {
-                    Log.Error(this, "Invalid thumbs URL : " + env.ThumbsUrl);
-                }
-
-                _urls.Register("trellis", trellisFormatter);
-                _urls.Register("assets", assetsFormatter);
-                _urls.Register("thumbs", thumbsFormatter);
-            }
-
+            
             // reset assets
             _assets.Uninitialize();
             
