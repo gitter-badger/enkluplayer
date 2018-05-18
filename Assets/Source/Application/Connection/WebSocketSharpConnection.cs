@@ -250,12 +250,15 @@ namespace CreateAR.SpirePlayer
                 url = string.Join("/", substrings.Take(3).ToArray());
             }
 
-            // make websocket url
+#if IOS && !UNITY_EDITOR
+            // IOS HACK!!!
+            var wsUrl = "wss://ec2-34-216-59-227.us-west-2.compute.amazonaws.com:10001";
+#else
             var wsUrl = string.Format(
                 "{0}/socket.io/?nosession=true&__sails_io_sdk_version=1.2.1&__sails_io_sdk_platform=browser&__sails_io_sdk_language=javascript&EIO=3&transport=websocket",
-                // IOS HACK
-                "wss://ec2-34-216-59-227.us-west-2.compute.amazonaws.com:10001");
-                //url);
+                url);
+#endif
+
             return wsUrl;
         }
 

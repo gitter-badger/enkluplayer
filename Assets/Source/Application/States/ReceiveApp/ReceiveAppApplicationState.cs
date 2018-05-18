@@ -73,9 +73,25 @@ namespace CreateAR.SpirePlayer
             {
                 if (++calls == waits.Length)
                 {
-                    Log.Info(this, "Prerequisites accounted for. Proceed to play app!");
+                    Log.Info(this, "Prerequisites received. Opening connection to Trellis.");
 
-                    _messages.Publish(MessageTypes.PLAY);
+                    // connect to Trellis
+                    _connection
+                        .Connect(_config.Network.Environment)
+                        .OnSuccess(_ =>
+                        {
+                            Log.Info(this, "Connected to Trellis, finishing app load.");
+
+                            // load
+                            _app
+                                .Load(_config.Play.AppId)
+                                .OnSuccess(__ => _messages.Publish(MessageTypes.PLAY))
+                                .OnFailure(ex => Log.Error(this, "Could not load app : {0}", ex));
+                        })
+                        .OnFailure(exception =>
+                        {
+                            Log.Error(this, "Could not connect to Trellis : {0}.", exception);
+                        });
                 }
                 else
                 {
@@ -126,21 +142,7 @@ namespace CreateAR.SpirePlayer
                     // setup http service
                     creds.Apply(_http);
 
-                    // connect to Trellis
-                    _connection
-                        .Connect(_config.Network.Environment)
-                        .OnSuccess(_ =>
-                        {
-                            Log.Info(this, "Connected to Trellis.");
-
-                            callback();
-                        })
-                        .OnFailure(exception =>
-                        {
-                            Log.Error(this, "Could not connect to Trellis : {0}.", exception);
-
-                            callback();
-                        });
+                    callback();
                 });
         }
 
@@ -163,11 +165,7 @@ namespace CreateAR.SpirePlayer
                     // update application config
                     _config.Play.AppId = info.AppId;
 
-                    // load
-                    _app
-                        .Load(info.AppId)
-                        .OnSuccess(_ => callback())
-                        .OnFailure(ex => Log.Error(this, "Could not load app : {0}", ex));
+                    callback();
                 });
         }
 

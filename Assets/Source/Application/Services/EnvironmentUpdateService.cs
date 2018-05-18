@@ -14,11 +14,11 @@ namespace CreateAR.SpirePlayer
         /// Application configuration.
         /// </summary>
         private readonly ApplicationConfig _config;
-
+        
         /// <summary>
-        /// Application-wide url configurations.
+        /// Http service.
         /// </summary>
-        private readonly UrlFormatterCollection _urls;
+        private readonly IHttpService _http;
         
         /// <summary>
         /// Constructor.
@@ -27,11 +27,11 @@ namespace CreateAR.SpirePlayer
             ApplicationConfig config,
             MessageTypeBinder binder,
             IMessageRouter messages,
-            UrlFormatterCollection urls)
+            IHttpService http)
             : base(binder, messages)
         {
             _config = config;
-            _urls = urls;
+            _http = http;
         }
 
         /// <inheritdoc />
@@ -45,8 +45,6 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.RECV_ENV_INFO,
                 message =>
                 {
-                    Log.Info(this, "Environment info received : {0}.", message);
-
                     // update ApplicationConfig
                     var env = _config.Network.Environment;
                     env.AssetsUrl = message.AssetBaseUrl;
@@ -83,13 +81,16 @@ namespace CreateAR.SpirePlayer
                 Log.Error(this, "Invalid thumbs URL : " + env.ThumbsUrl);
             }
 
-            _urls.Unregister("trellis");
-            _urls.Unregister("assets");
-            _urls.Unregister("thumbs");
+            var urls = _http.Urls;
+            urls.Register("trellis", trellisFormatter);
+            urls.Register("assets", assetsFormatter);
+            urls.Register("thumbs", thumbsFormatter);
 
-            _urls.Register("trellis", trellisFormatter);
-            _urls.Register("assets", assetsFormatter);
-            _urls.Register("thumbs", thumbsFormatter);
+            urls.Default = "trellis";
+
+            // reapply
+            _config.Network.Credentials.Apply(_http);
+            Log.Info(this, "Example : {0}.", _http.Urls.Url("trellis://" + "/editor/app/foo"));
         }
     }
 }
