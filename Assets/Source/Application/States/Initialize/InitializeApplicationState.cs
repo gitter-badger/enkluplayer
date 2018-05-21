@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
@@ -22,13 +20,6 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetLoader _assetLoader;
         private readonly IBleService _ble;
         private readonly BleServiceConfiguration _bleConfig;
-        private readonly UrlFormatterCollection _urls;
-
-        /// <summary>
-        /// App config.
-        /// </summary>
-        private ApplicationConfig _appConfig;
-        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -37,22 +28,18 @@ namespace CreateAR.SpirePlayer
             IAssetManager assets,
             IAssetLoader assetLoader,
             IBleService ble,
-            BleServiceConfiguration bleConfig,
-            UrlFormatterCollection urls)
+            BleServiceConfiguration bleConfig)
         {
             _messages = messages;
             _assets = assets;
             _assetLoader = assetLoader;
             _bleConfig = bleConfig;
             _ble = ble;
-            _urls = urls;
         }
 
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
-            _appConfig = (ApplicationConfig) context;
-
             // ble
             _ble.Setup(_bleConfig);
             
@@ -62,6 +49,7 @@ namespace CreateAR.SpirePlayer
             // wait for tasks to finish
             var tasks = new List<IAsyncToken<Void>>
             {
+                // TODO: Move into service.
                 _assets.Initialize(new AssetManagerConfiguration
                 {
                     Loader = _assetLoader,

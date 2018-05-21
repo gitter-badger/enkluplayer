@@ -11,12 +11,7 @@ namespace CreateAR.SpirePlayer
         /// Message dispatch system.
         /// </summary>
         private readonly IMessageRouter _messages;
-
-        /// <summary>
-        /// The bridge into the web world.
-        /// </summary>
-        private readonly IBridge _bridge;
-
+        
         /// <summary>
         /// Manages txns.
         /// </summary>
@@ -31,34 +26,23 @@ namespace CreateAR.SpirePlayer
         /// Services to monitor host.
         /// </summary>
         private readonly ApplicationService[] _services;
-
-        /// <summary>
-        /// Handles messages from the bridge.
-        /// </summary>
-        private readonly BridgeMessageHandler _handler;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="messages">Pub/sub.</param>
-        /// <param name="bridge">The WebBridge.</param>
         /// <param name="txns">Manages txns.</param>
         /// <param name="filter">Filters messages.</param>
-        /// <param name="handler">The object that handles messages.</param>
         /// <param name="services">Services to monitor host.</param>
         public ApplicationServiceManager(
             IMessageRouter messages,
-            IBridge bridge,
             IElementTxnManager txns,
             MessageFilter filter,
-            BridgeMessageHandler handler,
             ApplicationService[] services)
         {
             _messages = messages;
-            _bridge = bridge;
             _txns = txns;
             _filter = filter;
-            _handler = handler;
             _services = services;
         }
 
@@ -72,13 +56,8 @@ namespace CreateAR.SpirePlayer
                 {
                     // add filters
                     _filter.Filter(new ElementUpdateExclusionFilter(_txns));
-
-                    // ready for action
-                    _bridge.BroadcastReady();
                 });
-
-            _bridge.Initialize(_handler);
-
+            
             for (int i = 0, len = _services.Length; i < len; i++)
             {
                 _services[i].Start();
@@ -101,8 +80,6 @@ namespace CreateAR.SpirePlayer
             {
                 _services[i].Stop();
             }
-
-            _bridge.Uninitialize();
         }
 
         /// <inheritdoc />

@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
@@ -34,12 +35,12 @@ namespace CreateAR.SpirePlayer
         [System.Runtime.InteropServices.DllImport("__Internal")]
         public static extern void message(string message);
 #endif
-
+        
         /// <inheritdoc cref="IBridge"/>
         public void Initialize(BridgeMessageHandler handler)
         {
             _handler = handler;
-
+            
 #if !UNITY_EDITOR && UNITY_WEBGL
             UnityEngine.WebGLInput.captureAllKeyboardInput = false;
 

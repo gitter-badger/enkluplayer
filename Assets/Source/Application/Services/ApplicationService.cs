@@ -25,7 +25,7 @@ namespace CreateAR.SpirePlayer
         /// List of methods to unsubscribe.
         /// </summary>
         private readonly List<Action> _unsubscribeList = new List<Action>();
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
@@ -100,6 +101,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Remove(int messageType)
         {
+            Log.Info(this, "Remove({0})", messageType);
+
             if (null == ByMessageType(messageType))
             {
                 throw new Exception(string.Format(

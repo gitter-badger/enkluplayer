@@ -70,9 +70,9 @@ namespace CreateAR.SpirePlayer
             }
 
             var assetsFormatter = new LoggedUrlFormatter();
-            if (!assetsFormatter.FromUrl(env.AssetsUrl))
+            if (!assetsFormatter.FromUrl(env.BundlesUrl))
             {
-                Log.Error(this, "Invalid assets URL : " + env.AssetsUrl);
+                Log.Error(this, "Invalid assets URL : " + env.BundlesUrl);
             }
 
             var thumbsFormatter = new LoggedUrlFormatter();
@@ -90,7 +90,6 @@ namespace CreateAR.SpirePlayer
 
             // reapply
             _config.Network.Credentials.Apply(_http);
-            Log.Info(this, "Example : {0}.", _http.Urls.Url("trellis://" + "/editor/app/foo"));
         }
     }
 }

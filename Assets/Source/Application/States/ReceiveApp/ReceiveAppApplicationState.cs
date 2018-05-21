@@ -32,6 +32,11 @@ namespace CreateAR.SpirePlayer
         private readonly IAppController _app;
 
         /// <summary>
+        /// The bridge.
+        /// </summary>
+        private readonly IBridge _bridge;
+
+        /// <summary>
         /// Config.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -44,17 +49,21 @@ namespace CreateAR.SpirePlayer
             IHttpService http,
             IConnection connection,
             IAppController app,
-            ApplicationConfig config,
-            MessageTypeBinder binder)
+            IBridge bridge,
+            BridgeMessageHandler handler,
+            ApplicationConfig config)
         {
             _messages = messages;
             _http = http;
             _connection = connection;
             _app = app;
+            _bridge = bridge;
             _config = config;
             
-            binder.Add<UserCredentialsEvent>(MessageTypes.RECV_CREDENTIALS);
-            binder.Add<AppInfoEvent>(MessageTypes.RECV_APP_INFO);
+            handler.Binder.Add<UserCredentialsEvent>(MessageTypes.RECV_CREDENTIALS);
+            handler.Binder.Add<AppInfoEvent>(MessageTypes.RECV_APP_INFO);
+
+            _bridge.Initialize(handler);
         }
 
         /// <inheritdoc />
@@ -103,6 +112,8 @@ namespace CreateAR.SpirePlayer
             {
                 waits[i](callback);
             }
+
+            _bridge.BroadcastReady();
         }
 
         /// <inheritdoc />

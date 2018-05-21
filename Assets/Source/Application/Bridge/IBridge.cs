@@ -11,7 +11,7 @@
         MessageTypeBinder Binder { get; }
 
         /// <summary>
-        /// Initializes the bridge and provides an object to pass messages to.
+        /// Initializes the bridge.
         /// </summary>
         /// <param name="handler">The object that receives messages from the bridge.
         /// These messages are unpacked, filtered, and pushed onto the application

@@ -138,7 +138,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
                     binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-                    binder.Bind<IBridge>().To<WebBridge>().ToSingleton();
+                    binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
 #elif NETFX_CORE
                     binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
@@ -210,13 +210,11 @@ namespace CreateAR.SpirePlayer
                 // service manager + application
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IMessageRouter>(),
-                    binder.GetInstance<IBridge>(),
                     binder.GetInstance<IElementTxnManager>(),
                     binder.GetInstance<MessageFilter>(),
-                    binder.GetInstance<BridgeMessageHandler>(),
                     new ApplicationService[]
                     {
-                        binder.GetInstance<ApplicationStateService>(),
+                        // Order is important.
                         binder.GetInstance<EnvironmentUpdateService>(),
                         binder.GetInstance<AssetUpdateService>(),
                         binder.GetInstance<ScriptUpdateService>(),
@@ -224,7 +222,8 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<ShaderUpdateService>(),
                         binder.GetInstance<SceneUpdateService>(),
                         binder.GetInstance<ElementActionHelperService>(),
-                        binder.GetInstance<UserPreferenceService>()
+                        binder.GetInstance<UserPreferenceService>(),
+                        binder.GetInstance<ApplicationStateService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }

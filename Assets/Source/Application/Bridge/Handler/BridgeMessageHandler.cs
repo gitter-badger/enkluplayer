@@ -171,7 +171,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="message">Message.</param>
         /// <param name="replacements">Replacements.</param>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void Silly(object message, params object[] replacements)
         {
             Log.Debug(this, "<color=green>" +  message + "</color>", replacements);
