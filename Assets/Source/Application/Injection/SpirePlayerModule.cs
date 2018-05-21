@@ -155,7 +155,6 @@ namespace CreateAR.SpirePlayer
 #endif
                 }
 
-
                 // spire-specific bindings
                 AddSpireBindings(config, binder);
 
