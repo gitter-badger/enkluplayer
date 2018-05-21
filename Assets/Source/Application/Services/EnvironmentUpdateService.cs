@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Http;
+﻿using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
@@ -48,6 +47,7 @@ namespace CreateAR.SpirePlayer
                     // update ApplicationConfig
                     var env = _config.Network.Environment;
                     env.AssetsUrl = message.AssetBaseUrl;
+                    env.BundlesUrl = message.BundlesUrl;
                     env.ThumbsUrl = message.ThumbsUrl;
                     env.TrellisUrl = message.TrellisBaseUrl;
                     

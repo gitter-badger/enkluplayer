@@ -16,6 +16,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Dependencies.
         /// </summary>
+        private readonly IGizmoManager _gizmos;
         private readonly VineImporter _parser;
         private readonly IPrimitiveFactory _primitives;
         private readonly IIntentionManager _intention;
@@ -50,6 +51,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public ElementFactory(
             IElementManager elements,
+            IGizmoManager gizmos,
             VineImporter parser,
             IPrimitiveFactory primitives,
             IIntentionManager intention,
@@ -69,6 +71,7 @@ namespace CreateAR.SpirePlayer.IUX
             IQrReaderService qr)
         {
             _parser = parser;
+            _gizmos = gizmos;
             _primitives = primitives;
             _intention = intention;
             _interaction = interaction;
@@ -265,6 +268,8 @@ namespace CreateAR.SpirePlayer.IUX
                 _elements.Add(element);
                 element.Load(data, schema, children);
             }
+
+            _gizmos.Track(element);
 
             return element;
         }

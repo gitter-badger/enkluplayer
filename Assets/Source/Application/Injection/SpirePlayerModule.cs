@@ -85,6 +85,16 @@ namespace CreateAR.SpirePlayer
                 
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
                 binder.Bind<IImageLoader>().To<StandardImageLoader>().ToSingleton();
+
+                if (config.ParsedPlatform == RuntimePlatform.WebGLPlayer)
+                {
+                    binder.Bind<IGizmoManager>().To(LookupComponent<GizmoManager>());
+                }
+                else
+                {
+                    binder.Bind<IGizmoManager>().To<PassthroughGizmoManager>().ToSingleton();
+                }
+                
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
                 binder.Bind<IVinePreProcessor>().To<JsVinePreProcessor>().ToSingleton();
                 binder.Bind<IVineTable>().To(LookupComponent<VineTable>());
