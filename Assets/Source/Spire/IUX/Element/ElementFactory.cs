@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.SpirePlayer.Assets;
+using CreateAR.SpirePlayer.Qr;
 using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
 
@@ -15,6 +16,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Dependencies.
         /// </summary>
+        private readonly IGizmoManager _gizmos;
         private readonly VineImporter _parser;
         private readonly IPrimitiveFactory _primitives;
         private readonly IIntentionManager _intention;
@@ -32,6 +34,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IScriptManager _scripts;
         private readonly IAssetManager _assets;
         private readonly IAssetPoolManager _pools;
+        private readonly IQrReaderService _qr;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -48,6 +51,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public ElementFactory(
             IElementManager elements,
+            IGizmoManager gizmos,
             VineImporter parser,
             IPrimitiveFactory primitives,
             IIntentionManager intention,
@@ -63,9 +67,11 @@ namespace CreateAR.SpirePlayer.IUX
             IWorldAnchorProvider provider,
             IScriptManager scripts,
             IAssetManager assets,
-            IAssetPoolManager pools)
+            IAssetPoolManager pools,
+            IQrReaderService qr)
         {
             _parser = parser;
+            _gizmos = gizmos;
             _primitives = primitives;
             _intention = intention;
             _interaction = interaction;
@@ -82,6 +88,7 @@ namespace CreateAR.SpirePlayer.IUX
             _scripts = scripts;
             _assets = assets;
             _pools = pools;
+            _qr = qr;
             
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -204,6 +211,15 @@ namespace CreateAR.SpirePlayer.IUX
                     { "axis", "x" }
                 }
             });
+
+            var qrAnchorSchema = _typeSchema[ElementTypes.QR_ANCHOR] = new ElementSchema("Base.QrAnchor");
+            qrAnchorSchema.Load(new ElementSchemaData
+            {
+                Bools = new Dictionary<string, bool>
+                {
+                    { "visible", false }
+                }
+            });
         }
 
         /// <inheritdoc />
@@ -252,6 +268,8 @@ namespace CreateAR.SpirePlayer.IUX
                 _elements.Add(element);
                 element.Load(data, schema, children);
             }
+
+            _gizmos.Track(element);
 
             return element;
         }
@@ -342,6 +360,16 @@ namespace CreateAR.SpirePlayer.IUX
                 case ElementTypes.WORLD_ANCHOR:
                 {
                     return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _cache, _provider);
+                }
+                case ElementTypes.QR_ANCHOR:
+                {
+                    return new QrAnchorWidget(
+                        new GameObject("QrAnchor"),
+                        _layers,
+                        _tweens,
+                        _colors,
+                        _qr,
+                        _intention);
                 }
                 default:
                 {

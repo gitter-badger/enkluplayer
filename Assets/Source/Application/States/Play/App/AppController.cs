@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -24,6 +25,11 @@ namespace CreateAR.SpirePlayer
         /// Pipe for all element updates.
         /// </summary>
         private readonly IElementTxnManager _txns;
+
+        /// <summary>
+        /// True iff the app has been loaded.
+        /// </summary>
+        private bool _isLoaded;
 
         /// <inheritdoc />
         public string Id { get; private set; }
@@ -57,12 +63,17 @@ namespace CreateAR.SpirePlayer
 
             LogVerbose("Load().");
 
-            return _loader.Load(appId);
+            return _loader
+                .Load(appId)
+                .OnSuccess(_ => _isLoaded = true)
+                .Token();
         }
 
         /// <inheritdoc />
         public void Unload()
         {
+            _isLoaded = false;
+
             _loader.Unload();
             _scenes.Uninitialize();
             _txns.Uninitialize();
@@ -71,6 +82,11 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Play()
         {
+            if (!_isLoaded)
+            {
+                throw new Exception("App has not been loaded!");
+            }
+
             _scenes
                 .Initialize(Id, _loader)
                 .OnSuccess(_ =>

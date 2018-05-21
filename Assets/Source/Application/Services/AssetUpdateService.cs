@@ -174,6 +174,12 @@ namespace CreateAR.SpirePlayer
         {
             // append build target to URI
             var index = asset.Uri.IndexOf(".bundle", StringComparison.Ordinal);
+            if (-1 == index)
+            {
+                Log.Warning(this, "Invalid AssetData Uri : {0}.", asset.Uri);
+                return;
+            }
+
             asset.Uri = string.Format(
                 "{0}_{1}.bundle",
                 asset.Uri.Substring(0, index),

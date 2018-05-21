@@ -180,6 +180,10 @@ namespace CreateAR.SpirePlayer
             if (args.SelectedObjects.Count == 1)
             {
                 var selected = args.SelectedObjects[0].GetComponent<DesktopContentDesignController>();
+                if (null == selected)
+                {
+                    return;
+                }
 
                 _bridge.Send(string.Format(
                     @"{{""type"":{0}, ""sceneId"":""{1}"", ""elementId"":""{2}""}}",

@@ -85,6 +85,16 @@ namespace CreateAR.SpirePlayer
                 
                 binder.Bind<IFileManager>().To<FileManager>().ToSingleton();
                 binder.Bind<IImageLoader>().To<StandardImageLoader>().ToSingleton();
+
+                if (config.ParsedPlatform == RuntimePlatform.WebGLPlayer)
+                {
+                    binder.Bind<IGizmoManager>().To(LookupComponent<GizmoManager>());
+                }
+                else
+                {
+                    binder.Bind<IGizmoManager>().To<PassthroughGizmoManager>().ToSingleton();
+                }
+                
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
                 binder.Bind<IVinePreProcessor>().To<JsVinePreProcessor>().ToSingleton();
                 binder.Bind<IVineTable>().To(LookupComponent<VineTable>());
@@ -98,6 +108,8 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IElementTxnStoreFactory>().To<ElementTxnStoreFactory>();
                 binder.Bind<IAppSceneManager>().To<AppSceneManager>().ToSingleton();
                 binder.Bind<IAppDataLoader>().To<AppDataLoader>().ToSingleton();
+
+
                 binder.Bind<IElementTxnManager>().To<ElementTxnManager>().ToSingleton();
 
                 // input
@@ -136,13 +148,12 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
                     binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-                    binder.Bind<IBridge>().To<WebBridge>().ToSingleton();
+                    binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
 #elif NETFX_CORE
                     binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
 #endif
                 }
-
 
                 // spire-specific bindings
                 AddSpireBindings(config, binder);
@@ -150,6 +161,7 @@ namespace CreateAR.SpirePlayer
                 // services
                 {
                     binder.Bind<ApplicationStateService>().To<ApplicationStateService>().ToSingleton();
+                    binder.Bind<EnvironmentUpdateService>().To<EnvironmentUpdateService>().ToSingleton();
                     binder.Bind<AssetUpdateService>().To<AssetUpdateService>().ToSingleton();
                     binder.Bind<ScriptUpdateService>().To<ScriptUpdateService>().ToSingleton();
                     binder.Bind<MaterialUpdateService>().To<MaterialUpdateService>().ToSingleton();
@@ -207,20 +219,20 @@ namespace CreateAR.SpirePlayer
                 // service manager + application
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
                     binder.GetInstance<IMessageRouter>(),
-                    binder.GetInstance<IBridge>(),
                     binder.GetInstance<IElementTxnManager>(),
                     binder.GetInstance<MessageFilter>(),
-                    binder.GetInstance<BridgeMessageHandler>(),
                     new ApplicationService[]
                     {
-                        binder.GetInstance<ApplicationStateService>(),
+                        // Order is important.
+                        binder.GetInstance<EnvironmentUpdateService>(),
                         binder.GetInstance<AssetUpdateService>(),
                         binder.GetInstance<ScriptUpdateService>(),
                         binder.GetInstance<MaterialUpdateService>(),
                         binder.GetInstance<ShaderUpdateService>(),
                         binder.GetInstance<SceneUpdateService>(),
                         binder.GetInstance<ElementActionHelperService>(),
-                        binder.GetInstance<UserPreferenceService>()
+                        binder.GetInstance<UserPreferenceService>(),
+                        binder.GetInstance<ApplicationStateService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }

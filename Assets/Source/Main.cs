@@ -169,7 +169,7 @@ namespace CreateAR.SpirePlayer
 	        var bridge = _binder.GetInstance<IBridge>() as WebSocketBridge;
 	        if (null != bridge)
 	        {
-                Log.Info(this, "Disposing websocket server.");
+                Log.Info(this, "Disposing IBridge.");
 
 	            bridge.Dispose();
 	        }

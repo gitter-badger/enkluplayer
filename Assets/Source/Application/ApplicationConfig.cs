@@ -378,14 +378,32 @@ namespace CreateAR.SpirePlayer
         public string TrellisUrl = "localhost";
 
         /// <summary>
-        /// Url for assets.
+        /// Url for asset import server.
         /// </summary>
         public string AssetsUrl = "localhost";
+
+        /// <summary>
+        /// Url for bundle download.
+        /// </summary>
+        public string BundlesUrl = "localhost";
 
         /// <summary>
         /// Url for thumbs.
         /// </summary>
         public string ThumbsUrl = "localhost";
+
+        /// <summary>
+        /// Useful ToString.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[EnvironmentData TrellisUrl={0}, AssetsUrl={1}, BundlesUrl={2}, ThumbsUrl={3}]",
+                TrellisUrl,
+                AssetsUrl,
+                BundlesUrl,
+                ThumbsUrl);
+        }
     }
 
     /// <summary>

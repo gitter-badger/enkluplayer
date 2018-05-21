@@ -96,7 +96,6 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(ex => Log.Error(this, "Could not open Play.Main : {0}.", ex));
 
-            _qr.OnRead += Qr_OnRead;
             _qr.Start();
         }
 
@@ -104,7 +103,6 @@ namespace CreateAR.SpirePlayer
         public void Teardown()
         {
             _qr.Stop();
-            _qr.OnRead -= Qr_OnRead;
             
             _frame.Release();
             
@@ -174,18 +172,6 @@ namespace CreateAR.SpirePlayer
             _menu.gameObject.SetActive(true);
             
             callback(texture);
-        }
-        
-        /// <summary>
-        /// Called when qr code is successfully read.
-        /// </summary>
-        /// <param name="value">The string value.</param>
-        private void Qr_OnRead(string value)
-        {
-            var bytes = Convert.FromBase64String(value);
-            var decoded = Encoding.UTF8.GetString(bytes);
-            
-            Log.Info(this, "Decoded QR : {0}.", decoded);
         }
     }
 }

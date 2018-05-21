@@ -27,6 +27,16 @@ namespace CreateAR.SpirePlayer
         private readonly IConnection _connection;
 
         /// <summary>
+        /// Loads app data.
+        /// </summary>
+        private readonly IAppController _app;
+
+        /// <summary>
+        /// The bridge.
+        /// </summary>
+        private readonly IBridge _bridge;
+
+        /// <summary>
         /// Config.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -38,16 +48,22 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IHttpService http,
             IConnection connection,
-            ApplicationConfig config,
-            MessageTypeBinder binder)
+            IAppController app,
+            IBridge bridge,
+            BridgeMessageHandler handler,
+            ApplicationConfig config)
         {
             _messages = messages;
             _http = http;
             _connection = connection;
+            _app = app;
+            _bridge = bridge;
             _config = config;
             
-            binder.Add<UserCredentialsEvent>(MessageTypes.RECV_CREDENTIALS);
-            binder.Add<AppInfoEvent>(MessageTypes.RECV_APP_INFO);
+            handler.Binder.Add<UserCredentialsEvent>(MessageTypes.RECV_CREDENTIALS);
+            handler.Binder.Add<AppInfoEvent>(MessageTypes.RECV_APP_INFO);
+
+            _bridge.Initialize(handler);
         }
 
         /// <inheritdoc />
@@ -66,9 +82,25 @@ namespace CreateAR.SpirePlayer
             {
                 if (++calls == waits.Length)
                 {
-                    Log.Info(this, "Prerequisites accounted for. Proceed to play app!");
+                    Log.Info(this, "Prerequisites received. Opening connection to Trellis.");
 
-                    _messages.Publish(MessageTypes.PLAY);
+                    // connect to Trellis
+                    _connection
+                        .Connect(_config.Network.Environment)
+                        .OnSuccess(_ =>
+                        {
+                            Log.Info(this, "Connected to Trellis, finishing app load.");
+
+                            // load
+                            _app
+                                .Load(_config.Play.AppId)
+                                .OnSuccess(__ => _messages.Publish(MessageTypes.PLAY))
+                                .OnFailure(ex => Log.Error(this, "Could not load app : {0}", ex));
+                        })
+                        .OnFailure(exception =>
+                        {
+                            Log.Error(this, "Could not connect to Trellis : {0}.", exception);
+                        });
                 }
                 else
                 {
@@ -80,6 +112,8 @@ namespace CreateAR.SpirePlayer
             {
                 waits[i](callback);
             }
+
+            _bridge.BroadcastReady();
         }
 
         /// <inheritdoc />
@@ -93,7 +127,7 @@ namespace CreateAR.SpirePlayer
         {
             // 
         }
-
+        
         /// <summary>
         /// Waits for credentials to be passed in.
         /// </summary>
@@ -119,21 +153,7 @@ namespace CreateAR.SpirePlayer
                     // setup http service
                     creds.Apply(_http);
 
-                    // connect to Trellis
-                    _connection
-                        .Connect(_config.Network.Environment)
-                        .OnSuccess(_ =>
-                        {
-                            Log.Info(this, "Connected to Trellis.");
-
-                            callback();
-                        })
-                        .OnFailure(exception =>
-                        {
-                            Log.Error(this, "Could not connect to Trellis : {0}.", exception);
-
-                            callback();
-                        });
+                    callback();
                 });
         }
 

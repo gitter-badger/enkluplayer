@@ -92,6 +92,9 @@ namespace CreateAR.SpirePlayer
         [ElementLink(typeof(WorldAnchorWidget))]
         public const int WORLD_ANCHOR = 1000000;
 
+        [ElementLink(typeof(QrAnchorWidget))]
+        public const int QR_ANCHOR = 1000001;
+
         /// <summary>
         /// Retrieves a type from an element.
         /// </summary>
