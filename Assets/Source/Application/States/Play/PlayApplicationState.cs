@@ -3,6 +3,7 @@ using System.Collections;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.AR;
 using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -49,6 +50,16 @@ namespace CreateAR.SpirePlayer
         /// Manages app.
         /// </summary>
         private readonly IAppController _app;
+
+        /// <summary>
+        /// AR interface.
+        /// </summary>
+        private readonly IArService _ar;
+
+        /// <summary>
+        /// UI interface.
+        /// </summary>
+        private readonly IUIManager _ui;
         
         /// <summary>
         /// Context for designer.
@@ -66,6 +77,11 @@ namespace CreateAR.SpirePlayer
         private bool _statusCleared;
         
         /// <summary>
+        /// Interrupt view id.
+        /// </summary>
+        private int _interruptId;
+        
+        /// <summary>
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
@@ -74,7 +90,9 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IScriptRequireResolver resolver,
             IDesignController design,
-            IAppController app)
+            IAppController app,
+            IArService ar,
+            IUIManager ui)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -82,6 +100,8 @@ namespace CreateAR.SpirePlayer
             _resolver = resolver;
             _design = design;
             _app = app;
+            _ar = ar;
+            _ui = ui;
         }
 
         /// <inheritdoc />
@@ -93,16 +113,14 @@ namespace CreateAR.SpirePlayer
             {
                 Edit = _config.Play.Edit
             };
+            
+            // watch tracking
+            _ar.OnTrackingOffline += Ar_OnTrackingOffline;
+            _ar.OnTrackingOnline += Ar_OnTrackingOnline;
 
             _enterTime = DateTime.Now;
             _statusCleared = false;
 
-#if NETFX_CORE || UNITY_IOS || UNITY_ANDROID
-            _messages.Publish(
-                MessageTypes.STATUS,
-                NetworkUtils.GetNetworkSummary());
-#endif
-            
             _resolver.Initialize(
 #if NETFX_CORE
                 // reference by hand
@@ -134,6 +152,10 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "PlayApplicationState::Exit()");
             
+            // unwatch tracking
+            _ar.OnTrackingOffline -= Ar_OnTrackingOffline;
+            _ar.OnTrackingOnline -= Ar_OnTrackingOnline;
+            
             // teardown app
             _app.Unload();
 
@@ -164,6 +186,29 @@ namespace CreateAR.SpirePlayer
 
             // start designer
             _design.Setup(_context, _app);
+        }
+        
+        /// <summary>
+        /// Called when we've lost AR tracking.
+        /// </summary>
+        private void Ar_OnTrackingOffline()
+        {
+            Log.Info(this, "Ar tracking lost!");
+
+            _ui.Open<IUIElement>(new UIReference
+            {
+                UIDataId = "Ar.Interrupted"
+            }, out _interruptId);
+        }
+        
+        /// <summary>
+        /// Called when AR tracking is back online.
+        /// </summary>
+        private void Ar_OnTrackingOnline()
+        {
+            Log.Info(this, "Ar tracking back online.");
+
+            _ui.Close(_interruptId);
         }
     }
 }

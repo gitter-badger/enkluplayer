@@ -67,7 +67,9 @@ namespace CreateAR.SpirePlayer
             // been specifically denied, open the error view
             if (null != exception || CameraUtilsNativeInterface.HasDeniedCameraPermissions)
             {
-                Log.Info(this, "Exception.");
+                Log.Info(this, "Exception : {0}, HasDeniedCameraPermissions: {1}",
+                    exception,
+                    CameraUtilsNativeInterface.HasDeniedCameraPermissions);
                 int errorId;
                 _ui
                     .Open<MobileErrorUIView>(new UIReference
@@ -121,6 +123,23 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void StartArService()
         {
+            _ui
+                .Open<MobileArScanningViewController>(new UIReference
+                {
+                    UIDataId = "Ar.Scanning"
+                }, out _scanningId);
+            
+            _bootstrapper.BootstrapCoroutine(DelayArSetup());
+        }
+
+        /// <summary>
+        /// Slight delay for starting the camera.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator DelayArSetup()
+        {
+            yield return new WaitForSecondsRealtime(0.25f);
+            
             _ar.Setup(_arConfig);
 
             TryFindFloor();
@@ -131,20 +150,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void TryFindFloor()
         {
-            _ui
-                .Open<MobileArScanningViewController>(new UIReference
-                {
-                    UIDataId = "Ar.Scanning"
-                }, out _scanningId);
-            
             FindFloor()
                 .OnSuccess(_ =>
                 {
                     _ui.Close(_scanningId);
-                    
-                    // watch tracking
-                    _ar.OnTrackingOffline += Ar_OnTrackingOffline;
-                    _ar.OnTrackingOnline += Ar_OnTrackingOnline;
                     
                     _messages.Publish(MessageTypes.FLOOR_FOUND);
                 })
@@ -248,26 +257,6 @@ namespace CreateAR.SpirePlayer
                 
                 yield return null;
             }
-        }
-        
-        /// <summary>
-        /// Called when we've lost AR tracking.
-        /// </summary>
-        private void Ar_OnTrackingOffline()
-        {
-            Log.Info(this, "Ar tracking lost!");
-            
-            //_interrupted.gameObject.SetActive(true);
-        }
-        
-        /// <summary>
-        /// Called when AR tracking is back online.
-        /// </summary>
-        private void Ar_OnTrackingOnline()
-        {
-            Log.Info(this, "Ar tracking back online.");
-            
-            //_interrupted.gameObject.SetActive(false);
         }
         
         /// <summary>

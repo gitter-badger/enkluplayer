@@ -185,6 +185,8 @@ namespace CreateAR.SpirePlayer.Assets
             }
             
 #if UNITY_IOS || UNITY_WEBGL
+            Verbose("Download bundle from {0}.", _url);
+            
             var request = WWW.LoadFromCacheOrDownload(
                 _url,
                 0);
@@ -284,7 +286,7 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         /// <param name="message">Message to log.</param>
         /// <param name="replacements">Logging replacements.</param>
-        [Conditional("LOGGING_VERBOSE")]
+        //[Conditional("LOGGING_VERBOSE")]
         private void Verbose(string message, params object[] replacements)
         {
             Log.Info(this,
