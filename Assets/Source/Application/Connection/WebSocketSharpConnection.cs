@@ -125,7 +125,7 @@ namespace CreateAR.SpirePlayer
             
             Log.Info(this, "Opening socket to {0}.", wsUrl);
 
-            _connectToken = new AsyncToken<Void>();
+            var token = _connectToken = new AsyncToken<Void>();
 
             try
             {
@@ -139,10 +139,10 @@ namespace CreateAR.SpirePlayer
             }
             catch (Exception exception)
             {
-                _connectToken.Fail(exception);
+                token.Fail(exception);
             }
 
-            return _connectToken.Token();
+            return token.Token();
         }
         
         /// <summary>
@@ -250,7 +250,7 @@ namespace CreateAR.SpirePlayer
                 url = string.Join("/", substrings.Take(3).ToArray());
             }
 
-#if UNITY_IOS && !UNITY_EDITOR
+#if UNITY_IOS
             // IOS HACK!!!
             var wsUrl = "wss://ec2-34-216-59-227.us-west-2.compute.amazonaws.com:10001";
 #else
