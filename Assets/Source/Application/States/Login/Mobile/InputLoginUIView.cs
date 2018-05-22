@@ -40,6 +40,18 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Submit_OnClicked()
         {
+            if (string.IsNullOrEmpty(UserName.text))
+            {
+                Error.text = "Please enter a valid email.";
+                return;
+            }
+
+            if (string.IsNullOrEmpty(Password.text))
+            {
+                Error.text = "Please enter a valid password.";
+                return;
+            }
+            
             if (null != OnSubmit)
             {
                 OnSubmit(UserName.text, Password.text);
