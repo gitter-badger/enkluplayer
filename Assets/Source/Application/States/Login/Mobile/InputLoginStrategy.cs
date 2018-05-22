@@ -38,7 +38,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Id of login view.
         /// </summary>
-        private int _loginViewId;
+        private int _loginViewId = -1;
+
+        /// <summary>
+        /// Id of registration view.
+        /// </summary>
+        private int _registrationViewId = -1;
         
         /// <summary>
         /// Constructor.
@@ -59,9 +64,32 @@ namespace CreateAR.SpirePlayer
             _loginToken = new AsyncToken<CredentialsData>();
             _loginToken.OnFinally(_ => frame.Release());
             
-            OpenLogin();
+            OpenRegistration();
             
             return _loginToken.Token();
+        }
+
+        /// <summary>
+        /// Opens registration view.
+        /// </summary>
+        private void OpenRegistration()
+        {
+            if (!_ui.Reveal(_registrationViewId))
+            {
+                _ui
+                    .Open<MobileSignupUIView>(new UIReference
+                    {
+                        UIDataId = "Signup"
+                    }, out _registrationViewId)
+                    .OnSuccess(el =>
+                    {
+                        _signupView = el;
+                        _signupView.OnSubmit += SignUp_OnSubmit;
+                        _signupView.OnLicenseInfo += SignUp_OnLicenseInfo;
+                        _signupView.OnLogin += OpenLogin;
+                    })
+                    .OnFailure(exception => Log.Error(this, "Could not open mobile signup view."));
+            }
         }
 
         /// <summary>
@@ -69,11 +97,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void OpenLogin()
         {
-            if (_loginViewId != 0)
-            {
-                _ui.Reveal(_loginViewId);
-            }
-            else
+            if (!_ui.Reveal(_loginViewId))
             {
                 _ui
                     .Open<InputLoginUIView>(new UIReference
@@ -84,7 +108,7 @@ namespace CreateAR.SpirePlayer
                     {
                         _loginView = el;
                         _loginView.OnSubmit += View_OnSubmit;
-                        _loginView.OnSignUp += View_OnSignup;
+                        _loginView.OnSignUp += OpenRegistration;
                     })
                     .OnFailure(ex => Log.Error(this, "Could not open Login.Input : {0}.", ex));   
             }
@@ -138,26 +162,6 @@ namespace CreateAR.SpirePlayer
 
                     _loginView.Error.text = "Could not sign in. Please try again.";
                 });
-        }
-        
-        /// <summary>
-        /// Called when the input view has called submit.
-        /// </summary>
-        private void View_OnSignup()
-        {
-            int signupViewId;
-            _ui
-                .Open<MobileSignupUIView>(new UIReference
-                {
-                    UIDataId = "Signup"
-                }, out signupViewId)
-                .OnSuccess(el =>
-                {
-                    _signupView = el;
-                    _signupView.OnSubmit += SignUp_OnSubmit;
-                    _signupView.OnLicenseInfo += SignUp_OnLicenseInfo;
-                })
-                .OnFailure(exception => Log.Error(this, "Could not open mobile signup view."));
         }
         
         /// <summary>
@@ -215,7 +219,7 @@ namespace CreateAR.SpirePlayer
                 out licenseViewId)
                 .OnSuccess(el =>
                 {
-                    el.OnCancel += () => _ui.Reveal(_loginViewId);
+                    el.OnCancel += OpenRegistration;
                     el.OnRequest += License_OnSubmit;
                 })
                 .OnFailure(exception => Log.Error(this, "Could not open Signup.License : {0}", exception));

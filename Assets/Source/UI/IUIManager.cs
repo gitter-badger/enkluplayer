@@ -45,14 +45,14 @@ namespace CreateAR.SpirePlayer
         /// the passed in id is on top.
         /// </summary>
         /// <param name="stackId">The id to move along to in the stack.</param>
-        void Reveal(int stackId);
+        bool Reveal(int stackId);
 
         /// <summary>
         /// Moves down the stack, removing UI elements includig the element
         /// that matches the passed in id.
         /// </summary>
         /// <param name="stackId">The id to move along to in the stack.</param>
-        void Close(int stackId);
+        bool Close(int stackId);
 
         /// <summary>
         /// Closes top UI.

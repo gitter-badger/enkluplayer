@@ -55,6 +55,11 @@ namespace CreateAR.SpirePlayer
         public event Action OnLicenseInfo;
 
         /// <summary>
+        /// Called when login is requested.
+        /// </summary>
+        public event Action OnLogin;
+
+        /// <summary>
         /// Called when login has been clicked.
         /// </summary>
         public void SignupClicked()
@@ -109,6 +114,17 @@ namespace CreateAR.SpirePlayer
             if (null != OnLicenseInfo)
             {
                 OnLicenseInfo();
+            }
+        }
+
+        /// <summary>
+        /// Called when login has been clicked.
+        /// </summary>
+        public void LoginClicked()
+        {
+            if (null != OnLogin)
+            {
+                OnLogin();
             }
         }
     }

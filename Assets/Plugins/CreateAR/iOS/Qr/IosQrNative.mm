@@ -26,7 +26,7 @@ extern "C"
     {
         NSString* path = [NSString stringWithUTF8String: stringValue];
         
-        CIDetector* detector = [CIDetector detectorOfType:CIDetectorTypeQRCode context:[CIContext context] options:@{CIDetectorTracking: @YES, CIDetectorAccuracy: CIDetectorAccuracyHigh}];
+        CIDetector* detector = [CIDetector detectorOfType:CIDetectorTypeQRCode context:nil options:@{CIDetectorTracking: @YES, CIDetectorAccuracy: CIDetectorAccuracyHigh}];
         NSArray* features = [detector featuresInImage:[CIImage imageWithCGImage:[[UIImage imageNamed:path] CGImage]]];
         
         if (features != nil && features.count > 0) {
