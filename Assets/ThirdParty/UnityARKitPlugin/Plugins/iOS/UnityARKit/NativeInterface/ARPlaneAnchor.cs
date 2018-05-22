@@ -48,12 +48,22 @@ namespace UnityEngine.XR.iOS
          */
 		public UnityARPlaneGeometry planeGeometry;
 
-		public string identifierStr { get { return Marshal.PtrToStringAuto(this.ptrIdentifier); } }
+	    public string identifierStr
+	    {
+	        get
+	        {
+#if !NETFX_CORE
+                return Marshal.PtrToStringAuto(this.ptrIdentifier);
+#else
+                return string.Empty;
+#endif
+            }
+	    }
 
 	}
 
 
-	#if !UNITY_EDITOR
+#if !UNITY_EDITOR
 	public class ARPlaneGeometry
 	{
 		private UnityARPlaneGeometry uPlaneGeometry;
@@ -174,6 +184,6 @@ namespace UnityEngine.XR.iOS
 		public ARPlaneGeometry planeGeometry { get { return new ARPlaneGeometry (planeAnchorData.planeGeometry);	} }
 
 	}
-	#endif 
+#endif
 }
 

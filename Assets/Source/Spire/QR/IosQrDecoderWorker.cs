@@ -1,4 +1,4 @@
-﻿#if UNITY_IOS || NETFX_CORE
+﻿#if UNITY_IOS
 
 using System;
 using System.Collections;
