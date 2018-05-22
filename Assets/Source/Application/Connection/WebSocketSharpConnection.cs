@@ -250,7 +250,7 @@ namespace CreateAR.SpirePlayer
                 url = string.Join("/", substrings.Take(3).ToArray());
             }
 
-#if IOS && !UNITY_EDITOR
+#if UNITY_IOS && !UNITY_EDITOR
             // IOS HACK!!!
             var wsUrl = "wss://ec2-34-216-59-227.us-west-2.compute.amazonaws.com:10001";
 #else

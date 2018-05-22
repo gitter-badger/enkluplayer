@@ -145,9 +145,9 @@ namespace CreateAR.SpirePlayer.Test.UI
             // Act
             _ui.Open<DummyUIElement>(new UIReference(), out aId).OnSuccess(el => a = el);
             _ui.Open<DummyUIElement>(new UIReference(), out bId).OnSuccess(el => b = el);
-            _ui.Reveal(aId);
             
-            // lifecycle
+            // Assert
+            Assert.IsTrue(_ui.Reveal(aId));
             Assert.AreEqual(4, a.RevealedCalled);
             Assert.AreEqual(3, b.RemovedCalled);
         }
@@ -161,9 +161,9 @@ namespace CreateAR.SpirePlayer.Test.UI
 
             // Act
             _ui.Open<DummyUIElement>(new UIReference(), out aId).OnSuccess(el => a = el);
-            _ui.Reveal(aId);
 
             // Assert
+            Assert.IsTrue(_ui.Reveal(aId));
             Assert.AreEqual(2, a.RevealedCalled); // Revealed should not have been called by reveal
         }
 
@@ -177,6 +177,7 @@ namespace CreateAR.SpirePlayer.Test.UI
             // Act
             _ui.Open<DummyUIElement>(new UIReference(), out aId).OnSuccess(el => a = el);
             _ui.Open<DummyUIElement>(new UIReference(), out _);
+            
             _ui.Reveal(aId);
             _ui.Reveal(aId);
             _ui.Reveal(aId);
@@ -194,7 +195,7 @@ namespace CreateAR.SpirePlayer.Test.UI
 
             // Act
             _ui.Open<DummyUIElement>(new UIReference(), out aId).OnSuccess(el => a = el);
-            _ui.Close(aId);
+            Assert.IsTrue(_ui.Close(aId));
 
             // Assert
             Assert.AreEqual(3,  a.RemovedCalled);
@@ -211,7 +212,7 @@ namespace CreateAR.SpirePlayer.Test.UI
             _ui.Open<DummyUIElement>(new UIReference(), out aId).OnSuccess(el => a = el);
             _ui.Open<DummyUIElement>(new UIReference(), out _).OnSuccess(el => b = el);
             _ui.Open<DummyUIElement>(new UIReference(), out _).OnSuccess(el => c = el);
-            _ui.Close(aId);
+            Assert.IsTrue(_ui.Close(aId));
 
             // Assert
             Assert.AreEqual(4, a.RemovedCalled);

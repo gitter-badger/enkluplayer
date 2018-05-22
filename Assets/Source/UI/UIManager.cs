@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
-using UnityEngine.Analytics;
 
 namespace CreateAR.SpirePlayer
 {
@@ -133,7 +132,7 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <inheritdoc />
-        public void Reveal(int stackId)
+        public bool Reveal(int stackId)
         {
             // first, make sure element exists in stack at all
             var found = false;
@@ -148,7 +147,7 @@ namespace CreateAR.SpirePlayer
 
             if (!found)
             {
-                return;
+                return false;
             }
 
             // now run lifecycle events in order
@@ -164,7 +163,7 @@ namespace CreateAR.SpirePlayer
                         peek.Element.Revealed();
                     }
 
-                    return;
+                    return true;
                 }
 
                 _records.RemoveAt(_records.Count - 1);
@@ -183,10 +182,12 @@ namespace CreateAR.SpirePlayer
 
                 depth++;
             }
+
+            return true;
         }
 
         /// <inheritdoc />
-        public void Close(int stackId)
+        public bool Close(int stackId)
         {
             // first, make sure element exists in stack at all
             var found = false;
@@ -201,7 +202,7 @@ namespace CreateAR.SpirePlayer
 
             if (!found)
             {
-                return;
+                return false;
             }
 
             // now run lifecycle events in order
@@ -224,9 +225,11 @@ namespace CreateAR.SpirePlayer
 
                 if (record.StackId == stackId)
                 {
-                    return;
+                    return true;
                 }
             }
+
+            return false;
         }
 
         /// <inheritdoc />
