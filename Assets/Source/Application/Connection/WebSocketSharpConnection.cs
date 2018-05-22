@@ -252,7 +252,7 @@ namespace CreateAR.SpirePlayer
 
 #if UNITY_IOS
             // IOS HACK!!!
-            var wsUrl = "wss://ec2-34-216-59-227.us-west-2.compute.amazonaws.com:10001";
+            var wsUrl = "wss://ec2-34-216-59-227.us-west-2.compute.amazonaws.com:10001/socket.io/?nosession=true&__sails_io_sdk_version=1.2.1&__sails_io_sdk_platform=browser&__sails_io_sdk_language=javascript&EIO=3&transport=websocket";
 #else
             var wsUrl = string.Format(
                 "{0}/socket.io/?nosession=true&__sails_io_sdk_version=1.2.1&__sails_io_sdk_platform=browser&__sails_io_sdk_language=javascript&EIO=3&transport=websocket",
