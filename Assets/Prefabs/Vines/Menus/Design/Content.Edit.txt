@@ -1,7 +1,7 @@
 <?Vine>
 
-<Container face='camera'>
-	<Menu position=(0.3, 0, 0) layout.radius=0.18 dividerOffset=-0.6 >
+<Container face='camera' position=(-0.55, 0, 0)>
+	<Menu position=(0.3, 0, 0) >
 		<Button id='btn-move' label='Move' icon='move' />
 		<Button id='btn-setparent' label='Set Parent' icon='hierarchy' />
 		<Button id='btn-delete' label='Delete' icon='trash' />

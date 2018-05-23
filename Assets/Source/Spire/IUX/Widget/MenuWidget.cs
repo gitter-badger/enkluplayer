@@ -160,6 +160,14 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateChildLayout();
 
             OnChildAdded += This_OnChildAdded;
+
+            _titlePrimitive.OnTextRectUpdated += Header_TextRectUpdated;
+            _descriptionPrimitive.OnTextRectUpdated += Header_TextRectUpdated;
+        }
+
+        private void Header_TextRectUpdated(TextPrimitive textPrimitive)
+        {
+            UpdateHeaderLayout();
         }
 
         /// <inheritdoc cref="Element"/>
@@ -419,21 +427,13 @@ namespace CreateAR.SpirePlayer.IUX
             
             _descriptionPrimitive.LocalPosition = new Vector3(
                 padding,
-                -_descriptionPrimitive.Height,
+                -_descriptionPrimitive.Height / 2f,
                 0f);
-
-            if (!string.IsNullOrEmpty(_descriptionProp.Value))
-            {
-                _titlePrimitive.LocalPosition = new Vector3(
-                    padding,
-                    _titlePrimitive.Height / 2f, 0);
-            }
-            else
-            {
-                _titlePrimitive.LocalPosition = new Vector3(
-                    padding,
-                    -_titlePrimitive.Height / 2f);
-            }
+            
+            _titlePrimitive.LocalPosition = new Vector3(
+                padding,
+                _titlePrimitive.Height,
+                0f);
 
             // back button
             if (_showBackButtonProp.Value)

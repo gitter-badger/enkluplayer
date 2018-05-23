@@ -47,10 +47,18 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Root Transform.
+        /// </summary>
+        private Transform _arRoot;
+
+        /// <summary>
         /// Application-wide configuration.
         /// </summary>
         [Inject]
         public ApplicationConfig Config { get; set; }
+
+        [Inject]
+        public IDesignController Designer { get; set; }
 
         /// <summary>
         /// All libraries.
@@ -66,10 +74,36 @@ namespace CreateAR.SpirePlayer
                 return new AsyncToken<IUIElement>(new Exception(string.Format("No element for id {0}.", reference.UIDataId)));
             }
 
-            var instance = Instantiate(link.Element, transform);
+            var instance = Instantiate(link.Element, GetRoot());
             instance.Init(id);
 
             return new AsyncToken<IUIElement>(instance);
+        }
+
+        /// <summary>
+        /// Retrieves an appropriate root.
+        /// </summary>
+        /// <returns></returns>
+        private Transform GetRoot()
+        {
+            // TODO: There should be a child for each controller implementation.
+            if (Designer is ArDesignController)
+            {
+                if (null != _arRoot)
+                {
+                    return _arRoot;
+                }
+
+                var root = new GameObject("IUX Root");
+                root.transform.position = Vector3.zero;
+                root.transform.rotation = Quaternion.identity;
+
+                _arRoot = root.transform;
+
+                return _arRoot;
+            }
+
+            return transform;
         }
 
         /// <summary>

@@ -505,12 +505,12 @@ public class HockeyAppIOS : MonoBehaviour
 		#endif
 	}
 
+#if (UNITY_IPHONE && !UNITY_EDITOR)
 	/// <summary>
 	/// Callback for handling unresolved exceptions.
 	/// </summary>
 	public void OnHandleUnresolvedException (object sender, System.UnhandledExceptionEventArgs args)
 	{
-		#if (UNITY_IPHONE && !UNITY_EDITOR)
 		if (args == null || args.ExceptionObject == null) {
 			return;
 		}
@@ -519,6 +519,6 @@ public class HockeyAppIOS : MonoBehaviour
 			System.Exception e	= (System.Exception)args.ExceptionObject;
 			HandleException(e.Source, e.StackTrace);
 		}
-		#endif
-	}
+    }
+#endif
 }

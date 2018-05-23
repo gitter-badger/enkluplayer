@@ -64,24 +64,11 @@ namespace CreateAR.SpirePlayer
 
             InjectElementsAttribute.InjectElements(this, Root);
         }
-
-        /// <inheritdoc />
-        public override void Removed()
-        {
-            base.Removed();
-
-            if (null == Root)
-            {
-                return;
-            }
-
-            Root.Schema.Set("visible", false);
-        }
-
+        
         /// <inheritdoc />
         public override void Added()
         {
-            base.Removed();
+            base.Added();
 
             if (null == Root)
             {

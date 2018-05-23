@@ -117,7 +117,7 @@ namespace CreateAR.SpirePlayer.IUX
 
                 case TextAlignmentType.MidLeft:
                 {
-                    Text.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                    Text.rectTransform.pivot = new Vector2(0f, 0.5f);
                     Text.alignment = TextAnchor.MiddleLeft;
                     break;
                 }

@@ -82,9 +82,19 @@ namespace UnityEngine.XR.iOS {
 		 */
 		public UnityARMatrix4x4 transform;
 
-		public string identifierStr { get { return Marshal.PtrToStringAuto(this.ptrIdentifier); } }
+	    public string identifierStr
+	    {
+	        get
+	        {
+#if !NETFX_CORE
+                return Marshal.PtrToStringAuto(this.ptrIdentifier);
+#else
+                return string.Empty;
+#endif
+            }
+	    }
 
-        public static UnityARUserAnchorData UnityARUserAnchorDataFromGameObject(GameObject go) {
+	    public static UnityARUserAnchorData UnityARUserAnchorDataFromGameObject(GameObject go) {
             // create an anchor data struct from a game object transform
             Matrix4x4 matrix = Matrix4x4.TRS(go.transform.position, go.transform.rotation, go.transform.localScale);
             UnityARUserAnchorData ad = new UnityARUserAnchorData();
@@ -630,9 +640,11 @@ namespace UnityEngine.XR.iOS {
 		{
 			//get the identifier for this anchor from the pointer
 			ARUserAnchor arUserAnchor = new ARUserAnchor ();
+#if !NETFX_CORE
             arUserAnchor.identifier = Marshal.PtrToStringAuto(anchor.ptrIdentifier);
+#endif
 
-			Matrix4x4 matrix = new Matrix4x4 ();
+            Matrix4x4 matrix = new Matrix4x4 ();
 	        matrix.SetColumn(0, anchor.transform.column0);
 	        matrix.SetColumn(1, anchor.transform.column1);
 	        matrix.SetColumn(2, anchor.transform.column2);
@@ -651,7 +663,9 @@ namespace UnityEngine.XR.iOS {
             arHitTestResult.worldTransform = resultData.worldTransform;
             arHitTestResult.isValid = resultData.isValid;
             if (resultData.anchor != IntPtr.Zero) {
+#if !NETFX_CORE
                 arHitTestResult.anchorIdentifier = Marshal.PtrToStringAuto (resultData.anchor);
+#endif
             }
             return arHitTestResult;
         }

@@ -16,6 +16,11 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public static T Parse<T>(string value, T defaultValue = default(T)) where T : struct
         {
+            if (string.IsNullOrEmpty(value))
+            {
+                return defaultValue;
+            }
+
 #if NETFX_CORE
                 T type;
                 if (Enum.TryParse(value, out type))

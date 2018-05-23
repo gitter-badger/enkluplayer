@@ -76,7 +76,7 @@ namespace CreateAR.SpirePlayer
             }
 
             _environment = environment;
-            _connectToken = new AsyncToken<Void>();
+            var internalToken = _connectToken = new AsyncToken<Void>();
 
             // clear token after resolve
             _connectToken.OnFinally(_ => _connectToken = null);
@@ -100,7 +100,7 @@ namespace CreateAR.SpirePlayer
 
             ConnectAsync(_connectToken, wsUrl);
 
-            return _connectToken.Token();
+            return internalToken.Token();
         }
 
         /// <summary>
@@ -159,13 +159,19 @@ namespace CreateAR.SpirePlayer
                         _config.Play.AppId),
                     "post"));
 
-                token.Succeed(Void.Instance);
+                UnityEngine.WSA.Application.InvokeOnAppThread(() =>
+                {
+                    token.Succeed(Void.Instance);
+                }, false);
             }
             catch (Exception exception)
             {
                 LogVerbose("Could not connect : {0}.", exception);
 
-                token.Fail(exception);
+                UnityEngine.WSA.Application.InvokeOnAppThread(() =>
+                {
+                    token.Fail(exception);
+                }, false);
             }
         }
 
@@ -182,6 +188,8 @@ namespace CreateAR.SpirePlayer
                 _writer.WriteString(message);
 
                 await _writer.StoreAsync();
+
+                Log.Info(this, "Message sent.");
             }
             catch (Exception exception)
             {
@@ -196,9 +204,12 @@ namespace CreateAR.SpirePlayer
         {
             LogVerbose("Socket closed. Attempting reconnect.");
 
-            Connect(_environment)
-                .OnSuccess(_ => LogVerbose("Reconnect successful."))
-                .OnFailure(_ => LogVerbose("Reconnect failed!"));
+            UnityEngine.WSA.Application.InvokeOnAppThread(() =>
+            {
+                Connect(_environment)
+                    .OnSuccess(_ => LogVerbose("Reconnect successful."))
+                    .OnFailure(_ => LogVerbose("Reconnect failed!"));
+            }, false);
         }
 
         /// <summary>
@@ -216,9 +227,12 @@ namespace CreateAR.SpirePlayer
                 {
                     var message = reader.ReadString(reader.UnconsumedBufferLength);
 
-                    LogVerbose("Message : {0}.", message);
+                    LogVerbose("Received Message : {0}.", message);
 
-                    _handler.OnMessage(message);
+                    UnityEngine.WSA.Application.InvokeOnAppThread(() =>
+                    {
+                        _handler.OnMessage(message);
+                    }, false);
                 }
                 catch (Exception exception)
                 {
