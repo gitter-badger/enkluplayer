@@ -187,7 +187,8 @@ namespace CreateAR.SpirePlayer
                     el.OnSignOut += AppSelection_OnSignOut;
                     
                     el.Apps = apps;
-                });
+                })
+                .OnFailure(ex => Log.Error(this, "Could not open AppSelection : {0}.", ex));
         }
 
         /// <summary>
