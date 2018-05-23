@@ -60,9 +60,19 @@ namespace UnityEngine.XR.iOS
 			}
 		}
 
-		public string referenceImageName { get { return Marshal.PtrToStringAuto(imageAnchorData.referenceImageNamePtr); } }
+	    public string referenceImageName
+	    {
+	        get
+	        {
+#if !NETFX_CORE
+                return Marshal.PtrToStringAuto(imageAnchorData.referenceImageNamePtr);
+#else
+                return string.Empty;
+#endif
+            }
+	    }
 
-		public float referenceImagePhysicalSize { get { return imageAnchorData.referenceImagePhysicalSize; } }
+	    public float referenceImagePhysicalSize { get { return imageAnchorData.referenceImagePhysicalSize; } }
 	}
 
 }

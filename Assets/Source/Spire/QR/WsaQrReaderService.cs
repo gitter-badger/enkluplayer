@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
+using MediaFrameQrProcessing.Wrappers;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer.Qr
@@ -12,42 +14,37 @@ namespace CreateAR.SpirePlayer.Qr
     /// </summary>
     public class WsaQrReaderService : IQrReaderService
     {
-        private readonly IBootstrapper _bootstrapper;
-        private readonly List<Action> _queuedActions = new List<Action>();
-        private readonly List<Action> _queuedActionsReadBuffer = new List<Action>();
-
-        private bool _isAlive;
-        private bool _isReady;
-        private AsyncToken<Void> _start;
-        private AsyncToken<Void> _stop;
-        
         public event Action<string> OnRead;
 
-        public WsaQrReaderService(IBootstrapper bootstrapper)
+        public WsaQrReaderService()
         {
-            _bootstrapper = bootstrapper;
+            
         }
 
         /// <inheritdoc />
         public IAsyncToken<Void> Start()
         {
-            _start = new AsyncToken<Void>();
-            
-#if !UNITY_EDITOR
+            Log.Info(this, "Scanning for QR codes.");
 
-#endif
+            ZXingQrCodeScanner.ScanFirstCameraForQrCode(result =>
+                {
+                    UnityEngine.WSA.Application.InvokeOnAppThread(() =>
+                    {
+                        if (null != OnRead)
+                        {
+                            OnRead(result);
+                        }
+                    }, false);
+                },
+                null);
 
-            return _start;
+            return new AsyncToken<Void>(Void.Instance);
         }
 
         /// <inheritdoc />
         public IAsyncToken<Void> Stop()
         {
-            _stop = new AsyncToken<Void>();
-
-            _isAlive = false;
-            
-            return _stop;
+            return new AsyncToken<Void>(Void.Instance);
         }
     }
 }

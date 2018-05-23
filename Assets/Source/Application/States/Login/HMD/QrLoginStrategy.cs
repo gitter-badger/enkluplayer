@@ -148,11 +148,11 @@ namespace CreateAR.SpirePlayer
         {
             yield return op;
 
-            Log.Info(this, "Loaded Qr scene.");
-            
+            Log.Info(this, "Loaded Qr scene with Qr Service : {0}.", _qr.GetType().Name);
+
             _root = new GameObject("Qr");
             _view = _root.AddComponent<QrViewController>();
-
+            
             // start qr
             _qr.OnRead += Qr_OnRead;
             _qr.Start();
