@@ -186,6 +186,7 @@ namespace CreateAR.SpirePlayer.IUX
 
                 Text = _primitives.Text(Schema);
                 Text.Text = _labelProp.Value;
+                Text.OnTextRectUpdated += TextPrimitive_OnTextRectUpdated;
                 AddChild(Text);
 
                 UpdateLabelLayout();
@@ -362,7 +363,7 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     Text.Alignment = TextAlignmentType.MidLeft;
                     Text.LocalPosition = new Vector3(_labelPaddingProp.Value, 0, 0);
-
+                    
                     break;
                 }
             }
@@ -475,6 +476,15 @@ namespace CreateAR.SpirePlayer.IUX
             ElementSchemaProp<string> prop,
             string prev,
             string next)
+        {
+            UpdateLabelLayout();
+        }
+
+        /// <summary>
+        /// Called when the text rect changes.
+        /// </summary>
+        /// <param name="textPrimitive">The primitive.</param>
+        private void TextPrimitive_OnTextRectUpdated(TextPrimitive textPrimitive)
         {
             UpdateLabelLayout();
         }

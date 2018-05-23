@@ -129,7 +129,7 @@ namespace CreateAR.SpirePlayer.IUX
                     {"activating.frameScale", 1.1f},
                     {"activated.frameScale", 1.0f},
 
-                    {"label.padding", 0.05f},
+                    {"label.padding", 20},
 
                     { "icon.scale", 1f }
                 },

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -26,6 +27,11 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _propFont;
         private ElementSchemaProp<int> _propFontSize;
 
+        /// <summary>
+        /// Tracks how textrect changes over frames.
+        /// </summary>
+        private Rectangle _bakedTextRect;
+        
         /// <summary>
         /// Text getter/setter.
         /// </summary>
@@ -61,8 +67,18 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public Vector3 LocalPosition
         {
-            get { return _renderer.Text.transform.localPosition; }
-            set { _renderer.Text.transform.localPosition = value; }
+            get
+            {
+                var trans = _renderer.Text.transform;
+
+                return trans.localPosition / trans.lossyScale.x;
+            }
+            set
+            {
+                var trans = _renderer.Text.transform;
+
+                trans.localPosition = value * trans.lossyScale.x;
+            }
         }
 
         /// <summary>
@@ -187,6 +203,11 @@ namespace CreateAR.SpirePlayer.IUX
             get { return _renderer.Alignment; }
             set { _renderer.Alignment = value; }
         }
+
+        /// <summary>
+        /// Called when TextRect is updated.
+        /// </summary>
+        public event Action<TextPrimitive> OnTextRectUpdated; 
         
         /// <summary>
         /// Constructor.
@@ -244,6 +265,17 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void LateUpdateInternal()
         {
             base.LateUpdateInternal();
+
+            var rect = Rect;
+            if (!rect.Approximately(_bakedTextRect))
+            {
+                _bakedTextRect = rect;
+
+                if (null != OnTextRectUpdated)
+                {
+                    OnTextRectUpdated(this);
+                }
+            }
 
             DebugDraw();
         }
