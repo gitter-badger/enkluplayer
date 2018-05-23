@@ -202,6 +202,11 @@ namespace CreateAR.SpirePlayer
             {
                 TeardownPlay();
             }
+
+            if (null != _root)
+            {
+                Object.Destroy(_root);
+            }
         }
 
         /// <summary>
