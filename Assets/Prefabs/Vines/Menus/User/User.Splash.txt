@@ -9,7 +9,6 @@
 			description='Create new apps in the web editor.'
 			header.padding=0.4
 			description.fontSize=50 >
-			
 		</Menu>
 	</Float>
 </Container>

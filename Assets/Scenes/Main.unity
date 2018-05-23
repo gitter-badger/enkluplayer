@@ -506,7 +506,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 972c41e21496c544ab9fee40d0285b7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Vine: "<Float position=(0, 0.1, 2)>\n\t<Button label='This is a test.' />\n</Float>"
+  Vine: "<Container position=(0, 0.1, 2) >\n\t\r<Button />\n</Container>"
 --- !u!4 &821318999
 Transform:
   m_ObjectHideFlags: 0
