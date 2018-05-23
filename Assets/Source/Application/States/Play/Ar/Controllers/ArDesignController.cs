@@ -332,6 +332,7 @@ namespace CreateAR.SpirePlayer
             _setupEdit = false;
 
             _voice.Register("menu", Voice_OnPlayMenu);
+            _voice.Register("edit", Voice_OnEdit);
 
             // for editor only
             if (UnityEngine.Application.isEditor)
@@ -346,6 +347,8 @@ namespace CreateAR.SpirePlayer
         private void TeardownPlay()
         {
             _voice.Unregister("menu");
+            _voice.Unregister("edit");
+
             _ui.Close(_playMenuId);
         }
 
@@ -423,6 +426,17 @@ namespace CreateAR.SpirePlayer
                     el.OnBack += () => _messages.Publish(MessageTypes.USER_PROFILE);
                 })
                 .OnFailure(exception => Log.Error(this, "Could not open play menu : {0}.", exception));
+        }
+
+        /// <summary>
+        /// Called when edit mode is called for.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnEdit(string command)
+        {
+            _config.Play.Edit = true;
+
+            _messages.Publish(MessageTypes.LOAD_APP);
         }
     }
 }

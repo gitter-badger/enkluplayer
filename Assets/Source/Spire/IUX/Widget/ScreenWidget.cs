@@ -40,9 +40,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        protected override void LateUpdateInternal()
+        protected override void UpdateInternal()
         {
-            base.LateUpdateInternal();
+            base.UpdateInternal();
 
             var pos = _intention.Origin + _distanceProp.Value * _intention.Forward;
             GameObject.transform.position = pos.ToVector();
