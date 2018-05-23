@@ -124,28 +124,19 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                var component = _renderer.Text;
-                var rectTransform = component.rectTransform;
-                
-                LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
-
-                var width = LayoutUtility.GetPreferredWidth(rectTransform);
-                var height = LayoutUtility.GetPreferredHeight(rectTransform);
-
-                var minX = rectTransform.rect.x;
-                var maxX = width;
-                var minY = rectTransform.rect.y;
-                var maxY = height;
-
                 var trans = _renderer.Text.transform;
                 var scale = trans.localScale;
+
+                var rectTransform = _renderer.Text.rectTransform;
                 var offset = rectTransform.position;
 
+                var rect = Rect;
+
                 return new Rectangle(
-                    minX * scale.x + offset.x,
-                    minY * scale.y + offset.y,
-                    (maxX - minX) * scale.x,
-                    (maxY - minY) * scale.y);
+                    rect.min.x * scale.x + offset.x,
+                    rect.min.y * scale.y + offset.y,
+                    rect.size.x * scale.x,
+                    rect.size.y * scale.y);
             }
         }
 
