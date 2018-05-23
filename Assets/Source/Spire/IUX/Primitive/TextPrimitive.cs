@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -13,12 +13,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Configuration.
         /// </summary>
         private readonly WidgetConfig _config;
-
-        /// <summary>
-        /// List of verts.
-        /// </summary>
-        private readonly List<UIVertex> _vertices = new List<UIVertex>();
-
+        
         /// <summary>
         /// Renders text.
         /// </summary>
@@ -66,8 +61,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public Vector3 LocalPosition
         {
-            get { return _renderer.transform.localPosition; }
-            set { _renderer.transform.localPosition = value; }
+            get { return _renderer.Text.transform.localPosition; }
+            set { _renderer.Text.transform.localPosition = value; }
         }
 
         /// <summary>
@@ -85,55 +80,50 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                var trans = _renderer.Text.rectTransform;
-                var rect = trans.rect;
-                var scale = trans.localScale;
+                var component = _renderer.Text;
+                var rectTransform = component.rectTransform;
+
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+
+                var width = LayoutUtility.GetPreferredWidth(rectTransform);
+                var height = LayoutUtility.GetPreferredHeight(rectTransform);
+
+                var minX = rectTransform.rect.x;
+                var maxX = width;
+                var minY = rectTransform.rect.y;
+                var maxY = height;
                 
                 return new Rectangle(
-                    rect.x * scale.x,
-                    rect.y * scale.y,
-                    rect.width * scale.x,
-                    rect.height * scale.y);
+                    minX,
+                    minY,
+                    maxX - minX,
+                    maxY - minY);
             }
         }
         
         /// <summary>
-        /// Bounding rectangle of rendered text in world space.
+        /// Bounding rectangle of rendered text in XY world space.
         /// </summary>
-        public Rectangle TextRect
+        public Rectangle WorldRect
         {
             get
             {
-                var gen = _renderer.Text.cachedTextGenerator;
-                var maxY = float.MinValue;
-                var minY = float.MaxValue;
-                var maxX = float.MinValue;
-                var minX = float.MaxValue;
-
-                _vertices.Clear();
-                gen.GetVertices(_vertices);
-
-                if (_vertices.Count == 0)
-                {
-                    maxX = maxY = minX = minY = 0;
-                }
+                var component = _renderer.Text;
+                var rectTransform = component.rectTransform;
                 
-                for (var index = 0; index < _vertices.Count; index++)
-                {
-                    var pos = _vertices[index].position;
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
 
-                    maxY = Mathf.Max(maxY, pos.y);
-                    maxX = Mathf.Max(maxX, pos.x);
+                var width = LayoutUtility.GetPreferredWidth(rectTransform);
+                var height = LayoutUtility.GetPreferredHeight(rectTransform);
 
-                    minY = Mathf.Min(minY, pos.y);
-                    minX = Mathf.Min(minX, pos.x);
-                }
+                var minX = rectTransform.rect.x;
+                var maxX = width;
+                var minY = rectTransform.rect.y;
+                var maxY = height;
 
                 var trans = _renderer.Text.transform;
                 var scale = trans.localScale;
-
-                // must include the parent too
-                var offset = trans.localPosition + _renderer.transform.localPosition;
+                var offset = rectTransform.position;
 
                 return new Rectangle(
                     minX * scale.x + offset.x,
@@ -271,27 +261,18 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             var pos = _renderer.transform.position;
-            var rect = Rect;
-            var textRect = TextRect;
+            var rect = WorldRect;
             
             handle.Draw(ctx =>
             {
                 ctx.Prism(new Bounds(
-                    pos,
+                    new Vector3(
+                        rect.min.x + rect.size.x / 2f,
+                        rect.min.y + rect.size.y / 2f,
+                        pos.z), 
                     new Vector3(
                         rect.size.x,
                         rect.size.y,
-                        0)));
-
-                ctx.Color(new Color(1, 0, 0, 1));
-                ctx.Prism(new Bounds(
-                    new Vector3(
-                        textRect.min.x + textRect.size.x / 2f,
-                        textRect.min.y + textRect.size.y / 2f,
-                        pos.z), 
-                    new Vector3(
-                        textRect.size.x,
-                        textRect.size.y,
                         0)));
             });
         }

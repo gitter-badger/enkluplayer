@@ -67,16 +67,6 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _srcProp;
 
         /// <summary>
-        /// Text primitive.
-        /// </summary>
-        private TextPrimitive _text;
-
-        /// <summary>
-        /// Activator!
-        /// </summary>
-        private ActivatorPrimitive _activator;
-
-        /// <summary>
         /// Voice command.
         /// </summary>
         private string _registeredVoiceCommand;
@@ -84,39 +74,33 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Activator.
         /// </summary>
-        public ActivatorPrimitive Activator
-        {
-            get { return _activator; }
-        }
+        public ActivatorPrimitive Activator { get; private set; }
 
         /// <summary>
         /// Text primitive.
         /// </summary>
-        public TextPrimitive Text
-        {
-            get { return _text; }
-        }
-        
+        public TextPrimitive Text { get; private set; }
+
         /// <inheritdoc />
-        public bool Interactable { get { return _activator.Interactable; } }
+        public bool Interactable { get { return Activator.Interactable; } }
 
         /// <inheritdoc />
         public bool IsHighlighted { get; set; }
 
         /// <inheritdoc />
-        public float Aim { get { return _activator.Aim; } }
+        public float Aim { get { return Activator.Aim; } }
 
         /// <inheritdoc />
         public bool Raycast(Vec3 origin, Vec3 direction)
         {
-            return _activator.Raycast(origin, direction);
+            return Activator.Raycast(origin, direction);
         }
 
         /// <inheritdoc />
         public bool Focused
         {
-            get { return _activator.Focused; }
-            set { _activator.Focused = value; }
+            get { return Activator.Focused; }
+            set { Activator.Focused = value; }
         }
 
         /// <inheritdoc />
@@ -134,8 +118,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc />
         public int HighlightPriority
         {
-            get { return _activator.HighlightPriority; }
-            set { _activator.HighlightPriority = value; }
+            get { return Activator.HighlightPriority; }
+            set { Activator.HighlightPriority = value; }
         }
 
         /// <inheritdoc />
@@ -173,8 +157,8 @@ namespace CreateAR.SpirePlayer.IUX
             
             // Activator
             {
-                _activator = _primitives.Activator(Schema, this);
-                AddChild(_activator);
+                Activator = _primitives.Activator(Schema, this);
+                AddChild(Activator);
                 
                 _srcProp = Schema.Get<string>("src");
                 _srcProp.OnChanged += Src_OnChanged;
@@ -200,9 +184,9 @@ namespace CreateAR.SpirePlayer.IUX
                 _layoutProp = Schema.Get<string>("layout");
                 _layoutProp.OnChanged += Layout_OnChanged;
 
-                _text = _primitives.Text(Schema);
-                _text.Text = _labelProp.Value;
-                AddChild(_text);
+                Text = _primitives.Text(Schema);
+                Text.Text = _labelProp.Value;
+                AddChild(Text);
 
                 UpdateLabelLayout();
             }
@@ -306,11 +290,11 @@ namespace CreateAR.SpirePlayer.IUX
                 _texture.Release();
                 _texture = null;
 
-                _activator.Icon = null;
+                Activator.Icon = null;
             }
 
             // load icon
-            _activator.Icon = _config.Icons.Icon(_iconProp.Value);
+            Activator.Icon = _config.Icons.Icon(_iconProp.Value);
 
             // if there is a src, load it
             var src = _srcProp.Value;
@@ -331,7 +315,7 @@ namespace CreateAR.SpirePlayer.IUX
                         _texture = texture;
                         
                         // create sprite
-                        _activator.Icon = Sprite.Create(
+                        Activator.Icon = Sprite.Create(
                             texture.Source,
                             Rect.MinMaxRect(0, 0,
                                 texture.Source.width,
@@ -359,14 +343,14 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateLabelLayout()
         {
-            var rect = _text.Rect;
-
             switch (_layoutProp.Value)
             {
                 case "vertical":
                 {
-                    _text.Alignment = TextAlignmentType.MidCenter;
-                    _text.LocalPosition = new Vector3(
+                    var rect = Text.Rect;
+
+                    Text.Alignment = TextAlignmentType.MidCenter;
+                    Text.LocalPosition = new Vector3(
                         0,
                         -rect.size.y - _labelPaddingProp.Value,
                         0);
@@ -376,10 +360,9 @@ namespace CreateAR.SpirePlayer.IUX
 
                 default:
                 {
-                    _text.LocalPosition = new Vector3(
-                        -rect.min.x + _labelPaddingProp.Value,
-                        -(rect.max.y - rect.min.y) / 2,
-                        0f);
+                    Text.Alignment = TextAlignmentType.MidLeft;
+                    Text.LocalPosition = new Vector3(_labelPaddingProp.Value, 0, 0);
+
                     break;
                 }
             }
@@ -433,9 +416,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="keyword">The keywords spoken.</param>
         private void Voice_OnRecognized(string keyword)
         {
-            if (_activator.Interactable)
+            if (Activator.Interactable)
             {
-                _activator.Activate();
+                Activator.Activate();
             }
         }
         
@@ -465,7 +448,7 @@ namespace CreateAR.SpirePlayer.IUX
             string prev,
             string next)
         {
-            _text.Text = next;
+            Text.Text = next;
         }
         
         /// <summary>
