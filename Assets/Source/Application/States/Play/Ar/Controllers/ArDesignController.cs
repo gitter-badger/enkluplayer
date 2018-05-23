@@ -273,6 +273,8 @@ namespace CreateAR.SpirePlayer
         {
             _setupEdit = true;
 
+            _voice.Register("play", Voice_OnPlay);
+
             // create dynamic root
             {
                 _float = (FloatWidget)_elements.Element(
@@ -308,6 +310,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void TeardownEdit()
         {
+            _voice.Unregister("play");
+
             // uninitialize states
             for (var i = 0; i < _states.Length; i++)
             {
@@ -435,6 +439,17 @@ namespace CreateAR.SpirePlayer
         private void Voice_OnEdit(string command)
         {
             _config.Play.Edit = true;
+
+            _messages.Publish(MessageTypes.LOAD_APP);
+        }
+
+        /// <summary>
+        /// Called when play mode is called.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnPlay(string command)
+        {
+            _config.Play.Edit = false;
 
             _messages.Publish(MessageTypes.LOAD_APP);
         }
