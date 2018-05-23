@@ -1,6 +1,6 @@
 <?Vine>
 
-<Menu id='menu' showBackButton=true>
+<Menu id='menu' showBackButton=true layout.radius=0.3 layout.degrees=70.0>
 	<Button id='btn-play' label='Play' icon='play' />
 	<Button id='btn-anchors' label='Anchors' icon='frame' />
 	<Button id='btn-new' label='New' icon='plus' />

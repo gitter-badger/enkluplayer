@@ -49,7 +49,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Root Transform.
         /// </summary>
-        private Transform _root;
+        private Transform _arRoot;
 
         /// <summary>
         /// Application-wide configuration.
@@ -86,14 +86,21 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private Transform GetRoot()
         {
-            // TODO: NO!
+            // TODO: There should be a child for each controller implementation.
             if (Designer is ArDesignController)
             {
+                if (null != _arRoot)
+                {
+                    return _arRoot;
+                }
+
                 var root = new GameObject("IUX Root");
                 root.transform.position = Vector3.zero;
                 root.transform.rotation = Quaternion.identity;
 
-                return root.transform;
+                _arRoot = root.transform;
+
+                return _arRoot;
             }
 
             return transform;
