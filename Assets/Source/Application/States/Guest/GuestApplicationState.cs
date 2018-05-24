@@ -1,6 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Mobile;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.SearchPublishedApps;
@@ -13,6 +14,11 @@ namespace CreateAR.SpirePlayer
     public class GuestApplicationState : IState
     {
         /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+        
+        /// <summary>
         /// UI entrypoint.
         /// </summary>
         private readonly IUIManager _ui;
@@ -21,6 +27,11 @@ namespace CreateAR.SpirePlayer
         /// Trellis API.
         /// </summary>
         private readonly ApiController _api;
+        
+        /// <summary>
+        /// Application wide configuration.
+        /// </summary>
+        private readonly ApplicationConfig _config;
 
         /// <summary>
         /// UI Frame.
@@ -32,17 +43,24 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private MobileAppSearchUIView _view;
 
+        /// <summary>
+        /// Network request for app search.
+        /// </summary>
         private IAsyncToken<HttpResponse<Response>> _searchToken;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         public GuestApplicationState(
+            IMessageRouter messages, 
             IUIManager ui,
-            ApiController api)
+            ApiController api,
+            ApplicationConfig config)
         {
+            _messages = messages;
             _ui = ui;
             _api = api;
+            _config = config;
         }
         
         /// <inheritdoc />
@@ -91,6 +109,10 @@ namespace CreateAR.SpirePlayer
             _frame.Release();
         }
 
+        /// <summary>
+        /// Updates apps via an app query.
+        /// </summary>
+        /// <param name="query">The query to make.</param>
         private void UpdateApps(string query)
         {
             if (null != _searchToken)
@@ -131,7 +153,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="appId">The id of the app to load.</param>
         private void View_OnAppSelected(string appId)
         {
+            _config.Play.AppId = appId;
             
+            _messages.Publish(MessageTypes.LOAD_APP);
         }
     }
 }

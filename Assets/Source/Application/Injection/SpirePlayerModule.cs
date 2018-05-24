@@ -192,6 +192,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<HoloLoginApplicationState>().To<HoloLoginApplicationState>();
                     binder.Bind<SignOutApplicationState>().To<SignOutApplicationState>();
                     binder.Bind<QrLoginStrategy>().To<QrLoginStrategy>();
+                    binder.Bind<GuestApplicationState>().To<GuestApplicationState>();
                     binder.Bind<OrientationApplicationState>().To<OrientationApplicationState>();
                     binder.Bind<UserProfileApplicationState>().To<UserProfileApplicationState>();
                     binder.Bind<MobileArSetupApplicationState>().To<MobileArSetupApplicationState>();

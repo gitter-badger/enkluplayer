@@ -121,7 +121,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ContinueAsGuest()
         {
-            // 
+            _loginToken.Succeed(new CredentialsData
+            {
+                UserId = "Guest"
+            });
         }
 
         /// <summary>

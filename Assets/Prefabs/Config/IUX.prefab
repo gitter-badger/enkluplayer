@@ -125,6 +125,9 @@ MonoBehaviour:
     - UIDataId: HoloLogin
       Element: {fileID: 114162643511251304, guid: 2b527e5afe70c4f1cba81a8eeea70003,
         type: 2}
+    - UIDataId: App.Search
+      Element: {fileID: 114528090069808120, guid: 1bd4453b7e6f54fc7b813990b775b3cd,
+        type: 2}
 --- !u!114 &114844777624392520
 MonoBehaviour:
   m_ObjectHideFlags: 1

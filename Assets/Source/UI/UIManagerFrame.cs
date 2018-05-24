@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
@@ -92,7 +93,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UI_OnPop()
         {
-            _ids.Pop();
+            var stackId = _ids.Pop();
+            
+            Log.Info(this, "Ppop {0}", stackId);
         }
         
         /// <summary>
@@ -101,6 +104,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="stackId">Id of the element on the stack.</param>
         private void UI_OnPush(int stackId)
         {
+            Log.Info(this, "Push {0}", stackId);
             _ids.Push(stackId);
         }
     }

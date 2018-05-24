@@ -126,6 +126,14 @@ namespace CreateAR.SpirePlayer
                 .Login()
                 .OnSuccess(credentials =>
                 {
+                    if (credentials.UserId == "Guest")
+                    {
+                        Log.Info(this, "Continuing as guest.");
+                        
+                        _messages.Publish(MessageTypes.GUEST);
+                        return;
+                    }
+                    
                     Log.Info(this, "Logged in.");
                     Log.Info(this, "Saving credentials to disk.");
 
