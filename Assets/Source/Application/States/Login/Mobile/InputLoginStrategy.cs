@@ -87,6 +87,7 @@ namespace CreateAR.SpirePlayer
                         _signupView.OnSubmit += SignUp_OnSubmit;
                         _signupView.OnLicenseInfo += SignUp_OnLicenseInfo;
                         _signupView.OnLogin += OpenLogin;
+                        _signupView.OnContinueAsGuest += ContinueAsGuest;
                     })
                     .OnFailure(exception => Log.Error(this, "Could not open mobile signup view."));
             }
@@ -107,11 +108,20 @@ namespace CreateAR.SpirePlayer
                     .OnSuccess(el =>
                     {
                         _loginView = el;
-                        _loginView.OnSubmit += View_OnSubmit;
+                        _loginView.OnSubmit += Login_OnSubmit;
                         _loginView.OnSignUp += OpenRegistration;
+                        _loginView.OnContinueAsGuest += ContinueAsGuest;
                     })
                     .OnFailure(ex => Log.Error(this, "Could not open Login.Input : {0}.", ex));   
             }
+        }
+        
+        /// <summary>
+        /// Called when user is continuing as a guest.
+        /// </summary>
+        private void ContinueAsGuest()
+        {
+            // 
         }
 
         /// <summary>
@@ -119,7 +129,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="username">Username.</param>
         /// <param name="password">Password.</param>
-        private void View_OnSubmit(string username, string password)
+        private void Login_OnSubmit(string username, string password)
         {
             int loadingId;
             _ui
@@ -224,7 +234,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception => Log.Error(this, "Could not open Signup.License : {0}", exception));
         }
-
+        
         /// <summary>
         /// Called when license UI is ready to submit info.
         /// </summary>
