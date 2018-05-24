@@ -19,5 +19,11 @@
         <namespace fullname="CreateAR.Trellis.Messages.GetAssets" preserve="all" />
         <namespace fullname="CreateAR.Trellis.Messages.GetAppScripts" preserve="all" />
         <namespace fullname="CreateAR.Trellis.Messages.HoloAuthorize" preserve="all" />
+
+		<namespace fullname="CreateAR.Trellis.Messages.GetPublishedScene" preserve="all" />
+        <namespace fullname="CreateAR.Trellis.Messages.GetPublishedApp" preserve="all" />
+        <namespace fullname="CreateAR.Trellis.Messages.GetPublishedAssets" preserve="all" />
+        <namespace fullname="CreateAR.Trellis.Messages.GetPublishedAppScripts" preserve="all" />
+        <namespace fullname="CreateAR.Trellis.Messages.SearchPublishedApps" preserve="all" />
 	</assembly>
 </linker>

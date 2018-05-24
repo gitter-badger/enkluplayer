@@ -430,7 +430,7 @@ PlayerSettings:
   enableInternalProfiler: 0
   logObjCUncaughtExceptions: 1
   enableCrashReportAPI: 0
-  cameraUsageDescription: AR
+  cameraUsageDescription: ARKit surface detection.
   locationUsageDescription: 
   microphoneUsageDescription: 
   switchNetLibKey: 

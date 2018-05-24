@@ -13,19 +13,6 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
-    /// <summary>
-    /// Cached data with scene list.
-    /// 
-    /// TODO: Move to user profile object.
-    /// </summary>
-    public class AppSceneListCacheData
-    {
-        /// <summary>
-        /// List of Scenes.
-        /// </summary>
-        public string[] Scenes;
-    }
-
     /// <inheritdoc />
     public class AppDataLoader : IAppDataLoader
     {

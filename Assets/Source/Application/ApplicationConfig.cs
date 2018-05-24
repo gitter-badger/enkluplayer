@@ -437,6 +437,14 @@ namespace CreateAR.SpirePlayer
         public string UserId;
 
         /// <summary>
+        /// True iff user is a guest.
+        /// </summary>
+        public bool IsGuest
+        {
+            get { return UserId == "Guest"; }
+        }
+
+        /// <summary>
         /// Useful ToString override.
         /// </summary>
         /// <returns></returns>

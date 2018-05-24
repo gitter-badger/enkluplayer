@@ -36,6 +36,11 @@ namespace CreateAR.SpirePlayer
         private readonly IQrReaderService _qr;
 
         /// <summary>
+        /// Application widfe configuration.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
+        /// <summary>
         /// Menu.
         /// </summary>
         private MobilePlayModeMenu _menu;
@@ -57,12 +62,14 @@ namespace CreateAR.SpirePlayer
             IUIManager ui,
             IMessageRouter messages,
             IBootstrapper bootstrapper,
-            IQrReaderService qr)
+            IQrReaderService qr,
+            ApplicationConfig config)
         {
             _ui = ui;
             _messages = messages;
             _bootstrapper = bootstrapper;
             _qr = qr;
+            _config = config;
         }
         
         /// <inheritdoc />
@@ -81,7 +88,16 @@ namespace CreateAR.SpirePlayer
                     
                     el.OnBackClicked += () =>
                     {
-                        _messages.Publish(MessageTypes.USER_PROFILE);
+                        var creds = _config.Network.Credentials;
+
+                        if (creds.IsGuest)
+                        {
+                            _messages.Publish(MessageTypes.GUEST);
+                        }
+                        else
+                        {
+                            _messages.Publish(MessageTypes.USER_PROFILE);
+                        }
                     };
                     
                     el.OnInstaClicked += () =>
