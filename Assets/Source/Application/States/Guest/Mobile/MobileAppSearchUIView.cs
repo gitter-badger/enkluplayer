@@ -47,12 +47,13 @@ namespace CreateAR.SpirePlayer.Mobile
             foreach (var app in payloadBody)
             {
                 var controller = Instantiate(ElementPrefab, Content);
+                controller.OnSelected += Controller_OnSelected;
                 controller.Init(app.Id, app.Name, app.Description);
                 
                 _elements.Add(controller);
             }
         }
-        
+
         public void ShowError(string error)
         {
             ClearErrors();
@@ -92,6 +93,14 @@ namespace CreateAR.SpirePlayer.Mobile
                 Destroy(element.gameObject);
             }
             _elements.Clear();
+        }
+        
+        private void Controller_OnSelected(string appId)
+        {
+            if (null != OnAppSelected)
+            {
+                OnAppSelected(appId);
+            }
         }
     }
 }
