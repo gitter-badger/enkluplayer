@@ -9,24 +9,54 @@ using Object = System.Object;
 
 namespace CreateAR.SpirePlayer.Mobile
 {
+    /// <summary>
+    /// UI for viewing and searching public apps.
+    /// </summary>
     public class MobileAppSearchUIView : MonoBehaviourUIElement
     {
+        /// <summary>
+        /// Current app elements.
+        /// </summary>
         private readonly List<AppsListElementController> _elements = new List<AppsListElementController>();
 
+        /// <summary>
+        /// Last query value.
+        /// </summary>
         private string _lastQuery;
         
+        /// <summary>
+        /// Last query value we dispatched.
+        /// </summary>
         private string _lastDispatchedQuery;
         
+        /// <summary>
+        /// Time at last change.
+        /// </summary>
         private DateTime _lastChange;
         
+        /// <summary>
+        /// The search field.
+        /// </summary>
         public InputField QueryField;
         
+        /// <summary>
+        /// Transform to add list elements to.
+        /// </summary>
         public Transform Content;
 
+        /// <summary>
+        /// Prefab to populate list with.
+        /// </summary>
         public AppsListElementController ElementPrefab;
 
+        /// <summary>
+        /// How often to update the query.
+        /// </summary>
         public float QueryUpdateSecs = 1f;
         
+        /// <summary>
+        /// The query.
+        /// </summary>
         public string Query
         {
             get
@@ -35,16 +65,26 @@ namespace CreateAR.SpirePlayer.Mobile
             }
         }
         
+        /// <summary>
+        /// Called when query has been updated.
+        /// </summary>
         public event Action<string> OnQueryUpdated;
 
+        /// <summary>
+        /// Called when app has been selected.
+        /// </summary>
         public event Action<string> OnAppSelected;
 
-        public void Init(Body[] payloadBody)
+        /// <summary>
+        /// Initializes the view with apps.
+        /// </summary>
+        /// <param name="apps">The apps.</param>
+        public void Init(Body[] apps)
         {
             ClearErrors();
             ClearElements();
             
-            foreach (var app in payloadBody)
+            foreach (var app in apps)
             {
                 var controller = Instantiate(ElementPrefab, Content);
                 controller.OnSelected += Controller_OnSelected;
@@ -54,12 +94,19 @@ namespace CreateAR.SpirePlayer.Mobile
             }
         }
 
+        /// <summary>
+        /// Displays an error.
+        /// </summary>
+        /// <param name="error">The error to display.</param>
         public void ShowError(string error)
         {
             ClearErrors();
             ClearElements();
         }
 
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
         private void Update()
         {
             var query = QueryField.text;
@@ -81,11 +128,17 @@ namespace CreateAR.SpirePlayer.Mobile
             }
         }
 
+        /// <summary>
+        /// Clears errors out.
+        /// </summary>
         private void ClearErrors()
         {
             //
         }
 
+        /// <summary>
+        /// Clears elements out.
+        /// </summary>
         private void ClearElements()
         {
             foreach (var element in _elements)
@@ -95,6 +148,10 @@ namespace CreateAR.SpirePlayer.Mobile
             _elements.Clear();
         }
         
+        /// <summary>
+        /// Called when a controller has been selected.
+        /// </summary>
+        /// <param name="appId">The app id.</param>
         private void Controller_OnSelected(string appId)
         {
             if (null != OnAppSelected)
