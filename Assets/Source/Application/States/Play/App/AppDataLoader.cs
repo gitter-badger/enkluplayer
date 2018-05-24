@@ -7,9 +7,8 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages;
-using CreateAR.Trellis.Messages.GetAssets;
-using Body = CreateAR.Trellis.Messages.GetAppScripts.Body;
-using Response = CreateAR.Trellis.Messages.GetScene.Response;
+using CreateAR.Trellis.Messages.GetPublishedAssets;
+using Response = CreateAR.Trellis.Messages.GetPublishedScene.Response;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -147,7 +146,7 @@ namespace CreateAR.SpirePlayer
                 .Request(
                     HttpRequestCacher.LoadBehavior.NetworkFirst,
                     "appdata://" + appId + "/scenelist",
-                    () => _api.Apps.GetApp(appId))
+                    () => _api.PublishedApps.GetPublishedApp(appId))
                 .OnSuccess(response =>
                 {
                     Log.Info(this, "Retrieved scene list.");
@@ -184,7 +183,7 @@ namespace CreateAR.SpirePlayer
             _helper.Request(
                     HttpRequestCacher.LoadBehavior.NetworkFirst,
                     "appdata://" + appId + "/assets",
-                    () => _api.Assets.GetAssets(appId))
+                    () => _api.PublishedApps.GetPublishedAssets(appId))
                 .OnSuccess(response =>
                 {
                     var assets = response.Body.Assets.Select(ToAssetData).ToArray();
@@ -218,7 +217,7 @@ namespace CreateAR.SpirePlayer
             _helper.Request(
                     HttpRequestCacher.LoadBehavior.NetworkFirst,
                     "appdata://" + appId + "/scripts",
-                    () => _api.Scripts.GetAppScripts(appId))
+                    () => _api.PublishedApps.GetPublishedAppScripts(appId))
                 .OnSuccess(response =>
                 {
                     var scripts = response.Body.Select(ToScriptData).ToArray();
@@ -255,7 +254,7 @@ namespace CreateAR.SpirePlayer
             _sceneLoads[sceneId] = _helper.Request(
                     HttpRequestCacher.LoadBehavior.NetworkFirst,
                     "appdata://" + appId + "/Scenes/" + sceneId,
-                    () => _api.Scenes.GetScene(appId, sceneId))
+                    () => _api.PublishedApps.GetPublishedScene(appId, sceneId))
                 .OnSuccess(response =>
                 {
                     object obj;
@@ -345,7 +344,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="data">Data.</param>
         /// <returns></returns>
-        private static ScriptData ToScriptData(Body data)
+        private static ScriptData ToScriptData(Trellis.Messages.GetPublishedAppScripts.Body data)
         {
             return new ScriptData
             {
