@@ -62,7 +62,8 @@ namespace CreateAR.SpirePlayer
             var frame = _ui.CreateFrame();
             
             _loginToken = new AsyncToken<CredentialsData>();
-            _loginToken.OnFinally(_ => frame.Release());
+            _loginToken.OnSuccess(_ => frame.Release());
+            _loginToken.OnFailure(_ => frame.Release());
             
             OpenRegistration();
             
