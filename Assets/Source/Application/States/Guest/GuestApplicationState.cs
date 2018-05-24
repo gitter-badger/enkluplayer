@@ -1,6 +1,9 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Mobile;
 using CreateAR.Trellis.Messages;
+using CreateAR.Trellis.Messages.SearchPublishedApps;
 
 namespace CreateAR.SpirePlayer
 {
@@ -29,6 +32,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private MobileAppSearchUIView _view;
 
+        private IAsyncToken<HttpResponse<Response>> _searchToken;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -46,8 +51,7 @@ namespace CreateAR.SpirePlayer
             // generate a frame
             _frame = _ui.CreateFrame();
             
-            // TODO: retrieve public apps
-
+            // open load screen immediately
             _ui.Open<IUIElement>(new UIReference
             {
                 UIDataId = UIDataIds.LOADING
@@ -64,6 +68,8 @@ namespace CreateAR.SpirePlayer
                     _view = el;
                     _view.OnAppSelected += View_OnAppSelected;
                     _view.OnQueryUpdated += View_OnQueryUpdated;
+
+                    UpdateApps(_view.Query);
                 })
                 .OnFailure(exception => Log.Error(this, "Could not open search view : {0}.", exception));
         }
@@ -77,7 +83,37 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
+            if (null != _searchToken)
+            {
+                _searchToken.Abort();
+            }
+            
             _frame.Release();
+        }
+
+        private void UpdateApps(string query)
+        {
+            if (null != _searchToken)
+            {
+                _searchToken.Abort();
+            }
+            
+            // retrieve public apps
+            _searchToken = _api
+                .PublishedApps
+                .SearchPublishedApps("")
+                .OnSuccess(response =>
+                {
+                    Log.Info(this, "Received {0} apps.", response.Payload.Body.Length);
+                    
+                    _view.Init(response.Payload.Body);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not search apps : {0}.", exception);
+                    
+                    _view.ShowError(exception.Message);
+                });
         }
         
         /// <summary>
@@ -86,7 +122,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="query">The new query.</param>
         private void View_OnQueryUpdated(string query)
         {
-            
+            UpdateApps(query);
         }
 
         /// <summary>

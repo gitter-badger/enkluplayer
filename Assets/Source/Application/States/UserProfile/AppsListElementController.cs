@@ -1,5 +1,4 @@
 ﻿using System;
-using CreateAR.Trellis.Messages.GetMyApps;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,9 +10,9 @@ namespace CreateAR.SpirePlayer
     public class AppsListElementController : MonoBehaviour
     {
         /// <summary>
-        /// The app.
+        /// The app id.
         /// </summary>
-        private Body _app;
+        private string _appId;
 
         /// <summary>
         /// Title field.
@@ -33,13 +32,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes the element.
         /// </summary>
-        /// <param name="app">The app to display info for.</param>
-        public void Init(Body app)
+        public void Init(string appId, string name, string description)
         {
-            _app = app;
-
-            Title.text = _app.Name;
-            Description.text = _app.Description;
+            _appId = appId;
+            
+            Title.text = name;
+            Description.text = description;
         }
 
         /// <summary>
@@ -49,7 +47,7 @@ namespace CreateAR.SpirePlayer
         {
             if (null != OnSelected)
             {
-                OnSelected(_app.Id);
+                OnSelected(_appId);
             }
         }
     }

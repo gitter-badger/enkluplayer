@@ -49,7 +49,7 @@ namespace CreateAR.SpirePlayer
                 {
                     var controller = Instantiate(AppListElement, Content);
                     controller.OnSelected += OnAppSelected;   
-                    controller.Init(app);
+                    controller.Init(app.Id, app.Name, app.Description);
                 }
             }
         }
