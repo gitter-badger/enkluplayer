@@ -171,7 +171,7 @@ PlayerSettings:
   StripUnusedMeshComponents: 0
   VertexChannelCompressionMask: 214
   iPhoneSdkVersion: 988
-  iOSTargetOSVersionString: 8.0
+  iOSTargetOSVersionString: 11.0
   tvOSSdkVersion: 0
   tvOSRequireExtendedGameController: 0
   tvOSTargetOSVersionString: 9.0
@@ -690,7 +690,8 @@ PlayerSettings:
   scriptingDefineSymbols:
     7: 
     13: DEBUG_RENDERING
-  platformArchitecture: {}
+  platformArchitecture:
+    iOS: 1
   scriptingBackend:
     Metro: 2
   il2cppCompilerConfiguration: {}
