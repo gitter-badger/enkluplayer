@@ -133,8 +133,8 @@ namespace CreateAR.SpirePlayer
                     }
                     else
                     {
-                        
-                        // TODO: user has no apps, display special screen
+                        // user has no apps
+                        _messages.Publish(MessageTypes.USER_PROFILE);
                     }
                 })
                 .OnFailure(exception =>
