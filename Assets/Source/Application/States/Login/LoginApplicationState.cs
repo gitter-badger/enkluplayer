@@ -13,7 +13,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Credentials.
         /// </summary>
-        public const string CREDS = "login://DefaultCredentials";
+        public const string CREDS_URI = "login://DefaultCredentials";
 
         /// <summary>
         /// Reads and writes files.
@@ -75,10 +75,10 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "LoginApplicationState::Enter");
 
             // check disk cache for credentials
-            if (_files.Exists(CREDS))
+            if (_files.Exists(CREDS_URI))
             {
                 _files
-                    .Get<CredentialsData>(CREDS)
+                    .Get<CredentialsData>(CREDS_URI)
                     .OnSuccess(file =>
                     {
                         // load into default app
@@ -133,7 +133,7 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Saving credentials to disk.");
 
                     _files
-                        .Set(CREDS, credentials)
+                        .Set(CREDS_URI, credentials)
                         .OnFailure(exception => Log.Error(this, "Could not write credentials to disk : {0}.", exception));
                 })
                 .OnFailure(exception =>

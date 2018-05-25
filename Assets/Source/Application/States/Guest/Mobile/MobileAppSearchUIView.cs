@@ -76,6 +76,11 @@ namespace CreateAR.SpirePlayer.Mobile
         public event Action<string> OnAppSelected;
 
         /// <summary>
+        /// Called to sign in.
+        /// </summary>
+        public event Action OnSignIn;
+
+        /// <summary>
         /// Initializes the view with apps.
         /// </summary>
         /// <param name="apps">The apps.</param>
@@ -102,6 +107,17 @@ namespace CreateAR.SpirePlayer.Mobile
         {
             ClearErrors();
             ClearElements();
+        }
+
+        /// <summary>
+        /// Called when sign in is clicked.
+        /// </summary>
+        public void SignInClicked()
+        {
+            if (null != OnSignIn)
+            {
+                OnSignIn();
+            }
         }
 
         /// <summary>

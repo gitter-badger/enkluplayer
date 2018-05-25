@@ -181,7 +181,7 @@ namespace CreateAR.SpirePlayer
                     }
                     else
                     {
-                        binder.Bind<ILoginStrategy>().To<InputLoginStrategy>();
+                        binder.Bind<ILoginStrategy>().To<MobileLoginStrategy>();
                     }
                 }
 
@@ -205,7 +205,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<UserProfileApplicationState>().To<UserProfileApplicationState>();
                     binder.Bind<MobileArSetupApplicationState>().To<MobileArSetupApplicationState>();
                     binder.Bind<HmdArSetupApplicationState>().To<HmdArSetupApplicationState>();
-                    binder.Bind<InputLoginStrategy>().To<InputLoginStrategy>();
+                    binder.Bind<MobileLoginStrategy>().To<MobileLoginStrategy>();
                     binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                     binder.Bind<LoadDefaultAppApplicationState>().To<LoadDefaultAppApplicationState>();
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();

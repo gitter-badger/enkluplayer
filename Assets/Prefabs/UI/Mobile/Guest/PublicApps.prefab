@@ -58,7 +58,7 @@ GameObject:
   - component: {fileID: 114510800553854036}
   - component: {fileID: 114113941948081254}
   m_Layer: 0
-  m_Name: SignOut
+  m_Name: SignIn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -380,8 +380,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_MethodName: SignOutClicked
+      - m_Target: {fileID: 114528090069808120}
+        m_MethodName: SignInClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

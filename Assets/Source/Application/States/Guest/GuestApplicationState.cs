@@ -22,6 +22,11 @@ namespace CreateAR.SpirePlayer
         /// UI entrypoint.
         /// </summary>
         private readonly IUIManager _ui;
+
+        /// <summary>
+        /// Files.
+        /// </summary>
+        private readonly IFileManager _files;
         
         /// <summary>
         /// Trellis API.
@@ -54,11 +59,13 @@ namespace CreateAR.SpirePlayer
         public GuestApplicationState(
             IMessageRouter messages, 
             IUIManager ui,
+            IFileManager files,
             ApiController api,
             ApplicationConfig config)
         {
             _messages = messages;
             _ui = ui;
+            _files = files;
             _api = api;
             _config = config;
         }
@@ -86,6 +93,13 @@ namespace CreateAR.SpirePlayer
                     _view = el;
                     _view.OnAppSelected += View_OnAppSelected;
                     _view.OnQueryUpdated += View_OnQueryUpdated;
+                    _view.OnSignIn += () =>
+                    {
+                        _files
+                            .Delete(LoginApplicationState.CREDS_URI)
+                            .OnFailure(ex => Log.Error(this, "Could not delete saved credentials : {0}.", ex.Message))
+                            .OnFinally(_ => _messages.Publish(MessageTypes.LOGIN));
+                    };
 
                     UpdateApps(_view.Query);
                 })

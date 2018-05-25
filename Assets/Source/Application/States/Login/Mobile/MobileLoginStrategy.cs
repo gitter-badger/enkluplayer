@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Application state that just prompts for login.
     /// </summary>
-    public class InputLoginStrategy : ILoginStrategy
+    public class MobileLoginStrategy : ILoginStrategy
     {
         /// <summary>
         /// Manages UI.
@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public InputLoginStrategy(
+        public MobileLoginStrategy(
             IUIManager ui,
             ApiController api)
         {

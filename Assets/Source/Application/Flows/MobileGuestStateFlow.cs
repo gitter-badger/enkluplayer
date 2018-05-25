@@ -31,6 +31,7 @@ namespace CreateAR.SpirePlayer
         {
             _states = states;
             _states.ListenForFlowMessages(
+                MessageTypes.LOGIN,
                 MessageTypes.USER_PROFILE,
                 MessageTypes.LOAD_APP,
                 MessageTypes.PLAY,
@@ -51,6 +52,11 @@ namespace CreateAR.SpirePlayer
         {
             switch (messageType)
             {
+                case MessageTypes.LOGIN:
+                {
+                    _states.ChangeFlow<MobileLoginStateFlow>();
+                    break;
+                }
                 case MessageTypes.USER_PROFILE:
                 {
                     // nope! redirect
