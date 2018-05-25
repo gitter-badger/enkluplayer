@@ -270,22 +270,7 @@ namespace CreateAR.SpirePlayer
                 {
                     el.Message = "Camera access is required to continue.";
                     el.Action = "Open Settings";
-                    el.OnOk += () =>
-                    {
-                        CameraUtilsNativeInterface.OpenSettings();
-
-                        _messages.SubscribeOnce(
-                            MessageTypes.APPLICATION_RESUME,
-                            _ =>
-                            {
-                                if (CameraUtilsNativeInterface.HasDeniedCameraPermissions)
-                                {
-                                    _ui.Close(errorId);
-            
-                                    StartArService();                
-                                }
-                            });
-                    };
+                    el.OnOk += CameraUtilsNativeInterface.OpenSettings;
                 })
                 .OnFailure(HandleCriticalFailure);
         }
