@@ -1,8 +1,6 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.States.HoloLogin;
-using Jint.Runtime.Interop;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -88,7 +86,7 @@ namespace CreateAR.SpirePlayer
             });
         }
 
-        /// <inheritdoc cref="ApplicationService"/>
+        /// <inheritdoc />
         public override void Start()
         {
             Subscribe<Void>(
@@ -98,7 +96,7 @@ namespace CreateAR.SpirePlayer
             _fsm.Change<InitializeApplicationState>(_config);
         }
 
-        /// <inheritdoc cref="ApplicationService"/>
+        /// <inheritdoc />
         public override void Update(float dt)
         {
             base.Update(dt);
@@ -106,12 +104,78 @@ namespace CreateAR.SpirePlayer
             _fsm.Update(dt);
         }
 
-        /// <inheritdoc cref="ApplicationService"/>
+        /// <inheritdoc />
         public override void Stop()
         {
             base.Stop();
 
             _fsm.Change(null);
+
+            if (null != _flow)
+            {
+                _flow.Stop();
+                _flow = null;
+            }
+        }
+        
+        /// <inheritdoc />
+        public void ChangeState<T>(object context = null) where T : IState
+        {
+            _fsm.Change<T>(context);
+        }
+
+        /// <inheritdoc />
+        public void ChangeFlow<T>() where T : IStateFlow
+        {
+            if (null != _flow)
+            {
+                _flow.Stop();
+            }
+
+            _flow = GetFlow<T>();
+
+            if (null != _flow)
+            {
+                _flow.Start(this);
+            }
+        }
+
+        /// <summary>
+        /// Listens for messages that flows will use and passes them along to flows.
+        /// </summary>
+        /// <param name="messageTypes">Message types to listen to.</param>
+        private void ListenForFlowMessages(params int[] messageTypes)
+        {
+            for (var i = 0; i < messageTypes.Length; i++)
+            {
+                // make local for access inside closure
+                var messageType = messageTypes[i];
+                
+                Subscribe<Void>(messageType, _ =>
+                {
+                    if (null != _flow)
+                    {
+                        _flow.MessageReceived(messageType, Void.Instance);
+                    }
+                });
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the flow for a type.
+        /// </summary>
+        private IStateFlow GetFlow<T>() where T : IStateFlow
+        {
+            for (int i = 0, len = _flows.Length; i < len; i++)
+            {
+                var flow = _flows[i];
+                if (flow.GetType() == typeof(T))
+                {
+                    return flow;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -150,16 +214,6 @@ namespace CreateAR.SpirePlayer
                     break;
                 }
             }
-        }
-
-        public void ChangeState<T>(object context = null) where T : IState
-        {
-            _fsm.Change<T>(context);
-        }
-
-        public void ChangeFlow<T>() where T : IStateFlow
-        {
-            
         }
     }
 }
