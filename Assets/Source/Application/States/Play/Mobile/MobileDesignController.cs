@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -36,11 +35,6 @@ namespace CreateAR.SpirePlayer
         private readonly IQrReaderService _qr;
 
         /// <summary>
-        /// Application widfe configuration.
-        /// </summary>
-        private readonly ApplicationConfig _config;
-
-        /// <summary>
         /// Menu.
         /// </summary>
         private MobilePlayModeMenu _menu;
@@ -62,14 +56,12 @@ namespace CreateAR.SpirePlayer
             IUIManager ui,
             IMessageRouter messages,
             IBootstrapper bootstrapper,
-            IQrReaderService qr,
-            ApplicationConfig config)
+            IQrReaderService qr)
         {
             _ui = ui;
             _messages = messages;
             _bootstrapper = bootstrapper;
             _qr = qr;
-            _config = config;
         }
         
         /// <inheritdoc />
@@ -86,20 +78,7 @@ namespace CreateAR.SpirePlayer
                 {
                     _menu = el;
                     
-                    el.OnBackClicked += () =>
-                    {
-                        var creds = _config.Network.Credentials;
-
-                        if (creds.IsGuest)
-                        {
-                            _messages.Publish(MessageTypes.GUEST);
-                        }
-                        else
-                        {
-                            _messages.Publish(MessageTypes.USER_PROFILE);
-                        }
-                    };
-                    
+                    el.OnBackClicked += () => _messages.Publish(MessageTypes.USER_PROFILE);
                     el.OnInstaClicked += () =>
                     {
                         _bootstrapper.BootstrapCoroutine(TakePic(texture =>

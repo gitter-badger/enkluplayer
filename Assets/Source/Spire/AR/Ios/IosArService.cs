@@ -35,15 +35,14 @@ namespace CreateAR.SpirePlayer.AR
         /// </summary>
         private ArCameraRig _rig;
 
-        /// <summary>
-        /// A set of anchors.
-        /// </summary>
+        /// <inheritdoc />
         public ArAnchor[] Anchors { get { return _anchors.ToArray(); }}
         
-        /// <summary>
-        /// Configuration for the service.
-        /// </summary>
+        /// <inheritdoc />
         public ArServiceConfiguration Config { get; private set; }
+        
+        /// <inheritdoc />
+        public bool IsSetup { get; private set; }
 
         /// <summary>
         /// Video.
@@ -98,11 +97,14 @@ namespace CreateAR.SpirePlayer.AR
                 UnityARSessionRunOption.ARSessionRunOptionResetTracking);
             
             InitializeCameraRig();
+
+            IsSetup = true;
         }
 
         /// <inheritdoc />
         public void Teardown()
         {
+            IsSetup = false;
             UninitializeCameraRig();
             
             UnityARSessionNativeInterface.ARAnchorAddedEvent -= Interface_OnAnchorAdded;

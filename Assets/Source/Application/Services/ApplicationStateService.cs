@@ -2,6 +2,7 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.States.HoloLogin;
+using Jint.Runtime.Interop;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -10,7 +11,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Manages major states of the application.
     /// </summary>
-    public class ApplicationStateService : ApplicationService
+    public class ApplicationStateService : ApplicationService, IApplicationStateManager
     {
         /// <summary>
         /// Application-wide configuration.
@@ -20,8 +21,18 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Controls application states.
         /// </summary>
-        private readonly FiniteStateMachine _states;
+        private readonly FiniteStateMachine _fsm;
 
+        /// <summary>
+        /// Potential flows.
+        /// </summary>
+        private readonly IStateFlow[] _flows;
+
+        /// <summary>
+        /// The current flow.
+        /// </summary>
+        private IStateFlow _flow;
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -29,6 +40,7 @@ namespace CreateAR.SpirePlayer
             MessageTypeBinder binder,
             IMessageRouter messages,
             ApplicationConfig config,
+            IStateFlow[] flows,
 
             InitializeApplicationState initialize,
             LoginApplicationState login,
@@ -51,8 +63,9 @@ namespace CreateAR.SpirePlayer
             ToolModeApplicationState tools)
             : base(binder, messages)
         {
+            _flows = flows;
             _config = config;
-            _states = new FiniteStateMachine(new IState[]
+            _fsm = new FiniteStateMachine(new IState[]
             {
                 initialize,
                 login,
@@ -82,136 +95,7 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.APPLICATION_INITIALIZED,
                 Messages_OnApplicationInitialized);
 
-            Subscribe<Void>(
-                MessageTypes.LOAD_APP,
-                _ =>
-                {
-                    Log.Info(this, "Load app requested.");
-
-                    _states.Change<LoadAppApplicationState>();
-                });
-
-            Subscribe<Void>(
-                MessageTypes.LOGIN,
-                _ =>
-                {
-                    Log.Info(this, "Login requested.");
-
-                    _states.Change<LoginApplicationState>();
-                });
-
-            Subscribe<Void>(
-                MessageTypes.HOLOLOGIN,
-                _ =>
-                {
-                    Log.Info(this, "HoloLogin requested.");
-
-                    _states.Change<HoloLoginApplicationState>();
-                });
-            
-            Subscribe<Void>(
-                MessageTypes.SIGNOUT,
-                _ =>
-                {
-                    Log.Info(this, "Signout requested.");
-                    
-                    _states.Change<SignOutApplicationState>();
-                });
-            
-            Subscribe<Void>(
-                MessageTypes.GUEST,
-                _ =>
-                {
-                    Log.Info(this, "Guest requested.");
-
-                    _states.Change<GuestApplicationState>();
-                });
-            
-            Subscribe<Void>(
-                MessageTypes.LOGIN_COMPLETE,
-                _ =>
-                {
-                    Log.Info(this, "Login complete.");
-
-                    if (_config.ParsedPlatform == RuntimePlatform.IPhonePlayer)
-                    {
-                        Log.Info(this, "Passing to MobileArSetupApplicationState.");
-                        
-                        _states.Change<MobileArSetupApplicationState>();
-                    }
-                    else
-                    {
-                        Log.Info(this, "Passing to LoadDefaultAppState.");
-                        
-                        _states.Change<LoadDefaultAppApplicationState>();   
-                    }
-                });
-
-            Subscribe<Void>(
-                MessageTypes.USER_PROFILE,
-                _ =>
-                {
-                    Log.Info(this, "User profile state.");
-
-                    _states.Change<UserProfileApplicationState>();
-                });
-
-            Subscribe<Void>(
-                MessageTypes.PLAY,
-                _ =>
-                {
-                    Log.Info(this, "Play requested.");
-
-                    _states.Change<PlayApplicationState>();
-                });
-            
-            Subscribe<Void>(
-                MessageTypes.TOOLS,
-                _ =>
-                {
-                    Log.Info(this, "Tools requested.");
-
-                    _states.Change<ToolModeApplicationState>();
-                });
-
-            Subscribe<Void>(
-                MessageTypes.MESHCAPTURE,
-                _ =>
-                {
-                    Log.Info(this, "Message capture requested.");
-
-#if NETFX_CORE
-                    _states.Change<MeshCaptureApplicationState>();
-#endif
-                });
-            
-            Subscribe<Void>(
-                MessageTypes.AR_SETUP,
-                _ =>
-                {
-                    Log.Info(this, "AR setup requested.");
-                    
-                    _states.Change<MobileArSetupApplicationState>();
-                });
-            
-            Subscribe<Exception>(
-                MessageTypes.ARSERVICE_EXCEPTION,
-                exception =>
-                {
-                    Log.Error(this, "AR Service exception : {0}.", exception.Message);
-                    
-                    // head back to AR setup
-                    _states.Change<MobileArSetupApplicationState>(exception);
-                });
-            
-            Subscribe<Void>(
-                MessageTypes.FLOOR_FOUND,
-                _ =>
-                {
-                    _states.Change<LoadDefaultAppApplicationState>();
-                });
-
-            _states.Change<InitializeApplicationState>(_config);
+            _fsm.Change<InitializeApplicationState>(_config);
         }
 
         /// <inheritdoc cref="ApplicationService"/>
@@ -219,7 +103,7 @@ namespace CreateAR.SpirePlayer
         {
             base.Update(dt);
 
-            _states.Update(dt);
+            _fsm.Update(dt);
         }
 
         /// <inheritdoc cref="ApplicationService"/>
@@ -227,67 +111,7 @@ namespace CreateAR.SpirePlayer
         {
             base.Stop();
 
-            _states.Change(null);
-        }
-
-        /// <summary>
-        /// Changes to the state given by the state enums.
-        /// </summary>
-        /// <param name="state">The state to change to.</param>
-        private void ChangeState(ApplicationStateType state)
-        {
-            switch (state)
-            {
-                case ApplicationStateType.Tool:
-                {
-                    _states.Change<ToolModeApplicationState>();
-                    break;
-                }
-                case ApplicationStateType.LoadApp:
-                {
-                    _states.Change<LoadAppApplicationState>();
-                    break;
-                }
-                case ApplicationStateType.UserProfile:
-                {
-                    _states.Change<UserProfileApplicationState>();
-                    break;
-                }
-                case ApplicationStateType.ReceiveApp:
-                {
-                    _states.Change<ReceiveAppApplicationState>();
-                    break;
-                }
-                case ApplicationStateType.Insta:
-                {
-                    _states.Change<InstaApplicationState>();
-                    break;
-                }
-                case ApplicationStateType.Login:
-                {
-                    _states.Change<LoginApplicationState>();
-                    break;
-                }
-                case ApplicationStateType.ArSetup:
-                {
-                    _states.Change<MobileArSetupApplicationState>();
-                    break;
-                }
-                case ApplicationStateType.Orientation:
-                {
-                    _states.Change<OrientationApplicationState>();
-                    break;
-                }
-                case ApplicationStateType.None:
-                {
-                    _states.Change(null);
-                    break;
-                }
-                default:
-                {
-                    throw new Exception(string.Format("Invalid ApplicationState : {0}.", state));
-                }
-            }
+            _fsm.Change(null);
         }
 
         /// <summary>
@@ -298,61 +122,44 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Application initialized.");
 
-            var state = ApplicationStateType.Invalid;
-            try
+            switch (UnityEngine.Application.platform)
             {
-                state = (ApplicationStateType) Enum.Parse(
-                    typeof(ApplicationStateType),
-                    _config.State);
-            }
-            catch
-            {
-                //
-            }
-
-            if (state == ApplicationStateType.Invalid)
-            {
-                switch (UnityEngine.Application.platform)
+                case RuntimePlatform.WebGLPlayer:
                 {
-                    case RuntimePlatform.WebGLPlayer:
-                    {
-                        state = ApplicationStateType.ReceiveApp;
-                        break;
-                    }
-                    case RuntimePlatform.IPhonePlayer:
-                    case RuntimePlatform.Android:
-                    {
-                        state = ApplicationStateType.Login;
-                        break;
-                    }
-                    case RuntimePlatform.WSAPlayerX86:
-                    case RuntimePlatform.WSAPlayerARM:
-                    case RuntimePlatform.WSAPlayerX64:
-                    {
-                        state = ApplicationStateType.Orientation;
-                        break;
-                    }
-                    default:
-                    {
-                        if (!string.IsNullOrEmpty(_config.Play.AppId))
-                        {
-                            state = ApplicationStateType.LoadApp;
-                        }
-                        else if (_config.ParsedPlatform == RuntimePlatform.WebGLPlayer)
-                        {
-                            state = ApplicationStateType.ReceiveApp;
-                        }
-                        else
-                        {
-                            state = ApplicationStateType.Login;
-                        }
-
-                        break;
-                    }
+                    ChangeFlow<WebStateFlow>();
+                    break;
+                }
+                case RuntimePlatform.IPhonePlayer:
+                case RuntimePlatform.Android:
+                {
+                    ChangeFlow<MobileLoginStateFlow>();
+                    break;
+                }
+                case RuntimePlatform.WSAPlayerX86:
+                case RuntimePlatform.WSAPlayerARM:
+                case RuntimePlatform.WSAPlayerX64:
+                {
+                    ChangeFlow<HmdStateFlow>();
+                    break;
+                }
+                default:
+                {
+                    Log.Warning(this, "Unknown platform. Defaulting to mobile flow.");
+                    
+                    ChangeFlow<MobileLoginStateFlow>();
+                    break;
                 }
             }
+        }
 
-            ChangeState(state);
+        public void ChangeState<T>(object context = null) where T : IState
+        {
+            _fsm.Change<T>(context);
+        }
+
+        public void ChangeFlow<T>() where T : IStateFlow
+        {
+            
         }
     }
 }

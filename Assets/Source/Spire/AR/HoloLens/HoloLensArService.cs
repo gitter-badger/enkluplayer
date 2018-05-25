@@ -22,6 +22,9 @@ namespace CreateAR.SpirePlayer
 
         /// <inheritdoc />
         public ArServiceConfiguration Config { get; private set; }
+    
+        /// <inheritdoc />
+        public bool IsSetup { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -43,12 +46,16 @@ namespace CreateAR.SpirePlayer
         public void Setup(ArServiceConfiguration config)
         {
             WorldManager.OnPositionalLocatorStateChanged += WorldManager_OnPositionalLocatorStateChanged;
+    
+            IsSetup = true;
         }
 
         /// <inheritdoc />
         public void Teardown()
         {
-            
+            IsSetup = false;
+    
+            WorldManager.OnPositionalLocatorStateChanged -= WorldManager_OnPositionalLocatorStateChanged;
         }
         
         /// <summary>

@@ -126,22 +126,15 @@ namespace CreateAR.SpirePlayer
                 .Login()
                 .OnSuccess(credentials =>
                 {
-                    if (credentials.IsGuest)
-                    {
-                        Log.Info(this, "Continuing as guest.");
-                        
-                        _messages.Publish(MessageTypes.GUEST);
-                        return;
-                    }
-                    
                     Log.Info(this, "Logged in.");
+
+                    ConfigureCredentials(credentials);
+                    
                     Log.Info(this, "Saving credentials to disk.");
 
                     _files
                         .Set(CREDS, credentials)
                         .OnFailure(exception => Log.Error(this, "Could not write credentials to disk : {0}.", exception));
-
-                    ConfigureCredentials(credentials);
                 })
                 .OnFailure(exception =>
                 {
