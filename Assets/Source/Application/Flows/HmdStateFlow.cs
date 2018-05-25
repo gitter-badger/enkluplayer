@@ -17,6 +17,7 @@ namespace CreateAR.SpirePlayer
         {
             _states = states;
             _states.ListenForFlowMessages(
+                MessageTypes.LOGIN,
                 MessageTypes.LOGIN_COMPLETE,
                 MessageTypes.USER_PROFILE,
                 MessageTypes.LOAD_APP,
@@ -37,6 +38,11 @@ namespace CreateAR.SpirePlayer
         {
             switch (messageType)
             {
+                case MessageTypes.LOGIN:
+                {
+                    _states.ChangeState<LoginApplicationState>();
+                    break;
+                }
                 case MessageTypes.LOGIN_COMPLETE:
                 {
                     _states.ChangeState<LoadDefaultAppApplicationState>();
