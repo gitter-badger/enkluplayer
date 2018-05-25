@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.States.HoloLogin;
 using UnityEngine;
@@ -11,6 +13,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class ApplicationStateService : ApplicationService, IApplicationStateManager
     {
+        /// <summary>
+        /// Unsubscribe actions.
+        /// </summary>
+        private readonly List<Action> _flowMessageUnsubs = new List<Action>();
+        
         /// <summary>
         /// Application-wide configuration.
         /// </summary>
@@ -38,8 +45,14 @@ namespace CreateAR.SpirePlayer
             MessageTypeBinder binder,
             IMessageRouter messages,
             ApplicationConfig config,
-            IStateFlow[] flows,
+            
+            // flows
+            MobileLoginStateFlow mobileLoginFlow,
+            MobileGuestStateFlow mobileGuestFlow,
+            HmdStateFlow hmdFlow,
+            WebStateFlow webFlow,
 
+            // states
             InitializeApplicationState initialize,
             LoginApplicationState login,
             HoloLoginApplicationState holoLogin,
@@ -61,7 +74,14 @@ namespace CreateAR.SpirePlayer
             ToolModeApplicationState tools)
             : base(binder, messages)
         {
-            _flows = flows;
+            _flows = new IStateFlow[]
+            {
+                mobileLoginFlow,
+                mobileGuestFlow,
+                webFlow,
+                hmdFlow
+            };
+            
             _config = config;
             _fsm = new FiniteStateMachine(new IState[]
             {
@@ -92,7 +112,7 @@ namespace CreateAR.SpirePlayer
             Subscribe<Void>(
                 MessageTypes.APPLICATION_INITIALIZED,
                 Messages_OnApplicationInitialized);
-
+            
             _fsm.Change<InitializeApplicationState>(_config);
         }
 
@@ -130,6 +150,13 @@ namespace CreateAR.SpirePlayer
             if (null != _flow)
             {
                 _flow.Stop();
+
+                // unsub
+                for (var i = 0; i < _flowMessageUnsubs.Count; i++)
+                {
+                    _flowMessageUnsubs[i]();
+                }
+                _flowMessageUnsubs.Clear();
             }
 
             _flow = GetFlow<T>();
@@ -140,24 +167,23 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        /// <summary>
-        /// Listens for messages that flows will use and passes them along to flows.
-        /// </summary>
-        /// <param name="messageTypes">Message types to listen to.</param>
-        private void ListenForFlowMessages(params int[] messageTypes)
+        /// <inheritdoc />
+        public void ListenForFlowMessages(params int[] messageTypes)
         {
             for (var i = 0; i < messageTypes.Length; i++)
             {
                 // make local for access inside closure
                 var messageType = messageTypes[i];
-                
-                Subscribe<Void>(messageType, _ =>
-                {
-                    if (null != _flow)
+
+                _flowMessageUnsubs.Add(_messages.Subscribe(
+                    messageType,
+                    message =>
                     {
-                        _flow.MessageReceived(messageType, Void.Instance);
-                    }
-                });
+                        if (null != _flow)
+                        {
+                            _flow.MessageReceived(messageType, message);
+                        }
+                    }));
             }
         }
 
@@ -186,7 +212,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Application initialized.");
 
-            switch (UnityEngine.Application.platform)
+            switch (_config.ParsedPlatform)
             {
                 case RuntimePlatform.WebGLPlayer:
                 {

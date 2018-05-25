@@ -109,15 +109,6 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "PlayApplicationState::Enter()");
             
-            // first, check Ar service
-            if (!_ar.IsSetup)
-            {
-                Log.Info(this, "IArService has not been setup, proceeding to setup.");
-                
-                _messages.Publish(MessageTypes.AR_SETUP);
-                return;
-            }
-
             _context = new DesignerContext
             {
                 Edit = _config.Play.Edit

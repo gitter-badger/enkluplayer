@@ -37,9 +37,10 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Start(IApplicationStateManager states)
         {
-            _ar.Setup(_config);
-            
             _states = states;
+            _states.ListenForFlowMessages(MessageTypes.PLAY);
+            
+            _ar.Setup(_config);
             _states.ChangeState<ReceiveAppApplicationState>();
         }
 

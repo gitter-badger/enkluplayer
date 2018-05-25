@@ -16,6 +16,13 @@ namespace CreateAR.SpirePlayer
         public void Start(IApplicationStateManager states)
         {
             _states = states;
+            _states.ListenForFlowMessages(
+                MessageTypes.LOGIN_COMPLETE,
+                MessageTypes.USER_PROFILE,
+                MessageTypes.LOAD_APP,
+                MessageTypes.PLAY,
+                MessageTypes.ARSERVICE_EXCEPTION,
+                MessageTypes.FLOOR_FOUND);
             _states.ChangeState<OrientationApplicationState>();
         }
 
@@ -48,11 +55,6 @@ namespace CreateAR.SpirePlayer
                 case MessageTypes.PLAY:
                 {
                     _states.ChangeState<PlayApplicationState>();
-                    break;
-                }
-                case MessageTypes.AR_SETUP:
-                {
-                    _states.ChangeState<MobileArSetupApplicationState>();
                     break;
                 }
                 case MessageTypes.ARSERVICE_EXCEPTION:

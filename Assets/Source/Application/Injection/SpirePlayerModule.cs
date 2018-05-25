@@ -187,6 +187,14 @@ namespace CreateAR.SpirePlayer
 
                 // application states
                 {
+                    // flows
+                    {
+                        binder.Bind<HmdStateFlow>().To<HmdStateFlow>();
+                        binder.Bind<MobileLoginStateFlow>().To<MobileLoginStateFlow>();
+                        binder.Bind<MobileGuestStateFlow>().To<MobileGuestStateFlow>();
+                        binder.Bind<WebStateFlow>().To<WebStateFlow>();
+                    }
+                    
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                     binder.Bind<LoginApplicationState>().To<LoginApplicationState>();
                     binder.Bind<HoloLoginApplicationState>().To<HoloLoginApplicationState>();

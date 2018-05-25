@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.AR;
 using CreateAR.SpirePlayer.States.HoloLogin;
 
 namespace CreateAR.SpirePlayer
@@ -14,22 +15,38 @@ namespace CreateAR.SpirePlayer
         private readonly ApplicationConfig _config;
         
         /// <summary>
+        /// Ar service.
+        /// </summary>
+        private readonly IArService _ar;
+        
+        /// <summary>
         /// Manages flows and states.
         /// </summary>
         private IApplicationStateManager _states;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
-        public MobileLoginStateFlow(ApplicationConfig config)
+        public MobileLoginStateFlow(
+            ApplicationConfig config,
+            IArService ar)
         {
             _config = config;
+            _ar = ar;
         }
         
         /// <inheritdoc />
         public void Start(IApplicationStateManager states)
         {
             _states = states;
+            _states.ListenForFlowMessages(
+                MessageTypes.LOGIN_COMPLETE,
+                MessageTypes.USER_PROFILE,
+                MessageTypes.LOAD_APP,
+                MessageTypes.PLAY,
+                MessageTypes.AR_SETUP,
+                MessageTypes.ARSERVICE_EXCEPTION,
+                MessageTypes.FLOOR_FOUND);
             _states.ChangeState<LoginApplicationState>();
         }
 
@@ -70,7 +87,16 @@ namespace CreateAR.SpirePlayer
                 }
                 case MessageTypes.PLAY:
                 {
-                    _states.ChangeState<PlayApplicationState>();
+                    // check ar first
+                    if (_ar.IsSetup)
+                    {
+                        _states.ChangeState<PlayApplicationState>();
+                    }
+                    else
+                    {
+                        _states.ChangeState<MobileArSetupApplicationState>();
+                    }
+                    
                     break;
                 }
                 case MessageTypes.AR_SETUP:

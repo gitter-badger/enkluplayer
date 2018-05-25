@@ -6,6 +6,12 @@
     public interface IApplicationStateManager
     {
         /// <summary>
+        /// Listens for messages that flows will use and passes them along to flows.
+        /// </summary>
+        /// <param name="messageTypes">Message types to listen to.</param>
+        void ListenForFlowMessages(params int[] messageTypes);
+        
+        /// <summary>
         /// Changes states.
         /// </summary>
         /// <param name="context">Any object we wish to pass to the next state.</param>
