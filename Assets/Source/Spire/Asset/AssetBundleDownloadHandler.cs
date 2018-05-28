@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -145,6 +146,7 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         /// <param name="message">Message to log.</param>
         /// <param name="replacements">Logging replacements.</param>
+        [Conditional("LOGGING_VERBOSE")]
         private void Trace(string message, params object[] replacements)
         {
             Log.Info(this,

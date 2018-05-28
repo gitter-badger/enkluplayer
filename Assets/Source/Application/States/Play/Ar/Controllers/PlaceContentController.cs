@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -14,6 +15,16 @@ namespace CreateAR.SpirePlayer
         /// The controller.
         /// </summary>
         private ContentDesignController _controller;
+
+        /// <summary>
+        /// Previous position.
+        /// </summary>
+        private Vector3 _previousPosition;
+
+        /// <summary>
+        /// Previous parent.
+        /// </summary>
+        private Transform _previousParent;
         
         /// <summary>
         /// Elements.
@@ -72,18 +83,21 @@ namespace CreateAR.SpirePlayer
         public void Initialize(ContentDesignController controller)
         {
             _controller = controller;
+            _controller.DisableUpdates();
             _controller.HideSplashMenu();
 
-            var controllerTransform = controller.transform;
-            
+            // save previous position
+            _previousPosition = _controller.transform.position;
+            _previousParent = _controller.transform.parent;
+
+            // hide content we use for placement
             Content.LocalVisible = false;
-            Container.GameObject.transform.position = controllerTransform.position;
-            
-            controllerTransform.SetParent(
+
+            // parent to ContentContainer
+            //Container.GameObject.transform.position = controller.transform.position;
+            controller.transform.SetParent(
                 ContentContainer.GameObject.transform,
                 true);
-
-            BtnCancel.Schema.Set("visible", false);
         }
 
         /// <summary>
@@ -108,6 +122,10 @@ namespace CreateAR.SpirePlayer
         {
             if (null != _controller)
             {
+                _controller.transform.SetParent(_previousParent, true);
+                _controller.ShowSplashMenu();
+                _controller.EnableUpdates();
+
                 if (null != OnConfirmController)
                 {
                     OnConfirmController(_controller);
@@ -150,6 +168,14 @@ namespace CreateAR.SpirePlayer
         /// <param name="activatorPrimitive">The activator.</param>
         private void Cancel_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            if (null != _controller)
+            {
+                _controller.transform.SetParent(_previousParent, true);
+                _controller.transform.position = _previousPosition;
+                _controller.ShowSplashMenu();
+                _controller.EnableUpdates();
+            }
+
             if (null != OnCancel)
             {
                 OnCancel();

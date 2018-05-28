@@ -134,10 +134,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="controller">The prop controller.</param>
         private void Move_OnConfirmController(ContentDesignController controller)
         {
-            controller.transform.SetParent(null, true);
-            controller.ShowSplashMenu();
-            controller.EnableUpdates();
-
             _move.enabled = false;
             _dynamicRoot.Schema.Set("focus.visible", true);
 
@@ -162,10 +158,7 @@ namespace CreateAR.SpirePlayer
         private void Edit_OnMove(ContentDesignController elementController)
         {
             CloseAll();
-
-            elementController.HideSplashMenu();
-            elementController.DisableUpdates();
-
+            
             _move.Initialize(elementController);
             _move.enabled = true;
         }
