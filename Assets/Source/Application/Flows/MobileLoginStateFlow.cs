@@ -40,13 +40,15 @@ namespace CreateAR.SpirePlayer
         {
             _states = states;
             _states.ListenForFlowMessages(
+                MessageTypes.LOGIN,
                 MessageTypes.LOGIN_COMPLETE,
                 MessageTypes.USER_PROFILE,
                 MessageTypes.LOAD_APP,
                 MessageTypes.PLAY,
                 MessageTypes.AR_SETUP,
                 MessageTypes.ARSERVICE_EXCEPTION,
-                MessageTypes.FLOOR_FOUND);
+                MessageTypes.FLOOR_FOUND,
+                MessageTypes.SIGNOUT);
             _states.ChangeState<LoginApplicationState>();
         }
 
@@ -61,6 +63,11 @@ namespace CreateAR.SpirePlayer
         {
             switch (messageType)
             {
+                case MessageTypes.LOGIN:
+                {
+                    _states.ChangeState<LoginApplicationState>();
+                    break;
+                }
                 case MessageTypes.LOGIN_COMPLETE:
                 {
                     var credentials = _config.Network.Credentials;
