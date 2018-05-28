@@ -11,16 +11,6 @@ namespace CreateAR.SpirePlayer
     public class InputLoginUIView : MonoBehaviourUIElement
     {
         /// <summary>
-        /// Called with username and password.
-        /// </summary>
-        public event Action<string, string> OnSubmit;
-
-        /// <summary>
-        /// Called to go to signup.
-        /// </summary>
-        public event Action OnSignUp;
-
-        /// <summary>
         /// The username field.
         /// </summary>
         public InputField UserName;
@@ -35,6 +25,21 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public Text Error;
 
+        /// <summary>
+        /// Called with username and password.
+        /// </summary>
+        public event Action<string, string> OnSubmit;
+
+        /// <summary>
+        /// Called to go to signup.
+        /// </summary>
+        public event Action OnSignUp;
+
+        /// <summary>
+        /// Called to continue as a guest.
+        /// </summary>
+        public event Action OnContinueAsGuest; 
+        
         /// <summary>
         /// Called when submit button has been pressed.
         /// </summary>
@@ -66,6 +71,17 @@ namespace CreateAR.SpirePlayer
             if (null != OnSignUp)
             {
                 OnSignUp();
+            }
+        }
+
+        /// <summary>
+        /// Called when continue has been clicked.
+        /// </summary>
+        public void ContinueClicked()
+        {
+            if (null != OnContinueAsGuest)
+            {
+                OnContinueAsGuest();
             }
         }
 

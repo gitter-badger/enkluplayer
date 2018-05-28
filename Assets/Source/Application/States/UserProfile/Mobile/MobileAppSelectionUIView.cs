@@ -31,6 +31,9 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public event Action OnSignOut;
         
+        /// <inheritdoc />
+        public event Action OnPublicApps;
+        
         /// <summary>
         /// Messages.
         /// </summary>
@@ -49,7 +52,7 @@ namespace CreateAR.SpirePlayer
                 {
                     var controller = Instantiate(AppListElement, Content);
                     controller.OnSelected += OnAppSelected;   
-                    controller.Init(app);
+                    controller.Init(app.Id, app.Name, app.Description);
                 }
             }
         }
@@ -71,6 +74,17 @@ namespace CreateAR.SpirePlayer
         public void HoloLoginClicked()
         {
             Messages.Publish(MessageTypes.HOLOLOGIN);
+        }
+
+        /// <summary>
+        /// Called by Unity UI.
+        /// </summary>
+        public void PublicAppsClicked()
+        {
+            if (null != OnPublicApps)
+            {
+                OnPublicApps();
+            }
         }
     }
 }

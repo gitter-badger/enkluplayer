@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
@@ -47,6 +48,21 @@ namespace CreateAR.SpirePlayer
         private IAsyncToken<Response> _myAppsToken;
 
         /// <summary>
+        /// Stack id for private app selection view.
+        /// </summary>
+        private int _privateAppsId;
+
+        /// <summary>
+        /// Search UI.
+        /// </summary>
+        private IAppSearchUIView _searchUi;
+
+        /// <summary>
+        /// Token for search.
+        /// </summary>
+        private IAsyncToken<HttpResponse<Trellis.Messages.SearchPublishedApps.Response>> _appSearchToken;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public UserProfileApplicationState(
@@ -88,6 +104,11 @@ namespace CreateAR.SpirePlayer
                 _myAppsToken.Abort();
             }
 
+            if (null != _appSearchToken)
+            {
+                _appSearchToken.Abort();
+            }
+
             _frame.Release();
         }
 
@@ -96,10 +117,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void LoadProfile()
         {
+            int loadingId;
             _ui.Open<IUIElement>(new UIReference
             {
                 UIDataId = UIDataIds.LOADING
-            });
+            }, out loadingId);
             
             const string uri = "userdata://userprofile";
 
@@ -111,7 +133,7 @@ namespace CreateAR.SpirePlayer
             _myAppsToken
                 .OnSuccess(response =>
                 {
-                    _ui.Pop();
+                    _ui.Close(loadingId);
                     
                     if (response.Success)
                     {
@@ -135,7 +157,12 @@ namespace CreateAR.SpirePlayer
                             {
                                 popup.Message = "Could not load your apps. Are you sure you're online?";
                                 popup.Action = "Retry";
-                                popup.OnOk += Retry_OnOk;
+                                popup.OnOk += () =>
+                                {
+                                    _ui.Close(errorId);
+                                    
+                                    LoadProfile();
+                                };
                             })
                             .OnFailure(ex => Log.Fatal(
                                 this,
@@ -161,7 +188,12 @@ namespace CreateAR.SpirePlayer
                         {
                             popup.Message = "Could not load your apps. Are you sure you're online?";
                             popup.Action = "Retry";
-                            popup.OnOk += Retry_OnOk;
+                            popup.OnOk += () =>
+                            {
+                                _ui.Close(errorId);
+                                    
+                                LoadProfile();
+                            };
                         })
                         .OnFailure(ex => Log.Fatal(
                             this,
@@ -180,11 +212,12 @@ namespace CreateAR.SpirePlayer
                 .Open<IAppSelectionUIView>(new UIReference
                 {
                     UIDataId = "UserProfile.AppSelection"
-                })
+                }, out _privateAppsId)
                 .OnSuccess(el =>
                 {
                     el.OnAppSelected += AppSelection_OnSelected;
                     el.OnSignOut += AppSelection_OnSignOut;
+                    el.OnPublicApps += AppSelection_OnPublicApps;
                     
                     el.Apps = apps;
                 })
@@ -192,16 +225,25 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when the user splash controller selects an app.
+        /// Loads an app.
         /// </summary>
-        /// <param name="appId">The id of the app to load.</param>
-        private void AppSelection_OnSelected(string appId)
+        /// <param name="appId">Id of the app to load.</param>
+        private void LoadApp(string appId)
         {
             _config.Play.AppId = appId;
 
             _messages.Publish(MessageTypes.LOAD_APP);
         }
         
+        /// <summary>
+        /// Called when the user splash controller selects an app.
+        /// </summary>
+        /// <param name="appId">The id of the app to load.</param>
+        private void AppSelection_OnSelected(string appId)
+        {
+            LoadApp(appId);
+        }
+
         /// <summary>
         /// Called when the user requests to sign out.
         /// </summary>
@@ -211,13 +253,67 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <summary>
-        /// Called to try retrieving apps.
+        /// Called when the user requests access to public apps.
         /// </summary>
-        private void Retry_OnOk()
+        private void AppSelection_OnPublicApps()
         {
-            _ui.Pop();
+            _ui
+                .Open<IAppSearchUIView>(new UIReference
+                {
+                    UIDataId = "UserProfile.AppSearch"
+                })
+                .OnSuccess(el =>
+                {
+                    _searchUi = el;
+                    
+                    _searchUi.OnAppSelected += AppSearch_OnSelected;
+                    _searchUi.OnPrivateApps += AppSearch_OnPrivateApps;
+                    _searchUi.OnQueryUpdated += AppSearch_OnQueryUpdated;
+                })
+                .OnFailure(exception => Log.Error(this, "Could not open AppSearch view : {0}", exception));
+        }
+
+        /// <summary>
+        /// Called when the user requests to load an app.
+        /// </summary>
+        /// <param name="appId">Id of the app to load.</param>
+        private void AppSearch_OnSelected(string appId)
+        {
+            LoadApp(appId);
+        }
+
+        /// <summary>
+        /// Called when the user requests to login.
+        /// </summary>
+        private void AppSearch_OnPrivateApps()
+        {
+            _ui.Reveal(_privateAppsId);
+        }
+        
+        /// <summary>
+        /// Called when the user updates the search query.
+        /// </summary>
+        /// <param name="query">The search query.</param>
+        private void AppSearch_OnQueryUpdated(string query)
+        {
+            if (null != _appSearchToken)
+            {
+                _appSearchToken.Abort();
+            }
             
-            LoadProfile();
+            _appSearchToken = _api
+                .PublishedApps
+                .SearchPublishedApps(query)
+                .OnSuccess(response =>
+                {
+                    _searchUi.Init(response.Payload.Body);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not search apps : {0}", exception);
+                   
+                    // TODO: show error
+                });
         }
     }
 }

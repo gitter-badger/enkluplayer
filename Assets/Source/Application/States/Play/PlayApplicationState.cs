@@ -108,7 +108,7 @@ namespace CreateAR.SpirePlayer
         public void Enter(object context)
         {
             Log.Info(this, "PlayApplicationState::Enter()");
-
+            
             _context = new DesignerContext
             {
                 Edit = _config.Play.Edit

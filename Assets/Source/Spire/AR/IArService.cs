@@ -29,6 +29,11 @@ namespace CreateAR.SpirePlayer.AR
         ArServiceConfiguration Config { get; }
         
         /// <summary>
+        /// True iff ar service has been setup.
+        /// </summary>
+        bool IsSetup { get; }
+        
+        /// <summary>
         /// Sets up the AR provider for use.
         /// </summary>
         /// <param name="config">Configuration to use.</param>

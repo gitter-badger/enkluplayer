@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -79,19 +78,41 @@ namespace CreateAR.SpirePlayer
                 {
                     _menu = el;
                     
-                    el.OnBackClicked += () =>
-                    {
-                        _messages.Publish(MessageTypes.USER_PROFILE);
-                    };
-                    
+                    el.OnBackClicked += () => _messages.Publish(MessageTypes.USER_PROFILE);
                     el.OnInstaClicked += () =>
                     {
-                        _bootstrapper.BootstrapCoroutine(TakePic(texture =>
+                        // get permission first
+                        if (CameraUtilsNativeInterface.HasPhotosPermissions)
                         {
-                            Log.Info(this, "Screenshot saved to {0}.", texture);
-
-                            NativeGallery.SaveToGallery(texture, "ScreenShots", "ss.png");
-                        }));
+                            Insta();
+                        }
+                        else
+                        {
+                            CameraUtilsNativeInterface.RequestPhotosAccess(
+                                _bootstrapper,
+                                success =>
+                                {
+                                    if (success)
+                                    {
+                                        Insta();
+                                    }
+                                    else
+                                    {
+                                        _ui
+                                            .Open<MobileErrorUIView>(new UIReference
+                                            {
+                                                UIDataId = UIDataIds.ERROR
+                                            })
+                                            .OnSuccess(err =>
+                                            {
+                                                err.Message = "Photo library access required for screenshot.";
+                                                err.Action = "Okay";
+                                                err.OnOk += () => _ui.Pop();
+                                            })
+                                            .OnFailure(exception => Log.Error(this, "Could not open error for library access : {0}", exception));   
+                                    }
+                                });
+                        }
                     };
                 })
                 .OnFailure(ex => Log.Error(this, "Could not open Play.Main : {0}.", ex));
@@ -122,6 +143,19 @@ namespace CreateAR.SpirePlayer
         public void Select(string sceneId, string elementId)
         {
             //
+        }
+        
+        /// <summary>
+        /// Shares to Insta.
+        /// </summary>
+        private void Insta()
+        {
+            _bootstrapper.BootstrapCoroutine(TakePic(texture =>
+            {
+                Log.Info(this, "Screenshot saved to {0}.", texture);
+
+                NativeGallery.SaveToGallery(texture, "ScreenShots", "ss.png");
+            }));
         }
         
         /// <summary>

@@ -181,21 +181,31 @@ namespace CreateAR.SpirePlayer
                     }
                     else
                     {
-                        binder.Bind<ILoginStrategy>().To<InputLoginStrategy>();
+                        binder.Bind<ILoginStrategy>().To<MobileLoginStrategy>();
                     }
                 }
 
                 // application states
                 {
+                    // flows
+                    {
+                        binder.Bind<HmdStateFlow>().To<HmdStateFlow>();
+                        binder.Bind<MobileLoginStateFlow>().To<MobileLoginStateFlow>();
+                        binder.Bind<MobileGuestStateFlow>().To<MobileGuestStateFlow>();
+                        binder.Bind<WebStateFlow>().To<WebStateFlow>();
+                    }
+                    
                     binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                     binder.Bind<LoginApplicationState>().To<LoginApplicationState>();
                     binder.Bind<HoloLoginApplicationState>().To<HoloLoginApplicationState>();
                     binder.Bind<SignOutApplicationState>().To<SignOutApplicationState>();
                     binder.Bind<QrLoginStrategy>().To<QrLoginStrategy>();
+                    binder.Bind<GuestApplicationState>().To<GuestApplicationState>();
                     binder.Bind<OrientationApplicationState>().To<OrientationApplicationState>();
                     binder.Bind<UserProfileApplicationState>().To<UserProfileApplicationState>();
                     binder.Bind<MobileArSetupApplicationState>().To<MobileArSetupApplicationState>();
-                    binder.Bind<InputLoginStrategy>().To<InputLoginStrategy>();
+                    binder.Bind<HmdArSetupApplicationState>().To<HmdArSetupApplicationState>();
+                    binder.Bind<MobileLoginStrategy>().To<MobileLoginStrategy>();
                     binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                     binder.Bind<LoadDefaultAppApplicationState>().To<LoadDefaultAppApplicationState>();
                     binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();

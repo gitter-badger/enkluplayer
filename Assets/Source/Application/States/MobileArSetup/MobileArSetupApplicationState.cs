@@ -63,35 +63,21 @@ namespace CreateAR.SpirePlayer
             
             var exception = context as Exception;
             
+            Log.Info(this, "MobileArSetupApplicationState({0})", exception);
+            
             // if an exception has been passed in OR camera permissions have
             // been specifically denied, open the error view
             if (null != exception || CameraUtilsNativeInterface.HasDeniedCameraPermissions)
             {
-                Log.Info(this, "Exception : {0}, HasDeniedCameraPermissions: {1}",
-                    exception,
-                    CameraUtilsNativeInterface.HasDeniedCameraPermissions);
-                int errorId;
-                _ui
-                    .Open<MobileErrorUIView>(new UIReference
-                        {
-                            UIDataId = UIDataIds.ERROR
-                        },
-                        out errorId)
-                    .OnSuccess(el =>
-                    {
-                        el.OnOk += () =>
-                        {
-                            _ui.Close(errorId);
-                            
-                            OpenCameraSettings();
-                        };
-                    })
-                    .OnFailure(HandleCriticalFailure);
+                Log.Info(this, "Opening error view.");
+
+                OpenCameraSettingsError();
             }
             // otherwise, open the prompt
             else
             {
-                Log.Info(this, "Prompt.");
+                Log.Info(this, "Open prompt.");
+                
                 _ui
                     .Open<MobileArPromptViewController>(new UIReference
                         {
@@ -123,11 +109,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void StartArService()
         {
-            _ui
-                .Open<MobileArScanningViewController>(new UIReference
-                {
-                    UIDataId = "Ar.Scanning"
-                }, out _scanningId);
+            _ui.Open<IUIElement>(new UIReference
+            {
+                UIDataId = UIDataIds.LOADING
+            });
             
             _bootstrapper.BootstrapCoroutine(DelayArSetup());
         }
@@ -138,9 +123,19 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private IEnumerator DelayArSetup()
         {
-            yield return new WaitForSecondsRealtime(0.25f);
+            yield return new WaitForSecondsRealtime(0.5f);
             
             _ar.Setup(_arConfig);
+            
+            yield return new WaitForSeconds(0.5f);
+
+            // remove load screen
+            _ui.Pop();
+            _ui
+                .Open<MobileArScanningViewController>(new UIReference
+                {
+                    UIDataId = "Ar.Scanning"
+                }, out _scanningId);
 
             TryFindFloor();
         }
@@ -260,6 +255,27 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <summary>
+        /// Opens the UI for a camera settings error.
+        /// </summary>
+        private void OpenCameraSettingsError()
+        {
+            int errorId;
+            _ui
+                .Open<MobileErrorUIView>(new UIReference
+                    {
+                        UIDataId = UIDataIds.ERROR
+                    },
+                    out errorId)
+                .OnSuccess(el =>
+                {
+                    el.Message = "Camera access is required to continue.";
+                    el.Action = "Open Settings";
+                    el.OnOk += CameraUtilsNativeInterface.OpenSettings;
+                })
+                .OnFailure(HandleCriticalFailure);
+        }
+
+        /// <summary>
         /// Called when the prompt view requests canceling.
         /// </summary>
         private void Prompt_OnCancelArSetup()
@@ -300,22 +316,10 @@ namespace CreateAR.SpirePlayer
                         {
                             Log.Info(this, "Camera access was denied. Show error.");
                             
-                            // the user denied access
-                            /*_scanning.gameObject.SetActive(false);
-                            _error.gameObject.SetActive(true);*/
+                            OpenCameraSettingsError();
                         }
                     });
             }
-        }
-        
-        /// <summary>
-        /// Opens settings.
-        /// </summary>
-        private void OpenCameraSettings()
-        {
-            Log.Info(this, "Open settings.");
-            
-            CameraUtilsNativeInterface.OpenSettings();
         }
         
         /// <summary>

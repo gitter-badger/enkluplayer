@@ -60,6 +60,11 @@ namespace CreateAR.SpirePlayer
         public event Action OnLogin;
 
         /// <summary>
+        /// Called when continue as guest is clicked.
+        /// </summary>
+        public event Action OnContinueAsGuest;
+
+        /// <summary>
         /// Called when login has been clicked.
         /// </summary>
         public void SignupClicked()
@@ -125,6 +130,17 @@ namespace CreateAR.SpirePlayer
             if (null != OnLogin)
             {
                 OnLogin();
+            }
+        }
+
+        /// <summary>
+        /// Called when continue has been clicked.
+        /// </summary>
+        public void ContinueClicked()
+        {
+            if (null != OnContinueAsGuest)
+            {
+                OnContinueAsGuest();
             }
         }
     }

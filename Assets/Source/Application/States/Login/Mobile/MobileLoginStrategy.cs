@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Application state that just prompts for login.
     /// </summary>
-    public class InputLoginStrategy : ILoginStrategy
+    public class MobileLoginStrategy : ILoginStrategy
     {
         /// <summary>
         /// Manages UI.
@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public InputLoginStrategy(
+        public MobileLoginStrategy(
             IUIManager ui,
             ApiController api)
         {
@@ -62,7 +62,8 @@ namespace CreateAR.SpirePlayer
             var frame = _ui.CreateFrame();
             
             _loginToken = new AsyncToken<CredentialsData>();
-            _loginToken.OnFinally(_ => frame.Release());
+            _loginToken.OnSuccess(_ => frame.Release());
+            _loginToken.OnFailure(_ => frame.Release());
             
             OpenRegistration();
             
@@ -87,6 +88,7 @@ namespace CreateAR.SpirePlayer
                         _signupView.OnSubmit += SignUp_OnSubmit;
                         _signupView.OnLicenseInfo += SignUp_OnLicenseInfo;
                         _signupView.OnLogin += OpenLogin;
+                        _signupView.OnContinueAsGuest += ContinueAsGuest;
                     })
                     .OnFailure(exception => Log.Error(this, "Could not open mobile signup view."));
             }
@@ -107,11 +109,23 @@ namespace CreateAR.SpirePlayer
                     .OnSuccess(el =>
                     {
                         _loginView = el;
-                        _loginView.OnSubmit += View_OnSubmit;
+                        _loginView.OnSubmit += Login_OnSubmit;
                         _loginView.OnSignUp += OpenRegistration;
+                        _loginView.OnContinueAsGuest += ContinueAsGuest;
                     })
                     .OnFailure(ex => Log.Error(this, "Could not open Login.Input : {0}.", ex));   
             }
+        }
+        
+        /// <summary>
+        /// Called when user is continuing as a guest.
+        /// </summary>
+        private void ContinueAsGuest()
+        {
+            _loginToken.Succeed(new CredentialsData
+            {
+                UserId = "Guest"
+            });
         }
 
         /// <summary>
@@ -119,7 +133,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="username">Username.</param>
         /// <param name="password">Password.</param>
-        private void View_OnSubmit(string username, string password)
+        private void Login_OnSubmit(string username, string password)
         {
             int loadingId;
             _ui
@@ -224,7 +238,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception => Log.Error(this, "Could not open Signup.License : {0}", exception));
         }
-
+        
         /// <summary>
         /// Called when license UI is ready to submit info.
         /// </summary>

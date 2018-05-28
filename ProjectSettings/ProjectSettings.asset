@@ -120,7 +120,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 0.1.10
+  bundleVersion: 0.1.13
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -171,7 +171,7 @@ PlayerSettings:
   StripUnusedMeshComponents: 0
   VertexChannelCompressionMask: 214
   iPhoneSdkVersion: 988
-  iOSTargetOSVersionString: 8.0
+  iOSTargetOSVersionString: 11.0
   tvOSSdkVersion: 0
   tvOSRequireExtendedGameController: 0
   tvOSTargetOSVersionString: 9.0
@@ -430,7 +430,7 @@ PlayerSettings:
   enableInternalProfiler: 0
   logObjCUncaughtExceptions: 1
   enableCrashReportAPI: 0
-  cameraUsageDescription: AR
+  cameraUsageDescription: ARKit surface detection.
   locationUsageDescription: 
   microphoneUsageDescription: 
   switchNetLibKey: 
@@ -690,7 +690,8 @@ PlayerSettings:
   scriptingDefineSymbols:
     7: 
     13: DEBUG_RENDERING
-  platformArchitecture: {}
+  platformArchitecture:
+    iOS: 1
   scriptingBackend:
     Metro: 2
   il2cppCompilerConfiguration: {}

@@ -34,15 +34,20 @@ namespace CreateAR.SpirePlayer.AR
         public ArServiceConfiguration Config { get; private set; }
 
         /// <inheritdoc />
+        public bool IsSetup { get; private set; }
+
+        /// <inheritdoc />
         public void Setup(ArServiceConfiguration config)
         {
             Config = config;
+
+            IsSetup = true;
         }
 
         /// <inheritdoc />
         public void Teardown()
         {
-            //
+            IsSetup = false;
         }
 
         /// <summary>

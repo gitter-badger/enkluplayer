@@ -7,33 +7,11 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Enumeration of the major application states.
-    /// </summary>
-    public enum ApplicationStateType
-    {
-        Invalid = -1,
-        None,
-        LoadApp,
-        ReceiveApp,
-        Tool,
-        Insta,
-        Login,
-        UserProfile,
-        Orientation,
-        ArSetup
-    }
-
-    /// <summary>
     /// Application wide configuration.
     /// </summary>
     [Serializable]
     public class ApplicationConfig
     {
-        /// <summary>
-        /// Sets the initial state. Leave empty for the application to decide.
-        /// </summary>
-        public string State;
-
         /// <summary>
         /// Sets the platform. Leave empty for the application to decide.
         /// </summary>
@@ -124,11 +102,6 @@ namespace CreateAR.SpirePlayer
             if (!string.IsNullOrEmpty(overrideConfig.Platform))
             {
                 Platform = overrideConfig.Platform;
-            }
-
-            if (!string.IsNullOrEmpty(overrideConfig.State))
-            {
-                State = overrideConfig.State;
             }
 
             Log.Override(overrideConfig.Log);
@@ -435,6 +408,14 @@ namespace CreateAR.SpirePlayer
         /// User id.
         /// </summary>
         public string UserId;
+
+        /// <summary>
+        /// True iff user is a guest.
+        /// </summary>
+        public bool IsGuest
+        {
+            get { return UserId == "Guest"; }
+        }
 
         /// <summary>
         /// Useful ToString override.

@@ -19,6 +19,11 @@ namespace CreateAR.SpirePlayer
         event Action OnSignOut;
 
         /// <summary>
+        /// Called when public apps are requested.
+        /// </summary>
+        event Action OnPublicApps;
+        
+        /// <summary>
         /// Sets the apps to display.
         /// </summary>
         Body[] Apps { get; set; }
