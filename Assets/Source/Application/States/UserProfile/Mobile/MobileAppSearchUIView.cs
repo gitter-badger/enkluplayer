@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using CreateAR.Trellis.Messages.SearchPublishedApps;
 using UnityEngine;
 using UnityEngine.UI;
-using Object = System.Object;
 
-namespace CreateAR.SpirePlayer.Mobile
+namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// UI for viewing and searching public apps.
     /// </summary>
-    public class MobileAppSearchUIView : MonoBehaviourUIElement
+    public class MobileAppSearchUIView : MonoBehaviourUIElement, IAppSearchUIView
     {
         /// <summary>
         /// Current app elements.
@@ -54,9 +51,7 @@ namespace CreateAR.SpirePlayer.Mobile
         /// </summary>
         public float QueryUpdateSecs = 1f;
         
-        /// <summary>
-        /// The query.
-        /// </summary>
+        /// <inheritdoc />
         public string Query
         {
             get
@@ -65,28 +60,18 @@ namespace CreateAR.SpirePlayer.Mobile
             }
         }
         
-        /// <summary>
-        /// Called when query has been updated.
-        /// </summary>
+        /// <inheritdoc />
         public event Action<string> OnQueryUpdated;
 
-        /// <summary>
-        /// Called when app has been selected.
-        /// </summary>
+        /// <inheritdoc />
         public event Action<string> OnAppSelected;
 
-        /// <summary>
-        /// Called to sign in.
-        /// </summary>
-        public event Action OnSignIn;
+        /// <inheritdoc />
+        public event Action OnPrivateApps;
 
-        /// <summary>
-        /// Initializes the view with apps.
-        /// </summary>
-        /// <param name="apps">The apps.</param>
+        /// <inheritdoc />
         public void Init(Body[] apps)
         {
-            ClearErrors();
             ClearElements();
             
             foreach (var app in apps)
@@ -100,23 +85,13 @@ namespace CreateAR.SpirePlayer.Mobile
         }
 
         /// <summary>
-        /// Displays an error.
-        /// </summary>
-        /// <param name="error">The error to display.</param>
-        public void ShowError(string error)
-        {
-            ClearErrors();
-            ClearElements();
-        }
-
-        /// <summary>
         /// Called when sign in is clicked.
         /// </summary>
-        public void SignInClicked()
+        public void PrivateAppsClicked()
         {
-            if (null != OnSignIn)
+            if (null != OnPrivateApps)
             {
-                OnSignIn();
+                OnPrivateApps();
             }
         }
 
@@ -142,14 +117,6 @@ namespace CreateAR.SpirePlayer.Mobile
                     OnQueryUpdated(_lastDispatchedQuery);
                 }
             }
-        }
-
-        /// <summary>
-        /// Clears errors out.
-        /// </summary>
-        private void ClearErrors()
-        {
-            //
         }
 
         /// <summary>

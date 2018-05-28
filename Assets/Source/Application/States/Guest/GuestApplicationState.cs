@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.Mobile;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.SearchPublishedApps;
 
@@ -46,7 +45,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Search view.
         /// </summary>
-        private MobileAppSearchUIView _view;
+        private MobileAppGuestSearchUIView _view;
 
         /// <summary>
         /// Network request for app search.
@@ -84,7 +83,7 @@ namespace CreateAR.SpirePlayer
             
             // open UI
             _ui
-                .Open<MobileAppSearchUIView>(new UIReference
+                .Open<MobileAppGuestSearchUIView>(new UIReference
                 {
                     UIDataId = "App.Search"
                 })
@@ -137,7 +136,7 @@ namespace CreateAR.SpirePlayer
             // retrieve public apps
             _searchToken = _api
                 .PublishedApps
-                .SearchPublishedApps("")
+                .SearchPublishedApps(query)
                 .OnSuccess(response =>
                 {
                     Log.Info(this, "Received {0} apps.", response.Payload.Body.Length);

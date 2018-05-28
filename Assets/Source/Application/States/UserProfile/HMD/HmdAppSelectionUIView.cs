@@ -60,7 +60,32 @@ namespace CreateAR.SpirePlayer
         
         /// <inheritdoc />
         public event Action OnSignOut;
+        
+        /// <inheritdoc />
+        public event Action OnPublicApps;
 
+        /// <summary>
+        /// Called when public apps are activated.
+        /// </summary>
+        public void PublicAppsActivated()
+        {
+            if (null != OnPublicApps)
+            {
+                OnPublicApps();
+            }         
+        }
+        
+        /// <summary>
+        /// Called by Unity UI.
+        /// </summary>
+        public void SignOutClicked()
+        {
+            if (null != OnSignOut)
+            {
+                OnSignOut();
+            }
+        }
+        
         /// <summary>
         /// Called when app button has been pressed.
         /// </summary>
