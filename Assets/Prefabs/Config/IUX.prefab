@@ -128,6 +128,9 @@ MonoBehaviour:
     - UIDataId: App.Search
       Element: {fileID: 114528090069808120, guid: 1bd4453b7e6f54fc7b813990b775b3cd,
         type: 2}
+    - UIDataId: UserProfile.AppSearch
+      Element: {fileID: 114753155522497898, guid: f858f400a7b3b444cbf4b3ec19580496,
+        type: 2}
 --- !u!114 &114844777624392520
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
@@ -57,6 +58,11 @@ namespace CreateAR.SpirePlayer
         private IAppSearchUIView _searchUi;
 
         /// <summary>
+        /// Token for search.
+        /// </summary>
+        private IAsyncToken<HttpResponse<Trellis.Messages.SearchPublishedApps.Response>> _appSearchToken;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public UserProfileApplicationState(
@@ -96,6 +102,11 @@ namespace CreateAR.SpirePlayer
             if (null != _myAppsToken)
             {
                 _myAppsToken.Abort();
+            }
+
+            if (null != _appSearchToken)
+            {
+                _appSearchToken.Abort();
             }
 
             _frame.Release();
@@ -285,7 +296,12 @@ namespace CreateAR.SpirePlayer
         /// <param name="query">The search query.</param>
         private void AppSearch_OnQueryUpdated(string query)
         {
-            _api
+            if (null != _appSearchToken)
+            {
+                _appSearchToken.Abort();
+            }
+            
+            _appSearchToken = _api
                 .PublishedApps
                 .SearchPublishedApps(query)
                 .OnSuccess(response =>
