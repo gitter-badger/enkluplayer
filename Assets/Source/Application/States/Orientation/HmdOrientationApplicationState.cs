@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -21,6 +22,11 @@ namespace CreateAR.SpirePlayer
         private GameObject _root;
 
         /// <summary>
+        /// Time at which state was entered.
+        /// </summary>
+        private DateTime _enterTime;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public OrientationApplicationState(IMessageRouter messages)
@@ -37,12 +43,21 @@ namespace CreateAR.SpirePlayer
             _root
                 .AddComponent<HmdOrientationViewController>()
                 .OnContinue += Orientation_OnContinue;
+
+            _enterTime = DateTime.Now;
         }
 
         /// <inheritdoc />
         public void Update(float dt)
         {
-            
+            // in the editor, continue automatically.
+            if (UnityEngine.Application.isEditor)
+            {
+                if (DateTime.Now.Subtract(_enterTime).TotalSeconds > 1f)
+                {
+                    Orientation_OnContinue();
+                }
+            }
         }
 
         /// <inheritdoc />
