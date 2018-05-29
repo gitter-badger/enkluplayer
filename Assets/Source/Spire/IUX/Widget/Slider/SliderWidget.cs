@@ -163,13 +163,13 @@ namespace CreateAR.SpirePlayer.IUX
             _axisProp = Schema.Get<string>("axis");
             _axisProp.OnChanged += Axis_OnChanged;
 
-            _positionImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/Outer Gradient' />");
+            _positionImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/Outer Gradient' width=0.1 height=0.1 />");
             AddChild(_positionImage);
 
-            _minImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/arrow-left' />");
+            _minImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/arrow-left' width=0.1 height=0.1 />");
             AddChild(_minImage);
 
-            _maxImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/arrow-right' />");
+            _maxImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/arrow-right' width=0.1 height=0.1 />");
             AddChild(_maxImage);
             
             _interactions.Add(this);
