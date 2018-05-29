@@ -159,6 +159,7 @@ namespace CreateAR.SpirePlayer
         {
             CloseAll();
             
+            elementController.EnableUpdates();
             _move.Initialize(elementController);
             _move.enabled = true;
         }

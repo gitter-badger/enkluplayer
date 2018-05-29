@@ -32,6 +32,21 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<float> _reorientProp;
 
         /// <summary>
+        /// Where content goeth.
+        /// </summary>
+        public Transform Content
+        {
+            get
+            {
+                return null == _renderer
+                    ? null == GameObject
+                        ? null
+                        : GameObject.transform
+                    : _renderer.transform;
+            }
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public FloatWidget(
