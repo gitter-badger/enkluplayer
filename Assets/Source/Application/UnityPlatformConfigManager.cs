@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -75,6 +76,25 @@ namespace CreateAR.SpirePlayer
             cam.backgroundColor = config.Camera.BackgroundColor;
             cam.transform.position = config.Camera.StartingPosition;
             cam.transform.LookAt(Vector3.zero);
+
+            // lighting}
+            if (!config.Lighting.DefaultDirectionalLight)
+            {
+                var directional = GameObject.Find("Directional light");
+                if (null == directional)
+                {
+                    Log.Error(this, "Could not find default directional light!");
+                }
+                else
+                {
+                    directional.SetActive(false);
+                }
+            }
+
+            if (!config.Lighting.DefaultAmbientLight)
+            {
+                RenderSettings.ambientIntensity = 0;
+            }
         }
     }
 
@@ -103,6 +123,11 @@ namespace CreateAR.SpirePlayer
         public CameraConfig Camera;
 
         /// <summary>
+        /// Config for lighting.
+        /// </summary>
+        public LightingConfig Lighting;
+
+        /// <summary>
         /// True iff active.
         /// </summary>
         /// <returns></returns>
@@ -123,5 +148,18 @@ namespace CreateAR.SpirePlayer
 
         [Tooltip("Starting position of camera.")]
         public Vector3 StartingPosition;
+    }
+
+    /// <summary>
+    /// Config for lighting.
+    /// </summary>
+    [Serializable]
+    public class LightingConfig
+    {
+        [Tooltip("True iff the default direction light should be used.")]
+        public bool DefaultDirectionalLight = true;
+
+        [Tooltip("True iff the default ambient lighting settings should be used.")]
+        public bool DefaultAmbientLight = true;
     }
 }

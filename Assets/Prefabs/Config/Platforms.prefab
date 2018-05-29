@@ -63,6 +63,9 @@ MonoBehaviour:
     Camera:
       BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
       StartingPosition: {x: 0, y: 0, z: 0}
+    Lighting:
+      DefaultDirectionalLight: 1
+      DefaultAmbientLight: 1
   - Platforms: 11000000
     Debug: 0
     Grid:
@@ -74,7 +77,10 @@ MonoBehaviour:
     Camera:
       BackgroundColor: {r: 0.61764705, g: 0.61764705, b: 0.61764705, a: 0}
       StartingPosition: {x: 0, y: 2, z: 4}
-  - Platforms: 1200000014000000130000000b00000008000000
+    Lighting:
+      DefaultDirectionalLight: 1
+      DefaultAmbientLight: 1
+  - Platforms: 0b00000008000000
     Debug: 0
     Grid:
       Enabled: 0
@@ -85,3 +91,20 @@ MonoBehaviour:
     Camera:
       BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
       StartingPosition: {x: 0, y: 0, z: 0}
+    Lighting:
+      DefaultDirectionalLight: 1
+      DefaultAmbientLight: 1
+  - Platforms: 120000001400000013000000
+    Debug: 0
+    Grid:
+      Enabled: 0
+      CellSize: 0
+      GridSize: {x: 0, y: 0}
+      PrimaryColor: {r: 0, g: 0, b: 0, a: 0}
+      SecondaryColor: {r: 0, g: 0, b: 0, a: 0}
+    Camera:
+      BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      StartingPosition: {x: 0, y: 0, z: 0}
+    Lighting:
+      DefaultDirectionalLight: 0
+      DefaultAmbientLight: 0

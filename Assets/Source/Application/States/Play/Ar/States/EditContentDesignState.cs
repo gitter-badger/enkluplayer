@@ -1,6 +1,8 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -9,6 +11,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class EditContentDesignState : IArDesignState
     {
+        /// <summary>
+        /// Handles voice commands.
+        /// </summary>
+        private readonly IVoiceCommandManager _voice;
+
         /// <summary>
         /// Design controller.
         /// </summary>
@@ -38,6 +45,14 @@ namespace CreateAR.SpirePlayer
         /// Content controller.
         /// </summary>
         private ContentDesignController _controller;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public EditContentDesignState(IVoiceCommandManager voice)
+        {
+            _voice = voice;
+        }
 
         /// <inheritdoc />
         public void Initialize(
@@ -103,6 +118,8 @@ namespace CreateAR.SpirePlayer
 
             _editContent.Initialize(_controller);
             _editContent.enabled = true;
+
+            _voice.Register("back", Voice_OnBack);
         }
 
         /// <inheritdoc />
@@ -115,7 +132,9 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             CloseAll();
-            
+
+            _voice.Unregister("back");
+
             Log.Info(this, "Exiting {0}.", GetType().Name);
         }
 
@@ -227,6 +246,16 @@ namespace CreateAR.SpirePlayer
             {
                 _controller.DisableUpdates();
             }
+        }
+
+        /// <summary>
+        /// Called when the voice manager receives a back command.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnBack(string command)
+        {
+            // back to main
+            _design.ChangeState<MainDesignState>();
         }
     }
 }
