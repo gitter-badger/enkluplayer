@@ -72,7 +72,7 @@ namespace CreateAR.SpirePlayer
             // place content
             {
                 _move = unityRoot.AddComponent<MoveContentController>();
-                _move.OnConfirmController += Move_OnConfirmController;
+                _move.OnConfirm += Move_OnConfirmController;
                 _move.OnCancel += Move_OnCancel;
                 _move.enabled = false;
             }
