@@ -90,3 +90,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 25a04d90206ce1f4a9be106e1ed884fc, type: 3}
   - Identifier: Play.Main
     Source: {fileID: 4900000, guid: e3bee189c5f3e034aac597483a57723f, type: 3}
+  - Identifier: Design.MoveContent
+    Source: {fileID: 4900000, guid: 5f4c3e53ba9c8114c8d3aad02d8559b6, type: 3}

@@ -11,11 +11,6 @@ namespace CreateAR.SpirePlayer
     public class PlaceContentController : InjectableIUXController
     {
         /// <summary>
-        /// The controller.
-        /// </summary>
-        private ContentDesignController _controller;
-        
-        /// <summary>
         /// Elements.
         /// </summary>
         public FloatWidget Container
@@ -38,6 +33,9 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..content-container")]
         public ContainerWidget ContentContainer { get; set; }
 
+        /// <summary>
+        /// Loads assets.
+        /// </summary>
         [Inject]
         public IAssetManager Assets { get; set; }
 
@@ -50,12 +48,7 @@ namespace CreateAR.SpirePlayer
         /// Called to confirm placement.
         /// </summary>
         public event Action<ElementData> OnConfirm;
-
-        /// <summary>
-        /// Called to confirm placement.
-        /// </summary>
-        public event Action<ContentDesignController> OnConfirmController;
-
+        
         /// <inheritdoc />
         protected override void Awake()
         {
@@ -66,34 +59,11 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Initializes the menu with an existing prop.
-        /// </summary>
-        /// <param name="controller">The prop.</param>
-        public void Initialize(ContentDesignController controller)
-        {
-            _controller = controller;
-            _controller.HideSplashMenu();
-
-            var controllerTransform = controller.transform;
-            
-            Content.LocalVisible = false;
-            Container.GameObject.transform.position = controllerTransform.position;
-            
-            controllerTransform.SetParent(
-                ContentContainer.GameObject.transform,
-                true);
-
-            BtnCancel.Schema.Set("visible", false);
-        }
-
-        /// <summary>
         /// Initializes the controller with a specific asset.
         /// </summary>
         /// <param name="assetId">The asset.</param>
         public void Initialize(string assetId)
         {
-            _controller = null;
-
             Content.LocalVisible = true;
             Content.Schema.Set("assetSrc", assetId);
 
@@ -106,16 +76,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="activatorPrimitive">The activator.</param>
         private void Ok_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
-            if (null != _controller)
-            {
-                if (null != OnConfirmController)
-                {
-                    OnConfirmController(_controller);
-                }
-
-                return;
-            }
-
             var assetId = Content.Schema.GetOwn("assetSrc", string.Empty).Value;
             var assetData = Assets.Manifest.Data(assetId);
             var element = new ElementData

@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PlayMode.unity
     guid: 5f3cf2ab253e1754e9d7ed1278fd885c
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Qr.unity
     guid: 165a161e686cdec46879f7855d42c4fb
   - enabled: 0
