@@ -20,9 +20,15 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IIntentionManager _intention;
 
         /// <summary>
+        /// Manages elements.
+        /// </summary>
+        private readonly IElementManager _elements;
+
+        /// <summary>
         /// Props.
         /// </summary>
         private ElementSchemaProp<string> _valueProp;
+        private ElementSchemaProp<bool> _exclusiveProp;
         
         /// <summary>
         /// Constructor.
@@ -33,11 +39,13 @@ namespace CreateAR.SpirePlayer.IUX
             TweenConfig tweens,
             ColorConfig colors,
             IQrReaderService qr,
-            IIntentionManager intention)
+            IIntentionManager intention,
+            IElementManager elements)
             : base(gameObject, layers, tweens, colors)
         {
             _qr = qr;
             _intention = intention;
+            _elements = elements;
         }
         
         /// <inheritdoc />
@@ -46,6 +54,7 @@ namespace CreateAR.SpirePlayer.IUX
             base.LoadInternalAfterChildren();
 
             _valueProp = Schema.GetOwn("qr_value", "");
+            _exclusiveProp = Schema.GetOwn("exclusive", true);
 
             _qr.OnRead += Qr_OnRead;
         }
@@ -67,23 +76,63 @@ namespace CreateAR.SpirePlayer.IUX
             if (_valueProp.Value == value)
             {
                 Log.Info(this, "Matching QR value read! Toggling visibility.");
-                
-                // match-- we don't need this again
-                _qr.OnRead -= Qr_OnRead;
 
-                // TODO: calculate intersection using AR service
+                // show!
+                Show();
 
-                // for now, make something up
-                var targetPosition = (_intention.Origin + 0.5f * _intention.Forward).ToVector();
-
-                // set local position
-                Schema.Set(
-                    "position",
-                    GameObject.transform.worldToLocalMatrix.MultiplyPoint3x4(targetPosition).ToVec());
-
-                // make visible
-                Schema.Set("visible", true);
+                if (_exclusiveProp.Value)
+                {
+                    HideOthers();
+                }
             }
+        }
+
+        private void HideOthers()
+        {
+            
+        }
+
+        private bool _isShowing = false;
+
+        /// <summary>
+        /// Shows the anchor.
+        /// </summary>
+        private void Show()
+        {
+            if (_isShowing)
+            {
+                return;
+            }
+
+            _isShowing = true;
+
+            // TODO: calculate intersection using AR service
+
+            // for now, make something up
+            var targetPosition = (_intention.Origin + 0.5f * _intention.Forward).ToVector();
+
+            // set local position
+            Schema.Set(
+                "position",
+                GameObject.transform.worldToLocalMatrix.MultiplyPoint3x4(targetPosition).ToVec());
+
+            // make visible
+            Schema.Set("visible", true);
+        }
+
+        /// <summary>
+        /// Hides the anchor.
+        /// </summary>
+        private void Hide()
+        {
+            if (!_isShowing)
+            {
+                _isShowing = false;
+            }
+
+            _isShowing = true;
+
+            Schema.Set("visible", false);
         }
     }
 }

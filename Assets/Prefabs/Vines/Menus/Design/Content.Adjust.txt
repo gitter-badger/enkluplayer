@@ -12,13 +12,13 @@
 	</Container>
 	
 	/* Axes */
-	<Slider id='slider-x' visible=false length=0.35 axis='x' position=(-0.2, 0, 0) />
-	<Slider id='slider-y' visible=false length=0.35 axis='y' position=(0, 0.2, 0) />
-	<Slider id='slider-z' visible=false length=0.35 axis='y' position=(0, 0, 0) />
+	<Slider id='slider-x' visible=false length=1.2 axis='x' position=(-0.2, 0, 0) />
+	<Slider id='slider-y' visible=false length=1.2 axis='y' position=(0, 0.2, 0) />
+	<Slider id='slider-z' visible=false length=1.2 axis='y' position=(0, 0, 0) />
 	
 	/* Scale */
-	<Slider id='slider-scale' visible=false length=0.5 axis='x' position=(0, 0.1, 0) />
+	<Slider id='slider-scale' visible=false length=2.0 axis='x' position=(0, 0.1, 0) />
 	
 	/* Rotate */
-	<Slider id='slider-rotate' visible=false length=0.5 axis='x' position=(0.2, 0, 0) />
+	<Slider id='slider-rotate' visible=false length=2.0 axis='x' position=(0.2, 0, 0) />
 </Container>

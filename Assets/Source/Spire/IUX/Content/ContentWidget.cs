@@ -290,6 +290,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="script">The script to run.</param>
         private void RunBehavior(SpireScript script)
         {
+            Log.Info(this, "RunBehavior({0}) : {1}", script.Data, script.Source);
+
             // restart or create new component
             SpireScriptElementBehavior component = null;
 

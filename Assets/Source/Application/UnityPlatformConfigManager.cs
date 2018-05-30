@@ -22,6 +22,8 @@ namespace CreateAR.SpirePlayer
         public MainCamera Camera { get; set; }
         [Inject]
         public GridRenderer GridRenderer { get; set; }
+        [Inject]
+        public ApplicationConfig Config { get; set; }
         
         /// <summary>
         /// Retrieves the current config.
@@ -44,7 +46,7 @@ namespace CreateAR.SpirePlayer
             for (var i = 0; i < Configs.Length; i++)
             {
                 var config = Configs[i];
-                if (config.IsActive())
+                if (config.IsActive(Config.ParsedPlatform))
                 {
                     return config;
                 }
@@ -65,6 +67,10 @@ namespace CreateAR.SpirePlayer
                     "No UnityPlatformConfig for {0}.",
                     UnityEngine.Application.platform));
             }
+            else
+            {
+                Log.Info(this, "Platform config found : {0}.", config);
+            }
 
             // apply all
 
@@ -77,7 +83,8 @@ namespace CreateAR.SpirePlayer
             cam.transform.position = config.Camera.StartingPosition;
             cam.transform.LookAt(Vector3.zero);
 
-            // lighting}
+            // lighting
+            Log.Info(this, "Setting up lighting.");
             if (!config.Lighting.DefaultDirectionalLight)
             {
                 var directional = GameObject.Find("Directional light");
@@ -88,12 +95,20 @@ namespace CreateAR.SpirePlayer
                 else
                 {
                     directional.SetActive(false);
+
+                    Log.Info(this, "Lights disabled.");
                 }
             }
 
             if (!config.Lighting.DefaultAmbientLight)
             {
+                Log.Info(this, "Ambient lights disabled.");
+
                 RenderSettings.ambientIntensity = 0;
+                RenderSettings.ambientLight = Color.black;
+                RenderSettings.ambientGroundColor = Color.black;
+                RenderSettings.ambientSkyColor = Color.black;
+                RenderSettings.reflectionIntensity = 0;
             }
         }
     }
@@ -131,9 +146,16 @@ namespace CreateAR.SpirePlayer
         /// True iff active.
         /// </summary>
         /// <returns></returns>
-        public bool IsActive()
+        public bool IsActive(RuntimePlatform platform)
         {
-            return Platforms.Contains(UnityEngine.Application.platform);
+            return Platforms.Contains(platform);
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            return string.Format("[UnityPlatformConfig Platforms={0}]",
+                string.Join(", ", Platforms.Select(p => p.ToString()).ToArray()));
         }
     }
 
