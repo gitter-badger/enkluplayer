@@ -46,6 +46,7 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.LOAD_APP,
                 MessageTypes.PLAY,
                 MessageTypes.AR_SETUP,
+                MessageTypes.HOLOLOGIN,
                 MessageTypes.ARSERVICE_EXCEPTION,
                 MessageTypes.FLOOR_FOUND,
                 MessageTypes.SIGNOUT);
