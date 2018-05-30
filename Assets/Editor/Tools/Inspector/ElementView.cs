@@ -34,7 +34,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Manages elements.
         /// </summary>
-        private ElementManager _elements;
+        private IElementManager _elements;
 
         /// <summary>
         /// The currently selected Widget.

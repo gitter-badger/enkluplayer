@@ -31,6 +31,12 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<bool> _exclusiveProp;
         
         /// <summary>
+        /// True iff the QR anchor is currently showing. This is used to track Show(), Hide(),
+        /// and does not necessarily reflect visibility.
+        /// </summary>
+        private bool _isShowing;
+        
+        /// <summary>
         /// Constructor.
         /// </summary>
         public QrAnchorWidget(
@@ -75,32 +81,46 @@ namespace CreateAR.SpirePlayer.IUX
         {
             if (_valueProp.Value == value)
             {
-                Log.Info(this, "Matching QR value read! Toggling visibility.");
+                Log.Info(this, "Matching QR value read!");
 
-                // show!
-                Show();
-
-                if (_exclusiveProp.Value)
+                if (!_isShowing)
                 {
-                    HideOthers();
+                    // show!
+                    Show();
+
+                    if (_exclusiveProp.Value)
+                    {
+                        HideOthers();
+                    }   
                 }
             }
         }
 
+        /// <summary>
+        /// Hides other QRAnchorWidgets.
+        /// </summary>
         private void HideOthers()
         {
-            
+            var all = _elements.All;
+            for (var i = 0; i < all.Count; i++)
+            {
+                var element = all[i] as QrAnchorWidget;
+                if (null != element && element != this)
+                {
+                    element.Hide();
+                }
+            }
         }
-
-        private bool _isShowing = false;
 
         /// <summary>
         /// Shows the anchor.
         /// </summary>
         private void Show()
         {
+            Log.Info(this, "{0}::Show()", Id);
             if (_isShowing)
             {
+                Log.Info(this, "{0} is already showing.", Id);
                 return;
             }
 
@@ -112,9 +132,10 @@ namespace CreateAR.SpirePlayer.IUX
             var targetPosition = (_intention.Origin + 0.5f * _intention.Forward).ToVector();
 
             // set local position
-            Schema.Set(
+            /*Schema.Set(
                 "position",
-                GameObject.transform.worldToLocalMatrix.MultiplyPoint3x4(targetPosition).ToVec());
+                GameObject.transform.worldToLocalMatrix.MultiplyPoint3x4(targetPosition).ToVec());*/
+            GameObject.transform.position = targetPosition;
 
             // make visible
             Schema.Set("visible", true);
@@ -125,12 +146,14 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void Hide()
         {
+            Log.Info(this, "{0}::Hide()", Id);
             if (!_isShowing)
             {
-                _isShowing = false;
+                Log.Info(this, "{0} is already hiding.", Id);
+                return;
             }
 
-            _isShowing = true;
+            _isShowing = false;
 
             Schema.Set("visible", false);
         }

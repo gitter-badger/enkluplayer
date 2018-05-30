@@ -108,7 +108,7 @@ namespace CreateAR.SpirePlayer
                 RenderSettings.ambientLight = Color.black;
                 RenderSettings.ambientGroundColor = Color.black;
                 RenderSettings.ambientSkyColor = Color.black;
-                RenderSettings.reflectionIntensity = 0;
+                RenderSettings.skybox = null;
             }
         }
     }

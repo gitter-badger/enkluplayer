@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -13,9 +14,25 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly List<Element> _all = new List<Element>();
 
         /// <summary>
-        /// Adds an element. Should be called when object is created.
+        /// Backing variable for All property.
         /// </summary>
-        /// <param name="element">The element to add.</param>
+        private readonly ReadOnlyCollection<Element> _externalAll;
+
+        /// <inheritdoc />
+        public ReadOnlyCollection<Element> All
+        {
+            get { return _externalAll; }
+        }
+        
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public ElementManager()
+        {
+            _externalAll = new ReadOnlyCollection<Element>(_all);
+        }
+
+        /// <inheritdoc />
         public void Add(Element element)
         {
             if (_all.Contains(element))
@@ -28,11 +45,7 @@ namespace CreateAR.SpirePlayer.IUX
             _all.Add(element);
         }
 
-        /// <summary>
-        /// Retrieves an <c>Element</c> by Guid.
-        /// </summary>
-        /// <param name="guid">Unique guid.</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public Element ByGuid(string guid)
         {
             for (int i = 0, len = _all.Count; i < len; i++)
@@ -47,11 +60,7 @@ namespace CreateAR.SpirePlayer.IUX
             return null;
         }
 
-        /// <summary>
-        /// Retrieves an <c>Element</c> by Id.
-        /// </summary>
-        /// <param name="id">Id.</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public Element ById(string id)
         {
             for (int i = 0, len = _all.Count; i < len; i++)

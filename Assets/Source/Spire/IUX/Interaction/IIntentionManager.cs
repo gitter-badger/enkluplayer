@@ -12,7 +12,7 @@
         IInteractable Focus { get; }
 
         /// <summary>
-        /// Forward direction.
+        /// Origin of the intention (i.e. the user's eyes).
         /// </summary>
         Vec3 Origin { get; }
 

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.ObjectModel;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -7,6 +7,11 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     public interface IElementManager
     {
+        /// <summary>
+        /// Retrieves all elements.
+        /// </summary>
+        ReadOnlyCollection<Element> All { get; }
+        
         /// <summary>
         /// Adds an element.
         /// </summary>
@@ -19,5 +24,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="id">Id of the element.</param>
         /// <returns></returns>
         Element ById(string id);
+        
+        /// <summary>
+        /// Retrieves an element by guid.
+        /// </summary>
+        /// <param name="guid">Guid of the element.</param>
+        /// <returns></returns>
+        Element ByGuid(string guid);
     }
 }
