@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer.Test.UI
@@ -6,6 +7,8 @@ namespace CreateAR.SpirePlayer.Test.UI
     public class DummyElementManager : IElementManager
     {
         private readonly List<Element> _elements = new List<Element>();
+
+        public ReadOnlyCollection<Element> All { get; private set; }
 
         public void Add(Element element)
         {
@@ -23,6 +26,11 @@ namespace CreateAR.SpirePlayer.Test.UI
                 }
             }
 
+            return null;
+        }
+
+        public Element ByGuid(string guid)
+        {
             return null;
         }
     }

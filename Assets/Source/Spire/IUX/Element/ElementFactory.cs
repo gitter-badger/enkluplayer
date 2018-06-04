@@ -369,7 +369,8 @@ namespace CreateAR.SpirePlayer.IUX
                         _tweens,
                         _colors,
                         _qr,
-                        _intention);
+                        _intention,
+                        _elements);
                 }
                 default:
                 {

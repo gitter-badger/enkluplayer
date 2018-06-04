@@ -97,10 +97,11 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[ScriptData Id={0}, Type={1}, Uri={2}]",
+            return string.Format("[ScriptData Id={0}, Type={1}, Uri={2}, Version={3}]",
                 Id,
                 Type,
-                Uri);
+                Uri,
+                Version);
         }
 
         /// <summary>

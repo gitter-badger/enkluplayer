@@ -78,8 +78,8 @@ MonoBehaviour:
       BackgroundColor: {r: 0.61764705, g: 0.61764705, b: 0.61764705, a: 0}
       StartingPosition: {x: 0, y: 2, z: 4}
     Lighting:
-      DefaultDirectionalLight: 1
-      DefaultAmbientLight: 1
+      DefaultDirectionalLight: 0
+      DefaultAmbientLight: 0
   - Platforms: 0b00000008000000
     Debug: 0
     Grid:
