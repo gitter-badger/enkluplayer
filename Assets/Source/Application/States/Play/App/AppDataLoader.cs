@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
@@ -248,6 +249,9 @@ namespace CreateAR.SpirePlayer
                     try
                     {
                         var bytes = Encoding.UTF8.GetBytes(response.Body.Elements);
+
+                        Verbose("Loaded scene.\n{0}", response.Body.Elements);
+
                         _json.Deserialize(
                             typeof(ElementData),
                             ref bytes,
@@ -278,7 +282,16 @@ namespace CreateAR.SpirePlayer
 
             return token;
         }
-        
+
+        /// <summary>
+        /// Logs verbose messages.
+        /// </summary>
+        //[Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
+        }
+
         /// <summary>
         /// Creates AssetData from response body.
         /// </summary>

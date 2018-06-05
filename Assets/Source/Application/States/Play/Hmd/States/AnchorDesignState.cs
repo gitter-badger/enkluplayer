@@ -489,6 +489,7 @@ namespace CreateAR.SpirePlayer
         private void Adjust_OnResave(AnchorDesignController anchorDesignController)
         {
             _placeAnchor.enabled = false;
+            _adjustAnchor.enabled = false;
             _anchors.enabled = true;
 
             ResaveAnchor(anchorDesignController);

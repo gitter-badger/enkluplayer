@@ -297,7 +297,14 @@ namespace CreateAR.SpirePlayer
                     }
                 }
 
-                return null;
+                var defaultCreds = new CredentialsData
+                {
+                    Environment = Current
+                };
+
+                AllCredentials = AllCredentials.Add(defaultCreds);
+
+                return defaultCreds;
             }
         }
 
@@ -332,6 +339,7 @@ namespace CreateAR.SpirePlayer
 
             // combine arrays
             AllEnvironments = AllEnvironments.Concat(overrideConfig.AllEnvironments).ToArray();
+            AllCredentials = AllCredentials.Concat(overrideConfig.AllCredentials).ToArray();
         }
     }
 
