@@ -186,6 +186,10 @@ namespace CreateAR.SpirePlayer.IUX
             var floatSchema = _typeSchema[ElementTypes.FLOAT] = new ElementSchema("Base.Float");
             floatSchema.Load(new ElementSchemaData
             {
+                Strings = new Dictionary<string, string>
+                {
+                    { "face", "Camera" }
+                },
                 Floats = new Dictionary<string, float>
                 {
                     { "fov.reorient", 1.5f }

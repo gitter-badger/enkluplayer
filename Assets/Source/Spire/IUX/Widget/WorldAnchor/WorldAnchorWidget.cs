@@ -32,9 +32,10 @@ namespace CreateAR.SpirePlayer.IUX
         private IAsyncToken<HttpResponse<byte[]>> _downloadToken;
 
         /// <summary>
-        /// Prop for anchoring url.
+        /// Props.
         /// </summary>
         private ElementSchemaProp<int> _versionProp;
+        private ElementSchemaProp<bool> _lockedProp;
         
         /// <summary>
         /// True iff anchor data is loaded.
@@ -45,7 +46,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// True iff anchor data is loading.
         /// </summary>
         public bool IsAnchorLoading { get; private set; }
-
+        
         /// <summary>
         /// Called on load success.
         /// </summary>
@@ -73,6 +74,14 @@ namespace CreateAR.SpirePlayer.IUX
             _cache = cache;
             _provider = provider;
         }
+
+        /// <summary>
+        /// Reloads world anchor.
+        /// </summary>
+        public void Reload()
+        {
+            UpdateWorldAnchor();
+        }
         
         /// <inheritdoc />
         protected override void LoadInternalBeforeChildren()
@@ -81,6 +90,9 @@ namespace CreateAR.SpirePlayer.IUX
             
             _versionProp = Schema.GetOwn("version", -1);
             _versionProp.OnChanged += Version_OnChanged;
+
+            _lockedProp = Schema.GetOwn("locked", true);
+            _lockedProp.OnChanged += Locked_OnChanged;
 
             UpdateWorldAnchor();
         }
@@ -258,6 +270,31 @@ namespace CreateAR.SpirePlayer.IUX
             int next)
         {
             UpdateWorldAnchor();
+        }
+
+        /// <summary>
+        /// Called when locked property changes.
+        /// </summary>
+        private void Locked_OnChanged(
+            ElementSchemaProp<bool> prop, 
+            bool prev,
+            bool next)
+        {
+            if (next)
+            {
+                UpdateWorldAnchor();
+            }
+            else
+            {
+                // kill any imports in progress
+                if (null != _downloadToken)
+                {
+                    _downloadToken.Abort();
+                }
+
+                // disable anchor
+                _provider.Disable(GameObject);
+            }
         }
     }
 }

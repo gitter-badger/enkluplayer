@@ -9,6 +9,11 @@ namespace CreateAR.SpirePlayer.IUX
     public class InjectableIUXController : InjectableMonoBehaviour
     {
         /// <summary>
+        /// True iff Inject() has already been called.
+        /// </summary>
+        private bool _isInjected;
+
+        /// <summary>
         /// Creates elements.
         /// </summary>
         [Inject]
@@ -28,38 +33,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc />
         protected override void Awake()
         {
-            base.Awake();
-            
-            var attributes = GetType().GetCustomAttributes(typeof(InjectVineAttribute), true);
-            if (1 != attributes.Length)
-            {
-                Log.Error(this, "Could not fine InjectVineAttribute on {0}.", name);
-                return;
-            }
-            
-            var identifier = ((InjectVineAttribute) attributes[0]).Identifier;
-            var vine = Vines.Vine(identifier);
-            
-            if (null != vine)
-            {
-                Root = Elements.Element(vine.Text);
-                Root.Schema.Set("visible", false);
-                
-                var widget = Root as Widget;
-                if (null != widget)
-                {
-                    widget.GameObject.transform.SetParent(transform, false);
-                }
-
-                InjectElementsAttribute.InjectElements(this, Root);
-            }
-            else
-            {
-                Log.Error(this,
-                    "Could not find vine for {0} with identifier {1}.",
-                    name,
-                    identifier);
-            }
+            Inject();
         }
 
         /// <inheritdoc cref="MonoBehaviour" />
@@ -80,6 +54,53 @@ namespace CreateAR.SpirePlayer.IUX
             if (null != Root)
             {
                 Root.Destroy();
+            }
+        }
+
+        /// <summary>
+        /// Processes injection.
+        /// </summary>
+        protected void Inject()
+        {
+            // Inject may only be called once.
+            if (_isInjected)
+            {
+                return;
+            }
+
+            _isInjected = true;
+
+            Main.Inject(this);
+
+            var attributes = GetType().GetCustomAttributes(typeof(InjectVineAttribute), true);
+            if (1 != attributes.Length)
+            {
+                Log.Error(this, "Could not fine InjectVineAttribute on {0}.", name);
+                return;
+            }
+
+            var identifier = ((InjectVineAttribute)attributes[0]).Identifier;
+            var vine = Vines.Vine(identifier);
+
+            if (null != vine)
+            {
+                Root = Elements.Element(vine.Text);
+                Root.Schema.Set("visible", false);
+
+                var widget = Root as Widget;
+                if (null != widget)
+                {
+                    widget.GameObject.transform.SetParent(transform, false);
+                }
+
+                InjectElementsAttribute.InjectElements(this, Root);
+            }
+            else
+            {
+                Log.Error(this,
+                    "Could not find vine for {0} with identifier {1}.",
+                    name,
+                    identifier);
             }
         }
     }

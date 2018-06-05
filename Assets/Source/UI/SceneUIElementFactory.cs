@@ -87,7 +87,7 @@ namespace CreateAR.SpirePlayer
         private Transform GetRoot()
         {
             // TODO: There should be a child for each controller implementation.
-            if (Designer is ArDesignController)
+            if (Designer is HmdDesignController)
             {
                 if (null != _arRoot)
                 {

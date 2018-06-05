@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using CreateAR.Commons.Unity.Logging;
 using UnityEditor;
 
 namespace CreateAR.SpirePlayer
@@ -18,12 +20,30 @@ namespace CreateAR.SpirePlayer
 
             foreach (var file in dir.GetFiles())
             {
-                file.Delete();
+                try
+                {
+                    file.Delete();
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(null, "Could not delete file {0} : {1}.",
+                        file.FullName,
+                        exception);
+                }
             }
 
             foreach (var directory in dir.GetDirectories())
             {
-                directory.Delete(true);
+                try
+                {
+                    directory.Delete(true);
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(null, "Could not delete directory {0} : {1}.",
+                        directory.FullName,
+                        exception);
+                }
             }
         }
     }

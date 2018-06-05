@@ -29,6 +29,10 @@ namespace CreateAR.SpirePlayer
         /// <param name="propName">The name of the prop.</param>
         public void Initialize(string propName)
         {
+            // If this controller is placed on a disabled GameObject, Awake won't
+            // have been called.
+            Inject();
+
             BtnSplash.Schema.Set("label", propName);
             BtnSplash.Activator.OnActivated += Activator_OnActivated;
         }
