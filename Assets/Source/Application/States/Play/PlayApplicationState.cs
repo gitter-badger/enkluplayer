@@ -2,7 +2,6 @@
 using System.Collections;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using Jint.Unity;
 using UnityEngine;
@@ -31,11 +30,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
         
-        /// <summary>
-        /// Messages.
-        /// </summary>
-        private readonly IMessageRouter _messages;
-
         /// <summary>
         /// Resolves script requires.
         /// </summary>
@@ -87,7 +81,6 @@ namespace CreateAR.SpirePlayer
         public PlayApplicationState(
             ApplicationConfig config,
             IBootstrapper bootstrapper,
-            IMessageRouter messages,
             IScriptRequireResolver resolver,
             IDesignController design,
             IAppController app,
@@ -97,7 +90,6 @@ namespace CreateAR.SpirePlayer
         {
             _config = config;
             _bootstrapper = bootstrapper;
-            _messages = messages;
             _resolver = resolver;
             _design = design;
             _app = app;
