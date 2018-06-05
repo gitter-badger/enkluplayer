@@ -16,7 +16,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="dynamicRoot">The root of dynamic menus.</param>
         /// <param name="staticRoot">The root of static menus.</param>
         void Initialize(
-            ArDesignController designer,
+            HmdDesignController designer,
             GameObject unityRoot,
             Element dynamicRoot,
             Element staticRoot);

@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Design controller.
         /// </summary>
-        private ArDesignController _design;
+        private HmdDesignController _design;
         
         /// <summary>
         /// Root of dynamic menus.
@@ -31,7 +31,7 @@ namespace CreateAR.SpirePlayer
         
         /// <inheritdoc />
         public void Initialize(
-            ArDesignController design,
+            HmdDesignController design,
             GameObject unityRoot,
             Element dynamicRoot,
             Element staticRoot)

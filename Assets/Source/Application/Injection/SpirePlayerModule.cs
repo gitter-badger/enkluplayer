@@ -428,7 +428,7 @@ namespace CreateAR.SpirePlayer
                     }
                     case PlayAppConfig.DesignerType.Ar:
                     {
-                        binder.Bind<IDesignController>().To<ArDesignController>().ToSingleton();
+                        binder.Bind<IDesignController>().To<HmdDesignController>().ToSingleton();
                         break;
                     }
                     case PlayAppConfig.DesignerType.Mobile:

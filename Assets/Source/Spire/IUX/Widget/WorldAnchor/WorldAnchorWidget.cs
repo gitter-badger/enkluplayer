@@ -45,7 +45,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// True iff anchor data is loading.
         /// </summary>
         public bool IsAnchorLoading { get; private set; }
-
+        
         /// <summary>
         /// Called on load success.
         /// </summary>

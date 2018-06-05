@@ -13,7 +13,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls design mode menus.
     /// </summary>
-    public class ArDesignController : IDesignController
+    public class HmdDesignController : IDesignController
     {
         /// <summary>
         /// Dependencies.
@@ -111,7 +111,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constuctor.
         /// </summary>
-        public ArDesignController(
+        public HmdDesignController(
             ApplicationConfig config,
             IElementTxnManager txns,
             IAppSceneManager scenes,
