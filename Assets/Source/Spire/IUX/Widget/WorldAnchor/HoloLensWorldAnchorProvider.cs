@@ -12,6 +12,7 @@ using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.XR.WSA;
 using UnityEngine.XR.WSA.Sharing;
+using Object = UnityEngine.Object;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -218,27 +219,17 @@ namespace CreateAR.SpirePlayer.IUX
 
             return token;
         }
-
+        
         /// <inheritdoc />
         public void Disable(GameObject gameObject)
         {
             var anchor = gameObject.GetComponent<WorldAnchor>();
             if (null != anchor)
             {
-                // ????
+                Object.Destroy(anchor);
             }
         }
-
-        /// <inheritdoc />
-        public void Enable(GameObject gameObject)
-        {
-            var anchor = gameObject.GetComponent<WorldAnchor>();
-            if (null != anchor)
-            {
-                // ????
-            }
-        }
-
+        
         /// <summary>
         /// Adds to action list.
         /// </summary>

@@ -209,7 +209,6 @@ namespace CreateAR.SpirePlayer
             _isEditing = false;
             UpdateSplash();
 
-            _provider.Enable(gameObject);
             ChangeState<AnchorLoadingState>();
         }
 

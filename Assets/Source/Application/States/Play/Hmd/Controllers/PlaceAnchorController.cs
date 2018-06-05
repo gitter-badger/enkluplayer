@@ -22,7 +22,7 @@ namespace CreateAR.SpirePlayer
         public ButtonWidget BtnCancel { get; private set; }
 
         /// <summary>
-        /// Called when placement is finalized
+        /// Called when placement is finalized.
         /// </summary>
         public event Action<ElementData> OnOk;
 

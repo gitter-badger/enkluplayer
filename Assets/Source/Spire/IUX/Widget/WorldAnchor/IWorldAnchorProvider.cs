@@ -31,12 +31,5 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         /// <param name="gameObject">The gameObject.</param>
         void Disable(GameObject gameObject);
-
-        /// <summary>
-        /// Enables anchor. Only affects gameObject if Import has already been
-        /// called on anchor. This is also automatically called by Import.
-        /// </summary>
-        /// <param name="gameObject">The gameObject.</param>
-        void Enable(GameObject gameObject);
     }
 }

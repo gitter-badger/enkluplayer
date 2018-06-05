@@ -45,6 +45,16 @@ namespace CreateAR.SpirePlayer
         private readonly List<AnchorDesignController> _scratchList = new List<AnchorDesignController>();
 
         /// <summary>
+        /// Distance filter.
+        /// </summary>
+        private readonly DistanceElementControllerFilter _distanceFilter = new DistanceElementControllerFilter();
+
+        /// <summary>
+        /// Content filter.
+        /// </summary>
+        private readonly TypeElementControllerFilter _anchorFilter = new TypeElementControllerFilter(typeof(WorldAnchorWidget));
+
+        /// <summary>
         /// Design controller.
         /// </summary>
         private HmdDesignController _design;
@@ -55,24 +65,24 @@ namespace CreateAR.SpirePlayer
         private AnchorMenuController _anchors;
 
         /// <summary>
-        /// Menu for placing anchors.
+        /// Menu for placing new anchors.
         /// </summary>
-        private PlaceAnchorController _placeAnchor;
-        
+        private PlaceAnchorController _placeNewAnchor;
+
+        /// <summary>
+        /// Menu for moving anchors.
+        /// </summary>
+        private PlaceAnchorController _moveAnchor;
+
         /// <summary>
         /// Adjusts anchors.
         /// </summary>
         private AdjustAnchorController _adjustAnchor;
 
         /// <summary>
-        /// Distance filter.
+        /// Controller we're moving.
         /// </summary>
-        private readonly DistanceElementControllerFilter _distanceFilter = new DistanceElementControllerFilter();
-
-        /// <summary>
-        /// Content filter.
-        /// </summary>
-        private readonly TypeElementControllerFilter _anchorFilter = new TypeElementControllerFilter(typeof(WorldAnchorWidget));
+        private AnchorDesignController _moveController;
 
         /// <summary>
         /// Constructor.
@@ -111,12 +121,20 @@ namespace CreateAR.SpirePlayer
 
             // place anchor menu
             {
-                _placeAnchor = unityRoot.AddComponent<PlaceAnchorController>();
-                _placeAnchor.OnCancel += PlaceAnchor_OnCancel;
-                _placeAnchor.OnOk += PlaceAnchor_OnOk;
-                _placeAnchor.enabled = false;
+                _placeNewAnchor = unityRoot.AddComponent<PlaceAnchorController>();
+                _placeNewAnchor.OnCancel += PlaceNewAnchor_OnCancel;
+                _placeNewAnchor.OnOk += PlaceNewAnchor_OnOk;
+                _placeNewAnchor.enabled = false;
             }
 
+            // move anchor menu
+            {
+                _moveAnchor = unityRoot.AddComponent<PlaceAnchorController>();
+                _moveAnchor.OnCancel += MoveAnchor_OnCancel;
+                _moveAnchor.OnOk += MoveAnchor_OnOk;
+                _moveAnchor.enabled = false;
+            }
+            
             // adjust menu
             {
                 _adjustAnchor = unityRoot.AddComponent<AdjustAnchorController>();
@@ -133,8 +151,9 @@ namespace CreateAR.SpirePlayer
         public void Uninitialize()
         {
             Object.Destroy(_anchors);
-            Object.Destroy(_placeAnchor);
+            Object.Destroy(_placeNewAnchor);
             Object.Destroy(_adjustAnchor);
+            Object.Destroy(_moveAnchor);
         }
 
         /// <inheritdoc />
@@ -184,8 +203,9 @@ namespace CreateAR.SpirePlayer
         private void CloseAll()
         {
             _anchors.enabled = false;
-            _placeAnchor.enabled = false;
+            _placeNewAnchor.enabled = false;
             _adjustAnchor.enabled = false;
+            _moveAnchor.enabled = false;
         }
 
         /// <summary>
@@ -375,6 +395,7 @@ namespace CreateAR.SpirePlayer
                                 // complete, now send out network update
                                 _elementUpdater.Update(anchor, "src", url);
                                 _elementUpdater.Update(anchor, "version", version);
+                                _elementUpdater.Update(anchor, "position", anchor.Schema.Get<Vec3>("position").Value);
                                 _elementUpdater.FinalizeUpdate(anchor);
 
                                 controller.Renderer.Ready();
@@ -426,8 +447,8 @@ namespace CreateAR.SpirePlayer
         private void Anchors_OnNew()
         {
             _anchors.enabled = false;
-            _placeAnchor.Initialize(_design.Config);
-            _placeAnchor.enabled = true;
+            _placeNewAnchor.Initialize(_design.Config);
+            _placeNewAnchor.enabled = true;
         }
 
         /// <summary>
@@ -441,12 +462,46 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when place anchor confirms placement.
         /// </summary>
-        private void PlaceAnchor_OnOk(ElementData data)
+        private void PlaceNewAnchor_OnOk(ElementData data)
         {
-            _placeAnchor.enabled = false;
+            _placeNewAnchor.enabled = false;
+            _moveAnchor.enabled = false;
             _anchors.enabled = true;
 
             CreateAnchor(data);
+        }
+
+        /// <summary>
+        /// Called when the move menu wants to finish moving.
+        /// </summary>
+        /// <param name="data">Data for the element.</param>
+        private void MoveAnchor_OnOk(ElementData data)
+        {
+            _moveAnchor.enabled = false;
+            _anchors.enabled = true;
+
+            // move into position and reimport
+            var position = data.Schema.Vectors["position"];
+            _moveController.Anchor.Schema.Set("position", position);
+            _moveController.Anchor.GameObject.transform.position = position.ToVector();
+            _moveController.Renderer.gameObject.SetActive(true);
+
+            _moveController.OpenSplash();
+
+            ResaveAnchor(_moveController);
+        }
+
+        /// <summary>
+        /// Called when the move menu wants to cancel movement.
+        /// </summary>
+        private void MoveAnchor_OnCancel()
+        {
+            _moveAnchor.enabled = false;
+            _adjustAnchor.enabled = true;
+
+            // re-enable
+            _moveController.Renderer.gameObject.SetActive(true);
+            _moveController.Anchor.Reload();
         }
 
         /// <summary>
@@ -456,6 +511,8 @@ namespace CreateAR.SpirePlayer
         {
             _adjustAnchor.enabled = false;
             _anchors.enabled = true;
+            _moveAnchor.enabled = false;
+            _placeNewAnchor.enabled = false;
 
             OpenSplashMenus();
         }
@@ -488,9 +545,12 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchorDesignController">The controller.</param>
         private void Adjust_OnResave(AnchorDesignController anchorDesignController)
         {
-            _placeAnchor.enabled = false;
+            _placeNewAnchor.enabled = false;
+            _moveAnchor.enabled = false;
             _adjustAnchor.enabled = false;
             _anchors.enabled = true;
+
+            anchorDesignController.OpenSplash();
 
             ResaveAnchor(anchorDesignController);
         }
@@ -501,7 +561,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchorDesignController">The controller.</param>
         private void Adjust_OnReload(AnchorDesignController anchorDesignController)
         {
-            _placeAnchor.enabled = false;
+            _placeNewAnchor.enabled = false;
+            _moveAnchor.enabled = false;
             _adjustAnchor.enabled = false;
             _anchors.enabled = true;
 
@@ -516,15 +577,24 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchorDesignController">The controller.</param>
         private void Adjust_OnMove(AnchorDesignController anchorDesignController)
         {
+            _adjustAnchor.enabled = false;
 
+            // unlock + hide
+            _moveController = anchorDesignController;
+            _moveController.Anchor.Schema.Set("locked", false);
+            _moveController.Renderer.gameObject.SetActive(false);
+
+            // open move menu
+            _moveAnchor.Initialize(_design.Config);
+            _moveAnchor.enabled = true;
         }
 
         /// <summary>
         /// Called when place anchor cancels placement.
         /// </summary>
-        private void PlaceAnchor_OnCancel()
+        private void PlaceNewAnchor_OnCancel()
         {
-            _placeAnchor.enabled = false;
+            _placeNewAnchor.enabled = false;
         }
 
         /// <summary>

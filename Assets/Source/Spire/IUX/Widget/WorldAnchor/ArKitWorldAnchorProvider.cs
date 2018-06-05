@@ -27,11 +27,5 @@ namespace CreateAR.SpirePlayer.IUX
         {
             throw new NotImplementedException();
         }
-
-        /// <inheritdoc />
-        public void Enable(GameObject gameObject)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
