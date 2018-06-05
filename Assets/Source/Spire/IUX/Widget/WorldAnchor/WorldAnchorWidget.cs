@@ -73,6 +73,14 @@ namespace CreateAR.SpirePlayer.IUX
             _cache = cache;
             _provider = provider;
         }
+
+        /// <summary>
+        /// Reloads world anchor.
+        /// </summary>
+        public void Reload()
+        {
+            UpdateWorldAnchor();
+        }
         
         /// <inheritdoc />
         protected override void LoadInternalBeforeChildren()

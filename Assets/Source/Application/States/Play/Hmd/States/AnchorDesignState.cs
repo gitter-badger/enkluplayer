@@ -501,7 +501,13 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchorDesignController">The controller.</param>
         private void Adjust_OnReload(AnchorDesignController anchorDesignController)
         {
+            _placeAnchor.enabled = false;
+            _adjustAnchor.enabled = false;
+            _anchors.enabled = true;
 
+            anchorDesignController.OpenSplash();
+            anchorDesignController.Anchor.Reload();
+            anchorDesignController.ChangeState<AnchorLoadingState>();
         }
 
         /// <summary>
