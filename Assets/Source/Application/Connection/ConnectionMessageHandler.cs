@@ -21,7 +21,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// MS until we timeout.
         /// </summary>
-        private const int TIMEOUT_MS = 10000;
+        private const int TIMEOUT_MS = 30000;
 
         /// <summary>
         /// Filters messages for router.

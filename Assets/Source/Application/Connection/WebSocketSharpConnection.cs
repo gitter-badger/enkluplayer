@@ -2,7 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -223,6 +222,12 @@ namespace CreateAR.SpirePlayer
 
             IsConnected = false;
 
+            if (null != _connectToken)
+            {
+                _connectToken.Fail(new Exception("Timed out."));
+                _connectToken = null;
+            }
+
             ConnectSocket(_wsEndpoint);
         }
 
@@ -290,7 +295,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Verbose logs.
         /// </summary>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);
