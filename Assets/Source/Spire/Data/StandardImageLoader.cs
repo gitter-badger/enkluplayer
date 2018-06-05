@@ -23,6 +23,11 @@ namespace CreateAR.SpirePlayer.IUX
         private const string RESOURCE_PROTOCOL = "res://";
 
         /// <summary>
+        /// Custom handling for Icons.
+        /// </summary>
+        private const string ICON_PROTOCOL = "icon://";
+
+        /// <summary>
         /// Dumb in-memory cache.
         /// </summary>
         private readonly Dictionary<string, byte[]> _cache = new Dictionary<string, byte[]>();
@@ -32,6 +37,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
 
+        /// <summary>
+        /// Config.
+        /// </summary>
+        private readonly WidgetConfig _config;
+
         /// <inheritdoc />
         public UrlFormatterCollection Urls { get; private set; }
 
@@ -40,9 +50,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public StandardImageLoader(
             IBootstrapper bootstrapper,
-            UrlFormatterCollection urls)
+            UrlFormatterCollection urls,
+            WidgetConfig config)
         {
             _bootstrapper = bootstrapper;
+            _config = config;
 
             Urls = urls;
         }
@@ -72,6 +84,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
             else
             {
+                // resources
                 if (url.StartsWith(RESOURCE_PROTOCOL))
                 {
                     var path = url.Substring(RESOURCE_PROTOCOL.Length);
@@ -89,6 +102,24 @@ namespace CreateAR.SpirePlayer.IUX
                     {
                         var texture = ManagedTexture(source);
                         token.Succeed(texture);
+                    }
+
+                    return token;
+                }
+
+                // icons
+                if (url.StartsWith(ICON_PROTOCOL))
+                {
+                    var path = url.Substring(ICON_PROTOCOL.Length);
+
+                    var sprite = _config.Icons.Icon(path);
+                    if (null == sprite)
+                    {
+                        token.Fail(new Exception(string.Format("Could not find icon '{0}'.", path)));
+                    }
+                    else
+                    {
+                        token.Succeed(ManagedTexture(sprite.texture));
                     }
 
                     return token;
