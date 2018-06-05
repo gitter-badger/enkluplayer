@@ -61,6 +61,7 @@ namespace CreateAR.SpirePlayer
             _config = config;
             _handler = handler;
             _handler.OnHeartbeatRequested += Handler_OnSendPong;
+            _handler.OnTimeout += Handler_OnTimeout;
 
             messages.Subscribe(
                 MessageTypes.APPLICATION_SUSPEND,
@@ -181,6 +182,8 @@ namespace CreateAR.SpirePlayer
 
             _connectToken.Fail(new Exception("Socket closed."));
             _connectToken = null;
+
+            IsConnected = false;
         }
 
         /// <summary>
@@ -210,14 +213,28 @@ namespace CreateAR.SpirePlayer
 
             _socket.Send("40");
         }
-        
+
+        /// <summary>
+        /// Called when the connection times out.
+        /// </summary>
+        private void Handler_OnTimeout()
+        {
+            Log.Warning(this, "Network timeout.");
+
+            IsConnected = false;
+
+            ConnectSocket(_wsEndpoint);
+        }
+
         /// <summary>
         /// Called when the application is suspended.
         /// </summary>
         private void Messages_OnApplicationSuspend(object obj)
         {
             Log.Info(this, "App suspended, killing socket.");
-            
+
+            IsConnected = false;
+
             if (null != _socket)
             {
                 _socket.Close();
@@ -273,7 +290,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Verbose logs.
         /// </summary>
-        [Conditional("LOGGING_VERBOSE")]
+        //[Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);
