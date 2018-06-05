@@ -88,9 +88,17 @@ namespace CreateAR.SpirePlayer
             {
                 Authorization = "Bearer " + _config.Network.Credentials.Token
             };
-
+            
             byte[] bytes;
-            _json.Serialize(req, out bytes);
+            try
+            {
+                _json.Serialize(req, out bytes);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not serialize request : {0}", exception);
+                return;
+            }
 
             var str = "42[\"post\", " + Encoding.UTF8.GetString(bytes) + "]";
 
@@ -190,7 +198,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Socket_OnError(object sender, ErrorEventArgs errorEventArgs)
         {
-            LogVerbose("Error : {0}.", errorEventArgs.Message);
+            LogVerbose("Error : {0} : {1}", errorEventArgs.Message, errorEventArgs.Exception);
         }
 
         /// <summary>
