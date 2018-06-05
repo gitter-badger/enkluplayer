@@ -210,8 +210,15 @@ namespace UnityEngine.XR.iOS
 
 		delegate void DictionaryVisitorHandler(IntPtr keyPtr, float value);
 
+#if UNITY_IOS
 		[DllImport("__Internal")]
 		private static extern void GetBlendShapesInfo(IntPtr ptrDic, DictionaryVisitorHandler handler);
+#else
+        private static void GetBlendShapesInfo(IntPtr ptrDic, DictionaryVisitorHandler handler)
+        {
+            //
+        }
+#endif
 
 		Dictionary<string, float> GetBlendShapesFromNative(IntPtr blendShapesPtr)
 		{

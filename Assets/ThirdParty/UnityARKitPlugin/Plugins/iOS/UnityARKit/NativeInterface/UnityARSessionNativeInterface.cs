@@ -395,20 +395,26 @@ namespace UnityEngine.XR.iOS {
 		[DllImport("__Internal")]
 		private static extern ARTextureHandles GetVideoTextureHandles();
 
+#if !UNITY_EDITOR && UNITY_IOS
 		[DllImport("__Internal")]
 		private static extern float GetAmbientIntensity();
+#endif
 
 		[DllImport("__Internal")]
 		private static extern int GetTrackingQuality();
 
+#if !UNITY_EDITOR && UNITY_IOS
         [DllImport("__Internal")]
         private static extern bool GetARPointCloud (ref IntPtr verts, ref uint vertLength);
+#endif
 
 		[DllImport("__Internal")]
 		private static extern void SetCameraNearFar (float nearZ, float farZ);
 
-		[DllImport("__Internal")]
+#if !UNITY_EDITOR && UNITY_IOS
+        [DllImport("__Internal")]
 		private static extern void CapturePixelData (int enable, IntPtr  pYPixelBytes, IntPtr pUVPixelBytes);
+#endif
 
 		[DllImport("__Internal")]
 		private static extern UnityARUserAnchorData SessionAddUserAnchor (IntPtr nativeSession, UnityARUserAnchorData anchorData);
@@ -558,18 +564,18 @@ namespace UnityEngine.XR.iOS {
 
 		public void SetCameraClipPlanes(float nearZ, float farZ)
 		{
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR && UNITY_IOS
 			SetCameraNearFar (nearZ, farZ);
 #endif
-		}
+        }
 
-		public void SetCapturePixelData(bool enable, IntPtr pYByteArray, IntPtr pUVByteArray)
+        public void SetCapturePixelData(bool enable, IntPtr pYByteArray, IntPtr pUVByteArray)
 		{
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR && UNITY_IOS
 			int iEnable = enable ? 1 : 0;
 			CapturePixelData (iEnable,pYByteArray, pUVByteArray);
 #endif
-		}
+        }
 
         [MonoPInvokeCallback(typeof(internal_ARFrameUpdate))]
 	    static void _frame_update(internal_UnityARCamera camera)
@@ -614,6 +620,7 @@ namespace UnityEngine.XR.iOS {
 
         static void UpdatePointCloudData(ref UnityARCamera camera)
         {
+#if !UNITY_EDITOR && UNITY_IOS
             IntPtr ptrResultVerts = IntPtr.Zero;
             uint resultVertLength = 0;
             bool success = GetARPointCloud (ref ptrResultVerts, ref resultVertLength);
@@ -633,7 +640,7 @@ namespace UnityEngine.XR.iOS {
                 }
                 camera.pointCloudData = verts;
             }
-
+#endif
         }
 			
 		static ARUserAnchor GetUserAnchorFromAnchorData(UnityARUserAnchorData anchor)
@@ -671,7 +678,7 @@ namespace UnityEngine.XR.iOS {
         }
 
 #region Plane Anchors
-		#if !UNITY_EDITOR
+#if !UNITY_EDITOR
 		[MonoPInvokeCallback(typeof(internal_ARAnchorAdded))]
         static void _anchor_added(UnityARAnchorData anchor)
         {
@@ -701,7 +708,7 @@ namespace UnityEngine.XR.iOS {
                 ARAnchorRemovedEvent(arPlaneAnchor);
             }
 	    }
-		#endif
+#endif
 #endregion
 
 #region User Anchors
@@ -736,7 +743,7 @@ namespace UnityEngine.XR.iOS {
 #endregion
 
 #region Face Anchors
-		#if !UNITY_EDITOR
+#if !UNITY_EDITOR
 		[MonoPInvokeCallback(typeof(internal_ARFaceAnchorAdded))]
 		static void _face_anchor_added(UnityARFaceAnchorData anchor)
 		{
@@ -765,7 +772,7 @@ namespace UnityEngine.XR.iOS {
 				ARFaceAnchorRemovedEvent(arFaceAnchor);
 			}
 		}
-		#endif
+#endif
 #endregion
 
 #region Image Anchors
@@ -841,21 +848,21 @@ namespace UnityEngine.XR.iOS {
 
         public void RunWithConfigAndOptions(ARKitWorldTrackingSessionConfiguration config, UnityARSessionRunOption runOptions)
         {
-			#if !UNITY_EDITOR
+#if !UNITY_EDITOR
             StartWorldTrackingSessionWithOptions (m_NativeARSession, config, runOptions);
-			#else
+#else
 			CreateRemoteWorldTrackingConnection(config, runOptions);
-			#endif
+#endif
         }
 
 	    public void RunWithConfig(ARKitWorldTrackingSessionConfiguration config)
 	    {
-			#if !UNITY_EDITOR
+#if !UNITY_EDITOR
 	        StartWorldTrackingSession(m_NativeARSession, config);
-			#else
+#else
 			UnityARSessionRunOption runOptions = UnityARSessionRunOption.ARSessionRunOptionRemoveExistingAnchors | UnityARSessionRunOption.ARSessionRunOptionResetTracking;
 			CreateRemoteWorldTrackingConnection(config, runOptions);
-			#endif
+#endif
 	    }
 
 	    public void Run()
@@ -865,35 +872,35 @@ namespace UnityEngine.XR.iOS {
 
         public void RunWithConfigAndOptions(ARKitSessionConfiguration config, UnityARSessionRunOption runOptions)
         {
-            #if !UNITY_EDITOR
+#if !UNITY_EDITOR
             StartSessionWithOptions (m_NativeARSession, config, runOptions);
-            #endif
+#endif
         }
 
         public void RunWithConfig(ARKitSessionConfiguration config)
         {
-            #if !UNITY_EDITOR
+#if !UNITY_EDITOR
             StartSession(m_NativeARSession, config);
-            #endif
+#endif
         }
             
 		public void RunWithConfigAndOptions(ARKitFaceTrackingConfiguration config, UnityARSessionRunOption runOptions)
 		{
-			#if !UNITY_EDITOR
+#if !UNITY_EDITOR
 			StartFaceTrackingSessionWithOptions (m_NativeARSession, config, runOptions);
-			#else
+#else
 			CreateRemoteFaceTrackingConnection(config, runOptions);
-			#endif
+#endif
 		}
 
 		public void RunWithConfig(ARKitFaceTrackingConfiguration config)
 		{
-			#if !UNITY_EDITOR
+#if !UNITY_EDITOR
 			StartFaceTrackingSession(m_NativeARSession, config);
-			#else
+#else
 			UnityARSessionRunOption runOptions = UnityARSessionRunOption.ARSessionRunOptionRemoveExistingAnchors | UnityARSessionRunOption.ARSessionRunOptionResetTracking;
 			CreateRemoteFaceTrackingConnection(config, runOptions);
-			#endif
+#endif
 		}
 
 
@@ -930,8 +937,12 @@ namespace UnityEngine.XR.iOS {
 		[Obsolete("Hook ARFrameUpdatedEvent instead and get UnityARCamera.ambientIntensity")]
 		public float GetARAmbientIntensity()
 		{
+#if !UNITY_EDITOR && UNITY_IOS
 			return GetAmbientIntensity ();
-		}
+#else
+		    return 0f;
+#endif
+        }
 
 		[Obsolete("Hook ARFrameUpdatedEvent instead and get UnityARCamera.trackingState")]
 		public int GetARTrackingQuality()
@@ -943,7 +954,7 @@ namespace UnityEngine.XR.iOS {
         {
 #if !UNITY_EDITOR
             return SessionAddUserAnchor(m_NativeARSession, anchorData);
-#else 
+#else
             return new UnityARUserAnchorData();
 #endif
         }
@@ -952,7 +963,7 @@ namespace UnityEngine.XR.iOS {
 #if !UNITY_EDITOR
             UnityARUserAnchorData data = AddUserAnchor(UnityARUserAnchorData.UnityARUserAnchorDataFromGameObject(go)); 
             return data;  
-#else 
+#else
             return new UnityARUserAnchorData();
 #endif
         }
