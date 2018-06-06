@@ -9,7 +9,8 @@
 			description='Create new apps in the web editor.'
 			header.padding=0.4
 			description.fontSize=50
-			showBackButton=false>
+			showBackButton=true>
 		</Menu>
+		<Button id='btn-meshcapture' icon='world' position=(0, -0.2, 0) />
 	</Float>
 </Container>

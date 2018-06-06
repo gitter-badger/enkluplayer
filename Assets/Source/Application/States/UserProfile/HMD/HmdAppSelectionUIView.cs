@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages.GetMyApps;
 
@@ -15,10 +16,19 @@ namespace CreateAR.SpirePlayer
         private Body[] _apps;
         
         /// <summary>
+        /// Dependencies.
+        /// </summary>
+        [Inject]
+        public IMessageRouter Messages { get; set; }
+
+        /// <summary>
         /// Elements.
         /// </summary>
         [InjectElements("..menu-user")]
         public MenuWidget Menu { get; set; }
+
+        [InjectElements("..btn-meshcapture")]
+        public ButtonWidget BtnMeshCapture { get; set; }
 
         /// <inheritdoc />
         public Body[] Apps
@@ -63,29 +73,26 @@ namespace CreateAR.SpirePlayer
         
         /// <inheritdoc />
         public event Action OnPublicApps;
+        
+        /// <inheritdoc />
+        protected override void AfterElementsCreated()
+        {
+            base.AfterElementsCreated();
 
-        /// <summary>
-        /// Called when public apps are activated.
-        /// </summary>
-        public void PublicAppsActivated()
-        {
-            if (null != OnPublicApps)
+            Menu.OnBack += _ =>
             {
-                OnPublicApps();
-            }         
-        }
-        
-        /// <summary>
-        /// Called by Unity UI.
-        /// </summary>
-        public void SignOutClicked()
-        {
-            if (null != OnSignOut)
+                if (null != OnSignOut)
+                {
+                    OnSignOut();
+                }
+            };
+
+            BtnMeshCapture.Activator.OnActivated += _ =>
             {
-                OnSignOut();
-            }
+                Messages.Publish(MessageTypes.MESHCAPTURE);
+            };
         }
-        
+
         /// <summary>
         /// Called when app button has been pressed.
         /// </summary>
