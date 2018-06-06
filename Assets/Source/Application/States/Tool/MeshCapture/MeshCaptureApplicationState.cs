@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 
@@ -12,10 +13,16 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Dependencies.
         /// </summary>
+        private readonly IUIManager _ui;
         private readonly IVoiceCommandManager _voice;
         private readonly IMessageRouter _messages;
         private readonly IMeshCaptureService _capture;
         private readonly MeshCaptureExportService _exportService;
+
+        /// <summary>
+        /// UI frame.
+        /// </summary>
+        private UIManagerFrame _frame;
 
         /// <summary>
         /// Camera settings snapshot.
@@ -26,11 +33,13 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public MeshCaptureApplicationState(
+            IUIManager ui,
             IVoiceCommandManager voice,
             IMessageRouter messages,
             IMeshCaptureService capture,
             MeshCaptureExportService exportService)
         {
+            _ui = ui;
             _voice = voice;
             _messages = messages;
             _capture = capture;
@@ -40,6 +49,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Enter(object context)
         {
+            _frame = _ui.CreateFrame();
+
             // setup camera
             var camera = Camera.main;
             
@@ -64,6 +75,21 @@ namespace CreateAR.SpirePlayer
 
             // start export pipeline
             _exportService.Start();
+
+            _ui.Open<MeshCaptureSplashUIView>(new UIReference
+                {
+                    UIDataId = "MeshCapture.Splash"
+                })
+                .OnSuccess(el =>
+                {
+                    el.OnBack += Finalize;
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not open MeshCapture.Splash UI : {0}", exception);
+
+                    _messages.Publish(MessageTypes.USER_PROFILE);
+                });
         }
 
         /// <inheritdoc />
@@ -75,6 +101,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
+            _frame.Release();
+
             _exportService.Stop();
 
             // kill voice commands
@@ -91,6 +119,16 @@ namespace CreateAR.SpirePlayer
         public void OnData(int id, MeshFilter filter)
         {
             //
+        }
+
+        /// <summary>
+        /// Finalizes and returns to User Profile.
+        /// </summary>
+        private void Finalize()
+        {
+            // TODO: finalize
+
+            _messages.Publish(MessageTypes.USER_PROFILE);
         }
 
         /// <summary>

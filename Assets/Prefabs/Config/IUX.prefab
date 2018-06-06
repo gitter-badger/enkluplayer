@@ -84,6 +84,9 @@ MonoBehaviour:
     - UIDataId: Status.Connection
       Element: {fileID: 114732202702670036, guid: 0d93ad6c49d59cb4fa44bf88a78082ed,
         type: 2}
+    - UIDataId: MeshCapture.Splash
+      Element: {fileID: 114879831809532652, guid: b83a7cc45fd4c0543838b207e0fac662,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error
