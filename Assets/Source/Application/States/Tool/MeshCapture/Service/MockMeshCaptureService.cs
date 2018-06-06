@@ -88,9 +88,9 @@ namespace CreateAR.SpirePlayer
                 if (0 == ids || Random.value < acc)
                 {
                     // create new surface
-                    var fake = new GameObject("Fake Mesh Capture");
-                    filter = fake.AddComponent<MeshFilter>();
+                    var fake = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                     fake.transform.parent = _root.transform;
+                    filter = fake.GetComponent<MeshFilter>();
 
                     id = ids++;
                     _surfaces[id] = filter;

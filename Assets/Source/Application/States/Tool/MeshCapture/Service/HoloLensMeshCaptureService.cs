@@ -75,8 +75,6 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Start(IMeshCaptureObserver observer)
         {
-            Log.Info(this, "HoloLensMeshCaptureService::Start()");
-
             _captureObserver = observer;
             _root = new GameObject("Mesh Capture Root");
 
@@ -91,8 +89,6 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Stop()
         {
-            Log.Info(this, "HoloLensMeshCaptureService::Stop()");
-
             // destroy observer
             _isObserverAlive = false;
             _surfaceObserver.Dispose();
@@ -132,9 +128,7 @@ namespace CreateAR.SpirePlayer
             {
                 return;
             }
-
-            Log.Info(this, "Surface changed.");
-
+            
             switch (changeType)
             {
                 case SurfaceChange.Added:
@@ -207,9 +201,9 @@ namespace CreateAR.SpirePlayer
             bool outputWritten,
             float elapsedBaketimeSeconds)
         {
-            Log.Info(this, "Surface data ready.");
-
-            _captureObserver.OnData(bakedData.id.handle, bakedData.outputMesh);
+            _captureObserver.OnData(
+                bakedData.id.handle,
+                bakedData.outputMesh);
         }
     }
 }

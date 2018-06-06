@@ -92,17 +92,19 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Saves snapshot of objects passed in.
         /// </summary>
+        /// <param name="triangles">Number of triangles to export.</param>
         /// <param name="gameObjects">The gameobjects for which to take a snapshot.</param>
         /// <returns></returns>
-        public bool Export(params GameObject[] gameObjects)
+        public bool Export(out int triangles, params GameObject[] gameObjects)
         {
             if (null == _worker)
             {
                 Log.Warning(this, "Cannot queue scan until Start() is called.");
+                triangles = 0;
                 return false;
             }
 
-            return _worker.Queue(gameObjects);
+            return _worker.Queue(gameObjects, out triangles);
         }
     }
 }

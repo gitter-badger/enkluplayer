@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// True iff autosave is enabled.
         /// </summary>
-        private bool _isAutoSaving = false;
+        private bool _isAutoSaving;
 
         /// <summary>
         /// Last time we autosaved.
@@ -33,6 +33,12 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..tgl-autosave")]
         public ToggleWidget TglAutoSave { get; set; }
 
+        [InjectElements("..cpn-vertices")]
+        public CaptionWidget CpnVerts { get; set; }
+
+        [InjectElements("..cpn-meshes")]
+        public CaptionWidget CpnMeshes { get; set; }
+
         /// <summary>
         /// Called when back is requested.
         /// </summary>
@@ -42,7 +48,18 @@ namespace CreateAR.SpirePlayer
         /// Called when save is requested.
         /// </summary>
         public event Action OnSave;
-        
+
+        /// <summary>
+        /// Updates the stats text.
+        /// </summary>
+        /// <param name="meshes">Meshes.</param>
+        /// <param name="vertices">Number of vertices.</param>
+        public void UpdateStats(int meshes, int vertices)
+        {
+            CpnVerts.Label = string.Format("{0} vertices", vertices);
+            CpnMeshes.Label = string.Format("{0} meshes", meshes);
+        }
+
         /// <inheritdoc />
         protected override void AfterElementsCreated()
         {

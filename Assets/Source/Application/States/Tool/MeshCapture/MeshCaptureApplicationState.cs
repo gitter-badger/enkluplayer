@@ -12,6 +12,31 @@ namespace CreateAR.SpirePlayer
     public class MeshCaptureApplicationState : IState, IMeshCaptureObserver
     {
         /// <summary>
+        /// Tracks information about a surface.
+        /// </summary>
+        private class SurfaceRecord
+        {
+            /// <summary>
+            /// The associated GameObject.
+            /// </summary>
+            public readonly GameObject GameObject;
+
+            /// <summary>
+            /// The Mesh filter.
+            /// </summary>
+            public readonly MeshFilter Filter;
+            
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            public SurfaceRecord(MeshFilter filter)
+            {
+                GameObject = filter.gameObject;
+                Filter = filter;
+            }
+        }
+
+        /// <summary>
         /// Dependencies.
         /// </summary>
         private readonly IUIManager _ui;
@@ -22,7 +47,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Lookup from surface id to GameObject.
         /// </summary>
-        private readonly Dictionary<int, GameObject> _surfaces = new Dictionary<int, GameObject>();
+        private readonly Dictionary<int, SurfaceRecord> _surfaces = new Dictionary<int, SurfaceRecord>();
 
         /// <summary>
         /// Tracks surfaces that have changed.
@@ -38,7 +63,12 @@ namespace CreateAR.SpirePlayer
         /// Camera settings snapshot.
         /// </summary>
         private CameraSettingsSnapshot _snapshot;
-        
+
+        /// <summary>
+        /// Splash view.
+        /// </summary>
+        private MeshCaptureSplashUIView _view;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -84,8 +114,10 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnSuccess(el =>
                 {
-                    el.OnBack += MeshCapture_OnBack;
-                    el.OnSave += MeshCapture_OnSave;
+                    _view = el;
+
+                    _view.OnBack += MeshCapture_OnBack;
+                    _view.OnSave += MeshCapture_OnSave;
                 })
                 .OnFailure(exception =>
                 {
@@ -98,7 +130,21 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-            //
+            var meshes = 0;
+            var verts = 0;
+            foreach (var pair in _surfaces)
+            {
+                meshes++;
+
+                if (null != pair.Value
+                    && null != pair.Value.Filter
+                    && null != pair.Value.Filter.sharedMesh)
+                {
+                    verts += pair.Value.Filter.sharedMesh.vertexCount;
+                }
+            }
+
+            _view.UpdateStats(meshes, verts);
         }
 
         /// <inheritdoc />
@@ -117,7 +163,11 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void OnData(int id, MeshFilter filter)
         {
-            _surfaces[id] = filter.gameObject;
+            if (!_surfaces.ContainsKey(id))
+            {
+                _surfaces[id] = new SurfaceRecord(filter);
+            }
+            
             _dirtySurfaces.Add(id);
         }
 
@@ -134,13 +184,22 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MeshCapture_OnSave()
         {
-            var dirty = _surfaces
-                .Where(pair => _dirtySurfaces.Contains(pair.Key))
-                .Select(pair => _surfaces[pair.Key])
-                .ToArray();
+            if (_dirtySurfaces.Count == 0)
+            {
+                return;
+            }
+
             _dirtySurfaces.Clear();
 
-            _exportService.Export(dirty);
+            var dirty = _surfaces
+                .Select(pair => _surfaces[pair.Key].GameObject)
+                .ToArray();
+
+            int tris;
+            if (!_exportService.Export(out tris, dirty))
+            {
+                Log.Error(this, "Could not export!");
+            }
         }
     }
 }

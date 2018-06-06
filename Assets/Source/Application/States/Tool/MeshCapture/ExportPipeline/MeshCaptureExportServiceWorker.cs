@@ -142,21 +142,25 @@ namespace CreateAR.SpirePlayer
 
             Log.Info(this, "Pipeline thread was spun down.");
         }
-        
+
         /// <summary>
         /// Queues a scan.
         /// </summary>
         /// <param name="objects">Objects to scan.</param>
+        /// <param name="triangles">Number of triangles</param>
         /// <returns></returns>
-        public bool Queue(GameObject[] objects)
+        public bool Queue(GameObject[] objects, out int triangles)
         {
+            MeshStateCollection state = null;
+
             if (Monitor.TryEnter(_lock, _lockTimeoutMs))
             {
                 try
                 {
+                    state = new MeshStateCollection(objects);
                     _queue.Enqueue(new WorldScanRecord
                     {
-                        State = new MeshStateCollection(objects)
+                        State = state
                     });
 
                     // discard
@@ -173,6 +177,13 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
+            if (null == state)
+            {
+                triangles = 0;
+                return false;
+            }
+
+            triangles = state.Triangles;
             return false;
         }
 

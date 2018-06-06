@@ -14,5 +14,20 @@
 				<Option label='10 Seconds' value='10' />
 			</Select>
 		</Container>
+		<Caption
+			id='cpn-vertices'
+			label='0 vertices'
+			position=(0, -0.25, 0)
+			width=500.0
+			alignment='TopLeft'
+			fontSize=60 />
+		<Caption
+			id='cpn-meshes'
+			label='0 meshes'
+			position=(0, -0.35, 0)
+			width=500.0
+			alignment='TopLeft'
+			fontSize=60 />
+		
 	</Float>
 </Container>
