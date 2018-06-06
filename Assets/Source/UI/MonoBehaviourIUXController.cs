@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -11,6 +10,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class MonoBehaviourIUXController : MonoBehaviourUIElement
     {
+        /// <summary>
+        /// Reference to vine.
+        /// </summary>
+        private VineReference _reference;
+
         /// <summary>
         /// Creates elements.
         /// </summary>
@@ -33,38 +37,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public string VineId;
 
-        /// <inheritdoc cref="MonoBehaviour" />
-        protected virtual void Awake()
-        {
-            Main.Inject(this);
-
-            var reference = Vines.Vine(VineId);
-            if (null == reference)
-            {
-                return;
-            }
-
-            try
-            {
-                Root = Elements.Element(reference.Text);
-            }
-            catch (Exception exception)
-            {
-                Log.Error(this, "Could not create elements from Vine : {0}.", exception);
-                return;
-            }
-            
-            Root.Schema.Set("visible", false);
-
-            var widget = Root as Widget;
-            if (null != widget)
-            {
-                widget.GameObject.transform.SetParent(transform, false);
-            }
-
-            InjectElementsAttribute.InjectElements(this, Root);
-        }
-        
         /// <inheritdoc />
         public override void Added()
         {
@@ -77,6 +49,14 @@ namespace CreateAR.SpirePlayer
 
             Root.Schema.Set("visible", true);
         }
+
+        /// <summary>
+        /// Called after elements have been created.
+        /// </summary>
+        protected virtual void AfterElementsCreated()
+        {
+
+        }
         
         /// <inheritdoc cref="MonoBehaviour" />
         protected virtual void OnDestroy()
@@ -87,6 +67,67 @@ namespace CreateAR.SpirePlayer
             }
 
             Root.Destroy();
+        }
+
+        /// <inheritdoc cref="MonoBehaviour" />
+        private void Awake()
+        {
+            Main.Inject(this);
+
+            _reference = Vines.Vine(VineId);
+            if (null == _reference)
+            {
+                return;
+            }
+
+            _reference.OnUpdated += Vine_OnUpdated;
+
+            CreateElements();
+            AfterElementsCreated();
+        }
+
+        /// <summary>
+        /// Creates elements from vine.
+        /// </summary>
+        private void CreateElements()
+        {
+            Element el;
+            try
+            {
+                el = Elements.Element(_reference.Text);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not create elements from Vine : {0}.", exception);
+                return;
+            }
+
+            var visible = false;
+            if (null != Root)
+            {
+                visible = Root.Schema.Get<bool>("visible").Value;
+                Root.Destroy();
+            }
+
+            Root = el;
+            Root.Schema.Set("visible", visible);
+
+            var widget = Root as Widget;
+            if (null != widget)
+            {
+                widget.GameObject.transform.SetParent(transform, false);
+            }
+
+            InjectElementsAttribute.InjectElements(this, Root);
+        }
+
+        /// <summary>
+        /// Called when the vine has been updated.
+        /// </summary>
+        private void Vine_OnUpdated()
+        {
+            CreateElements();
+            AfterElementsCreated();
         }
     }
 }

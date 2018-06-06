@@ -54,9 +54,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// MonoBehaviour.
         /// </summary>
-        protected override void Awake()
+        protected override void AfterElementsCreated()
         {
-            base.Awake();
+            base.AfterElementsCreated();
 
             BtnOk.Activator.OnActivated += _ =>
             {
