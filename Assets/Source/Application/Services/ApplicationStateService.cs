@@ -152,6 +152,8 @@ namespace CreateAR.SpirePlayer
 
         /// <summary>
         /// Called when application initialized message is published.
+        /// 
+        /// TODO: Should be part of package.
         /// </summary>
         /// <param name="_">Void.</param>
         private void Messages_OnApplicationInitialized(Void _)

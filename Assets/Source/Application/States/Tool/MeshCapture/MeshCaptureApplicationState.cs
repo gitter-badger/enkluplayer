@@ -1,38 +1,41 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer
 {
-    /// <summary>
-    /// Application state for capturing the world mesh.
-    /// </summary>
-    public class MeshCaptureApplicationState : IState
+    public interface IMeshCaptureObserver
     {
-        /// <summary>
-        /// Name of the scene to load.
-        /// </summary>
-        private const string SCENE_NAME = "WorldMeshCaptureMode";
+        void OnData(int id, MeshFilter filter);
+    }
 
+    public interface IMeshCaptureService
+    {
+        void Start(IMeshCaptureObserver observer);
+        void Stop();
+    }
+
+    public class HoloLensMeshCaptureService : IMeshCaptureService
+    {
         /// <summary>
         /// How often, in seconds, to update the mesh.
         /// </summary>
         private const float UPDATE_INTERVAL_SECS = 0.2f;
 
         /// <summary>
-        /// Dependencies.
+        /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
-        private readonly IVoiceCommandManager _voice;
-        private readonly IMessageRouter _messages;
-        private readonly WorldScanPipeline _pipeline;
+
+        /// <summary>
+        /// Config.
+        /// </summary>
+        private readonly MeshCaptureConfig _config;
 
         /// <summary>
         /// Keeps track of surfaces.
@@ -40,14 +43,14 @@ namespace CreateAR.SpirePlayer
         private readonly Dictionary<SurfaceId, GameObject> _surfaces = new Dictionary<SurfaceId, GameObject>();
 
         /// <summary>
-        /// Observes surfaces.
+        /// External observer.
         /// </summary>
-        private SurfaceObserver _observer;
+        private IMeshCaptureObserver _captureObserver;
 
         /// <summary>
-        /// True iff the observer should be updated.
+        /// Observes surfaces.
         /// </summary>
-        private bool _isObserverAlive = false;
+        private SurfaceObserver _surfaceObserver;
 
         /// <summary>
         /// Root transform.
@@ -55,120 +58,46 @@ namespace CreateAR.SpirePlayer
         private GameObject _root;
 
         /// <summary>
-        /// Camera settings snapshot.
+        /// True iff the observer should be updated.
         /// </summary>
-        private CameraSettingsSnapshot _snapshot;
+        private bool _isObserverAlive = false;
 
-        /// <summary>
-        /// Config.
-        /// </summary>
-        private MeshCaptureConfig _config;
-        
         /// <summary>
         /// Constructor.
         /// </summary>
-        public MeshCaptureApplicationState(
+        public HoloLensMeshCaptureService(
             IBootstrapper bootstrapper,
-            IVoiceCommandManager voice,
-            IMessageRouter messages,
-            WorldScanPipeline pipeline)
+            MeshCaptureConfig config)
         {
             _bootstrapper = bootstrapper;
-            _voice = voice;
-            _messages = messages;
-            _pipeline = pipeline;
+            _config = config;
         }
 
-        /// <inheritdoc cref="IState"/>
-        public void Enter(object context)
+        /// <inheritdoc />
+        public void Start(IMeshCaptureObserver observer)
         {
-            // setup camera
-            var camera = Camera.main;
-            
-            // save snapshot first
-            _snapshot = CameraSettingsSnapshot.Snapshot(camera);
+            _captureObserver = observer;
+            _root = new GameObject("Mesh Capture Root");
 
-            // then set camera settings
-            camera.clearFlags = CameraClearFlags.Color;
-            camera.backgroundColor = Color.black;
-            camera.nearClipPlane = 0.85f;
-            camera.farClipPlane = 1000f;
-            camera.transform.position = Vector3.zero;
-            
-            // load scene
-            _bootstrapper.BootstrapCoroutine(LoadScene());
+            // setup surface observer
+            _surfaceObserver = new SurfaceObserver();
+            _surfaceObserver.SetVolumeAsAxisAlignedBox(
+                Vector3.zero,
+                1000 * Vector3.one);
+            _bootstrapper.BootstrapCoroutine(UpdateObserver());
         }
 
-        /// <inheritdoc cref="IState"/>
-        public void Update(float dt)
+        /// <inheritdoc />
+        public void Stop()
         {
-            //
-        }
-
-        /// <inheritdoc cref="IState"/>
-        public void Exit()
-        {
-            _config = null;
-
-            _pipeline.Stop();
-
-            // kill voice commands
-            if (!_voice.Unregister(VoiceKeywords.EXIT))
-            {
-                Log.Error(this, "Could not unregister exit voice command.");
-            }
-
             // destroy observer
             _isObserverAlive = false;
-            _observer.Dispose();
-            _observer = null;
+            _surfaceObserver.Dispose();
+            _surfaceObserver = null;
 
             // destroy surfaces
             _surfaces.Clear();
             UnityEngine.Object.Destroy(_root);
-
-            // unload scene
-            UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
-                UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
-
-            // restore camera snapshot
-            CameraSettingsSnapshot.Apply(Camera.main, _snapshot);
-        }
-
-        /// <summary>
-        /// Loads the scene asynchronously.
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerator LoadScene()
-        {
-            var op = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
-                SCENE_NAME,
-                LoadSceneMode.Additive);
-
-            yield return op;
-
-            // find config
-            _config = UnityEngine.Object.FindObjectOfType<MeshCaptureConfig>();
-            if (null == _config)
-            {
-                throw new Exception("No MeshCaptureConfig found!");
-            }
-
-            // create root for surfaces
-            _root = new GameObject("Surfaces");
-
-            // setup surface observer
-            _observer = new SurfaceObserver();
-            _observer.SetVolumeAsAxisAlignedBox(Vector3.zero, 1000 * Vector3.one);
-            _bootstrapper.BootstrapCoroutine(UpdateObserver());
-
-            // setup voice commands
-            if (!_voice.Register(VoiceKeywords.EXIT, Voice_OnExit))
-            {
-                Log.Error(this, "Could not register exit voice command.");
-            }
-
-            _pipeline.Start();
         }
 
         /// <summary>
@@ -181,18 +110,10 @@ namespace CreateAR.SpirePlayer
 
             while (_isObserverAlive)
             {
-                _observer.Update(Observer_OnSurfaceChanged);
+                _surfaceObserver.Update(Observer_OnSurfaceChanged);
 
                 yield return new WaitForSecondsRealtime(UPDATE_INTERVAL_SECS);
             }
-        }
-
-        /// <summary>
-        /// Pushes changes to pipeline.
-        /// </summary>
-        private void PushToPipeline()
-        {
-            _pipeline.Scan(_surfaces.Values.ToArray());
         }
 
         /// <summary>
@@ -204,6 +125,11 @@ namespace CreateAR.SpirePlayer
             Bounds bounds,
             DateTime updateTime)
         {
+            if (_isObserverAlive)
+            {
+                return;
+            }
+
             switch (changeType)
             {
                 case SurfaceChange.Added:
@@ -247,9 +173,9 @@ namespace CreateAR.SpirePlayer
                 false
             );
 
-            _observer.RequestMeshAsync(data, SurfaceObserver_OnDataReady);
+            _surfaceObserver.RequestMeshAsync(data, SurfaceObserver_OnDataReady);
 
-            PushToPipeline();
+            //PushToPipeline();
         }
 
         /// <summary>
@@ -278,7 +204,91 @@ namespace CreateAR.SpirePlayer
             bool outputWritten,
             float elapsedBaketimeSeconds)
         {
+            _captureObserver.OnData(bakedData.id.handle, bakedData.outputMesh);
+        }
+    }
+
+    /// <summary>
+    /// Application state for capturing the world mesh.
+    /// </summary>
+    public class MeshCaptureApplicationState : IState, IMeshCaptureObserver
+    {
+        /// <summary>
+        /// Dependencies.
+        /// </summary>
+        private readonly IVoiceCommandManager _voice;
+        private readonly IMessageRouter _messages;
+        private readonly WorldScanPipeline _pipeline;
+
+        /// <summary>
+        /// Camera settings snapshot.
+        /// </summary>
+        private CameraSettingsSnapshot _snapshot;
+        
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public MeshCaptureApplicationState(
+            IVoiceCommandManager voice,
+            IMessageRouter messages,
+            WorldScanPipeline pipeline)
+        {
+            _voice = voice;
+            _messages = messages;
+            _pipeline = pipeline;
+        }
+
+        /// <inheritdoc />
+        public void Enter(object context)
+        {
+            // setup camera
+            var camera = Camera.main;
+            
+            // save snapshot first
+            _snapshot = CameraSettingsSnapshot.Snapshot(camera);
+
+            // then set camera settings
+            camera.clearFlags = CameraClearFlags.Color;
+            camera.backgroundColor = Color.black;
+            camera.nearClipPlane = 0.85f;
+            camera.farClipPlane = 1000f;
+            camera.transform.position = Vector3.zero;
+
+            // setup voice commands
+            if (!_voice.Register(VoiceKeywords.EXIT, Voice_OnExit))
+            {
+                Log.Error(this, "Could not register exit voice command.");
+            }
+
+            // start save pipeline
+            _pipeline.Start();
+        }
+
+        /// <inheritdoc />
+        public void Update(float dt)
+        {
             //
+        }
+
+        /// <inheritdoc />
+        public void Exit()
+        {
+            _pipeline.Stop();
+
+            // kill voice commands
+            if (!_voice.Unregister(VoiceKeywords.EXIT))
+            {
+                Log.Error(this, "Could not unregister exit voice command.");
+            }
+            
+            // restore camera snapshot
+            CameraSettingsSnapshot.Apply(Camera.main, _snapshot);
+        }
+
+        /// <inheritdoc />
+        public void OnData(int id, MeshFilter filter)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

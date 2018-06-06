@@ -21,12 +21,7 @@ namespace CreateAR.SpirePlayer
         /// How long to wait for timeout.
         /// </summary>
         private const int TIMEOUT_SEC = 3;
-
-        /// <summary>
-        /// Name of the playmode scene to load.
-        /// </summary>
-        private const string SCENE_NAME = "Qr";
-    
+        
         /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
@@ -98,17 +93,13 @@ namespace CreateAR.SpirePlayer
                 _qr.OnRead -= Qr_OnRead;
 
                 UnityEngine.Object.Destroy(_root);
-
-                // unload scene
-                SceneManager.UnloadSceneAsync(
-                    SceneManager.GetSceneByName(SCENE_NAME));
             });
+            
+            _root = new GameObject("Qr");
+            _view = _root.AddComponent<QrViewController>();
 
-            // load scene
-            _bootstrapper.BootstrapCoroutine(WaitForScene(
-                SceneManager.LoadSceneAsync(
-                    SCENE_NAME,
-                    LoadSceneMode.Additive)));
+            _qr.OnRead += Qr_OnRead;
+            _qr.Start();
 
             _bootstrapper.BootstrapCoroutine(WatchToken());
 
@@ -137,25 +128,6 @@ namespace CreateAR.SpirePlayer
 
                 yield return null;
             }
-        }
-        
-        /// <summary>
-        /// Waits for scene to load.
-        /// </summary>
-        /// <param name="op">The scene load operation.</param>
-        /// <returns></returns>
-        private IEnumerator WaitForScene(AsyncOperation op)
-        {
-            yield return op;
-
-            Log.Info(this, "Loaded Qr scene with Qr Service : {0}.", _qr.GetType().Name);
-
-            _root = new GameObject("Qr");
-            _view = _root.AddComponent<QrViewController>();
-            
-            // start qr
-            _qr.OnRead += Qr_OnRead;
-            _qr.Start();
         }
         
         /// <summary>
