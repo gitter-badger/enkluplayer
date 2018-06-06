@@ -9,6 +9,16 @@ namespace CreateAR.SpirePlayer
     public class MeshCaptureSplashUIView : MonoBehaviourIUXController
     {
         /// <summary>
+        /// True iff autosave is enabled.
+        /// </summary>
+        private bool _isAutoSaving = false;
+
+        /// <summary>
+        /// Last time we autosaved.
+        /// </summary>
+        private DateTime _lastAutoSave;
+
+        /// <summary>
         /// Elements.
         /// </summary>
         [InjectElements("..btn-back")]
@@ -65,13 +75,36 @@ namespace CreateAR.SpirePlayer
                 {
                     BtnSave.Activator.InteractionEnabled = false;
                     BtnSave.Schema.Set("ready.color", "Disabled");
+
+                    _lastAutoSave = DateTime.MinValue;
+                    _isAutoSaving = true;
                 }
                 else
                 {
                     BtnSave.Activator.InteractionEnabled = true;
                     BtnSave.Schema.Set("ready.color", "Ready");
+
+                    _isAutoSaving = false;
                 }
             };
+        }
+
+        /// <inheritdoc cref="MonoBehaviour" />
+        private void Update()
+        {
+            if (_isAutoSaving)
+            {
+                var now = DateTime.Now;
+                if (now.Subtract(_lastAutoSave).TotalSeconds > 5)
+                {
+                    _lastAutoSave = now;
+
+                    if (null != OnSave)
+                    {
+                        OnSave();
+                    }
+                }
+            }
         }
     }
 }
