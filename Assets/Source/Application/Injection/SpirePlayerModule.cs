@@ -194,37 +194,109 @@ namespace CreateAR.SpirePlayer
                         binder.Bind<MobileGuestStateFlow>().To<MobileGuestStateFlow>();
                         binder.Bind<WebStateFlow>().To<WebStateFlow>();
                     }
-                    
-                    binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
-                    binder.Bind<LoginApplicationState>().To<LoginApplicationState>();
-                    binder.Bind<HoloLoginApplicationState>().To<HoloLoginApplicationState>();
-                    binder.Bind<SignOutApplicationState>().To<SignOutApplicationState>();
-                    binder.Bind<QrLoginStrategy>().To<QrLoginStrategy>();
-                    binder.Bind<GuestApplicationState>().To<GuestApplicationState>();
-                    binder.Bind<OrientationApplicationState>().To<OrientationApplicationState>();
-                    binder.Bind<UserProfileApplicationState>().To<UserProfileApplicationState>();
-                    binder.Bind<MobileArSetupApplicationState>().To<MobileArSetupApplicationState>();
-                    binder.Bind<HmdArSetupApplicationState>().To<HmdArSetupApplicationState>();
-                    binder.Bind<MobileLoginStrategy>().To<MobileLoginStrategy>();
-                    binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
-                    binder.Bind<LoadDefaultAppApplicationState>().To<LoadDefaultAppApplicationState>();
-                    binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
-                    binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
-                    binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
-                    binder.Bind<InstaApplicationState>().To<InstaApplicationState>();
 
-                    // tools
+                    // all states
                     {
-                        binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
-                        binder.Bind<WorldScanPipelineConfiguration>().ToValue(new WorldScanPipelineConfiguration());
-                        binder.Bind<WorldScanPipeline>().To<WorldScanPipeline>().ToSingleton();
-#if NETFX_CORE
-                        binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
-#endif
+                        binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
+                        binder.Bind<LoginApplicationState>().To<LoginApplicationState>();
+                        binder.Bind<HoloLoginApplicationState>().To<HoloLoginApplicationState>();
+                        binder.Bind<SignOutApplicationState>().To<SignOutApplicationState>();
+                        binder.Bind<QrLoginStrategy>().To<QrLoginStrategy>();
+                        binder.Bind<GuestApplicationState>().To<GuestApplicationState>();
+                        binder.Bind<OrientationApplicationState>().To<OrientationApplicationState>();
+                        binder.Bind<UserProfileApplicationState>().To<UserProfileApplicationState>();
+                        binder.Bind<MobileArSetupApplicationState>().To<MobileArSetupApplicationState>();
+                        binder.Bind<HmdArSetupApplicationState>().To<HmdArSetupApplicationState>();
+                        binder.Bind<MobileLoginStrategy>().To<MobileLoginStrategy>();
+                        binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
+                        binder.Bind<LoadDefaultAppApplicationState>().To<LoadDefaultAppApplicationState>();
+                        binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
+                        binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
+                        binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
+                        
+                        // tools
+                        {
+                            binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
+                            binder.Bind<WorldScanPipelineConfiguration>().ToValue(new WorldScanPipelineConfiguration());
+                            binder.Bind<WorldScanPipeline>().To<WorldScanPipeline>().ToSingleton();
+                            binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
+                        }
+                    }
+
+                    // packages
+                    {
+                        switch (config.ParsedPlatform)
+                        {
+                            case RuntimePlatform.Android:
+                            case RuntimePlatform.IPhonePlayer:
+                            {
+                                binder.Bind<ApplicationStatePackage>().To(new ApplicationStatePackage(
+                                    new IState[]
+                                    {
+                                        binder.GetInstance<InitializeApplicationState>(),
+                                        binder.GetInstance<LoginApplicationState>(),
+                                        binder.GetInstance<HoloLoginApplicationState>(),
+                                        binder.GetInstance<SignOutApplicationState>(),
+                                        binder.GetInstance<GuestApplicationState>(),
+                                        binder.GetInstance<MobileArSetupApplicationState>(),
+                                        binder.GetInstance<UserProfileApplicationState>(),
+                                        binder.GetInstance<LoadAppApplicationState>(),
+                                        binder.GetInstance<LoadDefaultAppApplicationState>(),
+                                        binder.GetInstance<PlayApplicationState>()
+                                    },
+                                    new IStateFlow[]
+                                    {
+                                        binder.GetInstance<MobileLoginStateFlow>(),
+                                        binder.GetInstance<MobileGuestStateFlow>()
+                                    }));
+                                break;
+                            }
+                            case RuntimePlatform.WSAPlayerX86:
+                            case RuntimePlatform.WSAPlayerX64:
+                            case RuntimePlatform.WSAPlayerARM:
+                            {
+                                binder.Bind<ApplicationStatePackage>().To(new ApplicationStatePackage(
+                                    new IState[]
+                                    {
+                                        binder.GetInstance<InitializeApplicationState>(),
+                                        binder.GetInstance<LoginApplicationState>(),
+                                        binder.GetInstance<SignOutApplicationState>(),
+                                        binder.GetInstance<GuestApplicationState>(),
+                                        binder.GetInstance<OrientationApplicationState>(),
+                                        binder.GetInstance<UserProfileApplicationState>(),
+                                        binder.GetInstance<LoadAppApplicationState>(),
+                                        binder.GetInstance<LoadDefaultAppApplicationState>(),
+                                        binder.GetInstance<PlayApplicationState>(),
+                                        binder.GetInstance<BleSearchApplicationState>(),
+                                        binder.GetInstance<MeshCaptureApplicationState>(),
+                                        binder.GetInstance<ToolModeApplicationState>()
+                                    },
+                                    new IStateFlow[]
+                                    {
+                                        binder.GetInstance<HmdStateFlow>()
+                                    }));
+                                    
+                                    break;
+                            }
+                            default:
+                            {
+                                binder.Bind<ApplicationStatePackage>().To(new ApplicationStatePackage(
+                                    new IState[]
+                                    {
+                                        binder.GetInstance<InitializeApplicationState>(),
+                                        binder.GetInstance<LoadAppApplicationState>(),
+                                        binder.GetInstance<PlayApplicationState>()
+                                    },
+                                    new IStateFlow[]
+                                    {
+                                        binder.GetInstance<WebStateFlow>()
+                                    }));
+                                    
+                                    break;
+                            }
+                        }
                     }
                 }
-
-                binder.Bind<IAppController>().To<AppController>().ToSingleton();
                 
                 // service manager + application
                 binder.Bind<IApplicationServiceManager>().ToValue(new ApplicationServiceManager(
@@ -474,6 +546,8 @@ namespace CreateAR.SpirePlayer
                 var appData = binder.GetInstance<IAdminAppDataManager>();
                 binder.Bind<IAppDataManager>().ToValue(appData);
             }
+
+            binder.Bind<IAppController>().To<AppController>().ToSingleton();
         }
 
         /// <summary>

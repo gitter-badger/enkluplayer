@@ -1,10 +1,7 @@
-﻿#if NETFX_CORE
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -172,8 +169,6 @@ namespace CreateAR.SpirePlayer
             }
 
             _pipeline.Start();
-
-            _messages.Publish(MessageTypes.STATUS, "World mesh capture has begin. Say 'save' to save to disk.");
         }
 
         /// <summary>
@@ -198,12 +193,6 @@ namespace CreateAR.SpirePlayer
         private void PushToPipeline()
         {
             _pipeline.Scan(_surfaces.Values.ToArray());
-
-            _messages.Publish(
-                MessageTypes.STATUS,
-                new StatusEvent(
-                    "Autosave on.",
-                    3f));
         }
 
         /// <summary>
@@ -302,4 +291,3 @@ namespace CreateAR.SpirePlayer
         }
     }
 }
-#endif
