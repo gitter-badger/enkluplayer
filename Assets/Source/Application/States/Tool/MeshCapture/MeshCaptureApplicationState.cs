@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
@@ -14,10 +16,19 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly IUIManager _ui;
-        private readonly IVoiceCommandManager _voice;
         private readonly IMessageRouter _messages;
         private readonly IMeshCaptureService _capture;
         private readonly MeshCaptureExportService _exportService;
+
+        /// <summary>
+        /// Lookup from surface id to GameObject.
+        /// </summary>
+        private readonly Dictionary<int, GameObject> _surfaces = new Dictionary<int, GameObject>();
+
+        /// <summary>
+        /// Tracks surfaces that have changed.
+        /// </summary>
+        private readonly HashSet<int> _dirtySurfaces = new HashSet<int>();
 
         /// <summary>
         /// UI frame.
@@ -34,13 +45,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public MeshCaptureApplicationState(
             IUIManager ui,
-            IVoiceCommandManager voice,
             IMessageRouter messages,
             IMeshCaptureService capture,
             MeshCaptureExportService exportService)
         {
             _ui = ui;
-            _voice = voice;
             _messages = messages;
             _capture = capture;
             _exportService = exportService;
@@ -63,13 +72,7 @@ namespace CreateAR.SpirePlayer
             camera.nearClipPlane = 0.85f;
             camera.farClipPlane = 1000f;
             camera.transform.position = Vector3.zero;
-
-            // setup voice commands
-            if (!_voice.Register(VoiceKeywords.EXIT, Voice_OnExit))
-            {
-                Log.Error(this, "Could not register exit voice command.");
-            }
-
+            
             // start capture
             _capture.Start(this);
 
@@ -82,7 +85,8 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnSuccess(el =>
                 {
-                    el.OnBack += Finalize;
+                    el.OnBack += MeshCapture_OnBack;
+                    el.OnSave += MeshCapture_OnSave;
                 })
                 .OnFailure(exception =>
                 {
@@ -101,16 +105,11 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
+            _exportService.Stop();
+            
+            _surfaces.Clear();
             _frame.Release();
 
-            _exportService.Stop();
-
-            // kill voice commands
-            if (!_voice.Unregister(VoiceKeywords.EXIT))
-            {
-                Log.Error(this, "Could not unregister exit voice command.");
-            }
-            
             // restore camera snapshot
             CameraSettingsSnapshot.Apply(Camera.main, _snapshot);
         }
@@ -118,26 +117,30 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void OnData(int id, MeshFilter filter)
         {
-            //
+            _surfaces[id] = filter.gameObject;
+            _dirtySurfaces.Add(id);
         }
 
         /// <summary>
-        /// Finalizes and returns to User Profile.
+        /// Returns to User Profile.
         /// </summary>
-        private void Finalize()
+        private void MeshCapture_OnBack()
         {
-            // TODO: finalize
-
             _messages.Publish(MessageTypes.USER_PROFILE);
         }
 
         /// <summary>
-        /// Called when the voice processor received a save command.
+        /// Called to save data.
         /// </summary>
-        /// <param name="save">The command received.</param>
-        private void Voice_OnExit(string save)
+        private void MeshCapture_OnSave()
         {
-            _messages.Publish(MessageTypes.TOOLS);
+            var dirty = _surfaces
+                .Where(pair => _dirtySurfaces.Contains(pair.Key))
+                .Select(pair => _surfaces[pair.Key])
+                .ToArray();
+            _dirtySurfaces.Clear();
+
+            _exportService.Export(dirty);
         }
     }
 }

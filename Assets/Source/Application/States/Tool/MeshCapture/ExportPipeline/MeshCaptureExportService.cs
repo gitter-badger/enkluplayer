@@ -94,7 +94,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="gameObjects">The gameobjects for which to take a snapshot.</param>
         /// <returns></returns>
-        public bool Scan(params GameObject[] gameObjects)
+        public bool Export(params GameObject[] gameObjects)
         {
             if (null == _worker)
             {
