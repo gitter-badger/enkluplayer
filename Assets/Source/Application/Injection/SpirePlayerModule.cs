@@ -217,8 +217,14 @@ namespace CreateAR.SpirePlayer
                         // tools
                         {
                             binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
-                            binder.Bind<WorldScanPipelineConfiguration>().ToValue(new WorldScanPipelineConfiguration());
-                            binder.Bind<WorldScanPipeline>().To<WorldScanPipeline>().ToSingleton();
+                            binder.Bind<MeshCaptureConfig>().To(LookupComponent<MeshCaptureConfig>());
+#if !UNITY_EDITOR && UNITY_WSA
+                            binder.Bind<IMeshCaptureService>().To<HoloLensMeshCaptureService>().ToSingleton();
+#else
+                            binder.Bind<IMeshCaptureService>().To<MockMeshCaptureService>().ToSingleton();
+#endif
+                            binder.Bind<MeshCaptureExportServiceConfiguration>().ToValue(new MeshCaptureExportServiceConfiguration());
+                            binder.Bind<MeshCaptureExportService>().To<MeshCaptureExportService>().ToSingleton();
                             binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
                         }
                     }

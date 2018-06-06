@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Async pipeline that takes world mesh scans.
     /// </summary>
-    public class WorldScanPipeline
+    public class MeshCaptureExportService
     {
         /// <summary>
         /// Bootstraps on the main thread.
@@ -23,20 +23,20 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Worker object.
         /// </summary>
-        private WorldScanPipelineWorker _worker;
+        private MeshCaptureExportServiceWorker _worker;
 
         /// <summary>
         /// Configuration object.
         /// </summary>
-        public WorldScanPipelineConfiguration Configuration { get; private set; }
+        public MeshCaptureExportServiceConfiguration Configuration { get; private set; }
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public WorldScanPipeline(
+        public MeshCaptureExportService(
             IBootstrapper bootstrapper,
             IHttpService http,
-            WorldScanPipelineConfiguration config)
+            MeshCaptureExportServiceConfiguration config)
         {
             _bootstrapper = bootstrapper;
             _http = http;
@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            _worker = new WorldScanPipelineWorker(
+            _worker = new MeshCaptureExportServiceWorker(
                 _bootstrapper,
                 _http,
                 Configuration.LockTimeoutMs,

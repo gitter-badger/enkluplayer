@@ -3,7 +3,7 @@
     /// <summary>
     /// Configures pipeline.
     /// </summary>
-    public class WorldScanPipelineConfiguration
+    public class MeshCaptureExportServiceConfiguration
     {
         /// <summary>
         /// Timeout for trying to queue a scan.

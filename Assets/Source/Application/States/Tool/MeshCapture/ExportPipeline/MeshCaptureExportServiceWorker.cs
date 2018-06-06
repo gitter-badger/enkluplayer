@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Long-running thread that process a scan.
     /// </summary>
-    public class WorldScanPipelineWorker
+    public class MeshCaptureExportServiceWorker
     {
         /// <summary>
         /// Internal record-keeping.
@@ -62,12 +62,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// True iff the thread should be running.
         /// </summary>
-        private bool _isAlive = false;
+        private bool _isAlive;
         
         /// <summary>
         /// Constructor.
         /// </summary>
-        public WorldScanPipelineWorker(
+        public MeshCaptureExportServiceWorker(
             IBootstrapper bootstrapper,
             IHttpService http,
             int lockTimeoutMs,
@@ -114,7 +114,7 @@ namespace CreateAR.SpirePlayer
             
             while (true)
             {
-                WorldScanRecord record = null;
+                WorldScanRecord record;
 
                 lock (_lock)
                 {
