@@ -1,6 +1,5 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
-using UnityScript.Macros;
 
 namespace CreateAR.SpirePlayer
 {

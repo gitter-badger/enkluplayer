@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -88,8 +87,6 @@ namespace CreateAR.SpirePlayer
                 // new surface
                 if (0 == ids || Random.value < acc)
                 {
-                    Log.Info(this, "Generate surface.");
-
                     // create new surface
                     var fake = new GameObject("Fake Mesh Capture");
                     filter = fake.AddComponent<MeshFilter>();
@@ -104,8 +101,6 @@ namespace CreateAR.SpirePlayer
                 // previous surface
                 else
                 {
-                    Log.Info(this, "Edit surface.");
-
                     id = Random.Range(0, ids);
                     filter = _surfaces[id];
                 }

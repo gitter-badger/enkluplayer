@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 using UnityEngine.XR.WSA;
 
@@ -22,6 +23,11 @@ namespace CreateAR.SpirePlayer
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Manages intention.
+        /// </summary>
+        private readonly IIntentionManager _intention;
 
         /// <summary>
         /// Config.
@@ -58,22 +64,26 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public HoloLensMeshCaptureService(
             IBootstrapper bootstrapper,
+            IIntentionManager intention,
             MeshCaptureConfig config)
         {
             _bootstrapper = bootstrapper;
+            _intention = intention;
             _config = config;
         }
 
         /// <inheritdoc />
         public void Start(IMeshCaptureObserver observer)
         {
+            Log.Info(this, "HoloLensMeshCaptureService::Start()");
+
             _captureObserver = observer;
             _root = new GameObject("Mesh Capture Root");
 
             // setup surface observer
             _surfaceObserver = new SurfaceObserver();
             _surfaceObserver.SetVolumeAsAxisAlignedBox(
-                Vector3.zero,
+                _intention.Origin.ToVector(),
                 1000 * Vector3.one);
             _bootstrapper.BootstrapCoroutine(UpdateObserver());
         }
@@ -81,6 +91,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Stop()
         {
+            Log.Info(this, "HoloLensMeshCaptureService::Stop()");
+
             // destroy observer
             _isObserverAlive = false;
             _surfaceObserver.Dispose();
@@ -116,10 +128,12 @@ namespace CreateAR.SpirePlayer
             Bounds bounds,
             DateTime updateTime)
         {
-            if (_isObserverAlive)
+            if (!_isObserverAlive)
             {
                 return;
             }
+
+            Log.Info(this, "Surface changed.");
 
             switch (changeType)
             {
@@ -165,8 +179,6 @@ namespace CreateAR.SpirePlayer
             );
 
             _surfaceObserver.RequestMeshAsync(data, SurfaceObserver_OnDataReady);
-
-            //PushToPipeline();
         }
 
         /// <summary>
@@ -195,6 +207,8 @@ namespace CreateAR.SpirePlayer
             bool outputWritten,
             float elapsedBaketimeSeconds)
         {
+            Log.Info(this, "Surface data ready.");
+
             _captureObserver.OnData(bakedData.id.handle, bakedData.outputMesh);
         }
     }

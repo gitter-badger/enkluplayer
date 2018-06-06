@@ -69,7 +69,7 @@ namespace CreateAR.SpirePlayer
             // then set camera settings
             camera.clearFlags = CameraClearFlags.Color;
             camera.backgroundColor = Color.black;
-            camera.nearClipPlane = 0.85f;
+            camera.nearClipPlane = 0.15f;
             camera.farClipPlane = 1000f;
             camera.transform.position = Vector3.zero;
             

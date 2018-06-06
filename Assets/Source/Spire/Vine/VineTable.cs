@@ -67,16 +67,20 @@ namespace CreateAR.SpirePlayer.Vine
             _rootPath = Path.Combine(UnityEngine.Application.dataPath, "");
             
 #if UNITY_EDITOR
-            var watcher = new FileSystemWatcher();
-            watcher.Path = _rootPath;
-            watcher.NotifyFilter = NotifyFilters.LastWrite;
-            watcher.Filter = "*.txt";
+            var watcher = new FileSystemWatcher
+            {
+                Path = _rootPath,
+                NotifyFilter = NotifyFilters.LastWrite,
+                Filter = "*.txt"
+            };
+
             watcher.Changed += Watcher_OnChanged;
             watcher.IncludeSubdirectories = true;
             watcher.EnableRaisingEvents = true;
 #endif
         }
 
+#if UNITY_EDITOR
         /// <summary>
         /// Called when a vine changes, on a separate thread.
         /// </summary>
@@ -84,7 +88,6 @@ namespace CreateAR.SpirePlayer.Vine
             object sender,
             FileSystemEventArgs fileSystemEventArgs)
         {
-#if UNITY_EDITOR
             lock (_actions)
             {
                 _actions.Enqueue(() =>
@@ -114,7 +117,7 @@ namespace CreateAR.SpirePlayer.Vine
                     }
                 });
             }
-#endif
         }
+#endif
     }
 }
