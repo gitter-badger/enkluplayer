@@ -290,7 +290,7 @@ namespace CreateAR.SpirePlayer
                                     new IState[]
                                     {
                                         binder.GetInstance<InitializeApplicationState>(),
-                                        binder.GetInstance<LoadAppApplicationState>(),
+                                        binder.GetInstance<ReceiveAppApplicationState>(),
                                         binder.GetInstance<PlayApplicationState>()
                                     },
                                     new IStateFlow[]
