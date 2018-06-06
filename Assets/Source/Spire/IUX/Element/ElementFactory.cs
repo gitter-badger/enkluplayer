@@ -157,7 +157,7 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     { "layout.radius", 0.8f },
                     { "layout.degrees", 25f },
-                    { "dividerOffset", -0.54f }
+                    { "dividerOffset", 0f }
                 },
                 Ints = new Dictionary<string, int>
                 {

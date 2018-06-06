@@ -154,7 +154,6 @@ namespace CreateAR.SpirePlayer.IUX
             transform.SetParent(
                 GameObject.transform,
                 false);
-            UpdateDivider();
 
             UpdateHeaderLayout();
             UpdateChildLayout();
@@ -449,6 +448,8 @@ namespace CreateAR.SpirePlayer.IUX
                 _backButton.Destroy();
                 _backButton = null;
             }
+
+            UpdateDivider();
         }
 
         /// <summary>

@@ -8,7 +8,8 @@
 			title='Your Apps'
 			description='Create new apps in the web editor.'
 			header.padding=0.4
-			description.fontSize=50 >
+			description.fontSize=50
+			showBackButton=false>
 		</Menu>
 	</Float>
 </Container>
