@@ -23,7 +23,8 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.LOAD_APP,
                 MessageTypes.PLAY,
                 MessageTypes.ARSERVICE_EXCEPTION,
-                MessageTypes.FLOOR_FOUND);
+                MessageTypes.FLOOR_FOUND,
+                MessageTypes.MESHCAPTURE);
             _states.ChangeState<OrientationApplicationState>();
         }
 
@@ -71,6 +72,11 @@ namespace CreateAR.SpirePlayer
                 case MessageTypes.FLOOR_FOUND:
                 {
                     _states.ChangeState<PlayApplicationState>();
+                    break;
+                }
+                case MessageTypes.MESHCAPTURE:
+                {
+                    _states.ChangeState<MeshCaptureApplicationState>();
                     break;
                 }
                 default:

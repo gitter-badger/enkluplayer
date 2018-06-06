@@ -1,61 +1,63 @@
-﻿#if NETFX_CORE
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Application state for capturing the world mesh.
     /// </summary>
-    public class MeshCaptureApplicationState : IState
+    public class MeshCaptureApplicationState : IState, IMeshCaptureObserver
     {
         /// <summary>
-        /// Name of the scene to load.
+        /// Tracks information about a surface.
         /// </summary>
-        private const string SCENE_NAME = "WorldMeshCaptureMode";
+        private class SurfaceRecord
+        {
+            /// <summary>
+            /// The associated GameObject.
+            /// </summary>
+            public readonly GameObject GameObject;
 
-        /// <summary>
-        /// How often, in seconds, to update the mesh.
-        /// </summary>
-        private const float UPDATE_INTERVAL_SECS = 0.2f;
+            /// <summary>
+            /// The Mesh filter.
+            /// </summary>
+            public readonly MeshFilter Filter;
+            
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            public SurfaceRecord(MeshFilter filter)
+            {
+                GameObject = filter.gameObject;
+                Filter = filter;
+            }
+        }
 
         /// <summary>
         /// Dependencies.
         /// </summary>
-        private readonly IBootstrapper _bootstrapper;
-        private readonly IVoiceCommandManager _voice;
+        private readonly IUIManager _ui;
         private readonly IMessageRouter _messages;
-        private readonly WorldScanPipeline _pipeline;
+        private readonly IMeshCaptureService _capture;
+        private readonly MeshCaptureExportService _exportService;
 
         /// <summary>
-        /// Keeps track of surfaces.
+        /// Lookup from surface id to GameObject.
         /// </summary>
-        private readonly Dictionary<SurfaceId, GameObject> _surfaces = new Dictionary<SurfaceId, GameObject>();
+        private readonly Dictionary<int, SurfaceRecord> _surfaces = new Dictionary<int, SurfaceRecord>();
 
         /// <summary>
-        /// Observes surfaces.
+        /// Tracks surfaces that have changed.
         /// </summary>
-        private SurfaceObserver _observer;
+        private readonly HashSet<int> _dirtySurfaces = new HashSet<int>();
 
         /// <summary>
-        /// True iff the observer should be updated.
+        /// UI frame.
         /// </summary>
-        private bool _isObserverAlive = false;
-
-        /// <summary>
-        /// Root transform.
-        /// </summary>
-        private GameObject _root;
+        private UIManagerFrame _frame;
 
         /// <summary>
         /// Camera settings snapshot.
@@ -63,28 +65,30 @@ namespace CreateAR.SpirePlayer
         private CameraSettingsSnapshot _snapshot;
 
         /// <summary>
-        /// Config.
+        /// Splash view.
         /// </summary>
-        private MeshCaptureConfig _config;
-        
+        private MeshCaptureSplashUIView _view;
+
         /// <summary>
         /// Constructor.
         /// </summary>
         public MeshCaptureApplicationState(
-            IBootstrapper bootstrapper,
-            IVoiceCommandManager voice,
+            IUIManager ui,
             IMessageRouter messages,
-            WorldScanPipeline pipeline)
+            IMeshCaptureService capture,
+            MeshCaptureExportService exportService)
         {
-            _bootstrapper = bootstrapper;
-            _voice = voice;
+            _ui = ui;
             _messages = messages;
-            _pipeline = pipeline;
+            _capture = capture;
+            _exportService = exportService;
         }
 
-        /// <inheritdoc cref="IState"/>
+        /// <inheritdoc />
         public void Enter(object context)
         {
+            _frame = _ui.CreateFrame();
+
             // setup camera
             var camera = Camera.main;
             
@@ -94,212 +98,108 @@ namespace CreateAR.SpirePlayer
             // then set camera settings
             camera.clearFlags = CameraClearFlags.Color;
             camera.backgroundColor = Color.black;
-            camera.nearClipPlane = 0.85f;
+            camera.nearClipPlane = 0.15f;
             camera.farClipPlane = 1000f;
             camera.transform.position = Vector3.zero;
             
-            // load scene
-            _bootstrapper.BootstrapCoroutine(LoadScene());
+            // start capture
+            _capture.Start(this);
+
+            // start export pipeline
+            _exportService.Start();
+
+            _ui.Open<MeshCaptureSplashUIView>(new UIReference
+                {
+                    UIDataId = "MeshCapture.Splash"
+                })
+                .OnSuccess(el =>
+                {
+                    _view = el;
+
+                    _view.OnBack += MeshCapture_OnBack;
+                    _view.OnSave += MeshCapture_OnSave;
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not open MeshCapture.Splash UI : {0}", exception);
+
+                    _messages.Publish(MessageTypes.USER_PROFILE);
+                });
         }
 
-        /// <inheritdoc cref="IState"/>
+        /// <inheritdoc />
         public void Update(float dt)
         {
-            //
-        }
-
-        /// <inheritdoc cref="IState"/>
-        public void Exit()
-        {
-            _config = null;
-
-            _pipeline.Stop();
-
-            // kill voice commands
-            if (!_voice.Unregister(VoiceKeywords.EXIT))
+            var meshes = 0;
+            var verts = 0;
+            foreach (var pair in _surfaces)
             {
-                Log.Error(this, "Could not unregister exit voice command.");
+                meshes++;
+
+                if (null != pair.Value
+                    && null != pair.Value.Filter
+                    && null != pair.Value.Filter.sharedMesh)
+                {
+                    verts += pair.Value.Filter.sharedMesh.vertexCount;
+                }
             }
 
-            // destroy observer
-            _isObserverAlive = false;
-            _observer.Dispose();
-            _observer = null;
+            _view.UpdateStats(meshes, verts);
+        }
 
-            // destroy surfaces
+        /// <inheritdoc />
+        public void Exit()
+        {
+            _capture.Stop();
+            _exportService.Stop();
+            
             _surfaces.Clear();
-            UnityEngine.Object.Destroy(_root);
-
-            // unload scene
-            UnityEngine.SceneManagement.SceneManager.UnloadSceneAsync(
-                UnityEngine.SceneManagement.SceneManager.GetSceneByName(SCENE_NAME));
+            _frame.Release();
 
             // restore camera snapshot
             CameraSettingsSnapshot.Apply(Camera.main, _snapshot);
         }
 
-        /// <summary>
-        /// Loads the scene asynchronously.
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerator LoadScene()
+        /// <inheritdoc />
+        public void OnData(int id, MeshFilter filter)
         {
-            var op = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(
-                SCENE_NAME,
-                LoadSceneMode.Additive);
-
-            yield return op;
-
-            // find config
-            _config = UnityEngine.Object.FindObjectOfType<MeshCaptureConfig>();
-            if (null == _config)
+            if (!_surfaces.ContainsKey(id))
             {
-                throw new Exception("No MeshCaptureConfig found!");
+                _surfaces[id] = new SurfaceRecord(filter);
             }
-
-            // create root for surfaces
-            _root = new GameObject("Surfaces");
-
-            // setup surface observer
-            _observer = new SurfaceObserver();
-            _observer.SetVolumeAsAxisAlignedBox(Vector3.zero, 1000 * Vector3.one);
-            _bootstrapper.BootstrapCoroutine(UpdateObserver());
-
-            // setup voice commands
-            if (!_voice.Register(VoiceKeywords.EXIT, Voice_OnExit))
-            {
-                Log.Error(this, "Could not register exit voice command.");
-            }
-
-            _pipeline.Start();
-
-            _messages.Publish(MessageTypes.STATUS, "World mesh capture has begin. Say 'save' to save to disk.");
+            
+            _dirtySurfaces.Add(id);
         }
 
         /// <summary>
-        /// Coroutine that updates the observer according to an interval.
+        /// Returns to User Profile.
         /// </summary>
-        /// <returns></returns>
-        private IEnumerator UpdateObserver()
+        private void MeshCapture_OnBack()
         {
-            _isObserverAlive = true;
-
-            while (_isObserverAlive)
-            {
-                _observer.Update(Observer_OnSurfaceChanged);
-
-                yield return new WaitForSecondsRealtime(UPDATE_INTERVAL_SECS);
-            }
+            _messages.Publish(MessageTypes.USER_PROFILE);
         }
 
         /// <summary>
-        /// Pushes changes to pipeline.
+        /// Called to save data.
         /// </summary>
-        private void PushToPipeline()
+        private void MeshCapture_OnSave()
         {
-            _pipeline.Scan(_surfaces.Values.ToArray());
-
-            _messages.Publish(
-                MessageTypes.STATUS,
-                new StatusEvent(
-                    "Autosave on.",
-                    3f));
-        }
-
-        /// <summary>
-        /// Called when the observer changes.
-        /// </summary>
-        private void Observer_OnSurfaceChanged(
-            SurfaceId surfaceId,
-            SurfaceChange changeType,
-            Bounds bounds,
-            DateTime updateTime)
-        {
-            switch (changeType)
+            if (_dirtySurfaces.Count == 0)
             {
-                case SurfaceChange.Added:
-                case SurfaceChange.Updated:
-                {
-                    SurfaceUpdated(surfaceId);
-
-                    break;
-                }
-                case SurfaceChange.Removed:
-                {
-                    SurfaceRemoved(surfaceId);
-
-                    break;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Called when a surface has been updated.
-        /// </summary>
-        /// <param name="surfaceId">Id of the surface.</param>
-        private void SurfaceUpdated(SurfaceId surfaceId)
-        {
-            GameObject target;
-            if (!_surfaces.TryGetValue(surfaceId, out target))
-            {
-                target = _surfaces[surfaceId] = new GameObject(surfaceId.ToString());
-                target.transform.SetParent(_root.transform);
-                target.AddComponent<MeshFilter>();
-                target.AddComponent<MeshRenderer>().sharedMaterial = _config.SurfaceMaterial;
-                target.AddComponent<WorldAnchor>();
-            }
-
-            var data = new SurfaceData(
-                surfaceId,
-                target.GetComponent<MeshFilter>(),
-                target.GetComponent<WorldAnchor>(),
-                null,
-                1000,
-                false
-            );
-
-            _observer.RequestMeshAsync(data, SurfaceObserver_OnDataReady);
-
-            PushToPipeline();
-        }
-
-        /// <summary>
-        /// Called when a surface has been removed.
-        /// </summary>
-        /// <param name="surfaceId">Id of the surface.</param>
-        private void SurfaceRemoved(SurfaceId surfaceId)
-        {
-            GameObject target;
-            if (!_surfaces.TryGetValue(surfaceId, out target))
-            {
-                Log.Error(this, "Called to remove a surface we are not currently tracking.");
                 return;
             }
 
-            _surfaces.Remove(surfaceId);
+            _dirtySurfaces.Clear();
 
-            UnityEngine.Object.Destroy(target);
-        }
+            var dirty = _surfaces
+                .Select(pair => _surfaces[pair.Key].GameObject)
+                .ToArray();
 
-        /// <summary>
-        /// Called when data is ready.
-        /// </summary>
-        private void SurfaceObserver_OnDataReady(
-            SurfaceData bakedData,
-            bool outputWritten,
-            float elapsedBaketimeSeconds)
-        {
-            //
-        }
-
-        /// <summary>
-        /// Called when the voice processor received a save command.
-        /// </summary>
-        /// <param name="save">The command received.</param>
-        private void Voice_OnExit(string save)
-        {
-            _messages.Publish(MessageTypes.TOOLS);
+            int tris;
+            if (!_exportService.Export(out tris, dirty))
+            {
+                Log.Error(this, "Could not export!");
+            }
         }
     }
 }
-#endif

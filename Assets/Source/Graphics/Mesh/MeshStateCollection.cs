@@ -57,11 +57,30 @@ namespace CreateAR.SpirePlayer
         public readonly List<MeshState> Meshes = new List<MeshState>();
 
         /// <summary>
+        /// Counts triangles.
+        /// </summary>
+        public int Triangles
+        {
+            get
+            {
+                var acc = 0;
+                for (var i = 0; i < Meshes.Count; i++)
+                {
+                    var state = Meshes[i];
+                    acc += state.NumTris;
+                }
+
+                return acc;
+            }
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public MeshStateCollection(GameObject[] gameObjects)
         {
             var filters = gameObjects
+                .Where(@object => null != @object)
                 .SelectMany(@object => @object.GetComponentsInChildren<MeshFilter>())
                 .ToArray();
             for (int i = 0, len = filters.Length; i < len; i++)

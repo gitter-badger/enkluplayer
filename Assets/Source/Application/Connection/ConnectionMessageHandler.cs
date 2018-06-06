@@ -19,6 +19,11 @@ namespace CreateAR.SpirePlayer
         private const int PONG_DELTA_MS = 3000;
 
         /// <summary>
+        /// MS until we timeout.
+        /// </summary>
+        private const int TIMEOUT_MS = 30000;
+
+        /// <summary>
         /// Filters messages for router.
         /// </summary>
         private readonly MessageFilter _filter;
@@ -57,6 +62,11 @@ namespace CreateAR.SpirePlayer
         /// Called when the handler requests a heartbeat to be sent.
         /// </summary>
         public event Action OnHeartbeatRequested;
+
+        /// <summary>
+        /// Called when the handler times out.
+        /// </summary>
+        public event Action OnTimeout;
 
         /// <summary>
         /// Constructor.
@@ -435,6 +445,15 @@ namespace CreateAR.SpirePlayer
                     if (null != OnHeartbeatRequested)
                     {
                         OnHeartbeatRequested();
+                    }
+                }
+
+                if (_lastPing != DateTime.MinValue
+                    && now.Subtract(_lastPing).TotalMilliseconds > TIMEOUT_MS)
+                {
+                    if (null != OnTimeout)
+                    {
+                        OnTimeout();
                     }
                 }
 

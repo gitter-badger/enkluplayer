@@ -1,0 +1,16 @@
+<?Vine>
+
+<Screen distance=1.2>
+	<Image
+		src='icon://radio'
+		width=0.1
+		position=(-0.25, -0.15, 0)>
+		<Caption 
+			label='Attempting to reconnect.'
+			width=300.0
+			fontSize=20
+			alignment='TopLeft'
+			position=(0.05, -0.08, 0)
+			/>
+	</Image>
+</Screen>

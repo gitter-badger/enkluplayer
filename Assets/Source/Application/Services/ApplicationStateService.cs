@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.States.HoloLogin;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -45,65 +44,12 @@ namespace CreateAR.SpirePlayer
             MessageTypeBinder binder,
             IMessageRouter messages,
             ApplicationConfig config,
-            
-            // flows
-            MobileLoginStateFlow mobileLoginFlow,
-            MobileGuestStateFlow mobileGuestFlow,
-            HmdStateFlow hmdFlow,
-            WebStateFlow webFlow,
-
-            // states
-            InitializeApplicationState initialize,
-            LoginApplicationState login,
-            HoloLoginApplicationState holoLogin,
-            SignOutApplicationState signOut,
-            GuestApplicationState guest,
-            OrientationApplicationState orientation,
-            MobileArSetupApplicationState mobileAr,
-            UserProfileApplicationState userProfile,
-            LoadAppApplicationState load,
-            LoadDefaultAppApplicationState loadDefault,
-            ReceiveAppApplicationState receive,
-            PlayApplicationState play,
-            BleSearchApplicationState ble,
-            InstaApplicationState insta,
-            // TODO: find a different pattern to do this
-#if NETFX_CORE
-            MeshCaptureApplicationState meshCapture,
-#endif
-            ToolModeApplicationState tools)
+            ApplicationStatePackage package)
             : base(binder, messages)
         {
-            _flows = new IStateFlow[]
-            {
-                mobileLoginFlow,
-                mobileGuestFlow,
-                webFlow,
-                hmdFlow
-            };
-            
             _config = config;
-            _fsm = new FiniteStateMachine(new IState[]
-            {
-                initialize,
-                login,
-                holoLogin,
-                signOut,
-                guest,
-                orientation,
-                mobileAr,
-                userProfile,
-                load,
-                loadDefault,
-                receive,
-                play,
-                ble,
-                insta,
-#if NETFX_CORE
-                meshCapture,
-#endif
-                tools
-            });
+            _fsm = new FiniteStateMachine(package.States);
+            _flows = package.Flows;
         }
 
         /// <inheritdoc />
@@ -206,6 +152,8 @@ namespace CreateAR.SpirePlayer
 
         /// <summary>
         /// Called when application initialized message is published.
+        /// 
+        /// TODO: Should be part of package.
         /// </summary>
         /// <param name="_">Void.</param>
         private void Messages_OnApplicationInitialized(Void _)

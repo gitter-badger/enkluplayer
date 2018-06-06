@@ -1,0 +1,33 @@
+<?Vine>
+
+<Container>
+	<Cursor />
+	<Float fov.reorient=0.5 face='camera' position=(0, -0.2, 2) focus.visible=false>
+		<Button id='btn-back' icon='arrow-left' ready.color='Negative' position=(-0.1, 0, 0) />
+		<Button id='btn-save' icon='save' />
+		<Toggle id='tgl-autosave' label='Auto Save (Experimental)' position=(0, -0.1, 0) />
+		<Button id='btn-options' visible=false icon='gear' position=(0.1, 0, 0) />
+		<Container id='ctn-options' visible=false>
+			<Select position=(0.1, 0.1, 0) >
+				<Option label='2 Seconds' value='2' />
+				<Option label='5 Seconds' value='5' />
+				<Option label='10 Seconds' value='10' />
+			</Select>
+		</Container>
+		<Caption
+			id='cpn-vertices'
+			label='0 vertices'
+			position=(0, -0.25, 0)
+			width=500.0
+			alignment='TopLeft'
+			fontSize=60 />
+		<Caption
+			id='cpn-meshes'
+			label='0 meshes'
+			position=(0, -0.35, 0)
+			width=500.0
+			alignment='TopLeft'
+			fontSize=60 />
+		
+	</Float>
+</Container>

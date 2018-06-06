@@ -2,7 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -61,6 +60,7 @@ namespace CreateAR.SpirePlayer
             _config = config;
             _handler = handler;
             _handler.OnHeartbeatRequested += Handler_OnSendPong;
+            _handler.OnTimeout += Handler_OnTimeout;
 
             messages.Subscribe(
                 MessageTypes.APPLICATION_SUSPEND,
@@ -181,6 +181,8 @@ namespace CreateAR.SpirePlayer
 
             _connectToken.Fail(new Exception("Socket closed."));
             _connectToken = null;
+
+            IsConnected = false;
         }
 
         /// <summary>
@@ -210,14 +212,34 @@ namespace CreateAR.SpirePlayer
 
             _socket.Send("40");
         }
-        
+
+        /// <summary>
+        /// Called when the connection times out.
+        /// </summary>
+        private void Handler_OnTimeout()
+        {
+            Log.Warning(this, "Network timeout.");
+
+            IsConnected = false;
+
+            if (null != _connectToken)
+            {
+                _connectToken.Fail(new Exception("Timed out."));
+                _connectToken = null;
+            }
+
+            ConnectSocket(_wsEndpoint);
+        }
+
         /// <summary>
         /// Called when the application is suspended.
         /// </summary>
         private void Messages_OnApplicationSuspend(object obj)
         {
             Log.Info(this, "App suspended, killing socket.");
-            
+
+            IsConnected = false;
+
             if (null != _socket)
             {
                 _socket.Close();

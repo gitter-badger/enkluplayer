@@ -2,7 +2,6 @@
 using System.Collections;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using Jint.Unity;
 using UnityEngine;
@@ -32,11 +31,6 @@ namespace CreateAR.SpirePlayer
         private readonly IBootstrapper _bootstrapper;
         
         /// <summary>
-        /// Messages.
-        /// </summary>
-        private readonly IMessageRouter _messages;
-
-        /// <summary>
         /// Resolves script requires.
         /// </summary>
         private readonly IScriptRequireResolver _resolver;
@@ -60,21 +54,21 @@ namespace CreateAR.SpirePlayer
         /// UI interface.
         /// </summary>
         private readonly IUIManager _ui;
+
+        /// <summary>
+        /// Connection.
+        /// </summary>
+        private readonly IConnection _connection;
+
+        /// <summary>
+        /// Status.
+        /// </summary>
+        private int _connectionStatusId = -1;
         
         /// <summary>
         /// Context for designer.
         /// </summary>
         private DesignerContext _context;
-
-        /// <summary>
-        /// Time at which state was entered.
-        /// </summary>
-        private DateTime _enterTime;
-
-        /// <summary>
-        /// True iff status has been cleared.
-        /// </summary>
-        private bool _statusCleared;
         
         /// <summary>
         /// Interrupt view id.
@@ -87,21 +81,21 @@ namespace CreateAR.SpirePlayer
         public PlayApplicationState(
             ApplicationConfig config,
             IBootstrapper bootstrapper,
-            IMessageRouter messages,
             IScriptRequireResolver resolver,
             IDesignController design,
             IAppController app,
             IArService ar,
-            IUIManager ui)
+            IUIManager ui,
+            IConnection connection)
         {
             _config = config;
             _bootstrapper = bootstrapper;
-            _messages = messages;
             _resolver = resolver;
             _design = design;
             _app = app;
             _ar = ar;
             _ui = ui;
+            _connection = connection;
         }
 
         /// <inheritdoc />
@@ -117,10 +111,7 @@ namespace CreateAR.SpirePlayer
             // watch tracking
             _ar.OnTrackingOffline += Ar_OnTrackingOffline;
             _ar.OnTrackingOnline += Ar_OnTrackingOnline;
-
-            _enterTime = DateTime.Now;
-            _statusCleared = false;
-
+            
             _resolver.Initialize(
 #if NETFX_CORE
                 // reference by hand
@@ -139,11 +130,21 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-            if (!_statusCleared
-                && DateTime.Now.Subtract(_enterTime).TotalSeconds > 5)
+            if (!_connection.IsConnected
+                && -1 == _connectionStatusId)
             {
-                _messages.Publish(MessageTypes.STATUS, "");
-                _statusCleared = true;
+                _ui
+                    .Open<IStatusView>(new UIReference
+                    {
+                        UIDataId = "Status.Connection"
+                    }, out _connectionStatusId)
+                    .OnFailure(exception => Log.Error(this, "Could not open connection status UI : {0}", exception));
+            }
+            else if (_connection.IsConnected
+                && -1 != _connectionStatusId)
+            {
+                _ui.Close(_connectionStatusId);
+                _connectionStatusId = -1;
             }
         }
 
@@ -164,6 +165,10 @@ namespace CreateAR.SpirePlayer
             
             // unload playmode scene
             SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(SCENE_NAME));
+
+            // close connection status
+            _ui.Close(_connectionStatusId);
+            _connectionStatusId = -1;
         }
 
         /// <summary>

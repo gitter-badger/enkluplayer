@@ -92,3 +92,7 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: e3bee189c5f3e034aac597483a57723f, type: 3}
   - Identifier: Design.MoveContent
     Source: {fileID: 4900000, guid: 5f4c3e53ba9c8114c8d3aad02d8559b6, type: 3}
+  - Identifier: Status.Connection
+    Source: {fileID: 4900000, guid: 5d475cf33519ca74b9b14421305b984e, type: 3}
+  - Identifier: MeshCapture.Splash
+    Source: {fileID: 4900000, guid: 48aac6e052255a542b68e29daf0c2a06, type: 3}

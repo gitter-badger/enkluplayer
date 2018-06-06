@@ -27,6 +27,28 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _overflowProp;
 
         /// <summary>
+        /// Gets/sets the label.
+        /// </summary>
+        public string Label
+        {
+            get
+            {
+                return null == _labelProp
+                    ? string.Empty
+                    : _labelProp.Value;
+            }
+            set
+            {
+                if (null == _labelProp)
+                {
+                    return;
+                }
+
+                _labelProp.Value = value;
+            }
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public CaptionWidget(

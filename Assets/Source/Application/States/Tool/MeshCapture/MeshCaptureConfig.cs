@@ -7,9 +7,15 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class MeshCaptureConfig : MonoBehaviour
     {
-        /// <summary>
-        /// Material to apply to surfaces.
-        /// </summary>
+        [Header("Rendering")]
+        [Tooltip("Material to apply to surface geometry.")]
         public Material SurfaceMaterial;
+
+        [Header("Mock Service")]
+        [Tooltip("Max milliseconds the mock servive should wait between generating new data.")]
+        public int MockGenerateMaxMillis = 750;
+
+        [Tooltip("Min milliseconds the mock servive should wait between generating new data.")]
+        public int MockGenerateMinMillis = 250;
     }
 }

@@ -27,9 +27,9 @@ namespace CreateAR.SpirePlayer
         public event Action OnEdit;
 
         /// <inheritdoc />
-        protected override void Awake()
+        protected override void AfterElementsCreated()
         {
-            base.Awake();
+            base.AfterElementsCreated();
 
             BtnBack.Activator.OnActivated += _ =>
             {
