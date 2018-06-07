@@ -93,7 +93,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void HideSplashMenu()
         {
-            _splashController.Root.Schema.Set("visible", false);
+            if (null != _splashController)
+            {
+                _splashController.Root.Schema.Set("visible", false);
+            }
         }
 
         /// <summary>
@@ -101,7 +104,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void ShowSplashMenu()
         {
-            _splashController.Root.Schema.Set("visible", true);
+            if (null != _splashController)
+            {
+                _splashController.Root.Schema.Set("visible", true);
+            }
         }
 
         /// <summary>
@@ -133,14 +139,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void InitializeSplashMenu()
         {
-            Log.Info(this, "{0}::InitializeSplashMenu() - {1}", Element.Id, gameObject.GetComponent<ContentSplashController>());
-
             _splashController = gameObject.AddComponent<ContentSplashController>();
-
-            Log.Info(this, "\t{0} - {1}",
-                Element.Id,
-                _splashController.BtnSplash);
-
             _splashController.OnOpen += Splash_OnOpen;
             _splashController.Initialize(Element.Schema.Get<string>("name").Value);
         }
@@ -154,8 +153,6 @@ namespace CreateAR.SpirePlayer
 
             Destroy(_splashController);
             _splashController = null;
-
-            Log.Info(this, "{0}::UninitializeSplashMenu()", Element.Id);
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>
