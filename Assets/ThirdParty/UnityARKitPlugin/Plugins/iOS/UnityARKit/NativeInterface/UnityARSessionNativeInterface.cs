@@ -536,27 +536,6 @@ namespace UnityEngine.XR.iOS {
 			}
 		}
 
-		private static void CreateRemoteFaceTrackingConnection(ARKitFaceTrackingConfiguration config, UnityARSessionRunOption runOptions)
-		{
-			GameObject go = new GameObject ("ARKitFaceTrackingRemoteConnection");
-			ARKitFaceTrackingRemoteConnection addComp = go.AddComponent<ARKitFaceTrackingRemoteConnection> ();
-			addComp.enableLightEstimation = config.enableLightEstimation;
-			addComp.resetTracking = (runOptions & UnityARSessionRunOption.ARSessionRunOptionResetTracking) != 0;
-			addComp.removeExistingAnchors = (runOptions & UnityARSessionRunOption.ARSessionRunOptionRemoveExistingAnchors) != 0;
-		}
-
-		private static void CreateRemoteWorldTrackingConnection(ARKitWorldTrackingSessionConfiguration config, UnityARSessionRunOption runOptions)
-		{
-			GameObject go = new GameObject ("ARKitWorldTrackingRemoteConnection");
-			ARKitRemoteConnection addComp = go.AddComponent<ARKitRemoteConnection> ();
-			addComp.planeDetection = config.planeDetection;
-			addComp.startAlignment = config.alignment;
-			addComp.getPointCloud = config.getPointCloudData;
-			addComp.enableLightEstimation = config.enableLightEstimation;
-			addComp.resetTracking = (runOptions & UnityARSessionRunOption.ARSessionRunOptionResetTracking) != 0;
-			addComp.removeExistingAnchors = (runOptions & UnityARSessionRunOption.ARSessionRunOptionRemoveExistingAnchors) != 0;
-		}
-
 #endif
 
         public Matrix4x4 GetCameraPose()
@@ -869,7 +848,7 @@ namespace UnityEngine.XR.iOS {
     #if !UNITY_EDITOR
             StartWorldTrackingSessionWithOptions (m_NativeARSession, config, runOptions);
     #else
-            CreateRemoteWorldTrackingConnection(config, runOptions);
+            
     #endif
 #endif
         }
@@ -880,8 +859,7 @@ namespace UnityEngine.XR.iOS {
     #if !UNITY_EDITOR
 	        StartWorldTrackingSession(m_NativeARSession, config);
     #else
-            UnityARSessionRunOption runOptions = UnityARSessionRunOption.ARSessionRunOptionRemoveExistingAnchors | UnityARSessionRunOption.ARSessionRunOptionResetTracking;
-		    CreateRemoteWorldTrackingConnection(config, runOptions);
+            
     #endif
 #endif
         }
@@ -911,7 +889,7 @@ namespace UnityEngine.XR.iOS {
     #if !UNITY_EDITOR
 		    StartFaceTrackingSessionWithOptions (m_NativeARSession, config, runOptions);
     #else
-            CreateRemoteFaceTrackingConnection(config, runOptions);
+            
     #endif
 #endif
         }
@@ -922,8 +900,7 @@ namespace UnityEngine.XR.iOS {
     #if !UNITY_EDITOR
 		    StartFaceTrackingSession(m_NativeARSession, config);
     #else
-            UnityARSessionRunOption runOptions = UnityARSessionRunOption.ARSessionRunOptionRemoveExistingAnchors | UnityARSessionRunOption.ARSessionRunOptionResetTracking;
-			CreateRemoteFaceTrackingConnection(config, runOptions);
+            
     #endif
 #endif
         }
