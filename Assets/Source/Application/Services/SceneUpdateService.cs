@@ -115,6 +115,11 @@ namespace CreateAR.SpirePlayer
                         action.Value = Parse<Col4>(valueString);
                         break;
                     }
+                    case ElementActionSchemaTypes.STRING:
+                    {
+                        action.Value = valueString;
+                        break;
+                    }
                     default:
                     {
                         Log.Error(this, "Removing invalid action: no SchemaType!");
