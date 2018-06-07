@@ -78,8 +78,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="message">The message.</param>
         private void PrepActions(SceneUpdateEvent message)
         {
-            foreach (var action in message.Actions)
+            for (var i = message.Actions.Length - 1; i >= 0; i--)
             {
+                var action = message.Actions[i];
                 if (null == action.Value)
                 {
                     continue;
@@ -112,6 +113,12 @@ namespace CreateAR.SpirePlayer
                     case ElementActionSchemaTypes.COL4:
                     {
                         action.Value = Parse<Col4>(valueString);
+                        break;
+                    }
+                    default:
+                    {
+                        Log.Error(this, "Removing invalid action: no SchemaType!");
+                        message.Actions = message.Actions.Remove(action);
                         break;
                     }
                 }
