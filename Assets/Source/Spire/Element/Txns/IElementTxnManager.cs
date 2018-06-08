@@ -12,10 +12,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes the manager for an app.
         /// </summary>
-        /// <param name="appId">The id of the app.</param>
-        /// <param name="scenes">Manages scene elements.</param>
+        /// <param name="configuration">Contains values for how to configure the manager.</param>
         /// <returns></returns>
-        IAsyncToken<Void> Initialize(string appId, IAppSceneManager scenes);
+        IAsyncToken<Void> Initialize(AppTxnConfiguration configuration);
 
         /// <summary>
         /// Unintializes the manager.
