@@ -13,9 +13,9 @@ namespace CreateAR.SpirePlayer
     public class ElementTxnManager : IElementTxnManager
     {
         /// <summary>
-        /// Transport implementation.
+        /// Authenticates txns.
         /// </summary>
-        private readonly IElementTxnTransport _transport;
+        private readonly IAppTxnAuthenticator _authenticator;
         
         /// <summary>
         /// Creates strategies.
@@ -46,29 +46,35 @@ namespace CreateAR.SpirePlayer
         /// Manages scenes.
         /// </summary>
         private IAppSceneManager _scenes;
-        
+
+        /// <summary>
+        /// Configuration for current app.
+        /// </summary>
+        private AppTxnConfiguration _configuration;
+
         /// <summary>
         /// Constructor.
         /// </summary>
         public ElementTxnManager(
-            IElementTxnTransport transport,
+            IAppTxnAuthenticator authenticator,
             IElementActionStrategyFactory strategyFactory,
             IElementTxnStoreFactory storeFactory)
         {
-            _transport = transport;
+            _authenticator = authenticator;
             _strategyFactory = strategyFactory;
             _storeFactory = storeFactory;
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Initialize(string appId, IAppSceneManager scenes)
+        public IAsyncToken<Void> Initialize(AppTxnConfiguration configuration)
         {
-            _appId = appId;
-            _scenes = scenes;
+            _configuration = configuration;
+            _appId = configuration.AppId;
+            _scenes = configuration.Scenes;
             
-            foreach (var sceneId in scenes.All)
+            foreach (var sceneId in _scenes.All)
             {
-                var root = scenes.Root(sceneId);
+                var root = _scenes.Root(sceneId);
                 var store = _storeFactory.Instance(_strategyFactory.Instance(root));
 
                 _stores[sceneId] = store;
@@ -127,26 +133,40 @@ namespace CreateAR.SpirePlayer
                 _txnIds.RemoveAt(0);
             }
 
-            _transport
-                .Request(txn.Id, _appId, txn.SceneId, txn.Actions.ToArray())
-                .OnSuccess(_ =>
-                {
-                    store.Commit(txn.Id);
+            // require txn to be authenticated
+            if (_configuration.AuthenticateTxns)
+            {
+                _authenticator
+                    .Request(txn.Id, _appId, txn.SceneId, txn.Actions.ToArray())
+                    .OnSuccess(_ =>
+                    {
+                        store.Commit(txn.Id);
 
-                    // add created elements
-                    AddAffectedElements(txn, elementResponse, ElementActionTypes.CREATE);
+                        // add created elements
+                        AddAffectedElements(txn, elementResponse, ElementActionTypes.CREATE);
 
-                    token.Succeed(elementResponse);
-                })
-                .OnFailure(exception =>
-                {
-                    // rollback txn
-                    store.Rollback(txn.Id);
+                        token.Succeed(elementResponse);
+                    })
+                    .OnFailure(exception =>
+                    {
+                        // rollback txn
+                        store.Rollback(txn.Id);
 
-                    token.Fail(new Exception(string.Format(
-                        "Error sending element txn : {0}.",
-                        exception)));
-                });
+                        token.Fail(new Exception(string.Format(
+                            "Error sending element txn : {0}.",
+                            exception)));
+                    });
+            }
+            // no authentication required
+            else
+            {
+                store.Commit(txn.Id);
+
+                // add created elements
+                AddAffectedElements(txn, elementResponse, ElementActionTypes.CREATE);
+
+                token.Succeed(elementResponse);
+            }
 
             return token;
         }

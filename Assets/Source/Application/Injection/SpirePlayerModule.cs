@@ -104,7 +104,9 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IStorageWorker>().To<StorageWorker>().ToSingleton();
                 binder.Bind<IStorageService>().To<StorageService>().ToSingleton();
                 binder.Bind<IElementActionStrategyFactory>().To<ElementActionStrategyFactory>();
+                
                 binder.Bind<IElementTxnTransport>().To<HttpElementTxnTransport>();
+                binder.Bind<IAppTxnAuthenticator>().To<HttpAppTxnAuthenticator>();
                 binder.Bind<IElementTxnStoreFactory>().To<ElementTxnStoreFactory>();
                 binder.Bind<IAppSceneManager>().To<AppSceneManager>().ToSingleton();
                 binder.Bind<IAppDataLoader>().To<AppDataLoader>().ToSingleton();

@@ -1,8 +1,6 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Trellis.Messages;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -15,21 +13,13 @@ namespace CreateAR.SpirePlayer
         /// Api.
         /// </summary>
         private readonly ApiController _api;
-
-        /// <summary>
-        /// Makes Http services.
-        /// </summary>
-        private readonly IHttpService _http;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
-        public HttpElementTxnTransport(
-            ApiController api,
-            IHttpService http)
+        public HttpElementTxnTransport(ApiController api)
         {
             _api = api;
-            _http = http;
         }
 
         /// <inheritdoc />
@@ -69,37 +59,6 @@ namespace CreateAR.SpirePlayer
                     if (response.Payload.Success)
                     {
                         token.Succeed(response.Payload);
-                    }
-                    else
-                    {
-                        token.Fail(new Exception(response.Payload.Error));
-                    }
-                })
-                .OnFailure(token.Fail);
-
-            return token;
-        }
-
-        /// <inheritdoc />
-        public IAsyncToken<Void> Request(int id, string appId, string sceneId, ElementActionData[] actions)
-        {
-            var token = new AsyncToken<Void>();
-
-            _http
-                .Put<ElementTxnResponse>(
-                    _http.Urls.Url(string.Format(
-                        "trellis://editor/app/{0}/scene/{1}",
-                        appId,
-                        sceneId)),
-                    new ElementTxnRequest(id)
-                    {
-                        Actions = actions
-                    })
-                .OnSuccess(response =>
-                {
-                    if (response.Payload.Success)
-                    {
-                        token.Succeed(Void.Instance);
                     }
                     else
                     {

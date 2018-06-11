@@ -27,6 +27,11 @@ namespace CreateAR.SpirePlayer
         private readonly IElementTxnManager _txns;
 
         /// <summary>
+        /// Connection to trellis.
+        /// </summary>
+        private readonly IConnection _connection;
+
+        /// <summary>
         /// True iff the app has been loaded.
         /// </summary>
         private bool _isLoaded;
@@ -46,11 +51,13 @@ namespace CreateAR.SpirePlayer
         public AppController(
             IAppDataLoader loader,
             IAppSceneManager scenes,
-            IElementTxnManager txns)
+            IElementTxnManager txns,
+            IConnection connection)
         {
             _loader = loader;
             _scenes = scenes;
             _txns = txns;
+            _connection = connection;
         }
         
         /// <inheritdoc />
@@ -92,7 +99,12 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(_ =>
                 {
                     _txns
-                        .Initialize(Id, _scenes)
+                        .Initialize(new AppTxnConfiguration
+                        {
+                            AppId = Id,
+                            Scenes =_scenes,
+                            AuthenticateTxns = _connection.IsConnected
+                        })
                         .OnSuccess(__ => Log.Info(this, "Txns initialized."))
                         .OnFailure(exception => Log.Error(this, "Could not initialize txns : {0}.", exception));
                 })

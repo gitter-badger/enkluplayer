@@ -174,14 +174,10 @@ namespace CreateAR.SpirePlayer
             
             if (context.Edit)
             {
-                if (_connection.IsConnected)
-                {
-                    SetupEdit();
-                }
-                else
-                {
-                    SetupPlay();
+                SetupEdit();
 
+                if (!_connection.IsConnected)
+                {
                     ShowOfflineModeNotice();
                 }
             }
@@ -398,8 +394,7 @@ namespace CreateAR.SpirePlayer
                     out id)
                 .OnSuccess(el =>
                 {
-                    el.Message =
-                        "You appear to be offline. Edit mode will be disabled.";
+                    el.Message = "You appear to be offline. Any edits to the scene will be discarded.";
                     el.Action = "Got it";
                     el.OnOk += () => _ui.Pop();
                 });
