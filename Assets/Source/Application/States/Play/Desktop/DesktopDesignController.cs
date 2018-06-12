@@ -213,6 +213,8 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            Log.Info(this, "Selecting {0}.", unityElement.GameObject);
+            
             EditorObjectSelection.Instance.ClearSelection(false);
             EditorObjectSelection.Instance.SetSelectedObjects(
                 new List<GameObject>{ unityElement.GameObject },

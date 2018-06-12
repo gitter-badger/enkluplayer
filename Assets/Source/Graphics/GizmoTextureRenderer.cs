@@ -30,7 +30,7 @@ namespace CreateAR.SpirePlayer
                         screen.x - ScreenSize.x / 2f,
                         screen.y - ScreenSize.y / 2f,
                         ScreenSize.x,
-                        ScreenSize.y),
+                        -ScreenSize.y),
                     Texture);
             }
             GL.PopMatrix();
