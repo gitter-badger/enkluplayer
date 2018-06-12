@@ -23,6 +23,11 @@ namespace CreateAR.SpirePlayer
         bool CanDelete { get; }
 
         /// <summary>
+        /// Retrieves the object that manages the app's scenes.
+        /// </summary>
+        IAppSceneManager Scenes { get; }
+
+        /// <summary>
         /// Loads the app.
         /// </summary>
         /// <param name="appId">The id of the app.</param>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using RTEditor;
@@ -35,6 +36,16 @@ namespace CreateAR.SpirePlayer
         private readonly IBridge _bridge;
 
         /// <summary>
+        /// Http.
+        /// </summary>
+        private readonly IHttpService _http;
+
+        /// <summary>
+        /// Imports meshes.
+        /// </summary>
+        private readonly MeshImporter _importer;
+
+        /// <summary>
         /// Main camera.
         /// </summary>
         private readonly Camera _mainCamera;
@@ -50,6 +61,17 @@ namespace CreateAR.SpirePlayer
         private GameObject _runtimeGizmos;
 
         /// <summary>
+        /// GameObject for mesh capture.
+        /// </summary>
+        private GameObject _meshCaptureGameObject;
+
+        private ElementSchemaProp<string> _meshCaptureUrlProp;
+        private ElementSchemaProp<float> _ambientIntensityProp;
+        private ElementSchemaProp<string> _ambientColorProp;
+        private ElementSchemaProp<bool> _ambientEnabledProp;
+        private IAsyncToken<HttpResponse<byte[]>> _meshDownload;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public DesktopDesignController(
@@ -57,12 +79,16 @@ namespace CreateAR.SpirePlayer
             IElementControllerManager controllers,
             IAppSceneManager scenes,
             IBridge bridge,
+            IHttpService http,
+            MeshImporter importer,
             MainCamera mainCamera)
         {
             _elements = elements;
             _controllers = controllers;
             _scenes = scenes;
             _bridge = bridge;
+            _http = http;
+            _importer = importer;
             _mainCamera = mainCamera.GetComponent<Camera>();
         }
 
@@ -71,24 +97,52 @@ namespace CreateAR.SpirePlayer
         {
             _runtimeGizmos = Object.Instantiate(context.PlayConfig.RuntimeGizmoSystem);
 
-            var selectionSettings = _runtimeGizmos.GetComponentInChildren<EditorObjectSelection>().ObjectSelectionSettings;
-            selectionSettings.CanSelectSpriteObjects = false;
-            selectionSettings.CanSelectEmptyObjects = true;
+            // setup gizmos
+            {
+                var selectionSettings = _runtimeGizmos.GetComponentInChildren<EditorObjectSelection>().ObjectSelectionSettings;
+                selectionSettings.CanSelectSpriteObjects = false;
+                selectionSettings.CanSelectEmptyObjects = true;
 
-            _runtimeGizmos.GetComponentInChildren<SceneGizmo>().Corner = SceneGizmoCorner.BottomRight;
+                _runtimeGizmos.GetComponentInChildren<SceneGizmo>().Corner = SceneGizmoCorner.BottomRight;
 
-            _mainCamera.enabled = false;
+                _mainCamera.enabled = false;
 
-            var camera = _runtimeGizmos.GetComponentInChildren<Camera>();
-            camera.transform.LookAt(Vector3.zero);
+                var camera = _runtimeGizmos.GetComponentInChildren<Camera>();
+                camera.transform.LookAt(Vector3.zero);
+            }
 
-            _controllers.Active = true;
-            _controllers
-                .Filter(_contentFilter)
-                .Add<DesktopContentDesignController>(new DesktopContentDesignController.DesktopContentDesignControllerContext
-                {
-                    Delegate = _elements
-                });
+            // setup controllers
+            {
+                _controllers.Active = true;
+                _controllers
+                    .Filter(_contentFilter)
+                    .Add<DesktopContentDesignController>(new DesktopContentDesignController.DesktopContentDesignControllerContext
+                    {
+                        Delegate = _elements
+                    });
+            }
+
+            //  setup property watching
+            var sceneId = app.Scenes.All[0];
+            var sceneRoot = app.Scenes.Root(sceneId);
+            if (null == sceneRoot)
+            {
+                Log.Warning(this, "Could not find root element for scene {0}.", sceneId);
+            }
+            else
+            {
+                _meshCaptureUrlProp = sceneRoot.Schema.Get<string>("meshcapture.relUrl");
+                _meshCaptureUrlProp.OnChanged += MeshCapture_OnChanged;
+                UpdateMeshCapture();
+
+                _ambientEnabledProp = sceneRoot.Schema.Get<bool>("ambient.enabled");
+                _ambientEnabledProp.OnChanged += AmbientEnabled_OnChanged;
+                _ambientColorProp = sceneRoot.Schema.Get<string>("ambient.color");
+                _ambientColorProp.OnChanged += AmbientColor_OnChanged;
+                _ambientIntensityProp = sceneRoot.Schema.Get<float>("ambient.intensity");
+                _ambientIntensityProp.OnChanged += AmbientIntensity_OnChanged;
+                UpdateAmbientLighting();
+            }
 
             EditorObjectSelection.Instance.SelectionChanged += Editor_OnSelectionChanged;
         }
@@ -96,7 +150,24 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Teardown()
         {
+            if (null != _meshDownload)
+            {
+                _meshDownload.Abort();
+                _meshDownload = null;
+            }
+
+            if (_meshCaptureGameObject)
+            {
+                Object.Destroy(_meshCaptureGameObject);
+                _meshCaptureGameObject = null;
+            }
+
             EditorObjectSelection.Instance.SelectionChanged -= Editor_OnSelectionChanged;
+
+            _meshCaptureUrlProp.OnChanged -= MeshCapture_OnChanged;
+            _ambientEnabledProp.OnChanged -= AmbientEnabled_OnChanged;
+            _ambientColorProp.OnChanged -= AmbientColor_OnChanged;
+            _ambientIntensityProp.OnChanged -= AmbientIntensity_OnChanged;
 
             _controllers
                 .Remove<DesktopContentDesignController>()
@@ -149,6 +220,73 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Updates ambient lighting settings.
+        /// </summary>
+        private void UpdateAmbientLighting()
+        {
+            var enabled = _ambientEnabledProp.Value;
+            var hex = _ambientColorProp.Value;
+            var intensity = _ambientIntensityProp.Value;
+
+            Color color;
+            if (!ColorFromHex(hex, out color))
+            {
+                Log.Warning(this, "Invalid ambient color '{0}' could't be parsed.", hex);
+            }
+
+            RenderSettings.ambientLight = enabled
+                ? color
+                : Color.black;
+            RenderSettings.ambientIntensity = intensity;
+        }
+
+        /// <summary>
+        /// Updates mesh capture settings.
+        /// </summary>
+        private void UpdateMeshCapture()
+        {
+            if (null != _meshDownload)
+            {
+                _meshDownload.Abort();
+            }
+
+            var url = _http.Urls.Url("meshcapture://" + _meshCaptureUrlProp.Value);
+
+            Log.Info(this, "UpdateMeshCapture({0}) -> {1}", _meshCaptureUrlProp.Value, url);
+
+            // download
+            _meshDownload = _http
+                .Download(url)
+                .OnSuccess(response =>
+                {
+                    if (null != _meshCaptureGameObject)
+                    {
+                        Object.Destroy(_meshCaptureGameObject);
+                    }
+
+                    _meshCaptureGameObject = new GameObject("MeshCapture");
+
+                    // import
+                    _importer.Import(response.Payload, (exception, action) =>
+                    {
+                        if (null != exception)
+                        {
+                            Log.Error(this, "Could not import mesh : {0}", exception);
+                            return;
+                        }
+
+                        if (null == _meshCaptureGameObject)
+                        {
+                            return;
+                        }
+
+                        action(_meshCaptureGameObject);
+                    });
+                })
+                .OnFailure(exception => Log.Error(this, "Could not download mesh capture : {0}", exception));
+        }
+
+        /// <summary>
         /// Called when the selection has changed.
         /// </summary>
         /// <param name="args">Event args.</param>
@@ -197,6 +335,82 @@ namespace CreateAR.SpirePlayer
                     @"{{""type"":{0}}}",
                     MessageTypes.BRIDGE_HELPER_SELECT));
             }
+        }
+
+        /// <summary>
+        /// Called when ambient intensity changes.
+        /// </summary>
+        private void AmbientIntensity_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            UpdateAmbientLighting();
+        }
+
+        /// <summary>
+        /// Called when ambient color changes.
+        /// </summary>
+        private void AmbientColor_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            UpdateAmbientLighting();
+        }
+
+        /// <summary>
+        /// Called when ambient enabled changes.
+        /// </summary>
+        private void AmbientEnabled_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            UpdateAmbientLighting();
+        }
+
+        /// <summary>
+        /// Called when mesh capture has changed.
+        /// </summary>
+        private void MeshCapture_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            UpdateMeshCapture();
+        }
+
+        /// <summary>
+        /// Converts a color from hex to Color representation
+        /// </summary>
+        /// <param name="hex">The hex value.</param>
+        /// <param name="color">The output Color.</param>
+        /// <returns>True iff the hex value was valid.</returns>
+        private static bool ColorFromHex(string hex, out Color color)
+        {
+            hex = hex.Trim('#');
+            if (hex.Length != 6)
+            {
+                color = Color.black;
+                return false;
+            }
+
+            int r, g, b;
+            try
+            {
+                r = Convert.ToInt32(hex.Substring(0, 2), 16);
+                g = Convert.ToInt32(hex.Substring(2, 2), 16);
+                b = Convert.ToInt32(hex.Substring(4, 2), 16);
+            }
+            catch
+            {
+                color = Color.black;
+                return false;
+            }
+
+            color = new Color(r / 256f, g / 256f, b / 256f);
+            return true;
         }
     }
 }
