@@ -1,36 +1,31 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
+using RTEditor;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Content controller for desktop designer.
+    /// Piushes positional updates through to the delegate.
     /// </summary>
-    public class DesktopContentDesignController : ElementDesignController
+    public class ElementUpdateMonobehaviour : MonoBehaviour, IRTEditorEventListener
     {
-        /// <summary>
-        /// Context for this type of controller.
-        /// </summary>
-        public class DesktopContentDesignControllerContext
-        {
-            /// <summary>
-            /// The delegate to push updates to.
-            /// </summary>
-            public IElementUpdateDelegate Delegate;
-        }
-
         /// <summary>
         /// Constants.
         /// </summary>
         private const float EPSILON = 0.05f;
         private const float TIME_EPSILON = 0.1f;
-
-        /// <summary>
-        /// The context passed in.
-        /// </summary>
-        private DesktopContentDesignControllerContext _context;
         
+        /// <summary>
+        /// The delegate to push updates to.
+        /// </summary>
+        private IElementUpdateDelegate _delegate;
+        
+        /// <summary>
+        /// The element to watch.
+        /// </summary>
+        private Element _element;
+
         /// <summary>
         /// Time of last finalize.
         /// </summary>
@@ -52,48 +47,51 @@ namespace CreateAR.SpirePlayer
         private ElementSchemaProp<Vec3> _positionProp;
         private ElementSchemaProp<Vec3> _rotationProp;
         private ElementSchemaProp<Vec3> _scaleProp;
-
-        /// <inheritdoc />
-        public override void Initialize(Element element, object context)
-        {
-            base.Initialize(element, context);
-
-            _context = (DesktopContentDesignControllerContext) context;
-
-            _positionProp = Element.Schema.Get<Vec3>("position");
-            _rotationProp = Element.Schema.Get<Vec3>("rotation");
-            _scaleProp = Element.Schema.Get<Vec3>("scale");
-        }
-
-        /// <inheritdoc />
-        public override void Uninitialize()
-        {
-            base.Uninitialize();
-            
-            _updatesEnabled = false;
-        }
         
         /// <summary>
-        /// Disables pushing updates to schema.
+        /// Preps the behaviour.
         /// </summary>
-        public void DisableUpdates()
+        /// <param name="element">The element.</param>
+        /// <param name="delegate">The delegate to push updates to.</param>
+        public void Initialize(Element element, IElementUpdateDelegate @delegate)
+        {
+            _element = element;
+            _delegate = @delegate;
+            
+            _positionProp = element.Schema.Get<Vec3>("position");
+            _rotationProp = element.Schema.Get<Vec3>("rotation");
+            _scaleProp = element.Schema.Get<Vec3>("scale");
+        }
+
+        /// <inheritdoc />
+        public bool OnCanBeSelected(ObjectSelectEventArgs selectEventArgs)
+        {
+            return true;
+        }
+
+        /// <inheritdoc />
+        public void OnSelected(ObjectSelectEventArgs selectEventArgs)
+        {
+            _updatesEnabled = true;
+        }
+
+        /// <inheritdoc />
+        public void OnDeselected(ObjectDeselectEventArgs deselectEventArgs)
         {
             FinalizeState();
             _updatesEnabled = false;
         }
 
-        /// <summary>
-        /// Enables pushing updates to schema.
-        /// </summary>
-        public void EnableUpdates()
+        /// <inheritdoc />
+        public void OnAlteredByTransformGizmo(Gizmo gizmo)
         {
-            _updatesEnabled = true;
+            // 
         }
-
+        
         /// <summary>
         /// Pushes a final, exact state.
         /// </summary>
-        public void FinalizeState()
+        private void FinalizeState()
         {
             UpdateDelegate(float.Epsilon);
         }
@@ -130,7 +128,7 @@ namespace CreateAR.SpirePlayer
                 {
                     _positionProp.Value = trans.localPosition.ToVec();
 
-                    _context.Delegate.Update(Element, "position", _positionProp.Value);
+                    _delegate.Update(_element, "position", _positionProp.Value);
 
                     _isDirty = true;
                 }
@@ -144,7 +142,7 @@ namespace CreateAR.SpirePlayer
                 {
                     _rotationProp.Value = trans.localRotation.eulerAngles.ToVec();
 
-                    _context.Delegate.Update(Element, "rotation", _rotationProp.Value);
+                    _delegate.Update(_element, "rotation", _rotationProp.Value);
 
                     _isDirty = true;
                 }
@@ -158,7 +156,7 @@ namespace CreateAR.SpirePlayer
                 {
                     _scaleProp.Value = trans.localScale.ToVec();
 
-                    _context.Delegate.Update(Element, "scale", _scaleProp.Value);
+                    _delegate.Update(_element, "scale", _scaleProp.Value);
 
                     _isDirty = true;
                 }
@@ -169,7 +167,7 @@ namespace CreateAR.SpirePlayer
                 _isDirty = false;
                 _lastFinalize = DateTime.Now;
 
-                _context.Delegate.FinalizeUpdate(Element);
+                _delegate.FinalizeUpdate(_element);
             }
         }
     }

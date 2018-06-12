@@ -69,6 +69,16 @@ namespace CreateAR.SpirePlayer
                 Log.Error(this, "Invalid trellis URL : " + env.TrellisUrl);
             }
 
+            var meshCaptureFormatter = new LoggedUrlFormatter();
+            if (!meshCaptureFormatter.FromUrl(env.TrellisUrl))
+            {
+                Log.Error(this, "Invalid trellis URL : " + env.TrellisUrl);
+            }
+            else
+            {
+                meshCaptureFormatter.Version = "";
+            }
+
             var assetsFormatter = new LoggedUrlFormatter();
             if (!assetsFormatter.FromUrl(env.BundlesUrl))
             {
@@ -83,6 +93,7 @@ namespace CreateAR.SpirePlayer
 
             var urls = _http.Urls;
             urls.Register("trellis", trellisFormatter);
+            urls.Register("meshcapture", meshCaptureFormatter);
             urls.Register("assets", assetsFormatter);
             urls.Register("thumbs", thumbsFormatter);
 

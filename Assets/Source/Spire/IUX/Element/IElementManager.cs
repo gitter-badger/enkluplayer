@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Retrieves all elements.
         /// </summary>
         ReadOnlyCollection<Element> All { get; }
-        
+
         /// <summary>
         /// Adds an element.
         /// </summary>

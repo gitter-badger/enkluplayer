@@ -49,7 +49,10 @@ namespace CreateAR.SpirePlayer.Vine
             Commons.Unity.DataStructures.Tuple.Create("Option", ElementTypes.OPTION),
             Commons.Unity.DataStructures.Tuple.Create("OptionGroup", ElementTypes.OPTION_GROUP),
             Commons.Unity.DataStructures.Tuple.Create("Content", ElementTypes.CONTENT),
+            Commons.Unity.DataStructures.Tuple.Create("Light", ElementTypes.LIGHT),
             Commons.Unity.DataStructures.Tuple.Create("ScaleTransition", ElementTypes.TRANSITION_SCALE),
+            Commons.Unity.DataStructures.Tuple.Create("WorldAnchor", ElementTypes.WORLD_ANCHOR),
+            Commons.Unity.DataStructures.Tuple.Create("QrAnchor", ElementTypes.QR_ANCHOR),
         };
 
         /// <summary>

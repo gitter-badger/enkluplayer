@@ -74,6 +74,8 @@ namespace CreateAR.SpirePlayer
 
 #if NETFX_CORE
             Windows.System.Threading.ThreadPool.RunAsync(_ => Process(state));
+#elif UNITY_WEBGL
+            Process(state);
 #else
             ThreadPool.QueueUserWorkItem(
                 Process,
@@ -139,7 +141,7 @@ namespace CreateAR.SpirePlayer
                         {
                             var child = new GameObject();
                             child.transform.parent = gameObject.transform;
-                            child.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Standard (Specular setup)"));
+                            child.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Mobile/Diffuse"));
 
                             ApplyMesh(child, mesh);
                         }

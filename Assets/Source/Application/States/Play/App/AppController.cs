@@ -45,6 +45,12 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public bool CanDelete { get; private set; }
 
+        /// <inheritdoc />
+        public IAppSceneManager Scenes
+        {
+            get { return _scenes; }
+        }
+
         /// <summary>
         /// Constructor.
         /// </summary>

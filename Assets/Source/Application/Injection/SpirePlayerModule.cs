@@ -502,6 +502,7 @@ namespace CreateAR.SpirePlayer
                 {
                     case PlayAppConfig.DesignerType.Desktop:
                     {
+                        binder.Bind<MeshImporter>().To<MeshImporter>().ToSingleton();
                         binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
                         break;
                     }

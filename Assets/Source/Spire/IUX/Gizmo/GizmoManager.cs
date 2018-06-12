@@ -9,9 +9,10 @@ namespace CreateAR.SpirePlayer.IUX
     public class GizmoManager : InjectableMonoBehaviour, IGizmoManager
     {
         /// <summary>
-        /// MonoBehaviour for QrAnchor.
+        /// MonoBehaviours.
         /// </summary>
         public MonoBehaviourGizmoRenderer QrAnchor;
+        public MonoBehaviourGizmoRenderer Light;
 
         /// <inheritdoc />
         public void Track(Element element)
@@ -38,6 +39,11 @@ namespace CreateAR.SpirePlayer.IUX
             if (typeof(QrAnchorWidget) == type)
             {
                 return Instantiate(QrAnchor);
+            }
+
+            if (typeof(LightWidget) == type)
+            {
+                return Instantiate(Light);
             }
 
             return null;
