@@ -252,13 +252,15 @@ namespace CreateAR.SpirePlayer
 
             var url = _http.Urls.Url("meshcapture://" + _meshCaptureUrlProp.Value);
 
-            Log.Info(this, "UpdateMeshCapture({0}) -> {1}", _meshCaptureUrlProp.Value, url);
+            Log.Info(this, "Downloading mesh capture from {0}...", url);
 
             // download
             _meshDownload = _http
                 .Download(url)
                 .OnSuccess(response =>
                 {
+                    Log.Info(this, "Mesh capture download complete. Starting import.");
+
                     if (null != _meshCaptureGameObject)
                     {
                         Object.Destroy(_meshCaptureGameObject);
@@ -279,6 +281,8 @@ namespace CreateAR.SpirePlayer
                         {
                             return;
                         }
+
+                        Log.Info(this, "Import complete. Constructing mesh.");
 
                         action(_meshCaptureGameObject);
                     });
