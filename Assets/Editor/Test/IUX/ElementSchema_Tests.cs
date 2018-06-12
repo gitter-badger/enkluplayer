@@ -571,5 +571,23 @@ namespace CreateAR.SpirePlayer.Test.UI
 
             Assert.IsFalse(called);
         }
+
+        [Test]
+        public void GetOwnUpdate()
+        {
+            var called = false;
+
+            var a = new ElementSchema();
+            a.GetOwn("foo", "a").OnChanged += (_, __, next) =>
+            {
+                called = true;
+                
+                Assert.AreEqual(next, "b");
+            };
+            
+            a.Set("foo", "b");
+
+            Assert.IsTrue(called);
+        }
     }
 }

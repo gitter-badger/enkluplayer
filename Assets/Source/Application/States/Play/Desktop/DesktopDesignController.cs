@@ -333,12 +333,6 @@ namespace CreateAR.SpirePlayer
                     _scenes.All[0],
                     selected.Element.Id));
             }
-            else
-            {
-                _bridge.Send(string.Format(
-                    @"{{""type"":{0}}}",
-                    MessageTypes.BRIDGE_HELPER_SELECT));
-            }
         }
 
         /// <summary>

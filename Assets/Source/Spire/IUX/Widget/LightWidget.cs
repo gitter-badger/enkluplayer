@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -38,14 +39,14 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        protected override void LoadInternalAfterChildren()
+        protected override void LoadInternalBeforeChildren() 
         {
-            base.LoadInternalAfterChildren();
-
+            base.LoadInternalBeforeChildren();
+            
             _light = GameObject.AddComponent<Light>();
 
             // determines light type
-            _typeProp = Schema.GetOwn("type", LightType.Directional.ToString());
+            _typeProp = Schema.GetOwn("lightType", LightType.Directional.ToString());
             
             // common
             _intensityProp = Schema.GetOwn("intensity", 1f);
@@ -70,9 +71,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        protected override void UpdateInternal()
+        protected override void UnloadInternalAfterChildren()
         {
-            base.UpdateInternal();
+            base.UnloadInternalAfterChildren();
             
             _typeProp.OnChanged -= Type_OnChanged;
             _intensityProp.OnChanged -= Intensity_OnChanged;
@@ -80,12 +81,6 @@ namespace CreateAR.SpirePlayer.IUX
             _colorProp.OnChanged -= Color_OnChanged;
             _rangeProp.OnChanged -= Range_OnChanged;
             _spotAngleProp.OnChanged -= SpotAngle_OnChanged;
-        }
-
-        /// <inheritdoc />
-        protected override void UnloadInternalBeforeChildren()
-        {
-            base.UnloadInternalBeforeChildren();
             
             Object.Destroy(_light);
             _light = null;
@@ -158,6 +153,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private static LightType ToLightType(string value)
         {
+            Log.Info(null, "ToLightType({0})", value);
             try
             {
                 return (LightType) Enum.Parse(typeof(LightType), value);
