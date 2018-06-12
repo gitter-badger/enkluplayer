@@ -18,13 +18,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Elements.
         /// </summary>
-        private readonly IElementUpdateDelegate _elements;
-
-        /// <summary>
-        /// Manages element controllers.
-        /// </summary>
-        private readonly IElementControllerManager _controllers;
+        private readonly IElementUpdateDelegate _elementUpdater;
         
+        /// <summary>
+        /// Manages elements.
+        /// </summary>
+        private readonly IElementManager _elements;
+
         /// <summary>
         /// Manages app scenes.
         /// </summary>
@@ -70,21 +70,21 @@ namespace CreateAR.SpirePlayer
         private ElementSchemaProp<string> _ambientColorProp;
         private ElementSchemaProp<bool> _ambientEnabledProp;
         private IAsyncToken<HttpResponse<byte[]>> _meshDownload;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
         public DesktopDesignController(
-            IElementUpdateDelegate elements,
-            IElementControllerManager controllers,
+            IElementUpdateDelegate elementUpdater,
+            IElementManager elements,
             IAppSceneManager scenes,
             IBridge bridge,
             IHttpService http,
             MeshImporter importer,
             MainCamera mainCamera)
         {
+            _elementUpdater = elementUpdater;
             _elements = elements;
-            _controllers = controllers;
             _scenes = scenes;
             _bridge = bridge;
             _http = http;
@@ -111,26 +111,24 @@ namespace CreateAR.SpirePlayer
                 camera.transform.LookAt(Vector3.zero);
             }
 
-            // setup controllers
+            // setup updates
             {
-                _controllers.Active = true;
-                _controllers
-                    .Filter(_contentFilter)
-                    .Add<DesktopContentDesignController>(new DesktopContentDesignController.DesktopContentDesignControllerContext
-                    {
-                        Delegate = _elements
-                    });
+                var scenes = app.Scenes.All;
+                for (var i = 0; i < scenes.Length; i++)
+                {
+                    var id = scenes[i];
+                    var root = app.Scenes.Root(id);
+                    root.OnChildAdded += Root_OnChildAdded;
+
+                    RecursivelyAddUpdater(root);
+                }
             }
 
             //  setup property watching
-            var sceneId = app.Scenes.All[0];
-            var sceneRoot = app.Scenes.Root(sceneId);
-            if (null == sceneRoot)
             {
-                Log.Warning(this, "Could not find root element for scene {0}.", sceneId);
-            }
-            else
-            {
+                var sceneId = app.Scenes.All[0];
+                var sceneRoot = app.Scenes.Root(sceneId);
+                
                 _meshCaptureUrlProp = sceneRoot.Schema.Get<string>("meshcapture.relUrl");
                 _meshCaptureUrlProp.OnChanged += MeshCapture_OnChanged;
                 UpdateMeshCapture();
@@ -168,11 +166,6 @@ namespace CreateAR.SpirePlayer
             _ambientEnabledProp.OnChanged -= AmbientEnabled_OnChanged;
             _ambientColorProp.OnChanged -= AmbientColor_OnChanged;
             _ambientIntensityProp.OnChanged -= AmbientIntensity_OnChanged;
-
-            _controllers
-                .Remove<DesktopContentDesignController>()
-                .Unfilter(_contentFilter);
-            _controllers.Active = false;
 
             _mainCamera.enabled = true;
             Object.Destroy(_runtimeGizmos);
@@ -219,6 +212,36 @@ namespace CreateAR.SpirePlayer
             EditorObjectSelection.Instance.SetSelectedObjects(
                 new List<GameObject>{ unityElement.GameObject },
                 false);
+        }
+        
+        /// <summary>
+        /// Recursively adds watchers to element and all children, recursively.
+        /// </summary>
+        /// <param name="root">The root.</param>
+        private void RecursivelyAddUpdater(Element root)
+        {
+            AddUpdater(root);
+
+            var children = root.Children;
+            for (var index = 0; index < children.Count; index++)
+            {
+                AddUpdater(children[index]);
+            }
+        }
+
+        /// <summary>
+        /// Adds an updater to an element.
+        /// </summary>
+        /// <param name="element">The element to add updater to.</param>
+        private void AddUpdater(Element element)
+        {
+            var unityElement = element as IUnityElement;
+            if (null != unityElement)
+            {
+                unityElement.GameObject
+                    .AddComponent<ElementUpdateMonobehaviour>()
+                    .Initialize(element, _elementUpdater);
+            }
         }
 
         /// <summary>
@@ -290,6 +313,16 @@ namespace CreateAR.SpirePlayer
                     });
                 })
                 .OnFailure(exception => Log.Error(this, "Could not download mesh capture : {0}", exception));
+        }
+        
+        /// <summary>
+        /// Called when a child is added.
+        /// </summary>
+        /// <param name="root">The element on which the event was called.</param>
+        /// <param name="element">The element that was added.</param>
+        private void Root_OnChildAdded(Element root, Element element)
+        {
+            RecursivelyAddUpdater(element);
         }
 
         /// <summary>
