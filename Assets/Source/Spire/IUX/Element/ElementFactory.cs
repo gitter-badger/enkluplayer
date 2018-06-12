@@ -178,10 +178,7 @@ namespace CreateAR.SpirePlayer.IUX
             });
 
             var imageSchema = _typeSchema[ElementTypes.IMAGE] = new ElementSchema("Base.Image");
-            imageSchema.Load(new ElementSchemaData
-            {
-                
-            });
+            imageSchema.Load(new ElementSchemaData());
 
             var floatSchema = _typeSchema[ElementTypes.FLOAT] = new ElementSchema("Base.Float");
             floatSchema.Load(new ElementSchemaData
@@ -224,6 +221,9 @@ namespace CreateAR.SpirePlayer.IUX
                     { "visible", false }
                 }
             });
+
+            var lightSchema = _typeSchema[ElementTypes.LIGHT] = new ElementSchema("Base.Light");
+            lightSchema.Load(new ElementSchemaData());
         }
 
         /// <inheritdoc />
@@ -375,6 +375,14 @@ namespace CreateAR.SpirePlayer.IUX
                         _qr,
                         _intention,
                         _elements);
+                }
+                case ElementTypes.LIGHT:
+                {
+                    return new LightWidget(
+                        new GameObject("Light"),
+                        _layers,
+                        _tweens,
+                        _colors);
                 }
                 default:
                 {
