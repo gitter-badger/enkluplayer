@@ -120,7 +120,7 @@ namespace CreateAR.SpirePlayer
             _jsCache = new ElementJsCache(_host);
             _host.SetValue("this", _jsCache.Element(this));
 
-            _srcAssetProp = Schema.Get<string>("assetSrc");
+            _srcAssetProp = Schema.GetOwn("assetSrc", "");
             _srcAssetProp.OnChanged += AssetSrc_OnChanged;
 
             _scriptsProp = Schema.GetOwn("scripts", "[]");
