@@ -422,7 +422,7 @@ namespace CreateAR.SpirePlayer
         /// <returns>True iff the hex value was valid.</returns>
         private static bool ColorFromHex(string hex, out Color color)
         {
-            hex = hex.Trim('#');
+            hex = (hex ?? "").Trim('#');
             if (hex.Length != 6)
             {
                 color = Color.black;
