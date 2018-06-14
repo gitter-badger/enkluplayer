@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -28,12 +29,14 @@ namespace CreateAR.SpirePlayer
         {
             var token = new AsyncToken<Void>();
 
+            var url = _http.Urls.Url(string.Format(
+                "trellis://editor/app/{0}/scene/{1}",
+                appId,
+                sceneId));
+
             _http
                 .Put<ElementTxnResponse>(
-                    _http.Urls.Url(string.Format(
-                        "trellis://editor/app/{0}/scene/{1}",
-                        appId,
-                        sceneId)),
+                    url,
                     new ElementTxnRequest(id)
                     {
                         Actions = actions

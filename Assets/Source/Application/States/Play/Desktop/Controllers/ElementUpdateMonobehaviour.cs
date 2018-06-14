@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using RTEditor;
 using UnityEngine;
@@ -73,11 +74,15 @@ namespace CreateAR.SpirePlayer
         public void OnSelected(ObjectSelectEventArgs selectEventArgs)
         {
             _updatesEnabled = true;
+
+            Log.Info(this, "Enabling updates.");
         }
 
         /// <inheritdoc />
         public void OnDeselected(ObjectDeselectEventArgs deselectEventArgs)
         {
+            Log.Info(this, "Disabling updates.");
+            
             FinalizeState();
             _updatesEnabled = false;
         }

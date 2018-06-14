@@ -83,7 +83,7 @@ namespace CreateAR.SpirePlayer
                     {
                         _files
                             .Set(key, response.Payload)
-                            .OnFailure(exception => Log.Error(this, "Could not write {0}:{1} to disk : {2}.",
+                            .OnFailure(exception => Log.Warning(this, "Could not write {0}:{1} to disk : {2}.",
                                 key,
                                 response.Payload.GetType().Name,
                                 exception));

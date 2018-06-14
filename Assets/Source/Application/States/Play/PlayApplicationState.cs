@@ -130,22 +130,9 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-            if (!_connection.IsConnected
-                && -1 == _connectionStatusId)
-            {
-                _ui
-                    .Open<IStatusView>(new UIReference
-                    {
-                        UIDataId = "Status.Connection"
-                    }, out _connectionStatusId)
-                    .OnFailure(exception => Log.Error(this, "Could not open connection status UI : {0}", exception));
-            }
-            else if (_connection.IsConnected
-                && -1 != _connectionStatusId)
-            {
-                _ui.Close(_connectionStatusId);
-                _connectionStatusId = -1;
-            }
+#if !UNITY_WEBGL
+            UpdateConnectionStatus();
+#endif
         }
 
         /// <inheritdoc />
@@ -191,6 +178,29 @@ namespace CreateAR.SpirePlayer
 
             // start designer
             _design.Setup(_context, _app);
+        }
+        
+        /// <summary>
+        /// Updates connection status UI.
+        /// </summary>
+        private void UpdateConnectionStatus()
+        {
+            if (!_connection.IsConnected
+                && -1 == _connectionStatusId)
+            {
+                _ui
+                    .Open<IStatusView>(new UIReference
+                    {
+                        UIDataId = "Status.Connection"
+                    }, out _connectionStatusId)
+                    .OnFailure(exception => Log.Error(this, "Could not open connection status UI : {0}", exception));
+            }
+            else if (_connection.IsConnected
+                     && -1 != _connectionStatusId)
+            {
+                _ui.Close(_connectionStatusId);
+                _connectionStatusId = -1;
+            }
         }
         
         /// <summary>

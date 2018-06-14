@@ -19,11 +19,6 @@ namespace CreateAR.SpirePlayer
         /// Elements.
         /// </summary>
         private readonly IElementUpdateDelegate _elementUpdater;
-        
-        /// <summary>
-        /// Manages elements.
-        /// </summary>
-        private readonly IElementManager _elements;
 
         /// <summary>
         /// Manages app scenes.
@@ -51,11 +46,6 @@ namespace CreateAR.SpirePlayer
         private readonly Camera _mainCamera;
 
         /// <summary>
-        /// Filters based on types.
-        /// </summary>
-        private readonly TypeElementControllerFilter _contentFilter = new TypeElementControllerFilter(typeof(ContentWidget));
-
-        /// <summary>
         /// Runtime gizmo system.
         /// </summary>
         private GameObject _runtimeGizmos;
@@ -65,6 +55,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private GameObject _meshCaptureGameObject;
 
+        /// <summary>
+        /// Props.
+        /// </summary>
         private ElementSchemaProp<string> _meshCaptureUrlProp;
         private ElementSchemaProp<float> _ambientIntensityProp;
         private ElementSchemaProp<string> _ambientColorProp;
@@ -76,7 +69,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public DesktopDesignController(
             IElementUpdateDelegate elementUpdater,
-            IElementManager elements,
             IAppSceneManager scenes,
             IBridge bridge,
             IHttpService http,
@@ -84,7 +76,6 @@ namespace CreateAR.SpirePlayer
             MainCamera mainCamera)
         {
             _elementUpdater = elementUpdater;
-            _elements = elements;
             _scenes = scenes;
             _bridge = bridge;
             _http = http;
@@ -273,6 +264,12 @@ namespace CreateAR.SpirePlayer
             if (null != _meshDownload)
             {
                 _meshDownload.Abort();
+            }
+
+            if (string.IsNullOrEmpty(_meshCaptureUrlProp.Value))
+            {
+                Log.Info(this, "No mesh capture to download.");
+                return;
             }
 
             var url = _http.Urls.Url("meshcapture://" + _meshCaptureUrlProp.Value);
