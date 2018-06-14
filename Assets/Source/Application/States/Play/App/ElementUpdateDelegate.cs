@@ -176,11 +176,13 @@ namespace CreateAR.SpirePlayer
                 Log.Warning(this, "Could not Finalize element: no active scene.");
                 return;
             }
-
+            
             var txn = Txn(element);
             if (0 != txn.Actions.Count)
             {
-                _txns.Request(txn);
+                _txns
+                    .Request(txn)
+                    .OnFailure(exception => Log.Error(this, "Could not authenticate request : {0}.", exception));
             }
 
             _transactions.Remove(element);

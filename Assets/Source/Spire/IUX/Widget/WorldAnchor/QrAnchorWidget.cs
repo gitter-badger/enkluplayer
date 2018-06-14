@@ -63,6 +63,19 @@ namespace CreateAR.SpirePlayer.IUX
             _exclusiveProp = Schema.GetOwn("exclusive", true);
 
             _qr.OnRead += Qr_OnRead;
+
+            // selection collider
+            {
+                var collider = GameObject.GetComponent<BoxCollider>();
+                if (null == collider)
+                {
+                    collider = GameObject.AddComponent<BoxCollider>();
+                }
+
+                collider.center = Vector3.zero;
+                collider.size = 0.5f * Vector3.one;
+                collider.isTrigger = true;
+            }
         }
 
         /// <inheritdoc />
