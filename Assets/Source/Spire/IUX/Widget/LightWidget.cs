@@ -163,7 +163,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private static LightType ToLightType(string value)
         {
-            Log.Info(null, "ToLightType({0})", value);
             try
             {
                 return (LightType) Enum.Parse(typeof(LightType), value);

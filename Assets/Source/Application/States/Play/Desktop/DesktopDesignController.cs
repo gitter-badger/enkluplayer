@@ -63,7 +63,8 @@ namespace CreateAR.SpirePlayer
         private ElementSchemaProp<string> _ambientColorProp;
         private ElementSchemaProp<bool> _ambientEnabledProp;
         private IAsyncToken<HttpResponse<byte[]>> _meshDownload;
-        
+        private DebugRendererMonoBehaviour _debugRenderer;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -88,18 +89,26 @@ namespace CreateAR.SpirePlayer
         {
             _runtimeGizmos = Object.Instantiate(context.PlayConfig.RuntimeGizmoSystem);
 
-            // setup gizmos
+            // setup cameras + gizmos
             {
                 var selectionSettings = _runtimeGizmos.GetComponentInChildren<EditorObjectSelection>().ObjectSelectionSettings;
                 selectionSettings.CanSelectSpriteObjects = false;
                 selectionSettings.CanSelectEmptyObjects = true;
 
                 _runtimeGizmos.GetComponentInChildren<SceneGizmo>().Corner = SceneGizmoCorner.BottomRight;
-
-                _mainCamera.enabled = false;
-
+                
                 var camera = _runtimeGizmos.GetComponentInChildren<Camera>();
                 camera.transform.LookAt(Vector3.zero);
+
+                // move debug renderer
+                var prevDebugRenderer = _mainCamera.GetComponent<DebugRendererMonoBehaviour>();
+                _debugRenderer = camera.gameObject.AddComponent<DebugRendererMonoBehaviour>();
+                _debugRenderer.Enabled = prevDebugRenderer.Enabled;
+                _debugRenderer.Filter = prevDebugRenderer.Filter;
+                Object.Destroy(prevDebugRenderer);
+                Render.Renderer = _debugRenderer.Renderer;
+
+                _mainCamera.enabled = false;
             }
 
             // setup updates
@@ -159,6 +168,14 @@ namespace CreateAR.SpirePlayer
             _ambientIntensityProp.OnChanged -= AmbientIntensity_OnChanged;
 
             _mainCamera.enabled = true;
+
+            // move debug renderer
+            var debugRenderer = _mainCamera.gameObject.AddComponent<DebugRendererMonoBehaviour>();
+            debugRenderer.Enabled = _debugRenderer.Enabled;
+            debugRenderer.Filter = _debugRenderer.Filter;
+            Object.Destroy(_debugRenderer);
+            Render.Renderer = debugRenderer.Renderer;
+
             Object.Destroy(_runtimeGizmos);
         }
 
