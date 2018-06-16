@@ -174,6 +174,9 @@ namespace CreateAR.SpirePlayer
             LogVerbose("Refresh scripts for {0}.", Id);
 
             TeardownScripts();
+
+            // TODO: reset element -- all props need reset.
+
             SetupScripts();
         }
         

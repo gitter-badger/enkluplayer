@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using RTEditor;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -7,6 +8,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class GizmoTextureRenderer : MonoBehaviour
     {
+        /// <summary>
+        /// Cached camera.
+        /// </summary>
+        private Camera _cam;
+
         /// <summary>
         /// The texture.
         /// </summary>
@@ -21,6 +27,11 @@ namespace CreateAR.SpirePlayer
         private void OnRenderObject()
         {
             var cam = GetCamera();
+            if (null == cam)
+            {
+                return;
+            }
+
             var screen = cam.WorldToScreenPoint(transform.position);
             GL.PushMatrix();
             {
@@ -28,7 +39,7 @@ namespace CreateAR.SpirePlayer
                 Graphics.DrawTexture(
                     new Rect(
                         screen.x - ScreenSize.x / 2f,
-                        screen.y - ScreenSize.y / 2f,
+                        screen.y + ScreenSize.y / 2f,
                         ScreenSize.x,
                         -ScreenSize.y),
                     Texture);
@@ -42,7 +53,16 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private Camera GetCamera()
         {
-            return Camera.main ?? Camera.current;
+            if (null == _cam)
+            {
+                var editorCam = FindObjectOfType<EditorCamera>();
+                if (null != editorCam)
+                {
+                    _cam = editorCam.GetComponent<Camera>();
+                }
+            }
+
+            return _cam;
         }
     }
 }

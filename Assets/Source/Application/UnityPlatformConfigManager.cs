@@ -2,6 +2,7 @@
 using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -75,40 +76,45 @@ namespace CreateAR.SpirePlayer
             // apply all
 
             // grid
-            GridRenderer.Config = config.Grid;
-            
-            // camera
-            var cam = Camera.GetComponent<Camera>();
-            cam.backgroundColor = config.Camera.BackgroundColor;
-            cam.transform.position = config.Camera.StartingPosition;
-            cam.transform.LookAt(Vector3.zero);
-
-            // lighting
-            Log.Info(this, "Setting up lighting.");
-            if (!config.Lighting.DefaultDirectionalLight)
             {
-                var directional = GameObject.Find("Directional light");
-                if (null == directional)
-                {
-                    Log.Error(this, "Could not find default directional light!");
-                }
-                else
-                {
-                    directional.SetActive(false);
-
-                    Log.Info(this, "Lights disabled.");
-                }
+                GridRenderer.Config = config.Grid;
             }
 
-            if (!config.Lighting.DefaultAmbientLight)
+            // camera
             {
-                Log.Info(this, "Ambient lights disabled.");
+                var cam = Camera.GetComponent<Camera>();
+                cam.backgroundColor = config.Camera.BackgroundColor;
+                cam.transform.position = config.Camera.StartingPosition;
+                cam.transform.LookAt(Vector3.zero);
 
-                RenderSettings.ambientIntensity = 0;
-                RenderSettings.ambientLight = Color.black;
-                RenderSettings.ambientGroundColor = Color.black;
-                RenderSettings.ambientSkyColor = Color.black;
-                RenderSettings.skybox = null;
+                var debugRenderer = FindObjectOfType<DebugRendererMonoBehaviour>();
+                debugRenderer.Enabled = config.Camera.DebugRenderingEnabled;
+                debugRenderer.Filter = config.Camera.DebugRenderingFilter;
+            }
+            
+            // lighting
+            {
+                if (!config.Lighting.DefaultDirectionalLight)
+                {
+                    var directional = GameObject.Find("Directional light");
+                    if (null == directional)
+                    {
+                        Log.Error(this, "Could not find default directional light!");
+                    }
+                    else
+                    {
+                        directional.SetActive(false);
+                    }
+                }
+
+                if (!config.Lighting.DefaultAmbientLight)
+                {
+                    RenderSettings.ambientIntensity = 0;
+                    RenderSettings.ambientLight = Color.black;
+                    RenderSettings.ambientGroundColor = Color.black;
+                    RenderSettings.ambientSkyColor = Color.black;
+                    RenderSettings.skybox = null;
+                }
             }
         }
     }
@@ -170,6 +176,12 @@ namespace CreateAR.SpirePlayer
 
         [Tooltip("Starting position of camera.")]
         public Vector3 StartingPosition;
+
+        [Tooltip("True iff debug rendering is enabled.")]
+        public bool DebugRenderingEnabled;
+
+        [Tooltip("Filter for debug renderer.")]
+        public string DebugRenderingFilter;
     }
 
     /// <summary>

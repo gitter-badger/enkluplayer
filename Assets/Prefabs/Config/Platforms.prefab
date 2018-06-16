@@ -63,6 +63,8 @@ MonoBehaviour:
     Camera:
       BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
       StartingPosition: {x: 0, y: 0, z: 0}
+      DebugRenderingEnabled: 0
+      DebugRenderingFilter: 
     Lighting:
       DefaultDirectionalLight: 1
       DefaultAmbientLight: 1
@@ -77,6 +79,8 @@ MonoBehaviour:
     Camera:
       BackgroundColor: {r: 0.61764705, g: 0.61764705, b: 0.61764705, a: 0}
       StartingPosition: {x: 0, y: 2, z: 4}
+      DebugRenderingEnabled: 1
+      DebugRenderingFilter: Gizmo
     Lighting:
       DefaultDirectionalLight: 0
       DefaultAmbientLight: 0
@@ -91,6 +95,8 @@ MonoBehaviour:
     Camera:
       BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
       StartingPosition: {x: 0, y: 0, z: 0}
+      DebugRenderingEnabled: 0
+      DebugRenderingFilter: 
     Lighting:
       DefaultDirectionalLight: 1
       DefaultAmbientLight: 1
@@ -105,6 +111,8 @@ MonoBehaviour:
     Camera:
       BackgroundColor: {r: 0, g: 0, b: 0, a: 0}
       StartingPosition: {x: 0, y: 0, z: 0}
+      DebugRenderingEnabled: 0
+      DebugRenderingFilter: 
     Lighting:
       DefaultDirectionalLight: 0
       DefaultAmbientLight: 0

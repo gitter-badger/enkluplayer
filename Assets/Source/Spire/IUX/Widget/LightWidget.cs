@@ -1,5 +1,4 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -22,8 +21,9 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<float> _intensityProp;
         private ElementSchemaProp<string> _shadowsProp;
         private ElementSchemaProp<Col4> _colorProp;
-        private ElementSchemaProp<float> _rangeProp;
+        private ElementSchemaProp<float> _pointRangeProp;
         private ElementSchemaProp<float> _spotAngleProp;
+        private ElementSchemaProp<float> _spotRangeProp;
 
         /// <summary>
         /// Constructor.
@@ -64,9 +64,10 @@ namespace CreateAR.SpirePlayer.IUX
             _colorProp = Schema.GetOwn("color", Col4.White);
 
             // point
-            _rangeProp = Schema.GetOwn("point.range", 10f);
-            
+            _pointRangeProp = Schema.GetOwn("point.range", 1f);
+
             // spot
+            _spotRangeProp = Schema.GetOwn("spot.range", 1f);
             _spotAngleProp = Schema.GetOwn("spot.angle", 30f);
             
             // listen to props
@@ -74,7 +75,8 @@ namespace CreateAR.SpirePlayer.IUX
             _intensityProp.OnChanged += Intensity_OnChanged;
             _shadowsProp.OnChanged += Shadows_OnChanged;
             _colorProp.OnChanged += Color_OnChanged;
-            _rangeProp.OnChanged += Range_OnChanged;
+            _pointRangeProp.OnChanged += PointRange_OnChanged;
+            _spotRangeProp.OnChanged += SpotRange_OnChanged;
             _spotAngleProp.OnChanged += SpotAngle_OnChanged;
 
             UpdateLight();
@@ -89,7 +91,7 @@ namespace CreateAR.SpirePlayer.IUX
             _intensityProp.OnChanged -= Intensity_OnChanged;
             _shadowsProp.OnChanged -= Shadows_OnChanged;
             _colorProp.OnChanged -= Color_OnChanged;
-            _rangeProp.OnChanged -= Range_OnChanged;
+            _pointRangeProp.OnChanged -= PointRange_OnChanged;
             _spotAngleProp.OnChanged -= SpotAngle_OnChanged;
             
             Object.Destroy(_light);
@@ -105,7 +107,17 @@ namespace CreateAR.SpirePlayer.IUX
             _light.intensity = _intensityProp.Value;
             _light.shadows = ToLightShadows(_shadowsProp.Value);
             _light.color = _colorProp.Value.ToColor();
-            _light.range = _rangeProp.Value;
+
+            if (_light.type == LightType.Point)
+            {
+                _light.range = _pointRangeProp.Value;
+            }
+            else if (_light.type == LightType.Spot)
+            {
+                _light.range = _spotRangeProp.Value;
+            }
+
+            _light.spotAngle = _spotAngleProp.Value;
         }
         
         /// <summary>
@@ -119,7 +131,18 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Called when property changes.
         /// </summary>
-        private void Range_OnChanged(ElementSchemaProp<float> prop, float prev, float next)
+        private void SpotRange_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            _light.range = next;
+        }
+
+        /// <summary>
+        /// Called when property changes.
+        /// </summary>
+        private void PointRange_OnChanged(ElementSchemaProp<float> prop, float prev, float next)
         {
             _light.range = next;
         }
@@ -163,7 +186,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private static LightType ToLightType(string value)
         {
-            Log.Info(null, "ToLightType({0})", value);
             try
             {
                 return (LightType) Enum.Parse(typeof(LightType), value);
