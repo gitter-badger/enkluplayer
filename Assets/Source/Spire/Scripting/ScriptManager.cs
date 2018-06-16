@@ -213,7 +213,23 @@ namespace CreateAR.SpirePlayer
         /// <param name="staticData">Static data that was removed.</param>
         private void AppData_OnRemoved(StaticData staticData)
         {
-            throw new NotImplementedException();
+            var data = staticData as ScriptData;
+            if (null == data)
+            {
+                return;
+            }
+
+            var id = data.Id;
+            for (var i = _records.Count - 1; i >= 0; i--)
+            {
+                var record = _records[i];
+                if (record.Script.Data.Id == id)
+                {
+                    record.Script.Release();
+
+                    _records.RemoveAt(i);
+                }
+            }
         }
 
         /// <summary>
@@ -228,10 +244,11 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            var id = data.Id;
             for (int i = 0, len = _records.Count; i < len; i++)
             {
                 var record = _records[i];
-                if (record.Script.Data.Id == data.Id)
+                if (record.Script.Data.Id == id)
                 {
                     record.Script.UpdateData(data);
                 }
