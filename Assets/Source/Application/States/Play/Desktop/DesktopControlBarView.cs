@@ -14,6 +14,11 @@ namespace CreateAR.SpirePlayer
         public EditorGizmoSystem Gizmos;
 
         /// <summary>
+        /// Fullscreen button.
+        /// </summary>
+        public OnPointerDownButton FullScreen;
+        
+        /// <summary>
         /// Called when the translate button has been pressed.
         /// </summary>
         public void OnTranslate()
@@ -36,13 +41,17 @@ namespace CreateAR.SpirePlayer
         {
             Gizmos.ChangeActiveGizmo(GizmoType.Scale);
         }
-
-        /// <summary>
-        /// Called when the fullscreen button has been pressed.
-        /// </summary>
-        public void OnFullScreen()
+        
+        /// <inheritdoc cref="MonoBehaviour" />
+        private void Awake()
         {
-            Screen.fullScreen = !Screen.fullScreen;
+            FullScreen.OnClicked += () =>
+            {
+                Screen.fullScreen = !Screen.fullScreen;
+                Cursor.lockState = Cursor.lockState == CursorLockMode.Confined
+                    ? CursorLockMode.None
+                    : CursorLockMode.Confined;
+            };
         }
     }
 }

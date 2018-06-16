@@ -53,7 +53,7 @@ GameObject:
   - component: {fileID: 224665011375936304}
   - component: {fileID: 222953249700874736}
   - component: {fileID: 114184556924021326}
-  - component: {fileID: 114050416212870170}
+  - component: {fileID: 114094792525104552}
   m_Layer: 5
   m_Name: Fullscreen
   m_TagString: Untagged
@@ -739,7 +739,7 @@ MonoBehaviour:
     _stepValueInWorldUnits: 1
   _vertexSnapLayers: -1
   _moveScale: 0.5
---- !u!114 &114050416212870170
+--- !u!114 &114094792525104552
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -747,7 +747,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1147339040570776}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 1392445389, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Script: {fileID: 11500000, guid: 8eb81002b1fac1f419a8ae4abc39b582, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
@@ -777,18 +777,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114184556924021326}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 114899970503183202}
-        m_MethodName: OnFullScreen
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &114153237019894570
@@ -1794,6 +1783,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Gizmos: {fileID: 114860474093820514}
+  FullScreen: {fileID: 114094792525104552}
 --- !u!114 &114958269877923088
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1884,7 +1874,7 @@ Canvas:
   m_GameObject: {fileID: 1571202720136612}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 20672092849838184}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
