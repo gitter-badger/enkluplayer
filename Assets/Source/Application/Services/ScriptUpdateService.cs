@@ -73,7 +73,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="event">The event.</param>
         private void OnScriptUpdateEvent(ScriptUpdateEvent @event)
         {
-            Log.Info(this, "Script updated.");
+            Log.Info(this, "Script updated : {0}.", @event.Script);
 
             _appData.Update(@event.Script);
         }
