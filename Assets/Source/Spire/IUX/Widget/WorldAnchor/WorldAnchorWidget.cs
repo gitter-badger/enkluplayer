@@ -95,6 +95,19 @@ namespace CreateAR.SpirePlayer.IUX
             _lockedProp.OnChanged += Locked_OnChanged;
 
             UpdateWorldAnchor();
+
+            // selection collider
+            {
+                var collider = GameObject.GetComponent<BoxCollider>();
+                if (null == collider)
+                {
+                    collider = GameObject.AddComponent<BoxCollider>();
+                }
+
+                collider.center = Vector3.zero;
+                collider.size = 0.5f * Vector3.one;
+                collider.isTrigger = true;
+            }
         }
 
         /// <inheritdoc />

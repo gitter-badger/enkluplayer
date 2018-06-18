@@ -13,6 +13,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public MonoBehaviourGizmoRenderer QrAnchor;
         public MonoBehaviourGizmoRenderer Light;
+        public MonoBehaviourGizmoRenderer WorldAnchor;
 
         /// <inheritdoc />
         public void Track(Element element)
@@ -44,6 +45,11 @@ namespace CreateAR.SpirePlayer.IUX
             if (typeof(LightWidget) == type)
             {
                 return Instantiate(Light);
+            }
+
+            if (typeof(WorldAnchorWidget) == type)
+            {
+                return Instantiate(WorldAnchor);
             }
 
             return null;
