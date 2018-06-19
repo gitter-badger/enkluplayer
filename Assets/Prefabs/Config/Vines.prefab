@@ -96,3 +96,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 5d475cf33519ca74b9b14421305b984e, type: 3}
   - Identifier: MeshCapture.Splash
     Source: {fileID: 4900000, guid: 48aac6e052255a542b68e29daf0c2a06, type: 3}
+  - Identifier: Device.Registration.Confirm
+    Source: {fileID: 4900000, guid: b2391db6ceed5834a92e9e8b177f3700, type: 3}
