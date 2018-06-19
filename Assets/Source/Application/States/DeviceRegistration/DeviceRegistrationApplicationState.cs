@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -129,7 +130,17 @@ namespace CreateAR.SpirePlayer
                                                 // wait till they are all done
                                                 Async
                                                     .All(responses.ToArray())
-                                                    .OnSuccess(_ => @continue())
+                                                    .OnSuccess(_ =>
+                                                    {
+                                                        data.Queue((before, next) =>
+                                                        {
+                                                            before.Orgs = organizations.Select(org => org.Id).ToArray();
+
+                                                            next(before);
+                                                        });
+
+                                                        @continue();
+                                                    })
                                                     .OnFailure(exception =>
                                                     {
                                                         Log.Error(this, "Could not create Device resources : {0}", exception);
@@ -137,7 +148,7 @@ namespace CreateAR.SpirePlayer
                                                         _ui
                                                             .Open<ICommonErrorView>(new UIReference
                                                             {
-                                                                UIDataId = UIDataIds.LOADING
+                                                                UIDataId = UIDataIds.ERROR
                                                             })
                                                             .OnSuccess(err =>
                                                             {
@@ -148,7 +159,16 @@ namespace CreateAR.SpirePlayer
                                                     });
                                             };
 
-                                            el.OnCancel += @continue;
+                                            el.OnCancel += () =>
+                                            {
+                                                data.Queue((before, next) =>
+                                                {
+                                                    before.IgnoreDeviceRegistration = true;
+                                                    next(before);
+                                                });
+
+                                                @continue();
+                                            };
                                         })
                                         .OnFailure(exception =>
                                         {
