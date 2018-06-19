@@ -33,6 +33,11 @@ namespace CreateAR.SpirePlayer
         public NetworkConfig Network = new NetworkConfig();
 
         /// <summary>
+        /// Conductor-related configuration.
+        /// </summary>
+        public ConductorConfig Conductor = new ConductorConfig();
+
+        /// <summary>
         /// Platform to use.
         /// </summary>
         public RuntimePlatform ParsedPlatform
@@ -447,5 +452,16 @@ namespace CreateAR.SpirePlayer
             http.Urls.Formatter("trellis").Replacements["userId"] = UserId;
             http.Headers["Authorization"] = string.Format("Bearer {0}", Token);
         }
+    }
+
+    /// <summary>
+    /// Conductor-related configuration.
+    /// </summary>
+    public class ConductorConfig
+    {
+        /// <summary>
+        /// Ms delta between battery updates.
+        /// </summary>
+        public int BatteryUpdateDeltaMs = 10 * 60 * 1000;
     }
 }

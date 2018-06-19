@@ -24,6 +24,7 @@ namespace CreateAR.SpirePlayer
         private readonly ApplicationConfig _config;
         private readonly UserPreferenceService _preferences;
         private readonly ApiController _api;
+        private readonly DeviceResourceUpdateService _deviceUpdateService;
 
         /// <summary>
         /// Loading view id.
@@ -43,13 +44,15 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             ApplicationConfig config,
             UserPreferenceService preferences,
-            ApiController api)
+            ApiController api,
+            DeviceResourceUpdateService deviceUpdateService)
         {
             _ui = ui;
             _messages = messages;
             _config = config;
             _preferences = preferences;
             _api = api;
+            _deviceUpdateService = deviceUpdateService;
         }
 
         /// <inheritdoc />
@@ -72,10 +75,15 @@ namespace CreateAR.SpirePlayer
                 .ForUser(_config.Network.Credentials.UserId)
                 .OnSuccess(data =>
                 {
-                    var orgs = data.Data.Orgs;
-                    if (orgs.Length > 0)
+                    var registrations = data.Data.DeviceRegistrations;
+                    if (registrations.Length > 0)
                     {
                         Log.Info(this, "Device is already registered.");
+
+                        // TODO: validate
+
+                        // start update service
+                        _deviceUpdateService.Initialize(registrations);
 
                         @continue();
                     }
@@ -113,7 +121,7 @@ namespace CreateAR.SpirePlayer
                                                 _ui.Open<ICommonLoadingView>(new UIReference{ UIDataId = UIDataIds.LOADING });
 
                                                 // create device resources
-                                                var responses = new List<IAsyncToken<HttpResponse<Response>>>();
+                                                var tokens = new List<IAsyncToken<HttpResponse<Response>>>();
                                                 foreach (var org in organizations)
                                                 {
                                                     var token = _api
@@ -121,20 +129,29 @@ namespace CreateAR.SpirePlayer
                                                         .CreateOrganizationDevice(org.Id, new Request
                                                         {
                                                             Name = "HoloLens",
-                                                            Description = string.Format("{0}'s device.", _config.Network.Credentials.Email),
+                                                            Description = "My new device.",
                                                             Token = SystemInfo.deviceUniqueIdentifier
                                                         });
-                                                    responses.Add(token);
+                                                    tokens.Add(token);
                                                 }
 
                                                 // wait till they are all done
                                                 Async
-                                                    .All(responses.ToArray())
-                                                    .OnSuccess(_ =>
+                                                    .All(tokens.ToArray())
+                                                    .OnSuccess(responses =>
                                                     {
+                                                        var responseRegistrations = responses
+                                                            .Select(res => new DeviceRegistration
+                                                            {
+                                                                DeviceId = res.Payload.Body.Id,
+                                                                OrgId = res.Payload.Body.Org
+                                                            })
+                                                            .ToArray();
+
                                                         data.Queue((before, next) =>
                                                         {
-                                                            before.Orgs = organizations.Select(org => org.Id).ToArray();
+                                                            // save them
+                                                            before.DeviceRegistrations = responseRegistrations;
 
                                                             next(before);
                                                         });

@@ -178,6 +178,14 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<SceneUpdateService>().To<SceneUpdateService>().ToSingleton();
                     binder.Bind<ElementActionHelperService>().To<ElementActionHelperService>().ToSingleton();
                     binder.Bind<UserPreferenceService>().To<UserPreferenceService>().ToSingleton();
+
+#if NETFX_CORE
+                    binder.Bind<IDeviceMetaProvider>().To<NetCoreDeviceMetaProvider>().ToSingleton();
+#else
+                    binder.Bind<IDeviceMetaProvider>().To<FrameworkDeviceMetaProvider>().ToSingleton();
+#endif
+
+                    binder.Bind<DeviceResourceUpdateService>().To<DeviceResourceUpdateService>().ToSingleton();
                 }
 
                 // login
@@ -331,6 +339,7 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<SceneUpdateService>(),
                         binder.GetInstance<ElementActionHelperService>(),
                         binder.GetInstance<UserPreferenceService>(),
+                        binder.GetInstance<DeviceResourceUpdateService>(),
                         binder.GetInstance<ApplicationStateService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
