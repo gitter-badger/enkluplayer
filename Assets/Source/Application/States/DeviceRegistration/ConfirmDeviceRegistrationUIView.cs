@@ -17,9 +17,9 @@ namespace CreateAR.SpirePlayer
         public ButtonWidget BtnConfirm { get; set; }
         [InjectElements("..btn-cancel")]
         public ButtonWidget BtnCancel { get; set; }
-        [InjectElements("..cpn-message")]
-        public CaptionWidget CpnMessage { get; set; }
-
+        [InjectElements("..menu-main")]
+        public MenuWidget Menu { get; set; }
+        
         /// <summary>
         /// Called to confirm device registration.
         /// </summary>
@@ -35,7 +35,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Populate(Body[] organizations)
         {
-            CpnMessage.Label = string.Join(", ", organizations.Select(org => org.Name).ToArray());
+            Menu.Schema.Set(
+                "description",
+                string.Format("You belong to ({0}) organization(s). Would you like to register this device?", organizations.Length));
         }
 
         /// <inheritdoc />
