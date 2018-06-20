@@ -156,6 +156,9 @@ namespace CreateAR.SpirePlayer
                                                             next(before);
                                                         });
 
+                                                        // start device update service
+                                                        _deviceUpdateService.Initialize(responseRegistrations);
+
                                                         @continue();
                                                     })
                                                     .OnFailure(exception =>
