@@ -112,6 +112,7 @@ namespace CreateAR.SpirePlayer
             Log.Override(overrideConfig.Log);
             Network.Override(overrideConfig.Network);
             Play.Override(overrideConfig.Play);
+            Conductor.Override(overrideConfig.Conductor);
         }
     }
 
@@ -463,5 +464,14 @@ namespace CreateAR.SpirePlayer
         /// Ms delta between battery updates.
         /// </summary>
         public int BatteryUpdateDeltaMs = 10 * 60 * 1000;
+
+        /// <summary>
+        /// Overrides settings.
+        /// </summary>
+        /// <param name="config">Another config.</param>
+        public void Override(ConductorConfig config)
+        {
+            BatteryUpdateDeltaMs = config.BatteryUpdateDeltaMs;
+        }
     }
 }

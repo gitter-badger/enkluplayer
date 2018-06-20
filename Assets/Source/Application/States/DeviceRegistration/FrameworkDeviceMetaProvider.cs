@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿#if !NETFX_CORE
+using System;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
@@ -9,12 +11,17 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class FrameworkDeviceMetaProvider : IDeviceMetaProvider
     {
+        /// <summary>
+        /// PRNG.
+        /// </summary>
+        private readonly Random _random = new Random();
+
         /// <inheritdoc />
         public DeviceResourceMeta Meta()
         {
             return new DeviceResourceMeta
             {
-                Battery = 0.75f,
+                Battery = (float) _random.NextDouble(),
                 EnkluVersion = "Unknown",
                 Ips = GetIps(),
                 UwpVersion = "Unknown"
@@ -35,3 +42,4 @@ namespace CreateAR.SpirePlayer
         }
     }
 }
+#endif

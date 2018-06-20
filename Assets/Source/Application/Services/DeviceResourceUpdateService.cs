@@ -69,6 +69,10 @@ namespace CreateAR.SpirePlayer
             _http = http;
         }
 
+        /// <summary>
+        /// Preps the service for sending meta.
+        /// </summary>
+        /// <param name="registrations">Device registrations to update.</param>
         public void Initialize(DeviceRegistration[] registrations)
         {
             _registrations = registrations;
@@ -79,13 +83,14 @@ namespace CreateAR.SpirePlayer
             _isInitialized = true;
         }
 
+        /// <inheritdoc />
         public override void Update(float dt)
         {
             base.Update(dt);
 
             var now = DateTime.Now;
             if (_isInitialized
-                && _lastUpdate.Subtract(now).TotalMilliseconds > _config.Conductor.BatteryUpdateDeltaMs)
+                && now.Subtract(_lastUpdate).TotalMilliseconds > _config.Conductor.BatteryUpdateDeltaMs)
             {
                 _lastUpdate = now;
 
@@ -93,11 +98,14 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Sends updates to backend.
+        /// </summary>
         private void SendUpdates()
         {
-            Log.Info(this, "Sending device resource update.");
-
             var meta = _provider.Meta();
+
+            Log.Info(this, "Sending device resource update : {0}.", meta);
 
             foreach (var registration in _registrations)
             {
@@ -106,8 +114,7 @@ namespace CreateAR.SpirePlayer
                     registration.OrgId,
                     registration.DeviceId
                 ));
-
-                Log.Info(this, "\t" + url);
+                
                 _http
                     .Put<Trellis.Messages.UpdateOrganizationDevice.Response>(
                         url,

@@ -24,5 +24,18 @@
         /// Uwp version.
         /// </summary>
         public string UwpVersion;
+
+        /// <summary>
+        /// ToString override.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[DeviceResourceMeta UwpVersion={0}, EnkluVersion={1}, Battery={2}, Ips={3}]",
+                UwpVersion,
+                EnkluVersion,
+                Battery,
+                string.Join(", ", Ips));
+        }
     }
 }
