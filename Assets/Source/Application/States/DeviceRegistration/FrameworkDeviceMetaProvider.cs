@@ -22,9 +22,9 @@ namespace CreateAR.SpirePlayer
             return new DeviceResourceMeta
             {
                 Battery = (float) _random.NextDouble(),
-                EnkluVersion = "Unknown",
+                EnkluVersion = "Editor",
                 Ips = GetIps(),
-                UwpVersion = "Unknown"
+                UwpVersion = "Editor"
             };
         }
 

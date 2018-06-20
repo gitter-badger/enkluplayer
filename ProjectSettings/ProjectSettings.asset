@@ -140,7 +140,7 @@ PlayerSettings:
       maximumSupportedHeadTracking: 1
     hololens:
       depthFormat: 1
-      depthBufferSharingEnabled: 0
+      depthBufferSharingEnabled: 1
     enable360StereoCapture: 0
     oculus:
       sharedDepthBuffer: 0
@@ -704,8 +704,8 @@ PlayerSettings:
     WebGL: 2
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: spireplayer
-  metroPackageVersion: 0.1.0.0
+  metroPackageName: Enklu
+  metroPackageVersion: 1.0.0.0
   metroCertificatePath: Assets/WSATestCertificate.pfx
   metroCertificatePassword: 
   metroCertificateSubject: CreateAR
