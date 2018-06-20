@@ -33,6 +33,11 @@ namespace CreateAR.SpirePlayer
         public NetworkConfig Network = new NetworkConfig();
 
         /// <summary>
+        /// Conductor-related configuration.
+        /// </summary>
+        public ConductorConfig Conductor = new ConductorConfig();
+
+        /// <summary>
         /// Platform to use.
         /// </summary>
         public RuntimePlatform ParsedPlatform
@@ -107,6 +112,7 @@ namespace CreateAR.SpirePlayer
             Log.Override(overrideConfig.Log);
             Network.Override(overrideConfig.Network);
             Play.Override(overrideConfig.Play);
+            Conductor.Override(overrideConfig.Conductor);
         }
     }
 
@@ -446,6 +452,26 @@ namespace CreateAR.SpirePlayer
         {
             http.Urls.Formatter("trellis").Replacements["userId"] = UserId;
             http.Headers["Authorization"] = string.Format("Bearer {0}", Token);
+        }
+    }
+
+    /// <summary>
+    /// Conductor-related configuration.
+    /// </summary>
+    public class ConductorConfig
+    {
+        /// <summary>
+        /// Ms delta between battery updates.
+        /// </summary>
+        public int BatteryUpdateDeltaMs = 10 * 60 * 1000;
+
+        /// <summary>
+        /// Overrides settings.
+        /// </summary>
+        /// <param name="config">Another config.</param>
+        public void Override(ConductorConfig config)
+        {
+            BatteryUpdateDeltaMs = config.BatteryUpdateDeltaMs;
         }
     }
 }

@@ -150,11 +150,14 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
                     binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
-    #else
+#else
                     binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
-    #endif
+#endif
+#elif UNITY_EDITOR
+                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+                    binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
 #elif NETFX_CORE
                     binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
@@ -175,6 +178,14 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<SceneUpdateService>().To<SceneUpdateService>().ToSingleton();
                     binder.Bind<ElementActionHelperService>().To<ElementActionHelperService>().ToSingleton();
                     binder.Bind<UserPreferenceService>().To<UserPreferenceService>().ToSingleton();
+
+#if NETFX_CORE
+                    binder.Bind<IDeviceMetaProvider>().To<NetCoreDeviceMetaProvider>().ToSingleton();
+#else
+                    binder.Bind<IDeviceMetaProvider>().To<FrameworkDeviceMetaProvider>().ToSingleton();
+#endif
+
+                    binder.Bind<DeviceResourceUpdateService>().To<DeviceResourceUpdateService>().ToSingleton();
                 }
 
                 // login
@@ -209,6 +220,7 @@ namespace CreateAR.SpirePlayer
                         binder.Bind<SignOutApplicationState>().To<SignOutApplicationState>();
                         binder.Bind<QrLoginStrategy>().To<QrLoginStrategy>();
                         binder.Bind<GuestApplicationState>().To<GuestApplicationState>();
+                        binder.Bind<DeviceRegistrationApplicationState>().To<DeviceRegistrationApplicationState>();
                         binder.Bind<OrientationApplicationState>().To<OrientationApplicationState>();
                         binder.Bind<UserProfileApplicationState>().To<UserProfileApplicationState>();
                         binder.Bind<MobileArSetupApplicationState>().To<MobileArSetupApplicationState>();
@@ -274,6 +286,7 @@ namespace CreateAR.SpirePlayer
                                         binder.GetInstance<LoginApplicationState>(),
                                         binder.GetInstance<SignOutApplicationState>(),
                                         binder.GetInstance<GuestApplicationState>(),
+                                        binder.GetInstance<DeviceRegistrationApplicationState>(),
                                         binder.GetInstance<OrientationApplicationState>(),
                                         binder.GetInstance<UserProfileApplicationState>(),
                                         binder.GetInstance<LoadAppApplicationState>(),
@@ -326,6 +339,7 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<SceneUpdateService>(),
                         binder.GetInstance<ElementActionHelperService>(),
                         binder.GetInstance<UserPreferenceService>(),
+                        binder.GetInstance<DeviceResourceUpdateService>(),
                         binder.GetInstance<ApplicationStateService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();

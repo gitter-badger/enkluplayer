@@ -77,19 +77,21 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "LoadDefaultAppState::Enter()");
             
             // load preferences
-            _preferences.ForUser(
-                _config.Network.Credentials.UserId,
-                prefs =>
-                {
-                    if (string.IsNullOrEmpty(prefs.MostRecentAppId))
+            _preferences
+                .ForUser(_config.Network.Credentials.UserId)
+                .OnSuccess(
+                    obj =>
                     {
-                        ChooseDefaultApp();
-                    }
-                    else
-                    {
-                        LoadApp(prefs.MostRecentAppId);
-                    }
-                });
+                        var prefs = obj.Data;
+                        if (string.IsNullOrEmpty(prefs.MostRecentAppId))
+                        {
+                            ChooseDefaultApp();
+                        }
+                        else
+                        {
+                            LoadApp(prefs.MostRecentAppId);
+                        }
+                    });
         }
 
         /// <inheritdoc />

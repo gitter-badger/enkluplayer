@@ -54,8 +54,7 @@ namespace CreateAR.SpirePlayer
         /// Retrieves user preferences. This cannot fail.
         /// </summary>
         /// <param name="userId">User id.</param>
-        /// <param name="preferences">Action that receives preferences.</param>
-        public void ForUser(string userId, Action<UserPreferenceData> preferences)
+        public IAsyncToken<SynchronizedObject<UserPreferenceData>> ForUser(string userId)
         {
             IAsyncToken<SynchronizedObject<UserPreferenceData>> prefs;
             if (!_preferences.TryGetValue(userId, out prefs))
@@ -63,20 +62,7 @@ namespace CreateAR.SpirePlayer
                 prefs = _preferences[userId] = Load(userId);
             }
 
-            prefs
-                .OnSuccess(obj => preferences(obj.Data))
-                .OnFailure(exception =>
-                {
-                    Log.Warning(this,
-                        "Could not load user preferences : {0}.",
-                        exception);
-
-                    // default value
-                    preferences(new UserPreferenceData
-                    {
-                        UserId = userId
-                    });
-                });
+            return prefs.Token();
         }
 
         /// <inheritdoc />
