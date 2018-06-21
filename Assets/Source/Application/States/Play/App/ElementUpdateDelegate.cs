@@ -67,13 +67,19 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public IAsyncToken<Element> Create(ElementData data)
         {
+            return Create(data, "root");
+        }
+
+        /// <inheritdoc />
+        public IAsyncToken<Element> Create(ElementData data, string parentId)
+        {
             if (string.IsNullOrEmpty(Active))
             {
                 return new AsyncToken<Element>(new Exception("Could not Create element: no active scene."));
             }
 
             return Async.Map(
-                _txns.Request(new ElementTxn(Active).Create("root", data)),
+                _txns.Request(new ElementTxn(Active).Create(parentId, data)),
                 response => response.Elements[0]);
         }
 
