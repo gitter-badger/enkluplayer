@@ -324,7 +324,10 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private static void GenerateSafeIds(ElementData data)
         {
-            data.Id = Guid.NewGuid().ToString();
+            var id = Guid.NewGuid().ToString();
+
+            data.Id = id;
+            data.Schema.Strings["id"] = id;
 
             foreach (var child in data.Children)
             {

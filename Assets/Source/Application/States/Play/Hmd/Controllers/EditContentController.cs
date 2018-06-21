@@ -53,7 +53,13 @@ namespace CreateAR.SpirePlayer
         public void Initialize(ContentDesignController controller)
         {
             _controller = controller;
-            
+        }
+
+        /// <inheritdoc />
+        protected override void Awake()
+        {
+            base.Awake();
+
             BtnMove.Activator.OnActivated += Move_OnActivated;
             BtnReparent.Activator.OnActivated += Reparent_OnActivated;
             BtnDelete.Activator.OnActivated += Delete_OnActivated;
