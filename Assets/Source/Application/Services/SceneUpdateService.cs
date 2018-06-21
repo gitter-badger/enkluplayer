@@ -82,8 +82,7 @@ namespace CreateAR.SpirePlayer
             {
                 var action = message.Actions[i];
                 if (action.Type == ElementActionTypes.CREATE
-                    || action.Type == ElementActionTypes.DELETE
-                    || action.Type == ElementActionTypes.MOVE)
+                    || action.Type == ElementActionTypes.DELETE)
                 {
                     continue;
                 }
