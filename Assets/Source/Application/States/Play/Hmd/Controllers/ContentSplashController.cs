@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -42,8 +43,11 @@ namespace CreateAR.SpirePlayer
         {
             // scale
             var scale = transform.lossyScale;
-            var max = Mathf.Max(scale.x, scale.y, scale.z);
-            BtnSplash.GameObject.transform.localScale = 1f / max * Vector3.one;
+            var adjustedScale = new Vector3(
+                1f / scale.x,
+                1f / scale.y,
+                1f / scale.z);
+            BtnSplash.Activator.GameObject.transform.localScale = adjustedScale;
         }
 
         /// <summary>

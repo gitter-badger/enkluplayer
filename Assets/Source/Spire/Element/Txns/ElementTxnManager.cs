@@ -68,12 +68,15 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Initialize(AppTxnConfiguration configuration)
         {
+            Log.Info(this, "Initializing TXN manager.");
+
             _configuration = configuration;
             _appId = configuration.AppId;
             _scenes = configuration.Scenes;
             
             foreach (var sceneId in _scenes.All)
             {
+                Log.Info(this, "Initializing scene : {0}", sceneId);
                 var root = _scenes.Root(sceneId);
                 var store = _storeFactory.Instance(_strategyFactory.Instance(root));
 
@@ -105,8 +108,9 @@ namespace CreateAR.SpirePlayer
             IElementTxnStore store;
             if (!_stores.TryGetValue(txn.SceneId, out store))
             {
-                return new AsyncToken<ElementResponse>(new Exception(
-                    "Cannot make transaction request against untracked scene. Did you forget to call Track() first?"));
+                return new AsyncToken<ElementResponse>(new Exception(string.Format(
+                    "Cannot make transaction request against untracked scene [{0}]. Did you forget to call Track() first?",
+                    txn.SceneId)));
             }
 
             var elementResponse = new ElementResponse();
@@ -180,7 +184,8 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Warning(
                     this,
-                    "Cannot apply transaction against untracked scene. Did you forget to call Track() first?");
+                    "Cannot apply transaction against untracked scene [{0}]. Did you forget to call Track() first?",
+                    txn.SceneId);
                 return new ElementResponse();
             }
 

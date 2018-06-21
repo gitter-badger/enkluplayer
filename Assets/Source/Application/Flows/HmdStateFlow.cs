@@ -25,6 +25,7 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.ARSERVICE_EXCEPTION,
                 MessageTypes.FLOOR_FOUND,
                 MessageTypes.MESHCAPTURE,
+                MessageTypes.BUGREPORT,
                 MessageTypes.DEVICE_REGISTRATION_COMPLETE,
                 MessageTypes.SIGNOUT);
             _states.ChangeState<OrientationApplicationState>();
@@ -84,6 +85,11 @@ namespace CreateAR.SpirePlayer
                 case MessageTypes.MESHCAPTURE:
                 {
                     _states.ChangeState<MeshCaptureApplicationState>();
+                    break;
+                }
+                case MessageTypes.BUGREPORT:
+                {
+                    _states.ChangeState<BugReportApplicationState>();
                     break;
                 }
                 case MessageTypes.SIGNOUT:

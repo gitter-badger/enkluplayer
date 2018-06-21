@@ -98,3 +98,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 48aac6e052255a542b68e29daf0c2a06, type: 3}
   - Identifier: Device.Registration.Confirm
     Source: {fileID: 4900000, guid: b2391db6ceed5834a92e9e8b177f3700, type: 3}
+  - Identifier: Tools.BugReport
+    Source: {fileID: 4900000, guid: f4915dd9060b8fb49b38d54dbffb07ca, type: 3}

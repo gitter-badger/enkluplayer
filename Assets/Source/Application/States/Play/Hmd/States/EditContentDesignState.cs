@@ -222,9 +222,14 @@ namespace CreateAR.SpirePlayer
             // duplicate data
             var element = controller.Element;
             var data = new ElementData(element);
+            GenerateSafeIds(data);
+
+            // find parent
+            var parent = controller.Element.Parent;
+
             _design
                 .Elements
-                .Create(data)
+                .Create(data, null == parent ? "root" : parent.Id)
                 .OnSuccess(el =>
                 {
                     // back to main
@@ -310,6 +315,21 @@ namespace CreateAR.SpirePlayer
         {
             // back to main
             _design.ChangeState<MainDesignState>();
+        }
+
+        /// <summary>
+        /// Generates new Ids for duplication/
+        /// </summary>
+        /// <param name="data">The element data.</param>
+        /// <returns></returns>
+        private static void GenerateSafeIds(ElementData data)
+        {
+            data.Id = Guid.NewGuid().ToString();
+
+            foreach (var child in data.Children)
+            {
+                GenerateSafeIds(child);
+            }
         }
     }
 }
