@@ -267,6 +267,12 @@ namespace CreateAR.SpirePlayer
             // ignore forced selection in AR mode
         }
 
+        /// <inheritdoc />
+        public void Focus(string sceneId, string elementId)
+        {
+            // ignore forced focus in AR mode
+        }
+
         /// <summary>
         /// Starts design mode.
         /// </summary>

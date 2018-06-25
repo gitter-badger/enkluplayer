@@ -144,7 +144,13 @@ namespace CreateAR.SpirePlayer
         {
             //
         }
-        
+
+        /// <inheritdoc />
+        public void Focus(string sceneId, string elementId)
+        {
+            //
+        }
+
         /// <summary>
         /// Shares to Insta.
         /// </summary>

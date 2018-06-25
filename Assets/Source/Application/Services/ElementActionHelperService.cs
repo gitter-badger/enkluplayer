@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 
@@ -51,6 +52,9 @@ namespace CreateAR.SpirePlayer
             Subscribe<BridgeHelperSelectEvent>(
                 MessageTypes.BRIDGE_HELPER_SELECT,
                 OnSelect);
+            Subscribe<BridgeHelperSelectEvent>(
+                MessageTypes.BRIDGE_HELPER_FOCUS,
+                OnFocus);
         }
 
         /// <summary>
@@ -95,6 +99,15 @@ namespace CreateAR.SpirePlayer
         private void OnSelect(BridgeHelperSelectEvent @event)
         {
             _designer.Select(@event.SceneId, @event.ElementId);
+        }
+
+        /// <summary>
+        /// Called on focus.
+        /// </summary>
+        /// <param name="event">Focus.</param>
+        private void OnFocus(BridgeHelperSelectEvent @event)
+        {
+
         }
     }
 }
