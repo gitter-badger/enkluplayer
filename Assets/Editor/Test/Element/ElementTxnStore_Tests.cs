@@ -126,7 +126,9 @@ namespace CreateAR.SpirePlayer.Test.Txn
         public void ApplyMove()
         {
             var newLocal = new Vec3(1, 12, 0);
-            var txn = new ElementTxn("test").Move("b", "root", newLocal);
+            var newRot = new Vec3(17, 3, -123);
+            var newScale = new Vec3(10, 33, 1);
+            var txn = new ElementTxn("test").Move("b", "root", newLocal, newRot, newScale);
 
             _store.Apply(txn);
 
@@ -137,6 +139,16 @@ namespace CreateAR.SpirePlayer.Test.Txn
             Assert.IsTrue(Math.Abs(newLocal.x - pos.x) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(newLocal.y - pos.y) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(newLocal.z - pos.z) < Mathf.Epsilon);
+
+            var rot = b.Schema.Get<Vec3>("rotation").Value;
+            Assert.IsTrue(Math.Abs(newRot.x - rot.x) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(newRot.y - rot.y) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(newRot.z - rot.z) < Mathf.Epsilon);
+
+            var scale = b.Schema.Get<Vec3>("scale").Value;
+            Assert.IsTrue(Math.Abs(newScale.x - scale.x) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(newScale.y - scale.y) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(newScale.z - scale.z) < Mathf.Epsilon);
         }
 
         [Test]

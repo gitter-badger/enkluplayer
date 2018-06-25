@@ -4,6 +4,7 @@ using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -209,11 +210,14 @@ namespace CreateAR.SpirePlayer
                 return new AsyncToken<Element>(new Exception("Could not Reparent element: no active scene."));
             }
 
+            Vec3 pos, rot, scale;
+            TransformedTrs(element, parent, out pos, out rot, out scale);
+
             return Async.Map(
                 _txns.Request(new ElementTxn(Active).Move(
                     element.Id,
                     parent.Id,
-                    TransformedPosition(element, parent))),
+                    pos, rot, scale)),
                 response => element);
         }
 
@@ -234,12 +238,21 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Retrieves a transformed position from one element to another.
+        /// Retrieves the transformed position, rotation, and scale after
+        /// reparenting.
         /// </summary>
         /// <param name="element">The element that is to be moved.</param>
         /// <param name="parent">The new parent.</param>
+        /// <param name="position">The transformed position.</param>
+        /// <param name="rotation">The transformed rotation.</param>
+        /// <param name="scale">The transformed scale.</param>
         /// <returns></returns>
-        private Vec3 TransformedPosition(Element element, Element parent)
+        private void TransformedTrs(
+            Element element,
+            Element parent,
+            out Vec3 position,
+            out Vec3 rotation,
+            out Vec3 scale)
         {
             var unityElement = NearestUnityElement(element);
             var unityParent = NearestUnityElement(parent);
@@ -247,17 +260,26 @@ namespace CreateAR.SpirePlayer
             // trivial case
             if (unityParent == unityElement)
             {
-                return element.Schema.Get<Vec3>("position").Value;
+                position = element.Schema.Get<Vec3>("position").Value;
+                rotation = element.Schema.Get<Vec3>("rotation").Value;
+                scale = element.Schema.Get<Vec3>("scale").Value;
+
+                return;
             }
 
             // transform to new parent's local space
-            var pos = unityElement.GameObject.transform.position;
-            return unityParent
-                .GameObject
-                .transform
-                .worldToLocalMatrix
-                .MultiplyPoint3x4(pos)
-                .ToVec();
+            var transform = unityElement.GameObject.transform;
+            var parentTransform = unityParent.GameObject.transform;
+            
+            position = parentTransform.worldToLocalMatrix.MultiplyPoint3x4(transform.position).ToVec();
+            rotation = (Quaternion.Inverse(parentTransform.rotation) * transform.rotation).eulerAngles.ToVec();
+
+            var a = transform.lossyScale;
+            var b = parentTransform.lossyScale;
+            scale = new Vec3(
+                a.x / b.x,
+                a.y / b.y,
+                a.z / b.z);
         }
 
         /// <summary>

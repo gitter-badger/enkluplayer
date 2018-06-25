@@ -221,19 +221,55 @@ namespace CreateAR.SpirePlayer
                 new List<GameObject>{ unityElement.GameObject },
                 false);
         }
-        
+
+        /// <inheritdoc />
+        public void Focus(string sceneId, string elementId)
+        {
+            // find scene
+            var scene = _scenes.Root(sceneId);
+            if (null == scene)
+            {
+                Log.Error(this, "Could not find scene root to select : {0}.", sceneId);
+                return;
+            }
+
+            var element = scene.FindOne<Element>(".." + elementId);
+            if (null == element)
+            {
+                Log.Error(this,
+                    "Could not find element to select : {0}.",
+                    elementId);
+                return;
+            }
+
+            var unityElement = element as IUnityElement;
+            if (null == unityElement)
+            {
+                Log.Error(this,
+                    "Selected element is not an IUnityElement : {0}.",
+                    elementId);
+                return;
+            }
+
+            EditorObjectSelection.Instance.ClearSelection(false);
+            EditorObjectSelection.Instance.SetSelectedObjects(
+                new List<GameObject> { unityElement.GameObject },
+                false);
+            EditorCamera.Instance.FocusOnSelection();
+        }
+
         /// <summary>
         /// Recursively adds watchers to element and all children, recursively.
         /// </summary>
         /// <param name="root">The root.</param>
         private void RecursivelyAddUpdater(Element root)
         {
-            AddUpdater(root);
+            AddUpdaterComponent(root);
 
             var children = root.Children;
             for (var index = 0; index < children.Count; index++)
             {
-                AddUpdater(children[index]);
+                RecursivelyAddUpdater(children[index]);
             }
         }
 
@@ -241,7 +277,7 @@ namespace CreateAR.SpirePlayer
         /// Adds an updater to an element.
         /// </summary>
         /// <param name="element">The element to add updater to.</param>
-        private void AddUpdater(Element element)
+        private void AddUpdaterComponent(Element element)
         {
             var unityElement = element as IUnityElement;
             if (null != unityElement)

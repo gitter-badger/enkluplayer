@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RTEditor
 {
@@ -173,12 +174,75 @@ namespace RTEditor
                 EditorCamera.Instance.SetOrtho(!editorCamera.orthographic);
                 _gizmoCamera.orthographic = editorCamera.orthographic;
             }
-            if (_hoveredComponent == (int)SceneGizmoComponent.PositiveX) EditorCamera.Instance.AlignLookWithWorldAxis(Axis.X, false, _cameraAlignDuration);
-            else if (_hoveredComponent == (int)SceneGizmoComponent.NegativeX) EditorCamera.Instance.AlignLookWithWorldAxis(Axis.X, true, _cameraAlignDuration);
-            else if (_hoveredComponent == (int)SceneGizmoComponent.PositiveY) EditorCamera.Instance.AlignLookWithWorldAxis(Axis.Y, false, _cameraAlignDuration);
-            else if (_hoveredComponent == (int)SceneGizmoComponent.NegativeY) EditorCamera.Instance.AlignLookWithWorldAxis(Axis.Y, true, _cameraAlignDuration);
-            else if (_hoveredComponent == (int)SceneGizmoComponent.PositiveZ) EditorCamera.Instance.AlignLookWithWorldAxis(Axis.Z, false, _cameraAlignDuration);
-            else if (_hoveredComponent == (int)SceneGizmoComponent.NegativeZ) EditorCamera.Instance.AlignLookWithWorldAxis(Axis.Z, true, _cameraAlignDuration);
+
+            var selected = EditorObjectSelection.Instance.SelectedGameObjects.FirstOrDefault();
+
+            if (_hoveredComponent == (int) SceneGizmoComponent.PositiveX)
+            {
+                if (null != selected)
+                {
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(-1, 0, 0));
+
+                    return;
+                }
+
+                EditorCamera.Instance.AlignLookWithWorldAxis(Axis.X, false, _cameraAlignDuration);
+            }
+            else if (_hoveredComponent == (int) SceneGizmoComponent.NegativeX)
+            {
+                if (null != selected)
+                {
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(1, 0, 0));
+
+                    return;
+                }
+
+                EditorCamera.Instance.AlignLookWithWorldAxis(Axis.X, true, _cameraAlignDuration);
+            }
+            else if (_hoveredComponent == (int) SceneGizmoComponent.PositiveY)
+            {
+                if (null != selected)
+                {
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, -1, 0));
+
+                    return;
+                }
+
+                EditorCamera.Instance.AlignLookWithWorldAxis(Axis.Y, false, _cameraAlignDuration);
+            }
+            else if (_hoveredComponent == (int) SceneGizmoComponent.NegativeY)
+            {
+                if (null != selected)
+                {
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, 1, 0));
+
+                    return;
+                }
+
+                EditorCamera.Instance.AlignLookWithWorldAxis(Axis.Y, true, _cameraAlignDuration);
+            }
+            else if (_hoveredComponent == (int) SceneGizmoComponent.PositiveZ)
+            {
+                if (null != selected)
+                {
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, 0, -1));
+
+                    return;
+                }
+
+                EditorCamera.Instance.AlignLookWithWorldAxis(Axis.Z, false, _cameraAlignDuration);
+            }
+            else if (_hoveredComponent == (int) SceneGizmoComponent.NegativeZ)
+            {
+                if (null != selected)
+                {
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, 0, 1));
+
+                    return;
+                }
+
+                EditorCamera.Instance.AlignLookWithWorldAxis(Axis.Z, true, _cameraAlignDuration);
+            }
         }
 
         private int DetectHoveredComponent()

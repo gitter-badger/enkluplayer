@@ -157,6 +157,8 @@ namespace RTEditor
         private bool _isObjectVisibilityDirty = true;
         private HashSet<GameObject> _visibleGameObjects = new HashSet<GameObject>();
 
+        private Vector3 _selectionAxis;
+
         [SerializeField]
         private EditorCameraBk _background = new EditorCameraBk();
         #endregion
@@ -319,6 +321,15 @@ namespace RTEditor
 
                 StartCoroutine("StartSmoothFocusOnSelection");
             }
+        }
+
+        public void FocusOnSelection(Vector3 axis)
+        {
+            StopAllCoroutines();
+            
+            _selectionAxis = axis;
+            StartCoroutine("StartSmoothFocusOnSelectionAxis");
+            StartCoroutine("StartSmoothFocusOnSelectionAxisRotation");
         }
         #endregion
 
@@ -765,6 +776,78 @@ namespace RTEditor
 
                 yield return null;
             }
+        }
+
+        /// <summary>
+        /// Starts a smooth focus operation on the current object selection.
+        /// </summary>
+        private IEnumerator StartSmoothFocusOnSelectionAxis()
+        {
+            // Store needed data
+            EditorCameraFocusOperationInfo focusOpInfo = EditorCameraFocus.GetFocusOperationInfo(Camera, _focusSettings, _selectionAxis);
+            _lastFocusPoint = focusOpInfo.FocusPoint;
+            Vector3 cameraDestinationPoint = focusOpInfo.CameraDestinationPosition;
+            Transform cameraTransform = Camera.transform;
+
+            // If the distance to travel is small enough, we can exit
+            if ((cameraDestinationPoint - cameraTransform.position).magnitude < 1e-4f) yield break;
+
+            // We will need this to modify the position using 'Vector3.SmoothDamp'
+            Vector3 velocity = Vector3.zero;
+
+            // We will need this to modify the camera ortho size using 'Mathf.SmoothDamp'.
+            float orthoSizeVelocity = 0.0f;
+
+            // The first iteration of the 'while' loop will perform the first focus step. We will
+            // set this to true here just in case the focus operation is cancelled by another camera
+            // operation. This will allow the user to orbit the camera even if it wasn't focused 100%.
+            _wasFocused = true;
+
+            while (true)
+            {
+                // Calculate the new position
+                cameraTransform.position = Vector3.SmoothDamp(cameraTransform.position, cameraDestinationPoint, ref velocity, _focusSettings.SmoothFocusTime);
+
+                // Calculate the new camera ortho size
+                SetOrthoSize(Mathf.SmoothDamp(Camera.orthographicSize, focusOpInfo.OrthoCameraHalfVerticalSize, ref orthoSizeVelocity, _focusSettings.SmoothFocusTime));
+
+                // Recalculate the orbit focus to ensure proper orbit if the focus operation is not completed 100%.
+                CalculateOrbitOffsetAlongLook(focusOpInfo);
+
+                // If the position is close enough to the target position and the camera ortho size
+                // is close enough to the target size, we can exit the loop.
+                if ((cameraTransform.position - cameraDestinationPoint).magnitude < 1e-3f &&
+                    Mathf.Abs(Camera.orthographicSize - focusOpInfo.OrthoCameraHalfVerticalSize) < 1e-3f)
+                {
+                    // Clamp to make sure we got the correct values and then exit the loop
+                    cameraTransform.position = cameraDestinationPoint;
+                    Camera.orthographicSize = focusOpInfo.OrthoCameraHalfVerticalSize;
+
+                    break;
+                }
+                
+                yield return null;
+            }
+        }
+
+        private IEnumerator StartSmoothFocusOnSelectionAxisRotation()
+        {
+            Vector3 axisVector = _selectionAxis;
+            var duration = _focusSettings.SmoothFocusTime * 1.5f;
+            float elapsedTime = 0.0f;
+            Quaternion desiredRotation = Quaternion.LookRotation(axisVector);
+            Quaternion initialRotation = Camera.transform.rotation;
+            while (elapsedTime <= duration)
+            {
+                Camera.transform.rotation = Quaternion.Slerp(initialRotation, desiredRotation, elapsedTime / duration);
+                elapsedTime += Time.deltaTime;
+
+                _background.OnCameraUpdate(Camera, _isDoingPerspectiveSwitch);
+
+                yield return null;
+            }
+
+            Camera.transform.rotation = desiredRotation;
         }
 
         private IEnumerator StartAlignLookWithWorldAxis(Axis worldAxis, bool negativeAxis, float duration)

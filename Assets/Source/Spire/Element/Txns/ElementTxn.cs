@@ -107,11 +107,15 @@ namespace CreateAR.SpirePlayer
         /// <param name="elementId">The id of the element.</param>
         /// <param name="parentId">The id of the new parent.</param>
         /// <param name="newPosition">The local position of the element after the move.</param>
+        /// <param name="newRotation">The local rotation of the element after the move.</param>
+        /// <param name="newScale">The local scale of the element after the move.</param>
         /// <returns></returns>
         public ElementTxn Move(
             string elementId,
             string parentId,
-            Vec3 newPosition)
+            Vec3 newPosition,
+            Vec3 newRotation,
+            Vec3 newScale)
         {
             Actions.Add(new ElementActionData
             {
@@ -120,6 +124,9 @@ namespace CreateAR.SpirePlayer
                 ParentId = parentId,
                 Value = newPosition
             });
+
+            Update(elementId, "rotation", newRotation);
+            Update(elementId, "scale", newScale);
 
             return this;
         }

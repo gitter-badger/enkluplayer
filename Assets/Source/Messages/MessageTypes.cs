@@ -75,6 +75,7 @@
 
         public const int BRIDGE_HELPER_REPARENT = 3990;
         public const int BRIDGE_HELPER_SELECT = 3991;
+        public const int BRIDGE_HELPER_FOCUS = 3992;
 
         ///////////////////////////////////////////////////////////////////////
         // Tools
