@@ -48,6 +48,14 @@ namespace CreateAR.SpirePlayer
         private ElementSchemaProp<Vec3> _positionProp;
         private ElementSchemaProp<Vec3> _rotationProp;
         private ElementSchemaProp<Vec3> _scaleProp;
+
+        /// <summary>
+        /// Retrieves the element.
+        /// </summary>
+        public Element Element
+        {
+            get { return _element; }
+        }
         
         /// <summary>
         /// Preps the behaviour.

@@ -20,6 +20,13 @@ namespace CreateAR.SpirePlayer
         IAsyncToken<Element> Create(ElementData data);
 
         /// <summary>
+        /// Creates a new element in active scene.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="parentId">The parent to attach to.</param>
+        IAsyncToken<Element> Create(ElementData data, string parentId);
+
+        /// <summary>
         /// Deletes an element from active scene.
         /// </summary>
         /// <param name="element">The element.</param>

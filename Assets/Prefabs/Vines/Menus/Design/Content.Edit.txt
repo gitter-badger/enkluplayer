@@ -4,6 +4,7 @@
 	<Menu position=(0.3, 0, 0) >
 		<Button id='btn-move' label='Move' icon='move' />
 		<Button id='btn-setparent' label='Set Parent' icon='hierarchy' />
+		<Button id='btn-duplicate' label='Duplicate' icon='duplicate' />
 		<Button id='btn-delete' label='Delete' icon='trash' />
 	</Menu>
 </Container>

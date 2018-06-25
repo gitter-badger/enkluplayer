@@ -164,6 +164,11 @@ namespace CreateAR.SpirePlayer
             _root = new GameObject("Design");
             _root.AddComponent<LineManager>();
 
+            if (UnityEngine.Application.isEditor)
+            {
+                _root.AddComponent<HmdEditorKeyboardControls>();
+            }
+
             if (null == _elementUpdater.Active)
             {
                 Log.Error(this, "No active Scene!");

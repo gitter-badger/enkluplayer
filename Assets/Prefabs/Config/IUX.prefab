@@ -90,6 +90,9 @@ MonoBehaviour:
     - UIDataId: Device.Registration.Confirm
       Element: {fileID: 114604917433251608, guid: 4da7774c675e70f4983a39660b6d5dba,
         type: 2}
+    - UIDataId: Tools.BugReport
+      Element: {fileID: 114218430237588856, guid: cb05aba88bd10a1498b52756385648e8,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error

@@ -11,6 +11,7 @@
 			description.fontSize=50
 			showBackButton=true>
 		</Menu>
-		<Button id='btn-meshcapture' icon='world' position=(0, -0.2, 0) />
+		<Button id='btn-bugreport' icon='bug' position=(0, -0.2, 0) />
+		<Button id='btn-meshcapture' icon='world' position=(0.1, -0.2, 0) />
 	</Float>
 </Container>

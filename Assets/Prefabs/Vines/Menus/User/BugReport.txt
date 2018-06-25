@@ -1,0 +1,18 @@
+<?Vine>
+
+<Container>
+	<Cursor />
+	<Float face='camera' position=(0, 0, 2) focus.visible=false >
+		<Caption
+			label='Please send any bugs or feedback items to support@enklu.com.'
+			width=1200.0
+			fontSize=100
+			alignment='MidCenter'
+		/>
+		<Button
+			id='btn-ok'
+			label='Back'
+			icon='back'
+			position=(-0.1, -0.3, 0) />
+	</Float>
+</Container>

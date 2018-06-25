@@ -74,9 +74,6 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public ElementTxn Create(string parentId, ElementData data)
         {
-            byte[] bytes;
-            _Serializer.Serialize(data, out bytes);
-
             Actions.Add(new ElementActionData
             {
                 Type = ElementActionTypes.CREATE,

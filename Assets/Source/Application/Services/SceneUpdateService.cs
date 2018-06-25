@@ -81,13 +81,13 @@ namespace CreateAR.SpirePlayer
             for (var i = message.Actions.Length - 1; i >= 0; i--)
             {
                 var action = message.Actions[i];
-                if (null == action.Value)
+                if (action.Type == ElementActionTypes.CREATE
+                    || action.Type == ElementActionTypes.DELETE)
                 {
                     continue;
                 }
 
                 var valueString = action.Value.ToString();
-
                 switch (action.SchemaType)
                 {
                     case ElementActionSchemaTypes.INT:

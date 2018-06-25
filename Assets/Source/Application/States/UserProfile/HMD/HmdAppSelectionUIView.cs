@@ -31,6 +31,9 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..btn-meshcapture")]
         public ButtonWidget BtnMeshCapture { get; set; }
 
+        [InjectElements("..btn-bugreport")]
+        public ButtonWidget BtnBugReport { get; set; }
+
         /// <inheritdoc />
         public Body[] Apps
         {
@@ -91,6 +94,11 @@ namespace CreateAR.SpirePlayer
             BtnMeshCapture.Activator.OnActivated += _ =>
             {
                 Messages.Publish(MessageTypes.MESHCAPTURE);
+            };
+
+            BtnBugReport.Activator.OnActivated += _ =>
+            {
+                Messages.Publish(MessageTypes.BUGREPORT);
             };
         }
 

@@ -17,6 +17,11 @@ namespace CreateAR.SpirePlayer
         private readonly IVoiceCommandManager _voice;
 
         /// <summary>
+        /// Controls UI.
+        /// </summary>
+        private readonly IUIManager _ui;
+
+        /// <summary>
         /// Design controller.
         /// </summary>
         private HmdDesignController _design;
@@ -47,10 +52,18 @@ namespace CreateAR.SpirePlayer
         private ContentDesignController _controller;
 
         /// <summary>
+        /// UI frame.
+        /// </summary>
+        private UIManagerFrame _frame;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
-        public EditContentDesignState(IVoiceCommandManager voice)
+        public EditContentDesignState(
+            IUIManager ui,
+            IVoiceCommandManager voice)
         {
+            _ui = ui;
             _voice = voice;
         }
 
@@ -80,6 +93,7 @@ namespace CreateAR.SpirePlayer
                 _editContent = unityRoot.AddComponent<EditContentController>();
                 _editContent.OnMove += Edit_OnMove;
                 _editContent.OnReparent += Edit_OnReparent;
+                _editContent.OnDuplicate += Edit_OnDuplicate;
                 _editContent.OnDelete += Edit_OnDelete;
                 _editContent.enabled = false;
             }
@@ -120,6 +134,8 @@ namespace CreateAR.SpirePlayer
             _editContent.enabled = true;
 
             _voice.Register("back", Voice_OnBack);
+
+            _frame = _ui.CreateFrame();
         }
 
         /// <inheritdoc />
@@ -132,6 +148,7 @@ namespace CreateAR.SpirePlayer
         public void Exit()
         {
             CloseAll();
+            _frame.Release();
 
             _voice.Unregister("back");
 
@@ -192,6 +209,48 @@ namespace CreateAR.SpirePlayer
             CloseAll();
 
             _design.ChangeState<ReparentDesignState>(controller);
+        }
+
+        /// <summary>
+        /// Called when the edit menu asks to duplicate an element.
+        /// </summary>
+        /// <param name="controller"></param>
+        private void Edit_OnDuplicate(ContentDesignController controller)
+        {
+            CloseAll();
+
+            // duplicate data
+            var element = controller.Element;
+            var data = new ElementData(element);
+            GenerateSafeIds(data);
+
+            // find parent
+            var parent = controller.Element.Parent;
+
+            _design
+                .Elements
+                .Create(data, null == parent ? "root" : parent.Id)
+                .OnSuccess(el =>
+                {
+                    // back to main
+                    _design.ChangeState<MainDesignState>();
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Info(this, "Could not duplicate element : {0}.", exception);
+
+                    _ui
+                        .Open<ICommonErrorView>(new UIReference
+                        {
+                            UIDataId = UIDataIds.ERROR
+                        })
+                        .OnSuccess(el =>
+                        {
+                            el.Message = "There was an error duplicating this element. Try again later.";
+                            el.Action = "Ok";
+                            el.OnOk += () => _ui.Pop();
+                        });
+                });
         }
 
         /// <summary>
@@ -256,6 +315,24 @@ namespace CreateAR.SpirePlayer
         {
             // back to main
             _design.ChangeState<MainDesignState>();
+        }
+
+        /// <summary>
+        /// Generates new Ids for duplication/
+        /// </summary>
+        /// <param name="data">The element data.</param>
+        /// <returns></returns>
+        private static void GenerateSafeIds(ElementData data)
+        {
+            var id = Guid.NewGuid().ToString();
+
+            data.Id = id;
+            data.Schema.Strings["id"] = id;
+
+            foreach (var child in data.Children)
+            {
+                GenerateSafeIds(child);
+            }
         }
     }
 }

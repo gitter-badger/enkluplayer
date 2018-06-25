@@ -345,42 +345,28 @@ namespace CreateAR.SpirePlayer
         /// <param name="args">Event args.</param>
         private void Editor_OnSelectionChanged(ObjectSelectionChangedEventArgs args)
         {
-            // disable updates
-            for (var i = 0; i < args.DeselectedObjects.Count; i++)
-            {
-                var gameObject = args.DeselectedObjects[i];
-                var controller = gameObject.GetComponent<DesktopContentDesignController>();
-                if (null != controller)
-                {
-                    controller.DisableUpdates();
-                }
-            }
-
-            // enable updates
-            for (var i = 0; i < args.SelectedObjects.Count; i++)
-            {
-                var gameObject = args.SelectedObjects[i];
-                var controller = gameObject.GetComponent<DesktopContentDesignController>();
-                if (null != controller)
-                {
-                    controller.EnableUpdates();
-                }
-            }
-            
             // send to the OTHER SIDE
-            if (args.SelectedObjects.Count == 1)
+            var selectedObjs = args.SelectedObjects;
+            if (selectedObjs.Count == 1)
             {
-                var selected = args.SelectedObjects[0].GetComponent<DesktopContentDesignController>();
+                var selected = selectedObjs[0].GetComponent<ElementUpdateMonobehaviour>();
                 if (null == selected)
                 {
+                    Log.Error(this, "No controller.");
                     return;
                 }
-
+                
                 _bridge.Send(string.Format(
                     @"{{""type"":{0}, ""sceneId"":""{1}"", ""elementId"":""{2}""}}",
                     MessageTypes.BRIDGE_HELPER_SELECT,
                     _scenes.All[0],
                     selected.Element.Id));
+            }
+            else if (0 == selectedObjs.Count)
+            {
+                _bridge.Send(string.Format(
+                    @"{{""type"":{0}}}",
+                    MessageTypes.BRIDGE_HELPER_SELECT));
             }
         }
 
