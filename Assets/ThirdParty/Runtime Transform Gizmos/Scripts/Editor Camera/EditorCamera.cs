@@ -325,10 +325,8 @@ namespace RTEditor
 
         public void FocusOnSelection(Vector3 axis)
         {
-            StopCoroutine("StartSmoothFocusOnSelection");
-            StopCoroutine("StartSmoothZoom");
-            StopCoroutine("StartSmoothPan");
-
+            StopAllCoroutines();
+            
             _selectionAxis = axis;
             StartCoroutine("StartSmoothFocusOnSelectionAxis");
             StartCoroutine("StartSmoothFocusOnSelectionAxisRotation");
@@ -835,7 +833,7 @@ namespace RTEditor
         private IEnumerator StartSmoothFocusOnSelectionAxisRotation()
         {
             Vector3 axisVector = _selectionAxis;
-            var duration = _focusSettings.SmoothFocusTime;
+            var duration = _focusSettings.SmoothFocusTime * 1.5f;
             float elapsedTime = 0.0f;
             Quaternion desiredRotation = Quaternion.LookRotation(axisVector);
             Quaternion initialRotation = Camera.transform.rotation;

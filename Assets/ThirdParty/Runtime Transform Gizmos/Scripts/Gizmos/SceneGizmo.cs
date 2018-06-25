@@ -181,7 +181,7 @@ namespace RTEditor
             {
                 if (null != selected)
                 {
-                    EditorCamera.Instance.FocusOnSelection(new Vector3(1, 0, 0));
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(-1, 0, 0));
 
                     return;
                 }
@@ -192,7 +192,7 @@ namespace RTEditor
             {
                 if (null != selected)
                 {
-                    EditorCamera.Instance.FocusOnSelection(new Vector3(-1, 0, 0));
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(1, 0, 0));
 
                     return;
                 }
@@ -203,7 +203,7 @@ namespace RTEditor
             {
                 if (null != selected)
                 {
-                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, 1, 0));
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, -1, 0));
 
                     return;
                 }
@@ -214,7 +214,7 @@ namespace RTEditor
             {
                 if (null != selected)
                 {
-                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, -1, 0));
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, 1, 0));
 
                     return;
                 }
@@ -225,7 +225,7 @@ namespace RTEditor
             {
                 if (null != selected)
                 {
-                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, 0, 1));
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, 0, -1));
 
                     return;
                 }
@@ -236,7 +236,7 @@ namespace RTEditor
             {
                 if (null != selected)
                 {
-                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, 0, -1));
+                    EditorCamera.Instance.FocusOnSelection(new Vector3(0, 0, 1));
 
                     return;
                 }
