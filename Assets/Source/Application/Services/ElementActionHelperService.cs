@@ -107,7 +107,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="event">Focus.</param>
         private void OnFocus(BridgeHelperSelectEvent @event)
         {
-
+            _designer.Focus(@event.SceneId, @event.ElementId);
         }
     }
 }
