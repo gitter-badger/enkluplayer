@@ -55,16 +55,16 @@ A detailed diagram can be found [here](https://www.lucidchart.com/documents/view
 
 * [AssetManager](docs/assets.overview.md)
   * For details on how assets are uploaded, imported, and served, see [this diagram](https://www.lucidchart.com/documents/view/dd316cb9-5b27-4e67-8829-e508d91b4e79).
-  * [Ideas](assets.ideas.md)
+  * [Ideas](docs/assets.ideas.md)
 * [Scripting](docs/scripting.overview.md)
-  * [Ideas](scripting.ideas.md)
+  * [Ideas](docs/scripting.ideas.md)
 * [Element](docs/element.overview.md)
   * [Queries](docs/element.query.md)
-  * [Schema](element.schema.md)
-  * [Widget](element.widget.md)
-  * [Ideas](element.ideas.md)
-* [Vine](vine.overview.md)
-  * [Controllers](vine.controller.md)
+  * [Schema](docs/element.schema.md)
+  * [Widget](docs/element.widget.md)
+  * [Ideas](docs/element.ideas.md)
+* [Vine](docs/vine.overview.md)
+  * [Controllers](docs/vine.controller.md)
 * Miscellany
-  * [Standard Queries](standardqueries.overview.md)
+  * [Standard Queries](docs/standardqueries.overview.md)
 
