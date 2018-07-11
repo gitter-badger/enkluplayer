@@ -107,11 +107,7 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
-            var options = GenerateOptions();
-            for (var i = 0; i < options.Count; i++)
-            {
-                Grid.AddChild(options[i]);
-            }
+            Grid.Populate(GenerateOptions());
         }
 
         /// <summary>
@@ -127,6 +123,7 @@ namespace CreateAR.SpirePlayer
             {
                 var group = groups[i];
                 var assets = group.Assets;
+
                 var vine = string.Format(
                     "<?Vine><OptionGroup value='{0}' label='{0}'>",
                     group.GroupName);

@@ -109,7 +109,7 @@ namespace CreateAR.SpirePlayer
             if (!_stores.TryGetValue(txn.SceneId, out store))
             {
                 return new AsyncToken<ElementResponse>(new Exception(string.Format(
-                    "Cannot make transaction request against untracked scene [{0}]. Did you forget to call Track() first?",
+                    "Cannot make transaction request against untracked scene [{0}]. Did you forget to call Initialize() first?",
                     txn.SceneId)));
             }
 
@@ -194,6 +194,7 @@ namespace CreateAR.SpirePlayer
             // find affected elements
             AddAffectedElements(txn, elementResponse, ElementActionTypes.DELETE);
             AddAffectedElements(txn, elementResponse, ElementActionTypes.UPDATE);
+            AddAffectedElements(txn, elementResponse, ElementActionTypes.MOVE);
 
             // apply!
             store.Apply(txn);

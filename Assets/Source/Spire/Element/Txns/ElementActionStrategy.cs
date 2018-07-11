@@ -34,6 +34,8 @@ namespace CreateAR.SpirePlayer
             ElementActionData action,
             out string error)
         {
+            LogVerbose("Apply Create Action");
+
             var parent = Element;
             if (parent.Id != action.ParentId)
             {
@@ -71,6 +73,8 @@ namespace CreateAR.SpirePlayer
             ElementActionData action,
             out string error)
         {
+            LogVerbose("Apply Delete Action");
+
             // cannot delete root, so just find with ..
             var element = Element.FindOne<Element>(".." + action.ElementId);
             if (null == element)
@@ -92,6 +96,8 @@ namespace CreateAR.SpirePlayer
             ElementActionUpdateRecord record,
             out string error)
         {
+            LogVerbose("Apply Update Action");
+
             var element = record.Element;
             
             switch (record.SchemaType)
@@ -213,6 +219,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public bool ApplyMoveAction(ElementActionData action, out string error)
         {
+            LogVerbose("Apply Move Action");
+
             // find element (non-root only)
             var element = Element.FindOne<Element>(".." + action.ElementId);
             if (null == element)
@@ -241,7 +249,7 @@ namespace CreateAR.SpirePlayer
                     action.ParentId);
                 return false;
             }
-
+            
             parent.AddChild(element);
             element.Schema.Set("position", (Vec3) action.Value);
 
