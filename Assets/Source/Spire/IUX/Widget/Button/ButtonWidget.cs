@@ -147,13 +147,15 @@ namespace CreateAR.SpirePlayer.IUX
             _primitives = primitives;
             _voice = voice;
             _loader = loader;
-            _stateRenderer = new ButtonStateRenderer(tweens, colors, config, this);
+            _stateRenderer = new ButtonStateRenderer(tweens, colors, this);
         }
         
         /// <inheritdoc cref="Element"/>
         protected override void LoadInternalAfterChildren()
         {
             base.LoadInternalAfterChildren();
+
+            _stateRenderer.Initialize();
             
             // Activator
             {
@@ -216,7 +218,9 @@ namespace CreateAR.SpirePlayer.IUX
                 _texture.Release();
                 _texture = null;
             }
-            
+
+            _stateRenderer.Uninitialize();
+
             // activator
             {
                 _srcProp.OnChanged -= Src_OnChanged;

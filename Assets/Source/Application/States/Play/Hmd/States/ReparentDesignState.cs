@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Content we are reparenting.
         /// </summary>
-        private ContentDesignController _content;
+        private ElementSplashDesignController _content;
 
         /// <summary>
         /// Renders hierarchy.
@@ -63,7 +63,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Entering {0}.", GetType().Name);
 
-            _content = (ContentDesignController) context;
+            _content = (ElementSplashDesignController) context;
 
             var reparentContext = new ReparentDesignController.ReparentDesignControllerContext
             {

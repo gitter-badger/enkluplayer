@@ -49,7 +49,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Content controller.
         /// </summary>
-        private ContentDesignController _controller;
+        private ElementSplashDesignController _controller;
 
         /// <summary>
         /// UI frame.
@@ -120,7 +120,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Entering {0}.", GetType().Name);
 
-            _controller = (ContentDesignController) context;
+            _controller = (ElementSplashDesignController) context;
 
             // hide the splash on the controller
             _controller.HideSplashMenu();
@@ -168,7 +168,7 @@ namespace CreateAR.SpirePlayer
         /// Called when the place menu wants to confirm placement.
         /// </summary>
         /// <param name="controller">The prop controller.</param>
-        private void Move_OnConfirmController(ContentDesignController controller)
+        private void Move_OnConfirmController(ElementSplashDesignController controller)
         {
             _move.enabled = false;
             _dynamicRoot.Schema.Set("focus.visible", true);
@@ -191,7 +191,7 @@ namespace CreateAR.SpirePlayer
         /// Called to move the content.
         /// </summary>
         /// <param name="elementController">The controller.</param>
-        private void Edit_OnMove(ContentDesignController elementController)
+        private void Edit_OnMove(ElementSplashDesignController elementController)
         {
             CloseAll();
             
@@ -204,7 +204,7 @@ namespace CreateAR.SpirePlayer
         /// Called to reparent.
         /// </summary>
         /// <param name="controller">The controller.</param>
-        private void Edit_OnReparent(ContentDesignController controller)
+        private void Edit_OnReparent(ElementSplashDesignController controller)
         {
             CloseAll();
 
@@ -215,7 +215,7 @@ namespace CreateAR.SpirePlayer
         /// Called when the edit menu asks to duplicate an element.
         /// </summary>
         /// <param name="controller"></param>
-        private void Edit_OnDuplicate(ContentDesignController controller)
+        private void Edit_OnDuplicate(ElementSplashDesignController controller)
         {
             CloseAll();
 
@@ -257,7 +257,7 @@ namespace CreateAR.SpirePlayer
         /// Called to delete the prop.
         /// </summary>
         /// <param name="elementController">The controller.</param>
-        private void Edit_OnDelete(ContentDesignController elementController)
+        private void Edit_OnDelete(ElementSplashDesignController elementController)
         {
             CloseAll();
 
@@ -272,7 +272,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the prop adjust wishes to exit.
         /// </summary>
-        private void PropAdjust_OnExit(ContentDesignController controller)
+        private void PropAdjust_OnExit(ElementSplashDesignController controller)
         {
             // force final state update
             controller.FinalizeState();

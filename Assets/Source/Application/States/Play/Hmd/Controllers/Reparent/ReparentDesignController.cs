@@ -16,7 +16,7 @@ namespace CreateAR.SpirePlayer
             /// <summary>
             /// the content being moved.
             /// </summary>
-            public ContentDesignController Content;
+            public ElementSplashDesignController Content;
             
             /// <summary>
             /// Call to request reparent.

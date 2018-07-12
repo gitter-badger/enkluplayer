@@ -1,52 +1,24 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Design mode controller for a ContentWidget.
+    /// Base class for any menu that needs to update element TRS.
     /// </summary>
-    public class ContentDesignController : ElementDesignController
+    public class ElementUpdateDesignController : ElementDesignController
     {
-        /// <summary>
-        /// Context for this type of controller.
-        /// </summary>
-        public class ContentDesignControllerContext
-        {
-            /// <summary>
-            /// Call when adjust is requested.
-            /// </summary>
-            public Action<ContentDesignController> OnAdjust;
-
-            /// <summary>
-            /// The delegate to push updates to.
-            /// </summary>
-            public IElementUpdateDelegate Delegate;
-        }
-
         /// <summary>
         /// Constants.
         /// </summary>
         private const float EPSILON = 0.05f;
         private const float TIME_EPSILON = 0.1f;
-
-        /// <summary>
-        /// The context passed in.
-        /// </summary>
-        private ContentDesignControllerContext _context;
-
-        /// <summary>
-        /// Controls the prop splash menu.
-        /// </summary>
-        private ContentSplashController _splashController;
         
         /// <summary>
         /// Time of last finalize.
         /// </summary>
         private DateTime _lastFinalize;
-        
+
         /// <summary>
         /// True iff needs to save.
         /// </summary>
@@ -58,56 +30,44 @@ namespace CreateAR.SpirePlayer
         private bool _updatesEnabled = false;
 
         /// <summary>
+        /// The context passed in.
+        /// </summary>
+        protected Context _context;
+
+        /// <summary>
         /// Props.
         /// </summary>
         private ElementSchemaProp<Vec3> _positionProp;
         private ElementSchemaProp<Vec3> _rotationProp;
         private ElementSchemaProp<Vec3> _scaleProp;
-        
-        /// <inheritdoc />
+
+        /// <summary>
+        /// Context for this type of controller.
+        /// </summary>
+        public class Context
+        {
+            /// <summary>
+            /// The delegate to push updates to.
+            /// </summary>
+            public IElementUpdateDelegate Delegate;
+        }
+
         public override void Initialize(Element element, object context)
         {
             base.Initialize(element, context);
 
-            _context = (ContentDesignControllerContext) context;
-            
+            _context = (Context) context;
+
             _positionProp = Element.Schema.Get<Vec3>("position");
             _rotationProp = Element.Schema.Get<Vec3>("rotation");
             _scaleProp = Element.Schema.Get<Vec3>("scale");
-
-            InitializeSplashMenu();
         }
 
-        /// <inheritdoc />
         public override void Uninitialize()
         {
             base.Uninitialize();
 
-            UninitializeSplashController();
-
             _updatesEnabled = false;
-        }
-
-        /// <summary>
-        /// Hides the splash menu.
-        /// </summary>
-        public void HideSplashMenu()
-        {
-            if (null != _splashController)
-            {
-                _splashController.Root.Schema.Set("visible", false);
-            }
-        }
-
-        /// <summary>
-        /// Shows the splash menu.
-        /// </summary>
-        public void ShowSplashMenu()
-        {
-            if (null != _splashController)
-            {
-                _splashController.Root.Schema.Set("visible", true);
-            }
         }
 
         /// <summary>
@@ -132,30 +92,6 @@ namespace CreateAR.SpirePlayer
         public void FinalizeState()
         {
             UpdateDelegate(float.Epsilon);
-        }
-
-        /// <summary>
-        /// Creates splash menu.
-        /// </summary>
-        private void InitializeSplashMenu()
-        {
-            _splashController = gameObject.AddComponent<ContentSplashController>();
-            _splashController.OnOpen += Splash_OnOpen;
-            _splashController.Initialize(Element.Schema.Get<string>("name").Value);
-        }
-
-        /// <summary>
-        /// Uninits the splash controller.
-        /// </summary>
-        private void UninitializeSplashController()
-        {
-            if (null != _splashController)
-            {
-                _splashController.OnOpen -= Splash_OnOpen;
-
-                Destroy(_splashController);
-                _splashController = null;
-            }
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>
@@ -231,14 +167,6 @@ namespace CreateAR.SpirePlayer
 
                 _context.Delegate.FinalizeUpdate(Element);
             }
-        }
-
-        /// <summary>
-        /// Called when the splash requests to open.
-        /// </summary>
-        private void Splash_OnOpen()
-        {
-            _context.OnAdjust(this);
         }
     }
 }

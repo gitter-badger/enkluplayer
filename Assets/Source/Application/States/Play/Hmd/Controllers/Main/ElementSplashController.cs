@@ -1,15 +1,13 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Controls the splash menu for content.
+    /// Controls the splash menu for anchors.
     /// </summary>
-    [InjectVine("Content.Splash")]
-    public class ContentSplashController : InjectableIUXController
+    [InjectVine("Generic.Splash")]
+    public class ElementSplashController : InjectableIUXController
     {
         /// <summary>
         /// Splash button.
@@ -18,12 +16,12 @@ namespace CreateAR.SpirePlayer
         {
             get { return (ButtonWidget) Root; }
         }
-        
+
         /// <summary>
         /// Called when open requested.
         /// </summary>
         public event Action OnOpen;
-        
+
         /// <summary>
         /// Initiailizes the controller.
         /// </summary>
@@ -38,16 +36,24 @@ namespace CreateAR.SpirePlayer
             BtnSplash.Activator.OnActivated += Activator_OnActivated;
         }
 
+        /// <inheritdoc />
+        protected override void Awake()
+        {
+            base.Awake();
+
+            BtnSplash.Activator.OnActivated += Activator_OnActivated;
+        }
+
         /// <inheritdoc cref="MonoBehaviour" />
         private void Update()
         {
-            // scale
             var scale = transform.lossyScale;
-            var adjustedScale = new Vector3(
-                1f / scale.x,
-                1f / scale.y,
-                1f / scale.z);
-            BtnSplash.Activator.GameObject.transform.localScale = adjustedScale;
+            BtnSplash.Schema.Set(
+                "scale",
+                new Vec3(
+                    1f / scale.x,
+                    1f / scale.y,
+                    1f / scale.z));
         }
 
         /// <summary>

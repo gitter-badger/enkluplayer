@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// The design controller.
         /// </summary>
-        private ContentDesignController _controller;
+        private ElementSplashDesignController _controller;
         
         /// <summary>
         /// Elements.
@@ -29,28 +29,28 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when a move is requested.
         /// </summary>
-        public event Action<ContentDesignController> OnMove;
+        public event Action<ElementSplashDesignController> OnMove;
 
         /// <summary>
         /// Called when a reparent is requested.
         /// </summary>
-        public event Action<ContentDesignController> OnReparent;
+        public event Action<ElementSplashDesignController> OnReparent;
 
         /// <summary>
         /// Called when a delete is requested.
         /// </summary>
-        public event Action<ContentDesignController> OnDelete;
+        public event Action<ElementSplashDesignController> OnDelete;
 
         /// <summary>
         /// Called when a duplicate is requested.
         /// </summary>
-        public event Action<ContentDesignController> OnDuplicate;
+        public event Action<ElementSplashDesignController> OnDuplicate;
 
         /// <summary>
         /// Initializes the controller.
         /// </summary>
         /// <param name="controller"></param>
-        public void Initialize(ContentDesignController controller)
+        public void Initialize(ElementSplashDesignController controller)
         {
             _controller = controller;
         }

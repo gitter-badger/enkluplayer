@@ -12,7 +12,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private readonly TweenConfig _tweens;
         private readonly ColorConfig _colors;
-        public readonly WidgetConfig _config;
         
         /// <summary>
         /// The button to affect.
@@ -20,18 +19,61 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly ButtonWidget _button;
 
         /// <summary>
+        /// Scale property.
+        /// </summary>
+        private ElementSchemaProp<Vec3> _scaleProp;
+
+        private ElementSchemaProp<Vec3> _readyScaleProp;
+        private ElementSchemaProp<Vec3> _activatingScaleProp;
+        private ElementSchemaProp<Vec3> _activatedScaleProp;
+
+        private ElementSchemaProp<string> _readyColorProp;
+        private ElementSchemaProp<string> _activatingColorProp;
+        private ElementSchemaProp<string> _activatedColorProp;
+
+        private ElementSchemaProp<string> _readyTweenProp;
+        private ElementSchemaProp<string> _activatingTweenProp;
+        private ElementSchemaProp<string> _activatedTweenProp;
+        
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ButtonStateRenderer(
             TweenConfig tweens,
             ColorConfig colors,
-            WidgetConfig config,
             ButtonWidget button)
         {
             _tweens = tweens;
             _colors = colors;
-            _config = config;
             _button = button;
+        }
+
+        /// <summary>
+        /// Called before first Update.
+        /// </summary>
+        public void Initialize()
+        {
+            _scaleProp = _button.Schema.GetOwn("scale", Vec3.One);
+
+            _readyScaleProp = _button.Schema.Get<Vec3>("ready.scale");
+            _activatingScaleProp = _button.Schema.Get<Vec3>("activating.scale");
+            _activatedScaleProp = _button.Schema.Get<Vec3>("activated.scale");
+
+            _readyColorProp = _button.Schema.Get<string>("ready.color");
+            _activatingColorProp = _button.Schema.Get<string>("activating.color");
+            _activatedColorProp = _button.Schema.Get<string>("activated.color");
+
+            _readyTweenProp = _button.Schema.Get<string>("ready.tween");
+            _activatingTweenProp = _button.Schema.Get<string>("activating.tween");
+            _activatedTweenProp = _button.Schema.Get<string>("activated.tween");
+        }
+
+        /// <summary>
+        /// Called when inactive.
+        /// </summary>
+        public void Uninitialize()
+        {
+
         }
         
         /// <summary>
@@ -60,9 +102,10 @@ namespace CreateAR.SpirePlayer.IUX
                 shellStateColor,
                 tweenLerp);
 
+            var defaultScale = _scaleProp.Value.ToVector();
             _button.GameObject.transform.localScale = Vector3.Lerp(
-                _button.GameObject.transform.localScale,
-                GetScale(state),
+                defaultScale,
+                GetScale(defaultScale, state),
                 tweenLerp);
 
             var captionVirtualColor = isInteractable
@@ -85,12 +128,21 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private VirtualColor GetColor(ButtonState state)
         {
-            var virtualColorString = _button
-                .Schema
-                .Get<string>(state.ToString().ToLowerInvariant() + ".color")
-                .Value;
-
-            return ParseColor(virtualColorString);
+            switch (state)
+            {
+                case ButtonState.Activated:
+                {
+                    return ParseColor(_activatedColorProp.Value);
+                }
+                case ButtonState.Activating:
+                {
+                    return ParseColor(_activatingColorProp.Value);
+                }
+                default:
+                {
+                    return ParseColor(_readyColorProp.Value);
+                }
+            }
         }
 
         /// <summary>
@@ -100,26 +152,55 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private TweenType GetTween(ButtonState state)
         {
-            var tweenTypeString = _button
-                .Schema
-                .Get<string>(state.ToString().ToLowerInvariant())
-                .Value;
-
-            return ParseTween(tweenTypeString);
+            switch (state)
+            {
+                case ButtonState.Activated:
+                {
+                    return ParseTween(_activatedTweenProp.Value);
+                }
+                case ButtonState.Activating:
+                {
+                    return ParseTween(_activatingTweenProp.Value);
+                }
+                default:
+                {
+                    return ParseTween(_readyTweenProp.Value);
+                }
+            }
         }
 
         /// <summary>
         /// Retrieves the scale value for the given state.
         /// </summary>
+        /// <param name="defaultScale">Starting scale.</param>
         /// <param name="state">State.</param>
         /// <returns></returns>
-        private Vector3 GetScale(ButtonState state)
+        private Vector3 GetScale(Vector3 defaultScale, ButtonState state)
         {
-            return _button
-                .Schema
-                .Get<Vec3>(state.ToString().ToLowerInvariant() + ".scale")
-                .Value
-                .ToVector();
+            Vec3 target;
+            switch (state)
+            {
+                case ButtonState.Activated:
+                {
+                    target = _activatedScaleProp.Value;
+                    break;
+                }
+                case ButtonState.Activating:
+                {
+                    target = _activatingScaleProp.Value;
+                    break;
+                }
+                default:
+                {
+                    target = _readyScaleProp.Value;
+                    break;
+                }
+            }
+
+            return new Vector3(
+                target.x / defaultScale.x,
+                target.y / defaultScale.y,
+                target.z / defaultScale.z);
         }
 
         /// <summary>

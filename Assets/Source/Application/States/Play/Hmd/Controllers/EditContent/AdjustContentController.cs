@@ -13,7 +13,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Ties together the propdata and content.
         /// </summary>
-        private ContentDesignController _controller;
+        private ElementSplashDesignController _controller;
 
         /// <summary>
         /// Starting scale.
@@ -76,13 +76,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the menu should be exited.
         /// </summary>
-        public event Action<ContentDesignController> OnExit;
+        public event Action<ElementSplashDesignController> OnExit;
 
         /// <summary>
         /// Initiailizes the menu.
         /// </summary>
         /// <param name="controller">The prop controller.</param>
-        public void Initialize(ContentDesignController controller)
+        public void Initialize(ElementSplashDesignController controller)
         {
             _controller = controller;
             

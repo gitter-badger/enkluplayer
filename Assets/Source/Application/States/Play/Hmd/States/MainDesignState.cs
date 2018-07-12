@@ -12,9 +12,12 @@ namespace CreateAR.SpirePlayer
     public class MainDesignState : IArDesignState
     {
         /// <summary>
-        /// Controller group tag for content.
+        /// Controller group tags.
         /// </summary>
         private const string TAG_CONTENT = "content";
+        private const string TAG_CONTAINER = "container";
+        private const string TAG_ANCHOR = "anchor";
+        private const string TAG_SCAN = "scan";
 
         /// <summary>
         /// Configuration values.
@@ -55,11 +58,6 @@ namespace CreateAR.SpirePlayer
         /// Clear all menu.
         /// </summary>
         private ClearSceneController _clearScene;
-        
-        /// <summary>
-        /// Content filter.
-        /// </summary>
-        private readonly TypeElementControllerFilter _contentFilter = new TypeElementControllerFilter(typeof(ContentWidget));
 
         /// <summary>
         /// Constructor.
@@ -129,15 +127,31 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Entering {0}", GetType().Name);
 
+            // content
             _controllers
                 .Group(TAG_CONTENT)
-                .Filter(_contentFilter)
-                .Add<ContentDesignController>(
-                    new ContentDesignController.ContentDesignControllerContext
+                .Filter(new TypeElementControllerFilter(typeof(ContentWidget)))
+                .Add<ElementSplashDesignController>(
+                    new ElementSplashDesignController.DesignContext
                     {
                         Delegate = _design.Elements,
                         OnAdjust = Content_OnAdjust
                     });
+
+            // containers
+            /*
+            _controllers
+                .Group(TAG_CONTAINER)
+                .Filter(new TypeElementControllerFilter(typeof(ContainerWidget)))
+                .Add<ElementSplashDesignController>(
+                    new ElementUpdateDesignController.Context
+                    {
+                        Delegate = _design.Elements
+                    });*/
+
+            // anchors
+            
+            // scans
 
             _splash.enabled = true;
         }
@@ -175,7 +189,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void CloseAllPropControllerSplashes()
         {
-            var designControllers = new List<ContentDesignController>();
+            var designControllers = new List<ElementSplashDesignController>();
             _controllers.Group(TAG_CONTENT).All(designControllers);
 
             for (var i = 0; i < designControllers.Count; i++)
@@ -300,7 +314,7 @@ namespace CreateAR.SpirePlayer
         /// Called when content requests an adjustment.
         /// </summary>
         /// <param name="controller">The controller.</param>
-        private void Content_OnAdjust(ContentDesignController controller)
+        private void Content_OnAdjust(ElementDesignController controller)
         {
             _design.ChangeState<EditContentDesignState>(controller);
         }
