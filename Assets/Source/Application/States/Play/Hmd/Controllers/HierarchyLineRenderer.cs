@@ -6,9 +6,13 @@ namespace CreateAR.SpirePlayer
     public class HierarchyLineRenderer : InjectableMonoBehaviour
     {
         private Material _material;
+        private Vector3 _cameraForward;
 
         [Inject]
         public IAppSceneManager Scenes { get; set; }
+
+        public float ArrowSize = 0.1f;
+        public float ArrowDelta = 0.3f;
 
         protected override void Awake()
         {
@@ -25,11 +29,12 @@ namespace CreateAR.SpirePlayer
 
         private void OnPostRender()
         {
+            _cameraForward = Camera.main.transform.forward;
             _material.SetPass(0);
 
             GL.PushMatrix();
             GL.LoadProjectionMatrix(Camera.main.projectionMatrix);
-            GL.Color(0.5f * Color.white);
+            GL.Color(0.5f * new Color(1, 1, 1, 1));
             GL.Begin(GL.LINES);
 
             // draw each scene
@@ -72,8 +77,18 @@ namespace CreateAR.SpirePlayer
 
         private void Draw(Transform child, Transform parent)
         {
-            GL.Vertex(child.position);
-            GL.Vertex(parent.position);
+            var a = child.position;
+            var b = parent.position;
+            GL.Vertex(a);
+            GL.Vertex(b);
+
+            var d = (b - a).normalized;
+            var right = Vector3.Cross(_cameraForward, d);
+            
+            GL.Vertex(a + ArrowDelta * d);
+            GL.Vertex(a + ArrowDelta * d + ArrowSize * (right - d).normalized);
+            GL.Vertex(a + ArrowDelta * d);
+            GL.Vertex(a + ArrowDelta * d - ArrowSize * (right + d).normalized);
         }
     }
 }
