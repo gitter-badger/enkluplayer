@@ -35,12 +35,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// GameObject the importer uses.
         /// </summary>
         private GameObject _meshCaptureGameObject;
-
-        /// <summary>
-        /// Collider for sleection.
-        /// </summary>
-        private BoxCollider _collider;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -66,7 +61,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LoadInternalBeforeChildren();
 
-            _srcUrlProp = Schema.Get<string>("meshcapture.relUrl");
+            _srcUrlProp = Schema.Get<string>("srcUrl");
             _srcUrlProp.OnChanged += MeshCapture_OnChanged;
             UpdateMeshCapture();
         }
@@ -146,8 +141,14 @@ namespace CreateAR.SpirePlayer.IUX
                         var bounds = action(_meshCaptureGameObject);
 
                         // update collider with new bounds
-                        _collider.center = bounds.center;
-                        _collider.size = bounds.size;
+                        var collider = GameObject.GetComponent<BoxCollider>();
+                        if (null == collider)
+                        {
+                            collider = GameObject.AddComponent<BoxCollider>();
+                        }
+
+                        collider.center = bounds.center;
+                        collider.size = bounds.size;
                     });
                 })
                 .OnFailure(exception => Log.Error(this, "Could not download mesh capture : {0}", exception));
