@@ -2,6 +2,7 @@
 using System.Collections;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
 using Jint.Unity;
 using UnityEngine;
@@ -61,6 +62,11 @@ namespace CreateAR.SpirePlayer
         private readonly IConnection _connection;
 
         /// <summary>
+        /// Application-wide messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
+        /// <summary>
         /// Status.
         /// </summary>
         private int _connectionStatusId = -1;
@@ -74,6 +80,11 @@ namespace CreateAR.SpirePlayer
         /// Interrupt view id.
         /// </summary>
         private int _interruptId;
+
+        /// <summary>
+        /// Unsubscribe for critical error subscriber.
+        /// </summary>
+        private Action _criticalErrorUnsub;
         
         /// <summary>
         /// Plays an App.
@@ -86,7 +97,8 @@ namespace CreateAR.SpirePlayer
             IAppController app,
             IArService ar,
             IUIManager ui,
-            IConnection connection)
+            IConnection connection,
+            IMessageRouter messages)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -96,6 +108,7 @@ namespace CreateAR.SpirePlayer
             _ar = ar;
             _ui = ui;
             _connection = connection;
+            _messages = messages;
         }
 
         /// <inheritdoc />
@@ -120,6 +133,11 @@ namespace CreateAR.SpirePlayer
 #endif
             );
 
+            // watch for errors
+            _criticalErrorUnsub = _messages.Subscribe(
+                MessageTypes.PLAY_CRITICAL_ERROR,
+                Messages_OnCriticalError);
+
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
@@ -143,6 +161,9 @@ namespace CreateAR.SpirePlayer
             // unwatch tracking
             _ar.OnTrackingOffline -= Ar_OnTrackingOffline;
             _ar.OnTrackingOnline -= Ar_OnTrackingOnline;
+
+            // unsubscribe from critical errors
+            _criticalErrorUnsub();
             
             // teardown app
             _app.Unload();
@@ -202,7 +223,32 @@ namespace CreateAR.SpirePlayer
                 _connectionStatusId = -1;
             }
         }
-        
+
+        /// <summary>
+        /// Called when there is some critical application error and we need to go back to userprofile.
+        /// </summary>
+        private void Messages_OnCriticalError(object _)
+        {
+            int id;
+            _ui
+                .Open<ICommonErrorView>(new UIReference
+                {
+                    UIDataId = UIDataIds.ERROR
+                }, out id)
+                .OnSuccess(el =>
+                {
+                    el.Message = "There was an error making a change to the scene. Please reload.";
+                    el.Action = "Reload";
+                    el.OnOk += () => _messages.Publish(MessageTypes.USER_PROFILE);
+                })
+                .OnFailure(ex =>
+                {
+                    Log.Error(this, "Could not open error dialog : {0}", ex);
+
+                    _messages.Publish(MessageTypes.USER_PROFILE);
+                });
+        }
+
         /// <summary>
         /// Called when we've lost AR tracking.
         /// </summary>

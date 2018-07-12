@@ -1,6 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
-using Utils;
 
 namespace CreateAR.SpirePlayer
 {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -12,6 +13,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class ElementTxnManager : IElementTxnManager
     {
+        /// <summary>
+        /// Dispatches application-wide messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
         /// <summary>
         /// Authenticates txns.
         /// </summary>
@@ -56,10 +62,12 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public ElementTxnManager(
+            IMessageRouter messages,
             IAppTxnAuthenticator authenticator,
             IElementActionStrategyFactory strategyFactory,
             IElementTxnStoreFactory storeFactory)
         {
+            _messages = messages;
             _authenticator = authenticator;
             _strategyFactory = strategyFactory;
             _storeFactory = storeFactory;
@@ -77,6 +85,7 @@ namespace CreateAR.SpirePlayer
             foreach (var sceneId in _scenes.All)
             {
                 Log.Info(this, "Initializing scene : {0}", sceneId);
+
                 var root = _scenes.Root(sceneId);
                 var store = _storeFactory.Instance(_strategyFactory.Instance(root));
 
@@ -108,6 +117,8 @@ namespace CreateAR.SpirePlayer
             IElementTxnStore store;
             if (!_stores.TryGetValue(txn.SceneId, out store))
             {
+                _messages.Publish(MessageTypes.PLAY_CRITICAL_ERROR);
+
                 return new AsyncToken<ElementResponse>(new Exception(string.Format(
                     "Cannot make transaction request against untracked scene [{0}]. Did you forget to call Initialize() first?",
                     txn.SceneId)));

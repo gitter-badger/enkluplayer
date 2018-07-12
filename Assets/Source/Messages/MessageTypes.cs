@@ -10,6 +10,7 @@
         ///////////////////////////////////////////////////////////////////////
         // Errors.
         ///////////////////////////////////////////////////////////////////////
+        public const int PLAY_CRITICAL_ERROR = -100;
         public const int ARSERVICE_EXCEPTION = -10;
         public const int ARSERVICE_INTERRUPTED = -11;
         public const int FATAL_ERROR = -1;
