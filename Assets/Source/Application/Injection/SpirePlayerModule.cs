@@ -476,7 +476,7 @@ namespace CreateAR.SpirePlayer
 
             // design
             {
-                binder.Bind<IElementControllerManager>().To<ElementControllerGroup>().ToSingleton();
+                binder.Bind<IElementControllerManager>().To<ElementControllerManager>().ToSingleton();
 
                 // states
                 {

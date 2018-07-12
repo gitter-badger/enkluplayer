@@ -24,7 +24,11 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public bool Include(Element element)
         {
-            return element.GetType() == _type;
+            var elementType = element.GetType();
+            
+            return elementType == _type
+                || elementType.IsSubclassOf(_type)
+                || _type.IsAssignableFrom(elementType);
         }
     }
 

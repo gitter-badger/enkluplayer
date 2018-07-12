@@ -74,6 +74,7 @@ namespace CreateAR.SpirePlayer
 
             _controllers
                 .Group(TAG_REPARENT)
+                .Filter(new TypeElementControllerFilter(typeof(IUnityElement)))
                 .Add<ReparentDesignController>(reparentContext);
 
             _lines = Camera.main.gameObject.GetComponent<HierarchyLineRenderer>();

@@ -63,6 +63,7 @@ namespace CreateAR.SpirePlayer
 
             // create!
             group = new ElementControllerGroup(_scenes, tag);
+            group.Active = true;
             _groups.Add(group);
 
             return group;
