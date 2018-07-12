@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -33,8 +34,6 @@ namespace CreateAR.SpirePlayer
             var config = LoadConfig();
 
             Log.Info(this, "ApplicationConfig:\n{0}", config);
-
-            Log.Filter = config.Log.ParsedLevel;
 
             binder.Bind<ApplicationConfig>().ToValue(config);
             binder.Bind<NetworkConfig>().ToValue(config.Network);
