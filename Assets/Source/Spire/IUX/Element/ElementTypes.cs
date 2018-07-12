@@ -89,6 +89,9 @@ namespace CreateAR.SpirePlayer
         [ElementLink(typeof(LightWidget))]
         public const int LIGHT = 1100;
 
+        [ElementLink(typeof(ScanWidget))]
+        public const int SCAN = 1200;
+
         [ElementLink(typeof(ScaleTransition))]
         public const int TRANSITION_SCALE = 10000;
 
