@@ -1,7 +1,9 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -24,6 +26,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Url to download from.
         /// </summary>
         private ElementSchemaProp<string> _srcUrlProp;
+        private ElementSchemaProp<bool> _hideProp;
 
         /// <summary>
         /// In progress download.
@@ -63,6 +66,9 @@ namespace CreateAR.SpirePlayer.IUX
             _srcUrlProp = Schema.Get<string>("srcUrl");
             _srcUrlProp.OnChanged += MeshCapture_OnChanged;
             UpdateMeshCapture();
+
+            _hideProp = Schema.GetOwn("hide", false);
+            _hideProp.OnChanged += Hide_OnChanged;
         }
 
         /// <inheritdoc />
@@ -119,6 +125,7 @@ namespace CreateAR.SpirePlayer.IUX
 
                     _meshCaptureGameObject = new GameObject("MeshCapture");
                     _meshCaptureGameObject.transform.SetParent(GameObject.transform);
+                    _meshCaptureGameObject.SetActive(!_hideProp.Value);
 
                     // import
                     _importer.Import(response.Payload, (exception, action) =>
@@ -153,6 +160,17 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Updates visibility of mesh.
+        /// </summary>
+        private void UpdateMeshVisibility()
+        {
+            if (null != _meshCaptureGameObject)
+            {
+                _meshCaptureGameObject.SetActive(!_hideProp.Value);
+            }
+        }
+
+        /// <summary>
         /// Called when mesh capture has changed.
         /// </summary>
         private void MeshCapture_OnChanged(
@@ -161,6 +179,17 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             UpdateMeshCapture();
+        }
+
+        /// <summary>
+        /// Called when hide prop has changed.
+        /// </summary>
+        private void Hide_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            UpdateMeshVisibility();
         }
     }
 }
