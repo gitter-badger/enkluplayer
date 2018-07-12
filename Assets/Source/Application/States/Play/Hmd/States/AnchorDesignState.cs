@@ -15,6 +15,11 @@ namespace CreateAR.SpirePlayer
     public class AnchorDesignState : IArDesignState
     {
         /// <summary>
+        /// Controller group tag for anchors.
+        /// </summary>
+        private const string TAG_ANCHOR = "anchor";
+
+        /// <summary>
         /// Manages controllers on elements.
         /// </summary>
         private readonly IElementControllerManager _controllers;
@@ -43,12 +48,7 @@ namespace CreateAR.SpirePlayer
         /// Used here and there to iterate.
         /// </summary>
         private readonly List<AnchorDesignController> _scratchList = new List<AnchorDesignController>();
-
-        /// <summary>
-        /// Distance filter.
-        /// </summary>
-        private readonly DistanceElementControllerFilter _distanceFilter = new DistanceElementControllerFilter();
-
+        
         /// <summary>
         /// Content filter.
         /// </summary>
@@ -164,7 +164,7 @@ namespace CreateAR.SpirePlayer
             _anchors.enabled = true;
 
             _controllers
-                .Filter(_distanceFilter)
+                .Group(TAG_ANCHOR)
                 .Filter(_anchorFilter)
                 .Add<AnchorDesignController>(new AnchorDesignController.AnchorDesignControllerContext
                 {
@@ -187,10 +187,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            _controllers
-                .Remove<AnchorDesignController>()
-                .Unfilter(_distanceFilter)
-                .Unfilter(_anchorFilter);
+            _controllers.Destroy(TAG_ANCHOR);
 
             CloseAll();
 
@@ -214,7 +211,7 @@ namespace CreateAR.SpirePlayer
         private void CloseSplashMenus()
         {
             _scratchList.Clear();
-            _controllers.All(_scratchList);
+            _controllers.Group(TAG_ANCHOR).All(_scratchList);
             for (int i = 0, len = _scratchList.Count; i < len; i++)
             {
                 _scratchList[i].CloseSplash();
@@ -227,7 +224,7 @@ namespace CreateAR.SpirePlayer
         private void OpenSplashMenus()
         {
             _scratchList.Clear();
-            _controllers.All(_scratchList);
+            _controllers.Group(TAG_ANCHOR).All(_scratchList);
             for (int i = 0, len = _scratchList.Count; i < len; i++)
             {
                 _scratchList[i].OpenSplash();

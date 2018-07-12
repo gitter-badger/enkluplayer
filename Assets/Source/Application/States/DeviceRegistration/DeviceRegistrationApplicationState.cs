@@ -25,12 +25,7 @@ namespace CreateAR.SpirePlayer
         private readonly UserPreferenceService _preferences;
         private readonly ApiController _api;
         private readonly DeviceResourceUpdateService _deviceUpdateService;
-
-        /// <summary>
-        /// Loading view id.
-        /// </summary>
-        private int _loadingId;
-
+        
         /// <summary>
         /// UI frame.
         /// </summary>
@@ -61,11 +56,12 @@ namespace CreateAR.SpirePlayer
             _frame = _ui.CreateFrame();
 
             // show loading UI
+            int id;
             _ui
                 .Open<ICommonLoadingView>(new UIReference
                 {
                     UIDataId = UIDataIds.LOADING
-                }, out _loadingId);
+                }, out id);
 
             // continues to next state
             Action @continue = () => _messages.Publish(MessageTypes.DEVICE_REGISTRATION_COMPLETE);

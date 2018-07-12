@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
@@ -12,6 +11,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class MainDesignState : IArDesignState
     {
+        /// <summary>
+        /// Controller group tag for content.
+        /// </summary>
+        private const string TAG_CONTENT = "content";
+
         /// <summary>
         /// Configuration values.
         /// </summary>
@@ -51,12 +55,7 @@ namespace CreateAR.SpirePlayer
         /// Clear all menu.
         /// </summary>
         private ClearSceneController _clearScene;
-
-        /// <summary>
-        /// Distance filter.
-        /// </summary>
-        private readonly DistanceElementControllerFilter _distanceFilter = new DistanceElementControllerFilter();
-
+        
         /// <summary>
         /// Content filter.
         /// </summary>
@@ -120,9 +119,9 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Uninitialize()
         {
-            UnityEngine.Object.Destroy(_splash);
-            UnityEngine.Object.Destroy(_mainMenu);
-            UnityEngine.Object.Destroy(_clearScene);
+            Object.Destroy(_splash);
+            Object.Destroy(_mainMenu);
+            Object.Destroy(_clearScene);
         }
 
         /// <inheritdoc />
@@ -131,7 +130,7 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Entering {0}", GetType().Name);
 
             _controllers
-                .Filter(_distanceFilter)
+                .Group(TAG_CONTENT)
                 .Filter(_contentFilter)
                 .Add<ContentDesignController>(
                     new ContentDesignController.ContentDesignControllerContext
@@ -152,10 +151,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            _controllers
-                .Remove<ContentDesignController>()
-                .Unfilter(_contentFilter)
-                .Unfilter(_distanceFilter);
+            _controllers.Destroy(TAG_CONTENT);
 
             CloseAll();
 
@@ -180,7 +176,7 @@ namespace CreateAR.SpirePlayer
         private void CloseAllPropControllerSplashes()
         {
             var designControllers = new List<ContentDesignController>();
-            _controllers.All(designControllers);
+            _controllers.Group(TAG_CONTENT).All(designControllers);
 
             for (var i = 0; i < designControllers.Count; i++)
             {
