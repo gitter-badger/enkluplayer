@@ -162,7 +162,6 @@ namespace CreateAR.SpirePlayer
             App = app;
 
             _root = new GameObject("Design");
-            _root.AddComponent<LineManager>();
             
             if (UnityEngine.Application.isEditor)
             {

@@ -149,10 +149,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UninitializeSplashController()
         {
-            _splashController.OnOpen -= Splash_OnOpen;
+            if (null != _splashController)
+            {
+                _splashController.OnOpen -= Splash_OnOpen;
 
-            Destroy(_splashController);
-            _splashController = null;
+                Destroy(_splashController);
+                _splashController = null;
+            }
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>

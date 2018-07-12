@@ -33,7 +33,12 @@ namespace CreateAR.SpirePlayer
         /// Content we are reparenting.
         /// </summary>
         private ContentDesignController _content;
-        
+
+        /// <summary>
+        /// Renders hierarchy.
+        /// </summary>
+        private HierarchyLineRenderer _lines;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -69,17 +74,23 @@ namespace CreateAR.SpirePlayer
             var reparentContext = new ReparentDesignController.ReparentDesignControllerContext
             {
                 Content = _content,
-                Lines = _unityRoot.GetComponent<ILineManager>(),
                 Reparent = Reparent,
                 Cancel = Cancel
-
             };
 
             _controllers
                 .Filter(_distance)
                 .Add<ReparentDesignController>(reparentContext);
 
-            reparentContext.Lines.IsEnabled = true;
+            _lines = Camera.main.gameObject.GetComponent<HierarchyLineRenderer>();
+            if (null != _lines)
+            {
+                _lines.Selected = _content.Element;
+            }
+            else
+            {
+                Log.Warning(this, "Could not find HierarchyLineRenderer.");
+            }
         }
 
         /// <inheritdoc />
@@ -91,7 +102,10 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            _unityRoot.GetComponent<ILineManager>().IsEnabled = false;
+            if (null != _lines)
+            {
+                _lines.Selected = null;
+            }
 
             _controllers
                 .Remove<ReparentDesignController>()
