@@ -1,5 +1,6 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -65,6 +66,18 @@ namespace CreateAR.SpirePlayer
 
             _colorProp.Value = _colorInitialValue;
             IsTarget = false;
+        }
+
+        /// <inheritdoc cref="MonoBehaviour" />
+        private void Update()
+        {
+            // scale
+            var scale = transform.lossyScale;
+            var adjustedScale = new Vector3(
+                1f / scale.x,
+                1f / scale.y,
+                1f / scale.z);
+            Btn.Activator.GameObject.transform.localScale = adjustedScale;
         }
 
         /// <summary>

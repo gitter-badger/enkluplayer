@@ -239,7 +239,13 @@ namespace CreateAR.SpirePlayer
                 {
                     el.Message = "There was an error making a change to the scene. Please reload.";
                     el.Action = "Reload";
-                    el.OnOk += () => _messages.Publish(MessageTypes.USER_PROFILE);
+                    el.OnOk += () =>
+                    {
+                        _ui.Close(id);
+
+                        // exit
+                        _messages.Publish(MessageTypes.USER_PROFILE);
+                    };
                 })
                 .OnFailure(ex =>
                 {

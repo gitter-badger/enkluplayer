@@ -193,6 +193,8 @@ namespace CreateAR.SpirePlayer
             IElementTxnStore store;
             if (!_stores.TryGetValue(txn.SceneId, out store))
             {
+                _messages.Publish(MessageTypes.PLAY_CRITICAL_ERROR);
+
                 Log.Warning(
                     this,
                     "Cannot apply transaction against untracked scene [{0}]. Did you forget to call Track() first?",

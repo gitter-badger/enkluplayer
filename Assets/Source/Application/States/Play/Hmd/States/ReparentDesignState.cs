@@ -23,12 +23,7 @@ namespace CreateAR.SpirePlayer
         /// Designer.
         /// </summary>
         private HmdDesignController _design;
-
-        /// <summary>
-        /// Unity root.
-        /// </summary>
-        private GameObject _unityRoot;
-
+        
         /// <summary>
         /// Content we are reparenting.
         /// </summary>
@@ -55,7 +50,6 @@ namespace CreateAR.SpirePlayer
             Element staticRoot)
         {
             _design = design;
-            _unityRoot = unityRoot;
         }
 
         /// <inheritdoc />
