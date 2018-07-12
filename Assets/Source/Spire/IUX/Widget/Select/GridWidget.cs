@@ -63,6 +63,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Shell.
         /// </summary>
         private GameObject _shell;
+
+        /// <summary>
+        /// True during Populate.
+        /// </summary>
+        private bool _isPopulating = false;
         
         /// <summary>
         /// Called when a specific <c>Option</c> has been selected.
@@ -113,6 +118,25 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Populates with all option groups. This is more optimized than
+        /// multiple calls to AddChild.
+        /// </summary>
+        /// <param name="groups">The groups to populate with.</param>
+        public void Populate(List<OptionGroup> groups)
+        {
+            _isPopulating = true;
+
+            for (var i = 0; i < groups.Count; i++)
+            {
+                AddChild(groups[i]);
+            }
+
+            CreateGroupOptions();
+
+            _isPopulating = false;
         }
 
         /// <inheritdoc />
@@ -172,6 +196,11 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.AddChildInternal(element);
 
+            if (_isPopulating)
+            {
+                return;
+            }
+
             if (element is OptionGroup)
             {
                 CreateGroupOptions();
@@ -206,7 +235,7 @@ namespace CreateAR.SpirePlayer.IUX
             for (int i = 0, len = groups.Count; i < len; i++)
             {
                 var group = groups[i];
-
+                
                 var option = (Option) _elements.Element(string.Format(
                     "<?Vine><Option label='{0}' value='{1}' />",
                     group.Label,

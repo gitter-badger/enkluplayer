@@ -137,7 +137,11 @@ namespace CreateAR.SpirePlayer
                     () => _api.PublishedApps.GetPublishedApp(appId))
                 .OnSuccess(response =>
                 {
-                    Log.Info(this, "Retrieved scene list.");
+                    Log.Info(this, "Retrieved scene list:");
+                    for (var i = 0; i < response.Body.Scenes.Length; i++)
+                    {
+                        Log.Info(this, "\t{0}", response.Body.Scenes[i]);
+                    }
 
                     // load each scene
                     Async

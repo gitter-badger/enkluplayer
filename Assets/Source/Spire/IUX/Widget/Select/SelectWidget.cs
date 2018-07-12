@@ -145,7 +145,7 @@ namespace CreateAR.SpirePlayer.IUX
                 
                 _text.Schema.Set(
                     "position",
-                    pos.ToVec() - new Vec3(0, _text.Rect.size.y / 2f, 0));
+                    pos.ToVec());
                 AddChild(_text);
             }
         }

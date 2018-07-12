@@ -162,8 +162,7 @@ namespace CreateAR.SpirePlayer
             App = app;
 
             _root = new GameObject("Design");
-            _root.AddComponent<LineManager>();
-
+            
             if (UnityEngine.Application.isEditor)
             {
                 _root.AddComponent<HmdEditorKeyboardControls>();
@@ -282,6 +281,9 @@ namespace CreateAR.SpirePlayer
 
             _voice.Register("play", Voice_OnPlay);
 
+            // hierarchy rendering
+            Camera.main.gameObject.AddComponent<HierarchyLineRenderer>();
+
             // create dynamic root
             {
                 _float = (FloatWidget)_elements.Element(
@@ -333,6 +335,9 @@ namespace CreateAR.SpirePlayer
             _staticRoot.Destroy();
 
             Object.Destroy(_root);
+
+            // hierarchy rendering
+            Object.Destroy(Camera.main.gameObject.GetComponent<HierarchyLineRenderer>());
         }
 
         /// <summary>
