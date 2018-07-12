@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls editing content.
     /// </summary>
-    public class EditContentDesignState : IArDesignState
+    public class EditElementDesignState : IArDesignState
     {
         /// <summary>
         /// Handles voice commands.
@@ -34,17 +34,17 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Menu to adjust prop.
         /// </summary>
-        private AdjustContentController _adjustContent;
+        private AdjustElementController _adjustElement;
 
         /// <summary>
         /// Menu to edit prop.
         /// </summary>
-        private EditContentController _editContent;
+        private EditElementController _editElement;
 
         /// <summary>
         /// Menu to place objects.
         /// </summary>
-        private MoveContentController _move;
+        private MoveElementController _move;
 
         /// <summary>
         /// Content controller.
@@ -59,7 +59,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public EditContentDesignState(
+        public EditElementDesignState(
             IUIManager ui,
             IVoiceCommandManager voice)
         {
@@ -79,28 +79,28 @@ namespace CreateAR.SpirePlayer
 
             // adjust content
             {
-                _adjustContent = unityRoot.AddComponent<AdjustContentController>();
-                _adjustContent.OnExit += PropAdjust_OnExit;
-                _adjustContent.enabled = false;
-                _adjustContent.SliderRotate.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
-                _adjustContent.SliderX.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
-                _adjustContent.SliderY.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
-                _adjustContent.SliderZ.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
+                _adjustElement = unityRoot.AddComponent<AdjustElementController>();
+                _adjustElement.OnExit += PropAdjust_OnExit;
+                _adjustElement.enabled = false;
+                _adjustElement.SliderRotate.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
+                _adjustElement.SliderX.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
+                _adjustElement.SliderY.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
+                _adjustElement.SliderZ.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
             }
 
             // edit content
             {
-                _editContent = unityRoot.AddComponent<EditContentController>();
-                _editContent.OnMove += Edit_OnMove;
-                _editContent.OnReparent += Edit_OnReparent;
-                _editContent.OnDuplicate += Edit_OnDuplicate;
-                _editContent.OnDelete += Edit_OnDelete;
-                _editContent.enabled = false;
+                _editElement = unityRoot.AddComponent<EditElementController>();
+                _editElement.OnMove += Edit_OnMove;
+                _editElement.OnReparent += Edit_OnReparent;
+                _editElement.OnDuplicate += Edit_OnDuplicate;
+                _editElement.OnDelete += Edit_OnDelete;
+                _editElement.enabled = false;
             }
 
             // place content
             {
-                _move = unityRoot.AddComponent<MoveContentController>();
+                _move = unityRoot.AddComponent<MoveElementController>();
                 _move.OnConfirm += Move_OnConfirmController;
                 _move.OnCancel += Move_OnCancel;
                 _move.enabled = false;
@@ -110,8 +110,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Uninitialize()
         {
-            Object.Destroy(_adjustContent);
-            Object.Destroy(_editContent);
+            Object.Destroy(_adjustElement);
+            Object.Destroy(_editElement);
             Object.Destroy(_move);
         }
 
@@ -127,11 +127,11 @@ namespace CreateAR.SpirePlayer
 
             _dynamicRoot.Schema.Set("focus.visible", false);
 
-            _adjustContent.Initialize(_controller);
-            _adjustContent.enabled = true;
+            _adjustElement.Initialize(_controller);
+            _adjustElement.enabled = true;
 
-            _editContent.Initialize(_controller);
-            _editContent.enabled = true;
+            _editElement.Initialize(_controller);
+            _editElement.enabled = true;
 
             _voice.Register("back", Voice_OnBack);
 
@@ -160,8 +160,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void CloseAll()
         {
-            _adjustContent.enabled = false;
-            _editContent.enabled = false;
+            _adjustElement.enabled = false;
+            _editElement.enabled = false;
         }
         
         /// <summary>
@@ -183,8 +183,8 @@ namespace CreateAR.SpirePlayer
         private void Move_OnCancel()
         {
             _move.enabled = false;
-            _adjustContent.enabled = true;
-            _editContent.enabled = true;
+            _adjustElement.enabled = true;
+            _editElement.enabled = true;
         }
 
         /// <summary>
@@ -295,7 +295,7 @@ namespace CreateAR.SpirePlayer
         {
             var visible = interactable.Visible;
 
-            _editContent.enabled = !visible;
+            _editElement.enabled = !visible;
 
             if (visible)
             {

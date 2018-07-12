@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -135,23 +137,32 @@ namespace CreateAR.SpirePlayer
                     new ElementSplashDesignController.DesignContext
                     {
                         Delegate = _design.Elements,
-                        OnAdjust = Content_OnAdjust
+                        OnAdjust = Element_OnAdjust
                     });
 
             // containers
-            /*
             _controllers
                 .Group(TAG_CONTAINER)
                 .Filter(new TypeElementControllerFilter(typeof(ContainerWidget)))
                 .Add<ElementSplashDesignController>(
-                    new ElementUpdateDesignController.Context
+                    new ElementSplashDesignController.DesignContext
                     {
-                        Delegate = _design.Elements
-                    });*/
+                        Delegate = _design.Elements,
+                        OnAdjust = Element_OnAdjust
+                    });
 
-            // anchors
-            
+            // anchors (TODO: special menu)
+
             // scans
+            _controllers
+                .Group(TAG_SCAN)
+                .Filter(new TypeElementControllerFilter(typeof(ScanWidget)))
+                .Add<ElementSplashDesignController>(
+                    new ElementSplashDesignController.DesignContext
+                    {
+                        Delegate = _design.Elements,
+                        OnAdjust = Element_OnAdjust
+                    });
 
             _splash.enabled = true;
         }
@@ -165,7 +176,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            _controllers.Destroy(TAG_CONTENT);
+            _controllers.Destroy(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
 
             CloseAll();
 
@@ -309,14 +320,13 @@ namespace CreateAR.SpirePlayer
 
             _dynamicRoot.Schema.Set("focus.visible", true);
         }
-
+        
         /// <summary>
-        /// Called when content requests an adjustment.
+        /// Called when element asks for adjustment.
         /// </summary>
-        /// <param name="controller">The controller.</param>
-        private void Content_OnAdjust(ElementDesignController controller)
+        private void Element_OnAdjust(ElementSplashDesignController controller)
         {
-            _design.ChangeState<EditContentDesignState>(controller);
+            _design.ChangeState<EditElementDesignState>(controller);
         }
     }
 }

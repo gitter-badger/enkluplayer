@@ -7,8 +7,8 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the menu for adjusting a prop.
     /// </summary>
-    [InjectVine("Content.Adjust")]
-    public class AdjustContentController : InjectableIUXController
+    [InjectVine("Element.Adjust")]
+    public class AdjustElementController : InjectableIUXController
     {
         /// <summary>
         /// Ties together the propdata and content.

@@ -7,8 +7,8 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// View for moving content.
     /// </summary>
-    [InjectVine("Design.MoveContent")]
-    public class MoveContentController : InjectableIUXController
+    [InjectVine("Element.MoveContent")]
+    public class MoveElementController : InjectableIUXController
     {
         /// <summary>
         /// The controller we're moving.

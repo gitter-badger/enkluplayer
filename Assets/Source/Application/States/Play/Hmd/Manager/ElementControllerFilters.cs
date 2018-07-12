@@ -25,9 +25,8 @@ namespace CreateAR.SpirePlayer
         public bool Include(Element element)
         {
             var elementType = element.GetType();
-            
-            return elementType == _type
-                || elementType.IsSubclassOf(_type)
+
+            return _type == elementType
                 || _type.IsAssignableFrom(elementType);
         }
     }

@@ -6,17 +6,24 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controller for UI that edits content.
     /// </summary>
-    [InjectVine("Content.Edit")]
-    public class EditContentController : InjectableIUXController
+    [InjectVine("Element.Edit")]
+    public class EditElementController : InjectableIUXController
     {
         /// <summary>
         /// The design controller.
         /// </summary>
         private ElementSplashDesignController _controller;
-        
+
+        /// <summary>
+        /// Visibility prop.
+        /// </summary>
+        private ElementSchemaProp<bool> _isVisible;
+
         /// <summary>
         /// Elements.
         /// </summary>
+        [InjectElements("..tgl-visibility")]
+        public ToggleWidget TglVisible { get; private set; }
         [InjectElements("..btn-move")]
         public ButtonWidget BtnMove { get; private set; }
         [InjectElements("..btn-setparent")]
@@ -53,6 +60,10 @@ namespace CreateAR.SpirePlayer
         public void Initialize(ElementSplashDesignController controller)
         {
             _controller = controller;
+
+            _isVisible = _controller.Element.Schema.Get<bool>("visible");
+            _isVisible.OnChanged += Visible_OnChanged;
+            UpdateVisibilityToggle();
         }
 
         /// <inheritdoc />
@@ -64,6 +75,26 @@ namespace CreateAR.SpirePlayer
             BtnReparent.Activator.OnActivated += Reparent_OnActivated;
             BtnDelete.Activator.OnActivated += Delete_OnActivated;
             BtnDuplicate.Activator.OnActivated += Duplicate_OnActivated;
+            TglVisible.OnValueChanged += tgl => _isVisible.Value = tgl.Value;
+        }
+
+        /// <inheritdoc />
+        protected override void OnDestroy()
+        {
+            if (null != _isVisible)
+            {
+                _isVisible.OnChanged -= Visible_OnChanged;
+            }
+
+            base.OnDestroy();
+        }
+
+        /// <summary>
+        /// Sets the toggle value from prop.
+        /// </summary>
+        private void UpdateVisibilityToggle()
+        {
+            TglVisible.Value = _isVisible.Value;
         }
 
         /// <summary>
@@ -112,6 +143,17 @@ namespace CreateAR.SpirePlayer
             {
                 OnDelete(_controller);
             }
+        }
+
+        /// <summary>
+        /// Called when visibility changes.
+        /// </summary>
+        private void Visible_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            UpdateVisibilityToggle();
         }
     }
 }

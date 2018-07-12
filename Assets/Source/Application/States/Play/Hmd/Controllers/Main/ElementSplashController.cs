@@ -6,7 +6,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the splash menu for anchors.
     /// </summary>
-    [InjectVine("Generic.Splash")]
+    [InjectVine("Element.Splash")]
     public class ElementSplashController : InjectableIUXController
     {
         /// <summary>
