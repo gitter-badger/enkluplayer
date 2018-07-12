@@ -85,7 +85,12 @@ namespace CreateAR.SpirePlayer
         /// Unsubscribe for critical error subscriber.
         /// </summary>
         private Action _criticalErrorUnsub;
-        
+
+        /// <summary>
+        /// Id for critical error message.
+        /// </summary>
+        private int _criticalErrorId;
+
         /// <summary>
         /// Plays an App.
         /// </summary>
@@ -164,7 +169,8 @@ namespace CreateAR.SpirePlayer
 
             // unsubscribe from critical errors
             _criticalErrorUnsub();
-            
+            _criticalErrorId = -1;
+
             // teardown app
             _app.Unload();
 
@@ -229,19 +235,23 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Messages_OnCriticalError(object _)
         {
-            int id;
+            if (-1 != _criticalErrorId)
+            {
+                return;
+            }
+
             _ui
                 .Open<ICommonErrorView>(new UIReference
                 {
                     UIDataId = UIDataIds.ERROR
-                }, out id)
+                }, out _criticalErrorId)
                 .OnSuccess(el =>
                 {
                     el.Message = "There was an error making a change to the scene. Please reload.";
                     el.Action = "Reload";
                     el.OnOk += () =>
                     {
-                        _ui.Close(id);
+                        _ui.Close(_criticalErrorId);
 
                         // exit
                         _messages.Publish(MessageTypes.USER_PROFILE);

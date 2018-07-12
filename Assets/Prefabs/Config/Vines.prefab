@@ -52,11 +52,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   References:
-  - Identifier: Content.Splash
+  - Identifier: Element.Splash
     Source: {fileID: 4900000, guid: add8b6920ca4d6d44a4c4a0dd31d564f, type: 3}
-  - Identifier: Content.Adjust
+  - Identifier: Element.Adjust
     Source: {fileID: 4900000, guid: 75d72ca1956fc9f439c0408c09818ff3, type: 3}
-  - Identifier: Content.Edit
+  - Identifier: Element.Edit
     Source: {fileID: 4900000, guid: 57e7211e4792fa04e8c62bf299e0666d, type: 3}
   - Identifier: Design.Splash
     Source: {fileID: 4900000, guid: dbd30b534f36a5b41b050f239bfdacaa, type: 3}
@@ -90,7 +90,7 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 25a04d90206ce1f4a9be106e1ed884fc, type: 3}
   - Identifier: Play.Main
     Source: {fileID: 4900000, guid: e3bee189c5f3e034aac597483a57723f, type: 3}
-  - Identifier: Design.MoveContent
+  - Identifier: Element.MoveContent
     Source: {fileID: 4900000, guid: 5f4c3e53ba9c8114c8d3aad02d8559b6, type: 3}
   - Identifier: Status.Connection
     Source: {fileID: 4900000, guid: 5d475cf33519ca74b9b14421305b984e, type: 3}

@@ -19,6 +19,7 @@ namespace CreateAR.SpirePlayer.IUX
         public bool Value
         {
             get { return _valueProp.Value; }
+            set { _valueProp.Value = value; }
         }
 
         /// <summary>

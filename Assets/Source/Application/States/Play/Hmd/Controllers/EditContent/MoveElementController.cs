@@ -7,13 +7,13 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// View for moving content.
     /// </summary>
-    [InjectVine("Design.MoveContent")]
-    public class MoveContentController : InjectableIUXController
+    [InjectVine("Element.MoveContent")]
+    public class MoveElementController : InjectableIUXController
     {
         /// <summary>
         /// The controller we're moving.
         /// </summary>
-        private ContentDesignController _controller;
+        private ElementSplashDesignController _controller;
 
         /// <summary>
         /// The element cast to a unity element.
@@ -45,7 +45,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when confirmed.
         /// </summary>
-        public event Action<ContentDesignController> OnConfirm;
+        public event Action<ElementSplashDesignController> OnConfirm;
 
         /// <summary>
         /// Called when canceled.
@@ -56,7 +56,7 @@ namespace CreateAR.SpirePlayer
         /// Initializes the controller with a piece of content.
         /// </summary>
         /// <param name="controller">The controller.</param>
-        public void Initialize(ContentDesignController controller)
+        public void Initialize(ElementSplashDesignController controller)
         {
             _controller = controller;
             _unityElement = controller.Element as IUnityElement;

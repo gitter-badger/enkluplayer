@@ -35,6 +35,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IAssetManager _assets;
         private readonly IAssetPoolManager _pools;
         private readonly IQrReaderService _qr;
+        private readonly IBootstrapper _bootstrapper;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -68,7 +69,8 @@ namespace CreateAR.SpirePlayer.IUX
             IScriptManager scripts,
             IAssetManager assets,
             IAssetPoolManager pools,
-            IQrReaderService qr)
+            IQrReaderService qr,
+            IBootstrapper bootstrapper)
         {
             _parser = parser;
             _gizmos = gizmos;
@@ -89,6 +91,7 @@ namespace CreateAR.SpirePlayer.IUX
             _assets = assets;
             _pools = pools;
             _qr = qr;
+            _bootstrapper = bootstrapper;
             
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -383,6 +386,16 @@ namespace CreateAR.SpirePlayer.IUX
                         _layers,
                         _tweens,
                         _colors);
+                }
+                case ElementTypes.SCAN:
+                {
+                    return new ScanWidget(
+                        new GameObject("Scan"),
+                        _layers,
+                        _tweens,
+                        _colors,
+                        _http,
+                        new MeshImporter(_bootstrapper));
                 }
                 default:
                 {

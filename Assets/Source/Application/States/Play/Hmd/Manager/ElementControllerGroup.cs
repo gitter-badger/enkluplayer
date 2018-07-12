@@ -5,9 +5,9 @@ using CreateAR.SpirePlayer.IUX;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Naive implementation of IElementControllerManager. It's a tad tricky.
+    /// Naive implementation of IElementControllerGroup.
     /// </summary>
-    public class ElementControllerManager : IElementControllerManager
+    public class ElementControllerGroup : IElementControllerGroup
     {
         /// <summary>
         /// Tracks relationship between type, context, and controllers.
@@ -65,9 +65,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private bool _isActive;
 
-        /// <summary>
-        /// True iff the manager should be adding/removing controllers.
-        /// </summary>
+        /// <inheritdoc />
         public bool Active
         {
             get { return _isActive; }
@@ -103,17 +101,39 @@ namespace CreateAR.SpirePlayer
                 Reapply();
             }
         }
-        
+
+        /// <inheritdoc />
+        public string Tag { get; private set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ElementControllerManager(IAppSceneManager scenes)
+        public ElementControllerGroup(
+            IAppSceneManager scenes,
+            string tag)
         {
             _scenes = scenes;
+
+            Tag = tag;
         }
-        
+
         /// <inheritdoc />
-        public IElementControllerManager Filter(IElementControllerFilter filter)
+        public void Destroy()
+        {
+            // untrack all
+            for (int i = 0, len = _scenes.All.Length; i < len; i++)
+            {
+                UntrackScene(_scenes.All[i]);
+            }
+
+            _filteredElements.Clear();
+            _filters.Clear();
+            _bindings.Clear();
+            _elementScratch.Clear();
+        }
+
+        /// <inheritdoc />
+        public IElementControllerGroup Filter(IElementControllerFilter filter)
         {
             _filters.Add(filter);
 
@@ -136,7 +156,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IElementControllerManager Unfilter(IElementControllerFilter filter)
+        public IElementControllerGroup Unfilter(IElementControllerFilter filter)
         {
             _filters.Remove(filter);
             
@@ -146,7 +166,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IElementControllerManager Add<T>(object context) where T : ElementDesignController
+        public IElementControllerGroup Add<T>(object context) where T : ElementDesignController
         {
             var binding = Binding(typeof(T));
             if (null != binding && binding.Active)
@@ -173,7 +193,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public IElementControllerManager Remove<T>() where T : ElementDesignController
+        public IElementControllerGroup Remove<T>() where T : ElementDesignController
         {
             var binding = Binding(typeof(T));
             if (null != binding)

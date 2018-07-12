@@ -26,7 +26,7 @@ namespace CreateAR.SpirePlayer
             /// Callback that receives a method for construction. This allows
             /// the caller to decide when a GameObject is created.
             /// </summary>
-            public Action<Exception, Action<GameObject>> Callback;
+            public Action<Exception, Func<GameObject, Bounds>> Callback;
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="callback">The callback.</param>
         public void Import(
             byte[] bytes,
-            Action<Exception, Action<GameObject>> callback)
+            Action<Exception, Func<GameObject, Bounds>> callback)
         {
             var state = new ObjImportState
             {
@@ -136,6 +136,9 @@ namespace CreateAR.SpirePlayer
                 {
                     importState.Callback(null, gameObject =>
                     {
+                        var areBoundsSet = false;
+                        var bounds = new Bounds(Vector3.zero, Vector3.one);
+
                         // APPLY
                         foreach (var mesh in collection.Meshes)
                         {
@@ -143,8 +146,20 @@ namespace CreateAR.SpirePlayer
                             child.transform.parent = gameObject.transform;
                             child.AddComponent<MeshRenderer>().sharedMaterial = new Material(Shader.Find("Mobile/Diffuse"));
 
-                            ApplyMesh(child, mesh);
+                            var filter = ApplyMesh(child, mesh);
+                            if (areBoundsSet)
+                            {
+                                bounds.Encapsulate(filter.sharedMesh.bounds);
+                            }
+                            else
+                            {
+                                areBoundsSet = true;
+
+                                bounds = filter.sharedMesh.bounds;
+                            }
                         }
+
+                        return bounds;
                     });
                 });
             }
@@ -217,7 +232,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="gameObject">The GameObject.</param>
         /// <param name="info">The mesh information.</param>
-        private static void ApplyMesh(
+        private static MeshFilter ApplyMesh(
             GameObject gameObject,
             MeshStateCollection.MeshState info)
         {
@@ -229,7 +244,10 @@ namespace CreateAR.SpirePlayer
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
 
-            gameObject.AddComponent<MeshFilter>().mesh = mesh;
+            var filter = gameObject.AddComponent<MeshFilter>();
+            filter.mesh = mesh;
+
+            return filter;
         }
     }
 }

@@ -25,12 +25,7 @@ namespace CreateAR.SpirePlayer
         /// PRNG.
         /// </summary>
         private static readonly Random _Random = new Random();
-
-        /// <summary>
-        /// Serializer.
-        /// </summary>
-        private static readonly JsonSerializer _Serializer = new JsonSerializer();
-
+        
         /// <summary>
         /// Unique id.
         /// </summary>

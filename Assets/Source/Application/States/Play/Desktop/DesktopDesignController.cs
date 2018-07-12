@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using RTEditor;
@@ -31,16 +30,6 @@ namespace CreateAR.SpirePlayer
         private readonly IBridge _bridge;
 
         /// <summary>
-        /// Http.
-        /// </summary>
-        private readonly IHttpService _http;
-
-        /// <summary>
-        /// Imports meshes.
-        /// </summary>
-        private readonly MeshImporter _importer;
-
-        /// <summary>
         /// Main camera.
         /// </summary>
         private readonly Camera _mainCamera;
@@ -49,20 +38,13 @@ namespace CreateAR.SpirePlayer
         /// Runtime gizmo system.
         /// </summary>
         private GameObject _runtimeGizmos;
-
-        /// <summary>
-        /// GameObject for mesh capture.
-        /// </summary>
-        private GameObject _meshCaptureGameObject;
-
+        
         /// <summary>
         /// Props.
         /// </summary>
-        private ElementSchemaProp<string> _meshCaptureUrlProp;
         private ElementSchemaProp<float> _ambientIntensityProp;
         private ElementSchemaProp<string> _ambientColorProp;
         private ElementSchemaProp<bool> _ambientEnabledProp;
-        private IAsyncToken<HttpResponse<byte[]>> _meshDownload;
         private DebugRendererMonoBehaviour _debugRenderer;
 
         /// <summary>
@@ -72,15 +54,11 @@ namespace CreateAR.SpirePlayer
             IElementUpdateDelegate elementUpdater,
             IAppSceneManager scenes,
             IBridge bridge,
-            IHttpService http,
-            MeshImporter importer,
             MainCamera mainCamera)
         {
             _elementUpdater = elementUpdater;
             _scenes = scenes;
             _bridge = bridge;
-            _http = http;
-            _importer = importer;
             _mainCamera = mainCamera.GetComponent<Camera>();
         }
 
@@ -129,10 +107,6 @@ namespace CreateAR.SpirePlayer
                 var sceneId = app.Scenes.All[0];
                 var sceneRoot = app.Scenes.Root(sceneId);
                 
-                _meshCaptureUrlProp = sceneRoot.Schema.Get<string>("meshcapture.relUrl");
-                _meshCaptureUrlProp.OnChanged += MeshCapture_OnChanged;
-                UpdateMeshCapture();
-
                 _ambientEnabledProp = sceneRoot.Schema.Get<bool>("ambient.enabled");
                 _ambientEnabledProp.OnChanged += AmbientEnabled_OnChanged;
                 _ambientColorProp = sceneRoot.Schema.Get<string>("ambient.color");
@@ -148,21 +122,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Teardown()
         {
-            if (null != _meshDownload)
-            {
-                _meshDownload.Abort();
-                _meshDownload = null;
-            }
-
-            if (_meshCaptureGameObject)
-            {
-                Object.Destroy(_meshCaptureGameObject);
-                _meshCaptureGameObject = null;
-            }
-
             EditorObjectSelection.Instance.SelectionChanged -= Editor_OnSelectionChanged;
 
-            _meshCaptureUrlProp.OnChanged -= MeshCapture_OnChanged;
             _ambientEnabledProp.OnChanged -= AmbientEnabled_OnChanged;
             _ambientColorProp.OnChanged -= AmbientColor_OnChanged;
             _ambientIntensityProp.OnChanged -= AmbientIntensity_OnChanged;
@@ -308,62 +269,6 @@ namespace CreateAR.SpirePlayer
                 : Color.black;
             RenderSettings.ambientIntensity = intensity;
         }
-
-        /// <summary>
-        /// Updates mesh capture settings.
-        /// </summary>
-        private void UpdateMeshCapture()
-        {
-            if (null != _meshDownload)
-            {
-                _meshDownload.Abort();
-            }
-
-            if (string.IsNullOrEmpty(_meshCaptureUrlProp.Value))
-            {
-                Log.Info(this, "No mesh capture to download.");
-                return;
-            }
-
-            var url = _http.Urls.Url("meshcapture://" + _meshCaptureUrlProp.Value);
-
-            Log.Info(this, "Downloading mesh capture from {0}...", url);
-
-            // download
-            _meshDownload = _http
-                .Download(url)
-                .OnSuccess(response =>
-                {
-                    Log.Info(this, "Mesh capture download complete. Starting import.");
-
-                    if (null != _meshCaptureGameObject)
-                    {
-                        Object.Destroy(_meshCaptureGameObject);
-                    }
-
-                    _meshCaptureGameObject = new GameObject("MeshCapture");
-
-                    // import
-                    _importer.Import(response.Payload, (exception, action) =>
-                    {
-                        if (null != exception)
-                        {
-                            Log.Error(this, "Could not import mesh : {0}", exception);
-                            return;
-                        }
-
-                        if (null == _meshCaptureGameObject)
-                        {
-                            return;
-                        }
-
-                        Log.Info(this, "Import complete. Constructing mesh.");
-
-                        action(_meshCaptureGameObject);
-                    });
-                })
-                .OnFailure(exception => Log.Error(this, "Could not download mesh capture : {0}", exception));
-        }
         
         /// <summary>
         /// Called when a child is added.
@@ -438,18 +343,7 @@ namespace CreateAR.SpirePlayer
         {
             UpdateAmbientLighting();
         }
-
-        /// <summary>
-        /// Called when mesh capture has changed.
-        /// </summary>
-        private void MeshCapture_OnChanged(
-            ElementSchemaProp<string> prop,
-            string prev,
-            string next)
-        {
-            UpdateMeshCapture();
-        }
-
+        
         /// <summary>
         /// Converts a color from hex to Color representation
         /// </summary>

@@ -85,7 +85,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Splash menu.
         /// </summary>
-        private AnchorSplashController _splash;
+        private ElementSplashController _splash;
 
         /// <summary>
         /// True iff locked.
@@ -280,10 +280,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SetupSplash()
         {
-            _splash = gameObject.GetComponent<AnchorSplashController>();
+            _splash = gameObject.GetComponent<ElementSplashController>();
             if (null == _splash)
             {
-                _splash = gameObject.AddComponent<AnchorSplashController>();
+                _splash = gameObject.AddComponent<ElementSplashController>();
             }
 
             _isSplashRequested = true;

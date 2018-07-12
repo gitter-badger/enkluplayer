@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -12,6 +13,14 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class MainDesignState : IArDesignState
     {
+        /// <summary>
+        /// Controller group tags.
+        /// </summary>
+        private const string TAG_CONTENT = "content";
+        private const string TAG_CONTAINER = "container";
+        private const string TAG_ANCHOR = "anchor";
+        private const string TAG_SCAN = "scan";
+
         /// <summary>
         /// Configuration values.
         /// </summary>
@@ -51,16 +60,6 @@ namespace CreateAR.SpirePlayer
         /// Clear all menu.
         /// </summary>
         private ClearSceneController _clearScene;
-
-        /// <summary>
-        /// Distance filter.
-        /// </summary>
-        private readonly DistanceElementControllerFilter _distanceFilter = new DistanceElementControllerFilter();
-
-        /// <summary>
-        /// Content filter.
-        /// </summary>
-        private readonly TypeElementControllerFilter _contentFilter = new TypeElementControllerFilter(typeof(ContentWidget));
 
         /// <summary>
         /// Constructor.
@@ -120,9 +119,9 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Uninitialize()
         {
-            UnityEngine.Object.Destroy(_splash);
-            UnityEngine.Object.Destroy(_mainMenu);
-            UnityEngine.Object.Destroy(_clearScene);
+            Object.Destroy(_splash);
+            Object.Destroy(_mainMenu);
+            Object.Destroy(_clearScene);
         }
 
         /// <inheritdoc />
@@ -130,14 +129,39 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Entering {0}", GetType().Name);
 
+            // content
             _controllers
-                .Filter(_distanceFilter)
-                .Filter(_contentFilter)
-                .Add<ContentDesignController>(
-                    new ContentDesignController.ContentDesignControllerContext
+                .Group(TAG_CONTENT)
+                .Filter(new TypeElementControllerFilter(typeof(ContentWidget)))
+                .Add<ElementSplashDesignController>(
+                    new ElementSplashDesignController.DesignContext
                     {
                         Delegate = _design.Elements,
-                        OnAdjust = Content_OnAdjust
+                        OnAdjust = Element_OnAdjust
+                    });
+
+            // containers
+            _controllers
+                .Group(TAG_CONTAINER)
+                .Filter(new TypeElementControllerFilter(typeof(ContainerWidget)))
+                .Add<ElementSplashDesignController>(
+                    new ElementSplashDesignController.DesignContext
+                    {
+                        Delegate = _design.Elements,
+                        OnAdjust = Element_OnAdjust
+                    });
+
+            // anchors (TODO: special menu)
+
+            // scans
+            _controllers
+                .Group(TAG_SCAN)
+                .Filter(new TypeElementControllerFilter(typeof(ScanWidget)))
+                .Add<ElementSplashDesignController>(
+                    new ElementSplashDesignController.DesignContext
+                    {
+                        Delegate = _design.Elements,
+                        OnAdjust = Element_OnAdjust
                     });
 
             _splash.enabled = true;
@@ -152,10 +176,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            _controllers
-                .Remove<ContentDesignController>()
-                .Unfilter(_contentFilter)
-                .Unfilter(_distanceFilter);
+            _controllers.Destroy(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
 
             CloseAll();
 
@@ -179,8 +200,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void CloseAllPropControllerSplashes()
         {
-            var designControllers = new List<ContentDesignController>();
-            _controllers.All(designControllers);
+            var designControllers = new List<ElementSplashDesignController>();
+            _controllers.Group(TAG_CONTENT).All(designControllers);
 
             for (var i = 0; i < designControllers.Count; i++)
             {
@@ -299,14 +320,13 @@ namespace CreateAR.SpirePlayer
 
             _dynamicRoot.Schema.Set("focus.visible", true);
         }
-
+        
         /// <summary>
-        /// Called when content requests an adjustment.
+        /// Called when element asks for adjustment.
         /// </summary>
-        /// <param name="controller">The controller.</param>
-        private void Content_OnAdjust(ContentDesignController controller)
+        private void Element_OnAdjust(ElementSplashDesignController controller)
         {
-            _design.ChangeState<EditContentDesignState>(controller);
+            _design.ChangeState<EditElementDesignState>(controller);
         }
     }
 }

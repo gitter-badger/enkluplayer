@@ -6,17 +6,24 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controller for UI that edits content.
     /// </summary>
-    [InjectVine("Content.Edit")]
-    public class EditContentController : InjectableIUXController
+    [InjectVine("Element.Edit")]
+    public class EditElementController : InjectableIUXController
     {
         /// <summary>
         /// The design controller.
         /// </summary>
-        private ContentDesignController _controller;
-        
+        private ElementSplashDesignController _controller;
+
+        /// <summary>
+        /// Hide prop.
+        /// </summary>
+        private ElementSchemaProp<bool> _hideProp;
+
         /// <summary>
         /// Elements.
         /// </summary>
+        [InjectElements("..tgl-hide")]
+        public ToggleWidget TglHide { get; private set; }
         [InjectElements("..btn-move")]
         public ButtonWidget BtnMove { get; private set; }
         [InjectElements("..btn-setparent")]
@@ -29,30 +36,42 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when a move is requested.
         /// </summary>
-        public event Action<ContentDesignController> OnMove;
+        public event Action<ElementSplashDesignController> OnMove;
 
         /// <summary>
         /// Called when a reparent is requested.
         /// </summary>
-        public event Action<ContentDesignController> OnReparent;
+        public event Action<ElementSplashDesignController> OnReparent;
 
         /// <summary>
         /// Called when a delete is requested.
         /// </summary>
-        public event Action<ContentDesignController> OnDelete;
+        public event Action<ElementSplashDesignController> OnDelete;
 
         /// <summary>
         /// Called when a duplicate is requested.
         /// </summary>
-        public event Action<ContentDesignController> OnDuplicate;
+        public event Action<ElementSplashDesignController> OnDuplicate;
 
         /// <summary>
         /// Initializes the controller.
         /// </summary>
         /// <param name="controller"></param>
-        public void Initialize(ContentDesignController controller)
+        public void Initialize(ElementSplashDesignController controller)
         {
             _controller = controller;
+
+            var schema = _controller.Element.Schema;
+            if (schema.HasOwnProp("hide"))
+            {
+                _hideProp = schema.Get<bool>("hide");
+                _hideProp.OnChanged += Hide_OnChanged;
+
+                TglHide.Schema.Set("visible", true);
+                TglHide.OnValueChanged += tgl => _hideProp.Value = tgl.Value;
+
+                UpdateHideToggle();
+            }
         }
 
         /// <inheritdoc />
@@ -64,6 +83,28 @@ namespace CreateAR.SpirePlayer
             BtnReparent.Activator.OnActivated += Reparent_OnActivated;
             BtnDelete.Activator.OnActivated += Delete_OnActivated;
             BtnDuplicate.Activator.OnActivated += Duplicate_OnActivated;
+        }
+
+        /// <inheritdoc />
+        protected override void OnDestroy()
+        {
+            if (null != _hideProp)
+            {
+                _hideProp.OnChanged -= Hide_OnChanged;
+            }
+
+            base.OnDestroy();
+        }
+
+        /// <summary>
+        /// Sets the toggle value from prop.
+        /// </summary>
+        private void UpdateHideToggle()
+        {
+            if (TglHide.Value != _hideProp.Value)
+            {
+                TglHide.Value = _hideProp.Value;
+            }
         }
 
         /// <summary>
@@ -112,6 +153,17 @@ namespace CreateAR.SpirePlayer
             {
                 OnDelete(_controller);
             }
+        }
+
+        /// <summary>
+        /// Called when visibility changes.
+        /// </summary>
+        private void Hide_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            UpdateHideToggle();
         }
     }
 }

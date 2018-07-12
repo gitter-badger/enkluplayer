@@ -10,15 +10,15 @@ namespace CreateAR.SpirePlayer
     public class ReparentDesignState : IArDesignState
     {
         /// <summary>
+        /// Controller group tag for reparent.
+        /// </summary>
+        private const string TAG_REPARENT = "reparent";
+
+        /// <summary>
         /// Manages controllers.
         /// </summary>
         private readonly IElementControllerManager _controllers;
-
-        /// <summary>
-        /// Filter.
-        /// </summary>
-        private readonly DistanceElementControllerFilter _distance = new DistanceElementControllerFilter();
-
+        
         /// <summary>
         /// Designer.
         /// </summary>
@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Content we are reparenting.
         /// </summary>
-        private ContentDesignController _content;
+        private ElementSplashDesignController _content;
 
         /// <summary>
         /// Renders hierarchy.
@@ -63,7 +63,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Entering {0}.", GetType().Name);
 
-            _content = (ContentDesignController) context;
+            _content = (ElementSplashDesignController) context;
 
             var reparentContext = new ReparentDesignController.ReparentDesignControllerContext
             {
@@ -73,7 +73,8 @@ namespace CreateAR.SpirePlayer
             };
 
             _controllers
-                .Filter(_distance)
+                .Group(TAG_REPARENT)
+                .Filter(new TypeElementControllerFilter(typeof(IUnityElement)))
                 .Add<ReparentDesignController>(reparentContext);
 
             _lines = Camera.main.gameObject.GetComponent<HierarchyLineRenderer>();
@@ -101,9 +102,7 @@ namespace CreateAR.SpirePlayer
                 _lines.Selected = null;
             }
 
-            _controllers
-                .Remove<ReparentDesignController>()
-                .Unfilter(_distance);
+            _controllers.Destroy(TAG_REPARENT);
 
             Log.Info(this, "Exited {0}.", GetType().Name);
         }

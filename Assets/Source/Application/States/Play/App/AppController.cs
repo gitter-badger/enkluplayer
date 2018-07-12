@@ -104,13 +104,13 @@ namespace CreateAR.SpirePlayer
                 .Initialize(Id, _loader)
                 .OnSuccess(_ =>
                 {
-                    // webgl doesn't have a connection but does need to auth
-                    #if UNITY_WEBGL
-                    var authenticate = true;
-                    #else
                     var authenticate = _connection.IsConnected;
+
+                    // webgl is special
+                    #if UNITY_WEBGL
+                    authenticate = true;
                     #endif
-                    
+
                     _txns
                         .Initialize(new AppTxnConfiguration
                         {
