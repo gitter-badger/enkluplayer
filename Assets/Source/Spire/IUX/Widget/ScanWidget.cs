@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using CreateAR.Commons.Unity.Async;
+﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
@@ -89,7 +88,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Updates mesh capture settings.
         /// </summary>
-        [Conditional("UNITY_WEBGL")]
         private void UpdateMeshCapture()
         {
             if (null != _meshDownload)
