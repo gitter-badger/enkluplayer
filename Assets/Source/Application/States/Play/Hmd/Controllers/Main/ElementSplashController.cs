@@ -45,7 +45,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="MonoBehaviour" />
-        private void Update()
+        private void LateUpdate()
         {
             var scale = transform.lossyScale;
             BtnSplash.Schema.Set(

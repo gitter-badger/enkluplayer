@@ -304,7 +304,7 @@ namespace CreateAR.SpirePlayer.Test.Assets
         {
             var watchCalled = false;
 
-            _reference.Watch<GameObject>((error, asset) =>
+            _reference.Watch<GameObject>((unsub, asset) =>
             {
                 watchCalled = true;
 
@@ -363,7 +363,7 @@ namespace CreateAR.SpirePlayer.Test.Assets
 
             _reference.Load<GameObject>();
 
-            _reference.Watch<GameObject>((error, asset) =>
+            _reference.Watch<GameObject>((unsub, asset) =>
             {
                 watches++;
             });
@@ -372,11 +372,11 @@ namespace CreateAR.SpirePlayer.Test.Assets
 
             _reference.AutoReload = true;
 
-            Assert.AreEqual(0, watches);
+            Assert.AreEqual(1, watches);
 
             _reference.Update(DataUpdate);
 
-            Assert.AreEqual(1, watches);
+            Assert.AreEqual(2, watches);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Obj importer, lazily created.
         /// </summary>
-        private static MeshImporter _importer;
+        private static ScanImporter _importer;
 
         /// <summary>
         /// Managed configuration.
@@ -52,13 +52,13 @@ namespace CreateAR.SpirePlayer.Editor
         /// <summary>
         /// Lazily create this importer as it has a long-running coroutine.
         /// </summary>
-        public static MeshImporter MeshImporter
+        public static ScanImporter ScanImporter
         {
             get
             {
                 if (null == _importer)
                 {
-                    _importer = new MeshImporter(Bootstrapper);
+                    _importer = new ScanImporter(Bootstrapper);
                 }
 
                 return _importer;

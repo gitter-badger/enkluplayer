@@ -61,13 +61,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public AppDataLoader(
             ApiController api,
-            IMessageRouter messages,
-            IFileManager files)
+            HttpRequestCacher cache,
+            IMessageRouter messages)
         {
             _api = api;
             _messages = messages;
-            
-            _helper = new HttpRequestCacher(files);
+            _helper = cache;
         }
 
         /// <inheritdoc />
@@ -290,7 +289,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Logs verbose messages.
         /// </summary>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void Verbose(string message, params object[] replacements)
         {
             Log.Info(this, message, replacements);

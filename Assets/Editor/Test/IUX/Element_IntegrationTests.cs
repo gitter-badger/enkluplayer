@@ -7,6 +7,11 @@ namespace CreateAR.SpirePlayer.Test.UI
     [TestFixture]
     public class Element_IntegrationTests
     {
+        public static ElementFactory ElementFactory()
+        {
+            return new ElementFactory(new DummyElementManager(), new PassthroughGizmoManager(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+        }
+
         private const int FOO = 12;
         private const int FUZZ = 73;
         private const int BAR = 1443;
@@ -97,7 +102,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         [SetUp]
         public void Setup()
         {
-            _factory = new ElementFactory(new DummyElementManager(), new PassthroughGizmoManager(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+            _factory = ElementFactory();
         }
 
         [Test]

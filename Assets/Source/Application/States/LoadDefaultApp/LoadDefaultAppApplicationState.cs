@@ -57,18 +57,17 @@ namespace CreateAR.SpirePlayer
         public LoadDefaultAppApplicationState(
             IUIManager ui,
             IMessageRouter messages,
-            IFileManager files,
             UserPreferenceService preferences,
             ApplicationConfig config,
-            ApiController api)
+            ApiController api,
+            HttpRequestCacher cache)
         {
             _ui = ui;
             _messages = messages;
             _preferences = preferences;
             _config = config;
             _api = api;
-            
-            _httpCache = new HttpRequestCacher(files);
+            _httpCache = cache;
         }
         
         /// <inheritdoc />
