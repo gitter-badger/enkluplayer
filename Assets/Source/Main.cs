@@ -56,7 +56,7 @@ namespace CreateAR.SpirePlayer
 
             // log to unity only in the editor and webgl
 #if !UNITY_WEBGL
-            if (UnityEngine.Application.isEditor)
+            //if (UnityEngine.Application.isEditor)
 #endif
             {
 	            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
