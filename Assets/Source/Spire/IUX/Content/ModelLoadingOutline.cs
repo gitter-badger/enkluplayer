@@ -1,12 +1,14 @@
+using System;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Draws an outline of a model.
     /// </summary>
-    public class ModelLoadingOutline : MonoBehaviour
+    [InjectVine("Asset.Reload")]
+    public class ModelLoadingOutline : InjectableIUXController
     {
         /// <summary>
         /// For drawing.
@@ -22,13 +24,38 @@ namespace CreateAR.SpirePlayer
         /// True iff there was an error.
         /// </summary>
         private bool _isError;
+
+        /// <summary>
+        /// Retries download.
+        /// </summary>
+        public event Action OnRetry;
+
+        /// <summary>
+        /// The refresh button.
+        /// </summary>
+        public ButtonWidget BtnRefresh
+        {
+            get { return (ButtonWidget) Root; }
+        }
         
         /// <summary>
         /// Called when there is a loading error.
         /// </summary>
-        public void Error(string error)
+        public void ShowError(string error)
         {
             _isError = true;
+
+            BtnRefresh.LocalVisible = true;
+        }
+
+        /// <summary>
+        /// Hides error.
+        /// </summary>
+        public void HideError()
+        {
+            _isError = false;
+
+            BtnRefresh.LocalVisible = false;
         }
 
         /// <summary>
@@ -37,6 +64,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="bounds">The bounds.</param>
         public void Init(Bounds bounds)
         {
+            HideError();
+
+            var trans = BtnRefresh.GameObject.transform;
+            trans.localPosition = bounds.center;
+
             _isError = false;
             _positions = new[]
             {
@@ -50,6 +82,32 @@ namespace CreateAR.SpirePlayer
                 new Vector3(bounds.max.x, bounds.max.y, bounds.max.z),
                 new Vector3(bounds.min.x, bounds.max.y, bounds.max.z),
             };
+        }
+
+        /// <inheritdoc />
+        protected override void Awake()
+        {
+            base.Awake();
+
+            BtnRefresh.Activator.OnActivated += _ =>
+            {
+                if (null != OnRetry)
+                {
+                    OnRetry();
+                }
+            };
+        }
+
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
+        private void Update()
+        {
+            BtnRefresh.GameObject.transform.forward = Camera.main.transform.forward;
+            BtnRefresh.Schema.Set("scale", new Vec3(
+                5 / transform.lossyScale.x,
+                5 / transform.lossyScale.y,
+                5 / transform.lossyScale.z));
         }
 
         /// <summary>

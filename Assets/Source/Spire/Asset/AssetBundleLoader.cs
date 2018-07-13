@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections;
-using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
-using UnityEngine.Networking;
-
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.Assets
@@ -184,7 +181,7 @@ namespace CreateAR.SpirePlayer.Assets
                 yield break;
             }
             
-#if UNITY_IOS || UNITY_WEBGL
+#if !CUSTOM_DOWNLOADER
             Verbose("Download bundle from {0}.", _url);
             
             var request = WWW.LoadFromCacheOrDownload(
@@ -226,7 +223,7 @@ namespace CreateAR.SpirePlayer.Assets
             }
             else
             {
-#if UNITY_IOS || UNITY_WEBGL
+#if !CUSTOM_DOWNLOADER
                 token.Succeed(request.assetBundle);
 #else           
                 // wait for bundle to complete

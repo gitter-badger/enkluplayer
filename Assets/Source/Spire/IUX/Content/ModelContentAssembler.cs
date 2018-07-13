@@ -158,6 +158,12 @@ namespace CreateAR.SpirePlayer
                 _outline = transform
                     .gameObject
                     .AddComponent<ModelLoadingOutline>();
+                _outline.OnRetry += () =>
+                {
+                    _outline.HideError();
+
+                    _asset.Load<GameObject>();
+                };
                 _outline.Init(Bounds);
 
                 Log.Info(this, "WatcherAdded::{0}", _asset.Data.Guid);
@@ -166,7 +172,7 @@ namespace CreateAR.SpirePlayer
                 if (!string.IsNullOrEmpty(_asset.Error))
                 {
                     Log.Info(this, "WatcherFailed::{0}", _asset.Data.Guid);
-                    _outline.Error(_asset.Error);
+                    _outline.ShowError(_asset.Error);
                 }
             }
 
@@ -245,7 +251,7 @@ namespace CreateAR.SpirePlayer
         {
             if (null != _outline)
             {
-                _outline.Error(error);
+                _outline.ShowError(error);
             }
         }
     }

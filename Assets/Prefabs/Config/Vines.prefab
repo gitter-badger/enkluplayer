@@ -100,3 +100,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: b2391db6ceed5834a92e9e8b177f3700, type: 3}
   - Identifier: Tools.BugReport
     Source: {fileID: 4900000, guid: f4915dd9060b8fb49b38d54dbffb07ca, type: 3}
+  - Identifier: Asset.Reload
+    Source: {fileID: 4900000, guid: 32403e9ef81b3c74d85b7df02aefea47, type: 3}

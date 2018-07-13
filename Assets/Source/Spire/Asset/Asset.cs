@@ -167,7 +167,7 @@ namespace CreateAR.SpirePlayer.Assets
         {
             var token = new AsyncToken<T>();
 
-            if (IsAssetDirty)
+            if (IsAssetDirty || null == _loadToken)
             {
                 var info = Data;
                 _loadToken = _loader.Load(info, out progress);
@@ -178,6 +178,7 @@ namespace CreateAR.SpirePlayer.Assets
                 _loadToken
                     .OnSuccess(asset =>
                     {
+                        _loadToken = null;
                         _asset = asset;
 
                         Error = string.Empty;
@@ -205,6 +206,7 @@ namespace CreateAR.SpirePlayer.Assets
                     })
                     .OnFailure(exception =>
                     {
+                        _loadToken = null;
                         Error = exception.Message;
 
                         if (null != OnLoadError)
