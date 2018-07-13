@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
@@ -21,6 +23,11 @@ namespace CreateAR.SpirePlayer
         /// True iff we have delete permissions.
         /// </summary>
         bool CanDelete { get; }
+
+        /// <summary>
+        /// Called when app is sufficiently loaded.
+        /// </summary>
+        event Action OnReady;
 
         /// <summary>
         /// Retrieves the object that manages the app's scenes.

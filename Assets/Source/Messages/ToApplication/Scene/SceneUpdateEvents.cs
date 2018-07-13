@@ -24,6 +24,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonName("sceneId")]
         public string Scene;
+
+        /// <summary>
+        /// Id of user.
+        /// </summary>
+        [JsonName("user")]
+        public string User;
     }
 
     /// <summary>

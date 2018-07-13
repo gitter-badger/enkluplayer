@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -127,6 +128,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Reloads the world anchor.
         /// </summary>
+        [Conditional("NETFX_CORE")]
         private void UpdateWorldAnchor()
         {
             // abort previous

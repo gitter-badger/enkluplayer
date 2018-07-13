@@ -1,5 +1,7 @@
 ﻿using System;
+using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -9,6 +11,17 @@ namespace CreateAR.SpirePlayer
     [InjectVine("Element.Splash")]
     public class ElementSplashController : InjectableIUXController
     {
+        /// <summary>
+        /// The element!
+        /// </summary>
+        private Element _element;
+
+        /// <summary>
+        /// Assets.
+        /// </summary>
+        [Inject]
+        public IAssetManager Assets { get; set; }
+
         /// <summary>
         /// Splash button.
         /// </summary>
@@ -25,15 +38,20 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initiailizes the controller.
         /// </summary>
-        /// <param name="propName">The name of the prop.</param>
-        public void Initialize(string propName)
+        /// <param name="element">The element.</param>
+        public void Initialize(Element element)
         {
+            _element = element;
+
             // If this controller is placed on a disabled GameObject, Awake won't
             // have been called.
             Inject();
 
-            BtnSplash.Schema.Set("label", propName);
+            BtnSplash.Schema.Set("label", element.Schema.Get<string>("name").Value);
             BtnSplash.Activator.OnActivated += Activator_OnActivated;
+
+            // choose a good local position
+            UpdateMenuPosition();
         }
 
         /// <inheritdoc />
@@ -54,6 +72,27 @@ namespace CreateAR.SpirePlayer
                     1f / scale.x,
                     1f / scale.y,
                     1f / scale.z));
+        }
+
+        /// <summary>
+        /// Updates the menus position to something meaningful.
+        /// </summary>
+        private void UpdateMenuPosition()
+        {
+            var assetWidget = _element as ContentWidget;
+            if (null != assetWidget)
+            {
+                var assetId = assetWidget.Schema.Get<string>("assetSrc").Value;
+                var asset = Assets.Manifest.Asset(assetId);
+                if (null != asset)
+                {
+                    var bounds = asset.Data.Stats.Bounds;
+                    BtnSplash.GameObject.transform.localPosition = new Vector3(
+                        bounds.Min.x + (bounds.Max.x - bounds.Min.x) / 2f,
+                        bounds.Min.y + (bounds.Max.y - bounds.Min.y) / 2f,
+                        bounds.Max.z);
+                }
+            }
         }
 
         /// <summary>

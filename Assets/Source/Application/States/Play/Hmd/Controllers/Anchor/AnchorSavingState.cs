@@ -117,41 +117,7 @@ namespace CreateAR.SpirePlayer
                         _controller.Element.Schema.Get<int>("version").Value,
                         bytes);
 
-                    // next, upload anchor
-                    _uploadToken = _http
-                        .PutFile<Trellis.Messages.UploadAnchor.Response>(
-                            _http.Urls.Url(string.Format(
-                                "trellis://editor/app/{0}/scene/{1}/anchor/{2}",
-                                _appId,
-                                _sceneId,
-                                anchorId)),
-                            new Commons.Unity.DataStructures.Tuple<string, string>[0],
-                            ref bytes)
-                        .OnSuccess(response =>
-                        {
-                            if (response.Payload.Success)
-                            {
-                                Log.Info(this, "Successfully uploaded world anchor.");
-
-                                // TODO: next update version
-
-                                _controller.ChangeState<AnchorReadyState>();
-                            }
-                            else
-                            {
-                                Log.Error(this, "Could not upload world anchor : {0}.", response.Payload.Error);
-
-                                _controller.ChangeState<AnchorErrorState>();
-                            }
-                        })
-                        .OnFailure(exception =>
-                        {
-                            Log.Error(this,
-                                "Could not upload world anchor : {0}.",
-                                exception);
-
-                            _controller.ChangeState<AnchorErrorState>();
-                        });
+                    UploadAnchor(anchorId, bytes, 3);
                 })
                 .OnFailure(exception =>
                 {
@@ -160,6 +126,60 @@ namespace CreateAR.SpirePlayer
                         exception);
 
                     _controller.ChangeState<AnchorErrorState>();
+                });
+        }
+
+        /// <summary>
+        /// Attempts to upload anchor.
+        /// </summary>
+        /// <param name="id">Id.</param>
+        /// <param name="bytes">Bytes.</param>
+        /// <param name="retries">Retry.</param>
+        private void UploadAnchor(string id, byte[] bytes, int retries)
+        {
+            // next, upload anchor
+            _uploadToken = _http
+                .PutFile<Trellis.Messages.UploadAnchor.Response>(
+                    _http.Urls.Url(string.Format(
+                        "trellis://editor/app/{0}/scene/{1}/anchor/{2}",
+                        _appId,
+                        _sceneId,
+                        id)),
+                    new Commons.Unity.DataStructures.Tuple<string, string>[0],
+                    ref bytes)
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        Log.Info(this, "Successfully uploaded world anchor.");
+
+                        // TODO: next update version
+
+                        _controller.ChangeState<AnchorReadyState>();
+                    }
+                    else
+                    {
+                        Log.Error(this, "Could not upload world anchor : {0}.", response.Payload.Error);
+
+                        _controller.ChangeState<AnchorErrorState>();
+                    }
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not upload world anchor : {0}.",
+                        exception);
+
+                    if (--retries > 0)
+                    {
+                        Log.Info(this, "Retrying anchor upload.");
+
+                        UploadAnchor(id, bytes, retries);
+                    }
+                    else
+                    {
+                        _controller.ChangeState<AnchorErrorState>();
+                    }
                 });
         }
     }

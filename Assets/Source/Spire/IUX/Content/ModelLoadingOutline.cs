@@ -1,4 +1,5 @@
 using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -45,7 +46,10 @@ namespace CreateAR.SpirePlayer
         {
             _isError = true;
 
-            BtnRefresh.LocalVisible = true;
+            if (DeviceHelper.IsHoloLens())
+            {
+                //BtnRefresh.LocalVisible = true;
+            }
         }
 
         /// <summary>
@@ -103,11 +107,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Update()
         {
-            BtnRefresh.GameObject.transform.forward = Camera.main.transform.forward;
-            BtnRefresh.Schema.Set("scale", new Vec3(
-                5 / transform.lossyScale.x,
-                5 / transform.lossyScale.y,
-                5 / transform.lossyScale.z));
+            if (DeviceHelper.IsHoloLens())
+            {
+                BtnRefresh.GameObject.transform.forward = Camera.current.transform.forward;
+                BtnRefresh.Schema.Set("scale", new Vec3(
+                    5 / transform.lossyScale.x,
+                    5 / transform.lossyScale.y,
+                    5 / transform.lossyScale.z));
+            }
         }
 
         /// <summary>

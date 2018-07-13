@@ -140,13 +140,6 @@ namespace CreateAR.SpirePlayer
             _fsm = new FiniteStateMachine(new IState[]
             {
                 new AnchorLoadingState(this),
-                new AnchorSavingState(
-                    this,
-                    _cache,
-                    _provider,
-                    _http,
-                    _context.AppId,
-                    _context.SceneId(Element)),
                 new AnchorReadyState(this),
                 new AnchorEditingState(this),
                 new AnchorErrorState(this)
@@ -177,41 +170,7 @@ namespace CreateAR.SpirePlayer
 
             _fsm.Change<T>();
         }
-
-        /// <summary>
-        /// Starts edit mode.
-        /// </summary>
-        public void BeginEdit()
-        {
-            _isEditing = true;
-            UpdateSplash();
-
-            _provider.Disable(gameObject);
-            ChangeState<AnchorEditingState>();
-        }
-
-        /// <summary>
-        /// Finalizes changes, reuploads.
-        /// </summary>
-        public void FinalizeEdit()
-        {
-            _isEditing = false;
-            UpdateSplash();
-
-            ChangeState<AnchorSavingState>();
-        }
-
-        /// <summary>
-        /// Aborts changes and reverts.
-        /// </summary>
-        public void AbortEdit()
-        {
-            _isEditing = false;
-            UpdateSplash();
-
-            ChangeState<AnchorLoadingState>();
-        }
-
+        
         /// <summary>
         /// Locks controller so it cannot be moved.
         /// </summary>

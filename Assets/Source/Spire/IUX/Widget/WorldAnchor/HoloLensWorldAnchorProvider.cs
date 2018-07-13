@@ -158,7 +158,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc />
         public IAsyncToken<Void> Import(string id, GameObject gameObject, byte[] bytes)
         {
-            Log.Info(this, "Import({0})", gameObject.name);
+            Log.Info(this, "{0}::Import({1})", id, gameObject.name);
 
             AsyncToken<Void> token;
             if (_imports.TryGetValue(gameObject, out token))
@@ -170,18 +170,43 @@ namespace CreateAR.SpirePlayer.IUX
             token = _imports[gameObject] = new AsyncToken<Void>();
             token.OnFinally(_ => ReleaseWatcher());
 
-            Action<SerializationCompletionReason, WorldAnchorTransferBatch> onComplete = (reason, batch) =>
+            // number of retries
+            byte[] compressed = new byte[0];
+            var retries = 3;
+
+            Action<SerializationCompletionReason, WorldAnchorTransferBatch> onComplete = null;
+            onComplete = (reason, batch) =>
             {
+                Log.Info(this, "{0}::Import into transfer batch complete.", id);
+                
                 _imports.Remove(gameObject);
+
+                // object may be destroyed at this point
+                if (!gameObject)
+                {
+                    Log.Info(this, "{0}::GameObject is already destroyed.", id);
+                    token.Fail(new Exception("Target GameObject is destroyed."));
+
+                    return;
+                }
 
                 if (reason != SerializationCompletionReason.Succeeded)
                 {
+                    if (--retries < 0)
+                    {
+                        WorldAnchorTransferBatch.ImportAsync(
+                            compressed,
+                            new WorldAnchorTransferBatch.DeserializationCompleteDelegate(onComplete));
+
+                        return;
+                    }
+
                     token.Fail(new Exception(string.Format(
                         "Could not import : {0}.",
                         reason)));
                     return;
                 }
-
+                
                 batch.LockObject(id, gameObject);
 
                 Log.Info(this, "Import complete.");
@@ -192,7 +217,6 @@ namespace CreateAR.SpirePlayer.IUX
             // inflate
             Windows.System.Threading.ThreadPool.RunAsync(context =>
             {
-                byte[] compressed;
                 using (var output = new MemoryStream())
                 {
                     using (var input = new MemoryStream(bytes))
@@ -209,7 +233,15 @@ namespace CreateAR.SpirePlayer.IUX
 
                 Synchronize(() =>
                 {
-                    Log.Info(this, "Decompression complete.");
+                    Log.Info(this, "{0}::Decompression complete.", id);
+
+                    if (!gameObject)
+                    {
+                        Log.Info(this, "GameObject destroyed. Not progressing to import into transfer batch.");
+                        token.Fail(new Exception("GameObject destroyed before imported into transfer batch."));
+
+                        return;
+                    }
 
                     WorldAnchorTransferBatch.ImportAsync(
                         compressed,

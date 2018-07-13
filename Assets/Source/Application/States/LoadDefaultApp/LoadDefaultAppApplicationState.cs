@@ -40,7 +40,17 @@ namespace CreateAR.SpirePlayer
         /// Caches HTTP calls.
         /// </summary>
         private readonly HttpRequestCacher _httpCache;
-        
+
+        /// <summary>
+        /// UI frame for popping later.
+        /// </summary>
+        private UIManagerFrame _frame;
+
+        /// <summary>
+        /// Id for loading screen.
+        /// </summary>
+        private int _loadingScreenId = -1;
+
         /// <summary>
         /// Id of error popup.
         /// </summary>
@@ -74,7 +84,16 @@ namespace CreateAR.SpirePlayer
         public void Enter(object context)
         {
             Log.Info(this, "LoadDefaultAppState::Enter()");
-            
+
+            // UI frame
+            _frame = _ui.CreateFrame();
+
+            // loading screen
+            _ui.Open<ICommonLoadingView>(new UIReference
+            {
+                UIDataId = UIDataIds.LOADING
+            }, out _errorPopupId);
+
             // load preferences
             _preferences
                 .ForUser(_config.Network.Credentials.UserId)
@@ -102,8 +121,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            _ui.Close(_errorPopupId);
-            _errorPopupId = -1;
+            _frame.Release();
 
             if (null != _getMyAppsToken)
             {
@@ -140,6 +158,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception =>
                 {
+                    _ui.Close(_loadingScreenId);
                     _ui
                         .Open<ErrorPopupUIView>(
                             new UIReference

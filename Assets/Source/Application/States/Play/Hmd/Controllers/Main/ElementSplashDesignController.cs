@@ -69,7 +69,7 @@ namespace CreateAR.SpirePlayer
         {
             _splashController = gameObject.AddComponent<ElementSplashController>();
             _splashController.OnOpen += Splash_OnOpen;
-            _splashController.Initialize(Element.Schema.Get<string>("name").Value);
+            _splashController.Initialize(Element);
         }
 
         /// <summary>
