@@ -165,13 +165,10 @@ namespace CreateAR.SpirePlayer
                     _asset.Load<GameObject>();
                 };
                 _outline.Init(Bounds);
-
-                Log.Info(this, "WatcherAdded::{0}", _asset.Data.Guid);
-
+                
                 // asset might already have failed to load
                 if (!string.IsNullOrEmpty(_asset.Error))
                 {
-                    Log.Info(this, "WatcherFailed::{0}", _asset.Data.Guid);
                     _outline.ShowError(_asset.Error);
                 }
             }
@@ -179,8 +176,6 @@ namespace CreateAR.SpirePlayer
             // watch for asset reloads
             _unwatch = _asset.Watch<GameObject>(value =>
             {
-                Log.Info(this, "WatcherCalled::{0}", _asset.Data.Guid);
-
                 SetupInstance(value);
             });
 
