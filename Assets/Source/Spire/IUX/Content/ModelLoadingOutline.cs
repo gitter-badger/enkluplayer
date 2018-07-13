@@ -120,51 +120,87 @@ namespace CreateAR.SpirePlayer
             _lineMaterial.SetPass(0);
             
             GL.PushMatrix();
+
+            try
             {
                 GL.MultMatrix(transform.localToWorldMatrix);
-                GL.Begin(GL.LINES);
+
+                try
                 {
-                    GL.Color(_isError ? Color.red : Color.white);
+                    GL.Begin(GL.LINES);
+                    {
+                        GL.Color(_isError ? Color.red : Color.white);
 
-                    var pos = _positions[0]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[1]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        var pos = _positions[0];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[1];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[1]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[2]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[1];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[2];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[2]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[3]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[2];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[3];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[3]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[0]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[3];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[0];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[4]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[5]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[4];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[5];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[5]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[6]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[5];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[6];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[6]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[7]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[6];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[7];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[7]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[4]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[7];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[4];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[0]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[4]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[0];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[4];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[1]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[5]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[1];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[5];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[2]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[6]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[2];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[6];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[3]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[7]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[3];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[7];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                    }
                 }
-                GL.End();
+                finally
+                {
+                    GL.End();
+                }
             }
-            GL.PopMatrix();
+            finally
+            {
+                GL.PopMatrix();
+            }
         }
 
         /// <summary>
