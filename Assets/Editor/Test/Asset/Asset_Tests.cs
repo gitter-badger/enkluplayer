@@ -31,6 +31,7 @@ namespace CreateAR.SpirePlayer.Test.Assets
         };
 
         private Asset _reference;
+        private Asset _errorReference;
         private GameObject _testAsset;
         private GameObject _testAssetUpdate;
 
@@ -38,6 +39,7 @@ namespace CreateAR.SpirePlayer.Test.Assets
         public void Setup()
         {
             _reference = new Asset(new DummyAssetLoader(), Data);
+            _errorReference = new Asset(new DummyAssetLoader("Error!"), Data);
             _testAsset = AssetDatabase.LoadAssetAtPath<GameObject>(TEST_PREFAB_PATH);
             _testAssetUpdate = AssetDatabase.LoadAssetAtPath<GameObject>(TEST_PREFAB_UPDATE_PATH);
 
@@ -302,7 +304,7 @@ namespace CreateAR.SpirePlayer.Test.Assets
         {
             var watchCalled = false;
 
-            _reference.Watch<GameObject>(asset =>
+            _reference.Watch<GameObject>((error, asset) =>
             {
                 watchCalled = true;
 
@@ -337,13 +339,31 @@ namespace CreateAR.SpirePlayer.Test.Assets
         }
 
         [Test]
+        public void WatchFailedAsset()
+        {
+            var watchCalled = false;
+            var handlerCalled = false;
+
+            _errorReference.Watch<GameObject>((unwatch, asset) => watchCalled = true);
+            _errorReference.OnLoadError += _ => handlerCalled = true;
+
+            Assert.IsTrue(string.IsNullOrEmpty(_errorReference.Error));
+
+            _errorReference.Load<GameObject>();
+            
+            Assert.IsTrue(handlerCalled);
+            Assert.IsFalse(watchCalled);
+            Assert.IsFalse(string.IsNullOrEmpty(_errorReference.Error));
+        }
+
+        [Test]
         public void AutoReload()
         {
             var watches = 0;
 
             _reference.Load<GameObject>();
 
-            _reference.Watch<GameObject>(asset =>
+            _reference.Watch<GameObject>((error, asset) =>
             {
                 watches++;
             });

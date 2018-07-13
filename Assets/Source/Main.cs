@@ -77,7 +77,12 @@ namespace CreateAR.SpirePlayer
             // non-webgl should log to file
 #if !UNITY_WEBGL
             Log.AddLogTarget(new FileLogTarget(
-				new DefaultLogFormatter(),
+				new DefaultLogFormatter
+				{
+                    Level = true,
+                    Timestamp = true,
+                    TypeName = true
+				},
                 System.IO.Path.Combine(
                     UnityEngine.Application.persistentDataPath,
                     "Application.log")));

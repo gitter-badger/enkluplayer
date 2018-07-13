@@ -1,7 +1,11 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CreateAR.SpirePlayer
 {
+    /// <summary>
+    /// Draws an outline of a model.
+    /// </summary>
     public class ModelLoadingOutline : MonoBehaviour
     {
         /// <summary>
@@ -9,10 +13,31 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private static Material _lineMaterial;
 
+        /// <summary>
+        /// Cached positions of the edge of the bounds.
+        /// </summary>
         private Vector3[] _positions;
 
+        /// <summary>
+        /// True iff there was an error.
+        /// </summary>
+        private bool _isError;
+        
+        /// <summary>
+        /// Called when there is a loading error.
+        /// </summary>
+        public void Error(string error)
+        {
+            _isError = true;
+        }
+
+        /// <summary>
+        /// Initializes with model bounds in world space.
+        /// </summary>
+        /// <param name="bounds">The bounds.</param>
         public void Init(Bounds bounds)
         {
+            _isError = false;
             _positions = new[]
             {
                 new Vector3(bounds.min.x, bounds.min.y, bounds.min.z),
@@ -41,6 +66,8 @@ namespace CreateAR.SpirePlayer
                 GL.MultMatrix(transform.localToWorldMatrix);
                 GL.Begin(GL.LINES);
                 {
+                    GL.Color(_isError ? Color.red : Color.white);
+
                     var pos = _positions[0]; GL.Vertex3(pos.x, pos.y, pos.z);
                     pos = _positions[1]; GL.Vertex3(pos.x, pos.y, pos.z);
 

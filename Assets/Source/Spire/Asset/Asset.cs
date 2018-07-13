@@ -21,7 +21,7 @@ namespace CreateAR.SpirePlayer.Assets
         /// The object returned from the loader.
         /// </summary>
         private Object _asset;
-
+        
         /// <summary>
         /// True iff the asset should be autoloaded upon update.
         /// </summary>
@@ -93,6 +93,16 @@ namespace CreateAR.SpirePlayer.Assets
         /// Called if the asset is removed from the manifest.
         /// </summary>
         public event Action<Asset> OnRemoved;
+
+        /// <summary>
+        /// Called when there is a load error.
+        /// </summary>
+        public event Action<string> OnLoadError;
+
+        /// <summary>
+        /// Asset error.
+        /// </summary>
+        public string Error { get; private set; }
 
         /// <summary>
         /// Creates an <c>AssetReference</c>.
@@ -169,6 +179,8 @@ namespace CreateAR.SpirePlayer.Assets
                     .OnSuccess(asset =>
                     {
                         _asset = asset;
+
+                        Error = string.Empty;
                         IsAssetDirty = info != Data;
 
                         var cast = As<T>();
@@ -184,14 +196,24 @@ namespace CreateAR.SpirePlayer.Assets
 
                         token.Succeed(cast);
 
-                        // create copy
+                        // call watchers
                         var watchers = _watch.ToArray();
                         for (int i = 0, len = watchers.Length; i < len; i++)
                         {
                             watchers[i]();
                         }
                     })
-                    .OnFailure(token.Fail);
+                    .OnFailure(exception =>
+                    {
+                        Error = exception.Message;
+
+                        if (null != OnLoadError)
+                        {
+                            OnLoadError(Error);
+                        }
+
+                        token.Fail(exception);
+                    });
             }
             else
             {
@@ -220,6 +242,7 @@ namespace CreateAR.SpirePlayer.Assets
             Progress.Value = 0;
 
             _asset = null;
+            Error = string.Empty;
         }
         
         /// <summary>
@@ -265,7 +288,6 @@ namespace CreateAR.SpirePlayer.Assets
         public void WatchData(Action<Action, Asset> callback)
         {
             Action watcher = null;
-            // ReSharper disable once AccessToModifiedClosure
             Action unwatcher = () => _dataWatchers.Remove(watcher);
             watcher = () => callback(unwatcher, this);
 
@@ -298,7 +320,6 @@ namespace CreateAR.SpirePlayer.Assets
         public void Watch<T>(Action<Action, T> callback) where T : Object
         {
             Action watcher = null;
-            // ReSharper disable once AccessToModifiedClosure
             Action unwatcher = () => _watch.Remove(watcher);
             watcher = () =>
             {

@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
+using UnityEngine;
 using Object = UnityEngine.Object;
+using Random = System.Random;
 
 namespace CreateAR.SpirePlayer.Assets
 {
@@ -10,6 +13,11 @@ namespace CreateAR.SpirePlayer.Assets
     /// </summary>
     public class StandardAssetLoader : IAssetLoader
     {
+        /// <summary>
+        /// PRNG.
+        /// </summary>
+        private static readonly Random _prng = new Random();
+
         /// <summary>
         /// Network configuration.
         /// </summary>
@@ -54,6 +62,17 @@ namespace CreateAR.SpirePlayer.Assets
             AssetData data,
             out LoadProgress progress)
         {
+            // see if this load should fail (for testing porpoises)
+            var failChance = _config.Network.AssetDownloadFailChance;
+            if (failChance > Mathf.Epsilon)
+            {
+                if (_prng.NextDouble() < failChance)
+                {
+                    progress = new LoadProgress();
+                    return new AsyncToken<Object>(new Exception("Random failure configured by ApplicationConfig."));
+                }
+            }
+
             // strip off file name
             var substrings = data.Uri.Split('/');
             var url = Urls.Url("assets://" + substrings[substrings.Length - 1]);

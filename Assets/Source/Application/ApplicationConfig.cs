@@ -238,6 +238,11 @@ namespace CreateAR.SpirePlayer
         public float AssetDownloadLagSec;
 
         /// <summary>
+        /// Likelyhood of forcing an asset download to fail.
+        /// </summary>
+        public float AssetDownloadFailChance;
+
+        /// <summary>
         /// If true, forces all Http requests to fail.
         /// </summary>
         public bool Offline;
@@ -339,6 +344,11 @@ namespace CreateAR.SpirePlayer
             if (!string.IsNullOrEmpty(overrideConfig.Current))
             {
                 Current = overrideConfig.Current;
+            }
+
+            if (overrideConfig.AssetDownloadFailChance > Mathf.Epsilon)
+            {
+                AssetDownloadFailChance = overrideConfig.AssetDownloadFailChance;
             }
 
             Offline = overrideConfig.Offline;

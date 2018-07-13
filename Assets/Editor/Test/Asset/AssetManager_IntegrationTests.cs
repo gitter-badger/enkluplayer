@@ -128,7 +128,7 @@ namespace CreateAR.SpirePlayer.Test.Assets
             var loaded = reference.As<GameObject>();
             Assert.IsNotNull(loaded);
 
-            reference.Watch<GameObject>(asset =>
+            reference.Watch<GameObject>((error, asset) =>
             {
                 watchCalled = true;
 
