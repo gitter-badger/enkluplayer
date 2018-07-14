@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -483,7 +484,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Draws debug lines.
         /// </summary>
-        /// [Conditional("ELEMENT_DEBUGGING")]
+        [Conditional("ELEMENT_DEBUGGING")]
         private void DebugDraw()
         {
             var handle = Render.Handle("IUX.Activator");
