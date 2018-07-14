@@ -272,7 +272,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="data">The element data.</param>
         private void CreateAnchor(ElementData data)
         {
-            // create anchor first
+            // create URI
             var url = data.Schema.Strings["src"] = string.Format(
                 "/editor/app/{0}/scene/{1}/anchor/{2}",
                 _design.App.Id,
@@ -288,20 +288,27 @@ namespace CreateAR.SpirePlayer
             placeholder.Saving();
 
             // cleans up after all potential code paths
-            Action cleanup = () => Object.Destroy(placeholder.gameObject);
+            Action cleanup = () =>
+            {
+                Log.Info(this, "Destroying placeholder.");
+
+                Object.Destroy(placeholder.gameObject);
+            };
 
             // export
-            Verbose("Exporting placeholder.");
+            Log.Info(this, "CreateAnchor() called, beginning export and upload.");
 
+            // export it
             _provider
                 .Export(data.Id, placeholder.gameObject)
                 .OnSuccess(bytes =>
                 {
-                    Verbose("Successfully exported. Progressing to upload.");
+                    Log.Info(this, "Successfully exported. Progressing to upload.");
 
                     // save to cache
                     _cache.Save(data.Id, version, bytes);
 
+                    // upload
                     UploadAnchor(data, url, bytes, cleanup, 3);
                 })
                 .OnFailure(exception =>
@@ -328,13 +335,13 @@ namespace CreateAR.SpirePlayer
             controller.Renderer.Saving();
 
             // export
-            Verbose("Reexporting anchor.");
+            Log.Info(this, "Re-save anchor called. Beginning export and re-upload process.");
 
             _provider
                 .Export(anchor.Id, anchor.GameObject)
                 .OnSuccess(bytes =>
                 {
-                    Verbose("Successfully exported. Progressing to upload.");
+                    Log.Info(this, "Successfully exported. Progressing to upload.");
 
                     // save to cache
                     _cache.Save(anchor.Id, version, bytes);
@@ -365,33 +372,39 @@ namespace CreateAR.SpirePlayer
                 {
                     if (response.Payload.Success)
                     {
-                        Verbose("Successfully uploaded anchor.");
+                        Log.Info(this, "Successfully uploaded anchor.");
 
                         // complete, now create corresponding element
                         _elementUpdater
                             .Create(data)
-                            .OnSuccess(_ => Verbose("Successfully created anchor element."))
-                            .OnFailure(exception => Log.Error(this,
-                                "Could not create anchor : {0}.",
-                                exception));
+                            .OnSuccess(_ => Log.Info(this, "Successfully created anchor element."))
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this,
+                                    "Could not create anchor element : {0}.",
+                                    exception);
+                            });
                     }
                     else
                     {
                         Log.Error(this,
-                            "Anchor upload error : {0}.",
+                            "Anchor was uploaded but server returned an error : {0}.",
                             response.Payload.Error);
                     }
 
+                    // run cleanup
                     cleanup();
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this,
+                    Log.Warning(this,
                         "Could not upload anchor : {0}.",
                         exception);
 
                     if (--retries > 0)
                     {
+                        Log.Info(this, "Retrying upload.");
+
                         UploadAnchor(data, url, bytes, cleanup, retries);
                     }
                     else
@@ -426,7 +439,7 @@ namespace CreateAR.SpirePlayer
                 {
                     if (response.Payload.Success)
                     {
-                        Verbose("Successfully uploaded anchor.");
+                        Log.Info(this, "Successfully reuploaded anchor.");
 
                         // complete, now send out network update
                         _elementUpdater.Update(anchor, "src", url);
@@ -434,12 +447,13 @@ namespace CreateAR.SpirePlayer
                         _elementUpdater.Update(anchor, "position", anchor.Schema.Get<Vec3>("position").Value);
                         _elementUpdater.FinalizeUpdate(anchor);
 
+                        // show controller as ready again
                         controller.Renderer.Ready();
                     }
                     else
                     {
                         Log.Error(this,
-                            "Anchor upload error : {0}.",
+                            "Anchor reupload error : {0}.",
                             response.Payload.Error);
 
                         controller.Renderer.Error();
@@ -448,12 +462,12 @@ namespace CreateAR.SpirePlayer
                 .OnFailure(exception =>
                 {
                     Log.Error(this,
-                        "Could not upload anchor : {0}.",
+                        "Could not reupload anchor : {0}.",
                         exception);
 
                     if (--retries > 0)
                     {
-                        Log.Info(this, "Retry creating anchor.");
+                        Log.Info(this, "Retry reuploading anchor.");
 
                         ReuploadAnchor(controller, bytes, anchor, version, retries);
                     }
@@ -516,7 +530,7 @@ namespace CreateAR.SpirePlayer
             _moveAnchor.enabled = false;
             _anchors.enabled = true;
 
-            // move into position and reimport
+            // move into position and reexport
             var position = data.Schema.Vectors["position"];
             _moveController.Anchor.Schema.Set("position", position);
             _moveController.Anchor.GameObject.transform.position = position.ToVector();

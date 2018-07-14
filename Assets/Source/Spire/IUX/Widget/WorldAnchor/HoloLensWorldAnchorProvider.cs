@@ -64,11 +64,13 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc />
         public IAsyncToken<byte[]> Export(string id, GameObject gameObject)
         {
-            Log.Info(this, "Export({0})", gameObject.name);
+            Log.Info(this, "{0}::Export({1})", id, gameObject.name);
 
+            // do not export the same anchor more than once at the same time
             AsyncToken<byte[]> token;
             if (_exports.TryGetValue(gameObject, out token))
             {
+                Log.Info(this, "{0}::Anchor is already being exported currently.", id);
                 return token.Token();
             }
 
@@ -76,11 +78,40 @@ namespace CreateAR.SpirePlayer.IUX
             token = _exports[gameObject] = new AsyncToken<byte[]>();
             token.OnFinally(_ => ReleaseWatcher());
 
-            // TODO: pool these
-            var buffer = new byte[4096];
+            // keep track of # of retries left (used below)
+            var retries = 3;
+
+            // create anchor
+            var anchor = gameObject.GetComponent<WorldAnchor>();
+            if (null == anchor)
+            {
+                anchor = gameObject.AddComponent<WorldAnchor>();
+            }
+
+            // create buffer for export data
+            byte[] buffer = null;
             var index = 0;
 
-            Action<byte[]> onExportDataAvailable = bytes =>
+            Action<SerializationCompletionReason> onExportComplete = null;
+            Action<byte[]> onExportDataAvailable = null;
+            Action export = () =>
+            {
+                Log.Info(this, "{0}::Starting export process.", id);
+
+                // reset buffer and index
+                buffer = new byte[4096];
+                index = 0;
+
+                // begin export
+                var batch = new WorldAnchorTransferBatch();
+                batch.AddWorldAnchor(id, anchor);
+                WorldAnchorTransferBatch.ExportAsync(
+                    batch,
+                    new WorldAnchorTransferBatch.SerializationDataAvailableDelegate(onExportDataAvailable),
+                    new WorldAnchorTransferBatch.SerializationCompleteDelegate(onExportComplete));
+            };
+
+            onExportDataAvailable = bytes =>
             {
                 var len = bytes.Length;
                 var delta = buffer.Length - index;
@@ -89,7 +120,10 @@ namespace CreateAR.SpirePlayer.IUX
                 while (len > delta)
                 {
                     var target = buffer.Length * 2;
-                    Log.Debug(this, "Increasing buffer size to {0} bytes.", target);
+                    Log.Debug(this,
+                        "{0}::Increasing buffer size to {1} bytes.",
+                        id,
+                        target);
 
                     var newBuffer = new byte[target];
                     Array.Copy(buffer, 0, newBuffer, 0, index);
@@ -102,13 +136,14 @@ namespace CreateAR.SpirePlayer.IUX
                 index += len;
             };
 
-            Action<SerializationCompletionReason> onExportComplete = reason =>
+            onExportComplete = reason =>
             {
-                Log.Info(this, "WorldAnchor export complete. Compressing data.");
-
                 if (reason == SerializationCompletionReason.Succeeded)
                 {
+                    Log.Info(this, "{0}::WorldAnchor export complete. Compressing data.", id);
+
                     // compress data
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     Windows.System.Threading.ThreadPool.RunAsync(context =>
                     {
                         byte[] compressed;
@@ -127,31 +162,43 @@ namespace CreateAR.SpirePlayer.IUX
                             _exports.Remove(gameObject);
                             
                             Log.Info(this,
-                                "Compression complete. Saved {0} bytes.",
+                                "{0}::Compression complete. Saved {1} bytes.",
+                                id,
                                 index - compressed.Length);
+
+                            // stop tracking token so we can export again later
+                            _exports.Remove(gameObject);
 
                             token.Succeed(compressed);
                         });
                     });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 }
                 else
                 {
-                    token.Fail(new Exception(string.Format(
-                        "Could not export : {0}.",
-                        reason)));
+                    Log.Warning(this, "{0}::WorldAnchor export failed.", id);
+
+                    if (--retries > 0)
+                    {
+                        Log.Info(this, "{0}::Retrying export.", id);
+
+                        export();
+                    }
+                    else
+                    {
+                        // stop tracking token so we can export again later
+                        _exports.Remove(gameObject);
+
+                        token.Fail(new Exception(string.Format(
+                            "Could not export : {0}.",
+                            reason)));
+                    }
                 }
             };
 
-            var anchor = gameObject.GetComponent<WorldAnchor>()
-                ?? gameObject.AddComponent<WorldAnchor>();
-
-            var batch = new WorldAnchorTransferBatch();
-            batch.AddWorldAnchor(id, anchor);
-            WorldAnchorTransferBatch.ExportAsync(
-                batch,
-                new WorldAnchorTransferBatch.SerializationDataAvailableDelegate(onExportDataAvailable),
-                new WorldAnchorTransferBatch.SerializationCompleteDelegate(onExportComplete));
-
+            // begin export
+            export();
+            
             return token;
         }
 
@@ -177,14 +224,14 @@ namespace CreateAR.SpirePlayer.IUX
             Action<SerializationCompletionReason, WorldAnchorTransferBatch> onComplete = null;
             onComplete = (reason, batch) =>
             {
-                Log.Info(this, "{0}::Import into transfer batch complete.", id);
-                
-                _imports.Remove(gameObject);
-
                 // object may be destroyed at this point
                 if (!gameObject)
                 {
-                    Log.Info(this, "{0}::GameObject is already destroyed.", id);
+                    Log.Info(this, "{0}::Import into transfer batch complete but GameObject is already destroyed.", id);
+
+                    // stop tracking so we can import again later
+                    _imports.Remove(gameObject);
+
                     token.Fail(new Exception("Target GameObject is destroyed."));
 
                     return;
@@ -192,31 +239,44 @@ namespace CreateAR.SpirePlayer.IUX
 
                 if (reason != SerializationCompletionReason.Succeeded)
                 {
+                    Log.Warning(this, "{0}::Import into transfer batch failed.", id);
+
                     if (--retries < 0)
                     {
+                        Log.Info(this, "{0}::Retrying import.", id);
+
                         WorldAnchorTransferBatch.ImportAsync(
                             compressed,
                             new WorldAnchorTransferBatch.DeserializationCompleteDelegate(onComplete));
-
-                        return;
                     }
+                    else
+                    {
+                        // stop tracking so we can import again later
+                        _imports.Remove(gameObject);
 
-                    token.Fail(new Exception(string.Format(
-                        "Could not import : {0}.",
-                        reason)));
-                    return;
+                        token.Fail(new Exception(string.Format(
+                            "Could not import : {0}.",
+                            reason)));
+                    }
                 }
-                
-                batch.LockObject(id, gameObject);
+                else
+                {
+                    Log.Info(this, "{0}::Import into transfer batch complete.", id);
 
-                Log.Info(this, "Import complete.");
+                    batch.LockObject(id, gameObject);
+                    
+                    // stop tracking so we can import again later
+                    _imports.Remove(gameObject);
 
-                token.Succeed(Void.Instance);
+                    token.Succeed(Void.Instance);
+                }
             };
 
             // inflate
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             Windows.System.Threading.ThreadPool.RunAsync(context =>
             {
+                // decompress bytes
                 using (var output = new MemoryStream())
                 {
                     using (var input = new MemoryStream(bytes))
@@ -227,16 +287,19 @@ namespace CreateAR.SpirePlayer.IUX
                         }
                     }
                     
-
                     compressed = output.ToArray();
                 }
 
+                // start import from main thread
                 Synchronize(() =>
                 {
                     Log.Info(this, "{0}::Decompression complete.", id);
 
                     if (!gameObject)
                     {
+                        // remove so we can import again later
+                        _imports.Remove(gameObject);
+
                         Log.Info(this, "GameObject destroyed. Not progressing to import into transfer batch.");
                         token.Fail(new Exception("GameObject destroyed before imported into transfer batch."));
 
@@ -248,6 +311,7 @@ namespace CreateAR.SpirePlayer.IUX
                         new WorldAnchorTransferBatch.DeserializationCompleteDelegate(onComplete));
                 });
             });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
             return token;
         }

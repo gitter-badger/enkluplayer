@@ -251,7 +251,7 @@ namespace CreateAR.SpirePlayer.IUX
                 .Import(Id, GameObject, bytes)
                 .OnSuccess(_ =>
                 {
-                    LogVerbose("Successfully imported anchor.");
+                    Log.Info(this, "Successfully imported anchor.");
 
                     IsAnchorLoading = false;
                     IsAnchorLoaded = true;
