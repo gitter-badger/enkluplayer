@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -31,6 +32,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// Tracks how textrect changes over frames.
         /// </summary>
         private Rectangle _bakedTextRect;
+
+        private bool _isDirty = true;
         
         /// <summary>
         /// Text getter/setter.
@@ -44,6 +47,8 @@ namespace CreateAR.SpirePlayer.IUX
             set
             {
                 _renderer.Text.text = value;
+
+                _isDirty = true;
             }
         }
 
@@ -257,10 +262,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LateUpdateInternal();
 
-            var rect = Rect;
-            if (!rect.Approximately(_bakedTextRect))
+            if (_isDirty)
             {
-                _bakedTextRect = rect;
+                _isDirty = false;
 
                 if (null != OnTextRectUpdated)
                 {
@@ -274,7 +278,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Draws debug lines.
         /// </summary>
-        /// [Conditional("ELEMENT_DEBUGGING")]
+        [Conditional("ELEMENT_DEBUGGING")]
         private void DebugDraw()
         {
             var handle = Render.Handle("IUX.Text");
@@ -314,6 +318,8 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _renderer.Alignment = alignmentEnum;
             }
+
+            _isDirty = true;
         }
 
         /// <summary>
@@ -342,6 +348,8 @@ namespace CreateAR.SpirePlayer.IUX
             int next)
         {
             _renderer.FontSize = next;
+
+            _isDirty = true;
         }
 
         /// <summary>
@@ -356,6 +364,8 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             _renderer.Font = next;
+
+            _isDirty = true;
         }
     }
 }

@@ -21,6 +21,7 @@ namespace CreateAR.SpirePlayer
         public Color SavingColor;
         public Color LoadingColor;
         public Color EditingColor;
+        public Color WarningColor;
 
         /// <summary>
         /// Shows that an error has occured.
@@ -36,6 +37,14 @@ namespace CreateAR.SpirePlayer
         public void Ready()
         {
             ChangeColor(ReadyColor);
+        }
+
+        /// <summary>
+        /// Shows that there is a warning regarding this anchor.
+        /// </summary>
+        public void Warning()
+        {
+            ChangeColor(Color.yellow);
         }
 
         /// <summary>

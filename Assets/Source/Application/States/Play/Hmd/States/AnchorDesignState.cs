@@ -45,6 +45,11 @@ namespace CreateAR.SpirePlayer
         private readonly IElementUpdateDelegate _elementUpdater;
 
         /// <summary>
+        /// UI management.
+        /// </summary>
+        private readonly IUIManager _ui;
+
+        /// <summary>
         /// Used here and there to iterate.
         /// </summary>
         private readonly List<AnchorDesignController> _scratchList = new List<AnchorDesignController>();
@@ -92,13 +97,15 @@ namespace CreateAR.SpirePlayer
             IHttpService http,
             IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
-            IElementUpdateDelegate elementUpdater)
+            IElementUpdateDelegate elementUpdater,
+            IUIManager ui)
         {
             _controllers = controllers;
             _http = http;
             _cache = cache;
             _provider = provider;
             _elementUpdater = elementUpdater;
+            _ui = ui;
         }
 
         /// <inheritdoc />
@@ -574,19 +581,46 @@ namespace CreateAR.SpirePlayer
         {
             _adjustAnchor.enabled = false;
 
-            _elementUpdater
-                .Destroy(controller.Element)
-                .OnFinally(_ =>
+            int id;
+            _ui
+                .Open<ConfirmationUIView>(new UIReference
                 {
-                    _anchors.enabled = true;
-                    OpenSplashMenus();
+                    UIDataId = "Common.Confirmation"
+                }, out id)
+                .OnSuccess(el =>
+                {
+                    el.Message = "Are you sure you want to DELETE this anchor?";
+                    el.OnCancel += () =>
+                    {
+                        _adjustAnchor.enabled = true;
+
+                        _ui.Close(id);
+                    };
+                    el.OnConfirm += () =>
+                    {
+                        _ui.Close(id);
+
+                        _elementUpdater
+                            .Destroy(controller.Element)
+                            .OnFinally(_ =>
+                            {
+                                _anchors.enabled = true;
+                                OpenSplashMenus();
+                            })
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this,
+                                    "Could not delete element : {0}.",
+                                    exception);
+                            });
+                    };
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this,
-                        "Could not delete element : {0}.",
-                        exception);
-                });
+                    Log.Error(this, "Could not open confirmation dialog : {0}", exception);
+
+                    _adjustAnchor.enabled = true;
+                }); ;
         }
 
         /// <summary>

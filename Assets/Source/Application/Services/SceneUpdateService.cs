@@ -50,7 +50,7 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.SCENE_UPDATE,
                 message =>
                 {
-                    Log.Info(this, "Received scene update event.");
+                    Log.Info(this, "Received scene update event: \n{0}", message);
 
                     // all values come in as strings
                     PrepActions(message);

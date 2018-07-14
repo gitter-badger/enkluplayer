@@ -102,3 +102,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: f4915dd9060b8fb49b38d54dbffb07ca, type: 3}
   - Identifier: Asset.Reload
     Source: {fileID: 4900000, guid: 32403e9ef81b3c74d85b7df02aefea47, type: 3}
+  - Identifier: Common.Confirmation
+    Source: {fileID: 4900000, guid: 981b0d7a95f66d2489779b320823be77, type: 3}

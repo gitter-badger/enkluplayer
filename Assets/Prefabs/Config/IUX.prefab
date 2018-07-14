@@ -93,6 +93,9 @@ MonoBehaviour:
     - UIDataId: Tools.BugReport
       Element: {fileID: 114218430237588856, guid: cb05aba88bd10a1498b52756385648e8,
         type: 2}
+    - UIDataId: Common.Confirmation
+      Element: {fileID: 114157938732403108, guid: 7b0fc911ad242844cac600761cf4a459,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error

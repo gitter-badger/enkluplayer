@@ -261,12 +261,41 @@ namespace CreateAR.SpirePlayer
         {
             CloseAll();
 
-            _design.Elements.Destroy(elementController.Element);
+            Log.Info(this, "Opening confirmation view.");
 
-            _dynamicRoot.Schema.Set("focus.visible", true);
+            int id;
+            _ui
+                .Open<ConfirmationUIView>(new UIReference
+                {
+                    UIDataId = "Common.Confirmation"
+                }, out id)
+                .OnSuccess(el =>
+                {
+                    el.Message = "Are you sure you want to DELETE this element?";
+                    el.OnCancel += () =>
+                    {
+                        _ui.Close(id);
 
-            // back to main
-            _design.ChangeState<MainDesignState>();
+                        _design.ChangeState<MainDesignState>();
+                    };
+                    el.OnConfirm += () =>
+                    {
+                        _ui.Close(id);
+                        
+                        _design.Elements.Destroy(elementController.Element);
+
+                        _dynamicRoot.Schema.Set("focus.visible", true);
+
+                        // back to main
+                        _design.ChangeState<MainDesignState>();
+                    };
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not open confirmation dialog : {0}", exception);
+
+                    _design.ChangeState<MainDesignState>();
+                });
         }
 
         /// <summary>
