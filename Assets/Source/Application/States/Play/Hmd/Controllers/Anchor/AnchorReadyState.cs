@@ -53,16 +53,12 @@
 #if NETFX_CORE
             if (_anchor)
             {
-                // it is now located but was not before
-                if (_anchor.isLocated && !_isLocated)
+                if (_anchor.isLocated)
                 {
-                    _isLocated = true;
                     _controller.Renderer.Ready();
                 }
-                // it was previously located but it no longer
-                else if (!_anchor.isLocated && _isLocated)
+                else if (!_anchor.isLocated)
                 {
-                    _isLocated = false;
                     _controller.Renderer.Warning();
                 }
             }
