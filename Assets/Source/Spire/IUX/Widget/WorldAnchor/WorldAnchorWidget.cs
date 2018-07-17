@@ -4,7 +4,6 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
-using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -127,10 +126,12 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (_isImported)
             {
-                var anchor = GameObject.GetComponent<WorldAnchor>();
+#if NETFX_CORE
+                var anchor = GameObject.GetComponent<UnityEngine.XR.WSA.WorldAnchor>();
                 Status = anchor.isLocated
                     ? WorldAnchorStatus.IsReadyLocated
                     : WorldAnchorStatus.IsReadyNotLocated;
+#endif
             }
         }
 

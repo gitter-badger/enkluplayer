@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
-using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer
 {
