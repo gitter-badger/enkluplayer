@@ -163,6 +163,8 @@ namespace CreateAR.SpirePlayer
                         OnAdjust = Element_OnAdjust
                     });
 
+            _controllers.Activate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
+
             _splash.enabled = true;
         }
 
@@ -175,7 +177,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            _controllers.Destroy(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
+            _controllers.Deactivate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
 
             CloseAll();
 

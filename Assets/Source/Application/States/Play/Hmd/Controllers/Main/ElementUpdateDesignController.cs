@@ -1,5 +1,6 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -35,6 +36,11 @@ namespace CreateAR.SpirePlayer
         protected Context _context;
 
         /// <summary>
+        /// Transform of the element.
+        /// </summary>
+        private Transform _transform;
+
+        /// <summary>
         /// Props.
         /// </summary>
         private ElementSchemaProp<Vec3> _positionProp;
@@ -52,17 +58,20 @@ namespace CreateAR.SpirePlayer
             public IElementUpdateDelegate Delegate;
         }
 
+        /// <inheritdoc />
         public override void Initialize(Element element, object context)
         {
             base.Initialize(element, context);
 
             _context = (Context) context;
 
+            _transform = ((IUnityElement) element).GameObject.transform;
             _positionProp = Element.Schema.Get<Vec3>("position");
             _rotationProp = Element.Schema.Get<Vec3>("rotation");
             _scaleProp = Element.Schema.Get<Vec3>("scale");
         }
 
+        /// <inheritdoc />
         public override void Uninitialize()
         {
             base.Uninitialize();
@@ -95,8 +104,10 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>
-        private void Update()
+        protected override void Update()
         {
+            base.Update();
+
             if (!_updatesEnabled)
             {
                 return;
@@ -116,15 +127,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateDelegate(float epsilon)
         {
-            var trans = gameObject.transform;
-
             // check for position changes
             {
-                if (!trans.localPosition.Approximately(
+                if (!_transform.localPosition.Approximately(
                     _positionProp.Value.ToVector(),
                     epsilon))
                 {
-                    _positionProp.Value = trans.localPosition.ToVec();
+                    _positionProp.Value = _transform.localPosition.ToVec();
 
                     _context.Delegate.Update(Element, "position", _positionProp.Value);
 
@@ -134,11 +143,11 @@ namespace CreateAR.SpirePlayer
 
             // check for rotation changes
             {
-                if (!trans.localRotation.eulerAngles.Approximately(
+                if (!_transform.localRotation.eulerAngles.Approximately(
                     _rotationProp.Value.ToVector(),
                     epsilon))
                 {
-                    _rotationProp.Value = trans.localRotation.eulerAngles.ToVec();
+                    _rotationProp.Value = _transform.localRotation.eulerAngles.ToVec();
 
                     _context.Delegate.Update(Element, "rotation", _rotationProp.Value);
 
@@ -148,11 +157,11 @@ namespace CreateAR.SpirePlayer
 
             // check for scale changes
             {
-                if (!trans.localScale.Approximately(
+                if (!_transform.localScale.Approximately(
                     _scaleProp.Value.ToVector(),
                     epsilon))
                 {
-                    _scaleProp.Value = trans.localScale.ToVec();
+                    _scaleProp.Value = _transform.localScale.ToVec();
 
                     _context.Delegate.Update(Element, "scale", _scaleProp.Value);
 

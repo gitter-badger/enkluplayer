@@ -183,6 +183,8 @@ namespace CreateAR.SpirePlayer
                     Provider = _provider,
                     OnAdjust = Controller_OnAdjust
                 });
+
+            _controllers.Activate(TAG_ANCHOR);
         }
 
         /// <inheritdoc />
@@ -194,7 +196,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            _controllers.Destroy(TAG_ANCHOR);
+            _controllers.Deactivate(TAG_ANCHOR);
 
             CloseAll();
 

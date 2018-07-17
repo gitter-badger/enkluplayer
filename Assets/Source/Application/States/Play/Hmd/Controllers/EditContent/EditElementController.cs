@@ -15,15 +15,15 @@ namespace CreateAR.SpirePlayer
         private ElementSplashDesignController _controller;
 
         /// <summary>
-        /// Hide prop.
+        /// Visibility prop.
         /// </summary>
-        private ElementSchemaProp<bool> _hideProp;
+        private ElementSchemaProp<bool> _visibleProp;
 
         /// <summary>
         /// Elements.
         /// </summary>
-        [InjectElements("..tgl-hide")]
-        public ToggleWidget TglHide { get; private set; }
+        [InjectElements("..tgl-visible")]
+        public ToggleWidget TglVisible { get; private set; }
         [InjectElements("..btn-move")]
         public ButtonWidget BtnMove { get; private set; }
         [InjectElements("..btn-setparent")]
@@ -62,16 +62,11 @@ namespace CreateAR.SpirePlayer
             _controller = controller;
 
             var schema = _controller.Element.Schema;
-            if (schema.HasOwnProp("hide"))
-            {
-                _hideProp = schema.Get<bool>("hide");
-                _hideProp.OnChanged += Hide_OnChanged;
+            _visibleProp = schema.Get<bool>("visible");
+            _visibleProp.OnChanged += Visible_OnChanged;
 
-                TglHide.Schema.Set("visible", true);
-                TglHide.OnValueChanged += tgl => _hideProp.Value = tgl.Value;
-
-                UpdateHideToggle();
-            }
+            TglVisible.OnValueChanged += tgl => _visibleProp.Value = tgl.Value;
+            UpdateVisibilityToggle();
         }
 
         /// <inheritdoc />
@@ -88,9 +83,9 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         protected override void OnDestroy()
         {
-            if (null != _hideProp)
+            if (null != _visibleProp)
             {
-                _hideProp.OnChanged -= Hide_OnChanged;
+                _visibleProp.OnChanged -= Visible_OnChanged;
             }
 
             base.OnDestroy();
@@ -99,11 +94,11 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Sets the toggle value from prop.
         /// </summary>
-        private void UpdateHideToggle()
+        private void UpdateVisibilityToggle()
         {
-            if (TglHide.Value != _hideProp.Value)
+            if (TglVisible.Value != _visibleProp.Value)
             {
-                TglHide.Value = _hideProp.Value;
+                TglVisible.Value = _visibleProp.Value;
             }
         }
 
@@ -158,12 +153,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when visibility changes.
         /// </summary>
-        private void Hide_OnChanged(
+        private void Visible_OnChanged(
             ElementSchemaProp<bool> prop,
             bool prev,
             bool next)
         {
-            UpdateHideToggle();
+            UpdateVisibilityToggle();
         }
     }
 }

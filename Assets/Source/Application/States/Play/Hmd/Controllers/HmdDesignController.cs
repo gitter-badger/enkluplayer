@@ -330,6 +330,7 @@ namespace CreateAR.SpirePlayer
             _fsm.Change(null);
 
             _controllers.Active = false;
+            _controllers.Release();
 
             _float.Destroy();
             _staticRoot.Destroy();

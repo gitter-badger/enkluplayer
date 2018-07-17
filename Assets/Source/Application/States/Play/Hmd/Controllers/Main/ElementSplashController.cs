@@ -52,9 +52,8 @@ namespace CreateAR.SpirePlayer
 
             // choose a good local position
             UpdateMenuPosition();
-            UpdateButtonScale();
         }
-
+        
         /// <inheritdoc />
         protected override void Awake()
         {
@@ -62,21 +61,7 @@ namespace CreateAR.SpirePlayer
 
             BtnSplash.Activator.OnActivated += Activator_OnActivated;
         }
-
-        /// <summary>
-        /// Updates the button scale.
-        /// </summary>
-        private void UpdateButtonScale()
-        {
-            var scale = transform.lossyScale;
-            BtnSplash.Schema.Set(
-                "scale",
-                new Vec3(
-                    1f / (scale.x < Mathf.Epsilon ? 1 : scale.x),
-                    1f / (scale.y < Mathf.Epsilon ? 1 : scale.y),
-                    1f / (scale.z < Mathf.Epsilon ? 1 : scale.z)));
-        }
-
+        
         /// <summary>
         /// Updates the menus position to something meaningful.
         /// </summary>

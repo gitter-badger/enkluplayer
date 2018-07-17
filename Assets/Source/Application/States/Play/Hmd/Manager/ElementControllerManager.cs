@@ -70,7 +70,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Destroy(params string[] tags)
+        public void Deactivate(params string[] tags)
         {
             for (var i = _groups.Count - 1; i >= 0; i--)
             {
@@ -79,13 +79,39 @@ namespace CreateAR.SpirePlayer
                 {
                     if (group.Tag == tags[j])
                     {
-                        group.Destroy();
-
-                        _groups.RemoveAt(i);
+                        group.Active = false;
                         break;
                     }
                 }
             }
+        }
+
+        /// <inheritdoc />
+        public void Activate(params string[] tags)
+        {
+            for (var i = _groups.Count - 1; i >= 0; i--)
+            {
+                var group = _groups[i];
+                for (int j = 0, jlen = tags.Length; j < jlen; j++)
+                {
+                    if (group.Tag == tags[j])
+                    {
+                        group.Active = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public void Release()
+        {
+            for (var i = _groups.Count - 1; i >= 0; i--)
+            {
+                _groups[i].Destroy();
+            }
+
+            _groups.Clear();
         }
     }
 }

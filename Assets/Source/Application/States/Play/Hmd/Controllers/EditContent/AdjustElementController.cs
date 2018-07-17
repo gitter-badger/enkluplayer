@@ -133,7 +133,7 @@ namespace CreateAR.SpirePlayer
                 var scalar = Vector3.Dot(focus - O, d);
                 var diff = scalar * d;
                 
-                _controller.transform.position = O + diff - offset;
+                _controller.ElementTransform.position = O + diff - offset;
             }
 
             if (SliderY.Visible)
@@ -148,14 +148,14 @@ namespace CreateAR.SpirePlayer
                 var scalar = Vector3.Dot(focus - O, d);
                 var diff = scalar * d;
 
-                _controller.transform.position = O + diff - offset;
+                _controller.ElementTransform.position = O + diff - offset;
             }
 
             if (SliderZ.Visible)
             {
                 var zScale = 10;
                 var scalar = (SliderZ.Value - 0.5f) * zScale;
-                _controller.transform.position = _startPosition + scalar * _startForward;
+                _controller.ElementTransform.position = _startPosition + scalar * _startForward;
             }
 
             if (SliderScale.Visible)
@@ -163,14 +163,14 @@ namespace CreateAR.SpirePlayer
                 const float scaleDiff = 2f;
                 var start = _startScale.x;
                 var val = start + (SliderScale.Value - 0.5f) * scaleDiff;
-                _controller.transform.localScale = val * Vector3.one;
+                _controller.ElementTransform.localScale = val * Vector3.one;
             }
 
             if (SliderRotate.Visible)
             {
                 var start = _startRotation.y;
                 var val = start + (SliderRotate.Value - 0.5f) * 360;
-                _controller.transform.localRotation = Quaternion.Euler(0, val, 0);
+                _controller.ElementTransform.localRotation = Quaternion.Euler(0, val, 0);
             }
         }
 
@@ -179,7 +179,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ResetMenuPosition()
         {
-            transform.position = _controller.transform.position;
+            transform.position = _controller.ElementTransform.position;
         }
 
         /// <summary>
@@ -261,7 +261,7 @@ namespace CreateAR.SpirePlayer
         {
             Container.LocalVisible = false;
 
-            _startRotation = _controller.transform.localRotation.eulerAngles;
+            _startRotation = _controller.ElementTransform.localRotation.eulerAngles;
             SliderRotate.LocalVisible = true;
         }
 
@@ -272,7 +272,7 @@ namespace CreateAR.SpirePlayer
         {
             Container.LocalVisible = false;
 
-            _startScale = _controller.transform.localScale;
+            _startScale = _controller.ElementTransform.localScale;
             SliderScale.LocalVisible = true;
         }
         
@@ -299,7 +299,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
-            _startPosition = _controller.transform.position;
+            _startPosition = _controller.ElementTransform.position;
             _startForward = Intention.Forward.ToVector();
 
             Container.LocalVisible = false;

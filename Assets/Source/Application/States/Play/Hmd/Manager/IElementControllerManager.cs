@@ -19,9 +19,20 @@
         IElementControllerGroup Group(string tag);
 
         /// <summary>
-        /// Destroys all matching groups.
+        /// Deactivates all matching groups.
         /// </summary>
         /// <param name="tags">List of tags.</param>
-        void Destroy(params string[] tags);
+        void Deactivate(params string[] tags);
+
+        /// <summary>
+        /// Activates all matching groups.
+        /// </summary>
+        /// <param name="tags">List of tags.</param>
+        void Activate(params string[] tags);
+
+        /// <summary>
+        /// Destroys all groups.
+        /// </summary>
+        void Release();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
@@ -23,21 +24,30 @@ namespace CreateAR.SpirePlayer
         /// Controls the prop splash menu.
         /// </summary>
         private ElementSplashController _splashController;
-
+        
         /// <inheritdoc />
         public override void Initialize(Element element, object context)
         {
             base.Initialize(element, context);
+            
+            _splashController.OnOpen += Splash_OnOpen;
+            _splashController.Initialize(Element);
 
-            InitializeSplashMenu();
+            ShowSplashMenu();
+
+            Log.Info(this, "Initialize({0})", element.Id);
         }
 
         /// <inheritdoc />
         public override void Uninitialize()
         {
+            Log.Info(this, "Uninitialize({0})", Element.Id);
+
             base.Uninitialize();
 
-            UninitializeSplashController();
+            _splashController.OnOpen -= Splash_OnOpen;
+
+            HideSplashMenu();
         }
 
         /// <summary>
@@ -62,28 +72,12 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        /// <summary>
-        /// Creates splash menu.
-        /// </summary>
-        private void InitializeSplashMenu()
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void Awake()
         {
             _splashController = gameObject.AddComponent<ElementSplashController>();
-            _splashController.OnOpen += Splash_OnOpen;
-            _splashController.Initialize(Element);
-        }
 
-        /// <summary>
-        /// Uninits the splash controller.
-        /// </summary>
-        private void UninitializeSplashController()
-        {
-            if (null != _splashController)
-            {
-                _splashController.OnOpen -= Splash_OnOpen;
-
-                Destroy(_splashController);
-                _splashController = null;
-            }
+            HideSplashMenu();
         }
 
         /// <summary>
