@@ -46,14 +46,12 @@ namespace CreateAR.SpirePlayer.IUX
             _light = GameObject.AddComponent<Light>();
             
             // collider
-            var collider = GameObject.GetComponent<BoxCollider>();
-            if (null == collider)
+            var collider = EditCollider;
+            if (null != collider)
             {
-                collider = GameObject.AddComponent<BoxCollider>();
+                collider.center = Vector3.zero;
+                collider.size = 0.25f * Vector3.one;
             }
-            collider.isTrigger = true;
-            collider.center = Vector3.zero;
-            collider.size = 0.25f * Vector3.one;
 
             // determines light type
             _typeProp = Schema.GetOwn("lightType", LightType.Directional.ToString());

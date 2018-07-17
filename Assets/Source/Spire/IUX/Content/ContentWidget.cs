@@ -364,17 +364,14 @@ namespace CreateAR.SpirePlayer
             instance.transform.SetParent(GameObject.transform, false);
             instance.SetActive(true);
 
-            // collider
-            var collider = GameObject.GetComponent<BoxCollider>();
-            if (null == collider)
-            {
-                collider = GameObject.AddComponent<BoxCollider>();
-            }
-
+            // setup collider
             var bounds = _assembler.Bounds;
-            collider.isTrigger = true;
-            collider.center = bounds.center;
-            collider.size = bounds.size;
+            var collider = EditCollider;
+            if (null != collider)
+            {
+                collider.center = bounds.center;
+                collider.size = bounds.size;
+            }
 
             _onAssetLoaded.Succeed(this);
         }

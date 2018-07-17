@@ -66,15 +66,12 @@ namespace CreateAR.SpirePlayer.IUX
 
             // selection collider
             {
-                var collider = GameObject.GetComponent<BoxCollider>();
-                if (null == collider)
+                var collider = EditCollider;
+                if (null != collider)
                 {
-                    collider = GameObject.AddComponent<BoxCollider>();
+                    collider.center = Vector3.zero;
+                    collider.size = 0.5f * Vector3.one;
                 }
-
-                collider.center = Vector3.zero;
-                collider.size = 0.5f * Vector3.one;
-                collider.isTrigger = true;
             }
         }
 
