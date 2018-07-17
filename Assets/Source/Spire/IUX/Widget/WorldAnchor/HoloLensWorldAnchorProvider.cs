@@ -33,6 +33,8 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly List<Action> _actions = new List<Action>();
         private readonly List<Action> _actionsReadBuffer = new List<Action>();
 
+        private readonly Queue<Action> _importQueue = new Queue<Action>();
+
         /// <summary>
         /// Import dictionary.
         /// </summary>
@@ -53,6 +55,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private bool _isWatching;
 
+        private bool _isProcessing;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -65,7 +69,7 @@ namespace CreateAR.SpirePlayer.IUX
         public IAsyncToken<byte[]> Export(string id, GameObject gameObject)
         {
             Log.Info(this, "{0}::Export({1})", id, gameObject.name);
-
+            
             // do not export the same anchor more than once at the same time
             AsyncToken<byte[]> token;
             if (_exports.TryGetValue(gameObject, out token))
@@ -207,115 +211,179 @@ namespace CreateAR.SpirePlayer.IUX
         {
             Log.Info(this, "{0}::Import({1})", id, gameObject.name);
 
+            var start = DateTime.Now;
+            var end = DateTime.Now;
+
             AsyncToken<Void> token;
             if (_imports.TryGetValue(gameObject, out token))
             {
                 return token.Token();
             }
 
+            // create a new token for it immediately
             RetainWatcher();
             token = _imports[gameObject] = new AsyncToken<Void>();
             token.OnFinally(_ => ReleaseWatcher());
 
-            // number of retries
-            byte[] compressed = new byte[0];
-            var retries = 3;
-
-            Action<SerializationCompletionReason, WorldAnchorTransferBatch> onComplete = null;
-            onComplete = (reason, batch) =>
+            Action queuedImport = () =>
             {
-                // object may be destroyed at this point
-                if (!gameObject)
+                end = DateTime.Now;
+
+                Log.Info(this, "{0}::Begin queued import. Queued for {1} sec.",
+                    id,
+                    (end - start).TotalSeconds);
+
+                start = end;
+                
+                // number of retries
+                byte[] compressed = new byte[0];
+                var retries = 3;
+
+                // called when import into transfew batch is complete
+                Action<SerializationCompletionReason, WorldAnchorTransferBatch> onComplete = null;
+                onComplete = (reason, batch) =>
                 {
-                    Log.Info(this, "{0}::Import into transfer batch complete but GameObject is already destroyed.", id);
+                    end = DateTime.Now;
 
-                    // stop tracking so we can import again later
-                    _imports.Remove(gameObject);
-
-                    token.Fail(new Exception("Target GameObject is destroyed."));
-
-                    return;
-                }
-
-                if (reason != SerializationCompletionReason.Succeeded)
-                {
-                    Log.Warning(this, "{0}::Import into transfer batch failed.", id);
-
-                    if (--retries < 0)
+                    // object may be destroyed at this point
+                    if (!gameObject)
                     {
-                        Log.Info(this, "{0}::Retrying import.", id);
+                        Log.Info(this, "{0}::Import into transfer batch complete but GameObject is already destroyed.",
+                            id);
 
-                        WorldAnchorTransferBatch.ImportAsync(
-                            compressed,
-                            new WorldAnchorTransferBatch.DeserializationCompleteDelegate(onComplete));
-                    }
-                    else
-                    {
                         // stop tracking so we can import again later
                         _imports.Remove(gameObject);
 
-                        token.Fail(new Exception(string.Format(
-                            "Could not import : {0}.",
-                            reason)));
-                    }
-                }
-                else
-                {
-                    Log.Info(this, "{0}::Import into transfer batch complete.", id);
+                        token.Fail(new Exception("Target GameObject is destroyed."));
 
-                    batch.LockObject(id, gameObject);
-                    
-                    // stop tracking so we can import again later
-                    _imports.Remove(gameObject);
-
-                    token.Succeed(Void.Instance);
-                }
-            };
-
-            // inflate
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            Windows.System.Threading.ThreadPool.RunAsync(context =>
-            {
-                // decompress bytes
-                using (var output = new MemoryStream())
-                {
-                    using (var input = new MemoryStream(bytes))
-                    {
-                        using (var deflate = new DeflateStream(input, CompressionMode.Decompress))
-                        {
-                            deflate.CopyTo(output);
-                        }
-                    }
-                    
-                    compressed = output.ToArray();
-                }
-
-                // start import from main thread
-                Synchronize(() =>
-                {
-                    Log.Info(this, "{0}::Decompression complete.", id);
-
-                    if (!gameObject)
-                    {
-                        // remove so we can import again later
-                        _imports.Remove(gameObject);
-
-                        Log.Info(this, "GameObject destroyed. Not progressing to import into transfer batch.");
-                        token.Fail(new Exception("GameObject destroyed before imported into transfer batch."));
+                        // done processing this one
+                        _isProcessing = false;
 
                         return;
                     }
 
-                    WorldAnchorTransferBatch.ImportAsync(
-                        compressed,
-                        new WorldAnchorTransferBatch.DeserializationCompleteDelegate(onComplete));
+                    if (reason != SerializationCompletionReason.Succeeded)
+                    {
+                        Log.Warning(this, "{0}::Import into transfer batch failed.", id);
+
+                        if (--retries < 0)
+                        {
+                            Log.Info(this, "{0}::Retrying import.", id);
+
+                            WorldAnchorTransferBatch.ImportAsync(
+                                compressed,
+                                new WorldAnchorTransferBatch.DeserializationCompleteDelegate(onComplete));
+                        }
+                        else
+                        {
+                            // stop tracking so we can import again later
+                            _imports.Remove(gameObject);
+
+                            token.Fail(new Exception(string.Format(
+                                "Could not import : {0}.",
+                                reason)));
+                        }
+                    }
+                    else
+                    {
+                        Log.Info(this, "{0}::Import into transfer batch complete. Proceeding to lock. Total import time: {0} sec.",
+                            id,
+                            (end - start).TotalSeconds);
+                        
+                        var anchor = batch.LockObject(id, gameObject);
+
+                        Log.Info(this, "{0}::Created anchor : {1}.", id, anchor);
+
+                        anchor.OnTrackingChanged += AnchorOnOnTrackingChanged;
+                        
+                        // stop tracking so we can import again later
+                        _imports.Remove(gameObject);
+                        
+                        token.Succeed(Void.Instance);
+                    }
+
+                    // done processing
+                    _isProcessing = false;
+                };
+
+                // start inflate in a threadpool
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                Windows.System.Threading.ThreadPool.RunAsync(context =>
+                {
+                    // decompress bytes
+                    using (var output = new MemoryStream())
+                    {
+                        using (var input = new MemoryStream(bytes))
+                        {
+                            using (var deflate = new DeflateStream(input, CompressionMode.Decompress))
+                            {
+                                deflate.CopyTo(output);
+                            }
+                        }
+
+                        compressed = output.ToArray();
+                    }
+
+                    // import must be started from main thread
+                    Synchronize(() =>
+                    {
+                        end = DateTime.Now;
+
+                        Log.Info(this, "{0}::Decompression complete. Decompression took {0} sec.",
+                            id,
+                            (end - start).TotalSeconds);
+
+                        start = end;
+
+                        if (!gameObject)
+                        {
+                            // remove so we can import again later
+                            _imports.Remove(gameObject);
+
+                            Log.Info(this, "GameObject destroyed. Not progressing to import into transfer batch.");
+                            token.Fail(new Exception("GameObject destroyed before imported into transfer batch."));
+
+                            return;
+                        }
+
+                        WorldAnchorTransferBatch.ImportAsync(
+                            compressed,
+                            new WorldAnchorTransferBatch.DeserializationCompleteDelegate(onComplete));
+                    });
                 });
-            });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            };
+
+            Log.Info(this, "{0}::Enqueued import.", id);
+            _importQueue.Enqueue(queuedImport);
+
+            ProcessQueue();
 
             return token;
         }
         
+        private void ProcessQueue()
+        {
+            if (_isProcessing || 0 == _importQueue.Count)
+            {
+                return;
+            }
+
+            _isProcessing = true;
+
+            Log.Info(this, "Processing next in queue.");
+
+            var next = _importQueue.Dequeue();
+            next();
+        }
+
+        private void AnchorOnOnTrackingChanged(WorldAnchor self, bool located)
+        {
+            Log.Info(this, "Anchor tracking changed on {0}. Located: {1}.",
+                self.gameObject.name,
+                located);
+        }
+
         /// <inheritdoc />
         public void Disable(GameObject gameObject)
         {
@@ -385,6 +453,8 @@ namespace CreateAR.SpirePlayer.IUX
                     }
                     _actionsReadBuffer.Clear();
                 }
+
+                ProcessQueue();
 
                 yield return null;
             }
