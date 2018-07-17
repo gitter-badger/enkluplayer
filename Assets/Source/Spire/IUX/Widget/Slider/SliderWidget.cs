@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RTEditor;
+using System;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -37,7 +38,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Image widget.
         /// </summary>
-        private ImageWidget _positionImage;
+        private ButtonWidget _moveSlider;
+        private CaptionWidget _Annotation;
         private ImageWidget _minImage;
         private ImageWidget _maxImage;
 
@@ -74,9 +76,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                if (null != _positionImage)
+                if (null != _moveSlider)
                 {
-                    return _positionImage.GameObject.transform.position.ToVec();
+                    return _moveSlider.GameObject.transform.position.ToVec();
                 }
 
                 return GameObject.transform.position.ToVec();
@@ -88,9 +90,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                if (null != _positionImage)
+                if (null != _moveSlider)
                 {
-                    return _positionImage.GameObject.transform.lossyScale.ToVec();
+                    return _moveSlider.GameObject.transform.lossyScale.ToVec();
                 }
 
                 return GameObject.transform.lossyScale.ToVec();
@@ -119,6 +121,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Called when the control is not being focused on.
         /// </summary>
         public event Action OnUnfocused;
+
+        /// <summary>
+        /// Called when the control is not being focused on.
+        /// </summary>
+        public event Action OnSliderValueConfirmed;
 
         /// <summary>
         /// Constructor.
@@ -152,7 +159,7 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void LoadInternalBeforeChildren()
         {
             base.LoadInternalBeforeChildren();
-
+           
             _sizeMaxProp = Schema.Get<float>("size.max");
             _sizeMinProp = Schema.Get<float>("size.min");
             _radiusProp = Schema.Get<float>("radius");
@@ -163,8 +170,12 @@ namespace CreateAR.SpirePlayer.IUX
             _axisProp = Schema.Get<string>("axis");
             _axisProp.OnChanged += Axis_OnChanged;
 
-            _positionImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/Outer Gradient' width=0.1 height=0.1 />");
-            AddChild(_positionImage);
+            _moveSlider = (ButtonWidget) _elements.Element("<?Vine><Button id='btn-x' icon='arrow-double' position=(-0.2, 0, 0) ready.color='Highlight' />");
+            AddChild(_moveSlider);
+            _moveSlider.Activator.OnActivated += positionImage_OnActivated;
+
+            _Annotation = (CaptionWidget)_elements.Element("<?Vine><Caption id='value-annotation' position=(0, 0.1, 0) visible=true label='Placeholder' fontSize=50 width=500.0 alignment='MidCenter' />");
+            _moveSlider.AddChild(_Annotation);
 
             _minImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/arrow-left' width=0.1 height=0.1 />");
             AddChild(_minImage);
@@ -175,7 +186,15 @@ namespace CreateAR.SpirePlayer.IUX
             _interactions.Add(this);
             Interactable = true;
         }
+        private void positionImage_OnActivated(ActivatorPrimitive activatorPrimitive)
+        {
+           if(null != OnSliderValueConfirmed)
+            {
+                OnSliderValueConfirmed();
+            }
+            
 
+        }
         /// <inheritdoc />
         protected override void UnloadInternalAfterChildren()
         {
@@ -204,8 +223,9 @@ namespace CreateAR.SpirePlayer.IUX
 
             UpdatePosition(intersection);
             var aim = CalculateAim(intersection);
+            
             var scalar = _sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value);
-            _positionImage.GameObject.transform.localScale = scalar * Vector3.one;
+            _moveSlider.GameObject.transform.localScale = scalar * Vector3.one;
             
             if (Math.Abs(aim) < float.Epsilon)
             {
@@ -245,10 +265,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdatePosition(Vector3 intersection)
         {
-            Value = CalculateValue(intersection, _p0, _p1);
+            Value = CalculateValue(intersection, getPivotPoints()[0], getPivotPoints()[1]);
 
             // force world position, not position property
-            _positionImage.GameObject.transform.position = Vector3.Lerp(_p0, _p1, Value);
+            _moveSlider.GameObject.transform.position = Vector3.Lerp(getPivotPoints()[0], getPivotPoints()[1], Value);
+            _Annotation.Label = Value.ToString();
         }
 
         /// <summary>
@@ -262,7 +283,6 @@ namespace CreateAR.SpirePlayer.IUX
             if (axis == AxisType.X)
             {
                 offset = _intentions.Right;
-
                 _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
                 _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
             }
@@ -281,8 +301,30 @@ namespace CreateAR.SpirePlayer.IUX
 
             _minImage.GameObject.transform.position = _p0;
             _maxImage.GameObject.transform.position = _p1;
-        }
 
+        }
+        public Vector3[] getPivotPoints()
+        {
+            var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
+            var offset = _intentions.Right;
+            Vector3 p0, p1;
+            if (axis == AxisType.X)
+            {
+                offset = _intentions.Right;
+                p0 = new Vector3(GameObject.transform.position.x - 2f,GameObject.transform.position.y,GameObject.transform.position.z);
+                p1 = new Vector3(p0.x + 4f, p0.y, p0.z);
+            }
+            else
+            {
+                offset = _intentions.Up;
+                p0 = new Vector3(GameObject.transform.position.x, GameObject.transform.position.y - 2f, GameObject.transform.position.z);
+                p1 = new Vector3(p0.x, p0.y + 4f, p0.z);
+            }
+            Vector3 adjustedp0 = p0 - _lengthProp.Value * offset.ToVector();
+            Vector3 adjustedp1 = p1 + _lengthProp.Value * offset.ToVector();
+            return new Vector3[] { adjustedp0, adjustedp1 };
+
+        }
         /// <summary>
         /// Calculates the intention forward intersection with the plane made
         /// from the points on slider + up.

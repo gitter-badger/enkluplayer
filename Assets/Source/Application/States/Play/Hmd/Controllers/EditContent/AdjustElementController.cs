@@ -1,5 +1,7 @@
 ﻿using System;
+using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
+using RTEditor;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -72,11 +74,21 @@ namespace CreateAR.SpirePlayer
         public SliderWidget SliderScale { get; private set; }
         [InjectElements("..slider-rotate")]
         public SliderWidget SliderRotate { get; private set; }
+        public bool drawAxis { get; private set; }
 
+        public Vector3 p0 = new Vector3(-10f, 0f, 2f);
+        public Vector3 p1 = new Vector3(10f, 0f, 2f);
+        private Material _lineMaterial;
         /// <summary>
         /// Called when the menu should be exited.
         /// </summary>
         public event Action<ElementSplashDesignController> OnExit;
+
+        /// <summary>
+        /// Loads assets.
+        /// </summary>
+        [Inject]
+        public IAssetManager Assets { get; set; }
 
         /// <summary>
         /// Initiailizes the menu.
@@ -85,9 +97,19 @@ namespace CreateAR.SpirePlayer
         public void Initialize(ElementSplashDesignController controller)
         {
             _controller = controller;
-            
-            ResetMenuPosition();
 
+            var assetSrcId = _controller.Element.Schema.Get<string>("assetSrc").Value;
+            var assetData = Assets.Manifest.Data(assetSrcId);
+            var BoundsData = assetData.Stats.Bounds;
+
+            Bounds Bounds = new Bounds();
+            Bounds.max = new Vector3(BoundsData.Max.x, BoundsData.Max.y, BoundsData.Max.z);
+            Bounds.min = new Vector3(BoundsData.Min.x, BoundsData.Min.y, BoundsData.Min.z);
+
+            ModelLoadingOutline outline = _controller.gameObject.AddComponent<ModelLoadingOutline>();
+            outline.Init(Bounds);
+
+            ResetMenuPosition();
             enabled = true;
         }
 
@@ -106,13 +128,69 @@ namespace CreateAR.SpirePlayer
             BtnZ.Activator.OnActivated += BtnZ_OnActivated;
 
             SliderX.OnUnfocused += SliderX_OnUnfocused;
+            SliderX.OnSliderValueConfirmed += SliderX_OnSliderValueConfirmed;
+
             SliderY.OnUnfocused += SliderY_OnUnfocused;
+            SliderY.OnSliderValueConfirmed += SliderY_OnSliderValueConfirmed;
+
             SliderZ.OnUnfocused += SliderZ_OnUnfocused;
+            SliderZ.OnSliderValueConfirmed += SliderZ_OnSliderValueConfirmed;
 
             SliderScale.OnUnfocused += SliderScale_OnUnfocused;
+            SliderScale.OnSliderValueConfirmed += SliderScale_OnSliderValueConfirmed;
+
             SliderRotate.OnUnfocused += SliderRotate_OnUnfocused;
+            SliderRotate.OnSliderValueConfirmed += SliderRotate_OnSliderValueConfirmed;
+
+            _lineMaterial = new Material(Shader.Find("Unlit/LoadProgressIndicator"));
+
         }
 
+        private void SliderX_OnSliderValueConfirmed()
+        {
+         
+            SliderX_OnUnfocused();
+        }
+        private void SliderY_OnSliderValueConfirmed()
+        {
+       
+            SliderY_OnUnfocused();
+        }
+        private void SliderZ_OnSliderValueConfirmed()
+        {
+         
+            SliderZ_OnUnfocused();
+        }
+        private void SliderScale_OnSliderValueConfirmed()
+        {
+           
+            SliderScale_OnUnfocused();
+        }
+        private void SliderRotate_OnSliderValueConfirmed()
+        {
+          
+            SliderRotate_OnUnfocused();
+        }
+
+        // Will be called from camera after regular rendering is done.
+        public void OnRenderObject()
+        {
+            if (drawAxis)
+            {
+                GL.PushMatrix();
+                GL.LoadProjectionMatrix(Camera.main.projectionMatrix);
+                _lineMaterial.SetPass(0);
+
+                GL.Begin(GL.LINES);
+
+                GL.Color(new Color(0f, 0f, 0f, 1f));
+                GL.Vertex(p0);
+                GL.Vertex(p1);
+                GL.End();
+                GL.PopMatrix();
+            }
+        }
+    
         /// <inheritdoc cref="MonoBehaviour" />
         private void Update()
         {
@@ -134,6 +212,7 @@ namespace CreateAR.SpirePlayer
                 var diff = scalar * d;
                 
                 _controller.transform.position = O + diff - offset;
+                
             }
 
             if (SliderY.Visible)
@@ -147,8 +226,9 @@ namespace CreateAR.SpirePlayer
                 var focus = SliderY.Focus.ToVector();
                 var scalar = Vector3.Dot(focus - O, d);
                 var diff = scalar * d;
-
+                
                 _controller.transform.position = O + diff - offset;
+                
             }
 
             if (SliderZ.Visible)
@@ -156,6 +236,7 @@ namespace CreateAR.SpirePlayer
                 var zScale = 10;
                 var scalar = (SliderZ.Value - 0.5f) * zScale;
                 _controller.transform.position = _startPosition + scalar * _startForward;
+                
             }
 
             if (SliderScale.Visible)
@@ -164,6 +245,7 @@ namespace CreateAR.SpirePlayer
                 var start = _startScale.x;
                 var val = start + (SliderScale.Value - 0.5f) * scaleDiff;
                 _controller.transform.localScale = val * Vector3.one;
+               
             }
 
             if (SliderRotate.Visible)
@@ -171,6 +253,7 @@ namespace CreateAR.SpirePlayer
                 var start = _startRotation.y;
                 var val = start + (SliderRotate.Value - 0.5f) * 360;
                 _controller.transform.localRotation = Quaternion.Euler(0, val, 0);
+               
             }
         }
 
@@ -193,6 +276,7 @@ namespace CreateAR.SpirePlayer
             Container.LocalVisible = true;
 
             _controller.FinalizeState();
+            drawAxis = false;
         }
 
         /// <summary>
@@ -206,6 +290,7 @@ namespace CreateAR.SpirePlayer
             Container.LocalVisible = true;
 
             _controller.FinalizeState();
+            drawAxis = false;
         }
 
         /// <summary>
@@ -219,6 +304,7 @@ namespace CreateAR.SpirePlayer
             Container.LocalVisible = true;
 
             _controller.FinalizeState();
+            drawAxis = false;
         }
 
         /// <summary>
@@ -230,6 +316,7 @@ namespace CreateAR.SpirePlayer
             Container.LocalVisible = true;
 
             _controller.FinalizeState();
+            drawAxis = false;
         }
 
         /// <summary>
@@ -241,6 +328,7 @@ namespace CreateAR.SpirePlayer
             Container.LocalVisible = true;
 
             _controller.FinalizeState();
+            drawAxis = false;
         }
 
         /// <summary>
@@ -250,7 +338,9 @@ namespace CreateAR.SpirePlayer
         {
             if (null != OnExit)
             {
+                Destroy(_controller.gameObject.GetComponent<ModelLoadingOutline>());
                 OnExit(_controller);
+                
             }
         }
 
@@ -259,21 +349,27 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnRotate_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            drawAxis = true;
             Container.LocalVisible = false;
 
             _startRotation = _controller.transform.localRotation.eulerAngles;
             SliderRotate.LocalVisible = true;
+
+            setAxisCoordinates(SliderRotate);
         }
 
         /// <summary>
         /// Called when the scale button has been activated.
         /// </summary>
-        private void BtnScale_OnActivated(ActivatorPrimitive activatorPrimitive)
+        private void BtnScale_OnActivated(ActivatorPrimitive activatorPrimitive) 
         {
+            drawAxis = true;
             Container.LocalVisible = false;
 
             _startScale = _controller.transform.localScale;
             SliderScale.LocalVisible = true;
+
+            setAxisCoordinates(SliderScale);
         }
         
         /// <summary>
@@ -281,8 +377,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnX_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            drawAxis = true;
             Container.LocalVisible = false;
             SliderX.LocalVisible = true;
+            setAxisCoordinates(SliderX);
+
         }
 
         /// <summary>
@@ -291,19 +390,35 @@ namespace CreateAR.SpirePlayer
         private void BtnY_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             Container.LocalVisible = false;
+            drawAxis = true;
             SliderY.LocalVisible = true;
+            setAxisCoordinates(SliderY);
         }
+        
 
         /// <summary>
         /// Called when the z button has been activated.
         /// </summary>
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            drawAxis = true;
             _startPosition = _controller.transform.position;
             _startForward = Intention.Forward.ToVector();
 
             Container.LocalVisible = false;
             SliderZ.LocalVisible = true;
+
+            setAxisCoordinates(SliderZ);
+        }
+
+        private void setAxisCoordinates(SliderWidget Sliderwidget)
+        {
+            Vector3[] points = Sliderwidget.getPivotPoints();
+            if (points.Length > 0 && !points[0].Equals(Vector3.zero) && !points[1].Equals(Vector3.zero))
+            {
+                p0 = new Vector3(points[0].x, points[0].y, points[0].z);
+                p1 = new Vector3(points[1].x, points[1].y, points[1].z);
+            }
         }
     }
 }
