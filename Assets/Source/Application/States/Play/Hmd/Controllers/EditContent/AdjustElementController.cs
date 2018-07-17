@@ -38,6 +38,22 @@ namespace CreateAR.SpirePlayer
         private Vector3 _startForward;
 
         /// <summary>
+        /// Flag to draw axis.
+        /// </summary>
+        private bool drawAxis;
+
+        /// <summary>
+        /// Vectors for drawing the axis.
+        /// </summary>
+        private Vector3 P0 = new Vector3(-10f, 0f, 2f);
+        private Vector3 P1 = new Vector3(10f, 0f, 2f);
+
+        /// <summary>
+        /// Axis line material
+        /// </summary>
+        private Material _lineMaterial;
+
+        /// <summary>
         /// Manages intentions.
         /// </summary>
         [Inject]
@@ -75,17 +91,6 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..slider-rotate")]
         public SliderWidget SliderRotate { get; private set; }
 
-        /// <summary>
-        /// Vectors for drawing the axis.
-        /// </summary>
-        private bool drawAxis;
-
-        /// <summary>
-        /// Vectors for drawing the axis.
-        /// </summary>
-        private Vector3 P0 = new Vector3(-10f, 0f, 2f);
-        private Vector3 P1 = new Vector3(10f, 0f, 2f);
-        private Material _lineMaterial;
         /// <summary>
         /// Called when the menu should be exited.
         /// </summary>
@@ -204,9 +209,7 @@ namespace CreateAR.SpirePlayer
                 var scalar = Vector3.Dot(focus - O, d);
                 var diff = scalar * d;
                 
-               // _controller.transform.position = O + diff - offset;
-                _controller.transform.position = SliderX.GameObject.transform.position;
-                
+                _controller.transform.position = O + diff - offset;
             }
 
             if (SliderY.Visible)
