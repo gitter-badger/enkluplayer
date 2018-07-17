@@ -349,10 +349,8 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateFace(_faceProp.Value);
 
             GameObject.name = ToString();
-            GameObject.transform.localPosition = _localPositionProp.Value.ToVector();
-            GameObject.transform.localRotation = Quaternion.Euler(_localRotationProp.Value.ToVector());
-            GameObject.transform.localScale = _localScaleProp.Value.ToVector();
-            
+
+            UpdateTransform();
             UpdateGlobalVisibility();
 
             if (LayerMode == LayerMode.Modal)
@@ -444,7 +442,17 @@ namespace CreateAR.SpirePlayer.IUX
 
             return null;
         }
-        
+
+        /// <summary>
+        /// Updates the transform from props.
+        /// </summary>
+        protected virtual void UpdateTransform()
+        {
+            GameObject.transform.localPosition = _localPositionProp.Value.ToVector();
+            GameObject.transform.localRotation = Quaternion.Euler(_localRotationProp.Value.ToVector());
+            GameObject.transform.localScale = _localScaleProp.Value.ToVector();
+        }
+
         /// <summary>
         /// Updates global visibility.
         /// </summary>
@@ -648,7 +656,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             _faceComponent.Face(facePropValue);
         }
-        
+
         /// <summary>
         /// Called when the local position changes.
         /// </summary>
@@ -660,7 +668,7 @@ namespace CreateAR.SpirePlayer.IUX
             Vec3 prev,
             Vec3 next)
         {
-            GameObject.transform.localPosition = next.ToVector();
+            UpdateTransform();
         }
 
         /// <summary>

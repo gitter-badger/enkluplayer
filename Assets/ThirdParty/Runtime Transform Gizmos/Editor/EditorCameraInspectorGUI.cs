@@ -34,7 +34,7 @@ namespace RTEditor
         public override void OnInspectorGUI()
         {
             const int indentLevel = 2;
-            if(RuntimeEditorApplication.Instance.UseCustomCamera)
+            if(null != RuntimeEditorApplication.Instance && RuntimeEditorApplication.Instance.UseCustomCamera)
             {
                 EditorGUILayout.HelpBox("Some camera properties can not be modified when a custom camera is used. You can use the " + 
                                         "Runtime Editor Application Inspector to change this.", UnityEditor.MessageType.Info);

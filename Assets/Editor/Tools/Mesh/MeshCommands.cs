@@ -54,7 +54,7 @@ namespace CreateAR.SpirePlayer.Test
             }
             
             var bytes = File.ReadAllBytes(path);
-            EditorApplication.MeshImporter.Import(
+            EditorApplication.ScanImporter.Import(
                 bytes,
                 (exception, execute) =>
                 {

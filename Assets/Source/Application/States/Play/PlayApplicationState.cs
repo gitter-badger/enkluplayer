@@ -92,6 +92,16 @@ namespace CreateAR.SpirePlayer
         private int _criticalErrorId;
 
         /// <summary>
+        /// UI id.
+        /// </summary>
+        private int _loadingScreenId;
+
+        /// <summary>
+        /// UI frame.
+        /// </summary>
+        private UIManagerFrame _frame;
+
+        /// <summary>
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
@@ -125,6 +135,13 @@ namespace CreateAR.SpirePlayer
             {
                 Edit = _config.Play.Edit
             };
+
+            // setup UI
+            _frame = _ui.CreateFrame();
+            _ui.Open<ICommonLoadingView>(new UIReference
+            {
+                UIDataId = UIDataIds.LOADING
+            }, out _loadingScreenId);
             
             // watch tracking
             _ar.OnTrackingOffline += Ar_OnTrackingOffline;
@@ -142,6 +159,9 @@ namespace CreateAR.SpirePlayer
             _criticalErrorUnsub = _messages.Subscribe(
                 MessageTypes.PLAY_CRITICAL_ERROR,
                 Messages_OnCriticalError);
+
+            // watch loading
+            _app.OnReady += App_OnReady;
 
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
@@ -171,6 +191,9 @@ namespace CreateAR.SpirePlayer
             _criticalErrorUnsub();
             _criticalErrorId = -1;
 
+            // stop watching loads
+            _app.OnReady -= App_OnReady;
+
             // teardown app
             _app.Unload();
 
@@ -180,9 +203,8 @@ namespace CreateAR.SpirePlayer
             // unload playmode scene
             SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName(SCENE_NAME));
 
-            // close connection status
-            _ui.Close(_connectionStatusId);
-            _connectionStatusId = -1;
+            // close UI
+            _frame.Release();
         }
 
         /// <summary>
@@ -206,7 +228,7 @@ namespace CreateAR.SpirePlayer
             // start designer
             _design.Setup(_context, _app);
         }
-        
+
         /// <summary>
         /// Updates connection status UI.
         /// </summary>
@@ -286,6 +308,14 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Ar tracking back online.");
 
             _ui.Close(_interruptId);
+        }
+
+        /// <summary>
+        /// Called when app is ready.
+        /// </summary>
+        private void App_OnReady()
+        {
+            _ui.Close(_loadingScreenId);
         }
     }
 }

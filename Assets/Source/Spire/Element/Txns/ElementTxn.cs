@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
@@ -59,6 +60,24 @@ namespace CreateAR.SpirePlayer
             : this(sceneId)
         {
             Actions.AddRange(actions);
+        }
+
+        /// <summary>
+        /// Useful tostring.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            foreach (var action in Actions)
+            {
+                builder.AppendFormat("\t\t{0}\n", action);
+            }
+
+            return string.Format(
+                "[ElementTxn\n\tScene={0},\n\tActions=\n{1}]",
+                SceneId,
+                builder);
         }
 
         /// <summary>

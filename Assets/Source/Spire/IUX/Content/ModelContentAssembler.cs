@@ -132,6 +132,11 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            // listen for asset load errors (make sure we only add once)
+            _asset.OnLoadError -= Asset_OnLoadError;
+            _asset.OnLoadError += Asset_OnLoadError;
+
+            // setup bounds
             _bounds = _asset.Data.Stats.Bounds ?? new AssetStatsBoundsData
             {
                 Min = -0.5f * Vec3.One,
@@ -153,11 +158,22 @@ namespace CreateAR.SpirePlayer
                 _outline = transform
                     .gameObject
                     .AddComponent<ModelLoadingOutline>();
+                _outline.OnRetry += () =>
+                {
+                    _outline.HideError();
+
+                    _asset.Load<GameObject>();
+                };
                 _outline.Init(Bounds);
+                
+                // asset might already have failed to load
+                if (!string.IsNullOrEmpty(_asset.Error))
+                {
+                    _outline.ShowError(_asset.Error);
+                }
             }
 
             // watch for asset reloads
-            // TODO: No way to see if asset load failed!
             _unwatch = _asset.Watch<GameObject>(value =>
             {
                 SetupInstance(value);
@@ -220,6 +236,18 @@ namespace CreateAR.SpirePlayer
         private void Asset_OnRemoved(Asset asset)
         {
             Teardown();
+        }
+
+        /// <summary>
+        /// Called when there's an asset load error.
+        /// </summary>
+        /// <param name="error">The error.</param>
+        private void Asset_OnLoadError(string error)
+        {
+            if (null != _outline)
+            {
+                _outline.ShowError(error);
+            }
         }
     }
 }

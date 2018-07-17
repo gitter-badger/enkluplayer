@@ -68,6 +68,7 @@ namespace CreateAR.SpirePlayer
         public UserProfileApplicationState(
             ApplicationConfig config,
             ApiController api,
+            HttpRequestCacher cache,
             IMessageRouter messages,
             IFileManager files,
             IUIManager ui)
@@ -76,8 +77,7 @@ namespace CreateAR.SpirePlayer
             _messages = messages;
             _api = api;
             _ui = ui;
-
-            _http = new HttpRequestCacher(files);
+            _http = cache;
         }
 
         /// <inheritdoc />

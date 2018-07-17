@@ -10,7 +10,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Imports meshes at runtime in a threadpool.
     /// </summary>
-    public class MeshImporter
+    public class ScanImporter : IScanImporter
     {
         /// <summary>
         /// Internal state.
@@ -42,7 +42,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public MeshImporter(IBootstrapper bootstrapper)
+        public ScanImporter(IBootstrapper bootstrapper)
         {
             bootstrapper.BootstrapCoroutine(Synchronize());
         }

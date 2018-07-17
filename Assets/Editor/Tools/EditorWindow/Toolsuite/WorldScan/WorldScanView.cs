@@ -180,7 +180,7 @@ namespace CreateAR.SpirePlayer.Editor
                                 0.25f);
 
                             EditorApplication
-                                .MeshImporter
+                                .ScanImporter
                                 .Import(source, (exception, action) =>
                                 {
                                     if (null != exception)

@@ -45,6 +45,11 @@ namespace CreateAR.SpirePlayer
         private readonly IElementUpdateDelegate _elementUpdater;
 
         /// <summary>
+        /// UI management.
+        /// </summary>
+        private readonly IUIManager _ui;
+
+        /// <summary>
         /// Used here and there to iterate.
         /// </summary>
         private readonly List<AnchorDesignController> _scratchList = new List<AnchorDesignController>();
@@ -92,13 +97,15 @@ namespace CreateAR.SpirePlayer
             IHttpService http,
             IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
-            IElementUpdateDelegate elementUpdater)
+            IElementUpdateDelegate elementUpdater,
+            IUIManager ui)
         {
             _controllers = controllers;
             _http = http;
             _cache = cache;
             _provider = provider;
             _elementUpdater = elementUpdater;
+            _ui = ui;
         }
 
         /// <inheritdoc />
@@ -272,7 +279,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="data">The element data.</param>
         private void CreateAnchor(ElementData data)
         {
-            // create anchor first
+            // create URI
             var url = data.Schema.Strings["src"] = string.Format(
                 "/editor/app/{0}/scene/{1}/anchor/{2}",
                 _design.App.Id,
@@ -285,56 +292,31 @@ namespace CreateAR.SpirePlayer
                 _design.Config.AnchorPrefab,
                 data.Schema.Vectors["position"].ToVector(),
                 Quaternion.identity);
-            placeholder.Saving();
+            placeholder.PlaceholderSaving();
 
             // cleans up after all potential code paths
-            Action cleanup = () => Object.Destroy(placeholder.gameObject);
+            Action cleanup = () =>
+            {
+                Log.Info(this, "Destroying placeholder.");
+
+                Object.Destroy(placeholder.gameObject);
+            };
 
             // export
-            Verbose("Exporting placeholder.");
+            Log.Info(this, "CreateAnchor() called, beginning export and upload.");
 
+            // export it
             _provider
                 .Export(data.Id, placeholder.gameObject)
                 .OnSuccess(bytes =>
                 {
-                    Verbose("Successfully exported. Progressing to upload.");
+                    Log.Info(this, "Successfully exported. Progressing to upload.");
 
                     // save to cache
                     _cache.Save(data.Id, version, bytes);
 
-                    _http
-                        .PostFile<Trellis.Messages.UploadAnchor.Response>(
-                            _http.Urls.Url(url),
-                            new Commons.Unity.DataStructures.Tuple<string, string>[0],
-                            ref bytes)
-                        .OnSuccess(response =>
-                        {
-                            if (response.Payload.Success)
-                            {
-                                Verbose("Successfully uploaded anchor.");
-
-                                // complete, now create corresponding element
-                                _elementUpdater
-                                    .Create(data)
-                                    .OnSuccess(_ => Verbose("Successfully created anchor element."))
-                                    .OnFailure(exception => Log.Error(this,
-                                        "Could not create anchor : {0}.",
-                                        exception));
-                            }
-                            else
-                            {
-                                Log.Error(this,
-                                    "Anchor upload error : {0}.",
-                                    response.Payload.Error);
-                            }
-                        })
-                        .OnFailure(exception =>
-                        {
-                            Log.Error(this,
-                                "Could not upload anchor : {0}.",
-                                exception);
-                        })
-                        .OnFinally(_ => cleanup());
+                    // upload
+                    UploadAnchor(data, url, bytes, cleanup, 3);
                 })
                 .OnFailure(exception =>
                 {
@@ -353,67 +335,25 @@ namespace CreateAR.SpirePlayer
         {
             var anchor = controller.Anchor;
 
-            // create anchor first
-            var url = string.Format(
-                "/editor/app/{0}/scene/{1}/anchor/{2}",
-                _design.App.Id,
-                _elementUpdater.Active,
-                anchor.Id);
-
             // increment version
             var version = anchor.Schema.Get<int>("version").Value + 1;
 
             // renderer should show saving!
-            controller.Renderer.Saving();
-            
+            controller.Renderer.PlaceholderSaving();
+
             // export
-            Verbose("Reexporting anchor.");
+            Log.Info(this, "Re-save anchor called. Beginning export and re-upload process.");
 
             _provider
                 .Export(anchor.Id, anchor.GameObject)
                 .OnSuccess(bytes =>
                 {
-                    Verbose("Successfully exported. Progressing to upload.");
+                    Log.Info(this, "Successfully exported. Progressing to upload.");
 
                     // save to cache
                     _cache.Save(anchor.Id, version, bytes);
 
-                    _http
-                        .PostFile<Trellis.Messages.UploadAnchor.Response>(
-                            _http.Urls.Url(url),
-                            new Commons.Unity.DataStructures.Tuple<string, string>[0],
-                            ref bytes)
-                        .OnSuccess(response =>
-                        {
-                            if (response.Payload.Success)
-                            {
-                                Verbose("Successfully uploaded anchor.");
-
-                                // complete, now send out network update
-                                _elementUpdater.Update(anchor, "src", url);
-                                _elementUpdater.Update(anchor, "version", version);
-                                _elementUpdater.Update(anchor, "position", anchor.Schema.Get<Vec3>("position").Value);
-                                _elementUpdater.FinalizeUpdate(anchor);
-
-                                controller.Renderer.Ready();
-                            }
-                            else
-                            {
-                                Log.Error(this,
-                                    "Anchor upload error : {0}.",
-                                    response.Payload.Error);
-
-                                controller.Renderer.Error();
-                            }
-                        })
-                        .OnFailure(exception =>
-                        {
-                            Log.Error(this,
-                                "Could not upload anchor : {0}.",
-                                exception);
-
-                            controller.Renderer.Error();
-                        });
+                    ReuploadAnchor(controller, bytes, anchor, version, 3);
                 })
                 .OnFailure(exception =>
                 {
@@ -421,7 +361,127 @@ namespace CreateAR.SpirePlayer
                         "Could not export anchor : {0}.",
                         exception);
 
-                    controller.Renderer.Error();
+                    controller.Renderer.PlaceholderError();
+                });
+        }
+
+        /// <summary>
+        /// Uploads an anchor for the first time.
+        /// </summary>
+        private void UploadAnchor(ElementData data, string url, byte[] bytes, Action cleanup, int retries)
+        {
+            _http
+                .PostFile<Trellis.Messages.UploadAnchor.Response>(
+                    _http.Urls.Url(url),
+                    new Commons.Unity.DataStructures.Tuple<string, string>[0],
+                    ref bytes)
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        Log.Info(this, "Successfully uploaded anchor.");
+
+                        // complete, now create corresponding element
+                        _elementUpdater
+                            .Create(data)
+                            .OnSuccess(_ => Log.Info(this, "Successfully created anchor element."))
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this,
+                                    "Could not create anchor element : {0}.",
+                                    exception);
+                            });
+                    }
+                    else
+                    {
+                        Log.Error(this,
+                            "Anchor was uploaded but server returned an error : {0}.",
+                            response.Payload.Error);
+                    }
+
+                    // run cleanup
+                    cleanup();
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Warning(this,
+                        "Could not upload anchor : {0}.",
+                        exception);
+
+                    if (--retries > 0)
+                    {
+                        Log.Info(this, "Retrying upload.");
+
+                        UploadAnchor(data, url, bytes, cleanup, retries);
+                    }
+                    else
+                    {
+                        cleanup();
+                    }
+                });
+        }
+
+        /// <summary>
+        /// Updates an anchor.
+        /// </summary>
+        private void ReuploadAnchor(
+            AnchorDesignController controller,
+            byte[] bytes,
+            WorldAnchorWidget anchor,
+            int version,
+            int retries)
+        {
+            var url = string.Format(
+                "/editor/app/{0}/scene/{1}/anchor/{2}",
+                _design.App.Id,
+                _elementUpdater.Active,
+                anchor.Id);
+
+            _http
+                .PutFile<Trellis.Messages.UploadAnchor.Response>(
+                    _http.Urls.Url(url),
+                    new Commons.Unity.DataStructures.Tuple<string, string>[0],
+                    ref bytes)
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        Log.Info(this, "Successfully reuploaded anchor.");
+
+                        // complete, now send out network update
+                        _elementUpdater.Update(anchor, "src", url);
+                        _elementUpdater.Update(anchor, "version", version);
+                        _elementUpdater.Update(anchor, "position", anchor.Schema.Get<Vec3>("position").Value);
+                        _elementUpdater.FinalizeUpdate(anchor);
+
+                        // show controller as ready again
+                        //controller.Renderer.Ready();
+                    }
+                    else
+                    {
+                        Log.Error(this,
+                            "Anchor reupload error : {0}.",
+                            response.Payload.Error);
+
+                        //controller.Renderer.Error();
+                    }
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not reupload anchor : {0}.",
+                        exception);
+
+                    if (--retries > 0)
+                    {
+                        Log.Info(this, "Retry reuploading anchor.");
+
+                        ReuploadAnchor(controller, bytes, anchor, version, retries);
+                    }
+                    else
+                    {
+                        //controller.Renderer.Error();
+                    }
                 });
         }
 
@@ -477,7 +537,7 @@ namespace CreateAR.SpirePlayer
             _moveAnchor.enabled = false;
             _anchors.enabled = true;
 
-            // move into position and reimport
+            // move into position and reexport
             var position = data.Schema.Vectors["position"];
             _moveController.Anchor.Schema.Set("position", position);
             _moveController.Anchor.GameObject.transform.position = position.ToVector();
@@ -521,19 +581,46 @@ namespace CreateAR.SpirePlayer
         {
             _adjustAnchor.enabled = false;
 
-            _elementUpdater
-                .Destroy(controller.Element)
-                .OnFinally(_ =>
+            int id;
+            _ui
+                .Open<ConfirmationUIView>(new UIReference
                 {
-                    _anchors.enabled = true;
-                    OpenSplashMenus();
+                    UIDataId = "Common.Confirmation"
+                }, out id)
+                .OnSuccess(el =>
+                {
+                    el.Message = "Are you sure you want to DELETE this anchor?";
+                    el.OnCancel += () =>
+                    {
+                        _adjustAnchor.enabled = true;
+
+                        _ui.Close(id);
+                    };
+                    el.OnConfirm += () =>
+                    {
+                        _ui.Close(id);
+
+                        _elementUpdater
+                            .Destroy(controller.Element)
+                            .OnFinally(_ =>
+                            {
+                                _anchors.enabled = true;
+                                OpenSplashMenus();
+                            })
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this,
+                                    "Could not delete element : {0}.",
+                                    exception);
+                            });
+                    };
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this,
-                        "Could not delete element : {0}.",
-                        exception);
-                });
+                    Log.Error(this, "Could not open confirmation dialog : {0}", exception);
+
+                    _adjustAnchor.enabled = true;
+                }); ;
         }
 
         /// <summary>
@@ -565,7 +652,7 @@ namespace CreateAR.SpirePlayer
 
             anchorDesignController.OpenSplash();
             anchorDesignController.Anchor.Reload();
-            anchorDesignController.ChangeState<AnchorLoadingState>();
+            //anchorDesignController.ChangeState<AnchorLoadingState>();
         }
 
         /// <summary>

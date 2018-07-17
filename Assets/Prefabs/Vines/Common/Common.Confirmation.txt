@@ -1,0 +1,17 @@
+<?Vine>
+
+<Float position=(0,0,3) focus.visible=false face='camera'>
+	<Caption
+		id='cpn-text'
+		label='Are you sure you want to do this?'
+		fontSize=120
+		width=1800.0 alignment='MidCenter' position=(0,0,0)/>
+	<Button
+		id='btn-confirm'
+		position=(-0.2,-0.3,0)
+		label='Confirm' />
+	<Button
+		id='btn-cancel'
+		position=(0.2,-0.3,0)
+		label='Cancel' />
+</Float>

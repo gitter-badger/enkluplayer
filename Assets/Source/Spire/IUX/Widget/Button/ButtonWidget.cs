@@ -154,8 +154,6 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void LoadInternalAfterChildren()
         {
             base.LoadInternalAfterChildren();
-
-            _stateRenderer.Initialize();
             
             // Activator
             {
@@ -198,9 +196,11 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _voiceActivatorProp = Schema.Get<string>("voiceActivator");
                 _voiceActivatorProp.OnChanged += VoiceActivator_OnChange;
-                
+
                 RegisterVoiceCommand();
             }
+
+            _stateRenderer.Initialize();
         }
 
         /// <inheritdoc cref="Element"/>

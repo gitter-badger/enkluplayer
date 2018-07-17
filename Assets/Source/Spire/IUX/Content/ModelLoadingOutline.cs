@@ -1,18 +1,79 @@
+using System;
+using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
-    public class ModelLoadingOutline : MonoBehaviour
+    /// <summary>
+    /// Draws an outline of a model.
+    /// </summary>
+    [InjectVine("Asset.Reload")]
+    public class ModelLoadingOutline : InjectableIUXController
     {
         /// <summary>
         /// For drawing.
         /// </summary>
         private static Material _lineMaterial;
 
+        /// <summary>
+        /// Cached positions of the edge of the bounds.
+        /// </summary>
         private Vector3[] _positions;
 
+        /// <summary>
+        /// True iff there was an error.
+        /// </summary>
+        private bool _isError;
+
+        /// <summary>
+        /// Retries download.
+        /// </summary>
+        public event Action OnRetry;
+
+        /// <summary>
+        /// The refresh button.
+        /// </summary>
+        public ButtonWidget BtnRefresh
+        {
+            get { return (ButtonWidget) Root; }
+        }
+        
+        /// <summary>
+        /// Called when there is a loading error.
+        /// </summary>
+        public void ShowError(string error)
+        {
+            _isError = true;
+
+            if (DeviceHelper.IsHoloLens())
+            {
+                //BtnRefresh.LocalVisible = true;
+            }
+        }
+
+        /// <summary>
+        /// Hides error.
+        /// </summary>
+        public void HideError()
+        {
+            _isError = false;
+
+            BtnRefresh.LocalVisible = false;
+        }
+
+        /// <summary>
+        /// Initializes with model bounds in world space.
+        /// </summary>
+        /// <param name="bounds">The bounds.</param>
         public void Init(Bounds bounds)
         {
+            HideError();
+
+            var trans = BtnRefresh.GameObject.transform;
+            trans.localPosition = bounds.center;
+
+            _isError = false;
             _positions = new[]
             {
                 new Vector3(bounds.min.x, bounds.min.y, bounds.min.z),
@@ -27,6 +88,35 @@ namespace CreateAR.SpirePlayer
             };
         }
 
+        /// <inheritdoc />
+        protected override void Awake()
+        {
+            base.Awake();
+
+            BtnRefresh.Activator.OnActivated += _ =>
+            {
+                if (null != OnRetry)
+                {
+                    OnRetry();
+                }
+            };
+        }
+
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
+        private void Update()
+        {
+            if (DeviceHelper.IsHoloLens())
+            {
+                BtnRefresh.GameObject.transform.forward = Camera.current.transform.forward;
+                BtnRefresh.Schema.Set("scale", new Vec3(
+                    5 / transform.lossyScale.x,
+                    5 / transform.lossyScale.y,
+                    5 / transform.lossyScale.z));
+            }
+        }
+
         /// <summary>
         /// Render!
         /// </summary>
@@ -37,49 +127,87 @@ namespace CreateAR.SpirePlayer
             _lineMaterial.SetPass(0);
             
             GL.PushMatrix();
+
+            try
             {
                 GL.MultMatrix(transform.localToWorldMatrix);
-                GL.Begin(GL.LINES);
+
+                try
                 {
-                    var pos = _positions[0]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[1]; GL.Vertex3(pos.x, pos.y, pos.z);
+                    GL.Begin(GL.LINES);
+                    {
+                        GL.Color(_isError ? Color.red : Color.white);
 
-                    pos = _positions[1]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[2]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        var pos = _positions[0];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[1];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[2]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[3]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[1];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[2];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[3]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[0]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[2];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[3];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[4]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[5]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[3];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[0];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[5]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[6]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[4];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[5];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[6]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[7]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[5];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[6];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[7]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[4]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[6];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[7];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[0]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[4]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[7];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[4];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[1]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[5]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[0];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[4];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[2]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[6]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[1];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[5];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
 
-                    pos = _positions[3]; GL.Vertex3(pos.x, pos.y, pos.z);
-                    pos = _positions[7]; GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[2];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[6];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+
+                        pos = _positions[3];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                        pos = _positions[7];
+                        GL.Vertex3(pos.x, pos.y, pos.z);
+                    }
                 }
-                GL.End();
+                finally
+                {
+                    GL.End();
+                }
             }
-            GL.PopMatrix();
+            finally
+            {
+                GL.PopMatrix();
+            }
         }
 
         /// <summary>

@@ -1,6 +1,4 @@
 using System;
-using CreateAR.Commons.Unity.Logging;
-
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer

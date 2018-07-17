@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using UnityEngine.UI;
@@ -78,6 +79,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public ActivatorPrimitive.ActivationType Activation;
 
+        private ActivatorState _activatorState;
+        private float _tweenDuration;
+        private Col4 _frameColor;
+
         /// <summary>
         /// Bounding radius of the activator.
         /// </summary>
@@ -120,6 +125,8 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 Frame.Initialize(activator);
             }
+
+            activator.OnStateChanged += Activator_OnStateChanged;
 
             _isInited = true;
         }
@@ -234,24 +241,31 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="deltaTime"></param>
         private void UpdateFrameWidget(float deltaTime)
         {
-            var activatorState = _activator.CurrentState;
-            var tweenDuration = _tweens.DurationSeconds(activatorState.Tween);
-            var tweenLerp = tweenDuration > Mathf.Epsilon
-                ? deltaTime / tweenDuration
+            var tweenLerp = _tweenDuration > Mathf.Epsilon
+                ? deltaTime / _tweenDuration
                 : 1.0f;
 
             // blend the frame's color.
-            var frameColor = _colors.GetColor(activatorState.FrameColor);
             Frame.LocalColor = Col4.Lerp(
                 Frame.LocalColor,
-                frameColor,
+                _frameColor,
                 tweenLerp);
             
             // blend the frame's scale.
             Frame.gameObject.transform.localScale = Vector3.Lerp(
                 Frame.gameObject.transform.localScale,
-                Vector3.one * activatorState.FrameScale,
+                Vector3.one * _activatorState.FrameScale,
                 tweenLerp);
+        }
+
+        /// <summary>
+        /// Called when state is updated.
+        /// </summary>
+        private void OnStateUpdated()
+        {
+            _activatorState = _activator.CurrentState;
+            _tweenDuration = _tweens.DurationSeconds(_activatorState.Tween);
+            _frameColor = _colors.GetColor(_activatorState.FrameColor);
         }
 
         /// <summary>
@@ -268,6 +282,15 @@ namespace CreateAR.SpirePlayer.IUX
                     gameObject.transform.rotation);
                 spawnGameObject.SetActive(true);
             }
+        }
+
+        /// <summary>
+        /// Called when state changes.
+        /// </summary>
+        /// <param name="activatorState">New state.</param>
+        private void Activator_OnStateChanged(ActivatorState activatorState)
+        {
+            OnStateUpdated();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using LightJson;
+﻿using System.Text;
+using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
@@ -24,6 +25,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonName("sceneId")]
         public string Scene;
+
+        /// <summary>
+        /// Id of user.
+        /// </summary>
+        [JsonName("user")]
+        public string User;
     }
 
     /// <summary>
@@ -44,6 +51,24 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [JsonName("actions")]
         public ElementActionData[] Actions;
+
+        /// <summary>
+        /// Useful ToString.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            foreach (var action in Actions)
+            {
+                builder.AppendFormat("\t{0}\n", action);
+            }
+
+            return string.Format(
+                "[SceneUpdateEvent Type={0}, Actions={1}]",
+                Type,
+                builder);
+        }
     }
 
     /// <summary>

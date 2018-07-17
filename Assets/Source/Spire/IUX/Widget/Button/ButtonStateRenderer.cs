@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -34,7 +35,12 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _readyTweenProp;
         private ElementSchemaProp<string> _activatingTweenProp;
         private ElementSchemaProp<string> _activatedTweenProp;
-        
+
+        private VirtualColor _color;
+        private TweenType _tween;
+        private float _tweenDuration;
+        private VirtualColor _captionColor;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -66,6 +72,9 @@ namespace CreateAR.SpirePlayer.IUX
             _readyTweenProp = _button.Schema.Get<string>("ready.tween");
             _activatingTweenProp = _button.Schema.Get<string>("activating.tween");
             _activatedTweenProp = _button.Schema.Get<string>("activated.tween");
+
+            _button.Activator.OnStateChanged += Activator_OnStateChanged;
+            UpdateProperties(_button.Activator.CurrentState);
         }
 
         /// <summary>
@@ -73,7 +82,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public void Uninitialize()
         {
-
+            _button.Activator.OnStateChanged -= Activator_OnStateChanged;
         }
         
         /// <summary>
@@ -82,19 +91,17 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="dt">Delta time.</param>
         public void Update(float dt)
         {
-            var state = GetCurrentButtonState();
             var isInteractable = _button.Interactable;
 
             var virtualColor = isInteractable
-                ? GetColor(state)
+                ? _color
                 : VirtualColor.Disabled;
 
             Col4 shellStateColor;
             _colors.TryGetColor(virtualColor, out shellStateColor);
 
-            var tweenDuration = _tweens.DurationSeconds(GetTween(state));
-            var tweenLerp = tweenDuration > Mathf.Epsilon
-                ? dt / tweenDuration
+            var tweenLerp = _tweenDuration > Mathf.Epsilon
+                ? dt / _tweenDuration
                 : 1.0f;
 
             _button.LocalColor = Col4.Lerp(
@@ -103,24 +110,31 @@ namespace CreateAR.SpirePlayer.IUX
                 tweenLerp);
 
             var defaultScale = _scaleProp.Value.ToVector();
-            _button.GameObject.transform.localScale = Vector3.Lerp(
+            if (_button.GameObject)
+            {
+                _button.GameObject.transform.localScale = defaultScale;
+            }
+            /*_button.GameObject.transform.localScale = Vector3.Lerp(
                 defaultScale,
                 GetScale(defaultScale, state),
-                tweenLerp);
+                tweenLerp);*/
 
             var captionVirtualColor = isInteractable
-                ? GetCaptionColor(state)
+                ? _captionColor
                 : VirtualColor.Disabled;
 
             Col4 captionColor;
             _colors.TryGetColor(captionVirtualColor, out captionColor);
 
-            _button.Text.LocalColor = Col4.Lerp(
-                _button.Text.LocalColor,
-                captionColor,
-                tweenLerp);
+            if (_button.GameObject)
+            {
+                _button.Text.LocalColor = Col4.Lerp(
+                    _button.Text.LocalColor,
+                    captionColor,
+                    tweenLerp);
+            }
         }
-
+        
         /// <summary>
         /// Retrieves the color for the given state.
         /// </summary>
@@ -239,23 +253,25 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Determines the current button state using the activator.
+        /// Called when the state changes.
         /// </summary>
-        /// <returns></returns>
-        private ButtonState GetCurrentButtonState()
+        private void Activator_OnStateChanged(ActivatorState activatorState)
         {
-            var activator = _button.Activator;
-            if (activator.CurrentState is ActivatorActivatingState)
-            {
-                return ButtonState.Activating;
-            }
+            UpdateProperties(activatorState);
+        }
 
-            if (activator.CurrentState is ActivatorActivatedState)
-            {
-                return ButtonState.Activated;
-            }
+        private void UpdateProperties(ActivatorState activatorState)
+        {
+            var buttonState = activatorState is ActivatorActivatedState
+                ? ButtonState.Activated
+                : activatorState is ActivatorActivatingState
+                    ? ButtonState.Activating
+                    : ButtonState.Ready;
 
-            return ButtonState.Ready;
+            _color = GetColor(buttonState);
+            _tween = GetTween(buttonState);
+            _tweenDuration = _tweens.DurationSeconds(_tween);
+            _captionColor = GetCaptionColor(buttonState);
         }
     }
 }

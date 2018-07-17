@@ -105,7 +105,10 @@ namespace CreateAR.SpirePlayer
             {
                 var child = children[i];
                 var unityChild = child as IUnityElement;
-                if (null != unityChild && null != lastUnityParent)
+                if (null != unityChild
+                    && null != lastUnityParent
+                    && unityChild.GameObject
+                    && lastUnityParent.GameObject)
                 {
                     Draw(
                         unityChild.GameObject.transform,

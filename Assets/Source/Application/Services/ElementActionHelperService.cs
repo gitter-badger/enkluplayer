@@ -63,6 +63,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="event">The event.</param>
         private void OnReparent(BridgeHelperReparentEvent @event)
         {
+            Log.Info(this, "Received Reparent request from bridge.");
+
             // find element + parent
             var root = _scenes.Root(@event.SceneId);
             if (null == root)

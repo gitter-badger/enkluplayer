@@ -392,7 +392,12 @@ namespace CreateAR.SpirePlayer
                         _messages.Publish(MessageTypes.USER_PROFILE);
                     };
                 })
-                .OnFailure(exception => Log.Error(this, "Could not load error popup : {0}.", exception));
+                .OnFailure(exception =>
+                {
+                    _messages.Publish(MessageTypes.USER_PROFILE);
+
+                    Log.Error(this, "Could not load error popup : {0}.", exception);
+                });
         }
 
         /// <summary>
@@ -422,6 +427,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">The command.</param>
         private void Voice_OnPlayMenu(string command)
         {
+            Log.Info(this, "Voice command opening play menu.");
+
             _ui
                 .Open<PlayMenuUIView>(
                     new UIReference
@@ -440,7 +447,12 @@ namespace CreateAR.SpirePlayer
 
                     el.OnBack += () => _messages.Publish(MessageTypes.USER_PROFILE);
                 })
-                .OnFailure(exception => Log.Error(this, "Could not open play menu : {0}.", exception));
+                .OnFailure(exception =>
+                {
+                    _messages.Publish(MessageTypes.USER_PROFILE);
+
+                    Log.Error(this, "Could not open play menu : {0}.", exception);
+                });
         }
 
         /// <summary>
@@ -449,6 +461,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">The command.</param>
         private void Voice_OnEdit(string command)
         {
+            Log.Info(this, "Voice command starting edit mode.");
+
             _config.Play.Edit = true;
 
             _messages.Publish(MessageTypes.LOAD_APP);
@@ -460,6 +474,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">The command.</param>
         private void Voice_OnPlay(string command)
         {
+            Log.Info(this, "Voice command starting edit mode.");
+
             _config.Play.Edit = false;
 
             _messages.Publish(MessageTypes.LOAD_APP);

@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Async;
+﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
@@ -13,15 +12,15 @@ namespace CreateAR.SpirePlayer.IUX
     public class ScanWidget : Widget
     {
         /// <summary>
-        /// HTTP interface.
-        /// </summary>
-        private readonly IHttpService _http;
-
-        /// <summary>
         /// Imports meshes.
         /// </summary>
-        private readonly MeshImporter _importer;
+        private readonly IScanImporter _importer;
 
+        /// <summary>
+        /// Loads scans.
+        /// </summary>
+        private readonly IScanLoader _loader;
+        
         /// <summary>
         /// Url to download from.
         /// </summary>
@@ -31,7 +30,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// In progress download.
         /// </summary>
-        private IAsyncToken<HttpResponse<byte[]>> _meshDownload;
+        private IAsyncToken<byte[]> _meshDownload;
 
         /// <summary>
         /// GameObject the importer uses.
@@ -46,15 +45,15 @@ namespace CreateAR.SpirePlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IHttpService http,
-            MeshImporter importer)
+            IScanImporter importer,
+            IScanLoader loader)
             : base(
                 gameObject,
                 layers,
                 tweens,
                 colors)
         {
-            _http = http;
+            _loader = loader;
             _importer = importer;
         }
 
@@ -66,8 +65,9 @@ namespace CreateAR.SpirePlayer.IUX
             _srcUrlProp = Schema.Get<string>("srcUrl");
             _srcUrlProp.OnChanged += MeshCapture_OnChanged;
             UpdateMeshCapture();
-
-            _hideProp = Schema.GetOwn("hide", false);
+            
+            // default to hidden on hololens
+            _hideProp = Schema.GetOwn("hide", DeviceHelper.IsHoloLens());
             _hideProp.OnChanged += Hide_OnChanged;
         }
 
@@ -107,14 +107,14 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            var url = _http.Urls.Url("meshcapture://" + _srcUrlProp.Value);
+            var uri = "meshcapture://" + _srcUrlProp.Value;
 
-            Log.Info(this, "Downloading mesh capture from {0}...", url);
+            Log.Info(this, "Downloading mesh capture from {0}...", uri);
 
             // download
-            _meshDownload = _http
-                .Download(url)
-                .OnSuccess(response =>
+            _meshDownload = _loader
+                .Load(uri)
+                .OnSuccess(bytes =>
                 {
                     Log.Info(this, "Mesh capture download complete. Starting import.");
 
@@ -128,7 +128,7 @@ namespace CreateAR.SpirePlayer.IUX
                     _meshCaptureGameObject.SetActive(!_hideProp.Value);
 
                     // import
-                    _importer.Import(response.Payload, (exception, action) =>
+                    _importer.Import(bytes, (exception, action) =>
                     {
                         if (null != exception)
                         {

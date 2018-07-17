@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
+using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -11,6 +13,16 @@ namespace CreateAR.SpirePlayer.IUX
     /// </summary>
     public class WorldAnchorWidget : Widget
     {
+        public enum WorldAnchorStatus
+        {
+            None,
+            IsLoading,
+            IsImporting,
+            IsReadyLocated,
+            IsReadyNotLocated,
+            IsError
+        }
+
         /// <summary>
         /// For downloading anchors.
         /// </summary>
@@ -36,17 +48,17 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private ElementSchemaProp<int> _versionProp;
         private ElementSchemaProp<bool> _lockedProp;
-        
-        /// <summary>
-        /// True iff anchor data is loaded.
-        /// </summary>
-        public bool IsAnchorLoaded { get; private set; }
 
         /// <summary>
-        /// True iff anchor data is loading.
+        /// True iff the anchor is already imported.
         /// </summary>
-        public bool IsAnchorLoading { get; private set; }
-        
+        private bool _isImported = false;
+
+        /// <summary>
+        /// Status.
+        /// </summary>
+        public WorldAnchorStatus Status { get; private set; }
+
         /// <summary>
         /// Called on load success.
         /// </summary>
@@ -87,7 +99,9 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void LoadInternalBeforeChildren()
         {
             base.LoadInternalBeforeChildren();
-            
+
+            Status = WorldAnchorStatus.None;
+
             _versionProp = Schema.GetOwn("version", -1);
             _versionProp.OnChanged += Version_OnChanged;
 
@@ -110,6 +124,19 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        protected override void LateUpdateInternal()
+        {
+            base.LateUpdateInternal();
+
+            if (_isImported)
+            {
+                var anchor = GameObject.GetComponent<WorldAnchor>();
+                Status = anchor.isLocated
+                    ? WorldAnchorStatus.IsReadyLocated
+                    : WorldAnchorStatus.IsReadyNotLocated;
+            }
+        }
+
         /// <inheritdoc />
         protected override void UnloadInternalAfterChildren()
         {
@@ -124,9 +151,19 @@ namespace CreateAR.SpirePlayer.IUX
             _versionProp.OnChanged -= Version_OnChanged;
         }
 
+        /// <inheritdoc />
+        protected override void UpdateTransform()
+        {
+            if (!DeviceHelper.IsHoloLens())
+            {
+                base.UpdateTransform();
+            }
+        }
+
         /// <summary>
         /// Reloads the world anchor.
         /// </summary>
+        [Conditional("NETFX_CORE")]
         private void UpdateWorldAnchor()
         {
             // abort previous
@@ -135,14 +172,11 @@ namespace CreateAR.SpirePlayer.IUX
                 _downloadToken.Abort();
                 _downloadToken = null;
             }
-
-            IsAnchorLoaded = false;
-            IsAnchorLoading = true;
-
+            
             var version = _versionProp.Value;
             if (version < 0)
             {
-                IsAnchorLoading = false;
+                Status = WorldAnchorStatus.IsError;
 
                 if (null != OnAnchorLoadError)
                 {
@@ -161,7 +195,7 @@ namespace CreateAR.SpirePlayer.IUX
                     "Anchor [{0}] has invalid src prop.",
                     Id));
 
-                IsAnchorLoading = false;
+                Status = WorldAnchorStatus.IsError;
 
                 if (null != OnAnchorLoadError)
                 {
@@ -174,7 +208,9 @@ namespace CreateAR.SpirePlayer.IUX
             // check cache
             if (_cache.Contains(Id, _versionProp.Value))
             {
-                Log.Info(this, "World anchor cache hit.");
+                Log.Info(this, "World anchor {0} cache hit.", Id);
+
+                Status = WorldAnchorStatus.IsLoading;
 
                 _cache
                     .Load(Id, _versionProp.Value)
@@ -191,7 +227,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
             else
             {
-                Log.Info(this, "World anchor cache miss.");
+                Log.Info(this, "World anchor {0} cache miss.");
 
                 DownloadAndImport(url);
             }
@@ -203,6 +239,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="url">Absolute url at which to download.</param>
         private void DownloadAndImport(string url)
         {
+            Status = WorldAnchorStatus.IsLoading;
+
+            _isImported = false;
+
             _downloadToken = _http
                 .Download(_http.Urls.Url(url))
                 .OnSuccess(response =>
@@ -221,7 +261,7 @@ namespace CreateAR.SpirePlayer.IUX
                         url,
                         exception);
 
-                    IsAnchorLoading = false;
+                    Status = WorldAnchorStatus.IsError;
 
                     if (null != OnAnchorLoadError)
                     {
@@ -243,17 +283,18 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="bytes">The world anchor bytes.</param>
         private void Import(byte[] bytes)
         {
-            Log.Info(this, "Bytes available, starting import.");
+            Log.Info(this, "{0}::Bytes available, starting import.", Id);
+
+            Status = WorldAnchorStatus.IsImporting;
 
             _provider
                 .Import(Id, GameObject, bytes)
                 .OnSuccess(_ =>
                 {
-                    LogVerbose("Successfully imported anchor.");
+                    Log.Info(this, "{0}::Successfully imported anchor.", Id);
 
-                    IsAnchorLoading = false;
-                    IsAnchorLoaded = true;
-
+                    _isImported = true;
+                    
                     if (null != OnAnchorLoadSuccess)
                     {
                         OnAnchorLoadSuccess();
@@ -262,10 +303,11 @@ namespace CreateAR.SpirePlayer.IUX
                 .OnFailure(exception =>
                 {
                     Log.Error(this,
-                        "Could not import anchor : {0}.",
+                        "{0}::Could not import anchor : {1}.",
+                        Id,
                         exception);
 
-                    IsAnchorLoading = false;
+                    Status = WorldAnchorStatus.IsError;
 
                     if (null != OnAnchorLoadError)
                     {

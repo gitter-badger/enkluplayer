@@ -54,13 +54,18 @@ namespace CreateAR.SpirePlayer
             // setup logging
 	        Log.Filter = LogLevel.Debug;
 
-	        // log to unity
-	        Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
-	        {
-	            Level = false,
-	            Timestamp = false,
-	            TypeName = true
-	        }));
+            // log to unity only in the editor and webgl
+#if !UNITY_WEBGL
+            //if (UnityEngine.Application.isEditor)
+#endif
+            {
+	            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
+	            {
+	                Level = false,
+	                Timestamp = false,
+	                TypeName = true
+	            }));
+            }
             
             // UWP should log to socket
 #if FALSE && NETFX_CORE
@@ -72,7 +77,12 @@ namespace CreateAR.SpirePlayer
             // non-webgl should log to file
 #if !UNITY_WEBGL
             Log.AddLogTarget(new FileLogTarget(
-				new DefaultLogFormatter(),
+				new DefaultLogFormatter
+				{
+                    Level = true,
+                    Timestamp = true,
+                    TypeName = true
+				},
                 System.IO.Path.Combine(
                     UnityEngine.Application.persistentDataPath,
                     "Application.log")));

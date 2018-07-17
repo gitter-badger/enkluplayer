@@ -21,8 +21,7 @@ namespace CreateAR.SpirePlayer.Test.UI
                 Root = GenerateRefs(0)
             };
 
-            _element = new ElementFactory(new DummyElementManager(), new PassthroughGizmoManager(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null)
-                .Element(description);
+            _element = Element_IntegrationTests.ElementFactory().Element(description);
         }
         
         private ElementRef GenerateRefs(int index)

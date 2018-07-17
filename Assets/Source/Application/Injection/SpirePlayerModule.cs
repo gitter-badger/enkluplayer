@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -34,8 +35,6 @@ namespace CreateAR.SpirePlayer
 
             Log.Info(this, "ApplicationConfig:\n{0}", config);
 
-            Log.Filter = config.Log.ParsedLevel;
-
             binder.Bind<ApplicationConfig>().ToValue(config);
             binder.Bind<NetworkConfig>().ToValue(config.Network);
 
@@ -61,7 +60,8 @@ namespace CreateAR.SpirePlayer
                             binder.GetInstance<UrlFormatterCollection>()))
                         .ToSingleton();
                 }
-                
+
+                binder.Bind<HttpRequestCacher>().To<HttpRequestCacher>().ToSingleton();
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_WSA
@@ -78,6 +78,8 @@ namespace CreateAR.SpirePlayer
 #else
                     binder.Bind<IAssetBundleCache>().To<StandardAssetBundleCache>().ToSingleton();
 #endif
+                    binder.Bind<IScanImporter>().To<ScanImporter>().ToSingleton();
+                    binder.Bind<IScanLoader>().To<StandardScanLoader>().ToSingleton();
                     binder.Bind<IAssetLoader>().To<StandardAssetLoader>().ToSingleton();
                     binder.Bind<IAssetManager>().To<AssetManager>().ToSingleton();
                     binder.Bind<IAssetPoolManager>().To<LazyAssetPoolManager>().ToSingleton();
@@ -522,7 +524,7 @@ namespace CreateAR.SpirePlayer
                 {
                     case PlayAppConfig.DesignerType.Desktop:
                     {
-                        binder.Bind<MeshImporter>().To<MeshImporter>().ToSingleton();
+                        binder.Bind<ScanImporter>().To<ScanImporter>().ToSingleton();
                         binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
                         break;
                     }

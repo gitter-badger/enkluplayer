@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
+using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer
 {
@@ -12,60 +15,72 @@ namespace CreateAR.SpirePlayer
         /// Materials.
         /// </summary>
         private Material[] _materials;
-
+        
         /// <summary>
-        /// Colors.
+        /// The anchor.
         /// </summary>
-        public Color ReadyColor;
-        public Color ErrorColor;
-        public Color SavingColor;
-        public Color LoadingColor;
-        public Color EditingColor;
+        public WorldAnchorWidget Anchor { get; set; }
 
-        /// <summary>
-        /// Shows that an error has occured.
-        /// </summary>
-        public void Error()
+        public void PlaceholderSaving()
         {
-            ChangeColor(ErrorColor);
+
         }
 
-        /// <summary>
-        /// Shows that anchor is ready.
-        /// </summary>
-        public void Ready()
+        public void PlaceholderError()
         {
-            ChangeColor(ReadyColor);
-        }
 
-        /// <summary>
-        /// Shows that the anchor is saving.
-        /// </summary>
-        public void Saving()
-        {
-            ChangeColor(SavingColor);
-        }
-
-        /// <summary>
-        /// Shows that the anchor is loading.
-        /// </summary>
-        public void Loading()
-        {
-            ChangeColor(LoadingColor);
-        }
-
-        /// <summary>
-        /// Shows that the anchor is currently being edited.
-        /// </summary>
-        public void Editing()
-        {
-            ChangeColor(EditingColor);
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Awake()
         {
             SetupMaterials();
+        }
+
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
+        private void Update()
+        {
+            if (null == Anchor)
+            {
+                ChangeColor(Color.white);
+                return;
+            }
+
+            switch (Anchor.Status)
+            {
+                case WorldAnchorWidget.WorldAnchorStatus.None:
+                {
+                    ChangeColor(Color.white);
+                    return;
+                }
+                case WorldAnchorWidget.WorldAnchorStatus.IsLoading:
+                {
+                    ChangeColor(Color.blue);
+                    return;
+                }
+                case WorldAnchorWidget.WorldAnchorStatus.IsImporting:
+                {
+                    ChangeColor(Color.magenta);
+                    return;
+                }
+                case WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated:
+                {
+                    ChangeColor(Color.green);
+                    return;
+                }
+                case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
+                {
+                    ChangeColor(Color.yellow);
+                    return;
+                }
+                case WorldAnchorWidget.WorldAnchorStatus.IsError:
+                {
+                    ChangeColor(Color.red);
+                    return;
+                }
+            }
         }
 
         /// <summary>

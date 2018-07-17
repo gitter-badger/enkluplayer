@@ -219,7 +219,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public bool ApplyMoveAction(ElementActionData action, out string error)
         {
-            LogVerbose("Apply Move Action");
+            LogVerbose("Apply Move Action.");
 
             // find element (non-root only)
             var element = Element.FindOne<Element>(".." + action.ElementId);
@@ -249,8 +249,13 @@ namespace CreateAR.SpirePlayer
                     action.ParentId);
                 return false;
             }
-            
+
+            LogVerbose("\tAddChild.");
+
             parent.AddChild(element);
+
+            LogVerbose("\tSet new position: {0}", action.Value);
+
             element.Schema.Set("position", (Vec3) action.Value);
 
             error = string.Empty;
@@ -260,7 +265,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Verbose logging method.
         /// </summary>
-        [Conditional("LOGGING_VERBOSE")]
+        //[Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string message, params object[] replacements)
         {
             Log.Info(this, message, replacements);

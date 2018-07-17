@@ -1,6 +1,5 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -51,32 +50,12 @@ namespace CreateAR.SpirePlayer
             /// </summary>
             public Action<AnchorDesignController> OnAdjust;
         }
-
-        /// <summary>
-        /// State machine used internally.
-        /// </summary>
-        private FiniteStateMachine _fsm;
-
+        
         /// <summary>
         /// Configuration for play mode.
         /// </summary>
         private PlayModeConfig _config;
-
-        /// <summary>
-        /// Caches world anchor data.
-        /// </summary>
-        private IWorldAnchorCache _cache;
-
-        /// <summary>
-        /// Provides anchoring import + export.
-        /// </summary>
-        private IWorldAnchorProvider _provider;
-
-        /// <summary>
-        /// Http service.
-        /// </summary>
-        private IHttpService _http;
-
+        
         /// <summary>
         /// Context.
         /// </summary>
@@ -123,95 +102,21 @@ namespace CreateAR.SpirePlayer
             _context = (AnchorDesignControllerContext) context;
 
             _config = _context.Config;
-            _cache = _context.Cache;
-            _provider = _context.Provider;
-            _http = _context.Http;
-
+            
             SetupMarker();
             SetupSplash();
-
-            // initialize() -> load state (lock) -> ready state
-            //                                   -> error state
-            // beginEdit() -> move state -> finalizeEdit() -> save state (lock) -> ready state
-            //                                                                  -> error state
-            //                           -> cancel() -> load state (lock) -> ready state
-            //                                                            -> error state
-
-            _fsm = new FiniteStateMachine(new IState[]
-            {
-                new AnchorLoadingState(this),
-                new AnchorSavingState(
-                    this,
-                    _cache,
-                    _provider,
-                    _http,
-                    _context.AppId,
-                    _context.SceneId(Element)),
-                new AnchorReadyState(this),
-                new AnchorEditingState(this),
-                new AnchorErrorState(this)
-            });
-            
-            ChangeState<AnchorLoadingState>();
         }
 
         /// <inheritdoc />
         public override void Uninitialize()
         {
             base.Uninitialize();
-
-            _fsm.Change(null);
-
+            
             TeardownSplash();
 
             Renderer.gameObject.SetActive(false);
         }
-
-        /// <summary>
-        /// Changes anchor state.
-        /// </summary>
-        /// <typeparam name="T">The state to change to.</typeparam>
-        public void ChangeState<T>() where T : IState
-        {
-            Log.Info(this, "Change state to {0}.", typeof(T).Name);
-
-            _fsm.Change<T>();
-        }
-
-        /// <summary>
-        /// Starts edit mode.
-        /// </summary>
-        public void BeginEdit()
-        {
-            _isEditing = true;
-            UpdateSplash();
-
-            _provider.Disable(gameObject);
-            ChangeState<AnchorEditingState>();
-        }
-
-        /// <summary>
-        /// Finalizes changes, reuploads.
-        /// </summary>
-        public void FinalizeEdit()
-        {
-            _isEditing = false;
-            UpdateSplash();
-
-            ChangeState<AnchorSavingState>();
-        }
-
-        /// <summary>
-        /// Aborts changes and reverts.
-        /// </summary>
-        public void AbortEdit()
-        {
-            _isEditing = false;
-            UpdateSplash();
-
-            ChangeState<AnchorLoadingState>();
-        }
-
+        
         /// <summary>
         /// Locks controller so it cannot be moved.
         /// </summary>
@@ -270,6 +175,7 @@ namespace CreateAR.SpirePlayer
                 Renderer = Instantiate(_config.AnchorPrefab, transform);
                 Renderer.transform.localPosition = Vector3.zero;
                 Renderer.transform.localRotation = Quaternion.identity;
+                Renderer.Anchor = Anchor;
             }
 
             Renderer.gameObject.SetActive(true);

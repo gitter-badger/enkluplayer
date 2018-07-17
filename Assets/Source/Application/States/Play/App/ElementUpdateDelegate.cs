@@ -213,11 +213,20 @@ namespace CreateAR.SpirePlayer
             Vec3 pos, rot, scale;
             TransformedTrs(element, parent, out pos, out rot, out scale);
 
+            Log.Info(this,
+                "Local position changes from {0} -> {1}.",
+                element.Schema.Get<Vec3>("position").Value,
+                pos);
+
+            var txn = new ElementTxn(Active).Move(
+                element.Id,
+                parent.Id,
+                pos, rot, scale);
+
+            Log.Info(this, "Requesting reparent with txn:\n{0}", txn);
+
             return Async.Map(
-                _txns.Request(new ElementTxn(Active).Move(
-                    element.Id,
-                    parent.Id,
-                    pos, rot, scale)),
+                _txns.Request(txn),
                 response => element);
         }
 
@@ -256,6 +265,9 @@ namespace CreateAR.SpirePlayer
         {
             var unityElement = NearestUnityElement(element);
             var unityParent = NearestUnityElement(parent);
+
+            Log.Info(this, "Nearest Unity Element from element: {0}", unityElement);
+            Log.Info(this, "Nearest Unity Element from new parent: {0}", unityParent);
 
             // trivial case
             if (unityParent == unityElement)

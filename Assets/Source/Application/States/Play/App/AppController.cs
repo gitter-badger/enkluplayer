@@ -46,6 +46,9 @@ namespace CreateAR.SpirePlayer
         public bool CanDelete { get; private set; }
 
         /// <inheritdoc />
+        public event Action OnReady;
+
+        /// <inheritdoc />
         public IAppSceneManager Scenes
         {
             get { return _scenes; }
@@ -118,7 +121,15 @@ namespace CreateAR.SpirePlayer
                             Scenes =_scenes,
                             AuthenticateTxns = authenticate 
                         })
-                        .OnSuccess(__ => Log.Info(this, "Txns initialized."))
+                        .OnSuccess(__ =>
+                        {
+                            Log.Info(this, "Txns initialized.");
+
+                            if (null != OnReady)
+                            {
+                                OnReady();
+                            }
+                        })
                         .OnFailure(exception => Log.Error(this, "Could not initialize txns : {0}.", exception));
                 })
                 .OnFailure(exception =>

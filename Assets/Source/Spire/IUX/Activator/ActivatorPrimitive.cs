@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -219,6 +220,11 @@ namespace CreateAR.SpirePlayer.IUX
         public event Action<IInteractable> OnVisibilityChanged;
 
         /// <summary>
+        /// Called when the state changes.
+        /// </summary>
+        public event Action<ActivatorState> OnStateChanged;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ActivatorPrimitive(
@@ -341,6 +347,11 @@ namespace CreateAR.SpirePlayer.IUX
         public void Ready()
         {
             _states.Change<ActivatorReadyState>();
+
+            if (null != OnStateChanged)
+            {
+                OnStateChanged((ActivatorState) _states.Current);
+            }
         }
 
         /// <summary>
@@ -349,6 +360,11 @@ namespace CreateAR.SpirePlayer.IUX
         public void Activating()
         {
             _states.Change<ActivatorActivatingState>();
+
+            if (null != OnStateChanged)
+            {
+                OnStateChanged((ActivatorState)_states.Current);
+            }
         }
 
         /// <summary>
@@ -357,6 +373,11 @@ namespace CreateAR.SpirePlayer.IUX
         public void Activate()
         {
             _states.Change<ActivatorActivatedState>();
+
+            if (null != OnStateChanged)
+            {
+                OnStateChanged((ActivatorState)_states.Current);
+            }
 
             Activation = 0;
             
@@ -392,6 +413,11 @@ namespace CreateAR.SpirePlayer.IUX
                     new ActivatorActivatingState(_config, this, _intention, Schema, false)
                 });
                 _states.Change<ActivatorActivatingState>();
+
+                if (null != OnStateChanged)
+                {
+                    OnStateChanged((ActivatorState)_states.Current);
+                }
             }
             else
             {
@@ -402,6 +428,11 @@ namespace CreateAR.SpirePlayer.IUX
                     new ActivatorActivatedState(_target, this, _messages, Schema)
                 });
                 _states.Change<ActivatorReadyState>();
+
+                if (null != OnStateChanged)
+                {
+                    OnStateChanged((ActivatorState)_states.Current);
+                }
             }
         }
 
@@ -453,7 +484,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Draws debug lines.
         /// </summary>
-        /// [Conditional("ELEMENT_DEBUGGING")]
+        [Conditional("ELEMENT_DEBUGGING")]
         private void DebugDraw()
         {
             var handle = Render.Handle("IUX.Activator");
