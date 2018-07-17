@@ -292,7 +292,7 @@ namespace CreateAR.SpirePlayer
                 _design.Config.AnchorPrefab,
                 data.Schema.Vectors["position"].ToVector(),
                 Quaternion.identity);
-            placeholder.Saving();
+            placeholder.PlaceholderSaving();
 
             // cleans up after all potential code paths
             Action cleanup = () =>
@@ -339,7 +339,7 @@ namespace CreateAR.SpirePlayer
             var version = anchor.Schema.Get<int>("version").Value + 1;
 
             // renderer should show saving!
-            controller.Renderer.Saving();
+            controller.Renderer.PlaceholderSaving();
 
             // export
             Log.Info(this, "Re-save anchor called. Beginning export and re-upload process.");
@@ -361,7 +361,7 @@ namespace CreateAR.SpirePlayer
                         "Could not export anchor : {0}.",
                         exception);
 
-                    controller.Renderer.Error();
+                    controller.Renderer.PlaceholderError();
                 });
         }
 
@@ -455,7 +455,7 @@ namespace CreateAR.SpirePlayer
                         _elementUpdater.FinalizeUpdate(anchor);
 
                         // show controller as ready again
-                        controller.Renderer.Ready();
+                        //controller.Renderer.Ready();
                     }
                     else
                     {
@@ -463,7 +463,7 @@ namespace CreateAR.SpirePlayer
                             "Anchor reupload error : {0}.",
                             response.Payload.Error);
 
-                        controller.Renderer.Error();
+                        //controller.Renderer.Error();
                     }
                 })
                 .OnFailure(exception =>
@@ -480,7 +480,7 @@ namespace CreateAR.SpirePlayer
                     }
                     else
                     {
-                        controller.Renderer.Error();
+                        //controller.Renderer.Error();
                     }
                 });
         }
@@ -652,7 +652,7 @@ namespace CreateAR.SpirePlayer
 
             anchorDesignController.OpenSplash();
             anchorDesignController.Anchor.Reload();
-            anchorDesignController.ChangeState<AnchorLoadingState>();
+            //anchorDesignController.ChangeState<AnchorLoadingState>();
         }
 
         /// <summary>
