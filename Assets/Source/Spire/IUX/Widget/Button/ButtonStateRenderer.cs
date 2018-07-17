@@ -110,11 +110,14 @@ namespace CreateAR.SpirePlayer.IUX
                 tweenLerp);
 
             var defaultScale = _scaleProp.Value.ToVector();
+            if (_button.GameObject)
+            {
+                _button.GameObject.transform.localScale = defaultScale;
+            }
             /*_button.GameObject.transform.localScale = Vector3.Lerp(
                 defaultScale,
                 GetScale(defaultScale, state),
                 tweenLerp);*/
-            _button.GameObject.transform.localScale = defaultScale;
 
             var captionVirtualColor = isInteractable
                 ? _captionColor
@@ -123,10 +126,13 @@ namespace CreateAR.SpirePlayer.IUX
             Col4 captionColor;
             _colors.TryGetColor(captionVirtualColor, out captionColor);
 
-            _button.Text.LocalColor = Col4.Lerp(
-                _button.Text.LocalColor,
-                captionColor,
-                tweenLerp);
+            if (_button.GameObject)
+            {
+                _button.Text.LocalColor = Col4.Lerp(
+                    _button.Text.LocalColor,
+                    captionColor,
+                    tweenLerp);
+            }
         }
         
         /// <summary>
