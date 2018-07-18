@@ -1,5 +1,4 @@
-﻿using RTEditor;
-using System;
+﻿using System;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -183,8 +182,8 @@ namespace CreateAR.SpirePlayer.IUX
                 p0 = new Vector3(GameObject.transform.position.x, GameObject.transform.position.y - 2f, GameObject.transform.position.z);
                 p1 = new Vector3(p0.x, p0.y + 4f, p0.z);
             }
-            Vector3 adjustedp0 = p0 - _lengthProp.Value * offset.ToVector();
-            Vector3 adjustedp1 = p1 + _lengthProp.Value * offset.ToVector();
+            var adjustedp0 = p0 - _lengthProp.Value * offset.ToVector();
+            var adjustedp1 = p1 + _lengthProp.Value * offset.ToVector();
             return new Vector3[] { adjustedp0, adjustedp1 };
         }
 
@@ -290,7 +289,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdatePosition(Vector3 intersection)
         {
-            Vector3[] pivotPoints = CalculatePivotPoints();
+            var pivotPoints = CalculatePivotPoints();
             Value = CalculateValue(intersection, pivotPoints[0], pivotPoints[1]);
 
             // force world position, not position property

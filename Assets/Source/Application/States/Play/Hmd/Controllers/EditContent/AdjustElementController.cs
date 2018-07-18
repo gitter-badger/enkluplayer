@@ -40,25 +40,25 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Flag to draw axis.
         /// </summary>
-        private bool drawAxis;
+        private bool _drawAxis;
 
         /// <summary>
         /// Flag to determine the focus on line.
         /// </summary>
-        private bool focusOffLine;
+        private bool _focusOffLine;
 
         /// <summary>
         /// Vectors for drawing the axis.
         /// </summary>
-        private Vector3 P0 = new Vector3(-10f, 0f, 2f);
-        private Vector3 P1 = new Vector3(10f, 0f, 2f);
+        private Vector3 _p0 = new Vector3(-10f, 0f, 2f);
+        private Vector3 _p1 = new Vector3(10f, 0f, 2f);
 
         /// <summary>
         /// Storing previous values before adjusting transform.
         /// </summary>
-        private Vector3 prevPosition;
-        private Quaternion prevRotation;
-        private Vector3 prevScale;
+        private Vector3 _prevPosition;
+        private Quaternion _prevRotation;
+        private Vector3 _prevScale;
 
         /// <summary>
         /// Axis line material
@@ -179,7 +179,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="MonoBehaviour" />
         private void OnRenderObject()
         {
-            if (!drawAxis)
+            if (!_drawAxis)
             {
                 return;
             }
@@ -191,8 +191,8 @@ namespace CreateAR.SpirePlayer
                 GL.Begin(GL.LINES);
                 {
                     GL.Color(new Color(0f, 0f, 0f, 1f));
-                    GL.Vertex(P0);
-                    GL.Vertex(P1);
+                    GL.Vertex(_p0);
+                    GL.Vertex(_p1);
                 }
                 GL.End();
             }
@@ -273,13 +273,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ResetAssetTransform()
         {
-            if (!focusOffLine)
+            if (!_focusOffLine)
             {
                 return;
             }
-            _controller.transform.position = prevPosition;
-            _controller.transform.localRotation = prevRotation;
-            _controller.transform.localScale = prevScale;
+            _controller.transform.position = _prevPosition;
+            _controller.transform.localRotation = _prevRotation;
+            _controller.transform.localScale = _prevScale;
         }
 
         /// <summary>
@@ -287,9 +287,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void CopyCurrentAssetTransform()
         {
-            prevPosition = _controller.transform.position;
-            prevRotation = _controller.transform.localRotation;
-            prevScale = _controller.transform.localScale;
+            _prevPosition = _controller.transform.position;
+            _prevRotation = _controller.transform.localRotation;
+            _prevScale = _controller.transform.localScale;
         }
 
         /// <summary>
@@ -300,8 +300,8 @@ namespace CreateAR.SpirePlayer
             Vector3[] points = Sliderwidget.CalculatePivotPoints();
             if (points.Length > 0 && !points[0].Approximately(Vector3.zero) && !points[1].Approximately(Vector3.zero))
             {
-                P0 = points[0];
-                P1 = points[1];
+                _p0 = points[0];
+                _p1 = points[1];
             }
         }
 
@@ -316,7 +316,7 @@ namespace CreateAR.SpirePlayer
             ResetAssetTransform();
             ResetMenuPosition();
             
-            drawAxis = false;
+            _drawAxis = false;
             _controller.FinalizeState();
         }
 
@@ -332,7 +332,7 @@ namespace CreateAR.SpirePlayer
             ResetMenuPosition();
 
             _controller.FinalizeState();
-            drawAxis = false;
+            _drawAxis = false;
         }
 
         /// <summary>
@@ -347,7 +347,7 @@ namespace CreateAR.SpirePlayer
             ResetMenuPosition();
             
             _controller.FinalizeState();
-            drawAxis = false;
+            _drawAxis = false;
         }
 
         /// <summary>
@@ -362,7 +362,7 @@ namespace CreateAR.SpirePlayer
             ResetMenuPosition();
 
             _controller.FinalizeState();
-            drawAxis = false;
+            _drawAxis = false;
         }
 
         /// <summary>
@@ -377,7 +377,7 @@ namespace CreateAR.SpirePlayer
             ResetMenuPosition();
 
             _controller.FinalizeState();
-            drawAxis = false;
+            _drawAxis = false;
         }
 
         /// <summary>
@@ -398,8 +398,8 @@ namespace CreateAR.SpirePlayer
         private void BtnRotate_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             CopyCurrentAssetTransform();
-            drawAxis = true;
-            focusOffLine = true;
+            _drawAxis = true;
+            _focusOffLine = true;
 
             Container.LocalVisible = false;
 
@@ -415,8 +415,8 @@ namespace CreateAR.SpirePlayer
         private void BtnScale_OnActivated(ActivatorPrimitive activatorPrimitive) 
         {
             CopyCurrentAssetTransform();
-            drawAxis = true;
-            focusOffLine = true;
+            _drawAxis = true;
+            _focusOffLine = true;
 
             Container.LocalVisible = false;
 
@@ -432,8 +432,8 @@ namespace CreateAR.SpirePlayer
         private void BtnX_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             CopyCurrentAssetTransform();
-            focusOffLine = true;
-            drawAxis = true;
+            _focusOffLine = true;
+            _drawAxis = true;
 
             Container.LocalVisible = false;
             SliderX.LocalVisible = true;
@@ -446,8 +446,8 @@ namespace CreateAR.SpirePlayer
         private void BtnY_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             CopyCurrentAssetTransform();
-            focusOffLine = true;
-            drawAxis = true;
+            _focusOffLine = true;
+            _drawAxis = true;
 
             Container.LocalVisible = false;
             SliderY.LocalVisible = true;
@@ -460,8 +460,8 @@ namespace CreateAR.SpirePlayer
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             CopyCurrentAssetTransform();
-            drawAxis = true;
-            focusOffLine = true;
+            _drawAxis = true;
+            _focusOffLine = true;
             
             _startPosition = _controller.transform.position;
             _startForward = Intention.Forward.ToVector();
@@ -477,7 +477,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SliderX_OnSliderValueConfirmed()
         {
-            focusOffLine = false;
+            _focusOffLine = false;
             SliderX_OnUnfocused();
         }
 
@@ -486,7 +486,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SliderY_OnSliderValueConfirmed()
         {
-            focusOffLine = false;
+            _focusOffLine = false;
             SliderY_OnUnfocused();
         }
 
@@ -495,7 +495,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SliderZ_OnSliderValueConfirmed()
         {
-            focusOffLine = false;
+            _focusOffLine = false;
             SliderZ_OnUnfocused();
         }
 
@@ -504,7 +504,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SliderScale_OnSliderValueConfirmed()
         {
-            focusOffLine = false;
+            _focusOffLine = false;
             SliderScale_OnUnfocused();
         }
 
@@ -513,7 +513,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SliderRotate_OnSliderValueConfirmed()
         {
-            focusOffLine = false;
+            _focusOffLine = false;
             SliderRotate_OnUnfocused();
         }
 
