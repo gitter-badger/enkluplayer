@@ -39,10 +39,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// Slider button widget.
         /// </summary>
         private ButtonWidget _moveSlider;
+
         /// <summary>
         /// Caption widget.
         /// </summary>
         private CaptionWidget _Annotation;
+
         /// <summary>
         /// Image widgets.
         /// </summary>
@@ -325,7 +327,6 @@ namespace CreateAR.SpirePlayer.IUX
 
             _minImage.GameObject.transform.position = _p0;
             _maxImage.GameObject.transform.position = _p1;
-
         }
 
         /// <summary>
