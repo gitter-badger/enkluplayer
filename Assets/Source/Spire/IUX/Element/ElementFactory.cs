@@ -176,6 +176,9 @@ namespace CreateAR.SpirePlayer.IUX
             });
             menuSchema.Inherit(_baseSchema);
 
+            var submenuSchema = _typeSchema[ElementTypes.SUBMENU] = new ElementSchema("Base.SubMenu");
+            submenuSchema.Inherit(menuSchema);
+
             var gridSchema = _typeSchema[ElementTypes.GRID] = new ElementSchema("Base.Grid");
             gridSchema.Load(new ElementSchemaData
             {
@@ -319,6 +322,10 @@ namespace CreateAR.SpirePlayer.IUX
                 case ElementTypes.MENU:
                 {
                     return new MenuWidget(new GameObject("Element"), _config, _layers, _tweens, _colors, _primitives, this);
+                }
+                case ElementTypes.SUBMENU:
+                {
+                    return new SubMenuWidget(new GameObject("Element"), _layers, _tweens, _colors, this);
                 }
                 case ElementTypes.TEXTCRAWL:
                 {

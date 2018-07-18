@@ -136,7 +136,7 @@ namespace CreateAR.SpirePlayer
 
             UpdateSplash();
         }
-
+        /*
         /// <summary>
         /// Closes splash.
         /// </summary>
@@ -156,7 +156,7 @@ namespace CreateAR.SpirePlayer
 
             UpdateSplash();
         }
-
+        */
         /// <summary>
         /// Updates the splash menu visibility.
         /// </summary>

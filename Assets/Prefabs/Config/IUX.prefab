@@ -96,6 +96,12 @@ MonoBehaviour:
     - UIDataId: Common.Confirmation
       Element: {fileID: 114157938732403108, guid: 7b0fc911ad242844cac600761cf4a459,
         type: 2}
+    - UIDataId: Design.MainMenu
+      Element: {fileID: 114335294500824520, guid: 00ed677482bbca64c9676db93b658ed8,
+        type: 2}
+    - UIDataId: Design.Splash
+      Element: {fileID: 114197174911949698, guid: 01a6f0c348f65e443aa81dc0798562f0,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error

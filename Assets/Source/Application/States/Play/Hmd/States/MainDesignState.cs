@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -34,6 +33,31 @@ namespace CreateAR.SpirePlayer
         /// Manages controllers.
         /// </summary>
         private readonly IElementControllerManager _controllers;
+        
+        /// <summary>
+        /// Http interface.
+        /// </summary>
+        private readonly IHttpService _http;
+
+        /// <summary>
+        /// Caches world anchor data.
+        /// </summary>
+        private readonly IWorldAnchorCache _anchorCache;
+
+        /// <summary>
+        /// Provides anchor import/export.
+        /// </summary>
+        private readonly IWorldAnchorProvider _anchorProvider;
+
+        /// <summary>
+        /// Manages UI.
+        /// </summary>
+        private readonly IUIManager _ui;
+
+        /// <summary>
+        /// UI frame.
+        /// </summary>
+        private UIManagerFrame _frame;
 
         /// <summary>
         /// Design controller.
@@ -41,24 +65,14 @@ namespace CreateAR.SpirePlayer
         private HmdDesignController _design;
         
         /// <summary>
-        /// Root of dynamic menus.
+        /// Id of splash menu.
         /// </summary>
-        private Element _dynamicRoot;
-        
-        /// <summary>
-        /// Splash menu.
-        /// </summary>
-        private SplashMenuController _splash;
+        private int _splashId;
 
         /// <summary>
-        /// Main menu.
+        /// Id of main menu.
         /// </summary>
-        private MainMenuController _mainMenu;
-
-        /// <summary>
-        /// Clear all menu.
-        /// </summary>
-        private ClearSceneController _clearScene;
+        private int _mainId;
 
         /// <summary>
         /// Constructor.
@@ -66,11 +80,19 @@ namespace CreateAR.SpirePlayer
         public MainDesignState(
             ApplicationConfig config,
             IMessageRouter messages,
-            IElementControllerManager controllers)
+            IElementControllerManager controllers,
+            IHttpService http,
+            IWorldAnchorCache anchorCache,
+            IWorldAnchorProvider anchorProvider,
+            IUIManager ui)
         {
             _config = config;
             _messages = messages;
             _controllers = controllers;
+            _http = http;
+            _anchorCache = anchorCache;
+            _anchorProvider = anchorProvider;
+            _ui = ui;
         }
 
         /// <inheritdoc />
@@ -81,52 +103,21 @@ namespace CreateAR.SpirePlayer
             Element staticRoot)
         {
             _design = design;
-            _dynamicRoot = dynamicRoot;
-            
-            // splash menu
-            {
-                _splash = unityRoot.AddComponent<SplashMenuController>();
-                _splash.enabled = false;
-                _splash.OnOpenMenu += Splash_OnOpenMenu;
-                _splash.OnBack += Splash_OnBack;
-                _splash.OnPlay += Splash_OnPlay;
-                dynamicRoot.AddChild(_splash.Root);
-            }
-
-            // main menu
-            {
-                _mainMenu = unityRoot.AddComponent<MainMenuController>();
-                _mainMenu.enabled = false;
-                _mainMenu.OnBack += MainMenu_OnBack;
-                _mainMenu.OnClearAll += MainMenu_OnClearAll;
-                _mainMenu.OnNew += MainMenu_OnNew;
-                _mainMenu.OnShowAnchorMenu += MainMenu_OnShowAnchorMenu;
-                _mainMenu.OnPlay += MainMenu_OnPlay;
-                dynamicRoot.AddChild(_mainMenu.Root);
-            }
-
-            // clear props menu
-            {
-                _clearScene = unityRoot.AddComponent<ClearSceneController>();
-                _clearScene.enabled = false;
-                _clearScene.OnCancel += ClearAll_OnCancel;
-                _clearScene.OnConfirm += ClearAll_OnConfirm;
-                dynamicRoot.AddChild(_clearScene.Root);
-            }
         }
 
         /// <inheritdoc />
         public void Uninitialize()
         {
-            Object.Destroy(_splash);
-            Object.Destroy(_mainMenu);
-            Object.Destroy(_clearScene);
+            // 
         }
 
         /// <inheritdoc />
         public void Enter(object context)
         {
             Log.Info(this, "Entering {0}", GetType().Name);
+
+            // push a frame
+            _frame = _ui.CreateFrame();
 
             // content
             _controllers
@@ -150,8 +141,6 @@ namespace CreateAR.SpirePlayer
                         OnAdjust = Element_OnAdjust
                     });
 
-            // anchors (TODO: special menu)
-
             // scans
             _controllers
                 .Group(TAG_SCAN)
@@ -163,9 +152,26 @@ namespace CreateAR.SpirePlayer
                         OnAdjust = Element_OnAdjust
                     });
 
+            // anchors
+            _controllers
+                .Group(TAG_ANCHOR)
+                .Filter(new TypeElementControllerFilter(typeof(WorldAnchorWidget)))
+                .Add<AnchorDesignController>(new AnchorDesignController.AnchorDesignControllerContext
+                {
+                    AppId = _design.App.Id,
+                    SceneId = SceneIdForElement,
+                    Config = _design.Config,
+                    Http = _http,
+                    Cache = _anchorCache,
+                    Provider = _anchorProvider,
+                    OnAdjust = Anchor_OnAdjust
+                });
+
+            // turn on the controller groups
             _controllers.Activate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
 
-            _splash.enabled = true;
+            // open the splash menu
+            OpenSplashMenu();
         }
 
         /// <inheritdoc />
@@ -177,37 +183,101 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
+            // kill element menus
             _controllers.Deactivate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
 
-            CloseAll();
+            // kill any other UI
+            _frame.Release();
 
             Log.Info(this, "Exited {0}", GetType().Name);
         }
 
         /// <summary>
-        /// Closes all menus.
+        /// Opens the splash menu.
         /// </summary>
-        private void CloseAll()
+        private void OpenSplashMenu()
         {
-            _splash.enabled = false;
-            _mainMenu.enabled = false;
-            _clearScene.enabled = false;
-
-            CloseAllPropControllerSplashes();
+            _ui
+                .Open<SplashMenuUIView>(new UIReference
+                {
+                    UIDataId = "Design.Splash"
+                }, out _splashId)
+                .OnSuccess(el =>
+                {
+                    el.OnOpenMenu += Splash_OnOpenMenu;
+                    el.OnBack += Splash_OnBack;
+                    el.OnPlay += Splash_OnPlay;
+                });
         }
-        
-        /// <summary>
-        /// Closes all splash menus.
-        /// </summary>
-        private void CloseAllPropControllerSplashes()
-        {
-            var designControllers = new List<ElementSplashDesignController>();
-            _controllers.Group(TAG_CONTENT).All(designControllers);
 
-            for (var i = 0; i < designControllers.Count; i++)
+        /// <summary>
+        /// Closes splash menu.
+        /// </summary>
+        private void CloseSplashMenu()
+        {
+            _ui.Close(_splashId);
+        }
+
+        /// <summary>
+        /// Opens main menu.
+        /// </summary>
+        private void OpenMainMenu()
+        {
+            _ui
+                .Open<MainMenuUIView>(new UIReference
+                {
+                    UIDataId = "Design.MainMenu"
+                }, out _mainId)
+                .OnSuccess(el =>
+                {
+                    el.OnBack += MainMenu_OnBack;
+                    el.OnNew += MainMenu_OnNew;
+                    el.OnShowSettings += MainMenu_OnShowSettings;
+                    el.OnPlay += MainMenu_OnPlay;
+                });
+        }
+
+        /// <summary>
+        /// Closes main menu.
+        /// </summary>
+        private void CloseMainMenu()
+        {
+            _ui.Close(_mainId);
+        }
+
+        /// <summary>
+        /// Scene id for element.
+        /// </summary>
+        /// <param name="element">Element.</param>
+        /// <returns></returns>
+        private string SceneIdForElement(Element element)
+        {
+            // find root
+            var parent = element;
+            while (true)
             {
-                designControllers[i].HideSplashMenu();
+                if (null != parent.Parent)
+                {
+                    parent = parent.Parent;
+                }
+                else
+                {
+                    break;
+                }
             }
+
+            // find id of root
+            var sceneIds = _design.Scenes.All;
+            foreach (var sceneId in sceneIds)
+            {
+                var root = _design.Scenes.Root(sceneId);
+                if (root == parent)
+                {
+                    return sceneId;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -232,8 +302,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Splash_OnOpenMenu()
         {
-            _splash.enabled = false;
-            _mainMenu.enabled = true;
+            CloseSplashMenu();
+            OpenMainMenu();
         }
 
         /// <summary>
@@ -241,18 +311,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MainMenu_OnBack()
         {
-            _mainMenu.enabled = false;
-            _splash.enabled = true;
-        }
-        
-        /// <summary>
-        /// Called when main menu wants to clear all props.
-        /// </summary>
-        private void MainMenu_OnClearAll()
-        {
-            _mainMenu.enabled = false;
-            _dynamicRoot.Schema.Set("focus.visible", false);
-            _clearScene.enabled = true;
+            CloseMainMenu();
+            OpenSplashMenu();
         }
 
         /// <summary>
@@ -260,23 +320,15 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MainMenu_OnNew()
         {
-            _mainMenu.enabled = false;
-            _dynamicRoot.Schema.Set("focus.visible", false);
-
-            // content design!
             _design.ChangeState<NewContentDesignState>();
         }
 
         /// <summary>
-        /// Called when the main menu wants to display the anchor menu.
+        /// Called when the main menu wants to display the settings menu.
         /// </summary>
-        private void MainMenu_OnShowAnchorMenu()
+        private void MainMenu_OnShowSettings()
         {
-            _mainMenu.enabled = false;
-            CloseAllPropControllerSplashes();
-
-            // anchor design!
-            _design.ChangeState<AnchorDesignState>();
+            
         }
 
         /// <summary>
@@ -284,42 +336,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MainMenu_OnPlay()
         {
-            CloseAll();
-            _dynamicRoot.Schema.Set("visible", false);
-        }
-
-        /// <summary>
-        /// Called when clear all menu wants to cancel.
-        /// </summary>
-        private void ClearAll_OnCancel()
-        {
-            _clearScene.enabled = false;
-            _dynamicRoot.Schema.Set("focus.visible", true);
-            _mainMenu.enabled = true;
-        }
-
-        /// <summary>
-        /// Called when clear all menu wants to clear all.
-        /// </summary>
-        private void ClearAll_OnConfirm()
-        {
-            _clearScene.enabled = false;
-
-            _design
-                .Elements
-                .DestroyAll()
-                .OnSuccess(_ =>
-                {
-                    _mainMenu.enabled = true;
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this,
-                        "Could not destroy all elements in active scene : {0}.",
-                        exception);
-                });
-
-            _dynamicRoot.Schema.Set("focus.visible", true);
+            _config.Play.Edit = false;
+            _messages.Publish(MessageTypes.PLAY);
         }
         
         /// <summary>
@@ -328,6 +346,15 @@ namespace CreateAR.SpirePlayer
         private void Element_OnAdjust(ElementSplashDesignController controller)
         {
             _design.ChangeState<EditElementDesignState>(controller);
+        }
+
+        /// <summary>
+        /// Called by anchor to open adjust menu.
+        /// </summary>
+        /// <param name="controller"></param>
+        private void Anchor_OnAdjust(AnchorDesignController controller)
+        {
+            _design.ChangeState<EditAnchorDesignState>(controller);
         }
     }
 }

@@ -1,8 +1,19 @@
 <?Vine>
 
-<Menu id='menu' showBackButton=true layout.radius=0.3 layout.degrees=70.0>
-	<Button id='btn-play' label='Play' icon='play' />
-	<Button id='btn-anchors' label='Anchors' icon='frame' />
-	<Button id='btn-new' label='New' icon='plus' />
-	<Button id='btn-clearall' label='Clear All' icon='trash' />
-</Menu>
+<Float position=(0, 0, 3)>
+	<Menu id='menu' showBackButton=true layout.radius=0.3 layout.degrees=70.0>
+		<Button id='btn-play' label='Play' icon='play' />
+		
+		<SubMenu id='menu-new' label='New' icon='plus'>
+			<Button id='btn-new-asset' label='Asset' />
+			<Button id='btn-new-anchor' label='Anchor' />
+			<Button id='btn-new-text' label='Text' />
+			<Button id='btn-new-container' label='Container' />
+		</SubMenu>
+		
+		<SubMenu id='menu-settings' label='Settings' icon='gear'>
+			<Button id='btn-resetdata' label='Reset Data' ready.color='Negative' />
+			<Toggle id='tgl-play' label='Default to Play' value=true />
+		</SubMenu>
+	</Menu>
+</Float>

@@ -486,7 +486,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<NewContentDesignState>().To<NewContentDesignState>();
                     binder.Bind<EditElementDesignState>().To<EditElementDesignState>();
                     binder.Bind<ReparentDesignState>().To<ReparentDesignState>();
-                    binder.Bind<AnchorDesignState>().To<AnchorDesignState>();
+                    binder.Bind<EditAnchorDesignState>().To<EditAnchorDesignState>();
                 }
 
                 binder.Bind<IElementUpdateDelegate>().To<ElementUpdateDelegate>().ToSingleton();

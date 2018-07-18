@@ -6,8 +6,8 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Manages the splash menu.
     /// </summary>
-    [InjectVine("Design.Splash")]
-    public class SplashMenuController : InjectableIUXController
+    //[InjectVine("Design.Splash")]
+    public class SplashMenuUIView : MonoBehaviourIUXController
     {
         /// <summary>
         /// Main menu button.
@@ -43,9 +43,9 @@ namespace CreateAR.SpirePlayer
         public event Action OnPlay;
 
         /// <inheritdoc />
-        protected override void Awake()
+        protected override void AfterElementsCreated()
         {
-            base.Awake();
+            base.AfterElementsCreated();
 
             BtnMenu.Activator.OnActivated += Btn_OnActivated;
             BtnBack.Activator.OnActivated += BtnBack_OnActivated;

@@ -67,6 +67,11 @@ namespace CreateAR.SpirePlayer.IUX
         private GameObject _halfMoon;
 
         /// <summary>
+        /// True iff loaded lifecycle has been called.
+        /// </summary>
+        private bool _isLoaded;
+
+        /// <summary>
         /// Called when the back button has been activated.
         /// </summary>
         public event Action<MenuWidget> OnBack;
@@ -162,16 +167,15 @@ namespace CreateAR.SpirePlayer.IUX
 
             _titlePrimitive.OnTextRectUpdated += Header_TextRectUpdated;
             _descriptionPrimitive.OnTextRectUpdated += Header_TextRectUpdated;
-        }
 
-        private void Header_TextRectUpdated(TextPrimitive textPrimitive)
-        {
-            UpdateHeaderLayout();
+            _isLoaded = true;
         }
 
         /// <inheritdoc cref="Element"/>
         protected override void UnloadInternalAfterChildren()
         {
+            _isLoaded = false;
+
             OnChildAdded -= This_OnChildAdded;
 
             _titleProp.OnChanged -= Title_OnChanged;
@@ -202,12 +206,208 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
+        protected override void AddChildInternal(Element element)
+        {
+            base.AddChildInternal(element);
+
+            if (IsLoaded)
+            {
+                UpdateChildLayout();
+            }
+        }
+
+        /// <inheritdoc />
+        protected override void RemoveChildInternal(Element element)
+        {
+            base.AddChildInternal(element);
+
+            if (IsLoaded)
+            {
+                UpdateChildLayout();
+            }
+        }
+
+        /// <inheritdoc />
         protected override void DestroyInternal()
         {
             _titlePrimitive.Destroy();
             _descriptionPrimitive.Destroy();
 
             base.DestroyInternal();
+        }
+
+        /// <summary>
+        /// Creates back button if need be.
+        /// </summary>
+        private void InitializeBackButton()
+        {
+            if (null != _backButton)
+            {
+                return;
+            }
+
+            _backButton = (ButtonWidget)_elements.Element(string.Format(
+                "<?Vine><Button id='{0}' icon='arrow-left' ready.color='Negative' />",
+                Id + ".btn-back"));
+            _backButton.Activator.OnActivated += Back_OnActivated;
+            AddChild(_backButton);
+        }
+
+        /// <summary>
+        /// Adjusts children according to radial layout specs.
+        /// </summary>
+        /// <param name="children">The children.</param>
+        /// <param name="worldRadius">The radius in world space.</param>
+        /// <param name="degrees">The radius in degrees.</param>
+        private void RadialLayout(IList<Element> children,
+            float worldRadius,
+            float degrees)
+        {
+            if (children.Count == 0)
+            {
+                return;
+            }
+
+            var localRadius = worldRadius;
+
+            var baseTheta = children.Count > 1
+                ? degrees * -0.5f
+                : 0.0f;
+
+            var stepTheta = children.Count > 1
+                ? degrees / (children.Count - 1)
+                : 0.0f;
+
+            for (int i = 0, count = children.Count; i < count; ++i)
+            {
+                var child = children[i];
+                if (child != null)
+                {
+                    var theta = baseTheta + stepTheta * i;
+                    var thetaRadians = theta * Mathf.Deg2Rad;
+                    var targetPosition = localRadius * new Vector3(
+                        Mathf.Cos(thetaRadians),
+                        -Mathf.Sin(thetaRadians),
+                        0);
+
+                    child.Schema.Set("position", targetPosition.ToVec());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the font sizes across the board.
+        /// </summary>
+        private void UpdateFontSizes()
+        {
+            var defaultFontSize = _fontSizeProp.Value;
+
+            // title
+            var titleFontSize = defaultFontSize;
+            if (null != _titleFontSizeProp)
+            {
+                titleFontSize = _titleFontSizeProp.Value;
+            }
+            else if (Schema.HasProp("title.fontSize"))
+            {
+                _titleFontSizeProp = Schema.Get<int>("title.fontSize");
+                _titleFontSizeProp.OnChanged += FontSize_OnChanged;
+                titleFontSize = _titleFontSizeProp.Value;
+            }
+            _titlePrimitive.FontSize = titleFontSize;
+
+            // description
+            var descriptionFontSize = defaultFontSize;
+            if (null != _descriptionFontSizeProp)
+            {
+                descriptionFontSize = _descriptionFontSizeProp.Value;
+            }
+            else if (Schema.HasProp("description.fontSize"))
+            {
+                _descriptionFontSizeProp = Schema.Get<int>("description.fontSize");
+                _descriptionFontSizeProp.OnChanged += FontSize_OnChanged;
+                descriptionFontSize = _descriptionFontSizeProp.Value;
+            }
+            _descriptionPrimitive.FontSize = descriptionFontSize;
+        }
+
+        /// <summary>
+        /// Updates the header layout.
+        /// </summary>
+        private void UpdateHeaderLayout()
+        {
+            var padding = -_headerPaddingProp.Value;
+
+            _titlePrimitive.Width = _headerWidthProp.Value;
+            _descriptionPrimitive.Width = _headerWidthProp.Value;
+
+            _descriptionPrimitive.LocalPosition = new Vector3(
+                padding,
+                -_descriptionPrimitive.Height / 2f,
+                0f);
+
+            _titlePrimitive.LocalPosition = new Vector3(
+                padding,
+                _titlePrimitive.Height,
+                0f);
+
+            // back button
+            if (_showBackButtonProp.Value)
+            {
+                InitializeBackButton();
+
+                // place back button
+                _backButton.Schema.Set("position", new Vec3(-0.2f, 0, 0));
+            }
+            else if (null != _backButton)
+            {
+                RemoveChild(_backButton);
+                _backButton.Destroy();
+                _backButton = null;
+            }
+
+            UpdateDivider();
+        }
+
+        /// <summary>
+        /// Updates the divider.
+        /// </summary>
+        private void UpdateDivider()
+        {
+            _halfMoon
+                .GetComponent<RectTransform>()
+                .localPosition = new Vector3(
+                _dividerOffset.Value,
+                0f, 0f);
+        }
+
+        /// <summary>
+        /// Updates child layout.
+        /// </summary>
+        private void UpdateChildLayout()
+        {
+            var layout = _layoutProp.Value;
+            if (layout == "Radial")
+            {
+                _filteredChildren.Clear();
+                for (int i = 0, len = Children.Count; i < len; i++)
+                {
+                    var child = Children[i];
+                    if (child == _titlePrimitive
+                        || child == _descriptionPrimitive
+                        || child == _backButton)
+                    {
+                        continue;
+                    }
+
+                    _filteredChildren.Add(child);
+                }
+
+                RadialLayout(
+                    _filteredChildren,
+                    _layoutRadiusProp.Value,
+                    _layoutDegreesProp.Value);
+            }
         }
 
         /// <summary>
@@ -379,177 +579,12 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Updates the font sizes across the board.
+        /// Called when the textrect changes.
         /// </summary>
-        private void UpdateFontSizes()
+        /// <param name="textPrimitive">The primitive.</param>
+        private void Header_TextRectUpdated(TextPrimitive textPrimitive)
         {
-            var defaultFontSize = _fontSizeProp.Value;
-
-            // title
-            var titleFontSize = defaultFontSize;
-            if (null != _titleFontSizeProp)
-            {
-                titleFontSize = _titleFontSizeProp.Value;
-            }
-            else if (Schema.HasProp("title.fontSize"))
-            {
-                _titleFontSizeProp = Schema.Get<int>("title.fontSize");
-                _titleFontSizeProp.OnChanged += FontSize_OnChanged;
-                titleFontSize = _titleFontSizeProp.Value;
-            }
-            _titlePrimitive.FontSize = titleFontSize;
-
-            // description
-            var descriptionFontSize = defaultFontSize;
-            if (null != _descriptionFontSizeProp)
-            {
-                descriptionFontSize = _descriptionFontSizeProp.Value;
-            }
-            else if (Schema.HasProp("description.fontSize"))
-            {
-                _descriptionFontSizeProp = Schema.Get<int>("description.fontSize");
-                _descriptionFontSizeProp.OnChanged += FontSize_OnChanged;
-                descriptionFontSize = _descriptionFontSizeProp.Value;
-            }
-            _descriptionPrimitive.FontSize = descriptionFontSize;
-        }
-        
-        /// <summary>
-        /// Updates the header layout.
-        /// </summary>
-        private void UpdateHeaderLayout()
-        {
-            var padding = -_headerPaddingProp.Value;
-
-            _titlePrimitive.Width = _headerWidthProp.Value;
-            _descriptionPrimitive.Width = _headerWidthProp.Value;
-            
-            _descriptionPrimitive.LocalPosition = new Vector3(
-                padding,
-                -_descriptionPrimitive.Height / 2f,
-                0f);
-            
-            _titlePrimitive.LocalPosition = new Vector3(
-                padding,
-                _titlePrimitive.Height,
-                0f);
-
-            // back button
-            if (_showBackButtonProp.Value)
-            {
-                InitializeBackButton();
-
-                // place back button
-                _backButton.Schema.Set("position", new Vec3(-0.2f, 0, 0));
-            }
-            else if (null != _backButton)
-            {
-                RemoveChild(_backButton);
-                _backButton.Destroy();
-                _backButton = null;
-            }
-
-            UpdateDivider();
-        }
-
-        /// <summary>
-        /// Updates the divider.
-        /// </summary>
-        private void UpdateDivider()
-        {
-            _halfMoon
-                .GetComponent<RectTransform>()
-                .localPosition = new Vector3(
-                _dividerOffset.Value,
-                0f, 0f);
-        }
-
-        /// <summary>
-        /// Creates back button if need be.
-        /// </summary>
-        private void InitializeBackButton()
-        {
-            if (null != _backButton)
-            {
-                return;
-            }
-
-            _backButton = (ButtonWidget) _elements.Element(string.Format(
-                "<?Vine><Button id='{0}' icon='arrow-left' ready.color='Negative' />",
-                Id + ".btn-back"));
-            _backButton.Activator.OnActivated += Back_OnActivated;
-            AddChild(_backButton);
-        }
-
-        /// <summary>
-        /// Updates child layout.
-        /// </summary>
-        private void UpdateChildLayout()
-        {
-            var layout = _layoutProp.Value;
-            if (layout == "Radial")
-            {
-                _filteredChildren.Clear();
-                for (int i = 0, len = Children.Count; i < len; i++)
-                {
-                    var child = Children[i];
-                    if (child == _titlePrimitive
-                        || child == _descriptionPrimitive
-                        || child == _backButton)
-                    {
-                        continue;
-                    }
-
-                    _filteredChildren.Add(child);
-                }
-
-                RadialLayout(
-                    _filteredChildren,
-                    _layoutRadiusProp.Value,
-                    _layoutDegreesProp.Value);
-            }
-        }
-
-        /// <summary>
-        /// Adjusts children according to radial layout specs.
-        /// </summary>
-        /// <param name="children">The children.</param>
-        /// <param name="worldRadius">The radius in world space.</param>
-        /// <param name="degrees">The radius in degrees.</param>
-        private void RadialLayout(IList<Element> children,
-            float worldRadius,
-            float degrees)
-        {
-            if (children.Count == 0)
-            {
-                return;
-            }
-            
-            var localRadius = worldRadius;
-
-            var baseTheta = children.Count > 1
-                ? degrees * -0.5f
-                : 0.0f;
-
-            var stepTheta = children.Count > 1
-                ? degrees / (children.Count - 1)
-                : 0.0f;
-
-            for (int i = 0, count = children.Count; i < count; ++i)
-            {
-                var child = children[i];
-                if (child != null)
-                {
-                    var theta = baseTheta + stepTheta * i;
-                    var thetaRadians = theta * Mathf.Deg2Rad;
-                    var targetPosition = localRadius * new Vector3(
-                        Mathf.Cos(thetaRadians),
-                        -Mathf.Sin(thetaRadians),
-                        0);
-
-                    child.Schema.Set("position", targetPosition.ToVec());
-                }
-            }
+            UpdateHeaderLayout();
         }
 
         /// <summary>

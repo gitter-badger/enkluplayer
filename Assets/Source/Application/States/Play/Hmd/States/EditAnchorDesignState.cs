@@ -1,29 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Design state for editing anchors.
     /// </summary>
-    public class AnchorDesignState : IArDesignState
+    public class EditAnchorDesignState : IArDesignState
     {
-        /// <summary>
-        /// Controller group tag for anchors.
-        /// </summary>
-        private const string TAG_ANCHOR = "anchor";
-
-        /// <summary>
-        /// Manages controllers on elements.
-        /// </summary>
-        private readonly IElementControllerManager _controllers;
-
         /// <summary>
         /// Makes Http requests.
         /// </summary>
@@ -55,20 +48,10 @@ namespace CreateAR.SpirePlayer
         private readonly List<AnchorDesignController> _scratchList = new List<AnchorDesignController>();
         
         /// <summary>
-        /// Content filter.
-        /// </summary>
-        private readonly TypeElementControllerFilter _anchorFilter = new TypeElementControllerFilter(typeof(WorldAnchorWidget));
-
-        /// <summary>
         /// Design controller.
         /// </summary>
         private HmdDesignController _design;
-
-        /// <summary>
-        /// Anchor menu.
-        /// </summary>
-        private AnchorMenuController _anchors;
-
+        
         /// <summary>
         /// Menu for placing new anchors.
         /// </summary>
@@ -92,15 +75,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public AnchorDesignState(
-            IElementControllerManager controllers,
+        public EditAnchorDesignState(
             IHttpService http,
             IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
             IElementUpdateDelegate elementUpdater,
             IUIManager ui)
         {
-            _controllers = controllers;
             _http = http;
             _cache = cache;
             _provider = provider;
@@ -116,16 +97,7 @@ namespace CreateAR.SpirePlayer
             Element staticRoot)
         {
             _design = design;
-
-            // main anchor menu
-            {
-                _anchors = unityRoot.AddComponent<AnchorMenuController>();
-                _anchors.enabled = false;
-                _anchors.OnBack += Anchors_OnBack;
-                _anchors.OnNew += Anchors_OnNew;
-                dynamicRoot.AddChild(_anchors.Root);
-            }
-
+            
             // place anchor menu
             {
                 _placeNewAnchor = unityRoot.AddComponent<PlaceAnchorController>();
@@ -157,7 +129,6 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Uninitialize()
         {
-            Object.Destroy(_anchors);
             Object.Destroy(_placeNewAnchor);
             Object.Destroy(_adjustAnchor);
             Object.Destroy(_moveAnchor);
@@ -168,23 +139,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Entering {0}", GetType().Name);
 
-            _anchors.enabled = true;
-
-            _controllers
-                .Group(TAG_ANCHOR)
-                .Filter(_anchorFilter)
-                .Add<AnchorDesignController>(new AnchorDesignController.AnchorDesignControllerContext
-                {
-                    AppId = _design.App.Id,
-                    SceneId = SceneIdForElement,
-                    Config = _design.Config,
-                    Http = _http,
-                    Cache = _cache,
-                    Provider = _provider,
-                    OnAdjust = Controller_OnAdjust
-                });
-
-            _controllers.Activate(TAG_ANCHOR);
+            var controller = (AnchorDesignController) context;
         }
 
         /// <inheritdoc />
@@ -196,8 +151,6 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            _controllers.Deactivate(TAG_ANCHOR);
-
             CloseAll();
 
             Log.Info(this, "Exited {0}", GetType().Name);
@@ -208,79 +161,19 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void CloseAll()
         {
-            _anchors.enabled = false;
             _placeNewAnchor.enabled = false;
             _adjustAnchor.enabled = false;
             _moveAnchor.enabled = false;
         }
-
-        /// <summary>
-        /// Closes splash menus on all anchors.
-        /// </summary>
-        private void CloseSplashMenus()
-        {
-            _scratchList.Clear();
-            _controllers.Group(TAG_ANCHOR).All(_scratchList);
-            for (int i = 0, len = _scratchList.Count; i < len; i++)
-            {
-                _scratchList[i].CloseSplash();
-            }
-        }
-
-        /// <summary>
-        /// Opens splash menus on all anchors.
-        /// </summary>
-        private void OpenSplashMenus()
-        {
-            _scratchList.Clear();
-            _controllers.Group(TAG_ANCHOR).All(_scratchList);
-            for (int i = 0, len = _scratchList.Count; i < len; i++)
-            {
-                _scratchList[i].OpenSplash();
-            }
-        }
-
-        /// <summary>
-        /// Scene id for element.
-        /// </summary>
-        /// <param name="element">Element.</param>
-        /// <returns></returns>
-        private string SceneIdForElement(Element element)
-        {
-            // find root
-            var parent = element;
-            while (true)
-            {
-                if (null != parent.Parent)
-                {
-                    parent = parent.Parent;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            // find id of root
-            var sceneIds = _design.Scenes.All;
-            foreach (var sceneId in sceneIds)
-            {
-                var root = _design.Scenes.Root(sceneId);
-                if (root == parent)
-                {
-                    return sceneId;
-                }
-            }
-
-            return null;
-        }
-
+        
         /// <summary>
         /// Exports an anchor and updates associated data.
         /// </summary>
         /// <param name="data">The element data.</param>
-        private void CreateAnchor(ElementData data)
+        private IAsyncToken<Void> CreateAnchor(ElementData data)
         {
+            var token = new AsyncToken<Void>();
+
             // create URI
             var url = data.Schema.Strings["src"] = string.Format(
                 "/editor/app/{0}/scene/{1}/anchor/{2}",
@@ -318,7 +211,9 @@ namespace CreateAR.SpirePlayer
                     _cache.Save(data.Id, version, bytes);
 
                     // upload
-                    UploadAnchor(data, url, bytes, cleanup, 3);
+                    UploadAnchor(data, url, bytes, cleanup, 3)
+                        .OnSuccess(token.Succeed)
+                        .OnFailure(token.Fail);
                 })
                 .OnFailure(exception =>
                 {
@@ -326,8 +221,12 @@ namespace CreateAR.SpirePlayer
                         "Could not export anchor : {0}.",
                         exception);
 
+                    token.Fail(exception);
+
                     cleanup();
                 });
+
+            return token;
         }
 
         /// <summary>
@@ -370,8 +269,10 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Uploads an anchor for the first time.
         /// </summary>
-        private void UploadAnchor(ElementData data, string url, byte[] bytes, Action cleanup, int retries)
+        private IAsyncToken<Void> UploadAnchor(ElementData data, string url, byte[] bytes, Action cleanup, int retries)
         {
+            var token = new AsyncToken<Void>();
+
             _http
                 .PostFile<Trellis.Messages.UploadAnchor.Response>(
                     _http.Urls.Url(url),
@@ -386,19 +287,29 @@ namespace CreateAR.SpirePlayer
                         // complete, now create corresponding element
                         _elementUpdater
                             .Create(data)
-                            .OnSuccess(_ => Log.Info(this, "Successfully created anchor element."))
+                            .OnSuccess(_ =>
+                            {
+                                Log.Info(this, "Successfully created anchor element.");
+
+                                token.Succeed(Void.Instance);
+                            })
                             .OnFailure(exception =>
                             {
                                 Log.Error(this,
                                     "Could not create anchor element : {0}.",
                                     exception);
+
+                                token.Fail(exception);
                             });
                     }
                     else
                     {
-                        Log.Error(this,
+                        var error = string.Format(
                             "Anchor was uploaded but server returned an error : {0}.",
                             response.Payload.Error);
+                        Log.Error(this, error);
+
+                        token.Fail(new Exception(error));
                     }
 
                     // run cleanup
@@ -418,9 +329,13 @@ namespace CreateAR.SpirePlayer
                     }
                     else
                     {
+                        token.Fail(exception);
+
                         cleanup();
                     }
                 });
+
+            return token;
         }
 
         /// <summary>
@@ -486,26 +401,12 @@ namespace CreateAR.SpirePlayer
                     }
                 });
         }
-
-        /// <summary>
-        /// Called by anchor to open adjust menu.
-        /// </summary>
-        /// <param name="controller"></param>
-        private void Controller_OnAdjust(AnchorDesignController controller)
-        {
-            _anchors.enabled = false;
-            
-            CloseSplashMenus();
-
-            _adjustAnchor.Initialize(controller);
-        }
-
+        
         /// <summary>
         /// Called when new anchor is requested.
         /// </summary>
         private void Anchors_OnNew()
         {
-            _anchors.enabled = false;
             _placeNewAnchor.Initialize(_design.Config);
             _placeNewAnchor.enabled = true;
         }
@@ -525,9 +426,42 @@ namespace CreateAR.SpirePlayer
         {
             _placeNewAnchor.enabled = false;
             _moveAnchor.enabled = false;
-            _anchors.enabled = true;
 
-            CreateAnchor(data);
+            // TODO: open progress indicator
+
+            // create anchor
+            CreateAnchor(data)
+                .OnSuccess(_ =>
+                {
+                    _design.ChangeState<MainDesignState>();
+                })
+                .OnFailure(exception =>
+                {
+                    int id;
+                    _ui
+                        .Open<ICommonErrorView>(new UIReference
+                        {
+                            UIDataId = UIDataIds.ERROR
+                        }, out id)
+                        .OnSuccess(el =>
+                        {
+                            el.Message = string.Format("There was an error creating the anchor: {0}",
+                                exception.Message);
+                            el.Action = "Ok";
+                            el.OnOk += () =>
+                            {
+                                _ui.Close(id);
+
+                                _design.ChangeState<MainDesignState>();
+                            };
+                        })
+                        .OnFailure(ex =>
+                        {
+                            _design.ChangeState<MainDesignState>();
+
+                            Log.Error(this, "Could not open error view: {0}.", ex);
+                        });
+                });
         }
 
         /// <summary>
@@ -537,17 +471,16 @@ namespace CreateAR.SpirePlayer
         private void MoveAnchor_OnOk(ElementData data)
         {
             _moveAnchor.enabled = false;
-            _anchors.enabled = true;
 
             // move into position and reexport
             var position = data.Schema.Vectors["position"];
             _moveController.Anchor.Schema.Set("position", position);
             _moveController.Anchor.GameObject.transform.position = position.ToVector();
             _moveController.Renderer.gameObject.SetActive(true);
-
-            _moveController.OpenSplash();
-
+            
             ResaveAnchor(_moveController);
+
+            _design.ChangeState<MainDesignState>();
         }
 
         /// <summary>
@@ -568,12 +501,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Adjust_OnExit(AnchorDesignController controller)
         {
-            _adjustAnchor.enabled = false;
-            _anchors.enabled = true;
-            _moveAnchor.enabled = false;
-            _placeNewAnchor.enabled = false;
+            CloseAll();
 
-            OpenSplashMenus();
+            _design.ChangeState<MainDesignState>();
         }
 
         /// <summary>
@@ -604,11 +534,7 @@ namespace CreateAR.SpirePlayer
 
                         _elementUpdater
                             .Destroy(controller.Element)
-                            .OnFinally(_ =>
-                            {
-                                _anchors.enabled = true;
-                                OpenSplashMenus();
-                            })
+                            .OnFinally(_ => _design.ChangeState<MainDesignState>())
                             .OnFailure(exception =>
                             {
                                 Log.Error(this,
@@ -634,11 +560,10 @@ namespace CreateAR.SpirePlayer
             _placeNewAnchor.enabled = false;
             _moveAnchor.enabled = false;
             _adjustAnchor.enabled = false;
-            _anchors.enabled = true;
-
-            anchorDesignController.OpenSplash();
-
+            
             ResaveAnchor(anchorDesignController);
+
+            _design.ChangeState<MainDesignState>();
         }
 
         /// <summary>
@@ -647,14 +572,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchorDesignController">The controller.</param>
         private void Adjust_OnReload(AnchorDesignController anchorDesignController)
         {
-            _placeNewAnchor.enabled = false;
-            _moveAnchor.enabled = false;
-            _adjustAnchor.enabled = false;
-            _anchors.enabled = true;
-
-            anchorDesignController.OpenSplash();
             anchorDesignController.Anchor.Reload();
-            //anchorDesignController.ChangeState<AnchorLoadingState>();
+
+            _design.ChangeState<MainDesignState>();
         }
 
         /// <summary>
