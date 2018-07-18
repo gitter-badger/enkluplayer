@@ -61,15 +61,12 @@ namespace CreateAR.SpirePlayer.IUX
 
             // get child buttons and move them to the menu
             {
-                var buttons = new List<ButtonWidget>();
-                Find(".(@type==Button)", buttons);
-
-                for (var i = 0; i < buttons.Count; i++)
+                for (var i = 0; i < Children.Count; i++)
                 {
-                    var button = buttons[i];
-                    if (button.Id != buttonId)
+                    var child = Children[i];
+                    if (child.Id != buttonId && child.Id != menuId)
                     {
-                        _menu.AddChild(button);
+                        _menu.AddChild(child);
                     }
                 }
             }
