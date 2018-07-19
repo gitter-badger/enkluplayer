@@ -4,7 +4,7 @@
 	<Menu id='menu' showBackButton=true layout.radius=0.3 layout.degrees=70.0>
 		<Button id='btn-play' label='Play' icon='play' />
 		
-		<SubMenu id='menu-new' label='New' icon='plus'>
+		<SubMenu label='New' icon='plus'>
 			<Button id='btn-new-asset' label='Asset' />
 			<Button id='btn-new-anchor' label='Anchor' />
 			<Button id='btn-new-text' label='Text' />
@@ -14,10 +14,9 @@
 		
 		<SubMenu label='Lighting'>
 			<Toggle id='btn-ambient' label='Ambient Enabled' />
-			<Slider /> 
 		</SubMenu>
 		
-		<SubMenu id='menu-settings' label='Settings' icon='gear'>
+		<SubMenu label='Settings' icon='gear'>
 			<Button id='btn-resetdata' label='Reset Data' ready.color='Negative' />
 			<Toggle id='tgl-play' label='Default to Play' value=true />
 			<Select id='slt-logging' >

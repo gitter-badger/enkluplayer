@@ -232,7 +232,6 @@ namespace CreateAR.SpirePlayer
                 {
                     el.OnBack += MainMenu_OnBack;
                     el.OnNew += MainMenu_OnNew;
-                    el.OnShowSettings += MainMenu_OnShowSettings;
                     el.OnPlay += MainMenu_OnPlay;
                 });
         }
@@ -318,19 +317,11 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when main menu wants to create a new prop.
         /// </summary>
-        private void MainMenu_OnNew()
+        private void MainMenu_OnNew(int eventType)
         {
             _design.ChangeState<NewContentDesignState>();
         }
-
-        /// <summary>
-        /// Called when the main menu wants to display the settings menu.
-        /// </summary>
-        private void MainMenu_OnShowSettings()
-        {
-            
-        }
-
+        
         /// <summary>
         /// Move to play mode.
         /// </summary>

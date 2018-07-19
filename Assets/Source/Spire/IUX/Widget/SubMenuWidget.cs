@@ -3,16 +3,44 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
+    /// <summary>
+    /// A button and a menu that is toggled with the button.
+    /// </summary>
     public class SubMenuWidget : Widget
     {
+        /// <summary>
+        /// Creates elements.
+        /// </summary>
         private readonly IElementFactory _elements;
+
+        /// <summary>
+        /// Renders lines to submenu.
+        /// </summary>
         private readonly SubMenuWidgetLineRenderer _renderer;
 
+        /// <summary>
+        /// The menu.
+        /// </summary>
         private MenuWidget _menu;
+
+        /// <summary>
+        /// The toggle button.
+        /// </summary>
         private ButtonWidget _button;
+
+        /// <summary>
+        /// The label property, passed on to the button.
+        /// </summary>
         private ElementSchemaProp<string> _labelProp;
+
+        /// <summary>
+        /// The icon property, passed on to the button.
+        /// </summary>
         private ElementSchemaProp<string> _iconProp;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public SubMenuWidget(
             GameObject gameObject,
             ILayerManager layers,
