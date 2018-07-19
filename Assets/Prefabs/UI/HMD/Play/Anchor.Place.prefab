@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4289976824838810}
   - component: {fileID: 114069561741206676}
   m_Layer: 0
-  m_Name: Content.New
+  m_Name: Anchor.Place
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -51,4 +51,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4f6c111620e5e84f9b06a4a6e29d190, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VineId: Design.NewContent
+  VineId: 
