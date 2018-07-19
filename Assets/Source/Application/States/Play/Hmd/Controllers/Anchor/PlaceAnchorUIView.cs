@@ -6,8 +6,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controller for UI to place an anchor.
     /// </summary>
-    [InjectVine("Anchor.Place")]
-    public class PlaceAnchorController : InjectableIUXController
+    public class PlaceAnchorUIView : MonoBehaviourIUXController
     {
         /// <summary>
         /// Elements.
@@ -32,9 +31,9 @@ namespace CreateAR.SpirePlayer
         public event Action OnCancel;
 
         /// <inheritdoc />
-        protected override void Awake()
+        protected override void AfterElementsCreated()
         {
-            base.Awake();
+            base.AfterElementsCreated();
 
             BtnOk.Activator.OnActivated += _ =>
             {

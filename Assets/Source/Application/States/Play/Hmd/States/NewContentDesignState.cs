@@ -24,7 +24,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private UIManagerFrame _frame;
 
+        /// <summary>
+        /// Id of new content UI.
+        /// </summary>
         private int _newContentId;
+
+        /// <summary>
+        /// Id of place content UI.
+        /// </summary>
         private int _placeContentId;
 
         /// <summary>

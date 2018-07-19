@@ -327,6 +327,18 @@ namespace CreateAR.SpirePlayer
                     _design.ChangeState<NewContentDesignState>();
                     break;
                 }
+                case ElementTypes.WORLD_ANCHOR:
+                {
+                    _design.ChangeState<NewAnchorDesignState>();
+                    break;
+                }
+                default:
+                {
+                    Log.Warning(this,
+                        "User requested to create {0}, but there is no inmplementation.",
+                        elementType);
+                    break;
+                }
             }
         }
         
