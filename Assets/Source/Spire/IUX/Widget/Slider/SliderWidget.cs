@@ -44,7 +44,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Caption widget.
         /// </summary>
-        private CaptionWidget _Annotation;
+        private CaptionWidget _annotation;
 
         /// <summary>
         /// Image widgets.
@@ -55,12 +55,17 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Start of slider, in world space.
         /// </summary>
-        private Vector3 _p0;
+        private Vector3 _a;
 
         /// <summary>
         /// End of slider, in world space.
         /// </summary>
-        private Vector3 _p1;
+        private Vector3 _b;
+
+        /// <summary>
+        /// Renders lines.
+        /// </summary>
+        private readonly SliderLineRenderer _renderer;
         
         /// <summary>
         /// Normalized value.
@@ -125,12 +130,7 @@ namespace CreateAR.SpirePlayer.IUX
 
         /// <inheritdoc />
         public event Action<IInteractable> OnVisibilityChanged;
-
-        /// <summary>
-        /// Called when the control is not being focused on.
-        /// </summary>
-        public event Action OnUnfocused;
-
+        
         /// <summary>
         /// Called when the control is not being focused on.
         /// </summary>
@@ -156,6 +156,9 @@ namespace CreateAR.SpirePlayer.IUX
             _elements = elements;
             _intentions = intentions;
             _interactions = interactions;
+
+            _renderer = GameObject.AddComponent<SliderLineRenderer>();
+            _renderer.enabled = false;
         }
 
         /// <inheritdoc />
@@ -170,7 +173,8 @@ namespace CreateAR.SpirePlayer.IUX
         public Vector3[] CalculatePivotPoints()
         {
             var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
-            var offset = _intentions.Right;
+
+            Vec3 offset;
             Vector3 p0, p1;
             if (axis == AxisType.X)
             {
@@ -209,8 +213,8 @@ namespace CreateAR.SpirePlayer.IUX
             AddChild(_moveSlider);
             _moveSlider.Activator.OnActivated += MoveSlider_OnActivated;
 
-            _Annotation = (CaptionWidget)_elements.Element("<?Vine><Caption id='value-annotation' position=(0, 0.1, 0) visible=true label='Placeholder' fontSize=50 width=500.0 alignment='MidCenter' />");
-            _moveSlider.AddChild(_Annotation);
+            _annotation = (CaptionWidget)_elements.Element("<?Vine><Caption id='value-annotation' position=(0, 0.1, 0) visible=true label='Placeholder' fontSize=50 width=500.0 alignment='MidCenter' />");
+            _moveSlider.AddChild(_annotation);
 
             _minImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/arrow-left' width=0.1 height=0.1 />");
             AddChild(_minImage);
@@ -222,12 +226,16 @@ namespace CreateAR.SpirePlayer.IUX
             Interactable = true;
 
             Value = -1f;
+
+            _renderer.enabled = true;
         }
 
         /// <inheritdoc />
         protected override void UnloadInternalAfterChildren()
         {
             base.UnloadInternalAfterChildren();
+
+            _renderer.enabled = false;
 
             Interactable = false;
             _interactions.Remove(this);
@@ -247,6 +255,10 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
+            var pivotPoints = CalculatePivotPoints();
+            _a = _renderer.A = pivotPoints[0];
+            _b = _renderer.B = pivotPoints[1];
+
             // calculate plane to restrict to
             CalculatePlane();
 
@@ -254,21 +266,13 @@ namespace CreateAR.SpirePlayer.IUX
             var intersection = CalculateIntentionIntersection();
 
             // update the position of the slider handle
-            UpdatePosition(intersection);
+            UpdatePosition(_a, _b, intersection);
 
             // update the slider handle's scale
             var aim = CalculateAim(intersection);
             var scalar = _sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value);
             _moveSlider.GameObject.transform.localScale = scalar * Vector3.one;
-            /*
-            if (Math.Abs(aim) < float.Epsilon)
-            {
-                if (null != OnUnfocused)
-                {
-                    OnUnfocused();
-                }
-            }
-            */
+            
             DebugRender();
         }
 
@@ -299,10 +303,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Updates the image position.
         /// </summary>
-        private void UpdatePosition(Vector3 intersection)
+        private void UpdatePosition(Vector3 a, Vector3 b, Vector3 intersection)
         {
-            var pivotPoints = CalculatePivotPoints();
-            var newValue = CalculateValue(intersection, pivotPoints[0], pivotPoints[1]);
+            var newValue = CalculateValue(intersection, a, b);
             if (Value < 0)
             {
                 Value = newValue;
@@ -313,8 +316,8 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             // force world position, not position property
-            _moveSlider.GameObject.transform.position = Vector3.Lerp(pivotPoints[0], pivotPoints[1], Value);
-            _Annotation.Label = Value.ToString(CultureInfo.InvariantCulture);
+            _moveSlider.GameObject.transform.position = Vector3.Lerp(a, b, Value);
+            _annotation.Label = Value.ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -340,11 +343,11 @@ namespace CreateAR.SpirePlayer.IUX
             
             var position = GameObject.transform.position;
             
-            _p0 = position - _lengthProp.Value * offset.ToVector();
-            _p1 = position + _lengthProp.Value * offset.ToVector();
+            _a = position - _lengthProp.Value * offset.ToVector();
+            _b = position + _lengthProp.Value * offset.ToVector();
 
-            _minImage.GameObject.transform.position = _p0;
-            _maxImage.GameObject.transform.position = _p1;
+            _minImage.GameObject.transform.position = _a;
+            _maxImage.GameObject.transform.position = _b;
         }
 
         /// <summary>
@@ -355,7 +358,7 @@ namespace CreateAR.SpirePlayer.IUX
         private Vector3 CalculateIntentionIntersection()
         {
             // generate plane basis
-            var right = (_p1 - _p0).normalized;
+            var right = (_b - _a).normalized;
             var up = Vector3
                 .Cross(_intentions.Forward.ToVector(), right)
                 .normalized;
@@ -363,17 +366,17 @@ namespace CreateAR.SpirePlayer.IUX
                 .Cross(right, up)
                 .normalized;
 
-            var p3 = _p0;
+            var p3 = _a;
             var p1 = _intentions.Origin.ToVector();
             var p2 = p1 + _intentions.Forward.ToVector();
 
             var s = p3 - p1;
             var r = p2 - p1;
-            var n_dot_s = Vector3.Dot(normal, s);
-            var n_dot_r = Vector3.Dot(normal, r);
+            var x = Vector3.Dot(normal, s);
+            var y = Vector3.Dot(normal, r);
 
             // intersect ray with plane
-            var t = n_dot_s / n_dot_r;
+            var t = x / y;
             var intersection = _intentions.Origin + _intentions.Forward * t;
 
             if (float.IsNaN(intersection.x))
@@ -466,7 +469,7 @@ namespace CreateAR.SpirePlayer.IUX
                 handle.Draw(ctx =>
                 {
                     ctx.Color(UnityEngine.Color.green);
-                    ctx.Line(_p0, _p1);
+                    ctx.Line(_a, _b);
                 });
             }
         }

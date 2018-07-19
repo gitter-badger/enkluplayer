@@ -219,7 +219,7 @@ namespace CreateAR.SpirePlayer
             {
                 // Unity has a built-in shader that is useful for drawing
                 // simple colored things.
-                Shader shader = Shader.Find("Hidden/Internal-Colored");
+                var shader = Shader.Find("Hidden/Internal-Colored");
                 _lineMaterial = new Material(shader);
                 _lineMaterial.hideFlags = HideFlags.HideAndDontSave;
 
