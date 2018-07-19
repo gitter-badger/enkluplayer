@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -47,28 +48,48 @@ namespace CreateAR.SpirePlayer.IUX
                     _labelProp.Value,
                     _iconProp.Value));
                 _button.Activator.OnActivated += Button_OnActivated;
-
                 AddChild(_button);
             }
 
             // menu
             {
                 _menu = (MenuWidget) _elements.Element(string.Format(
-                    "<Menu id='{0}' visible=false focus.visible=false />",
+                    "<Menu id='{0}' position=(-0.4, 0, 0) divider.visible=false visible=false focus.visible=false />",
                     menuId));
                 AddChild(_menu);
             }
 
             // get child buttons and move them to the menu
             {
-                for (var i = 0; i < Children.Count; i++)
+                var childrenCopy= Children.ToArray();
+                for (var i = 0; i < childrenCopy.Length; i++)
                 {
-                    var child = Children[i];
+                    var child = childrenCopy[i];
                     if (child.Id != buttonId && child.Id != menuId)
                     {
                         _menu.AddChild(child);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Updates the button state based on menu visibility.
+        /// </summary>
+        private void UpdateButtonState()
+        {
+            var isVisible = _menu.Schema.Get<bool>("visible").Value;
+            if (isVisible)
+            {
+                _button.Schema.Set("label", "");
+                _button.Schema.Set("icon", "arrow-left");
+                _button.Schema.Set("ready.color", "Negative");
+            }
+            else
+            {
+                _button.Schema.Set("label", _labelProp.Value);
+                _button.Schema.Set("icon", _iconProp.Value);
+                _button.Schema.Set("ready.color", "Ready");
             }
         }
 
@@ -80,7 +101,7 @@ namespace CreateAR.SpirePlayer.IUX
             string prev,
             string next)
         {
-            _button.Schema.Set("label", next);
+            UpdateButtonState();
         }
 
         /// <summary>
@@ -91,15 +112,20 @@ namespace CreateAR.SpirePlayer.IUX
             string prev,
             string next)
         {
-            _button.Schema.Set("icon", next);
+            UpdateButtonState();
         }
 
+        /// <summary>
+        /// Called when button is activated.
+        /// </summary>
+        /// <param name="activatorPrimitive">The activator.</param>
         private void Button_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             // flip visibility of menu
-            _menu.Schema.Set(
-                "visible",
-                !_menu.Schema.Get<bool>("visible").Value);
+            var isVisible = !_menu.Schema.Get<bool>("visible").Value;
+            _menu.Schema.Set("visible", isVisible);
+
+            UpdateButtonState();
         }
     }
 }

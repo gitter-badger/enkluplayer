@@ -50,6 +50,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<float> _headerPaddingProp;
         private ElementSchemaProp<bool> _showBackButtonProp;
         private ElementSchemaProp<float> _dividerOffset;
+        private ElementSchemaProp<bool> _dividerVisible;
 
         /// <summary>
         /// Title text.
@@ -134,6 +135,9 @@ namespace CreateAR.SpirePlayer.IUX
             _dividerOffset = Schema.Get<float>("dividerOffset");
             _dividerOffset.OnChanged += DividerOffset_OnChanged;
 
+            _dividerVisible = Schema.Get<bool>("divider.visible");
+            _dividerVisible.OnChanged += DividerVisible_OnChanged;
+
             Schema.OnSelfPropAdded += Schema_OnPropAdded;
 
             // create + place title
@@ -159,6 +163,7 @@ namespace CreateAR.SpirePlayer.IUX
             transform.SetParent(
                 GameObject.transform,
                 false);
+            _halfMoon.SetActive(_dividerVisible.Value);
 
             UpdateHeaderLayout();
             UpdateChildLayout();
@@ -576,6 +581,23 @@ namespace CreateAR.SpirePlayer.IUX
             float next)
         {
             UpdateDivider();
+        }
+
+        /// <summary>
+        /// Called when the divider visibility changes.
+        /// </summary>
+        /// <param name="prop">The property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void DividerVisible_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            if (null != _halfMoon)
+            {
+                _halfMoon.SetActive(next);
+            }
         }
 
         /// <summary>
