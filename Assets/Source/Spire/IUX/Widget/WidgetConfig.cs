@@ -50,7 +50,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         [Header("Activation")]
         public float FillDuration = 2.0f;
-
+        
         /// <summary>
         /// Fill decay multiplier.
         /// </summary>

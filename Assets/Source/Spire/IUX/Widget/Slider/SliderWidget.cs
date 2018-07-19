@@ -29,28 +29,45 @@ namespace CreateAR.SpirePlayer.IUX
         /// Props.
         /// </summary>
         private ElementSchemaProp<float> _lengthProp;
-        private ElementSchemaProp<float> _radiusProp;
-        private ElementSchemaProp<float> _sizeMaxProp;
-        private ElementSchemaProp<float> _sizeMinProp;
         private ElementSchemaProp<string> _axisProp;
+        private ElementSchemaProp<bool> _tooltipProp;
 
         /// <summary>
-        /// Image widget.
+        /// Renders lines.
         /// </summary>
-        private ImageWidget _positionImage;
+        private readonly SliderLineRenderer _renderer;
+
+        /// <summary>
+        /// Slider button widget.
+        /// </summary>
+        private ButtonWidget _moveSlider;
+
+        /// <summary>
+        /// Caption widget.
+        /// </summary>
+        private CaptionWidget _annotation;
+
+        /// <summary>
+        /// Image widgets.
+        /// </summary>
         private ImageWidget _minImage;
         private ImageWidget _maxImage;
 
         /// <summary>
-        /// Start of slider, in world space.
+        /// Origin of line.
         /// </summary>
-        private Vector3 _p0;
+        private Vector3 _O;
 
         /// <summary>
-        /// End of slider, in world space.
+        /// Direction of line.
         /// </summary>
-        private Vector3 _p1;
+        private Vector3 _d;
 
+        /// <summary>
+        /// If true, snaps the button position.
+        /// </summary>
+        private bool _isDirty = true;
+        
         /// <summary>
         /// Normalized value.
         /// </summary>
@@ -74,9 +91,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                if (null != _positionImage)
+                if (null != _moveSlider)
                 {
-                    return _positionImage.GameObject.transform.position.ToVec();
+                    return _moveSlider.GameObject.transform.position.ToVec();
                 }
 
                 return GameObject.transform.position.ToVec();
@@ -88,9 +105,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                if (null != _positionImage)
+                if (null != _moveSlider)
                 {
-                    return _positionImage.GameObject.transform.lossyScale.ToVec();
+                    return _moveSlider.GameObject.transform.lossyScale.ToVec();
                 }
 
                 return GameObject.transform.lossyScale.ToVec();
@@ -114,11 +131,11 @@ namespace CreateAR.SpirePlayer.IUX
 
         /// <inheritdoc />
         public event Action<IInteractable> OnVisibilityChanged;
-
+        
         /// <summary>
         /// Called when the control is not being focused on.
         /// </summary>
-        public event Action OnUnfocused;
+        public event Action OnSliderValueConfirmed;
 
         /// <summary>
         /// Constructor.
@@ -140,6 +157,9 @@ namespace CreateAR.SpirePlayer.IUX
             _elements = elements;
             _intentions = intentions;
             _interactions = interactions;
+
+            _renderer = GameObject.AddComponent<SliderLineRenderer>();
+            _renderer.enabled = false;
         }
 
         /// <inheritdoc />
@@ -147,24 +167,27 @@ namespace CreateAR.SpirePlayer.IUX
         {
             return true;
         }
-
+        
         /// <inheritdoc />
         protected override void LoadInternalBeforeChildren()
         {
             base.LoadInternalBeforeChildren();
-
-            _sizeMaxProp = Schema.Get<float>("size.max");
-            _sizeMinProp = Schema.Get<float>("size.min");
-            _radiusProp = Schema.Get<float>("radius");
-
+            
             _lengthProp = Schema.Get<float>("length");
             _lengthProp.OnChanged += Length_OnChanged;
 
             _axisProp = Schema.Get<string>("axis");
             _axisProp.OnChanged += Axis_OnChanged;
 
-            _positionImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/Outer Gradient' width=0.1 height=0.1 />");
-            AddChild(_positionImage);
+            _tooltipProp = Schema.Get<bool>("tooltip");
+            _tooltipProp.OnChanged += Tooltip_OnChanged;
+
+            _moveSlider = (ButtonWidget) _elements.Element("<?Vine><Button id='btn-x' icon='arrow-double' position=(-0.2, 0, 0) ready.color='Highlight' />");
+            AddChild(_moveSlider);
+            _moveSlider.Activator.OnActivated += MoveSlider_OnActivated;
+
+            _annotation = (CaptionWidget)_elements.Element("<?Vine><Caption id='value-annotation' position=(0, 0.1, 0) visible=true label='Placeholder' fontSize=50 width=500.0 alignment='MidCenter' />");
+            _moveSlider.AddChild(_annotation);
 
             _minImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/arrow-left' width=0.1 height=0.1 />");
             AddChild(_minImage);
@@ -174,12 +197,19 @@ namespace CreateAR.SpirePlayer.IUX
             
             _interactions.Add(this);
             Interactable = true;
-        }
+            
+            _renderer.enabled = true;
+            _isDirty = true;
 
+            UpdateTooltipVisibility();
+        }
+        
         /// <inheritdoc />
         protected override void UnloadInternalAfterChildren()
         {
             base.UnloadInternalAfterChildren();
+
+            _renderer.enabled = false;
 
             Interactable = false;
             _interactions.Remove(this);
@@ -195,27 +225,24 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (!Visible)
             {
-                Value = 0.5f;
                 return;
             }
 
-            CalculatePlane();
-            var intersection = CalculateIntentionIntersection();
+            UpdateBasis();
+            UpdateArrowPositions();
+            UpdateButtonPosition();
+            UpdateValue();
 
-            UpdatePosition(intersection);
-            var aim = CalculateAim(intersection);
-            var scalar = _sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value);
-            _positionImage.GameObject.transform.localScale = scalar * Vector3.one;
-            
-            if (Math.Abs(aim) < float.Epsilon)
+            var handle = Render.Handle("IUX");
+            if (null != handle)
             {
-                if (null != OnUnfocused)
+                handle.Draw(ctx =>
                 {
-                    OnUnfocused();
-                }
+                    ctx.Color(UnityEngine.Color.yellow);
+                    ctx.Cube(_O, 0.1f);
+                    ctx.Line(_O, _O + _d);
+                });
             }
-
-            DebugRender();
         }
 
         /// <inheritdoc />
@@ -234,6 +261,8 @@ namespace CreateAR.SpirePlayer.IUX
                 _interactions.Remove(this);
             }
 
+            _isDirty = true;
+
             if (null != OnVisibilityChanged)
             {
                 OnVisibilityChanged(this);
@@ -241,115 +270,127 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Updates the image position.
+        /// Generates a definition of a line.
         /// </summary>
-        private void UpdatePosition(Vector3 intersection)
+        private void UpdateBasis()
         {
-            Value = CalculateValue(intersection, _p0, _p1);
+            _O = GameObject.transform.position;
 
-            // force world position, not position property
-            _positionImage.GameObject.transform.position = Vector3.Lerp(_p0, _p1, Value);
+            var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
+            if (axis == AxisType.X)
+            {
+                _d = new Vector3(
+                    _intentions.Right.x,
+                    0,
+                    _intentions.Right.z).normalized;
+            }
+            else
+            {
+                _d = Vector3.up;
+            }
+
+            _renderer.O = _O;
+            _renderer.d = _d;
         }
 
         /// <summary>
-        /// Recalculates the plane to restrict slider controls to.
+        /// Positions the arrows.
         /// </summary>
-        private void CalculatePlane()
+        private void UpdateArrowPositions()
         {
             var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
-
-            var offset = _intentions.Right;
-            if (axis == AxisType.X)
+            if (axis == AxisType.Y)
             {
-                offset = _intentions.Right;
-
-                _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
-                _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
-            }
-            else if (axis == AxisType.Y)
-            {
-                offset = _intentions.Up;
-
                 _minImage.Schema.Set("src", "res://Art/Textures/arrow-down");
                 _maxImage.Schema.Set("src", "res://Art/Textures/arrow-up");
             }
-            
-            var position = GameObject.transform.position;
-            
-            _p0 = position - _lengthProp.Value * offset.ToVector();
-            _p1 = position + _lengthProp.Value * offset.ToVector();
+            else
+            {
+                _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
+                _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
+            }
 
-            _minImage.GameObject.transform.position = _p0;
-            _maxImage.GameObject.transform.position = _p1;
+            _minImage.GameObject.transform.position = _O - _lengthProp.Value * _d;
+            _maxImage.GameObject.transform.position = _O + _lengthProp.Value * _d;
         }
 
         /// <summary>
-        /// Calculates the intention forward intersection with the plane made
-        /// from the points on slider + up.
+        /// Updates the button's position.
+        /// </summary>
+        private void UpdateButtonPosition()
+        {
+            // calculate the intersection of the intention with the slider plane
+            var intersection = CalculateIntentionIntersection();
+            
+            // project onto the slider line
+            var projection = CalculateScalarProjection(_O, _d, intersection);
+            
+            // position the slider
+            var target = _O + projection * _d;
+            if (_isDirty)
+            {
+                _isDirty = false;
+            }
+            else
+            {
+                target = Vector3.Lerp(
+                    _moveSlider.GameObject.transform.position,
+                    target,
+                    3f * Time.deltaTime);
+            }
+
+            _moveSlider.GameObject.transform.position = target;
+        }
+
+        /// <summary>
+        /// Updates the value + label.
+        /// </summary>
+        private void UpdateValue()
+        {
+            _annotation.Label = Value.ToString();
+        }
+
+        /// <summary>
+        /// Calculates the intention forward intersection with the plane the
+        /// slider is on.
         /// </summary>
         /// <returns></returns>
         private Vector3 CalculateIntentionIntersection()
         {
-            // generate plane normal
-            var right = (_p1 - _p0).normalized;
-            var up = Vector3
-                .Cross(_intentions.Forward.ToVector(), right)
-                .normalized;
-            var normal = -Vector3
-                .Cross(right, up)
-                .normalized;
+            // Line: P = O + td
+            // Plane: (P - P0) * n = 0
 
-            var p3 = _p0;
-            var p1 = _intentions.Origin.ToVector();
-            var p2 = p1 + _intentions.Forward.ToVector();
+            // plane
+            var P0 = _O;
+            var n = -_intentions.Forward.ToVector().normalized;
 
-            var s = p3 - p1;
-            var r = p2 - p1;
-            var n_dot_s = Vector3.Dot(normal, s);
-            var n_dot_r = Vector3.Dot(normal, r);
+            // line
+            var O = _intentions.Origin.ToVector();
+            var d = _intentions.Forward.ToVector();
 
-            // intersect ray with plane
-            var t = n_dot_s / n_dot_r;
-            var intersection = _intentions.Origin + _intentions.Forward * t;
+            // substitute plane equation in for P to find t
+            var t = Vector3.Dot(P0 - O, n) / Vector3.Dot(n, d);
 
-            if (float.IsNaN(intersection.x))
-            {
-                throw new Exception("Invalid.");
-            }
-
-            return intersection.ToVector();
+            // return intersection
+            return O + t * d;
         }
 
         /// <summary>
-        /// Updates the aim as a function of focus towards the center of the
-        /// line segment.
+        /// Calculates the scalar projection of P onto the line definted by O + td.
         /// </summary>
-        private float CalculateAim(Vector3 intersection)
+        private float CalculateScalarProjection(Vector3 O, Vector3 d, Vector3 P)
         {
-            var distance = Vector3.Magnitude(Focus.ToVector() - intersection);
-            var rad = _radiusProp.Value;
-
-            return Mathf.Clamp01(1 - distance / rad);
+            return Vector3.Dot(P - O, d);
         }
 
         /// <summary>
-        /// Calculates the value.
+        /// Updates the tooltip's visibility based on prop.
         /// </summary>
-        private float CalculateValue(Vector3 p, Vector3 s0, Vector3 s1)
+        private void UpdateTooltipVisibility()
         {
-            var s1subs0 = s1 - s0;
-            var psubs0 = p - s0;
-            var s1subs0_dot_psubs0 = Vector3.Dot(s1subs0.normalized, psubs0.normalized);
-            var psubs0_mag = psubs0.magnitude;
-            var q_mag = psubs0_mag * s1subs0_dot_psubs0;
-            var s1subs0_magnitude = s1subs0.magnitude;
-            var value = s1subs0_magnitude > Mathf.Epsilon
-                ? Mathf.Clamp01(q_mag / s1subs0_magnitude)
-                : 1;
-
-            return value;
+            _annotation.Schema.Set("visible", _tooltipProp.Value);
         }
-        
+
         /// <summary>
         /// Called when property changes.
         /// </summary>
@@ -379,18 +420,27 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Renders debugging information.
+        /// Called when property changes.
         /// </summary>
-        private void DebugRender()
+        /// <param name="prop">The property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Tooltip_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
         {
-            var handle = Render.Handle("IUX");
-            if (null != handle)
+            UpdateTooltipVisibility();
+        }
+
+        /// <summary>
+        /// Called when property changes.
+        /// </summary>
+        private void MoveSlider_OnActivated(ActivatorPrimitive activatorPrimitive)
+        {
+            if (null != OnSliderValueConfirmed)
             {
-                handle.Draw(ctx =>
-                {
-                    ctx.Color(UnityEngine.Color.green);
-                    ctx.Line(_p0, _p1);
-                });
+                OnSliderValueConfirmed();
             }
         }
     }
