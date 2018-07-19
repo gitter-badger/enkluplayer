@@ -315,11 +315,19 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when main menu wants to create a new prop.
+        /// Called when the user asks to create a new element.
         /// </summary>
-        private void MainMenu_OnNew(int eventType)
+        /// <param name="elementType">The type of element ot create.</param>
+        private void MainMenu_OnNew(int elementType)
         {
-            _design.ChangeState<NewContentDesignState>();
+            switch (elementType)
+            {
+                case ElementTypes.CONTENT:
+                {
+                    _design.ChangeState<NewContentDesignState>();
+                    break;
+                }
+            }
         }
         
         /// <summary>

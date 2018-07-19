@@ -6,7 +6,6 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Manages the splash menu.
     /// </summary>
-    //[InjectVine("Design.Splash")]
     public class SplashMenuUIView : MonoBehaviourIUXController
     {
         /// <summary>
@@ -41,7 +40,7 @@ namespace CreateAR.SpirePlayer
         /// Called to move to play mode.
         /// </summary>
         public event Action OnPlay;
-
+        
         /// <inheritdoc />
         protected override void AfterElementsCreated()
         {
