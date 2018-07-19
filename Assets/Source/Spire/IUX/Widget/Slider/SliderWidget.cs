@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Globalization;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -59,7 +61,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// End of slider, in world space.
         /// </summary>
         private Vector3 _p1;
-
+        
         /// <summary>
         /// Normalized value.
         /// </summary>
@@ -182,9 +184,10 @@ namespace CreateAR.SpirePlayer.IUX
                 p0 = new Vector3(GameObject.transform.position.x, GameObject.transform.position.y - 2f, GameObject.transform.position.z);
                 p1 = new Vector3(p0.x, p0.y + 4f, p0.z);
             }
+
             var adjustedp0 = p0 - _lengthProp.Value * offset.ToVector();
             var adjustedp1 = p1 + _lengthProp.Value * offset.ToVector();
-            return new Vector3[] { adjustedp0, adjustedp1 };
+            return new [] { adjustedp0, adjustedp1 };
         }
 
         /// <inheritdoc />
@@ -217,6 +220,8 @@ namespace CreateAR.SpirePlayer.IUX
             
             _interactions.Add(this);
             Interactable = true;
+
+            Value = -1f;
         }
 
         /// <inheritdoc />
@@ -242,15 +247,20 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
+            // calculate plane to restrict to
             CalculatePlane();
+
+            // calculate intersection of forward with plane
             var intersection = CalculateIntentionIntersection();
 
+            // update the position of the slider handle
             UpdatePosition(intersection);
+
+            // update the slider handle's scale
             var aim = CalculateAim(intersection);
-            
             var scalar = _sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value);
             _moveSlider.GameObject.transform.localScale = scalar * Vector3.one;
-            
+            /*
             if (Math.Abs(aim) < float.Epsilon)
             {
                 if (null != OnUnfocused)
@@ -258,7 +268,7 @@ namespace CreateAR.SpirePlayer.IUX
                     OnUnfocused();
                 }
             }
-
+            */
             DebugRender();
         }
 
@@ -271,6 +281,8 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _interactions.Add(this);
                 Interactable = true;
+
+                Value = -1f;
             }
             else
             {
@@ -290,11 +302,19 @@ namespace CreateAR.SpirePlayer.IUX
         private void UpdatePosition(Vector3 intersection)
         {
             var pivotPoints = CalculatePivotPoints();
-            Value = CalculateValue(intersection, pivotPoints[0], pivotPoints[1]);
+            var newValue = CalculateValue(intersection, pivotPoints[0], pivotPoints[1]);
+            if (Value < 0)
+            {
+                Value = newValue;
+            }
+            else
+            {
+                Value = Mathf.Lerp(Value, newValue, 3f * Time.deltaTime);
+            }
 
             // force world position, not position property
             _moveSlider.GameObject.transform.position = Vector3.Lerp(pivotPoints[0], pivotPoints[1], Value);
-            _Annotation.Label = Value.ToString();
+            _Annotation.Label = Value.ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -304,19 +324,18 @@ namespace CreateAR.SpirePlayer.IUX
         {
             var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
 
-            var offset = _intentions.Right;
-            if (axis == AxisType.X)
+            var offset = new Vec3(_intentions.Right.x, 0f, _intentions.Right.z).Normalized;
+            if (axis == AxisType.Y)
             {
-                offset = _intentions.Right;
-                _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
-                _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
-            }
-            else if (axis == AxisType.Y)
-            {
-                offset = _intentions.Up;
+                offset = Vec3.Up;
 
                 _minImage.Schema.Set("src", "res://Art/Textures/arrow-down");
                 _maxImage.Schema.Set("src", "res://Art/Textures/arrow-up");
+            }
+            else
+            {
+                _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
+                _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
             }
             
             var position = GameObject.transform.position;
@@ -335,7 +354,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <returns></returns>
         private Vector3 CalculateIntentionIntersection()
         {
-            // generate plane normal
+            // generate plane basis
             var right = (_p1 - _p0).normalized;
             var up = Vector3
                 .Cross(_intentions.Forward.ToVector(), right)
@@ -376,20 +395,21 @@ namespace CreateAR.SpirePlayer.IUX
 
             return Mathf.Clamp01(1 - distance / rad);
         }
-
+        
         /// <summary>
         /// Calculates the value.
         /// </summary>
         private float CalculateValue(Vector3 p, Vector3 s0, Vector3 s1)
         {
-            var s1subs0 = s1 - s0;
-            var psubs0 = p - s0;
-            var s1subs0_dot_psubs0 = Vector3.Dot(s1subs0.normalized, psubs0.normalized);
-            var psubs0_mag = psubs0.magnitude;
-            var q_mag = psubs0_mag * s1subs0_dot_psubs0;
-            var s1subs0_magnitude = s1subs0.magnitude;
-            var value = s1subs0_magnitude > Mathf.Epsilon
-                ? Mathf.Clamp01(q_mag / s1subs0_magnitude)
+            var d = s1 - s0;
+            var a = p - s0;
+            var aLen = a.magnitude;
+            var dLen = d.magnitude;
+
+            var x = Vector3.Dot(d / dLen, a / aLen);
+            var t = aLen * x;
+            var value = dLen > Mathf.Epsilon
+                ? Mathf.Clamp01(t / dLen)
                 : 1;
 
             return value;
@@ -437,6 +457,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Renders debugging information.
         /// </summary>
+        [Conditional("DEBUG_RENDERING")]
         private void DebugRender()
         {
             var handle = Render.Handle("IUX");
