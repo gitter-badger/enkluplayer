@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -348,7 +347,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateValue()
         {
-            _annotation.Label = Value.ToString(CultureInfo.InvariantCulture);
+            _annotation.Label = Value.ToString();
         }
 
         /// <summary>
