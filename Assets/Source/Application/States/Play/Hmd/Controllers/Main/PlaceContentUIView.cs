@@ -7,8 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the menu for placing objects.
     /// </summary>
-    [InjectVine("Design.PlaceContent")]
-    public class PlaceContentController : InjectableIUXController
+    public class PlaceContentUIView : MonoBehaviourIUXController
     {
         /// <summary>
         /// Elements.
@@ -48,11 +47,11 @@ namespace CreateAR.SpirePlayer
         /// Called to confirm placement.
         /// </summary>
         public event Action<ElementData> OnConfirm;
-        
+
         /// <inheritdoc />
-        protected override void Awake()
+        protected override void AfterElementsCreated()
         {
-            base.Awake();
+            base.AfterElementsCreated();
 
             BtnOk.Activator.OnActivated += Ok_OnActivated;
             BtnCancel.Activator.OnActivated += Cancel_OnActivated;
@@ -66,7 +65,6 @@ namespace CreateAR.SpirePlayer
         {
             Content.LocalVisible = true;
             Content.Schema.Set("assetSrc", assetId);
-
             BtnCancel.Schema.Set("visible", true);
         }
         

@@ -11,8 +11,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the new item menu.
     /// </summary>
-    [InjectVine("Design.NewContent")]
-    public class NewContentController : InjectableIUXController
+    public class NewContentUIView : MonoBehaviourIUXController
     {
         /// <summary>
         /// Internal class to group assets by tag.
@@ -67,25 +66,27 @@ namespace CreateAR.SpirePlayer
         public event Action OnCancel;
 
         /// <inheritdoc />
-        protected override void Awake()
+        protected override void AfterElementsCreated()
         {
-            base.Awake();
-
-            Assets.Manifest.OnAssetAdded += Manifest_OnAssetEvent;
-            Assets.Manifest.OnAssetRemoved += Manifest_OnAssetEvent;
-            Assets.Manifest.OnAssetUpdated += Manifest_OnAssetEvent;
-
+            base.AfterElementsCreated();
+            
             BtnBack.Activator.OnActivated += BackButton_OnActivate;
             Grid.OnSelected += Grid_OnSelected;
 
             UpdateOptions();
         }
 
-        /// <inheritdoc />
-        protected override void OnDisable()
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnEnable()
         {
-            base.OnDisable();
+            Assets.Manifest.OnAssetAdded += Manifest_OnAssetEvent;
+            Assets.Manifest.OnAssetRemoved += Manifest_OnAssetEvent;
+            Assets.Manifest.OnAssetUpdated += Manifest_OnAssetEvent;
+        }
 
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnDisable()
+        {
             Assets.Manifest.OnAssetAdded -= Manifest_OnAssetEvent;
             Assets.Manifest.OnAssetRemoved -= Manifest_OnAssetEvent;
             Assets.Manifest.OnAssetUpdated -= Manifest_OnAssetEvent;

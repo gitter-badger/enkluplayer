@@ -102,6 +102,12 @@ MonoBehaviour:
     - UIDataId: Design.Splash
       Element: {fileID: 114197174911949698, guid: 01a6f0c348f65e443aa81dc0798562f0,
         type: 2}
+    - UIDataId: Content.New
+      Element: {fileID: 114069561741206676, guid: d0e62288bc4093448bd694076bc851f9,
+        type: 2}
+    - UIDataId: Content.Place
+      Element: {fileID: 114665517905614066, guid: 376309b3343776240bbf2b59a2dba393,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error
