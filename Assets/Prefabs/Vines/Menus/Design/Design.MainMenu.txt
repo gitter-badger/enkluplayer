@@ -9,6 +9,12 @@
 			<Button id='btn-new-anchor' label='Anchor' />
 			<Button id='btn-new-text' label='Text' />
 			<Button id='btn-new-container' label='Container' />
+			<Button id='btn-new-light' label='Light' />
+		</SubMenu>
+		
+		<SubMenu label='Lighting'>
+			<Toggle id='btn-ambient' label='Ambient Enabled' />
+			<Slider /> 
 		</SubMenu>
 		
 		<SubMenu id='menu-settings' label='Settings' icon='gear'>

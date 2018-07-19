@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -68,10 +69,10 @@ namespace CreateAR.SpirePlayer.IUX
         private GameObject _halfMoon;
 
         /// <summary>
-        /// True iff loaded lifecycle has been called.
+        /// Refers to children that have been part of the layout.
         /// </summary>
-        private bool _isLoaded;
-
+        public ReadOnlyCollection<Element> LayoutChildren { get; private set; }
+        
         /// <summary>
         /// Called when the back button has been activated.
         /// </summary>
@@ -97,6 +98,8 @@ namespace CreateAR.SpirePlayer.IUX
             _config = config;
             _primitives = primitives;
             _elements = elements;
+
+            LayoutChildren = new ReadOnlyCollection<Element>(_filteredChildren);
         }
 
         /// <inheritdoc cref="Element"/>
@@ -172,15 +175,11 @@ namespace CreateAR.SpirePlayer.IUX
 
             _titlePrimitive.OnTextRectUpdated += Header_TextRectUpdated;
             _descriptionPrimitive.OnTextRectUpdated += Header_TextRectUpdated;
-
-            _isLoaded = true;
         }
 
         /// <inheritdoc cref="Element"/>
         protected override void UnloadInternalAfterChildren()
         {
-            _isLoaded = false;
-
             OnChildAdded -= This_OnChildAdded;
 
             _titleProp.OnChanged -= Title_OnChanged;

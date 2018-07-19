@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -7,6 +6,7 @@ namespace CreateAR.SpirePlayer.IUX
     public class SubMenuWidget : Widget
     {
         private readonly IElementFactory _elements;
+        private readonly SubMenuWidgetLineRenderer _renderer;
 
         private MenuWidget _menu;
         private ButtonWidget _button;
@@ -22,8 +22,10 @@ namespace CreateAR.SpirePlayer.IUX
             : base(gameObject, layers, tweens, colors)
         {
             _elements = elements;
+            _renderer = GameObject.AddComponent<SubMenuWidgetLineRenderer>();
         }
         
+        /// <inheritdoc />
         protected override void LoadInternalAfterChildren()
         {
             base.LoadInternalAfterChildren();
@@ -71,6 +73,16 @@ namespace CreateAR.SpirePlayer.IUX
                     }
                 }
             }
+
+            _renderer.Initialize(_menu);
+        }
+
+        /// <inheritdoc />
+        protected override void UnloadInternalAfterChildren()
+        {
+            base.UnloadInternalAfterChildren();
+
+            _renderer.Uninitialize();
         }
 
         /// <summary>
