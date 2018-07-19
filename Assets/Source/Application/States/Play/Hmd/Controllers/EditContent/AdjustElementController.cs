@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -34,7 +35,19 @@ namespace CreateAR.SpirePlayer
         /// Forward at start.
         /// </summary>
         private Vector3 _startForward;
-
+        
+        /// <summary>
+        /// Flag to determine the focus on line.
+        /// </summary>
+        private bool _transformChangeConfirmed;
+        
+        /// <summary>
+        /// Storing previous values before adjusting transform.
+        /// </summary>
+        private Vector3 _prevPosition;
+        private Quaternion _prevRotation;
+        private Vector3 _prevScale;
+        
         /// <summary>
         /// Manages intentions.
         /// </summary>
@@ -79,15 +92,39 @@ namespace CreateAR.SpirePlayer
         public event Action<ElementSplashDesignController> OnExit;
 
         /// <summary>
+        /// Loads assets.
+        /// </summary>
+        [Inject]
+        public IAssetManager Assets { get; set; }
+        
+        /// <summary>
         /// Initiailizes the menu.
         /// </summary>
         /// <param name="controller">The prop controller.</param>
         public void Initialize(ElementSplashDesignController controller)
         {
             _controller = controller;
-            
-            ResetMenuPosition();
 
+            var assetSrcId = _controller.Element.Schema.Get<string>("assetSrc").Value;
+            var assetData = Assets.Manifest.Data(assetSrcId);
+            if (null != assetData)
+            {
+                var boundsData = assetData.Stats.Bounds;
+                var bounds = new Bounds
+                {
+                    max = boundsData.Max.ToVector(),
+                    min = boundsData.Min.ToVector()
+                };
+
+                var outline = _controller.gameObject.GetComponent<ModelLoadingOutline>();
+                if (null == outline)
+                {
+                    outline = _controller.gameObject.AddComponent<ModelLoadingOutline>();
+                }
+                outline.Init(bounds);
+            }
+
+            ResetMenuPosition();
             enabled = true;
         }
 
@@ -104,15 +141,14 @@ namespace CreateAR.SpirePlayer
             BtnX.Activator.OnActivated += BtnX_OnActivated;
             BtnY.Activator.OnActivated += BtnY_OnActivated;
             BtnZ.Activator.OnActivated += BtnZ_OnActivated;
-
-            SliderX.OnUnfocused += SliderX_OnUnfocused;
-            SliderY.OnUnfocused += SliderY_OnUnfocused;
-            SliderZ.OnUnfocused += SliderZ_OnUnfocused;
-
-            SliderScale.OnUnfocused += SliderScale_OnUnfocused;
-            SliderRotate.OnUnfocused += SliderRotate_OnUnfocused;
+            
+            SliderX.OnSliderValueConfirmed += SliderX_OnSliderValueConfirmed;
+            SliderY.OnSliderValueConfirmed += SliderY_OnSliderValueConfirmed;
+            SliderZ.OnSliderValueConfirmed += SliderZ_OnSliderValueConfirmed;
+            SliderScale.OnSliderValueConfirmed += SliderScale_OnSliderValueConfirmed;
+            SliderRotate.OnSliderValueConfirmed += SliderRotate_OnSliderValueConfirmed;
         }
-
+        
         /// <inheritdoc cref="MonoBehaviour" />
         private void Update()
         {
@@ -147,10 +183,10 @@ namespace CreateAR.SpirePlayer
                 var focus = SliderY.Focus.ToVector();
                 var scalar = Vector3.Dot(focus - O, d);
                 var diff = scalar * d;
-
+                
                 _controller.transform.position = O + diff - offset;
             }
-
+            
             if (SliderZ.Visible)
             {
                 var zScale = 10;
@@ -183,15 +219,40 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Resets the position of the asset to previous position.
+        /// </summary>
+        private void ResetAssetTransform()
+        {
+            if (_transformChangeConfirmed)
+            {
+                return;
+            }
+            _controller.transform.position = _prevPosition;
+            _controller.transform.localRotation = _prevRotation;
+            _controller.transform.localScale = _prevScale;
+        }
+
+        /// <summary>
+        /// Copy prev transform values before change.
+        /// </summary>
+        private void CopyCurrentAssetTransform()
+        {
+            _prevPosition = _controller.transform.position;
+            _prevRotation = _controller.transform.localRotation;
+            _prevScale = _controller.transform.localScale;
+        }
+
+        /// <summary>
         /// Called when the x slider has unfocused.
         /// </summary>
         private void SliderX_OnUnfocused()
         {
             SliderX.LocalVisible = false;
-
-            ResetMenuPosition();
             Container.LocalVisible = true;
 
+            ResetAssetTransform();
+            ResetMenuPosition();
+            
             _controller.FinalizeState();
         }
 
@@ -201,9 +262,10 @@ namespace CreateAR.SpirePlayer
         private void SliderY_OnUnfocused()
         {
             SliderY.LocalVisible = false;
-
-            ResetMenuPosition();
             Container.LocalVisible = true;
+
+            ResetAssetTransform();
+            ResetMenuPosition();
 
             _controller.FinalizeState();
         }
@@ -214,10 +276,11 @@ namespace CreateAR.SpirePlayer
         private void SliderZ_OnUnfocused()
         {
             SliderZ.LocalVisible = false;
-
-            ResetMenuPosition();
             Container.LocalVisible = true;
 
+            ResetAssetTransform();
+            ResetMenuPosition();
+            
             _controller.FinalizeState();
         }
 
@@ -228,6 +291,9 @@ namespace CreateAR.SpirePlayer
         {
             SliderScale.LocalVisible = false;
             Container.LocalVisible = true;
+
+            ResetAssetTransform();
+            ResetMenuPosition();
 
             _controller.FinalizeState();
         }
@@ -240,6 +306,9 @@ namespace CreateAR.SpirePlayer
             SliderRotate.LocalVisible = false;
             Container.LocalVisible = true;
 
+            ResetAssetTransform();
+            ResetMenuPosition();
+
             _controller.FinalizeState();
         }
 
@@ -250,6 +319,7 @@ namespace CreateAR.SpirePlayer
         {
             if (null != OnExit)
             {
+                Destroy(_controller.gameObject.GetComponent<ModelLoadingOutline>());
                 OnExit(_controller);
             }
         }
@@ -259,6 +329,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnRotate_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            CopyCurrentAssetTransform();
+            _transformChangeConfirmed = false;
+
             Container.LocalVisible = false;
 
             _startRotation = _controller.transform.localRotation.eulerAngles;
@@ -268,8 +341,11 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the scale button has been activated.
         /// </summary>
-        private void BtnScale_OnActivated(ActivatorPrimitive activatorPrimitive)
+        private void BtnScale_OnActivated(ActivatorPrimitive activatorPrimitive) 
         {
+            CopyCurrentAssetTransform();
+            _transformChangeConfirmed = false;
+
             Container.LocalVisible = false;
 
             _startScale = _controller.transform.localScale;
@@ -281,6 +357,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnX_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            CopyCurrentAssetTransform();
+            _transformChangeConfirmed = false;
+
             Container.LocalVisible = false;
             SliderX.LocalVisible = true;
         }
@@ -290,20 +369,72 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnY_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            CopyCurrentAssetTransform();
+            _transformChangeConfirmed = false;
+
             Container.LocalVisible = false;
             SliderY.LocalVisible = true;
         }
-
+        
         /// <summary>
         /// Called when the z button has been activated.
         /// </summary>
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            CopyCurrentAssetTransform();
+            _transformChangeConfirmed = false;
+            
             _startPosition = _controller.transform.position;
             _startForward = Intention.Forward.ToVector();
 
             Container.LocalVisible = false;
             SliderZ.LocalVisible = true;
         }
+
+        /// <summary>
+        /// Called when SliderX slider is activated.
+        /// </summary>
+        private void SliderX_OnSliderValueConfirmed()
+        {
+            _transformChangeConfirmed = true;
+            SliderX_OnUnfocused();
+        }
+
+        /// <summary>
+        /// Called when SliderY slider is activated.
+        /// </summary>
+        private void SliderY_OnSliderValueConfirmed()
+        {
+            _transformChangeConfirmed = true;
+            SliderY_OnUnfocused();
+        }
+
+        /// <summary>
+        /// Called when SliderZ slider is activated.
+        /// </summary>
+        private void SliderZ_OnSliderValueConfirmed()
+        {
+            _transformChangeConfirmed = true;
+            SliderZ_OnUnfocused();
+        }
+
+        /// <summary>
+        /// Called when SliderScale slider is activated.
+        /// </summary>
+        private void SliderScale_OnSliderValueConfirmed()
+        {
+            _transformChangeConfirmed = true;
+            SliderScale_OnUnfocused();
+        }
+
+        /// <summary>
+        /// Called when SliderRotate slider is activated.
+        /// </summary>
+        private void SliderRotate_OnSliderValueConfirmed()
+        {
+            _transformChangeConfirmed = true;
+            SliderRotate_OnUnfocused();
+        }
+
     }
 }
