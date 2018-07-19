@@ -45,7 +45,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Flag to determine the focus on line.
         /// </summary>
-        private bool _focusOffLine;
+        private bool _transformChangeConfirmed;
 
         /// <summary>
         /// Vectors for drawing the axis.
@@ -185,7 +185,7 @@ namespace CreateAR.SpirePlayer
             }
             GL.PushMatrix();
             {
-                GL.LoadProjectionMatrix(Camera.main.projectionMatrix);
+                 GL.LoadProjectionMatrix(Camera.main.projectionMatrix);
                 _lineMaterial.SetPass(0);
 
                 GL.Begin(GL.LINES);
@@ -273,7 +273,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ResetAssetTransform()
         {
-            if (!_focusOffLine)
+            if (_transformChangeConfirmed)
             {
                 return;
             }
@@ -399,7 +399,7 @@ namespace CreateAR.SpirePlayer
         {
             CopyCurrentAssetTransform();
             _drawAxis = true;
-            _focusOffLine = true;
+            _transformChangeConfirmed = false;
 
             Container.LocalVisible = false;
 
@@ -416,7 +416,7 @@ namespace CreateAR.SpirePlayer
         {
             CopyCurrentAssetTransform();
             _drawAxis = true;
-            _focusOffLine = true;
+            _transformChangeConfirmed = false;
 
             Container.LocalVisible = false;
 
@@ -432,7 +432,7 @@ namespace CreateAR.SpirePlayer
         private void BtnX_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             CopyCurrentAssetTransform();
-            _focusOffLine = true;
+            _transformChangeConfirmed = false;
             _drawAxis = true;
 
             Container.LocalVisible = false;
@@ -446,7 +446,7 @@ namespace CreateAR.SpirePlayer
         private void BtnY_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             CopyCurrentAssetTransform();
-            _focusOffLine = true;
+            _transformChangeConfirmed = false;
             _drawAxis = true;
 
             Container.LocalVisible = false;
@@ -461,7 +461,7 @@ namespace CreateAR.SpirePlayer
         {
             CopyCurrentAssetTransform();
             _drawAxis = true;
-            _focusOffLine = true;
+            _transformChangeConfirmed = false;
             
             _startPosition = _controller.transform.position;
             _startForward = Intention.Forward.ToVector();
@@ -477,7 +477,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SliderX_OnSliderValueConfirmed()
         {
-            _focusOffLine = false;
+            _transformChangeConfirmed = true;
             SliderX_OnUnfocused();
         }
 
@@ -486,7 +486,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SliderY_OnSliderValueConfirmed()
         {
-            _focusOffLine = false;
+            _transformChangeConfirmed = true;
             SliderY_OnUnfocused();
         }
 
@@ -495,7 +495,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SliderZ_OnSliderValueConfirmed()
         {
-            _focusOffLine = false;
+            _transformChangeConfirmed = true;
             SliderZ_OnUnfocused();
         }
 
@@ -504,7 +504,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SliderScale_OnSliderValueConfirmed()
         {
-            _focusOffLine = false;
+            _transformChangeConfirmed = true;
             SliderScale_OnUnfocused();
         }
 
@@ -513,7 +513,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void SliderRotate_OnSliderValueConfirmed()
         {
-            _focusOffLine = false;
+            _transformChangeConfirmed = true;
             SliderRotate_OnUnfocused();
         }
 
