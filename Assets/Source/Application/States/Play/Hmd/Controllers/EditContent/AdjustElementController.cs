@@ -156,7 +156,7 @@ namespace CreateAR.SpirePlayer
             {
                 return;
             }
-            /*
+            
             if (SliderX.Visible)
             {
                 var offset = BtnX.GameObject.transform.position - Container.GameObject.transform.position;
@@ -186,7 +186,7 @@ namespace CreateAR.SpirePlayer
                 
                 _controller.transform.position = O + diff - offset;
             }
-            */
+            
             if (SliderZ.Visible)
             {
                 var zScale = 10;

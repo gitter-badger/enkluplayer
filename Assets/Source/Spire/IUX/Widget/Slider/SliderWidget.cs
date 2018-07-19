@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using UnityEngine;
 
@@ -31,8 +30,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// Props.
         /// </summary>
         private ElementSchemaProp<float> _lengthProp;
-        private ElementSchemaProp<float> _radiusProp;
         private ElementSchemaProp<string> _axisProp;
+        private ElementSchemaProp<bool> _tooltipProp;
 
         /// <summary>
         /// Renders lines.
@@ -174,14 +173,15 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void LoadInternalBeforeChildren()
         {
             base.LoadInternalBeforeChildren();
-
-            _radiusProp = Schema.Get<float>("radius");
-
+            
             _lengthProp = Schema.Get<float>("length");
             _lengthProp.OnChanged += Length_OnChanged;
 
             _axisProp = Schema.Get<string>("axis");
             _axisProp.OnChanged += Axis_OnChanged;
+
+            _tooltipProp = Schema.Get<bool>("tooltip");
+            _tooltipProp.OnChanged += Tooltip_OnChanged;
 
             _moveSlider = (ButtonWidget) _elements.Element("<?Vine><Button id='btn-x' icon='arrow-double' position=(-0.2, 0, 0) ready.color='Highlight' />");
             AddChild(_moveSlider);
@@ -201,8 +201,10 @@ namespace CreateAR.SpirePlayer.IUX
             
             _renderer.enabled = true;
             _isDirty = true;
-        }
 
+            UpdateTooltipVisibility();
+        }
+        
         /// <inheritdoc />
         protected override void UnloadInternalAfterChildren()
         {
@@ -367,7 +369,7 @@ namespace CreateAR.SpirePlayer.IUX
             var O = _intentions.Origin.ToVector();
             var d = _intentions.Forward.ToVector();
 
-            // find t
+            // substitute plane equation in for P to find t
             var t = Vector3.Dot(P0 - O, n) / Vector3.Dot(n, d);
 
             // return intersection
@@ -383,17 +385,13 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Updates the aim as a function of focus towards the center of the
-        /// line segment.
+        /// Updates the tooltip's visibility based on prop.
         /// </summary>
-        private float CalculateAim(Vector3 intersection)
+        private void UpdateTooltipVisibility()
         {
-            var distance = Vector3.Magnitude(Focus.ToVector() - intersection);
-            var rad = _radiusProp.Value;
-
-            return Mathf.Clamp01(1 - distance / rad);
+            _annotation.Schema.Set("visible", _tooltipProp.Value);
         }
-        
+
         /// <summary>
         /// Called when property changes.
         /// </summary>
@@ -420,6 +418,20 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             //
+        }
+
+        /// <summary>
+        /// Called when property changes.
+        /// </summary>
+        /// <param name="prop">The property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Tooltip_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            UpdateTooltipVisibility();
         }
 
         /// <summary>

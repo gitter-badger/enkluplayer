@@ -2,20 +2,37 @@
 
 namespace CreateAR.SpirePlayer.IUX
 {
+    /// <summary>
+    /// Renders the slider's line.
+    /// </summary>
     public class SliderLineRenderer : MonoBehaviour
     {
+        /// <summary>
+        /// Line material.
+        /// </summary>
         private Material _lineMaterial;
 
+        /// <summary>
+        /// Origin.
+        /// </summary>
         public Vector3 O;
+
+        /// <summary>
+        /// Direction.
+        /// </summary>
         public Vector3 d;
 
+        /// <summary>
+        /// Color.
+        /// </summary>
         public Color Color = 0.25f * Color.white;
 
+        /// <inheritdoc cref="MonoBehaviour" />
         private void Awake()
         {
             // Unity has a built-in shader that is useful for drawing
             // simple colored things.
-            Shader shader = Shader.Find("Hidden/Internal-Colored");
+            var shader = Shader.Find("Hidden/Internal-Colored");
             _lineMaterial = new Material(shader);
             _lineMaterial.hideFlags = HideFlags.HideAndDontSave;
 
