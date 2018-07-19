@@ -32,9 +32,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private ElementSchemaProp<float> _lengthProp;
         private ElementSchemaProp<float> _radiusProp;
-        private ElementSchemaProp<float> _sizeMaxProp;
-        private ElementSchemaProp<float> _sizeMinProp;
         private ElementSchemaProp<string> _axisProp;
+
+        /// <summary>
+        /// Renders lines.
+        /// </summary>
+        private readonly SliderLineRenderer _renderer;
 
         /// <summary>
         /// Slider button widget.
@@ -53,19 +56,19 @@ namespace CreateAR.SpirePlayer.IUX
         private ImageWidget _maxImage;
 
         /// <summary>
-        /// Start of slider, in world space.
+        /// Origin of line.
         /// </summary>
-        private Vector3 _a;
+        private Vector3 _O;
 
         /// <summary>
-        /// End of slider, in world space.
+        /// Direction of line.
         /// </summary>
-        private Vector3 _b;
+        private Vector3 _d;
 
         /// <summary>
-        /// Renders lines.
+        /// If true, snaps the button position.
         /// </summary>
-        private readonly SliderLineRenderer _renderer;
+        private bool _isDirty = true;
         
         /// <summary>
         /// Normalized value.
@@ -166,41 +169,12 @@ namespace CreateAR.SpirePlayer.IUX
         {
             return true;
         }
-
-        /// <summary>
-        /// Calculates two extreme points based on axis.
-        /// </summary>
-        public Vector3[] CalculatePivotPoints()
-        {
-            var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
-
-            Vec3 offset;
-            Vector3 p0, p1;
-            if (axis == AxisType.X)
-            {
-                offset = _intentions.Right;
-                p0 = new Vector3(GameObject.transform.position.x - 2f, GameObject.transform.position.y, GameObject.transform.position.z);
-                p1 = new Vector3(p0.x + 4f, p0.y, p0.z);
-            }
-            else
-            {
-                offset = _intentions.Up;
-                p0 = new Vector3(GameObject.transform.position.x, GameObject.transform.position.y - 2f, GameObject.transform.position.z);
-                p1 = new Vector3(p0.x, p0.y + 4f, p0.z);
-            }
-
-            var adjustedp0 = p0 - _lengthProp.Value * offset.ToVector();
-            var adjustedp1 = p1 + _lengthProp.Value * offset.ToVector();
-            return new [] { adjustedp0, adjustedp1 };
-        }
-
+        
         /// <inheritdoc />
         protected override void LoadInternalBeforeChildren()
         {
             base.LoadInternalBeforeChildren();
-           
-            _sizeMaxProp = Schema.Get<float>("size.max");
-            _sizeMinProp = Schema.Get<float>("size.min");
+
             _radiusProp = Schema.Get<float>("radius");
 
             _lengthProp = Schema.Get<float>("length");
@@ -224,10 +198,9 @@ namespace CreateAR.SpirePlayer.IUX
             
             _interactions.Add(this);
             Interactable = true;
-
-            Value = -1f;
-
+            
             _renderer.enabled = true;
+            _isDirty = true;
         }
 
         /// <inheritdoc />
@@ -251,29 +224,24 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (!Visible)
             {
-                Value = 0.5f;
                 return;
             }
 
-            var pivotPoints = CalculatePivotPoints();
-            _a = _renderer.A = pivotPoints[0];
-            _b = _renderer.B = pivotPoints[1];
+            UpdateBasis();
+            UpdateArrowPositions();
+            UpdateButtonPosition();
+            UpdateValue();
 
-            // calculate plane to restrict to
-            CalculatePlane();
-
-            // calculate intersection of forward with plane
-            var intersection = CalculateIntentionIntersection();
-
-            // update the position of the slider handle
-            UpdatePosition(_a, _b, intersection);
-
-            // update the slider handle's scale
-            var aim = CalculateAim(intersection);
-            var scalar = _sizeMinProp.Value + (1 - aim) * (_sizeMaxProp.Value - _sizeMinProp.Value);
-            _moveSlider.GameObject.transform.localScale = scalar * Vector3.one;
-            
-            DebugRender();
+            var handle = Render.Handle("IUX");
+            if (null != handle)
+            {
+                handle.Draw(ctx =>
+                {
+                    ctx.Color(UnityEngine.Color.yellow);
+                    ctx.Cube(_O, 0.1f);
+                    ctx.Line(_O, _O + _d);
+                });
+            }
         }
 
         /// <inheritdoc />
@@ -285,14 +253,14 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _interactions.Add(this);
                 Interactable = true;
-
-                Value = -1f;
             }
             else
             {
                 Interactable = false;
                 _interactions.Remove(this);
             }
+
+            _isDirty = true;
 
             if (null != OnVisibilityChanged)
             {
@@ -301,37 +269,37 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Updates the image position.
+        /// Generates a definition of a line.
         /// </summary>
-        private void UpdatePosition(Vector3 a, Vector3 b, Vector3 intersection)
+        private void UpdateBasis()
         {
-            var newValue = CalculateValue(intersection, a, b);
-            if (Value < 0)
+            _O = GameObject.transform.position;
+
+            var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
+            if (axis == AxisType.X)
             {
-                Value = newValue;
+                _d = new Vector3(
+                    _intentions.Right.x,
+                    0,
+                    _intentions.Right.z).normalized;
             }
             else
             {
-                Value = Mathf.Lerp(Value, newValue, 3f * Time.deltaTime);
+                _d = Vector3.up;
             }
 
-            // force world position, not position property
-            _moveSlider.GameObject.transform.position = Vector3.Lerp(a, b, Value);
-            _annotation.Label = Value.ToString(CultureInfo.InvariantCulture);
+            _renderer.O = _O;
+            _renderer.d = _d;
         }
 
         /// <summary>
-        /// Recalculates the plane to restrict slider controls to.
+        /// Positions the arrows.
         /// </summary>
-        private void CalculatePlane()
+        private void UpdateArrowPositions()
         {
             var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
-
-            var offset = new Vec3(_intentions.Right.x, 0f, _intentions.Right.z).Normalized;
             if (axis == AxisType.Y)
             {
-                offset = Vec3.Up;
-
                 _minImage.Schema.Set("src", "res://Art/Textures/arrow-down");
                 _maxImage.Schema.Set("src", "res://Art/Textures/arrow-up");
             }
@@ -340,51 +308,78 @@ namespace CreateAR.SpirePlayer.IUX
                 _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
                 _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
             }
-            
-            var position = GameObject.transform.position;
-            
-            _a = position - _lengthProp.Value * offset.ToVector();
-            _b = position + _lengthProp.Value * offset.ToVector();
 
-            _minImage.GameObject.transform.position = _a;
-            _maxImage.GameObject.transform.position = _b;
+            _minImage.GameObject.transform.position = _O - _lengthProp.Value * _d;
+            _maxImage.GameObject.transform.position = _O + _lengthProp.Value * _d;
         }
 
         /// <summary>
-        /// Calculates the intention forward intersection with the plane made
-        /// from the points on slider + up.
+        /// Updates the button's position.
+        /// </summary>
+        private void UpdateButtonPosition()
+        {
+            // calculate the intersection of the intention with the slider plane
+            var intersection = CalculateIntentionIntersection();
+            
+            // project onto the slider line
+            var projection = CalculateScalarProjection(_O, _d, intersection);
+            
+            // position the slider
+            var target = _O + projection * _d;
+            if (_isDirty)
+            {
+                _isDirty = false;
+            }
+            else
+            {
+                target = Vector3.Lerp(
+                    _moveSlider.GameObject.transform.position,
+                    target,
+                    3f * Time.deltaTime);
+            }
+
+            _moveSlider.GameObject.transform.position = target;
+        }
+
+        /// <summary>
+        /// Updates the value + label.
+        /// </summary>
+        private void UpdateValue()
+        {
+            _annotation.Label = Value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Calculates the intention forward intersection with the plane the
+        /// slider is on.
         /// </summary>
         /// <returns></returns>
         private Vector3 CalculateIntentionIntersection()
         {
-            // generate plane basis
-            var right = (_b - _a).normalized;
-            var up = Vector3
-                .Cross(_intentions.Forward.ToVector(), right)
-                .normalized;
-            var normal = -Vector3
-                .Cross(right, up)
-                .normalized;
+            // Line: P = O + td
+            // Plane: (P - P0) * n = 0
 
-            var p3 = _a;
-            var p1 = _intentions.Origin.ToVector();
-            var p2 = p1 + _intentions.Forward.ToVector();
+            // plane
+            var P0 = _O;
+            var n = -_intentions.Forward.ToVector().normalized;
 
-            var s = p3 - p1;
-            var r = p2 - p1;
-            var x = Vector3.Dot(normal, s);
-            var y = Vector3.Dot(normal, r);
+            // line
+            var O = _intentions.Origin.ToVector();
+            var d = _intentions.Forward.ToVector();
 
-            // intersect ray with plane
-            var t = x / y;
-            var intersection = _intentions.Origin + _intentions.Forward * t;
+            // find t
+            var t = Vector3.Dot(P0 - O, n) / Vector3.Dot(n, d);
 
-            if (float.IsNaN(intersection.x))
-            {
-                throw new Exception("Invalid.");
-            }
+            // return intersection
+            return O + t * d;
+        }
 
-            return intersection.ToVector();
+        /// <summary>
+        /// Calculates the scalar projection of P onto the line definted by O + td.
+        /// </summary>
+        private float CalculateScalarProjection(Vector3 O, Vector3 d, Vector3 P)
+        {
+            return Vector3.Dot(P - O, d);
         }
 
         /// <summary>
@@ -397,25 +392,6 @@ namespace CreateAR.SpirePlayer.IUX
             var rad = _radiusProp.Value;
 
             return Mathf.Clamp01(1 - distance / rad);
-        }
-        
-        /// <summary>
-        /// Calculates the value.
-        /// </summary>
-        private float CalculateValue(Vector3 p, Vector3 s0, Vector3 s1)
-        {
-            var d = s1 - s0;
-            var a = p - s0;
-            var aLen = a.magnitude;
-            var dLen = d.magnitude;
-
-            var x = Vector3.Dot(d / dLen, a / aLen);
-            var t = aLen * x;
-            var value = dLen > Mathf.Epsilon
-                ? Mathf.Clamp01(t / dLen)
-                : 1;
-
-            return value;
         }
         
         /// <summary>
@@ -454,23 +430,6 @@ namespace CreateAR.SpirePlayer.IUX
             if (null != OnSliderValueConfirmed)
             {
                 OnSliderValueConfirmed();
-            }
-        }
-
-        /// <summary>
-        /// Renders debugging information.
-        /// </summary>
-        [Conditional("DEBUG_RENDERING")]
-        private void DebugRender()
-        {
-            var handle = Render.Handle("IUX");
-            if (null != handle)
-            {
-                handle.Draw(ctx =>
-                {
-                    ctx.Color(UnityEngine.Color.green);
-                    ctx.Line(_a, _b);
-                });
             }
         }
     }

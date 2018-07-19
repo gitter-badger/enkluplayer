@@ -6,8 +6,8 @@ namespace CreateAR.SpirePlayer.IUX
     {
         private Material _lineMaterial;
 
-        public Vector3 A;
-        public Vector3 B;
+        public Vector3 O;
+        public Vector3 d;
 
         public Color Color = 0.25f * Color.white;
 
@@ -41,8 +41,9 @@ namespace CreateAR.SpirePlayer.IUX
                 GL.Begin(GL.LINES);
                 {
                     GL.Color(Color);
-                    GL.Vertex(A);
-                    GL.Vertex(B);
+
+                    GL.Vertex(O + 1000f * d);
+                    GL.Vertex(O - 1000f * d);
                 }
                 GL.End();
             }

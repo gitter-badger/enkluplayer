@@ -1,6 +1,6 @@
 <?Vine>
 
-<Container face='camera'>
+<Container face='camera' position=(0, 0.1, 0)>
 	/* Menu for control menu */
 	<Container id='controls'>
 		<Button id='btn-back' icon='arrow-left' position=(-0.3, 0.25, 0) ready.color='Negative' />
