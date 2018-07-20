@@ -56,6 +56,11 @@ namespace CreateAR.SpirePlayer.IUX
         private ManagedTexture _texture;
 
         /// <summary>
+        /// Scale from last frame. If scale changes from frame to frame, we need to redo the text layout.
+        /// </summary>
+        private Vector3 _lastFrameScale;
+
+        /// <summary>
         /// Props.
         /// </summary>
         private ElementSchemaProp<string> _voiceActivatorProp;
@@ -246,6 +251,14 @@ namespace CreateAR.SpirePlayer.IUX
             base.LateUpdateInternal();
 
             _stateRenderer.Update(Time.smoothDeltaTime);
+
+            var newScale = GameObject.transform.lossyScale;
+            if (!newScale.Approximately(_lastFrameScale))
+            {
+                _lastFrameScale = newScale;
+
+                UpdateLabelLayout();
+            }
         }
 
         /// <inheritdoc />
