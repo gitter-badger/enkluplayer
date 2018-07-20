@@ -1,6 +1,6 @@
 <?Vine>
 
-<Container face='camera' position=(0, 0.1, 0)>
+<Container face='camera' position=(0, 0, 0)>
 	<ScaleTransition>
 		/* Menu for control menu */
 		<Container id='controls'>

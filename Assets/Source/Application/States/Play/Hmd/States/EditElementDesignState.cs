@@ -36,6 +36,11 @@ namespace CreateAR.SpirePlayer
         private UIManagerFrame _frame;
 
         /// <summary>
+        /// Edit element menu.
+        /// </summary>
+        private EditElementUIView _editView;
+
+        /// <summary>
         /// Id of adjust menu.
         /// </summary>
         private int _adjustId;
@@ -124,6 +129,8 @@ namespace CreateAR.SpirePlayer
                 }, out _editId)
                 .OnSuccess(el =>
                 {
+                    _editView = el;
+
                     el.OnMove += Edit_OnMove;
                     el.OnReparent += Edit_OnReparent;
                     el.OnDuplicate += Edit_OnDuplicate;
@@ -325,7 +332,7 @@ namespace CreateAR.SpirePlayer
         {
             var visible = interactable.Visible;
 
-            //_editElement.enabled = !visible;
+            _editView.Root.Schema.Set("visible", !visible);
 
             if (visible)
             {

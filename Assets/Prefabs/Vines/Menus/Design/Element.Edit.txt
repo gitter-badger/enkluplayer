@@ -1,6 +1,6 @@
 <?Vine>
 
-<Container face='camera' position=(-0.55, 0, 0)>
+<Container face='camera' position=(-0.6, 0.1, 0)>
 	<ScaleTransition>
 		<Menu position=(0.3, 0, 0) >
 			<Toggle id='tgl-visible' label='Visible' />

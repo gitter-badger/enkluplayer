@@ -68,7 +68,7 @@ namespace CreateAR.SpirePlayer
             UpdateVisibilityToggle();
             ResetMenuPosition();
         }
-
+        
         /// <inheritdoc />
         protected override void AfterElementsCreated()
         {
@@ -78,6 +78,7 @@ namespace CreateAR.SpirePlayer
             BtnReparent.Activator.OnActivated += Reparent_OnActivated;
             BtnDelete.Activator.OnActivated += Delete_OnActivated;
             BtnDuplicate.Activator.OnActivated += Duplicate_OnActivated;
+            Root.Schema.Get<bool>("visible").OnChanged += (prop, prev, next) => ResetMenuPosition();
         }
 
         /// <inheritdoc />
@@ -96,7 +97,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ResetMenuPosition()
         {
-            transform.position = _controller.ElementTransform.position;
+            if (null != _controller)
+            {
+                transform.position = _controller.ElementTransform.position;
+            }
         }
 
         /// <summary>
