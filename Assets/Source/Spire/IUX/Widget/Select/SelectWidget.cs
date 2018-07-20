@@ -77,6 +77,12 @@ namespace CreateAR.SpirePlayer.IUX
                     ? _options[_selection]
                     : null;
             }
+            set
+            {
+                _selection = _options.IndexOf(value);
+
+                UpdateLabel(_selection);
+            }
         }
 
         /// <summary>

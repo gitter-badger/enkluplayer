@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 
@@ -80,6 +81,17 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public event Action<LogLevel> OnLogLevelChanged;
 
+        /// <summary>
+        /// Initializes the view with values
+        /// </summary>
+        /// <param name="play">True iff playmode.</param>
+        public void Initialize(bool play)
+        {
+            SltPlay.Selection = SltPlay.Options.FirstOrDefault(option => play
+                ? option.Value == "Play"
+                : option.Value == "Edit");
+        }
+
         /// <inheritdoc />
         protected override void AfterElementsCreated()
         {
@@ -123,14 +135,7 @@ namespace CreateAR.SpirePlayer
                 }
             };
 
-            SltPlay.OnValueChanged += _ =>
-            {
-                if (null != OnDefaultPlayModeChanged)
-                {
-                    OnDefaultPlayModeChanged(SltPlay.Selection.Value == "Play");
-                }
-            };
-
+            SltPlay.OnValueChanged += SelectPlay_OnChanged;
             SltLogging.OnValueChanged += _ =>
             {
                 if (null != OnLogLevelChanged)
@@ -141,7 +146,7 @@ namespace CreateAR.SpirePlayer
                 }
             };
         }
-
+        
         /// <summary>
         /// Helper method to call new callback.
         /// </summary>
@@ -151,6 +156,18 @@ namespace CreateAR.SpirePlayer
             if (null != OnNew)
             {
                 OnNew(elementType);
+            }
+        }
+
+        /// <summary>
+        /// Called when selection has changed.
+        /// </summary>
+        /// <param name="select">The select widget.</param>
+        private void SelectPlay_OnChanged(SelectWidget @select)
+        {
+            if (null != OnDefaultPlayModeChanged)
+            {
+                OnDefaultPlayModeChanged(@select.Selection.Value == "Play");
             }
         }
     }
