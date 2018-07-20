@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,7 +31,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// True iff the renderer is initialized.
         /// </summary>
-        private bool _isInited = false;
+        private bool _isInited;
         
         /// <summary>
         /// Primary widget of the activator.
@@ -129,6 +128,16 @@ namespace CreateAR.SpirePlayer.IUX
             activator.OnStateChanged += Activator_OnStateChanged;
 
             _isInited = true;
+        }
+
+        /// <summary>
+        /// Updates cached properties.
+        /// </summary>
+        public void UpdateProps()
+        {
+            _activatorState = _activator.CurrentState;
+            _tweenDuration = _tweens.DurationSeconds(_activatorState.Tween);
+            _frameColor = _colors.GetColor(_activatorState.FrameColor);
         }
 
         /// <summary>
@@ -257,17 +266,7 @@ namespace CreateAR.SpirePlayer.IUX
                 Vector3.one * _activatorState.FrameScale,
                 tweenLerp);
         }
-
-        /// <summary>
-        /// Called when state is updated.
-        /// </summary>
-        private void OnStateUpdated()
-        {
-            _activatorState = _activator.CurrentState;
-            _tweenDuration = _tweens.DurationSeconds(_activatorState.Tween);
-            _frameColor = _colors.GetColor(_activatorState.FrameColor);
-        }
-
+        
         /// <summary>
         /// Called when the activator activates.
         /// </summary>
@@ -290,7 +289,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="activatorState">New state.</param>
         private void Activator_OnStateChanged(ActivatorState activatorState)
         {
-            OnStateUpdated();
+            UpdateProps();
         }
     }
 }

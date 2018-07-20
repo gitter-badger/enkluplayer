@@ -399,6 +399,8 @@ namespace CreateAR.SpirePlayer.IUX
             _propActivationType = Schema.GetOwn("activation.type", ActivationType.Fill.ToString());
             _renderer.Activation = EnumExtensions.Parse<ActivationType>(_propActivationType.Value);
             _propSliderBehavior = Schema.GetOwn("activation.slider", false);
+
+            Schema.Get<string>("ready.color").OnChanged += (prop, p, n) => _renderer.UpdateProps();
         }
 
         /// <summary>

@@ -51,6 +51,15 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Retrieves user preferences for the current user. This cannot fail.
+        /// </summary>
+        /// <returns></returns>
+        public IAsyncToken<SynchronizedObject<UserPreferenceData>> ForCurrentUser()
+        {
+            return ForUser(_config.Network.Credentials.UserId);
+        }
+
+        /// <summary>
         /// Retrieves user preferences. This cannot fail.
         /// </summary>
         /// <param name="userId">User id.</param>

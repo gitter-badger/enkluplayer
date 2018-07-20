@@ -27,7 +27,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// The toggle button.
         /// </summary>
         private ButtonWidget _button;
-
+        
         /// <summary>
         /// The label property, passed on to the button.
         /// </summary>
@@ -134,6 +134,57 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Opens the submenu.
+        /// </summary>
+        private void Open()
+        {
+            // hide any other menus at the same level
+            if (null != Parent)
+            {
+                var siblings = Parent.Children;
+                for (var i = 0; i < siblings.Count; i++)
+                {
+                    var submenu = siblings[i] as SubMenuWidget;
+                    if (null != submenu && submenu != this)
+                    {
+                        submenu.Close();
+                    }
+                }
+            }
+
+            // show yourself
+            _menu.Schema.Set("visible", true);
+
+            UpdateButtonState();
+        }
+
+        /// <summary>
+        /// Closes the submenu.
+        /// </summary>
+        private void Close()
+        {
+            _menu.Schema.Set("visible", false);
+
+            UpdateButtonState();
+        }
+
+        /// <summary>
+        /// Toggles the submenu.
+        /// </summary>
+        private void Toggle()
+        {
+            var isVisible = _menu.Schema.Get<bool>("visible").Value;
+            if (isVisible)
+            {
+                Close();
+            }
+            else
+            {
+                Open();
+            }
+        }
+
+        /// <summary>
         /// Called when label changes.
         /// </summary>
         private void Label_OnChanged(
@@ -154,18 +205,14 @@ namespace CreateAR.SpirePlayer.IUX
         {
             UpdateButtonState();
         }
-
+        
         /// <summary>
         /// Called when button is activated.
         /// </summary>
         /// <param name="activatorPrimitive">The activator.</param>
         private void Button_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
-            // flip visibility of menu
-            var isVisible = !_menu.Schema.Get<bool>("visible").Value;
-            _menu.Schema.Set("visible", isVisible);
-
-            UpdateButtonState();
+            Toggle();
         }
     }
 }

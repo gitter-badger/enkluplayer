@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Http;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
@@ -55,6 +57,11 @@ namespace CreateAR.SpirePlayer
         private readonly IUIManager _ui;
 
         /// <summary>
+        /// User preferences.
+        /// </summary>
+        private readonly UserPreferenceService _preferenceService;
+
+        /// <summary>
         /// UI frame.
         /// </summary>
         private UIManagerFrame _frame;
@@ -75,6 +82,16 @@ namespace CreateAR.SpirePlayer
         private int _mainId;
 
         /// <summary>
+        /// User preferences.
+        /// </summary>
+        private SynchronizedObject<UserPreferenceData> _prefs;
+
+        /// <summary>
+        /// Load for preferences.
+        /// </summary>
+        private IAsyncToken<SynchronizedObject<UserPreferenceData>> _prefLoad;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public MainDesignState(
@@ -84,7 +101,8 @@ namespace CreateAR.SpirePlayer
             IHttpService http,
             IWorldAnchorCache anchorCache,
             IWorldAnchorProvider anchorProvider,
-            IUIManager ui)
+            IUIManager ui,
+            UserPreferenceService preferenceService)
         {
             _config = config;
             _messages = messages;
@@ -93,6 +111,7 @@ namespace CreateAR.SpirePlayer
             _anchorCache = anchorCache;
             _anchorProvider = anchorProvider;
             _ui = ui;
+            _preferenceService = preferenceService;
         }
 
         /// <inheritdoc />
@@ -118,60 +137,69 @@ namespace CreateAR.SpirePlayer
 
             // push a frame
             _frame = _ui.CreateFrame();
-
-            // content
-            _controllers
-                .Group(TAG_CONTENT)
-                .Filter(new TypeElementControllerFilter(typeof(ContentWidget)))
-                .Add<ElementSplashDesignController>(
-                    new ElementSplashDesignController.DesignContext
-                    {
-                        Delegate = _design.Elements,
-                        OnAdjust = Element_OnAdjust
-                    });
-
-            // containers
-            _controllers
-                .Group(TAG_CONTAINER)
-                .Filter(new TypeElementControllerFilter(typeof(ContainerWidget)))
-                .Add<ElementSplashDesignController>(
-                    new ElementSplashDesignController.DesignContext
-                    {
-                        Delegate = _design.Elements,
-                        OnAdjust = Element_OnAdjust
-                    });
-
-            // scans
-            _controllers
-                .Group(TAG_SCAN)
-                .Filter(new TypeElementControllerFilter(typeof(ScanWidget)))
-                .Add<ElementSplashDesignController>(
-                    new ElementSplashDesignController.DesignContext
-                    {
-                        Delegate = _design.Elements,
-                        OnAdjust = Element_OnAdjust
-                    });
-
-            // anchors
-            _controllers
-                .Group(TAG_ANCHOR)
-                .Filter(new TypeElementControllerFilter(typeof(WorldAnchorWidget)))
-                .Add<AnchorDesignController>(new AnchorDesignController.AnchorDesignControllerContext
+            
+            // load prefs first
+            _prefLoad = _preferenceService
+                .ForCurrentUser()
+                .OnSuccess(prefs =>
                 {
-                    AppId = _design.App.Id,
-                    SceneId = SceneIdForElement,
-                    Config = _design.Config,
-                    Http = _http,
-                    Cache = _anchorCache,
-                    Provider = _anchorProvider,
-                    OnAdjust = Anchor_OnAdjust
-                });
+                    _prefs = prefs;
 
-            // turn on the controller groups
-            _controllers.Activate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
+                    // content
+                    _controllers
+                        .Group(TAG_CONTENT)
+                        .Filter(new TypeElementControllerFilter(typeof(ContentWidget)))
+                        .Add<ElementSplashDesignController>(
+                            new ElementSplashDesignController.DesignContext
+                            {
+                                Delegate = _design.Elements,
+                                OnAdjust = Element_OnAdjust
+                            });
 
-            // open the splash menu
-            OpenSplashMenu();
+                    // containers
+                    _controllers
+                        .Group(TAG_CONTAINER)
+                        .Filter(new TypeElementControllerFilter(typeof(ContainerWidget)))
+                        .Add<ElementSplashDesignController>(
+                            new ElementSplashDesignController.DesignContext
+                            {
+                                Delegate = _design.Elements,
+                                OnAdjust = Element_OnAdjust
+                            });
+
+                    // scans
+                    _controllers
+                        .Group(TAG_SCAN)
+                        .Filter(new TypeElementControllerFilter(typeof(ScanWidget)))
+                        .Add<ElementSplashDesignController>(
+                            new ElementSplashDesignController.DesignContext
+                            {
+                                Delegate = _design.Elements,
+                                OnAdjust = Element_OnAdjust
+                            });
+
+                    // anchors
+                    _controllers
+                        .Group(TAG_ANCHOR)
+                        .Filter(new TypeElementControllerFilter(typeof(WorldAnchorWidget)))
+                        .Add<AnchorDesignController>(new AnchorDesignController.AnchorDesignControllerContext
+                        {
+                            AppId = _design.App.Id,
+                            SceneId = SceneIdForElement,
+                            Config = _design.Config,
+                            Http = _http,
+                            Cache = _anchorCache,
+                            Provider = _anchorProvider,
+                            OnAdjust = Anchor_OnAdjust
+                        });
+
+                    // turn on the controller groups
+                    _controllers.Activate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
+
+                    // open the splash menu
+                    OpenSplashMenu();
+                })
+                .OnFailure(ex => Log.Error(this, "Could not load user preferences!"));
         }
 
         /// <inheritdoc />
@@ -183,6 +211,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
+            _prefLoad.Abort();
+
             // kill element menus
             _controllers.Deactivate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
 
@@ -207,7 +237,10 @@ namespace CreateAR.SpirePlayer
                     el.OnOpenMenu += Splash_OnOpenMenu;
                     el.OnBack += Splash_OnBack;
                     el.OnPlay += Splash_OnPlay;
-                });
+                })
+                .OnFailure(ex => Log.Error(this,
+                    "Could not open SplashMenuUIView : {0}",
+                    ex));
         }
 
         /// <summary>
@@ -233,9 +266,13 @@ namespace CreateAR.SpirePlayer
                     el.OnBack += MainMenu_OnBack;
                     el.OnNew += MainMenu_OnNew;
                     el.OnPlay += MainMenu_OnPlay;
-                });
+                    el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
+                })
+                .OnFailure(ex => Log.Error(this,
+                    "Could not open MainMenuUIView : {0}",
+                    ex)); ;
         }
-
+        
         /// <summary>
         /// Closes main menu.
         /// </summary>
@@ -350,7 +387,27 @@ namespace CreateAR.SpirePlayer
             _config.Play.Edit = false;
             _messages.Publish(MessageTypes.PLAY);
         }
-        
+
+        /// <summary>
+        /// Called when default play mode has changed.
+        /// </summary>
+        /// <param name="play">Play.</param>
+        private void MainMenu_OnDefaultPlayModeChanged(bool play)
+        {
+            Log.Info(this, "Queueing preference update.");
+
+            _prefs.Queue((data, next) =>
+            {
+                // update
+                var appData = data.App(_config.Play.AppId);
+                appData.Play = play;
+
+                Log.Info(this, "Preferences updated.");
+
+                next(data);
+            });
+        }
+
         /// <summary>
         /// Called when element asks for adjustment.
         /// </summary>
