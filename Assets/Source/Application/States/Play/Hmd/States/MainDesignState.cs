@@ -267,6 +267,7 @@ namespace CreateAR.SpirePlayer
                     el.OnNew += MainMenu_OnNew;
                     el.OnPlay += MainMenu_OnPlay;
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
+                    el.Initialize(_prefs.Data.App(_config.Play.AppId).Play);
                 })
                 .OnFailure(ex => Log.Error(this,
                     "Could not open MainMenuUIView : {0}",
