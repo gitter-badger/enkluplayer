@@ -7,8 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// View for moving content.
     /// </summary>
-    [InjectVine("Element.MoveContent")]
-    public class MoveElementController : InjectableIUXController
+    public class MoveElementUIView : MonoBehaviourIUXController
     {
         /// <summary>
         /// The controller we're moving.
@@ -70,9 +69,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        protected override void Awake()
+        protected override void AfterElementsCreated()
         {
-            base.Awake();
+            base.AfterElementsCreated();
 
             BtnOk.Activator.OnActivated += _ =>
             {
@@ -95,16 +94,7 @@ namespace CreateAR.SpirePlayer
                 }
             };
         }
-
-        /// <inheritdoc />
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-
-            _controller = null;
-            _unityElement = null;
-        }
-
+        
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Update()
         {

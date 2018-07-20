@@ -11,19 +11,19 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Main menu button.
         /// </summary>
-        [InjectElements("btn-menu")]
+        [InjectElements("..btn-menu")]
         public ButtonWidget BtnMenu { get; set; }
 
         /// <summary>
         /// Main menu button.
         /// </summary>
-        [InjectElements("btn-back")]
+        [InjectElements("..btn-back")]
         public ButtonWidget BtnBack{ get; set; }
 
         /// <summary>
         /// Main menu button.
         /// </summary>
-        [InjectElements("btn-play")]
+        [InjectElements("..btn-play")]
         public ButtonWidget BtnPlay { get; set; }
 
         /// <summary>

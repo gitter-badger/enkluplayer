@@ -111,6 +111,15 @@ MonoBehaviour:
     - UIDataId: Anchor.Place
       Element: {fileID: 114069561741206676, guid: caa9dd319613fb245853805df1e33bd1,
         type: 2}
+    - UIDataId: Element.Adjust
+      Element: {fileID: 114681245593466650, guid: e30a987c47686e242a005ca682d03d4a,
+        type: 2}
+    - UIDataId: Element.Edit
+      Element: {fileID: 114305705692134552, guid: 6c566303e69dd3c48acddc7281a6ef80,
+        type: 2}
+    - UIDataId: Element.Move
+      Element: {fileID: 114906664826131604, guid: 695cd17ce6088ca4cbcef1e2882c1d32,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error

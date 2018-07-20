@@ -6,8 +6,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controller for UI that edits content.
     /// </summary>
-    [InjectVine("Element.Edit")]
-    public class EditElementController : InjectableIUXController
+    public class EditElementUIView : MonoBehaviourIUXController
     {
         /// <summary>
         /// The design controller.
@@ -67,12 +66,13 @@ namespace CreateAR.SpirePlayer
 
             TglVisible.OnValueChanged += tgl => _visibleProp.Value = tgl.Value;
             UpdateVisibilityToggle();
+            ResetMenuPosition();
         }
 
         /// <inheritdoc />
-        protected override void Awake()
+        protected override void AfterElementsCreated()
         {
-            base.Awake();
+            base.AfterElementsCreated();
 
             BtnMove.Activator.OnActivated += Move_OnActivated;
             BtnReparent.Activator.OnActivated += Reparent_OnActivated;
@@ -89,6 +89,14 @@ namespace CreateAR.SpirePlayer
             }
 
             base.OnDestroy();
+        }
+
+        /// <summary>
+        /// Resets the position of the menu to the center of the element.
+        /// </summary>
+        private void ResetMenuPosition()
+        {
+            transform.position = _controller.ElementTransform.position;
         }
 
         /// <summary>

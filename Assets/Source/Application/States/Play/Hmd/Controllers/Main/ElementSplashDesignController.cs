@@ -50,10 +50,18 @@ namespace CreateAR.SpirePlayer
             HideSplashMenu();
         }
 
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void Awake()
+        {
+            _splashController = gameObject.AddComponent<ElementSplashController>();
+
+            HideSplashMenu();
+        }
+
         /// <summary>
         /// Hides the splash menu.
         /// </summary>
-        public void HideSplashMenu()
+        private void HideSplashMenu()
         {
             if (null != _splashController)
             {
@@ -64,20 +72,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Shows the splash menu.
         /// </summary>
-        public void ShowSplashMenu()
+        private void ShowSplashMenu()
         {
             if (null != _splashController)
             {
                 _splashController.Root.Schema.Set("visible", true);
             }
-        }
-
-        /// <inheritdoc cref="MonoBehaviour"/>
-        private void Awake()
-        {
-            _splashController = gameObject.AddComponent<ElementSplashController>();
-
-            HideSplashMenu();
         }
 
         /// <summary>

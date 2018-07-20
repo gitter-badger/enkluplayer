@@ -8,8 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the menu for adjusting a prop.
     /// </summary>
-    [InjectVine("Element.Adjust")]
-    public class AdjustElementController : InjectableIUXController
+    public class AdjustElementUIView : MonoBehaviourIUXController
     {
         /// <summary>
         /// Ties together the propdata and content.
@@ -55,14 +54,16 @@ namespace CreateAR.SpirePlayer
         public IIntentionManager Intention { get; set; }
 
         /// <summary>
-        /// The container for all the control buttons.
+        /// Loads assets.
         /// </summary>
-        [InjectElements("..controls")]
-        public Widget Container { get; private set; }
+        [Inject]
+        public IAssetManager Assets { get; set; }
 
         /// <summary>
         /// Elements.
         /// </summary>
+        [InjectElements("..controls")]
+        public Widget Container { get; private set; }
         [InjectElements("..btn-back")]
         public ButtonWidget BtnBack { get; private set; }
         [InjectElements("..btn-rotate")]
@@ -90,12 +91,6 @@ namespace CreateAR.SpirePlayer
         /// Called when the menu should be exited.
         /// </summary>
         public event Action<ElementSplashDesignController> OnExit;
-
-        /// <summary>
-        /// Loads assets.
-        /// </summary>
-        [Inject]
-        public IAssetManager Assets { get; set; }
         
         /// <summary>
         /// Initiailizes the menu.
@@ -129,9 +124,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        protected override void Awake()
+        protected override void AfterElementsCreated()
         {
-            base.Awake();
+            base.AfterElementsCreated();
 
             BtnBack.Activator.OnActivated += BtnBack_OnActivated;
 
@@ -211,7 +206,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Resets the position of the menu to the center of the content.
+        /// Resets the position of the menu to the center of the element.
         /// </summary>
         private void ResetMenuPosition()
         {
