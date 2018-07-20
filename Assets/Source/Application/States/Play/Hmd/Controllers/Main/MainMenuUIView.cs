@@ -39,8 +39,8 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..btn-resetdata")]
         public ButtonWidget BtnResetData{ get; set; }
 
-        [InjectElements("..tgl-play")]
-        public ToggleWidget TglPlay { get; set; }
+        [InjectElements("..slt-play")]
+        public SelectWidget SltPlay { get; set; }
 
         [InjectElements("..slt-logging")]
         public SelectWidget SltLogging { get; set; }
@@ -123,11 +123,11 @@ namespace CreateAR.SpirePlayer
                 }
             };
 
-            TglPlay.OnValueChanged += _ =>
+            SltPlay.OnValueChanged += _ =>
             {
                 if (null != OnDefaultPlayModeChanged)
                 {
-                    OnDefaultPlayModeChanged(TglPlay.Value);
+                    OnDefaultPlayModeChanged(SltPlay.Selection.Value == "Play");
                 }
             };
 

@@ -164,9 +164,6 @@ namespace CreateAR.SpirePlayer
             
             if (SliderZ.Visible)
             {
-                /*var zScale = 10;
-                var scalar = (SliderZ.Value - 0.5f) * zScale;
-                _controller.ElementTransform.position = _startPosition + scalar * _startForward;*/
                 _controller.ElementTransform.position = SliderZ.Focus.ToVector();
             }
 

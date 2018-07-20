@@ -18,8 +18,11 @@
 			</SubMenu>
 			
 			<SubMenu label='Settings' icon='gear'>
-				<Button id='btn-resetdata' label='Reset Data' ready.color='Negative' />
-				<Toggle id='tgl-play' label='Default to Play' value=true />
+				<Button id='btn-resetdata' label='Reset Data' ready.color='Negative' icon='trash' />
+				<Select id='slt-play'>
+					<Option label='Play' value='Play' />
+					<Option label='Edit' value='Edit' />
+				</Select>
 				<Select id='slt-logging' >
 					<Option label='None' value='None' />
 					<Option label='Debug' value='Debug' />
