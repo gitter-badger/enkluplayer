@@ -15,7 +15,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             X,
             Y,
-            Custom
+            Z
         }
 
         /// <summary>
@@ -198,7 +198,9 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void LoadInternalBeforeChildren()
         {
             base.LoadInternalBeforeChildren();
-            
+
+            Schema.Get<bool>("visible").OnChanged += (prop, prev, next) => UpdateBasis();
+
             _lengthProp = Schema.Get<float>("length");
             _lengthProp.OnChanged += Length_OnChanged;
 
@@ -227,7 +229,8 @@ namespace CreateAR.SpirePlayer.IUX
             _renderer.enabled = true;
             _isDirty = true;
             _valueAtCenter = 0f;
-            
+
+            UpdateBasis();
             UpdateTooltipVisibility();
         }
         
@@ -255,7 +258,6 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            UpdateBasis();
             UpdateArrowPositions();
             UpdateButtonPosition();
             UpdateTooltip();
@@ -294,16 +296,24 @@ namespace CreateAR.SpirePlayer.IUX
             _n = -_intentions.Forward.ToVector().normalized;
 
             var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
-            if (axis == AxisType.X)
+            if (axis == AxisType.Y)
+            {
+                _d = Vector3.up;
+            }
+            else if (axis == AxisType.Z)
+            {
+                _d = new Vector3(
+                    _intentions.Forward.x,
+                    0,
+                    _intentions.Forward.z).normalized;
+                _n = Vector3.Cross(_d, Vector3.up);
+            }
+            else
             {
                 _d = new Vector3(
                     _intentions.Right.x,
                     0,
                     _intentions.Right.z).normalized;
-            }
-            else
-            {
-                _d = Vector3.up;
             }
 
             _renderer.O = _O;
@@ -331,6 +341,11 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _minImage.Schema.Set("src", "res://Art/Textures/arrow-down");
                 _maxImage.Schema.Set("src", "res://Art/Textures/arrow-up");
+            }
+            else if (axis == AxisType.Z)
+            {
+                _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
+                _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
             }
             else
             {
@@ -367,13 +382,17 @@ namespace CreateAR.SpirePlayer.IUX
                     3f * Time.deltaTime);
             }
 
-            Render.Handle("IUX").Draw(ctx =>
+            var handle = Render.Handle("IUX");
+            if (null != handle)
             {
-                ctx.Color(UnityEngine.Color.green);
-                ctx.Cube(intersection, 0.1f);
-                ctx.Line(intersection, _O + projection * _d);
-                ctx.Line(_O, _O + projection * _d);
-            });
+                handle.Draw(ctx =>
+                {
+                    ctx.Color(UnityEngine.Color.green);
+                    ctx.Cube(intersection, 0.1f);
+                    ctx.Line(intersection, _O + projection * _d);
+                    ctx.Line(_O, _O + projection * _d);
+                });
+            }
 
             _handle.GameObject.transform.position = target;
         }

@@ -15,7 +15,7 @@
 		/* Axes */
 		<Slider id='slider-x' visible=false length=1.2 axis='x' position=(-0.2, 0, 0) />
 		<Slider id='slider-y' visible=false length=1.2 axis='y' position=(0, 0.2, 0) />
-		<Slider id='slider-z' visible=false length=1.2 axis='y' position=(0, 0, 0) />
+		<Slider id='slider-z' visible=false length=1.2 axis='z' position=(0, 0, 0) />
 		
 		/* Scale */
 		<Slider id='slider-scale' visible=false tooltip=true length=2.0 axis='x' position=(0, 0.1, 0) />
