@@ -59,6 +59,11 @@ namespace CreateAR.SpirePlayer.IUX
         private Vector3 _O;
 
         /// <summary>
+        /// Direction of normal.
+        /// </summary>
+        private Vector3 _n;
+
+        /// <summary>
         /// Direction of line.
         /// </summary>
         private Vector3 _d;
@@ -254,17 +259,6 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateArrowPositions();
             UpdateButtonPosition();
             UpdateTooltip();
-
-            var handle = Render.Handle("IUX");
-            if (null != handle)
-            {
-                handle.Draw(ctx =>
-                {
-                    ctx.Color(UnityEngine.Color.yellow);
-                    ctx.Cube(_O, 0.1f);
-                    ctx.Line(_O, _O + _d);
-                });
-            }
         }
 
         /// <inheritdoc />
@@ -297,6 +291,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void UpdateBasis()
         {
             _O = GameObject.transform.position;
+            _n = -_intentions.Forward.ToVector().normalized;
 
             var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
             if (axis == AxisType.X)
@@ -313,6 +308,17 @@ namespace CreateAR.SpirePlayer.IUX
 
             _renderer.O = _O;
             _renderer.d = _d;
+
+            var handle = Render.Handle("IUX");
+            if (null != handle)
+            {
+                handle.Draw(ctx =>
+                {
+                    ctx.Color(UnityEngine.Color.yellow);
+                    ctx.Cube(_O, 0.1f);
+                    ctx.Line(_O, _O + _d);
+                });
+            }
         }
 
         /// <summary>
@@ -361,6 +367,14 @@ namespace CreateAR.SpirePlayer.IUX
                     3f * Time.deltaTime);
             }
 
+            Render.Handle("IUX").Draw(ctx =>
+            {
+                ctx.Color(UnityEngine.Color.green);
+                ctx.Cube(intersection, 0.1f);
+                ctx.Line(intersection, _O + projection * _d);
+                ctx.Line(_O, _O + projection * _d);
+            });
+
             _handle.GameObject.transform.position = target;
         }
 
@@ -384,17 +398,28 @@ namespace CreateAR.SpirePlayer.IUX
 
             // plane
             var P0 = _O;
-            var n = -_intentions.Forward.ToVector().normalized;
 
             // line
             var O = _intentions.Origin.ToVector();
             var d = _intentions.Forward.ToVector();
 
             // substitute plane equation in for P to find t
-            var t = Vector3.Dot(P0 - O, n) / Vector3.Dot(n, d);
+            var t = Vector3.Dot(P0 - O, _n) / Vector3.Dot(_n, d);
 
             // return intersection
-            return O + t * d;
+            var intersection = O + t * d;
+
+            var handle = Render.Handle("IUX");
+            if (null != handle)
+            {
+                handle.Draw(ctx =>
+                {
+                    ctx.Color(UnityEngine.Color.blue);
+                    ctx.Line(_O, _O + _n);
+                });
+            }
+
+            return intersection;
         }
 
         /// <summary>

@@ -154,39 +154,20 @@ namespace CreateAR.SpirePlayer
             
             if (SliderX.Visible)
             {
-                var offset = BtnX.GameObject.transform.position - Container.GameObject.transform.position;
-
-                var O = Container.GameObject.transform.position;
-                var d = Intention.Right.ToVector();
-
-                // project focus onto line
-                var focus = SliderX.Focus.ToVector();
-                var scalar = Vector3.Dot(focus - O, d);
-                var diff = scalar * d;
-                
-                _controller.ElementTransform.position = O + diff - offset;
+                _controller.ElementTransform.position = SliderX.Focus.ToVector();
             }
 
             if (SliderY.Visible)
             {
-                var offset = BtnY.GameObject.transform.position - Container.GameObject.transform.position;
-
-                var O = Container.GameObject.transform.position;
-                var d = Intention.Up.ToVector();
-
-                // project focus onto line
-                var focus = SliderY.Focus.ToVector();
-                var scalar = Vector3.Dot(focus - O, d);
-                var diff = scalar * d;
-
-                _controller.ElementTransform.position = O + diff - offset;
+                _controller.ElementTransform.position = SliderY.Focus.ToVector();
             }
             
             if (SliderZ.Visible)
             {
-                var zScale = 10;
+                /*var zScale = 10;
                 var scalar = (SliderZ.Value - 0.5f) * zScale;
-                _controller.ElementTransform.position = _startPosition + scalar * _startForward;
+                _controller.ElementTransform.position = _startPosition + scalar * _startForward;*/
+                _controller.ElementTransform.position = SliderZ.Focus.ToVector();
             }
 
             if (SliderScale.Visible)
