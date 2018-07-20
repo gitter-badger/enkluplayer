@@ -229,8 +229,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc />
         protected override void UnloadInternalAfterChildren()
         {
-            base.UnloadInternalAfterChildren();
-
             _renderer.enabled = false;
 
             Interactable = false;
@@ -238,6 +236,8 @@ namespace CreateAR.SpirePlayer.IUX
 
             _lengthProp.OnChanged -= Length_OnChanged;
             _axisProp.OnChanged -= Axis_OnChanged;
+
+            base.UnloadInternalAfterChildren();
         }
 
         /// <inheritdoc />
