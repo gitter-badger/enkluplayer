@@ -279,8 +279,8 @@ namespace CreateAR.SpirePlayer
                     }
                 }
 
-                // otherwise, this element needs to be added to the filtered list
-                if (!found)
+                // otherwise, this element may need to be added to the filtered list
+                if (!found && Include((Element) element))
                 {
                     AddAllControllersToElement(element);
 
