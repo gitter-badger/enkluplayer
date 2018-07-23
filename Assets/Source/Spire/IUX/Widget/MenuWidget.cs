@@ -404,6 +404,12 @@ namespace CreateAR.SpirePlayer.IUX
                         continue;
                     }
 
+                    // don't add invisible children
+                    if (!child.Schema.Get<bool>("visible").Value)
+                    {
+                        continue;
+                    }
+
                     _filteredChildren.Add(child);
                 }
 
