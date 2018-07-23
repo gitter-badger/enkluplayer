@@ -96,7 +96,7 @@ namespace CreateAR.SpirePlayer
             {
                 if (!config.Lighting.DefaultDirectionalLight)
                 {
-                    var directional = GameObject.Find("Directional light");
+                    var directional = GameObject.Find("Directional Light");
                     if (null == directional)
                     {
                         Log.Error(this, "Could not find default directional light!");
