@@ -271,7 +271,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(ex => Log.Error(this,
                     "Could not open MainMenuUIView : {0}",
-                    ex)); ;
+                    ex));
         }
         
         /// <summary>

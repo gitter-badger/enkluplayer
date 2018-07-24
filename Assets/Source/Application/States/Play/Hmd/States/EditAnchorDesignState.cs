@@ -326,7 +326,7 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this, "Could not open confirmation dialog : {0}", exception);
 
                     _adjustAnchor.enabled = true;
-                }); ;
+                });
         }
 
         /// <summary>
