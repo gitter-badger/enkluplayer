@@ -131,6 +131,8 @@ namespace CreateAR.SpirePlayer.IUX
                 Status = anchor.isLocated
                     ? WorldAnchorStatus.IsReadyLocated
                     : WorldAnchorStatus.IsReadyNotLocated;
+#else
+                Status = WorldAnchorStatus.IsReadyLocated;
 #endif
             }
         }
@@ -161,7 +163,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Reloads the world anchor.
         /// </summary>
-        [Conditional("NETFX_CORE")]
+        [Conditional("NETFX_CORE"), Conditional("UNITY_EDITOR")]
         private void UpdateWorldAnchor()
         {
             // abort previous

@@ -175,7 +175,8 @@ namespace CreateAR.SpirePlayer
             var version = anchor.Schema.Get<int>("version").Value + 1;
 
             // renderer should show saving!
-            controller.Renderer.PlaceholderSaving();
+            controller.Renderer.Poll = AnchorRenderer.PollType.Forced;
+            controller.Renderer.ForcedColor = Color.cyan;
 
             // export
             Log.Info(this, "Re-save anchor called. Beginning export and re-upload process.");
@@ -189,7 +190,9 @@ namespace CreateAR.SpirePlayer
                     // save to cache
                     _cache.Save(anchor.Id, version, bytes);
 
-                    ReuploadAnchor(bytes, anchor, version, 3);
+                    controller.Renderer.ForcedColor = Color.gray;
+
+                    ReuploadAnchor(controller, bytes, anchor, version, 3);
                 })
                 .OnFailure(exception =>
                 {
@@ -197,7 +200,7 @@ namespace CreateAR.SpirePlayer
                         "Could not export anchor : {0}.",
                         exception);
 
-                    controller.Renderer.PlaceholderError();
+                    controller.Renderer.ForcedColor = Color.red;
                 });
         }
         
@@ -205,6 +208,7 @@ namespace CreateAR.SpirePlayer
         /// Updates an anchor.
         /// </summary>
         private void ReuploadAnchor(
+            AnchorDesignController controller,
             byte[] bytes,
             WorldAnchorWidget anchor,
             int version,
@@ -234,7 +238,7 @@ namespace CreateAR.SpirePlayer
                         _elementUpdater.FinalizeUpdate(anchor);
 
                         // show controller as ready again
-                        //controller.Renderer.Ready();
+                        controller.Renderer.Poll = AnchorRenderer.PollType.Dynamic;
                     }
                     else
                     {
@@ -242,7 +246,7 @@ namespace CreateAR.SpirePlayer
                             "Anchor reupload error : {0}.",
                             response.Payload.Error);
 
-                        //controller.Renderer.Error();
+                        controller.Renderer.ForcedColor = Color.red;
                     }
                 })
                 .OnFailure(exception =>
@@ -255,11 +259,11 @@ namespace CreateAR.SpirePlayer
                     {
                         Log.Info(this, "Retry reuploading anchor.");
 
-                        ReuploadAnchor(bytes, anchor, version, retries);
+                        ReuploadAnchor(controller, bytes, anchor, version, retries);
                     }
                     else
                     {
-                        //controller.Renderer.Error();
+                        controller.Renderer.ForcedColor = Color.red;
                     }
                 });
         }

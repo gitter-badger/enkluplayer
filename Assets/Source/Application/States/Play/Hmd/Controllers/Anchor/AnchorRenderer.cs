@@ -9,6 +9,12 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class AnchorRenderer : MonoBehaviour
     {
+        public enum PollType
+        {
+            Dynamic,
+            Forced
+        }
+
         /// <summary>
         /// Materials.
         /// </summary>
@@ -19,15 +25,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public WorldAnchorWidget Anchor { get; set; }
 
-        public void PlaceholderSaving()
-        {
+        public PollType Poll { get; set; }
 
-        }
-
-        public void PlaceholderError()
-        {
-
-        }
+        public Color ForcedColor { get; set; }
 
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Awake()
@@ -40,6 +40,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Update()
         {
+            if (Poll == PollType.Forced)
+            {
+                ChangeColor(ForcedColor);
+                return;
+            }
+
             if (null == Anchor)
             {
                 ChangeColor(Color.white);

@@ -131,7 +131,8 @@ namespace CreateAR.SpirePlayer
                 _design.Config.AnchorPrefab,
                 data.Schema.Vectors["position"].ToVector(),
                 Quaternion.identity);
-            placeholder.PlaceholderSaving();
+            placeholder.Poll = AnchorRenderer.PollType.Forced;
+            placeholder.ForcedColor = Color.cyan;
 
             // cleans up after all potential code paths
             Action cleanup = () =>
@@ -139,6 +140,8 @@ namespace CreateAR.SpirePlayer
                 Log.Info(this, "Destroying placeholder.");
 
                 Object.Destroy(placeholder.gameObject);
+
+                // TODO: SPAWN ERROR EFFECT
             };
 
             // export
@@ -154,6 +157,8 @@ namespace CreateAR.SpirePlayer
                     // save to cache
                     _cache.Save(data.Id, version, bytes);
 
+                    placeholder.ForcedColor = Color.gray;
+
                     // upload
                     UploadAnchor(data, url, bytes, cleanup, 3)
                         .OnSuccess(token.Succeed)
@@ -166,6 +171,8 @@ namespace CreateAR.SpirePlayer
                         exception);
 
                     token.Fail(exception);
+
+                    placeholder.ForcedColor = Color.red;
 
                     cleanup();
                 });
