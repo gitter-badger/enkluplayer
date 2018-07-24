@@ -85,7 +85,18 @@ namespace CreateAR.SpirePlayer.Test.Analytics
             Assert.AreEqual(2, _target.Records.Count);
             Assert.IsTrue(_target.Records[0].Value > _target.Records[1].Value);
         }
-        
+
+        [Test]
+        public void TimeAbort()
+        {
+            var timer = _metrics.Timer(KEY);
+            var id = timer.Start();
+            timer.Abort(id);
+            timer.Stop(id);
+
+            Assert.AreEqual(0, _target.Records.Count);
+        }
+
         [Test]
         public void CounterAdd()
         {

@@ -134,6 +134,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
 	    private void Start()
         {
+            // start metrics
+            var config = _binder.GetInstance<ApplicationConfig>().Metrics;
+            var metrics = _binder.GetInstance<IMetricsService>();
+            if (!UnityEngine.Application.isEditor)
+            {
+                metrics.AddTarget(new HostedGraphiteMetricsTarget(
+                    config.Hostname,
+                    config.ApplicationKey));
+            }
+
             // handle restarts
             _binder.GetInstance<IMessageRouter>().Subscribe(
                 MessageTypes.RESTART,

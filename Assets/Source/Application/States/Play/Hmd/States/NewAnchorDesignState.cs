@@ -40,6 +40,11 @@ namespace CreateAR.SpirePlayer
         private readonly IElementUpdateDelegate _elementUpdater;
 
         /// <summary>
+        /// Metrics implementation.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Design controller.
         /// </summary>
         private HmdDesignController _design;
@@ -57,13 +62,15 @@ namespace CreateAR.SpirePlayer
             IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
             IElementUpdateDelegate elementUpdater,
-            IUIManager ui)
+            IUIManager ui,
+            IMetricsService metrics)
         {
             _http = http;
             _cache = cache;
             _provider = provider;
             _elementUpdater = elementUpdater;
             _ui = ui;
+            _metrics = metrics;
         }
 
         /// <inheritdoc />
@@ -187,6 +194,9 @@ namespace CreateAR.SpirePlayer
         {
             var token = new AsyncToken<Void>();
 
+            // metrics
+            var uploadId = _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Start();
+
             _http
                 .PostFile<Trellis.Messages.UploadAnchor.Response>(
                     _http.Urls.Url(url),
@@ -197,6 +207,9 @@ namespace CreateAR.SpirePlayer
                     if (response.Payload.Success)
                     {
                         Log.Info(this, "Successfully uploaded anchor.");
+
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Stop(uploadId);
 
                         // complete, now create corresponding element
                         _elementUpdater
@@ -223,6 +236,9 @@ namespace CreateAR.SpirePlayer
                             response.Payload.Error);
                         Log.Error(this, error);
 
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
+
                         token.Fail(new Exception(error));
                     }
 
@@ -234,6 +250,9 @@ namespace CreateAR.SpirePlayer
                     Log.Warning(this,
                         "Could not upload anchor : {0}.",
                         exception);
+
+                    // metrics
+                    _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
 
                     if (--retries > 0)
                     {

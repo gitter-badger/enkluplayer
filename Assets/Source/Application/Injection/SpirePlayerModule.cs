@@ -44,6 +44,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
+                binder.Bind<IMetricsService>().To<MetricsService>().ToSingleton();
 
                 if (config.Network.Offline)
                 {

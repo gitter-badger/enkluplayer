@@ -26,7 +26,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
-        
+
+        /// <summary>
+        /// Handles metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
         /// <summary>
         /// Queue of actions to run on the main thread.
         /// </summary>
@@ -60,9 +65,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public HoloLensWorldAnchorProvider(IBootstrapper bootstrapper)
+        public HoloLensWorldAnchorProvider(
+            IBootstrapper bootstrapper,
+            IMetricsService metrics)
         {
             _bootstrapper = bootstrapper;
+            _metrics = metrics;
         }
 
         /// <inheritdoc />
@@ -77,6 +85,9 @@ namespace CreateAR.SpirePlayer.IUX
                 Log.Info(this, "{0}::Anchor is already being exported currently.", id);
                 return token.Token();
             }
+
+            // instrument
+            var exportId = _metrics.Timer(MetricsKeys.ANCHOR_EXPORT).Start();
 
             RetainWatcher();
             token = _exports[gameObject] = new AsyncToken<byte[]>();
@@ -142,9 +153,15 @@ namespace CreateAR.SpirePlayer.IUX
 
             onExportComplete = reason =>
             {
+                // export
+                _metrics.Timer(MetricsKeys.ANCHOR_EXPORT).Stop(exportId);
+
                 if (reason == SerializationCompletionReason.Succeeded)
                 {
                     Log.Info(this, "{0}::WorldAnchor export complete. Compressing data.", id);
+
+                    // metrics
+                    var compressId = _metrics.Timer(MetricsKeys.ANCHOR_COMPRESSION).Start();
 
                     // compress data
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -160,7 +177,12 @@ namespace CreateAR.SpirePlayer.IUX
 
                             compressed = memoryStream.ToArray();
                         }
-                        
+
+                        // metrics
+                        _metrics.Value(MetricsKeys.ANCHOR_SIZE_RAW).Value(buffer.Length);
+                        _metrics.Value(MetricsKeys.ANCHOR_SIZE_COMPRESSED).Value(compressed.Length);
+                        _metrics.Value(MetricsKeys.ANCHOR_SIZE_RATIO).Value(compressed.Length / (float) buffer.Length);
+
                         Synchronize(() =>
                         {
                             _exports.Remove(gameObject);
@@ -169,6 +191,9 @@ namespace CreateAR.SpirePlayer.IUX
                                 "{0}::Compression complete. Saved {1} bytes.",
                                 id,
                                 index - compressed.Length);
+
+                            // metrics
+                            _metrics.Timer(MetricsKeys.ANCHOR_COMPRESSION).Stop(compressId);
 
                             // stop tracking token so we can export again later
                             _exports.Remove(gameObject);
@@ -210,15 +235,15 @@ namespace CreateAR.SpirePlayer.IUX
         public IAsyncToken<Void> Import(string id, GameObject gameObject, byte[] bytes)
         {
             Log.Info(this, "{0}::Import({1})", id, gameObject.name);
-
-            var start = DateTime.Now;
-            var end = DateTime.Now;
-
+            
             AsyncToken<Void> token;
             if (_imports.TryGetValue(gameObject, out token))
             {
                 return token.Token();
             }
+
+            // metrics
+            var queuedId = _metrics.Timer(MetricsKeys.ANCHOR_EXPORT_QUEUED).Start();
 
             // create a new token for it immediately
             RetainWatcher();
@@ -227,23 +252,24 @@ namespace CreateAR.SpirePlayer.IUX
 
             Action queuedImport = () =>
             {
-                end = DateTime.Now;
+                // metrics
+                _metrics.Timer(MetricsKeys.ANCHOR_EXPORT_QUEUED).Stop(queuedId);
 
-                Log.Info(this, "{0}::Begin queued import. Queued for {1} sec.",
-                    id,
-                    (end - start).TotalSeconds);
+                Log.Info(this, "{0}::Begin queued import.", id);
 
-                start = end;
-                
+                // metrics
+                var importId = -1;
+
                 // number of retries
-                byte[] compressed = new byte[0];
+                var compressed = new byte[0];
                 var retries = 3;
 
                 // called when import into transfew batch is complete
                 Action<SerializationCompletionReason, WorldAnchorTransferBatch> onComplete = null;
                 onComplete = (reason, batch) =>
                 {
-                    end = DateTime.Now;
+                    // metrics
+                    _metrics.Timer(MetricsKeys.ANCHOR_IMPORT).Stop(importId);
 
                     // object may be destroyed at this point
                     if (!gameObject)
@@ -286,9 +312,7 @@ namespace CreateAR.SpirePlayer.IUX
                     }
                     else
                     {
-                        Log.Info(this, "{0}::Import into transfer batch complete. Proceeding to lock. Total import time: {0} sec.",
-                            id,
-                            (end - start).TotalSeconds);
+                        Log.Info(this, "{0}::Import into transfer batch complete. Proceeding to lock.", id);
                         
                         var anchor = batch.LockObject(id, gameObject);
 
@@ -305,6 +329,9 @@ namespace CreateAR.SpirePlayer.IUX
                     // done processing
                     _isProcessing = false;
                 };
+
+                // metrics
+                var compressId = _metrics.Timer(MetricsKeys.ANCHOR_DECOMPRESSION).Start();
 
                 // start inflate in a threadpool
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -324,16 +351,13 @@ namespace CreateAR.SpirePlayer.IUX
                         compressed = output.ToArray();
                     }
 
+                    // metrics
+                    _metrics.Timer(MetricsKeys.ANCHOR_DECOMPRESSION).Stop(compressId);
+
                     // import must be started from main thread
                     Synchronize(() =>
                     {
-                        end = DateTime.Now;
-
-                        Log.Info(this, "{0}::Decompression complete. Decompression took {0} sec.",
-                            id,
-                            (end - start).TotalSeconds);
-
-                        start = end;
+                        Log.Info(this, "{0}::Decompression complete.", id);
 
                         if (!gameObject)
                         {
@@ -345,6 +369,9 @@ namespace CreateAR.SpirePlayer.IUX
 
                             return;
                         }
+
+                        // metrics
+                        importId = _metrics.Timer(MetricsKeys.ANCHOR_IMPORT).Start();
 
                         WorldAnchorTransferBatch.ImportAsync(
                             compressed,

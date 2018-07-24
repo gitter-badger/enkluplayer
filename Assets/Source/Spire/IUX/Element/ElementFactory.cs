@@ -38,6 +38,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IBootstrapper _bootstrapper;
         private readonly IScanLoader _scanLoader;
         private readonly IScanImporter _scanImporter;
+        private readonly IMetricsService _metrics;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -74,7 +75,8 @@ namespace CreateAR.SpirePlayer.IUX
             IQrReaderService qr,
             IBootstrapper bootstrapper,
             IScanLoader scanLoader,
-            IScanImporter scanImporter)
+            IScanImporter scanImporter,
+            IMetricsService metrics)
         {
             _parser = parser;
             _gizmos = gizmos;
@@ -98,6 +100,7 @@ namespace CreateAR.SpirePlayer.IUX
             _bootstrapper = bootstrapper;
             _scanLoader = scanLoader;
             _scanImporter = scanImporter;
+            _metrics = metrics;
             
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -380,7 +383,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.WORLD_ANCHOR:
                 {
-                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _cache, _provider);
+                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _cache, _provider, _metrics);
                 }
                 case ElementTypes.QR_ANCHOR:
                 {

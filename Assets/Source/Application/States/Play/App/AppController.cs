@@ -32,6 +32,11 @@ namespace CreateAR.SpirePlayer
         private readonly IConnection _connection;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// True iff the app has been loaded.
         /// </summary>
         private bool _isLoaded;
@@ -61,12 +66,14 @@ namespace CreateAR.SpirePlayer
             IAppDataLoader loader,
             IAppSceneManager scenes,
             IElementTxnManager txns,
-            IConnection connection)
+            IConnection connection,
+            IMetricsService metrics)
         {
             _loader = loader;
             _scenes = scenes;
             _txns = txns;
             _connection = connection;
+            _metrics = metrics;
         }
         
         /// <inheritdoc />
@@ -79,9 +86,23 @@ namespace CreateAR.SpirePlayer
 
             LogVerbose("Load().");
 
+            // metrics
+            var loadId = _metrics.Timer(MetricsKeys.APP_DATA_LOAD).Start();
+
             return _loader
                 .Load(appId)
-                .OnSuccess(_ => _isLoaded = true)
+                .OnSuccess(_ =>
+                {
+                    // metrics
+                    _metrics.Timer(MetricsKeys.APP_DATA_LOAD).Stop(loadId);
+
+                    _isLoaded = true;
+                })
+                .OnFailure(ex =>
+                {
+                    // metrics
+                    _metrics.Timer(MetricsKeys.APP_DATA_LOAD).Abort(loadId);
+                })
                 .Token();
         }
 

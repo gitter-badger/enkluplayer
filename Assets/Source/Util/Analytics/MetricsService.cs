@@ -38,7 +38,7 @@ namespace CreateAR.SpirePlayer
         {
             for (int i = 0, len = _timers.Count; i < len; i++)
             {
-                var timer = _timers[0];
+                var timer = _timers[i];
                 if (timer.Key == key)
                 {
                     return timer;
@@ -56,7 +56,7 @@ namespace CreateAR.SpirePlayer
         {
             for (int i = 0, len = _counters.Count; i < len; i++)
             {
-                var counter = _counters[0];
+                var counter = _counters[i];
                 if (counter.Key == key)
                 {
                     return counter;
@@ -74,7 +74,7 @@ namespace CreateAR.SpirePlayer
         {
             for (int i = 0, len = _values.Count; i < len; i++)
             {
-                var value = _values[0];
+                var value = _values[i];
                 if (value.Key == key)
                 {
                     return value;

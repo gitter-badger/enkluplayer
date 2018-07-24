@@ -38,6 +38,11 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IWorldAnchorProvider _provider;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Token for anchor download.
         /// </summary>
         private IAsyncToken<HttpResponse<byte[]>> _downloadToken;
@@ -78,12 +83,14 @@ namespace CreateAR.SpirePlayer.IUX
             ColorConfig colors,
             IHttpService http,
             IWorldAnchorCache cache,
-            IWorldAnchorProvider provider)
+            IWorldAnchorProvider provider,
+            IMetricsService metrics)
             : base(gameObject, layers, tweens, colors)
         {
             _http = http;
             _cache = cache;
             _provider = provider;
+            _metrics = metrics;
         }
 
         /// <summary>
@@ -120,6 +127,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <inheritdoc />
         protected override void LateUpdateInternal()
         {
             base.LateUpdateInternal();
@@ -243,6 +251,9 @@ namespace CreateAR.SpirePlayer.IUX
 
             _isImported = false;
 
+            // metrics
+            var downloadId = _metrics.Timer(MetricsKeys.ANCHOR_DOWNLOAD).Start();
+
             _downloadToken = _http
                 .Download(_http.Urls.Url(url))
                 .OnSuccess(response =>
@@ -270,6 +281,9 @@ namespace CreateAR.SpirePlayer.IUX
                 })
                 .OnFinally(token =>
                 {
+                    // metrics
+                    _metrics.Timer(MetricsKeys.ANCHOR_DOWNLOAD).Stop(downloadId);
+
                     if (token == _downloadToken)
                     {
                         _downloadToken = null;

@@ -90,5 +90,21 @@ namespace CreateAR.SpirePlayer
                     ? span.TotalMilliseconds
                     : span.TotalSeconds));
         }
+
+        /// <summary>
+        /// Aborts a timer by id.
+        /// </summary>
+        /// <param name="id">The id of the timer.</param>
+        public void Abort(int id)
+        {
+            var index = _ids.IndexOf(id);
+            if (-1 == index)
+            {
+                return;
+            }
+            
+            _starts.RemoveAt(index);
+            _ids.RemoveAt(index);
+        }
     }
 }

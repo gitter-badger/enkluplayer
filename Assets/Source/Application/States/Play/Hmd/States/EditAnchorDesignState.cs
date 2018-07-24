@@ -36,6 +36,11 @@ namespace CreateAR.SpirePlayer
         private readonly IUIManager _ui;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// UI frame.
         /// </summary>
         private UIManagerFrame _frame;
@@ -62,13 +67,15 @@ namespace CreateAR.SpirePlayer
             IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
             IElementUpdateDelegate elementUpdater,
-            IUIManager ui)
+            IUIManager ui,
+            IMetricsService metrics)
         {
             _http = http;
             _cache = cache;
             _provider = provider;
             _elementUpdater = elementUpdater;
             _ui = ui;
+            _metrics = metrics;
         }
 
         /// <inheritdoc />
@@ -220,6 +227,9 @@ namespace CreateAR.SpirePlayer
                 _elementUpdater.Active,
                 anchor.Id);
 
+            // metrics
+            var uploadId = _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Start();
+
             _http
                 .PutFile<Trellis.Messages.UploadAnchor.Response>(
                     _http.Urls.Url(url),
@@ -230,6 +240,9 @@ namespace CreateAR.SpirePlayer
                     if (response.Payload.Success)
                     {
                         Log.Info(this, "Successfully reuploaded anchor.");
+
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Stop(uploadId);
 
                         // complete, now send out network update
                         _elementUpdater.Update(anchor, "src", url);
@@ -246,6 +259,9 @@ namespace CreateAR.SpirePlayer
                             "Anchor reupload error : {0}.",
                             response.Payload.Error);
 
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
+
                         controller.Renderer.ForcedColor = Color.red;
                     }
                 })
@@ -254,6 +270,9 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this,
                         "Could not reupload anchor : {0}.",
                         exception);
+
+                    // metrics
+                    _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
 
                     if (--retries > 0)
                     {

@@ -38,6 +38,11 @@ namespace CreateAR.SpirePlayer
         public ConductorConfig Conductor = new ConductorConfig();
 
         /// <summary>
+        /// Metrics-related configuration.
+        /// </summary>
+        public MetricsConfig Metrics = new MetricsConfig();
+
+        /// <summary>
         /// Platform to use.
         /// </summary>
         public RuntimePlatform ParsedPlatform
@@ -113,6 +118,7 @@ namespace CreateAR.SpirePlayer
             Network.Override(overrideConfig.Network);
             Play.Override(overrideConfig.Play);
             Conductor.Override(overrideConfig.Conductor);
+            Metrics.Override(overrideConfig.Metrics);
         }
     }
 
@@ -482,6 +488,39 @@ namespace CreateAR.SpirePlayer
         public void Override(ConductorConfig config)
         {
             BatteryUpdateDeltaMs = config.BatteryUpdateDeltaMs;
+        }
+    }
+
+    /// <summary>
+    /// Configuration for metrics.
+    /// </summary>
+    public class MetricsConfig
+    {
+        /// <summary>
+        /// Hostname of the metrics box.
+        /// </summary>
+        public string Hostname;
+
+        /// <summary>
+        /// Authorization.
+        /// </summary>
+        public string ApplicationKey;
+
+        /// <summary>
+        /// Overrides settings.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        public void Override(MetricsConfig config)
+        {
+            if (!string.IsNullOrEmpty(config.Hostname))
+            {
+                Hostname = config.Hostname;
+            }
+
+            if (!string.IsNullOrEmpty(config.ApplicationKey))
+            {
+                ApplicationKey = config.ApplicationKey;
+            }
         }
     }
 }
