@@ -370,6 +370,11 @@ namespace CreateAR.SpirePlayer
                     _design.ChangeState<NewAnchorDesignState>();
                     break;
                 }
+                case ElementTypes.CONTAINER:
+                {
+                    _design.ChangeState<NewContainerDesignState>();
+                    break;
+                }
                 default:
                 {
                     Log.Warning(this,
