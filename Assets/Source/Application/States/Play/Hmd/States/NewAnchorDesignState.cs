@@ -82,7 +82,7 @@ namespace CreateAR.SpirePlayer
                 {
                     el.OnOk += Place_OnOk;
                     el.OnCancel += () => _design.ChangeState<MainDesignState>();
-                    el.Initialize(_design.Config);
+                    el.Initialize();
                 });
         }
 

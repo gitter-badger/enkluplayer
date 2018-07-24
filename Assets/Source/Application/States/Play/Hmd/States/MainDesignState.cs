@@ -80,7 +80,7 @@ namespace CreateAR.SpirePlayer
         /// Id of main menu.
         /// </summary>
         private int _mainId;
-
+        
         /// <summary>
         /// User preferences.
         /// </summary>
@@ -144,7 +144,7 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(prefs =>
                 {
                     _prefs = prefs;
-
+                    
                     // content
                     _controllers
                         .Group(TAG_CONTENT)
@@ -194,7 +194,7 @@ namespace CreateAR.SpirePlayer
                         });
 
                     // turn on the controller groups
-                    _controllers.Activate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
+                    _controllers.Activate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN, TAG_ANCHOR);
 
                     // open the splash menu
                     OpenSplashMenu();
@@ -214,8 +214,8 @@ namespace CreateAR.SpirePlayer
             _prefLoad.Abort();
 
             // kill element menus
-            _controllers.Deactivate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN);
-
+            _controllers.Deactivate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN, TAG_ANCHOR);
+            
             // kill any other UI
             _frame.Release();
 

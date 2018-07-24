@@ -6,8 +6,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Controls the menu for adjusting an anchor.
     /// </summary>
-    [InjectVine("Anchor.Adjust")]
-    public class AdjustAnchorController : InjectableIUXController
+    public class AdjustAnchorUIView : MonoBehaviourIUXController
     {
         /// <summary>
         /// Controller.
@@ -67,9 +66,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        protected override void Awake()
+        protected override void AfterElementsCreated()
         {
-            base.Awake();
+            base.AfterElementsCreated();
 
             BtnBack.Activator.OnActivated += _ =>
             {
