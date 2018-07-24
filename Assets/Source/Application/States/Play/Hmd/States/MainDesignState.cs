@@ -271,7 +271,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(ex => Log.Error(this,
                     "Could not open MainMenuUIView : {0}",
-                    ex)); ;
+                    ex));
         }
         
         /// <summary>
@@ -368,6 +368,11 @@ namespace CreateAR.SpirePlayer
                 case ElementTypes.WORLD_ANCHOR:
                 {
                     _design.ChangeState<NewAnchorDesignState>();
+                    break;
+                }
+                case ElementTypes.CONTAINER:
+                {
+                    _design.ChangeState<NewContainerDesignState>();
                     break;
                 }
                 default:

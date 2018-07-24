@@ -104,3 +104,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 32403e9ef81b3c74d85b7df02aefea47, type: 3}
   - Identifier: Common.Confirmation
     Source: {fileID: 4900000, guid: 981b0d7a95f66d2489779b320823be77, type: 3}
+  - Identifier: Container.Place
+    Source: {fileID: 4900000, guid: 22eaa656fdd41a143952fe55c5e57e11, type: 3}

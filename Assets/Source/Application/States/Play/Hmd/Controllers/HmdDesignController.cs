@@ -128,6 +128,7 @@ namespace CreateAR.SpirePlayer
             MainDesignState main,
             NewContentDesignState newContent,
             NewAnchorDesignState newAnchor,
+            NewContainerDesignState newContainer,
             EditElementDesignState editElement,
             ReparentDesignState reparent,
             EditAnchorDesignState anchors)
@@ -149,6 +150,7 @@ namespace CreateAR.SpirePlayer
                 main,
                 newContent,
                 newAnchor,
+                newContainer,
                 editElement,
                 reparent,
                 anchors

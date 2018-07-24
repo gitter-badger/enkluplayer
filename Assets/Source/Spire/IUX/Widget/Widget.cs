@@ -773,7 +773,6 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateCollider(next);
         }
 
-
         /// <summary>
         /// Called when the name prop changes.
         /// </summary>

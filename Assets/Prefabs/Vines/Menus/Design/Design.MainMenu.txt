@@ -9,7 +9,7 @@
 				<Button id='btn-new-asset' label='Asset' icon='tree' />
 				<Button id='btn-new-anchor' label='Anchor' icon='anchor' />
 				<Button id='btn-new-text' label='Text' icon='text' visible=false />
-				<Button id='btn-new-container' label='Container' icon='grid' visible=false />
+				<Button id='btn-new-container' label='Container' icon='grid' />
 				<Button id='btn-new-light' label='Light' icon='light' visible=false />
 			</SubMenu>
 			
