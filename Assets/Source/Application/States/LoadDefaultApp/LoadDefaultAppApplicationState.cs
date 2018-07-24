@@ -61,6 +61,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private IAsyncToken<Response> _getMyAppsToken;
 
+        private UserPreferenceData _prefs;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -100,14 +102,14 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(
                     obj =>
                     {
-                        var prefs = obj.Data;
-                        if (string.IsNullOrEmpty(prefs.MostRecentAppId))
+                        _prefs = obj.Data;
+                        if (string.IsNullOrEmpty(_prefs.MostRecentAppId))
                         {
                             ChooseDefaultApp();
                         }
                         else
                         {
-                            LoadApp(prefs.MostRecentAppId);
+                            LoadApp(_prefs.MostRecentAppId, _prefs.App(_prefs.MostRecentAppId));
                         }
                     });
         }
@@ -129,7 +131,7 @@ namespace CreateAR.SpirePlayer
                 _getMyAppsToken = null;
             }
         }
-        
+
         /// <summary>
         /// Chooses a default app by peeking through all user's apps.
         /// </summary>
@@ -148,7 +150,8 @@ namespace CreateAR.SpirePlayer
                     var apps = response.Body;
                     if (apps.Length > 0)
                     {
-                        LoadApp(apps[0].Id);
+                        var id = apps[0].Id;
+                        LoadApp(id, _prefs.App(id));
                     }
                     else
                     {
@@ -179,10 +182,11 @@ namespace CreateAR.SpirePlayer
         /// Loads an app.
         /// </summary>
         /// <param name="appId">The id of the app to load.</param>
-        private void LoadApp(string appId)
+        /// <param name="app"></param>
+        private void LoadApp(string appId, UserAppPreferenceData app)
         {
             _config.Play.AppId = appId;
-            _config.Play.Edit = false;
+            _config.Play.Edit = !app.Play;
             
             _messages.Publish(MessageTypes.LOAD_APP);
         }

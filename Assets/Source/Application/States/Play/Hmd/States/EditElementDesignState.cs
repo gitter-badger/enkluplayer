@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -27,26 +26,6 @@ namespace CreateAR.SpirePlayer
         private HmdDesignController _design;
         
         /// <summary>
-        /// Root element for dynamic content.
-        /// </summary>
-        private Element _dynamicRoot;
-        
-        /// <summary>
-        /// Menu to adjust prop.
-        /// </summary>
-        private AdjustElementController _adjustElement;
-
-        /// <summary>
-        /// Menu to edit prop.
-        /// </summary>
-        private EditElementController _editElement;
-
-        /// <summary>
-        /// Menu to place objects.
-        /// </summary>
-        private MoveElementController _move;
-
-        /// <summary>
         /// Content controller.
         /// </summary>
         private ElementSplashDesignController _controller;
@@ -55,6 +34,26 @@ namespace CreateAR.SpirePlayer
         /// UI frame.
         /// </summary>
         private UIManagerFrame _frame;
+
+        /// <summary>
+        /// Edit element menu.
+        /// </summary>
+        private EditElementUIView _editView;
+
+        /// <summary>
+        /// Id of adjust menu.
+        /// </summary>
+        private int _adjustId;
+
+        /// <summary>
+        /// Id of edit menu.
+        /// </summary>
+        private int _editId;
+
+        /// <summary>
+        /// Id of move menu.
+        /// </summary>
+        private int _moveId;
 
         /// <summary>
         /// Constructor.
@@ -75,44 +74,12 @@ namespace CreateAR.SpirePlayer
             Element staticRoot)
         {
             _design = design;
-            _dynamicRoot = dynamicRoot;
-
-            // adjust content
-            {
-                _adjustElement = unityRoot.AddComponent<AdjustElementController>();
-                _adjustElement.OnExit += PropAdjust_OnExit;
-                _adjustElement.enabled = false;
-                _adjustElement.SliderRotate.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
-                _adjustElement.SliderX.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
-                _adjustElement.SliderY.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
-                _adjustElement.SliderZ.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
-            }
-
-            // edit content
-            {
-                _editElement = unityRoot.AddComponent<EditElementController>();
-                _editElement.OnMove += Edit_OnMove;
-                _editElement.OnReparent += Edit_OnReparent;
-                _editElement.OnDuplicate += Edit_OnDuplicate;
-                _editElement.OnDelete += Edit_OnDelete;
-                _editElement.enabled = false;
-            }
-
-            // place content
-            {
-                _move = unityRoot.AddComponent<MoveElementController>();
-                _move.OnConfirm += Move_OnConfirmController;
-                _move.OnCancel += Move_OnCancel;
-                _move.enabled = false;
-            }
         }
 
         /// <inheritdoc />
         public void Uninitialize()
         {
-            Object.Destroy(_adjustElement);
-            Object.Destroy(_editElement);
-            Object.Destroy(_move);
+            //
         }
 
         /// <inheritdoc />
@@ -121,21 +88,82 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Entering {0}.", GetType().Name);
 
             _controller = (ElementSplashDesignController) context;
-
-            // hide the splash on the controller
-            _controller.HideSplashMenu();
-
-            _dynamicRoot.Schema.Set("focus.visible", false);
-
-            _adjustElement.Initialize(_controller);
-            _adjustElement.enabled = true;
-
-            _editElement.Initialize(_controller);
-            _editElement.enabled = true;
+            _frame = _ui.CreateFrame();
 
             _voice.Register("back", Voice_OnBack);
 
-            _frame = _ui.CreateFrame();
+            OpenAdjustMenu();
+            OpenEditMenu();
+        }
+
+        private void OpenAdjustMenu()
+        {
+            _ui
+                .Open<AdjustElementUIView>(new UIReference
+                {
+                    UIDataId = "Element.Adjust"
+                }, out _adjustId)
+                .OnSuccess(el =>
+                {
+                    el.OnExit += PropAdjust_OnExit;
+                    el.SliderRotate.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
+                    el.SliderX.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
+                    el.SliderY.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
+                    el.SliderZ.OnVisibilityChanged += AdjustControl_OnVisibilityChanged;
+                    el.Initialize(_controller);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not open AdjustElementUIView : {0}", exception);
+
+                    _design.ChangeState<MainDesignState>();
+                });
+        }
+
+        private void OpenEditMenu()
+        {
+            _ui
+                .Open<EditElementUIView>(new UIReference
+                {
+                    UIDataId = "Element.Edit"
+                }, out _editId)
+                .OnSuccess(el =>
+                {
+                    _editView = el;
+
+                    el.OnMove += Edit_OnMove;
+                    el.OnReparent += Edit_OnReparent;
+                    el.OnDuplicate += Edit_OnDuplicate;
+                    el.OnDelete += Edit_OnDelete;
+                    el.Initialize(_controller);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not open EditElementUIView : {0}", exception);
+
+                    _design.ChangeState<MainDesignState>();
+                });
+        }
+
+        private void OpenMoveMenu()
+        {
+            _ui
+                .Open<MoveElementUIView>(new UIReference
+                {
+                    UIDataId = "Element.Move"
+                }, out _moveId)
+                .OnSuccess(el =>
+                {
+                    el.OnConfirm += Move_OnConfirmController;
+                    el.OnCancel += Move_OnCancel;
+                    el.Initialize(_controller);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not open MoveElementUIView : {0}", exception);
+
+                    _design.ChangeState<MainDesignState>();
+                });
         }
 
         /// <inheritdoc />
@@ -147,7 +175,6 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            CloseAll();
             _frame.Release();
 
             _voice.Unregister("back");
@@ -156,23 +183,11 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Closes all dialogs.
-        /// </summary>
-        private void CloseAll()
-        {
-            _adjustElement.enabled = false;
-            _editElement.enabled = false;
-        }
-        
-        /// <summary>
         /// Called when the place menu wants to confirm placement.
         /// </summary>
         /// <param name="controller">The prop controller.</param>
         private void Move_OnConfirmController(ElementSplashDesignController controller)
         {
-            _move.enabled = false;
-            _dynamicRoot.Schema.Set("focus.visible", true);
-
             // back to main
             _design.ChangeState<MainDesignState>();
         }
@@ -182,9 +197,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Move_OnCancel()
         {
-            _move.enabled = false;
-            _adjustElement.enabled = true;
-            _editElement.enabled = true;
+            _ui.Close(_moveId);
+
+            OpenAdjustMenu();
+            OpenEditMenu();
         }
 
         /// <summary>
@@ -193,11 +209,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="elementController">The controller.</param>
         private void Edit_OnMove(ElementSplashDesignController elementController)
         {
-            CloseAll();
-            
             elementController.EnableUpdates();
-            _move.Initialize(elementController);
-            _move.enabled = true;
+
+            _ui.Close(_adjustId);
+            _ui.Close(_editId);
+            OpenMoveMenu();
         }
 
         /// <summary>
@@ -206,8 +222,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="controller">The controller.</param>
         private void Edit_OnReparent(ElementSplashDesignController controller)
         {
-            CloseAll();
-
             _design.ChangeState<ReparentDesignState>(controller);
         }
 
@@ -217,7 +231,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="controller"></param>
         private void Edit_OnDuplicate(ElementSplashDesignController controller)
         {
-            CloseAll();
+            // close other UIs
+            _ui.Close(_adjustId);
+            _ui.Close(_editId);
+
+            // TODO: Show progress indicator.
 
             // duplicate data
             var element = controller.Element;
@@ -259,10 +277,10 @@ namespace CreateAR.SpirePlayer
         /// <param name="elementController">The controller.</param>
         private void Edit_OnDelete(ElementSplashDesignController elementController)
         {
-            CloseAll();
-
-            Log.Info(this, "Opening confirmation view.");
-
+            // close UIs
+            _ui.Close(_adjustId);
+            _ui.Close(_editId);
+            
             int id;
             _ui
                 .Open<ConfirmationUIView>(new UIReference
@@ -280,12 +298,8 @@ namespace CreateAR.SpirePlayer
                     };
                     el.OnConfirm += () =>
                     {
-                        _ui.Close(id);
-                        
                         _design.Elements.Destroy(elementController.Element);
-
-                        _dynamicRoot.Schema.Set("focus.visible", true);
-
+                        
                         // back to main
                         _design.ChangeState<MainDesignState>();
                     };
@@ -305,13 +319,7 @@ namespace CreateAR.SpirePlayer
         {
             // force final state update
             controller.FinalizeState();
-
-            // close splash menu
-            controller.ShowSplashMenu();
-
-            // reenable dynamic
-            _dynamicRoot.Schema.Set("focus.visible", true);
-
+            
             // back to main
             _design.ChangeState<MainDesignState>();
         }
@@ -324,7 +332,7 @@ namespace CreateAR.SpirePlayer
         {
             var visible = interactable.Visible;
 
-            _editElement.enabled = !visible;
+            _editView.Root.Schema.Set("visible", !visible);
 
             if (visible)
             {

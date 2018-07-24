@@ -1,8 +1,36 @@
 <?Vine>
 
-<Menu id='menu' showBackButton=true layout.radius=0.3 layout.degrees=70.0>
-	<Button id='btn-play' label='Play' icon='play' />
-	<Button id='btn-anchors' label='Anchors' icon='frame' />
-	<Button id='btn-new' label='New' icon='plus' />
-	<Button id='btn-clearall' label='Clear All' icon='trash' />
-</Menu>
+<Float position=(0, 0, 3)>
+	<ScaleTransition>
+		<Menu id='menu' showBackButton=true layout.radius=0.3 layout.degrees=70.0>
+			<Button id='btn-play' label='Play' icon='play' />
+			
+			<SubMenu label='New' icon='plus'>
+				<Button id='btn-new-asset' label='Asset' icon='tree' />
+				<Button id='btn-new-anchor' label='Anchor' icon='anchor' />
+				<Button id='btn-new-text' label='Text' icon='text' visible=false />
+				<Button id='btn-new-container' label='Container' icon='grid' />
+				<Button id='btn-new-light' label='Light' icon='light' visible=false />
+			</SubMenu>
+			
+			<SubMenu label='Lighting' icon='contrast'>
+				<Toggle id='btn-ambient' label='Ambient Enabled' />
+			</SubMenu>
+			
+			<SubMenu label='Settings' icon='gear'>
+				<Button id='btn-resetdata' label='Reset Data' ready.color='Negative' icon='trash' visible=false />
+				<Select id='slt-play'>
+					<Option label='Play' value='Play' />
+					<Option label='Edit' value='Edit' />
+				</Select>
+				<Select id='slt-logging' visible=false >
+					<Option label='None' value='None' />
+					<Option label='Debug' value='Debug' />
+					<Option label='Info' value='Info' />
+					<Option label='Warning' value='Warning' />
+					<Option label='Error' value='Error' />
+				</Select>
+			</SubMenu>
+		</Menu>
+	</ScaleTransition>
+</Float>

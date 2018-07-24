@@ -77,12 +77,18 @@ namespace CreateAR.SpirePlayer.IUX
                     ? _options[_selection]
                     : null;
             }
+            set
+            {
+                _selection = _options.IndexOf(value);
+
+                UpdateLabel(_selection);
+            }
         }
 
         /// <summary>
         /// Called when the selection has changed.
         /// </summary>
-        public event Action OnChanged;
+        public event Action<SelectWidget> OnValueChanged;
 
         /// <summary>
         /// Constructor.
@@ -238,9 +244,9 @@ namespace CreateAR.SpirePlayer.IUX
                 _text.Text = _options[_selection].Schema.Get<string>("label").Value;
             }
 
-            if (current != _selection && null != OnChanged)
+            if (current != _selection && null != OnValueChanged)
             {
-                OnChanged();
+                OnValueChanged(this);
             }
         }
 

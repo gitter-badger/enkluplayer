@@ -96,6 +96,33 @@ MonoBehaviour:
     - UIDataId: Common.Confirmation
       Element: {fileID: 114157938732403108, guid: 7b0fc911ad242844cac600761cf4a459,
         type: 2}
+    - UIDataId: Design.MainMenu
+      Element: {fileID: 114335294500824520, guid: 00ed677482bbca64c9676db93b658ed8,
+        type: 2}
+    - UIDataId: Design.Splash
+      Element: {fileID: 114197174911949698, guid: 01a6f0c348f65e443aa81dc0798562f0,
+        type: 2}
+    - UIDataId: Content.New
+      Element: {fileID: 114069561741206676, guid: d0e62288bc4093448bd694076bc851f9,
+        type: 2}
+    - UIDataId: Content.Place
+      Element: {fileID: 114665517905614066, guid: 376309b3343776240bbf2b59a2dba393,
+        type: 2}
+    - UIDataId: Anchor.Place
+      Element: {fileID: 114442930254316592, guid: caa9dd319613fb245853805df1e33bd1,
+        type: 2}
+    - UIDataId: Element.Adjust
+      Element: {fileID: 114681245593466650, guid: e30a987c47686e242a005ca682d03d4a,
+        type: 2}
+    - UIDataId: Element.Edit
+      Element: {fileID: 114305705692134552, guid: 6c566303e69dd3c48acddc7281a6ef80,
+        type: 2}
+    - UIDataId: Element.Move
+      Element: {fileID: 114906664826131604, guid: 695cd17ce6088ca4cbcef1e2882c1d32,
+        type: 2}
+    - UIDataId: Container.Place
+      Element: {fileID: 114359609663909612, guid: d3e8547c71b1ef345bdc07a0805ae599,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error

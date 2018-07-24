@@ -10,6 +10,11 @@ namespace CreateAR.SpirePlayer
     public class ElementDesignController : MonoBehaviour
     {
         /// <summary>
+        /// Transform of element.
+        /// </summary>
+        public Transform ElementTransform { get; private set; }
+
+        /// <summary>
         /// The element.
         /// </summary>
         public Element Element { get; private set; }
@@ -29,14 +34,23 @@ namespace CreateAR.SpirePlayer
         public virtual void Initialize(Element element, object context)
         {
             Element = element;
+            ElementTransform = ((IUnityElement) element).GameObject.transform;
         }
-
+        
         /// <summary>
         /// Uninitializes the controller.
         /// </summary>
         public virtual void Uninitialize()
         {
             //
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        protected virtual void Update()
+        {
+            // follow element
+            transform.position = ElementTransform.position;
+            transform.rotation = ElementTransform.rotation;
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>

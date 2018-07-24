@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -483,10 +482,12 @@ namespace CreateAR.SpirePlayer
                 // states
                 {
                     binder.Bind<MainDesignState>().To<MainDesignState>();
+                    binder.Bind<NewAnchorDesignState>().To<NewAnchorDesignState>();
+                    binder.Bind<NewContainerDesignState>().To<NewContainerDesignState>();
                     binder.Bind<NewContentDesignState>().To<NewContentDesignState>();
                     binder.Bind<EditElementDesignState>().To<EditElementDesignState>();
                     binder.Bind<ReparentDesignState>().To<ReparentDesignState>();
-                    binder.Bind<AnchorDesignState>().To<AnchorDesignState>();
+                    binder.Bind<EditAnchorDesignState>().To<EditAnchorDesignState>();
                 }
 
                 binder.Bind<IElementUpdateDelegate>().To<ElementUpdateDelegate>().ToSingleton();

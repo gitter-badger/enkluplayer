@@ -127,9 +127,11 @@ namespace CreateAR.SpirePlayer
             // design states
             MainDesignState main,
             NewContentDesignState newContent,
+            NewAnchorDesignState newAnchor,
+            NewContainerDesignState newContainer,
             EditElementDesignState editElement,
             ReparentDesignState reparent,
-            AnchorDesignState anchors)
+            EditAnchorDesignState anchors)
         {
             _config = config;
             _txns = txns;
@@ -147,6 +149,8 @@ namespace CreateAR.SpirePlayer
             {
                 main,
                 newContent,
+                newAnchor,
+                newContainer,
                 editElement,
                 reparent,
                 anchors
@@ -330,6 +334,7 @@ namespace CreateAR.SpirePlayer
             _fsm.Change(null);
 
             _controllers.Active = false;
+            _controllers.Release();
 
             _float.Destroy();
             _staticRoot.Destroy();

@@ -47,36 +47,20 @@ namespace CreateAR.SpirePlayer
             // have been called.
             Inject();
 
-            BtnSplash.Schema.Set("label", element.Schema.Get<string>("name").Value);
-            BtnSplash.Activator.OnActivated += Activator_OnActivated;
+            var isRoot = element.Id == "root";
+            BtnSplash.Schema.Set(
+                "label",
+                isRoot ? "Root" : element.Schema.Get<string>("name").Value);
+
+            if (!isRoot)
+            {
+                BtnSplash.Activator.OnActivated += Activator_OnActivated;
+            }
 
             // choose a good local position
             UpdateMenuPosition();
-            UpdateButtonScale();
         }
-
-        /// <inheritdoc />
-        protected override void Awake()
-        {
-            base.Awake();
-
-            BtnSplash.Activator.OnActivated += Activator_OnActivated;
-        }
-
-        /// <summary>
-        /// Updates the button scale.
-        /// </summary>
-        private void UpdateButtonScale()
-        {
-            var scale = transform.lossyScale;
-            BtnSplash.Schema.Set(
-                "scale",
-                new Vec3(
-                    1f / (scale.x < Mathf.Epsilon ? 1 : scale.x),
-                    1f / (scale.y < Mathf.Epsilon ? 1 : scale.y),
-                    1f / (scale.z < Mathf.Epsilon ? 1 : scale.z)));
-        }
-
+        
         /// <summary>
         /// Updates the menus position to something meaningful.
         /// </summary>

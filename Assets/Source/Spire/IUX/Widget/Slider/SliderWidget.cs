@@ -15,7 +15,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             X,
             Y,
-            Custom
+            Z
         }
 
         /// <summary>
@@ -40,12 +40,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Slider button widget.
         /// </summary>
-        private ButtonWidget _moveSlider;
+        private ButtonWidget _handle;
 
         /// <summary>
         /// Caption widget.
         /// </summary>
-        private CaptionWidget _annotation;
+        private CaptionWidget _tooltip;
 
         /// <summary>
         /// Image widgets.
@@ -59,6 +59,11 @@ namespace CreateAR.SpirePlayer.IUX
         private Vector3 _O;
 
         /// <summary>
+        /// Direction of normal.
+        /// </summary>
+        private Vector3 _n;
+
+        /// <summary>
         /// Direction of line.
         /// </summary>
         private Vector3 _d;
@@ -69,9 +74,30 @@ namespace CreateAR.SpirePlayer.IUX
         private bool _isDirty = true;
         
         /// <summary>
-        /// Normalized value.
+        /// Value at center.
         /// </summary>
-        public float Value { get; set; }
+        private float _valueAtCenter;
+        
+        /// <summary>
+        /// Value of the slider.
+        /// </summary>
+        public float Value
+        {
+            get
+            {
+                if (null != _handle)
+                {
+                    var delta = _handle.GameObject.transform.position - GameObject.transform.position;
+                    return delta.magnitude + _valueAtCenter;
+                }
+
+                return 0f;
+            }
+            set
+            {
+                _valueAtCenter = value;
+            }
+        }
 
         /// <inheritdoc />
         public bool Focused
@@ -91,9 +117,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                if (null != _moveSlider)
+                if (null != _handle)
                 {
-                    return _moveSlider.GameObject.transform.position.ToVec();
+                    return _handle.GameObject.transform.position.ToVec();
                 }
 
                 return GameObject.transform.position.ToVec();
@@ -105,9 +131,9 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                if (null != _moveSlider)
+                if (null != _handle)
                 {
-                    return _moveSlider.GameObject.transform.lossyScale.ToVec();
+                    return _handle.GameObject.transform.lossyScale.ToVec();
                 }
 
                 return GameObject.transform.lossyScale.ToVec();
@@ -172,7 +198,9 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void LoadInternalBeforeChildren()
         {
             base.LoadInternalBeforeChildren();
-            
+
+            Schema.Get<bool>("visible").OnChanged += (prop, prev, next) => UpdateBasis();
+
             _lengthProp = Schema.Get<float>("length");
             _lengthProp.OnChanged += Length_OnChanged;
 
@@ -182,12 +210,12 @@ namespace CreateAR.SpirePlayer.IUX
             _tooltipProp = Schema.Get<bool>("tooltip");
             _tooltipProp.OnChanged += Tooltip_OnChanged;
 
-            _moveSlider = (ButtonWidget) _elements.Element("<?Vine><Button id='btn-x' icon='arrow-double' position=(-0.2, 0, 0) ready.color='Highlight' />");
-            AddChild(_moveSlider);
-            _moveSlider.Activator.OnActivated += MoveSlider_OnActivated;
+            _handle = (ButtonWidget) _elements.Element("<?Vine><Button id='btn-x' icon='arrow-double' position=(-0.2, 0, 0) ready.color='Highlight' />");
+            AddChild(_handle);
+            _handle.Activator.OnActivated += MoveSlider_OnActivated;
 
-            _annotation = (CaptionWidget)_elements.Element("<?Vine><Caption id='value-annotation' position=(0, 0.1, 0) visible=true label='Placeholder' fontSize=50 width=500.0 alignment='MidCenter' />");
-            _moveSlider.AddChild(_annotation);
+            _tooltip = (CaptionWidget)_elements.Element("<?Vine><Caption position=(0, 0.1, 0) visible=true label='Placeholder' fontSize=50 width=500.0 alignment='MidCenter' />");
+            _handle.AddChild(_tooltip);
 
             _minImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/arrow-left' width=0.1 height=0.1 />");
             AddChild(_minImage);
@@ -200,15 +228,15 @@ namespace CreateAR.SpirePlayer.IUX
             
             _renderer.enabled = true;
             _isDirty = true;
+            _valueAtCenter = 0f;
 
+            UpdateBasis();
             UpdateTooltipVisibility();
         }
         
         /// <inheritdoc />
         protected override void UnloadInternalAfterChildren()
         {
-            base.UnloadInternalAfterChildren();
-
             _renderer.enabled = false;
 
             Interactable = false;
@@ -216,6 +244,8 @@ namespace CreateAR.SpirePlayer.IUX
 
             _lengthProp.OnChanged -= Length_OnChanged;
             _axisProp.OnChanged -= Axis_OnChanged;
+
+            base.UnloadInternalAfterChildren();
         }
 
         /// <inheritdoc />
@@ -228,21 +258,9 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
-            UpdateBasis();
             UpdateArrowPositions();
             UpdateButtonPosition();
-            UpdateValue();
-
-            var handle = Render.Handle("IUX");
-            if (null != handle)
-            {
-                handle.Draw(ctx =>
-                {
-                    ctx.Color(UnityEngine.Color.yellow);
-                    ctx.Cube(_O, 0.1f);
-                    ctx.Line(_O, _O + _d);
-                });
-            }
+            UpdateTooltip();
         }
 
         /// <inheritdoc />
@@ -275,22 +293,42 @@ namespace CreateAR.SpirePlayer.IUX
         private void UpdateBasis()
         {
             _O = GameObject.transform.position;
+            _n = -_intentions.Forward.ToVector().normalized;
 
             var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
-            if (axis == AxisType.X)
+            if (axis == AxisType.Y)
+            {
+                _d = Vector3.up;
+            }
+            else if (axis == AxisType.Z)
+            {
+                _d = new Vector3(
+                    _intentions.Forward.x,
+                    0,
+                    _intentions.Forward.z).normalized;
+                _n = Vector3.Cross(_d, Vector3.up);
+            }
+            else
             {
                 _d = new Vector3(
                     _intentions.Right.x,
                     0,
                     _intentions.Right.z).normalized;
             }
-            else
-            {
-                _d = Vector3.up;
-            }
 
             _renderer.O = _O;
             _renderer.d = _d;
+
+            var handle = Render.Handle("IUX");
+            if (null != handle)
+            {
+                handle.Draw(ctx =>
+                {
+                    ctx.Color(UnityEngine.Color.yellow);
+                    ctx.Cube(_O, 0.1f);
+                    ctx.Line(_O, _O + _d);
+                });
+            }
         }
 
         /// <summary>
@@ -303,6 +341,11 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _minImage.Schema.Set("src", "res://Art/Textures/arrow-down");
                 _maxImage.Schema.Set("src", "res://Art/Textures/arrow-up");
+            }
+            else if (axis == AxisType.Z)
+            {
+                _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
+                _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
             }
             else
             {
@@ -334,20 +377,32 @@ namespace CreateAR.SpirePlayer.IUX
             else
             {
                 target = Vector3.Lerp(
-                    _moveSlider.GameObject.transform.position,
+                    _handle.GameObject.transform.position,
                     target,
                     3f * Time.deltaTime);
             }
 
-            _moveSlider.GameObject.transform.position = target;
+            var handle = Render.Handle("IUX");
+            if (null != handle)
+            {
+                handle.Draw(ctx =>
+                {
+                    ctx.Color(UnityEngine.Color.green);
+                    ctx.Cube(intersection, 0.1f);
+                    ctx.Line(intersection, _O + projection * _d);
+                    ctx.Line(_O, _O + projection * _d);
+                });
+            }
+
+            _handle.GameObject.transform.position = target;
         }
 
         /// <summary>
-        /// Updates the value + label.
+        /// Updates the tooltip.
         /// </summary>
-        private void UpdateValue()
+        private void UpdateTooltip()
         {
-            _annotation.Label = Value.ToString();
+            _tooltip.Label = Value.ToString();
         }
 
         /// <summary>
@@ -362,17 +417,28 @@ namespace CreateAR.SpirePlayer.IUX
 
             // plane
             var P0 = _O;
-            var n = -_intentions.Forward.ToVector().normalized;
 
             // line
             var O = _intentions.Origin.ToVector();
             var d = _intentions.Forward.ToVector();
 
             // substitute plane equation in for P to find t
-            var t = Vector3.Dot(P0 - O, n) / Vector3.Dot(n, d);
+            var t = Vector3.Dot(P0 - O, _n) / Vector3.Dot(_n, d);
 
             // return intersection
-            return O + t * d;
+            var intersection = O + t * d;
+
+            var handle = Render.Handle("IUX");
+            if (null != handle)
+            {
+                handle.Draw(ctx =>
+                {
+                    ctx.Color(UnityEngine.Color.blue);
+                    ctx.Line(_O, _O + _n);
+                });
+            }
+
+            return intersection;
         }
 
         /// <summary>
@@ -388,7 +454,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateTooltipVisibility()
         {
-            _annotation.Schema.Set("visible", _tooltipProp.Value);
+            _tooltip.Schema.Set("visible", _tooltipProp.Value);
         }
 
         /// <summary>

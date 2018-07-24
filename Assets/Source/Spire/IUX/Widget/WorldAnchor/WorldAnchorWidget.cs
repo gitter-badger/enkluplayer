@@ -4,7 +4,6 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
-using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -112,15 +111,12 @@ namespace CreateAR.SpirePlayer.IUX
 
             // selection collider
             {
-                var collider = GameObject.GetComponent<BoxCollider>();
-                if (null == collider)
+                var collider = EditCollider;
+                if (null != collider)
                 {
-                    collider = GameObject.AddComponent<BoxCollider>();
+                    collider.center = Vector3.zero;
+                    collider.size = 0.5f * Vector3.one;
                 }
-
-                collider.center = Vector3.zero;
-                collider.size = 0.5f * Vector3.one;
-                collider.isTrigger = true;
             }
         }
 
@@ -130,10 +126,14 @@ namespace CreateAR.SpirePlayer.IUX
 
             if (_isImported)
             {
-                var anchor = GameObject.GetComponent<WorldAnchor>();
+#if NETFX_CORE
+                var anchor = GameObject.GetComponent<UnityEngine.XR.WSA.WorldAnchor>();
                 Status = anchor.isLocated
                     ? WorldAnchorStatus.IsReadyLocated
                     : WorldAnchorStatus.IsReadyNotLocated;
+#else
+                Status = WorldAnchorStatus.IsReadyLocated;
+#endif
             }
         }
 
@@ -163,7 +163,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Reloads the world anchor.
         /// </summary>
-        [Conditional("NETFX_CORE")]
+        [Conditional("NETFX_CORE"), Conditional("UNITY_EDITOR")]
         private void UpdateWorldAnchor()
         {
             // abort previous

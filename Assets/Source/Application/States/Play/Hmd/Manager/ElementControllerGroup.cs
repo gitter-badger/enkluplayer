@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -56,9 +57,19 @@ namespace CreateAR.SpirePlayer
         private readonly List<IUnityElement> _filteredElements = new List<IUnityElement>();
 
         /// <summary>
+        /// List of handles.
+        /// </summary>
+        private readonly Dictionary<IUnityElement, GameObject> _handles = new Dictionary<IUnityElement, GameObject>();
+
+        /// <summary>
         /// All bindings. Bindings are not destroyed when removed, just deactivated.
         /// </summary>
         private readonly List<ControllerBinding> _bindings = new List<ControllerBinding>();
+
+        /// <summary>
+        /// Root GameObject.
+        /// </summary>
+        private readonly Transform _root;
 
         /// <summary>
         /// Backing variable for Active property.
@@ -115,6 +126,10 @@ namespace CreateAR.SpirePlayer
             _scenes = scenes;
 
             Tag = tag;
+
+            _root = new GameObject(string.Format(
+                "ElementControllerGroup({0})",
+                Tag)).transform;
         }
 
         /// <inheritdoc />
@@ -125,11 +140,19 @@ namespace CreateAR.SpirePlayer
             {
                 UntrackScene(_scenes.All[i]);
             }
-
+            
             _filteredElements.Clear();
             _filters.Clear();
             _bindings.Clear();
             _elementScratch.Clear();
+
+            foreach (var key in _handles.Keys)
+            {
+                ((Element) key).OnDestroyed -= Element_OnDestroyed;
+            }
+            _handles.Clear();
+            
+            UnityEngine.Object.Destroy(_root.gameObject);
         }
 
         /// <inheritdoc />
@@ -226,6 +249,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Reapply()
         {
+            if (!Active)
+            {
+                return;
+            }
+
             // gather all unity elements in all scenes
             _elementScratch.Clear();
             var sceneIds = _scenes.All;
@@ -251,8 +279,8 @@ namespace CreateAR.SpirePlayer
                     }
                 }
 
-                // otherwise, this element needs to be added to the filtered list
-                if (!found)
+                // otherwise, this element may need to be added to the filtered list
+                if (!found && Include((Element) element))
                 {
                     AddAllControllersToElement(element);
 
@@ -325,11 +353,16 @@ namespace CreateAR.SpirePlayer
         /// <param name="element">The element.</param>
         private void RemoveControllers(IUnityElement element)
         {
+            GameObject handle;
+            if (!_handles.TryGetValue(element, out handle))
+            {
+                return;
+            }
+            
             for (var i = 0; i < _bindings.Count; i++)
             {
                 var binding = _bindings[i];
-                var controller = (ElementDesignController) element.GameObject.GetComponent(binding.ControllerType);
-                controller.OnDestroyed -= Controller_OnDestroyed;
+                var controller = (ElementDesignController) handle.GetComponent(binding.ControllerType);
                 controller.Uninitialize();
 
                 binding.Controllers.Remove(controller);
@@ -380,15 +413,23 @@ namespace CreateAR.SpirePlayer
             object context,
             IUnityElement unityElement)
         {
-            var gameObject = unityElement.GameObject;
+            // fetch gameobject
+            GameObject gameObject;
+            if (!_handles.TryGetValue(unityElement, out gameObject))
+            {
+                _handles[unityElement] = gameObject = new GameObject();
+                gameObject.transform.SetParent(_root, true);
 
+                ((Element) unityElement).OnDestroyed += Element_OnDestroyed;
+            }
+
+            // add controller if there isn't one already
             var controller = (ElementDesignController) gameObject.GetComponent(controllerType);
             if (null == controller)
             {
                 controller = (ElementDesignController) gameObject.AddComponent(controllerType);
             }
 
-            controller.OnDestroyed += Controller_OnDestroyed;
             controller.Initialize((Element) unityElement, context);
 
             return controller;
@@ -488,7 +529,21 @@ namespace CreateAR.SpirePlayer
             // remove controllers
             ElementRemoved(root);
         }
-        
+
+        /// <summary>
+        /// Called when an element is being destroyed.
+        /// </summary>
+        /// <param name="element">The element in question.</param>
+        private void Element_OnDestroyed(Element element)
+        {
+            // destroy handle
+            var key = (IUnityElement)element;
+            var handle = _handles[key];
+            _handles.Remove(key);
+
+            UnityEngine.Object.Destroy(handle);
+        }
+
         /// <summary>
         /// Called after a child is added to a scene.
         /// </summary>
@@ -511,29 +566,6 @@ namespace CreateAR.SpirePlayer
             if (null != unityElement)
             {
                 _filteredElements.Remove(unityElement);
-            }
-        }
-
-        /// <summary>
-        /// Called when a controller is about to be destroyed.
-        /// </summary>
-        /// <param name="controller">The controller.</param>
-        private void Controller_OnDestroyed(ElementDesignController controller)
-        {
-            // finding binding + remove it
-            var type = controller.GetType();
-            for (var i = 0; i < _bindings.Count; i++)
-            {
-                var binding = _bindings[i];
-                if (binding.ControllerType == type)
-                {
-                    if (binding.Controllers.Remove(controller))
-                    {
-                        controller.Uninitialize();
-                    }
-
-                    break;
-                }
             }
         }
     }

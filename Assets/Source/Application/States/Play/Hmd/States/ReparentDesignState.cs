@@ -86,6 +86,8 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Warning(this, "Could not find HierarchyLineRenderer.");
             }
+
+            _controllers.Activate(TAG_REPARENT);
         }
 
         /// <inheritdoc />
@@ -102,7 +104,7 @@ namespace CreateAR.SpirePlayer
                 _lines.Selected = null;
             }
 
-            _controllers.Destroy(TAG_REPARENT);
+            _controllers.Deactivate(TAG_REPARENT);
 
             Log.Info(this, "Exited {0}.", GetType().Name);
         }

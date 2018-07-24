@@ -19,7 +19,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Current tween Value.
         /// </summary>
-        private float _localTween = 0.0f;
+        private float _localTween;
         
         /// <summary>
         /// Component that controls Widget facing direction.
@@ -48,6 +48,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<LayerMode> _layerModeProp;
         private ElementSchemaProp<bool> _autoDestroyProp;
         private ElementSchemaProp<string> _faceProp;
+        private ElementSchemaProp<bool> _lockedProp;
 
         /// <summary>
         /// Cached virtual color.
@@ -259,7 +260,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// Retrieves the transform.
         /// </summary>
         public GameObject GameObject { get; private set; }
-        
+
+        /// <summary>
+        /// Collider used in edit mode only. In play mode, this may be null.
+        /// </summary>
+        public BoxCollider EditCollider { get; protected set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -347,6 +353,9 @@ namespace CreateAR.SpirePlayer.IUX
             _faceProp = Schema.GetOwn("face", string.Empty);
             _faceProp.OnChanged += Face_OnChanged;
             UpdateFace(_faceProp.Value);
+            _lockedProp = Schema.GetOwn("locked", true);
+            _lockedProp.OnChanged += Locked_OnChanged;
+            UpdateCollider(_lockedProp.Value);
 
             GameObject.name = ToString();
 
@@ -357,6 +366,16 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 BringToTop();
             }
+
+            EditCollider = GameObject.GetComponent<BoxCollider>();
+            if (null == EditCollider)
+            {
+                EditCollider = GameObject.AddComponent<BoxCollider>();
+                EditCollider.isTrigger = true;
+            }
+
+            EditCollider.center = Vector3.zero;
+            EditCollider.size = 0.25f * Vector3.one;
             
             IsLoaded = true;
         }
@@ -371,7 +390,8 @@ namespace CreateAR.SpirePlayer.IUX
             _localPositionProp.OnChanged -= LocalPosition_OnChanged;
             _virtualColorProp.OnChanged -= VirtualColor_OnChanged;
             _faceProp.OnChanged -= Face_OnChanged;
-            
+            _lockedProp.OnChanged -= Locked_OnChanged;
+
             Object.Destroy(GameObject);
             GameObject = null;
 
@@ -658,6 +678,18 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Updates the EditCollider.
+        /// </summary>
+        /// <param name="isLocked">True iff this object is no longer editable.</param>
+        private void UpdateCollider(bool isLocked)
+        {
+            if (null != EditCollider)
+            {
+                EditCollider.enabled = !isLocked;
+            }
+        }
+
+        /// <summary>
         /// Called when the local position changes.
         /// </summary>
         /// <param name="prop">Local position prop.</param>
@@ -725,6 +757,20 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             UpdateFace(next);
+        }
+
+        /// <summary>
+        /// Called when the locked property changes.
+        /// </summary>
+        /// <param name="prop">The current property.</param>
+        /// <param name="prev">The previous value.</param>
+        /// <param name="next">The next value.</param>
+        private void Locked_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            UpdateCollider(next);
         }
 
         /// <summary>

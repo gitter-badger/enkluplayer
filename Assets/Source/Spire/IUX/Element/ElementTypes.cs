@@ -56,6 +56,9 @@ namespace CreateAR.SpirePlayer
         [ElementLink(typeof(MenuWidget))]
         public const int MENU = 100;
 
+        [ElementLink(typeof(SubMenuWidget))]
+        public const int SUBMENU = 101;
+
         [ElementLink(typeof(TextCrawlWidget))]
         public const int TEXTCRAWL = 120;
 

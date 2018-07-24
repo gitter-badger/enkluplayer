@@ -1,6 +1,6 @@
 <?Vine>
 
-<Container>
+<Float position=(0, 0, 3) focus.visible=false>
 	<Button id='btn-back' icon='cancel' position=(-0.35, 0, 0) ready.color='Negative' />
 	<Grid fontSize=20 />
-</Container>
+</Float>

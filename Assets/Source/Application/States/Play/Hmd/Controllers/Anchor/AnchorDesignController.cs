@@ -1,5 +1,6 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -70,17 +71,7 @@ namespace CreateAR.SpirePlayer
         /// True iff locked.
         /// </summary>
         private bool _isLocked;
-
-        /// <summary>
-        /// True iff show splash is requested.
-        /// </summary>
-        private bool _isSplashRequested;
-
-        /// <summary>
-        /// True iff controller is currently being edited.
-        /// </summary>
-        private bool _isEditing;
-
+        
         /// <summary>
         /// The anchor widget.
         /// </summary>
@@ -98,13 +89,17 @@ namespace CreateAR.SpirePlayer
         public override void Initialize(Element element, object context)
         {
             base.Initialize(element, context);
-
-            _context = (AnchorDesignControllerContext) context;
-
-            _config = _context.Config;
             
+            _context = (AnchorDesignControllerContext) context;
+            _config = _context.Config;
+
+            _splash = gameObject.AddComponent<ElementSplashController>();
+            _splash.Root.Schema.Set("visible", false);
+            _splash.OnOpen += Splash_OnOpen;
+            _splash.Initialize(element);
+
             SetupMarker();
-            SetupSplash();
+            UpdateSplash();
         }
 
         /// <inheritdoc />
@@ -112,9 +107,11 @@ namespace CreateAR.SpirePlayer
         {
             base.Uninitialize();
             
-            TeardownSplash();
+            _splash.OnOpen -= Splash_OnOpen;
+            Destroy(_splash);
 
-            Renderer.gameObject.SetActive(false);
+            // Do NOT destroy the Renderer-- this is used to visualize the
+            // anchor across all states.
         }
         
         /// <summary>
@@ -136,33 +133,13 @@ namespace CreateAR.SpirePlayer
 
             UpdateSplash();
         }
-
-        /// <summary>
-        /// Closes splash.
-        /// </summary>
-        public void CloseSplash()
-        {
-            _isSplashRequested = false;
-
-            UpdateSplash();
-        }
-
-        /// <summary>
-        /// Opens splash.
-        /// </summary>
-        public void OpenSplash()
-        {
-            _isSplashRequested = true;
-
-            UpdateSplash();
-        }
-
+        
         /// <summary>
         /// Updates the splash menu visibility.
         /// </summary>
         private void UpdateSplash()
         {
-            _splash.enabled = !_isLocked && _isSplashRequested && !_isEditing;
+            _splash.Root.Schema.Set("visible", !_isLocked);
         }
         
         /// <summary>
@@ -180,38 +157,14 @@ namespace CreateAR.SpirePlayer
 
             Renderer.gameObject.SetActive(true);
         }
-
-        /// <summary>
-        /// Sets up the splash menu.
-        /// </summary>
-        private void SetupSplash()
-        {
-            _splash = gameObject.GetComponent<ElementSplashController>();
-            if (null == _splash)
-            {
-                _splash = gameObject.AddComponent<ElementSplashController>();
-            }
-
-            _isSplashRequested = true;
-            _splash.OnOpen += Splash_OnOpen;
-
-            UpdateSplash();
-        }
-
-        /// <summary>
-        /// Tears down the splash menu.
-        /// </summary>
-        private void TeardownSplash()
-        {
-            _splash.OnOpen -= Splash_OnOpen;
-            _splash.enabled = false;
-        }
-
+        
         /// <summary>
         /// Called when the splash menu open button is activated.
         /// </summary>
         private void Splash_OnOpen()
         {
+            Log.Info(this, "SPLASH");
+
             _context.OnAdjust(this);
         }
     }

@@ -10,25 +10,38 @@ namespace CreateAR.SpirePlayer
     public class NewContentDesignState : IArDesignState
     {
         /// <summary>
+        /// Manages UI.
+        /// </summary>
+        private readonly IUIManager _ui;
+        
+        /// <summary>
         /// Design controller.
         /// </summary>
         private HmdDesignController _design;
-        
-        /// <summary>
-        /// Root of dynamic menus.
-        /// </summary>
-        private Element _dynamicRoot;
-        
-        /// <summary>
-        /// New item menu.
-        /// </summary>
-        private NewContentController _newContent;
 
         /// <summary>
-        /// Menu to place objects.
+        /// UI frame.
         /// </summary>
-        private PlaceContentController _place;
-        
+        private UIManagerFrame _frame;
+
+        /// <summary>
+        /// Id of new content UI.
+        /// </summary>
+        private int _newContentId;
+
+        /// <summary>
+        /// Id of place content UI.
+        /// </summary>
+        private int _placeContentId;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public NewContentDesignState(IUIManager ui)
+        {
+            _ui = ui;
+        }
+
         /// <inheritdoc />
         public void Initialize(
             HmdDesignController design,
@@ -37,31 +50,12 @@ namespace CreateAR.SpirePlayer
             Element staticRoot)
         {
             _design = design;
-            _dynamicRoot = dynamicRoot;
-
-            // new content
-            {
-                _newContent = unityRoot.AddComponent<NewContentController>();
-                _newContent.enabled = false;
-                _newContent.OnCancel += New_OnCancel;
-                _newContent.OnConfirm += New_OnConfirm;
-                dynamicRoot.AddChild(_newContent.Root);
-            }
-
-            // place content
-            {
-                _place = unityRoot.AddComponent<PlaceContentController>();
-                _place.OnConfirm += Place_OnConfirm;
-                _place.OnCancel += Place_OnCancel;
-                _place.enabled = false;
-            }
         }
-
+        
         /// <inheritdoc />
         public void Uninitialize()
         {
-            Object.Destroy(_newContent);
-            Object.Destroy(_place);
+            // 
         }
         
         /// <inheritdoc />
@@ -69,7 +63,9 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Entering {0}", GetType().Name);
 
-            _newContent.enabled = true;
+            _frame = _ui.CreateFrame();
+
+            OpenGrid();
         }
 
         /// <inheritdoc />
@@ -81,29 +77,83 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            CloseAll();
+            _frame.Release();
 
             Log.Info(this, "Exited {0}", GetType().Name);
         }
 
         /// <summary>
-        /// Closes all menus.
+        /// Opens grid of new elements.
         /// </summary>
-        private void CloseAll()
+        private void OpenGrid()
         {
-            _newContent.enabled = false;
-            _place.enabled = false;
+            _ui
+                .Open<NewContentUIView>(new UIReference
+                {
+                    UIDataId = "Content.New"
+                }, out _newContentId)
+                .OnSuccess(el =>
+                {
+                    el.OnCancel += New_OnCancel;
+                    el.OnConfirm += New_OnConfirm;
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not open NewContentUIView : {0}", exception);
+
+                    _design.ChangeState<MainDesignState>();
+                });
         }
-        
+
+        /// <summary>
+        /// Closes new element grid.
+        /// </summary>
+        private void CloseGrid()
+        {
+            _ui.Close(_newContentId);
+        }
+
+        /// <summary>
+        /// Opens placement UI.
+        /// </summary>
+        /// <param name="assetId">The id of the asset to place.</param>
+        private void OpenPlacement(string assetId)
+        {
+            _ui
+                .Open<PlaceContentUIView>(new UIReference
+                {
+                    UIDataId = "Content.Place"
+                }, out _placeContentId)
+                .OnSuccess(el =>
+                {
+                    el.OnConfirm += Place_OnConfirm;
+                    el.OnCancel += Place_OnCancel;
+                    el.Initialize(assetId);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not open PlaceContentUIView : {0}", exception);
+
+                    ClosePlacement();
+                    OpenGrid();
+                });
+        }
+
+        /// <summary>
+        /// Close the placement UI.
+        /// </summary>
+        private void ClosePlacement()
+        {
+            _ui.Close(_placeContentId);
+        }
+
         /// <summary>
         /// Called when the new menu wants to create an element.
         /// </summary>
         private void New_OnConfirm(string assetId)
         {
-            _newContent.enabled = false;
-
-            _place.Initialize(assetId);
-            _place.enabled = true;
+            CloseGrid();
+            OpenPlacement(assetId);
         }
 
         /// <summary>
@@ -111,10 +161,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void New_OnCancel()
         {
-            _newContent.enabled = false;
-            _dynamicRoot.Schema.Set("focus.visible", true);
-            
-            // back to main
             _design.ChangeState<MainDesignState>();
         }
 
@@ -124,9 +170,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="contentData">The prop.</param>
         private void Place_OnConfirm(ElementData contentData)
         {
-            _place.enabled = false;
-            _dynamicRoot.Schema.Set("focus.visible", true);
+            ClosePlacement();
+            
+            // TODO: progress indicator
 
+            // create!
             _design
                 .Elements
                 .Create(contentData)
@@ -137,10 +185,13 @@ namespace CreateAR.SpirePlayer
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not place content : {0}.", exception);
-                });
+                })
+                .OnFinally(_ =>
+                {
+                    // TODO: close progress indicator
 
-            // back to main
-            _design.ChangeState<MainDesignState>();
+                    _design.ChangeState<MainDesignState>();
+                });
         }
         
         /// <summary>
@@ -148,9 +199,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Place_OnCancel()
         {
-            _place.enabled = false;
-
-            _newContent.enabled = true;
+            ClosePlacement();
+            OpenGrid();
         }
     }
 }

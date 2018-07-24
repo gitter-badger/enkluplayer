@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -23,27 +26,44 @@ namespace CreateAR.SpirePlayer
         /// Controls the prop splash menu.
         /// </summary>
         private ElementSplashController _splashController;
-
+        
         /// <inheritdoc />
         public override void Initialize(Element element, object context)
         {
             base.Initialize(element, context);
+            
+            _splashController.OnOpen += Splash_OnOpen;
+            _splashController.Initialize(Element);
 
-            InitializeSplashMenu();
+            ShowSplashMenu();
+
+            Verbose("Initialize({0})", element.Id);
         }
 
         /// <inheritdoc />
         public override void Uninitialize()
         {
+            Verbose("Uninitialize({0})", Element.Id);
+
             base.Uninitialize();
 
-            UninitializeSplashController();
+            _splashController.OnOpen -= Splash_OnOpen;
+
+            HideSplashMenu();
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void Awake()
+        {
+            _splashController = gameObject.AddComponent<ElementSplashController>();
+
+            HideSplashMenu();
         }
 
         /// <summary>
         /// Hides the splash menu.
         /// </summary>
-        public void HideSplashMenu()
+        private void HideSplashMenu()
         {
             if (null != _splashController)
             {
@@ -54,35 +74,11 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Shows the splash menu.
         /// </summary>
-        public void ShowSplashMenu()
+        private void ShowSplashMenu()
         {
             if (null != _splashController)
             {
                 _splashController.Root.Schema.Set("visible", true);
-            }
-        }
-
-        /// <summary>
-        /// Creates splash menu.
-        /// </summary>
-        private void InitializeSplashMenu()
-        {
-            _splashController = gameObject.AddComponent<ElementSplashController>();
-            _splashController.OnOpen += Splash_OnOpen;
-            _splashController.Initialize(Element);
-        }
-
-        /// <summary>
-        /// Uninits the splash controller.
-        /// </summary>
-        private void UninitializeSplashController()
-        {
-            if (null != _splashController)
-            {
-                _splashController.OnOpen -= Splash_OnOpen;
-
-                Destroy(_splashController);
-                _splashController = null;
             }
         }
 
@@ -92,6 +88,17 @@ namespace CreateAR.SpirePlayer
         private void Splash_OnOpen()
         {
             ((DesignContext) _context).OnAdjust(this);
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="replacements"></param>
+        [Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

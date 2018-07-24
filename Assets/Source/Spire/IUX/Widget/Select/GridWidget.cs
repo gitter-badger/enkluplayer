@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -67,7 +66,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// True during Populate.
         /// </summary>
-        private bool _isPopulating = false;
+        private bool _isPopulating;
         
         /// <summary>
         /// Called when a specific <c>Option</c> has been selected.
@@ -165,14 +164,14 @@ namespace CreateAR.SpirePlayer.IUX
             // page select
             {
                 _pageSelect = (SelectWidget) _elements.Element(@"<?Vine><Select position=(-0.241, -0.22, 0) />");
-                _pageSelect.OnChanged += PageSelect_OnChanged;
+                _pageSelect.OnValueChanged += PageSelect_OnChanged;
                 AddChild(_pageSelect);
             }
 
             // group select
             {
                 _groupSelect = (SelectWidget) _elements.Element(@"<?Vine><Select position=(-0.241, 0.22, 0) />");
-                _groupSelect.OnChanged += GroupSelect_OnChange;
+                _groupSelect.OnValueChanged += GroupSelect_OnChange;
                 AddChild(_groupSelect);
 
                 // generate select element with all options
@@ -428,7 +427,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Called when the group select widget changes its selection.
         /// </summary>
-        private void GroupSelect_OnChange()
+        private void GroupSelect_OnChange(SelectWidget select)
         {
             CreatePageOptions();
             CreateButtons();
@@ -437,7 +436,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Called when the page select widget changes its selection.
         /// </summary>
-        private void PageSelect_OnChanged()
+        private void PageSelect_OnChanged(SelectWidget select)
         {
             CreateButtons();
         }
