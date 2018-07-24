@@ -349,13 +349,9 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this, "Could not open confirmation dialog : {0}", exception);
-
-<<<<<<< HEAD
-                    _adjustAnchor.enabled = true;
-=======
+                    Log.Error(this, "Could not open confirmation dialog : {0}", exception);                  
                     OpenAdjustMenu();
->>>>>>> dc8ffe25a13ee439938f5633d24a3f0a68cae6fc
+
                 });
         }
 

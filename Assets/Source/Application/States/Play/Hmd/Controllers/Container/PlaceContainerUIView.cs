@@ -69,7 +69,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Preps creating a new anchor.
+        /// Preps creating a new container.
         /// </summary>
         public void Initialize(PlayModeConfig config)
         {
