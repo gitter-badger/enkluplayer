@@ -18,12 +18,12 @@
 			</SubMenu>
 			
 			<SubMenu label='Settings' icon='gear'>
-				<Button id='btn-resetdata' label='Reset Data' ready.color='Negative' icon='trash' />
+				<Button id='btn-resetdata' label='Reset Data' ready.color='Negative' icon='trash' visible=false />
 				<Select id='slt-play'>
 					<Option label='Play' value='Play' />
 					<Option label='Edit' value='Edit' />
 				</Select>
-				<Select id='slt-logging' >
+				<Select id='slt-logging' visible=false >
 					<Option label='None' value='None' />
 					<Option label='Debug' value='Debug' />
 					<Option label='Info' value='Info' />
