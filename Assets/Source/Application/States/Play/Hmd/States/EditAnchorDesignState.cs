@@ -1,9 +1,7 @@
-﻿using System.Diagnostics;
-using CreateAR.Commons.Unity.Http;
+﻿using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer
 {
@@ -36,6 +34,11 @@ namespace CreateAR.SpirePlayer
         /// UI management.
         /// </summary>
         private readonly IUIManager _ui;
+
+        /// <summary>
+        /// UI frame.
+        /// </summary>
+        private UIManagerFrame _frame;
         
         /// <summary>
         /// Design controller.
@@ -43,19 +46,13 @@ namespace CreateAR.SpirePlayer
         private HmdDesignController _design;
         
         /// <summary>
-        /// Menu for moving anchors.
-        /// </summary>
-        private PlaceAnchorUIView _moveAnchor;
-
-        /// <summary>
-        /// Adjusts anchors.
-        /// </summary>
-        private AdjustAnchorController _adjustAnchor;
-
-        /// <summary>
         /// Controller we're moving.
         /// </summary>
         private AnchorDesignController _moveController;
+
+        private AnchorDesignController _controller;
+        private int _adjustId;
+        private int _moveId;
 
         /// <summary>
         /// Constructor.
@@ -82,32 +79,12 @@ namespace CreateAR.SpirePlayer
             Element staticRoot)
         {
             _design = design;
-            
-            // move anchor menu
-            {
-                _moveAnchor = unityRoot.AddComponent<PlaceAnchorUIView>();
-                _moveAnchor.OnCancel += MoveAnchor_OnCancel;
-                _moveAnchor.OnOk += MoveAnchor_OnOk;
-                _moveAnchor.enabled = false;
-            }
-            
-            // adjust menu
-            {
-                _adjustAnchor = unityRoot.AddComponent<AdjustAnchorController>();
-                _adjustAnchor.OnDelete += Adjust_OnDelete;
-                _adjustAnchor.OnMove += Adjust_OnMove;
-                _adjustAnchor.OnReload += Adjust_OnReload;
-                _adjustAnchor.OnResave += Adjust_OnResave;
-                _adjustAnchor.OnExit += Adjust_OnExit;
-                _adjustAnchor.enabled = false;
-            }
         }
 
         /// <inheritdoc />
         public void Uninitialize()
         {
-            Object.Destroy(_adjustAnchor);
-            Object.Destroy(_moveAnchor);
+            //
         }
 
         /// <inheritdoc />
@@ -115,7 +92,11 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Entering {0}", GetType().Name);
 
-            var controller = (AnchorDesignController) context;
+            _controller = (AnchorDesignController) context;
+
+            _frame = _ui.CreateFrame();
+
+            OpenAdjustMenu();
         }
 
         /// <inheritdoc />
@@ -127,18 +108,60 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Exit()
         {
-            CloseAll();
+            _frame.Release();
 
             Log.Info(this, "Exited {0}", GetType().Name);
         }
 
         /// <summary>
-        /// Closes all menus.
+        /// Opens the adjust menu.
         /// </summary>
-        private void CloseAll()
+        private void OpenAdjustMenu()
         {
-            _adjustAnchor.enabled = false;
-            _moveAnchor.enabled = false;
+            _ui
+                .Open<AdjustAnchorUIView>(new UIReference
+                {
+                    UIDataId = "Anchor.Adjust"
+                }, out _adjustId)
+                .OnSuccess(el =>
+                {
+                    el.OnDelete += Adjust_OnDelete;
+                    el.OnMove += Adjust_OnMove;
+                    el.OnReload += Adjust_OnReload;
+                    el.OnResave += Adjust_OnResave;
+                    el.OnExit += Adjust_OnExit;
+                    el.Initialize(_controller);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not open Anchor.Adjust menu : {0}", exception);
+
+                    _design.ChangeState<MainDesignState>();
+                });
+        }
+
+        /// <summary>
+        /// Opens the move menu.
+        /// </summary>
+        private void OpenMoveMenu()
+        {
+            _ui
+                .Open<PlaceAnchorUIView>(new UIReference
+                {
+                    UIDataId = "Anchor.Place"
+                }, out _moveId)
+                .OnSuccess(el =>
+                {
+                    el.OnCancel += MoveAnchor_OnCancel;
+                    el.OnOk += MoveAnchor_OnOk;
+                    el.Initialize();
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not open Anchor.Place menu : {0}", exception);
+
+                    _design.ChangeState<MainDesignState>();
+                });
         }
         
         /// <summary>
@@ -152,7 +175,8 @@ namespace CreateAR.SpirePlayer
             var version = anchor.Schema.Get<int>("version").Value + 1;
 
             // renderer should show saving!
-            controller.Renderer.PlaceholderSaving();
+            controller.Renderer.Poll = AnchorRenderer.PollType.Forced;
+            controller.Renderer.ForcedColor = Color.cyan;
 
             // export
             Log.Info(this, "Re-save anchor called. Beginning export and re-upload process.");
@@ -166,6 +190,8 @@ namespace CreateAR.SpirePlayer
                     // save to cache
                     _cache.Save(anchor.Id, version, bytes);
 
+                    controller.Renderer.ForcedColor = Color.gray;
+
                     ReuploadAnchor(controller, bytes, anchor, version, 3);
                 })
                 .OnFailure(exception =>
@@ -174,7 +200,7 @@ namespace CreateAR.SpirePlayer
                         "Could not export anchor : {0}.",
                         exception);
 
-                    controller.Renderer.PlaceholderError();
+                    controller.Renderer.ForcedColor = Color.red;
                 });
         }
         
@@ -212,7 +238,7 @@ namespace CreateAR.SpirePlayer
                         _elementUpdater.FinalizeUpdate(anchor);
 
                         // show controller as ready again
-                        //controller.Renderer.Ready();
+                        controller.Renderer.Poll = AnchorRenderer.PollType.Dynamic;
                     }
                     else
                     {
@@ -220,7 +246,7 @@ namespace CreateAR.SpirePlayer
                             "Anchor reupload error : {0}.",
                             response.Payload.Error);
 
-                        //controller.Renderer.Error();
+                        controller.Renderer.ForcedColor = Color.red;
                     }
                 })
                 .OnFailure(exception =>
@@ -237,7 +263,7 @@ namespace CreateAR.SpirePlayer
                     }
                     else
                     {
-                        //controller.Renderer.Error();
+                        controller.Renderer.ForcedColor = Color.red;
                     }
                 });
         }
@@ -248,7 +274,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="data">Data for the element.</param>
         private void MoveAnchor_OnOk(ElementData data)
         {
-            _moveAnchor.enabled = false;
+            _ui.Close(_moveId);
 
             // move into position and reexport
             var position = data.Schema.Vectors["position"];
@@ -266,8 +292,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MoveAnchor_OnCancel()
         {
-            _moveAnchor.enabled = false;
-            _adjustAnchor.enabled = true;
+            _ui.Close(_moveId);
+            OpenAdjustMenu();
 
             // re-enable
             _moveController.Renderer.gameObject.SetActive(true);
@@ -279,8 +305,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Adjust_OnExit(AnchorDesignController controller)
         {
-            CloseAll();
-
             _design.ChangeState<MainDesignState>();
         }
 
@@ -289,7 +313,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Adjust_OnDelete(AnchorDesignController controller)
         {
-            _adjustAnchor.enabled = false;
+            _ui.Close(_adjustId);
 
             int id;
             _ui
@@ -302,13 +326,15 @@ namespace CreateAR.SpirePlayer
                     el.Message = "Are you sure you want to DELETE this anchor?";
                     el.OnCancel += () =>
                     {
-                        _adjustAnchor.enabled = true;
-
                         _ui.Close(id);
+
+                        OpenAdjustMenu();
                     };
                     el.OnConfirm += () =>
                     {
                         _ui.Close(id);
+
+                        // TODO: Show progress indicator.
 
                         _elementUpdater
                             .Destroy(controller.Element)
@@ -325,7 +351,11 @@ namespace CreateAR.SpirePlayer
                 {
                     Log.Error(this, "Could not open confirmation dialog : {0}", exception);
 
+<<<<<<< HEAD
                     _adjustAnchor.enabled = true;
+=======
+                    OpenAdjustMenu();
+>>>>>>> dc8ffe25a13ee439938f5633d24a3f0a68cae6fc
                 });
         }
 
@@ -335,9 +365,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchorDesignController">The controller.</param>
         private void Adjust_OnResave(AnchorDesignController anchorDesignController)
         {
-            _moveAnchor.enabled = false;
-            _adjustAnchor.enabled = false;
-            
             ResaveAnchor(anchorDesignController);
 
             _design.ChangeState<MainDesignState>();
@@ -360,7 +387,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchorDesignController">The controller.</param>
         private void Adjust_OnMove(AnchorDesignController anchorDesignController)
         {
-            _adjustAnchor.enabled = false;
+            _ui.Close(_adjustId);
 
             // unlock + hide
             _moveController = anchorDesignController;
@@ -368,17 +395,7 @@ namespace CreateAR.SpirePlayer
             _moveController.Renderer.gameObject.SetActive(false);
 
             // open move menu
-            _moveAnchor.Initialize(_design.Config);
-            _moveAnchor.enabled = true;
-        }
-        
-        /// <summary>
-        /// Verbose logging.
-        /// </summary>
-        [Conditional("LOGGING_VERBOSE")]
-        private void Verbose(string message, params object[] replacements)
-        {
-            Log.Info(this, message, replacements);
+            OpenMoveMenu();
         }
     }
 }

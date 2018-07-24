@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -35,13 +37,13 @@ namespace CreateAR.SpirePlayer
 
             ShowSplashMenu();
 
-            Log.Info(this, "Initialize({0})", element.Id);
+            Verbose("Initialize({0})", element.Id);
         }
 
         /// <inheritdoc />
         public override void Uninitialize()
         {
-            Log.Info(this, "Uninitialize({0})", Element.Id);
+            Verbose("Uninitialize({0})", Element.Id);
 
             base.Uninitialize();
 
@@ -86,6 +88,17 @@ namespace CreateAR.SpirePlayer
         private void Splash_OnOpen()
         {
             ((DesignContext) _context).OnAdjust(this);
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="replacements"></param>
+        [Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

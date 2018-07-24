@@ -19,9 +19,9 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4289976824838810}
-  - component: {fileID: 114442930254316592}
+  - component: {fileID: 114942440658905638}
   m_Layer: 0
-  m_Name: Anchor.Place
+  m_Name: Anchor.Adjust
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -40,7 +40,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114442930254316592
+--- !u!114 &114942440658905638
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -48,9 +48,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1022082367343358}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cdd8c8a7d25bb244cbe8857ff4f05c49, type: 3}
+  m_Script: {fileID: 11500000, guid: c41d0d357d753f94c8dd955847fe1526, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VineId: Anchor.Place
-  AnchorPrefab: {fileID: 114783692072840098, guid: 76ea9059f3639e0499c44d842a022f17,
-    type: 2}
+  VineId: Anchor.Adjust

@@ -120,6 +120,9 @@ MonoBehaviour:
     - UIDataId: Element.Move
       Element: {fileID: 114906664826131604, guid: 695cd17ce6088ca4cbcef1e2882c1d32,
         type: 2}
+    - UIDataId: Anchor.Adjust
+      Element: {fileID: 114942440658905638, guid: 4bc063a17131eff4d99967cbb24af92b,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error

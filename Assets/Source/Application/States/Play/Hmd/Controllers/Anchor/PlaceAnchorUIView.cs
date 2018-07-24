@@ -9,6 +9,11 @@ namespace CreateAR.SpirePlayer
     public class PlaceAnchorUIView : MonoBehaviourIUXController
     {
         /// <summary>
+        /// Prefab for an anchor.
+        /// </summary>
+        public AnchorRenderer AnchorPrefab;
+
+        /// <summary>
         /// Elements.
         /// </summary>
         [InjectElements("..anchor-container")]
@@ -71,10 +76,10 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Preps creating a new anchor.
         /// </summary>
-        public void Initialize(PlayModeConfig config)
+        public void Initialize()
         {
             Instantiate(
-                config.AnchorPrefab,
+                AnchorPrefab,
                 PrefabContainer.GameObject.transform);
         }
     }
