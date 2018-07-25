@@ -14,12 +14,7 @@ namespace CreateAR.SpirePlayer
         /// Makes Http requests.
         /// </summary>
         private readonly IHttpService _http;
-
-        /// <summary>
-        /// Caches world anchor data.
-        /// </summary>
-        private readonly IWorldAnchorCache _cache;
-
+        
         /// <summary>
         /// Provides anchor import/export.
         /// </summary>
@@ -34,6 +29,11 @@ namespace CreateAR.SpirePlayer
         /// UI management.
         /// </summary>
         private readonly IUIManager _ui;
+
+        /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
 
         /// <summary>
         /// UI frame.
@@ -59,16 +59,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public EditAnchorDesignState(
             IHttpService http,
-            IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
             IElementUpdateDelegate elementUpdater,
-            IUIManager ui)
+            IUIManager ui,
+            IMetricsService metrics)
         {
             _http = http;
-            _cache = cache;
             _provider = provider;
             _elementUpdater = elementUpdater;
             _ui = ui;
+            _metrics = metrics;
         }
 
         /// <inheritdoc />
@@ -181,15 +181,13 @@ namespace CreateAR.SpirePlayer
             // export
             Log.Info(this, "Re-save anchor called. Beginning export and re-upload process.");
 
+            var providerId = WorldAnchorWidget.GetAnchorProviderId(anchor.Id, version);
             _provider
-                .Export(anchor.Id, anchor.GameObject)
+                .Export(providerId, anchor.GameObject)
                 .OnSuccess(bytes =>
                 {
                     Log.Info(this, "Successfully exported. Progressing to upload.");
-
-                    // save to cache
-                    _cache.Save(anchor.Id, version, bytes);
-
+                    
                     controller.Renderer.ForcedColor = Color.gray;
 
                     ReuploadAnchor(controller, bytes, anchor, version, 3);
@@ -220,6 +218,9 @@ namespace CreateAR.SpirePlayer
                 _elementUpdater.Active,
                 anchor.Id);
 
+            // metrics
+            var uploadId = _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Start();
+
             _http
                 .PutFile<Trellis.Messages.UploadAnchor.Response>(
                     _http.Urls.Url(url),
@@ -230,6 +231,9 @@ namespace CreateAR.SpirePlayer
                     if (response.Payload.Success)
                     {
                         Log.Info(this, "Successfully reuploaded anchor.");
+
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Stop(uploadId);
 
                         // complete, now send out network update
                         _elementUpdater.Update(anchor, "src", url);
@@ -246,6 +250,9 @@ namespace CreateAR.SpirePlayer
                             "Anchor reupload error : {0}.",
                             response.Payload.Error);
 
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
+
                         controller.Renderer.ForcedColor = Color.red;
                     }
                 })
@@ -254,6 +261,9 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this,
                         "Could not reupload anchor : {0}.",
                         exception);
+
+                    // metrics
+                    _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
 
                     if (--retries > 0)
                     {

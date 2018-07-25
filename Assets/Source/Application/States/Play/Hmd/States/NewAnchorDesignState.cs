@@ -23,12 +23,7 @@ namespace CreateAR.SpirePlayer
         /// Makes Http requests.
         /// </summary>
         private readonly IHttpService _http;
-
-        /// <summary>
-        /// Caches world anchor data.
-        /// </summary>
-        private readonly IWorldAnchorCache _cache;
-
+        
         /// <summary>
         /// Provides anchor import/export.
         /// </summary>
@@ -38,6 +33,11 @@ namespace CreateAR.SpirePlayer
         /// Updates elements.
         /// </summary>
         private readonly IElementUpdateDelegate _elementUpdater;
+
+        /// <summary>
+        /// Metrics implementation.
+        /// </summary>
+        private readonly IMetricsService _metrics;
 
         /// <summary>
         /// Design controller.
@@ -54,16 +54,16 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public NewAnchorDesignState(
             IHttpService http,
-            IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
             IElementUpdateDelegate elementUpdater,
-            IUIManager ui)
+            IUIManager ui,
+            IMetricsService metrics)
         {
             _http = http;
-            _cache = cache;
             _provider = provider;
             _elementUpdater = elementUpdater;
             _ui = ui;
+            _metrics = metrics;
         }
 
         /// <inheritdoc />
@@ -148,15 +148,13 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "CreateAnchor() called, beginning export and upload.");
 
             // export it
+            var providerId = WorldAnchorWidget.GetAnchorProviderId(data.Id, version);
             _provider
-                .Export(data.Id, placeholder.gameObject)
+                .Export(providerId, placeholder.gameObject)
                 .OnSuccess(bytes =>
                 {
                     Log.Info(this, "Successfully exported. Progressing to upload.");
-
-                    // save to cache
-                    _cache.Save(data.Id, version, bytes);
-
+                    
                     placeholder.ForcedColor = Color.gray;
 
                     // upload
@@ -187,6 +185,9 @@ namespace CreateAR.SpirePlayer
         {
             var token = new AsyncToken<Void>();
 
+            // metrics
+            var uploadId = _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Start();
+
             _http
                 .PostFile<Trellis.Messages.UploadAnchor.Response>(
                     _http.Urls.Url(url),
@@ -197,6 +198,9 @@ namespace CreateAR.SpirePlayer
                     if (response.Payload.Success)
                     {
                         Log.Info(this, "Successfully uploaded anchor.");
+
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Stop(uploadId);
 
                         // complete, now create corresponding element
                         _elementUpdater
@@ -223,6 +227,9 @@ namespace CreateAR.SpirePlayer
                             response.Payload.Error);
                         Log.Error(this, error);
 
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
+
                         token.Fail(new Exception(error));
                     }
 
@@ -234,6 +241,9 @@ namespace CreateAR.SpirePlayer
                     Log.Warning(this,
                         "Could not upload anchor : {0}.",
                         exception);
+
+                    // metrics
+                    _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
 
                     if (--retries > 0)
                     {

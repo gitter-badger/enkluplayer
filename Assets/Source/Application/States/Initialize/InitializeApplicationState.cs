@@ -3,6 +3,7 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
+using CreateAR.SpirePlayer.IUX;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -19,6 +20,7 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
         private readonly IAssetLoader _assetLoader;
         private readonly IBleService _ble;
+        private readonly IWorldAnchorProvider _anchors;
         private readonly BleServiceConfiguration _bleConfig;
         /// <summary>
         /// Constructor.
@@ -28,6 +30,7 @@ namespace CreateAR.SpirePlayer
             IAssetManager assets,
             IAssetLoader assetLoader,
             IBleService ble,
+            IWorldAnchorProvider anchors,
             BleServiceConfiguration bleConfig)
         {
             _messages = messages;
@@ -35,6 +38,7 @@ namespace CreateAR.SpirePlayer
             _assetLoader = assetLoader;
             _bleConfig = bleConfig;
             _ble = ble;
+            _anchors = anchors;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -54,7 +58,8 @@ namespace CreateAR.SpirePlayer
                 {
                     Loader = _assetLoader,
                     Queries = new StandardQueryResolver()
-                })
+                }),
+                _anchors.Initialize()
             };
             
             Async

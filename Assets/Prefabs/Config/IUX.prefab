@@ -123,6 +123,9 @@ MonoBehaviour:
     - UIDataId: Container.Place
       Element: {fileID: 114359609663909612, guid: d3e8547c71b1ef345bdc07a0805ae599,
         type: 2}
+    - UIDataId: Anchor.Adjust
+      Element: {fileID: 114942440658905638, guid: 4bc063a17131eff4d99967cbb24af92b,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error
