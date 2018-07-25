@@ -14,12 +14,7 @@ namespace CreateAR.SpirePlayer
         /// Makes Http requests.
         /// </summary>
         private readonly IHttpService _http;
-
-        /// <summary>
-        /// Caches world anchor data.
-        /// </summary>
-        private readonly IWorldAnchorCache _cache;
-
+        
         /// <summary>
         /// Provides anchor import/export.
         /// </summary>
@@ -64,14 +59,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public EditAnchorDesignState(
             IHttpService http,
-            IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
             IElementUpdateDelegate elementUpdater,
             IUIManager ui,
             IMetricsService metrics)
         {
             _http = http;
-            _cache = cache;
             _provider = provider;
             _elementUpdater = elementUpdater;
             _ui = ui;
@@ -188,15 +181,13 @@ namespace CreateAR.SpirePlayer
             // export
             Log.Info(this, "Re-save anchor called. Beginning export and re-upload process.");
 
+            var providerId = WorldAnchorWidget.GetAnchorProviderId(anchor.Id, version);
             _provider
-                .Export(anchor.Id, anchor.GameObject)
+                .Export(providerId, anchor.GameObject)
                 .OnSuccess(bytes =>
                 {
                     Log.Info(this, "Successfully exported. Progressing to upload.");
-
-                    // save to cache
-                    _cache.Save(anchor.Id, version, bytes);
-
+                    
                     controller.Renderer.ForcedColor = Color.gray;
 
                     ReuploadAnchor(controller, bytes, anchor, version, 3);

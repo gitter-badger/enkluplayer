@@ -51,7 +51,7 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Import(string id, GameObject gameObject, byte[] bytes)
+        public IAsyncToken<Void> Import(string id, byte[] bytes)
         {
             var token = new AsyncToken<Void>();
 
@@ -63,17 +63,35 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        public void Disable(GameObject gameObject)
+        public IAsyncToken<Void> Initialize()
         {
-            //
+            var token = new AsyncToken<Void>();
+
+            _bootstrapper.BootstrapCoroutine(Delay(
+                IMPORT_DELAY_SEC,
+                () => token.Succeed(Void.Instance)));
+
+            return token;
         }
 
         /// <inheritdoc />
-        public void Enable(GameObject gameObject)
+        public IAsyncToken<Void> Anchor(string id, GameObject gameObject)
         {
-            
+            var token = new AsyncToken<Void>();
+
+            _bootstrapper.BootstrapCoroutine(Delay(
+                IMPORT_DELAY_SEC,
+                () => token.Succeed(Void.Instance)));
+
+            return token;
         }
 
+        /// <inheritdoc />
+        public void UnAnchor(GameObject gameObject)
+        {
+            //
+        }
+        
         /// <summary>
         /// Delays a callback.
         /// </summary>

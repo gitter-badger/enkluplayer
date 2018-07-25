@@ -29,13 +29,11 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly WidgetConfig _config;
         private readonly IImageLoader _imageLoader;
         private readonly IHttpService _http;
-        private readonly IWorldAnchorCache _cache;
         private readonly IWorldAnchorProvider _provider;
         private readonly IScriptManager _scripts;
         private readonly IAssetManager _assets;
         private readonly IAssetPoolManager _pools;
         private readonly IQrReaderService _qr;
-        private readonly IBootstrapper _bootstrapper;
         private readonly IScanLoader _scanLoader;
         private readonly IScanImporter _scanImporter;
         private readonly IMetricsService _metrics;
@@ -67,13 +65,11 @@ namespace CreateAR.SpirePlayer.IUX
             WidgetConfig config,
             IImageLoader imageLoader,
             IHttpService http,
-            IWorldAnchorCache cache,
             IWorldAnchorProvider provider,
             IScriptManager scripts,
             IAssetManager assets,
             IAssetPoolManager pools,
             IQrReaderService qr,
-            IBootstrapper bootstrapper,
             IScanLoader scanLoader,
             IScanImporter scanImporter,
             IMetricsService metrics)
@@ -91,13 +87,11 @@ namespace CreateAR.SpirePlayer.IUX
             _config = config;
             _imageLoader = imageLoader;
             _http = http;
-            _cache = cache;
             _provider = provider;
             _scripts = scripts;
             _assets = assets;
             _pools = pools;
             _qr = qr;
-            _bootstrapper = bootstrapper;
             _scanLoader = scanLoader;
             _scanImporter = scanImporter;
             _metrics = metrics;
@@ -383,7 +377,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.WORLD_ANCHOR:
                 {
-                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _cache, _provider, _metrics);
+                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _provider, _metrics);
                 }
                 case ElementTypes.QR_ANCHOR:
                 {

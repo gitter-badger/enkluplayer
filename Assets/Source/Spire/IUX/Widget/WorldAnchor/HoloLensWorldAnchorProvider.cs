@@ -11,6 +11,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.XR.WSA;
+using UnityEngine.XR.WSA.Persistence;
 using UnityEngine.XR.WSA.Sharing;
 using Object = UnityEngine.Object;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -38,12 +39,20 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly List<Action> _actions = new List<Action>();
         private readonly List<Action> _actionsReadBuffer = new List<Action>();
 
+        /// <summary>
+        /// Queue for importing.
+        /// </summary>
         private readonly Queue<Action> _importQueue = new Queue<Action>();
+
+        /// <summary>
+        /// Queue for exporting.
+        /// </summary>
+        private readonly Queue<Action> _exportQueue = new Queue<Action>();
 
         /// <summary>
         /// Import dictionary.
         /// </summary>
-        private readonly Dictionary<GameObject, AsyncToken<Void>> _imports = new Dictionary<GameObject, AsyncToken<Void>>();
+        private readonly Dictionary<string, AsyncToken<Void>> _imports = new Dictionary<string, AsyncToken<Void>>();
 
         /// <summary>
         /// Export dictionary.
@@ -62,6 +71,8 @@ namespace CreateAR.SpirePlayer.IUX
 
         private bool _isProcessing;
 
+        private WorldAnchorStore _store;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -72,7 +83,51 @@ namespace CreateAR.SpirePlayer.IUX
             _bootstrapper = bootstrapper;
             _metrics = metrics;
         }
+        
+        /// <inheritdoc />
+        public IAsyncToken<Void> Initialize()
+        {
+            var token = new AsyncToken<Void>();
 
+            WorldAnchorStore.GetAsync(store =>
+            {
+                _store = store;
+
+                RetainWatcher();
+                Synchronize(() =>
+                {
+                    ReleaseWatcher();
+
+                    token.Succeed(Void.Instance);
+                });
+            });
+
+            return token;
+        }
+
+        /// <inheritdoc />
+        public IAsyncToken<Void> Anchor(string id, GameObject gameObject)
+        {
+            var ids = _store.GetAllIds();
+            for (int i = 0, len = ids.Length; i < len; i++)
+            {
+                if (id == ids[i])
+                {
+                    var anchor = _store.Load(id, gameObject);
+                    if (null == anchor)
+                    {
+                        return new AsyncToken<Void>(new Exception("WorldAnchorStore::Load completed but did not return an anchor."));
+                    }
+                    
+                    TrackUnlocatedAnchor(anchor);
+
+                    return new AsyncToken<Void>(Void.Instance);
+                }
+            }
+
+            return new AsyncToken<Void>(new Exception("No anchor by that id."));
+        }
+        
         /// <inheritdoc />
         public IAsyncToken<byte[]> Export(string id, GameObject gameObject)
         {
@@ -109,13 +164,32 @@ namespace CreateAR.SpirePlayer.IUX
 
             Action<SerializationCompletionReason> onExportComplete = null;
             Action<byte[]> onExportDataAvailable = null;
-            Action export = () =>
+            Action export = null;
+            export = () =>
             {
                 Log.Info(this, "{0}::Starting export process.", id);
 
                 // reset buffer and index
                 buffer = new byte[4096];
                 index = 0;
+                
+                // save locally
+                if (!_store.Save(id, anchor))
+                {
+                    if (--retries > 0)
+                    {
+                        Log.Warning(this, "{0}::Could not save anchor in local store, retrying.", id);
+                        export();
+                    }
+                    else
+                    {
+                        Log.Error(this, "{0}::Could not save anchor in local store!", id);
+                        token.Fail(new Exception("Could not save in local store."));
+                    }
+                    
+
+                    return;
+                }
 
                 // begin export
                 var batch = new WorldAnchorTransferBatch();
@@ -232,12 +306,11 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Import(string id, GameObject gameObject, byte[] bytes)
+        public IAsyncToken<Void> Import(string id, byte[] bytes)
         {
-            Log.Info(this, "{0}::Import({1})", id, gameObject.name);
-            
-            AsyncToken<Void> token;
-            if (_imports.TryGetValue(gameObject, out token))
+            Log.Info(this, "{0}::Import()", id);
+
+            if (_imports.TryGetValue(id, out var token))
             {
                 return token.Token();
             }
@@ -247,10 +320,11 @@ namespace CreateAR.SpirePlayer.IUX
 
             // create a new token for it immediately
             RetainWatcher();
-            token = _imports[gameObject] = new AsyncToken<Void>();
+            token = _imports[id] = new AsyncToken<Void>();
             token.OnFinally(_ => ReleaseWatcher());
 
-            Action queuedImport = () =>
+            // local function for queued import
+            void QueuedImport()
             {
                 // metrics
                 _metrics.Timer(MetricsKeys.ANCHOR_EXPORT_QUEUED).Stop(queuedId);
@@ -270,28 +344,12 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     // metrics
                     _metrics.Timer(MetricsKeys.ANCHOR_IMPORT).Stop(importId);
-
-                    // object may be destroyed at this point
-                    if (!gameObject)
-                    {
-                        Log.Info(this, "{0}::Import into transfer batch complete but GameObject is already destroyed.",
-                            id);
-
-                        // stop tracking so we can import again later
-                        _imports.Remove(gameObject);
-
-                        token.Fail(new Exception("Target GameObject is destroyed."));
-
-                        // done processing this one
-                        _isProcessing = false;
-
-                        return;
-                    }
-
+                    
                     if (reason != SerializationCompletionReason.Succeeded)
                     {
                         Log.Warning(this, "{0}::Import into transfer batch failed.", id);
 
+                        // retry
                         if (--retries < 0)
                         {
                             Log.Info(this, "{0}::Retrying import.", id);
@@ -302,27 +360,33 @@ namespace CreateAR.SpirePlayer.IUX
                         }
                         else
                         {
-                            // stop tracking so we can import again later
-                            _imports.Remove(gameObject);
+                            // stop tracking
+                            _imports.Remove(id);
 
-                            token.Fail(new Exception(string.Format(
-                                "Could not import : {0}.",
-                                reason)));
+                            // save
+                            var temp = new GameObject("__WorldAnchorTemp");
+                            var anchor = batch.LockObject(id, temp);
+                            var success = _store.Save(id, anchor);
+
+                            Object.Destroy(temp);
+
+                            if (success)
+                            {
+                                token.Succeed(Void.Instance);
+                            }
+                            else
+                            {
+                                token.Fail(new Exception("Successful import, but could not create anchor."));
+                            }
                         }
                     }
                     else
                     {
-                        Log.Info(this, "{0}::Import into transfer batch complete. Proceeding to lock.", id);
+                        Log.Info(this, "{0}::Import into transfer batch complete.", id);
                         
-                        var anchor = batch.LockObject(id, gameObject);
+                        // stop tracking
+                        _imports.Remove(id);
 
-                        Log.Info(this, "{0}::Created anchor : {1}.", id, anchor);
-
-                        anchor.OnTrackingChanged += AnchorOnOnTrackingChanged;
-                        
-                        // stop tracking so we can import again later
-                        _imports.Remove(gameObject);
-                        
                         token.Succeed(Void.Instance);
                     }
 
@@ -358,18 +422,7 @@ namespace CreateAR.SpirePlayer.IUX
                     Synchronize(() =>
                     {
                         Log.Info(this, "{0}::Decompression complete.", id);
-
-                        if (!gameObject)
-                        {
-                            // remove so we can import again later
-                            _imports.Remove(gameObject);
-
-                            Log.Info(this, "GameObject destroyed. Not progressing to import into transfer batch.");
-                            token.Fail(new Exception("GameObject destroyed before imported into transfer batch."));
-
-                            return;
-                        }
-
+                        
                         // metrics
                         importId = _metrics.Timer(MetricsKeys.ANCHOR_IMPORT).Start();
 
@@ -379,17 +432,30 @@ namespace CreateAR.SpirePlayer.IUX
                     });
                 });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            };
+            }
 
             Log.Info(this, "{0}::Enqueued import.", id);
-            _importQueue.Enqueue(queuedImport);
+            _importQueue.Enqueue(QueuedImport);
 
-            ProcessQueue();
+            ProcessImportQueue();
 
             return token;
         }
         
-        private void ProcessQueue()
+        /// <inheritdoc />
+        public void UnAnchor(GameObject gameObject)
+        {
+            var anchor = gameObject.GetComponent<WorldAnchor>();
+            if (null != anchor)
+            {
+                Object.Destroy(anchor);
+            }
+        }
+
+        /// <summary>
+        /// Processes import queue.
+        /// </summary>
+        private void ProcessImportQueue()
         {
             if (_isProcessing || 0 == _importQueue.Count)
             {
@@ -404,23 +470,6 @@ namespace CreateAR.SpirePlayer.IUX
             next();
         }
 
-        private void AnchorOnOnTrackingChanged(WorldAnchor self, bool located)
-        {
-            Log.Info(this, "Anchor tracking changed on {0}. Located: {1}.",
-                self.gameObject.name,
-                located);
-        }
-
-        /// <inheritdoc />
-        public void Disable(GameObject gameObject)
-        {
-            var anchor = gameObject.GetComponent<WorldAnchor>();
-            if (null != anchor)
-            {
-                Object.Destroy(anchor);
-            }
-        }
-        
         /// <summary>
         /// Adds to action list.
         /// </summary>
@@ -481,12 +530,39 @@ namespace CreateAR.SpirePlayer.IUX
                     _actionsReadBuffer.Clear();
                 }
 
-                ProcessQueue();
+                ProcessImportQueue();
 
                 yield return null;
             }
 
             _isWatching = false;
+        }
+
+        /// <summary>
+        /// Times how long an anchor is unlocated.
+        /// </summary>
+        /// <param name="anchor">The anchor to track.</param>
+        private void TrackUnlocatedAnchor(WorldAnchor anchor)
+        {
+            // anchor is already located
+            if (anchor.isLocated)
+            {
+                return;
+            }
+
+            // start timer
+            var metricId = _metrics.Timer(MetricsKeys.ANCHOR_UNLOCATED).Start();
+
+            WorldAnchor.OnTrackingChangedDelegate handler = null;
+            handler = (_, isLocated) =>
+            {
+                anchor.OnTrackingChanged -= handler;
+
+                _metrics.Timer(MetricsKeys.ANCHOR_UNLOCATED).Stop(metricId);
+            };
+
+            // listen
+            anchor.OnTrackingChanged += handler;
         }
     }
 }

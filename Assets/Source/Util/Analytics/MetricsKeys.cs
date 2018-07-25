@@ -22,6 +22,8 @@
         public const string ANCHOR_DECOMPRESSION = "WorldAnchor.Decompression";
         public const string ANCHOR_IMPORT = "WorldAnchor.Import";
 
+        public const string ANCHOR_UNLOCATED = "WorldAnchor.Unlocated";
+
         public const string ANCHOR_SIZE_RAW = "WorldAnchor.Size.Raw";
         public const string ANCHOR_SIZE_COMPRESSED = "WorldAnchor.Size.Compressed";
         public const string ANCHOR_SIZE_RATIO = "WorldAnchor.Size.Ratio";
