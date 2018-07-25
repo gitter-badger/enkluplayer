@@ -46,7 +46,6 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<WidgetColorMode> _colorModeProp;
         private ElementSchemaProp<WidgetVisibilityMode> _visibilityModeProp;
         private ElementSchemaProp<LayerMode> _layerModeProp;
-        private ElementSchemaProp<bool> _autoDestroyProp;
         private ElementSchemaProp<string> _faceProp;
         private ElementSchemaProp<bool> _lockedProp;
 
@@ -134,15 +133,6 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get { return _layerModeProp.Value; }
             set { _layerModeProp.Value = value; }
-        }
-
-        /// <summary>
-        /// If true, destroys the widget when tween reaches 0
-        /// </summary>
-        public bool AutoDestroy
-        {
-            get { return _autoDestroyProp.Value; }
-            set { _autoDestroyProp.Value = value; }
         }
         
         /// <summary>
@@ -349,7 +339,6 @@ namespace CreateAR.SpirePlayer.IUX
             _colorModeProp = Schema.GetOwn("colorMode", WidgetColorMode.InheritColor);
             _visibilityModeProp = Schema.GetOwn("visibilityMode", WidgetVisibilityMode.Inherit);
             _layerModeProp = Schema.GetOwn("layerMode", LayerMode.Default);
-            _autoDestroyProp = Schema.GetOwn("autoDestroy", false);
             _faceProp = Schema.GetOwn("face", string.Empty);
             _faceProp.OnChanged += Face_OnChanged;
             UpdateFace(_faceProp.Value);
@@ -426,10 +415,12 @@ namespace CreateAR.SpirePlayer.IUX
 
             var deltaTime = Time.deltaTime;
 
-            UpdateGlobalVisibility();
-            UpdateTween(deltaTime);
-            UpdateColor(deltaTime);
-            UpdateAutoDestroy();
+            if (Visible)
+            {
+                UpdateGlobalVisibility();
+                UpdateTween(deltaTime);
+                UpdateColor(deltaTime);
+            }
         }
 
         /// <summary>
@@ -597,21 +588,6 @@ namespace CreateAR.SpirePlayer.IUX
                 LocalColor = Visible
                     ? Col4.Lerp(LocalColor, newColor, deltaTime * 5.0f)
                     : newColor;
-            }
-        }
-
-        /// <summary>
-        /// Automatic Destruction when visibility drops
-        /// </summary>
-        private void UpdateAutoDestroy()
-        {
-            if (AutoDestroy)
-            {
-                if (!LocalVisible
-                    && Mathf.Approximately(0, Tween))
-                {
-                    Destroy();
-                }
             }
         }
         

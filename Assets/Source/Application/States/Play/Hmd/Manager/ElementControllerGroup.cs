@@ -132,6 +132,31 @@ namespace CreateAR.SpirePlayer
                 Tag)).transform;
         }
 
+        /// <summary>
+        /// Updates which menus are visible.
+        /// </summary>
+        /// <param name="position">User head position.</param>
+        /// <param name="forward">User gaze direction.</param>
+        public void Update(Vector3 position, Vector3 forward)
+        {
+            const float range = 2f;
+            const float rangeSq = range * range;
+
+            for (var i = 0; i < _bindings.Count; i++)
+            {
+                var controllers = _bindings[i].Controllers;
+                for (var j = 0; j < controllers.Count; j++)
+                {
+                    var controller = controllers[j];
+                    var elementPos = controller.ElementTransform.position;
+                    var v = elementPos - position;
+
+                    // determine if menu should be enabled
+                    controller.MenuVisible = v.sqrMagnitude < rangeSq && Vector3.Dot(forward, v) > 0;
+                }
+            }
+        }
+
         /// <inheritdoc />
         public void Destroy()
         {

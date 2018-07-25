@@ -312,22 +312,25 @@ namespace CreateAR.SpirePlayer.IUX
             
             var deltaTime = Time.smoothDeltaTime;
 
-            if (!Focused
-                || !Interactable
-                || !AimEnabled)
+            if (Visible)
             {
-                Aim = 0.0f;
-                Stability = 0.0f;
-            }
-            else
-            {
-                UpdateAim();
-                UpdateStability(deltaTime);
-            }
+                if (!Focused
+                    || !Interactable
+                    || !AimEnabled)
+                {
+                    Aim = 0.0f;
+                    Stability = 0.0f;
+                }
+                else
+                {
+                    UpdateAim();
+                    UpdateStability(deltaTime);
+                }
 
-            _states.Update(deltaTime);
+                _states.Update(deltaTime);
 
-            DebugDraw();
+                DebugDraw();
+            }
         }
 
         /// <inheritdoc />

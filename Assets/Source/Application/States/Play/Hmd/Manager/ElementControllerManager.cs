@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using CreateAR.Commons.Unity.Http;
+using CreateAR.SpirePlayer.IUX;
 
 namespace CreateAR.SpirePlayer
 {
@@ -10,13 +13,18 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Set of groups, which themselves manage controllers.
         /// </summary>
-        private readonly List<IElementControllerGroup> _groups = new List<IElementControllerGroup>();
+        private readonly List<ElementControllerGroup> _groups = new List<ElementControllerGroup>();
 
         /// <summary>
         /// Manages application scenes.
         /// </summary>
         private readonly IAppSceneManager _scenes;
 
+        /// <summary>
+        /// Intention.
+        /// </summary>
+        private readonly IIntentionManager _intention;
+        
         /// <summary>
         /// Backing variable for Active property.
         /// </summary>
@@ -43,15 +51,21 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ElementControllerManager(IAppSceneManager scenes)
+        public ElementControllerManager(
+            IAppSceneManager scenes,
+            IIntentionManager intention,
+            IBootstrapper bootstrapper)
         {
             _scenes = scenes;
+            _intention = intention;
+            
+            bootstrapper.BootstrapCoroutine(Update());
         }
-
+        
         /// <inheritdoc />
         public IElementControllerGroup Group(string tag)
         {
-            IElementControllerGroup group;
+            ElementControllerGroup group;
             for (int i = 0, len = _groups.Count; i < len; i++)
             {
                 group = _groups[i];
@@ -62,8 +76,10 @@ namespace CreateAR.SpirePlayer
             }
 
             // create!
-            group = new ElementControllerGroup(_scenes, tag);
-            group.Active = true;
+            group = new ElementControllerGroup(_scenes, tag)
+            {
+                Active = true
+            };
             _groups.Add(group);
 
             return group;
@@ -112,6 +128,26 @@ namespace CreateAR.SpirePlayer
             }
 
             _groups.Clear();
+        }
+
+        /// <summary>
+        /// Called every frame to update groups.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator Update()
+        {
+            while (true)
+            {
+                var origin = _intention.Origin.ToVector();
+                var direction = _intention.Forward.ToVector();
+
+                for (int i = 0, len = _groups.Count; i < len; i++)
+                {
+                    _groups[i].Update(origin, direction);
+                }
+
+                yield return null;
+            }
         }
     }
 }

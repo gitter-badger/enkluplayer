@@ -20,6 +20,11 @@ namespace CreateAR.SpirePlayer
         public Element Element { get; private set; }
 
         /// <summary>
+        /// True iff element menu is visible.
+        /// </summary>
+        public virtual bool MenuVisible { get; set; }
+
+        /// <summary>
         /// Called when the controller is about to be destroyed. This exists
         /// so we can take care of uninitialization before the GameObject
         /// is no longer preset.

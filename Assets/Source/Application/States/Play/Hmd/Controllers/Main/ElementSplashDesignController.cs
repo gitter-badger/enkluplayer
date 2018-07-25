@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -26,7 +25,28 @@ namespace CreateAR.SpirePlayer
         /// Controls the prop splash menu.
         /// </summary>
         private ElementSplashController _splashController;
-        
+
+        /// <summary>
+        /// Visibile prop of splash menu.
+        /// </summary>
+        private ElementSchemaProp<bool> _visibleProp;
+
+        /// <summary>
+        /// The visibility of the menu.
+        /// </summary>
+        public override bool MenuVisible
+        {
+            get { return _visibleProp.Value; }
+            set
+            {
+                // ReSharper disable once RedundantCheckBeforeAssignment
+                if (value != _visibleProp.Value)
+                {
+                    _visibleProp.Value = value;
+                }
+            }
+        }
+
         /// <inheritdoc />
         public override void Initialize(Element element, object context)
         {
@@ -34,6 +54,7 @@ namespace CreateAR.SpirePlayer
             
             _splashController.OnOpen += Splash_OnOpen;
             _splashController.Initialize(Element);
+            _visibleProp = _splashController.Root.Schema.Get<bool>("visible");
 
             ShowSplashMenu();
 
