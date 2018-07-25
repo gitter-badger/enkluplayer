@@ -139,7 +139,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="forward">User gaze direction.</param>
         public void Update(Vector3 position, Vector3 forward)
         {
-            const float range = 2f;
+            const float range = 4f;
             const float rangeSq = range * range;
 
             for (var i = 0; i < _bindings.Count; i++)
