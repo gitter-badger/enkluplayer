@@ -8,9 +8,22 @@ namespace CreateAR.SpirePlayer
     public class HmdStateFlow : IStateFlow
     {
         /// <summary>
+        /// Application-wide configuration.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
+        /// <summary>
         /// Manages flows and states.
         /// </summary>
         private IApplicationStateManager _states;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public HmdStateFlow(ApplicationConfig config)
+        {
+            _config = config;
+        }
         
         /// <inheritdoc />
         public void Start(IApplicationStateManager states)
@@ -28,7 +41,15 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.BUGREPORT,
                 MessageTypes.DEVICE_REGISTRATION_COMPLETE,
                 MessageTypes.SIGNOUT);
-            _states.ChangeState<OrientationApplicationState>();
+
+            if (UnityEngine.Application.isEditor && _config.IuxDesigner)
+            {
+                _states.ChangeState<IuxDesignerApplicationState>();
+            }
+            else
+            {
+                _states.ChangeState<OrientationApplicationState>();
+            }
         }
 
         /// <inheritdoc />

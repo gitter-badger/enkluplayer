@@ -32,6 +32,11 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly List<Element> _filteredChildren = new List<Element>();
 
         /// <summary>
+        /// Page number.
+        /// </summary>
+        private int _page;
+
+        /// <summary>
         /// Back button.
         /// </summary>
         private ButtonWidget _backButton;
@@ -52,6 +57,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<bool> _showBackButtonProp;
         private ElementSchemaProp<float> _dividerOffset;
         private ElementSchemaProp<bool> _dividerVisible;
+        private ElementSchemaProp<int> _pageSizeProp;
 
         /// <summary>
         /// Title text.
@@ -62,6 +68,16 @@ namespace CreateAR.SpirePlayer.IUX
         /// Description text.
         /// </summary>
         private TextPrimitive _descriptionPrimitive;
+
+        /// <summary>
+        /// Previous page button.
+        /// </summary>
+        private ButtonWidget _prev;
+
+        /// <summary>
+        /// Next page button.
+        /// </summary>
+        private ButtonWidget _next;
 
         /// <summary>
         /// Half moon.
@@ -107,6 +123,8 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LoadInternalAfterChildren();
 
+            IsLoaded = false;
+
             // retrieve properties
             _titleProp = Schema.Get<string>("title");
             _titleProp.OnChanged += Title_OnChanged;
@@ -141,7 +159,19 @@ namespace CreateAR.SpirePlayer.IUX
             _dividerVisible = Schema.Get<bool>("divider.visible");
             _dividerVisible.OnChanged += DividerVisible_OnChanged;
 
+            _pageSizeProp = Schema.Get<int>("page.size");
+            _pageSizeProp.OnChanged += PageSize_OnChanged;
+
             Schema.OnSelfPropAdded += Schema_OnPropAdded;
+
+            // create pagination buttons
+            _prev = (ButtonWidget) _elements.Element("<Button icon='arrow-left' visible=false />");
+            _prev.Activator.OnActivated += Prev_OnActivated;
+            AddChild(_prev);
+
+            _next = (ButtonWidget)_elements.Element("<Button icon='arrow-right' visible=false />");
+            _next.Activator.OnActivated += Next_OnActivated;
+            AddChild(_next);
 
             // create + place title
             _titlePrimitive = _primitives.Text(Schema);
@@ -175,8 +205,10 @@ namespace CreateAR.SpirePlayer.IUX
 
             _titlePrimitive.OnTextRectUpdated += Header_TextRectUpdated;
             _descriptionPrimitive.OnTextRectUpdated += Header_TextRectUpdated;
-        }
 
+            IsLoaded = true;
+        }
+        
         /// <inheritdoc cref="Element"/>
         protected override void UnloadInternalAfterChildren()
         {
@@ -184,6 +216,8 @@ namespace CreateAR.SpirePlayer.IUX
 
             _titleProp.OnChanged -= Title_OnChanged;
             _fontSizeProp.OnChanged -= FontSize_OnChanged;
+            _prev.Activator.OnActivated -= Prev_OnActivated;
+            _next.Activator.OnActivated -= Next_OnActivated;
 
             if (null != _titleFontSizeProp)
             {
@@ -236,6 +270,8 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _titlePrimitive.Destroy();
             _descriptionPrimitive.Destroy();
+            _prev.Destroy();
+            _next.Destroy();
 
             base.DestroyInternal();
         }
@@ -256,49 +292,7 @@ namespace CreateAR.SpirePlayer.IUX
             _backButton.Activator.OnActivated += Back_OnActivated;
             AddChild(_backButton);
         }
-
-        /// <summary>
-        /// Adjusts children according to radial layout specs.
-        /// </summary>
-        /// <param name="children">The children.</param>
-        /// <param name="worldRadius">The radius in world space.</param>
-        /// <param name="degrees">The radius in degrees.</param>
-        private void RadialLayout(IList<Element> children,
-            float worldRadius,
-            float degrees)
-        {
-            if (children.Count == 0)
-            {
-                return;
-            }
-
-            var localRadius = worldRadius;
-
-            var baseTheta = children.Count > 1
-                ? degrees * -0.5f
-                : 0.0f;
-
-            var stepTheta = children.Count > 1
-                ? degrees / (children.Count - 1)
-                : 0.0f;
-
-            for (int i = 0, count = children.Count; i < count; ++i)
-            {
-                var child = children[i];
-                if (child != null)
-                {
-                    var theta = baseTheta + stepTheta * i;
-                    var thetaRadians = theta * Mathf.Deg2Rad;
-                    var targetPosition = localRadius * new Vector3(
-                        Mathf.Cos(thetaRadians),
-                        -Mathf.Sin(thetaRadians),
-                        0);
-
-                    child.Schema.Set("position", targetPosition.ToVec());
-                }
-            }
-        }
-
+        
         /// <summary>
         /// Updates the font sizes across the board.
         /// </summary>
@@ -399,25 +393,118 @@ namespace CreateAR.SpirePlayer.IUX
                     var child = Children[i];
                     if (child == _titlePrimitive
                         || child == _descriptionPrimitive
-                        || child == _backButton)
+                        || child == _backButton
+                        || child == _prev
+                        || child == _next)
                     {
                         continue;
                     }
-
-                    // don't add invisible children
-                    if (!child.Schema.Get<bool>("visible").Value)
-                    {
-                        continue;
-                    }
-
+                    
                     _filteredChildren.Add(child);
                 }
 
                 RadialLayout(
-                    _filteredChildren,
                     _layoutRadiusProp.Value,
                     _layoutDegreesProp.Value);
             }
+        }
+
+        /// <summary>
+        /// Adjusts children according to radial layout specs.
+        /// </summary>
+        /// <param name="worldRadius">The radius in world space.</param>
+        /// <param name="degrees">The radius in degrees.</param>
+        private void RadialLayout(
+            float worldRadius,
+            float degrees)
+        {
+            if (_filteredChildren.Count == 0)
+            {
+                return;
+            }
+
+            var pageSize = _pageSizeProp.Value;
+            var startIndex = Mathf.Min(Mathf.Max(0, _page * pageSize), _filteredChildren.Count - 1);
+            var endIndex = Mathf.Min(startIndex + pageSize - 1, _filteredChildren.Count - 1);
+
+            var children = new List<Element>();
+            if (startIndex > 0)
+            {
+                children.Insert(0, _prev);
+                _prev.Schema.Set("visible", true);
+            }
+            else
+            {
+                _prev.Schema.Set("visible", false);
+            }
+
+            for (var i = 0; i < _filteredChildren.Count; i ++)
+            {
+                var child = _filteredChildren[i];
+                if (i >= startIndex && i <= endIndex)
+                {
+                    children.Add(child);
+                    child.Schema.Set("visible", true);
+                }
+                else
+                {
+                    child.Schema.Set("visible", false);
+                }
+            }
+
+            if (endIndex < _filteredChildren.Count - 1)
+            {
+                children.Add(_next);
+                _next.Schema.Set("visible", true);
+            }
+            else
+            {
+                _next.Schema.Set("visible", false);
+            }
+
+            var localRadius = worldRadius;
+            var count = Mathf.Max(children.Count, pageSize);
+            var baseTheta = count > 1
+                ? degrees * -0.5f
+                : 0.0f;
+            var stepTheta = count > 1
+                ? degrees / (count - 1)
+                : 0.0f;
+            
+            for (int i = 0, len = children.Count; i < len; i++)
+            {
+                var child = children[i];
+                var theta = baseTheta + stepTheta * i;
+                var thetaRadians = theta * Mathf.Deg2Rad;
+                var targetPosition = localRadius * new Vector3(
+                    Mathf.Cos(thetaRadians),
+                    -Mathf.Sin(thetaRadians),
+                    0);
+
+                child.Schema.Set("position", targetPosition.ToVec());
+            }
+        }
+
+        /// <summary>
+        /// Called when prev is clicked.
+        /// </summary>
+        /// <param name="activator">The activator.</param>
+        private void Prev_OnActivated(ActivatorPrimitive activator)
+        {
+            _page -= 1;
+
+            UpdateChildLayout();
+        }
+
+        /// <summary>
+        /// Called when next is clicked.
+        /// </summary>
+        /// <param name="activator">The activator.</param>
+        private void Next_OnActivated(ActivatorPrimitive activator)
+        {
+            _page += 1;
+
+            UpdateChildLayout();
         }
 
         /// <summary>
@@ -603,6 +690,22 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _halfMoon.SetActive(next);
             }
+        }
+
+        /// <summary>
+        /// Called when the page size changes.
+        /// </summary>
+        /// <param name="prop">The property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void PageSize_OnChanged(
+            ElementSchemaProp<int> prop,
+            int prev,
+            int next)
+        {
+            _page = 0;
+
+            UpdateChildLayout();
         }
 
         /// <summary>

@@ -65,7 +65,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// True iff <c>LoadInternal</c> has been called.
         /// </summary>
-        public bool IsLoaded { get; private set; }
+        public bool IsLoaded { get; protected set; }
 
         /// <summary>
         /// Color accessor.

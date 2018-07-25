@@ -170,6 +170,7 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     { "fontSize", 80 },
                     { "header.width", 700 },
+                    { "page.size", 5 },
                 }
             });
             menuSchema.Inherit(_baseSchema);
