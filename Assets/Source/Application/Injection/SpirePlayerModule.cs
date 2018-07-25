@@ -233,6 +233,7 @@ namespace CreateAR.SpirePlayer
                         binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();
                         binder.Bind<PlayApplicationState>().To<PlayApplicationState>();
                         binder.Bind<BleSearchApplicationState>().To<BleSearchApplicationState>();
+                        binder.Bind<IuxDesignerApplicationState>().To<IuxDesignerApplicationState>();
                         
                         // tools
                         {
@@ -298,7 +299,8 @@ namespace CreateAR.SpirePlayer
                                         binder.GetInstance<BleSearchApplicationState>(),
                                         binder.GetInstance<MeshCaptureApplicationState>(),
                                         binder.GetInstance<BugReportApplicationState>(),
-                                        binder.GetInstance<ToolModeApplicationState>()
+                                        binder.GetInstance<ToolModeApplicationState>(),
+                                        binder.GetInstance<IuxDesignerApplicationState>()
                                     },
                                     new IStateFlow[]
                                     {

@@ -16,6 +16,11 @@ namespace CreateAR.SpirePlayer
         /// Sets the platform. Leave empty for the application to decide.
         /// </summary>
         public string Platform;
+
+        /// <summary>
+        /// True iff we should open the IUXDesigner.
+        /// </summary>
+        public bool IuxDesigner;
         
         /// <summary>
         /// Logging.
@@ -112,6 +117,11 @@ namespace CreateAR.SpirePlayer
             if (!string.IsNullOrEmpty(overrideConfig.Platform))
             {
                 Platform = overrideConfig.Platform;
+            }
+
+            if (overrideConfig.IuxDesigner)
+            {
+                IuxDesigner = true;
             }
 
             Log.Override(overrideConfig.Log);
