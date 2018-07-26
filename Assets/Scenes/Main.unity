@@ -710,6 +710,11 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 615226715}
     m_Modifications:
+    - target: {fileID: 114612234147596516, guid: 7af591af75f6af9479f3c4f743039865,
+        type: 2}
+      propertyPath: Libraries.Array.data[0].Links.Array.size
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 224471594704686316, guid: 7af591af75f6af9479f3c4f743039865,
         type: 2}
       propertyPath: m_LocalPosition.x
@@ -800,6 +805,17 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114612234147596516, guid: 7af591af75f6af9479f3c4f743039865,
+        type: 2}
+      propertyPath: Libraries.Array.data[0].Links.Array.data[9].UIDataId
+      value: Orientation.Adjust
+      objectReference: {fileID: 0}
+    - target: {fileID: 114612234147596516, guid: 7af591af75f6af9479f3c4f743039865,
+        type: 2}
+      propertyPath: Libraries.Array.data[0].Links.Array.data[9].Element
+      value: 
+      objectReference: {fileID: 114409216219370878, guid: 62685ceb4f409ea4fa8e85e80fe19279,
+        type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7af591af75f6af9479f3c4f743039865, type: 2}
   m_IsPrefabParent: 0
