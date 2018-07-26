@@ -713,7 +713,7 @@ Prefab:
     - target: {fileID: 114612234147596516, guid: 7af591af75f6af9479f3c4f743039865,
         type: 2}
       propertyPath: Libraries.Array.data[0].Links.Array.size
-      value: 10
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 224471594704686316, guid: 7af591af75f6af9479f3c4f743039865,
         type: 2}
@@ -815,6 +815,17 @@ Prefab:
       propertyPath: Libraries.Array.data[0].Links.Array.data[9].Element
       value: 
       objectReference: {fileID: 114409216219370878, guid: 62685ceb4f409ea4fa8e85e80fe19279,
+        type: 2}
+    - target: {fileID: 114612234147596516, guid: 7af591af75f6af9479f3c4f743039865,
+        type: 2}
+      propertyPath: Libraries.Array.data[0].Links.Array.data[10].UIDataId
+      value: Design.Splash
+      objectReference: {fileID: 0}
+    - target: {fileID: 114612234147596516, guid: 7af591af75f6af9479f3c4f743039865,
+        type: 2}
+      propertyPath: Libraries.Array.data[0].Links.Array.data[10].Element
+      value: 
+      objectReference: {fileID: 114197174911949698, guid: 01a6f0c348f65e443aa81dc0798562f0,
         type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 7af591af75f6af9479f3c4f743039865, type: 2}

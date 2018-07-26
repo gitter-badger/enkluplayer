@@ -17,12 +17,6 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Main menu button.
         /// </summary>
-        [InjectElements("..btn-back")]
-        public ButtonWidget BtnBack{ get; set; }
-
-        /// <summary>
-        /// Main menu button.
-        /// </summary>
         [InjectElements("..btn-play")]
         public ButtonWidget BtnPlay { get; set; }
 
@@ -30,11 +24,6 @@ namespace CreateAR.SpirePlayer
         /// Called when the main menu should be opened.
         /// </summary>
         public event Action OnOpenMenu;
-
-        /// <summary>
-        /// Called to go back to the user profile menu.
-        /// </summary>
-        public event Action OnBack;
 
         /// <summary>
         /// Called to move to play mode.
@@ -47,7 +36,6 @@ namespace CreateAR.SpirePlayer
             base.AfterElementsCreated();
 
             BtnMenu.Activator.OnActivated += Btn_OnActivated;
-            BtnBack.Activator.OnActivated += BtnBack_OnActivated;
             BtnPlay.Activator.OnActivated += BtnPlay_OnActivated;
         }
 
@@ -60,18 +48,6 @@ namespace CreateAR.SpirePlayer
             if (null != OnPlay)
             {
                 OnPlay();
-            }
-        }
-
-        /// <summary>
-        /// Called when the back button has been actived.
-        /// </summary>
-        /// <param name="activatorPrimitive">The activator.</param>
-        private void BtnBack_OnActivated(ActivatorPrimitive activatorPrimitive)
-        {
-            if (null != OnBack)
-            {
-                OnBack();
             }
         }
 

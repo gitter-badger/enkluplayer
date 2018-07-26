@@ -2,8 +2,7 @@
 
 <Float position=(0, 0, 3) focus.visible=false>
 	<ScaleTransition>
-		<Button id='btn-back' position=(-0.1, -0.1,0) ready.color='Negative' icon='arrow-left' />
-		<Button id='btn-menu' label='Menu' position=(0,-0.1,0) />
-		<Button id='btn-play' label='Play' position=(0,-0.2,0) icon='play' />
+		<Button id='btn-menu' position=(-0.075,0,0) icon='grid' />
+		<Button id='btn-play' position=(0.075,0,0) icon='play' />
 	</ScaleTransition>
 </Float>
