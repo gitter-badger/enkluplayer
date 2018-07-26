@@ -4,10 +4,9 @@ using CreateAR.SpirePlayer.IUX;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Manu for orientation adjustment menu.
+    /// UIview for orientation adjustment menu.
     /// </summary>
-    [InjectVine("Orientation.Adjust")]
-    public class HmdOrientationViewController : InjectableIUXController
+    public class HmdOrientationUIView : MonoBehaviourIUXController
     {
         /// <summary>
         /// Voice command manager.
@@ -16,16 +15,29 @@ namespace CreateAR.SpirePlayer
         public IVoiceCommandManager Voice { get; set; }
 
         /// <summary>
+        /// Continue button.
+        /// </summary>
+        [InjectElements("..btn-continue")]
+        public ButtonWidget BtnContinue { get; private set; }
+
+        /// <summary>
         /// Called when continue has been activated.
         /// </summary>
         public event Action OnContinue;
 
         /// <inheritdoc />
-        protected override void Awake()
+        protected override void AfterElementsCreated()
         {
-            base.Awake();
+            base.AfterElementsCreated();
 
             Voice.Register("continue", Voice_OnContinue);
+            BtnContinue.Activator.OnActivated += _ =>
+            {
+                if (null != OnContinue)
+                {
+                    OnContinue();
+                }
+            };
         }
 
         /// <inheritdoc />

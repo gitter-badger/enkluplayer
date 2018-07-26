@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
             }
             else
             {
-                _states.ChangeState<OrientationApplicationState>();
+                _states.ChangeState<LoginApplicationState>();
             }
         }
 
