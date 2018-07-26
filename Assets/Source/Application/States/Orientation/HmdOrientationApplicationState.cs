@@ -51,7 +51,7 @@ namespace CreateAR.SpirePlayer
         {
             _frame = _ui.CreateFrame();
         
-            // open placement menu
+            // open orientation UI view
             int id;
             _ui
                 .Open<HmdOrientationUIView>(new UIReference
