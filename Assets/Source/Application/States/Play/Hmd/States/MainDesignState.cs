@@ -235,7 +235,6 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(el =>
                 {
                     el.OnOpenMenu += Splash_OnOpenMenu;
-                    el.OnBack += Splash_OnBack;
                     el.OnPlay += Splash_OnPlay;
                 })
                 .OnFailure(ex => Log.Error(this,
