@@ -264,7 +264,7 @@ namespace CreateAR.SpirePlayer
                 {
                     el.OnBack += MainMenu_OnBack;
                     el.OnNew += MainMenu_OnNew;
-                    el.OnPlay += MainMenu_OnPlay;
+                    el.OnExperience += MainMenu_OnExperience;
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
                     el.Initialize(_prefs.Data.App(_config.Play.AppId).Play);
                 })
@@ -352,10 +352,20 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when the user asks to create a new element.
+        /// Called when the user selects one submenus under experience.
         /// </summary>
         /// <param name="elementType">The type of element ot create.</param>
-        private void MainMenu_OnNew(int elementType)
+        private void MainMenu_OnExperience(int elementType)
+        {
+            //TODO implementation for each experience submenus
+            Debug.Log("Pressed Experience: " + elementType);
+        }
+
+            /// <summary>
+            /// Called when the user asks to create a new element.
+            /// </summary>
+            /// <param name="elementType">The type of element ot create.</param>
+            private void MainMenu_OnNew(int elementType)
         {
             switch (elementType)
             {
