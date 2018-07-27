@@ -38,6 +38,11 @@ namespace CreateAR.SpirePlayer
         public readonly string SceneId;
 
         /// <summary>
+        /// True iff rollback should be tracked.
+        /// </summary>
+        public bool AllowRollback = true;
+
+        /// <summary>
         /// Actions.
         /// </summary>
         public readonly List<ElementActionData> Actions = new List<ElementActionData>();
