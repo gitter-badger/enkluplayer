@@ -49,7 +49,6 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..btn-exp-duplicate")]
         public ButtonWidget BtnExpDuplicate { get; set; }
 
-
         /// <summary>
         /// Called when we wish to go back.
         /// </summary>

@@ -361,39 +361,39 @@ namespace CreateAR.SpirePlayer
             Debug.Log("Pressed Experience: " + elementType);
         }
 
-            /// <summary>
-            /// Called when the user asks to create a new element.
-            /// </summary>
-            /// <param name="elementType">The type of element ot create.</param>
-            private void MainMenu_OnNew(int elementType)
+        /// <summary>
+        /// Called when the user asks to create a new element.
+        /// </summary>
+        /// <param name="elementType">The type of element ot create.</param>
+        private void MainMenu_OnNew(int elementType)
         {
             switch (elementType)
             {
                 case ElementTypes.CONTENT:
-                {
-                    _design.ChangeState<NewContentDesignState>();
-                    break;
-                }
+                    {
+                        _design.ChangeState<NewContentDesignState>();
+                        break;
+                    }
                 case ElementTypes.WORLD_ANCHOR:
-                {
-                    _design.ChangeState<NewAnchorDesignState>();
-                    break;
-                }
+                    {
+                        _design.ChangeState<NewAnchorDesignState>();
+                        break;
+                    }
                 case ElementTypes.CONTAINER:
-                {
-                    _design.ChangeState<NewContainerDesignState>();
-                    break;
-                }
+                    {
+                        _design.ChangeState<NewContainerDesignState>();
+                        break;
+                    }
                 default:
-                {
-                    Log.Warning(this,
-                        "User requested to create {0}, but there is no inmplementation.",
-                        elementType);
-                    break;
-                }
+                    {
+                        Log.Warning(this,
+                            "User requested to create {0}, but there is no inmplementation.",
+                            elementType);
+                        break;
+                    }
             }
         }
-        
+
         /// <summary>
         /// Move to play mode.
         /// </summary>
