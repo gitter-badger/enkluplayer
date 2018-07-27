@@ -53,7 +53,7 @@ namespace CreateAR.SpirePlayer
                     Log.Info(this, "Received scene update event: \n{0}", message);
 
                     // all values come in as strings
-                    PrepActions(message);
+                    message.Actions = PrepActions(message.Actions);
 
                     Log.Info(this, "{0} actions prepped.", message.Actions.Length);
 
@@ -70,17 +70,32 @@ namespace CreateAR.SpirePlayer
                     // TODO: THIS
                     //_txns.UntrackScene(message.Scene);
                 });
+
+            Subscribe<BridgeHelperActionEvent>(
+                MessageTypes.BRIDGE_HELPER_PREVIEW_ACTION,
+                OnAction);
+        }
+
+        /// <summary>
+        /// Called when actions are sent directly over bridge. This is usually for a preview.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void OnAction(BridgeHelperActionEvent @event)
+        {
+            var txn = new ElementTxn(@event.SceneId);
+            txn.Actions.AddRange(PrepActions(@event.Actions));
+
+            _txns.Apply(txn);
         }
 
         /// <summary>
         /// Preps actions by parsing action values.
         /// </summary>
-        /// <param name="message">The message.</param>
-        private void PrepActions(SceneUpdateEvent message)
+        private ElementActionData[] PrepActions(ElementActionData[] actions)
         {
-            for (var i = message.Actions.Length - 1; i >= 0; i--)
+            for (var i = actions.Length - 1; i >= 0; i--)
             {
-                var action = message.Actions[i];
+                var action = actions[i];
                 if (action.Type == ElementActionTypes.CREATE
                     || action.Type == ElementActionTypes.DELETE)
                 {
@@ -123,11 +138,13 @@ namespace CreateAR.SpirePlayer
                     default:
                     {
                         Log.Error(this, "Removing invalid action: no SchemaType!");
-                        message.Actions = message.Actions.Remove(action);
+                        actions = actions.Remove(action);
                         break;
                     }
                 }
             }
+
+            return actions;
         }
 
         /// <summary>

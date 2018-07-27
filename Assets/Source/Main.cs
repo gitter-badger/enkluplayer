@@ -139,9 +139,11 @@ namespace CreateAR.SpirePlayer
             var metrics = _binder.GetInstance<IMetricsService>();
             if (!UnityEngine.Application.isEditor)
             {
+#if !UNITY_WEBGL
                 metrics.AddTarget(new HostedGraphiteMetricsTarget(
                     config.Hostname,
                     config.ApplicationKey));
+#endif
             }
 
             // handle restarts
