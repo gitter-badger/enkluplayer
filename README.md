@@ -61,10 +61,12 @@ A detailed diagram can be found [here](https://www.lucidchart.com/documents/view
 * [Element](docs/element.overview.md)
   * [Queries](docs/element.query.md)
   * [Schema](docs/element.schema.md)
+    * [Documented Element Properties](docs/element.schema.properties.md)
   * [Widget](docs/element.widget.md)
   * [Ideas](docs/element.ideas.md)
 * [Vine](docs/vine.overview.md)
   * [Controllers](docs/vine.controller.md)
 * Miscellany
+  * [Metrics](docs/metrics.overview.md)
   * [Standard Queries](docs/standardqueries.overview.md)
 

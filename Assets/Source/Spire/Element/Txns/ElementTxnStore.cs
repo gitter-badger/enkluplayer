@@ -121,7 +121,7 @@ namespace CreateAR.SpirePlayer
                     }
                     case ElementActionTypes.UPDATE:
                     {
-                        if (ApplyActionToUpdateRecord(action, _scratchRecord))
+                        if (!txn.AllowRollback || ApplyActionToUpdateRecord(action, _scratchRecord))
                         {
                             if (!_strategy.ApplyUpdateAction(
                                 _scratchRecord,
