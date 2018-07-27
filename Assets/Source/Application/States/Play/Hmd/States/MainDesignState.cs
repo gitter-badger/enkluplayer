@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Async;
+﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -35,7 +34,7 @@ namespace CreateAR.SpirePlayer
         /// Manages controllers.
         /// </summary>
         private readonly IElementControllerManager _controllers;
-        
+
         /// <summary>
         /// Http interface.
         /// </summary>
@@ -70,7 +69,7 @@ namespace CreateAR.SpirePlayer
         /// Design controller.
         /// </summary>
         private HmdDesignController _design;
-        
+
         /// <summary>
         /// Id of splash menu.
         /// </summary>
@@ -80,7 +79,7 @@ namespace CreateAR.SpirePlayer
         /// Id of main menu.
         /// </summary>
         private int _mainId;
-        
+
         /// <summary>
         /// User preferences.
         /// </summary>
@@ -137,14 +136,14 @@ namespace CreateAR.SpirePlayer
 
             // push a frame
             _frame = _ui.CreateFrame();
-            
+
             // load prefs first
             _prefLoad = _preferenceService
                 .ForCurrentUser()
                 .OnSuccess(prefs =>
                 {
                     _prefs = prefs;
-                    
+
                     // content
                     _controllers
                         .Group(TAG_CONTENT)
@@ -205,7 +204,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-            
+
         }
 
         /// <inheritdoc />
@@ -215,7 +214,7 @@ namespace CreateAR.SpirePlayer
 
             // kill element menus
             _controllers.Deactivate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN, TAG_ANCHOR);
-            
+
             // kill any other UI
             _frame.Release();
 
@@ -272,7 +271,7 @@ namespace CreateAR.SpirePlayer
                     "Could not open MainMenuUIView : {0}",
                     ex));
         }
-        
+
         /// <summary>
         /// Closes main menu.
         /// </summary>
@@ -355,10 +354,27 @@ namespace CreateAR.SpirePlayer
         /// Called when the user selects one submenus under experience.
         /// </summary>
         /// <param name="elementType">The type of element ot create.</param>
-        private void MainMenu_OnExperience(int elementType)
+        private void MainMenu_OnExperience(MainMenuUIView.ExperienceSubMenu type)
         {
-            //TODO implementation for each experience submenus
-            Debug.Log("Pressed Experience: " + elementType);
+            switch (type)
+            {
+                case MainMenuUIView.ExperienceSubMenu.New:
+                    {
+                        //TODO
+                        break;
+                    }
+                case MainMenuUIView.ExperienceSubMenu.Load:
+                    {
+                        _design.ChangeState<AppListViewDesignState>();
+                        break;
+                    }
+
+                case MainMenuUIView.ExperienceSubMenu.Duplicate:
+                    {
+                        //TODO
+                        break;
+                    }
+            }
         }
 
         /// <summary>

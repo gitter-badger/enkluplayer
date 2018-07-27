@@ -11,6 +11,11 @@ namespace CreateAR.SpirePlayer
     public class MainMenuUIView : MonoBehaviourIUXController
     {
         /// <summary>
+        /// Enum for Experience submenu.
+        /// </summary>
+        public enum ExperienceSubMenu { New, Load, Duplicate };
+
+        /// <summary>
         /// Elements.
         /// </summary>
         [InjectElements("..menu")]
@@ -62,7 +67,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the new button is pressed.
         /// </summary>
-        public event Action<int> OnExperience;
+        public event Action<ExperienceSubMenu> OnExperience;
 
         /// <summary>
         /// Called when user requests to reset all data.
@@ -128,10 +133,9 @@ namespace CreateAR.SpirePlayer
                 }
             };
 
-            //TODO - assign corresponding action type 
-            BtnExpNew.Activator.OnActivated += _ => Experience(1);
-            BtnExpLoad.Activator.OnActivated += _ => Experience(2);
-            BtnExpDuplicate.Activator.OnActivated += _ => Experience(3);
+            BtnExpNew.Activator.OnActivated += _ => Experience(ExperienceSubMenu.New);
+            BtnExpLoad.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Load);
+            BtnExpDuplicate.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Duplicate);
         }
         
         /// <summary>
@@ -150,11 +154,11 @@ namespace CreateAR.SpirePlayer
         /// Helper method to call experience callback.
         /// </summary>
         /// <param name="elementType">The element type.</param>
-        private void Experience(int elementType)
+        private void Experience(ExperienceSubMenu type)
         {
             if (null != OnExperience)
             {
-                OnExperience(elementType);
+                OnExperience(type);
             }
         }
 
