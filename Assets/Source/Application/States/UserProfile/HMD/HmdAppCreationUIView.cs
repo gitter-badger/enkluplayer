@@ -10,21 +10,10 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class HmdAppCreationUIView : MonoBehaviourIUXController
     {
-        /// <summary>
-        /// Backing variable for Apps property.
-        /// </summary>
-        private Body[] _apps;
-
-        /// <summary>
-        /// Dependencies.
-        /// </summary>
-        [Inject]
-        public IMessageRouter Messages { get; set; }
 
         /// <summary>
         /// Elements.
         /// </summary>
-
         [InjectElements("..btn-ok")]
         public ButtonWidget BtnOk { get; set; }
 

@@ -99,6 +99,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnFailure(ex => Log.Error(this, "Could not open Create App UI : {0}.", ex));
         }
+
         /// <summary>
         /// Creates new app with params
         /// </summary>
