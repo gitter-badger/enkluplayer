@@ -131,8 +131,8 @@ MonoBehaviour:
     - UIDataId: Design.CreateApp
       Element: {fileID: 114848184861594078, guid: 1b7b2c55b8e224d4bada248b456f68e5,
         type: 2}
-    - UIDataId: PlaceAnchor.Adjust
-      Element: {fileID: 114942440658905638, guid: 199dbf963b4da064788b066ca09a0376,
+    - UIDataId: PrimaryAnchor.Adjust
+      Element: {fileID: 114747922377501724, guid: 199dbf963b4da064788b066ca09a0376,
         type: 2}
   - Platforms: 08000000
     Links:

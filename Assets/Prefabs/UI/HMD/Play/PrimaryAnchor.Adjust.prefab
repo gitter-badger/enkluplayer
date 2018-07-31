@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4289976824838810}
   - component: {fileID: 114747922377501724}
   m_Layer: 0
-  m_Name: PlaceAnchor.Adjust
+  m_Name: PrimaryAnchor.Adjust
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
