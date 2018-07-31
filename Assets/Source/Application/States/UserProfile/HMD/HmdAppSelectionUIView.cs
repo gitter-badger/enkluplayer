@@ -92,7 +92,7 @@ namespace CreateAR.SpirePlayer
 
             BtnMeshCapture.Activator.OnActivated += _ =>
             {
-                Messages.Publish(MessageTypes.MESHCAPTURE);
+                
             };
 
             BtnBugReport.Activator.OnActivated += _ =>

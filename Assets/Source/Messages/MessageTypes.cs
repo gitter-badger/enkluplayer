@@ -73,6 +73,7 @@
         public const int SCENE_CREATE = 3100;
         public const int SCENE_UPDATE = 3101;
         public const int SCENE_DELETE = 3102;
+        public const int FILE_UPDATE = 3110;
 
         public const int BRIDGE_HELPER_REPARENT = 3990;
         public const int BRIDGE_HELPER_SELECT = 3991;
@@ -83,7 +84,6 @@
         // Tools
         ///////////////////////////////////////////////////////////////////////
         public const int TOOLS = 5000;
-        public const int MESHCAPTURE = 5010;
         public const int BUGREPORT = 5020;
 
         ///////////////////////////////////////////////////////////////////////

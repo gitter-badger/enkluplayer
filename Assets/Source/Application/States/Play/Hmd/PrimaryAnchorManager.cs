@@ -76,6 +76,11 @@ namespace CreateAR.SpirePlayer
         private readonly IBootstrapper _bootstrapper;
 
         /// <summary>
+        /// Configuration for entire application.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
+        /// <summary>
         /// Lookup from surface id to GameObject.
         /// </summary>
         private readonly Dictionary<int, SurfaceRecord> _surfaces = new Dictionary<int, SurfaceRecord>();
@@ -128,7 +133,8 @@ namespace CreateAR.SpirePlayer
             IIntentionManager intentions,
             IMeshCaptureService capture,
             IMeshCaptureExportService exportService,
-            IBootstrapper bootstrapper)
+            IBootstrapper bootstrapper,
+            ApplicationConfig config)
         {
             _scenes = scenes;
             _txns = txns;
@@ -136,6 +142,7 @@ namespace CreateAR.SpirePlayer
             _capture = capture;
             _exportService = exportService;
             _bootstrapper = bootstrapper;
+            _config = config;
         }
 
         /// <inheritdoc />
@@ -243,7 +250,7 @@ namespace CreateAR.SpirePlayer
                         if (string.Compare(
                                 _primaryAnchor.Id,
                                 anchor.Id,
-                                StringComparison.InvariantCulture) < 0)
+                                StringComparison.Ordinal) < 0)
                         {
                             _primaryAnchor = anchor;
                         }
@@ -268,7 +275,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="root">The root of the scene.</param>
         private void CreatePrimaryAnchor(string sceneId, Element root)
         {
-            var position = _intention.Origin;
+            var position = _intention.Origin + _intention.Forward;
             var rotation = new Vector3(
                 _intention.Forward.x,
                 0,
@@ -306,6 +313,8 @@ namespace CreateAR.SpirePlayer
                     {
                         _primaryAnchor = anchor;
                         _scan = (ScanWidget) anchor.Children[0];
+                        
+                        // TODO: save anchor
 
                         StartMeshScan();
                     }
@@ -325,7 +334,7 @@ namespace CreateAR.SpirePlayer
             var srcUrl = _scan.Schema.Get<string>("srcId").Value;
             _exportService.OnFileUrlChanged += ExportService_OnFileUrlChanged;
             _exportService.OnFileCreated += ExportService_OnFileCreated;
-            _exportService.Start(srcUrl);
+            _exportService.Start(_config.Play.AppId, srcUrl);
 
             // start long-running poll for export
             _bootstrapper.BootstrapCoroutine(ExportMeshScan());

@@ -27,9 +27,10 @@ namespace CreateAR.SpirePlayer
         /// Starts processing. Calls to <c>Export</c> must follow a Start and 
         /// preceede a Stop. Start/Stop may be called many times.
         /// </summary>
+        /// <param name="appId">Id of the app.</param>
         /// <param name="fileId">The id of the file to export to. If left null,
         /// OnFileUrlChanged will be called when a file is initially created.</param>
-        void Start(string fileId = null);
+        void Start(string appId, string fileId = null);
 
         /// <summary>
         /// Stops processing.

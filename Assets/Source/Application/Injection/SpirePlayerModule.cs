@@ -246,7 +246,6 @@ namespace CreateAR.SpirePlayer
 #endif
                             binder.Bind<MeshCaptureExportServiceConfiguration>().ToValue(new MeshCaptureExportServiceConfiguration());
                             binder.Bind<IMeshCaptureExportService>().To<MeshCaptureExportService>().ToSingleton();
-                            binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
                             binder.Bind<BugReportApplicationState>().To<BugReportApplicationState>();
                         }
                     }
@@ -297,7 +296,6 @@ namespace CreateAR.SpirePlayer
                                         binder.GetInstance<LoadDefaultAppApplicationState>(),
                                         binder.GetInstance<PlayApplicationState>(),
                                         binder.GetInstance<BleSearchApplicationState>(),
-                                        binder.GetInstance<MeshCaptureApplicationState>(),
                                         binder.GetInstance<BugReportApplicationState>(),
                                         binder.GetInstance<ToolModeApplicationState>(),
                                         binder.GetInstance<IuxDesignerApplicationState>()

@@ -51,7 +51,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Start(string fileId = null)
+        public void Start(string appId, string fileId = null)
         {
             if (null != _worker)
             {
@@ -63,7 +63,7 @@ namespace CreateAR.SpirePlayer
                 _http,
                 Configuration.LockTimeoutMs,
                 Configuration.MaxScanQueueLen,
-                "worldscan",
+                string.Format("worldscan,appId:{0}", appId),
                 fileId);
             _worker.OnFileUrlChanged += url =>
             {

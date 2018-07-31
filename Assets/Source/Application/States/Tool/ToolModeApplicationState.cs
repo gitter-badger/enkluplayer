@@ -68,8 +68,6 @@ namespace CreateAR.SpirePlayer
         private void Voice_OnWorldMeshCapture(string command)
         {
             Log.Info(this, "World Mesh Capture voice command recognized.");
-            
-            _messages.Publish(MessageTypes.MESHCAPTURE);
         }
 
         /// <summary>

@@ -156,9 +156,9 @@ namespace CreateAR.SpirePlayer
             _http
                 .PostFile<Response>(
                     _http.Urls.Url("trellis://file"),
-                    new List<Tuple<string, string>>
+                    new List<CreateAR.Commons.Unity.DataStructures.Tuple<string, string>>
                     {
-                        Tuple.Create("tags", _tags)
+                        CreateAR.Commons.Unity.DataStructures.Tuple.Create("tags", _tags)
                     },
                     ref bytes)
                 .OnSuccess(response =>
@@ -214,7 +214,7 @@ namespace CreateAR.SpirePlayer
             _http
                 .PutFile<Trellis.Messages.UpdateFile.Response>(
                     _http.Urls.Url("trellis://file/" + FileId),
-                    new List<Tuple<string, string>>(),
+                    new List<CreateAR.Commons.Unity.DataStructures.Tuple<string, string>>(),
                     ref bytes)
                 .OnSuccess(response =>
                 {
