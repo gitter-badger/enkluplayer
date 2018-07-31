@@ -1,5 +1,7 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.GetMyApps;
@@ -12,6 +14,16 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class CreateNewAppDesignState : IArDesignState
     {
+        /// <summary>
+        /// App-wide config.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
+        /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
         /// <summary>
         /// Manages UI.
         /// </summary>
@@ -41,10 +53,14 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public CreateNewAppDesignState(ApiController api,
-            IUIManager ui)
+            IUIManager ui,
+             ApplicationConfig config,
+             IMessageRouter messages)
         {
             _ui = ui;
             _api = api;
+            _config = config;
+            _messages = messages;
         }
 
         /// <inheritdoc />
@@ -103,8 +119,8 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates new app with params
         /// </summary>
-        /// <param name="appName"></param>
-        /// <param name="appDescription"></param>
+        /// <param name="appName">Name of the app</param>
+        /// <param name="appDescription">Description for app</param>
         private void CreateNewApp(string appName, string appDescription)
         {
             Trellis.Messages.CreateApp.Request request = new Trellis.Messages.CreateApp.Request();
@@ -116,7 +132,7 @@ namespace CreateAR.SpirePlayer
                 if (response.StatusCode == 200)
                 {
                     Log.Info(this, "Create new App: {0} successfully", appName);
-                    _design.ChangeState<AppListViewDesignState>();
+                    LoadNewApp(response.Payload.Body.Id);
                 }
                 else
                 {
@@ -150,6 +166,16 @@ namespace CreateAR.SpirePlayer
                         Log.Fatal(this, "Could not open error popup : {0}.", er);
                     });
             });
+        }
+        /// <summary>
+        /// Loads app
+        /// </summary>
+        /// <param name="appId">id of app to be loaded</param>
+        private void LoadNewApp(string appId)
+        {
+            _config.Play.AppId = appId;
+
+            _messages.Publish(MessageTypes.LOAD_APP);
         }
 
         /// <summary>
