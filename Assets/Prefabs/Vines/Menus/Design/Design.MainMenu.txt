@@ -1,6 +1,6 @@
 <?Vine>
 
-<Float position=(0, 0, 3)>
+<Float position=(0, 0, 3) focus.visible=false>
 	<ScaleTransition>
 		<Menu id='menu' showBackButton=true layout.radius=0.3 layout.degrees=70.0>
 			
