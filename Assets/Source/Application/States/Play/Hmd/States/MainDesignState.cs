@@ -360,7 +360,7 @@ namespace CreateAR.SpirePlayer
             {
                 case MainMenuUIView.ExperienceSubMenu.New:
                     {
-                        //TODO
+                        _design.ChangeState<CreateNewAppDesignState>();
                         break;
                     }
                 case MainMenuUIView.ExperienceSubMenu.Load:

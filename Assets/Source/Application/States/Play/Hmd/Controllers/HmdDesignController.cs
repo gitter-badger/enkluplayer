@@ -132,7 +132,8 @@ namespace CreateAR.SpirePlayer
             EditElementDesignState editElement,
             ReparentDesignState reparent,
             EditAnchorDesignState anchors,
-            AppListViewDesignState appList)
+            AppListViewDesignState appList,
+            CreateNewAppDesignState createNewApp)
         {
             _config = config;
             _txns = txns;
@@ -155,7 +156,8 @@ namespace CreateAR.SpirePlayer
                 editElement,
                 reparent,
                 anchors,
-                appList
+                appList,
+                createNewApp
             };
 
             _fsm = new FiniteStateMachine(_states);

@@ -1,0 +1,23 @@
+<?Vine>
+
+<Container>
+	<Cursor />
+	<Float face='camera' position=(0, 0, 2) focus.visible=false >
+		<Menu
+			id='menu-user'
+			title='New Experience'
+			description='Create new apps.'
+			header.padding=0.4
+			description.fontSize=50
+			>
+		</Menu>
+		<Button
+		id='btn-cancel'
+		icon='cancel'
+		position=(0.15,-0.12,0) />
+	<Button
+		id='btn-ok'
+		icon='check'
+		position=(0.05,-0.12,0) />
+	</Float>
+</Container>
