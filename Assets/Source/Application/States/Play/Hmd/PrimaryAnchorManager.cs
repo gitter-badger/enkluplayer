@@ -76,6 +76,21 @@ namespace CreateAR.SpirePlayer
         private readonly IBootstrapper _bootstrapper;
 
         /// <summary>
+        /// Provides anchor import/export.
+        /// </summary>
+        private readonly IWorldAnchorProvider _provider;
+
+        /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
+        /// Http!
+        /// </summary>
+        private readonly IHttpService _http;
+
+        /// <summary>
         /// Configuration for entire application.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -134,6 +149,9 @@ namespace CreateAR.SpirePlayer
             IMeshCaptureService capture,
             IMeshCaptureExportService exportService,
             IBootstrapper bootstrapper,
+            IWorldAnchorProvider provider,
+            IMetricsService metrics,
+            IHttpService http,
             ApplicationConfig config)
         {
             _scenes = scenes;
@@ -142,6 +160,9 @@ namespace CreateAR.SpirePlayer
             _capture = capture;
             _exportService = exportService;
             _bootstrapper = bootstrapper;
+            _provider = provider;
+            _metrics = metrics;
+            _http = http;
             _config = config;
         }
 
@@ -314,8 +335,7 @@ namespace CreateAR.SpirePlayer
                         _primaryAnchor = anchor;
                         _scan = (ScanWidget) anchor.Children[0];
                         
-                        // TODO: save anchor
-
+                        SaveAnchor(_primaryAnchor);
                         StartMeshScan();
                     }
                 })
@@ -375,6 +395,102 @@ namespace CreateAR.SpirePlayer
 
                 yield return new WaitForSecondsRealtime(EXPORT_POLL_SEC);
             }
+        }
+
+        /// <summary>
+        /// Saves the primary anchor.
+        /// </summary>
+        private void SaveAnchor(WorldAnchorWidget anchor)
+        {
+            // export
+            Log.Info(this, "Beginning export of primary anchor.");
+
+            var providerId = WorldAnchorWidget.GetAnchorProviderId(anchor.Id, 0);
+            _provider
+                .Export(providerId, anchor.GameObject)
+                .OnSuccess(bytes =>
+                {
+                    Log.Info(this, "Successfully exported. Uploading primary anchor.");
+                    
+                    CreateAnchor(bytes, anchor, 3);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not export anchor : {0}.",
+                        exception);
+                });
+        }
+
+        /// <summary>
+        /// Updates an anchor.
+        /// </summary>
+        private void CreateAnchor(
+            byte[] bytes,
+            WorldAnchorWidget anchor,
+            int retries)
+        {
+            var url = string.Format(
+                "/editor/app/{0}/scene/{1}/anchor/{2}",
+                _config.Play.AppId,
+                _sceneId,
+                anchor.Id);
+
+            // metrics
+            var uploadId = _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Start();
+
+            _http
+                .PostFile<Trellis.Messages.UploadAnchor.Response>(
+                    _http.Urls.Url(url),
+                    new Commons.Unity.DataStructures.Tuple<string, string>[0],
+                    ref bytes)
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        Log.Info(this, "Successfully uploaded anchor.");
+
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Stop(uploadId);
+
+                        // complete, now send out network update
+                        _txns
+                            .Request(new ElementTxn(_sceneId).Update(anchor.Id, "src", url))
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this, "Could not set src prop on anchor : {0}", exception);
+                            });
+                    }
+                    else
+                    {
+                        Log.Error(this,
+                            "Anchor upload error : {0}.",
+                            response.Payload.Error);
+
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
+                    }
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not upload anchor : {0}.",
+                        exception);
+
+                    // metrics
+                    _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
+
+                    if (--retries > 0)
+                    {
+                        Log.Info(this, "Retry uploading anchor.");
+
+                        CreateAnchor(bytes, anchor, retries);
+                    }
+                    else
+                    {
+                        Log.Error(this, "Too many retries, cannot upload anchor.");
+                    }
+                });
         }
 
         /// <summary>
