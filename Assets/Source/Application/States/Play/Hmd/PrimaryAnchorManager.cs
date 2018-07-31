@@ -169,6 +169,11 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Setup()
         {
+            if (UnityEngine.Application.isEditor)
+            {
+                return;
+            }
+
             _sceneId = _scenes.All.FirstOrDefault();
             if (string.IsNullOrEmpty(_sceneId))
             {
