@@ -93,6 +93,8 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public ElementTxn Create(string parentId, ElementData data)
         {
+            ValidateElementIds(data);
+
             Actions.Add(new ElementActionData
             {
                 Type = ElementActionTypes.CREATE,
@@ -292,6 +294,23 @@ namespace CreateAR.SpirePlayer
             });
 
             return this;
+        }
+
+        /// <summary>
+        /// Ensures all elements have a valid Id. Creates one if not.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        private void ValidateElementIds(ElementData data)
+        {
+            if (string.IsNullOrEmpty(data.Id))
+            {
+                data.Id = Guid.NewGuid().ToString();
+            }
+
+            for (var i = 0; i < data.Children.Length; i++)
+            {
+                ValidateElementIds(data.Children[i]);
+            }
         }
 
         /// <summary>
