@@ -24,9 +24,19 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<bool> _visibleProp;
 
         /// <summary>
+        /// True iff initialized.
+        /// </summary>
+        private bool _isInitialized = false;
+
+        /// <summary>
         /// So that the lines do not intersect the buttons.
         /// </summary>
         public float Offset = 0.05f;
+
+        /// <summary>
+        /// Menu.
+        /// </summary>
+        private MenuWidget _menu;
 
         /// <summary>
         /// Starts the renderer with a menu.
@@ -34,19 +44,9 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="menu">The menu.</param>
         public void Initialize(MenuWidget menu)
         {
-            _transforms.Clear();
-
-            var children = menu.LayoutChildren;
-            for (var i = 0; i < children.Count; i++)
-            {
-                var unityChild = children[i] as IUnityElement;
-                if (null != unityChild)
-                {
-                    _transforms.Add(unityChild.GameObject.transform);
-                }
-            }
-
+            _menu = menu;
             _visibleProp = menu.Schema.Get<bool>("visible");
+            _isInitialized = true;
         }
 
         /// <summary>
@@ -55,6 +55,7 @@ namespace CreateAR.SpirePlayer.IUX
         public void Uninitialize()
         {
             _transforms.Clear();
+            _isInitialized = false;
         }
 
         /// <inheritdoc cref="MonoBehaviour"/>
@@ -72,9 +73,22 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc cref="MonoBehaviour"/>
         private void OnRenderObject()
         {
-            if (null == _visibleProp || !_visibleProp.Value)
+            if (!_isInitialized || !_visibleProp.Value)
             {
                 return;
+            }
+
+            // gather transforms
+            _transforms.Clear();
+            var children = _menu.LayoutChildren;
+            for (var i = 0; i < children.Count; i++)
+            {
+                var child = children[i];
+                var unityChild = child as IUnityElement;
+                if (null != unityChild && child.Schema.Get<bool>("visible").Value)
+                {
+                    _transforms.Add(unityChild.GameObject.transform);
+                }
             }
 
             _material.SetPass(0);

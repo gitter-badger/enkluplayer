@@ -111,7 +111,10 @@ namespace CreateAR.SpirePlayer.IUX
             _positionProp.OnChanged -= Position_OnChanged;
             _focusProp.OnChanged -= Focus_OnChanged;
 
-            Object.Destroy(_renderer.gameObject);
+            if (_renderer)
+            {
+                Object.Destroy(_renderer.gameObject);
+            }
 
             base.UnloadInternalAfterChildren();
         }
