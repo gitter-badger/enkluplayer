@@ -280,14 +280,18 @@ namespace CreateAR.SpirePlayer
                     Type = ElementTypes.WORLD_ANCHOR,
                     Schema = new ElementSchemaData
                     {
-                        Strings = { { PROP_TAG_KEY, PROP_TAG_VALUE } },
+                        Strings = { { PROP_TAG_KEY, PROP_TAG_VALUE }, { "name", "Primary Anchor" } },
                         Vectors = { { "position", position }, { "rotation", rotation } }
                     },
                     Children = new[]
                     {
                         new ElementData
                         {
-                            Type = ElementTypes.SCAN
+                            Type = ElementTypes.SCAN,
+                            Schema = new ElementSchemaData
+                            {
+                                Strings = { { "name", "Scan" } }
+                            }
                         }
                     }
                 }))
