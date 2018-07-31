@@ -1,6 +1,5 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -149,7 +148,10 @@ namespace CreateAR.SpirePlayer
         {
             if (null == Renderer)
             {
-                Renderer = Instantiate(_config.AnchorPrefab, transform);
+                var isPrimary = Anchor.Schema.Get<string>(PrimaryAnchorManager.PROP_TAG_KEY).Value == PrimaryAnchorManager.PROP_TAG_VALUE;
+                Renderer = Instantiate(
+                    isPrimary ? _config.PrimaryAnchorPrefab : _config.AnchorPrefab,
+                    transform);
                 Renderer.transform.localPosition = Vector3.zero;
                 Renderer.transform.localRotation = Quaternion.identity;
                 Renderer.Anchor = Anchor;
@@ -163,8 +165,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Splash_OnOpen()
         {
-            Log.Info(this, "SPLASH");
-
             _context.OnAdjust(this);
         }
     }

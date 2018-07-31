@@ -37,8 +37,8 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// K/V for the tag prop.
         /// </summary>
-        private const string PROP_TAG_KEY = "tag";
-        private const string PROP_TAG_VALUE = "primary";
+        public const string PROP_TAG_KEY = "tag";
+        public const string PROP_TAG_VALUE = "primary";
 
         /// <summary>
         /// Time between exports.

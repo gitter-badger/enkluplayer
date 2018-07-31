@@ -1,0 +1,7 @@
+<?Vine>
+
+<Container face='camera'>
+	<Button id='btn-back' icon='arrow-left' position=(0, 0.25, 0) ready.color='Negative' />
+	<Toggle id='btn-resave' label='Auto Scan' position=(0, -0.1, 0) />
+	<Toggle id='tgl-visibility' label='Show Mesh' position=(0.25, -0.1, 0) />
+</Container>

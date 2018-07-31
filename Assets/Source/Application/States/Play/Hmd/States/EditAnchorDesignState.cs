@@ -50,8 +50,19 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private AnchorDesignController _moveController;
 
+        /// <summary>
+        /// Controller passed in.
+        /// </summary>
         private AnchorDesignController _controller;
+
+        /// <summary>
+        /// Id of the adjust menu.
+        /// </summary>
         private int _adjustId;
+
+        /// <summary>
+        /// Id of the move menu.
+        /// </summary>
         private int _moveId;
 
         /// <summary>
