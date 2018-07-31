@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.Util;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -35,11 +34,6 @@ namespace CreateAR.SpirePlayer
         private readonly int _maxQueued;
         
         /// <summary>
-        /// Writes a max of N versions of the same file to disk.
-        /// </summary>
-        private readonly VersionedFileWriter _fileWriter;
-
-        /// <summary>
         /// Uploads a file over and over, serially.
         /// </summary>
         private readonly FileResourceUpdater _fileUploader;
@@ -63,7 +57,17 @@ namespace CreateAR.SpirePlayer
         /// True iff the thread should be running.
         /// </summary>
         private bool _isAlive;
-        
+
+        /// <summary>
+        /// Called when file url is updated.
+        /// </summary>
+        public event Action<string> OnFileUrlChanged;
+
+        /// <summary>
+        /// Called when file is created.
+        /// </summary>
+        public event Action<string> OnFileCreated;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -72,35 +76,31 @@ namespace CreateAR.SpirePlayer
             IHttpService http,
             int lockTimeoutMs,
             int maxQueued,
-            int maxOnDisk,
-            string tag)
+            string tag,
+            string fileId)
         {
             _lockTimeoutMs = lockTimeoutMs;
             _maxQueued = maxQueued;
             
-            var folder = Path.Combine(
-                Path.Combine(
-                    UnityEngine.Application.persistentDataPath,
-                    "Scans"),
-                tag);
-
-            if (Directory.Exists(folder))
-            {
-                Directory.Delete(folder, true);
-            }
-
-            Directory.CreateDirectory(folder);
-
-            _fileWriter = new VersionedFileWriter(
-                folder,
-                tag,
-                "obj",
-                maxOnDisk);
             _fileUploader = new FileResourceUpdater(
                 bootstrapper,
                 http,
-                "worldscan");
-
+                tag,
+                fileId);
+            _fileUploader.OnFileUrlChanged += url =>
+            {
+                if (null != OnFileUrlChanged)
+                {
+                    OnFileUrlChanged(url);
+                }
+            };
+            _fileUploader.OnFileCreated += id =>
+            {
+                if (null != OnFileCreated)
+                {
+                    OnFileCreated(id);
+                }
+            };
             _fileUploader.Start();
         }
 
@@ -130,10 +130,7 @@ namespace CreateAR.SpirePlayer
 
                 // process
                 var bytes = _exporter.Export(record.State);
-
-                // write to disk
-                _fileWriter.Write(bytes);
-
+                
                 // send to Trellis
                 _fileUploader.Write(bytes);
 

@@ -42,7 +42,7 @@ namespace CreateAR.SpirePlayer
         private readonly IUIManager _ui;
         private readonly IMessageRouter _messages;
         private readonly IMeshCaptureService _capture;
-        private readonly MeshCaptureExportService _exportService;
+        private readonly IMeshCaptureExportService _exportService;
 
         /// <summary>
         /// Lookup from surface id to GameObject.
@@ -76,7 +76,7 @@ namespace CreateAR.SpirePlayer
             IUIManager ui,
             IMessageRouter messages,
             IMeshCaptureService capture,
-            MeshCaptureExportService exportService)
+            IMeshCaptureExportService exportService)
         {
             _ui = ui;
             _messages = messages;
