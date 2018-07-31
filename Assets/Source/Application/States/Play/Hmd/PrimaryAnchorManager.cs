@@ -141,11 +141,6 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Setup()
         {
-            if (UnityEngine.Application.isEditor)
-            {
-                return;
-            }
-
             _sceneId = _scenes.All.FirstOrDefault();
             if (string.IsNullOrEmpty(_sceneId))
             {
@@ -170,6 +165,8 @@ namespace CreateAR.SpirePlayer
             }
             else
             {
+                Log.Info(this, "Primary anchor found.");
+
                 StartMeshScan();
             }
         }
@@ -317,6 +314,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void StartMeshScan()
         {
+            Log.Info(this, "Starting mesh scan.");
+
             _capture.Start(this);
 
             var srcUrl = _scan.Schema.Get<string>("srcId").Value;
@@ -333,6 +332,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void StopMeshScan()
         {
+            Log.Info(this, "Stopping mesh scan.");
+
             _isAutoExportAlive = false;
 
             _capture.Stop();

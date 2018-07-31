@@ -181,7 +181,7 @@ namespace CreateAR.SpirePlayer
             }
 
             triangles = state.Triangles;
-            return false;
+            return true;
         }
 
         /// <summary>
