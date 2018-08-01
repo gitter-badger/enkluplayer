@@ -41,6 +41,34 @@ namespace CreateAR.SpirePlayer
         private bool _isAlive;
 
         /// <summary>
+        /// Backing variable for prop.
+        /// </summary>
+        private bool _isVisible;
+
+        /// <summary>
+        /// Backing variable for prop.
+        /// </summary>
+        private bool _isEnabled;
+
+        /// <inheritdoc />
+        public bool IsVisible
+        {
+            get
+            {
+                return _isVisible;
+            }
+            set
+            {
+                _isVisible = value;
+
+                foreach (var surface in _surfaces.Values)
+                {
+                    surface.gameObject.SetActive(_isVisible);
+                }
+            }
+        }
+        
+        /// <summary>
         /// Constructor.
         /// </summary>
         public MockMeshCaptureService(
@@ -56,7 +84,7 @@ namespace CreateAR.SpirePlayer
         {
             _observer = observer;
             _root = new GameObject("Mesh Capture Root (Mock)");
-
+            
             _bootstrapper.BootstrapCoroutine(Loop());
         }
 

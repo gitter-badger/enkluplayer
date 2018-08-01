@@ -51,4 +51,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8ad1f771da242d42951ca171d737990, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VineId: AdjustAnchor.Primary
+  VineId: PrimaryAnchor.Adjust

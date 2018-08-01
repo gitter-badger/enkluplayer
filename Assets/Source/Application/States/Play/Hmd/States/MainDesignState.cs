@@ -454,11 +454,7 @@ namespace CreateAR.SpirePlayer
         private void Anchor_OnAdjust(AnchorDesignController controller)
         {
             var isPrimary = controller.Anchor.Schema.Get<string>(PrimaryAnchorManager.PROP_TAG_KEY).Value == PrimaryAnchorManager.PROP_TAG_VALUE;
-            if (isPrimary)
-            {
-                _design.ChangeState<EditPrimaryAnchorDesignState>(controller);
-            }
-            else
+            if (!isPrimary)
             {
                 _design.ChangeState<EditAnchorDesignState>(controller);
             }
