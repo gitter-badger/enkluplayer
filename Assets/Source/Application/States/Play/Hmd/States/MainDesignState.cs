@@ -460,6 +460,16 @@ namespace CreateAR.SpirePlayer
                         _design.ChangeState<NewContainerDesignState>();
                         break;
                     }
+                case ElementTypes.CAPTION:
+                    {
+                        FeatureNotImplemented();
+                        break;
+                    }
+                case ElementTypes.LIGHT:
+                    {
+                        FeatureNotImplemented();
+                        break;
+                    }
                 default:
                     {
                         Log.Warning(this,
