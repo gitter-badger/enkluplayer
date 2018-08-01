@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using System;
+using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -24,15 +25,11 @@ namespace CreateAR.SpirePlayer
         void Teardown();
 
         /// <summary>
-        /// Calculates the relative offsets of an anchor from the primary anchor.
+        /// Calculates the relative offsets from the primary anchor.
         /// </summary>
-        /// <param name="anchor">The anchor.</param>
-        /// <param name="positionOffset">The positional offset.</param>
-        /// <param name="eulerOffset">The euler offset.</param>
-        /// <returns></returns>
-        bool CalculateOffsets(
-            WorldAnchorWidget anchor, 
-            out Vector3 positionOffset,
-            out Vector3 eulerOffset);
+        void CalculateOffsets(
+            Vec3 position,
+            Vec3 eulerAngles, 
+            Action<Vec3, Vec3> callback);
     }
 }

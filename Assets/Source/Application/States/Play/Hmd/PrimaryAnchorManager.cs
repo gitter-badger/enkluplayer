@@ -197,31 +197,33 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public bool CalculateOffsets(
-            WorldAnchorWidget anchor,
-            out Vector3 positionOffset,
-            out Vector3 eulerOffset)
+        public void CalculateOffsets(
+            Vec3 position,
+            Vec3 eulerAngles,
+            Action<Vec3, Vec3> callback)
         {
-            if (Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+            Action<WorldAnchorWidget> calculate = null;
+            calculate = anchor =>
             {
-                positionOffset = eulerOffset = Vector3.zero;
-                return false;
-            }
+                anchor.OnLocated -= calculate;
 
-            if (anchor == _primaryAnchor)
+                // calculate diffs
+                var primaryTransform = _primaryAnchor.GameObject.transform;
+
+                callback(
+                    (position.ToVector() - primaryTransform.position).ToVec(),
+                    (Quaternion.Euler(eulerAngles.ToVector()) * Quaternion.Inverse(primaryTransform.rotation)).eulerAngles.ToVec());
+            };
+
+            // wait for it to be located
+            if (Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
             {
-                positionOffset = eulerOffset = Vector3.zero;
-                return true;
+                calculate(_primaryAnchor);
             }
-
-            // calculate diffs
-            var anchorTransform = anchor.GameObject.transform;
-            var primaryTransform = _primaryAnchor.GameObject.transform;
-
-            positionOffset = anchorTransform.position - primaryTransform.position;
-            eulerOffset = (anchorTransform.rotation * Quaternion.Inverse(primaryTransform.rotation)).eulerAngles;
-
-            return true;
+            else
+            {
+                _primaryAnchor.OnLocated += calculate;
+            }
         }
 
         /// <inheritdoc />
@@ -401,7 +403,7 @@ namespace CreateAR.SpirePlayer
             // export
             Log.Info(this, "Beginning export of primary anchor.");
 
-            anchor.Export(_config.Play.AppId, _sceneId);
+            anchor.Export(_config.Play.AppId, _sceneId, _txns);
         }
         
         /// <summary>

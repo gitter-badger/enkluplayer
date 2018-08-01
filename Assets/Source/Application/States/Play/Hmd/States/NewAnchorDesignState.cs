@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
@@ -20,6 +21,16 @@ namespace CreateAR.SpirePlayer
         /// Updater.
         /// </summary>
         private readonly IElementUpdateDelegate _delegate;
+
+        /// <summary>
+        /// Manages txns.
+        /// </summary>
+        private readonly IElementTxnManager _txns;
+
+        /// <summary>
+        /// Manages primary anchor.
+        /// </summary>
+        private readonly IPrimaryAnchorManager _primaryAnchor;
         
         /// <summary>
         /// Design controller.
@@ -36,10 +47,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public NewAnchorDesignState(
             IElementUpdateDelegate @delegate,
-            IUIManager ui)
+            IUIManager ui,
+            IElementTxnManager txns,
+            IPrimaryAnchorManager primaryAnchor)
         {
             _delegate = @delegate;
             _ui = ui;
+            _txns = txns;
+            _primaryAnchor = primaryAnchor;
         }
 
         /// <inheritdoc />
@@ -107,23 +122,39 @@ namespace CreateAR.SpirePlayer
                 }
             };
 
-            // create element
-            _delegate
-                .Create(data)
-                .OnSuccess(element =>
-                { 
-                    var anchor = element as WorldAnchorWidget;
-                    if (null == anchor)
-                    {
-                        Log.Error(this, "Scene txn successful but no WorldAnchorWidget was created.");
-                    }
-                    else
-                    {
-                        // export
-                        anchor.Export(_design.App.Id, _delegate.Active);
-                    }
-                })
-                .OnFailure(token.Fail);
+            // append relative coordinates
+            _primaryAnchor.CalculateOffsets(
+                data.Schema.Vectors["position"],
+                data.Schema.Vectors["rotation"],
+                (pos, rot) =>
+                {
+                    // update!
+                    data.Schema.Vectors["position.rel"] = pos;
+                    data.Schema.Vectors["rotation.rel"] = rot;
+
+                    // create element
+                    _delegate
+                        .Create(data)
+                        .OnSuccess(element =>
+                        {
+                            var anchor = element as WorldAnchorWidget;
+                            if (null == anchor)
+                            {
+                                token.Fail(new Exception("Scene txn successful but no WorldAnchorWidget was created."));
+                            }
+                            else
+                            {
+                                // export
+                                anchor.Export(_design.App.Id, _delegate.Active, _txns);
+
+
+
+                                token.Succeed(Void.Instance);
+                            }
+                        })
+                        .OnFailure(token.Fail);
+                });
+            
             return token;
         }
         

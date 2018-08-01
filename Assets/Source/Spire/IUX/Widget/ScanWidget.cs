@@ -95,6 +95,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateMeshCapture()
         {
+            if (DeviceHelper.IsHoloLens())
+            {
+                return;
+            }
+
             if (null != _meshDownload)
             {
                 _meshDownload.Abort();

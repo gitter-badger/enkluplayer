@@ -18,7 +18,17 @@ namespace CreateAR.SpirePlayer
         /// UI management.
         /// </summary>
         private readonly IUIManager _ui;
-        
+
+        /// <summary>
+        /// Txns.
+        /// </summary>
+        private readonly IElementTxnManager _txns;
+
+        /// <summary>
+        /// Manages primary anchor.
+        /// </summary>
+        private readonly IPrimaryAnchorManager _primaryAnchor;
+
         /// <summary>
         /// UI frame.
         /// </summary>
@@ -54,10 +64,14 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public EditAnchorDesignState(
             IElementUpdateDelegate elementUpdater,
-            IUIManager ui)
+            IUIManager ui,
+            IElementTxnManager txns,
+            IPrimaryAnchorManager primaryAnchor)
         {
             _elementUpdater = elementUpdater;
             _ui = ui;
+            _txns = txns;
+            _primaryAnchor = primaryAnchor;
         }
 
         /// <inheritdoc />
@@ -166,10 +180,36 @@ namespace CreateAR.SpirePlayer
             _moveController.Anchor.Schema.Set("position", position);
             _moveController.Anchor.GameObject.transform.position = position.ToVector();
             _moveController.Renderer.gameObject.SetActive(true);
-            
-            _moveController.Anchor.Export(_design.App.Id, _elementUpdater.Active);
 
-            _design.ChangeState<MainDesignState>();
+            _primaryAnchor.CalculateOffsets(
+                data.Schema.Vectors["position"],
+                data.Schema.Vectors["rotation"],
+                (pos, rot) =>
+                {
+                    // update!
+                    data.Schema.Vectors["position.rel"] = pos;
+                    data.Schema.Vectors["rotation.rel"] = rot;
+
+                    _txns
+                        .Request(new ElementTxn(_elementUpdater.Active)
+                            .Update(_moveController.Anchor.Id, "position.rel", pos)
+                            .Update(_moveController.Anchor.Id, "rotation.rel", rot))
+                        .OnSuccess(_ =>
+                        {
+                            _moveController.Anchor.Export(
+                                _design.App.Id,
+                                _elementUpdater.Active,
+                                _txns);
+
+                            _design.ChangeState<MainDesignState>();
+                        })
+                        .OnFailure(ex =>
+                        {
+                            Log.Error(this, "Could not update relative positions!");
+
+                            _design.ChangeState<MainDesignState>();
+                        });
+                });
         }
 
         /// <summary>
@@ -246,7 +286,10 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchorDesignController">The controller.</param>
         private void Adjust_OnResave(AnchorDesignController anchorDesignController)
         {
-            anchorDesignController.Anchor.Export(_design.App.Id, _elementUpdater.Active);
+            anchorDesignController.Anchor.Export(
+                _design.App.Id,
+                _elementUpdater.Active,
+                _txns);
 
             _design.ChangeState<MainDesignState>();
         }

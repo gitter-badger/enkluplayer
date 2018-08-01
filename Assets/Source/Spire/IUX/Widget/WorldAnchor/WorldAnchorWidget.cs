@@ -39,11 +39,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// Metrics.
         /// </summary>
         private readonly IMetricsService _metrics;
-
-        /// <summary>
-        /// Txns.
-        /// </summary>
-        private readonly IElementTxnManager _txns;
         
         /// <summary>
         /// Token for anchor download.
@@ -67,19 +62,52 @@ namespace CreateAR.SpirePlayer.IUX
         private bool _pollStatus;
 
         /// <summary>
+        /// Backing variable for Status.
+        /// </summary>
+        private WorldAnchorStatus _status;
+
+        /// <summary>
         /// Status.
         /// </summary>
-        public WorldAnchorStatus Status { get; private set; }
+        public WorldAnchorStatus Status
+        {
+            get { return _status;}
+            set
+            {
+                if (value == _status)
+                {
+                    return;
+                }
+
+                var prev = _status;
+                _status = value;
+
+                if (_status == WorldAnchorStatus.IsReadyLocated)
+                {
+                    if (null != OnLocated)
+                    {
+                        OnLocated(this);
+                    }
+                }
+                else if (prev == WorldAnchorStatus.IsReadyLocated)
+                {
+                    if (null != OnUnlocated)
+                    {
+                        OnUnlocated(this);
+                    }
+                }
+            }
+        }
 
         /// <summary>
-        /// Called on load success.
+        /// Called when switching into located.
         /// </summary>
-        public event Action OnAnchorLoadSuccess;
+        public event Action<WorldAnchorWidget> OnLocated;
 
         /// <summary>
-        /// Called on load error.
+        /// Called when was located and switched to not located.
         /// </summary>
-        public event Action OnAnchorLoadError;
+        public event Action<WorldAnchorWidget> OnUnlocated;
 
         /// <summary>
         /// Constructor.
@@ -91,14 +119,12 @@ namespace CreateAR.SpirePlayer.IUX
             ColorConfig colors,
             IHttpService http,
             IWorldAnchorProvider provider,
-            IMetricsService metrics,
-            IElementTxnManager txns)
+            IMetricsService metrics)
             : base(gameObject, layers, tweens, colors)
         {
             _http = http;
             _provider = provider;
             _metrics = metrics;
-            _txns = txns;
         }
 
         /// <summary>
@@ -110,16 +136,16 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
-        /// Retrieves the anchor provider id.
+        /// Exports the anchor.
         /// </summary>
-        /// <returns></returns>
-        public static string GetAnchorProviderId(string id, int version)
+        /// <param name="appId">App anchor is in.</param>
+        /// <param name="sceneId">Scene anchor is in.</param>
+        /// <param name="txns">Object to make txns with.</param>
+        public void Export(string appId, string sceneId, IElementTxnManager txns)
         {
-            return string.Format("{0}.{1}", id, version);
-        }
+            _pollStatus = false;
+            Status = WorldAnchorStatus.IsExporting;
 
-        public void Export(string appId, string sceneId)
-        {
             var providerId = GetAnchorProviderId(Id, 0);
             _provider
                 .Export(providerId, GameObject)
@@ -127,13 +153,15 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     Log.Info(this, "Successfully exported. Uploading primary anchor.");
 
-                    ExportAnchorData(appId, sceneId, bytes, 3);
+                    ExportAnchorData(txns, appId, sceneId, bytes, 3);
                 })
                 .OnFailure(exception =>
                 {
                     Log.Error(this,
                         "Could not export anchor : {0}.",
                         exception);
+
+                    Status = WorldAnchorStatus.IsError;
                 });
         }
 
@@ -205,13 +233,38 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc />
         protected override void UpdateTransform()
         {
-            if (Status == WorldAnchorStatus.IsLoading
-                || Status == WorldAnchorStatus.IsImporting
-                || Status == WorldAnchorStatus.IsError
-                || !DeviceHelper.IsHoloLens())
+            if (DeviceHelper.IsHoloLens())
             {
-                base.UpdateTransform();
+                // whilst loading only
+                if (Status == WorldAnchorStatus.IsLoading
+                    || Status == WorldAnchorStatus.IsImporting
+                    || Status == WorldAnchorStatus.IsError)
+                {
+                    // primary
+                    if (Schema.GetOwn(PrimaryAnchorManager.PROP_TAG_KEY, "").Value == PrimaryAnchorManager.PROP_TAG_VALUE)
+                    {
+                        base.UpdateTransform();
+                    }
+                    // other anchors
+                    else
+                    {
+                        UpdateRelTransform();
+                    }
+                }
             }
+            else
+            {
+                UpdateRelTransform();
+            }
+        }
+
+        /// <summary>
+        /// Updates transform based on relative position.
+        /// </summary>
+        private void UpdateRelTransform()
+        {
+            GameObject.transform.localPosition = Schema.GetOwn("position.rel", Vec3.Zero).Value.ToVector();
+            GameObject.transform.localRotation = Quaternion.Euler(Schema.GetOwn("rotation.rel", Vec3.Zero).Value.ToVector());
         }
 
         /// <summary>
@@ -243,11 +296,6 @@ namespace CreateAR.SpirePlayer.IUX
                 Log.Warning(this, "Anchor [{0}] has an invalid version.", Id);
 
                 Status = WorldAnchorStatus.IsError;
-
-                if (null != OnAnchorLoadError)
-                {
-                    OnAnchorLoadError();
-                }
                 
                 return;
             }
@@ -259,12 +307,7 @@ namespace CreateAR.SpirePlayer.IUX
                 Log.Warning(this, "Anchor [{0}] has invalid src prop.", Id);
 
                 Status = WorldAnchorStatus.IsError;
-
-                if (null != OnAnchorLoadError)
-                {
-                    OnAnchorLoadError();
-                }
-
+                
                 return;
             }
 
@@ -312,11 +355,6 @@ namespace CreateAR.SpirePlayer.IUX
                         exception);
 
                     Status = WorldAnchorStatus.IsError;
-
-                    if (null != OnAnchorLoadError)
-                    {
-                        OnAnchorLoadError();
-                    }
                 })
                 .OnFinally(token =>
                 {
@@ -351,22 +389,12 @@ namespace CreateAR.SpirePlayer.IUX
                         .OnSuccess(__ =>
                         {
                             _pollStatus = true;
-
-                            if (null != OnAnchorLoadSuccess)
-                            {
-                                OnAnchorLoadSuccess();
-                            }
                         })
                         .OnFailure(ex =>
                         {
                             LogVerbose("Could not get anchor after import: {0}", ex);
 
                             Status = WorldAnchorStatus.IsError;
-
-                            if (null != OnAnchorLoadError)
-                            {
-                                OnAnchorLoadError();
-                            }
                         });
                 })
                 .OnFailure(exception =>
@@ -376,11 +404,6 @@ namespace CreateAR.SpirePlayer.IUX
                         exception);
 
                     Status = WorldAnchorStatus.IsError;
-
-                    if (null != OnAnchorLoadError)
-                    {
-                        OnAnchorLoadError();
-                    }
                 });
         }
 
@@ -388,6 +411,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Exports anchor data.
         /// </summary>
         private void ExportAnchorData(
+            IElementTxnManager txns,
             string appId,
             string sceneId,
             byte[] bytes,
@@ -397,10 +421,6 @@ namespace CreateAR.SpirePlayer.IUX
 
             // metrics
             var uploadId = _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Start();
-
-            _pollStatus = false;
-            Status = WorldAnchorStatus.IsExporting;
-
             var url = string.Format(
                 "/editor/app/{0}/scene/{1}/anchor/{2}",
                 appId, sceneId, Id);
@@ -438,7 +458,7 @@ namespace CreateAR.SpirePlayer.IUX
                         _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Stop(uploadId);
 
                         // complete, now send out network update
-                        _txns
+                        txns
                             .Request(new ElementTxn(sceneId)
                                 .Update(Id, "src", url)
                                 .Update(Id, "version", _versionProp.Value + 1))
@@ -475,7 +495,7 @@ namespace CreateAR.SpirePlayer.IUX
                     {
                         Log.Info(this, "Retry uploading anchor.");
 
-                        ExportAnchorData(appId, sceneId, bytes, retries);
+                        ExportAnchorData(txns, appId, sceneId, bytes, retries);
                     }
                     else
                     {
@@ -520,6 +540,15 @@ namespace CreateAR.SpirePlayer.IUX
                 // disable anchor
                 _provider.UnAnchor(GameObject);
             }
+        }
+
+        /// <summary>
+        /// Retrieves the anchor provider id.
+        /// </summary>
+        /// <returns></returns>
+        private static string GetAnchorProviderId(string id, int version)
+        {
+            return string.Format("{0}.{1}", id, version);
         }
     }
 }
