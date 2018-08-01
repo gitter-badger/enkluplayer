@@ -1,5 +1,4 @@
-﻿using CreateAR.Commons.Unity.Http;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -11,16 +10,6 @@ namespace CreateAR.SpirePlayer
     public class EditAnchorDesignState : IArDesignState
     {
         /// <summary>
-        /// Makes Http requests.
-        /// </summary>
-        private readonly IHttpService _http;
-        
-        /// <summary>
-        /// Provides anchor import/export.
-        /// </summary>
-        private readonly IWorldAnchorProvider _provider;
-
-        /// <summary>
         /// Updates elements.
         /// </summary>
         private readonly IElementUpdateDelegate _elementUpdater;
@@ -29,12 +18,7 @@ namespace CreateAR.SpirePlayer
         /// UI management.
         /// </summary>
         private readonly IUIManager _ui;
-
-        /// <summary>
-        /// Metrics.
-        /// </summary>
-        private readonly IMetricsService _metrics;
-
+        
         /// <summary>
         /// UI frame.
         /// </summary>
@@ -69,17 +53,11 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public EditAnchorDesignState(
-            IHttpService http,
-            IWorldAnchorProvider provider,
             IElementUpdateDelegate elementUpdater,
-            IUIManager ui,
-            IMetricsService metrics)
+            IUIManager ui)
         {
-            _http = http;
-            _provider = provider;
             _elementUpdater = elementUpdater;
             _ui = ui;
-            _metrics = metrics;
         }
 
         /// <inheritdoc />
@@ -176,120 +154,6 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <summary>
-        /// Re-exports an anchor and updates associated data.
-        /// </summary>
-        private void ResaveAnchor(AnchorDesignController controller)
-        {
-            var anchor = controller.Anchor;
-
-            // increment version
-            var version = anchor.Schema.Get<int>("version").Value + 1;
-
-            // renderer should show saving!
-            controller.Renderer.Poll = AnchorRenderer.PollType.Forced;
-            controller.Renderer.ForcedColor = Color.cyan;
-
-            // export
-            Log.Info(this, "Re-save anchor called. Beginning export and re-upload process.");
-
-            var providerId = WorldAnchorWidget.GetAnchorProviderId(anchor.Id, version);
-            _provider
-                .Export(providerId, anchor.GameObject)
-                .OnSuccess(bytes =>
-                {
-                    Log.Info(this, "Successfully exported. Progressing to upload.");
-                    
-                    controller.Renderer.ForcedColor = Color.gray;
-
-                    ReuploadAnchor(controller, bytes, anchor, version, 3);
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this,
-                        "Could not export anchor : {0}.",
-                        exception);
-
-                    controller.Renderer.ForcedColor = Color.red;
-                });
-        }
-        
-        /// <summary>
-        /// Updates an anchor.
-        /// </summary>
-        private void ReuploadAnchor(
-            AnchorDesignController controller,
-            byte[] bytes,
-            WorldAnchorWidget anchor,
-            int version,
-            int retries)
-        {
-            var url = string.Format(
-                "/editor/app/{0}/scene/{1}/anchor/{2}",
-                _design.App.Id,
-                _elementUpdater.Active,
-                anchor.Id);
-
-            // metrics
-            var uploadId = _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Start();
-
-            _http
-                .PutFile<Trellis.Messages.UploadAnchor.Response>(
-                    _http.Urls.Url(url),
-                    new Commons.Unity.DataStructures.Tuple<string, string>[0],
-                    ref bytes)
-                .OnSuccess(response =>
-                {
-                    if (response.Payload.Success)
-                    {
-                        Log.Info(this, "Successfully reuploaded anchor.");
-
-                        // metrics
-                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Stop(uploadId);
-
-                        // complete, now send out network update
-                        _elementUpdater.Update(anchor, "src", url);
-                        _elementUpdater.Update(anchor, "version", version);
-                        _elementUpdater.Update(anchor, "position", anchor.Schema.Get<Vec3>("position").Value);
-                        _elementUpdater.FinalizeUpdate(anchor);
-
-                        // show controller as ready again
-                        controller.Renderer.Poll = AnchorRenderer.PollType.Dynamic;
-                    }
-                    else
-                    {
-                        Log.Error(this,
-                            "Anchor reupload error : {0}.",
-                            response.Payload.Error);
-
-                        // metrics
-                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
-
-                        controller.Renderer.ForcedColor = Color.red;
-                    }
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this,
-                        "Could not reupload anchor : {0}.",
-                        exception);
-
-                    // metrics
-                    _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
-
-                    if (--retries > 0)
-                    {
-                        Log.Info(this, "Retry reuploading anchor.");
-
-                        ReuploadAnchor(controller, bytes, anchor, version, retries);
-                    }
-                    else
-                    {
-                        controller.Renderer.ForcedColor = Color.red;
-                    }
-                });
-        }
-
-        /// <summary>
         /// Called when the move menu wants to finish moving.
         /// </summary>
         /// <param name="data">Data for the element.</param>
@@ -303,7 +167,7 @@ namespace CreateAR.SpirePlayer
             _moveController.Anchor.GameObject.transform.position = position.ToVector();
             _moveController.Renderer.gameObject.SetActive(true);
             
-            ResaveAnchor(_moveController);
+            _moveController.Anchor.Export(_design.App.Id, _elementUpdater.Active);
 
             _design.ChangeState<MainDesignState>();
         }
@@ -382,7 +246,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchorDesignController">The controller.</param>
         private void Adjust_OnResave(AnchorDesignController anchorDesignController)
         {
-            ResaveAnchor(anchorDesignController);
+            anchorDesignController.Anchor.Export(_design.App.Id, _elementUpdater.Active);
 
             _design.ChangeState<MainDesignState>();
         }

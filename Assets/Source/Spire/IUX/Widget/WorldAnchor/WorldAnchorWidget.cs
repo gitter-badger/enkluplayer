@@ -3,6 +3,7 @@ using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Trellis.Messages.UploadAnchor;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -18,6 +19,7 @@ namespace CreateAR.SpirePlayer.IUX
             None,
             IsLoading,
             IsImporting,
+            IsExporting,
             IsReadyLocated,
             IsReadyNotLocated,
             IsError
@@ -39,6 +41,11 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IMetricsService _metrics;
 
         /// <summary>
+        /// Txns.
+        /// </summary>
+        private readonly IElementTxnManager _txns;
+        
+        /// <summary>
         /// Token for anchor download.
         /// </summary>
         private IAsyncToken<HttpResponse<byte[]>> _downloadToken;
@@ -57,7 +64,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// True iff the anchor is already imported.
         /// </summary>
-        private bool _isImported;
+        private bool _pollStatus;
 
         /// <summary>
         /// Status.
@@ -84,12 +91,14 @@ namespace CreateAR.SpirePlayer.IUX
             ColorConfig colors,
             IHttpService http,
             IWorldAnchorProvider provider,
-            IMetricsService metrics)
+            IMetricsService metrics,
+            IElementTxnManager txns)
             : base(gameObject, layers, tweens, colors)
         {
             _http = http;
             _provider = provider;
             _metrics = metrics;
+            _txns = txns;
         }
 
         /// <summary>
@@ -107,6 +116,25 @@ namespace CreateAR.SpirePlayer.IUX
         public static string GetAnchorProviderId(string id, int version)
         {
             return string.Format("{0}.{1}", id, version);
+        }
+
+        public void Export(string appId, string sceneId)
+        {
+            var providerId = GetAnchorProviderId(Id, 0);
+            _provider
+                .Export(providerId, GameObject)
+                .OnSuccess(bytes =>
+                {
+                    Log.Info(this, "Successfully exported. Uploading primary anchor.");
+
+                    ExportAnchorData(appId, sceneId, bytes, 3);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not export anchor : {0}.",
+                        exception);
+                });
         }
 
         /// <inheritdoc />
@@ -140,7 +168,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LateUpdateInternal();
 
-            if (_isImported)
+            if (_pollStatus)
             {
 #if NETFX_CORE
                 var anchor = GameObject.GetComponent<UnityEngine.XR.WSA.WorldAnchor>();
@@ -177,7 +205,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc />
         protected override void UpdateTransform()
         {
-            if (!DeviceHelper.IsHoloLens())
+            if (Status == WorldAnchorStatus.IsLoading
+                || Status == WorldAnchorStatus.IsImporting
+                || Status == WorldAnchorStatus.IsError
+                || !DeviceHelper.IsHoloLens())
             {
                 base.UpdateTransform();
             }
@@ -190,7 +221,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void UpdateWorldAnchor()
         {
             Status = WorldAnchorStatus.IsLoading;
-            _isImported = false;
+            _pollStatus = false;
 
             // abort previous tokens
             if (null != _anchorToken)
@@ -243,7 +274,7 @@ namespace CreateAR.SpirePlayer.IUX
                 .OnSuccess(_ =>
                 {
                     // done
-                    _isImported = true;
+                    _pollStatus = true;
                 })
                 .OnFailure(exception =>
                 {
@@ -319,7 +350,7 @@ namespace CreateAR.SpirePlayer.IUX
                         .Anchor(providerId, GameObject)
                         .OnSuccess(__ =>
                         {
-                            _isImported = true;
+                            _pollStatus = true;
 
                             if (null != OnAnchorLoadSuccess)
                             {
@@ -349,6 +380,108 @@ namespace CreateAR.SpirePlayer.IUX
                     if (null != OnAnchorLoadError)
                     {
                         OnAnchorLoadError();
+                    }
+                });
+        }
+
+        /// <summary>
+        /// Exports anchor data.
+        /// </summary>
+        private void ExportAnchorData(
+            string appId,
+            string sceneId,
+            byte[] bytes,
+            int retries)
+        {
+            LogVerbose("Starting export.");
+
+            // metrics
+            var uploadId = _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Start();
+
+            _pollStatus = false;
+            Status = WorldAnchorStatus.IsExporting;
+
+            var url = string.Format(
+                "/editor/app/{0}/scene/{1}/anchor/{2}",
+                appId, sceneId, Id);
+
+            IAsyncToken<HttpResponse<Response>> token;
+            if (url != Schema.Get<string>("src").Value)
+            {
+                LogVerbose("Creating new anchor resource.");
+
+                // create
+                token = _http.PostFile<Response>(
+                    _http.Urls.Url(url),
+                    new Commons.Unity.DataStructures.Tuple<string, string>[0],
+                    ref bytes);
+            }
+            else
+            {
+                LogVerbose("Updating anchor resource.");
+
+                // update
+                token = _http.PutFile<Response>(
+                    _http.Urls.Url(url),
+                    new Commons.Unity.DataStructures.Tuple<string, string>[0],
+                    ref bytes);
+            }
+
+            token
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        Log.Info(this, "Successfully uploaded anchor.");
+
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Stop(uploadId);
+
+                        // complete, now send out network update
+                        _txns
+                            .Request(new ElementTxn(sceneId)
+                                .Update(Id, "src", url)
+                                .Update(Id, "version", _versionProp.Value + 1))
+                            .OnSuccess(_ => _pollStatus = true)
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this, "Could not set src prop on anchor : {0}", exception);
+
+                                Status = WorldAnchorStatus.IsError;
+                            });
+                    }
+                    else
+                    {
+                        Log.Error(this,
+                            "Anchor upload error : {0}.",
+                            response.Payload.Error);
+
+                        // metrics
+                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
+
+                        Status = WorldAnchorStatus.IsError;
+                    }
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this,
+                        "Could not upload anchor : {0}.",
+                        exception);
+
+                    // metrics
+                    _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
+
+                    if (--retries > 0)
+                    {
+                        Log.Info(this, "Retry uploading anchor.");
+
+                        ExportAnchorData(appId, sceneId, bytes, retries);
+                    }
+                    else
+                    {
+                        Log.Error(this, "Too many retries, cannot upload anchor.");
+
+                        Status = WorldAnchorStatus.IsError;
                     }
                 });
         }

@@ -9,7 +9,7 @@ namespace CreateAR.SpirePlayer.Test.UI
     {
         public static ElementFactory ElementFactory()
         {
-            return new ElementFactory(new DummyElementManager(), new PassthroughGizmoManager(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+            return new ElementFactory(new DummyElementManager(), new PassthroughGizmoManager(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
         }
 
         private const int FOO = 12;

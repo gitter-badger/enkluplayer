@@ -49,10 +49,15 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes the menu.
         /// </summary>
-        /// <param name="controller">The prop controller.</param>
-        public void Initialize(AnchorDesignController controller)
+        public void Initialize(
+            AnchorDesignController controller,
+            bool isAutoScanning,
+            bool isVisible)
         {
             _controller = controller;
+
+            TglScan.Value = isAutoScanning;
+            TglShow.Value = isVisible;
 
             UpdateMenuPosition();
         }

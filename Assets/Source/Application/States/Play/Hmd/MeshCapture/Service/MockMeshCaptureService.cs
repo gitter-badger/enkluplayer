@@ -59,6 +59,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
+        public bool IsRunning { get; private set; }
+
+        /// <inheritdoc />
         public IMeshCaptureObserver Observer { get; set; }
 
         /// <summary>
@@ -78,11 +81,15 @@ namespace CreateAR.SpirePlayer
             _root = new GameObject("Mesh Capture Root (Mock)");
             
             _bootstrapper.BootstrapCoroutine(Loop());
+
+            IsRunning = true;
         }
 
         /// <inheritdoc />
         public void Stop()
         {
+            IsRunning = false;
+
             _isAlive = false;
 
             _surfaces.Clear();

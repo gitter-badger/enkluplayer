@@ -11,6 +11,11 @@
         bool IsVisible { get; set; }
 
         /// <summary>
+        /// True iff Start has been called without a Stop.
+        /// </summary>
+        bool IsRunning { get; }
+
+        /// <summary>
         /// Observer that receives updates.
         /// </summary>
         IMeshCaptureObserver Observer { get; set; }

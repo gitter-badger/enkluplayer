@@ -76,6 +76,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
+        public bool IsRunning { get; private set; }
+
+        /// <inheritdoc />
         public IMeshCaptureObserver Observer { get; set; }
 
         /// <summary>
@@ -102,11 +105,15 @@ namespace CreateAR.SpirePlayer
                 _intention.Origin.ToVector(),
                 1000 * Vector3.one);
             _bootstrapper.BootstrapCoroutine(UpdateObserver());
+
+            IsRunning = true;
         }
 
         /// <inheritdoc />
         public void Stop()
         {
+            IsRunning = false;
+
             // destroy observer
             _isObserverAlive = false;
             _surfaceObserver.Dispose();

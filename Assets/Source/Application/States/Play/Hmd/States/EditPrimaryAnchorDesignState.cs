@@ -87,7 +87,8 @@ namespace CreateAR.SpirePlayer
                             _capture.Stop();
                         }
                     };
-                    el.Initialize(_controller);
+                    el.OnBack += () => _designer.ChangeState<MainDesignState>();
+                    el.Initialize(_controller, _capture.IsRunning, _capture.IsVisible);
                 })
                 .OnFailure(ex =>
                 {
