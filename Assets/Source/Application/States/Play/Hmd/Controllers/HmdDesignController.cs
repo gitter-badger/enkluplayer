@@ -134,6 +134,7 @@ namespace CreateAR.SpirePlayer
             EditElementDesignState editElement,
             ReparentDesignState reparent,
             EditAnchorDesignState anchors,
+            EditPrimaryAnchorDesignState primaryAnchorState,
             AppListViewDesignState appList,
             CreateNewAppDesignState createNewApp)
         {
@@ -159,6 +160,7 @@ namespace CreateAR.SpirePlayer
                 editElement,
                 reparent,
                 anchors,
+                primaryAnchorState,
                 appList,
                 createNewApp
             };

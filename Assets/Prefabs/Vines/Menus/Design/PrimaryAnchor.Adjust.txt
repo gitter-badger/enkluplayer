@@ -1,6 +1,6 @@
 <?Vine>
 
-<Container face='camera'>
+<Container face='camera' position=(0,-0.15,0)>
 	<Button id='btn-back' icon='arrow-left' position=(-0.1, 0, 0) ready.color='Negative' />
 	<Toggle id='tgl-scan' label='Auto Scan' position=(0, 0, 0) />
 	<Toggle id='tgl-show' label='Show Mesh' position=(0, -0.08, 0) />
