@@ -57,7 +57,8 @@ namespace CreateAR.SpirePlayer
                             },
                             Vectors =
                             {
-                                { "position", PrefabContainer.GameObject.transform.position.ToVec() }
+                                { "position", PrefabContainer.GameObject.transform.position.ToVec() },
+                                { "rotation", PrefabContainer.GameObject.transform.rotation.eulerAngles.ToVec() }
                             }
                         }
                     });

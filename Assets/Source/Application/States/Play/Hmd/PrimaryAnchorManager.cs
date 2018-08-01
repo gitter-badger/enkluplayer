@@ -195,37 +195,7 @@ namespace CreateAR.SpirePlayer
 
             TeardownMeshScan();
         }
-
-        /// <inheritdoc />
-        public void CalculateOffsets(
-            Vec3 position,
-            Vec3 eulerAngles,
-            Action<Vec3, Vec3> callback)
-        {
-            Action<WorldAnchorWidget> calculate = null;
-            calculate = anchor =>
-            {
-                anchor.OnLocated -= calculate;
-
-                // calculate diffs
-                var primaryTransform = _primaryAnchor.GameObject.transform;
-
-                callback(
-                    (position.ToVector() - primaryTransform.position).ToVec(),
-                    (Quaternion.Euler(eulerAngles.ToVector()) * Quaternion.Inverse(primaryTransform.rotation)).eulerAngles.ToVec());
-            };
-
-            // wait for it to be located
-            if (Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
-            {
-                calculate(_primaryAnchor);
-            }
-            else
-            {
-                _primaryAnchor.OnLocated += calculate;
-            }
-        }
-
+        
         /// <inheritdoc />
         public void OnData(int id, MeshFilter filter)
         {
@@ -311,19 +281,17 @@ namespace CreateAR.SpirePlayer
                 }))
                 .OnSuccess(response =>
                 {
-                    var anchor = response.Elements.FirstOrDefault() as WorldAnchorWidget;
-                    if (null == anchor)
-                    {
-                        Log.Error(this, "Scene txn successful but no WorldAnchorWidget was created.");
-                    }
-                    else
-                    {
-                        _primaryAnchor = anchor;
-                        _scan = (ScanWidget) anchor.Children[0];
-                        
-                        SaveAnchor(_primaryAnchor);
-                        SetupMeshScan(true);
-                    }
+                    var anchor = (WorldAnchorWidget) response.Elements[0];
+
+                    // on hololens, position + rotation don't do anything-- so set the transform by hand
+                    anchor.GameObject.transform.position = position.ToVector();
+                    anchor.GameObject.transform.rotation = Quaternion.Euler(rotation.ToVector());
+
+                    _primaryAnchor = anchor;
+                    _scan = (ScanWidget) anchor.Children[0];
+
+                    SaveAnchor(_primaryAnchor);
+                    SetupMeshScan(true);
                 })
                 .OnFailure(exception => Log.Error(this, "Could not create primary anchor : {0}", exception));
         }
@@ -383,12 +351,15 @@ namespace CreateAR.SpirePlayer
 
             while (_isAutoExportAlive)
             {
-                int tris;
-                if (!_exportService.Export(
-                    out tris,
-                    _surfaces.Values.Select(record => record.GameObject).ToArray()))
+                if (_capture.IsRunning)
                 {
-                    Log.Error(this, "Could not export!");
+                    int tris;
+                    if (!_exportService.Export(
+                        out tris,
+                        _surfaces.Values.Select(record => record.GameObject).ToArray()))
+                    {
+                        Log.Error(this, "Could not export!");
+                    }
                 }
 
                 yield return new WaitForSecondsRealtime(EXPORT_POLL_SEC);

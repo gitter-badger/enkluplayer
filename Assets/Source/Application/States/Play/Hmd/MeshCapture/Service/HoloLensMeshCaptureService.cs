@@ -227,6 +227,11 @@ namespace CreateAR.SpirePlayer
             bool outputWritten,
             float elapsedBaketimeSeconds)
         {
+            if (!IsRunning)
+            {
+                return;
+            }
+
             Observer?.OnData(
                 bakedData.id.handle,
                 bakedData.outputMesh);

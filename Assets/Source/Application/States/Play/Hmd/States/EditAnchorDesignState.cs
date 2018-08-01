@@ -23,12 +23,7 @@ namespace CreateAR.SpirePlayer
         /// Txns.
         /// </summary>
         private readonly IElementTxnManager _txns;
-
-        /// <summary>
-        /// Manages primary anchor.
-        /// </summary>
-        private readonly IPrimaryAnchorManager _primaryAnchor;
-
+        
         /// <summary>
         /// UI frame.
         /// </summary>
@@ -65,13 +60,11 @@ namespace CreateAR.SpirePlayer
         public EditAnchorDesignState(
             IElementUpdateDelegate elementUpdater,
             IUIManager ui,
-            IElementTxnManager txns,
-            IPrimaryAnchorManager primaryAnchor)
+            IElementTxnManager txns)
         {
             _elementUpdater = elementUpdater;
             _ui = ui;
             _txns = txns;
-            _primaryAnchor = primaryAnchor;
         }
 
         /// <inheritdoc />
@@ -180,35 +173,23 @@ namespace CreateAR.SpirePlayer
             _moveController.Anchor.Schema.Set("position", position);
             _moveController.Anchor.GameObject.transform.position = position.ToVector();
             _moveController.Renderer.gameObject.SetActive(true);
-
-            _primaryAnchor.CalculateOffsets(
-                data.Schema.Vectors["position"],
-                data.Schema.Vectors["rotation"],
-                (pos, rot) =>
+            
+            _txns
+                .Request(new ElementTxn(_elementUpdater.Active).Update(_moveController.Anchor.Id, "position.rel", position))
+                .OnSuccess(_ =>
                 {
-                    // update!
-                    data.Schema.Vectors["position.rel"] = pos;
-                    data.Schema.Vectors["rotation.rel"] = rot;
+                    _moveController.Anchor.Export(
+                        _design.App.Id,
+                        _elementUpdater.Active,
+                        _txns);
 
-                    _txns
-                        .Request(new ElementTxn(_elementUpdater.Active)
-                            .Update(_moveController.Anchor.Id, "position.rel", pos)
-                            .Update(_moveController.Anchor.Id, "rotation.rel", rot))
-                        .OnSuccess(_ =>
-                        {
-                            _moveController.Anchor.Export(
-                                _design.App.Id,
-                                _elementUpdater.Active,
-                                _txns);
+                    _design.ChangeState<MainDesignState>();
+                })
+                .OnFailure(ex =>
+                {
+                    Log.Error(this, "Could not update relative positions!");
 
-                            _design.ChangeState<MainDesignState>();
-                        })
-                        .OnFailure(ex =>
-                        {
-                            Log.Error(this, "Could not update relative positions!");
-
-                            _design.ChangeState<MainDesignState>();
-                        });
+                    _design.ChangeState<MainDesignState>();
                 });
         }
 

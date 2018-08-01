@@ -233,38 +233,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc />
         protected override void UpdateTransform()
         {
-            if (DeviceHelper.IsHoloLens())
+            if (!DeviceHelper.IsHoloLens())
             {
-                // whilst loading only
-                if (Status == WorldAnchorStatus.IsLoading
-                    || Status == WorldAnchorStatus.IsImporting
-                    || Status == WorldAnchorStatus.IsError)
-                {
-                    // primary
-                    if (Schema.GetOwn(PrimaryAnchorManager.PROP_TAG_KEY, "").Value == PrimaryAnchorManager.PROP_TAG_VALUE)
-                    {
-                        base.UpdateTransform();
-                    }
-                    // other anchors
-                    else
-                    {
-                        UpdateRelTransform();
-                    }
-                }
+                base.UpdateTransform();
             }
-            else
-            {
-                UpdateRelTransform();
-            }
-        }
-
-        /// <summary>
-        /// Updates transform based on relative position.
-        /// </summary>
-        private void UpdateRelTransform()
-        {
-            GameObject.transform.localPosition = Schema.GetOwn("position.rel", Vec3.Zero).Value.ToVector();
-            GameObject.transform.localRotation = Quaternion.Euler(Schema.GetOwn("rotation.rel", Vec3.Zero).Value.ToVector());
         }
 
         /// <summary>

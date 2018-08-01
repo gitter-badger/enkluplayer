@@ -23,13 +23,5 @@ namespace CreateAR.SpirePlayer
         /// Tears down the manager. Should be called before leaving edit mode.
         /// </summary>
         void Teardown();
-
-        /// <summary>
-        /// Calculates the relative offsets from the primary anchor.
-        /// </summary>
-        void CalculateOffsets(
-            Vec3 position,
-            Vec3 eulerAngles, 
-            Action<Vec3, Vec3> callback);
     }
 }

@@ -108,53 +108,31 @@ namespace CreateAR.SpirePlayer
         private IAsyncToken<Void> CreateAnchor(ElementData data)
         {
             var token = new AsyncToken<Void>();
-
-            // append scan
-            data.Children = new[]
-            {
-                new ElementData
-                {
-                    Type = ElementTypes.SCAN,
-                    Schema = new ElementSchemaData
-                    {
-                        Strings = { { "name", "Scan" } }
-                    }
-                }
-            };
+            
+            Log.Info(this, "Calculate offsets!");
 
             // append relative coordinates
-            _primaryAnchor.CalculateOffsets(
-                data.Schema.Vectors["position"],
-                data.Schema.Vectors["rotation"],
-                (pos, rot) =>
+            var position = data.Schema.Vectors["position"];
+            var eulerAngles = data.Schema.Vectors["rotation"];
+
+            // create element
+            _delegate
+                .Create(data)
+                .OnSuccess(element =>
                 {
-                    // update!
-                    data.Schema.Vectors["position.rel"] = pos;
-                    data.Schema.Vectors["rotation.rel"] = rot;
+                    var anchor = (WorldAnchorWidget)element;
 
-                    // create element
-                    _delegate
-                        .Create(data)
-                        .OnSuccess(element =>
-                        {
-                            var anchor = element as WorldAnchorWidget;
-                            if (null == anchor)
-                            {
-                                token.Fail(new Exception("Scene txn successful but no WorldAnchorWidget was created."));
-                            }
-                            else
-                            {
-                                // export
-                                anchor.Export(_design.App.Id, _delegate.Active, _txns);
+                    // on hololens, position + rotation don't do anything-- so set the transform by hand
+                    anchor.GameObject.transform.position = position.ToVector();
+                    anchor.GameObject.transform.rotation = Quaternion.Euler(eulerAngles.ToVector());
 
+                    // export
+                    anchor.Export(_design.App.Id, _delegate.Active, _txns);
 
+                    token.Succeed(Void.Instance);
+                })
+                .OnFailure(token.Fail);
 
-                                token.Succeed(Void.Instance);
-                            }
-                        })
-                        .OnFailure(token.Fail);
-                });
-            
             return token;
         }
         
