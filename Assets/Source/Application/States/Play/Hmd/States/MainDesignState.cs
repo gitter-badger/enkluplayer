@@ -91,6 +91,11 @@ namespace CreateAR.SpirePlayer
         private IAsyncToken<SynchronizedObject<UserPreferenceData>> _prefLoad;
 
         /// <summary>
+        /// Reference for the opened mainmenu ui view
+        /// </summary>
+        private MainMenuUIView _mainMenuUiViewReference;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public MainDesignState(
@@ -261,15 +266,69 @@ namespace CreateAR.SpirePlayer
                 }, out _mainId)
                 .OnSuccess(el =>
                 {
+                    _mainMenuUiViewReference = el;
                     el.OnBack += MainMenu_OnBack;
                     el.OnNew += MainMenu_OnNew;
                     el.OnExperience += MainMenu_OnExperience;
+                    el.OnLogLevelChanged += MainMenu_OnLogLevelChanged;
+                    el.OnResetData += MainMenu_OnResetData;
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
                     el.Initialize(_prefs.Data.App(_config.Play.AppId).Play);
                 })
                 .OnFailure(ex => Log.Error(this,
                     "Could not open MainMenuUIView : {0}",
                     ex));
+        }
+
+        /// <summary>
+        /// Called when Reset button is activated
+        /// </summary>
+        private void MainMenu_OnResetData()
+        {
+            FeatureNotImplemented();
+        }
+
+        /// <summary>
+        /// Called on Log level changed
+        /// </summary>
+        /// <param name="obj"></param>
+        private void MainMenu_OnLogLevelChanged(LogLevel obj)
+        {
+            FeatureNotImplemented();
+        }
+
+        /// <summary>
+        /// Method to show feature not implemented
+        /// </summary>
+        /// <param name="menuViewRef"></param>
+        private void FeatureNotImplemented()
+        {
+            if (_mainMenuUiViewReference != null)
+            {
+                _mainMenuUiViewReference.Root.Schema.Set("visible", false);
+                int errorViewId;
+                _ui
+                    .Open<ICommonErrorView>(
+                        new UIReference
+                        {
+                            UIDataId = UIDataIds.ERROR
+                        },
+                        out errorViewId)
+                    .OnSuccess(popup =>
+                    {
+                        popup.Message = "Feature not yet implemented";
+                        popup.Action = "Press ok to continue";
+                        popup.OnOk += () =>
+                        {
+                            _ui.Close(errorViewId);
+                            _mainMenuUiViewReference.Root.Schema.Set("visible", true);
+                        };
+                    })
+                    .OnFailure(er =>
+                    {
+                        Log.Fatal(this, "Could not open error popup : {0}.", er);
+                    });
+            }
         }
 
         /// <summary>
@@ -372,6 +431,7 @@ namespace CreateAR.SpirePlayer
                 case MainMenuUIView.ExperienceSubMenu.Duplicate:
                     {
                         //TODO
+                        FeatureNotImplemented();
                         break;
                     }
             }
