@@ -76,6 +76,11 @@ namespace CreateAR.SpirePlayer
         private bool _setupEdit;
 
         /// <summary>
+        /// Origin Reference Gameobject
+        /// </summary>
+        private GameObject _referenceObject;
+
+        /// <summary>
         /// Config for play mode.
         /// </summary>
         public PlayModeConfig Config { get; private set; }
@@ -325,8 +330,33 @@ namespace CreateAR.SpirePlayer
                     _staticRoot);
             }
 
+            //initialize reference object
+            SetupReferenceObject();
+
             // start initial state
             _fsm.Change<MainDesignState>();
+        }
+
+        /// <summary>
+        /// Setup up a reference object for user to determine origin
+        /// </summary>
+        private void SetupReferenceObject()
+        {
+            Bounds bounds = new Bounds(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
+            _referenceObject = new GameObject("ReferenceObject");
+            _referenceObject.transform.position = new Vector3(0, 0, 2);
+            _referenceObject.transform.rotation = Quaternion.identity;
+
+            var outline = _referenceObject.gameObject.GetComponent<ModelLoadingOutline>();
+            var axes = _referenceObject.gameObject.GetComponent<ReferenceObjectAxesRenderer>();
+
+            if (null == outline && null == axes)
+            {
+                outline = _referenceObject.gameObject.AddComponent<ModelLoadingOutline>();
+                axes = _referenceObject.gameObject.AddComponent<ReferenceObjectAxesRenderer>();
+
+            }
+            outline.Init(bounds);
         }
 
         /// <summary>
