@@ -237,6 +237,16 @@ namespace CreateAR.SpirePlayer
                         _primaryAnchor = anchor;
                     }
                 }
+                else if (anchor.Schema.GetOwn("autoexport", false).Value)
+                {
+                    Log.Info(this, "Auto-exporting anchor.");
+
+                    anchor.Export(_config.Play.AppId, _sceneId, _txns);
+
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(anchor.Id, "autoexport", false))
+                        .OnFailure(ex => Log.Error(this, "Could not auto-export anchor : {0}", ex));
+                }
             }
 
             if (null != _primaryAnchor)
