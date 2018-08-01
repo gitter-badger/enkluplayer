@@ -200,7 +200,7 @@ namespace CreateAR.SpirePlayer
             {
                 Log.Info(this, "Primary anchor found.");
 
-                StartMeshScan();
+                SetupMeshScan(false);
             }
         }
         
@@ -214,7 +214,7 @@ namespace CreateAR.SpirePlayer
                 _createToken.Abort();
             }
 
-            StopMeshScan();
+            TeardownMeshScan();
         }
 
         /// <inheritdoc />
@@ -341,7 +341,7 @@ namespace CreateAR.SpirePlayer
                         _scan = (ScanWidget) anchor.Children[0];
                         
                         SaveAnchor(_primaryAnchor);
-                        StartMeshScan();
+                        SetupMeshScan(true);
                     }
                 })
                 .OnFailure(exception => Log.Error(this, "Could not create primary anchor : {0}", exception));
@@ -350,11 +350,21 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Starts scanning the room and uploading through pipeline.
         /// </summary>
-        private void StartMeshScan()
+        private void SetupMeshScan(bool start)
         {
-            Log.Info(this, "Starting mesh scan.");
+            Log.Info(this, "Setting up mesh scan.");
 
-            _capture.Start(this);
+            _capture.Observer = this;
+
+            if (start)
+            {
+                Log.Info(this, "Starting capture.");
+                _capture.Start();
+            }
+            else
+            {
+                Log.Info(this, "Capture not started.");
+            }
 
             var srcUrl = _scan.Schema.Get<string>("srcId").Value;
             _exportService.OnFileUrlChanged += ExportService_OnFileUrlChanged;
@@ -368,9 +378,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Stops scanning the room.
         /// </summary>
-        private void StopMeshScan()
+        private void TeardownMeshScan()
         {
-            Log.Info(this, "Stopping mesh scan.");
+            Log.Info(this, "Tearing down mesh scan.");
 
             _isAutoExportAlive = false;
 

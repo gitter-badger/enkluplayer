@@ -1,5 +1,6 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -18,6 +19,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [InjectElements("..btn-back")]
         public ButtonWidget BtnBack { get; set; }
+        [InjectElements("..btn-reset")]
+        public ButtonWidget BtnReset { get; set; }
         [InjectElements("..tgl-scan")]
         public ToggleWidget TglScan { get; set; }
         [InjectElements("..tgl-show")]
@@ -27,6 +30,11 @@ namespace CreateAR.SpirePlayer
         /// Called to go back.
         /// </summary>
         public event Action OnBack;
+
+        /// <summary>
+        /// Called to reset anchors.
+        /// </summary>
+        public event Action OnReset;
 
         /// <summary>
         /// Called when autoscan changes.
@@ -46,13 +54,15 @@ namespace CreateAR.SpirePlayer
         {
             _controller = controller;
 
-            transform.position = _controller.transform.position;
+            UpdateMenuPosition();
         }
 
         /// <inheritdoc />
         protected override void AfterElementsCreated()
         {
             base.AfterElementsCreated();
+
+            UpdateMenuPosition();
 
             BtnBack.Activator.OnActivated += _ =>
             {
@@ -61,7 +71,15 @@ namespace CreateAR.SpirePlayer
                     OnBack();
                 }
             };
-
+            /*
+            BtnReset.Activator.OnActivated += _ =>
+            {
+                if (null != OnReset)
+                {
+                    OnReset();
+                }
+            };
+            */
             TglScan.OnValueChanged += _ =>
             {
                 if (null != OnAutoScanChanged)
@@ -77,6 +95,21 @@ namespace CreateAR.SpirePlayer
                     OnVisibilityChanged(TglShow.Value);
                 }
             };
+        }
+
+        /// <summary>
+        /// Updates the position of the menu.
+        /// </summary>
+        private void UpdateMenuPosition()
+        {
+            if (null == Root || null == _controller)
+            {
+                return;
+            }
+
+            Root.Schema.Set(
+                "position",
+                (_controller.transform.position - 0.25f * Camera.main.transform.forward).ToVec());
         }
     }
 }

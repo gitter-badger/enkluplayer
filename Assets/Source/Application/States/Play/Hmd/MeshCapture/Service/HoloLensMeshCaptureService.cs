@@ -39,12 +39,7 @@ namespace CreateAR.SpirePlayer
         /// Keeps track of surfaces.
         /// </summary>
         private readonly Dictionary<SurfaceId, GameObject> _surfaces = new Dictionary<SurfaceId, GameObject>();
-
-        /// <summary>
-        /// External observer.
-        /// </summary>
-        private IMeshCaptureObserver _captureObserver;
-
+        
         /// <summary>
         /// Observes surfaces.
         /// </summary>
@@ -61,6 +56,29 @@ namespace CreateAR.SpirePlayer
         private bool _isObserverAlive;
 
         /// <summary>
+        /// Backing variable for IsVisible.
+        /// </summary>
+        private bool _isVisible;
+
+        /// <inheritdoc />
+        public bool IsVisible
+        {
+            get { return _isVisible; }
+            set
+            {
+                _isVisible = value;
+
+                foreach (var gameObject in _surfaces.Values)
+                {
+                    gameObject.SetActive(_isVisible);
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public IMeshCaptureObserver Observer { get; set; }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public HoloLensMeshCaptureService(
@@ -74,9 +92,8 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Start(IMeshCaptureObserver observer)
+        public void Start()
         {
-            _captureObserver = observer;
             _root = new GameObject("Mesh Capture Root");
 
             // setup surface observer
@@ -162,6 +179,7 @@ namespace CreateAR.SpirePlayer
                 target.AddComponent<MeshFilter>();
                 target.AddComponent<MeshRenderer>().sharedMaterial = _config.SurfaceMaterial;
                 target.AddComponent<WorldAnchor>();
+                target.SetActive(_isVisible);
             }
 
             var data = new SurfaceData(
@@ -202,7 +220,7 @@ namespace CreateAR.SpirePlayer
             bool outputWritten,
             float elapsedBaketimeSeconds)
         {
-            _captureObserver.OnData(
+            Observer?.OnData(
                 bakedData.id.handle,
                 bakedData.outputMesh);
         }

@@ -70,20 +70,24 @@ namespace CreateAR.SpirePlayer
             _material.SetPass(0);
 
             GL.PushMatrix();
-            GL.LoadProjectionMatrix(Camera.main.projectionMatrix);
-            GL.Begin(GL.LINES);
-
-            // draw each scene
-            var all = Scenes.All;
-            for (var i = 0; i < all.Length; i++)
+            try
             {
-                var scene = all[i];
-                var root = Scenes.Root(scene);
+                GL.LoadProjectionMatrix(Camera.main.projectionMatrix);
+                GL.Begin(GL.LINES);
+                try
+                {
+                    // draw each scene
+                    var all = Scenes.All;
+                    for (var i = 0; i < all.Length; i++)
+                    {
+                        var scene = all[i];
+                        var root = Scenes.Root(scene);
 
-                Draw(root, null);
-            }
-
-            GL.End();
+                        Draw(root, null);
+                    }
+                } catch { }
+                GL.End();
+            } catch { }
             GL.PopMatrix();
         }
 

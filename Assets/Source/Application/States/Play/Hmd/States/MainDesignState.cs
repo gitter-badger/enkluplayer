@@ -18,7 +18,6 @@ namespace CreateAR.SpirePlayer
         private const string TAG_CONTENT = "content";
         private const string TAG_CONTAINER = "container";
         private const string TAG_ANCHOR = "anchor";
-        private const string TAG_SCAN = "scan";
 
         /// <summary>
         /// Configuration values.
@@ -170,18 +169,7 @@ namespace CreateAR.SpirePlayer
                                 Delegate = _design.Elements,
                                 OnAdjust = Element_OnAdjust
                             });
-
-                    // scans
-                    _controllers
-                        .Group(TAG_SCAN)
-                        .Filter(new TypeElementControllerFilter(typeof(ScanWidget)))
-                        .Add<ElementSplashDesignController>(
-                            new ElementSplashDesignController.DesignContext
-                            {
-                                Delegate = _design.Elements,
-                                OnAdjust = Element_OnAdjust
-                            });
-
+                    
                     // anchors
                     _controllers
                         .Group(TAG_ANCHOR)
@@ -198,7 +186,7 @@ namespace CreateAR.SpirePlayer
                         });
 
                     // turn on the controller groups
-                    _controllers.Activate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN, TAG_ANCHOR);
+                    _controllers.Activate(TAG_CONTENT, TAG_CONTAINER, TAG_ANCHOR);
 
                     // open the splash menu
                     OpenSplashMenu();
@@ -218,7 +206,7 @@ namespace CreateAR.SpirePlayer
             _prefLoad.Abort();
 
             // kill element menus
-            _controllers.Deactivate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN, TAG_ANCHOR);
+            _controllers.Deactivate(TAG_CONTENT, TAG_CONTAINER, TAG_ANCHOR);
 
             // kill any other UI
             _frame.Release();

@@ -24,12 +24,7 @@ namespace CreateAR.SpirePlayer
         /// Lookup from surface id to mesh filter.
         /// </summary>
         private readonly Dictionary<int, MeshFilter> _surfaces = new Dictionary<int, MeshFilter>();
-
-        /// <summary>
-        /// The observer.
-        /// </summary>
-        private IMeshCaptureObserver _observer;
-
+        
         /// <summary>
         /// Root of all fake meshes.
         /// </summary>
@@ -44,12 +39,7 @@ namespace CreateAR.SpirePlayer
         /// Backing variable for prop.
         /// </summary>
         private bool _isVisible;
-
-        /// <summary>
-        /// Backing variable for prop.
-        /// </summary>
-        private bool _isEnabled;
-
+        
         /// <inheritdoc />
         public bool IsVisible
         {
@@ -67,7 +57,10 @@ namespace CreateAR.SpirePlayer
                 }
             }
         }
-        
+
+        /// <inheritdoc />
+        public IMeshCaptureObserver Observer { get; set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -80,9 +73,8 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Start(IMeshCaptureObserver observer)
+        public void Start()
         {
-            _observer = observer;
             _root = new GameObject("Mesh Capture Root (Mock)");
             
             _bootstrapper.BootstrapCoroutine(Loop());
@@ -118,6 +110,7 @@ namespace CreateAR.SpirePlayer
                     // create new surface
                     var fake = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                     fake.transform.parent = _root.transform;
+                    fake.SetActive(_isVisible);
                     filter = fake.GetComponent<MeshFilter>();
 
                     id = ids++;
@@ -136,7 +129,10 @@ namespace CreateAR.SpirePlayer
                 // TODO: generate some triangles for surface
 
                 // pass off
-                _observer.OnData(id, filter);
+                if (null != Observer)
+                {
+                    Observer.OnData(id, filter);
+                }
 
                 // wait
                 yield return new WaitForSecondsRealtime(
