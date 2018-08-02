@@ -13,7 +13,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Enum for Experience submenu.
         /// </summary>
-        public enum ExperienceSubMenu { New, Load, Duplicate };
+        public enum ExperienceSubMenu
+        {
+            New,
+            Load,
+            Duplicate
+        }
 
         /// <summary>
         /// Elements.
@@ -153,7 +158,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Helper method to call experience callback.
         /// </summary>
-        /// <param name="elementType">The element type.</param>
+        /// <param name="type">The element type.</param>
         private void Experience(ExperienceSubMenu type)
         {
             if (null != OnExperience)

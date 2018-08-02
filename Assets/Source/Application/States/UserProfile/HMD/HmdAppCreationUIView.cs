@@ -1,7 +1,5 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
-using CreateAR.Trellis.Messages.GetMyApps;
 
 namespace CreateAR.SpirePlayer
 {
@@ -21,12 +19,12 @@ namespace CreateAR.SpirePlayer
         public ButtonWidget BtnCancel { get; set; }
 
         /// <summary>
-        /// Called to back to main menu.(TODO: to make it cancel the input name)
+        /// Called to back to main menu.
         /// </summary>
         public event Action OnCancel;
 
         /// <summary>
-        /// Called when app name is confirmed(TODO) and create the app
+        /// Called when app name is confirmed.
         /// </summary>
         public event Action<string, string> OnOk;
 

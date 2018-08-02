@@ -77,7 +77,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         public WorldAnchorStatus Status
         {
-            get { return _status;}
+            get { return _status; }
             set
             {
                 if (value == _status)

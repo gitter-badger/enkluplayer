@@ -85,9 +85,17 @@ namespace CreateAR.SpirePlayer
 
                         Draw(root, null);
                     }
-                } catch { }
+                }
+                catch
+                {
+                    //
+                }
                 GL.End();
-            } catch { }
+            }
+            catch
+            {
+                //
+            }
             GL.PopMatrix();
         }
 
