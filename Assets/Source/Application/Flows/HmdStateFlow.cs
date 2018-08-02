@@ -37,7 +37,6 @@ namespace CreateAR.SpirePlayer
                 MessageTypes.PLAY,
                 MessageTypes.ARSERVICE_EXCEPTION,
                 MessageTypes.FLOOR_FOUND,
-                MessageTypes.MESHCAPTURE,
                 MessageTypes.BUGREPORT,
                 MessageTypes.DEVICE_REGISTRATION_COMPLETE,
                 MessageTypes.SIGNOUT);
@@ -101,11 +100,6 @@ namespace CreateAR.SpirePlayer
                 case MessageTypes.FLOOR_FOUND:
                 {
                     _states.ChangeState<PlayApplicationState>();
-                    break;
-                }
-                case MessageTypes.MESHCAPTURE:
-                {
-                    _states.ChangeState<MeshCaptureApplicationState>();
                     break;
                 }
                 case MessageTypes.BUGREPORT:

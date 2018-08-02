@@ -1,20 +1,15 @@
 <?Vine>
 
-<Float position=(0, 0, 3)>
+<Float position=(0, 0, 3) focus.visible=false>
 	<ScaleTransition>
 		<Menu id='menu' showBackButton=true layout.radius=0.3 layout.degrees=70.0>
-			<Button id='btn-play' label='Play' icon='play' />
 			
-			<SubMenu label='New' icon='plus'>
+			<SubMenu label='New Element' icon='plus'>
 				<Button id='btn-new-asset' label='Asset' icon='tree' />
 				<Button id='btn-new-anchor' label='Anchor' icon='anchor' />
 				<Button id='btn-new-text' label='Text' icon='text' visible=false />
 				<Button id='btn-new-container' label='Container' icon='grid' />
 				<Button id='btn-new-light' label='Light' icon='light' visible=false />
-			</SubMenu>
-			
-			<SubMenu label='Lighting' icon='contrast'>
-				<Toggle id='btn-ambient' label='Ambient Enabled' />
 			</SubMenu>
 			
 			<SubMenu label='Settings' icon='gear'>
@@ -30,6 +25,12 @@
 					<Option label='Warning' value='Warning' />
 					<Option label='Error' value='Error' />
 				</Select>
+			</SubMenu>
+
+			<SubMenu label='Experience' icon='world'>
+				<Button id='btn-exp-new' label='New' icon='plus' />
+				<Button id='btn-exp-load' label='Load' icon='load' />
+				<Button id='btn-exp-duplicate' label='Duplicate' icon='camera' />
 			</SubMenu>
 		</Menu>
 	</ScaleTransition>

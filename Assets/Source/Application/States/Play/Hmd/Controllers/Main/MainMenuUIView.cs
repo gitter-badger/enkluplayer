@@ -11,13 +11,20 @@ namespace CreateAR.SpirePlayer
     public class MainMenuUIView : MonoBehaviourIUXController
     {
         /// <summary>
+        /// Enum for Experience submenu.
+        /// </summary>
+        public enum ExperienceSubMenu
+        {
+            New,
+            Load,
+            Duplicate
+        }
+
+        /// <summary>
         /// Elements.
         /// </summary>
         [InjectElements("..menu")]
         public MenuWidget Menu { get; set; }
-
-        [InjectElements("..btn-play")]
-        public ButtonWidget BtnPlay { get; set; }
         
         [InjectElements("..btn-new-asset")]
         public ButtonWidget BtnNewAsset { get; set; }
@@ -34,9 +41,6 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..btn-new-light")]
         public ButtonWidget BtnNewLight{ get; set; }
 
-        [InjectElements("..btn-ambient")]
-        public ToggleWidget TglAmbient { get; set; }
-
         [InjectElements("..btn-resetdata")]
         public ButtonWidget BtnResetData{ get; set; }
 
@@ -46,15 +50,19 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..slt-logging")]
         public SelectWidget SltLogging { get; set; }
 
+        [InjectElements("..btn-exp-new")]
+        public ButtonWidget BtnExpNew { get; set; }
+
+        [InjectElements("..btn-exp-load")]
+        public ButtonWidget BtnExpLoad { get; set; }
+
+        [InjectElements("..btn-exp-duplicate")]
+        public ButtonWidget BtnExpDuplicate { get; set; }
+
         /// <summary>
         /// Called when we wish to go back.
         /// </summary>
         public event Action OnBack;
-        
-        /// <summary>
-        /// Called when the play button is pressed.
-        /// </summary>
-        public event Action OnPlay;
         
         /// <summary>
         /// Called when the new button is pressed.
@@ -64,7 +72,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when the new button is pressed.
         /// </summary>
-        public event Action<bool> OnAmbientChanged;
+        public event Action<ExperienceSubMenu> OnExperience;
 
         /// <summary>
         /// Called when user requests to reset all data.
@@ -105,14 +113,6 @@ namespace CreateAR.SpirePlayer
                 }
             };
 
-            BtnPlay.Activator.OnActivated += _ =>
-            {
-                if (OnPlay != null)
-                {
-                    OnPlay();
-                }
-            };
-
             BtnNewAsset.Activator.OnActivated += _ => New(ElementTypes.CONTENT);
             BtnNewAnchor.Activator.OnActivated += _ => New(ElementTypes.WORLD_ANCHOR);
             BtnNewText.Activator.OnActivated += _ => New(ElementTypes.CAPTION);
@@ -127,14 +127,6 @@ namespace CreateAR.SpirePlayer
                 }
             };
 
-            TglAmbient.OnValueChanged += _ =>
-            {
-                if (null != OnAmbientChanged)
-                {
-                    OnAmbientChanged(TglAmbient.Value);
-                }
-            };
-
             SltPlay.OnValueChanged += SelectPlay_OnChanged;
             SltLogging.OnValueChanged += _ =>
             {
@@ -145,6 +137,10 @@ namespace CreateAR.SpirePlayer
                         LogLevel.Info));
                 }
             };
+
+            BtnExpNew.Activator.OnActivated += _ => Experience(ExperienceSubMenu.New);
+            BtnExpLoad.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Load);
+            BtnExpDuplicate.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Duplicate);
         }
         
         /// <summary>
@@ -156,6 +152,18 @@ namespace CreateAR.SpirePlayer
             if (null != OnNew)
             {
                 OnNew(elementType);
+            }
+        }
+
+        /// <summary>
+        /// Helper method to call experience callback.
+        /// </summary>
+        /// <param name="type">The element type.</param>
+        private void Experience(ExperienceSubMenu type)
+        {
+            if (null != OnExperience)
+            {
+                OnExperience(type);
             }
         }
 

@@ -245,8 +245,7 @@ namespace CreateAR.SpirePlayer
                             binder.Bind<IMeshCaptureService>().To<MockMeshCaptureService>().ToSingleton();
 #endif
                             binder.Bind<MeshCaptureExportServiceConfiguration>().ToValue(new MeshCaptureExportServiceConfiguration());
-                            binder.Bind<MeshCaptureExportService>().To<MeshCaptureExportService>().ToSingleton();
-                            binder.Bind<MeshCaptureApplicationState>().To<MeshCaptureApplicationState>();
+                            binder.Bind<IMeshCaptureExportService>().To<MeshCaptureExportService>().ToSingleton();
                             binder.Bind<BugReportApplicationState>().To<BugReportApplicationState>();
                         }
                     }
@@ -297,7 +296,6 @@ namespace CreateAR.SpirePlayer
                                         binder.GetInstance<LoadDefaultAppApplicationState>(),
                                         binder.GetInstance<PlayApplicationState>(),
                                         binder.GetInstance<BleSearchApplicationState>(),
-                                        binder.GetInstance<MeshCaptureApplicationState>(),
                                         binder.GetInstance<BugReportApplicationState>(),
                                         binder.GetInstance<ToolModeApplicationState>(),
                                         binder.GetInstance<IuxDesignerApplicationState>()
@@ -405,6 +403,7 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<ArCameraRig>().ToValue(LookupComponent<ArCameraRig>());
                 binder.Bind<ArServiceConfiguration>().ToValue(LookupComponent<ArServiceConfiguration>());
+                binder.Bind<IPrimaryAnchorManager>().To<PrimaryAnchorManager>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_IOS
                 binder.Bind<UnityEngine.XR.iOS.UnityARSessionNativeInterface>().ToValue(UnityEngine.XR.iOS.UnityARSessionNativeInterface.GetARSessionNativeInterface());
@@ -491,6 +490,9 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<EditElementDesignState>().To<EditElementDesignState>();
                     binder.Bind<ReparentDesignState>().To<ReparentDesignState>();
                     binder.Bind<EditAnchorDesignState>().To<EditAnchorDesignState>();
+                    binder.Bind<EditPrimaryAnchorDesignState>().To<EditPrimaryAnchorDesignState>();
+                    binder.Bind<AppListViewDesignState>().To<AppListViewDesignState>();
+                    binder.Bind<CreateNewAppDesignState>().To<CreateNewAppDesignState>();
                 }
 
                 binder.Bind<IElementUpdateDelegate>().To<ElementUpdateDelegate>().ToSingleton();

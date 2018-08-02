@@ -13,11 +13,6 @@
         /// <summary>
         /// Maximum length of the scan queue.
         /// </summary>
-        public int MaxScanQueueLen = 3;
-
-        /// <summary>
-        /// Maximum allowed on disk at once.
-        /// </summary>
-        public int MaxOnDisk = 10;
+        public int MaxScanQueueLen = 1;
     }
 }

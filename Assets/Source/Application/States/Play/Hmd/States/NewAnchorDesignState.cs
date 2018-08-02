@@ -1,10 +1,8 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
-using Object = UnityEngine.Object;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -18,27 +16,22 @@ namespace CreateAR.SpirePlayer
         /// Manages UI.
         /// </summary>
         private readonly IUIManager _ui;
-
-        /// <summary>
-        /// Makes Http requests.
-        /// </summary>
-        private readonly IHttpService _http;
         
         /// <summary>
-        /// Provides anchor import/export.
+        /// Updater.
         /// </summary>
-        private readonly IWorldAnchorProvider _provider;
+        private readonly IElementUpdateDelegate _delegate;
 
         /// <summary>
-        /// Updates elements.
+        /// Manages txns.
         /// </summary>
-        private readonly IElementUpdateDelegate _elementUpdater;
+        private readonly IElementTxnManager _txns;
 
         /// <summary>
-        /// Metrics implementation.
+        /// Manages primary anchor.
         /// </summary>
-        private readonly IMetricsService _metrics;
-
+        private readonly IPrimaryAnchorManager _primaryAnchor;
+        
         /// <summary>
         /// Design controller.
         /// </summary>
@@ -53,17 +46,15 @@ namespace CreateAR.SpirePlayer
         /// Constructor.
         /// </summary>
         public NewAnchorDesignState(
-            IHttpService http,
-            IWorldAnchorProvider provider,
-            IElementUpdateDelegate elementUpdater,
+            IElementUpdateDelegate @delegate,
             IUIManager ui,
-            IMetricsService metrics)
+            IElementTxnManager txns,
+            IPrimaryAnchorManager primaryAnchor)
         {
-            _http = http;
-            _provider = provider;
-            _elementUpdater = elementUpdater;
+            _delegate = @delegate;
             _ui = ui;
-            _metrics = metrics;
+            _txns = txns;
+            _primaryAnchor = primaryAnchor;
         }
 
         /// <inheritdoc />
@@ -117,151 +108,34 @@ namespace CreateAR.SpirePlayer
         private IAsyncToken<Void> CreateAnchor(ElementData data)
         {
             var token = new AsyncToken<Void>();
+            
+            Log.Info(this, "Calculate offsets!");
 
-            // create URI
-            var url = data.Schema.Strings["src"] = string.Format(
-                "/editor/app/{0}/scene/{1}/anchor/{2}",
-                _design.App.Id,
-                _elementUpdater.Active,
-                data.Id);
-            var version = data.Schema.Ints["version"] = 0;
+            // append relative coordinates
+            var position = data.Schema.Vectors["position"];
+            var eulerAngles = data.Schema.Vectors["rotation"];
 
-            // create placeholder
-            var placeholder = Object.Instantiate(
-                _design.Config.AnchorPrefab,
-                data.Schema.Vectors["position"].ToVector(),
-                Quaternion.identity);
-            placeholder.Poll = AnchorRenderer.PollType.Forced;
-            placeholder.ForcedColor = Color.cyan;
-
-            // cleans up after all potential code paths
-            Action cleanup = () =>
-            {
-                Log.Info(this, "Destroying placeholder.");
-
-                Object.Destroy(placeholder.gameObject);
-
-                // TODO: SPAWN ERROR EFFECT
-            };
-
-            // export
-            Log.Info(this, "CreateAnchor() called, beginning export and upload.");
-
-            // export it
-            var providerId = WorldAnchorWidget.GetAnchorProviderId(data.Id, version);
-            _provider
-                .Export(providerId, placeholder.gameObject)
-                .OnSuccess(bytes =>
+            // create element
+            _delegate
+                .Create(data)
+                .OnSuccess(element =>
                 {
-                    Log.Info(this, "Successfully exported. Progressing to upload.");
-                    
-                    placeholder.ForcedColor = Color.gray;
+                    var anchor = (WorldAnchorWidget)element;
 
-                    // upload
-                    UploadAnchor(data, url, bytes, cleanup, 3)
-                        .OnSuccess(token.Succeed)
-                        .OnFailure(token.Fail);
+                    // on hololens, position + rotation don't do anything-- so set the transform by hand
+                    anchor.GameObject.transform.position = position.ToVector();
+                    anchor.GameObject.transform.rotation = Quaternion.Euler(eulerAngles.ToVector());
+
+                    // export
+                    anchor.Export(_design.App.Id, _delegate.Active, _txns);
+
+                    token.Succeed(Void.Instance);
                 })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this,
-                        "Could not export anchor : {0}.",
-                        exception);
-
-                    token.Fail(exception);
-
-                    placeholder.ForcedColor = Color.red;
-
-                    cleanup();
-                });
+                .OnFailure(token.Fail);
 
             return token;
         }
-
-        /// <summary>
-        /// Uploads an anchor for the first time.
-        /// </summary>
-        private IAsyncToken<Void> UploadAnchor(ElementData data, string url, byte[] bytes, Action cleanup, int retries)
-        {
-            var token = new AsyncToken<Void>();
-
-            // metrics
-            var uploadId = _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Start();
-
-            _http
-                .PostFile<Trellis.Messages.UploadAnchor.Response>(
-                    _http.Urls.Url(url),
-                    new Commons.Unity.DataStructures.Tuple<string, string>[0],
-                    ref bytes)
-                .OnSuccess(response =>
-                {
-                    if (response.Payload.Success)
-                    {
-                        Log.Info(this, "Successfully uploaded anchor.");
-
-                        // metrics
-                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Stop(uploadId);
-
-                        // complete, now create corresponding element
-                        _elementUpdater
-                            .Create(data)
-                            .OnSuccess(_ =>
-                            {
-                                Log.Info(this, "Successfully created anchor element.");
-
-                                token.Succeed(Void.Instance);
-                            })
-                            .OnFailure(exception =>
-                            {
-                                Log.Error(this,
-                                    "Could not create anchor element : {0}.",
-                                    exception);
-
-                                token.Fail(exception);
-                            });
-                    }
-                    else
-                    {
-                        var error = string.Format(
-                            "Anchor was uploaded but server returned an error : {0}.",
-                            response.Payload.Error);
-                        Log.Error(this, error);
-
-                        // metrics
-                        _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
-
-                        token.Fail(new Exception(error));
-                    }
-
-                    // run cleanup
-                    cleanup();
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Warning(this,
-                        "Could not upload anchor : {0}.",
-                        exception);
-
-                    // metrics
-                    _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Abort(uploadId);
-
-                    if (--retries > 0)
-                    {
-                        Log.Info(this, "Retrying upload.");
-
-                        UploadAnchor(data, url, bytes, cleanup, retries);
-                    }
-                    else
-                    {
-                        token.Fail(exception);
-
-                        cleanup();
-                    }
-                });
-
-            return token;
-        }
-
+        
         /// <summary>
         /// Called when user wishes to place an anchor in a spot.
         /// </summary>

@@ -28,6 +28,7 @@ namespace CreateAR.SpirePlayer
         private readonly IVoiceCommandManager _voice;
         private readonly IUIManager _ui;
         private readonly IMessageRouter _messages;
+        private readonly IPrimaryAnchorManager _primaryAnchor;
 
         /// <summary>
         /// All states.
@@ -73,6 +74,11 @@ namespace CreateAR.SpirePlayer
         /// Saves whether it was edit or play mode that was setup.
         /// </summary>
         private bool _setupEdit;
+
+        /// <summary>
+        /// Origin Reference Gameobject
+        /// </summary>
+        private GameObject _referenceObject;
 
         /// <summary>
         /// Config for play mode.
@@ -122,6 +128,7 @@ namespace CreateAR.SpirePlayer
             IVoiceCommandManager voice,
             IUIManager ui,
             IMessageRouter messages,
+            IPrimaryAnchorManager primaryAnchor,
             ApiController api,
 
             // design states
@@ -131,7 +138,10 @@ namespace CreateAR.SpirePlayer
             NewContainerDesignState newContainer,
             EditElementDesignState editElement,
             ReparentDesignState reparent,
-            EditAnchorDesignState anchors)
+            EditAnchorDesignState anchors,
+            EditPrimaryAnchorDesignState primaryAnchorState,
+            AppListViewDesignState appList,
+            CreateNewAppDesignState createNewApp)
         {
             _config = config;
             _txns = txns;
@@ -143,6 +153,7 @@ namespace CreateAR.SpirePlayer
             _voice = voice;
             _ui = ui;
             _messages = messages;
+            _primaryAnchor = primaryAnchor;
             _api = api;
 
             _states = new IArDesignState[]
@@ -153,7 +164,10 @@ namespace CreateAR.SpirePlayer
                 newContainer,
                 editElement,
                 reparent,
-                anchors
+                anchors,
+                primaryAnchorState,
+                appList,
+                createNewApp
             };
 
             _fsm = new FiniteStateMachine(_states);
@@ -283,6 +297,8 @@ namespace CreateAR.SpirePlayer
         {
             _setupEdit = true;
 
+            _primaryAnchor.Setup();
+
             _voice.Register("play", Voice_OnPlay);
 
             // hierarchy rendering
@@ -314,8 +330,32 @@ namespace CreateAR.SpirePlayer
                     _staticRoot);
             }
 
+            //initialize reference object
+            SetupReferenceObject();
+
             // start initial state
             _fsm.Change<MainDesignState>();
+        }
+
+        /// <summary>
+        /// Setup up a reference object for user to determine origin
+        /// </summary>
+        private void SetupReferenceObject()
+        {
+            var bounds = new Bounds(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
+            _referenceObject = new GameObject("ReferenceObject");
+            _referenceObject.transform.position = new Vector3(0, 0, 2);
+            _referenceObject.transform.rotation = Quaternion.identity;
+
+            var outline = _referenceObject.gameObject.GetComponent<ModelLoadingOutline>();
+            if (null == outline)
+            {
+                outline = _referenceObject.gameObject.AddComponent<ModelLoadingOutline>();
+                _referenceObject.gameObject.AddComponent<ReferenceObjectAxesRenderer>();
+
+            }
+
+            outline.Init(bounds);
         }
 
         /// <summary>
@@ -324,6 +364,8 @@ namespace CreateAR.SpirePlayer
         private void TeardownEdit()
         {
             _voice.Unregister("play");
+
+            _primaryAnchor.Teardown();
 
             // uninitialize states
             for (var i = 0; i < _states.Length; i++)

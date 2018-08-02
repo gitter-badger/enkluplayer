@@ -1,5 +1,4 @@
-﻿using System;
-using CreateAR.Commons.Unity.Async;
+﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -19,7 +18,6 @@ namespace CreateAR.SpirePlayer
         private const string TAG_CONTENT = "content";
         private const string TAG_CONTAINER = "container";
         private const string TAG_ANCHOR = "anchor";
-        private const string TAG_SCAN = "scan";
 
         /// <summary>
         /// Configuration values.
@@ -35,7 +33,7 @@ namespace CreateAR.SpirePlayer
         /// Manages controllers.
         /// </summary>
         private readonly IElementControllerManager _controllers;
-        
+
         /// <summary>
         /// Http interface.
         /// </summary>
@@ -70,7 +68,7 @@ namespace CreateAR.SpirePlayer
         /// Design controller.
         /// </summary>
         private HmdDesignController _design;
-        
+
         /// <summary>
         /// Id of splash menu.
         /// </summary>
@@ -80,7 +78,7 @@ namespace CreateAR.SpirePlayer
         /// Id of main menu.
         /// </summary>
         private int _mainId;
-        
+
         /// <summary>
         /// User preferences.
         /// </summary>
@@ -90,6 +88,11 @@ namespace CreateAR.SpirePlayer
         /// Load for preferences.
         /// </summary>
         private IAsyncToken<SynchronizedObject<UserPreferenceData>> _prefLoad;
+
+        /// <summary>
+        /// Reference for the opened mainmenu ui view
+        /// </summary>
+        private MainMenuUIView _mainMenuUiViewReference;
 
         /// <summary>
         /// Constructor.
@@ -137,14 +140,14 @@ namespace CreateAR.SpirePlayer
 
             // push a frame
             _frame = _ui.CreateFrame();
-            
+
             // load prefs first
             _prefLoad = _preferenceService
                 .ForCurrentUser()
                 .OnSuccess(prefs =>
                 {
                     _prefs = prefs;
-                    
+
                     // content
                     _controllers
                         .Group(TAG_CONTENT)
@@ -166,18 +169,7 @@ namespace CreateAR.SpirePlayer
                                 Delegate = _design.Elements,
                                 OnAdjust = Element_OnAdjust
                             });
-
-                    // scans
-                    _controllers
-                        .Group(TAG_SCAN)
-                        .Filter(new TypeElementControllerFilter(typeof(ScanWidget)))
-                        .Add<ElementSplashDesignController>(
-                            new ElementSplashDesignController.DesignContext
-                            {
-                                Delegate = _design.Elements,
-                                OnAdjust = Element_OnAdjust
-                            });
-
+                    
                     // anchors
                     _controllers
                         .Group(TAG_ANCHOR)
@@ -194,7 +186,7 @@ namespace CreateAR.SpirePlayer
                         });
 
                     // turn on the controller groups
-                    _controllers.Activate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN, TAG_ANCHOR);
+                    _controllers.Activate(TAG_CONTENT, TAG_CONTAINER, TAG_ANCHOR);
 
                     // open the splash menu
                     OpenSplashMenu();
@@ -205,7 +197,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
-            
+
         }
 
         /// <inheritdoc />
@@ -214,8 +206,8 @@ namespace CreateAR.SpirePlayer
             _prefLoad.Abort();
 
             // kill element menus
-            _controllers.Deactivate(TAG_CONTENT, TAG_CONTAINER, TAG_SCAN, TAG_ANCHOR);
-            
+            _controllers.Deactivate(TAG_CONTENT, TAG_CONTAINER, TAG_ANCHOR);
+
             // kill any other UI
             _frame.Release();
 
@@ -235,7 +227,6 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(el =>
                 {
                     el.OnOpenMenu += Splash_OnOpenMenu;
-                    el.OnBack += Splash_OnBack;
                     el.OnPlay += Splash_OnPlay;
                 })
                 .OnFailure(ex => Log.Error(this,
@@ -263,9 +254,12 @@ namespace CreateAR.SpirePlayer
                 }, out _mainId)
                 .OnSuccess(el =>
                 {
+                    _mainMenuUiViewReference = el;
                     el.OnBack += MainMenu_OnBack;
                     el.OnNew += MainMenu_OnNew;
-                    el.OnPlay += MainMenu_OnPlay;
+                    el.OnExperience += MainMenu_OnExperience;
+                    el.OnLogLevelChanged += MainMenu_OnLogLevelChanged;
+                    el.OnResetData += MainMenu_OnResetData;
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
                     el.Initialize(_prefs.Data.App(_config.Play.AppId).Play);
                 })
@@ -273,7 +267,58 @@ namespace CreateAR.SpirePlayer
                     "Could not open MainMenuUIView : {0}",
                     ex));
         }
-        
+
+        /// <summary>
+        /// Called when Reset button is activated
+        /// </summary>
+        private void MainMenu_OnResetData()
+        {
+            FeatureNotImplemented();
+        }
+
+        /// <summary>
+        /// Called on Log level changed
+        /// </summary>
+        /// <param name="obj"></param>
+        private void MainMenu_OnLogLevelChanged(LogLevel obj)
+        {
+            FeatureNotImplemented();
+        }
+
+        /// <summary>
+        /// Method to show feature not implemented
+        /// </summary>
+        /// <param name="menuViewRef"></param>
+        private void FeatureNotImplemented()
+        {
+            if (_mainMenuUiViewReference != null)
+            {
+                _mainMenuUiViewReference.Root.Schema.Set("visible", false);
+                int errorViewId;
+                _ui
+                    .Open<ICommonErrorView>(
+                        new UIReference
+                        {
+                            UIDataId = UIDataIds.ERROR
+                        },
+                        out errorViewId)
+                    .OnSuccess(popup =>
+                    {
+                        popup.Message = "Feature not yet implemented";
+                        popup.Action = "Press ok to continue";
+                        popup.OnOk += () =>
+                        {
+                            _ui.Close(errorViewId);
+                            _mainMenuUiViewReference.Root.Schema.Set("visible", true);
+                        };
+                    })
+                    .OnFailure(er =>
+                    {
+                        Log.Fatal(this, "Could not open error popup : {0}.", er);
+                    });
+            }
+        }
+
         /// <summary>
         /// Closes main menu.
         /// </summary>
@@ -353,6 +398,34 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called when the user selects one submenus under experience.
+        /// </summary>
+        /// <param name="elementType">The type of element ot create.</param>
+        private void MainMenu_OnExperience(MainMenuUIView.ExperienceSubMenu type)
+        {
+            switch (type)
+            {
+                case MainMenuUIView.ExperienceSubMenu.New:
+                    {
+                        _design.ChangeState<CreateNewAppDesignState>();
+                        break;
+                    }
+                case MainMenuUIView.ExperienceSubMenu.Load:
+                    {
+                        _design.ChangeState<AppListViewDesignState>();
+                        break;
+                    }
+
+                case MainMenuUIView.ExperienceSubMenu.Duplicate:
+                    {
+                        //TODO
+                        FeatureNotImplemented();
+                        break;
+                    }
+            }
+        }
+
+        /// <summary>
         /// Called when the user asks to create a new element.
         /// </summary>
         /// <param name="elementType">The type of element ot create.</param>
@@ -361,30 +434,40 @@ namespace CreateAR.SpirePlayer
             switch (elementType)
             {
                 case ElementTypes.CONTENT:
-                {
-                    _design.ChangeState<NewContentDesignState>();
-                    break;
-                }
+                    {
+                        _design.ChangeState<NewContentDesignState>();
+                        break;
+                    }
                 case ElementTypes.WORLD_ANCHOR:
-                {
-                    _design.ChangeState<NewAnchorDesignState>();
-                    break;
-                }
+                    {
+                        _design.ChangeState<NewAnchorDesignState>();
+                        break;
+                    }
                 case ElementTypes.CONTAINER:
-                {
-                    _design.ChangeState<NewContainerDesignState>();
-                    break;
-                }
+                    {
+                        _design.ChangeState<NewContainerDesignState>();
+                        break;
+                    }
+                case ElementTypes.CAPTION:
+                    {
+                        FeatureNotImplemented();
+                        break;
+                    }
+                case ElementTypes.LIGHT:
+                    {
+                        FeatureNotImplemented();
+                        break;
+                    }
                 default:
-                {
-                    Log.Warning(this,
-                        "User requested to create {0}, but there is no inmplementation.",
-                        elementType);
-                    break;
-                }
+                    {
+                        Log.Warning(this,
+                            "User requested to create {0}, but there is no inmplementation.",
+                            elementType);
+                        break;
+                    }
             }
         }
-        
+
         /// <summary>
         /// Move to play mode.
         /// </summary>
@@ -428,7 +511,15 @@ namespace CreateAR.SpirePlayer
         /// <param name="controller"></param>
         private void Anchor_OnAdjust(AnchorDesignController controller)
         {
-            _design.ChangeState<EditAnchorDesignState>(controller);
+            var isPrimary = controller.Anchor.Schema.Get<string>(PrimaryAnchorManager.PROP_TAG_KEY).Value == PrimaryAnchorManager.PROP_TAG_VALUE;
+            if (isPrimary)
+            {
+                _design.ChangeState<EditPrimaryAnchorDesignState>(controller);
+            }
+            else
+            {
+                _design.ChangeState<EditAnchorDesignState>(controller);
+            }
         }
     }
 }

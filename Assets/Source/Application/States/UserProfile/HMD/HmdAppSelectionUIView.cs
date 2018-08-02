@@ -27,12 +27,6 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..menu-user")]
         public MenuWidget Menu { get; set; }
 
-        [InjectElements("..btn-meshcapture")]
-        public ButtonWidget BtnMeshCapture { get; set; }
-
-        [InjectElements("..btn-bugreport")]
-        public ButtonWidget BtnBugReport { get; set; }
-
         /// <inheritdoc />
         public Body[] Apps
         {
@@ -88,16 +82,6 @@ namespace CreateAR.SpirePlayer
                 {
                     OnSignOut();
                 }
-            };
-
-            BtnMeshCapture.Activator.OnActivated += _ =>
-            {
-                Messages.Publish(MessageTypes.MESHCAPTURE);
-            };
-
-            BtnBugReport.Activator.OnActivated += _ =>
-            {
-                Messages.Publish(MessageTypes.BUGREPORT);
             };
         }
 

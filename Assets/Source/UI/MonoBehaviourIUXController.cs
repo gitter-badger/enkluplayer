@@ -91,6 +91,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void CreateElements()
         {
+            var visible = false;
+            if (null != Root)
+            {
+                visible = Root.Schema.Get<bool>("visible").Value;
+                Root.Destroy();
+            }
+
             Element el;
             try
             {
@@ -101,14 +108,7 @@ namespace CreateAR.SpirePlayer
                 Log.Error(this, "Could not create elements from Vine : {0}.", exception);
                 return;
             }
-
-            var visible = false;
-            if (null != Root)
-            {
-                visible = Root.Schema.Get<bool>("visible").Value;
-                Root.Destroy();
-            }
-
+            
             Root = el;
             Root.Schema.Set("visible", visible);
 

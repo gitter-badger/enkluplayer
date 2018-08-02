@@ -13,6 +13,11 @@ namespace CreateAR.SpirePlayer
         public AnchorRenderer AnchorPrefab;
 
         /// <summary>
+        /// Prefab for a primary anchor.
+        /// </summary>
+        public AnchorRenderer PrimaryAnchorPrefab;
+
+        /// <summary>
         /// Prefab for a container.
         /// </summary>
         public ContainerRenderer ContainerPrefab;

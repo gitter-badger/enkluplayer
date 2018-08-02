@@ -31,6 +31,7 @@
         public const int SIGNOUT = 1000002;
         public const int HOLOLOGIN = 1000003;
         public const int DEVICE_REGISTRATION_COMPLETE = 1000004;
+        public const int ANCHOR_AUTOEXPORT = 1000005;
 
         // Assets
         public const int RECV_ASSET_LIST = 10;
@@ -73,6 +74,7 @@
         public const int SCENE_CREATE = 3100;
         public const int SCENE_UPDATE = 3101;
         public const int SCENE_DELETE = 3102;
+        public const int FILE_UPDATE = 3110;
 
         public const int BRIDGE_HELPER_REPARENT = 3990;
         public const int BRIDGE_HELPER_SELECT = 3991;
@@ -83,7 +85,6 @@
         // Tools
         ///////////////////////////////////////////////////////////////////////
         public const int TOOLS = 5000;
-        public const int MESHCAPTURE = 5010;
         public const int BUGREPORT = 5020;
 
         ///////////////////////////////////////////////////////////////////////

@@ -360,6 +360,11 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private bool Include(Element element)
         {
+            if (element.Id == "root")
+            {
+                return false;
+            }
+
             for (var i = 0; i < _filters.Count; i++)
             {
                 var filter = _filters[i];

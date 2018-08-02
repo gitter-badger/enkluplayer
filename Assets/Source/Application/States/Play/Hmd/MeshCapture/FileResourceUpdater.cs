@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using CreateAR.Commons.Unity.DataStructures;
@@ -27,7 +28,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// True iff the update loop should be alive.
         /// </summary>
-        private volatile bool _isAlive = false;
+        private volatile bool _isAlive;
 
         /// <summary>
         /// True iff a request is out.
@@ -42,7 +43,17 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Id of the file to update.
         /// </summary>
-        private string _fileId;
+        public string FileId { get; private set; }
+
+        /// <summary>
+        /// Called when file is successfully updated.
+        /// </summary>
+        public event Action<string> OnFileUrlChanged;
+
+        /// <summary>
+        /// Called when file is successfully created.
+        /// </summary>
+        public event Action<string> OnFileCreated;
 
         /// <summary>
         /// Constructor.
@@ -50,16 +61,24 @@ namespace CreateAR.SpirePlayer
         public FileResourceUpdater(
             IBootstrapper bootstrapper,
             IHttpService http,
-            string tags)
+            string tags,
+            string fileId = null)
         {
             _bootstrapper = bootstrapper;
             _http = http;
             _tags = tags;
+
+            if (!string.IsNullOrEmpty(fileId))
+            {
+                FileId = fileId;
+            }
         }
 
         /// <summary>
         /// Starts the updater. Write calls will be effectively ignored if
         /// start is not called.
+        /// 
+        /// This method must be called from the main thread.
         /// </summary>
         public void Start()
         {
@@ -69,6 +88,8 @@ namespace CreateAR.SpirePlayer
 
         /// <summary>
         /// Stops the updater.
+        /// 
+        /// This method may be called from any thread.
         /// </summary>
         public void Stop()
         {
@@ -79,6 +100,8 @@ namespace CreateAR.SpirePlayer
         /// Writes bytes to a File resource. The first time Write is called,
         /// a resource is created. Each subsequent call simply updates the
         /// resources.
+        /// 
+        /// This method may be called from any thread.
         /// </summary>
         /// <param name="bytes">The bytes to write to the resource.</param>
         public void Write(byte[] bytes)
@@ -106,7 +129,7 @@ namespace CreateAR.SpirePlayer
                     var bytes = _queue;
                     Interlocked.CompareExchange(ref _queue, null, bytes);
 
-                    if (string.IsNullOrEmpty(_fileId))
+                    if (string.IsNullOrEmpty(FileId))
                     {
                         Create(bytes);
                     }
@@ -133,9 +156,9 @@ namespace CreateAR.SpirePlayer
             _http
                 .PostFile<Response>(
                     _http.Urls.Url("trellis://file"),
-                    new List<Tuple<string, string>>
+                    new List<CreateAR.Commons.Unity.DataStructures.Tuple<string, string>>
                     {
-                        Tuple.Create("tags", _tags)
+                        CreateAR.Commons.Unity.DataStructures.Tuple.Create("tags", _tags)
                     },
                     ref bytes)
                 .OnSuccess(response =>
@@ -143,9 +166,19 @@ namespace CreateAR.SpirePlayer
                     if (null != response.Payload
                         && response.Payload.Success)
                     {
-                        _fileId = response.Payload.Body.Id;
-
+                        FileId = response.Payload.Body.Id;
+                        
                         Log.Info(this, "Successfully created file.");
+
+                        if (null != OnFileCreated)
+                        {
+                            OnFileCreated(response.Payload.Body.Id);
+                        }
+
+                        if (null != OnFileUrlChanged)
+                        {
+                            OnFileUrlChanged(response.Payload.Body.RelUrl);
+                        }
                     }
                     else
                     {
@@ -180,8 +213,8 @@ namespace CreateAR.SpirePlayer
 
             _http
                 .PutFile<Trellis.Messages.UpdateFile.Response>(
-                    _http.Urls.Url("trellis://file/" + _fileId),
-                    new List<Tuple<string, string>>(),
+                    _http.Urls.Url("trellis://file/" + FileId),
+                    new List<CreateAR.Commons.Unity.DataStructures.Tuple<string, string>>(),
                     ref bytes)
                 .OnSuccess(response =>
                 {
@@ -189,6 +222,11 @@ namespace CreateAR.SpirePlayer
                         && response.Payload.Success)
                     {
                         Log.Info(this, "Successfully updated file.");
+
+                        if (null != OnFileUrlChanged)
+                        {
+                            OnFileUrlChanged(response.Payload.Body.RelUrl);
+                        }
                     }
                     else
                     {

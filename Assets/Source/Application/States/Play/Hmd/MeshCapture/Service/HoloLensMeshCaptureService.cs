@@ -39,12 +39,7 @@ namespace CreateAR.SpirePlayer
         /// Keeps track of surfaces.
         /// </summary>
         private readonly Dictionary<SurfaceId, GameObject> _surfaces = new Dictionary<SurfaceId, GameObject>();
-
-        /// <summary>
-        /// External observer.
-        /// </summary>
-        private IMeshCaptureObserver _captureObserver;
-
+        
         /// <summary>
         /// Observes surfaces.
         /// </summary>
@@ -61,6 +56,32 @@ namespace CreateAR.SpirePlayer
         private bool _isObserverAlive;
 
         /// <summary>
+        /// Backing variable for IsVisible.
+        /// </summary>
+        private bool _isVisible;
+
+        /// <inheritdoc />
+        public bool IsVisible
+        {
+            get { return _isVisible; }
+            set
+            {
+                _isVisible = value;
+
+                foreach (var gameObject in _surfaces.Values)
+                {
+                    gameObject.SetActive(_isVisible);
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public bool IsRunning { get; private set; }
+
+        /// <inheritdoc />
+        public IMeshCaptureObserver Observer { get; set; }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public HoloLensMeshCaptureService(
@@ -74,9 +95,10 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void Start(IMeshCaptureObserver observer)
+        public void Start()
         {
-            _captureObserver = observer;
+            IsRunning = true;
+
             _root = new GameObject("Mesh Capture Root");
 
             // setup surface observer
@@ -85,19 +107,30 @@ namespace CreateAR.SpirePlayer
                 _intention.Origin.ToVector(),
                 1000 * Vector3.one);
             _bootstrapper.BootstrapCoroutine(UpdateObserver());
+
+            foreach (var surface in _surfaces.Values)
+            {
+                surface.SetActive(_isVisible);
+            }
         }
 
         /// <inheritdoc />
         public void Stop()
         {
-            // destroy observer
-            _isObserverAlive = false;
-            _surfaceObserver.Dispose();
-            _surfaceObserver = null;
+            IsRunning = false;
 
-            // destroy surfaces
-            _surfaces.Clear();
-            UnityEngine.Object.Destroy(_root);
+            // destroy observer
+            if (null != _surfaceObserver)
+            {
+                _isObserverAlive = false;
+                _surfaceObserver.Dispose();
+                _surfaceObserver = null;
+            }
+
+            foreach (var surface in _surfaces.Values)
+            {
+                surface.SetActive(false);
+            }
         }
 
         /// <summary>
@@ -162,6 +195,7 @@ namespace CreateAR.SpirePlayer
                 target.AddComponent<MeshFilter>();
                 target.AddComponent<MeshRenderer>().sharedMaterial = _config.SurfaceMaterial;
                 target.AddComponent<WorldAnchor>();
+                target.SetActive(_isVisible);
             }
 
             var data = new SurfaceData(
@@ -202,7 +236,12 @@ namespace CreateAR.SpirePlayer
             bool outputWritten,
             float elapsedBaketimeSeconds)
         {
-            _captureObserver.OnData(
+            if (!IsRunning)
+            {
+                return;
+            }
+
+            Observer?.OnData(
                 bakedData.id.handle,
                 bakedData.outputMesh);
         }

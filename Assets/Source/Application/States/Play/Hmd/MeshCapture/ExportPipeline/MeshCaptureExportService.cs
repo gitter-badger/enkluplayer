@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Async pipeline that takes world mesh scans.
     /// </summary>
-    public class MeshCaptureExportService
+    public class MeshCaptureExportService : IMeshCaptureExportService
     {
         /// <summary>
         /// Bootstraps on the main thread.
@@ -30,6 +30,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public MeshCaptureExportServiceConfiguration Configuration { get; private set; }
 
+        /// <inheritdoc />
+        public event Action<string> OnFileUrlChanged;
+
+        /// <inheritdoc />
+        public event Action<string> OnFileCreated;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -44,11 +50,8 @@ namespace CreateAR.SpirePlayer
             Configuration = config;
         }
 
-        /// <summary>
-        /// Starts processing. Calls to <c>Save</c> must follow a Start and 
-        /// preceede a Stop. Start/Stop may be called many times.
-        /// </summary>
-        public void Start(string tag = null)
+        /// <inheritdoc />
+        public void Start(string appId, string fileId = null)
         {
             if (null != _worker)
             {
@@ -60,8 +63,22 @@ namespace CreateAR.SpirePlayer
                 _http,
                 Configuration.LockTimeoutMs,
                 Configuration.MaxScanQueueLen,
-                Configuration.MaxOnDisk,
-                tag ?? Guid.NewGuid().ToString());
+                string.Format("worldscan,appId:{0}", appId),
+                fileId);
+            _worker.OnFileUrlChanged += url =>
+            {
+                if (null != OnFileUrlChanged)
+                {
+                    OnFileUrlChanged(url);
+                }
+            };
+            _worker.OnFileCreated += id =>
+            {
+                if (null != OnFileCreated)
+                {
+                    OnFileCreated(id);
+                }
+            };
 
 #if NETFX_CORE
             // here
@@ -73,9 +90,7 @@ namespace CreateAR.SpirePlayer
 #endif
         }
 
-        /// <summary>
-        /// Stops processing.
-        /// </summary>
+        /// <inheritdoc />
         public void Stop()
         {
             if (null == _worker)
@@ -89,12 +104,7 @@ namespace CreateAR.SpirePlayer
             // Thread::Join() unnecessary
         }
 
-        /// <summary>
-        /// Saves snapshot of objects passed in.
-        /// </summary>
-        /// <param name="triangles">Number of triangles to export.</param>
-        /// <param name="gameObjects">The gameobjects for which to take a snapshot.</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public bool Export(out int triangles, params GameObject[] gameObjects)
         {
             if (null == _worker)
