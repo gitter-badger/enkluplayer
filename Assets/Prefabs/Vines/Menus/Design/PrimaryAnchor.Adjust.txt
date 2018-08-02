@@ -3,7 +3,7 @@
 <Container face='camera'>
 	<Button id='btn-back' icon='arrow-left' position=(-0.2, 0, 0) ready.color='Negative' />
 	<Menu layout.radius=0.2 layout.degrees=120.0>
-		/*<Button id='btn-reset' label='Reset' icon='trash' />*/
+		<Button id='btn-reset' label='Reset' icon='trash' />
 		<Toggle id='tgl-scan' label='Auto Scan' />
 		<Toggle id='tgl-show' label='Show Mesh' />
 	</Menu>

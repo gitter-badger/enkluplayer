@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -20,6 +21,11 @@ namespace CreateAR.SpirePlayer
         private readonly IMeshCaptureService _capture;
 
         /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
+        /// <summary>
         /// UI frame.
         /// </summary>
         private UIManagerFrame _frame;
@@ -39,10 +45,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public EditPrimaryAnchorDesignState(
             IUIManager ui,
-            IMeshCaptureService capture)
+            IMeshCaptureService capture,
+            IMessageRouter messages)
         {
             _ui = ui;
             _capture = capture;
+            _messages = messages;
         }
 
         /// <inheritdoc />
@@ -88,6 +96,12 @@ namespace CreateAR.SpirePlayer
                         }
                     };
                     el.OnBack += () => _designer.ChangeState<MainDesignState>();
+                    el.OnReset += () =>
+                    {
+                        _designer.ChangeState<MainDesignState>();
+
+                        _messages.Publish(MessageTypes.ANCHOR_RESETPRIMARY);
+                    };
                     el.Initialize(_controller, _capture.IsRunning, _capture.IsVisible);
                 })
                 .OnFailure(ex =>

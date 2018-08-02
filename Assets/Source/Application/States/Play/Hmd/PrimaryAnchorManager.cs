@@ -120,10 +120,16 @@ namespace CreateAR.SpirePlayer
         /// True iff autoexport coroutine should be running.
         /// </summary>
         private bool _isAutoExportAlive;
+
         /// <summary>
         /// Unsubscribe delegate for auto-export event.
         /// </summary>
         private Action _autoExportUnsub;
+
+        /// <summary>
+        /// Unsubscribe delegate for reset.
+        /// </summary>
+        private Action _resetUnsub;
 
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
@@ -171,6 +177,7 @@ namespace CreateAR.SpirePlayer
             }
 
             _autoExportUnsub = _messages.Subscribe(MessageTypes.ANCHOR_AUTOEXPORT, Messages_OnAutoExport);
+            _resetUnsub = _messages.Subscribe(MessageTypes.ANCHOR_RESETPRIMARY, Messages_OnResetPrimary);
 
             _sceneId = _scenes.All.FirstOrDefault();
             if (string.IsNullOrEmpty(_sceneId))
@@ -206,6 +213,7 @@ namespace CreateAR.SpirePlayer
         public void Teardown()
         {
             _autoExportUnsub();
+            _resetUnsub();
 
             if (null != _primaryAnchor)
             {
@@ -473,6 +481,32 @@ namespace CreateAR.SpirePlayer
                     .Request(new ElementTxn(_sceneId).Update(anchor.Id, "autoexport", false))
                     .OnFailure(ex => Log.Error(this, "Could not update autoexport : {0}", ex));
             });
+        }
+
+        /// <summary>
+        /// Called when the primary anchor should be destroyed and reset.
+        /// </summary>
+        private void Messages_OnResetPrimary(object _)
+        {
+            Log.Info(this, "Reset primary anchor requested.");
+
+            if (null == _primaryAnchor)
+            {
+                Log.Warning(this, "No primary anchor to destroy.");
+                return;
+            }
+
+            TeardownMeshScan();
+
+            // destroy primary anchor
+            _txns
+                .Request(new ElementTxn(_sceneId).Delete(_primaryAnchor.Id))
+                .OnSuccess(response =>
+                {
+                    Log.Info(this, "Destroyed primary anchor. Recreating.");
+
+                    CreatePrimaryAnchor(_sceneId, _scenes.Root(_sceneId));
+                });
         }
 
         /// <summary>

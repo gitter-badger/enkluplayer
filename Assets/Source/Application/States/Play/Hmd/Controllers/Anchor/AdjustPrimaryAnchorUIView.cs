@@ -76,7 +76,7 @@ namespace CreateAR.SpirePlayer
                     OnBack();
                 }
             };
-            /*
+            
             BtnReset.Activator.OnActivated += _ =>
             {
                 if (null != OnReset)
@@ -84,7 +84,7 @@ namespace CreateAR.SpirePlayer
                     OnReset();
                 }
             };
-            */
+            
             TglScan.OnValueChanged += _ =>
             {
                 if (null != OnAutoScanChanged)
