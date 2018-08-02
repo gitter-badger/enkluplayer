@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.Qr;
 using CreateAR.SpirePlayer.Vine;
@@ -37,6 +38,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IScanLoader _scanLoader;
         private readonly IScanImporter _scanImporter;
         private readonly IMetricsService _metrics;
+        private readonly IMessageRouter _messages;
         
         /// <summary>
         /// All widgets inherit this base schema
@@ -72,7 +74,8 @@ namespace CreateAR.SpirePlayer.IUX
             IQrReaderService qr,
             IScanLoader scanLoader,
             IScanImporter scanImporter,
-            IMetricsService metrics)
+            IMetricsService metrics,
+            IMessageRouter messages)
         {
             _parser = parser;
             _gizmos = gizmos;
@@ -95,6 +98,7 @@ namespace CreateAR.SpirePlayer.IUX
             _scanLoader = scanLoader;
             _scanImporter = scanImporter;
             _metrics = metrics;
+            _messages = messages;
             
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -378,7 +382,7 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 case ElementTypes.WORLD_ANCHOR:
                 {
-                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _provider, _metrics);
+                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _provider, _metrics, _messages);
                 }
                 case ElementTypes.QR_ANCHOR:
                 {

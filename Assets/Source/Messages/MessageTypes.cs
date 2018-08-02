@@ -31,6 +31,7 @@
         public const int SIGNOUT = 1000002;
         public const int HOLOLOGIN = 1000003;
         public const int DEVICE_REGISTRATION_COMPLETE = 1000004;
+        public const int ANCHOR_AUTOEXPORT = 1000005;
 
         // Assets
         public const int RECV_ASSET_LIST = 10;

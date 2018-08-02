@@ -5,6 +5,7 @@ using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
@@ -74,6 +75,11 @@ namespace CreateAR.SpirePlayer
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Pub/sub.
+        /// </summary>
+        private readonly IMessageRouter _messages;
         
         /// <summary>
         /// Configuration for entire application.
@@ -109,6 +115,10 @@ namespace CreateAR.SpirePlayer
         /// True iff autoexport coroutine should be running.
         /// </summary>
         private bool _isAutoExportAlive;
+        /// <summary>
+        /// Unsubscribe delegate for auto-export event.
+        /// </summary>
+        private Action _autoExportUnsub;
 
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
@@ -134,6 +144,7 @@ namespace CreateAR.SpirePlayer
             IMeshCaptureService capture,
             IMeshCaptureExportService exportService,
             IBootstrapper bootstrapper,
+            IMessageRouter messages,
             ApplicationConfig config)
         {
             _scenes = scenes;
@@ -142,6 +153,7 @@ namespace CreateAR.SpirePlayer
             _capture = capture;
             _exportService = exportService;
             _bootstrapper = bootstrapper;
+            _messages = messages;
             _config = config;
         }
 
@@ -152,6 +164,8 @@ namespace CreateAR.SpirePlayer
             {
                 return;
             }
+
+            _autoExportUnsub = _messages.Subscribe(MessageTypes.ANCHOR_AUTOEXPORT, Messages_OnAutoExport);
 
             _sceneId = _scenes.All.FirstOrDefault();
             if (string.IsNullOrEmpty(_sceneId))
@@ -182,10 +196,12 @@ namespace CreateAR.SpirePlayer
                 SetupMeshScan(false);
             }
         }
-        
+
         /// <inheritdoc />
         public void Teardown()
         {
+            _autoExportUnsub();
+
             _primaryAnchor = null;
 
             if (null != _createToken)
@@ -195,7 +211,13 @@ namespace CreateAR.SpirePlayer
 
             TeardownMeshScan();
         }
-        
+
+        /// <inheritdoc />
+        public void OnPrimaryLocated(Action ready)
+        {
+            
+        }
+
         /// <inheritdoc />
         public void OnData(int id, MeshFilter filter)
         {
@@ -386,7 +408,33 @@ namespace CreateAR.SpirePlayer
 
             anchor.Export(_config.Play.AppId, _sceneId, _txns);
         }
-        
+
+        /// <summary>
+        /// Called when a widget wants to auto-export.
+        /// </summary>
+        /// <param name="object">Message.</param>
+        private void Messages_OnAutoExport(object @object)
+        {
+            var anchor = (WorldAnchorWidget) @object;
+
+            OnPrimaryLocated(() =>
+            {
+                // position relative to primary
+                var relPosition = _primaryAnchor.GameObject.transform.position + anchor.Schema.Get<Vec3>("position").Value.ToVector();
+                var relRotation = Quaternion.Euler(anchor.Schema.Get<Vec3>("rotation").Value.ToVector()) * _primaryAnchor.GameObject.transform.rotation;
+                anchor.GameObject.transform.position = relPosition;
+                anchor.GameObject.transform.rotation = relRotation;
+
+                // export in this new position
+                anchor.Export(_config.Play.AppId, _sceneId, _txns);
+
+                // change flag
+                _txns
+                    .Request(new ElementTxn(_sceneId).Update(anchor.Id, "autoexport", false))
+                    .OnFailure(ex => Log.Error(this, "Could not update autoexport : {0}", ex));
+            });
+        }
+
         /// <summary>
         /// Called when a file is initially created.
         /// </summary>

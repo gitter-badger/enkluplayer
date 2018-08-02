@@ -3,6 +3,7 @@ using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages.UploadAnchor;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -39,6 +40,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// Metrics.
         /// </summary>
         private readonly IMetricsService _metrics;
+
+        /// <summary>
+        /// Application-wide messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
         
         /// <summary>
         /// Token for anchor download.
@@ -119,12 +125,14 @@ namespace CreateAR.SpirePlayer.IUX
             ColorConfig colors,
             IHttpService http,
             IWorldAnchorProvider provider,
-            IMetricsService metrics)
+            IMetricsService metrics,
+            IMessageRouter messages)
             : base(gameObject, layers, tweens, colors)
         {
             _http = http;
             _provider = provider;
             _metrics = metrics;
+            _messages = messages;
         }
 
         /// <summary>
@@ -177,8 +185,16 @@ namespace CreateAR.SpirePlayer.IUX
 
             _lockedProp = Schema.GetOwn("locked", true);
             _lockedProp.OnChanged += Locked_OnChanged;
-
-            UpdateWorldAnchor();
+            
+            var autoexport = Schema.GetOwn("autoexport", false).Value;
+            if (autoexport)
+            {
+                _messages.Publish(MessageTypes.ANCHOR_AUTOEXPORT, this);
+            }
+            else
+            {
+                UpdateWorldAnchor();
+            }
 
             // selection collider
             {

@@ -97,6 +97,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Start()
         {
+            IsRunning = true;
+
             _root = new GameObject("Mesh Capture Root");
 
             // setup surface observer
@@ -106,7 +108,10 @@ namespace CreateAR.SpirePlayer
                 1000 * Vector3.one);
             _bootstrapper.BootstrapCoroutine(UpdateObserver());
 
-            IsRunning = true;
+            foreach (var surface in _surfaces.Values)
+            {
+                surface.SetActive(_isVisible);
+            }
         }
 
         /// <inheritdoc />
@@ -119,9 +124,10 @@ namespace CreateAR.SpirePlayer
             _surfaceObserver.Dispose();
             _surfaceObserver = null;
 
-            // destroy surfaces
-            _surfaces.Clear();
-            UnityEngine.Object.Destroy(_root);
+            foreach (var surface in _surfaces.Values)
+            {
+                surface.SetActive(false);
+            }
         }
 
         /// <summary>
