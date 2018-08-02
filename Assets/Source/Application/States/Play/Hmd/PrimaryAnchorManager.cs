@@ -456,15 +456,13 @@ namespace CreateAR.SpirePlayer
 
                 var primarySchemaPos = _primaryAnchor.Schema.Get<Vec3>("position").Value.ToVector();
                 var primarySchemaEul = _primaryAnchor.Schema.Get<Vec3>("rotation").Value.ToVector();
-
-                var primaryTransformPos = _primaryAnchor.GameObject.transform.position;
+                
                 var primaryTransformQuat = _primaryAnchor.GameObject.transform.rotation;
                 
                 var localToWorld = _primaryAnchor.GameObject.transform.localToWorldMatrix;
                 anchor.GameObject.transform.position = localToWorld.MultiplyPoint3x4(anchorSchemaPos - primarySchemaPos);
                 anchor.GameObject.transform.rotation = Quaternion.Euler(anchorSchemaEul) * Quaternion.Inverse(Quaternion.Euler(primarySchemaEul)) * primaryTransformQuat;
-
-                return;
+                
                 // export in this new position
                 anchor.Export(_config.Play.AppId, _sceneId, _txns);
 
