@@ -378,8 +378,9 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Tearing down mesh scan.");
 
             _isAutoExportAlive = false;
-
+            
             _capture.Stop();
+            
             _exportService.OnFileUrlChanged -= ExportService_OnFileUrlChanged;
             _exportService.OnFileCreated -= ExportService_OnFileCreated;
             _exportService.Stop();

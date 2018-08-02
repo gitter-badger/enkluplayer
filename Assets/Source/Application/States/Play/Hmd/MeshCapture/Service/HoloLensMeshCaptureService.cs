@@ -120,9 +120,12 @@ namespace CreateAR.SpirePlayer
             IsRunning = false;
 
             // destroy observer
-            _isObserverAlive = false;
-            _surfaceObserver.Dispose();
-            _surfaceObserver = null;
+            if (null != _surfaceObserver)
+            {
+                _isObserverAlive = false;
+                _surfaceObserver.Dispose();
+                _surfaceObserver = null;
+            }
 
             foreach (var surface in _surfaces.Values)
             {
