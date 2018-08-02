@@ -159,7 +159,7 @@ namespace CreateAR.SpirePlayer.IUX
                 .Export(providerId, GameObject)
                 .OnSuccess(bytes =>
                 {
-                    Log.Info(this, "Successfully exported. Uploading primary anchor.");
+                    Log.Info(this, "Successfully exported. Uploading anchor.");
 
                     ExportAnchorData(txns, appId, sceneId, bytes, 3);
                 })

@@ -90,7 +90,12 @@ namespace CreateAR.SpirePlayer
         /// Lookup from surface id to GameObject.
         /// </summary>
         private readonly Dictionary<int, SurfaceRecord> _surfaces = new Dictionary<int, SurfaceRecord>();
-        
+
+        /// <summary>
+        /// Callbacks for ready.
+        /// </summary>
+        private readonly List<Action> _onReady = new List<Action>();
+
         /// <summary>
         /// The primary anchor.
         /// </summary>
@@ -202,7 +207,11 @@ namespace CreateAR.SpirePlayer
         {
             _autoExportUnsub();
 
-            _primaryAnchor = null;
+            if (null != _primaryAnchor)
+            {
+                _primaryAnchor.OnLocated -= Primary_OnLocated;
+                _primaryAnchor = null;
+            }
 
             if (null != _createToken)
             {
@@ -215,7 +224,14 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void OnPrimaryLocated(Action ready)
         {
-            
+            if (Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+            {
+                ready();
+            }
+            else
+            {
+                _onReady.Add(ready);
+            }
         }
 
         /// <inheritdoc />
@@ -257,17 +273,12 @@ namespace CreateAR.SpirePlayer
                     else
                     {
                         _primaryAnchor = anchor;
+                        _primaryAnchor.OnLocated += Primary_OnLocated;
                     }
                 }
                 else if (anchor.Schema.GetOwn("autoexport", false).Value)
                 {
-                    Log.Info(this, "Auto-exporting anchor.");
-
-                    anchor.Export(_config.Play.AppId, _sceneId, _txns);
-
-                    _txns
-                        .Request(new ElementTxn(_sceneId).Update(anchor.Id, "autoexport", false))
-                        .OnFailure(ex => Log.Error(this, "Could not auto-export anchor : {0}", ex));
+                    Messages_OnAutoExport(anchor);
                 }
             }
 
@@ -320,6 +331,7 @@ namespace CreateAR.SpirePlayer
                     anchor.GameObject.transform.rotation = Quaternion.Euler(rotation.ToVector());
 
                     _primaryAnchor = anchor;
+                    _primaryAnchor.OnLocated += Primary_OnLocated;
                     _scan = (ScanWidget) anchor.Children[0];
 
                     SaveAnchor(_primaryAnchor);
@@ -410,21 +422,49 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called when the primary anchor has been located.
+        /// </summary>
+        /// <param name="anchor">The anchor.</param>
+        private void Primary_OnLocated(WorldAnchorWidget anchor)
+        {
+            var temp = _onReady.ToArray();
+            _onReady.Clear();
+
+            for (int i = 0, len = temp.Length; i < len; i++)
+            {
+                temp[i]();
+            }
+        }
+
+        /// <summary>
         /// Called when a widget wants to auto-export.
         /// </summary>
         /// <param name="object">Message.</param>
         private void Messages_OnAutoExport(object @object)
         {
+            Log.Info(this, "AutoExport requested. Waiting for primary to be located.");
+
             var anchor = (WorldAnchorWidget) @object;
 
             OnPrimaryLocated(() =>
             {
-                // position relative to primary
-                var relPosition = _primaryAnchor.GameObject.transform.position + anchor.Schema.Get<Vec3>("position").Value.ToVector();
-                var relRotation = Quaternion.Euler(anchor.Schema.Get<Vec3>("rotation").Value.ToVector()) * _primaryAnchor.GameObject.transform.rotation;
-                anchor.GameObject.transform.position = relPosition;
-                anchor.GameObject.transform.rotation = relRotation;
+                Log.Info(this, "Primary is located. Positioning AutoExport anchor.");
 
+                // position relative to primary
+                var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
+                var anchorSchemaEul = anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
+
+                var primarySchemaPos = _primaryAnchor.Schema.Get<Vec3>("position").Value.ToVector();
+                var primarySchemaEul = _primaryAnchor.Schema.Get<Vec3>("rotation").Value.ToVector();
+
+                var primaryTransformPos = _primaryAnchor.GameObject.transform.position;
+                var primaryTransformQuat = _primaryAnchor.GameObject.transform.rotation;
+                
+                var localToWorld = _primaryAnchor.GameObject.transform.localToWorldMatrix;
+                anchor.GameObject.transform.position = localToWorld.MultiplyPoint3x4(anchorSchemaPos - primarySchemaPos);
+                anchor.GameObject.transform.rotation = Quaternion.Euler(anchorSchemaEul) * Quaternion.Inverse(Quaternion.Euler(primarySchemaEul)) * primaryTransformQuat;
+
+                return;
                 // export in this new position
                 anchor.Export(_config.Play.AppId, _sceneId, _txns);
 
