@@ -308,7 +308,8 @@ namespace CreateAR.SpirePlayer
                     Schema = new ElementSchemaData
                     {
                         Strings = { { PROP_TAG_KEY, PROP_TAG_VALUE }, { "name", "Primary Anchor" } },
-                        Vectors = { { "position", position }, { "rotation", rotation } }
+                        Vectors = { { "position", position }, { "rotation", rotation } },
+                        Bools = { { "locked", true } }
                     },
                     Children = new[]
                     {

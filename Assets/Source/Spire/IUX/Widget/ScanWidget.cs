@@ -150,12 +150,12 @@ namespace CreateAR.SpirePlayer.IUX
                         var bounds = action(_meshCaptureGameObject);
 
                         // update collider with new bounds
-                        var collider = EditCollider;
+                        /*var collider = EditCollider;
                         if (null != collider)
                         {
                             collider.center = bounds.center;
                             collider.size = bounds.size;
-                        }
+                        }*/
                     });
                 })
                 .OnFailure(exception => Log.Error(this, "Could not download mesh capture : {0}", exception));
