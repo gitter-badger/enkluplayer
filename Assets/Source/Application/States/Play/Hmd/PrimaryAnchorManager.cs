@@ -475,11 +475,6 @@ namespace CreateAR.SpirePlayer
                 
                 // export in this new position
                 anchor.Export(_config.Play.AppId, _sceneId, _txns);
-
-                // change flag
-                _txns
-                    .Request(new ElementTxn(_sceneId).Update(anchor.Id, "autoexport", false))
-                    .OnFailure(ex => Log.Error(this, "Could not update autoexport : {0}", ex));
             });
         }
 
