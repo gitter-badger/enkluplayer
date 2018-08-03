@@ -29,11 +29,6 @@ namespace CreateAR.SpirePlayer
             /// Configuration for playmode.
             /// </summary>
             public PlayModeConfig Config;
-
-            /// <summary>
-            /// Caches world anchor data.
-            /// </summary>
-            public IWorldAnchorCache Cache;
             
             /// <summary>
             /// Provides world anchor import/export.

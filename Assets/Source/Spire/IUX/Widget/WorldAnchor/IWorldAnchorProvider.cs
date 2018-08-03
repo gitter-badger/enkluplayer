@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Initializes provider.
         /// </summary>
         /// <returns></returns>
-        IAsyncToken<Void> Initialize();
+        IAsyncToken<Void> Initialize(IAppSceneManager scenes);
 
         /// <summary>
         /// Attempts to anchor an object.
@@ -28,6 +28,11 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         /// <param name="gameObject">The gameObject.</param>
         void UnAnchor(GameObject gameObject);
+
+        /// <summary>
+        /// Clears all anchors and reloads them.
+        /// </summary>
+        void ClearAllAnchors();
 
         /// <summary>
         /// Exports an anchor into bytes.

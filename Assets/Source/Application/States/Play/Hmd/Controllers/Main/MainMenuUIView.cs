@@ -44,6 +44,9 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..btn-resetdata")]
         public ButtonWidget BtnResetData{ get; set; }
 
+        [InjectElements("..btn-clearanchors")]
+        public ButtonWidget BtnClearAnchors { get; set; }
+
         [InjectElements("..slt-play")]
         public SelectWidget SltPlay { get; set; }
 
@@ -78,6 +81,11 @@ namespace CreateAR.SpirePlayer
         /// Called when user requests to reset all data.
         /// </summary>
         public event Action OnResetData;
+
+        /// <summary>
+        /// Called when the user wishes to clear all local anchors.
+        /// </summary>
+        public event Action OnClearAnchors;
 
         /// <summary>
         /// Called when the user changes the default play mode.
@@ -124,6 +132,14 @@ namespace CreateAR.SpirePlayer
                 if (null != OnResetData)
                 {
                     OnResetData();
+                }
+            };
+
+            BtnClearAnchors.Activator.OnActivated += _ =>
+            {
+                if (null != OnClearAnchors)
+                {
+                    OnClearAnchors();
                 }
             };
 

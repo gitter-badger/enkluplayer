@@ -14,6 +14,7 @@
 			
 			<SubMenu label='Settings' icon='gear'>
 				<Button id='btn-resetdata' label='Reset Data' ready.color='Negative' icon='trash' visible=false />
+				<Button id='btn-clearanchors' label='Clear Anchors' ready.color='Negative' icon='anchor' />
 				<Select id='slt-play'>
 					<Option label='Play' value='Play' />
 					<Option label='Edit' value='Edit' />

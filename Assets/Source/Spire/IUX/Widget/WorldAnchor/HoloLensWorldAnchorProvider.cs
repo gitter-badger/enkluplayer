@@ -33,7 +33,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Handles metrics.
         /// </summary>
         private readonly IMetricsService _metrics;
-
+        
         /// <summary>
         /// Queue of actions to run on the main thread.
         /// </summary>
@@ -65,10 +65,20 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private bool _isWatching;
 
+        /// <summary>
+        /// True iff a queued action is currently being processed.
+        /// </summary>
         private bool _isProcessingQueues;
 
+        /// <summary>
+        /// HoloLens API.
+        /// </summary>
         private WorldAnchorStore _store;
-        private bool _isProcessingExport;
+
+        /// <summary>
+        /// Manages all scenes.
+        /// </summary>
+        private IAppSceneManager _scenes;
 
         /// <summary>
         /// Constructor.
@@ -82,8 +92,10 @@ namespace CreateAR.SpirePlayer.IUX
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Initialize()
+        public IAsyncToken<Void> Initialize(IAppSceneManager scenes)
         {
+            _scenes = scenes;
+
             var token = new AsyncToken<Void>();
 
             WorldAnchorStore.GetAsync(store =>
@@ -124,7 +136,32 @@ namespace CreateAR.SpirePlayer.IUX
 
             return new AsyncToken<Void>(new Exception("No anchor by that id."));
         }
-        
+
+        /// <inheritdoc />
+        public void ClearAllAnchors()
+        {
+            if (null == _store)
+            {
+                Log.Warning(this, "Store is not yet loaded. This method must be called after Initialize has completed.");
+                return;
+            }
+
+            // kill all local anchors!
+            _store.Clear();
+
+            var anchors = new List<WorldAnchorWidget>();
+            foreach (var sceneId in _scenes.All)
+            {
+                anchors.Clear();
+                _scenes.Root(sceneId).Find("..(@type==WorldAnchorWidget)", anchors);
+
+                foreach (var anchor in anchors)
+                {
+                    anchor.Reload();
+                }
+            }
+        }
+
         /// <inheritdoc />
         public IAsyncToken<byte[]> Export(string id, GameObject gameObject)
         {
