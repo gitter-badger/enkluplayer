@@ -42,7 +42,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         /// <param name="id">Id used to export.</param>
         /// <param name="bytes">The bytes to import.</param>
+        /// <param name="gameObject">The GameObject to anchor.</param>
         /// <returns></returns>
-        IAsyncToken<Void> Import(string id, byte[] bytes);
+        IAsyncToken<Void> Import(string id, byte[] bytes, GameObject gameObject);
     }
 }

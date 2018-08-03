@@ -51,7 +51,7 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Import(string id, byte[] bytes)
+        public IAsyncToken<Void> Import(string id, byte[] bytes, GameObject gameObject)
         {
             var token = new AsyncToken<Void>();
 

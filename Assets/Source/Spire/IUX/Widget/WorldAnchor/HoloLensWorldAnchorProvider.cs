@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -48,12 +49,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Queue for exporting.
         /// </summary>
         private readonly Queue<Action> _exportQueue = new Queue<Action>();
-
-        /// <summary>
-        /// Import dictionary.
-        /// </summary>
-        private readonly Dictionary<string, AsyncToken<Void>> _imports = new Dictionary<string, AsyncToken<Void>>();
-
+        
         /// <summary>
         /// Export dictionary.
         /// </summary>
@@ -151,80 +147,67 @@ namespace CreateAR.SpirePlayer.IUX
             // keep track of # of retries left (used below)
             var retries = 3;
 
-            // create anchor
-            var anchor = gameObject.GetComponent<WorldAnchor>();
-            if (null == anchor)
+            // grab anchor
+            var anchor = _store.Load(id, gameObject);
+            if (null != anchor)
             {
-                anchor = gameObject.AddComponent<WorldAnchor>();
+                Log.Warning(this, "Tried to export anchor that was already part of lo0cal anchor store.");
+                token.Fail(new Exception("Tried to export anchor that was already part of lo0cal anchor store."));
+
+                return token;
             }
 
+            // create anchor
+            anchor = gameObject.AddComponent<WorldAnchor>();
+            
             // create buffer for export data
-            byte[] buffer = null;
-            var index = 0;
+            var buffer = new List<byte>();
+            WorldAnchorTransferBatch batch = null;
 
             Action<SerializationCompletionReason> onExportComplete = null;
-            Action<byte[]> onExportDataAvailable = null;
-            Action export = null;
-            export = () =>
-            {
-                Log.Info(this, "{0}::Starting export process.", id);
 
-                // reset buffer and index
-                buffer = new byte[4096];
-                index = 0;
-                
+            void OnExportDataAvailable(byte[] bytes) => buffer.AddRange(bytes);
+            
+            void Save()
+            {
+                Log.Info(this, "{0}::Saving anchor to local store.");
+
                 // save locally
                 if (!_store.Save(id, anchor))
                 {
                     if (--retries > 0)
                     {
                         Log.Warning(this, "{0}::Could not save anchor in local store, retrying.", id);
-                        export();
+                        Save();
                     }
                     else
                     {
                         Log.Error(this, "{0}::Could not save anchor in local store!", id);
                         token.Fail(new Exception("Could not save in local store."));
                     }
-                    
-
-                    return;
                 }
+                else
+                {
+                    Export();
+                }
+            }
+
+            void Export()
+            {
+                Log.Info(this, "{0}::Exporting anchor into transfer batch.", id);
+                
+                // reset buffer
+                buffer.Clear();
 
                 // begin export
-                var batch = new WorldAnchorTransferBatch();
+                batch = new WorldAnchorTransferBatch();
                 batch.AddWorldAnchor(id, anchor);
                 WorldAnchorTransferBatch.ExportAsync(
                     batch,
-                    new WorldAnchorTransferBatch.SerializationDataAvailableDelegate(onExportDataAvailable),
+                    OnExportDataAvailable,
                     new WorldAnchorTransferBatch.SerializationCompleteDelegate(onExportComplete));
-            };
-
-            onExportDataAvailable = bytes =>
-            {
-                var len = bytes.Length;
-                var delta = buffer.Length - index;
-
-                // resize buffer
-                while (len > delta)
-                {
-                    var target = buffer.Length * 2;
-                    Log.Debug(this,
-                        "{0}::Increasing buffer size to {1} bytes.",
-                        id,
-                        target);
-
-                    var newBuffer = new byte[target];
-                    Array.Copy(buffer, 0, newBuffer, 0, index);
-                    buffer = newBuffer;
-
-                    delta = buffer.Length - index;
-                }
-
-                Array.Copy(bytes, 0, buffer, index, len);
-                index += len;
-            };
-
+            }
+            
             onExportComplete = reason =>
             {
                 // export
@@ -233,6 +216,9 @@ namespace CreateAR.SpirePlayer.IUX
                 if (reason == SerializationCompletionReason.Succeeded)
                 {
                     Log.Info(this, "{0}::WorldAnchor export complete. Compressing data.", id);
+
+                    // dispose of batch
+                    batch.Dispose();
 
                     // metrics
                     var compressId = _metrics.Timer(MetricsKeys.ANCHOR_COMPRESSION).Start();
@@ -246,16 +232,16 @@ namespace CreateAR.SpirePlayer.IUX
                         {
                             using (var deflate = new DeflateStream(memoryStream, CompressionMode.Compress))
                             {
-                                deflate.Write(buffer, 0, index);
+                                deflate.Write(buffer.ToArray(), 0, buffer.Count);
                             }
 
                             compressed = memoryStream.ToArray();
                         }
 
                         // metrics
-                        _metrics.Value(MetricsKeys.ANCHOR_SIZE_RAW).Value(buffer.Length);
+                        _metrics.Value(MetricsKeys.ANCHOR_SIZE_RAW).Value(buffer.Count);
                         _metrics.Value(MetricsKeys.ANCHOR_SIZE_COMPRESSED).Value(compressed.Length);
-                        _metrics.Value(MetricsKeys.ANCHOR_SIZE_RATIO).Value(compressed.Length / (float) buffer.Length);
+                        _metrics.Value(MetricsKeys.ANCHOR_SIZE_RATIO).Value(compressed.Length / (float) buffer.Count);
 
                         Synchronize(() =>
                         {
@@ -264,7 +250,7 @@ namespace CreateAR.SpirePlayer.IUX
                             Log.Info(this,
                                 "{0}::Compression complete. Saved {1} bytes.",
                                 id,
-                                index - compressed.Length);
+                                buffer.Count - compressed.Length);
 
                             // metrics
                             _metrics.Timer(MetricsKeys.ANCHOR_COMPRESSION).Stop(compressId);
@@ -281,11 +267,14 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     Log.Warning(this, "{0}::WorldAnchor export failed.", id);
 
+                    // dispose of batch
+                    batch.Dispose();
+
                     if (--retries > 0)
                     {
                         Log.Info(this, "{0}::Retrying export.", id);
 
-                        export();
+                        Export();
                     }
                     else
                     {
@@ -299,100 +288,107 @@ namespace CreateAR.SpirePlayer.IUX
                 }
             };
 
-            // begin export
-            export();
+            if (anchor.isLocated)
+            {
+                Save();
+            }
+            else
+            {
+                void OnTrackingChanged(WorldAnchor _, bool located)
+                {
+                    if (located)
+                    {
+                        anchor.OnTrackingChanged -= OnTrackingChanged;
+
+                        Save();
+                    }
+                }
+
+                anchor.OnTrackingChanged += OnTrackingChanged;
+            }
             
             return token;
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Import(string id, byte[] bytes)
+        public IAsyncToken<Void> Import(string id, byte[] bytes, GameObject gameObject)
         {
             Log.Info(this, "{0}::Import()", id);
-
-            if (_imports.TryGetValue(id, out var token))
-            {
-                return token.Token();
-            }
-
+            
             // metrics
-            var queuedId = _metrics.Timer(MetricsKeys.ANCHOR_EXPORT_QUEUED).Start();
+            var queuedMetricId = _metrics.Timer(MetricsKeys.ANCHOR_EXPORT_QUEUED).Start();
+            var importMetricId = 0;
 
             // create a new token for it immediately
             RetainWatcher();
-            token = _imports[id] = new AsyncToken<Void>();
+            var token = new AsyncToken<Void>();
             token.OnFinally(_ => ReleaseWatcher());
-
+            
             // local function for queued import
             void QueuedImport()
             {
                 // metrics
-                _metrics.Timer(MetricsKeys.ANCHOR_EXPORT_QUEUED).Stop(queuedId);
+                _metrics.Timer(MetricsKeys.ANCHOR_EXPORT_QUEUED).Stop(queuedMetricId);
 
                 Log.Info(this, "{0}::Begin queued import.", id);
-
-                // metrics
-                var importId = -1;
+                
+                byte[] decompressed;
 
                 // number of retries
-                var compressed = new byte[0];
                 var retries = 3;
 
+                // called to import from batch
+                void Import()
+                {
+                    WorldAnchorTransferBatch.ImportAsync(decompressed, OnComplete);
+                }
+
                 // called when import into transfew batch is complete
-                Action<SerializationCompletionReason, WorldAnchorTransferBatch> onComplete = null;
-                onComplete = (reason, batch) =>
+                void OnComplete(SerializationCompletionReason reason, WorldAnchorTransferBatch batch)
                 {
                     // metrics
-                    _metrics.Timer(MetricsKeys.ANCHOR_IMPORT).Stop(importId);
-                    
+                    _metrics.Timer(MetricsKeys.ANCHOR_IMPORT).Stop(importMetricId);
+
                     if (reason != SerializationCompletionReason.Succeeded)
                     {
                         Log.Warning(this, "{0}::Import into transfer batch failed.", id);
 
                         // retry
-                        if (--retries < 0)
+                        if (--retries > 0)
                         {
                             Log.Info(this, "{0}::Retrying import.", id);
 
-                            WorldAnchorTransferBatch.ImportAsync(
-                                compressed,
-                                new WorldAnchorTransferBatch.DeserializationCompleteDelegate(onComplete));
+                            Import();
                         }
                         else
                         {
-                            // stop tracking
-                            _imports.Remove(id);
-
-                            // save
-                            var temp = new GameObject("__WorldAnchorTemp");
-                            var anchor = batch.LockObject(id, temp);
-                            var success = _store.Save(id, anchor);
-
-                            Object.Destroy(temp);
-
-                            if (success)
+                            token.Fail(new Exception("Import into transfer batch failed."));
+                        }
+                    }
+                    // make sure gameobject is still alive
+                    else if (gameObject)
+                    {
+                        var anchor = batch.LockObject(id, gameObject);
+                        if (null != anchor)
+                        {
+                            if (_store.Save(id, anchor))
                             {
                                 token.Succeed(Void.Instance);
                             }
                             else
                             {
-                                token.Fail(new Exception("Successful import, but could not create anchor."));
+                                token.Fail(new Exception("Locked object but could not save in anchor store."));
                             }
                         }
-                    }
-                    else
-                    {
-                        Log.Info(this, "{0}::Import into transfer batch complete.", id);
-                        
-                        // stop tracking
-                        _imports.Remove(id);
-
-                        token.Succeed(Void.Instance);
+                        else
+                        {
+                            token.Fail(new Exception("Import succeded byt could not lock object."));
+                        }
                     }
 
                     // done processing
                     _isProcessing = false;
-                };
+                }
 
                 // metrics
                 var compressId = _metrics.Timer(MetricsKeys.ANCHOR_DECOMPRESSION).Start();
@@ -412,7 +408,7 @@ namespace CreateAR.SpirePlayer.IUX
                             }
                         }
 
-                        compressed = output.ToArray();
+                        decompressed = output.ToArray();
                     }
 
                     // metrics
@@ -424,11 +420,9 @@ namespace CreateAR.SpirePlayer.IUX
                         Log.Info(this, "{0}::Decompression complete.", id);
                         
                         // metrics
-                        importId = _metrics.Timer(MetricsKeys.ANCHOR_IMPORT).Start();
+                        importMetricId = _metrics.Timer(MetricsKeys.ANCHOR_IMPORT).Start();
 
-                        WorldAnchorTransferBatch.ImportAsync(
-                            compressed,
-                            new WorldAnchorTransferBatch.DeserializationCompleteDelegate(onComplete));
+                        Import();
                     });
                 });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
