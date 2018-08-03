@@ -330,7 +330,7 @@ namespace CreateAR.SpirePlayer
                     _staticRoot);
             }
 
-            //initialize reference object
+            // initialize reference object
             SetupReferenceObject();
 
             // start initial state
@@ -381,9 +381,8 @@ namespace CreateAR.SpirePlayer
             _float.Destroy();
             _staticRoot.Destroy();
 
+            Object.Destroy(_referenceObject);
             Object.Destroy(_root);
-
-            // hierarchy rendering
             Object.Destroy(Camera.main.gameObject.GetComponent<HierarchyLineRenderer>());
         }
 
@@ -393,6 +392,8 @@ namespace CreateAR.SpirePlayer
         private void SetupPlay()
         {
             _setupEdit = false;
+
+            _primaryAnchor.Setup();
 
             _voice.Register("menu", Voice_OnPlayMenu);
             _voice.Register("edit", Voice_OnEdit);
@@ -409,6 +410,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void TeardownPlay()
         {
+            _primaryAnchor.Teardown();
+
             _voice.Unregister("menu");
             _voice.Unregister("edit");
 

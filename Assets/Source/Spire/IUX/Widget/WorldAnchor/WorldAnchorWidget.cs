@@ -298,7 +298,7 @@ namespace CreateAR.SpirePlayer.IUX
                 
                 return;
             }
-
+            
             // see if the provider can anchor this version
             var providerId = GetAnchorProviderId(Id, version);
             _anchorToken = _provider
