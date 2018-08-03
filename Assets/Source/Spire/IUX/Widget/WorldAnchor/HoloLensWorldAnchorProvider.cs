@@ -65,9 +65,10 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private bool _isWatching;
 
-        private bool _isProcessing;
+        private bool _isProcessingQueues;
 
         private WorldAnchorStore _store;
+        private bool _isProcessingExport;
 
         /// <summary>
         /// Constructor.
@@ -170,6 +171,8 @@ namespace CreateAR.SpirePlayer.IUX
             
             void Save()
             {
+                _isProcessingQueues = true;
+
                 Log.Info(this, "{0}::Saving anchor to local store.");
 
                 // save locally
@@ -184,6 +187,8 @@ namespace CreateAR.SpirePlayer.IUX
                     {
                         Log.Error(this, "{0}::Could not save anchor in local store!", id);
                         token.Fail(new Exception("Could not save in local store."));
+
+                        _isProcessingQueues = false;
                     }
                 }
                 else
@@ -259,6 +264,8 @@ namespace CreateAR.SpirePlayer.IUX
                             _exports.Remove(gameObject);
 
                             token.Succeed(compressed);
+
+                            _isProcessingQueues = false;
                         });
                     });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -284,13 +291,19 @@ namespace CreateAR.SpirePlayer.IUX
                         token.Fail(new Exception(string.Format(
                             "Could not export : {0}.",
                             reason)));
+
+                        _isProcessingQueues = false;
                     }
                 }
             };
-
+            
             if (anchor.isLocated)
             {
-                Save();
+                Log.Info(this, "Enqueue export.");
+
+                _exportQueue.Enqueue(Save);
+
+                ProcessQueues();
             }
             else
             {
@@ -300,7 +313,11 @@ namespace CreateAR.SpirePlayer.IUX
                     {
                         anchor.OnTrackingChanged -= OnTrackingChanged;
 
-                        Save();
+                        Log.Info(this, "Enqueue export.");
+
+                        _exportQueue.Enqueue(Save);
+
+                        ProcessQueues();
                     }
                 }
 
@@ -387,7 +404,7 @@ namespace CreateAR.SpirePlayer.IUX
                     }
 
                     // done processing
-                    _isProcessing = false;
+                    _isProcessingQueues = false;
                 }
 
                 // metrics
@@ -431,7 +448,7 @@ namespace CreateAR.SpirePlayer.IUX
             Log.Info(this, "{0}::Enqueued import.", id);
             _importQueue.Enqueue(QueuedImport);
 
-            ProcessImportQueue();
+            ProcessQueues();
 
             return token;
         }
@@ -449,19 +466,27 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Processes import queue.
         /// </summary>
-        private void ProcessImportQueue()
+        private void ProcessQueues()
         {
-            if (_isProcessing || 0 == _importQueue.Count)
+            if (_isProcessingQueues
+                || 0 == _importQueue.Count && 0 == _exportQueue.Count)
             {
                 return;
             }
 
-            _isProcessing = true;
+            _isProcessingQueues = true;
 
             Log.Info(this, "Processing next in queue.");
 
-            var next = _importQueue.Dequeue();
-            next();
+            // process imports first
+            if (_importQueue.Count > 0)
+            {
+                _importQueue.Dequeue()();
+            }
+            else
+            {
+                _exportQueue.Dequeue()();
+            }
         }
 
         /// <summary>
@@ -524,8 +549,8 @@ namespace CreateAR.SpirePlayer.IUX
                     _actionsReadBuffer.Clear();
                 }
 
-                ProcessImportQueue();
-
+                ProcessQueues();
+                
                 yield return null;
             }
 
