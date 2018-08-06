@@ -112,7 +112,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Update()
         {
-            if (DeviceHelper.IsHoloLens() && null != BtnRefresh && BtnRefresh.GameObject)
+            if (DeviceHelper.IsHoloLens() && null != BtnRefresh && BtnRefresh.GameObject && Camera.current)
             {
                 BtnRefresh.GameObject.transform.forward = Camera.current.transform.forward;
                 BtnRefresh.Schema.Set("scale", new Vec3(
