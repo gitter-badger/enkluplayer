@@ -158,6 +158,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateAsset()
         {
+            if (!Visible)
+            {
+                return;
+            }
+
             LogVerbose("Refresh asset for {0}.", Id);
 
             _assembler.Teardown();
@@ -171,6 +176,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateScripts()
         {
+            if (!Visible)
+            {
+                return;
+            }
+
             LogVerbose("Refresh scripts for {0}.", Id);
 
             TeardownScripts();
