@@ -195,6 +195,8 @@ namespace CreateAR.SpirePlayer
                 Log.Warning(this, "Cannot setup PrimaryAnchorManager: could not find scene root.");
                 return;
             }
+
+            // TODO: Open status indicator
             
             FindPrimaryAnchor(root);
 
@@ -474,6 +476,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchor">The anchor in question.</param>
         private void PositionAnchorRelativeToPrimary(WorldAnchorWidget anchor)
         {
+            if (null == anchor || !anchor.GameObject || null == _primaryAnchor || !_primaryAnchor.GameObject)
+            {
+                return;
+            }
+
             var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
             var anchorSchemaEul = anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
 
