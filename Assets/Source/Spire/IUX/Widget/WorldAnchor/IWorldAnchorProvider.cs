@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Async;
 using UnityEngine;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer.IUX
 {

@@ -69,6 +69,9 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
+        public bool IsImporting { get; }
+
+        /// <inheritdoc />
         public IAsyncToken<Void> Initialize(IAppSceneManager scenes)
         {
             var token = new AsyncToken<Void>();

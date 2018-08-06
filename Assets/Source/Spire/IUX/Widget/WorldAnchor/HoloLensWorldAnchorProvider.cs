@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -505,8 +504,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void ProcessQueues()
         {
-            if (_isProcessingQueues
-                || 0 == _importQueue.Count && 0 == _exportQueue.Count)
+            if (_isProcessingQueues)
+            {
+                return;
+            }
+
+            if (0 == _importQueue.Count && 0 == _exportQueue.Count)
             {
                 return;
             }
