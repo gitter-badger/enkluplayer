@@ -99,6 +99,11 @@ namespace CreateAR.SpirePlayer
         private readonly Dictionary<int, SurfaceRecord> _surfaces = new Dictionary<int, SurfaceRecord>();
 
         /// <summary>
+        /// List of anchors in scene.
+        /// </summary>
+        private readonly List<WorldAnchorWidget> _anchors = new List<WorldAnchorWidget>();
+
+        /// <summary>
         /// Callbacks for ready.
         /// </summary>
         private readonly List<Action> _onReady = new List<Action>();
@@ -147,8 +152,6 @@ namespace CreateAR.SpirePlayer
         /// Caption on UI.
         /// </summary>
         private CaptionWidget _cpn;
-
-        private readonly List<WorldAnchorWidget> _anchors = new List<WorldAnchorWidget>();
 
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
