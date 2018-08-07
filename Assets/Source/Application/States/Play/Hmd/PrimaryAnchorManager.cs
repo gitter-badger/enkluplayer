@@ -41,6 +41,8 @@ namespace CreateAR.SpirePlayer
         public const string PROP_TAG_KEY = "tag";
         public const string PROP_TAG_VALUE = "primary";
 
+        public static bool AreAllAnchorsReady { get; private set; }
+
         /// <summary>
         /// Time between exports.
         /// </summary>
@@ -80,7 +82,12 @@ namespace CreateAR.SpirePlayer
         /// Pub/sub.
         /// </summary>
         private readonly IMessageRouter _messages;
-        
+
+        /// <summary>
+        /// Creates elements.
+        /// </summary>
+        private readonly IElementFactory _elements;
+
         /// <summary>
         /// Configuration for entire application.
         /// </summary>
@@ -131,6 +138,18 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private Action _resetUnsub;
 
+        /// <summary>
+        /// UI root.
+        /// </summary>
+        private Element _rootUI;
+
+        /// <summary>
+        /// Caption on UI.
+        /// </summary>
+        private CaptionWidget _cpn;
+
+        private readonly List<WorldAnchorWidget> _anchors = new List<WorldAnchorWidget>();
+
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
         {
@@ -156,6 +175,7 @@ namespace CreateAR.SpirePlayer
             IMeshCaptureExportService exportService,
             IBootstrapper bootstrapper,
             IMessageRouter messages,
+            IElementFactory elements,
             ApplicationConfig config)
         {
             _scenes = scenes;
@@ -165,6 +185,7 @@ namespace CreateAR.SpirePlayer
             _exportService = exportService;
             _bootstrapper = bootstrapper;
             _messages = messages;
+            _elements = elements;
             _config = config;
         }
 
@@ -176,8 +197,11 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            _autoExportUnsub = _messages.Subscribe(MessageTypes.ANCHOR_AUTOEXPORT, Messages_OnAutoExport);
-            _resetUnsub = _messages.Subscribe(MessageTypes.ANCHOR_RESETPRIMARY, Messages_OnResetPrimary);
+            if (_config.Play.Edit)
+            {
+                _autoExportUnsub = _messages.Subscribe(MessageTypes.ANCHOR_AUTOEXPORT, Messages_OnAutoExport);
+                _resetUnsub = _messages.Subscribe(MessageTypes.ANCHOR_RESETPRIMARY, Messages_OnResetPrimary);
+            }
 
             _sceneId = _scenes.All.FirstOrDefault();
             if (string.IsNullOrEmpty(_sceneId))
@@ -192,28 +216,109 @@ namespace CreateAR.SpirePlayer
                 Log.Warning(this, "Cannot setup PrimaryAnchorManager: could not find scene root.");
                 return;
             }
-            
+
+            OpenStatusUI();            
             FindPrimaryAnchor(root);
 
-            if (null == _primaryAnchor)
+            if (_config.Play.Edit)
             {
-                Log.Info(this, "No primary anchor found. Will create one!");
+                if (null == _primaryAnchor)
+                {
+                    Log.Info(this, "No primary anchor found. Will create one!");
 
-                CreatePrimaryAnchor(_sceneId, root);
+                    CreatePrimaryAnchor(_sceneId, root);
+                }
+                else
+                {
+                    Log.Info(this, "Primary anchor found.");
+
+                    SetupMeshScan(false);
+                }
             }
-            else
-            {
-                Log.Info(this, "Primary anchor found.");
 
-                SetupMeshScan(false);
+            OnPrimaryLocated(() =>
+            {
+                // attempt to move unlocated world anchors into place
+                var anchors = new List<WorldAnchorWidget>();
+                root.Find("..(@type==WorldAnchorWidget)", anchors);
+
+                foreach (var anchor in anchors)
+                {
+                    if (anchor == _primaryAnchor)
+                    {
+                        continue;
+                    }
+
+                    if (anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+                    {
+                        continue;
+                    }
+
+                    PositionAnchorRelativeToPrimary(anchor);
+                }
+            });
+        }
+
+        private void OpenStatusUI()
+        {
+            _rootUI = _elements.Element(@"
+<?Vine>
+<Screen distance=3.8>
+    <Caption id='cpn' position=(0, 0.4, 0) label='Locating anchors.' width=1200.0 alignment='MidCenter' fontSize=100 />
+</Screen>");
+            _cpn = _rootUI.FindOne<CaptionWidget>("..cpn");
+
+            _bootstrapper.BootstrapCoroutine(UpdateStatusUI());
+        }
+
+        private IEnumerator UpdateStatusUI()
+        {
+            AreAllAnchorsReady = false;
+
+            while (null != _cpn)
+            {
+                if (Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+                {
+                    _cpn.Label = "Locating primary anchor...";
+                }
+                else
+                {
+                    var count = _anchors.Count(anchor => anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated && anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated);
+                    if (0 == count)
+                    {
+                        AreAllAnchorsReady = true;
+                        CloseStatusUI();
+                    }
+                    else
+                    {
+                        _cpn.Label = string.Format("Processing {0} anchor(s).", count);
+                    }
+                }
+
+                yield return null;
+            }
+        }
+
+        private void CloseStatusUI()
+        {
+            if (null != _rootUI)
+            {
+                _rootUI.Destroy();
+                _rootUI = null;
+                _cpn = null;
             }
         }
 
         /// <inheritdoc />
         public void Teardown()
         {
-            _autoExportUnsub();
-            _resetUnsub();
+            CloseStatusUI();
+
+            if (null != _autoExportUnsub)
+            {
+                _autoExportUnsub();
+                _resetUnsub();
+            }
 
             if (null != _primaryAnchor)
             {
@@ -257,12 +362,12 @@ namespace CreateAR.SpirePlayer
         /// <param name="root">The root element.</param>
         private void FindPrimaryAnchor(Element root)
         {
-            var anchors = new List<WorldAnchorWidget>();
-            root.Find("..(@type=WorldAnchorWidget)", anchors);
+            _anchors.Clear();
+            root.Find("..(@type=WorldAnchorWidget)", _anchors);
 
-            for (int i = 0, len = anchors.Count; i < len; i++)
+            for (int i = 0, len = _anchors.Count; i < len; i++)
             {
-                var anchor = anchors[i];
+                var anchor = _anchors[i];
                 if (PROP_TAG_VALUE == anchor.Schema.Get<string>(PROP_TAG_KEY).Value)
                 {
                     if (null != _primaryAnchor)
@@ -387,13 +492,19 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Tearing down mesh scan.");
 
             _isAutoExportAlive = false;
-            
-            _capture.Stop();
-            
-            _exportService.OnFileUrlChanged -= ExportService_OnFileUrlChanged;
-            _exportService.OnFileCreated -= ExportService_OnFileCreated;
-            _exportService.Stop();
-            _surfaces.Clear();
+
+            if (null != _capture)
+            {
+                _capture.Stop();
+            }
+
+            if (null != _exportService)
+            {
+                _exportService.OnFileUrlChanged -= ExportService_OnFileUrlChanged;
+                _exportService.OnFileCreated -= ExportService_OnFileCreated;
+                _exportService.Stop();
+                _surfaces.Clear();
+            }
         }
 
         /// <summary>
@@ -432,6 +543,32 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Moves an anchor to where it should be relative to the primary.
+        /// </summary>
+        /// <param name="anchor">The anchor in question.</param>
+        private void PositionAnchorRelativeToPrimary(WorldAnchorWidget anchor)
+        {
+            if (null == anchor || !anchor.GameObject || null == _primaryAnchor || !_primaryAnchor.GameObject)
+            {
+                return;
+            }
+
+            var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
+            var anchorSchemaEul = anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
+
+            var primarySchemaPos = _primaryAnchor.Schema.Get<Vec3>("position").Value.ToVector();
+            var primarySchemaEul = _primaryAnchor.Schema.Get<Vec3>("rotation").Value.ToVector();
+
+            var primaryTransformQuat = _primaryAnchor.GameObject.transform.rotation;
+
+            var localToWorld = _primaryAnchor.GameObject.transform.localToWorldMatrix;
+            anchor.GameObject.transform.position = localToWorld.MultiplyPoint3x4(anchorSchemaPos - primarySchemaPos);
+            anchor.GameObject.transform.rotation = Quaternion.Euler(anchorSchemaEul) *
+                                                   Quaternion.Inverse(Quaternion.Euler(primarySchemaEul)) *
+                                                   primaryTransformQuat;
+        }
+
+        /// <summary>
         /// Called when the primary anchor has been located.
         /// </summary>
         /// <param name="anchor">The anchor.</param>
@@ -461,25 +598,10 @@ namespace CreateAR.SpirePlayer
                 Log.Info(this, "Primary is located. Positioning AutoExport anchor.");
 
                 // position relative to primary
-                var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
-                var anchorSchemaEul = anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
+                PositionAnchorRelativeToPrimary(anchor);
 
-                var primarySchemaPos = _primaryAnchor.Schema.Get<Vec3>("position").Value.ToVector();
-                var primarySchemaEul = _primaryAnchor.Schema.Get<Vec3>("rotation").Value.ToVector();
-                
-                var primaryTransformQuat = _primaryAnchor.GameObject.transform.rotation;
-                
-                var localToWorld = _primaryAnchor.GameObject.transform.localToWorldMatrix;
-                anchor.GameObject.transform.position = localToWorld.MultiplyPoint3x4(anchorSchemaPos - primarySchemaPos);
-                anchor.GameObject.transform.rotation = Quaternion.Euler(anchorSchemaEul) * Quaternion.Inverse(Quaternion.Euler(primarySchemaEul)) * primaryTransformQuat;
-                
                 // export in this new position
                 anchor.Export(_config.Play.AppId, _sceneId, _txns);
-
-                // change flag
-                _txns
-                    .Request(new ElementTxn(_sceneId).Update(anchor.Id, "autoexport", false))
-                    .OnFailure(ex => Log.Error(this, "Could not update autoexport : {0}", ex));
             });
         }
 

@@ -92,8 +92,9 @@ namespace CreateAR.SpirePlayer.Assets
         public void Load()
         {
             // check cache
+            /*
             Verbose("Checking cache.");
-
+            
             if (Math.Abs(_config.AssetDownloadLagSec) < Mathf.Epsilon
                 && _cache.Contains(_url))
             {
@@ -109,7 +110,9 @@ namespace CreateAR.SpirePlayer.Assets
                 Verbose("Cache miss.");
                 
                 _bootstrapper.BootstrapCoroutine(DownloadBundle());
-            }
+            }*/
+
+            _bootstrapper.BootstrapCoroutine(DownloadBundle());
         }
 
         /// <summary>
@@ -181,7 +184,7 @@ namespace CreateAR.SpirePlayer.Assets
                 token.Fail(new Exception("Could not load asset: Offline Mode enabled."));
                 yield break;
             }
-            
+
 #if !NETFX_CORE
             Verbose("Download bundle from {0}.", _url);
             
@@ -190,12 +193,13 @@ namespace CreateAR.SpirePlayer.Assets
                 0);
             yield return request;
 #else
-            var request = new UnityWebRequest(
+            var request = UnityWebRequestAssetBundle.GetAssetBundle(_url, 0, 0);
+            /*var request = new UnityWebRequest(
                 _url,
                 "GET",
                 new AssetBundleDownloadHandler(_bootstrapper, _url),
-                null);
-            
+                null);*/
+
             request.SendWebRequest();
             while (!request.isDone)
             {
@@ -228,16 +232,25 @@ namespace CreateAR.SpirePlayer.Assets
                 token.Succeed(request.assetBundle);
 #else           
                 // wait for bundle to complete
-                var handler = (AssetBundleDownloadHandler) request.downloadHandler;
+                /*var handler = (AssetBundleDownloadHandler) request.downloadHandler;
                 handler
                     .OnReady
                     .OnSuccess(bundle =>
                     {
-                        _cache.Save(_url, handler.data);
+                        //_cache.Save(_url, handler.data);
 
                         token.Succeed(bundle);
                     })
-                    .OnFailure(token.Fail);
+                    .OnFailure(token.Fail);*/
+                var bundle = DownloadHandlerAssetBundle.GetContent(request);
+                if (null == bundle)
+                {
+                    token.Fail(new Exception(request.error));
+                }
+                else
+                {
+                    token.Succeed(bundle);
+                }
 #endif
             }
 

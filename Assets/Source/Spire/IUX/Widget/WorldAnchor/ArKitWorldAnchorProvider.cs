@@ -11,7 +11,10 @@ namespace CreateAR.SpirePlayer.IUX
     public class ArKitWorldAnchorProvider : IWorldAnchorProvider
     {
         /// <inheritdoc />
-        public IAsyncToken<Void> Initialize()
+        public bool IsImporting { get; }
+
+        /// <inheritdoc />
+        public IAsyncToken<Void> Initialize(IAppSceneManager scenes)
         {
             throw new NotImplementedException();
         }
@@ -24,6 +27,12 @@ namespace CreateAR.SpirePlayer.IUX
 
         /// <inheritdoc />
         public void UnAnchor(GameObject gameObject)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public void ClearAllAnchors()
         {
             throw new NotImplementedException();
         }

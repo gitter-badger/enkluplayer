@@ -298,7 +298,7 @@ namespace CreateAR.SpirePlayer.IUX
                 
                 return;
             }
-
+            
             // see if the provider can anchor this version
             var providerId = GetAnchorProviderId(Id, version);
             _anchorToken = _provider
@@ -443,7 +443,8 @@ namespace CreateAR.SpirePlayer.IUX
                         txns
                             .Request(new ElementTxn(sceneId)
                                 .Update(Id, "src", url)
-                                .Update(Id, "version", _versionProp.Value + 1))
+                                .Update(Id, "version", _versionProp.Value + 1)
+                                .Update(Id, "autoexport", false))
                             .OnSuccess(_ => _pollStatus = true)
                             .OnFailure(exception =>
                             {

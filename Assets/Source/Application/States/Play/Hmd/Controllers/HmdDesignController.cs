@@ -330,7 +330,7 @@ namespace CreateAR.SpirePlayer
                     _staticRoot);
             }
 
-            //initialize reference object
+            // initialize reference object
             SetupReferenceObject();
 
             // start initial state
@@ -381,9 +381,8 @@ namespace CreateAR.SpirePlayer
             _float.Destroy();
             _staticRoot.Destroy();
 
+            Object.Destroy(_referenceObject);
             Object.Destroy(_root);
-
-            // hierarchy rendering
             Object.Destroy(Camera.main.gameObject.GetComponent<HierarchyLineRenderer>());
         }
 
@@ -393,6 +392,8 @@ namespace CreateAR.SpirePlayer
         private void SetupPlay()
         {
             _setupEdit = false;
+
+            _primaryAnchor.Setup();
 
             _voice.Register("menu", Voice_OnPlayMenu);
             _voice.Register("edit", Voice_OnEdit);
@@ -409,6 +410,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void TeardownPlay()
         {
+            _primaryAnchor.Teardown();
+
             _voice.Unregister("menu");
             _voice.Unregister("edit");
 
@@ -508,11 +511,23 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">The command.</param>
         private void Voice_OnEdit(string command)
         {
-            Log.Info(this, "Voice command starting edit mode.");
+            int id;
+            _ui
+                .Open<ConfirmationUIView>(new UIReference
+                {
+                    UIDataId = "Common.Confirmation"
+                }, out id)
+                .OnSuccess(el =>
+                {
+                    el.Message = "Are you sure you want to enter edit mode? This is for administrators only.";
+                    el.OnConfirm += () =>
+                    {
+                        _config.Play.Edit = true;
 
-            _config.Play.Edit = true;
-
-            _messages.Publish(MessageTypes.LOAD_APP);
+                        _messages.Publish(MessageTypes.LOAD_APP);
+                    };
+                    el.OnCancel += () => _ui.Close(id);
+                });
         }
 
         /// <summary>
@@ -521,8 +536,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">The command.</param>
         private void Voice_OnPlay(string command)
         {
-            Log.Info(this, "Voice command starting edit mode.");
-
             _config.Play.Edit = false;
 
             _messages.Publish(MessageTypes.LOAD_APP);

@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -33,7 +32,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Handles metrics.
         /// </summary>
         private readonly IMetricsService _metrics;
-
+        
         /// <summary>
         /// Queue of actions to run on the main thread.
         /// </summary>
@@ -65,9 +64,20 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private bool _isWatching;
 
-        private bool _isProcessing;
+        /// <summary>
+        /// True iff a queued action is currently being processed.
+        /// </summary>
+        private bool _isProcessingQueues;
 
+        /// <summary>
+        /// HoloLens API.
+        /// </summary>
         private WorldAnchorStore _store;
+
+        /// <summary>
+        /// Manages all scenes.
+        /// </summary>
+        private IAppSceneManager _scenes;
 
         /// <summary>
         /// Constructor.
@@ -81,8 +91,10 @@ namespace CreateAR.SpirePlayer.IUX
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Initialize()
+        public IAsyncToken<Void> Initialize(IAppSceneManager scenes)
         {
+            _scenes = scenes;
+
             var token = new AsyncToken<Void>();
 
             WorldAnchorStore.GetAsync(store =>
@@ -123,7 +135,32 @@ namespace CreateAR.SpirePlayer.IUX
 
             return new AsyncToken<Void>(new Exception("No anchor by that id."));
         }
-        
+
+        /// <inheritdoc />
+        public void ClearAllAnchors()
+        {
+            if (null == _store)
+            {
+                Log.Warning(this, "Store is not yet loaded. This method must be called after Initialize has completed.");
+                return;
+            }
+
+            // kill all local anchors!
+            _store.Clear();
+
+            var anchors = new List<WorldAnchorWidget>();
+            foreach (var sceneId in _scenes.All)
+            {
+                anchors.Clear();
+                _scenes.Root(sceneId).Find("..(@type==WorldAnchorWidget)", anchors);
+
+                foreach (var anchor in anchors)
+                {
+                    anchor.Reload();
+                }
+            }
+        }
+
         /// <inheritdoc />
         public IAsyncToken<byte[]> Export(string id, GameObject gameObject)
         {
@@ -170,6 +207,8 @@ namespace CreateAR.SpirePlayer.IUX
             
             void Save()
             {
+                _isProcessingQueues = true;
+
                 Log.Info(this, "{0}::Saving anchor to local store.");
 
                 // save locally
@@ -184,6 +223,8 @@ namespace CreateAR.SpirePlayer.IUX
                     {
                         Log.Error(this, "{0}::Could not save anchor in local store!", id);
                         token.Fail(new Exception("Could not save in local store."));
+
+                        _isProcessingQueues = false;
                     }
                 }
                 else
@@ -259,6 +300,8 @@ namespace CreateAR.SpirePlayer.IUX
                             _exports.Remove(gameObject);
 
                             token.Succeed(compressed);
+
+                            _isProcessingQueues = false;
                         });
                     });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -284,13 +327,19 @@ namespace CreateAR.SpirePlayer.IUX
                         token.Fail(new Exception(string.Format(
                             "Could not export : {0}.",
                             reason)));
+
+                        _isProcessingQueues = false;
                     }
                 }
             };
-
+            
             if (anchor.isLocated)
             {
-                Save();
+                Log.Info(this, "Enqueue export.");
+
+                _exportQueue.Enqueue(Save);
+
+                ProcessQueues();
             }
             else
             {
@@ -300,7 +349,11 @@ namespace CreateAR.SpirePlayer.IUX
                     {
                         anchor.OnTrackingChanged -= OnTrackingChanged;
 
-                        Save();
+                        Log.Info(this, "Enqueue export.");
+
+                        _exportQueue.Enqueue(Save);
+
+                        ProcessQueues();
                     }
                 }
 
@@ -387,7 +440,7 @@ namespace CreateAR.SpirePlayer.IUX
                     }
 
                     // done processing
-                    _isProcessing = false;
+                    _isProcessingQueues = false;
                 }
 
                 // metrics
@@ -431,7 +484,7 @@ namespace CreateAR.SpirePlayer.IUX
             Log.Info(this, "{0}::Enqueued import.", id);
             _importQueue.Enqueue(QueuedImport);
 
-            ProcessImportQueue();
+            ProcessQueues();
 
             return token;
         }
@@ -449,19 +502,31 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Processes import queue.
         /// </summary>
-        private void ProcessImportQueue()
+        private void ProcessQueues()
         {
-            if (_isProcessing || 0 == _importQueue.Count)
+            if (_isProcessingQueues)
             {
                 return;
             }
 
-            _isProcessing = true;
+            if (0 == _importQueue.Count && 0 == _exportQueue.Count)
+            {
+                return;
+            }
+
+            _isProcessingQueues = true;
 
             Log.Info(this, "Processing next in queue.");
 
-            var next = _importQueue.Dequeue();
-            next();
+            // process imports first
+            if (_importQueue.Count > 0)
+            {
+                _importQueue.Dequeue()();
+            }
+            else
+            {
+                _exportQueue.Dequeue()();
+            }
         }
 
         /// <summary>
@@ -524,8 +589,8 @@ namespace CreateAR.SpirePlayer.IUX
                     _actionsReadBuffer.Clear();
                 }
 
-                ProcessImportQueue();
-
+                ProcessQueues();
+                
                 yield return null;
             }
 

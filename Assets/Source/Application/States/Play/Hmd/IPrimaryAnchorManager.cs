@@ -1,6 +1,5 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -15,7 +14,7 @@ namespace CreateAR.SpirePlayer
         WorldAnchorWidget.WorldAnchorStatus Status { get; }
         
         /// <summary>
-        /// Sets up the manager. Should be called after entering edit mode.
+        /// Sets up the manager.
         /// </summary>
         void Setup();
 

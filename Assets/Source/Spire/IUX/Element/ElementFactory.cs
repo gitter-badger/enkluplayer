@@ -374,7 +374,8 @@ namespace CreateAR.SpirePlayer.IUX
                         _tweens,
                         _colors,
                         _scripts,
-                        new ModelContentAssembler(_assets, _pools));
+                        new ModelContentAssembler(_assets, _pools),
+                        _provider);
                 }
                 case ElementTypes.TRANSITION_SCALE:
                 {

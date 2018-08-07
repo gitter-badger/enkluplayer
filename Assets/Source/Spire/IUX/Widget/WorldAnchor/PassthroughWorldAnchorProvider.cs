@@ -39,6 +39,12 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
+        public void ClearAllAnchors()
+        {
+            //
+        }
+
+        /// <inheritdoc />
         public IAsyncToken<byte[]> Export(string id, GameObject gameObject)
         {
             var token = new AsyncToken<byte[]>();
@@ -63,7 +69,10 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Initialize()
+        public bool IsImporting { get; }
+
+        /// <inheritdoc />
+        public IAsyncToken<Void> Initialize(IAppSceneManager scenes)
         {
             var token = new AsyncToken<Void>();
 
