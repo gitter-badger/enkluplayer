@@ -515,7 +515,7 @@ namespace CreateAR.SpirePlayer
             _ui
                 .Open<ConfirmationUIView>(new UIReference
                 {
-                    UIDataId = "Common.Confirmation"
+                    UIDataId = UIDataIds.CONFIRMATION
                 }, out id)
                 .OnSuccess(el =>
                 {
