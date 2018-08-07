@@ -38,7 +38,12 @@ namespace CreateAR.SpirePlayer
         /// Runtime gizmo system.
         /// </summary>
         private GameObject _runtimeGizmos;
-        
+
+        /// <summary>
+        /// Origin Reference Gameobject
+        /// </summary>
+        private GameObject _referenceObject;
+
         /// <summary>
         /// Props.
         /// </summary>
@@ -115,6 +120,9 @@ namespace CreateAR.SpirePlayer
                 _ambientIntensityProp.OnChanged += AmbientIntensity_OnChanged;
                 UpdateAmbientLighting();
             }
+
+            //initialize reference object
+            SetupReferenceObject();
 
             EditorObjectSelection.Instance.SelectionChanged += Editor_OnSelectionChanged;
         }
@@ -217,6 +225,26 @@ namespace CreateAR.SpirePlayer
                 new List<GameObject> { unityElement.GameObject },
                 false);
             EditorCamera.Instance.FocusOnSelection();
+        }
+
+        /// <summary>
+        /// Setup up a reference object for user to determine origin
+        /// </summary>
+        private void SetupReferenceObject()
+        {
+            var bounds = new Bounds(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
+            _referenceObject = new GameObject("ReferenceObject");
+            _referenceObject.transform.position = new Vector3(0, 0, 0);
+            _referenceObject.transform.rotation = Quaternion.identity;
+
+            var outline = _referenceObject.gameObject.GetComponent<ModelLoadingOutline>();
+            if (null == outline)
+            {
+                outline = _referenceObject.gameObject.AddComponent<ModelLoadingOutline>();
+                _referenceObject.gameObject.AddComponent<ReferenceObjectAxesRenderer>();
+            }
+
+            outline.Init(bounds);
         }
 
         /// <summary>

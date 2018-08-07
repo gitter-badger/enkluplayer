@@ -344,7 +344,7 @@ namespace CreateAR.SpirePlayer
         {
             var bounds = new Bounds(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
             _referenceObject = new GameObject("ReferenceObject");
-            _referenceObject.transform.position = new Vector3(0, 0, 2);
+            _referenceObject.transform.position = new Vector3(0, 0, 0);
             _referenceObject.transform.rotation = Quaternion.identity;
 
             var outline = _referenceObject.gameObject.GetComponent<ModelLoadingOutline>();
@@ -352,7 +352,6 @@ namespace CreateAR.SpirePlayer
             {
                 outline = _referenceObject.gameObject.AddComponent<ModelLoadingOutline>();
                 _referenceObject.gameObject.AddComponent<ReferenceObjectAxesRenderer>();
-
             }
 
             outline.Init(bounds);
