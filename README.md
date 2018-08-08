@@ -43,7 +43,21 @@ NSPhotoLibraryAddUsageDescription
 
 ##### HoloLens
 
-The HoloLens doesn't like our SSL certs, so we need to include our root cert in the app. Open `Package.appxmanifest` in VS. Under `Declarations`, add `ca_bundle.crt` with the Store Name `Root`.
+To enable crash logging, we add a small bit of code to the generated `App.cs` file:
+
+```csharp
+CoreApplication.UnhandledErrorDetected += (sender, eventArgs) =>
+{
+	try
+	{
+		eventArgs.UnhandledError.Propagate();
+	}
+	catch (Exception exception)
+	{
+		Log.Fatal(exception, exception);
+	}
+};
+```
 
 ### Event Flow
 
