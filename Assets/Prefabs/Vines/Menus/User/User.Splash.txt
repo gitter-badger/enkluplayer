@@ -7,7 +7,9 @@
 			id='menu-user'
 			header.padding=0.4
 			description.fontSize=50
-			showBackButton=true>
+			showBackButton=true
+			layout.radius=0.125
+			layout.degrees=155.0>
 		</Menu>
 	</Float>
 </Container>
