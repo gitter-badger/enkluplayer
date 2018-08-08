@@ -113,7 +113,7 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public static float Pitch(Vector3 direction)
         {
-            return Mathf.Atan2(direction.y, direction.ToXZ().magnitude);
+            return Mathf.Atan2(direction.y, direction.ToXz().magnitude);
         }
 
         /// <summary>

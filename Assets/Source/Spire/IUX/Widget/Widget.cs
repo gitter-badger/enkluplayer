@@ -48,7 +48,6 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<LayerMode> _layerModeProp;
         private ElementSchemaProp<bool> _autoDestroyProp;
         private ElementSchemaProp<string> _faceProp;
-        private ElementSchemaProp<bool> _lockedProp;
 
         /// <summary>
         /// Cached virtual color.
@@ -353,10 +352,7 @@ namespace CreateAR.SpirePlayer.IUX
             _faceProp = Schema.GetOwn("face", string.Empty);
             _faceProp.OnChanged += Face_OnChanged;
             UpdateFace(_faceProp.Value);
-            _lockedProp = Schema.GetOwn("locked", true);
-            _lockedProp.OnChanged += Locked_OnChanged;
-            UpdateCollider(_lockedProp.Value);
-
+            
             GameObject.name = ToString();
 
             UpdateTransform();
@@ -390,8 +386,7 @@ namespace CreateAR.SpirePlayer.IUX
             _localPositionProp.OnChanged -= LocalPosition_OnChanged;
             _virtualColorProp.OnChanged -= VirtualColor_OnChanged;
             _faceProp.OnChanged -= Face_OnChanged;
-            _lockedProp.OnChanged -= Locked_OnChanged;
-
+            
             Object.Destroy(GameObject);
             GameObject = null;
 
@@ -676,19 +671,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             _faceComponent.Face(facePropValue);
         }
-
-        /// <summary>
-        /// Updates the EditCollider.
-        /// </summary>
-        /// <param name="isLocked">True iff this object is no longer editable.</param>
-        private void UpdateCollider(bool isLocked)
-        {
-            if (null != EditCollider)
-            {
-                EditCollider.enabled = !isLocked;
-            }
-        }
-
+        
         /// <summary>
         /// Called when the local position changes.
         /// </summary>
@@ -758,21 +741,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             UpdateFace(next);
         }
-
-        /// <summary>
-        /// Called when the locked property changes.
-        /// </summary>
-        /// <param name="prop">The current property.</param>
-        /// <param name="prev">The previous value.</param>
-        /// <param name="next">The next value.</param>
-        private void Locked_OnChanged(
-            ElementSchemaProp<bool> prop,
-            bool prev,
-            bool next)
-        {
-            UpdateCollider(next);
-        }
-
+        
         /// <summary>
         /// Called when the name prop changes.
         /// </summary>
