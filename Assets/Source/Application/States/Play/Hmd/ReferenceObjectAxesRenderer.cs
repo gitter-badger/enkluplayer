@@ -49,7 +49,6 @@ namespace CreateAR.SpirePlayer.IUX
         {
             GL.PushMatrix();
             {
-                GL.LoadProjectionMatrix(Camera.main.projectionMatrix);
                 GL.MultMatrix(transform.localToWorldMatrix);
                 GL.Begin(GL.LINES);
                 {
@@ -66,7 +65,7 @@ namespace CreateAR.SpirePlayer.IUX
                     //z-axis
                     GL.Color(Color.blue);
                     GL.Vertex(new Vector3(0, 0, 0));
-                    GL.Vertex(new Vector3(0, 0, -1));
+                    GL.Vertex(new Vector3(0, 0, 1));
                 }
                 GL.End();
             }
