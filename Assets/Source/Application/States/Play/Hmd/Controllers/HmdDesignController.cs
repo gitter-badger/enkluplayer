@@ -19,7 +19,6 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly ApplicationConfig _config;
-        private readonly IElementTxnManager _txns;
         private readonly IAppSceneManager _scenes;
         private readonly IElementUpdateDelegate _elementUpdater;
         private readonly IElementFactory _elements;
@@ -97,15 +96,7 @@ namespace CreateAR.SpirePlayer
         /// Controls the app.
         /// </summary>
         public IAppController App { get; private set; }
-
-        /// <summary>
-        /// Manages element transactions.
-        /// </summary>
-        public IElementTxnManager Txns
-        {
-            get { return _txns; }
-        }
-
+        
         /// <summary>
         /// Manages scenes.
         /// </summary>
@@ -119,7 +110,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public HmdDesignController(
             ApplicationConfig config,
-            IElementTxnManager txns,
             IAppSceneManager scenes,
             IElementUpdateDelegate elementUpdater,
             IElementFactory elements,
@@ -144,7 +134,6 @@ namespace CreateAR.SpirePlayer
             CreateNewAppDesignState createNewApp)
         {
             _config = config;
-            _txns = txns;
             _scenes = scenes;
             _elementUpdater = elementUpdater;
             _elements = elements;
@@ -514,7 +503,7 @@ namespace CreateAR.SpirePlayer
             _ui
                 .Open<ConfirmationUIView>(new UIReference
                 {
-                    UIDataId = "Common.Confirmation"
+                    UIDataId = UIDataIds.CONFIRMATION
                 }, out id)
                 .OnSuccess(el =>
                 {

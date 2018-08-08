@@ -67,6 +67,11 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        /// Handles voice commands.
+        /// </summary>
+        private readonly IVoiceCommandManager _voice;
+
+        /// <summary>
         /// Status.
         /// </summary>
         private int _connectionStatusId = -1;
@@ -113,7 +118,8 @@ namespace CreateAR.SpirePlayer
             IArService ar,
             IUIManager ui,
             IConnection connection,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            IVoiceCommandManager voice)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -124,6 +130,7 @@ namespace CreateAR.SpirePlayer
             _ui = ui;
             _connection = connection;
             _messages = messages;
+            _voice = voice;
         }
 
         /// <inheritdoc />
@@ -163,6 +170,9 @@ namespace CreateAR.SpirePlayer
             // watch loading
             _app.OnReady += App_OnReady;
 
+            // listen for reset command
+            _voice.Register("reset", Voice_OnReset);
+
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
@@ -190,6 +200,9 @@ namespace CreateAR.SpirePlayer
             // unsubscribe from critical errors
             _criticalErrorUnsub();
             _criticalErrorId = -1;
+
+            // stop listening for reset
+            _voice.Unregister("reset");
 
             // stop watching loads
             _app.OnReady -= App_OnReady;
@@ -316,6 +329,27 @@ namespace CreateAR.SpirePlayer
         private void App_OnReady()
         {
             _ui.Close(_loadingScreenId);
+        }
+
+        /// <summary>
+        /// Called when the reset command is recognized.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnReset(string command)
+        {
+            int id;
+            _ui
+                .Open<ConfirmationUIView>(new UIReference
+                {
+                    UIDataId = UIDataIds.CONFIRMATION
+                }, out id)
+                .OnSuccess(el =>
+                {
+                    el.Message = "Are you sure you want to exit the application?";
+                    el.OnConfirm += UnityEngine.Application.Quit;
+                    el.OnCancel += () => _ui.Close(id);
+                })
+                .OnFailure(ex => Log.Error(this, "Could not open reset confirmation popup : {0}", ex));
         }
     }
 }

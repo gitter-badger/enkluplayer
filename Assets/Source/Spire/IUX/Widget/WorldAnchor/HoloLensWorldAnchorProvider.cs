@@ -78,7 +78,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Manages all scenes.
         /// </summary>
         private IAppSceneManager _scenes;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -94,25 +94,13 @@ namespace CreateAR.SpirePlayer.IUX
         public IAsyncToken<Void> Initialize(IAppSceneManager scenes)
         {
             _scenes = scenes;
-
-            var token = new AsyncToken<Void>();
-
-            WorldAnchorStore.GetAsync(store =>
-            {
-                _store = store;
-
-                RetainWatcher();
-                Synchronize(() =>
-                {
-                    ReleaseWatcher();
-
-                    token.Succeed(Void.Instance);
-                });
-            });
-
-            return token;
+            
+            // listen for tracking loss event
+            WorldManager.OnPositionalLocatorStateChanged += WorldManager_OnPositionalLocatorStateChanged;
+            
+            return LoadStore().Token();
         }
-
+        
         /// <inheritdoc />
         public IAsyncToken<Void> Anchor(string id, GameObject gameObject)
         {
@@ -500,6 +488,24 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Loads the anchor store.
+        /// </summary>
+        /// <returns></returns>
+        private AsyncToken<Void> LoadStore()
+        {
+            var token = new AsyncToken<Void>();
+
+            WorldAnchorStore.GetAsync(store =>
+            {
+                _store = store;
+
+                token.Succeed(Void.Instance);
+            });
+
+            return token;
+        }
+
+        /// <summary>
         /// Processes import queue.
         /// </summary>
         private void ProcessQueues()
@@ -622,6 +628,40 @@ namespace CreateAR.SpirePlayer.IUX
 
             // listen
             anchor.OnTrackingChanged += handler;
+        }
+
+        /// <summary>
+        /// Called when locator state changes.
+        /// </summary>
+        private void WorldManager_OnPositionalLocatorStateChanged(
+            PositionalLocatorState oldstate,
+            PositionalLocatorState newstate)
+        {
+            if (newstate == PositionalLocatorState.Active)
+            {
+                Log.Info(this, "Positional tracking switched to active. Attempting to reload store.");
+
+                // reload store
+                LoadStore()
+                    .OnSuccess(_ =>
+                    {
+                        Log.Info(this, "Reloaded store. Beginning to reload elements.");
+
+                        // reload anchors
+                        var anchors = new List<WorldAnchorWidget>();
+                        for (var i = 0; i < _scenes.All.Length; i++)
+                        {
+                            var sceneId = _scenes.All[i];
+                            _scenes.Root(sceneId).Find("..(@type==WorldAnchorWidget)", anchors);
+
+                            for (var j = 0; j < anchors.Count; j++)
+                            {
+                                anchors[j].Reload();
+                            }
+                        }
+                    })
+                    .OnFailure(ex => Log.Error(this, "Could not load anchor store : {0}.", ex));
+            }
         }
     }
 }

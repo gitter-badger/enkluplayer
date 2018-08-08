@@ -99,6 +99,11 @@ namespace CreateAR.SpirePlayer
         private readonly Dictionary<int, SurfaceRecord> _surfaces = new Dictionary<int, SurfaceRecord>();
 
         /// <summary>
+        /// List of anchors in scene.
+        /// </summary>
+        private readonly List<WorldAnchorWidget> _anchors = new List<WorldAnchorWidget>();
+
+        /// <summary>
         /// Callbacks for ready.
         /// </summary>
         private readonly List<Action> _onReady = new List<Action>();
@@ -147,8 +152,6 @@ namespace CreateAR.SpirePlayer
         /// Caption on UI.
         /// </summary>
         private CaptionWidget _cpn;
-
-        private readonly List<WorldAnchorWidget> _anchors = new List<WorldAnchorWidget>();
 
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
@@ -258,57 +261,7 @@ namespace CreateAR.SpirePlayer
                 }
             });
         }
-
-        private void OpenStatusUI()
-        {
-            _rootUI = _elements.Element(@"
-<?Vine>
-<Screen distance=3.8>
-    <Caption id='cpn' position=(0, 0.4, 0) label='Locating anchors.' width=1200.0 alignment='MidCenter' fontSize=100 />
-</Screen>");
-            _cpn = _rootUI.FindOne<CaptionWidget>("..cpn");
-
-            _bootstrapper.BootstrapCoroutine(UpdateStatusUI());
-        }
-
-        private IEnumerator UpdateStatusUI()
-        {
-            AreAllAnchorsReady = false;
-
-            while (null != _cpn)
-            {
-                if (Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
-                {
-                    _cpn.Label = "Locating primary anchor...";
-                }
-                else
-                {
-                    var count = _anchors.Count(anchor => anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated && anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated);
-                    if (0 == count)
-                    {
-                        AreAllAnchorsReady = true;
-                        CloseStatusUI();
-                    }
-                    else
-                    {
-                        _cpn.Label = string.Format("Processing {0} anchor(s).", count);
-                    }
-                }
-
-                yield return null;
-            }
-        }
-
-        private void CloseStatusUI()
-        {
-            if (null != _rootUI)
-            {
-                _rootUI.Destroy();
-                _rootUI = null;
-                _cpn = null;
-            }
-        }
-
+        
         /// <inheritdoc />
         public void Teardown()
         {
@@ -452,6 +405,90 @@ namespace CreateAR.SpirePlayer
                     SetupMeshScan(true);
                 })
                 .OnFailure(exception => Log.Error(this, "Could not create primary anchor : {0}", exception));
+        }
+
+        /// <summary>
+        /// Opens the status UI.
+        /// </summary>
+        private void OpenStatusUI()
+        {
+            _rootUI = _elements.Element(@"
+<?Vine>
+<Screen distance=3.8>
+    <Caption id='cpn' position=(0, 0.4, 0) label='Locating anchors.' width=1200.0 alignment='MidCenter' fontSize=100 />
+</Screen>");
+            _cpn = _rootUI.FindOne<CaptionWidget>("..cpn");
+
+            _bootstrapper.BootstrapCoroutine(UpdateStatusUI());
+        }
+
+        /// <summary>
+        /// Updates the status UI every frame.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator UpdateStatusUI()
+        {
+            AreAllAnchorsReady = false;
+
+            while (null != _cpn)
+            {
+                if (Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+                {
+                    switch (Status)
+                    {
+                        case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
+                        {
+                            _cpn.Label = "Primary anchor loaded and imported but not locating... Are you sure you're in the right space?";
+                            break;
+                        }
+                        case WorldAnchorWidget.WorldAnchorStatus.IsError:
+                        {
+                            _cpn.Label = "Primary anchor is in an error state. Try reloading the experience.";
+                            break;
+                        }
+                        case WorldAnchorWidget.WorldAnchorStatus.IsImporting:
+                        {
+                            _cpn.Label = "Primary anchor is importing.";
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    var count = _anchors.Count(anchor => anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated && anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated);
+                    if (0 == count)
+                    {
+                        AreAllAnchorsReady = true;
+                        CloseStatusUI();
+                    }
+                    else
+                    {
+                        if (_anchors.Any(anchor => anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError))
+                        {
+                            _cpn.Label = "One of the anchors is in an error state.";
+                        }
+                        else
+                        {
+                            _cpn.Label = string.Format("Importing {0} anchor(s).", count);
+                        }
+                    }
+                }
+
+                yield return null;
+            }
+        }
+
+        /// <summary>
+        /// Closes the status UI.
+        /// </summary>
+        private void CloseStatusUI()
+        {
+            if (null != _rootUI)
+            {
+                _rootUI.Destroy();
+                _rootUI = null;
+                _cpn = null;
+            }
         }
 
         /// <summary>
