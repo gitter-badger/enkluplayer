@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
@@ -14,9 +15,14 @@ namespace CreateAR.SpirePlayer.Assets
     public class StandardAssetLoader : IAssetLoader
     {
         /// <summary>
+        /// Max current downloads allowed.
+        /// </summary>
+        private const int MAX_CONCURRENT = 1;
+
+        /// <summary>
         /// PRNG.
         /// </summary>
-        private static readonly Random _prng = new Random();
+        private static readonly Random _Prng = new Random();
 
         /// <summary>
         /// Network configuration.
@@ -29,14 +35,19 @@ namespace CreateAR.SpirePlayer.Assets
         private readonly IBootstrapper _bootstrapper;
         
         /// <summary>
-        /// Cache for bundles.
-        /// </summary>
-        private readonly IAssetBundleCache _cache;
-        
-        /// <summary>
         /// URI to loader.
         /// </summary>
         private readonly Dictionary<string, AssetBundleLoader> _bundles = new Dictionary<string, AssetBundleLoader>();
+
+        /// <summary>
+        /// Download queue.
+        /// </summary>
+        private readonly Queue<Action> _queue = new Queue<Action>();
+
+        /// <summary>
+        /// Number of downloads in progress right now.
+        /// </summary>
+        private int _numDownloads;
 
         /// <inheritdoc />
         public UrlFormatterCollection Urls { get; private set; }
@@ -47,16 +58,16 @@ namespace CreateAR.SpirePlayer.Assets
         public StandardAssetLoader(
             ApplicationConfig config,
             IBootstrapper bootstrapper,
-            IAssetBundleCache cache,
             UrlFormatterCollection urls)
         {
             _config = config;
             _bootstrapper = bootstrapper;
-            _cache = cache;
-
+            
             Urls = urls;
-        }
 
+            _bootstrapper.BootstrapCoroutine(ProcessQueue());
+        }
+        
         /// <inheritdoc />
         public IAsyncToken<Object> Load(
             AssetData data,
@@ -66,32 +77,49 @@ namespace CreateAR.SpirePlayer.Assets
             var failChance = _config.Network.AssetDownloadFailChance;
             if (failChance > Mathf.Epsilon)
             {
-                if (_prng.NextDouble() < failChance)
+                if (_Prng.NextDouble() < failChance)
                 {
                     progress = new LoadProgress();
                     return new AsyncToken<Object>(new Exception("Random failure configured by ApplicationConfig."));
                 }
             }
-
-            // strip off file name
+            
             var substrings = data.Uri.Split('/');
             var url = Urls.Url("assets://" + substrings[substrings.Length - 1]);
+            var externalProgress = progress = new LoadProgress();
 
-            AssetBundleLoader loader;
-            if (!_bundles.TryGetValue(url, out loader))
+            var token = new AsyncToken<Object>();
+
+            Action startLoad = () =>
             {
-                loader = _bundles[url] = new AssetBundleLoader(
-                    _config.Network,
-                    _bootstrapper,
-                    _cache,
-                    url);
-                loader.Load();
-            }
+                _numDownloads++;
 
-            // AssetImportServer uses the Guid
-            return loader.Asset(data.Guid, out progress);
+                AssetBundleLoader loader;
+                if (!_bundles.TryGetValue(url, out loader))
+                {
+                    loader = _bundles[url] = new AssetBundleLoader(
+                        _config.Network,
+                        _bootstrapper,
+                        url);
+                    loader.Load();
+                }
+
+                // AssetImportServer uses the Guid
+                LoadProgress internalProgress;
+                loader
+                    .Asset(data.Guid, out internalProgress)
+                    .OnSuccess(token.Succeed)
+                    .OnFailure(token.Fail)
+                    .OnFinally(_ => _numDownloads--);
+
+                internalProgress.Chain(externalProgress);
+            };
+
+            _queue.Enqueue(startLoad);
+            
+            return token;
         }
-
+        
         /// <inheritdoc />
         public void Destroy()
         {
@@ -100,6 +128,25 @@ namespace CreateAR.SpirePlayer.Assets
                 pair.Value.Destroy();
             }
             _bundles.Clear();
+        }
+
+        /// <summary>
+        /// Checks the queue every frame. We wait for frame updates rather
+        /// than immediately moving to the next in the queue so that we can
+        /// ensure WebGL GC can have a chance to eval.
+        /// </summary>
+        private IEnumerator ProcessQueue()
+        {
+            // runs for the lifetime of the application
+            while (true)
+            {
+                while (_numDownloads < MAX_CONCURRENT && _queue.Count > 0)
+                {
+                    _queue.Dequeue()();
+                }
+
+                yield return true;
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -56,13 +57,31 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Checks two vectors for equality.
+        /// </summary>
+        public static bool Approximately(this Vector3 lhs, Vec3 rhs)
+        {
+            return lhs.Approximately(rhs, Mathf.Epsilon);
+        }
+
+        /// <summary>
         /// Check two vectors for equality using an epsilon.
         /// </summary>
         public static bool Approximately(this Vector3 lhs, Vector3 rhs, float epsilon)
         {
-            var delta = lhs - rhs;
-            var deltaMagSqr = delta.sqrMagnitude;
-            return deltaMagSqr < epsilon;
+            return Math.Abs(lhs.x - rhs.x) < epsilon
+                && Math.Abs(lhs.y - rhs.y) < epsilon
+                && Math.Abs(lhs.z - rhs.z) < epsilon;
+        }
+
+        /// <summary>
+        /// Check two vectors for equality using an epsilon.
+        /// </summary>
+        public static bool Approximately(this Vector3 lhs, Vec3 rhs, float epsilon)
+        {
+            return Math.Abs(lhs.x - rhs.x) < epsilon
+                && Math.Abs(lhs.y - rhs.y) < epsilon
+                && Math.Abs(lhs.z - rhs.z) < epsilon;
         }
 
         /// <summary>
@@ -70,7 +89,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="vector"></param>
         /// <returns></returns>
-        public static Vector2 ToXZ(this Vector3 vector)
+        public static Vector2 ToXz(this Vector3 vector)
         {
             return new Vector2(vector.x, vector.z);
         }
@@ -110,8 +129,6 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Perpendicular Vector
         /// </summary>
-        /// <param name="@this"></param>
-        /// <returns></returns>
         public static Vector2 Perpendicular(this Vector2 @this)
         {
             return new Vector2(@this.y, -(@this.x));

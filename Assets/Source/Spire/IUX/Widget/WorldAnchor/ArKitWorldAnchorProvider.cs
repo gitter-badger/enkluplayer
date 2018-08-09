@@ -11,7 +11,7 @@ namespace CreateAR.SpirePlayer.IUX
     public class ArKitWorldAnchorProvider : IWorldAnchorProvider
     {
         /// <inheritdoc />
-        public bool IsImporting { get; }
+        public bool IsImporting { get; private set; }
 
         /// <inheritdoc />
         public IAsyncToken<Void> Initialize(IAppSceneManager scenes)

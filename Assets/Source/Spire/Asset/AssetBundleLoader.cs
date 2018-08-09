@@ -4,7 +4,6 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
-using UnityEngine.Networking;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.SpirePlayer.Assets
@@ -24,11 +23,6 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
         
-        /// <summary>
-        /// Caches bundles.
-        /// </summary>
-        private readonly IAssetBundleCache _cache;
-
         /// <summary>
         /// The URL being loaded.
         /// </summary>
@@ -60,12 +54,10 @@ namespace CreateAR.SpirePlayer.Assets
         public AssetBundleLoader(
             NetworkConfig config,
             IBootstrapper bootstrapper,
-            IAssetBundleCache cache,
             string url)
         {
             _config = config;
             _bootstrapper = bootstrapper;
-            _cache = cache;
             _url = url;
         }
 
@@ -91,27 +83,6 @@ namespace CreateAR.SpirePlayer.Assets
         /// </summary>
         public void Load()
         {
-            // check cache
-            /*
-            Verbose("Checking cache.");
-            
-            if (Math.Abs(_config.AssetDownloadLagSec) < Mathf.Epsilon
-                && _cache.Contains(_url))
-            {
-                Verbose("Cache hit.");
-
-                LoadProgress progress;
-                _bundleLoad = _cache.Load(_url, out progress);
-                
-                progress.Chain(Progress);
-            }
-            else
-            {
-                Verbose("Cache miss.");
-                
-                _bootstrapper.BootstrapCoroutine(DownloadBundle());
-            }*/
-
             _bootstrapper.BootstrapCoroutine(DownloadBundle());
         }
 
@@ -185,7 +156,7 @@ namespace CreateAR.SpirePlayer.Assets
                 yield break;
             }
 
-#if !NETFX_CORE
+#if FALSE && !NETFX_CORE
             Verbose("Download bundle from {0}.", _url);
             
             var request = WWW.LoadFromCacheOrDownload(
@@ -193,12 +164,7 @@ namespace CreateAR.SpirePlayer.Assets
                 0);
             yield return request;
 #else
-            var request = UnityWebRequestAssetBundle.GetAssetBundle(_url, 0, 0);
-            /*var request = new UnityWebRequest(
-                _url,
-                "GET",
-                new AssetBundleDownloadHandler(_bootstrapper, _url),
-                null);*/
+            var request = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle(_url, 0, 0);
 
             request.SendWebRequest();
             while (!request.isDone)
@@ -228,21 +194,11 @@ namespace CreateAR.SpirePlayer.Assets
             }
             else
             {
-#if !NETFX_CORE
+#if FALSE && !NETFX_CORE
                 token.Succeed(request.assetBundle);
 #else           
                 // wait for bundle to complete
-                /*var handler = (AssetBundleDownloadHandler) request.downloadHandler;
-                handler
-                    .OnReady
-                    .OnSuccess(bundle =>
-                    {
-                        //_cache.Save(_url, handler.data);
-
-                        token.Succeed(bundle);
-                    })
-                    .OnFailure(token.Fail);*/
-                var bundle = DownloadHandlerAssetBundle.GetContent(request);
+                var bundle = UnityEngine.Networking.DownloadHandlerAssetBundle.GetContent(request);
                 if (null == bundle)
                 {
                     token.Fail(new Exception(request.error));
