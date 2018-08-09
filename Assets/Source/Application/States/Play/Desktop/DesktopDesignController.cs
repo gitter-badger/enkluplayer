@@ -207,8 +207,7 @@ namespace CreateAR.SpirePlayer
             if (!updater.OnCanBeSelected(null))
             {
                 return;
-
-
+            }
 
             EditorObjectSelection.Instance.ClearSelection(false);
             EditorObjectSelection.Instance.SetSelectedObjects(
