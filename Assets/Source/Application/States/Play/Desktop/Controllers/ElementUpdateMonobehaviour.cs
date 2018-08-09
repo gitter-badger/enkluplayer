@@ -1,5 +1,4 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using RTEditor;
 using UnityEngine;
@@ -58,21 +57,28 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public bool OnCanBeSelected(ObjectSelectEventArgs selectEventArgs)
         {
-            if (_lockedProp.Value)
+            if (IsLocked())
             {
                 return false;
             }
 
-            // search up hierarchy
-            var parent = Element.Parent;
-            while (null != parent)
+            // special handling for world anchors
+            var anchor = Element as WorldAnchorWidget;
+            if (null != anchor)
             {
-                if (parent.Schema.Get<bool>("locked").Value)
+                // exported anchors cannot be selected
+                var src = Element.Schema.GetOwn("src", "").Value;
+                if (!string.IsNullOrEmpty(src))
                 {
                     return false;
                 }
 
-                parent = parent.Parent;
+                // anchors that are currently exporting cannot be selected
+                var exportTime = Element.Schema.GetOwn("export.time", "").Value;
+                if (!string.IsNullOrEmpty(exportTime))
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -158,6 +164,31 @@ namespace CreateAR.SpirePlayer
             {
                 _delegate.FinalizeUpdate(Element);
             }
+        }
+
+        /// <summary>
+        /// Returns true iff the element or any ancestor of the element is locked.
+        /// </summary>
+        private bool IsLocked()
+        {
+            if (_lockedProp.Value)
+            {
+                return true;
+            }
+
+            // search up hierarchy
+            var parent = Element.Parent;
+            while (null != parent)
+            {
+                if (parent.Schema.Get<bool>("locked").Value)
+                {
+                    return true;
+                }
+
+                parent = parent.Parent;
+            }
+
+            return false;
         }
     }
 }
