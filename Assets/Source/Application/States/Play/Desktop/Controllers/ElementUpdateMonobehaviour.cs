@@ -81,16 +81,12 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void OnSelected(ObjectSelectEventArgs selectEventArgs)
         {
-            Log.Info(this, "Selected.");
-
             _lastAlterTime = _lastUpdateTime = DateTime.Now;
         }
 
         /// <inheritdoc />
         public void OnDeselected(ObjectDeselectEventArgs deselectEventArgs)
         {
-            Log.Info(this, "Deselected.");
-
             _lastAlterTime = _lastUpdateTime = DateTime.Now;
 
             UpdateDelegate();
