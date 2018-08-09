@@ -183,8 +183,21 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            Log.Info(this, "Selecting {0}.", unityElement.GameObject);
-            
+            var updater = unityElement.GameObject.GetComponent<ElementUpdateMonobehaviour>();
+            if (null == updater)
+            {
+                Log.Error(this,
+                    "Selected element is in a bad state and does not have ElementUpdateMonoBehaviour : {0}",
+                    elementId);
+                return;
+            }
+
+            // do nothing if this cannot be selected anyway
+            if (!updater.OnCanBeSelected(null))
+            {
+                return;
+            }
+ 
             EditorObjectSelection.Instance.ClearSelection(false);
             EditorObjectSelection.Instance.SetSelectedObjects(
                 new List<GameObject>{ unityElement.GameObject },
@@ -198,7 +211,7 @@ namespace CreateAR.SpirePlayer
             var scene = _scenes.Root(sceneId);
             if (null == scene)
             {
-                Log.Error(this, "Could not find scene root to select : {0}.", sceneId);
+                Log.Error(this, "Could not find scene root to focus on : {0}.", sceneId);
                 return;
             }
 
@@ -206,7 +219,7 @@ namespace CreateAR.SpirePlayer
             if (null == element)
             {
                 Log.Error(this,
-                    "Could not find element to select : {0}.",
+                    "Could not find element to focus on : {0}.",
                     elementId);
                 return;
             }
@@ -215,8 +228,23 @@ namespace CreateAR.SpirePlayer
             if (null == unityElement)
             {
                 Log.Error(this,
-                    "Selected element is not an IUnityElement : {0}.",
+                    "Focused element is not an IUnityElement : {0}.",
                     elementId);
+                return;
+            }
+
+            var updater = unityElement.GameObject.GetComponent<ElementUpdateMonobehaviour>();
+            if (null == updater)
+            {
+                Log.Error(this,
+                    "Focused element is in a bad state and does not have ElementUpdateMonoBehaviour : {0}",
+                    elementId);
+                return;
+            }
+
+            // do nothing if this cannot be selected anyway
+            if (!updater.OnCanBeSelected(null))
+            {
                 return;
             }
 

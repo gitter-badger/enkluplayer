@@ -27,6 +27,11 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Maxiumum amount of time we should wait for an export in the case that an export is already in progress by another user.
+        /// </summary>
+        private const double MAX_EXPORT_TIMEOUT = 120.0;
+
+        /// <summary>
         /// For downloading anchors.
         /// </summary>
         private readonly IHttpService _http;
@@ -154,20 +159,50 @@ namespace CreateAR.SpirePlayer.IUX
             _pollStatus = false;
             Status = WorldAnchorStatus.IsExporting;
 
-            var providerId = GetAnchorProviderId(Id, _versionProp.Value + 1);
-            _provider
-                .Export(providerId, GameObject)
-                .OnSuccess(bytes =>
+            // check if anchor is already being exported
+            var exportTime = Schema.GetOwn("export.time", "").Value;
+            if (!string.IsNullOrEmpty(exportTime))
+            {
+                var lastExportTime = DateTime.Parse(exportTime);
+                if (DateTime.UtcNow.Subtract(lastExportTime).TotalSeconds > MAX_EXPORT_TIMEOUT)
                 {
-                    Log.Info(this, "Successfully exported from provider with id {0}. Uploading.", providerId);
+                    Log.Info(this, "Attempted export while export is already underway.");
+                    return;
+                }
+            }
 
-                    ExportAnchorData(txns, appId, sceneId, bytes, 3);
+            // lock down
+            txns
+                .Request(new ElementTxn(sceneId).Update(Id, "export.time", DateTime.UtcNow.ToLongTimeString()))
+                .OnSuccess(_ =>
+                {
+                    var providerId = GetAnchorProviderId(Id, _versionProp.Value + 1);
+                    _provider
+                        .Export(providerId, GameObject)
+                        .OnSuccess(bytes =>
+                        {
+                            Log.Info(this, "Successfully exported from provider with id {0}. Uploading.", providerId);
+
+                            ExportAnchorData(txns, appId, sceneId, bytes, 3);
+                        })
+                        .OnFailure(exception =>
+                        {
+                            Log.Error(this,
+                                "Could not export anchor : {0}.",
+                                exception);
+
+                            txns
+                                .Request(new ElementTxn(sceneId).Update(Id, "export.time", ""))
+                                .OnFailure(ex => Log.Error(this,
+                                    "Locked anchor to export, but export failed and we were unable to unlock. Timeout will save the day : {0}",
+                                    exception));
+
+                            Status = WorldAnchorStatus.IsError;
+                        });
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this,
-                        "Could not export anchor : {0}.",
-                        exception);
+                    Log.Error(this, "Could not lock for export : {0}", exception);
 
                     Status = WorldAnchorStatus.IsError;
                 });
@@ -444,7 +479,8 @@ namespace CreateAR.SpirePlayer.IUX
                             .Request(new ElementTxn(sceneId)
                                 .Update(Id, "src", url)
                                 .Update(Id, "version", _versionProp.Value + 1)
-                                .Update(Id, "autoexport", false))
+                                .Update(Id, "autoexport", false)
+                                .Update(Id, "export.time", ""))
                             .OnSuccess(_ => _pollStatus = true)
                             .OnFailure(exception =>
                             {
