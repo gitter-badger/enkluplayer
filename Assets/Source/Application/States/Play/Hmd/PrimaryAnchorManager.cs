@@ -167,6 +167,12 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc />
+        public WorldAnchorWidget Anchor
+        {
+            get { return _primaryAnchor; }
+        }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -261,7 +267,7 @@ namespace CreateAR.SpirePlayer
                 }
             });
         }
-        
+
         /// <inheritdoc />
         public void Teardown()
         {
