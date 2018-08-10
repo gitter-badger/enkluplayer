@@ -127,18 +127,13 @@ namespace CreateAR.SpirePlayer
             var target = Log.Targets.OfType<CommandClientLogTarget>().FirstOrDefault();
             if (null == target)
             {
-                target = new CommandClientLogTarget(new DefaultLogFormatter
-                {
-                    Level = true,
-                    ObjectToString = true,
-                    Timestamp = true,
-                    TypeName = true
-                });
+                target = new CommandClientLogTarget(new ConductorLogFormatter());
 
                 Log.AddLogTarget(target);
-
-                target.Add(client);
             }
+
+            // make sure this client is added to the target
+            target.Add(client);
 
             // configure level
             string level;

@@ -233,6 +233,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="socket">The socket.</param>
         private void Socket_OnConnectionClosed(WebSocket socket)
         {
+            Log.Info(this, "Connection closed. Removing client.");
+
             _clients.Remove(socket);
         }
 
