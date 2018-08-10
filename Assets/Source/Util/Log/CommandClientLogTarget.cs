@@ -63,7 +63,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void OnLog(LogLevel level, object caller, string message)
         {
-            if (level > Filter)
+            if (level < Filter)
             {
                 return;
             }

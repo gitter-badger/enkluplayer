@@ -116,6 +116,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="client">The client.</param>
         private void Commands_OnLog(string command, ICommandClient client)
         {
+            Log.Info(this, "Received log command.");
+
             // log -l [Debug|...|Fatal] (Optional) --off (Optional)
             //
             // -l sets the log level for all clients.

@@ -207,7 +207,7 @@ namespace CreateAR.SpirePlayer
                         var message = record.Message;
 
                         // parse
-                        var substrings = message.Split(':');
+                        var substrings = message.Split(new [] { ' ' }, 2);
 
                         // handle
                         if (!_handlers.TryGetValue(substrings[0], out var handler))
