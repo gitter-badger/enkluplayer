@@ -430,6 +430,13 @@ namespace CreateAR.SpirePlayer
         {
             AreAllAnchorsReady = false;
 
+            if (null == _primaryAnchor)
+            {
+                AreAllAnchorsReady = true;
+                CloseStatusUI();
+                yield break;
+            }
+
             while (null != _cpn)
             {
                 if (Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
