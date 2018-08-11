@@ -104,7 +104,11 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get
             {
-                return true;
+                if (null != _handle)
+                {
+                    return _handle.Focused;
+                }
+                return false;
             }
             set
             {
@@ -121,11 +125,10 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     return _handle.GameObject.transform.position.ToVec();
                 }
-
                 return GameObject.transform.position.ToVec();
             }
         }
-        
+
         /// <inheritdoc />
         public Vec3 FocusScale
         {
@@ -152,7 +155,14 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc />
         public float Aim
         {
-            get { return 1f; }
+            get
+            {
+                if (null != _handle)
+                {
+                    return _handle.Aim;
+                }
+                return 1f;
+            }
         }
 
         /// <inheritdoc />
