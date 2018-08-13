@@ -27,6 +27,11 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Maxiumum amount of time we should wait for an export in the case that an export is already in progress by another user.
+        /// </summary>
+        private const double MAX_EXPORT_TIMEOUT = 120.0;
+
+        /// <summary>
         /// For downloading anchors.
         /// </summary>
         private readonly IHttpService _http;
@@ -154,20 +159,50 @@ namespace CreateAR.SpirePlayer.IUX
             _pollStatus = false;
             Status = WorldAnchorStatus.IsExporting;
 
-            var providerId = GetAnchorProviderId(Id, 0);
-            _provider
-                .Export(providerId, GameObject)
-                .OnSuccess(bytes =>
+            // check if anchor is already being exported
+            var exportTime = Schema.GetOwn("export.time", "").Value;
+            if (!string.IsNullOrEmpty(exportTime))
+            {
+                var lastExportTime = DateTime.Parse(exportTime);
+                if (DateTime.UtcNow.Subtract(lastExportTime).TotalSeconds > MAX_EXPORT_TIMEOUT)
                 {
-                    Log.Info(this, "Successfully exported. Uploading anchor.");
+                    Log.Info(this, "Attempted export while export is already underway.");
+                    return;
+                }
+            }
 
-                    ExportAnchorData(txns, appId, sceneId, bytes, 3);
+            // lock down
+            txns
+                .Request(new ElementTxn(sceneId).Update(Id, "export.time", DateTime.UtcNow.ToLongTimeString()))
+                .OnSuccess(_ =>
+                {
+                    var providerId = GetAnchorProviderId(Id, _versionProp.Value + 1);
+                    _provider
+                        .Export(providerId, GameObject)
+                        .OnSuccess(bytes =>
+                        {
+                            Log.Info(this, "Successfully exported from provider with id {0}. Uploading.", providerId);
+
+                            ExportAnchorData(txns, appId, sceneId, bytes, 3);
+                        })
+                        .OnFailure(exception =>
+                        {
+                            Log.Error(this,
+                                "Could not export anchor : {0}.",
+                                exception);
+
+                            txns
+                                .Request(new ElementTxn(sceneId).Update(Id, "export.time", ""))
+                                .OnFailure(ex => Log.Error(this,
+                                    "Locked anchor to export, but export failed and we were unable to unlock. Timeout will save the day : {0}",
+                                    exception));
+
+                            Status = WorldAnchorStatus.IsError;
+                        });
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this,
-                        "Could not export anchor : {0}.",
-                        exception);
+                    Log.Error(this, "Could not lock for export : {0}", exception);
 
                     Status = WorldAnchorStatus.IsError;
                 });
@@ -298,18 +333,21 @@ namespace CreateAR.SpirePlayer.IUX
                 
                 return;
             }
-
+            
             // see if the provider can anchor this version
+            var providerId = GetAnchorProviderId(Id, version);
             _anchorToken = _provider
-                .Anchor(GetAnchorProviderId(Id, Schema.Get<int>("version").Value), GameObject)
+                .Anchor(providerId, GameObject)
                 .OnSuccess(_ =>
                 {
+                    Log.Warning(this, "Provider was able to anchor without download.");
+
                     // done
                     _pollStatus = true;
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Warning(this, "Could not anchor : {0}", exception);
+                    Log.Warning(this, "Could not anchor {0} : {1}. Proceed to download and import.", providerId, exception);
                     
                     // anchor has not been imported before, apparently
                     DownloadAndImport(url);
@@ -364,30 +402,21 @@ namespace CreateAR.SpirePlayer.IUX
         {
             LogVerbose("Bytes available, starting import.");
 
-            var providerId = GetAnchorProviderId(Id, Schema.Get<int>("version").Value);
+            var providerId = GetAnchorProviderId(Id, _versionProp.Value);
+
+            Log.Info(this, "Bytes downloaded. Importing {0}.", providerId);
 
             _provider
-                .Import(providerId, bytes)
+                .Import(providerId, bytes, GameObject)
                 .OnSuccess(_ =>
                 {
-                    LogVerbose("Successfully imported anchor.");
+                    Log.Info(this, "Successfully imported anchor.");
 
-                    _provider
-                        .Anchor(providerId, GameObject)
-                        .OnSuccess(__ =>
-                        {
-                            _pollStatus = true;
-                        })
-                        .OnFailure(ex =>
-                        {
-                            LogVerbose("Could not get anchor after import: {0}", ex);
-
-                            Status = WorldAnchorStatus.IsError;
-                        });
+                    _pollStatus = true;
                 })
                 .OnFailure(exception =>
                 {
-                    LogVerbose(
+                    Log.Info(this,
                         "Could not import anchor : {0}.",
                         exception);
 
@@ -449,11 +478,13 @@ namespace CreateAR.SpirePlayer.IUX
                         txns
                             .Request(new ElementTxn(sceneId)
                                 .Update(Id, "src", url)
-                                .Update(Id, "version", _versionProp.Value + 1))
+                                .Update(Id, "version", _versionProp.Value + 1)
+                                .Update(Id, "autoexport", false)
+                                .Update(Id, "export.time", ""))
                             .OnSuccess(_ => _pollStatus = true)
                             .OnFailure(exception =>
                             {
-                                Log.Error(this, "Could not set src prop on anchor : {0}", exception);
+                                Log.Error(this, "Could not set src or version on anchor : {0}", exception);
 
                                 Status = WorldAnchorStatus.IsError;
                             });
@@ -502,6 +533,7 @@ namespace CreateAR.SpirePlayer.IUX
             int prev,
             int next)
         {
+            Log.Info(this, "Version updated from {0} -> {1}.", prev, next);
             UpdateWorldAnchor();
         }
 

@@ -68,6 +68,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="bounds">The bounds.</param>
         public void Init(Bounds bounds)
         {
+            if (null == BtnRefresh || !BtnRefresh.GameObject)
+            {
+                return;
+            }
+
             HideError();
 
             var trans = BtnRefresh.GameObject.transform;
@@ -107,7 +112,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Update()
         {
-            if (DeviceHelper.IsHoloLens())
+            if (DeviceHelper.IsHoloLens() && null != BtnRefresh && BtnRefresh.GameObject && Camera.current)
             {
                 BtnRefresh.GameObject.transform.forward = Camera.current.transform.forward;
                 BtnRefresh.Schema.Set("scale", new Vec3(

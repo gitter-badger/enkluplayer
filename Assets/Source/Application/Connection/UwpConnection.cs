@@ -219,27 +219,30 @@ namespace CreateAR.SpirePlayer
             MessageWebSocket sender,
             MessageWebSocketMessageReceivedEventArgs args)
         {
-            using (var reader = args.GetDataReader())
+            DataReader reader = null;
+            try
             {
+                reader = args.GetDataReader();
                 reader.UnicodeEncoding = UnicodeEncoding.Utf8;
 
-                try
-                {
-                    var message = reader.ReadString(reader.UnconsumedBufferLength);
+                var message = reader.ReadString(reader.UnconsumedBufferLength);
 
-                    LogVerbose("Received Message : {0}.", message);
+                LogVerbose("Received Message : {0}.", message);
 
-                    UnityEngine.WSA.Application.InvokeOnAppThread(() =>
-                    {
-                        _handler.OnMessage(message);
-                    }, false);
-                }
-                catch (Exception exception)
-                {
-                    LogVerbose(
-                        "Error reading message : {0}.",
-                        exception);
-                }
+                UnityEngine.WSA.Application.InvokeOnAppThread(
+                    () => _handler.OnMessage(message),
+                    false);
+            }
+            catch (Exception exception)
+            {
+                Log.Warning(
+                    this,
+                    "Socket OnMessageReceived Exception: {0}.",
+                    exception);
+            }
+            finally
+            {
+                reader?.Dispose();
             }
         }
 
@@ -266,7 +269,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Verbose logs.
         /// </summary>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void LogVerbose(string format, params object[] replacements)
         {
             Log.Info(this, format, replacements);

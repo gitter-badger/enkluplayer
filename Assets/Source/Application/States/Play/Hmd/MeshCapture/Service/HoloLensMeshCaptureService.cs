@@ -105,7 +105,7 @@ namespace CreateAR.SpirePlayer
             _surfaceObserver = new SurfaceObserver();
             _surfaceObserver.SetVolumeAsAxisAlignedBox(
                 _intention.Origin.ToVector(),
-                1000 * Vector3.one);
+                100000 * Vector3.one);
             _bootstrapper.BootstrapCoroutine(UpdateObserver());
 
             foreach (var surface in _surfaces.Values)
@@ -162,7 +162,13 @@ namespace CreateAR.SpirePlayer
             {
                 return;
             }
-            
+
+            Log.Info(this, "Surface changed : [{0}, {1}, {2}, {3}]",
+                surfaceId,
+                changeType,
+                bounds,
+                updateTime);
+
             switch (changeType)
             {
                 case SurfaceChange.Added:

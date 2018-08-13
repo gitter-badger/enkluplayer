@@ -19,7 +19,6 @@ namespace CreateAR.SpirePlayer
         /// Dependencies.
         /// </summary>
         private readonly ApplicationConfig _config;
-        private readonly IElementTxnManager _txns;
         private readonly IAppSceneManager _scenes;
         private readonly IElementUpdateDelegate _elementUpdater;
         private readonly IElementFactory _elements;
@@ -34,7 +33,7 @@ namespace CreateAR.SpirePlayer
         /// All states.
         /// </summary>
         private readonly IArDesignState[] _states;
-        
+
         /// <summary>
         /// Trellis API.
         /// </summary>
@@ -49,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// Root of controls.
         /// </summary>
         private GameObject _root;
-        
+
         /// <summary>
         /// Root float.
         /// </summary>
@@ -78,7 +77,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Origin Reference Gameobject
         /// </summary>
-        private GameObject _referenceObject;
+        private GameObject _referenceCube;
 
         /// <summary>
         /// Config for play mode.
@@ -99,14 +98,6 @@ namespace CreateAR.SpirePlayer
         public IAppController App { get; private set; }
 
         /// <summary>
-        /// Manages element transactions.
-        /// </summary>
-        public IElementTxnManager Txns
-        {
-            get { return _txns; }
-        }
-
-        /// <summary>
         /// Manages scenes.
         /// </summary>
         public IAppSceneManager Scenes
@@ -119,7 +110,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public HmdDesignController(
             ApplicationConfig config,
-            IElementTxnManager txns,
             IAppSceneManager scenes,
             IElementUpdateDelegate elementUpdater,
             IElementFactory elements,
@@ -144,7 +134,6 @@ namespace CreateAR.SpirePlayer
             CreateNewAppDesignState createNewApp)
         {
             _config = config;
-            _txns = txns;
             _scenes = scenes;
             _elementUpdater = elementUpdater;
             _elements = elements;
@@ -180,7 +169,7 @@ namespace CreateAR.SpirePlayer
             App = app;
 
             _root = new GameObject("Design");
-            
+
             if (UnityEngine.Application.isEditor)
             {
                 _root.AddComponent<HmdEditorKeyboardControls>();
@@ -193,7 +182,7 @@ namespace CreateAR.SpirePlayer
                 ShowFatalError();
                 return;
             }
-            
+
             if (context.Edit)
             {
                 SetupEdit();
@@ -235,7 +224,7 @@ namespace CreateAR.SpirePlayer
         {
             _fsm.Change<T>(context);
         }
-        
+
         /// <summary>
         /// Creates a scene.
         /// </summary>
@@ -263,7 +252,6 @@ namespace CreateAR.SpirePlayer
                                 {
                                     _elementUpdater.Active = sceneId;
                                 }
-
                                 token.Succeed(sceneId);
                             })
                             .OnFailure(token.Fail);*/
@@ -330,7 +318,7 @@ namespace CreateAR.SpirePlayer
                     _staticRoot);
             }
 
-            //initialize reference object
+            // initialize reference object
             SetupReferenceObject();
 
             // start initial state
@@ -343,19 +331,28 @@ namespace CreateAR.SpirePlayer
         private void SetupReferenceObject()
         {
             var bounds = new Bounds(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
-            _referenceObject = new GameObject("ReferenceObject");
-            _referenceObject.transform.position = new Vector3(0, 0, 2);
-            _referenceObject.transform.rotation = Quaternion.identity;
+            _referenceCube = new GameObject("ReferenceObject");
+            _referenceCube.transform.position = new Vector3(0, 0, 0);
+            _referenceCube.transform.rotation = Quaternion.identity;
 
-            var outline = _referenceObject.gameObject.GetComponent<ModelLoadingOutline>();
+            var outline = _referenceCube.gameObject.GetComponent<ModelLoadingOutline>();
             if (null == outline)
             {
-                outline = _referenceObject.gameObject.AddComponent<ModelLoadingOutline>();
-                _referenceObject.gameObject.AddComponent<ReferenceObjectAxesRenderer>();
-
+                outline = _referenceCube.gameObject.AddComponent<ModelLoadingOutline>();
+                _referenceCube.gameObject.AddComponent<ReferenceObjectAxesRenderer>();
             }
 
             outline.Init(bounds);
+
+            //Sets the reference object created as child of primary anchor if found
+            _primaryAnchor.OnPrimaryLocated(() => {
+                WorldAnchorWidget primaryAnchorWidget = _primaryAnchor.Anchor;
+                if (primaryAnchorWidget != null)
+                {
+                    _referenceCube.transform.SetParent(primaryAnchorWidget.GameObject.transform, false);
+                    Log.Info(this, "Reference cube added as child of primary anchor");
+                }
+            });
         }
 
         /// <summary>
@@ -381,9 +378,8 @@ namespace CreateAR.SpirePlayer
             _float.Destroy();
             _staticRoot.Destroy();
 
+            Object.Destroy(_referenceCube);
             Object.Destroy(_root);
-
-            // hierarchy rendering
             Object.Destroy(Camera.main.gameObject.GetComponent<HierarchyLineRenderer>());
         }
 
@@ -393,6 +389,8 @@ namespace CreateAR.SpirePlayer
         private void SetupPlay()
         {
             _setupEdit = false;
+
+            _primaryAnchor.Setup();
 
             _voice.Register("menu", Voice_OnPlayMenu);
             _voice.Register("edit", Voice_OnEdit);
@@ -409,6 +407,8 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void TeardownPlay()
         {
+            _primaryAnchor.Teardown();
+
             _voice.Unregister("menu");
             _voice.Unregister("edit");
 
@@ -508,11 +508,23 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">The command.</param>
         private void Voice_OnEdit(string command)
         {
-            Log.Info(this, "Voice command starting edit mode.");
+            int id;
+            _ui
+                .Open<ConfirmationUIView>(new UIReference
+                {
+                    UIDataId = UIDataIds.CONFIRMATION
+                }, out id)
+                .OnSuccess(el =>
+                {
+                    el.Message = "Are you sure you want to enter edit mode? This is for administrators only.";
+                    el.OnConfirm += () =>
+                    {
+                        _config.Play.Edit = true;
 
-            _config.Play.Edit = true;
-
-            _messages.Publish(MessageTypes.LOAD_APP);
+                        _messages.Publish(MessageTypes.LOAD_APP);
+                    };
+                    el.OnCancel += () => _ui.Close(id);
+                });
         }
 
         /// <summary>
@@ -521,8 +533,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">The command.</param>
         private void Voice_OnPlay(string command)
         {
-            Log.Info(this, "Voice command starting edit mode.");
-
             _config.Play.Edit = false;
 
             _messages.Publish(MessageTypes.LOAD_APP);

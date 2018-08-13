@@ -21,6 +21,7 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetLoader _assetLoader;
         private readonly IBleService _ble;
         private readonly IWorldAnchorProvider _anchors;
+        private readonly IAppSceneManager _scenes;
         private readonly BleServiceConfiguration _bleConfig;
         /// <summary>
         /// Constructor.
@@ -31,6 +32,7 @@ namespace CreateAR.SpirePlayer
             IAssetLoader assetLoader,
             IBleService ble,
             IWorldAnchorProvider anchors,
+            IAppSceneManager scenes,
             BleServiceConfiguration bleConfig)
         {
             _messages = messages;
@@ -39,6 +41,7 @@ namespace CreateAR.SpirePlayer
             _bleConfig = bleConfig;
             _ble = ble;
             _anchors = anchors;
+            _scenes = scenes;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -59,7 +62,7 @@ namespace CreateAR.SpirePlayer
                     Loader = _assetLoader,
                     Queries = new StandardQueryResolver()
                 }),
-                _anchors.Initialize()
+                _anchors.Initialize(_scenes)
             };
             
             Async

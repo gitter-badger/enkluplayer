@@ -29,6 +29,11 @@ namespace CreateAR.SpirePlayer
         private readonly IContentAssembler _assembler;
 
         /// <summary>
+        /// Provider.
+        /// </summary>
+        private readonly IWorldAnchorProvider _provider;
+
+        /// <summary>
         /// Caches js objects.
         /// </summary>
         private IElementJsCache _jsCache;
@@ -70,6 +75,11 @@ namespace CreateAR.SpirePlayer
         private IMutableAsyncToken<ContentWidget> _onLoaded;
 
         /// <summary>
+        /// Set to true when we should poll to update the asset.
+        /// </summary>
+        private bool _pollUpdateAsset;
+        
+        /// <summary>
         /// A token that is fired whenever the content has loaded.
         /// </summary>
         public IMutableAsyncToken<ContentWidget> OnLoaded
@@ -96,7 +106,8 @@ namespace CreateAR.SpirePlayer
             TweenConfig tweens,
             ColorConfig colors,
             IScriptManager scripts,
-            IContentAssembler assembler)
+            IContentAssembler assembler,
+            IWorldAnchorProvider provider)
             : base(
                 gameObject,
                 layers,
@@ -106,6 +117,7 @@ namespace CreateAR.SpirePlayer
             _scripts = scripts;
             _assembler = assembler;
             _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
+            _provider = provider;
         }
 
         /// <inheritdoc />
@@ -125,7 +137,7 @@ namespace CreateAR.SpirePlayer
 
             _scriptsProp = Schema.GetOwn("scripts", "[]");
             _scriptsProp.OnChanged += Scripts_OnChanged;
-
+            
             UpdateAsset();
             UpdateScripts();
         }
@@ -134,7 +146,7 @@ namespace CreateAR.SpirePlayer
         protected override void UnloadInternalAfterChildren()
         {
             base.UnloadInternalAfterChildren();
-
+            
             _srcAssetProp.OnChanged -= AssetSrc_OnChanged;
             _scriptsProp.OnChanged -= Scripts_OnChanged;
 
@@ -147,6 +159,11 @@ namespace CreateAR.SpirePlayer
         {
             base.UpdateInternal();
 
+            if (_pollUpdateAsset)
+            {
+                UpdateAsset();
+            }
+
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
             {
                 _scriptComponents[i].Update();
@@ -154,10 +171,37 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Determines if this piece of content should load its assets.
+        /// </summary>
+        /// <returns></returns>
+        private bool ShouldLoadAsset()
+        {
+            if (!Visible)
+            {
+                return false;
+            }
+
+            if (DeviceHelper.IsHoloLens())
+            {
+                return PrimaryAnchorManager.AreAllAnchorsReady;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Tears down the asset and sets it back up.
         /// </summary>
         private void UpdateAsset()
         {
+            _pollUpdateAsset = false;
+
+            if (!ShouldLoadAsset())
+            {
+                _pollUpdateAsset = true;
+                return;
+            }
+
             LogVerbose("Refresh asset for {0}.", Id);
 
             _assembler.Teardown();
@@ -171,6 +215,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateScripts()
         {
+            if (ShouldLoadAsset())
+            {
+                return;
+            }
+
             LogVerbose("Refresh scripts for {0}.", Id);
 
             TeardownScripts();
@@ -353,7 +402,17 @@ namespace CreateAR.SpirePlayer
                 component.Enter();
             }
         }
-        
+
+        /// <summary>
+        /// Called when the anchor ancestor has been loaded.
+        /// </summary>
+        /// <param name="anchor">The anchor.</param>
+        private void Anchor_OnLocated(WorldAnchorWidget anchor)
+        {
+            UpdateAsset();
+            UpdateScripts();
+        }
+
         /// <summary>
         /// Called when the assembler has completed seting up the asset.
         /// </summary>

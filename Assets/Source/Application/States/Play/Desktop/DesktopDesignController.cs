@@ -35,10 +35,20 @@ namespace CreateAR.SpirePlayer
         private readonly Camera _mainCamera;
 
         /// <summary>
+        /// Primary anchor.
+        /// </summary>
+        private readonly IPrimaryAnchorManager _primaryAnchor;
+
+        /// <summary>
         /// Runtime gizmo system.
         /// </summary>
         private GameObject _runtimeGizmos;
-        
+
+        /// <summary>
+        /// Origin Reference Gameobject.
+        /// </summary>
+        private GameObject _referenceCube;
+
         /// <summary>
         /// Props.
         /// </summary>
@@ -54,12 +64,14 @@ namespace CreateAR.SpirePlayer
             IElementUpdateDelegate elementUpdater,
             IAppSceneManager scenes,
             IBridge bridge,
-            MainCamera mainCamera)
+            MainCamera mainCamera,
+            IPrimaryAnchorManager primaryAnchor)
         {
             _elementUpdater = elementUpdater;
             _scenes = scenes;
             _bridge = bridge;
             _mainCamera = mainCamera.GetComponent<Camera>();
+            _primaryAnchor = primaryAnchor;
         }
 
         /// <inheritdoc />
@@ -74,7 +86,7 @@ namespace CreateAR.SpirePlayer
                 selectionSettings.CanSelectEmptyObjects = true;
 
                 _runtimeGizmos.GetComponentInChildren<SceneGizmo>().Corner = SceneGizmoCorner.BottomRight;
-                
+
                 var camera = _runtimeGizmos.GetComponentInChildren<Camera>();
                 camera.transform.LookAt(Vector3.zero);
 
@@ -102,11 +114,14 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
+            //primary anchor setup
+            _primaryAnchor.Setup();
+
             //  setup property watching
             {
                 var sceneId = app.Scenes.All[0];
                 var sceneRoot = app.Scenes.Root(sceneId);
-                
+
                 _ambientEnabledProp = sceneRoot.Schema.Get<bool>("ambient.enabled");
                 _ambientEnabledProp.OnChanged += AmbientEnabled_OnChanged;
                 _ambientColorProp = sceneRoot.Schema.Get<string>("ambient.color");
@@ -115,6 +130,9 @@ namespace CreateAR.SpirePlayer
                 _ambientIntensityProp.OnChanged += AmbientIntensity_OnChanged;
                 UpdateAmbientLighting();
             }
+
+            //initialize reference object
+            SetupReferenceObject();
 
             EditorObjectSelection.Instance.SelectionChanged += Editor_OnSelectionChanged;
         }
@@ -138,6 +156,7 @@ namespace CreateAR.SpirePlayer
             Render.Renderer = debugRenderer.Renderer;
 
             Object.Destroy(_runtimeGizmos);
+            Object.Destroy(_referenceCube);
         }
 
         /// <inheritdoc />
@@ -174,12 +193,25 @@ namespace CreateAR.SpirePlayer
                     elementId);
                 return;
             }
-
-            Log.Info(this, "Selecting {0}.", unityElement.GameObject);
             
+            var updater = unityElement.GameObject.GetComponent<ElementUpdateMonobehaviour>();
+            if (null == updater)
+            {
+                Log.Error(this,
+                    "Selected element is in a bad state and does not have ElementUpdateMonoBehaviour : {0}",
+                    elementId);
+                return;
+            }
+
+            // do nothing if this cannot be selected anyway
+            if (!updater.OnCanBeSelected(null))
+            {
+                return;
+            }
+
             EditorObjectSelection.Instance.ClearSelection(false);
             EditorObjectSelection.Instance.SetSelectedObjects(
-                new List<GameObject>{ unityElement.GameObject },
+                new List<GameObject> { unityElement.GameObject },
                 false);
         }
 
@@ -190,7 +222,7 @@ namespace CreateAR.SpirePlayer
             var scene = _scenes.Root(sceneId);
             if (null == scene)
             {
-                Log.Error(this, "Could not find scene root to select : {0}.", sceneId);
+                Log.Error(this, "Could not find scene root to focus on : {0}.", sceneId);
                 return;
             }
 
@@ -198,7 +230,7 @@ namespace CreateAR.SpirePlayer
             if (null == element)
             {
                 Log.Error(this,
-                    "Could not find element to select : {0}.",
+                    "Could not find element to focus on : {0}.",
                     elementId);
                 return;
             }
@@ -207,8 +239,23 @@ namespace CreateAR.SpirePlayer
             if (null == unityElement)
             {
                 Log.Error(this,
-                    "Selected element is not an IUnityElement : {0}.",
+                    "Focused element is not an IUnityElement : {0}.",
                     elementId);
+                return;
+            }
+
+            var updater = unityElement.GameObject.GetComponent<ElementUpdateMonobehaviour>();
+            if (null == updater)
+            {
+                Log.Error(this,
+                    "Focused element is in a bad state and does not have ElementUpdateMonoBehaviour : {0}",
+                    elementId);
+                return;
+            }
+
+            // do nothing if this cannot be selected anyway
+            if (!updater.OnCanBeSelected(null))
+            {
                 return;
             }
 
@@ -217,6 +264,37 @@ namespace CreateAR.SpirePlayer
                 new List<GameObject> { unityElement.GameObject },
                 false);
             EditorCamera.Instance.FocusOnSelection();
+        }
+
+        /// <summary>
+        /// Setup up a reference object for user to determine origin
+        /// </summary>
+        private void SetupReferenceObject()
+        {
+            var bounds = new Bounds(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
+            _referenceCube = new GameObject("ReferenceObject");
+            _referenceCube.transform.position = new Vector3(0, 0, 0);
+            _referenceCube.transform.rotation = Quaternion.identity;
+
+            var outline = _referenceCube.gameObject.GetComponent<ModelLoadingOutline>();
+            if (null == outline)
+            {
+                outline = _referenceCube.gameObject.AddComponent<ModelLoadingOutline>();
+                _referenceCube.gameObject.AddComponent<ReferenceObjectAxesRenderer>();
+            }
+
+            outline.Init(bounds);
+
+            //Sets the reference object created as child of primary anchor if found
+            _primaryAnchor.OnPrimaryLocated(() =>
+            {
+                WorldAnchorWidget primaryAnchorWidget = _primaryAnchor.Anchor;
+                if (primaryAnchorWidget != null)
+                {
+                    _referenceCube.transform.SetParent(primaryAnchorWidget.GameObject.transform, false);
+                    Log.Info(this, "Reference cube added as child of primary anchor");
+                }
+            });
         }
 
         /// <summary>
@@ -269,7 +347,7 @@ namespace CreateAR.SpirePlayer
                 : Color.black;
             RenderSettings.ambientIntensity = intensity;
         }
-        
+
         /// <summary>
         /// Called when a child is added.
         /// </summary>
@@ -296,7 +374,7 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this, "No controller.");
                     return;
                 }
-                
+
                 _bridge.Send(string.Format(
                     @"{{""type"":{0}, ""sceneId"":""{1}"", ""elementId"":""{2}""}}",
                     MessageTypes.BRIDGE_HELPER_SELECT,
@@ -343,7 +421,7 @@ namespace CreateAR.SpirePlayer
         {
             UpdateAmbientLighting();
         }
-        
+
         /// <summary>
         /// Converts a color from hex to Color representation
         /// </summary>

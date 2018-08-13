@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using System.Collections.Generic;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -38,12 +40,7 @@ namespace CreateAR.SpirePlayer
         /// Http interface.
         /// </summary>
         private readonly IHttpService _http;
-
-        /// <summary>
-        /// Caches world anchor data.
-        /// </summary>
-        private readonly IWorldAnchorCache _anchorCache;
-
+        
         /// <summary>
         /// Provides anchor import/export.
         /// </summary>
@@ -53,7 +50,7 @@ namespace CreateAR.SpirePlayer
         /// Manages UI.
         /// </summary>
         private readonly IUIManager _ui;
-
+        
         /// <summary>
         /// User preferences.
         /// </summary>
@@ -102,7 +99,6 @@ namespace CreateAR.SpirePlayer
             IMessageRouter messages,
             IElementControllerManager controllers,
             IHttpService http,
-            IWorldAnchorCache anchorCache,
             IWorldAnchorProvider anchorProvider,
             IUIManager ui,
             UserPreferenceService preferenceService)
@@ -111,7 +107,6 @@ namespace CreateAR.SpirePlayer
             _messages = messages;
             _controllers = controllers;
             _http = http;
-            _anchorCache = anchorCache;
             _anchorProvider = anchorProvider;
             _ui = ui;
             _preferenceService = preferenceService;
@@ -180,7 +175,6 @@ namespace CreateAR.SpirePlayer
                             SceneId = SceneIdForElement,
                             Config = _design.Config,
                             Http = _http,
-                            Cache = _anchorCache,
                             Provider = _anchorProvider,
                             OnAdjust = Anchor_OnAdjust
                         });
@@ -260,6 +254,7 @@ namespace CreateAR.SpirePlayer
                     el.OnExperience += MainMenu_OnExperience;
                     el.OnLogLevelChanged += MainMenu_OnLogLevelChanged;
                     el.OnResetData += MainMenu_OnResetData;
+                    el.OnClearAnchors += MainMenu_OnClearAnchors;
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
                     el.Initialize(_prefs.Data.App(_config.Play.AppId).Play);
                 })
@@ -273,7 +268,15 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void MainMenu_OnResetData()
         {
-            FeatureNotImplemented();
+            OpenNotImplementedView();
+        }
+
+        /// <summary>
+        /// Called when anchors should be cleared.
+        /// </summary>
+        private void MainMenu_OnClearAnchors()
+        {
+            _anchorProvider.ClearAllAnchors();
         }
 
         /// <summary>
@@ -282,14 +285,13 @@ namespace CreateAR.SpirePlayer
         /// <param name="obj"></param>
         private void MainMenu_OnLogLevelChanged(LogLevel obj)
         {
-            FeatureNotImplemented();
+            OpenNotImplementedView();
         }
 
         /// <summary>
-        /// Method to show feature not implemented
+        /// Opens the 'not implemented' message.
         /// </summary>
-        /// <param name="menuViewRef"></param>
-        private void FeatureNotImplemented()
+        private void OpenNotImplementedView()
         {
             if (_mainMenuUiViewReference != null)
             {
@@ -419,7 +421,7 @@ namespace CreateAR.SpirePlayer
                 case MainMenuUIView.ExperienceSubMenu.Duplicate:
                     {
                         //TODO
-                        FeatureNotImplemented();
+                        OpenNotImplementedView();
                         break;
                     }
             }
@@ -450,12 +452,12 @@ namespace CreateAR.SpirePlayer
                     }
                 case ElementTypes.CAPTION:
                     {
-                        FeatureNotImplemented();
+                        OpenNotImplementedView();
                         break;
                     }
                 case ElementTypes.LIGHT:
                     {
-                        FeatureNotImplemented();
+                        OpenNotImplementedView();
                         break;
                     }
                 default:

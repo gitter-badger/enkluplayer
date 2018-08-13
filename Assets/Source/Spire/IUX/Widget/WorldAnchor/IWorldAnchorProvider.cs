@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Async;
 using UnityEngine;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -12,7 +13,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Initializes provider.
         /// </summary>
         /// <returns></returns>
-        IAsyncToken<Void> Initialize();
+        IAsyncToken<Void> Initialize(IAppSceneManager scenes);
 
         /// <summary>
         /// Attempts to anchor an object.
@@ -30,6 +31,11 @@ namespace CreateAR.SpirePlayer.IUX
         void UnAnchor(GameObject gameObject);
 
         /// <summary>
+        /// Clears all anchors and reloads them.
+        /// </summary>
+        void ClearAllAnchors();
+
+        /// <summary>
         /// Exports an anchor into bytes.
         /// </summary>
         /// <param name="id">Unique id for this export. This same id must be passed to import.</param>
@@ -42,7 +48,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         /// <param name="id">Id used to export.</param>
         /// <param name="bytes">The bytes to import.</param>
+        /// <param name="gameObject">The GameObject to anchor.</param>
         /// <returns></returns>
-        IAsyncToken<Void> Import(string id, byte[] bytes);
+        IAsyncToken<Void> Import(string id, byte[] bytes, GameObject gameObject);
     }
 }

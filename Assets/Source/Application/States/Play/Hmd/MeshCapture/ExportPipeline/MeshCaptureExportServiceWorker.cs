@@ -104,6 +104,9 @@ namespace CreateAR.SpirePlayer
             _fileUploader.Start();
         }
 
+        private int _previousBytes = 0;
+        private const int MAX_SCAN_BYTE_DIFF = 100;
+
         /// <summary>
         /// Starts the thread.
         /// </summary>
@@ -130,11 +133,20 @@ namespace CreateAR.SpirePlayer
 
                 // process
                 var bytes = _exporter.Export(record.State);
-                
-                // send to Trellis
-                _fileUploader.Write(bytes);
 
                 Log.Info(this, "Exported obj.");
+
+                if (_previousBytes - bytes.Length > MAX_SCAN_BYTE_DIFF)
+                {
+                    Log.Warning(this, "Mesh export appears to be less detailed than the last. Aborting.");
+                }
+                else
+                {
+                    _previousBytes = bytes.Length;
+
+                    // send to Trellis
+                    _fileUploader.Write(bytes);
+                }
             }
 
             Log.Info(this, "Pipeline thread was spun down.");
