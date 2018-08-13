@@ -48,16 +48,3 @@ namespace CreateAR.SpirePlayer.Test.Scripting
         }
     }
 }
-
-public class QuatJsApi_Tests : MonoBehaviour {
-
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-}
