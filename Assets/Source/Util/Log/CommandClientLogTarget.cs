@@ -70,7 +70,14 @@ namespace CreateAR.SpirePlayer
 
             for (var i = 0; i < _clients.Count; i++)
             {
-                _clients[i].Send(_formatter.Format(level, caller, message));
+                try
+                {
+                    _clients[i].Send(_formatter.Format(level, caller, message));
+                }
+                catch
+                {
+                    // TODO: count # of failed sends and remove this client if necessary
+                }
             }
         }
 
