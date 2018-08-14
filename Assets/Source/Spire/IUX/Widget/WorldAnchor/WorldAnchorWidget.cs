@@ -173,7 +173,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             // lock down
             txns
-                .Request(new ElementTxn(sceneId).Update(Id, "export.time", DateTime.UtcNow.ToLongTimeString()))
+                .Request(new ElementTxn(sceneId).Update(Id, "export.time", DateTime.UtcNow.ToString()))
                 .OnSuccess(_ =>
                 {
                     var providerId = GetAnchorProviderId(Id, _versionProp.Value + 1);
