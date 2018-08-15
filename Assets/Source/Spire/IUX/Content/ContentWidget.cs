@@ -215,7 +215,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateScripts()
         {
-            if (ShouldLoadAsset())
+            if (!ShouldLoadAsset())
             {
                 return;
             }
