@@ -28,5 +28,10 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="ready">The callback to call when ready.</param>
         void OnPrimaryLocated(Action ready);
+
+        /// <summary>
+        /// Called to get reference to primary anchor
+        /// </summary>
+        WorldAnchorWidget Anchor { get; }
     }
 }
