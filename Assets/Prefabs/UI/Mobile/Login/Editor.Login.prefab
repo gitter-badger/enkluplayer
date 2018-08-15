@@ -671,9 +671,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f80e7774fd13d28459e7bce7bf6e93dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UserName: {fileID: 114111418594153208, guid: 6feb5e587e70340e3bdbed2a6ea3a6b6, type: 2}
-  Password: {fileID: 114092603354506348, guid: 6feb5e587e70340e3bdbed2a6ea3a6b6, type: 2}
-  Error: {fileID: 114755402575639596, guid: 6feb5e587e70340e3bdbed2a6ea3a6b6, type: 2}
+  errorText: 
 --- !u!114 &114523355143915198
 MonoBehaviour:
   m_ObjectHideFlags: 1

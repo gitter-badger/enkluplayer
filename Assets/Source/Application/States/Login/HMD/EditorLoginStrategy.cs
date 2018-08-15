@@ -6,7 +6,7 @@ using CreateAR.Trellis.Messages.EmailSignIn;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Application state that just prompts for login.
+    /// Application state that just prompts for editor login.
     /// </summary>
     public class EditorLoginStrategy : ILoginStrategy
     {
@@ -26,11 +26,6 @@ namespace CreateAR.SpirePlayer
         private EditorInputLoginUIView _loginView;
 
         /// <summary>
-        /// Signup view.
-        /// </summary>
-        private MobileSignupUIView _signupView;
-        
-        /// <summary>
         /// Tracks login internally.
         /// </summary>
         private AsyncToken<CredentialsData> _loginToken;
@@ -39,11 +34,6 @@ namespace CreateAR.SpirePlayer
         /// Id of login view.
         /// </summary>
         private int _loginViewId = -1;
-
-        /// <summary>
-        /// Id of registration view.
-        /// </summary>
-        private int _registrationViewId = -1;
         
         /// <summary>
         /// Constructor.
@@ -59,19 +49,17 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public IAsyncToken<CredentialsData> Login()
         {
-            //var frame = _ui.CreateFrame();
+            var frame = _ui.CreateFrame();
             
             _loginToken = new AsyncToken<CredentialsData>();
-            //_loginToken.OnSuccess(_ => frame.Release());
-            //_loginToken.OnFailure(_ => frame.Release());
+            _loginToken.OnSuccess(_ => frame.Release());
+            _loginToken.OnFailure(_ => frame.Release());
 
             OpenLogin();
             Log.Info(this,"Logged in:Editor");
             
             return _loginToken.Token();
-
         }
-
         
         /// <summary>
         /// Opens login view.
@@ -89,8 +77,6 @@ namespace CreateAR.SpirePlayer
                     {
                         _loginView = el;
                         _loginView.OnSubmit += Login_OnSubmit;
-                    //    _loginView.OnSignUp += OpenRegistration;
-                    //    _loginView.OnContinueAsGuest += ContinueAsGuest;
                     })
                     .OnFailure(ex => Log.Error(this, "Could not open Login.Input : {0}.", ex));   
             }
@@ -134,15 +120,13 @@ namespace CreateAR.SpirePlayer
                     else
                     {
                         Log.Error(this, "There was an error signing in : {0}.", response.Payload.Error);
-
-                        _loginView.Error.text = response.Payload.Error;
+                        _loginView.errorText = response.Payload.Error;
                     }
                 })
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not signin : {0}.", exception);
-
-                    _loginView.Error.text = "Could not sign in. Please try again.";
+                    _loginView.errorText = "Could not sign in. Please verify your credentials.";
                 });
         }
     }
