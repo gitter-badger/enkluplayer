@@ -25,7 +25,13 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [InjectElements("..menu")]
         public MenuWidget Menu { get; set; }
-        
+
+        /// <summary>
+        /// New element Sub Menu.
+        /// </summary>
+        [InjectElements("..submenu-new")]
+        public SubMenuWidget SubMenu { get; set; }
+
         [InjectElements("..btn-new-asset")]
         public ButtonWidget BtnNewAsset { get; set; }
 

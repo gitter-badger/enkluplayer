@@ -136,7 +136,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Opens the submenu.
         /// </summary>
-        private void Open()
+        public void Open()
         {
             // hide any other menus at the same level
             if (null != Parent)
