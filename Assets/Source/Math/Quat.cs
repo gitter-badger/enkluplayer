@@ -106,5 +106,14 @@ namespace CreateAR.SpirePlayer
                 (float) (s1 * c2 * c3 + c1 * s2 * s3),
                 (float) (c1 * s2 * c3 - s1 * c2 * s3));
         }
+
+        /// <summary>
+        /// Quat string representation.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("{0:0.00}, {1:0.00}, {2:0.00}, {3:0.00}", x, y, z, w);
+        }
     }
 }

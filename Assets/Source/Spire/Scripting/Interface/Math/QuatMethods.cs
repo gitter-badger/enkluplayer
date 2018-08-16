@@ -28,7 +28,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates a Quat from Euler rotations.
         /// </summary>
-        public Quat eul(float x, float y, float z)
+        public Quat euler(float x, float y, float z)
         {
             return Quaternion.Euler(x, y, z).ToQuat();
         }
