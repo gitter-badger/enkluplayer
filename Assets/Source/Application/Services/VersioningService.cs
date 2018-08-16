@@ -61,9 +61,78 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Checks API and HoloLens versions.
+        /// 
+        /// Fails the token if the service dispatched a message to handle
+        /// a version mismatch.
+        /// </summary>
+        /// <returns></returns>
+        public IAsyncToken<Void> CheckVersions()
+        {
+            return Async.Map(
+                Async.All(CheckApiVersion(), CheckHoloLensVersion()),
+                _ => Void.Instance);
+        }
+
+        /// <summary>
+        /// Checks for latest version of HoloLens build.
+        /// </summary>
+        private IAsyncToken<Void> CheckHoloLensVersion()
+        {
+            Log.Info(this, "Checking Trellis version.");
+
+            var token = new AsyncToken<Void>();
+
+            _api
+                .Versionings
+                .GetHololensVersion()
+                .OnSuccess(response =>
+                {
+                    if (null != response.Payload && response.Payload.Success)
+                    {
+                        var req = response.Payload.Body.Version;
+                        var local = _config.Version;
+
+                        // exact match or bust!
+                        if (req != local)
+                        {
+                            Log.Warning(this, "New HoloLens build available!");
+
+                            _messages.Publish(MessageTypes.VERSION_UPGRADE);
+
+                            token.Fail(new Exception("Version upgrade available."));
+                        }
+                        else
+                        {
+                            Log.Info(this, "HoloLens version match.");
+
+                            token.Succeed(Void.Instance);
+                        }
+                    }
+                    else
+                    {
+                        var raw = Encoding.UTF8.GetString(response.Raw);
+                        Log.Error(this,
+                            "Could not version HoloLens version match. Response: {0}",
+                            raw);
+
+                        token.Succeed(Void.Instance);
+                    }
+                })
+                .OnFailure(ex =>
+                {
+                    Log.Error(this, "Could not verify HoloLens version match : {0}", ex);
+
+                    token.Succeed(Void.Instance);
+                });
+
+            return token;
+        }
+
+        /// <summary>
         /// Checks for version match with Trellis.
         /// </summary>
-        public IAsyncToken<Void> CheckVersion()
+        private IAsyncToken<Void> CheckApiVersion()
         {
             Log.Info(this, "Checking Trellis version.");
 
@@ -102,13 +171,17 @@ namespace CreateAR.SpirePlayer
                             "Could not verify version match. Response: {0}",
                             raw);
 
+                        _messages.Publish(MessageTypes.VERSION_MISMATCH);
+
                         token.Fail(new Exception(null == response.Payload ? raw : response.Payload.Error));
                     }
                 })
                 .OnFailure(ex =>
                 {
                     Log.Error(this, "Could not verify version match : {0}", ex);
-                    
+
+                    _messages.Publish(MessageTypes.VERSION_MISMATCH);
+
                     token.Fail(ex);
                 });
 
@@ -120,7 +193,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void Connection_OnConnected()
         {
-            CheckVersion();
+            CheckVersions();
         }
     }
 }

@@ -13,6 +13,7 @@
         public const int PLAY_CRITICAL_ERROR = -100;
         public const int ARSERVICE_EXCEPTION = -10;
         public const int ARSERVICE_INTERRUPTED = -11;
+        public const int VERSION_UPGRADE = -3;
         public const int VERSION_MISMATCH = -2;
         public const int FATAL_ERROR = -1;
         

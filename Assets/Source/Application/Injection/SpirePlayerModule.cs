@@ -211,7 +211,7 @@ namespace CreateAR.SpirePlayer
 
                     // all states
                     {
-                        binder.Bind<VersionMismatchApplicationState>().To<VersionMismatchApplicationState>();
+                        binder.Bind<VersionErrorApplicationState>().To<VersionErrorApplicationState>();
                         binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                         binder.Bind<LoginApplicationState>().To<LoginApplicationState>();
                         binder.Bind<HoloLoginApplicationState>().To<HoloLoginApplicationState>();
@@ -256,7 +256,7 @@ namespace CreateAR.SpirePlayer
                                 binder.Bind<ApplicationStatePackage>().To(new ApplicationStatePackage(
                                     new IState[]
                                     {
-                                        binder.GetInstance<VersionMismatchApplicationState>(),
+                                        binder.GetInstance<VersionErrorApplicationState>(),
                                         binder.GetInstance<InitializeApplicationState>(),
                                         binder.GetInstance<LoginApplicationState>(),
                                         binder.GetInstance<HoloLoginApplicationState>(),
@@ -282,7 +282,7 @@ namespace CreateAR.SpirePlayer
                                 binder.Bind<ApplicationStatePackage>().To(new ApplicationStatePackage(
                                     new IState[]
                                     {
-                                        binder.GetInstance<VersionMismatchApplicationState>(),
+                                        binder.GetInstance<VersionErrorApplicationState>(),
                                         binder.GetInstance<InitializeApplicationState>(),
                                         binder.GetInstance<LoginApplicationState>(),
                                         binder.GetInstance<SignOutApplicationState>(),

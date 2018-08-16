@@ -13,6 +13,11 @@ namespace CreateAR.SpirePlayer
     public class ApplicationConfig
     {
         /// <summary>
+        /// Version of the player.
+        /// </summary>
+        public string Version = "0.0.0";
+
+        /// <summary>
         /// Sets the platform. Leave empty for the application to decide.
         /// </summary>
         public string Platform;

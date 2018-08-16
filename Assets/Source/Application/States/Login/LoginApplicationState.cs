@@ -82,7 +82,7 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "LoginApplicationState::Enter");
 
             _versioning
-                .CheckVersion()
+                .CheckVersions()
                 .OnSuccess(_ =>
                 {
                     // check disk cache for credentials

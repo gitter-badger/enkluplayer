@@ -6,8 +6,19 @@ namespace CreateAR.SpirePlayer
     /// State used when there is a version mismatch with the server-- this is
     /// the end of the line!
     /// </summary>
-    public class VersionMismatchApplicationState : IState
+    public class VersionErrorApplicationState : IState
     {
+        /// <summary>
+        /// Error information.
+        /// </summary>
+        public class VersionError
+        {
+            /// <summary>
+            /// The message to use.
+            /// </summary>
+            public string Message;
+        }
+
         /// <summary>
         /// Manipulates UI.
         /// </summary>
@@ -16,7 +27,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public VersionMismatchApplicationState(IUIManager ui)
+        public VersionErrorApplicationState(IUIManager ui)
         {
             _ui = ui;
         }
@@ -24,6 +35,8 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Enter(object context)
         {
+            var error = (VersionError) context;
+
             _ui
                 .Open<ICommonErrorView>(new UIReference
                 {
@@ -31,7 +44,7 @@ namespace CreateAR.SpirePlayer
                 })
                 .OnSuccess(el =>
                 {
-                    el.Message = "This version of Enklu is ancient! Please upgrade to access your experiences.";
+                    el.Message = error.Message;
                     el.DisableAction();
                 })
                 .OnFailure(ex => Log.Fatal(this, "COuld not open error popup : {0}.", ex));
