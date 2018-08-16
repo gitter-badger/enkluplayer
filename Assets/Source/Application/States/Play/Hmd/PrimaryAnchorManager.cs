@@ -226,10 +226,14 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            OpenStatusUI();            
+            if (DeviceHelper.IsHoloLens())
+            {
+                OpenStatusUI();
+            }
+            
             FindPrimaryAnchor(root);
 
-            if (_config.Play.Edit)
+            if (_config.Play.Edit && DeviceHelper.IsHoloLens())
             {
                 if (null == _primaryAnchor)
                 {
