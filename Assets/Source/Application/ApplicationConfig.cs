@@ -264,6 +264,11 @@ namespace CreateAR.SpirePlayer
         public bool Offline;
 
         /// <summary>
+        /// Api version this player is compatible with.
+        /// </summary>
+        public string ApiVersion = "0.0.0";
+
+        /// <summary>
         /// Current environment we should connect to.
         /// </summary>
         public string Current;
@@ -365,6 +370,11 @@ namespace CreateAR.SpirePlayer
             if (overrideConfig.AssetDownloadFailChance > Mathf.Epsilon)
             {
                 AssetDownloadFailChance = overrideConfig.AssetDownloadFailChance;
+            }
+
+            if (!string.IsNullOrEmpty(overrideConfig.ApiVersion))
+            {
+                ApiVersion = overrideConfig.ApiVersion;
             }
 
             Offline = overrideConfig.Offline;

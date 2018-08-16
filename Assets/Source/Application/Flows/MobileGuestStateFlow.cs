@@ -31,6 +31,7 @@ namespace CreateAR.SpirePlayer
         {
             _states = states;
             _states.ListenForFlowMessages(
+                MessageTypes.VERSION_MISMATCH,
                 MessageTypes.LOGIN,
                 MessageTypes.USER_PROFILE,
                 MessageTypes.LOAD_APP,
@@ -52,6 +53,11 @@ namespace CreateAR.SpirePlayer
         {
             switch (messageType)
             {
+                case MessageTypes.VERSION_MISMATCH:
+                {
+                    _states.ChangeState<VersionMismatchApplicationState>();
+                    break;
+                }
                 case MessageTypes.LOGIN:
                 {
                     _states.ChangeFlow<MobileLoginStateFlow>();

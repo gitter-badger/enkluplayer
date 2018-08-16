@@ -16,14 +16,16 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..btn-ok")]
         public ButtonWidget BtnOk { get; set; }
 
-        /// <summary>
-        /// Called when the ok button has been pressed.
-        /// </summary>
+        /// <inheritdoc />
         public event Action OnOk;
 
-        /// <summary>
-        /// Error message.
-        /// </summary>
+        /// <inheritdoc />
+        public void DisableAction()
+        {
+            BtnOk.Schema.Set("visible", false);
+        }
+
+        /// <inheritdoc />
         public string Message
         {
             get
@@ -36,9 +38,7 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        /// <summary>
-        /// The label on the button.
-        /// </summary>
+        /// <inheritdoc />
         public string Action
         {
             get
@@ -51,9 +51,7 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        /// <summary>
-        /// MonoBehaviour.
-        /// </summary>
+        /// <inheritdoc />
         protected override void AfterElementsCreated()
         {
             base.AfterElementsCreated();

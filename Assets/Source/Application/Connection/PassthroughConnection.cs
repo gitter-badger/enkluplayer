@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -10,6 +11,9 @@ namespace CreateAR.SpirePlayer
     {
         /// <inheritdoc />
         public bool IsConnected { get; private set; }
+
+        /// <inheritdoc />
+        public event Action OnConnected;
 
         /// <inheritdoc />
         public IAsyncToken<Void> Connect(EnvironmentData environment)

@@ -41,6 +41,11 @@ namespace CreateAR.SpirePlayer
         private readonly ApplicationConfig _config;
 
         /// <summary>
+        /// For versioning.
+        /// </summary>
+        private readonly VersioningService _versioning;
+
+        /// <summary>
         /// Credentials.
         /// </summary>
         private CredentialsData _credentials;
@@ -53,13 +58,15 @@ namespace CreateAR.SpirePlayer
             ILoginStrategy strategy,
             IHttpService http,
             IMessageRouter messages,
-            ApplicationConfig config)
+            ApplicationConfig config,
+            VersioningService versioning)
         {
             _files = files;
             _strategy = strategy;
             _http = http;
             _messages = messages;
             _config = config;
+            _versioning = versioning;
 
             _files.Register(
                 "login://",
@@ -74,30 +81,35 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "LoginApplicationState::Enter");
 
-            // check disk cache for credentials
-            if (_files.Exists(CREDS_URI))
-            {
-                _files
-                    .Get<CredentialsData>(CREDS_URI)
-                    .OnSuccess(file =>
+            _versioning
+                .CheckVersion()
+                .OnSuccess(_ =>
+                {
+                    // check disk cache for credentials
+                    if (_files.Exists(CREDS_URI))
                     {
-                        // load into default app
-                        Log.Info(this, "Credentials loaded from disk.");
+                        _files
+                            .Get<CredentialsData>(CREDS_URI)
+                            .OnSuccess(file =>
+                            {
+                                // load into default app
+                                Log.Info(this, "Credentials loaded from disk.");
 
-                        ConfigureCredentials(file.Data);
-                    })
-                    .OnFailure(exception =>
+                                ConfigureCredentials(file.Data);
+                            })
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this, "Could not load credential information: {0}", exception);
+
+                                Login();
+                            });
+                    }
+                    else
                     {
-                        Log.Error(this, "Could not load credential information: {0}", exception);
-
+                        // nothing on disk, fresh login
                         Login();
-                    });
-            }
-            else
-            {
-                // nothing on disk, fresh login
-                Login();
-            }
+                    }
+                });
         }
 
         /// <inheritdoc />
