@@ -1,4 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.SpirePlayer
 {
@@ -17,6 +18,11 @@ namespace CreateAR.SpirePlayer
             /// The message to use.
             /// </summary>
             public string Message;
+
+            /// <summary>
+            /// Allows continuing.
+            /// </summary>
+            public bool AllowContinue;
         }
 
         /// <summary>
@@ -25,11 +31,19 @@ namespace CreateAR.SpirePlayer
         private readonly IUIManager _ui;
 
         /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
-        public VersionErrorApplicationState(IUIManager ui)
+        public VersionErrorApplicationState(
+            IUIManager ui,
+            IMessageRouter messages)
         {
             _ui = ui;
+            _messages = messages;
         }
 
         /// <inheritdoc />
@@ -45,7 +59,16 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(el =>
                 {
                     el.Message = error.Message;
-                    el.DisableAction();
+
+                    if (error.AllowContinue)
+                    {
+                        el.Action = "Continue";
+                        el.OnOk += () => _messages.Publish(MessageTypes.LOGIN);
+                    }
+                    else
+                    {
+                        el.DisableAction();
+                    }
                 })
                 .OnFailure(ex => Log.Fatal(this, "COuld not open error popup : {0}.", ex));
         }

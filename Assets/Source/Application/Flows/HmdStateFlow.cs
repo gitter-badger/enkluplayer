@@ -76,7 +76,8 @@ namespace CreateAR.SpirePlayer
                 {
                     _states.ChangeState<VersionErrorApplicationState>(new VersionErrorApplicationState.VersionError
                     {
-                        Message = "This version of Enklu is old news! An update is available."
+                        Message = "This version of Enklu is old news! An update is available.",
+                        AllowContinue = true
                     });
                     break;
                 }
