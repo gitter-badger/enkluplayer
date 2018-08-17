@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -12,6 +13,11 @@ namespace CreateAR.SpirePlayer
         /// True iff connection is connected.
         /// </summary>
         bool IsConnected { get; }
+
+        /// <summary>
+        /// Called when <c>IsConnected</c> changes from false to true.
+        /// </summary>
+        event Action OnConnected;
 
         /// <summary>
         /// Connect.

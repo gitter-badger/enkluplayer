@@ -78,7 +78,12 @@ namespace CreateAR.SpirePlayer
         /// Set to true when we should poll to update the asset.
         /// </summary>
         private bool _pollUpdateAsset;
-        
+
+        /// <summary>
+        /// Set to true when we should poll to update scripts.
+        /// </summary>
+        private bool _pollUpdateScript;
+
         /// <summary>
         /// A token that is fired whenever the content has loaded.
         /// </summary>
@@ -164,6 +169,11 @@ namespace CreateAR.SpirePlayer
                 UpdateAsset();
             }
 
+            if (_pollUpdateScript)
+            {
+                UpdateScripts();
+            }
+
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
             {
                 _scriptComponents[i].Update();
@@ -215,12 +225,15 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void UpdateScripts()
         {
-            if (ShouldLoadAsset())
+            _pollUpdateScript = false;
+
+            if (!ShouldLoadAsset())
             {
+                _pollUpdateScript = true;
                 return;
             }
 
-            LogVerbose("Refresh scripts for {0}.", Id);
+            Log.Info(this, "Refresh scripts for {0}.", Id);
 
             TeardownScripts();
 
@@ -246,7 +259,7 @@ namespace CreateAR.SpirePlayer
             }
             catch (Exception exception)
             {
-                LogVerbose("Could not parse \"{0}\" : {1}.",
+                Log.Info(this, "Could not parse \"{0}\" : {1}.",
                     scriptsSrc,
                     exception);
                 
@@ -256,7 +269,7 @@ namespace CreateAR.SpirePlayer
 
             var len = value.Count;
 
-            LogVerbose("\tLoading {0} scripts.", len);
+            Log.Info(this, "\tLoading {0} scripts.", len);
 
             if (0 == len)
             {
@@ -300,7 +313,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void TeardownScripts()
         {
-            LogVerbose("\t-Destroying {0} scripts.", _scriptComponents.Count);
+            Log.Info(this, "\t-Destroying {0} scripts.", _scriptComponents.Count);
 
             // destroy components
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
@@ -319,7 +332,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="script">The script to run.</param>
         private void RunScript(SpireScript script)
         {
-            LogVerbose("Run script {0}.", script.Data);
+            Log.Info(this, "Run script {0}.", script.Data);
             
             switch (script.Data.Type)
             {

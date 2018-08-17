@@ -8,8 +8,8 @@
 			header.padding=0.4
 			description.fontSize=50
 			showBackButton=true
-			layout.radius=0.125
-			layout.degrees=155.0>
+			layout.radius=0.2
+			layout.degrees=145.0>
 		</Menu>
 	</Float>
 </Container>

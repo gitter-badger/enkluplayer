@@ -13,6 +13,11 @@ namespace CreateAR.SpirePlayer
     public class ApplicationConfig
     {
         /// <summary>
+        /// Version of the player.
+        /// </summary>
+        public string Version = "0.0.0";
+
+        /// <summary>
         /// Sets the platform. Leave empty for the application to decide.
         /// </summary>
         public string Platform;
@@ -264,6 +269,11 @@ namespace CreateAR.SpirePlayer
         public bool Offline;
 
         /// <summary>
+        /// Api version this player is compatible with.
+        /// </summary>
+        public string ApiVersion = "0.0.0";
+
+        /// <summary>
         /// Current environment we should connect to.
         /// </summary>
         public string Current;
@@ -365,6 +375,11 @@ namespace CreateAR.SpirePlayer
             if (overrideConfig.AssetDownloadFailChance > Mathf.Epsilon)
             {
                 AssetDownloadFailChance = overrideConfig.AssetDownloadFailChance;
+            }
+
+            if (!string.IsNullOrEmpty(overrideConfig.ApiVersion))
+            {
+                ApiVersion = overrideConfig.ApiVersion;
             }
 
             Offline = overrideConfig.Offline;

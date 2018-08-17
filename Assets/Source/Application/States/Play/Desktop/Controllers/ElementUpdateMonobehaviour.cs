@@ -180,7 +180,8 @@ namespace CreateAR.SpirePlayer
             var parent = Element.Parent;
             while (null != parent)
             {
-                if (parent.Schema.Get<bool>("locked").Value)
+                if (!(parent is WorldAnchorWidget)
+                    && parent.Schema.Get<bool>("locked").Value)
                 {
                     return true;
                 }

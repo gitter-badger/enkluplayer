@@ -6,6 +6,7 @@ using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using UnityEditor.Build;
 using WebSocketSharp;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -41,8 +42,29 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private AsyncToken<Void> _connectToken;
 
+        /// <summary>
+        /// Backing variable for property.
+        /// </summary>
+        private bool _isConnected;
+
         /// <inheritdoc />
-        public bool IsConnected { get; private set; }
+        public bool IsConnected {
+            get { return _isConnected; }
+            set
+            {
+                var prev = _isConnected;
+
+                _isConnected = value;
+
+                if (!prev && _isConnected && null != OnConnected)
+                {
+                    OnConnected();
+                }
+            }
+        }
+
+        /// <inheritdoc />
+        public event Action OnConnected;
 
         /// <summary>
         /// Endpoint we are connecting to.

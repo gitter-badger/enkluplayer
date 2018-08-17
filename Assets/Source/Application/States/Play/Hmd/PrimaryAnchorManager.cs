@@ -167,6 +167,12 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc />
+        public WorldAnchorWidget Anchor
+        {
+            get { return _primaryAnchor; }
+        }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -220,10 +226,14 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            OpenStatusUI();            
+            if (DeviceHelper.IsHoloLens())
+            {
+                OpenStatusUI();
+            }
+            
             FindPrimaryAnchor(root);
 
-            if (_config.Play.Edit)
+            if (_config.Play.Edit && DeviceHelper.IsHoloLens())
             {
                 if (null == _primaryAnchor)
                 {
@@ -261,7 +271,7 @@ namespace CreateAR.SpirePlayer
                 }
             });
         }
-        
+
         /// <inheritdoc />
         public void Teardown()
         {

@@ -33,7 +33,7 @@ namespace CreateAR.SpirePlayer
         /// All states.
         /// </summary>
         private readonly IArDesignState[] _states;
-        
+
         /// <summary>
         /// Trellis API.
         /// </summary>
@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// Root of controls.
         /// </summary>
         private GameObject _root;
-        
+
         /// <summary>
         /// Root float.
         /// </summary>
@@ -77,7 +77,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Origin Reference Gameobject
         /// </summary>
-        private GameObject _referenceObject;
+        private GameObject _referenceCube;
 
         /// <summary>
         /// Config for play mode.
@@ -96,7 +96,7 @@ namespace CreateAR.SpirePlayer
         /// Controls the app.
         /// </summary>
         public IAppController App { get; private set; }
-        
+
         /// <summary>
         /// Manages scenes.
         /// </summary>
@@ -169,7 +169,7 @@ namespace CreateAR.SpirePlayer
             App = app;
 
             _root = new GameObject("Design");
-            
+
             if (UnityEngine.Application.isEditor)
             {
                 _root.AddComponent<HmdEditorKeyboardControls>();
@@ -182,7 +182,7 @@ namespace CreateAR.SpirePlayer
                 ShowFatalError();
                 return;
             }
-            
+
             if (context.Edit)
             {
                 SetupEdit();
@@ -224,7 +224,7 @@ namespace CreateAR.SpirePlayer
         {
             _fsm.Change<T>(context);
         }
-        
+
         /// <summary>
         /// Creates a scene.
         /// </summary>
@@ -252,7 +252,6 @@ namespace CreateAR.SpirePlayer
                                 {
                                     _elementUpdater.Active = sceneId;
                                 }
-
                                 token.Succeed(sceneId);
                             })
                             .OnFailure(token.Fail);*/
@@ -332,18 +331,28 @@ namespace CreateAR.SpirePlayer
         private void SetupReferenceObject()
         {
             var bounds = new Bounds(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
-            _referenceObject = new GameObject("ReferenceObject");
-            _referenceObject.transform.position = new Vector3(0, 0, 0);
-            _referenceObject.transform.rotation = Quaternion.identity;
+            _referenceCube = new GameObject("ReferenceObject");
+            _referenceCube.transform.position = new Vector3(0, 0, 0);
+            _referenceCube.transform.rotation = Quaternion.identity;
 
-            var outline = _referenceObject.gameObject.GetComponent<ModelLoadingOutline>();
+            var outline = _referenceCube.gameObject.GetComponent<ModelLoadingOutline>();
             if (null == outline)
             {
-                outline = _referenceObject.gameObject.AddComponent<ModelLoadingOutline>();
-                _referenceObject.gameObject.AddComponent<ReferenceObjectAxesRenderer>();
+                outline = _referenceCube.gameObject.AddComponent<ModelLoadingOutline>();
+                _referenceCube.gameObject.AddComponent<ReferenceObjectAxesRenderer>();
             }
 
             outline.Init(bounds);
+
+            //Sets the reference object created as child of primary anchor if found
+            _primaryAnchor.OnPrimaryLocated(() => {
+                WorldAnchorWidget primaryAnchorWidget = _primaryAnchor.Anchor;
+                if (primaryAnchorWidget != null)
+                {
+                    _referenceCube.transform.SetParent(primaryAnchorWidget.GameObject.transform, false);
+                    Log.Info(this, "Reference cube added as child of primary anchor");
+                }
+            });
         }
 
         /// <summary>
@@ -369,7 +378,7 @@ namespace CreateAR.SpirePlayer
             _float.Destroy();
             _staticRoot.Destroy();
 
-            Object.Destroy(_referenceObject);
+            Object.Destroy(_referenceCube);
             Object.Destroy(_root);
             Object.Destroy(Camera.main.gameObject.GetComponent<HierarchyLineRenderer>());
         }

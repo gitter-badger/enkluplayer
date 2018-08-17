@@ -31,6 +31,8 @@ namespace CreateAR.SpirePlayer
         {
             _states = states;
             _states.ListenForFlowMessages(
+                MessageTypes.VERSION_MISMATCH,
+                MessageTypes.VERSION_UPGRADE,
                 MessageTypes.LOGIN,
                 MessageTypes.USER_PROFILE,
                 MessageTypes.LOAD_APP,
@@ -52,6 +54,22 @@ namespace CreateAR.SpirePlayer
         {
             switch (messageType)
             {
+                case MessageTypes.VERSION_MISMATCH:
+                {
+                    _states.ChangeState<VersionErrorApplicationState>(new VersionErrorApplicationState.VersionError
+                    {
+                        Message = "This version of Enklu is no longer supported. Please upgrade to access your experiences."
+                    });
+                    break;
+                }
+                case MessageTypes.VERSION_UPGRADE:
+                {
+                    _states.ChangeState<VersionErrorApplicationState>(new VersionErrorApplicationState.VersionError
+                    {
+                        Message = "This version of Enklu is old news! An update is available."
+                    });
+                    break;
+                }
                 case MessageTypes.LOGIN:
                 {
                     _states.ChangeFlow<MobileLoginStateFlow>();

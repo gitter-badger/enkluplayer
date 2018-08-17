@@ -36,6 +36,17 @@ namespace CreateAR.SpirePlayer
         public Text ButtonText;
 
         /// <summary>
+        /// Action button.
+        /// </summary>
+        public Button Button;
+
+        /// <inheritdoc />
+        public void DisableAction()
+        {
+            Button.gameObject.SetActive(false);
+        }
+
+        /// <summary>
         /// Called by the UI when the OK button is touched.
         /// </summary>
         public void OnOkayClicked()
