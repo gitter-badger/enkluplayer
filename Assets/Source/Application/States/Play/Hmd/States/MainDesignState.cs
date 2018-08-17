@@ -32,6 +32,16 @@ namespace CreateAR.SpirePlayer
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        ///To register voice commands
+        /// </summary>
+        private readonly IVoiceCommandManager _voice;
+
+        /// <summary>
+        /// Primary anchor.
+        /// </summary>
+        private readonly IPrimaryAnchorManager _primaryAnchor;
+
+        /// <summary>
         /// Manages controllers.
         /// </summary>
         private readonly IElementControllerManager _controllers;
@@ -101,7 +111,9 @@ namespace CreateAR.SpirePlayer
             IHttpService http,
             IWorldAnchorProvider anchorProvider,
             IUIManager ui,
-            UserPreferenceService preferenceService)
+            UserPreferenceService preferenceService,
+            IPrimaryAnchorManager primaryAnchor,
+            IVoiceCommandManager voice)
         {
             _config = config;
             _messages = messages;
@@ -110,6 +122,8 @@ namespace CreateAR.SpirePlayer
             _anchorProvider = anchorProvider;
             _ui = ui;
             _preferenceService = preferenceService;
+            _primaryAnchor = primaryAnchor;
+            _voice = voice;
         }
 
         /// <inheritdoc />
@@ -178,14 +192,31 @@ namespace CreateAR.SpirePlayer
                             Provider = _anchorProvider,
                             OnAdjust = Anchor_OnAdjust
                         });
-
+                    
                     // turn on the controller groups
                     _controllers.Activate(TAG_CONTENT, TAG_CONTAINER, TAG_ANCHOR);
 
                     // open the splash menu
                     OpenSplashMenu();
+
+                    _voice.Register("new", Voice_OnNew);
+                 
                 })
                 .OnFailure(ex => Log.Error(this, "Could not load user preferences!"));
+        }
+
+        /// <summary>
+        /// Method on voice command
+        /// </summary>
+        /// <param name="command">command</param>
+        private void Voice_OnNew(string command)
+        {
+            if ((_primaryAnchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated))
+            {
+                CloseSplashMenu();
+                OpenMainMenu();
+                _mainMenuUiViewReference.NewSubMenu.Open();
+            }
         }
 
         /// <inheritdoc />
@@ -204,6 +235,8 @@ namespace CreateAR.SpirePlayer
 
             // kill any other UI
             _frame.Release();
+
+            _voice.Unregister("new");
 
             Log.Info(this, "Exited {0}", GetType().Name);
         }
@@ -241,7 +274,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void OpenMainMenu()
         {
-            _ui
+            if (_mainMenuUiViewReference == null)
+            {
+                _ui
                 .Open<MainMenuUIView>(new UIReference
                 {
                     UIDataId = "Design.MainMenu"
@@ -261,6 +296,7 @@ namespace CreateAR.SpirePlayer
                 .OnFailure(ex => Log.Error(this,
                     "Could not open MainMenuUIView : {0}",
                     ex));
+            }
         }
 
         /// <summary>

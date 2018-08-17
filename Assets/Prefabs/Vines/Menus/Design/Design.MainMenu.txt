@@ -4,7 +4,7 @@
 	<ScaleTransition>
 		<Menu id='menu' showBackButton=true layout.radius=0.3 layout.degrees=70.0>
 			
-			<SubMenu label='New Element' icon='plus'>
+			<SubMenu id='submenu-new' label='New Element' icon='plus'>
 				<Button id='btn-new-asset' label='Asset' icon='tree' />
 				<Button id='btn-new-anchor' label='Anchor' icon='anchor' />
 				<Button id='btn-new-text' label='Text' icon='text' visible=false />

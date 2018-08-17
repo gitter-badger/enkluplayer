@@ -52,7 +52,32 @@ namespace CreateAR.SpirePlayer.IUX
             _elements = elements;
             _renderer = GameObject.AddComponent<SubMenuWidgetLineRenderer>();
         }
-        
+
+        /// <summary>
+        /// Opens the submenu.
+        /// </summary>
+        public void Open()
+        {
+            // hide any other menus at the same level
+            if (null != Parent)
+            {
+                var siblings = Parent.Children;
+                for (var i = 0; i < siblings.Count; i++)
+                {
+                    var submenu = siblings[i] as SubMenuWidget;
+                    if (null != submenu && submenu != this)
+                    {
+                        submenu.Close();
+                    }
+                }
+            }
+
+            // show yourself
+            _menu.Schema.Set("visible", true);
+
+            UpdateButtonState();
+        }
+
         /// <inheritdoc />
         protected override void LoadInternalAfterChildren()
         {
@@ -131,31 +156,6 @@ namespace CreateAR.SpirePlayer.IUX
                 _button.Schema.Set("icon", _iconProp.Value);
                 _button.Schema.Set("ready.color", "Ready");
             }
-        }
-
-        /// <summary>
-        /// Opens the submenu.
-        /// </summary>
-        private void Open()
-        {
-            // hide any other menus at the same level
-            if (null != Parent)
-            {
-                var siblings = Parent.Children;
-                for (var i = 0; i < siblings.Count; i++)
-                {
-                    var submenu = siblings[i] as SubMenuWidget;
-                    if (null != submenu && submenu != this)
-                    {
-                        submenu.Close();
-                    }
-                }
-            }
-
-            // show yourself
-            _menu.Schema.Set("visible", true);
-
-            UpdateButtonState();
         }
 
         /// <summary>
