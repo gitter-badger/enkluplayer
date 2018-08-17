@@ -200,6 +200,8 @@ namespace CreateAR.SpirePlayer
                     OpenSplashMenu();
 
                     _voice.Register("new", Voice_OnNew);
+
+                 
                 })
                 .OnFailure(ex => Log.Error(this, "Could not load user preferences!"));
         }
@@ -210,15 +212,12 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">command</param>
         private void Voice_OnNew(string command)
         {
-            _primaryAnchor.OnPrimaryLocated(() =>
+            if ((_primaryAnchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated))
             {
                 CloseSplashMenu();
-                if (_mainMenuUiViewReference == null)
-                {
-                    OpenMainMenu();
-                }
-                _mainMenuUiViewReference.SubMenu.Open();
-            });
+                OpenMainMenu();
+                _mainMenuUiViewReference.NewSubMenu.Open();
+            }
         }
 
         /// <inheritdoc />
@@ -276,7 +275,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void OpenMainMenu()
         {
-            _ui
+            if (_mainMenuUiViewReference == null)
+            {
+                _ui
                 .Open<MainMenuUIView>(new UIReference
                 {
                     UIDataId = "Design.MainMenu"
@@ -296,6 +297,7 @@ namespace CreateAR.SpirePlayer
                 .OnFailure(ex => Log.Error(this,
                     "Could not open MainMenuUIView : {0}",
                     ex));
+            }
         }
 
         /// <summary>
