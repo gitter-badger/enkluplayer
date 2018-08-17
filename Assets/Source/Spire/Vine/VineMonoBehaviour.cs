@@ -73,6 +73,12 @@ namespace CreateAR.SpirePlayer
             
             _element = Elements.Element(_description);
 
+            var unityElement = _element as IUnityElement;
+            if (null != unityElement)
+            {
+                unityElement.GameObject.transform.SetParent(transform, false);
+            }
+
             return true;
         }
 
