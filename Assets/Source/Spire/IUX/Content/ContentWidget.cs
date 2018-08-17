@@ -9,7 +9,7 @@ using UnityEngine;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Widget that loads + holds an asset.
+    /// Widget that loads + holds an asset, behaviors, and vines.
     /// </summary>
     public class ContentWidget : Widget
     {
@@ -237,7 +237,7 @@ namespace CreateAR.SpirePlayer
 
             TeardownScripts();
 
-            // TODO: reset element -- all props need reset.
+            // TODO: reset element -- all props need reset from data
 
             SetupScripts();
         }
@@ -277,12 +277,13 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            var scripts = new SpireScript[len];
             var tokens = new IMutableAsyncToken<SpireScript>[len];
             for (var i = 0; i < len; i++)
             {
                 var data = value[i];
                 var scriptId = data["id"].AsString;
-                var script = _scripts.Create(scriptId, _scriptTag);
+                var script = scripts[i] = _scripts.Create(scriptId, _scriptTag);
                 if (null == script)
                 {
                     var error = string.Format(
@@ -297,14 +298,45 @@ namespace CreateAR.SpirePlayer
                     continue;
                 }
 
-                var token = tokens[i] = script.OnReady;
-                token.OnSuccess(RunScript);
+                tokens[i] = script.OnReady;
             }
 
             // when all scripts are loaded, resolve the mutable token
             Async
                 .All(tokens)
                 .OnSuccess(_ => _onScriptsLoaded.Succeed(this))
+                .OnSuccess(_ =>
+                {
+                    // start all vines
+                    for (var i = 0; i < len; i++)
+                    {
+                        var script = scripts[i];
+                        if (null == script)
+                        {
+                            continue;
+                        }
+
+                        if (script.Data.Type == ScriptType.Vine)
+                        {
+                            RunVine(script);
+                        }
+                    }
+
+                    // start all behaviors
+                    for (var i = 0; i < len; i++)
+                    {
+                        var script = scripts[i];
+                        if (null == script)
+                        {
+                            continue;
+                        }
+
+                        if (script.Data.Type == ScriptType.Behavior)
+                        {
+                            RunBehavior(script);
+                        }
+                    }
+                })
                 .OnFailure(_onScriptsLoaded.Fail);
         }
 
@@ -325,27 +357,39 @@ namespace CreateAR.SpirePlayer
             // release scripts we created
             _scripts.ReleaseAll(_scriptTag);
         }
-        
+
         /// <summary>
-        /// Runs script.
+        /// Runs a vine script
         /// </summary>
-        /// <param name="script">The script to run.</param>
-        private void RunScript(SpireScript script)
+        /// <param name="script">The vine to run.</param>
+        private void RunVine(SpireScript script)
         {
-            Log.Info(this, "Run script {0}.", script.Data);
-            
-            switch (script.Data.Type)
+            Log.Info(this, "Run vine : {0}", script.Data.Id);
+
+            VineMonoBehaviour component = null;
+
+            var found = false;
+            for (int j = 0, jlen = _vineComponents.Count; j < jlen; j++)
             {
-                case ScriptType.Behavior:
+                component = _vineComponents[j];
+                if (component.Script.Data.Id == script.Data.Id)
                 {
-                    RunBehavior(script);
+                    component.Exit();
+
+                    found = true;
                     break;
                 }
-                case ScriptType.Vine:
-                {
-                    RunVine(script);
-                    break;
-                }
+            }
+
+            if (!found)
+            {
+                component = GameObject.AddComponent<VineMonoBehaviour>();
+                _vineComponents.Add(component);
+            }
+
+            if (component.Initialize(script))
+            {
+                component.Enter();
             }
         }
 
@@ -384,49 +428,6 @@ namespace CreateAR.SpirePlayer
         }
         
         /// <summary>
-        /// Runs a vine script
-        /// </summary>
-        /// <param name="script">The vine to run.</param>
-        private void RunVine(SpireScript script)
-        {
-            VineMonoBehaviour component = null;
-
-            var found = false;
-            for (int j = 0, jlen = _vineComponents.Count; j < jlen; j++)
-            {
-                component = _vineComponents[j];
-                if (component.Script.Data.Id == script.Data.Id)
-                {
-                    component.Exit();
-
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                component = GameObject.AddComponent<VineMonoBehaviour>();
-                _vineComponents.Add(component);
-            }
-
-            if (component.Initialize(script))
-            {
-                component.Enter();
-            }
-        }
-
-        /// <summary>
-        /// Called when the anchor ancestor has been loaded.
-        /// </summary>
-        /// <param name="anchor">The anchor.</param>
-        private void Anchor_OnLocated(WorldAnchorWidget anchor)
-        {
-            UpdateAsset();
-            UpdateScripts();
-        }
-
-        /// <summary>
         /// Called when the assembler has completed seting up the asset.
         /// </summary>
         private void Assembler_OnAssemblyComplete(GameObject instance)
@@ -462,6 +463,12 @@ namespace CreateAR.SpirePlayer
             UpdateAsset();
         }
 
+        /// <summary>
+        /// Called when the scripts src changes.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
         private void Scripts_OnChanged(
             ElementSchemaProp<string> prop,
             string prev,
