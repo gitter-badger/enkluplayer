@@ -21,5 +21,10 @@ namespace CreateAR.SpirePlayer
         /// Okay button.
         /// </summary>
         event Action OnOk;
+
+        /// <summary>
+        /// Disables action button.
+        /// </summary>
+        void DisableAction();
     }
 }

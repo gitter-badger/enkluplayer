@@ -154,7 +154,7 @@ namespace CreateAR.SpirePlayer
                     _app.Uninitialize();
                     _app.Initialize();
                 });
-
+            
             _app.Initialize();
         }
 

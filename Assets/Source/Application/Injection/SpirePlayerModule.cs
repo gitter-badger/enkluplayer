@@ -174,6 +174,7 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<SceneUpdateService>().To<SceneUpdateService>().ToSingleton();
                     binder.Bind<ElementActionHelperService>().To<ElementActionHelperService>().ToSingleton();
                     binder.Bind<UserPreferenceService>().To<UserPreferenceService>().ToSingleton();
+                    binder.Bind<VersioningService>().To<VersioningService>().ToSingleton();
 
 #if NETFX_CORE
                     binder.Bind<IDeviceMetaProvider>().To<NetCoreDeviceMetaProvider>().ToSingleton();
@@ -210,6 +211,7 @@ namespace CreateAR.SpirePlayer
 
                     // all states
                     {
+                        binder.Bind<VersionErrorApplicationState>().To<VersionErrorApplicationState>();
                         binder.Bind<InitializeApplicationState>().To<InitializeApplicationState>();
                         binder.Bind<LoginApplicationState>().To<LoginApplicationState>();
                         binder.Bind<HoloLoginApplicationState>().To<HoloLoginApplicationState>();
@@ -254,6 +256,7 @@ namespace CreateAR.SpirePlayer
                                 binder.Bind<ApplicationStatePackage>().To(new ApplicationStatePackage(
                                     new IState[]
                                     {
+                                        binder.GetInstance<VersionErrorApplicationState>(),
                                         binder.GetInstance<InitializeApplicationState>(),
                                         binder.GetInstance<LoginApplicationState>(),
                                         binder.GetInstance<HoloLoginApplicationState>(),
@@ -279,6 +282,7 @@ namespace CreateAR.SpirePlayer
                                 binder.Bind<ApplicationStatePackage>().To(new ApplicationStatePackage(
                                     new IState[]
                                     {
+                                        binder.GetInstance<VersionErrorApplicationState>(),
                                         binder.GetInstance<InitializeApplicationState>(),
                                         binder.GetInstance<LoginApplicationState>(),
                                         binder.GetInstance<SignOutApplicationState>(),
@@ -330,6 +334,7 @@ namespace CreateAR.SpirePlayer
                     {
                         // Order is important.
                         binder.GetInstance<EnvironmentUpdateService>(),
+                        binder.GetInstance<VersioningService>(),
                         binder.GetInstance<AssetUpdateService>(),
                         binder.GetInstance<ScriptUpdateService>(),
                         binder.GetInstance<MaterialUpdateService>(),

@@ -23,6 +23,7 @@ namespace CreateAR.SpirePlayer
         private readonly IWorldAnchorProvider _anchors;
         private readonly IAppSceneManager _scenes;
         private readonly BleServiceConfiguration _bleConfig;
+
         /// <summary>
         /// Constructor.
         /// </summary>

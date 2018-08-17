@@ -13,6 +13,9 @@ namespace CreateAR.SpirePlayer
         public bool IsConnected { get; private set; }
 
         /// <inheritdoc />
+        public event Action OnConnected;
+
+        /// <inheritdoc />
         public IAsyncToken<Void> Connect(EnvironmentData environment)
         {
             return new AsyncToken<Void>(new Exception("Offline."));
