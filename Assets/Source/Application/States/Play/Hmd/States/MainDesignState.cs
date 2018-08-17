@@ -200,7 +200,6 @@ namespace CreateAR.SpirePlayer
                     OpenSplashMenu();
 
                     _voice.Register("new", Voice_OnNew);
-
                  
                 })
                 .OnFailure(ex => Log.Error(this, "Could not load user preferences!"));
