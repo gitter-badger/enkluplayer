@@ -189,7 +189,7 @@ namespace CreateAR.SpirePlayer
 
                 await _writer.StoreAsync();
 
-                Log.Info(this, "Message sent.");
+                LogVerbose("Message sent.");
             }
             catch (Exception exception)
             {

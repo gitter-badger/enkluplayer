@@ -146,17 +146,17 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
                     binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-#if UNITY_EDITOR
-                    binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
-#else
-                    binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
-#endif
+    #if UNITY_EDITOR
+                        binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
+    #else
+                        binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
+    #endif
 #elif UNITY_EDITOR
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
                     binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
 #elif NETFX_CORE
                     binder.Bind<IConnection>().To<UwpConnection>().ToSingleton();
-                    binder.Bind<IBridge>().To<UwpBridge>().ToSingleton();
+                    binder.Bind<IBridge>().To<OfflineBridge>().ToSingleton();
 #endif
                 }
 
@@ -175,6 +175,12 @@ namespace CreateAR.SpirePlayer
                     binder.Bind<ElementActionHelperService>().To<ElementActionHelperService>().ToSingleton();
                     binder.Bind<UserPreferenceService>().To<UserPreferenceService>().ToSingleton();
                     binder.Bind<VersioningService>().To<VersioningService>().ToSingleton();
+
+#if NETFX_CORE
+                    binder.Bind<CommandService>().To<UwpCommandService>().ToSingleton();
+#else
+                    binder.Bind<CommandService>().To<CommandService>().ToSingleton();
+#endif
 
 #if NETFX_CORE
                     binder.Bind<IDeviceMetaProvider>().To<NetCoreDeviceMetaProvider>().ToSingleton();
@@ -343,7 +349,8 @@ namespace CreateAR.SpirePlayer
                         binder.GetInstance<ElementActionHelperService>(),
                         binder.GetInstance<UserPreferenceService>(),
                         binder.GetInstance<DeviceResourceUpdateService>(),
-                        binder.GetInstance<ApplicationStateService>()
+                        binder.GetInstance<ApplicationStateService>(),
+                        binder.GetInstance<CommandService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }

@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.Commons.Unity.Logging;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.SpirePlayer
@@ -43,7 +43,13 @@ namespace CreateAR.SpirePlayer
                     })
                 .OnSuccess(response =>
                 {
-                    if (response.Payload.Success)
+                    if (null == response.Payload)
+                    {
+                        token.Fail(new Exception(string.Format(
+                            "Could not deserialize payload : [{0}].",
+                            Encoding.UTF8.GetString(response.Raw))));
+                    }
+                    else if (response.Payload.Success)
                     {
                         token.Succeed(Void.Instance);
                     }
