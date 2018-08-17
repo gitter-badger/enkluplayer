@@ -364,6 +364,8 @@ namespace CreateAR.SpirePlayer
         /// <param name="script">The vine to run.</param>
         private void RunVine(SpireScript script)
         {
+            Log.Info(this, "Run vine : {0}", script.Data.Id);
+
             VineMonoBehaviour component = null;
 
             var found = false;

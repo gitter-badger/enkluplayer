@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
-using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -22,6 +21,11 @@ namespace CreateAR.SpirePlayer
         private Element _element;
 
         /// <summary>
+        /// True iff Enter() has been called but not Exit().
+        /// </summary>
+        private bool _isEntered;
+
+        /// <summary>
         /// Imports from vine.
         /// </summary>
         [Inject]
@@ -31,7 +35,7 @@ namespace CreateAR.SpirePlayer
         /// Creates elements.
         /// </summary>
         [Inject]
-        public IElementFactory Elements { get; private set; }
+        public IElementFactory Elements { get; set; }
         
         /// <summary>
         /// SpireScript.
@@ -44,6 +48,54 @@ namespace CreateAR.SpirePlayer
         public bool Initialize(SpireScript script)
         {
             Script = script;
+            Script.OnReady.OnSuccess(_ =>
+            {
+                DestroyElements();
+                Import(script);
+
+                if (_isEntered)
+                {
+                    CreateElements();
+                }
+            });
+
+            return Import(script);
+        }
+        
+        /// <summary>
+        /// Runs script.
+        /// </summary>
+        public bool Enter()
+        {
+            _isEntered = true;
+
+            return CreateElements();
+        }
+        
+        /// <summary>
+        /// Destroys component and created elements.
+        /// </summary>
+        public void Exit()
+        {
+            _isEntered = false;
+
+            DestroyElements();
+        }
+
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void OnDestroy()
+        {
+            Exit();
+        }
+
+        /// <summary>
+        /// Imports script.
+        /// </summary>
+        /// <param name="script">The script.</param>
+        /// <returns></returns>
+        private bool Import(SpireScript script)
+        {
+            Log.Info(this, "Importing script.");
 
             try
             {
@@ -62,15 +114,15 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Runs script.
+        /// Creates elements.
         /// </summary>
-        public bool Enter()
+        private bool CreateElements()
         {
             if (null == _description)
             {
                 return false;
             }
-            
+
             _element = Elements.Element(_description);
 
             var unityElement = _element as IUnityElement;
@@ -83,21 +135,15 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Destroys component and created elements.
+        /// Cleans up elements.
         /// </summary>
-        public void Exit()
+        private void DestroyElements()
         {
             if (null != _element)
             {
                 _element.Destroy();
                 _element = null;
             }
-        }
-    
-        /// <inheritdoc cref="MonoBehaviour"/>
-        private void OnDestroy()
-        {
-            Exit();
         }
     }
 }
