@@ -193,9 +193,13 @@ namespace CreateAR.SpirePlayer
 
                 // login
                 {
-                    if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86
-                        || config.ParsedPlatform == RuntimePlatform.WSAPlayerARM
-                        || config.ParsedPlatform == RuntimePlatform.WSAPlayerX64)
+                    if (config.ParsedPlatform == RuntimePlatform.MetroPlayerX86 && UnityEngine.Application.isEditor)
+                    {
+                        binder.Bind<ILoginStrategy>().To<EditorLoginStrategy>();
+                    }
+                    else if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86
+                       || config.ParsedPlatform == RuntimePlatform.WSAPlayerARM
+                       || config.ParsedPlatform == RuntimePlatform.WSAPlayerX64)
                     {
                         binder.Bind<ILoginStrategy>().To<QrLoginStrategy>();
                     }
@@ -230,6 +234,7 @@ namespace CreateAR.SpirePlayer
                         binder.Bind<MobileArSetupApplicationState>().To<MobileArSetupApplicationState>();
                         binder.Bind<HmdArSetupApplicationState>().To<HmdArSetupApplicationState>();
                         binder.Bind<MobileLoginStrategy>().To<MobileLoginStrategy>();
+                        binder.Bind<EditorLoginStrategy>().To<EditorLoginStrategy>();
                         binder.Bind<LoadAppApplicationState>().To<LoadAppApplicationState>();
                         binder.Bind<LoadDefaultAppApplicationState>().To<LoadDefaultAppApplicationState>();
                         binder.Bind<ReceiveAppApplicationState>().To<ReceiveAppApplicationState>();

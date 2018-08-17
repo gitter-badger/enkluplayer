@@ -134,6 +134,9 @@ MonoBehaviour:
     - UIDataId: PrimaryAnchor.Adjust
       Element: {fileID: 114747922377501724, guid: 199dbf963b4da064788b066ca09a0376,
         type: 2}
+    - UIDataId: Editor.Input
+      Element: {fileID: 114491377387284416, guid: 8b5efe3cbebd8514da51f00321be2fa4,
+        type: 2}
   - Platforms: 08000000
     Links:
     - UIDataId: Common.Error
