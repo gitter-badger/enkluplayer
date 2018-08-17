@@ -37,6 +37,11 @@ namespace CreateAR.SpirePlayer
         private readonly IVoiceCommandManager _voice;
 
         /// <summary>
+        /// Primary anchor.
+        /// </summary>
+        private readonly IPrimaryAnchorManager _primaryAnchor;
+
+        /// <summary>
         /// Manages controllers.
         /// </summary>
         private readonly IElementControllerManager _controllers;
@@ -107,7 +112,8 @@ namespace CreateAR.SpirePlayer
             IWorldAnchorProvider anchorProvider,
             IUIManager ui,
             UserPreferenceService preferenceService,
-             IVoiceCommandManager voice)
+            IPrimaryAnchorManager primaryAnchor,
+            IVoiceCommandManager voice)
         {
             _config = config;
             _messages = messages;
@@ -116,6 +122,7 @@ namespace CreateAR.SpirePlayer
             _anchorProvider = anchorProvider;
             _ui = ui;
             _preferenceService = preferenceService;
+            _primaryAnchor = primaryAnchor;
             _voice = voice;
         }
 
@@ -203,13 +210,15 @@ namespace CreateAR.SpirePlayer
         /// <param name="command">command</param>
         private void Voice_OnNew(string command)
         {
-            CloseSplashMenu();
-            if(_mainMenuUiViewReference == null)
+            _primaryAnchor.OnPrimaryLocated(() =>
             {
-                OpenMainMenu();
-                Log.Info(this, "Null reference. hecne in if");
-            }
-            _mainMenuUiViewReference.SubMenu.Open();
+                CloseSplashMenu();
+                if (_mainMenuUiViewReference == null)
+                {
+                    OpenMainMenu();
+                }
+                _mainMenuUiViewReference.SubMenu.Open();
+            });
         }
 
         /// <inheritdoc />
