@@ -188,7 +188,6 @@ namespace CreateAR.SpirePlayer
                 {
                     if (config.ParsedPlatform == RuntimePlatform.MetroPlayerX86 && UnityEngine.Application.isEditor)
                     {
-                        Debug.Log("In Editor");
                         binder.Bind<ILoginStrategy>().To<EditorLoginStrategy>();
                     }
                     else if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86

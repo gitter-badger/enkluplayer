@@ -52,11 +52,9 @@ namespace CreateAR.SpirePlayer
             var frame = _ui.CreateFrame();
             
             _loginToken = new AsyncToken<CredentialsData>();
-            _loginToken.OnSuccess(_ => frame.Release());
-            _loginToken.OnFailure(_ => frame.Release());
+            _loginToken.OnFinally(_ => frame.Release());
 
             OpenLogin();
-            Log.Info(this,"Logged in:Editor");
             
             return _loginToken.Token();
         }
