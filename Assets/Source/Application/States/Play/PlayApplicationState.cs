@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.AR;
+using CreateAR.SpirePlayer.Scripting;
 using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;

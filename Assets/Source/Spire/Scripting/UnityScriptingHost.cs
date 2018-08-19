@@ -1,7 +1,7 @@
 ﻿using System;
+using CreateAR.SpirePlayer.Scripting;
 using Jint;
 using Jint.Native;
-using Jint.Unity;
 
 namespace CreateAR.SpirePlayer
 {

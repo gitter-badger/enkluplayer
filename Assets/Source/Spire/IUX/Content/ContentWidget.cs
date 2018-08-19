@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using CreateAR.SpirePlayer.Scripting;
 using LightJson;
 using UnityEngine;
 
@@ -17,6 +18,11 @@ namespace CreateAR.SpirePlayer
         /// Unique tag for this piece of <c>Content</c>.
         /// </summary>
         private readonly string _scriptTag = System.Guid.NewGuid().ToString();
+
+        /// <summary>
+        /// Resolver for JsApi `requires` functionality.
+        /// </summary>
+        private readonly IScriptRequireResolver _resolver;
 
         /// <summary>
         /// Loads and executes scripts.
@@ -110,6 +116,7 @@ namespace CreateAR.SpirePlayer
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
+            IScriptRequireResolver resolver,
             IScriptManager scripts,
             IContentAssembler assembler,
             IWorldAnchorProvider provider)
@@ -119,6 +126,7 @@ namespace CreateAR.SpirePlayer
                 tweens,
                 colors)
         {
+            _resolver = resolver;
             _scripts = scripts;
             _assembler = assembler;
             _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
@@ -130,9 +138,10 @@ namespace CreateAR.SpirePlayer
         {
             base.LoadInternalAfterChildren();
 
+            Debug.LogWarning("UnityScriptingHost");
             _host = new UnityScriptingHost(
                 this,
-                null,
+                _resolver,
                 _scripts);
             _jsCache = new ElementJsCache(_host);
             _host.SetValue("this", _jsCache.Element(this));

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Reflection;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.Scripting;
 using Jint;
 using Jint.Native;
-using Jint.Unity;
 using strange.extensions.injector.api;
 using UnityEngine;
 

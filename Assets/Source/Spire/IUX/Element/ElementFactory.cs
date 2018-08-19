@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.Qr;
+using CreateAR.SpirePlayer.Scripting;
 using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
 
@@ -31,6 +32,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IImageLoader _imageLoader;
         private readonly IHttpService _http;
         private readonly IWorldAnchorProvider _provider;
+        private readonly IScriptRequireResolver _resolver;
         private readonly IScriptManager _scripts;
         private readonly IAssetManager _assets;
         private readonly IAssetPoolManager _pools;
@@ -68,6 +70,7 @@ namespace CreateAR.SpirePlayer.IUX
             IImageLoader imageLoader,
             IHttpService http,
             IWorldAnchorProvider provider,
+            IScriptRequireResolver resolver,
             IScriptManager scripts,
             IAssetManager assets,
             IAssetPoolManager pools,
@@ -91,6 +94,7 @@ namespace CreateAR.SpirePlayer.IUX
             _imageLoader = imageLoader;
             _http = http;
             _provider = provider;
+            _resolver = resolver;
             _scripts = scripts;
             _assets = assets;
             _pools = pools;
@@ -373,6 +377,7 @@ namespace CreateAR.SpirePlayer.IUX
                         _layers,
                         _tweens,
                         _colors,
+                        _resolver,
                         _scripts,
                         new ModelContentAssembler(_assets, _pools),
                         _provider);
