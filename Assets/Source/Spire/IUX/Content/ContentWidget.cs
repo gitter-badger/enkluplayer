@@ -137,8 +137,7 @@ namespace CreateAR.SpirePlayer
         protected override void LoadInternalAfterChildren()
         {
             base.LoadInternalAfterChildren();
-
-            Debug.LogWarning("UnityScriptingHost");
+            
             _host = new UnityScriptingHost(
                 this,
                 _resolver,
