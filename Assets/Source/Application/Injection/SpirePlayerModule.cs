@@ -579,6 +579,7 @@ namespace CreateAR.SpirePlayer
                 // scripting interfaces
                 {
                     binder.Bind<MessageRouterScriptingInterface>().To<MessageRouterScriptingInterface>().ToSingleton();
+                    binder.Bind<ProximityManager>().ToValue(LookupComponent<ProximityManager>());
                 }
             }
 
