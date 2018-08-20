@@ -80,6 +80,14 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Scalar squared magnitude of the vector.
+        /// </summary>
+        public float MagnitudeSqr
+        {
+            get { return x * x + y * y + z * z; }
+        }
+
+        /// <summary>
         /// Returns the same vector with magnitude of 1.
         /// </summary>
         public Vec3 Normalized
@@ -210,6 +218,28 @@ namespace CreateAR.SpirePlayer
                 lhs.x - rhs.x,
                 lhs.y - rhs.y,
                 lhs.z - rhs.z);
+        }
+
+        /// <summary>
+        /// Returns the squared distance between two Vec3's.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
+        public static float DistanceSqr(Vec3 from, Vec3 to)
+        {
+            return (from - to).MagnitudeSqr;
+        }
+
+        /// <summary>
+        /// Returns the distance between two Vec3's. If possible, use DistanceSqr for performance instead.
+        /// </summary>
+        /// <param name="lhs"></param>
+        /// <param name="rhs"></param>
+        /// <returns></returns>
+        public static float Distance(Vec3 from, Vec3 to)
+        {
+            return (from - to).Magnitude;
         }
     }
 }
