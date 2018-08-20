@@ -10,6 +10,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class SpireScript
     {
+        public interface IScriptExecutor
+        {
+            void Send(string name, params object[] parameters);
+        }
+
         /// <summary>
         /// For parsing scripts.
         /// </summary>
@@ -49,6 +54,11 @@ namespace CreateAR.SpirePlayer
         /// Source code.
         /// </summary>
         public string Source { get; private set; }
+
+        /// <summary>
+        /// Sets an object that is responsible for executing this script.
+        /// </summary>
+        public IScriptExecutor Executor { get; set; }
 
         /// <summary>
         /// Creates a new SpireScript.
@@ -125,7 +135,16 @@ namespace CreateAR.SpirePlayer
         /// <param name="parameters">The parameters.</param>
         public void Send(string name, params object[] parameters)
         {
-            throw new NotImplementedException();
+            if (null != Executor)
+            {
+                Executor.Send(name, parameters);
+            }
+            else
+            {
+                Log.Warning(this, "{0} message sent to {1}, but no Executor could be found.",
+                    name,
+                    null != Data ? Data.Id : "Unknown");
+            }
         }
 
         /// <summary>

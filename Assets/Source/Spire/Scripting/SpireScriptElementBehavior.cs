@@ -2,6 +2,7 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Jint.Native;
+using Jint.Native.Object;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -9,17 +10,12 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// This object is able to run a JS script on an Element similar to a MonoBehaviour.
     /// </summary>
-    public class SpireScriptElementBehavior
+    public class SpireScriptElementBehavior : SpireScript.IScriptExecutor
     {
         /// <summary>
         /// An engine to run the scripts with.
         /// </summary>
         private UnityScriptingHost _engine;
-
-        /// <summary>
-        /// The script to execute.
-        /// </summary>
-        private SpireScript _script;
 
         /// <summary>
         /// True iff has been started.
@@ -29,6 +25,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// References to JS functions.
         /// </summary>
+        private ICallable _msgMissing;
         private ICallable _enter;
         private ICallable _update;
         private ICallable _exit;
@@ -41,12 +38,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Arguments.
         /// </summary>
-        private readonly JsValue[] _arguments = new JsValue[0];
+        private readonly JsValue[] _nullArgs = new JsValue[0];
 
         /// <summary>
         /// Retrieves the <c>SpireScript</c> instance.
         /// </summary>
-        public SpireScript Script { get { return _script; } }
+        public SpireScript Script { get; private set; }
 
         /// <summary>
         /// Initializes the host.
@@ -69,7 +66,8 @@ namespace CreateAR.SpirePlayer
             }
 
             _engine = engine;
-            _script = script;
+            Script = script;
+            Script.Executor = this;
 
             var thisBinding = JsValue.FromObject(
                 _engine,
@@ -85,7 +83,7 @@ namespace CreateAR.SpirePlayer
 
             try
             {
-                _engine.Execute(_script.Program);
+                _engine.Execute(Script.Program);
             }
             catch (Exception exception)
             {
@@ -96,6 +94,7 @@ namespace CreateAR.SpirePlayer
 
             _this = thisBinding;
 
+            _msgMissing = _engine.GetFunction("msgMissing");
             _enter = _engine.GetFunction("enter");
             _update = _engine.GetFunction("update");
             _exit = _engine.GetFunction("exit");
@@ -111,13 +110,13 @@ namespace CreateAR.SpirePlayer
                 throw new Exception("Script already started.");
             }
 
-            Log.Info(this, "Entering script {0}.", _script.Data);
+            Log.Info(this, "Entering script {0}.", Script.Data);
 
             _isStarted = true;
 
             if (null != _enter)
             {
-                _enter.Call(_this, _arguments);
+                _enter.Call(_this, _nullArgs);
             }
         }
 
@@ -131,13 +130,13 @@ namespace CreateAR.SpirePlayer
                 throw new Exception("Script hasn't been started.");
             }
 
-            Log.Info(this, "Exiting script {0}.", _script.Data);
+            Log.Info(this, "Exiting script {0}.", Script.Data);
 
             _isStarted = false;
 
             if (null != _exit)
             {
-                _exit.Call(_this, _arguments);
+                _exit.Call(_this, _nullArgs);
             }
         }
 
@@ -148,7 +147,48 @@ namespace CreateAR.SpirePlayer
         {
             if (_isStarted && null != _update)
             {
-                _update.Call(_this, _arguments);
+                _update.Call(_this, _nullArgs);
+            }
+        }
+
+        /// <inheritdoc cref="SpireScript.IScriptExecutor.Send"/>
+        public void Send(string name, params object[] parameters)
+        {
+            var len = parameters.Length;
+            var fn = _engine.GetFunction(name);
+            if (null != fn)
+            {
+                if (len == 0)
+                {
+                    fn.Call(_this, _nullArgs);
+                }
+                else
+                {
+                    var values = new JsValue[len];
+                    for (var i = 0; i < len; i++)
+                    {
+                        values[i] = JsValue.FromObject(_engine, parameters[i]);
+                    }
+
+                    fn.Call(_this, values);
+                }
+            }
+            else if (null != _msgMissing)
+            {
+                if (parameters.Length == 0)
+                {
+                    _msgMissing.Call(_this, new []{ new JsValue(name) });
+                }
+                else
+                {
+                    var values = new[]
+                    {
+                        new JsValue(name),
+                        JsValue.FromObject(_engine, parameters)
+                    };
+
+                    _msgMissing.Call(_this, values);
+                }
             }
         }
     }
