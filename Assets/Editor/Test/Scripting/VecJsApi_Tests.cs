@@ -82,12 +82,39 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             Assert.IsTrue(Math.Abs(result - 1f) < Mathf.Epsilon);
         }
 
+        [Test]
         public void Vec3Normalize()
         {
             var normalized = _engine.Run<Vec3>(@"v.normalize(vec3(10, 0, 0))");
             
             Assert.IsTrue(Math.Abs(normalized.x - 1f) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(normalized.Magnitude - 1f) < Mathf.Epsilon);
+        }
+
+        [Test]
+        public void Vec3Distance()
+        {
+            Vector3 a = new Vector3(-2.2f, 6, -3);
+            Vector3 b = new Vector3(8.7f, -2, 0);
+
+            string aStr = string.Format("vec3({0}, {1}, {2})", a.x, a.y, a.z);
+            string bStr = string.Format("vec3({0}, {1}, {2})", b.x, b.y, b.z);
+
+            double result = _engine.Run<double>(string.Format("v.distance({0}, {1})", aStr, bStr));
+            Assert.IsTrue(Math.Abs(result - Vector3.Distance(a, b)) < Mathf.Epsilon);
+        }
+
+        [Test]
+        public void Vec3DistanceSqr()
+        {
+            Vector3 a = new Vector3(-2.2f, 6, -3);
+            Vector3 b = new Vector3(8.7f, -2, 0);
+
+            string aStr = string.Format("vec3({0}, {1}, {2})", a.x, a.y, a.z);
+            string bStr = string.Format("vec3({0}, {1}, {2})", b.x, b.y, b.z);
+
+            float result = (float) _engine.Run<double>(string.Format("v.distanceSqr({0}, {1})", aStr, bStr));
+            Assert.IsTrue(Math.Abs(result - (a - b).sqrMagnitude) < Mathf.Epsilon);
         }
     }
 }
