@@ -234,8 +234,8 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Returns the distance between two Vec3's. If possible, use DistanceSqr for performance instead.
         /// </summary>
-        /// <param name="lhs"></param>
-        /// <param name="rhs"></param>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
         /// <returns></returns>
         public static float Distance(Vec3 from, Vec3 to)
         {
