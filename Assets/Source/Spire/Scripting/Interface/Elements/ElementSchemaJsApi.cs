@@ -220,6 +220,17 @@ namespace CreateAR.SpirePlayer
         {
             return _schema.Get<float>(key).Value;
         }
+
+        /// <summary>
+        /// Retrieves the value of an Element's own number prop, with a customizeable default.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <param name="default">default(float) if unprovided.</param>
+        /// <returns></returns>
+        public float getOwnNumber(string key, float @default = default(float))
+        {
+            return _schema.GetOwn(key, @default).Value;
+        }
         
         /// <summary>
         /// Sets the value of a number prop.
@@ -241,6 +252,17 @@ namespace CreateAR.SpirePlayer
         public string getString(string key)
         {
             return _schema.Get<string>(key).Value;
+        }
+
+        /// <summary>
+        /// Retrieves the value of an Element's own string prop, with a customizeable default.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <param name="default">default(string) if unprovided.</param>
+        /// <returns></returns>
+        public string getOwnString(string key, string @default = default(string))
+        {
+            return _schema.GetOwn(key, @default).Value;
         }
         
         /// <summary>
@@ -271,6 +293,17 @@ namespace CreateAR.SpirePlayer
         public void setBool(string key, bool value)
         {
             _schema.Set(key, value);
+        }
+
+        /// <summary>
+        /// Retrieves the value of an Element's own bool prop, with a customizeable default.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <param name="default">default(bool) if unprovided.</param>
+        /// <returns></returns>
+        public bool getOwnBool(string key, bool @default = default(bool))
+        {
+            return _schema.GetOwn(key, @default).Value;
         }
         
         /// <summary>
