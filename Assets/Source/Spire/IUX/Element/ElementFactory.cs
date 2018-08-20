@@ -39,7 +39,8 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IScanImporter _scanImporter;
         private readonly IMetricsService _metrics;
         private readonly IMessageRouter _messages;
-        
+        private readonly IElementJsFactory _elementJsFactory;
+
         /// <summary>
         /// All widgets inherit this base schema
         /// </summary>
@@ -75,7 +76,8 @@ namespace CreateAR.SpirePlayer.IUX
             IScanLoader scanLoader,
             IScanImporter scanImporter,
             IMetricsService metrics,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            IElementJsFactory elementJsFactory)
         {
             _parser = parser;
             _gizmos = gizmos;
@@ -99,7 +101,8 @@ namespace CreateAR.SpirePlayer.IUX
             _scanImporter = scanImporter;
             _metrics = metrics;
             _messages = messages;
-            
+            _elementJsFactory = elementJsFactory;
+
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
             _baseSchema.Set("tweenOut", TweenType.Deliberate);
@@ -374,7 +377,8 @@ namespace CreateAR.SpirePlayer.IUX
                         _tweens,
                         _colors,
                         _scripts,
-                        new ModelContentAssembler(_assets, _pools));
+                        new ModelContentAssembler(_assets, _pools),
+                        _elementJsFactory);
                 }
                 case ElementTypes.TRANSITION_SCALE:
                 {

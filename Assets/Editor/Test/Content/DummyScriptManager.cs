@@ -30,6 +30,11 @@ namespace CreateAR.SpirePlayer.Test
             throw new NotImplementedException();
         }
 
+        public void Send(string query, string name, params object[] parameters)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Release(SpireScript script)
         {
             throw new NotImplementedException();

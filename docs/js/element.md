@@ -75,7 +75,7 @@ this.props.watchNumberOnce('foo', function(prev, next) {
 element.destroy();
 ```
 
-##### Send (Not Implemented)
+##### Send
 
 ```javascript
 var menu = this.find('..menu-new');
@@ -85,10 +85,20 @@ menu.send('open');
 menu.send('register', 'foo', 'bar', 5); // register('foo', 'bar', 5);
 ```
 
-##### msgMissing (Not Implemented)
+##### msgMissing
 
 ```javascript
 function msgMissing(type, args) {
 	log.info(type + ' was called but I could not handle it.');
 }
+```
+
+##### Events
+
+```javascript
+a.on('activated', function(evt) {
+	// 
+});
+
+a.off('activate', onActivated);
 ```

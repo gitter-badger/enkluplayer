@@ -47,14 +47,12 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes the host.
         /// </summary>
-        /// <param name="scripts">Manages scripts.</param>
-        /// <param name="cache">Cache of JS wrappers.</param>
+        /// <param name="factory">Creates elements.</param>
         /// <param name="engine">JS Engine.</param>
         /// <param name="script">The script to execute.</param>
         /// <param name="element">The element.</param>
         public void Initialize(
-            IScriptManager scripts,
-            IElementJsCache cache,
+            IElementJsFactory factory,
             UnityScriptingHost engine,
             SpireScript script,
             Element element)
@@ -65,40 +63,13 @@ namespace CreateAR.SpirePlayer
             }
 
             _engine = engine;
+
             Script = script;
             Script.Executor = this;
-
-            var thisBinding = JsValue.FromObject(
-                _engine,
-                new ElementJs(scripts, cache, _engine, element));
-            _engine.ExecutionContext.ThisBinding = thisBinding;
             
-            // common apis
-            _engine.SetValue("v", Vec3Methods.Instance);
-            _engine.SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
-            _engine.SetValue("q", QuatMethods.Instance);
-            _engine.SetValue("quat", new Func<float, float, float, float, Quat>(QuatMethods.create));
-            _engine.SetValue("time", TimeJsApi.Instance);
-
-            try
-            {
-                _engine.Execute(Script.Program);
-            }
-            catch (Exception exception)
-            {
-                Debug.LogWarning("Could not execute script: " + exception);
-
-                return;
-            }
-
-            _this = thisBinding;
-
-            _msgMissing = _engine.GetFunction("msgMissing");
-            _enter = _engine.GetFunction("enter");
-            _update = _engine.GetFunction("update");
-            _exit = _engine.GetFunction("exit");
+            Run(factory, element);
         }
-
+        
         /// <summary>
         /// Enters the script.
         /// </summary>
@@ -189,6 +160,42 @@ namespace CreateAR.SpirePlayer
                     _msgMissing.Call(_this, values);
                 }
             }
+        }
+
+        /// <summary>
+        /// Inits the script and runs it.
+        /// </summary>
+        private void Run(IElementJsFactory factory, Element element)
+        {
+            var thisBinding = JsValue.FromObject(
+                _engine,
+                factory.Instance(_engine, element));
+            _engine.ExecutionContext.ThisBinding = thisBinding;
+
+            // common apis
+            _engine.SetValue("v", Vec3Methods.Instance);
+            _engine.SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
+            _engine.SetValue("q", QuatMethods.Instance);
+            _engine.SetValue("quat", new Func<float, float, float, float, Quat>(QuatMethods.create));
+            _engine.SetValue("time", TimeJsApi.Instance);
+
+            try
+            {
+                _engine.Execute(Script.Program);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning("Could not execute script: " + exception);
+
+                return;
+            }
+
+            _this = thisBinding;
+
+            _msgMissing = _engine.GetFunction("msgMissing");
+            _enter = _engine.GetFunction("enter");
+            _update = _engine.GetFunction("update");
+            _exit = _engine.GetFunction("exit");
         }
     }
 }

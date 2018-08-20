@@ -1,14 +1,21 @@
 ﻿using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Jint;
+using Jint.Native;
 
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Js API for an element.
     /// </summary>
-    public class ElementJs
+    public class ElementJs : IJsEventDispatcher
     {
+        /// <summary>
+        /// Used to track events.
+        /// </summary>
+        private readonly Dictionary<string, List<ICallable>> _events = new Dictionary<string, List<ICallable>>();
+
         /// <summary>
         /// Runs scripts.
         /// </summary>
@@ -18,16 +25,26 @@ namespace CreateAR.SpirePlayer
         /// Caches ElementJs instances for an engine.
         /// </summary>
         private readonly IElementJsCache _cache;
-
-        /// <summary>
-        /// Element we're wrapping.
-        /// </summary>
-        private readonly Element _element;
-
+        
         /// <summary>
         /// Scratch list for find.
         /// </summary>
         private readonly List<Element> _findScratch = new List<Element>();
+
+        /// <summary>
+        /// The JS engine.
+        /// </summary>
+        private readonly Engine _engine;
+
+        /// <summary>
+        /// This value.
+        /// </summary>
+        private readonly JsValue _this;
+
+        /// <summary>
+        /// Element we're wrapping.
+        /// </summary>
+        protected readonly Element _element;
 
         /// <summary>
         /// The schema interface.
@@ -86,9 +103,12 @@ namespace CreateAR.SpirePlayer
             _scripts = scripts;
             _element = element;
             _cache = cache;
+            _engine = engine;
             
             schema = new ElementSchemaJsApi(engine, _element.Schema);
             transform = new ElementTransformJsApi(_element);
+
+            _this = JsValue.FromObject(_engine, this);
         }
         
         /// <summary>
@@ -126,7 +146,11 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public ElementJs findOne(string query)
         {
-            return _cache.Element(_element.FindOne<Element>(query));
+            var element = _element.FindOne<Element>(query);
+
+            Log.Info(this, "Query : {0} - {1}", _element, element);
+
+            return _cache.Element(element);
         }
 
         /// <summary>
@@ -151,7 +175,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Destroys element.
         /// </summary>
-        public void destroy()
+        public virtual void destroy()
         {
             _element.Destroy();
         }
@@ -164,6 +188,69 @@ namespace CreateAR.SpirePlayer
         public void send(string name, params object[] parameters)
         {
             _scripts.Send(_element.Id, name, parameters);
+        }
+
+        /// <inheritdoc />
+        public void on(string eventType, ICallable fn)
+        {
+            EventList(eventType).Add(fn);
+        }
+
+        /// <inheritdoc />
+        public void off(string eventType)
+        {
+            EventList(eventType).Clear();
+        }
+
+        /// <inheritdoc />
+        public void off(string eventType, ICallable fn)
+        {
+            EventList(eventType).Remove(fn);
+        }
+
+        /// <summary>
+        /// Dispatches an event.
+        /// </summary>
+        /// <param name="eventType">The type of event.</param>
+        /// <param name="evt">The event.</param>
+        protected void Dispatch(string eventType, object evt)
+        {
+            var list = EventList(eventType);
+            var count = list.Count;
+            if (0 == count)
+            {
+                return;
+            }
+
+            var param = new[] { JsValue.FromObject(_engine, evt) };
+            if (1 == count)
+            {
+                list[0].Call(_this, param);
+            }
+            else
+            {
+                var copy = list.ToArray();
+                for (var i = 0; i < count; i++)
+                {
+                    copy[i].Call(_this, param);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the list of event handlers for an event type.
+        /// </summary>
+        /// <param name="eventType">The type.</param>
+        /// <returns></returns>
+        private List<ICallable> EventList(string eventType)
+        {
+            List<ICallable> list;
+            if (!_events.TryGetValue(eventType, out list))
+            {
+                list = _events[eventType] = new List<ICallable>();
+            }
+
+            return list;
         }
     }
 }

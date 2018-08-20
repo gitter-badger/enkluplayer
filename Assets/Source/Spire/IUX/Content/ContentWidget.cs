@@ -27,7 +27,12 @@ namespace CreateAR.SpirePlayer
         /// Assembles <c>Content</c>.
         /// </summary>
         private readonly IContentAssembler _assembler;
-        
+
+        /// <summary>
+        /// Creates elements.
+        /// </summary>
+        private readonly IElementJsFactory _elementJsFactory;
+
         /// <summary>
         /// Caches js objects.
         /// </summary>
@@ -106,7 +111,8 @@ namespace CreateAR.SpirePlayer
             TweenConfig tweens,
             ColorConfig colors,
             IScriptManager scripts,
-            IContentAssembler assembler)
+            IContentAssembler assembler,
+            IElementJsFactory elementFactory )
             : base(
                 gameObject,
                 layers,
@@ -115,6 +121,7 @@ namespace CreateAR.SpirePlayer
         {
             _scripts = scripts;
             _assembler = assembler;
+            _elementJsFactory = elementFactory;
             _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
         }
 
@@ -135,7 +142,7 @@ namespace CreateAR.SpirePlayer
                 this,
                 null,
                 _scripts);
-            _jsCache = new ElementJsCache(_scripts, _host);
+            _jsCache = new ElementJsCache(_elementJsFactory, _host);
             _host.SetValue("this", _jsCache.Element(this));
 
             _srcAssetProp = Schema.GetOwn("assetSrc", "");
@@ -334,6 +341,7 @@ namespace CreateAR.SpirePlayer
 
                         if (script.Data.Type == ScriptType.Behavior)
                         {
+                            script.OnReady.OnSuccess(RunBehavior);
                             RunBehavior(script);
                         }
                     }
@@ -351,7 +359,10 @@ namespace CreateAR.SpirePlayer
             // destroy components
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
             {
-                _scriptComponents[i].Exit();
+                var component = _scriptComponents[i];
+
+                component.Script.OnReady.Remove(RunBehavior);
+                component.Exit();
             }
             _scriptComponents.Clear();
 
@@ -424,7 +435,7 @@ namespace CreateAR.SpirePlayer
                 _scriptComponents.Add(component);
             }
 
-            component.Initialize(_scripts, _jsCache, _host, script, this);
+            component.Initialize(_elementJsFactory, _host, script, this);
             component.Enter();
         }
         

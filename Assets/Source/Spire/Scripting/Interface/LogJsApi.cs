@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
 {
@@ -28,6 +27,12 @@ namespace CreateAR.SpirePlayer
         // ReSharper disable once InconsistentNaming
         public void debug(object message, params object[] replacements)
         {
+            if (null == message)
+            {
+                Log.Debug(_context, "null");
+                return;
+            }
+
             Log.Debug(_context, string.Format(message.ToString(), replacements));
         }
 
@@ -37,6 +42,12 @@ namespace CreateAR.SpirePlayer
         // ReSharper disable once InconsistentNaming
         public void info(object message, params object[] replacements)
         {
+            if (null == message)
+            {
+                Log.Info(_context, "null");
+                return;
+            }
+
             Log.Info(_context, string.Format(message.ToString(), replacements));
         }
 
@@ -46,6 +57,12 @@ namespace CreateAR.SpirePlayer
         // ReSharper disable once InconsistentNaming
         public void warn(object message, params object[] replacements)
         {
+            if (null == message)
+            {
+                Log.Warning(_context, "null");
+                return;
+            }
+
             Log.Warning(_context, string.Format(message.ToString(), replacements));
         }
 
@@ -55,6 +72,12 @@ namespace CreateAR.SpirePlayer
         // ReSharper disable once InconsistentNaming
         public void error(object message, params object[] replacements)
         {
+            if (null == message)
+            {
+                Log.Error(_context, "null");
+                return;
+            }
+
             Log.Error(_context, string.Format(message.ToString(), replacements));
         }
     }
