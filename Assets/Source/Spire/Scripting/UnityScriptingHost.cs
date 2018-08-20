@@ -29,6 +29,13 @@ namespace CreateAR.SpirePlayer
             SetValue("log", new LogJsApi(context));
             SetValue("require", new Func<string, JsValue>(
                 value => resolver.Resolve(scripts, this, value)));
+
+            // common apis
+            SetValue("v", Vec3Methods.Instance);
+            SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
+            SetValue("q", QuatMethods.Instance);
+            SetValue("quat", new Func<float, float, float, float, Quat>(QuatMethods.create));
+            SetValue("time", TimeJsApi.Instance);
         }
     }
 }

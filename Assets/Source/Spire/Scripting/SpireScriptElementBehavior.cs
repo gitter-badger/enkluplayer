@@ -71,13 +71,6 @@ namespace CreateAR.SpirePlayer
                 _engine,
                 new ElementJs(_engine, null, element));
             _engine.ExecutionContext.ThisBinding = thisBinding;
-            
-            // common apis
-            _engine.SetValue("v", Vec3Methods.Instance);
-            _engine.SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
-            _engine.SetValue("q", QuatMethods.Instance);
-            _engine.SetValue("quat", new Func<float, float, float, float, Quat>(QuatMethods.create));
-            _engine.SetValue("time", TimeJsApi.Instance);
 
             try
             {
