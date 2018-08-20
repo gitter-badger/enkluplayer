@@ -51,10 +51,14 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes the host.
         /// </summary>
+        /// <param name="scripts">Manages scripts.</param>
+        /// <param name="cache">Cache of JS wrappers.</param>
         /// <param name="engine">JS Engine.</param>
         /// <param name="script">The script to execute.</param>
         /// <param name="element">The element.</param>
         public void Initialize(
+            IScriptManager scripts,
+            IElementJsCache cache,
             UnityScriptingHost engine,
             SpireScript script,
             Element element)
@@ -69,7 +73,7 @@ namespace CreateAR.SpirePlayer
 
             var thisBinding = JsValue.FromObject(
                 _engine,
-                new ElementJs(_engine, null, element));
+                new ElementJs(scripts, cache, _engine, element));
             _engine.ExecutionContext.ThisBinding = thisBinding;
             
             // common apis

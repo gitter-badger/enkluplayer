@@ -14,9 +14,9 @@ namespace CreateAR.SpirePlayer
     public class ContentWidget : Widget
     {
         /// <summary>
-        /// Unique tag for this piece of <c>Content</c>.
+        /// Unique tag used for managing scripts.
         /// </summary>
-        private readonly string _scriptTag = System.Guid.NewGuid().ToString();
+        private string _scriptTag;
 
         /// <summary>
         /// Loads and executes scripts.
@@ -27,12 +27,7 @@ namespace CreateAR.SpirePlayer
         /// Assembles <c>Content</c>.
         /// </summary>
         private readonly IContentAssembler _assembler;
-
-        /// <summary>
-        /// Provider.
-        /// </summary>
-        private readonly IWorldAnchorProvider _provider;
-
+        
         /// <summary>
         /// Caches js objects.
         /// </summary>
@@ -111,8 +106,7 @@ namespace CreateAR.SpirePlayer
             TweenConfig tweens,
             ColorConfig colors,
             IScriptManager scripts,
-            IContentAssembler assembler,
-            IWorldAnchorProvider provider)
+            IContentAssembler assembler)
             : base(
                 gameObject,
                 layers,
@@ -122,7 +116,14 @@ namespace CreateAR.SpirePlayer
             _scripts = scripts;
             _assembler = assembler;
             _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
-            _provider = provider;
+        }
+
+        /// <inheritdoc />
+        protected override void LoadInternalBeforeChildren()
+        {
+            base.LoadInternalBeforeChildren();
+
+            _scriptTag = Id;
         }
 
         /// <inheritdoc />
@@ -423,7 +424,7 @@ namespace CreateAR.SpirePlayer
                 _scriptComponents.Add(component);
             }
 
-            component.Initialize(_host, script, this);
+            component.Initialize(_scripts, _jsCache, _host, script, this);
             component.Enter();
         }
         

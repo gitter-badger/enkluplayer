@@ -1,3 +1,4 @@
+using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using Jint.Parser.Ast;
@@ -115,6 +116,16 @@ namespace CreateAR.SpirePlayer
 
                     _onReady.Fail(exception);
                 });
+        }
+
+        /// <summary>
+        /// Passes a message to script.
+        /// </summary>
+        /// <param name="name">Name of the message.</param>
+        /// <param name="parameters">The parameters.</param>
+        public void Send(string name, params object[] parameters)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

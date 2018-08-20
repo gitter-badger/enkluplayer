@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using System.Collections.Generic;
+using CreateAR.SpirePlayer.IUX;
 using Jint;
 
 namespace CreateAR.SpirePlayer
@@ -9,14 +10,24 @@ namespace CreateAR.SpirePlayer
     public class ElementJs
     {
         /// <summary>
-        /// Element we're wrapping.
+        /// Runs scripts.
         /// </summary>
-        private readonly Element _element;
-        
+        private readonly IScriptManager _scripts;
+
         /// <summary>
         /// Caches ElementJs instances for an engine.
         /// </summary>
-        private readonly ElementJsCache _cache;
+        private readonly IElementJsCache _cache;
+
+        /// <summary>
+        /// Element we're wrapping.
+        /// </summary>
+        private readonly Element _element;
+
+        /// <summary>
+        /// Scratch list for find.
+        /// </summary>
+        private readonly List<Element> _findScratch = new List<Element>();
 
         /// <summary>
         /// The schema interface.
@@ -51,11 +62,12 @@ namespace CreateAR.SpirePlayer
         {
             get
             {
-                var children = _element.Children;
-                var wrappers = new ElementJs[children.Count];
-                for (int i = 0, len = children.Count; i < len; i++)
+                var all = _element.Children;
+
+                var wrappers = new ElementJs[all.Count];
+                for (int i = 0, len = all.Count; i < len; i++)
                 {
-                    wrappers[i] = _cache.Element(children[i]);
+                    wrappers[i] = _cache.Element(all[i]);
                 }
 
                 return wrappers;
@@ -65,8 +77,13 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ElementJs(Engine engine, ElementJsCache cache, Element element)
+        public ElementJs(
+            IScriptManager scripts,
+            IElementJsCache cache, 
+            Engine engine,
+            Element element)
         {
+            _scripts = scripts;
             _element = element;
             _cache = cache;
             
@@ -80,6 +97,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="element">The element to add as a child.</param>
         public void addChild(ElementJs element)
         {
+            if (null == element)
+            {
+                return;
+            }
+
             _element.AddChild(element._element);
         }
 
@@ -87,17 +109,61 @@ namespace CreateAR.SpirePlayer
         /// Removes a child.
         /// </summary>
         /// <param name="element">The child to remove.</param>
-        public void removeChild(ElementJs element)
+        public bool removeChild(ElementJs element)
         {
-            _element.RemoveChild(element._element);
+            if (null == element)
+            {
+                return false;
+            }
+
+            return _element.RemoveChild(element._element);
+        }
+        
+        /// <summary>
+        /// Finds a single element by a query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <returns></returns>
+        public ElementJs findOne(string query)
+        {
+            return _cache.Element(_element.FindOne<Element>(query));
         }
 
         /// <summary>
-        /// Destroys the element.
+        /// Finds a collection of elements that match a query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        /// <returns></returns>
+        public ElementJs[] find(string query)
+        {
+            _findScratch.Clear();
+            _element.Find(query, _findScratch);
+
+            var results = new ElementJs[_findScratch.Count];
+            for (int i = 0, len = _findScratch.Count; i < len; i++)
+            {
+                results[i] = _cache.Element(_findScratch[i]);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Destroys element.
         /// </summary>
         public void destroy()
         {
             _element.Destroy();
+        }
+
+        /// <summary>
+        /// Passes a message to all attached scripts.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="parameters">The parameters.</param>
+        public void send(string name, params object[] parameters)
+        {
+            _scripts.Send(_element.Id, name, parameters);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
@@ -172,6 +171,20 @@ namespace CreateAR.SpirePlayer
             _records.Add(new ScriptRecord(script, tags));
 
             return script;
+        }
+
+        /// <inheritdoc cref="IScriptManager"/>
+        public void Send(string query, string name, params object[] parameters)
+        {
+            for (int i = 0, len = _records.Count; i < len; i++)
+            {
+                var record = _records[i];
+                var tags = record.Script.Data.Tags;
+                if (_resolver.Resolve(query, ref tags))
+                {
+                    record.Script.Send(name, parameters);
+                }
+            }
         }
 
         /// <inheritdoc cref="IScriptManager"/>

@@ -75,6 +75,20 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Destroys an element.
+        /// </summary>
+        /// <param name="element">The element to destroy.</param>
+        public void destroy(ElementJs element)
+        {
+            if (null == element)
+            {
+                return;
+            }
+
+            element.destroy();
+        }
+
+        /// <summary>
         /// Retrieves an element by id.
         /// </summary>
         /// <param name="id">The id of the element.</param>
