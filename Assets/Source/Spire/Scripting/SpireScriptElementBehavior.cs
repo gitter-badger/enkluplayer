@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Jint.Native;
-using Jint.Native.Object;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
