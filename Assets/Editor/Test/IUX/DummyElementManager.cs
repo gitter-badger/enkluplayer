@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using CreateAR.SpirePlayer.IUX;
@@ -9,10 +10,13 @@ namespace CreateAR.SpirePlayer.Test.UI
         private readonly List<Element> _elements = new List<Element>();
 
         public ReadOnlyCollection<Element> All { get; private set; }
+        public Action<Element> OnAdded { get; private set; }
+        public Action<Element> OnRemoved { get; private set; }
 
         public void Add(Element element)
         {
             _elements.Add(element);
+            OnAdded(element);
         }
 
         public Element ById(string id)
