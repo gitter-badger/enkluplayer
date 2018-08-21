@@ -16,6 +16,13 @@ var root = app.scenes.root('myScene');
 // retrieves element
 button = app.elements.byId('specific-id');
 
+// creates element as a child of another
+var a = element.create(root, 'Button');
+var b = element.create(a, 'Button', 'specific-id');
+
+// creates elements from a vine, as a child of another element
+var c = element.createFromVine(a, '<Button />');
+
 // destroys element
 app.elements.destroy(button);
 ```
@@ -38,7 +45,6 @@ app.network.sync(
 		    }
 		}
 	    
-
 	    return false;
 	});
 
