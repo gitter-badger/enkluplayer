@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using Jint;
 using Jint.Native;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// An engine to run the scripts with.
         /// </summary>
-        private UnityScriptingHost _engine;
+        private Engine _engine;
 
         /// <summary>
         /// True iff has been started.
@@ -53,7 +54,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="element">The element.</param>
         public void Initialize(
             IElementJsFactory factory,
-            UnityScriptingHost engine,
+            Engine engine,
             SpireScript script,
             Element element)
         {
