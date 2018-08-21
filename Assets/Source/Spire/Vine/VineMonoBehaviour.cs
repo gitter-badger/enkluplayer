@@ -36,7 +36,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [Inject]
         public IElementFactory Elements { get; set; }
-        
+
+        /// <summary>
+        /// The parent of the script.
+        /// </summary>
+        public Element Parent { get; private set; }
+
         /// <summary>
         /// SpireScript.
         /// </summary>
@@ -45,8 +50,9 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes script.
         /// </summary>
-        public bool Initialize(SpireScript script)
+        public bool Initialize(Element parent, SpireScript script)
         {
+            Parent = parent;
             Script = script;
             Script.OnReady.OnSuccess(_ =>
             {
@@ -61,7 +67,7 @@ namespace CreateAR.SpirePlayer
 
             return Import(script);
         }
-        
+
         /// <summary>
         /// Runs script.
         /// </summary>
@@ -125,11 +131,7 @@ namespace CreateAR.SpirePlayer
 
             _element = Elements.Element(_description);
 
-            var unityElement = _element as IUnityElement;
-            if (null != unityElement)
-            {
-                unityElement.GameObject.transform.SetParent(transform, false);
-            }
+            Parent.AddChild(_element);
 
             return true;
         }

@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using Jint;
 
 namespace CreateAR.SpirePlayer

@@ -399,7 +399,7 @@ namespace CreateAR.SpirePlayer
                 _vineComponents.Add(component);
             }
 
-            if (component.Initialize(script))
+            if (component.Initialize(this, script))
             {
                 component.Enter();
             }

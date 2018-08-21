@@ -1,4 +1,5 @@
-﻿using Jint.Native;
+﻿using System;
+using Jint.Native;
 
 namespace CreateAR.SpirePlayer
 {
@@ -12,7 +13,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="type">The type of event.</param>
         /// <param name="fn">The function to handle the event.</param>
-        void on(string type, ICallable fn);
+        void on(string type, Func<JsValue, JsValue[], JsValue> fn);
 
         /// <summary>
         /// Removes all handlers for a type.
@@ -25,6 +26,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="fn">The handler.</param>
-        void off(string type, ICallable fn);
+        void off(string type, Func<JsValue, JsValue[], JsValue> fn);
     }
 }

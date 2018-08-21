@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Jint;
@@ -14,7 +15,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Used to track events.
         /// </summary>
-        private readonly Dictionary<string, List<ICallable>> _events = new Dictionary<string, List<ICallable>>();
+        private readonly Dictionary<string, List<Func<JsValue, JsValue[], JsValue>>> _events = new Dictionary<string, List<Func<JsValue, JsValue[], JsValue>>>();
 
         /// <summary>
         /// Runs scripts.
@@ -147,9 +148,7 @@ namespace CreateAR.SpirePlayer
         public ElementJs findOne(string query)
         {
             var element = _element.FindOne<Element>(query);
-
-            Log.Info(this, "Query : {0} - {1}", _element, element);
-
+            
             return _cache.Element(element);
         }
 
@@ -191,7 +190,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void on(string eventType, ICallable fn)
+        public void on(string eventType, Func<JsValue, JsValue[], JsValue> fn)
         {
             EventList(eventType).Add(fn);
         }
@@ -203,7 +202,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void off(string eventType, ICallable fn)
+        public void off(string eventType, Func<JsValue, JsValue[], JsValue> fn)
         {
             EventList(eventType).Remove(fn);
         }
@@ -222,17 +221,19 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            Log.Info(this, "Dispatch '{0}' event to {1} listeners.", eventType, count);
+
             var param = new[] { JsValue.FromObject(_engine, evt) };
             if (1 == count)
             {
-                list[0].Call(_this, param);
+                list[0](_this, param);
             }
             else
             {
                 var copy = list.ToArray();
                 for (var i = 0; i < count; i++)
                 {
-                    copy[i].Call(_this, param);
+                    copy[i](_this, param);
                 }
             }
         }
@@ -242,12 +243,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="eventType">The type.</param>
         /// <returns></returns>
-        private List<ICallable> EventList(string eventType)
+        private List<Func<JsValue, JsValue[], JsValue>> EventList(string eventType)
         {
-            List<ICallable> list;
+            List<Func<JsValue, JsValue[], JsValue>> list;
             if (!_events.TryGetValue(eventType, out list))
             {
-                list = _events[eventType] = new List<ICallable>();
+                list = _events[eventType] = new List<Func<JsValue, JsValue[], JsValue>>();
             }
 
             return list;
