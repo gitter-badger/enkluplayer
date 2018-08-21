@@ -13,10 +13,6 @@ var root = app.scenes.root('myScene');
 ##### Elements
 
 ```javascript
-// creates element
-var button = app.elements.create('Button');
-app.elements.create('Button', 'specific-id');
-
 // retrieves element
 button = app.elements.byId('specific-id');
 
@@ -28,13 +24,25 @@ app.elements.destroy(button);
 
 ```javascript
 var element = app.elements.byId('myElement');
-app.network.sync(element, function(el, prop, prev, next) {
-    // sync only position
-    if (prop.name === 'position') {
-    	return true;
-    }
+app.network.sync(
+	element,
+	function(el, evt) {
+		// evt.type = 'create' | 'update' | 'move' | delete'
 
-    return false;
-});
+		if (evt.type === 'update') {
+			// sync only position
+		    if (evt.prop.name === 'position') {
+		    	if (evt.prop.prev != evt.prop.next) {
+		    		return true;
+		    	}
+		    }
+		}
+	    
+
+	    return false;
+	});
+
+// ...
+
 app.network.unsync(element);
 ```

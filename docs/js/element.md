@@ -102,3 +102,14 @@ a.on('activated', function(evt) {
 
 a.off('activate', onActivated);
 ```
+
+##### Create
+
+```javascript
+// creates element as a child
+var a = element.create('Button');
+var b = element.create('Button', 'specific-id');
+
+// creates elements from a vine, as a child
+var c = element.createFromVine('<Button />');
+```

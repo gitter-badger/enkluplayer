@@ -11,12 +11,32 @@ var foo = 5;
 var button = this.find('..btn-foo');
 ```
 
-##### Start (Not Implemented)
+##### Enter (Partially Implemented)
 
-Any logic put in `start` will be executed after all scripts have been initialized.
+Called as part of FSM flow after all scripts have been initialized. This is also guaranteed to be called after IUX scripts on the same element.
 
 ```javascript
-function start() {
-	
+function enter() {
+	log.info('Enter!')
+}
+```
+
+##### Update
+
+Called as part of FSM flow on every frame.
+
+```javascript
+function update() {
+	acc += time.dt();
+}
+```
+
+##### Exit
+
+Called as part of FSM flow.
+
+```javascript
+function exit() {
+	log.info('Exit.')
 }
 ```
