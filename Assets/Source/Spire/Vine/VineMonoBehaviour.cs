@@ -19,12 +19,7 @@ namespace CreateAR.SpirePlayer
         /// The element created.
         /// </summary>
         private Element _element;
-
-        /// <summary>
-        /// True iff Enter() has been called but not Exit().
-        /// </summary>
-        private bool _isEntered;
-
+        
         /// <summary>
         /// Imports from vine.
         /// </summary>
@@ -50,7 +45,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes script.
         /// </summary>
-        public bool Initialize(Element parent, SpireScript script)
+        public void Initialize(Element parent, SpireScript script)
         {
             Parent = parent;
             Script = script;
@@ -58,14 +53,8 @@ namespace CreateAR.SpirePlayer
             {
                 DestroyElements();
                 Import(script);
-
-                if (_isEntered)
-                {
-                    CreateElements();
-                }
+                Enter();
             });
-
-            return Import(script);
         }
 
         /// <summary>
@@ -73,8 +62,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public bool Enter()
         {
-            _isEntered = true;
-
             return CreateElements();
         }
         
@@ -83,8 +70,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void Exit()
         {
-            _isEntered = false;
-
             DestroyElements();
         }
 
@@ -101,7 +86,7 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         private bool Import(SpireScript script)
         {
-            Log.Info(this, "Importing script.");
+            Log.Info(this, "Importing Vine {0}.", script.Data.Id);
 
             try
             {
@@ -128,7 +113,7 @@ namespace CreateAR.SpirePlayer
             {
                 return false;
             }
-
+            
             _element = Elements.Element(_description);
 
             Parent.AddChild(_element);

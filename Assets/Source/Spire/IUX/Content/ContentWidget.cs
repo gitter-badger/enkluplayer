@@ -341,8 +341,8 @@ namespace CreateAR.SpirePlayer
 
                         if (script.Data.Type == ScriptType.Behavior)
                         {
+                            // TODO: pull inside of script
                             script.OnReady.OnSuccess(RunBehavior);
-                            RunBehavior(script);
                         }
                     }
                 })
@@ -399,10 +399,7 @@ namespace CreateAR.SpirePlayer
                 _vineComponents.Add(component);
             }
 
-            if (component.Initialize(this, script))
-            {
-                component.Enter();
-            }
+            component.Initialize(this, script);
         }
 
         /// <summary>
