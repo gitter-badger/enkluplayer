@@ -13,7 +13,7 @@
             _elementsApi = new AppElementsJsApi(cache, ElementFactory, Elements);
             _engine.SetValue("elements", _elementsApi);
 
-            _elementsApi.create("Container", "a");
+            _elementsApi.create(null, "Container", "a");
         }
 
         [RuntimeTest]
