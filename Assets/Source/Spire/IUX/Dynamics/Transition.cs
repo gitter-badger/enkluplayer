@@ -1,21 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
-    using System;
-    using System.Collections.Generic;
-    using UnityEngine;
-
-    namespace CreateAR.SpirePlayer.IUX
-    {
-    }
-
     /// <summary>
-    /// Applies a scale transition to elements added + removed.
+    /// Applies an alpha transition to elements added + removed and set to visible.
     /// </summary>
-    public class ScaleTransition : Element, IUnityElement
+    public class Transition : Element, IUnityElement
     {
         /// <summary>
         /// Internal record-keeping.
@@ -31,7 +24,7 @@ namespace CreateAR.SpirePlayer.IUX
             /// The cached visible property.
             /// </summary>
             public readonly ElementSchemaProp<bool> Visible;
-            
+
             /// <summary>
             /// True iff the element should be tweening.
             /// </summary>
@@ -43,14 +36,14 @@ namespace CreateAR.SpirePlayer.IUX
             public DateTime StartTime;
 
             /// <summary>
-            /// Start scale.
+            /// Start value.
             /// </summary>
-            public Vec3 Start;
+            public float Start;
 
             /// <summary>
-            /// End scale.
+            /// End value.
             /// </summary>
-            public Vec3 End;
+            public float End;
 
             /// <summary>
             /// Tween duration, in seconds.
@@ -76,7 +69,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             /// <summary>
-            /// Marks as not-dirty/
+            /// Marks as not-dirty.
             /// </summary>
             public void Read()
             {
@@ -94,7 +87,7 @@ namespace CreateAR.SpirePlayer.IUX
                 IsDirty = true;
             }
         }
-        
+
         /// <summary>
         /// Configuration.
         /// </summary>
@@ -106,6 +99,26 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly List<TweenRecord> _records = new List<TweenRecord>();
 
         /// <summary>
+        /// Prop that tells what prop name to adjust.
+        /// </summary>
+        private ElementSchemaProp<string> _propNameProp;
+
+        /// <summary>
+        /// Prop with start value.
+        /// </summary>
+        private ElementSchemaProp<float> _startValueProp;
+
+        /// <summary>
+        /// Prop with end value.
+        /// </summary>
+        private ElementSchemaProp<float> _endValueProp;
+
+        /// <summary>
+        /// Name of the tween.
+        /// </summary>
+        private ElementSchemaProp<string> _tweenProp;
+
+        /// <summary>
         /// The GameObject.
         /// </summary>
         public GameObject GameObject { get; private set; }
@@ -113,11 +126,22 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ScaleTransition(GameObject gameObject, TweenConfig tweens)
+        public Transition(GameObject gameObject, TweenConfig tweens)
         {
             GameObject = gameObject;
 
             _tweens = tweens;
+        }
+
+        /// <inheritdoc />
+        protected override void LoadInternalBeforeChildren()
+        {
+            base.LoadInternalBeforeChildren();
+
+            _propNameProp = Schema.GetOwn("prop", "alpha");
+            _startValueProp = Schema.GetOwn("start", 0f);
+            _endValueProp = Schema.GetOwn("end", 1f);
+            _tweenProp = Schema.GetOwn("tween", TweenType.Pronounced.ToString());
         }
 
         /// <inheritdoc />
@@ -179,17 +203,18 @@ namespace CreateAR.SpirePlayer.IUX
                 // update tween
                 if (record.IsTweening)
                 {
+                    var propName = _propNameProp.Value;
                     var t = (float)(now.Subtract(record.StartTime).TotalSeconds / record.Duration);
                     if (t > 1)
                     {
-                        record.Element.Schema.Set("scale", record.End);
+                        record.Element.Schema.Set(propName, record.End);
                         record.IsTweening = false;
                     }
                     else
                     {
                         record.Element.Schema.Set(
-                            "scale",
-                            Vec3.Lerp(record.Start, record.End, t));
+                            propName,
+                            record.Start + (record.End - record.Start) * t);
                     }
                 }
             }
@@ -201,14 +226,15 @@ namespace CreateAR.SpirePlayer.IUX
         /// <param name="record">The record to tween.</param>
         private void StartTween(TweenRecord record)
         {
-            var start = Vec3.Zero;
+            var start = _startValueProp.Value;
+            var end = _endValueProp.Value;
 
-            record.Element.Schema.Set("scale", start);
+            record.Element.Schema.Set(_propNameProp.Value, start);
 
             record.IsTweening = true;
-            record.Duration = _tweens.DurationSeconds(TweenType.Responsive);
+            record.Duration = _tweens.DurationSeconds(_tweenProp.Value.ToEnum<TweenType>());
             record.Start = start;
-            record.End = Vec3.One;
+            record.End = end;
             record.StartTime = DateTime.Now;
         }
     }

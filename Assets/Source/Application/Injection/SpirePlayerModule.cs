@@ -571,7 +571,16 @@ namespace CreateAR.SpirePlayer
             {
                 binder.Bind<JavaScriptParser>().ToValue(new JavaScriptParser(false));
                 binder.Bind<IScriptParser>().To<DefaultScriptParser>().ToSingleton();
-                binder.Bind<IScriptCache>().To<StandardScriptCache>().ToSingleton();
+
+                if (UnityEngine.Application.isEditor)
+                {
+                    binder.Bind<IScriptCache>().To<PassthroughScriptCache>().ToSingleton();
+                }
+                else
+                {
+                    binder.Bind<IScriptCache>().To<StandardScriptCache>().ToSingleton();
+                }
+                
                 binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();
                 binder.Bind<IScriptRequireResolver>().ToValue(new SpireScriptRequireResolver(binder));
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();

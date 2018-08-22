@@ -41,7 +41,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="buttonWidget">The button.</param>
         private void Button_OnActivated(ButtonWidget buttonWidget)
         {
-            Dispatch(EVENT_ACTIVATED, buttonWidget);
+            Dispatch(EVENT_ACTIVATED, _cache.Element(buttonWidget));
         }
     }
 }

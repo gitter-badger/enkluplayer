@@ -98,6 +98,9 @@ namespace CreateAR.SpirePlayer
         [ElementLink(typeof(ScaleTransition))]
         public const int TRANSITION_SCALE = 10000;
 
+        [ElementLink(typeof(Transition))]
+        public const int TRANSITION = 10001;
+
         [ElementLink(typeof(WorldAnchorWidget))]
         public const int WORLD_ANCHOR = 1000000;
 

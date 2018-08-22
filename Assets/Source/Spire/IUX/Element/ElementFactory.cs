@@ -380,6 +380,10 @@ namespace CreateAR.SpirePlayer.IUX
                         new ModelContentAssembler(_assets, _pools),
                         _elementJsFactory);
                 }
+                case ElementTypes.TRANSITION:
+                {
+                    return new Transition(new GameObject("Transition"), _tweens);
+                }
                 case ElementTypes.TRANSITION_SCALE:
                 {
                     return new ScaleTransition(new GameObject("ScaleTransition"), _tweens);

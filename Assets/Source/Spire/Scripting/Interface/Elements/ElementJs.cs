@@ -16,16 +16,6 @@ namespace CreateAR.SpirePlayer
         /// Used to track events.
         /// </summary>
         private readonly Dictionary<string, List<Func<JsValue, JsValue[], JsValue>>> _events = new Dictionary<string, List<Func<JsValue, JsValue[], JsValue>>>();
-
-        /// <summary>
-        /// Runs scripts.
-        /// </summary>
-        private readonly IScriptManager _scripts;
-
-        /// <summary>
-        /// Caches ElementJs instances for an engine.
-        /// </summary>
-        private readonly IElementJsCache _cache;
         
         /// <summary>
         /// Scratch list for find.
@@ -41,6 +31,16 @@ namespace CreateAR.SpirePlayer
         /// This value.
         /// </summary>
         private readonly JsValue _this;
+
+        /// <summary>
+        /// Runs scripts.
+        /// </summary>
+        protected readonly IScriptManager _scripts;
+
+        /// <summary>
+        /// Caches ElementJs instances for an engine.
+        /// </summary>
+        protected readonly IElementJsCache _cache;
 
         /// <summary>
         /// Element we're wrapping.
