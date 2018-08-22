@@ -42,7 +42,7 @@ namespace CreateAR.SpirePlayer
 	    }
 
         /// <summary>
-        /// TODO: REMOVE THIS EVIL.
+        /// TODO: REMOVE THIS EVIL. This is here because of a circular dependency. IElementFactory < == > IElementJsFactory.
         /// </summary>
         /// <param name="jsCache">The cache.</param>
         /// <returns></returns>

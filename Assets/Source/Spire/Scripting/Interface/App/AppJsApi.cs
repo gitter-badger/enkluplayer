@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Interface fo an app. 
