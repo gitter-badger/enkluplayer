@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.Vine;
+﻿using CreateAR.SpirePlayer.IUX;
+using CreateAR.SpirePlayer.Vine;
 
 namespace CreateAR.SpirePlayer.Test.Vine
 {
@@ -7,6 +8,9 @@ namespace CreateAR.SpirePlayer.Test.Vine
     /// </summary>
     public class DummyVinePreProcessor : IVinePreProcessor
     {
+        /// <inheritdoc cref="IVinePreProcessor"/>
+        public ElementSchema DataStore { get; set; }
+
         /// <inheritdoc cref="IVinePreProcessor"/>
         public string Execute(string data)
         {

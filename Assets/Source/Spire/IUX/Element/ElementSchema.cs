@@ -415,6 +415,52 @@ namespace CreateAR.SpirePlayer.IUX
             return Default<T>();
         }
 
+        public object GetOwnValue(string name)
+        {
+            var prop = Prop(name);
+            if (null == prop)
+            {
+                return null;
+            }
+
+            if (!prop.LinkBroken)
+            {
+                return null;
+            }
+
+            var intProp = prop as ElementSchemaProp<int>;
+            if (null != intProp)
+            {
+                return intProp.Value;
+            }
+
+            var floatProp = prop as ElementSchemaProp<float>;
+            if (null != floatProp)
+            {
+                return floatProp.Value;
+            }
+
+            var stringProp = prop as ElementSchemaProp<string>;
+            if (null != stringProp)
+            {
+                return stringProp.Value;
+            }
+
+            var boolProp = prop as ElementSchemaProp<bool>;
+            if (null != boolProp)
+            {
+                return boolProp.Value;
+            }
+
+            var vecProp = prop as ElementSchemaProp<Vec3>;
+            if (null != vecProp)
+            {
+                return vecProp.Value;
+            }
+
+            return ((ElementSchemaProp<Col4>) prop).Value;
+        }
+
         /// <summary>
         /// Returns true iff the schema or parent schemas have a property with
         /// matching name.

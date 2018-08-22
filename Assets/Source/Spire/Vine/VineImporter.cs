@@ -36,9 +36,11 @@ namespace CreateAR.SpirePlayer.Vine
         /// Parses the data.
         /// </summary>
         /// <param name="data">String data.</param>
+        /// <param name="dataStore">Optional data to pass in to preprocessor.</param>
         /// <returns></returns>
-        public ElementDescription Parse(string data)
+        public ElementDescription Parse(string data, ElementSchema dataStore = null)
         {
+            _preProcessor.DataStore = dataStore;
             data = _preProcessor.Execute(data);
 
             var document = _loader.Load(data);

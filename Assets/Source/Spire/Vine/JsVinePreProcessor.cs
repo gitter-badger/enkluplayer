@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text;
+using System.Text.RegularExpressions;
+using CreateAR.SpirePlayer.IUX;
 using Jint;
 using Jint.Native;
 
@@ -13,7 +15,7 @@ namespace CreateAR.SpirePlayer.Vine
         /// <summary>
         /// For creating unique ids.
         /// </summary>
-        private static long _ids = 0;
+        private static long IDS = 0;
         
         /// <summary>
         /// JS engine.
@@ -27,17 +29,29 @@ namespace CreateAR.SpirePlayer.Vine
             });
         });
 
-        /// <summary>
-        /// Transforms an input stream.
-        /// </summary>
-        /// <param name="data">Source data.</param>
-        /// <returns></returns>
+        /// <inheritdoc />
+        public ElementSchema DataStore { get; set; }
+
+        /// <inheritdoc />
         public string Execute(string data)
         {
-            var builder = new StringBuilder();
-
             _engine.Execute("state = {};");
 
+            // data replacement from schema
+            data = ReplaceProps(data);
+
+            // run JS
+            return RunJs(data);
+        }
+
+        /// <summary>
+        /// Runs JS and returns resulting string.
+        /// </summary>
+        /// <param name="data">The vine document.</param>
+        /// <returns></returns>
+        private string RunJs(string data)
+        {
+            var builder = new StringBuilder();
             var start = data.IndexOf("{{", StringComparison.Ordinal);
             while (-1 != start)
             {
@@ -75,10 +89,39 @@ namespace CreateAR.SpirePlayer.Vine
 
             // append the last of the data
             builder.Append(data);
-
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Replace prop keys with values.
+        /// </summary>
+        /// <param name="data">The full data string.</param>
+        /// <returns></returns>
+        private string ReplaceProps(string data)
+        {
+            if (null == DataStore)
+            {
+                return data;
+            }
+
+            var query = new Regex(@"\{\[([\w-_\.]+)\]\}");
+            var match = query.Match(data);
+            while (match.Success)
+            {
+                var propName = match.Groups[1].Value;
+                if (DataStore.HasOwnProp(propName))
+                {
+                    var propValue = DataStore.GetOwnValue(propName).ToString();
+                    data = data.Substring(0, match.Index) + propValue + data.Substring(match.Index + match.Length);
+                }
+
+                // move along
+                match = match.NextMatch();
+            }
+
+            return data;
+        }
+        
         /// <summary>
         /// Creates a safe-ish execution context.
         /// </summary>
@@ -89,7 +132,7 @@ namespace CreateAR.SpirePlayer.Vine
             string script,
             out string contextName)
         {
-            contextName = string.Format("Context_{0}", _ids++);
+            contextName = string.Format("Context_{0}", IDS++);
             return string.Format(@"
 function {0}()
 {{

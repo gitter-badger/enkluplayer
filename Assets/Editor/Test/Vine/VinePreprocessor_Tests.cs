@@ -1,4 +1,6 @@
-﻿using CreateAR.SpirePlayer.Vine;
+﻿using System.Collections.Generic;
+using CreateAR.SpirePlayer.IUX;
+using CreateAR.SpirePlayer.Vine;
 using NUnit.Framework;
 
 namespace CreateAR.SpirePlayer.Test.Vine
@@ -14,13 +16,31 @@ namespace CreateAR.SpirePlayer.Test.Vine
         }
 
         [Test]
+        public void Prop()
+        {
+            var schema = new ElementSchema();
+            schema.Load(new ElementSchemaData
+            {
+                Strings = new Dictionary<string, string>
+                {
+                    { "foo", "bar" }
+                }
+            });
+
+            _preProcessor.DataStore = schema;
+            var processed = _preProcessor.Execute("{[foo]}");
+
+            Assert.AreEqual("bar", processed);
+        }
+
+        [Test]
         public void Script()
         {
             var processed = _preProcessor.Execute("{{return 'foo';}}");
 
             Assert.AreEqual("foo", processed);
         }
-
+        
         [Test]
         public void Script_Loop()
         {

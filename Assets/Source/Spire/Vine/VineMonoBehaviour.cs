@@ -90,7 +90,7 @@ namespace CreateAR.SpirePlayer
 
             try
             {
-                _description = Importer.Parse(Script.Source);
+                _description = Importer.Parse(Script.Source, Parent.Schema);
             }
             catch (Exception exception)
             {
