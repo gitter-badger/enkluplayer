@@ -18,6 +18,11 @@ namespace CreateAR.SpirePlayer
         private Engine _engine;
 
         /// <summary>
+        /// The element this is running on.
+        /// </summary>
+        private Element _element;
+
+        /// <summary>
         /// True iff has been started.
         /// </summary>
         private bool _isStarted;
@@ -45,6 +50,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public SpireScript Script { get; private set; }
 
+        /// <inheritdoc />
+        public ElementSchema Data
+        {
+            get { return null == _element ? null : _element.Schema; }
+        }
+
         /// <summary>
         /// Initializes the host.
         /// </summary>
@@ -64,6 +75,7 @@ namespace CreateAR.SpirePlayer
             }
 
             _engine = engine;
+            _element = element;
 
             Script = script;
             Script.Executor = this;

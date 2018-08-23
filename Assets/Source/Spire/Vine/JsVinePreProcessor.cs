@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Jint;
 using Jint.Native;
@@ -15,7 +17,7 @@ namespace CreateAR.SpirePlayer.Vine
         /// <summary>
         /// For creating unique ids.
         /// </summary>
-        private static long IDS = 0;
+        private static long IDS;
         
         /// <summary>
         /// JS engine.
@@ -37,11 +39,19 @@ namespace CreateAR.SpirePlayer.Vine
         {
             _engine.Execute("state = {};");
 
+            Verbose("Starting preprocessor : {0}", data);
+
             // data replacement from schema
             data = ReplaceProps(data);
 
+            Verbose("Props replaced : {0}", data);
+
             // run JS
-            return RunJs(data);
+            data = RunJs(data);
+
+            Verbose("JS run : {0}", data);
+
+            return data;
         }
 
         /// <summary>
@@ -101,22 +111,102 @@ namespace CreateAR.SpirePlayer.Vine
         {
             if (null == DataStore)
             {
-                return data;
+                DataStore = new ElementSchema();
             }
 
-            var query = new Regex(@"\{\[([\w-_\.]+)\]\}");
-            var match = query.Match(data);
+            var propValue = string.Empty;
+
+            var simpleQuery = new Regex(@"\{\[([\d\w=-_\s\:\.""']+)\]\}");
+            var match = simpleQuery.Match(data);
             while (match.Success)
             {
-                var propName = match.Groups[1].Value;
-                if (DataStore.HasOwnProp(propName))
+                var value = match.Groups[1].Value;
+                var substrings = value.Split(':');
+                if (1 == substrings.Length)
                 {
-                    var propValue = DataStore.GetOwnValue(propName).ToString();
-                    data = data.Substring(0, match.Index) + propValue + data.Substring(match.Index + match.Length);
+                    // no definition is provided, assume it is a string
+                    // TODO: keep a running list of this info, as this may be the second time to see this
+                    var propName = substrings[0];
+                    if (DataStore.HasOwnProp(propName))
+                    {
+                        propValue = DataStore.GetOwn(propName, "").Value;
+                    }
+                    else
+                    {
+                        Log.Warning(this, "No match for '{0}' in schema and no default value provided.", propName);
+                        propValue = "";
+                    }
+                }
+                else
+                {
+                    // definition is provided
+                    var propName = substrings[0].Trim();
+                    var defaultValue = string.Empty;
+                    var definition = substrings[1].Trim();
+                    substrings = definition.Split('=');
+
+                    string type;
+                    if (1 == substrings.Length)
+                    {
+                        // no default value, just type
+                        type = definition;
+                    }
+                    else
+                    {
+                        // type and default value are included in definition
+                        type = substrings[0].Trim();
+                        defaultValue = substrings[1].Trim();
+                    }
+
+                    switch (type)
+                    {
+                        case ElementActionSchemaTypes.INT:
+                        {
+                            int defaultIntValue;
+                            int.TryParse(defaultValue, out defaultIntValue);
+                            propValue = DataStore.GetOwn(propName, defaultIntValue).Value.ToString();
+
+                            break;
+                        }
+                        case ElementActionSchemaTypes.FLOAT:
+                        {
+                            float defaultFloatValue;
+                            float.TryParse(defaultValue, out defaultFloatValue);
+                            propValue = DataStore.GetOwn(propName, defaultFloatValue).Value.ToString();
+
+                            break;
+                        }
+                        case ElementActionSchemaTypes.BOOL:
+                        {
+                            bool defaultBoolValue;
+                            bool.TryParse(defaultValue, out defaultBoolValue);
+                            propValue = DataStore.GetOwn(propName, defaultBoolValue).Value.ToString();
+
+                            break;
+                        }
+                        case ElementActionSchemaTypes.STRING:
+                        {
+                            if (defaultValue.StartsWith("\'") && defaultValue.EndsWith("\'"))
+                            {
+                                defaultValue = defaultValue.Trim('\'');
+                            }
+                            else if (defaultValue.StartsWith("\"") && defaultValue.EndsWith("\""))
+                            {
+                                defaultValue = defaultValue.Trim('"');
+                            }
+
+                            propValue = DataStore.GetOwn(propName, defaultValue).Value;
+
+                            break;
+                        }
+                    }
                 }
 
+                // replace
+                data = data.Substring(0, match.Index) + propValue + data.Substring(match.Index + match.Length);
+
                 // move along
-                match = match.NextMatch();
+                match = simpleQuery.Match(data);
             }
 
             return data;
@@ -140,6 +230,15 @@ function {0}()
 }}",
                 contextName,
                 script);
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        [Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this, message, replacements);
         }
     }
 }

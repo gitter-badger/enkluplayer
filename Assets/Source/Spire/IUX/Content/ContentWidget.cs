@@ -342,12 +342,44 @@ namespace CreateAR.SpirePlayer
 
                         if (script.Data.Type == ScriptType.Behavior)
                         {
-                            // TODO: pull inside of script
+                            Log.Info(this, "Initialize For behavior : {0}", script.Data.TagString);
+                            InitializeBehaviorComponent(script);
+
                             script.OnReady.OnSuccess(RunBehavior);
                         }
                     }
                 })
                 .OnFailure(_onScriptsLoaded.Fail);
+        }
+
+        /// <summary>
+        /// Stops any existing matching components and creates new component for script.
+        /// </summary>
+        /// <param name="script">The script.</param>
+        private void InitializeBehaviorComponent(SpireScript script)
+        {
+            SpireScriptElementBehavior component = null;
+
+            var found = false;
+            for (int j = 0, jlen = _scriptComponents.Count; j < jlen; j++)
+            {
+                component = _scriptComponents[j];
+                if (component.Script.Data.Id == script.Data.Id)
+                {
+                    component.Exit();
+
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                component = new SpireScriptElementBehavior();
+                _scriptComponents.Add(component);
+            }
+
+            component.Initialize(_elementJsFactory, _host, script, this);
         }
 
         /// <summary>
@@ -411,30 +443,16 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "RunBehavior({0}) : {1}", script.Data, script.Source);
 
-            // restart or create new component
-            SpireScriptElementBehavior component = null;
-
-            var found = false;
+            // start component
             for (int j = 0, jlen = _scriptComponents.Count; j < jlen; j++)
             {
-                component = _scriptComponents[j];
+                var component = _scriptComponents[j];
                 if (component.Script.Data.Id == script.Data.Id)
                 {
-                    component.Exit();
-
-                    found = true;
+                    component.Enter();
                     break;
                 }
             }
-
-            if (!found)
-            {
-                component = new SpireScriptElementBehavior();
-                _scriptComponents.Add(component);
-            }
-
-            component.Initialize(_elementJsFactory, _host, script, this);
-            component.Enter();
         }
         
         /// <summary>

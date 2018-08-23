@@ -2,6 +2,7 @@
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Vine;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Test.Vine
 {
@@ -31,6 +32,70 @@ namespace CreateAR.SpirePlayer.Test.Vine
             var processed = _preProcessor.Execute("{[foo]}");
 
             Assert.AreEqual("bar", processed);
+        }
+
+        [Test]
+        public void PropType()
+        {
+            var schema = new ElementSchema();
+            schema.Load(new ElementSchemaData
+            {
+                Bools = new Dictionary<string, bool>
+                {
+                    { "foo", true }
+                }
+            });
+
+            _preProcessor.DataStore = schema;
+            var processed = _preProcessor.Execute("{[foo:bool]}");
+
+            Assert.AreEqual("True", processed);
+        }
+
+        [Test]
+        public void PropDefaultString()
+        {
+            var schema = new ElementSchema();
+            schema.Load(new ElementSchemaData
+            {
+                Strings = new Dictionary<string, string>()
+            });
+
+            _preProcessor.DataStore = schema;
+            var processed = _preProcessor.Execute("{[foo:string = 'Nbd']}");
+
+            Assert.AreEqual("Nbd", processed);
+        }
+
+        [Test]
+        public void PropReplace()
+        {
+            var schema = new ElementSchema();
+            schema.Load(new ElementSchemaData
+            {
+                Strings = new Dictionary<string, string>
+                {
+                    { "title", "This is a Title." },
+                    { "description", "this is a gooooooof ideae" }
+                }
+            });
+
+            _preProcessor.DataStore = schema;
+            var processed = _preProcessor.Execute(@"
+            <Transition>
+                <Caption label='{[title]}' />
+                <Caption
+                    id='description'
+                    label='{[description:string = 'Description of work.']}'
+                    fontSize=100
+                    width=2000.0
+                    alignment='TopCenter'
+                    position=(0, 0, 0)
+                    visible=false
+                />
+            </Transition>");
+
+            Debug.Log(processed);
         }
 
         [Test]
