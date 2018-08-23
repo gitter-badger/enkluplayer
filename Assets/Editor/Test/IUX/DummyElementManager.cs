@@ -10,13 +10,13 @@ namespace CreateAR.SpirePlayer.Test.UI
         private readonly List<Element> _elements = new List<Element>();
 
         public ReadOnlyCollection<Element> All { get; private set; }
-        public Action<Element> OnAdded { get; private set; }
-        public Action<Element> OnRemoved { get; private set; }
+        public Action<Element> OnCreated { get; private set; }
+        public Action<Element> OnDestroyed { get; private set; }
 
         public void Add(Element element)
         {
             _elements.Add(element);
-            OnAdded(element);
+            OnCreated(element);
         }
 
         public Element ById(string id)

@@ -6,29 +6,45 @@ using System.Collections.Generic;
 namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
-    /// Available event names that will be available thru the JsApi
-    /// </summary>
-    public class ProximityEvents
-    {
-        public const string enter = "Proximity.ENTER";
-        public const string stay = "Proximity.STAY";
-        public const string exit = "Proximity.EXIT";
-    }
-
-    /// <summary>
     /// Manages detecting and dispatching proximity events for Elements. Elements can subscribe and unsubscribe 
-    ///     for events against specific Elements. Proximity radii (inner/outter) is set through the Element's schema.
+    ///     for events against specific Elements. Proximity radii (inner/outer) is set through the Element's schema.
     ///     
     /// Elements subscribed for events are considered "listening". Proximity events are sent when "trigger" Elements
     ///     interact with "listening" Elements. ProximityManager will listen to objects for changes to their schema
     ///     to determine if something should be considered a trigger or not.
     /// </summary>
     [JsInterface("proximity")]
-    public class ProximityManager : JsEventSystem<ProximityEvents>
+    public class ProximityManager : InjectableMonoBehaviour
     {
+        /// <summary>
+        /// Available event names that will be available thru the JsApi
+        /// </summary>
+        public class ProximityEvents
+        {
+            /// <summary>
+            /// Fired when a trigger enters a subscribed element's inner radius.
+            /// </summary>
+            public const string enter = "enter";
+            
+            /// <summary>
+            /// Fired every frame after a trigger enters an element, but hasn't exited yet.
+            /// </summary>
+            public const string stay = "stay";
+
+            /// <summary>
+            /// Fired when a trigger exits a subscribed element's outer radius.
+            /// </summary>
+            public const string exit = "exit";
+        }
+
+        /// <summary>
+        /// Proximity events that the JsApi can script against.
+        /// </summary>
+        public ProximityEvents events = new ProximityEvents();
+
         // TODO: Should these be standardized/public similar to ProximityEvents?
         private const string PROXIMITY_INNER = "proximity.innerRadius";
-        private const string PROXIMITY_OUTTER = "proximity.outterRadius";
+        private const string PROXIMITY_OUTER = "proximity.outerRadius";
         private const string PROXIMITY_TRIGGER = "proximity.trigger";
 
         /// <summary>

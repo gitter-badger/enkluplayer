@@ -22,12 +22,12 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Invoked when elements are added to <see cref="All"/>
         /// </summary>
-        Action<Element> OnAdded { get; }
+        Action<Element> OnCreated { get; }
 
         /// <summary>
         /// Invoked when elements are removed from <see cref="All"/>
         /// </summary>
-        Action<Element> OnRemoved { get; }
+        Action<Element> OnDestroyed { get; }
 
         /// <summary>
         /// Retrieves an element by id.

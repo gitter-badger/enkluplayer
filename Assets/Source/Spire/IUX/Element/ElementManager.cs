@@ -26,10 +26,10 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        public Action<Element> OnAdded { get; private set; }
+        public Action<Element> OnCreated { get; private set; }
         
         /// <inheritdoc />
-        public Action<Element> OnRemoved { get; private set; }
+        public Action<Element> OnDestroyed { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -50,7 +50,7 @@ namespace CreateAR.SpirePlayer.IUX
             element.OnDestroyed += ElementOnDestroyed;
 
             _all.Add(element);
-            OnAdded(element);
+            OnCreated(element);
         }
 
         /// <inheritdoc />
@@ -114,7 +114,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void ElementOnDestroyed(Element element)
         {
             _all.Remove(element);
-            OnRemoved(element);
+            OnDestroyed(element);
         }
     }
 }
