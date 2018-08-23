@@ -136,6 +136,10 @@ namespace CreateAR.SpirePlayer.IUX
             // kill all local anchors!
             _store.Clear();
 
+            // kill all queues
+            _importQueue.Clear();
+            _exportQueue.Clear();
+
             var anchors = new List<WorldAnchorWidget>();
             foreach (var sceneId in _scenes.All)
             {

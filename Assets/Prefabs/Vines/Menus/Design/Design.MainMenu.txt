@@ -26,6 +26,52 @@
 					<Option label='Warning' value='Warning' />
 					<Option label='Error' value='Error' />
 				</Select>
+				<SubMenu label='Quality' icon='settings'>
+					<Select id='slt-texturequality' >
+						<Option label='Full Res' value='0' />
+						<Option label='Half Res' value='1' />
+						<Option label='Quarter Res' value='2' />
+						<Option label='Eighth Res' value='3' />
+					</Select>
+					<Select id='slt-anisotropic' >
+						<Option label='Forced On' value='ForceEnable' />
+						<Option label='Per Texture' value='Enable' />
+						<Option label='Disabled' value='Disable' />
+					</Select>
+					<Select id='slt-aa' >
+						<Option label='2x' value='2' />
+						<Option label='4x' value='4' />
+						<Option label='8x' value='8' />
+						<Option label='Disabled' value='0' />
+					</Select>
+					<Toggle id='tgl-softparticles' label='Soft Particles' />
+					<Toggle id='tgl-realtimereflectionprobes' label='Realtime Probes' />
+					<Toggle id='tgl-billboards' label='Billboards' />
+					<Select id='slt-shadows' >
+						<Option label='Disable' value='Disable' />
+						<Option label='Hard Only' value='HardOnly' />
+						<Option label='Hard and Soft' value='All' />
+					</Select>
+					<Select id='slt-shadowmask' >
+						<Option label='Distance' value='DistanceShadowmask' />
+						<Option label='Shadowmask' value='Shadowmask' />
+					</Select>
+					<Select id='slt-shadowresolution' >
+						<Option label='Low' value='Low' />
+						<Option label='Medium' value='Medium' />
+						<Option label='High' value='High' />
+						<Option label='Very High' value='VeryHigh' />
+					</Select>
+					<Select id='slt-shadowprojection' >
+						<Option label='Close Fit' value='CloseFit' />
+						<Option label='Stable Fit' value='StableFit' />
+					</Select>
+					<Select id='slt-blendweights' >
+						<Option label='1 Bone' value='OneBone' />
+						<Option label='2 Bones' value='TwoBones' />
+						<Option label='4 Bones' value='FourBones' />
+					</Select>
+				</SubMenu>
 			</SubMenu>
 
 			<SubMenu label='Experience' icon='world'>

@@ -204,7 +204,7 @@ namespace CreateAR.SpirePlayer.IUX
                 },
                 Floats = new Dictionary<string, float>
                 {
-                    { "fov.reorient", 1.5f }
+                    { "fov.reorient", 3.5f }
                 },
                 Bools = new Dictionary<string, bool>
                 {
