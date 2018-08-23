@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace CreateAR.SpirePlayer.IUX
+﻿namespace CreateAR.SpirePlayer.IUX
 {
     using System;
     using System.Collections.Generic;
     using UnityEngine;
-
-    namespace CreateAR.SpirePlayer.IUX
-    {
-    }
-
+    
     /// <summary>
     /// Applies a scale transition to elements added + removed.
     /// </summary>
