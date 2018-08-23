@@ -37,19 +37,9 @@ namespace UnityEngine.XR.iOS
 		}
 
 
-	    public string identifier
-	    {
-	        get
-	        {
-#if !NETFX_CORE
-                return Marshal.PtrToStringAuto(imageAnchorData.ptrIdentifier);
-#else
-                return string.Empty;
-#endif
-            }
-	    }
+		public string identifier { get { return Marshal.PtrToStringAuto(imageAnchorData.ptrIdentifier); } }
 
-	    public Matrix4x4 transform { 
+		public Matrix4x4 transform { 
 			get { 
 				Matrix4x4 matrix = new Matrix4x4 ();
 				matrix.SetColumn (0, imageAnchorData.transform.column0);
@@ -60,19 +50,9 @@ namespace UnityEngine.XR.iOS
 			}
 		}
 
-	    public string referenceImageName
-	    {
-	        get
-	        {
-#if !NETFX_CORE
-                return Marshal.PtrToStringAuto(imageAnchorData.referenceImageNamePtr);
-#else
-                return string.Empty;
-#endif
-            }
-	    }
+		public string referenceImageName { get { return Marshal.PtrToStringAuto(imageAnchorData.referenceImageNamePtr); } }
 
-	    public float referenceImagePhysicalSize { get { return imageAnchorData.referenceImagePhysicalSize; } }
+		public float referenceImagePhysicalSize { get { return imageAnchorData.referenceImagePhysicalSize; } }
 	}
 
 }
