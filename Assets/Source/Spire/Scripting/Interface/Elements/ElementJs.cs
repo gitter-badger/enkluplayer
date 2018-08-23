@@ -43,6 +43,17 @@ namespace CreateAR.SpirePlayer
         {
             get { return _element.GetType().Name; }
         }
+
+        /// <summary>
+        /// Gets the parent of the element.
+        /// </summary>
+        public ElementJs parent
+        {
+            get
+            {
+                return _cache.Element(_element.Parent);
+            }
+        }
         
         /// <summary>
         /// Array of children.
@@ -72,6 +83,16 @@ namespace CreateAR.SpirePlayer
             
             schema = new ElementSchemaJsApi(engine, _element.Schema);
             transform = new ElementTransformJsApi(_element);
+        }
+
+        /// <summary>
+        /// Returns whether another element is a direct or indirect parent of this element.
+        /// </summary>
+        /// <param name="parent">Potential upstream element to check</param>
+        /// <returns></returns>
+        public bool isChildOf(ElementJs parent)
+        {
+            return _element.IsChildOf(parent._element);
         }
         
         /// <summary>
