@@ -81,5 +81,27 @@
                 a.y / mag,
                 a.z / mag);
         }
+
+        /// <summary>
+        /// Calculates the distance between two Vec3's. If possible, use distanceSqr for performance instead.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public float distance(Vec3 a, Vec3 b)
+        {
+            return Vec3.Distance(a, b);
+        }
+
+        /// <summary>
+        /// Calculates the squared distance between two Vec3's.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public float distanceSqr(Vec3 a, Vec3 b)
+        {
+            return Vec3.DistanceSqr(a, b);
+        }
     }
 }
