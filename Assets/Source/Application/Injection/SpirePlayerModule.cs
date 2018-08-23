@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -420,6 +420,10 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<UnityEngine.XR.iOS.UnityARSessionNativeInterface>().ToValue(UnityEngine.XR.iOS.UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<ArKitWorldAnchorProvider>().ToSingleton();
+#elif  UNITY_ANDROID
+//TODO $BS - Add !UNITY_EDITOR to this directive
+                binder.Bind<IArService>().To<AndroidArService>().ToSingleton();
+                binder.Bind<IWorldAnchorProvider>().To<AndroidWorldAnchorProvider>().ToSingleton();
 #elif !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<HoloLensWorldAnchorProvider>().ToSingleton();
