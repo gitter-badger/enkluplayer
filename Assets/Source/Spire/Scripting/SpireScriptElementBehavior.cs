@@ -4,7 +4,7 @@ using CreateAR.SpirePlayer.IUX;
 using Jint.Native;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// This object is able to run a JS script on an Element similar to a MonoBehaviour.

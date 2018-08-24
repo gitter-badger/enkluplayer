@@ -1,12 +1,12 @@
 ﻿using CreateAR.SpirePlayer.IUX;
 using Jint;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// Js API for an element.
     /// </summary>
-    public class ElementJs
+    public class ElementJs : IEntityJs
     {
         /// <summary>
         /// Element we're wrapping.
@@ -22,11 +22,16 @@ namespace CreateAR.SpirePlayer
         /// The schema interface.
         /// </summary>
         public readonly ElementSchemaJsApi schema;
-        
+
+        /// <summary>
+        /// The backing transform interface <see cref="transform"/> uses.
+        /// </summary>
+        private readonly IElementTransformJsApi _transform;
+
         /// <summary>
         /// The transform interface.
         /// </summary>
-        public readonly ElementTransformJsApi transform;
+        public IElementTransformJsApi transform { get { return _transform; } }
 
         /// <summary>
         /// Unique id of the element.
@@ -82,7 +87,7 @@ namespace CreateAR.SpirePlayer
             _cache = cache;
             
             schema = new ElementSchemaJsApi(engine, _element.Schema);
-            transform = new ElementTransformJsApi(_element);
+            _transform = new ElementTransformJsApi(_element);
         }
 
         /// <summary>

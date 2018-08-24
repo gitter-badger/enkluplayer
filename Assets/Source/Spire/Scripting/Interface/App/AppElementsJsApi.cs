@@ -2,7 +2,7 @@
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// Interface for an app's elements.

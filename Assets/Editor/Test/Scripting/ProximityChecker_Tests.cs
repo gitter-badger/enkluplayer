@@ -14,8 +14,8 @@ namespace CreateAR.SpirePlayer.Test.Scripting
         private Engine _engine;
         private ProximityChecker _proximityChecker;
 
-        private ElementJs _elementA;
-        private ElementJs _elementB;
+        private IEntityJs _elementA;
+        private IEntityJs _elementB;
 
         private int enterCount = 0;
         private int stayCount = 0;
@@ -31,19 +31,19 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             stayCount = 0;
             exitCount = 0;
 
-            _proximityChecker.OnEnter += (ElementJs callbackListener, ElementJs callbackTrigger) => {
+            _proximityChecker.OnEnter += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
                 Assert.AreEqual(_elementA, callbackListener);
                 Assert.AreEqual(_elementB, callbackTrigger);
                 enterCount++;
             };
 
-            _proximityChecker.OnStay += (ElementJs callbackListener, ElementJs callbackTrigger) => {
+            _proximityChecker.OnStay += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
                 Assert.AreEqual(_elementA, callbackListener);
                 Assert.AreEqual(_elementB, callbackTrigger);
                 stayCount++;
             };
 
-            _proximityChecker.OnExit += (ElementJs callbackListener, ElementJs callbackTrigger) => {
+            _proximityChecker.OnExit += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
                 Assert.AreEqual(_elementA, callbackListener);
                 Assert.AreEqual(_elementB, callbackTrigger);
                 exitCount++;
@@ -186,7 +186,7 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             ElementJs cachedListenerElement = null;
             ElementJs cachedTriggerElement = null;
 
-            _proximityChecker.OnEnter += (ElementJs callbackListener, ElementJs callbackTrigger) => {
+            _proximityChecker.OnEnter += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 
                 // Gross, but we need to check that the callbacks are actually bi-directional and not just 2x
@@ -194,19 +194,19 @@ namespace CreateAR.SpirePlayer.Test.Scripting
                 {
                     Assert.AreNotEqual(cachedListenerElement, callbackListener);
                 }
-                cachedListenerElement = callbackListener;
+                cachedListenerElement = (ElementJs)callbackListener;
 
                 if (cachedTriggerElement != null)
                 {
                     Assert.AreNotEqual(cachedTriggerElement, callbackTrigger);
                     
                 }
-                cachedTriggerElement = callbackTrigger;
+                cachedTriggerElement = (ElementJs)callbackTrigger;
 
                 enterCount++;
             };
 
-            _proximityChecker.OnStay += (ElementJs callbackListener, ElementJs callbackTrigger) => {
+            _proximityChecker.OnStay += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 
                 // Gross, but we need to check that the callbacks are actually bi-directional and not just 2x
@@ -214,19 +214,19 @@ namespace CreateAR.SpirePlayer.Test.Scripting
                 {
                     Assert.AreNotEqual(cachedListenerElement, callbackListener);
                 }
-                cachedListenerElement = callbackListener;
+                cachedListenerElement = (ElementJs)callbackListener;
 
                 if (cachedTriggerElement != null)
                 {
                     Assert.AreNotEqual(cachedTriggerElement, callbackTrigger);
 
                 }
-                cachedTriggerElement = callbackTrigger;
+                cachedTriggerElement = (ElementJs)callbackTrigger;
 
                 stayCount++;
             };
 
-            _proximityChecker.OnExit += (ElementJs callbackListener, ElementJs callbackTrigger) => {
+            _proximityChecker.OnExit += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 
                 // Gross, but we need to check that the callbacks are actually bi-directional and not just 2x
@@ -234,14 +234,14 @@ namespace CreateAR.SpirePlayer.Test.Scripting
                 {
                     Assert.AreNotEqual(cachedListenerElement, callbackListener);
                 }
-                cachedListenerElement = callbackListener;
+                cachedListenerElement = (ElementJs)callbackListener;
 
                 if (cachedTriggerElement != null)
                 {
                     Assert.AreNotEqual(cachedTriggerElement, callbackTrigger);
 
                 }
-                cachedTriggerElement = callbackTrigger;
+                cachedTriggerElement = (ElementJs)callbackTrigger;
 
                 exitCount++;
             };
@@ -300,7 +300,7 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             ElementJs cachedStayTrigger = null;
             ElementJs cachedExitTrigger = null;
 
-            _proximityChecker.OnEnter += (ElementJs callbackListener, ElementJs callbackTrigger) => {
+            _proximityChecker.OnEnter += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
                 Assert.AreEqual(listener, callbackListener);
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 
@@ -308,12 +308,12 @@ namespace CreateAR.SpirePlayer.Test.Scripting
                 {
                     Assert.AreNotEqual(cachedEnterTrigger, callbackTrigger);
                 }
-                cachedEnterTrigger = callbackTrigger;
+                cachedEnterTrigger = (ElementJs)callbackTrigger;
 
                 enterCount++;
             };
 
-            _proximityChecker.OnStay += (ElementJs callbackListener, ElementJs callbackTrigger) => {
+            _proximityChecker.OnStay += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
                 Assert.AreEqual(listener, callbackListener);
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 
@@ -322,12 +322,12 @@ namespace CreateAR.SpirePlayer.Test.Scripting
                     Assert.AreNotEqual(cachedStayTrigger, callbackTrigger);
 
                 }
-                cachedStayTrigger = callbackTrigger;
+                cachedStayTrigger = (ElementJs)callbackTrigger;
 
                 stayCount++;
             };
 
-            _proximityChecker.OnExit += (ElementJs callbackListener, ElementJs callbackTrigger) => {
+            _proximityChecker.OnExit += (IEntityJs callbackListener, IEntityJs callbackTrigger) => {
                 Assert.AreEqual(listener, callbackListener);
                 Assert.AreNotEqual(callbackListener, callbackTrigger);
 
@@ -336,7 +336,7 @@ namespace CreateAR.SpirePlayer.Test.Scripting
                     Assert.AreNotEqual(cachedExitTrigger, callbackTrigger);
 
                 }
-                cachedExitTrigger = callbackTrigger;
+                cachedExitTrigger = (ElementJs)callbackTrigger;
 
                 exitCount++;
             };

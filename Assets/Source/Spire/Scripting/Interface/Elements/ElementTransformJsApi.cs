@@ -1,11 +1,11 @@
 ﻿using CreateAR.SpirePlayer.IUX;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// Transform shortcuts.
     /// </summary>
-    public class ElementTransformJsApi
+    public class ElementTransformJsApi : IElementTransformJsApi
     {
         /// <summary>
         /// Element that we're wrapping.

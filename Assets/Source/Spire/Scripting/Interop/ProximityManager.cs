@@ -1,5 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using Jint;
 using Jint.Native;
 using Jint.Runtime.Interop;
 using System;
@@ -48,10 +49,27 @@ namespace CreateAR.SpirePlayer.Scripting
         public const string PROXIMITY_OUTER = "proximity.outerRadius";
         public const string PROXIMITY_TRIGGER = "proximity.trigger";
 
+        /// <summary>
+        /// Current <see cref="IElementManager"/>, used to track when new Elements are added to watch their schema.
+        /// </summary>
         [Inject]
         private IElementManager _elementManager { get; set; }
 
+        /// <summary>
+        /// Reference to the <see cref="PlayerJs"/> instance, to act as an always-on trigger.
+        /// </summary>
+        [Inject]
+        private PlayerJs _player { get; set; }
+
+        /// <summary>
+        /// The underlying <see cref="ProximityChecker"/> that does the heavy lifting.
+        /// </summary>
         private ProximityChecker _proximityChecker = new ProximityChecker();
+
+        /// <summary>
+        /// Used just to satisfy ElementJs' ctor. Should be removed when there's only 1 Engine
+        /// </summary>
+        private Engine _engine = new Engine();
 
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked when objects enter proximity.
@@ -68,10 +86,13 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         private readonly Dictionary<ElementJs, Action<ElementJs>> exitCallbacks = new Dictionary<ElementJs, Action<ElementJs>>();
 
-
         protected void Awake()
         {
             base.Awake();
+            _proximityChecker.SetElementState(_player, false, true);
+            _proximityChecker.SetElementRadii(_player, 1, 1);
+
+            _elementManager.OnCreated += WatchElement;
             // TODO: Listen to IElementManager creations, wrap to ElementJs, and watch
         }
 
@@ -143,16 +164,17 @@ namespace CreateAR.SpirePlayer.Scripting
         /// Listens to schema for a specific ElementJs instance.
         /// </summary>
         /// <param name="element"></param>
-        private void WatchElement(ElementJs element)
+        private void WatchElement(Element element)
         {
+            ElementJs elementjs = new ElementJs(_engine, null, element);
             Func<JsValue, JsValue[], JsValue> callback = (jsValue, args) => {
-                UpdateElement(element);
+                UpdateElement(elementjs);
                 return null;
             };
 
-            element.schema.watchBool(PROXIMITY_TRIGGER, callback);
-            element.schema.watchNumber(PROXIMITY_INNER, callback);
-            element.schema.watchNumber(PROXIMITY_OUTER, callback);
+            elementjs.schema.watchBool(PROXIMITY_TRIGGER, callback);
+            elementjs.schema.watchNumber(PROXIMITY_INNER, callback);
+            elementjs.schema.watchNumber(PROXIMITY_OUTER, callback);
         }
 
         /// <summary>

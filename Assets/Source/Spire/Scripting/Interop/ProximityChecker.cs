@@ -18,29 +18,29 @@ namespace CreateAR.SpirePlayer.Scripting
         /// Invoked when a trigger comes in range of a listening element. 
         /// The first parameter is the listening element, the second is the trigger.
         /// </summary>
-        public Action<ElementJs, ElementJs> OnEnter;
+        public Action<IEntityJs, IEntityJs> OnEnter;
 
         /// <summary>
         /// Invoked every frame when a trigger has entered but not exited a listening element.
         /// The first parameter is the listening element, the second is the trigger.
         /// </summary>
-        public Action<ElementJs, ElementJs> OnStay;
+        public Action<IEntityJs, IEntityJs> OnStay;
 
         /// <summary>
         /// Invoked when a trigger exits a listening element.
         /// The first parameter is the listening element, the second is the trigger.
         /// </summary>
-        public Action<ElementJs, ElementJs> OnExit;
+        public Action<IEntityJs, IEntityJs> OnExit;
 
         /// <summary>
         /// Helper class used to represent an element and its current configuration for proximity checking
         /// </summary>
-        private class ElementConfig
+        private class EntityConfig
         {
             /// <summary>
             /// Element to represent
             /// </summary>
-            public ElementJs Element;
+            public IEntityJs Element;
 
             /// <summary>
             /// Whether the Element should react to triggers
@@ -72,14 +72,14 @@ namespace CreateAR.SpirePlayer.Scripting
             /// <summary>
             /// Configuration for one Element in a collision.
             /// </summary>
-            public ElementConfig A;
+            public EntityConfig A;
 
             /// <summary>
             /// Configuration for the other Element in a collision.
             /// </summary>
-            public ElementConfig B;
+            public EntityConfig B;
 
-            public Collision(ElementConfig a, ElementConfig b)
+            public Collision(EntityConfig a, EntityConfig b)
             {
                 A = a;
                 B = b;
@@ -89,7 +89,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <summary>
         /// List of all elements that have been updated as listening or a trigger.
         /// </summary>
-        private List<ElementConfig> _activeElements = new List<ElementConfig>();
+        private List<EntityConfig> _activeElements = new List<EntityConfig>();
 
         /// <summary>
         /// List of all collisions, so we can determine if any collision is an extry or a stay event.
@@ -101,13 +101,13 @@ namespace CreateAR.SpirePlayer.Scripting
         /// Updates an Element with regards to its current listening state, and whether it is a trigger or not.
         /// </summary>
         /// <param name="element"></param>
-        public void SetElementState(ElementJs element, bool isListening, bool isTrigger)
+        public void SetElementState(IEntityJs element, bool isListening, bool isTrigger)
         {
             // Find an existing config, or make a new one
-            ElementConfig config = FindElementConfig(element);
+            EntityConfig config = FindElementConfig(element);
             if (config == null)
             {
-                config = new ElementConfig();
+                config = new EntityConfig();
                 config.Element = element;
                 _activeElements.Add(config);
             }
@@ -141,9 +141,9 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <param name="element">Element to update</param>
         /// <param name="innerRadius">Radius that'll trigger enter events</param>
         /// <param name="outerRadius">Raadius that'll trigger exit events</param>
-        public void SetElementRadii(ElementJs element, float innerRadius, float outerRadius)
+        public void SetElementRadii(IEntityJs element, float innerRadius, float outerRadius)
         {
-            ElementConfig config = FindElementConfig(element);
+            EntityConfig config = FindElementConfig(element);
             if (config != null)
             {
                 config.InnerRadius = Math.Max(0, innerRadius);
@@ -165,8 +165,8 @@ namespace CreateAR.SpirePlayer.Scripting
             {
                 for (int j = i + 1; j < elementCount; j++)
                 {
-                    ElementConfig configA = _activeElements[i];
-                    ElementConfig configB = _activeElements[j];
+                    EntityConfig configA = _activeElements[i];
+                    EntityConfig configB = _activeElements[j];
 
                     // Early out if the collision wouldn't invoke callbacks
                     if (!ShouldProcessCollision(configA, configB)) continue;
@@ -222,7 +222,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         /// <param name="element">Element to get Configuration for.</param>
         /// <returns>Valid ElementConfig, or null.</returns>
-        private ElementConfig FindElementConfig(ElementJs element)
+        private EntityConfig FindElementConfig(IEntityJs element)
         {
             int elementsLen = _activeElements.Count;
             for (int i = 0; i < elementsLen; i++)
@@ -241,12 +241,17 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        private bool ShouldProcessCollision(ElementConfig a, ElementConfig b)
+        private bool ShouldProcessCollision(EntityConfig a, EntityConfig b)
         {
             // A valid collision requires at least 1 listener & trigger between non-nested Elements
-            return ((a.IsListening && b.IsTrigger) || (b.IsListening && a.IsTrigger))
-                && !a.Element.isChildOf(b.Element) && !b.Element.isChildOf(a.Element);
+            bool validCollision = ((a.IsListening && b.IsTrigger) || (b.IsListening && a.IsTrigger));
 
+            // A little gross, would be nice to fully remove ElementJs knowledge. But ensure the camera won't pass this check
+            bool hierarchyOkay = (a.Element is ElementJs && b.Element is ElementJs)
+                ? !((ElementJs)a.Element).isChildOf((ElementJs)b.Element) && !((ElementJs)b.Element).isChildOf((ElementJs)a.Element)
+                : true;
+
+            return validCollision && hierarchyOkay;
         }
 
         /// <summary>
@@ -255,7 +260,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <param name="action"></param>
         /// <param name="a"></param>
         /// <param name="b"></param>
-        private void InvokeCallbacks(Action<ElementJs, ElementJs> action, ElementConfig a, ElementConfig b)
+        private void InvokeCallbacks(Action<IEntityJs, IEntityJs> action, EntityConfig a, EntityConfig b)
         {
             if (action == null) return;
             if (a.IsListening && b.IsTrigger) action(a.Element, b.Element);

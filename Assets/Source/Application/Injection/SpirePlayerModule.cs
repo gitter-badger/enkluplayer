@@ -575,6 +575,7 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();
                 binder.Bind<IScriptRequireResolver>().ToValue(new SpireScriptRequireResolver(binder));
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
+                binder.Bind<PlayerJs>().ToValue(LookupComponent<PlayerJs>());
 
                 // scripting interfaces
                 {

@@ -1,4 +1,6 @@
-﻿namespace CreateAR.SpirePlayer.Test.Scripting
+﻿using CreateAR.SpirePlayer.Scripting;
+
+namespace CreateAR.SpirePlayer.Test.Scripting
 {
     public class ElementSchemaJsApi_Tests : JsTestBase
     {
