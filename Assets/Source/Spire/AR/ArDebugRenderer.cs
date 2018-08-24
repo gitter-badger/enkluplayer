@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.AR
@@ -46,7 +46,7 @@ namespace CreateAR.SpirePlayer.AR
             }
 
             var anchors = Ar.Anchors;
-            for (int i = 0, len = anchors.Length; i < len; i++)
+            for (int i = 0, len = anchors.Count; i < len; i++)
             {
                 var anchor = anchors[i];
 

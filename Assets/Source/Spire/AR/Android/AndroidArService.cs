@@ -17,7 +17,7 @@ namespace CreateAR.SpirePlayer.AR
     public class AndroidArService : IArService
     {
         /// <inheritdoc />
-        public ArAnchor[] Anchors { get; private set; }
+        public List<ArAnchor> Anchors { get { return _anchorList; } }
 
         /// <inheritdoc />
         public ArServiceConfiguration Config { get; private set; }
@@ -45,6 +45,11 @@ namespace CreateAR.SpirePlayer.AR
         /// Map between ARCore planes and anchors to allow easy updating of moved anchors
         /// </summary>
         private readonly Dictionary<DetectedPlane, ArAnchor> _anchorMap = new Dictionary<DetectedPlane, ArAnchor>();
+
+        /// <summary>
+        /// Parallel list of anchors
+        /// </summary>
+        private readonly List<ArAnchor> _anchorList = new List<ArAnchor>();
 
         /// <summary>
         /// Message routing
@@ -82,7 +87,7 @@ namespace CreateAR.SpirePlayer.AR
         {
             Config = config;
 
-            Log.Info(this, "Setting up android camera");
+            Log.Error(this, "Setting up android camera");
 
             _rig = Config.Rig;
             var camGO = _rig.Camera.gameObject;
@@ -106,7 +111,11 @@ namespace CreateAR.SpirePlayer.AR
 
             Log.Info(this, "Tearing down android camera");
 
-            if (_rig == null || _rig.Camera == null) return;
+            if (_rig == null || _rig.Camera == null)
+            {
+                return;
+            }
+
             var camGO = _rig.Camera.gameObject;
             DestroyIfNotNull(camGO.GetComponent<ARCoreSession>());
             DestroyIfNotNull(camGO.GetComponent<UnityEngine.SpatialTracking.TrackedPoseDriver>());
@@ -135,8 +144,14 @@ namespace CreateAR.SpirePlayer.AR
             var status = Session.Status;
             if (status != _oldStatus)
             {
-                if (status == SessionStatus.Tracking && OnTrackingOnline != null) OnTrackingOnline();
-                else if (status != SessionStatus.Tracking && OnTrackingOffline != null) OnTrackingOffline();
+                if (status == SessionStatus.Tracking && OnTrackingOnline != null)
+                {
+                    OnTrackingOnline();
+                }
+                else if (status != SessionStatus.Tracking && OnTrackingOffline != null)
+                {
+                    OnTrackingOffline();
+                }
 
                 if (status == SessionStatus.ErrorApkNotAvailable
                     || status == SessionStatus.ErrorPermissionNotGranted
@@ -165,6 +180,7 @@ namespace CreateAR.SpirePlayer.AR
                 var plane = _tempPlanes[i];
                 var anchor = GetAnchor(plane);
                 _anchorMap.Add(plane, anchor);
+                _anchorList.Add(anchor);
             }
 
             //Update all old anchors
@@ -185,11 +201,13 @@ namespace CreateAR.SpirePlayer.AR
             {
                 if (!_tempPlanes.Contains(enumerator.Current.Key)) _removeList.Add(enumerator.Current.Key);
             }
-            for (int i = 0; i < _removeList.Count; i++) _anchorMap.Remove(_removeList[i]);
+            for (int i = 0; i < _removeList.Count; i++)
+            {
+                var anchor = _anchorMap[_removeList[i]];
+                _anchorMap.Remove(_removeList[i]);
+                _anchorList.Remove(anchor);
+            }
             _removeList.Clear();
-
-            //Update anchor array and plane set
-            Anchors = _anchorMap.Values.ToArray();
         }
 
         /// <summary>
@@ -209,10 +227,13 @@ namespace CreateAR.SpirePlayer.AR
         /// <summary>
         /// Helper method to destroy objects
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="obj">The object to destroy</param>
         private void DestroyIfNotNull(UnityEngine.Object obj)
         {
-            if (obj != null) UnityEngine.Object.Destroy(obj);
+            if (obj != null)
+            {
+                UnityEngine.Object.Destroy(obj);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer.AR
 {
@@ -14,11 +15,11 @@ namespace CreateAR.SpirePlayer.AR
         public event Action OnTrackingOnline;
         
         /// <inheritdoc />
-        public ArAnchor[] Anchors
+        public List<ArAnchor> Anchors
         {
             get
             {
-                return new []
+                return new List<ArAnchor>
                 {
                     new ArAnchor("floor")
                     {

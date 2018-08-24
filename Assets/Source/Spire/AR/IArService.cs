@@ -1,5 +1,6 @@
-﻿
+
 using System;
+using System.Collections.Generic;
 
 namespace CreateAR.SpirePlayer.AR
 {
@@ -21,7 +22,7 @@ namespace CreateAR.SpirePlayer.AR
         /// <summary>
         /// Set of anchors we have found.
         /// </summary>
-        ArAnchor[] Anchors { get; }
+        List<ArAnchor> Anchors { get; }
         
         /// <summary>
         /// Configuration.
