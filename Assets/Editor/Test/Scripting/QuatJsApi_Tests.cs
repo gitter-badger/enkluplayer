@@ -33,6 +33,14 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             Assert.IsTrue(Math.Abs(0.9f  - result.y) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(-0.1f - result.z) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(0.2f  - result.w) < Mathf.Epsilon);
+
+            result = _engine.Run<Quat>("quat(-0.2, 0.9, -0.1, 0.2).set(0.6, -0.3, 0.2, -0.1)");
+
+            Assert.IsTrue(result.GetType() == typeof(Quat));
+            Assert.IsTrue(Math.Abs(0.6f  - result.x) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(-0.3f - result.y) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(0.2f  - result.z) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(-0.1f - result.w) < Mathf.Epsilon);
         }
 
         [Test]

@@ -63,6 +63,21 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Sets the components of this Vec3 from values.
+        /// </summary>
+        /// <param name="x">X component.</param>
+        /// <param name="y">Y component.</param>
+        /// <param name="z">Z component.</param>
+        /// <returns></returns>
+        public Vec3 Set(float x, float y, float z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            return this;
+        }
+
+        /// <summary>
         /// Vector string representation.
         /// </summary>
         /// <returns></returns>
