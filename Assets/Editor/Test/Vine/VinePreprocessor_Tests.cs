@@ -66,38 +66,7 @@ namespace CreateAR.SpirePlayer.Test.Vine
 
             Assert.AreEqual("Nbd", processed);
         }
-
-        [Test]
-        public void PropReplace()
-        {
-            var schema = new ElementSchema();
-            schema.Load(new ElementSchemaData
-            {
-                Strings = new Dictionary<string, string>
-                {
-                    { "title", "This is a Title." },
-                    { "description", "this is a gooooooof ideae" }
-                }
-            });
-
-            _preProcessor.DataStore = schema;
-            var processed = _preProcessor.Execute(@"
-            <Transition>
-                <Caption label='{[title]}' />
-                <Caption
-                    id='description'
-                    label='{[description:string = 'Description of work.']}'
-                    fontSize=100
-                    width=2000.0
-                    alignment='TopCenter'
-                    position=(0, 0, 0)
-                    visible=false
-                />
-            </Transition>");
-
-            Debug.Log(processed);
-        }
-
+        
         [Test]
         public void Script()
         {
