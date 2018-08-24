@@ -184,13 +184,13 @@ namespace CreateAR.SpirePlayer.Scripting
                     }
 
                     // Calculate distance
-                    float distance = Vec3.Distance(configA.Element.transform.position, configB.Element.transform.position);
+                    float distance = Vec3.DistanceSqr(configA.Element.transform.position, configB.Element.transform.position);
 
                     // Determine proximity change
                     if (collision == null)
                     {
                         // If we're not already in collision, use inner radii to check for enter
-                        float radiiSum = configA.InnerRadius + configB.InnerRadius;
+                        float radiiSum = (float) Math.Pow(configA.InnerRadius + configB.InnerRadius, 2);
 
                         if (distance - radiiSum < 0)
                         {
@@ -201,7 +201,7 @@ namespace CreateAR.SpirePlayer.Scripting
                     else
                     {
                         // Otherwise, use outer to check for exit
-                        float radiiSum = configA.OuterRadius + configB.OuterRadius;
+                        float radiiSum = (float) Math.Pow(configA.OuterRadius + configB.OuterRadius, 2);
 
                         if (distance - radiiSum < 0)
                         {
