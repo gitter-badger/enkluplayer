@@ -120,6 +120,37 @@ namespace CreateAR.SpirePlayer
             _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
         }
 
+        /// <summary>
+        /// Tears down scripts and sets them back up.
+        /// </summary>
+        public void RefreshScripts()
+        {
+            _pollRefreshScript = false;
+
+            if (!ShouldLoadAsset())
+            {
+                _pollRefreshScript = true;
+                return;
+            }
+
+            Log.Info(this, "Refresh all scripts for {0}.", Id);
+
+            if (null == _runner)
+            {
+                _runner = new ScriptCollectionRunner(
+                    _scripts,
+                    _elementJsFactory,
+                    GameObject,
+                    this);
+            }
+
+            AbortScripts();
+
+            // TODO: reset element -- all props need reset from data
+
+            LoadScripts();
+        }
+
         /// <inheritdoc />
         protected override void LoadInternalBeforeChildren()
         {
@@ -250,37 +281,6 @@ namespace CreateAR.SpirePlayer
             }
 
             return ids;
-        }
-
-        /// <summary>
-        /// Tears down scripts and sets them back up.
-        /// </summary>
-        private void RefreshScripts()
-        {
-            _pollRefreshScript = false;
-
-            if (!ShouldLoadAsset())
-            {
-                _pollRefreshScript = true;
-                return;
-            }
-
-            Log.Info(this, "Refresh all scripts for {0}.", Id);
-
-            if (null == _runner)
-            {
-                _runner = new ScriptCollectionRunner(
-                    _scripts,
-                    _elementJsFactory,
-                    GameObject,
-                    this);
-            }
-
-            AbortScripts();
-
-            // TODO: reset element -- all props need reset from data
-
-            LoadScripts();
         }
         
         /// <summary>
