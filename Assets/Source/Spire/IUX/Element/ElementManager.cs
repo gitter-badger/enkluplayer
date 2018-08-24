@@ -26,10 +26,10 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
-        public Action<Element> OnCreated { get; private set; }
+        public Action<Element> OnCreated { get; set; }
         
         /// <inheritdoc />
-        public Action<Element> OnDestroyed { get; private set; }
+        public Action<Element> OnDestroyed { get; set; }
 
         /// <summary>
         /// Constructor.
