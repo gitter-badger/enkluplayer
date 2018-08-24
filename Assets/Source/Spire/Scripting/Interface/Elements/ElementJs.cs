@@ -120,5 +120,48 @@ namespace CreateAR.SpirePlayer
         {
             _element.Destroy();
         }
+
+        /// <summary>
+        /// Tests whether two ElementJs instances are equivalent, relative to their Elements
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public static bool operator ==(ElementJs @this, object element)
+        {
+            if (((object)@this == null) && (element == null)) return true;
+            if (element == null) return false;
+
+            ElementJs elementJs = element as ElementJs;
+            return @this._element == elementJs._element;
+        }
+
+        /// <summary>
+        /// Tests whether two ElementJs instances are inequivalent, relative to their Elements
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public static bool operator !=(ElementJs @this, object element)
+        {
+            if (((object)@this == null) && (element == null)) return false;
+            if (element == null) return true;
+
+            ElementJs elementJs = element as ElementJs;
+            return @this._element != elementJs._element;
+        }
+
+        /// <summary>
+        /// Tests whether an object equals this ElementJs instance.
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+            ElementJs elementJs = obj as ElementJs;
+            return elementJs != null && _element == elementJs._element;
+        }
     }
 }
