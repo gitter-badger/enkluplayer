@@ -3,11 +3,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Commons.Unity.Http;
 using GoogleARCore;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.AR
 {
@@ -87,8 +87,6 @@ namespace CreateAR.SpirePlayer.AR
         {
             Config = config;
 
-            Log.Error(this, "Setting up android camera");
-
             _rig = Config.Rig;
             var camGO = _rig.Camera.gameObject;
             camGO.AddComponent<ARCoreSession>();
@@ -96,8 +94,11 @@ namespace CreateAR.SpirePlayer.AR
 
             if (Config.ShowCameraFeed)
             {
+                
                 var bgRenderer = camGO.AddComponent<ARCoreBackgroundRenderer>();
-                bgRenderer.BackgroundMaterial = Config.CameraMaterial;
+                bgRenderer.enabled = false;
+                bgRenderer.BackgroundMaterial = Config.GetCameraMaterialForPlatform(RuntimePlatform.Android);
+                bgRenderer.enabled = true;
             }
 
             IsSetup = true;
