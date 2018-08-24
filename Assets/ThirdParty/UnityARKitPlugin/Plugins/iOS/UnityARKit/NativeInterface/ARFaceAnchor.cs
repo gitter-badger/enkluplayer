@@ -86,24 +86,15 @@ namespace UnityEngine.XR.iOS
 		 */
 		public UnityARMatrix4x4 transform;
 
-	    public string identifierStr
-	    {
-	        get
-	        {
-#if !NETFX_CORE
-                return Marshal.PtrToStringAuto(this.ptrIdentifier);
-#else
-                return string.Empty;
-#endif
-            }
-	    }
+		public string identifierStr { get { return Marshal.PtrToStringAuto(this.ptrIdentifier); } }
 
-	    public UnityARFaceGeometry faceGeometry;
+		public UnityARFaceGeometry faceGeometry;
 		public IntPtr blendShapes;
+		public bool isTracked;   //this is from the new ARTrackable protocol that ARFaceAnchor now subscribes to
 
 	};
 
-#if !UNITY_EDITOR
+	#if !UNITY_EDITOR && UNITY_IOS
 	public class ARFaceGeometry
 	{
 		private UnityARFaceGeometry uFaceGeometry;
@@ -193,6 +184,8 @@ namespace UnityEngine.XR.iOS
 
 		public string identifierStr { get { return faceAnchorData.identifierStr; } }
 
+		public bool isTracked { get { return faceAnchorData.isTracked; } }
+
 		public Matrix4x4 transform { 
 			get { 
 				Matrix4x4 matrix = new Matrix4x4 ();
@@ -210,15 +203,8 @@ namespace UnityEngine.XR.iOS
 
 		delegate void DictionaryVisitorHandler(IntPtr keyPtr, float value);
 
-#if UNITY_IOS
 		[DllImport("__Internal")]
 		private static extern void GetBlendShapesInfo(IntPtr ptrDic, DictionaryVisitorHandler handler);
-#else
-        private static void GetBlendShapesInfo(IntPtr ptrDic, DictionaryVisitorHandler handler)
-        {
-            //
-        }
-#endif
 
 		Dictionary<string, float> GetBlendShapesFromNative(IntPtr blendShapesPtr)
 		{
@@ -230,13 +216,9 @@ namespace UnityEngine.XR.iOS
 		[MonoPInvokeCallback(typeof(DictionaryVisitorHandler))]
 		static void AddElementToManagedDictionary(IntPtr keyPtr, float value)
 		{
-#if !NETFX_CORE
 			string key = Marshal.PtrToStringAuto(keyPtr);
-#else
-            string key = "";
-#endif
 			blendshapesDictionary.Add(key, value);
 		}
 	}
-#endif
+	#endif
 }
