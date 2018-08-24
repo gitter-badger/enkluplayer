@@ -93,7 +93,6 @@ namespace CreateAR.SpirePlayer
 
             _appData.OnUpdated += AppData_OnUpdated;
             _appData.OnRemoved += AppData_OnRemoved;
-            _appData.OnUpdated += AppData_OnUpdated;
         }
 
         /// <inheritdoc cref="IScriptManager"/>
@@ -256,14 +255,14 @@ namespace CreateAR.SpirePlayer
             {
                 return;
             }
-
+            
             var id = data.Id;
             for (int i = 0, len = _records.Count; i < len; i++)
             {
                 var record = _records[i];
                 if (record.Script.Data.Id == id)
                 {
-                    record.Script.UpdateData(data);
+                    record.Script.Updated();
                 }
             }
         }
