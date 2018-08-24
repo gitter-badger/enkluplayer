@@ -50,6 +50,9 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             };
         }
 
+        /// <summary>
+        /// Test the basic flow. One Listener, one trigger. Ensure all events fire as expected.
+        /// </summary>
         [Test]
         public void SimpleEventFiring()
         {
@@ -78,6 +81,9 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             CheckCallbackCounts(1, 1, 1);
         }
 
+        /// <summary>
+        /// Test that two listeners don't send events to each other.
+        /// </summary>
         [Test]
         public void ListenersIgnoreEachOther()
         {
@@ -96,6 +102,9 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             CheckCallbackCounts(0, 0, 0);
         }
 
+        /// <summary>
+        /// Test that two triggers don't send events to each other.
+        /// </summary>
         [Test]
         public void TriggersIgnoreEachOther()
         {
@@ -114,6 +123,9 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             CheckCallbackCounts(0, 0, 0);
         }
 
+        /// <summary>
+        /// Test that a listener won't have a child trigger sending events to itself
+        /// </summary>
         [Test]
         public void ChildrenAreIgnored()
         {
@@ -134,6 +146,9 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             CheckCallbackCounts(0, 0, 0);
         }
 
+        /// <summary>
+        /// Test that a trigger won't send events to a child listener
+        /// </summary>
         [Test]
         public void ParentsAreIgnored()
         {
@@ -265,6 +280,9 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             cachedTriggerElement = null;
         }
 
+        /// <summary>
+        /// Basic flow test, with multiple triggers to ensure events are sent for both.
+        /// </summary>
         [Test]
         public void MultipleCollisions()
         {
