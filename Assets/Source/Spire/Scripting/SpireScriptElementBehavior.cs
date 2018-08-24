@@ -133,7 +133,7 @@ namespace CreateAR.SpirePlayer
                 throw new Exception("Script already started.");
             }
 
-            Log.Info(this, "Entering script {0}.", Script.Data);
+            Log.Info(this, "Entering script {0}.", Script.Data.Name);
 
             _isStarted = true;
 
@@ -164,7 +164,7 @@ namespace CreateAR.SpirePlayer
                 throw new Exception("Script hasn't been started.");
             }
 
-            Log.Info(this, "Exiting script {0}.", Script.Data);
+            Log.Info(this, "Exiting script {0}.", Script.Data.Name);
 
             _isStarted = false;
 

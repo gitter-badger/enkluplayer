@@ -1,3 +1,4 @@
+using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
@@ -11,6 +12,14 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class SpireScript
     {
+        public enum LoadStatus
+        {
+            None,
+            IsLoading,
+            Succeeded,
+            Failed
+        }
+
         /// <summary>
         /// Describes an object that executes a script.
         /// </summary>
@@ -40,11 +49,6 @@ namespace CreateAR.SpirePlayer
         private readonly IScriptLoader _loader;
         
         /// <summary>
-        /// Backing variable for OnReady.
-        /// </summary>
-        private readonly MutableAsyncToken<SpireScript> _onReady = new MutableAsyncToken<SpireScript>();
-
-        /// <summary>
         /// Ongoing load.
         /// </summary>
         private IAsyncToken<string> _load;
@@ -58,12 +62,7 @@ namespace CreateAR.SpirePlayer
         /// Data about the script.
         /// </summary>
         public ScriptData Data { get; private set; }
-
-        /// <summary>
-        /// Token when script is available to execute.
-        /// </summary>
-        public IMutableAsyncToken<SpireScript> OnReady { get { return _onReady; } }
-
+        
         /// <summary>
         /// Program that can be executed.
         /// </summary>
@@ -84,6 +83,15 @@ namespace CreateAR.SpirePlayer
         /// Sets an object that is responsible for executing this script.
         /// </summary>
         public IScriptExecutor Executor { get; set; }
+
+        /// <summary>
+        /// Load status.
+        /// </summary>
+        public LoadStatus Status { get; set; }
+
+        public event Action<SpireScript> OnLoadStarted;
+        public event Action<SpireScript> OnLoadSuccess;
+        public event Action<SpireScript> OnLoadFailure;
 
         /// <summary>
         /// Creates a new SpireScript.
@@ -123,11 +131,17 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Spire script data updated.");
 
             Data = data;
+            Status = LoadStatus.IsLoading;
 
             if (null != _load)
             {
                 _load.Abort();
                 _load = null;
+            }
+
+            if (null != OnLoadStarted)
+            {
+                OnLoadStarted(this);
             }
             
             _load = _loader
@@ -135,16 +149,25 @@ namespace CreateAR.SpirePlayer
                 .OnSuccess(text =>
                 {
                     Source = text;
-                    
-                    _onReady.Succeed(this);
+                    Status = LoadStatus.Succeeded;
+
+                    if (null != OnLoadSuccess)
+                    {
+                        OnLoadSuccess(this);
+                    }
                 })
                 .OnFailure(exception =>
                 {
+                    Status = LoadStatus.Failed;
+
                     Log.Error(this, "Could not load script {0} : {1}.",
                         Data,
                         exception);
 
-                    _onReady.Fail(exception);
+                    if (null != OnLoadFailure)
+                    {
+                        OnLoadFailure(this);
+                    }
                 });
         }
 

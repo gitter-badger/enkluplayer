@@ -1,5 +1,5 @@
 ﻿using System;
-using Boo.Lang;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
@@ -11,7 +11,6 @@ namespace CreateAR.SpirePlayer
 {
     public class ScriptCollectionRunner
     {
-        private readonly IScriptManager _scripts;
         private readonly IElementJsFactory _elementJsFactory;
         private readonly Engine _host;
         private readonly GameObject _root;
@@ -22,33 +21,36 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Behaviors.
         /// </summary>
-        private readonly List<SpireScriptElementBehavior> _scriptComponents = new List<SpireScriptElementBehavior>();
+        private readonly Boo.Lang.List<SpireScriptElementBehavior> _scriptComponents = new Boo.Lang.List<SpireScriptElementBehavior>();
 
         /// <summary>
         /// Vines.
         /// </summary>
-        private readonly List<VineMonoBehaviour> _vineComponents = new List<VineMonoBehaviour>();
-
+        private readonly Boo.Lang.List<VineMonoBehaviour> _vineComponents = new Boo.Lang.List<VineMonoBehaviour>();
+        
         public ScriptCollectionRunner(
-            IScriptManager scripts,
             IElementJsFactory elementJsFactory,
             Engine host,
             GameObject root,
             Element element)
         {
-            _scripts = scripts;
             _elementJsFactory = elementJsFactory;
             _host = host;
             _root = root;
             _element = element;
         }
 
-        public void Setup(SpireScript[] scripts)
+        public void Setup(IList<SpireScript> scripts)
         {
-            _isSetup = true;
+            if (_isSetup)
+            {
+                throw new Exception("Already Setup!");
+            }
 
+            _isSetup = true;
+            
             // start all vines first
-            var len = scripts.Length;
+            var len = scripts.Count;
             for (var i = 0; i < len; i++)
             {
                 var script = scripts[i];
@@ -94,6 +96,11 @@ namespace CreateAR.SpirePlayer
 
         public void Teardown()
         {
+            if (!_isSetup)
+            {
+                return;
+            }
+
             _isSetup = false;
 
             Log.Info(this, "\t-Destroying {0} scripts.", _scriptComponents.Count);
@@ -191,6 +198,16 @@ namespace CreateAR.SpirePlayer
         private readonly MutableAsyncToken<ContentWidget> _onScriptsLoaded = new MutableAsyncToken<ContentWidget>();
 
         /// <summary>
+        /// Lookup from script id to load status.
+        /// </summary>
+        private readonly Dictionary<string, SpireScript.LoadStatus> _scriptLoadMap = new Dictionary<string, SpireScript.LoadStatus>();
+
+        /// <summary>
+        /// SpireScripts we are currently running.
+        /// </summary>
+        private readonly List<SpireScript> _spireScripts = new List<SpireScript>();
+
+        /// <summary>
         /// Loads and executes scripts.
         /// </summary>
         private readonly IScriptManager _scripts;
@@ -245,12 +262,7 @@ namespace CreateAR.SpirePlayer
         /// Set to true when we should poll to update scripts.
         /// </summary>
         private bool _pollRefreshScript;
-
-        /// <summary>
-        /// Token responsible for all script loads.
-        /// </summary>
-        private IAsyncToken<SpireScript[]> _loadScriptsToken;
-
+        
         /// <summary>
         /// A token that is fired whenever the content has loaded.
         /// </summary>
@@ -397,66 +409,9 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Tears down scripts and sets them back up.
+        /// Retrieves script ids to load.
         /// </summary>
-        private void RefreshScripts()
-        {
-            _pollRefreshScript = false;
-
-            if (!ShouldLoadAsset())
-            {
-                _pollRefreshScript = true;
-                return;
-            }
-
-            Log.Info(this, "Refresh scripts for {0}.", Id);
-
-            if (null == _runner)
-            {
-                _runner = new ScriptCollectionRunner(
-                    _scripts,
-                    _elementJsFactory,
-                    _host,
-                    GameObject,
-                    this);
-            }
-
-            AbortScripts();
-
-            // TODO: reset element -- all props need reset from data
-
-            _loadScriptsToken = LoadScripts();
-            _loadScriptsToken
-                .OnSuccess(scripts =>
-                {
-                    _onScriptsLoaded.Succeed(this);
-
-                    _runner.Setup(scripts);
-                })
-                .OnFailure(ex =>
-                {
-                    Log.Warning(this, "Could not load scripts : {0}", ex);
-
-                    _onScriptsLoaded.Fail(ex);
-                });
-        }
-
-        private void AbortScripts()
-        {
-            // abort load handler
-            if (null != _loadScriptsToken)
-            {
-                _loadScriptsToken.Abort();
-                _loadScriptsToken = null;
-            }
-
-            // stop running scripts
-            _runner.Teardown();
-
-            // release scripts we created
-            _scripts.ReleaseAll(_scriptTag);
-        }
-
+        /// <returns></returns>
         private string[] GetScriptIds()
         {
             var scriptsSrc = _scriptsProp.Value;
@@ -490,10 +445,65 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Loads all scripts.
+        /// Tears down scripts and sets them back up.
         /// </summary>
-        private IAsyncToken<SpireScript[]> LoadScripts()
+        private void RefreshScripts()
         {
+            _pollRefreshScript = false;
+
+            if (!ShouldLoadAsset())
+            {
+                _pollRefreshScript = true;
+                return;
+            }
+
+            Log.Info(this, "Refresh all scripts for {0}.", Id);
+
+            if (null == _runner)
+            {
+                _runner = new ScriptCollectionRunner(
+                    _elementJsFactory,
+                    _host,
+                    GameObject,
+                    this);
+            }
+
+            AbortScripts();
+
+            // TODO: reset element -- all props need reset from data
+
+            LoadScripts();
+        }
+        
+        /// <summary>
+        /// Aborts load, stops scripts, destroys scripts.
+        /// </summary>
+        private void AbortScripts()
+        {
+            // remove all handlers
+            for (int i = 0, len = _spireScripts.Count; i < len; i++)
+            {
+                var script = _spireScripts[i];
+                script.OnLoadStarted -= Script_OnLoadStarted;
+                script.OnLoadFailure -= Script_OnLoadFinished;
+                script.OnLoadSuccess -= Script_OnLoadFinished;
+            }
+            _spireScripts.Clear();
+
+            // stop running scripts
+            _runner.Teardown();
+
+            // release scripts we created
+            _scripts.ReleaseAll(_scriptTag);
+        }
+        
+        /// <summary>
+        /// Loads all scripts and watches for updates.
+        /// </summary>
+        private void LoadScripts()
+        {
+            _scriptLoadMap.Clear();
+
             var ids = GetScriptIds();
             var len = ids.Length;
 
@@ -501,42 +511,87 @@ namespace CreateAR.SpirePlayer
 
             if (0 == len)
             {
-                return new AsyncToken<SpireScript[]>(new SpireScript[0]);
+                PollScriptLoads();
+                return;
             }
 
-            var scripts = new SpireScript[len];
-            var tokens = new IMutableAsyncToken<SpireScript>[len];
+            // create scripts
             for (var i = 0; i < len; i++)
             {
-                var scriptId = ids[i];
-                var script = scripts[i] = _scripts.Create(scriptId, _scriptTag);
+                var script = _scripts.Create(ids[i], _scriptTag);
                 if (null == script)
                 {
-                    var error = string.Format(
-                        "Could not create script from id {0}.",
-                        scriptId);
+                    Log.Error(this, "Could not create script.");
+                    
+                    AbortScripts();
 
-                    Log.Error(this, error);
-
-                    tokens[i] = new MutableAsyncToken<SpireScript>(new Exception(
-                        error));
-
-                    continue;
+                    return;
                 }
 
-                tokens[i] = script.OnReady;
+                _spireScripts.Add(script);
+                _scriptLoadMap[script.Data.Id] = script.Status;
             }
 
-            var token = new AsyncToken<SpireScript[]>();
+            // listen to scripts
+            for (var i = 0; i < len; i++)
+            {
+                var script = _spireScripts[i];
 
-            Async
-                .All(tokens)
-                .OnSuccess(token.Succeed)
-                .OnFailure(token.Fail);
-
-            return token;
+                script.OnLoadSuccess += Script_OnLoadFinished;
+                script.OnLoadFailure += Script_OnLoadFinished;
+                script.OnLoadStarted += Script_OnLoadStarted;
+            }
         }
-        
+
+        /// <summary>
+        /// Runs through all script loads to determine if scripts can run or not.
+        /// </summary>
+        private void PollScriptLoads()
+        {
+            foreach (var pair in _scriptLoadMap)
+            {
+                if (pair.Value == SpireScript.LoadStatus.Failed)
+                {
+                    AbortScripts();
+
+                    return;
+                }
+
+                if (pair.Value == SpireScript.LoadStatus.IsLoading || pair.Value == SpireScript.LoadStatus.None)
+                {
+                    return;
+                }
+            }
+
+            Log.Info(this, "All scripts loaded. Running!");
+
+            _onScriptsLoaded.Succeed(this);
+
+            _runner.Setup(_spireScripts);
+        }
+
+        /// <summary>
+        /// Called when a script has started to load itself.
+        /// </summary>
+        /// <param name="script">The script in question.</param>
+        private void Script_OnLoadStarted(SpireScript script)
+        {
+            // stop scripts NOW, request refresh
+            AbortScripts();
+            RefreshScripts();
+        }
+
+        /// <summary>
+        /// Called when a script has either successfull or unsuccessfully loaded.
+        /// </summary>
+        /// <param name="script">The script in question.</param>
+        private void Script_OnLoadFinished(SpireScript script)
+        {
+            _scriptLoadMap[script.Data.Id] = script.Status;
+
+            PollScriptLoads();
+        }
+
         /// <summary>
         /// Called when the assembler has completed seting up the asset.
         /// </summary>
