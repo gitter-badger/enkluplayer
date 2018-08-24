@@ -78,7 +78,7 @@ namespace CreateAR.SpirePlayer.IUX
                 case TextAlignmentType.TopCenter:
                 {
                     Text.rectTransform.pivot = new Vector2(0.5f, 0.0f);
-                    Text.alignment = TextAnchor.MiddleCenter;
+                    Text.alignment = TextAnchor.UpperCenter;
                     break;
                 }
 

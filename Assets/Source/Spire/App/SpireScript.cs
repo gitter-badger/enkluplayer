@@ -1,5 +1,8 @@
+using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
+using Jint.Parser;
 using Jint.Parser.Ast;
 
 namespace CreateAR.SpirePlayer
@@ -9,6 +12,32 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class SpireScript
     {
+        public enum LoadStatus
+        {
+            None,
+            IsLoading,
+            Succeeded,
+            Failed
+        }
+
+        /// <summary>
+        /// Describes an object that executes a script.
+        /// </summary>
+        public interface IScriptExecutor
+        {
+            /// <summary>
+            /// Data to push into a script.
+            /// </summary>
+            ElementSchema Data { get; }
+
+            /// <summary>
+            /// Sends a message.
+            /// </summary>
+            /// <param name="name">The name of the message.</param>
+            /// <param name="parameters">The parameters.</param>
+            void Send(string name, params object[] parameters);
+        }
+
         /// <summary>
         /// For parsing scripts.
         /// </summary>
@@ -20,34 +49,60 @@ namespace CreateAR.SpirePlayer
         private readonly IScriptLoader _loader;
         
         /// <summary>
-        /// Backing variable for OnReady.
-        /// </summary>
-        private readonly MutableAsyncToken<SpireScript> _onReady = new MutableAsyncToken<SpireScript>();
-
-        /// <summary>
         /// Ongoing load.
         /// </summary>
         private IAsyncToken<string> _load;
 
         /// <summary>
+        /// Executes scripts.
+        /// </summary>
+        private IScriptExecutor _executor;
+        
+        /// <summary>
         /// Data about the script.
         /// </summary>
         public ScriptData Data { get; private set; }
-
-        /// <summary>
-        /// Token when script is available to execute.
-        /// </summary>
-        public IMutableAsyncToken<SpireScript> OnReady { get { return _onReady; } }
-
+        
         /// <summary>
         /// Program that can be executed.
         /// </summary>
-        public Program Program { get; private set; }
+        public Program Program
+        {
+            get
+            {
+                return _parser.Parse(Source, Executor.Data, new ParserOptions());
+            }
+        }
 
         /// <summary>
         /// Source code.
         /// </summary>
         public string Source { get; private set; }
+
+        /// <summary>
+        /// Sets an object that is responsible for executing this script.
+        /// </summary>
+        public IScriptExecutor Executor { get; set; }
+
+        /// <summary>
+        /// Load status.
+        /// </summary>
+        public LoadStatus Status { get; set; }
+        
+        /// <summary>
+        /// Dispatched when a load is successful.
+        /// </summary>
+        public event Action<SpireScript> OnLoadSuccess;
+
+        /// <summary>
+        /// Dispatched when a load has failed.
+        /// </summary>
+        public event Action<SpireScript> OnLoadFailure;
+
+        /// <summary>
+        /// Dispatched when the script has been updated and this object is out of date.
+        /// </summary>
+        public event Action<SpireScript> OnUpdated;
 
         /// <summary>
         /// Creates a new SpireScript.
@@ -63,7 +118,7 @@ namespace CreateAR.SpirePlayer
             _parser = parser;
             _loader = loader;
 
-            UpdateData(data);
+            Load(data);
         }
         
         /// <summary>
@@ -79,86 +134,71 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called if updated.
+        /// </summary>
+        public void Updated()
+        {
+            if (null != OnUpdated)
+            {
+                OnUpdated(this);
+            }
+        }
+
+        /// <summary>
         /// Updates the script.
         /// </summary>
         /// <param name="data">Data to update.</param>
-        public void UpdateData(ScriptData data)
+        private void Load(ScriptData data)
         {
             Log.Info(this, "Spire script data updated.");
 
             Data = data;
-
-            if (null != _load)
-            {
-                _load.Abort();
-                _load = null;
-            }
+            Status = LoadStatus.IsLoading;
             
             _load = _loader
                 .Load(Data)
                 .OnSuccess(text =>
                 {
-                    if (data.Type == ScriptType.Behavior)
+                    Source = text;
+                    Status = LoadStatus.Succeeded;
+
+                    if (null != OnLoadSuccess)
                     {
-                        OnBehaviourLoaded(text);
-                    }
-                    else
-                    {
-                        OnVineLoaded(text);
+                        OnLoadSuccess(this);
                     }
                 })
                 .OnFailure(exception =>
                 {
+                    Status = LoadStatus.Failed;
+
                     Log.Error(this, "Could not load script {0} : {1}.",
                         Data,
                         exception);
 
-                    _onReady.Fail(exception);
+                    if (null != OnLoadFailure)
+                    {
+                        OnLoadFailure(this);
+                    }
                 });
         }
 
         /// <summary>
-        /// Called when the vine has been downloaded.
+        /// Passes a message to script.
         /// </summary>
-        /// <param name="text">Source text.</param>
-        private void OnVineLoaded(string text)
+        /// <param name="name">Name of the message.</param>
+        /// <param name="parameters">The parameters.</param>
+        public void Send(string name, params object[] parameters)
         {
-            Source = text;
-            
-            _onReady.Succeed(this);
-        }
-
-        /// <summary>
-        /// Called when the script has been downloaded.
-        /// </summary>
-        /// <param name="text">Text of the script.</param>
-        private void OnBehaviourLoaded(string text)
-        {
-            Log.Info(this, "Script loaded, parsing Program : {0} :\n{1}.",
-                Data,
-                text);
-
-            Source = text;
-
-            // parse!
-            _parser
-                .Parse(Source)
-                .OnSuccess(program =>
-                {
-                    Log.Info(this, "Script parsed and ready.");
-
-                    Program = program;
-
-                    _onReady.Succeed(this);
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this, "Could not parse {0} : {1}.",
-                        Data,
-                        exception);
-
-                    _onReady.Fail(exception);
-                });
+            if (null != Executor)
+            {
+                Executor.Send(name, parameters);
+            }
+            else
+            {
+                Log.Warning(this, "{0} message sent to {1}, but no Executor could be found.",
+                    name,
+                    null != Data ? Data.Id : "Unknown");
+            }
         }
     }
 }

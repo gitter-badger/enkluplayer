@@ -45,6 +45,14 @@ namespace CreateAR.SpirePlayer
         SpireScript Create(string scriptId, params string[] tags);
 
         /// <summary>
+        /// Passes a message to set of scripts.
+        /// </summary>
+        /// <param name="query">Query string.</param>
+        /// <param name="name">Name of the message.</param>
+        /// <param name="parameters">The parameters.</param>
+        void Send(string query, string name, params object[] parameters);
+
+        /// <summary>
         /// Releases an instance of <c>SpireScript</c>.
         /// </summary>
         /// <param name="script">The script to release.</param>
