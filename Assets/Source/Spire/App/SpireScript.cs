@@ -11,9 +11,21 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class SpireScript
     {
+        /// <summary>
+        /// Describes an object that executes a script.
+        /// </summary>
         public interface IScriptExecutor
         {
+            /// <summary>
+            /// Data to push into a script.
+            /// </summary>
             ElementSchema Data { get; }
+
+            /// <summary>
+            /// Sends a message.
+            /// </summary>
+            /// <param name="name">The name of the message.</param>
+            /// <param name="parameters">The parameters.</param>
             void Send(string name, params object[] parameters);
         }
 
