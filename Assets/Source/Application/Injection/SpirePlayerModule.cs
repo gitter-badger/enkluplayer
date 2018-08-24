@@ -419,11 +419,10 @@ namespace CreateAR.SpirePlayer
 #if !UNITY_EDITOR && UNITY_IOS
                 binder.Bind<UnityEngine.XR.iOS.UnityARSessionNativeInterface>().ToValue(UnityEngine.XR.iOS.UnityARSessionNativeInterface.GetARSessionNativeInterface());
                 binder.Bind<IArService>().To<IosArService>().ToSingleton();
-                binder.Bind<IWorldAnchorProvider>().To<ArKitWorldAnchorProvider>().ToSingleton();
-#elif  UNITY_ANDROID
-//TODO $BS - Add !UNITY_EDITOR to this directive
+                binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
+#elif !UNITY_EDITOR && UNITY_ANDROID
                 binder.Bind<IArService>().To<AndroidArService>().ToSingleton();
-                binder.Bind<IWorldAnchorProvider>().To<AndroidWorldAnchorProvider>().ToSingleton();
+                binder.Bind<IWorldAnchorProvider>().To<PassthroughWorldAnchorProvider>().ToSingleton();
 #elif !UNITY_EDITOR && UNITY_WSA
                 binder.Bind<IArService>().To<HoloLensArService>().ToSingleton();
                 binder.Bind<IWorldAnchorProvider>().To<HoloLensWorldAnchorProvider>().ToSingleton();
