@@ -578,7 +578,11 @@ namespace CreateAR.SpirePlayer
                 }
                 else
                 {
+#if UNITY_WEBGL
+                    binder.Bind<IScriptCache>().To<PassthroughScriptCache>().ToSingleton();
+#else
                     binder.Bind<IScriptCache>().To<StandardScriptCache>().ToSingleton();
+#endif
                 }
                 
                 binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();

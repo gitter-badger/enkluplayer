@@ -133,16 +133,22 @@ namespace CreateAR.SpirePlayer
 
             Log.Info(this, "\t-Destroying {0} scripts.", _scriptComponents.Count);
 
-            // exit components (we reuse these later)
+            // exit and destroy components
             for (int i = 0, len = _vineComponents.Count; i < len; i++)
             {
                 _vineComponents[i].Exit();
+
+                UnityEngine.Object.Destroy(_vineComponents[i]);
             }
+            _vineComponents.Clear();
 
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
             {
                 _scriptComponents[i].Exit();
+
+                UnityEngine.Object.Destroy(_scriptComponents[i]);
             }
+            _scriptComponents.Clear();
         }
 
         /// <summary>
@@ -153,7 +159,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Run vine({0}) : {1}", script.Data, script.Source);
 
-            var component = GetVineComponent(script.Data.Id);
+            var component = GetVineComponent();
             component.Initialize(_element, script);
             component.Configure();
             component.Enter();
@@ -175,7 +181,7 @@ namespace CreateAR.SpirePlayer
             host.SetValue("app", Main.NewAppJsApi(jsCache));
             host.SetValue("this", jsCache.Element(_element));
 
-            var component = GetBehaviorComponent(script.Data.Id);
+            var component = GetBehaviorComponent();
             component.Initialize(_elementJsFactory, host, script, _element);
             component.Configure();
             component.Enter();
@@ -184,21 +190,10 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Retrieves a VineMonoBehaviour or creates one.
         /// </summary>
-        /// <param name="id">The id of the script to get one for.</param>
         /// <returns></returns>
-        private VineMonoBehaviour GetVineComponent(string id)
+        private VineMonoBehaviour GetVineComponent()
         {
-            VineMonoBehaviour component;
-            for (int j = 0, jlen = _vineComponents.Count; j < jlen; j++)
-            {
-                component = _vineComponents[j];
-                if (component.Script.Data.Id == id)
-                {
-                    return component;
-                }
-            }
-
-            component = _root.AddComponent<VineMonoBehaviour>();
+            var component = _root.AddComponent<VineMonoBehaviour>();
             _vineComponents.Add(component);
 
             return component;
@@ -207,21 +202,10 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Retrieves a SpireScriptElementBehavior or creates one.
         /// </summary>
-        /// <param name="id">The id of the script to get one for.</param>
         /// <returns></returns>
-        private SpireScriptElementBehavior GetBehaviorComponent(string id)
+        private SpireScriptElementBehavior GetBehaviorComponent()
         {
-            SpireScriptElementBehavior component;
-            for (int j = 0, jlen = _scriptComponents.Count; j < jlen; j++)
-            {
-                component = _scriptComponents[j];
-                if (component.Script.Data.Id == id)
-                {
-                    return component;
-                }
-            }
-
-            component = _root.AddComponent<SpireScriptElementBehavior>();
+            var component = _root.AddComponent<SpireScriptElementBehavior>();
             _scriptComponents.Add(component);
 
             return component;

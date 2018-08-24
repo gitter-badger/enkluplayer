@@ -180,7 +180,7 @@ namespace CreateAR.SpirePlayer.Vine
                         {
                             bool defaultBoolValue;
                             bool.TryParse(defaultValue, out defaultBoolValue);
-                            propValue = DataStore.GetOwn(propName, defaultBoolValue).Value.ToString();
+                            propValue = DataStore.GetOwn(propName, defaultBoolValue).Value.ToString().ToLower();
 
                             break;
                         }
