@@ -88,10 +88,21 @@ namespace CreateAR.SpirePlayer
         /// Load status.
         /// </summary>
         public LoadStatus Status { get; set; }
-
-        public event Action<SpireScript> OnLoadStarted;
+        
+        /// <summary>
+        /// Dispatched when a load is successful.
+        /// </summary>
         public event Action<SpireScript> OnLoadSuccess;
+
+        /// <summary>
+        /// Dispatched when a load has failed.
+        /// </summary>
         public event Action<SpireScript> OnLoadFailure;
+
+        /// <summary>
+        /// Dispatched when the script has been updated and this object is out of date.
+        /// </summary>
+        public event Action<SpireScript> OnUpdated;
 
         /// <summary>
         /// Creates a new SpireScript.
@@ -107,7 +118,7 @@ namespace CreateAR.SpirePlayer
             _parser = parser;
             _loader = loader;
 
-            UpdateData(data);
+            Load(data);
         }
         
         /// <summary>
@@ -123,26 +134,26 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called if updated.
+        /// </summary>
+        public void Updated()
+        {
+            if (null != OnUpdated)
+            {
+                OnUpdated(this);
+            }
+        }
+
+        /// <summary>
         /// Updates the script.
         /// </summary>
         /// <param name="data">Data to update.</param>
-        public void UpdateData(ScriptData data)
+        private void Load(ScriptData data)
         {
             Log.Info(this, "Spire script data updated.");
 
             Data = data;
             Status = LoadStatus.IsLoading;
-
-            if (null != _load)
-            {
-                _load.Abort();
-                _load = null;
-            }
-
-            if (null != OnLoadStarted)
-            {
-                OnLoadStarted(this);
-            }
             
             _load = _loader
                 .Load(Data)

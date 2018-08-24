@@ -11,8 +11,8 @@ namespace CreateAR.SpirePlayer
 {
     public class ScriptCollectionRunner
     {
+        private readonly IScriptManager _scripts;
         private readonly IElementJsFactory _elementJsFactory;
-        private readonly Engine _host;
         private readonly GameObject _root;
         private readonly Element _element;
 
@@ -21,25 +21,29 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Behaviors.
         /// </summary>
-        private readonly Boo.Lang.List<SpireScriptElementBehavior> _scriptComponents = new Boo.Lang.List<SpireScriptElementBehavior>();
+        private readonly List<SpireScriptElementBehavior> _scriptComponents = new List<SpireScriptElementBehavior>();
 
         /// <summary>
         /// Vines.
         /// </summary>
-        private readonly Boo.Lang.List<VineMonoBehaviour> _vineComponents = new Boo.Lang.List<VineMonoBehaviour>();
+        private readonly List<VineMonoBehaviour> _vineComponents = new List<VineMonoBehaviour>();
         
         public ScriptCollectionRunner(
+            IScriptManager scripts,
             IElementJsFactory elementJsFactory,
-            Engine host,
             GameObject root,
             Element element)
         {
+            _scripts = scripts;
             _elementJsFactory = elementJsFactory;
-            _host = host;
             _root = root;
             _element = element;
         }
 
+        /// <summary>
+        /// Starts up the scripts. Teardown must be called before this can be called again.
+        /// </summary>
+        /// <param name="scripts">The scripts to execute.</param>
         public void Setup(IList<SpireScript> scripts)
         {
             if (_isSetup)
@@ -81,6 +85,9 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Updates the scripts every frame.
+        /// </summary>
         public void Update()
         {
             if (!_isSetup)
@@ -94,6 +101,9 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <summary>
+        /// Stops executing scripts. This may be called multiple times without issue.
+        /// </summary>
         public void Teardown()
         {
             if (!_isSetup)
@@ -139,8 +149,16 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "RunBehavior({0}) : {1}", script.Data, script.Source);
 
+            var host = new UnityScriptingHost(
+                this,
+                null,
+                _scripts);
+            var jsCache = new ElementJsCache(_elementJsFactory, host);
+            host.SetValue("app", Main.NewAppJsApi(jsCache));
+            host.SetValue("this", jsCache.Element(_element));
+
             var component = GetBehaviorComponent(script.Data.Id);
-            component.Initialize(_elementJsFactory, _host, script, _element);
+            component.Initialize(_elementJsFactory, host, script, _element);
             component.Configure();
             component.Enter();
         }
@@ -226,12 +244,7 @@ namespace CreateAR.SpirePlayer
         /// Unique tag used for managing scripts.
         /// </summary>
         private string _scriptTag;
-
-        /// <summary>
-        /// Caches js objects.
-        /// </summary>
-        private IElementJsCache _jsCache;
-
+        
         /// <summary>
         /// Runs scripts.
         /// </summary>
@@ -242,11 +255,6 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private ElementSchemaProp<string> _srcAssetProp;
         private ElementSchemaProp<string> _scriptsProp;
-
-        /// <summary>
-        /// Scripting host.
-        /// </summary>
-        private UnityScriptingHost _host;
         
         /// <summary>
         /// Token, lazily created through property OnLoaded.
@@ -316,15 +324,7 @@ namespace CreateAR.SpirePlayer
         protected override void LoadInternalAfterChildren()
         {
             base.LoadInternalAfterChildren();
-
-            _host = new UnityScriptingHost(
-                this,
-                null,
-                _scripts);
-            _jsCache = new ElementJsCache(_elementJsFactory, _host);
-            _host.SetValue("app", Main.NewAppJsApi(_jsCache));
-            _host.SetValue("this", _jsCache.Element(this));
-
+            
             _srcAssetProp = Schema.GetOwn("assetSrc", "");
             _srcAssetProp.OnChanged += AssetSrc_OnChanged;
 
@@ -462,8 +462,8 @@ namespace CreateAR.SpirePlayer
             if (null == _runner)
             {
                 _runner = new ScriptCollectionRunner(
+                    _scripts,
                     _elementJsFactory,
-                    _host,
                     GameObject,
                     this);
             }
@@ -484,7 +484,7 @@ namespace CreateAR.SpirePlayer
             for (int i = 0, len = _spireScripts.Count; i < len; i++)
             {
                 var script = _spireScripts[i];
-                script.OnLoadStarted -= Script_OnLoadStarted;
+                script.OnUpdated -= Script_OnUpdated;
                 script.OnLoadFailure -= Script_OnLoadFinished;
                 script.OnLoadSuccess -= Script_OnLoadFinished;
             }
@@ -539,7 +539,7 @@ namespace CreateAR.SpirePlayer
 
                 script.OnLoadSuccess += Script_OnLoadFinished;
                 script.OnLoadFailure += Script_OnLoadFinished;
-                script.OnLoadStarted += Script_OnLoadStarted;
+                script.OnUpdated += Script_OnUpdated;
             }
         }
 
@@ -574,7 +574,7 @@ namespace CreateAR.SpirePlayer
         /// Called when a script has started to load itself.
         /// </summary>
         /// <param name="script">The script in question.</param>
-        private void Script_OnLoadStarted(SpireScript script)
+        private void Script_OnUpdated(SpireScript script)
         {
             // stop scripts NOW, request refresh
             AbortScripts();

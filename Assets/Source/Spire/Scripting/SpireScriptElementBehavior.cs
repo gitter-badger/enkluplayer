@@ -106,6 +106,7 @@ namespace CreateAR.SpirePlayer
 
             try
             {
+                Log.Info(this, "Execute : {0}", Script.Source);
                 _engine.Execute(Script.Program);
             }
             catch (Exception exception)

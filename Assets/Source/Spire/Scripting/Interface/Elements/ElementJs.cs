@@ -192,6 +192,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void on(string eventType, Func<JsValue, JsValue[], JsValue> fn)
         {
+            Log.Info(this, "Added event listener");
             EventList(eventType).Add(fn);
         }
 
@@ -220,9 +221,7 @@ namespace CreateAR.SpirePlayer
             {
                 return;
             }
-
-            Log.Info(this, "Dispatch '{0}' event to {1} listeners.", eventType, count);
-
+            
             var param = new[] { JsValue.FromObject(_engine, evt) };
             if (1 == count)
             {
