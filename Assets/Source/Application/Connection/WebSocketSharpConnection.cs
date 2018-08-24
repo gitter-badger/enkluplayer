@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR || UNITY_IOS
+#if UNITY_EDITOR || UNITY_IOS || UNITY_ANDROID
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -6,7 +6,6 @@ using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using UnityEditor.Build;
 using WebSocketSharp;
 using Void = CreateAR.Commons.Unity.Async.Void;
 

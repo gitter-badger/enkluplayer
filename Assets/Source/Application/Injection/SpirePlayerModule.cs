@@ -141,7 +141,7 @@ namespace CreateAR.SpirePlayer
                 }
                 else
                 {
-#if UNITY_IOS
+#if UNITY_IOS || UNITY_ANDROID
                     binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
