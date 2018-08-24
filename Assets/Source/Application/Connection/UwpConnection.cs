@@ -55,6 +55,9 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public bool IsConnected { get; private set; }
 
+        /// <inheritdoc />
+        public event Action OnConnected;
+
         /// <summary>
         /// Constructor.
         /// </summary>
