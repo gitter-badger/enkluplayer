@@ -150,8 +150,6 @@ namespace CreateAR.SpirePlayer
         /// <param name="data">Data to update.</param>
         private void Load(ScriptData data)
         {
-            Log.Info(this, "Spire script data updated.");
-
             Data = data;
             Status = LoadStatus.IsLoading;
             
