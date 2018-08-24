@@ -10,7 +10,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// This object is able to run a JS script on an Element similar to a MonoBehaviour.
     /// </summary>
-    public class SpireScriptElementBehavior : SpireScript.IScriptExecutor
+    public class SpireScriptElementBehavior : MonoBehaviour, SpireScript.IScriptExecutor
     {
         /// <summary>
         /// An engine to run the scripts with.
@@ -21,6 +21,11 @@ namespace CreateAR.SpirePlayer
         /// The element this is running on.
         /// </summary>
         private Element _element;
+
+        /// <summary>
+        /// Creates ElementJs instances.
+        /// </summary>
+        private IElementJsFactory _factory;
 
         /// <summary>
         /// True iff has been started.
@@ -76,11 +81,46 @@ namespace CreateAR.SpirePlayer
 
             _engine = engine;
             _element = element;
+            _factory = factory;
 
             Script = script;
             Script.Executor = this;
-            
-            Run(factory, element);
+        }
+
+        /// <summary>
+        /// Called after script is ready, before FSM flow.
+        /// </summary>
+        public void Configure()
+        {
+            var thisBinding = JsValue.FromObject(
+                _engine,
+                _factory.Instance(_engine, _element));
+            _engine.ExecutionContext.ThisBinding = thisBinding;
+
+            // common apis
+            _engine.SetValue("v", Vec3Methods.Instance);
+            _engine.SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
+            _engine.SetValue("q", QuatMethods.Instance);
+            _engine.SetValue("quat", new Func<float, float, float, float, Quat>(QuatMethods.create));
+            _engine.SetValue("time", TimeJsApi.Instance);
+
+            try
+            {
+                _engine.Execute(Script.Program);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogWarning("Could not execute script: " + exception);
+
+                return;
+            }
+
+            _this = thisBinding;
+
+            _msgMissing = _engine.GetFunction("msgMissing");
+            _enter = _engine.GetFunction("enter");
+            _update = _engine.GetFunction("update");
+            _exit = _engine.GetFunction("exit");
         }
         
         /// <summary>
@@ -104,6 +144,17 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called every frame.
+        /// </summary>
+        public void FrameUpdate()
+        {
+            if (_isStarted && null != _update)
+            {
+                _update.Call(_this, _nullArgs);
+            }
+        }
+
+        /// <summary>
         /// Exits the script.
         /// </summary>
         public void Exit()
@@ -120,17 +171,6 @@ namespace CreateAR.SpirePlayer
             if (null != _exit)
             {
                 _exit.Call(_this, _nullArgs);
-            }
-        }
-
-        /// <summary>
-        /// Called every frame.
-        /// </summary>
-        public void Update()
-        {
-            if (_isStarted && null != _update)
-            {
-                _update.Call(_this, _nullArgs);
             }
         }
 
@@ -173,42 +213,6 @@ namespace CreateAR.SpirePlayer
                     _msgMissing.Call(_this, values);
                 }
             }
-        }
-
-        /// <summary>
-        /// Inits the script and runs it.
-        /// </summary>
-        private void Run(IElementJsFactory factory, Element element)
-        {
-            var thisBinding = JsValue.FromObject(
-                _engine,
-                factory.Instance(_engine, element));
-            _engine.ExecutionContext.ThisBinding = thisBinding;
-
-            // common apis
-            _engine.SetValue("v", Vec3Methods.Instance);
-            _engine.SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
-            _engine.SetValue("q", QuatMethods.Instance);
-            _engine.SetValue("quat", new Func<float, float, float, float, Quat>(QuatMethods.create));
-            _engine.SetValue("time", TimeJsApi.Instance);
-
-            try
-            {
-                _engine.Execute(Script.Program);
-            }
-            catch (Exception exception)
-            {
-                Debug.LogWarning("Could not execute script: " + exception);
-
-                return;
-            }
-
-            _this = thisBinding;
-
-            _msgMissing = _engine.GetFunction("msgMissing");
-            _enter = _engine.GetFunction("enter");
-            _update = _engine.GetFunction("update");
-            _exit = _engine.GetFunction("exit");
         }
     }
 }

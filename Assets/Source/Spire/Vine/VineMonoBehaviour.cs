@@ -49,44 +49,14 @@ namespace CreateAR.SpirePlayer
         {
             Parent = parent;
             Script = script;
-            Script.OnReady.OnSuccess(_ =>
-            {
-                DestroyElements();
-                Import(script);
-                Enter();
-            });
         }
 
         /// <summary>
-        /// Runs script.
+        /// Call after script is ready, before FSM flow.
         /// </summary>
-        public bool Enter()
+        public void Configure()
         {
-            return CreateElements();
-        }
-        
-        /// <summary>
-        /// Destroys component and created elements.
-        /// </summary>
-        public void Exit()
-        {
-            DestroyElements();
-        }
-
-        /// <inheritdoc cref="MonoBehaviour"/>
-        private void OnDestroy()
-        {
-            Exit();
-        }
-
-        /// <summary>
-        /// Imports script.
-        /// </summary>
-        /// <param name="script">The script.</param>
-        /// <returns></returns>
-        private bool Import(SpireScript script)
-        {
-            Log.Info(this, "Importing Vine {0}.", script.Data.Id);
+            Log.Info(this, "Importing Vine {0}.", Script.Data.Id);
 
             try
             {
@@ -95,36 +65,38 @@ namespace CreateAR.SpirePlayer
             catch (Exception exception)
             {
                 Log.Error(this, "Could not parse {0} : {1}.",
-                    script,
+                    Script,
                     exception);
-
-                return false;
             }
-
-            return true;
         }
 
         /// <summary>
-        /// Creates elements.
+        /// Runs script.
         /// </summary>
-        private bool CreateElements()
+        public void Enter()
         {
             if (null == _description)
             {
-                return false;
+                return;
             }
-            
+
             _element = Elements.Element(_description);
 
             Parent.AddChild(_element);
-
-            return true;
         }
 
         /// <summary>
-        /// Cleans up elements.
+        /// Called every frame.
         /// </summary>
-        private void DestroyElements()
+        public void FrameUpdate()
+        {
+            //
+        }
+
+        /// <summary>
+        /// Destroys component and created elements.
+        /// </summary>
+        public void Exit()
         {
             if (null != _element)
             {
