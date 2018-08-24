@@ -78,6 +78,12 @@ namespace CreateAR.SpirePlayer.IUX
                 return;
             }
 
+            var cam = Camera.current;
+            if (null == cam)
+            {
+                return;
+            }
+
             // gather transforms
             _transforms.Clear();
             var children = _menu.LayoutChildren;
@@ -95,7 +101,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             GL.PushMatrix();
             {
-                GL.LoadProjectionMatrix(Camera.main.projectionMatrix);
+                GL.LoadProjectionMatrix(cam.projectionMatrix);
                 GL.Begin(GL.LINES);
                 GL.Color(0.4f * Color.white);
                 {

@@ -1,4 +1,5 @@
-﻿using LightJson;
+﻿using CreateAR.Commons.Unity.Logging;
+using LightJson;
 
 namespace CreateAR.SpirePlayer
 {
@@ -113,7 +114,8 @@ namespace CreateAR.SpirePlayer
             {
                 if (null == _tags)
                 {
-                    _tags = (TagString ?? "").Split(',');
+                    var blobs = (TagString ?? "").Split(';');
+                    _tags = blobs[0].Split(',');
                 }
 
                 return _tags;

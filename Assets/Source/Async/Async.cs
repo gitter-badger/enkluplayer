@@ -106,6 +106,8 @@ namespace CreateAR.Commons.Unity.Async
                     .OnFailure(exception => exceptions.Add(exception))
                     .OnFinally(_ =>
                     {
+                        // TODO: THIS IS INACCURATE! A single token could be resolved LEN times
+                        // TODO: and this would still be satisified. Hmm...
                         if (++numReturned == len)
                         {
                             if (exceptions.Count > 1)

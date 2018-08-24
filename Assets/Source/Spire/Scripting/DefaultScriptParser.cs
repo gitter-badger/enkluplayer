@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
+using CreateAR.SpirePlayer.Vine;
 using Jint.Parser;
 using Jint.Parser.Ast;
 
@@ -6,11 +8,14 @@ namespace CreateAR.SpirePlayer
 {
     /// <summary>
     /// Default implementation simple parses synchronously.
-    /// 
-    /// TODO: Queue + parse in separate worker thread or coroutine (webgl).
     /// </summary>
     public class DefaultScriptParser : IScriptParser
     {
+        /// <summary>
+        /// Preprocesses.
+        /// </summary>
+        private readonly IVinePreProcessor _preprocessor;
+
         /// <summary>
         /// Jint implementation.
         /// </summary>
@@ -19,22 +24,24 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="parser">Jint parser.</param>
-        public DefaultScriptParser(JavaScriptParser parser)
+        public DefaultScriptParser(
+            IVinePreProcessor preprocessor,
+            JavaScriptParser parser)
         {
+            _preprocessor = preprocessor;
             _parser = parser;
         }
-
+        
         /// <inheritdoc cref="IScriptParser"/>
-        public IAsyncToken<Program> Parse(string code)
+        public Program Parse(string code, ElementSchema data, ParserOptions options)
         {
-            return new AsyncToken<Program>(_parser.Parse(code));
-        }
+            _preprocessor.DataStore = data;
 
-        /// <inheritdoc cref="IScriptParser"/>
-        public IAsyncToken<Program> Parse(string code, ParserOptions options)
-        {
-            return new AsyncToken<Program>(_parser.Parse(code, options));
+            var processed = _preprocessor.Execute(code);
+
+            Log.Info(this, "Parse : {0}.", processed);
+
+            return _parser.Parse(processed, options);
         }
     }
 }

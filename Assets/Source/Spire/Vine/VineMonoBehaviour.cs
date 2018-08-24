@@ -19,12 +19,7 @@ namespace CreateAR.SpirePlayer
         /// The element created.
         /// </summary>
         private Element _element;
-
-        /// <summary>
-        /// True iff Enter() has been called but not Exit().
-        /// </summary>
-        private bool _isEntered;
-
+        
         /// <summary>
         /// Imports from vine.
         /// </summary>
@@ -36,7 +31,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [Inject]
         public IElementFactory Elements { get; set; }
-        
+
+        /// <summary>
+        /// The parent of the script.
+        /// </summary>
+        public Element Parent { get; private set; }
+
         /// <summary>
         /// SpireScript.
         /// </summary>
@@ -45,99 +45,58 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Initializes script.
         /// </summary>
-        public bool Initialize(SpireScript script)
+        public void Initialize(Element parent, SpireScript script)
         {
+            Parent = parent;
             Script = script;
-            Script.OnReady.OnSuccess(_ =>
-            {
-                DestroyElements();
-                Import(script);
-
-                if (_isEntered)
-                {
-                    CreateElements();
-                }
-            });
-
-            return Import(script);
-        }
-        
-        /// <summary>
-        /// Runs script.
-        /// </summary>
-        public bool Enter()
-        {
-            _isEntered = true;
-
-            return CreateElements();
-        }
-        
-        /// <summary>
-        /// Destroys component and created elements.
-        /// </summary>
-        public void Exit()
-        {
-            _isEntered = false;
-
-            DestroyElements();
-        }
-
-        /// <inheritdoc cref="MonoBehaviour"/>
-        private void OnDestroy()
-        {
-            Exit();
         }
 
         /// <summary>
-        /// Imports script.
+        /// Call after script is ready, before FSM flow.
         /// </summary>
-        /// <param name="script">The script.</param>
-        /// <returns></returns>
-        private bool Import(SpireScript script)
+        public void Configure()
         {
-            Log.Info(this, "Importing script.");
+            Log.Info(this, "Importing Vine {0}.", Script.Data.Id);
 
             try
             {
-                _description = Importer.Parse(Script.Source);
+                _description = Importer.Parse(Script.Source, Parent.Schema);
             }
             catch (Exception exception)
             {
                 Log.Error(this, "Could not parse {0} : {1}.",
-                    script,
+                    Script,
                     exception);
-
-                return false;
             }
-
-            return true;
         }
 
         /// <summary>
-        /// Creates elements.
+        /// Runs script.
         /// </summary>
-        private bool CreateElements()
+        public void Enter()
         {
             if (null == _description)
             {
-                return false;
+                return;
             }
 
             _element = Elements.Element(_description);
 
-            var unityElement = _element as IUnityElement;
-            if (null != unityElement)
-            {
-                unityElement.GameObject.transform.SetParent(transform, false);
-            }
-
-            return true;
+            Parent.AddChild(_element);
         }
 
         /// <summary>
-        /// Cleans up elements.
+        /// Called every frame.
         /// </summary>
-        private void DestroyElements()
+        public void FrameUpdate()
+        {
+            //
+        }
+
+        /// <summary>
+        /// Destroys component and created elements.
+        /// </summary>
+        public void Exit()
         {
             if (null != _element)
             {

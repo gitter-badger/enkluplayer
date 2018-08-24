@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using RTEditor;
+using UnityEditor.Experimental.UIElements;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -321,10 +322,27 @@ namespace CreateAR.SpirePlayer
             var unityElement = element as IUnityElement;
             if (null != unityElement)
             {
-                unityElement.GameObject
-                    .AddComponent<ElementUpdateMonobehaviour>()
-                    .Initialize(element, _elementUpdater);
+                if (IsIUX(element))
+                {
+                    unityElement.GameObject.AddComponent<NonSelectableMonoBehaviour>();
+                }
+                else
+                {
+                    unityElement.GameObject
+                        .AddComponent<ElementUpdateMonobehaviour>()
+                        .Initialize(element, _elementUpdater);
+                }
             }
+        }
+
+        /// <summary>
+        /// True iff the element is an IUX element.
+        /// </summary>
+        /// <param name="element">The element.</param>
+        /// <returns></returns>
+        private bool IsIUX(Element element)
+        {
+            return element is ButtonWidget;
         }
 
         /// <summary>

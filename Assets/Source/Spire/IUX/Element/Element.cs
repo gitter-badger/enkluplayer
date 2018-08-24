@@ -323,7 +323,8 @@ namespace CreateAR.SpirePlayer.IUX
             Find(query, _findAllScratch);
             
             return _findAllScratch
-                .OfType<T>()
+                .Where(el => el.GetType() == typeof(T) || el.GetType().IsSubclassOf(typeof(T)))
+                .Cast<T>()
                 .FirstOrDefault();
         }
 
@@ -348,7 +349,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 return;
             }
-
+            
             // split at recursive queries
             var current = new List<Element> { this };
             var recur = false;
