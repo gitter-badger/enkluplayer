@@ -16,7 +16,7 @@ namespace CreateAR.SpirePlayer.Test.UI
         public void Add(Element element)
         {
             _elements.Add(element);
-            OnCreated(element);
+            if (OnCreated != null) OnCreated(element);
         }
 
         public Element ById(string id)
