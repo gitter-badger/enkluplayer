@@ -232,7 +232,7 @@ namespace CreateAR.SpirePlayer.Scripting
         {
             ElementJs element = value.As<ObjectWrapper>().Target as ElementJs;
             if(element == null) {
-                throw new ArgumentException("ProximityManager.subscribe must be passed an ElementJs instance");
+                throw new ArgumentException("ProximityManager must be passed an ElementJs instance");
             }
             return element;
         }
