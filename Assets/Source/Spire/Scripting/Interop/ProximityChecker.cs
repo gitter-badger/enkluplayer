@@ -12,7 +12,7 @@ namespace CreateAR.SpirePlayer.Scripting
     ///     can all be in a scene overlapping each other, but not constantly emitting events off of each other. Triggers
     ///     colliding with listening elements cause proximity events. An element can be listening and/or a trigger.
     /// </summary>
-    public class ProximityChecker
+    public class ProximityChecker : IDisposable
     {
         /// <summary>
         /// Invoked when a trigger comes in range of a listening element. 
@@ -107,6 +107,8 @@ namespace CreateAR.SpirePlayer.Scripting
             EntityConfig config = FindElementConfig(element);
             if (config == null)
             {
+                // Just early out if it wouldn't be tracked anyway. This occurs commonly during scene building
+                if (!isListening && !isTrigger) return;
                 config = new EntityConfig();
                 config.Element = element;
                 _activeElements.Add(config);
@@ -191,7 +193,6 @@ namespace CreateAR.SpirePlayer.Scripting
                     {
                         // If we're not already in collision, use inner radii to check for enter
                         float radiiSum = (float) Math.Pow(configA.InnerRadius + configB.InnerRadius, 2);
-
                         if (distance - radiiSum < 0)
                         {
                             InvokeCallbacks(OnEnter, configA, configB);
@@ -202,7 +203,6 @@ namespace CreateAR.SpirePlayer.Scripting
                     {
                         // Otherwise, use outer to check for exit
                         float radiiSum = (float) Math.Pow(configA.OuterRadius + configB.OuterRadius, 2);
-
                         if (distance - radiiSum < 0)
                         {
                             InvokeCallbacks(OnStay, configA, configB);
@@ -215,6 +215,16 @@ namespace CreateAR.SpirePlayer.Scripting
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Disposes of this instance. Clears callback Actions
+        /// </summary>
+        public void Dispose()
+        {
+            OnEnter = null;
+            OnStay = null;
+            OnExit = null;
         }
 
         /// <summary>

@@ -2,6 +2,7 @@
 using CreateAR.SpirePlayer.IUX;
 using Jint;
 using Jint.Native;
+using Jint.Native.Object;
 using Jint.Runtime.Interop;
 using System;
 using System.Collections.Generic;
@@ -74,17 +75,17 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked when objects enter proximity.
         /// </summary>
-        private readonly Dictionary<ElementJs, Action<ElementJs>> enterCallbacks = new Dictionary<ElementJs, Action<ElementJs>>();
+        private readonly Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>> enterCallbacks = new Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>>();
 
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked every Update while objects are within proximity.
         /// </summary>
-        private readonly Dictionary<ElementJs, Action<ElementJs>> stayCallbacks = new Dictionary<ElementJs, Action<ElementJs>>();
+        private readonly Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>> stayCallbacks = new Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>>();
 
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked when objects exit proximity.
         /// </summary>
-        private readonly Dictionary<ElementJs, Action<ElementJs>> exitCallbacks = new Dictionary<ElementJs, Action<ElementJs>>();
+        private readonly Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>> exitCallbacks = new Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>>();
 
         /// <summary>
         /// Called by Unity. Sets up against existing Elements and watches for new ones.
@@ -92,6 +93,19 @@ namespace CreateAR.SpirePlayer.Scripting
         protected override void Awake()
         {
             base.Awake();
+
+            _proximityChecker.OnEnter += (IEntityJs listener, IEntityJs trigger) => {
+                InvokeCallbacks(ProximityEvents.enter, listener, trigger);
+            };
+
+            _proximityChecker.OnStay += (IEntityJs listener, IEntityJs trigger) => {
+                InvokeCallbacks(ProximityEvents.stay, listener, trigger);
+            };
+
+            _proximityChecker.OnExit += (IEntityJs listener, IEntityJs trigger) => {
+                InvokeCallbacks(ProximityEvents.exit, listener, trigger);
+            };
+
             _proximityChecker.SetElementState(Player, false, true);
             _proximityChecker.SetElementRadii(Player, 1, 1);
 
@@ -108,7 +122,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <param name="jsValue">Element that will listen for events</param>
         /// <param name="eventName"><see cref="ProximityEvents"/> event that will be listened for.</param>
         /// <param name="callback">JS callback to invoke on proximity changes</param>
-        public void subscribe(JsValue jsValue, string eventName, Action<ElementJs> callback)
+        public void subscribe(JsValue jsValue, string eventName, Func<JsValue, JsValue[], JsValue> callback)
         {
             ElementJs element = ConvertJsValue(jsValue);
 
@@ -127,7 +141,7 @@ namespace CreateAR.SpirePlayer.Scripting
                     return;
             }
 
-            _proximityChecker.SetElementState(element, true, ElementIsTrigger(element));
+            UpdateElement(element);
         }
 
         /// <summary>
@@ -153,9 +167,8 @@ namespace CreateAR.SpirePlayer.Scripting
                 default:
                     throw new ArgumentException("Attempted to unsubscribe against an unknown event");
             }
-
-            // Check if element is listening - it could have been subscribed to multiple events
-            _proximityChecker.SetElementState(element, ElementIsListening(element), ElementIsTrigger(element));
+            
+            UpdateElement(element);
         }
 
         /// <summary>
@@ -164,6 +177,19 @@ namespace CreateAR.SpirePlayer.Scripting
         private void Update()
         {
             _proximityChecker.Update();
+        }
+
+        /// <summary>
+        /// Cleans up this resource.
+        /// </summary>
+        private void OnDestroy()
+        {
+            _proximityChecker.Dispose();
+            _proximityChecker = null;
+
+            enterCallbacks.Clear();
+            stayCallbacks.Clear();
+            exitCallbacks.Clear();
         }
 
         /// <summary>
@@ -181,6 +207,7 @@ namespace CreateAR.SpirePlayer.Scripting
             elementjs.schema.watchBool(PROXIMITY_TRIGGER, callback);
             elementjs.schema.watchNumber(PROXIMITY_INNER, callback);
             elementjs.schema.watchNumber(PROXIMITY_OUTER, callback);
+            UpdateElement(elementjs);
         }
 
         /// <summary>
@@ -232,9 +259,9 @@ namespace CreateAR.SpirePlayer.Scripting
             return element.schema.getBool(PROXIMITY_TRIGGER);
         }
 
-        private void InvokeCallbacks(string @event, ElementJs elementA, ElementJs elementB)
+        private void InvokeCallbacks(string @event, IEntityJs elementA, IEntityJs elementB)
         {
-            Dictionary<ElementJs, Action<ElementJs>> callbackLookup;
+            Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>> callbackLookup;
             switch(@event) {
                 case ProximityEvents.enter:
                     callbackLookup = enterCallbacks;
@@ -249,11 +276,11 @@ namespace CreateAR.SpirePlayer.Scripting
                     throw new ArgumentException("No callback containers exist for Proximity event " + @event);
             }
 
-            var callbacks = callbackLookup[elementA];
-            if(callbacks != null) callbacks(elementB);
-
-            callbacks = callbackLookup[elementB];
-            if(callbacks != null) callbacks(elementA);
+            Func<JsValue, JsValue[], JsValue> callbacks;
+            if (callbackLookup.TryGetValue(elementA, out callbacks))
+            {
+                callbacks(JsValue.FromObject(_engine, elementA), new JsValue[1] { JsValue.FromObject(_engine, elementB) });
+            }
         }
     }
 }
