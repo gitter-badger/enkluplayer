@@ -56,6 +56,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
+        [Construct]
         public ElementFactory(
             IElementManager elements,
             IGizmoManager gizmos,
@@ -302,8 +303,8 @@ namespace CreateAR.SpirePlayer.IUX
             var element = ElementForType(data.Type);
             if (element != null)
             {
-                _elements.Add(element);
                 element.Load(data, schema, children);
+                _elements.Add(element);
             }
 
             _gizmos.Track(element);

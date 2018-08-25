@@ -279,6 +279,11 @@ namespace CreateAR.SpirePlayer.Scripting
             return list;
         }
 
+        public override string ToString()
+        {
+            return string.Format("ElementJs ({0})", _element.Id);
+        }
+
         /// Tests whether two ElementJs instances are equivalent, relative to their Elements
         /// </summary>
         /// <param name="this"></param>
