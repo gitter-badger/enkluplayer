@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.SpirePlayer
@@ -94,7 +93,6 @@ namespace CreateAR.SpirePlayer
 
             _appData.OnUpdated += AppData_OnUpdated;
             _appData.OnRemoved += AppData_OnRemoved;
-            _appData.OnUpdated += AppData_OnUpdated;
         }
 
         /// <inheritdoc cref="IScriptManager"/>
@@ -175,6 +173,20 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc cref="IScriptManager"/>
+        public void Send(string query, string name, params object[] parameters)
+        {
+            for (int i = 0, len = _records.Count; i < len; i++)
+            {
+                var record = _records[i];
+                var tags = record.Script.Data.Tags;
+                if (_resolver.Resolve(query, ref tags))
+                {
+                    record.Script.Send(name, parameters);
+                }
+            }
+        }
+
+        /// <inheritdoc cref="IScriptManager"/>
         public void Release(SpireScript script)
         {
             for (int i = 0, len = _records.Count; i < len; i++)
@@ -243,14 +255,14 @@ namespace CreateAR.SpirePlayer
             {
                 return;
             }
-
+            
             var id = data.Id;
             for (int i = 0, len = _records.Count; i < len; i++)
             {
                 var record = _records[i];
                 if (record.Script.Data.Id == id)
                 {
-                    record.Script.UpdateData(data);
+                    record.Script.Updated();
                 }
             }
         }

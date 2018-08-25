@@ -43,6 +43,15 @@
         }
 
         /// <summary>
+        /// Col4 string representation.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("col({0:0.00}, {1:0.00}, {2:0.00}, {3:0.00})", r, g, b, a);
+        }
+
+        /// <summary>
         /// Creates a Color from components.
         /// </summary>
         /// <param name="r">Red component.</param>

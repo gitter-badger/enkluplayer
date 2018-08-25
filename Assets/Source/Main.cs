@@ -1,6 +1,8 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.SpirePlayer.IUX;
+using CreateAR.SpirePlayer.Scripting;
 using strange.extensions.injector.impl;
 using UnityEngine;
 
@@ -39,11 +41,26 @@ namespace CreateAR.SpirePlayer
 	    {
 	        _binder.injector.Inject(@object);
 	    }
-        
+
+        /// <summary>
+        /// TODO: REMOVE THIS EVIL. This is here because of a circular dependency. IElementFactory < == > IElementJsFactory.
+        /// </summary>
+        /// <param name="jsCache">The cache.</param>
+        /// <returns></returns>
+	    public static AppJsApi NewAppJsApi(IElementJsCache jsCache)
+	    {
+            return new AppJsApi(
+                new AppScenesJsApi(jsCache, _binder.GetInstance<IAppSceneManager>()),
+                new AppElementsJsApi(
+                    jsCache,
+                    _binder.GetInstance<IElementFactory>(),
+                    _binder.GetInstance<IElementManager>()));
+	    }
+
         /// <summary>
         /// Analogous to the main() function.
         /// </summary>
-	    private void Awake()
+        private void Awake()
 	    {
             // for AOT platforms
             AotGenericTypeIncludes.Include();

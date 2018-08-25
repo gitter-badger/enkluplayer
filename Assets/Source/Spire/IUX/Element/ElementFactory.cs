@@ -41,7 +41,8 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IScanImporter _scanImporter;
         private readonly IMetricsService _metrics;
         private readonly IMessageRouter _messages;
-        
+        private readonly IElementJsFactory _elementJsFactory;
+
         /// <summary>
         /// All widgets inherit this base schema
         /// </summary>
@@ -78,7 +79,8 @@ namespace CreateAR.SpirePlayer.IUX
             IScanLoader scanLoader,
             IScanImporter scanImporter,
             IMetricsService metrics,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            IElementJsFactory elementJsFactory)
         {
             _parser = parser;
             _gizmos = gizmos;
@@ -103,7 +105,8 @@ namespace CreateAR.SpirePlayer.IUX
             _scanImporter = scanImporter;
             _metrics = metrics;
             _messages = messages;
-            
+            _elementJsFactory = elementJsFactory;
+
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
             _baseSchema.Set("tweenOut", TweenType.Deliberate);
@@ -245,6 +248,17 @@ namespace CreateAR.SpirePlayer.IUX
             lightSchema.Load(new ElementSchemaData());
         }
 
+        /// <summary>
+        /// Constructor for tests. Not to be used in production code.
+        /// </summary>
+        /// <param name="elements"></param>
+        /// <param name="gizmos"></param>
+        public ElementFactory(IElementManager elements, IGizmoManager gizmos)
+        {
+            _elements = elements;
+            _gizmos = gizmos;
+        }
+
         /// <inheritdoc />
         public Element Element(ElementDescription description)
         {
@@ -380,7 +394,11 @@ namespace CreateAR.SpirePlayer.IUX
                         _resolver,
                         _scripts,
                         new ModelContentAssembler(_assets, _pools),
-                        _provider);
+                        _elementJsFactory);
+                }
+                case ElementTypes.TRANSITION:
+                {
+                    return new Transition(new GameObject("Transition"), _tweens);
                 }
                 case ElementTypes.TRANSITION_SCALE:
                 {

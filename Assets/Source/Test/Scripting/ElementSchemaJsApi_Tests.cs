@@ -11,11 +11,11 @@ namespace CreateAR.SpirePlayer.Test.Scripting
         {
             base.SetUp();
             
-            var cache = new ElementJsCache(_engine);
+            var cache = new ElementJsCache(null, _engine);
             _elementsApi = new AppElementsJsApi(cache, ElementFactory, Elements);
             _engine.SetValue("elements", _elementsApi);
 
-            _elementsApi.create("Container", "a");
+            _elementsApi.create(null, "Container", "a");
         }
 
         [RuntimeTest]

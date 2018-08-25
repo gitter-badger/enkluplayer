@@ -387,7 +387,7 @@ namespace CreateAR.SpirePlayer.Test.Scripting
 
         private ElementJs BuildElementJs(bool isListening, bool isTrigger, float innerRadius, float outerRadius)
         {
-            ElementJs element = new ElementJs(_engine, null, new Element());
+            ElementJs element = new ElementJs(null, null, _engine, new Element());
             _proximityChecker.SetElementState(element, isListening, isTrigger);
             _proximityChecker.SetElementRadii(element, innerRadius, outerRadius);
             return element;

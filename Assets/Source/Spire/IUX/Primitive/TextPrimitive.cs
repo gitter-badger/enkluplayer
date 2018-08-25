@@ -201,6 +201,26 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Alpha.
+        /// </summary>
+        public float Alpha
+        {
+            get
+            {
+                return _renderer.Text.color.a;
+            }
+            set
+            {
+                var currentColor = _renderer.Text.color;
+                _renderer.Text.color = new Color(
+                    currentColor.r,
+                    currentColor.g,
+                    currentColor.b,
+                    value);
+            }
+        }
+
+        /// <summary>
         /// Called when TextRect is updated.
         /// </summary>
         public event Action<TextPrimitive> OnTextRectUpdated; 

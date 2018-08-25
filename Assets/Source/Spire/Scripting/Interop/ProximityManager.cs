@@ -53,13 +53,13 @@ namespace CreateAR.SpirePlayer.Scripting
         /// Current <see cref="IElementManager"/>, used to track when new Elements are added to watch their schema.
         /// </summary>
         [Inject]
-        private IElementManager _elementManager { get; set; }
+        public IElementManager ElementManager { get; set; }
 
         /// <summary>
         /// Reference to the <see cref="PlayerJs"/> instance, to act as an always-on trigger.
         /// </summary>
         [Inject]
-        private PlayerJs _player { get; set; }
+        public PlayerJs Player { get; set; }
 
         /// <summary>
         /// The underlying <see cref="ProximityChecker"/> that does the heavy lifting.
@@ -86,14 +86,20 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         private readonly Dictionary<ElementJs, Action<ElementJs>> exitCallbacks = new Dictionary<ElementJs, Action<ElementJs>>();
 
-        protected void Awake()
+        /// <summary>
+        /// Called by Unity. Sets up against existing Elements and watches for new ones.
+        /// </summary>
+        protected override void Awake()
         {
             base.Awake();
-            _proximityChecker.SetElementState(_player, false, true);
-            _proximityChecker.SetElementRadii(_player, 1, 1);
+            _proximityChecker.SetElementState(Player, false, true);
+            _proximityChecker.SetElementRadii(Player, 1, 1);
 
-            _elementManager.OnCreated += WatchElement;
-            // TODO: Listen to IElementManager creations, wrap to ElementJs, and watch
+            ElementManager.OnCreated += WatchElement;
+            foreach (Element element in ElementManager.All)
+            {
+                WatchElement(element);
+            }
         }
 
         /// <summary>
@@ -166,7 +172,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <param name="element"></param>
         private void WatchElement(Element element)
         {
-            ElementJs elementjs = new ElementJs(_engine, null, element);
+            ElementJs elementjs = new ElementJs(null, null, _engine, element);
             Func<JsValue, JsValue[], JsValue> callback = (jsValue, args) => {
                 UpdateElement(elementjs);
                 return null;

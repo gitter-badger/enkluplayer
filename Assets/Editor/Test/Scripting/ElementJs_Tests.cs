@@ -24,9 +24,9 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             Assert.IsTrue(elementJsA1 == elementJsA2);
             Assert.IsFalse(elementJsA1 != elementJsA2);
 
-            elementJsA1 = new ElementJs(new Engine(), null, elementA);
-            elementJsA2 = new ElementJs(new Engine(), null, elementA);
-            ElementJs elementJsB = new ElementJs(new Engine(), null, elementB);
+            elementJsA1 = new ElementJs(null, null, new Engine(), elementA);
+            elementJsA2 = new ElementJs(null, null, new Engine(), elementA);
+            ElementJs elementJsB = new ElementJs(null, null, new Engine(), elementB);
             
             // ==
             Assert.IsTrue(elementJsA1 == elementJsA2);

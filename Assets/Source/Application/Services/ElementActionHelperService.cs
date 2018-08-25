@@ -11,9 +11,14 @@ namespace CreateAR.SpirePlayer
     public class ElementActionHelperService : ApplicationService
     {
         /// <summary>
+        /// Manages elements.
+        /// </summary>
+        private readonly IElementManager _elements;
+
+        /// <summary>
         /// Updates elements.
         /// </summary>
-        private readonly IElementUpdateDelegate _elements;
+        private readonly IElementUpdateDelegate _elementDelegate;
         
         /// <summary>
         /// Scenes.
@@ -36,13 +41,15 @@ namespace CreateAR.SpirePlayer
         public ElementActionHelperService(
             MessageTypeBinder binder,
             IMessageRouter messages,
-            IElementUpdateDelegate elements,
+            IElementUpdateDelegate elementDelegate,
             IAppSceneManager scenes,
             IDesignController designer,
-            IElementTxnManager txns)
+            IElementTxnManager txns,
+            IElementManager elements)
             : base(binder, messages)
         {
             _elements = elements;
+            _elementDelegate = elementDelegate;
             _scenes = scenes;
             _designer = designer;
             _txns = txns;
@@ -62,6 +69,9 @@ namespace CreateAR.SpirePlayer
             Subscribe<BridgeHelperSelectEvent>(
                 MessageTypes.BRIDGE_HELPER_FOCUS,
                 OnFocus);
+            Subscribe<BridgeHelperRefreshElementScriptEvent>(
+                MessageTypes.BRIDGE_HELPER_REFRESH_ELEMENT_SCRIPTS,
+                OnRefreshElementScripts);
         }
 
         /// <summary>
@@ -96,7 +106,7 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            _elements
+            _elementDelegate
                 .Reparent(element, parent)
                 .OnFailure(exception => Log.Error(this, "Could not reparent : {0}.", exception));
         }
@@ -117,6 +127,31 @@ namespace CreateAR.SpirePlayer
         private void OnFocus(BridgeHelperSelectEvent @event)
         {
             _designer.Focus(@event.SceneId, @event.ElementId);
+        }
+
+        /// <summary>
+        /// Called when an element should refresh its scripts.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void OnRefreshElementScripts(BridgeHelperRefreshElementScriptEvent @event)
+        {
+            var element = _elements.ById(@event.Id);
+            if (null == element)
+            {
+                Log.Warning(this, "Received refresh event for element that doesn't exist.");
+                return;
+            }
+
+            var content = element as ContentWidget;
+            if (null == content)
+            {
+                Log.Warning(this,
+                    "Received refresh event for {0} element, but only valid for ContentWigets.",
+                    element.GetType().Name);
+                return;
+            }
+
+            content.RefreshScripts();
         }
     }
 }
