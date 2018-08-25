@@ -147,6 +147,7 @@ namespace CreateAR.SpirePlayer
             {
                 _runner = new ScriptCollectionRunner(
                     _scripts,
+                    _resolver,
                     _elementJsFactory,
                     GameObject,
                     this);

@@ -16,6 +16,9 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         private readonly IScriptManager _scripts;
 
+        /// <summary>
+        /// Resolves requires in scripts.
+        /// </summary>
         private readonly IScriptRequireResolver _resolver;
 
         /// <summary>
@@ -50,11 +53,13 @@ namespace CreateAR.SpirePlayer.Scripting
         
         public ScriptCollectionRunner(
             IScriptManager scripts,
+            IScriptRequireResolver resolver,
             IElementJsFactory elementJsFactory,
             GameObject root,
             Element element)
         {
             _scripts = scripts;
+            _resolver = resolver;
             _elementJsFactory = elementJsFactory;
             _root = root;
             _element = element;
