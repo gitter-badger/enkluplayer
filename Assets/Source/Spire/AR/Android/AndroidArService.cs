@@ -102,8 +102,7 @@ namespace CreateAR.SpirePlayer.AR
 
             if (Config.ShowCameraFeed)
             {                
-                var bgRenderer = camGO.AddComponent<ARCoreBackgroundRenderer>();
-                bgRenderer.enabled = false;
+                var bgRenderer = camGO.AddComponent<RuntimeInstantiableARCoreBackgroundRenderer>();
                 bgRenderer.BackgroundMaterial = Config.GetSettings(RuntimePlatform.Android).CameraMaterial;
                 bgRenderer.enabled = true;
             }
