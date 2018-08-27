@@ -2,7 +2,7 @@
 using CreateAR.SpirePlayer.IUX;
 using Jint;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// Implementation that lazily creates and caches JS instances.

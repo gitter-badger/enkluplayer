@@ -4,7 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// Runs a collection of scripts from a collection of script definitions.
@@ -15,6 +15,11 @@ namespace CreateAR.SpirePlayer
         /// Manages scripts.
         /// </summary>
         private readonly IScriptManager _scripts;
+
+        /// <summary>
+        /// Resolves requires in scripts.
+        /// </summary>
+        private readonly IScriptRequireResolver _resolver;
 
         /// <summary>
         /// Creates ElementJS implementations.
@@ -48,11 +53,13 @@ namespace CreateAR.SpirePlayer
         
         public ScriptCollectionRunner(
             IScriptManager scripts,
+            IScriptRequireResolver resolver,
             IElementJsFactory elementJsFactory,
             GameObject root,
             Element element)
         {
             _scripts = scripts;
+            _resolver = resolver;
             _elementJsFactory = elementJsFactory;
             _root = root;
             _element = element;
@@ -175,7 +182,7 @@ namespace CreateAR.SpirePlayer
 
             var host = new UnityScriptingHost(
                 this,
-                null,
+                _resolver,
                 _scripts);
             var jsCache = new ElementJsCache(_elementJsFactory, host);
             host.SetValue("app", Main.NewAppJsApi(jsCache));

@@ -2,6 +2,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
+using CreateAR.SpirePlayer.Scripting;
 using strange.extensions.injector.impl;
 using UnityEngine;
 

@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// Js API for scenes.

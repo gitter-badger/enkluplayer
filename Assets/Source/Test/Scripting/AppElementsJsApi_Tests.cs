@@ -1,5 +1,7 @@
 ﻿#if UNITY_EDITOR
 
+using CreateAR.SpirePlayer.Scripting;
+
 namespace CreateAR.SpirePlayer.Test.Scripting
 {
     public class AppElementsJsApi_Tests : JsTestBase

@@ -1,8 +1,9 @@
 using System.Reflection;
 using CreateAR.SpirePlayer;
+using Jint;
 using Jint.Native;
 
-namespace Jint.Unity
+namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// Describes an interface for requiring scripts.

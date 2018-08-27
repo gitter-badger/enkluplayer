@@ -1,7 +1,7 @@
 ﻿using CreateAR.SpirePlayer.IUX;
 using Jint;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// Describes an object that makes <c>ElementJs</c> instances.

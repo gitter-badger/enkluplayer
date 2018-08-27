@@ -53,6 +53,23 @@ namespace CreateAR.SpirePlayer
             this.z = z;
             this.w = w;
         }
+
+        /// <summary>
+        /// Sets the components of this Quat from values.
+        /// </summary>
+        /// <param name="x">X component.</param>
+        /// <param name="y">Y component.</param>
+        /// <param name="z">Z component.</param>
+        /// <param name="w">W component.</param>
+        /// <returns></returns>
+        public Quat Set(float x, float y, float z, float w)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.w = w;
+            return this;
+        }
         
         /// <summary>
         /// Returns true when component-wise approximately equal.

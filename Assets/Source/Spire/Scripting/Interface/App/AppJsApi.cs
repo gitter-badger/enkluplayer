@@ -1,7 +1,7 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
-    /// Interface fo an app. 
+    /// Interface for an app. 
     /// </summary>
     public class AppJsApi
     {

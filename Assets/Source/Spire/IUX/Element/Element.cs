@@ -461,6 +461,22 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Returns true if this Element is a child or indirect child of the passed in Element.
+        /// </summary>
+        /// <param name="element">Potential parent to check.</param>
+        /// <returns></returns>
+        public bool IsChildOf(Element element)
+        {
+            Element parent = this;
+            do
+            {
+                parent = parent.Parent;
+            } while (parent != null && parent != element);
+
+            return parent != null;
+        }
+
+        /// <summary>
         /// For base classes to override.
         /// </summary>
         protected virtual void LoadInternalBeforeChildren()

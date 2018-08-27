@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -23,7 +24,13 @@ namespace CreateAR.SpirePlayer.IUX
         {
             get { return _externalAll; }
         }
+
+        /// <inheritdoc />
+        public Action<Element> OnCreated { get; set; }
         
+        /// <inheritdoc />
+        public Action<Element> OnDestroyed { get; set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -43,6 +50,7 @@ namespace CreateAR.SpirePlayer.IUX
             element.OnDestroyed += ElementOnDestroyed;
 
             _all.Add(element);
+            if (OnCreated != null) { OnCreated(element); }
         }
 
         /// <inheritdoc />
@@ -106,6 +114,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void ElementOnDestroyed(Element element)
         {
             _all.Remove(element);
+            if (OnDestroyed != null) { OnDestroyed(element); }
         }
     }
 }

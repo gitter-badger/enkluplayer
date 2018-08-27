@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using CreateAR.SpirePlayer.Scripting;
 using LightJson;
 using UnityEngine;
 
@@ -13,6 +14,11 @@ namespace CreateAR.SpirePlayer
     /// </summary>
     public class ContentWidget : Widget
     {
+        /// <summary>
+        /// Resolver for JsApi `requires` functionality.
+        /// </summary>
+        private readonly IScriptRequireResolver _resolver;
+
         /// <summary>
         /// Token for asset readiness.
         /// </summary>
@@ -105,6 +111,7 @@ namespace CreateAR.SpirePlayer
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
+            IScriptRequireResolver resolver,
             IScriptManager scripts,
             IContentAssembler assembler,
             IElementJsFactory elementFactory )
@@ -114,6 +121,7 @@ namespace CreateAR.SpirePlayer
                 tweens,
                 colors)
         {
+            _resolver = resolver;
             _scripts = scripts;
             _assembler = assembler;
             _elementJsFactory = elementFactory;
@@ -139,6 +147,7 @@ namespace CreateAR.SpirePlayer
             {
                 _runner = new ScriptCollectionRunner(
                     _scripts,
+                    _resolver,
                     _elementJsFactory,
                     GameObject,
                     this);
@@ -155,7 +164,6 @@ namespace CreateAR.SpirePlayer
         protected override void LoadInternalBeforeChildren()
         {
             base.LoadInternalBeforeChildren();
-
             _scriptTag = Id;
         }
 

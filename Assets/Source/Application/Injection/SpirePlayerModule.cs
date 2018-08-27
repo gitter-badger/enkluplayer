@@ -10,11 +10,11 @@ using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.BLE;
 using CreateAR.SpirePlayer.IUX;
 using CreateAR.SpirePlayer.Qr;
+using CreateAR.SpirePlayer.Scripting;
 using CreateAR.SpirePlayer.States.HoloLogin;
 using CreateAR.SpirePlayer.Vine;
 using CreateAR.Trellis.Messages;
 using Jint.Parser;
-using Jint.Unity;
 using strange.extensions.injector.impl;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -589,10 +589,12 @@ namespace CreateAR.SpirePlayer
                 binder.Bind<IScriptRequireResolver>().ToValue(new SpireScriptRequireResolver(binder));
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
+                binder.Bind<PlayerJs>().ToValue(LookupComponent<PlayerJs>());
 
                 // scripting interfaces
                 {
                     binder.Bind<MessageRouterScriptingInterface>().To<MessageRouterScriptingInterface>().ToSingleton();
+                    binder.Bind<ProximityManager>().ToValue(LookupComponent<ProximityManager>());
                 }
             }
 

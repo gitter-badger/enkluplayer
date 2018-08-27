@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.Assets;
 using CreateAR.SpirePlayer.Qr;
+using CreateAR.SpirePlayer.Scripting;
 using CreateAR.SpirePlayer.Vine;
 using UnityEngine;
 
@@ -31,6 +32,7 @@ namespace CreateAR.SpirePlayer.IUX
         private readonly IImageLoader _imageLoader;
         private readonly IHttpService _http;
         private readonly IWorldAnchorProvider _provider;
+        private readonly IScriptRequireResolver _resolver;
         private readonly IScriptManager _scripts;
         private readonly IAssetManager _assets;
         private readonly IAssetPoolManager _pools;
@@ -54,6 +56,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
+        [Construct]
         public ElementFactory(
             IElementManager elements,
             IGizmoManager gizmos,
@@ -69,6 +72,7 @@ namespace CreateAR.SpirePlayer.IUX
             IImageLoader imageLoader,
             IHttpService http,
             IWorldAnchorProvider provider,
+            IScriptRequireResolver resolver,
             IScriptManager scripts,
             IAssetManager assets,
             IAssetPoolManager pools,
@@ -93,6 +97,7 @@ namespace CreateAR.SpirePlayer.IUX
             _imageLoader = imageLoader;
             _http = http;
             _provider = provider;
+            _resolver = resolver;
             _scripts = scripts;
             _assets = assets;
             _pools = pools;
@@ -244,6 +249,17 @@ namespace CreateAR.SpirePlayer.IUX
             lightSchema.Load(new ElementSchemaData());
         }
 
+        /// <summary>
+        /// Constructor for tests. Not to be used in production code.
+        /// </summary>
+        /// <param name="elements"></param>
+        /// <param name="gizmos"></param>
+        public ElementFactory(IElementManager elements, IGizmoManager gizmos)
+        {
+            _elements = elements;
+            _gizmos = gizmos;
+        }
+
         /// <inheritdoc />
         public Element Element(ElementDescription description)
         {
@@ -287,8 +303,8 @@ namespace CreateAR.SpirePlayer.IUX
             var element = ElementForType(data.Type);
             if (element != null)
             {
-                _elements.Add(element);
                 element.Load(data, schema, children);
+                _elements.Add(element);
             }
 
             _gizmos.Track(element);
@@ -376,6 +392,7 @@ namespace CreateAR.SpirePlayer.IUX
                         _layers,
                         _tweens,
                         _colors,
+                        _resolver,
                         _scripts,
                         new ModelContentAssembler(_assets, _pools),
                         _elementJsFactory);

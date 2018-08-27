@@ -35,6 +35,13 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             Assert.IsTrue(Math.Abs(1f - result.x) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(2f - result.y) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(3f - result.z) < Mathf.Epsilon);
+
+            result = _engine.Run<Vec3>("vec3(0, 0, 0).set(4, 5, 6)");
+
+            Assert.IsTrue(result.GetType() == typeof(Vec3));
+            Assert.IsTrue(Math.Abs(4f - result.x) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(5f - result.y) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(6f - result.z) < Mathf.Epsilon);
         }
 
         [Test]

@@ -1,6 +1,6 @@
 ﻿using CreateAR.SpirePlayer.IUX;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// Describes an object that can retrieve the JS object for an element.

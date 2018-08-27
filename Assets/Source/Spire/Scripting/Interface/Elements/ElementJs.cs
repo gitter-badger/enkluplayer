@@ -5,12 +5,12 @@ using CreateAR.SpirePlayer.IUX;
 using Jint;
 using Jint.Native;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// Js API for an element.
     /// </summary>
-    public class ElementJs : IJsEventDispatcher
+    public class ElementJs : IEntityJs, IJsEventDispatcher
     {
         /// <summary>
         /// Used to track events.
@@ -51,11 +51,16 @@ namespace CreateAR.SpirePlayer
         /// The schema interface.
         /// </summary>
         public readonly ElementSchemaJsApi schema;
-        
+
+        /// <summary>
+        /// The backing transform interface <see cref="transform"/> uses.
+        /// </summary>
+        private readonly IElementTransformJsApi _transform;
+
         /// <summary>
         /// The transform interface.
         /// </summary>
-        public readonly ElementTransformJsApi transform;
+        public IElementTransformJsApi transform { get { return _transform; } }
 
         /// <summary>
         /// Unique id of the element.
@@ -71,6 +76,17 @@ namespace CreateAR.SpirePlayer
         public string type
         {
             get { return _element.GetType().Name; }
+        }
+
+        /// <summary>
+        /// Gets the parent of the element.
+        /// </summary>
+        public ElementJs parent
+        {
+            get
+            {
+                return _cache.Element(_element.Parent);
+            }
         }
         
         /// <summary>
@@ -107,9 +123,18 @@ namespace CreateAR.SpirePlayer
             _engine = engine;
             
             schema = new ElementSchemaJsApi(engine, _element.Schema);
-            transform = new ElementTransformJsApi(_element);
+            _transform = new ElementTransformJsApi(_element);
 
             _this = JsValue.FromObject(_engine, this);
+        }
+
+        /// <inheritdoc />
+        public bool isChildOf(IEntityJs parent)
+        {
+            var parentAsElement = parent as ElementJs;
+            if (parentAsElement == null) return false;
+
+            return _element.IsChildOf(parentAsElement._element);
         }
         
         /// <summary>
@@ -251,6 +276,56 @@ namespace CreateAR.SpirePlayer
             }
 
             return list;
+        }
+
+        /// <summary>
+        /// ToString implementation for ElementJs.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[ElementJs Id={0}]", _element.Id);
+        }
+
+        /// Tests whether two ElementJs instances are equivalent, relative to their Elements
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public static bool operator ==(ElementJs @this, object element)
+        {
+            if ((object) @this == null || element == null) { return (object) @this == element; }
+
+            var elementJs = element as ElementJs;
+            return @this._element == elementJs._element;
+        }
+
+        /// <summary>
+        /// Tests whether two ElementJs instances are inequivalent, relative to their Elements
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public static bool operator !=(ElementJs @this, object element)
+        {
+            if (((object)@this == null) || (element == null)) { return (object)@this != element; }
+            if (element == null) { return true; }
+
+            var elementJs = element as ElementJs;
+            return @this._element != elementJs._element;
+        }
+
+        /// <summary>
+        /// Tests whether an object equals this ElementJs instance.
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public override bool Equals(object obj)
+        {
+            if (obj == null) { return false; }
+            ElementJs elementJs = obj as ElementJs;
+            return elementJs != null && _element == elementJs._element;
         }
     }
 }
