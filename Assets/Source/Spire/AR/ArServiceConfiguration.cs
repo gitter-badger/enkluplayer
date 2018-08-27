@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.AR
 {
@@ -36,11 +38,11 @@ namespace CreateAR.SpirePlayer.AR
         /// The camera rig.
         /// </summary>
         public ArCameraRig Rig;
-        
+
         /// <summary>
         /// Material for rendering camera feed.
         /// </summary>
-        public Material CameraMaterial;
+        public List<PlatformSpecificSettings> PlatformSpecificSettings;
 
         /// <summary>
         /// Minimum seconds to search.
@@ -51,5 +53,32 @@ namespace CreateAR.SpirePlayer.AR
         /// Maxiumum seconds to search.
         /// </summary>
         public int MaxSearchSec = 20;
+
+        /// <summary>
+        /// Helper method to retrieve the appropriate settings for a platform
+        /// </summary>
+        /// <param name="platform">The platform for which to retrieve the session settings</param>
+        /// <returns>The session-specific settings for our platform</returns>
+        public PlatformSpecificSettings GetSettings(RuntimePlatform platform)
+        {
+            for (int i = 0; i < PlatformSpecificSettings.Count; i++)
+            {
+                if (PlatformSpecificSettings[i].Platform == platform)
+                {
+                    return PlatformSpecificSettings[i];
+                }
+            }
+
+            Commons.Unity.Logging.Log.Error(this, "Failed to find camera material for platform: " + platform);
+            return null;
+        }
+    }
+
+    [Serializable]
+    public class PlatformSpecificSettings
+    {
+        public RuntimePlatform Platform;
+        public Material CameraMaterial;
+        public GameObject SessionPrefab;
     }
 }

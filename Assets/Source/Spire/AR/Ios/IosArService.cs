@@ -1,4 +1,4 @@
-﻿#if UNITY_IOS
+#if UNITY_IOS
 
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ namespace CreateAR.SpirePlayer.AR
         private ArCameraRig _rig;
 
         /// <inheritdoc />
-        public ArAnchor[] Anchors { get { return _anchors.ToArray(); }}
+        public List<ArAnchor> Anchors { get { return _anchors; }}
         
         /// <inheritdoc />
         public ArServiceConfiguration Config { get; private set; }
@@ -157,7 +157,7 @@ namespace CreateAR.SpirePlayer.AR
             if (Config.ShowCameraFeed)
             {
                 Video = _rig.Camera.gameObject.AddComponent<UnityARVideo>();
-                Video.m_ClearMaterial = Config.CameraMaterial;
+                Video.m_ClearMaterial = Config.GetSettings(RuntimePlatform.IPhonePlayer).CameraMaterial;
             }
         }
         

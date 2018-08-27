@@ -57,6 +57,13 @@ MonoBehaviour:
   EnablePointCloud: 1
   DrawPlanes: 1
   Rig: {fileID: 0}
-  CameraMaterial: {fileID: 2100000, guid: f1d9352050a75486f878ab19fa578f16, type: 2}
+  PlatformSpecificSettings:
+  - Platform: 8
+    CameraMaterial: {fileID: 2100000, guid: f1d9352050a75486f878ab19fa578f16, type: 2}
+    SessionPrefab: {fileID: 0}
+  - Platform: 11
+    CameraMaterial: {fileID: 2100000, guid: 03ad0130a037647aeb60218f61aca114, type: 2}
+    SessionPrefab: {fileID: 1698193457937086, guid: 48a2a0458529667438cef8e6b40e0ca5,
+      type: 2}
   MinSearchSec: 1
   MaxSearchSec: 20

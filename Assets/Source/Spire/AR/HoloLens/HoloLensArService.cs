@@ -1,6 +1,7 @@
-﻿#if !UNITY_EDITOR && UNITY_WSA
+#if !UNITY_EDITOR && UNITY_WSA
 
 using System;
+using System.Collections.Generic;
 using CreateAR.SpirePlayer.AR;
 using UnityEngine.XR.WSA;
 
@@ -18,7 +19,7 @@ namespace CreateAR.SpirePlayer
         public event Action OnTrackingOnline;
 
         /// <inheritdoc />
-        public ArAnchor[] Anchors { get; private set; }
+        public List<ArAnchor> Anchors { get; private set; }
 
         /// <inheritdoc />
         public ArServiceConfiguration Config { get; private set; }
@@ -31,7 +32,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public HoloLensArService()
         {
-            Anchors = new[]
+            Anchors = new List<ArAnchor>
             {
                 new ArAnchor("floor")
                 {

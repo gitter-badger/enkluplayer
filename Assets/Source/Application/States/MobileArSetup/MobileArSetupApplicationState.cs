@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
@@ -217,7 +217,7 @@ namespace CreateAR.SpirePlayer
                     // look for lowest anchor to call floor
                     var anchors = _ar.Anchors;
                     ArAnchor lowest = null;
-                    for (int i = 0, len = anchors.Length; i < len; i++)
+                    for (int i = 0, len = anchors.Count; i < len; i++)
                     {
                         var anchor = anchors[i];
                         if (null == lowest

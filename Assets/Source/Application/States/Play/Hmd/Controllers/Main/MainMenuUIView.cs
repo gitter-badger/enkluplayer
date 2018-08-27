@@ -3,7 +3,6 @@ using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
-using Utils;
 
 namespace CreateAR.SpirePlayer
 {
