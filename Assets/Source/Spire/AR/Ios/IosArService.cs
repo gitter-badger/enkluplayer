@@ -157,7 +157,7 @@ namespace CreateAR.SpirePlayer.AR
             if (Config.ShowCameraFeed)
             {
                 Video = _rig.Camera.gameObject.AddComponent<UnityARVideo>();
-                Video.m_ClearMaterial = Config.GetCameraMaterialForPlatform(RuntimePlatform.IPhonePlayer);
+                Video.m_ClearMaterial = Config.GetSettings(RuntimePlatform.IPhonePlayer).CameraMaterial;
             }
         }
         
