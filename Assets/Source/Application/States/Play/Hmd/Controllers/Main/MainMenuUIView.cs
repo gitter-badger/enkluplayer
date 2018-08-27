@@ -2,6 +2,8 @@
 using System.Linq;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using UnityEngine;
+using Utils;
 
 namespace CreateAR.SpirePlayer
 {
@@ -67,6 +69,42 @@ namespace CreateAR.SpirePlayer
 
         [InjectElements("..btn-exp-duplicate")]
         public ButtonWidget BtnExpDuplicate { get; set; }
+
+        /// <summary>
+        /// Quality settings.
+        /// </summary>
+        [InjectElements("..slt-texturequality")]
+        public SelectWidget SltTextureQuality { get; set; }
+
+        [InjectElements("..slt-anisotropic")]
+        public SelectWidget SltAnisotropic{ get; set; }
+
+        [InjectElements("..slt-aa")]
+        public SelectWidget SltAntiAliasing { get; set; }
+
+        [InjectElements("..tgl-softparticles")]
+        public ToggleWidget TglSoftParticles { get; set; }
+
+        [InjectElements("..tgl-realtimereflectionprobes")]
+        public ToggleWidget TglRealtimeReflectionProbes { get; set; }
+
+        [InjectElements("..tgl-billboards")]
+        public ToggleWidget TglBillboards { get; set; }
+
+        [InjectElements("..slt-shadows")]
+        public SelectWidget SltShadows { get; set; }
+
+        [InjectElements("..slt-shadowmask")]
+        public SelectWidget SltShadowmask { get; set; }
+
+        [InjectElements("..slt-shadowresolution")]
+        public SelectWidget SltShadowResolution { get; set; }
+
+        [InjectElements("..slt-shadowprojection")]
+        public SelectWidget SltShadowProjection { get; set; }
+
+        [InjectElements("..slt-blendweights")]
+        public SelectWidget SltBlendWeights { get; set; }
 
         /// <summary>
         /// Called when we wish to go back.
@@ -163,8 +201,56 @@ namespace CreateAR.SpirePlayer
             BtnExpNew.Activator.OnActivated += _ => Experience(ExperienceSubMenu.New);
             BtnExpLoad.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Load);
             BtnExpDuplicate.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Duplicate);
+
+            // options
+            {
+                SltTextureQuality.Selection = SltTextureQuality.Options.FirstOrDefault(op => int.Parse(op.Value) == QualitySettings.masterTextureLimit);
+                SltTextureQuality.OnValueChanged += _ => QualitySettings.masterTextureLimit = int.Parse(SltTextureQuality.Selection.Value);
+
+                SltAnisotropic.Selection = SltAnisotropic.Options.FirstOrDefault(op => To<AnisotropicFiltering>(op.Value) == QualitySettings.anisotropicFiltering);
+                SltAnisotropic.OnValueChanged += _ => QualitySettings.anisotropicFiltering = To<AnisotropicFiltering>(SltAnisotropic.Selection.Value);
+
+                SltAntiAliasing.Selection = SltAntiAliasing.Options.FirstOrDefault(op => int.Parse(op.Value) == QualitySettings.antiAliasing);
+                SltAntiAliasing.OnValueChanged += _ => QualitySettings.antiAliasing = int.Parse(SltAntiAliasing.Selection.Value);
+
+                TglSoftParticles.Value = QualitySettings.softParticles;
+                TglSoftParticles.OnValueChanged += _ => QualitySettings.softParticles = TglSoftParticles.Value;
+
+                TglRealtimeReflectionProbes.Value = QualitySettings.realtimeReflectionProbes;
+                TglRealtimeReflectionProbes.OnValueChanged += _ => QualitySettings.realtimeReflectionProbes = TglRealtimeReflectionProbes.Value;
+
+                TglBillboards.Value = QualitySettings.billboardsFaceCameraPosition;
+                TglBillboards.OnValueChanged += _ => QualitySettings.billboardsFaceCameraPosition = TglBillboards.Value;
+
+                SltShadows.Selection = SltShadows.Options.FirstOrDefault(op => To<ShadowQuality>(op.Value) == QualitySettings.shadows);
+                SltShadows.OnValueChanged += _ => QualitySettings.shadows = To<ShadowQuality>(SltShadows.Selection.Value);
+
+                SltShadowmask.Selection = SltShadowmask.Options.FirstOrDefault(op => To<ShadowmaskMode>(op.Value) == QualitySettings.shadowmaskMode);
+                SltShadowmask.OnValueChanged += _ => QualitySettings.shadowmaskMode = To<ShadowmaskMode>(SltShadows.Selection.Value);
+
+                SltShadowResolution.Selection = SltShadowResolution.Options.FirstOrDefault(op => To<ShadowResolution>(op.Value) == QualitySettings.shadowResolution);
+                SltShadowResolution.OnValueChanged += _ => QualitySettings.shadowResolution = To<ShadowResolution>(SltShadowResolution.Selection.Value);
+
+                SltShadowProjection.Selection = SltShadowProjection.Options.FirstOrDefault(op => To<ShadowProjection>(op.Value) == QualitySettings.shadowProjection);
+                SltShadowProjection.OnValueChanged += _ => QualitySettings.shadowProjection = To<ShadowProjection>(SltShadowProjection.Selection.Value);
+
+                SltBlendWeights.Selection = SltBlendWeights.Options.FirstOrDefault(op => To<BlendWeights>(op.Value) == QualitySettings.blendWeights);
+                SltBlendWeights.OnValueChanged += _ => QualitySettings.blendWeights = To<BlendWeights>(SltBlendWeights.Selection.Value);
+            }
         }
-        
+
+        private T To<T>(string value)
+        {
+            try
+            {
+                return (T) Enum.Parse(typeof(T), value);
+            }
+            catch
+            {
+                return default(T);
+            }
+        }
+
         /// <summary>
         /// Helper method to call new callback.
         /// </summary>

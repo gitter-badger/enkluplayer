@@ -8,6 +8,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
+using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer
 {
@@ -226,12 +227,12 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
+            FindPrimaryAnchor(root);
+
             if (DeviceHelper.IsHoloLens())
             {
                 OpenStatusUI();
             }
-            
-            FindPrimaryAnchor(root);
 
             if (_config.Play.Edit && DeviceHelper.IsHoloLens())
             {
@@ -425,7 +426,7 @@ namespace CreateAR.SpirePlayer
             _rootUI = _elements.Element(@"
 <?Vine>
 <Screen distance=3.8>
-    <Caption id='cpn' position=(0, 0.4, 0) label='Locating anchors.' width=1200.0 alignment='MidCenter' fontSize=100 />
+    <Caption id='cpn' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
 </Screen>");
             _cpn = _rootUI.FindOne<CaptionWidget>("..cpn");
 
@@ -439,23 +440,31 @@ namespace CreateAR.SpirePlayer
         private IEnumerator UpdateStatusUI()
         {
             AreAllAnchorsReady = false;
-
-            if (null == _primaryAnchor)
+            
+            while (null != _rootUI)
             {
-                AreAllAnchorsReady = true;
-                CloseStatusUI();
-                yield break;
-            }
+                var unreadyCount = _anchors.Count(anchor => anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated && anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated);
+                if (null == _primaryAnchor)
+                {
+                    AreAllAnchorsReady = true;
 
-            while (null != _cpn)
-            {
-                if (Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+                    _rootUI.Schema.Set("visible", false);
+                }
+                else if (Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
                 {
                     switch (Status)
                     {
                         case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
                         {
-                            _cpn.Label = "Primary anchor loaded and imported but not locating... Are you sure you're in the right space?";
+                            if (0 == unreadyCount)
+                            {
+                                _cpn.Label = "All anchors are downloaded and imported but the primary anchor is not locating... Are you sure you're in the right space?";
+                                }
+                            else
+                            {
+                                _cpn.Label = "Primary anchor loaded and imported but not locating... Are you sure you're in the right space?";
+                            }
+                            
                             break;
                         }
                         case WorldAnchorWidget.WorldAnchorStatus.IsError:
@@ -468,15 +477,22 @@ namespace CreateAR.SpirePlayer
                             _cpn.Label = "Primary anchor is importing.";
                             break;
                         }
+                        case WorldAnchorWidget.WorldAnchorStatus.IsLoading:
+                        {
+                            _cpn.Label = "Downloading primary anchor.";
+                            break;
+                        }
                     }
+
+                    _rootUI.Schema.Set("visible", true);
                 }
                 else
                 {
-                    var count = _anchors.Count(anchor => anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated && anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated);
-                    if (0 == count)
+                    if (0 == unreadyCount)
                     {
                         AreAllAnchorsReady = true;
-                        CloseStatusUI();
+
+                        _rootUI.Schema.Set("visible", false);
                     }
                     else
                     {
@@ -484,9 +500,13 @@ namespace CreateAR.SpirePlayer
                         {
                             _cpn.Label = "One of the anchors is in an error state.";
                         }
+                        else if (_anchors.Any(anchor => anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading))
+                        {
+                            _cpn.Label = "Some anchors are still downloading.";
+                        }
                         else
                         {
-                            _cpn.Label = string.Format("Importing {0} anchor(s).", count);
+                            _cpn.Label = string.Format("All anchors have been downloaded but {0} anchor(s) are still importing.", unreadyCount);
                         }
                     }
                 }

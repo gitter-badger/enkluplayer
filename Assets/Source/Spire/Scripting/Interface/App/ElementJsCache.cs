@@ -10,6 +10,11 @@ namespace CreateAR.SpirePlayer
     public class ElementJsCache : IElementJsCache
     {
         /// <summary>
+        /// Creates elements.
+        /// </summary>
+        private readonly IElementJsFactory _elements;
+
+        /// <summary>
         /// Js engine.
         /// </summary>
         private readonly Engine _engine;
@@ -22,8 +27,11 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ElementJsCache(Engine engine)
+        public ElementJsCache(
+            IElementJsFactory elements,
+            Engine engine)
         {
+            _elements = elements;
             _engine = engine;
         }
         
@@ -41,7 +49,7 @@ namespace CreateAR.SpirePlayer
                 return el;
             }
 
-            el = _elementMap[element] = new ElementJs(_engine, this, element);
+            el = _elementMap[element] = _elements.Instance(_engine, element);
 
             return el;
         }

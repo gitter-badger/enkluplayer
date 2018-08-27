@@ -414,7 +414,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             return Default<T>();
         }
-
+        
         /// <summary>
         /// Returns true iff the schema or parent schemas have a property with
         /// matching name.

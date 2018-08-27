@@ -40,28 +40,41 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Creates an element.
         /// </summary>
+        /// <param name="parent">The parent.</param>
         /// <param name="type">The type of element to create.</param>
         /// <returns></returns>
-        public ElementJs create(string type)
+        public ElementJs create(ElementJs parent, string type)
         {
-            return create(type, Guid.NewGuid().ToString());
+            return create(parent, type, Guid.NewGuid().ToString());
         }
-        
+
         /// <summary>
         /// Creates an element with an id.
         /// </summary>
+        /// <param name="parent">The parent.</param>
         /// <param name="type">The type of element to create.</param>
         /// <param name="id">The id to create it with.</param>
         /// <returns></returns>
-        public ElementJs create(string type, string id)
+        public ElementJs create(ElementJs parent, string type, string id)
+        {
+            return createFromVine(parent, string.Format(
+                @"<?Vine><{0} id='{1}' />",
+                type,
+                id));
+        }
+
+        /// <summary>
+        /// Creates an element with an id.
+        /// </summary>
+        /// <param name="parent">The parent.</param>
+        /// <param name="vine">Vine.</param>
+        /// <returns></returns>
+        public ElementJs createFromVine(ElementJs parent, string vine)
         {
             Element element;
             try
             {
-                element = _elementFactory.Element(string.Format(
-                    @"<?Vine><{0} id='{1}' />",
-                    type,
-                    id));
+                element = _elementFactory.Element(vine);
             }
             catch (Exception exception)
             {
@@ -70,8 +83,22 @@ namespace CreateAR.SpirePlayer
                     exception);
                 return null;
             }
-            
+
             return _cache.Element(element);
+        }
+
+        /// <summary>
+        /// Destroys an element.
+        /// </summary>
+        /// <param name="element">The element to destroy.</param>
+        public void destroy(ElementJs element)
+        {
+            if (null == element)
+            {
+                return;
+            }
+
+            element.destroy();
         }
 
         /// <summary>

@@ -72,6 +72,11 @@ namespace CreateAR.SpirePlayer.AR
         private ArCameraRig _rig;
 
         /// <summary>
+        /// A separate game object for our instatiated session prefab
+        /// </summary>
+        private GameObject _sessionGameObject;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="messages">Message system</param>
@@ -89,15 +94,16 @@ namespace CreateAR.SpirePlayer.AR
 
             _rig = Config.Rig;
             var camGO = _rig.Camera.gameObject;
-            camGO.AddComponent<ARCoreSession>();
             camGO.AddComponent<UnityEngine.SpatialTracking.TrackedPoseDriver>();
 
+            var sessionPrefab = Config.GetSettings(RuntimePlatform.Android).SessionPrefab;
+            _sessionGameObject = GameObject.Instantiate(sessionPrefab, Vector3.zero, Quaternion.identity);
+            _sessionGameObject.transform.SetParent(camGO.transform);
+
             if (Config.ShowCameraFeed)
-            {
-                
-                var bgRenderer = camGO.AddComponent<ARCoreBackgroundRenderer>();
-                bgRenderer.enabled = false;
-                bgRenderer.BackgroundMaterial = Config.GetCameraMaterialForPlatform(RuntimePlatform.Android);
+            {                
+                var bgRenderer = camGO.AddComponent<RuntimeInstantiableARCoreBackgroundRenderer>();
+                bgRenderer.BackgroundMaterial = Config.GetSettings(RuntimePlatform.Android).CameraMaterial;
                 bgRenderer.enabled = true;
             }
 
@@ -118,7 +124,7 @@ namespace CreateAR.SpirePlayer.AR
             }
 
             var camGO = _rig.Camera.gameObject;
-            DestroyIfNotNull(camGO.GetComponent<ARCoreSession>());
+            DestroyIfNotNull(_sessionGameObject);
             DestroyIfNotNull(camGO.GetComponent<UnityEngine.SpatialTracking.TrackedPoseDriver>());
             DestroyIfNotNull(camGO.GetComponent<ARCoreBackgroundRenderer>());
         }
@@ -159,7 +165,7 @@ namespace CreateAR.SpirePlayer.AR
                     || status == SessionStatus.ErrorSessionConfigurationNotSupported
                     || status == SessionStatus.FatalError)
                 {
-                    Log.Info(this, "ARCore session failed");
+                    Log.Info(this, "ARCore session failed with status: " + status.ToString());
 
                     _messages.Publish(
                         MessageTypes.ARSERVICE_EXCEPTION,

@@ -37,6 +37,7 @@ namespace CreateAR.SpirePlayer.Vine
             Commons.Unity.DataStructures.Tuple.Create("Image", ElementTypes.IMAGE),
             Commons.Unity.DataStructures.Tuple.Create("Button", ElementTypes.BUTTON),
             Commons.Unity.DataStructures.Tuple.Create("Caption", ElementTypes.CAPTION),
+            Commons.Unity.DataStructures.Tuple.Create("Text", ElementTypes.CAPTION),
             Commons.Unity.DataStructures.Tuple.Create("Menu", ElementTypes.MENU),
             Commons.Unity.DataStructures.Tuple.Create("SubMenu", ElementTypes.SUBMENU),
             Commons.Unity.DataStructures.Tuple.Create("Cursor", ElementTypes.CURSOR),
@@ -52,6 +53,7 @@ namespace CreateAR.SpirePlayer.Vine
             Commons.Unity.DataStructures.Tuple.Create("Content", ElementTypes.CONTENT),
             Commons.Unity.DataStructures.Tuple.Create("Light", ElementTypes.LIGHT),
             Commons.Unity.DataStructures.Tuple.Create("ScaleTransition", ElementTypes.TRANSITION_SCALE),
+            Commons.Unity.DataStructures.Tuple.Create("Transition", ElementTypes.TRANSITION),
             Commons.Unity.DataStructures.Tuple.Create("WorldAnchor", ElementTypes.WORLD_ANCHOR),
             Commons.Unity.DataStructures.Tuple.Create("QrAnchor", ElementTypes.QR_ANCHOR),
         };

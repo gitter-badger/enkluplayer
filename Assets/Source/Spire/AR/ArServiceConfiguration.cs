@@ -42,7 +42,7 @@ namespace CreateAR.SpirePlayer.AR
         /// <summary>
         /// Material for rendering camera feed.
         /// </summary>
-        public List<PlatformMaterialSetting> CameraMaterials;
+        public List<PlatformSpecificSettings> PlatformSpecificSettings;
 
         /// <summary>
         /// Minimum seconds to search.
@@ -55,17 +55,17 @@ namespace CreateAR.SpirePlayer.AR
         public int MaxSearchSec = 20;
 
         /// <summary>
-        /// Helper method to retrieve the appropriate camera BG material for a platform
+        /// Helper method to retrieve the appropriate settings for a platform
         /// </summary>
-        /// <param name="platform">The platform for which to retrieve the material</param>
-        /// <returns>The camera material for our platform</returns>
-        public Material GetCameraMaterialForPlatform(RuntimePlatform platform)
+        /// <param name="platform">The platform for which to retrieve the session settings</param>
+        /// <returns>The session-specific settings for our platform</returns>
+        public PlatformSpecificSettings GetSettings(RuntimePlatform platform)
         {
-            for (int i = 0; i < CameraMaterials.Count; i++)
+            for (int i = 0; i < PlatformSpecificSettings.Count; i++)
             {
-                if (CameraMaterials[i].Platform == platform)
+                if (PlatformSpecificSettings[i].Platform == platform)
                 {
-                    return CameraMaterials[i].CameraMaterial;
+                    return PlatformSpecificSettings[i];
                 }
             }
 
@@ -75,9 +75,10 @@ namespace CreateAR.SpirePlayer.AR
     }
 
     [Serializable]
-    public class PlatformMaterialSetting
+    public class PlatformSpecificSettings
     {
         public RuntimePlatform Platform;
         public Material CameraMaterial;
+        public GameObject SessionPrefab;
     }
 }

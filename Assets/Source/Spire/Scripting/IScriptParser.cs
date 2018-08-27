@@ -1,4 +1,4 @@
-using CreateAR.Commons.Unity.Async;
+using CreateAR.SpirePlayer.IUX;
 using Jint.Parser;
 using Jint.Parser.Ast;
 
@@ -13,15 +13,9 @@ namespace CreateAR.SpirePlayer
         /// Parses code into a <c>Program</c>.
         /// </summary>
         /// <param name="code">The code.</param>
-        /// <returns></returns>
-        IAsyncToken<Program> Parse(string code);
-
-        /// <summary>
-        /// Parses code into a <c>Program</c>.
-        /// </summary>
-        /// <param name="code">The code.</param>
+        /// <param name="data">Data to hand to preprocessor.</param>
         /// <param name="options">Options.</param>
         /// <returns></returns>
-        IAsyncToken<Program> Parse(string code, ParserOptions options);
+        Program Parse(string code, ElementSchema data, ParserOptions options);
     }
 }

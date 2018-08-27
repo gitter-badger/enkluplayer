@@ -131,6 +131,11 @@ namespace CreateAR.SpirePlayer.IUX
         public event Action<IInteractable> OnVisibilityChanged;
 
         /// <summary>
+        /// Called when the button has been activated.
+        /// </summary>
+        public event Action<ButtonWidget> OnActivated;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ButtonWidget(
@@ -163,6 +168,7 @@ namespace CreateAR.SpirePlayer.IUX
             // Activator
             {
                 Activator = _primitives.Activator(Schema, this);
+                Activator.OnActivated += Activator_OnActivated;
                 AddChild(Activator);
                 
                 _srcProp = Schema.Get<string>("src");
@@ -213,6 +219,8 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.UnloadInternalAfterChildren();
 
+            Activator.OnActivated -= Activator_OnActivated;
+            
             if (null != _loadToken)
             {
                 _loadToken.Abort();
@@ -504,6 +512,18 @@ namespace CreateAR.SpirePlayer.IUX
         private void TextPrimitive_OnTextRectUpdated(TextPrimitive textPrimitive)
         {
             UpdateLabelLayout();
+        }
+
+        /// <summary>
+        /// Called when the button has been activated.
+        /// </summary>
+        /// <param name="activatorPrimitive">The activator.</param>
+        private void Activator_OnActivated(ActivatorPrimitive activatorPrimitive)
+        {
+            if (null != OnActivated)
+            {
+                OnActivated(this);
+            }
         }
     }
 }
