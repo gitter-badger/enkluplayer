@@ -46,8 +46,19 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         public ProximityEvents events = new ProximityEvents();
 
+        /// <summary>
+        /// Schema key for an element's inner radius for proximity checking.
+        /// </summary>
         public const string PROXIMITY_INNER = "proximity.innerRadius";
+
+        /// <summary>
+        /// Schema key for an element's outer radius for proximity checking.
+        /// </summary>
         public const string PROXIMITY_OUTER = "proximity.outerRadius";
+
+        /// <summary>
+        /// Schema key for an element's status as a trigger for proximity checking.
+        /// </summary>
         public const string PROXIMITY_TRIGGER = "proximity.trigger";
 
         /// <summary>
@@ -259,7 +270,13 @@ namespace CreateAR.SpirePlayer.Scripting
             return element.schema.getBool(PROXIMITY_TRIGGER);
         }
 
-        private void InvokeCallbacks(string @event, IEntityJs elementA, IEntityJs elementB)
+        /// <summary>
+        /// Invoke a given callback for a specific event, for a given Listener/Trigger
+        /// </summary>
+        /// <param name="event"></param>
+        /// <param name="listener"></param>
+        /// <param name="trigger"></param>
+        private void InvokeCallbacks(string @event, IEntityJs listener, IEntityJs trigger)
         {
             Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>> callbackLookup;
             switch(@event) {
@@ -277,9 +294,9 @@ namespace CreateAR.SpirePlayer.Scripting
             }
 
             Func<JsValue, JsValue[], JsValue> callbacks;
-            if (callbackLookup.TryGetValue(elementA, out callbacks))
+            if (callbackLookup.TryGetValue(listener, out callbacks))
             {
-                callbacks(JsValue.FromObject(_engine, elementA), new JsValue[1] { JsValue.FromObject(_engine, elementB) });
+                callbacks(JsValue.FromObject(_engine, listener), new JsValue[1] { JsValue.FromObject(_engine, trigger) });
             }
         }
     }

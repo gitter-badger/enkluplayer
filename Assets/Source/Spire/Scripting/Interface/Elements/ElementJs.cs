@@ -279,6 +279,10 @@ namespace CreateAR.SpirePlayer.Scripting
             return list;
         }
 
+        /// <summary>
+        /// ToString implementation for ElementJs.
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return string.Format("ElementJs ({0})", _element.Id);

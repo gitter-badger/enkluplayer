@@ -106,7 +106,6 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         public new IElementTransformJsApi transform { get; private set; }
 
-
         /// <summary>
         /// Called by Unity. Basic setup.
         /// </summary>

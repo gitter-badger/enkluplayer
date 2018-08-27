@@ -96,7 +96,6 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         private List<Collision> _collisions = new List<Collision>();
 
-
         /// <summary>
         /// Updates an Element with regards to its current listening state, and whether it is a trigger or not.
         /// </summary>

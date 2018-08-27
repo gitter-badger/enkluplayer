@@ -134,7 +134,6 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             ElementJs child = BuildElementJs(false, true, 2.5f, 5);
             parent.addChild(child);
 
-
             // Check for no-op
             child.transform.position = new Vec3(10, 0, 0);
             _proximityChecker.Update();
@@ -245,7 +244,6 @@ namespace CreateAR.SpirePlayer.Test.Scripting
 
                 exitCount++;
             };
-
 
             // Check for no-op
             mixedB.transform.position = new Vec3(10, 0, 0);
@@ -381,7 +379,6 @@ namespace CreateAR.SpirePlayer.Test.Scripting
             CheckCallbackCounts(2, 4, 2);
             Assert.AreEqual(_elementB, cachedExitTrigger);
         }
-
 
         // Helpers
 
