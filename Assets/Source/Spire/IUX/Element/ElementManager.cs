@@ -50,7 +50,7 @@ namespace CreateAR.SpirePlayer.IUX
             element.OnDestroyed += ElementOnDestroyed;
 
             _all.Add(element);
-            if (OnCreated != null) OnCreated(element);
+            if (OnCreated != null) { OnCreated(element); }
         }
 
         /// <inheritdoc />
@@ -114,7 +114,7 @@ namespace CreateAR.SpirePlayer.IUX
         private void ElementOnDestroyed(Element element)
         {
             _all.Remove(element);
-            if (OnDestroyed != null) OnDestroyed(element);
+            if (OnDestroyed != null) { OnDestroyed(element); }
         }
     }
 }

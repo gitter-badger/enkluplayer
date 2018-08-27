@@ -102,9 +102,24 @@ namespace CreateAR.SpirePlayer.Scripting
         }
 
         /// <summary>
+        /// Backing PlayerTransformJsApi.
+        /// </summary>
+        private PlayerTransformJsApi _transform;
+
+        /// <summary>
         /// The transform interface.
         /// </summary>
-        public new IElementTransformJsApi transform { get; private set; }
+        public new IElementTransformJsApi transform { get { return _transform; } }
+
+        /// <summary>
+        /// Always returns false, since PlayerJs cannot belong to the hierarchy.
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <returns></returns>
+        public bool isChildOf(IEntityJs parent)
+        {
+            return false;
+        }
 
         /// <summary>
         /// Called by Unity. Basic setup.
@@ -112,7 +127,7 @@ namespace CreateAR.SpirePlayer.Scripting
         protected override void Awake()
         {
             base.Awake();
-            transform = new PlayerTransformJsApi(gameObject.transform);
+            _transform = new PlayerTransformJsApi(gameObject.transform);
         }
 
         /// <summary>
@@ -120,7 +135,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         protected void Update()
         {
-            ((PlayerTransformJsApi)transform).UpdateTransform();
+            _transform.UpdateTransform();
         }
     }
 }

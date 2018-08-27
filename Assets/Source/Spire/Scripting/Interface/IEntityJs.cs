@@ -9,5 +9,12 @@
         /// The transform interface.
         /// </summary>
         IElementTransformJsApi transform { get; }
+
+        /// <summary>
+        /// Returns whether another element is a direct or indirect parent of this element.
+        /// </summary>
+        /// <param name="parent">Potential upstream element to check</param>
+        /// <returns></returns>
+        bool isChildOf(IEntityJs parent);
     }
 }
