@@ -29,7 +29,6 @@ namespace GoogleARCoreInternal
     using GoogleARCore;
     using UnityEngine;
     using UnityEngine.Rendering;
-    using UnityEngine.SpatialTracking;
 
 #if UNITY_EDITOR
     using UnityEditor;
@@ -320,7 +319,8 @@ namespace GoogleARCoreInternal
 
         private static void AddInstantPreviewTrackedPoseDriverWhenNeeded()
         {
-            foreach (var poseDriver in Component.FindObjectsOfType<TrackedPoseDriver>())
+#if UNITY_IOS || UNITY_ANDROID
+            foreach (var poseDriver in Component.FindObjectsOfType<UnityEngine.SpatialTracking.TrackedPoseDriver>())
             {
                 poseDriver.enabled = false;
                 var gameObject = poseDriver.gameObject;
@@ -331,6 +331,7 @@ namespace GoogleARCoreInternal
                     gameObject.AddComponent<InstantPreviewTrackedPoseDriver>();
                 }
             }
+#endif
         }
 
         private static string GetAdbPath()
