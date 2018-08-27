@@ -1,6 +1,9 @@
-﻿using System.IO;
+﻿using UnityEngine;
+using System.Collections;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
-namespace Utils
+namespace UnityEngine.XR.iOS.Utils
 {
 	//Extension class to provide serialize / deserialize methods to object.
 	//src: http://stackoverflow.com/questions/1446547/how-to-convert-an-object-to-a-byte-array-in-c-sharp
@@ -14,18 +17,13 @@ namespace Utils
 			{
 				return null;
 			}
-
-#if NETFX_CORE
-            return new byte[0];
-#else
-            var bf = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+			var bf = new BinaryFormatter();
 			using (var ms = new MemoryStream())
 			{
 				bf.Serialize(ms, obj);
 				return ms.ToArray();
 			}
-#endif
-        }
+		}
 
 		public static T Deserialize<T>(this byte[] byteArray) where T : class
 		{
@@ -33,19 +31,14 @@ namespace Utils
 			{
 				return null;
 			}
-
-#if NETFX_CORE
-            return null;
-#else
-            using (var memStream = new MemoryStream())
+			using (var memStream = new MemoryStream())
 			{
-				var binForm = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+				var binForm = new BinaryFormatter();
 				memStream.Write(byteArray, 0, byteArray.Length);
 				memStream.Seek(0, SeekOrigin.Begin);
 				var obj = (T)binForm.Deserialize(memStream);
 				return obj;
 			}
-#endif
-        }
+		}
 	}
 }

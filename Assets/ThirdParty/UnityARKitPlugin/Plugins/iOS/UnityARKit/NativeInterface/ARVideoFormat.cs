@@ -15,17 +15,15 @@ namespace UnityEngine.XR.iOS
 		public float imageResolutionHeight;
 		public int framesPerSecond;
 
-#if !UNITY_EDITOR && UNITY_IOS
+		#if UNITY_EDITOR
+		private static void EnumerateVideoFormats(VideoFormatEnumerator videoFormatEnumerator) {
+		}
+		#else
 		[DllImport("__Internal")]
 		private static extern void EnumerateVideoFormats(VideoFormatEnumerator videoFormatEnumerator);
-#else
-	    private static void EnumerateVideoFormats(VideoFormatEnumerator videoFormatEnumerator)
-	    {
+		#endif
 
-	    }
-#endif
-
-        static List<UnityARVideoFormat> videoFormatsList;
+		static List<UnityARVideoFormat> videoFormatsList;
 
 		public static List<UnityARVideoFormat> SupportedVideoFormats()
 		{
