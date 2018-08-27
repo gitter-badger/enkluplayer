@@ -25,6 +25,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<float> _widthProp;
         private ElementSchemaProp<string> _alignmentProp;
         private ElementSchemaProp<string> _overflowProp;
+        private ElementSchemaProp<float> _alphaProp;
 
         /// <summary>
         /// Gets/sets the label.
@@ -86,13 +87,18 @@ namespace CreateAR.SpirePlayer.IUX
             _overflowProp = Schema.Get<string>("overflow");
             _overflowProp.OnChanged += Overflow_OnChanged;
 
+            _alphaProp = Schema.GetOwn("alpha", 1f);
+            _alphaProp.OnChanged += Alpha_OnChanged;
+
             _text = _primitives.Text(Schema);
             _text.Text = _labelProp.Value;
             _text.FontSize = _fontSizeProp.Value;
             _text.Width = _widthProp.Value;
+            _text.Alpha = _alphaProp.Value;
+
             UpdateAlignment();
             UpdateOverflow();
-
+            
             AddChild(_text);
         }
 
@@ -104,6 +110,7 @@ namespace CreateAR.SpirePlayer.IUX
             _widthProp.OnChanged -= Width_OnChanged;
             _alignmentProp.OnChanged -= Alignment_OnChanged;
             _overflowProp.OnChanged -= Overflow_OnChanged;
+            _alphaProp.OnChanged -= Alpha_OnChanged;
 
             base.UnloadInternalAfterChildren();
         }
@@ -196,6 +203,20 @@ namespace CreateAR.SpirePlayer.IUX
             string next)
         {
             UpdateOverflow();
+        }
+
+        /// <summary>
+        /// Called when alpha changes.
+        /// </summary>
+        /// <param name="prop">The prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Alpha_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            _text.Alpha = next;
         }
     }
 }

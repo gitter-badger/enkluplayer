@@ -1,6 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
+using Jint;
 using Jint.Native;
 using UnityEngine;
 
@@ -9,17 +10,22 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// This object is able to run a JS script on an Element similar to a MonoBehaviour.
     /// </summary>
-    public class SpireScriptElementBehavior
+    public class SpireScriptElementBehavior : MonoBehaviour, SpireScript.IScriptExecutor
     {
         /// <summary>
         /// An engine to run the scripts with.
         /// </summary>
-        private UnityScriptingHost _engine;
+        private Engine _engine;
 
         /// <summary>
-        /// The script to execute.
+        /// The element this is running on.
         /// </summary>
-        private SpireScript _script;
+        private Element _element;
+
+        /// <summary>
+        /// Creates ElementJs instances.
+        /// </summary>
+        private IElementJsFactory _factory;
 
         /// <summary>
         /// True iff has been started.
@@ -29,6 +35,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// References to JS functions.
         /// </summary>
+        private ICallable _msgMissing;
         private ICallable _enter;
         private ICallable _update;
         private ICallable _exit;
@@ -41,21 +48,29 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Arguments.
         /// </summary>
-        private readonly JsValue[] _arguments = new JsValue[0];
+        private readonly JsValue[] _nullArgs = new JsValue[0];
 
         /// <summary>
         /// Retrieves the <c>SpireScript</c> instance.
         /// </summary>
-        public SpireScript Script { get { return _script; } }
+        public SpireScript Script { get; private set; }
+
+        /// <inheritdoc />
+        public ElementSchema Data
+        {
+            get { return null == _element ? null : _element.Schema; }
+        }
 
         /// <summary>
         /// Initializes the host.
         /// </summary>
+        /// <param name="factory">Creates elements.</param>
         /// <param name="engine">JS Engine.</param>
         /// <param name="script">The script to execute.</param>
         /// <param name="element">The element.</param>
         public void Initialize(
-            UnityScriptingHost engine,
+            IElementJsFactory factory,
+            Engine engine,
             SpireScript script,
             Element element)
         {
@@ -65,13 +80,23 @@ namespace CreateAR.SpirePlayer
             }
 
             _engine = engine;
-            _script = script;
+            _element = element;
+            _factory = factory;
 
+            Script = script;
+            Script.Executor = this;
+        }
+
+        /// <summary>
+        /// Called after script is ready, before FSM flow.
+        /// </summary>
+        public void Configure()
+        {
             var thisBinding = JsValue.FromObject(
                 _engine,
-                new ElementJs(_engine, null, element));
+                _factory.Instance(_engine, _element));
             _engine.ExecutionContext.ThisBinding = thisBinding;
-            
+
             // common apis
             _engine.SetValue("v", Vec3Methods.Instance);
             _engine.SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
@@ -81,7 +106,8 @@ namespace CreateAR.SpirePlayer
 
             try
             {
-                _engine.Execute(_script.Program);
+                Log.Info(this, "Execute : {0}", Script.Source);
+                _engine.Execute(Script.Program);
             }
             catch (Exception exception)
             {
@@ -92,11 +118,12 @@ namespace CreateAR.SpirePlayer
 
             _this = thisBinding;
 
+            _msgMissing = _engine.GetFunction("msgMissing");
             _enter = _engine.GetFunction("enter");
             _update = _engine.GetFunction("update");
             _exit = _engine.GetFunction("exit");
         }
-
+        
         /// <summary>
         /// Enters the script.
         /// </summary>
@@ -107,13 +134,24 @@ namespace CreateAR.SpirePlayer
                 throw new Exception("Script already started.");
             }
 
-            Log.Info(this, "Entering script {0}.", _script.Data);
+            Log.Info(this, "Entering script {0}.", Script.Data.Name);
 
             _isStarted = true;
 
             if (null != _enter)
             {
-                _enter.Call(_this, _arguments);
+                _enter.Call(_this, _nullArgs);
+            }
+        }
+
+        /// <summary>
+        /// Called every frame.
+        /// </summary>
+        public void FrameUpdate()
+        {
+            if (_isStarted && null != _update)
+            {
+                _update.Call(_this, _nullArgs);
             }
         }
 
@@ -127,24 +165,54 @@ namespace CreateAR.SpirePlayer
                 throw new Exception("Script hasn't been started.");
             }
 
-            Log.Info(this, "Exiting script {0}.", _script.Data);
+            Log.Info(this, "Exiting script {0}.", Script.Data.Name);
 
             _isStarted = false;
 
             if (null != _exit)
             {
-                _exit.Call(_this, _arguments);
+                _exit.Call(_this, _nullArgs);
             }
         }
 
-        /// <summary>
-        /// Called every frame.
-        /// </summary>
-        public void Update()
+        /// <inheritdoc cref="SpireScript.IScriptExecutor.Send"/>
+        public void Send(string name, params object[] parameters)
         {
-            if (_isStarted && null != _update)
+            var len = parameters.Length;
+            var fn = _engine.GetFunction(name);
+            if (null != fn)
             {
-                _update.Call(_this, _arguments);
+                if (len == 0)
+                {
+                    fn.Call(_this, _nullArgs);
+                }
+                else
+                {
+                    var values = new JsValue[len];
+                    for (var i = 0; i < len; i++)
+                    {
+                        values[i] = JsValue.FromObject(_engine, parameters[i]);
+                    }
+
+                    fn.Call(_this, values);
+                }
+            }
+            else if (null != _msgMissing)
+            {
+                if (parameters.Length == 0)
+                {
+                    _msgMissing.Call(_this, new []{ new JsValue(name) });
+                }
+                else
+                {
+                    var values = new[]
+                    {
+                        new JsValue(name),
+                        JsValue.FromObject(_engine, parameters)
+                    };
+
+                    _msgMissing.Call(_this, values);
+                }
             }
         }
     }
