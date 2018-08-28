@@ -1,3 +1,5 @@
+#if !UNITY_WSA
+
 using GoogleARCore;
 
 namespace CreateAR.SpirePlayer.AR
@@ -20,3 +22,5 @@ namespace CreateAR.SpirePlayer.AR
         }
     }
 }
+
+#endif

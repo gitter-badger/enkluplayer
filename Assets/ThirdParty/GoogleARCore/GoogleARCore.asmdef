@@ -1,0 +1,10 @@
+{
+    "name": "GoogleARCore",
+    "references": [],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [
+        "WSA"
+    ],
+    "allowUnsafeCode": false
+}
