@@ -124,7 +124,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <param name="callback">JS callback to invoke on proximity changes</param>
         public void subscribe(JsValue jsValue, string eventName, Func<JsValue, JsValue[], JsValue> callback)
         {
-            ElementJs element = ConvertJsValue(jsValue);
+            var element = ConvertJsValue(jsValue);
 
             switch(eventName) {
                 case EVENT_ENTER:
@@ -270,8 +270,9 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <returns></returns>
         private static ElementJs ConvertJsValue(JsValue value)
         {
-            ElementJs element = value.As<ObjectWrapper>().Target as ElementJs;
-            if (element == null) {
+            var element = value.As<ObjectWrapper>().Target as ElementJs;
+            if (element == null)
+            {
                 throw new ArgumentException("ProximityManager must be passed an ElementJs instance");
             }
             return element;
