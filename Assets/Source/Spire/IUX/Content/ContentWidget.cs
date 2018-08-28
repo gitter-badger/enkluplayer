@@ -307,7 +307,10 @@ namespace CreateAR.SpirePlayer
             _spireScripts.Clear();
 
             // stop running scripts
-            _runner.Teardown();
+            if (null != _runner)
+            {
+                _runner.Teardown();
+            }
 
             // release scripts we created
             _scripts.ReleaseAll(_scriptTag);
