@@ -1,0 +1,10 @@
+{
+    "name": "UnityARKit",
+    "references": [],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [
+        "WSA"
+    ],
+    "allowUnsafeCode": false
+}
