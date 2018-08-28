@@ -47,7 +47,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Passes a message to set of scripts.
         /// </summary>
-        /// <param name="query">Query string.</param>
+        /// <param name="query">Record query (not ScriptData).</param>
         /// <param name="name">Name of the message.</param>
         /// <param name="parameters">The parameters.</param>
         void Send(string query, string name, params object[] parameters);

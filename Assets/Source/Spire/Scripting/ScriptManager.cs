@@ -21,7 +21,7 @@ namespace CreateAR.SpirePlayer
             /// <summary>
             /// Set of unique tags. These are used to cleanup references.
             /// </summary>
-            public readonly HashSet<string> Tags = new HashSet<string>();
+            public string[] Tags = new string[0];
 
             /// <summary>
             /// Creates a new record.
@@ -43,7 +43,7 @@ namespace CreateAR.SpirePlayer
             {
                 for (int i = 0, len = tags.Length; i < len; i++)
                 {
-                    Tags.Add(tags[i]);
+                    Tags = Tags.Add(tags[i]);
                 }
             }
 
@@ -55,7 +55,7 @@ namespace CreateAR.SpirePlayer
             {
                 for (int i = 0, len = tags.Length; i < len; i++)
                 {
-                    Tags.Remove(tags[i]);
+                    Tags = Tags.Remove(tags[i]);
                 }
             }
         }
@@ -178,8 +178,7 @@ namespace CreateAR.SpirePlayer
             for (int i = 0, len = _records.Count; i < len; i++)
             {
                 var record = _records[i];
-                var tags = record.Script.Data.Tags;
-                if (_resolver.Resolve(query, ref tags))
+                if (_resolver.Resolve(query, ref record.Tags))
                 {
                     record.Script.Send(name, parameters);
                 }
@@ -210,7 +209,7 @@ namespace CreateAR.SpirePlayer
                 var record = _records[i];
                 record.Untag(tags);
 
-                if (0 == record.Tags.Count)
+                if (0 == record.Tags.Length)
                 {
                     record.Script.Release();
 
