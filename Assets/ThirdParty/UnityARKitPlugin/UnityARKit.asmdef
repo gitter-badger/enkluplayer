@@ -2,9 +2,9 @@
     "name": "UnityARKit",
     "references": [],
     "optionalUnityReferences": [],
-    "includePlatforms": [],
-    "excludePlatforms": [
-        "WSA"
+    "includePlatforms": [
+        "iOS"
     ],
+    "excludePlatforms": [],
     "allowUnsafeCode": false
 }

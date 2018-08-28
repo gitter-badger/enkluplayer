@@ -2,9 +2,9 @@
     "name": "GoogleARCore",
     "references": [],
     "optionalUnityReferences": [],
-    "includePlatforms": [],
-    "excludePlatforms": [
-        "WSA"
+    "includePlatforms": [
+        "Android"
     ],
+    "excludePlatforms": [],
     "allowUnsafeCode": false
 }
