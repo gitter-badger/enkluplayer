@@ -94,15 +94,15 @@ namespace CreateAR.SpirePlayer.Scripting
         {
             base.Awake();
 
-            _proximityChecker.OnEnter += (IEntityJs listener, IEntityJs trigger) => {
+            _proximityChecker.OnEnter += (listener, trigger) => {
                 InvokeCallbacks(EVENT_ENTER, listener, trigger);
             };
 
-            _proximityChecker.OnStay += (IEntityJs listener, IEntityJs trigger) => {
+            _proximityChecker.OnStay += (listener, trigger) => {
                 InvokeCallbacks(EVENT_STAY, listener, trigger);
             };
 
-            _proximityChecker.OnExit += (IEntityJs listener, IEntityJs trigger) => {
+            _proximityChecker.OnExit += (listener, trigger) => {
                 InvokeCallbacks(EVENT_EXIT, listener, trigger);
             };
 

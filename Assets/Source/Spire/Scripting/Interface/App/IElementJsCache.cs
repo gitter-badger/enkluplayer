@@ -12,5 +12,10 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         /// <param name="element">The element.</param>
         ElementJs Element(Element element);
+
+        /// <summary>
+        /// Cleans up elements within.
+        /// </summary>
+        void Clear();
     }
 }

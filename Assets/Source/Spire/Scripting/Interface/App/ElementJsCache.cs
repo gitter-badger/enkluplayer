@@ -53,5 +53,15 @@ namespace CreateAR.SpirePlayer.Scripting
 
             return el;
         }
+
+        /// <inheritdoc />
+        public void Clear()
+        {
+            foreach (var el in _elementMap.Values)
+            {
+                el.Cleanup();
+            }
+            _elementMap.Clear();
+        }
     }
 }

@@ -28,11 +28,11 @@ namespace CreateAR.SpirePlayer.Scripting
         }
 
         /// <inheritdoc />
-        public override void destroy()
+        public override void Cleanup()
         {
-            ((ButtonWidget) _element).OnActivated -= Button_OnActivated;
+            base.Cleanup();
 
-            base.destroy();
+            ((ButtonWidget) _element).OnActivated -= Button_OnActivated;
         }
 
         /// <summary>
