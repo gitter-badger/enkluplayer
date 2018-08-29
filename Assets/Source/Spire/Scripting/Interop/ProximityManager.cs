@@ -110,9 +110,10 @@ namespace CreateAR.SpirePlayer.Scripting
             _proximityChecker.SetElementRadii(Player, 1, 1);
 
             ElementManager.OnCreated += WatchElement;
-            foreach (Element element in ElementManager.All)
+
+            for (var i = 0; i < ElementManager.All.Count; i++)
             {
-                WatchElement(element);
+                WatchElement(ElementManager.All[i]);
             }
         }
 
@@ -127,6 +128,8 @@ namespace CreateAR.SpirePlayer.Scripting
             var element = ConvertJsValue(jsValue);
             var map = GetMap(eventName);
 
+            Log.Info(this, "Subscribing {0} to {1} events.", element.id, eventName);
+
             List<Func<JsValue, JsValue[], JsValue>> list;
             if (!map.TryGetValue(element, out list))
             {
@@ -135,6 +138,8 @@ namespace CreateAR.SpirePlayer.Scripting
                 // this is the first time subscribe has been called for this element, so listen for cleanup
                 element.OnCleanup += el =>
                 {
+                    Log.Info(this, "Cleaning up subscriptions for {0}.", element.id);
+
                     List<Func<JsValue, JsValue[], JsValue>> cleanupList;
                     if (_enterCallbacks.TryGetValue(element, out cleanupList))
                     {
@@ -349,7 +354,14 @@ namespace CreateAR.SpirePlayer.Scripting
                 var copy = callbacks.ToArray();
                 for (int i = 0, len = copy.Length; i < len; i++)
                 {
-                    copy[i](@this, parameters);
+                    try
+                    {
+                        copy[i](@this, parameters);
+                    }
+                    catch (JavaScriptException ex)
+                    {
+                        Log.Warning(this, "Could not invoke JS callback : {0}.", ex);
+                    }
                 }
                 
             }

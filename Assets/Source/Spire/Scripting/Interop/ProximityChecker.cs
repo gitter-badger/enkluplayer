@@ -137,8 +137,9 @@ namespace CreateAR.SpirePlayer.Scripting
                     var collision = _collisions[i];
                     if (collision.A.Element == element || collision.B.Element == element)
                     {
-                        InvokeCallbacks(OnExit, collision.A, collision.B);
                         _collisions.RemoveAt(i--);
+
+                        InvokeCallbacks(OnExit, collision.A, collision.B);
                     }
                 }
             }
@@ -185,10 +186,10 @@ namespace CreateAR.SpirePlayer.Scripting
 
                     // Check for prior collision
                     Collision collision = null;
-                    int collisionsCount = _collisions.Count;
-                    for (int k = 0; k < collisionsCount; k++)
+                    var collisionsCount = _collisions.Count;
+                    for (var k = 0; k < collisionsCount; k++)
                     {
-                        Collision cachedCollision = _collisions[k];
+                        var cachedCollision = _collisions[k];
                         if ((configA.Element == cachedCollision.A.Element || configA.Element == cachedCollision.B.Element) &&
                             (configB.Element == cachedCollision.A.Element || configB.Element == cachedCollision.B.Element))
                         {
@@ -207,7 +208,10 @@ namespace CreateAR.SpirePlayer.Scripting
                         var radiiSumSq = (float) Math.Pow(configA.InnerRadius + configB.InnerRadius, 2);
                         if (distanceSq - radiiSumSq < 0)
                         {
+                            Log.Info(this, "No existing collision, so dispatching enter event.");
+
                             _collisions.Add(new Collision(configA, configB));
+
                             InvokeCallbacks(OnEnter, configA, configB);
                         }
                     }
@@ -221,8 +225,11 @@ namespace CreateAR.SpirePlayer.Scripting
                         }
                         else
                         {
-                            InvokeCallbacks(OnExit, configA, configB);
+                            Log.Info(this, "Collision exists already but we're leaving the area, so dispatch an exit.");
+
                             _collisions.Remove(collision);
+
+                            InvokeCallbacks(OnExit, configA, configB);
                         }
                     }
                 }
