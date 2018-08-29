@@ -273,7 +273,7 @@ namespace CreateAR.SpirePlayer.Scripting
         private bool ShouldProcessCollision(EntityConfig a, EntityConfig b)
         {
             // A valid collision requires at least 1 listener & trigger between non-nested Elements
-            var validCollision = a.IsListening && b.IsTrigger || b.IsListening && a.IsTrigger;
+            var validCollision = (a.IsListening && b.IsTrigger) || (b.IsListening && a.IsTrigger);
 
             // A little gross, would be nice to fully remove ElementJs knowledge. But ensure the camera won't pass this check
             var aChildOfB = a.Element.isChildOf(b.Element);
