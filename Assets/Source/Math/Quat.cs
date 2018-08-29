@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.NetworkInformation;
 
 namespace CreateAR.SpirePlayer
 {
@@ -122,6 +123,14 @@ namespace CreateAR.SpirePlayer
                 (float) (c1c2 * s3 + s1s2 * c3),
                 (float) (s1 * c2 * c3 + c1 * s2 * s3),
                 (float) (c1 * s2 * c3 - s1 * c2 * s3));
+        }
+
+        /// <summary>
+        /// Identity.
+        /// </summary>
+        public static Quat Identity
+        {
+            get { return new Quat(1, 1, 1, 1); }
         }
 
         /// <summary>
