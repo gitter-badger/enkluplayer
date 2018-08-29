@@ -74,6 +74,11 @@ namespace CreateAR.SpirePlayer
         private readonly List<ScriptRecord> _records = new List<ScriptRecord>();
 
         /// <summary>
+        /// Scratch list of records that we populate before we dispatch script Update.
+        /// </summary>
+        private readonly List<ScriptRecord> _scratchList = new List<ScriptRecord>();
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="appData">App data.</param>
@@ -255,14 +260,23 @@ namespace CreateAR.SpirePlayer
                 return;
             }
             
+            _scratchList.Clear();
+
+            // accumulate all script updates before we call any of them, as an
+            // update can cause many script reloads
             var id = data.Id;
-            for (int i = 0, len = _records.Count; i < len; i++)
+            for (var i = 0; i < _records.Count; i++)
             {
                 var record = _records[i];
                 if (record.Script.Data.Id == id)
                 {
-                    record.Script.Updated();
+                    _scratchList.Add(record);
                 }
+            }
+
+            for (int i = 0, len = _scratchList.Count; i < len; i++)
+            {
+                _scratchList[i].Script.Updated();
             }
         }
     }
