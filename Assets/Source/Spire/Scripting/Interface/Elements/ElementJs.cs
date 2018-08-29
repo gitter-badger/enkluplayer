@@ -108,6 +108,11 @@ namespace CreateAR.SpirePlayer.Scripting
         }
 
         /// <summary>
+        /// Called when Cleanup is called, so that external systems can perform cleanup logic.
+        /// </summary>
+        public event Action<ElementJs> OnCleanup;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ElementJs(
@@ -132,7 +137,10 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         public virtual void Cleanup()
         {
-            //
+            if (null != OnCleanup)
+            {
+                OnCleanup(this);
+            }
         }
 
         /// <inheritdoc />

@@ -131,9 +131,30 @@ namespace CreateAR.SpirePlayer.Scripting
             if (!map.TryGetValue(element, out list))
             {
                 list = map[element] = new List<Func<JsValue, JsValue[], JsValue>>();
-            }
-            list.Add(callback);
 
+                // this is the first time subscribe has been called for this element, so listen for cleanup
+                element.OnCleanup += el =>
+                {
+                    List<Func<JsValue, JsValue[], JsValue>> cleanupList;
+                    if (_enterCallbacks.TryGetValue(element, out cleanupList))
+                    {
+                        cleanupList.Remove(callback);
+                    }
+
+                    if (_stayCallbacks.TryGetValue(element, out cleanupList))
+                    {
+                        cleanupList.Remove(callback);
+                    }
+
+                    if (_exitCallbacks.TryGetValue(element, out cleanupList))
+                    {
+                        cleanupList.Remove(callback);
+                    }
+                };
+            }
+            
+            list.Add(callback);
+            
             UpdateElement(element);
         }
 
@@ -146,31 +167,14 @@ namespace CreateAR.SpirePlayer.Scripting
         public void unsubscribe(JsValue jsValue, string eventName, Func<JsValue, JsValue[], JsValue> callback)
         {
             var element = ConvertJsValue(jsValue);
+            var map = GetMap(eventName);
 
-            switch (eventName)
+            List<Func<JsValue, JsValue[], JsValue>> list;
+            if (map.TryGetValue(element, out list))
             {
-                case EVENT_ENTER:
-                {
-                    _enterCallbacks.Remove(element);
-                    break;
-                }
-                case EVENT_STAY:
-                {
-                    _stayCallbacks.Remove(element);
-                    break;
-                }
-                case EVENT_EXIT:
-                {
-                    _exitCallbacks.Remove(element);
-                    break;
-                }
-                default:
-                {
-                    Log.Error(this, "Attempted to unsubscribe from an unknown event: " + eventName);
-                    return;
-                }
+                list.Remove(callback);
             }
-            
+
             UpdateElement(element);
         }
 
