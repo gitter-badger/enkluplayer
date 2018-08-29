@@ -42,6 +42,11 @@ namespace CreateAR.SpirePlayer.Scripting
         private bool _isSetup;
 
         /// <summary>
+        /// Tracks js caches in use.
+        /// </summary>
+        private readonly List<IElementJsCache> _caches = new List<IElementJsCache>();
+
+        /// <summary>
         /// Behaviors.
         /// </summary>
         private readonly List<SpireScriptElementBehavior> _scriptComponents = new List<SpireScriptElementBehavior>();
@@ -50,7 +55,10 @@ namespace CreateAR.SpirePlayer.Scripting
         /// Vines.
         /// </summary>
         private readonly List<VineMonoBehaviour> _vineComponents = new List<VineMonoBehaviour>();
-        
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public ScriptCollectionRunner(
             IScriptManager scripts,
             IScriptRequireResolver resolver,
@@ -143,19 +151,28 @@ namespace CreateAR.SpirePlayer.Scripting
             // exit and destroy components
             for (int i = 0, len = _vineComponents.Count; i < len; i++)
             {
-                _vineComponents[i].Exit();
+                var component = _vineComponents[i];
+                component.Exit();
 
-                UnityEngine.Object.Destroy(_vineComponents[i]);
+                UnityEngine.Object.Destroy(component);
             }
             _vineComponents.Clear();
 
             for (int i = 0, len = _scriptComponents.Count; i < len; i++)
             {
-                _scriptComponents[i].Exit();
+                var component = _scriptComponents[i];
+                component.Exit();
 
-                UnityEngine.Object.Destroy(_scriptComponents[i]);
+                UnityEngine.Object.Destroy(component);
             }
             _scriptComponents.Clear();
+
+            // clear caches
+            for (int i = 0, len = _caches.Count; i < len; i++)
+            {
+                _caches[i].Clear();
+            }
+            _caches.Clear();
         }
 
         /// <summary>
@@ -187,6 +204,7 @@ namespace CreateAR.SpirePlayer.Scripting
             var jsCache = new ElementJsCache(_elementJsFactory, host);
             host.SetValue("app", Main.NewAppJsApi(jsCache));
             host.SetValue("this", jsCache.Element(_element));
+            _caches.Add(jsCache);
 
             var component = GetBehaviorComponent();
             component.Initialize(_elementJsFactory, host, script, _element);

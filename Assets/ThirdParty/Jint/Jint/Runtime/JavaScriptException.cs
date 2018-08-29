@@ -12,6 +12,11 @@ namespace Jint.Runtime
         private readonly JsValue _errorObject;
         private string _callStack;
 
+        public JavaScriptException(string message)
+        {
+            _errorObject = new JsValue(message);
+        }
+
         public JavaScriptException(ErrorConstructor errorConstructor) : base("")
         {
             _errorObject = errorConstructor.Construct(Arguments.Empty);

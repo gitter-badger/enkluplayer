@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Reflection;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -158,6 +159,7 @@ namespace CreateAR.SpirePlayer
             _resolver.Initialize(
 #if NETFX_CORE
                 // reference by hand
+                Assembly.Load(new AssemblyName("Assembly-CSharp"))
 #else
                 AppDomain.CurrentDomain.GetAssemblies()
 #endif

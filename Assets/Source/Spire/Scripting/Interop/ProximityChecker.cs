@@ -89,17 +89,19 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <summary>
         /// List of all elements that have been updated as listening or a trigger.
         /// </summary>
-        private List<EntityConfig> _activeElements = new List<EntityConfig>();
+        private readonly List<EntityConfig> _activeElements = new List<EntityConfig>();
 
         /// <summary>
         /// List of all collisions, so we can determine if any collision is an extry or a stay event.
         /// </summary>
-        private List<Collision> _collisions = new List<Collision>();
+        private readonly List<Collision> _collisions = new List<Collision>();
 
         /// <summary>
         /// Updates an Element with regards to its current listening state, and whether it is a trigger or not.
         /// </summary>
-        /// <param name="element"></param>
+        /// <param name="element">The element to update.</param>
+        /// <param name="isListening">True iff the element should receive events.</param>
+        /// <param name="isTrigger">True iff the element should trigger events.</param>
         public void SetElementState(IEntityJs element, bool isListening, bool isTrigger)
         {
             // Find an existing config, or make a new one
@@ -107,9 +109,15 @@ namespace CreateAR.SpirePlayer.Scripting
             if (config == null)
             {
                 // Just early out if it wouldn't be tracked anyway. This occurs commonly during scene building
-                if (!isListening && !isTrigger) return;
-                config = new EntityConfig();
-                config.Element = element;
+                if (!isListening && !isTrigger)
+                {
+                    return;
+                }
+
+                config = new EntityConfig
+                {
+                    Element = element
+                };
                 _activeElements.Add(config);
             }
 
@@ -123,14 +131,15 @@ namespace CreateAR.SpirePlayer.Scripting
                 _activeElements.Remove(config);
 
                 // Remove any active collisions
-                int collisionsLen = _collisions.Count;
-                for (int i = 0; i < collisionsLen; i++)
+                var collisionsLen = _collisions.Count;
+                for (var i = 0; i < collisionsLen; i++)
                 {
                     var collision = _collisions[i];
                     if (collision.A.Element == element || collision.B.Element == element)
                     {
-                        InvokeCallbacks(OnExit, collision.A, collision.B);
                         _collisions.RemoveAt(i--);
+
+                        InvokeCallbacks(OnExit, collision.A, collision.B);
                     }
                 }
             }
@@ -161,23 +170,26 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         public void Update()
         {
-            int elementCount = _activeElements.Count;
-            for (int i = 0; i < elementCount; i++)
+            var elementCount = _activeElements.Count;
+            for (var i = 0; i < elementCount; i++)
             {
-                for (int j = i + 1; j < elementCount; j++)
+                for (var j = i + 1; j < elementCount; j++)
                 {
                     var configA = _activeElements[i];
                     var configB = _activeElements[j];
 
                     // Early out if the collision wouldn't invoke callbacks
-                    if (!ShouldProcessCollision(configA, configB)) { continue; }
+                    if (!ShouldProcessCollision(configA, configB))
+                    {
+                        continue;
+                    }
 
                     // Check for prior collision
                     Collision collision = null;
-                    int collisionsCount = _collisions.Count;
-                    for (int k = 0; k < collisionsCount; k++)
+                    var collisionsCount = _collisions.Count;
+                    for (var k = 0; k < collisionsCount; k++)
                     {
-                        Collision cachedCollision = _collisions[k];
+                        var cachedCollision = _collisions[k];
                         if ((configA.Element == cachedCollision.A.Element || configA.Element == cachedCollision.B.Element) &&
                             (configB.Element == cachedCollision.A.Element || configB.Element == cachedCollision.B.Element))
                         {
@@ -187,31 +199,37 @@ namespace CreateAR.SpirePlayer.Scripting
                     }
 
                     // Calculate distance
-                    float distanceSq = Vec3.DistanceSqr(configA.Element.transform.position, configB.Element.transform.position);
+                    var distanceSq = Vec3.DistanceSqr(configA.Element.transform.position, configB.Element.transform.position);
 
                     // Determine proximity change
                     if (collision == null)
                     {
                         // If we're not already in collision, use inner radii to check for enter
-                        float radiiSumSq = (float) Math.Pow(configA.InnerRadius + configB.InnerRadius, 2);
+                        var radiiSumSq = (float) Math.Pow(configA.InnerRadius + configB.InnerRadius, 2);
                         if (distanceSq - radiiSumSq < 0)
                         {
+                            Log.Info(this, "No existing collision, so dispatching enter event.");
+
                             _collisions.Add(new Collision(configA, configB));
+
                             InvokeCallbacks(OnEnter, configA, configB);
                         }
                     }
                     else
                     {
                         // Otherwise, use outer to check for exit
-                        float radiiSum = (float) Math.Pow(configA.OuterRadius + configB.OuterRadius, 2);
+                        var radiiSum = (float) Math.Pow(configA.OuterRadius + configB.OuterRadius, 2);
                         if (distanceSq - radiiSum < 0)
                         {
                             InvokeCallbacks(OnStay, configA, configB);
                         }
                         else
                         {
-                            InvokeCallbacks(OnExit, configA, configB);
+                            Log.Info(this, "Collision exists already but we're leaving the area, so dispatch an exit.");
+
                             _collisions.Remove(collision);
+
+                            InvokeCallbacks(OnExit, configA, configB);
                         }
                     }
                 }
@@ -255,7 +273,7 @@ namespace CreateAR.SpirePlayer.Scripting
         private bool ShouldProcessCollision(EntityConfig a, EntityConfig b)
         {
             // A valid collision requires at least 1 listener & trigger between non-nested Elements
-            var validCollision = ((a.IsListening && b.IsTrigger) || (b.IsListening && a.IsTrigger));
+            var validCollision = (a.IsListening && b.IsTrigger) || (b.IsListening && a.IsTrigger);
 
             // A little gross, would be nice to fully remove ElementJs knowledge. But ensure the camera won't pass this check
             var aChildOfB = a.Element.isChildOf(b.Element);
@@ -273,9 +291,20 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <param name="b"></param>
         private void InvokeCallbacks(Action<IEntityJs, IEntityJs> action, EntityConfig a, EntityConfig b)
         {
-            if (action == null) { return; }
-            if (a.IsListening && b.IsTrigger) { action(a.Element, b.Element); }
-            if (b.IsListening && a.IsTrigger) { action(b.Element, a.Element); }
+            if (action == null)
+            {
+                return;
+            }
+
+            if (a.IsListening && b.IsTrigger)
+            {
+                action(a.Element, b.Element);
+            }
+
+            if (b.IsListening && a.IsTrigger)
+            {
+                action(b.Element, a.Element);
+            }
         }
     }
 }

@@ -2,10 +2,10 @@
 using CreateAR.SpirePlayer.IUX;
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
 using Jint.Runtime.Interop;
 using System;
 using System.Collections.Generic;
+using Jint.Runtime;
 
 namespace CreateAR.SpirePlayer.Scripting
 {
@@ -75,17 +75,17 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked when objects enter proximity.
         /// </summary>
-        private readonly Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>> _enterCallbacks = new Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>>();
+        private readonly Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>> _enterCallbacks = new Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>>();
 
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked every Update while objects are within proximity.
         /// </summary>
-        private readonly Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>> _stayCallbacks = new Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>>();
+        private readonly Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>> _stayCallbacks = new Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>>();
 
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked when objects exit proximity.
         /// </summary>
-        private readonly Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>> _exitCallbacks = new Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>>();
+        private readonly Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>> _exitCallbacks = new Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>>();
 
         /// <summary>
         /// Called by Unity. Sets up against existing Elements and watches for new ones.
@@ -94,15 +94,15 @@ namespace CreateAR.SpirePlayer.Scripting
         {
             base.Awake();
 
-            _proximityChecker.OnEnter += (IEntityJs listener, IEntityJs trigger) => {
+            _proximityChecker.OnEnter += (listener, trigger) => {
                 InvokeCallbacks(EVENT_ENTER, listener, trigger);
             };
 
-            _proximityChecker.OnStay += (IEntityJs listener, IEntityJs trigger) => {
+            _proximityChecker.OnStay += (listener, trigger) => {
                 InvokeCallbacks(EVENT_STAY, listener, trigger);
             };
 
-            _proximityChecker.OnExit += (IEntityJs listener, IEntityJs trigger) => {
+            _proximityChecker.OnExit += (listener, trigger) => {
                 InvokeCallbacks(EVENT_EXIT, listener, trigger);
             };
 
@@ -110,9 +110,10 @@ namespace CreateAR.SpirePlayer.Scripting
             _proximityChecker.SetElementRadii(Player, 1, 1);
 
             ElementManager.OnCreated += WatchElement;
-            foreach (Element element in ElementManager.All)
+
+            for (var i = 0; i < ElementManager.All.Count; i++)
             {
-                WatchElement(element);
+                WatchElement(ElementManager.All[i]);
             }
         }
 
@@ -120,37 +121,45 @@ namespace CreateAR.SpirePlayer.Scripting
         /// Called from JsApi. Subscribes an Element to listen for a specified event caused from any trigger.
         /// </summary>
         /// <param name="jsValue">Element that will listen for events</param>
-        /// <param name="eventName"><see cref="ProximityEvents"/> event that will be listened for.</param>
+        /// <param name="eventName">Event that will be listened for.</param>
         /// <param name="callback">JS callback to invoke on proximity changes</param>
         public void subscribe(JsValue jsValue, string eventName, Func<JsValue, JsValue[], JsValue> callback)
         {
-            ElementJs element = ConvertJsValue(jsValue);
+            var element = ConvertJsValue(jsValue);
+            var map = GetMap(eventName);
 
-            switch(eventName) {
-                case EVENT_ENTER:
-                {
-                    _enterCallbacks[element] = callback;
-                    break;
-                }
+            Log.Info(this, "Subscribing {0} to {1} events.", element.id, eventName);
 
-                case EVENT_STAY:
-                {
-                    _stayCallbacks[element] = callback;
-                    break;
-                }
-                case EVENT_EXIT:
-                {
-                    _exitCallbacks[element] = callback;
-                    break;
-                }
+            List<Func<JsValue, JsValue[], JsValue>> list;
+            if (!map.TryGetValue(element, out list))
+            {
+                list = map[element] = new List<Func<JsValue, JsValue[], JsValue>>();
 
-                default:
+                // this is the first time subscribe has been called for this element, so listen for cleanup
+                element.OnCleanup += el =>
                 {
-                    Log.Error(this, "Attempted to subscribe to unknown event: " + eventName);
-                    return;
-                }
+                    Log.Info(this, "Cleaning up subscriptions for {0}.", element.id);
+
+                    List<Func<JsValue, JsValue[], JsValue>> cleanupList;
+                    if (_enterCallbacks.TryGetValue(element, out cleanupList))
+                    {
+                        cleanupList.Remove(callback);
+                    }
+
+                    if (_stayCallbacks.TryGetValue(element, out cleanupList))
+                    {
+                        cleanupList.Remove(callback);
+                    }
+
+                    if (_exitCallbacks.TryGetValue(element, out cleanupList))
+                    {
+                        cleanupList.Remove(callback);
+                    }
+                };
             }
-
+            
+            list.Add(callback);
+            
             UpdateElement(element);
         }
 
@@ -158,35 +167,19 @@ namespace CreateAR.SpirePlayer.Scripting
         /// Called from JsApi. Unsubscribes an Element from listening for a specified event caused from any trigger.
         /// </summary>
         /// <param name="jsValue">Element that will be unsubscribed</param>
-        /// <param name="eventName"><see cref="ProximityEvents"/> event to unsubscribe from.</param>
+        /// <param name="eventName">Event to unsubscribe from.</param>
         /// <param name="callback">JS callback to unsubscribe</param>
         public void unsubscribe(JsValue jsValue, string eventName, Func<JsValue, JsValue[], JsValue> callback)
         {
-            ElementJs element = ConvertJsValue(jsValue);
+            var element = ConvertJsValue(jsValue);
+            var map = GetMap(eventName);
 
-            switch (eventName) {
-                case EVENT_ENTER:
-                {
-                    _enterCallbacks.Remove(element);
-                    break;
-                }
-                case EVENT_STAY:
-                {
-                    _stayCallbacks.Remove(element);
-                    break;
-                }
-                case EVENT_EXIT:
-                {
-                    _exitCallbacks.Remove(element);
-                    break;
-                }
-                default:
-                {
-                    Log.Error(this, "Attempted to unsubscribe from an unknown event: " + eventName);
-                    return;
-                }
+            List<Func<JsValue, JsValue[], JsValue>> list;
+            if (map.TryGetValue(element, out list))
+            {
+                list.Remove(callback);
             }
-            
+
             UpdateElement(element);
         }
 
@@ -211,6 +204,35 @@ namespace CreateAR.SpirePlayer.Scripting
         }
 
         /// <summary>
+        /// Retrieves the correct map for an event name.
+        /// </summary>
+        /// <param name="eventName">Name of the event.</param>
+        /// <returns></returns>
+        private Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>> GetMap(string eventName)
+        {
+            switch (eventName)
+            {
+                case EVENT_ENTER:
+                {
+                    return _enterCallbacks;
+                }
+                case EVENT_STAY:
+                {
+                    return _stayCallbacks;
+                }
+                case EVENT_EXIT:
+                {
+                    return _exitCallbacks;
+                }
+                default:
+                {
+                    Log.Error(this, "Attempted to subscribe to unknown event: " + eventName);
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>
         /// Listens to schema for a specific ElementJs instance.
         /// </summary>
         /// <param name="element"></param>
@@ -218,11 +240,11 @@ namespace CreateAR.SpirePlayer.Scripting
         {
             ElementJs elementjs = new ElementJs(null, null, _engine, element);
 
-            Action<ElementSchemaProp<bool>, bool, bool> triggerChange = (ElementSchemaProp<bool> prop, bool old, bool @new) =>
+            Action<ElementSchemaProp<bool>, bool, bool> triggerChange = (prop, old, @new) =>
             {
                 UpdateElement(elementjs);
             };
-            Action<ElementSchemaProp<float>, float, float> radiusChange = (ElementSchemaProp<float> prop, float old, float @new) =>
+            Action<ElementSchemaProp<float>, float, float> radiusChange = (prop, old, @new) =>
             {
                 UpdateElement(elementjs);
             };
@@ -233,7 +255,7 @@ namespace CreateAR.SpirePlayer.Scripting
             element.Schema.Get<float>(PROP_PROXIMITY_OUTER).OnChanged += radiusChange;
 
             // Cleanup schema listeners on element's destruction.
-            element.OnDestroyed += (Element elm) =>
+            element.OnDestroyed += elm =>
             {
                 element.Schema.Get<bool>(PROP_PROXIMITY_TRIGGER).OnChanged -= triggerChange;
                 element.Schema.Get<float>(PROP_PROXIMITY_INNER).OnChanged -= radiusChange;
@@ -270,10 +292,23 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <returns></returns>
         private static ElementJs ConvertJsValue(JsValue value)
         {
-            ElementJs element = value.As<ObjectWrapper>().Target as ElementJs;
-            if (element == null) {
-                throw new ArgumentException("ProximityManager must be passed an ElementJs instance");
+            if (null == value)
+            {
+                throw new JavaScriptException("Proximity requires an element.");
             }
+
+            var wrapper = value.As<ObjectWrapper>();
+            if (null == wrapper)
+            {
+                throw new JavaScriptException("Proximity requires an element.");
+            }
+                
+            var element = wrapper.Target as ElementJs;
+            if (element == null)
+            {
+                throw new JavaScriptException("Proximity requires an element.");
+            }
+
             return element;
         }
 
@@ -302,40 +337,33 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <summary>
         /// Invoke a given callback for a specific event, for a given Listener/Trigger
         /// </summary>
-        /// <param name="event"></param>
-        /// <param name="listener"></param>
-        /// <param name="trigger"></param>
+        /// <param name="event">Name of the event.</param>
+        /// <param name="listener">The listening entity.</param>
+        /// <param name="trigger">The entity that triggered the event.</param>
         private void InvokeCallbacks(string @event, IEntityJs listener, IEntityJs trigger)
         {
-            Dictionary<IEntityJs, Func<JsValue, JsValue[], JsValue>> callbackLookup;
-            switch(@event) {
-                case EVENT_ENTER:
-                {
-                    callbackLookup = _enterCallbacks;
-                    break;
-                }
-                case EVENT_STAY:
-                {
-                    callbackLookup = _stayCallbacks;
-                    break;
-                }
-                case EVENT_EXIT:
-                {
-                    callbackLookup = _exitCallbacks;
-                    break;
-                }
-                default:
-                {
-                    throw new ArgumentException("No callback containers exist for Proximity event " + @event);
-                }
-            }
+            var map = GetMap(@event);
 
-            Func<JsValue, JsValue[], JsValue> callbacks;
-            if (callbackLookup.TryGetValue(listener, out callbacks))
+            List<Func<JsValue, JsValue[], JsValue>> callbacks;
+            if (map.TryGetValue(listener, out callbacks))
             {
-                callbacks(
-                    JsValue.FromObject(_engine, listener),
-                    new JsValue[1] { JsValue.FromObject(_engine, trigger) });
+                var @this = JsValue.FromObject(_engine, listener);
+                var parameters = new [] { JsValue.FromObject(_engine, trigger) };
+
+                // copy for now, in case an unsubscribe is in the callback
+                var copy = callbacks.ToArray();
+                for (int i = 0, len = copy.Length; i < len; i++)
+                {
+                    try
+                    {
+                        copy[i](@this, parameters);
+                    }
+                    catch (JavaScriptException ex)
+                    {
+                        Log.Warning(this, "Could not invoke JS callback : {0}.", ex);
+                    }
+                }
+                
             }
         }
     }

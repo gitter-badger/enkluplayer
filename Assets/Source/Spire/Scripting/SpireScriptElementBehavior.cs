@@ -3,6 +3,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Jint;
 using Jint.Native;
+using Jint.Runtime;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Scripting
@@ -133,7 +134,14 @@ namespace CreateAR.SpirePlayer.Scripting
 
             if (null != _enter)
             {
-                _enter.Call(_this, _nullArgs);
+                try
+                {
+                    _enter.Call(_this, _nullArgs);
+                }
+                catch (JavaScriptException exception)
+                {
+                    Log.Warning(this, "JavaScript error : {0}.", exception);
+                }
             }
         }
 
@@ -144,7 +152,14 @@ namespace CreateAR.SpirePlayer.Scripting
         {
             if (_isStarted && null != _update)
             {
-                _update.Call(_this, _nullArgs);
+                try
+                {
+                    _update.Call(_this, _nullArgs);
+                }
+                catch (JavaScriptException exception)
+                {
+                    Log.Warning(this, "JavaScript error : {0}.", exception);
+                }
             }
         }
 
@@ -164,7 +179,14 @@ namespace CreateAR.SpirePlayer.Scripting
 
             if (null != _exit)
             {
-                _exit.Call(_this, _nullArgs);
+                try
+                {
+                    _exit.Call(_this, _nullArgs);
+                }
+                catch (JavaScriptException exception)
+                {
+                    Log.Warning(this, "JavaScript error : {0}.", exception);
+                }
             }
         }
 
@@ -187,14 +209,28 @@ namespace CreateAR.SpirePlayer.Scripting
                         values[i] = JsValue.FromObject(_engine, parameters[i]);
                     }
 
-                    fn.Call(_this, values);
+                    try
+                    {
+                        fn.Call(_this, values);
+                    }
+                    catch (JavaScriptException exception)
+                    {
+                        Log.Warning(this, "JavaScript error : {0}.", exception);
+                    }
                 }
             }
             else if (null != _msgMissing)
             {
                 if (parameters.Length == 0)
                 {
-                    _msgMissing.Call(_this, new []{ new JsValue(name) });
+                    try
+                    {
+                        _msgMissing.Call(_this, new[] { new JsValue(name) });
+                    }
+                    catch (JavaScriptException exception)
+                    {
+                        Log.Warning(this, "JavaScript error : {0}.", exception);
+                    }
                 }
                 else
                 {
@@ -204,7 +240,14 @@ namespace CreateAR.SpirePlayer.Scripting
                         JsValue.FromObject(_engine, parameters)
                     };
 
-                    _msgMissing.Call(_this, values);
+                    try
+                    {
+                        _msgMissing.Call(_this, values);
+                    }
+                    catch (JavaScriptException exception)
+                    {
+                        Log.Warning(this, "JavaScript error : {0}.", exception);
+                    }
                 }
             }
         }

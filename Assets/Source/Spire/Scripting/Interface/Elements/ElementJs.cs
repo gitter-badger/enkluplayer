@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Jint;
 using Jint.Native;
@@ -109,6 +108,11 @@ namespace CreateAR.SpirePlayer.Scripting
         }
 
         /// <summary>
+        /// Called when Cleanup is called, so that external systems can perform cleanup logic.
+        /// </summary>
+        public event Action<ElementJs> OnCleanup;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ElementJs(
@@ -126,6 +130,17 @@ namespace CreateAR.SpirePlayer.Scripting
             _transform = new ElementTransformJsApi(_element);
 
             _this = JsValue.FromObject(_engine, this);
+        }
+
+        /// <summary>
+        /// Cleans up ElementJS instance.
+        /// </summary>
+        public virtual void Cleanup()
+        {
+            if (null != OnCleanup)
+            {
+                OnCleanup(this);
+            }
         }
 
         /// <inheritdoc />
@@ -217,7 +232,6 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <inheritdoc />
         public void on(string eventType, Func<JsValue, JsValue[], JsValue> fn)
         {
-            Log.Info(this, "Added event listener");
             EventList(eventType).Add(fn);
         }
 
@@ -287,6 +301,7 @@ namespace CreateAR.SpirePlayer.Scripting
             return string.Format("[ElementJs Id={0}]", _element.Id);
         }
 
+        /// <summary>
         /// Tests whether two ElementJs instances are equivalent, relative to their Elements
         /// </summary>
         /// <param name="this"></param>
@@ -314,6 +329,15 @@ namespace CreateAR.SpirePlayer.Scripting
             var elementJs = element as ElementJs;
             return @this._element != elementJs._element;
         }
+        
+        /// <summary>
+        /// Required for ==.
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            return (_element != null ? _element.GetHashCode() : 0);
+        }
 
         /// <summary>
         /// Tests whether an object equals this ElementJs instance.
@@ -326,6 +350,16 @@ namespace CreateAR.SpirePlayer.Scripting
             if (obj == null) { return false; }
             ElementJs elementJs = obj as ElementJs;
             return elementJs != null && _element == elementJs._element;
+        }
+
+        /// <summary>
+        /// Required for == overload.
+        /// </summary>
+        /// <param name="other">Other ElementJS.</param>
+        /// <returns></returns>
+        protected bool Equals(ElementJs other)
+        {
+            return Equals(_element, other._element);
         }
     }
 }
