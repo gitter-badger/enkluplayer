@@ -5,6 +5,8 @@ using Jint.Native;
 using Jint.Runtime.Interop;
 using System;
 using System.Collections.Generic;
+using Jint.Native.Error;
+using Jint.Runtime;
 
 namespace CreateAR.SpirePlayer.Scripting
 {
@@ -282,11 +284,23 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <returns></returns>
         private static ElementJs ConvertJsValue(JsValue value)
         {
-            var element = value.As<ObjectWrapper>().Target as ElementJs;
+            if (null == value)
+            {
+                throw new JavaScriptException("Proximity requires an element.");
+            }
+
+            var wrapper = value.As<ObjectWrapper>();
+            if (null == wrapper)
+            {
+                throw new JavaScriptException("Proximity requires an element.");
+            }
+                
+            var element = wrapper.Target as ElementJs;
             if (element == null)
             {
-                throw new ArgumentException("ProximityManager must be passed an ElementJs instance");
+                throw new JavaScriptException("Proximity requires an element.");
             }
+
             return element;
         }
 
