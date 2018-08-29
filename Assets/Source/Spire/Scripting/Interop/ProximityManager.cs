@@ -5,7 +5,6 @@ using Jint.Native;
 using Jint.Runtime.Interop;
 using System;
 using System.Collections.Generic;
-using Jint.Native.Error;
 using Jint.Runtime;
 
 namespace CreateAR.SpirePlayer.Scripting
@@ -142,7 +141,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// Called from JsApi. Unsubscribes an Element from listening for a specified event caused from any trigger.
         /// </summary>
         /// <param name="jsValue">Element that will be unsubscribed</param>
-        /// <param name="eventName"><see cref="ProximityEvents"/> event to unsubscribe from.</param>
+        /// <param name="eventName">Event to unsubscribe from.</param>
         /// <param name="callback">JS callback to unsubscribe</param>
         public void unsubscribe(JsValue jsValue, string eventName, Func<JsValue, JsValue[], JsValue> callback)
         {
