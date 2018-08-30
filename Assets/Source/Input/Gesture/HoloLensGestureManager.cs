@@ -45,14 +45,6 @@ namespace CreateAR.SpirePlayer
             }
 
             /// <summary>
-            /// Cancels the interaction.
-            /// </summary>
-            public void Cancel()
-            {
-                IsFinished = true;
-            }
-
-            /// <summary>
             /// Marks the interaction complate and updates poe.
             /// </summary>
             /// <param name="pose">Updated pose.</param>
@@ -73,8 +65,6 @@ namespace CreateAR.SpirePlayer
             }
         }
 
-        private readonly InteractionSourceState[] _interactionSourceStates = new InteractionSourceState[10];
-
         /// <summary>
         /// Data for each source.
         /// </summary>
@@ -93,7 +83,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Allows generating unique ids.
         /// </summary>
-        private static uint UPDATE_IDS = 0;
+        private static uint UPDATE_IDS;
 
         /// <inheritdoc />
         public event Action<uint> OnPointerStarted;
