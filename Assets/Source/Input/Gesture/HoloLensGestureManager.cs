@@ -73,6 +73,8 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        private readonly InteractionSourceState[] _interactionSourceStates = new InteractionSourceState[10];
+
         /// <summary>
         /// Data for each source.
         /// </summary>
@@ -82,12 +84,7 @@ namespace CreateAR.SpirePlayer
         /// Starts coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
-
-        /// <summary>
-        /// Gesture API.
-        /// </summary>
-        private GestureRecognizer _gestures;
-
+        
         /// <summary>
         /// Unique id for this call to Initialize().
         /// </summary>
@@ -125,24 +122,25 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Initialize()
         {
-            _gestures = new GestureRecognizer();
-            _gestures.ManipulationStarted += Gestures_OnManipulateStarted;
-            _gestures.ManipulationCanceled += Gestures_OnManipulationCanceled;
-            _gestures.ManipulationCompleted += Gestures_OnManipulationCompleted;
-            _gestures.ManipulationUpdated += Gestures_OnManipulationUpdated;
+            Log.Info(this, "Initializing HoloLensGestureManager.");
 
+            InteractionManager.InteractionSourceDetected += Interactions_OnSourceDetected;
+            InteractionManager.InteractionSourceLost += Interactions_OnSourceLost;
+            InteractionManager.InteractionSourceUpdated += Interactions_OnSourceUpdated;
+            
             _bootstrapper.BootstrapCoroutine(Update());
         }
 
         /// <inheritdoc />
         public void Uninitialize()
         {
-            _updateId = 0;
+            Log.Info(this, "Uninitializing HoloLensGestureManager.");
 
-            _gestures.ManipulationStarted -= Gestures_OnManipulateStarted;
-            _gestures.ManipulationCanceled -= Gestures_OnManipulationCanceled;
-            _gestures.ManipulationCompleted -= Gestures_OnManipulationCompleted;
-            _gestures.ManipulationUpdated -= Gestures_OnManipulationUpdated;
+            InteractionManager.InteractionSourceDetected -= Interactions_OnSourceDetected;
+            InteractionManager.InteractionSourceLost -= Interactions_OnSourceLost;
+            InteractionManager.InteractionSourceUpdated -= Interactions_OnSourceUpdated;
+
+            _updateId = 0;
         }
 
         /// <inheritdoc />
@@ -257,79 +255,61 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when a manipulation has been updated.
+        /// Called when a source has been added.
         /// </summary>
         /// <param name="event">The event.</param>
-        private void Gestures_OnManipulationUpdated(ManipulationUpdatedEventArgs @event)
+        private void Interactions_OnSourceDetected(InteractionSourceDetectedEventArgs @event)
         {
-            var data = Data(@event.source.id);
-            if (null == data)
-            {
-                Log.Warning(this, "Received a gesture update event for an untracked source.");
-                return;
-            }
+            Log.Info(this, "Source added.");
 
-            data.Update(@event.sourcePose);
-        }
-
-        /// <summary>
-        /// Called when a manipulation has been completed.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        private void Gestures_OnManipulationCompleted(ManipulationCompletedEventArgs @event)
-        {
-            var id = @event.source.id;
-            var data = Data(@event.source.id);
-            if (null == data)
-            {
-                Log.Warning(this, "Received a gesture update event for an untracked source.");
-                return;
-            }
-
-            data.Complete(@event.sourcePose);
-
-            if (null != OnPointerEnded)
-            {
-                OnPointerEnded(id);
-            }
-        }
-
-        /// <summary>
-        /// Called when a manipulation has been canceled.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        private void Gestures_OnManipulationCanceled(ManipulationCanceledEventArgs @event)
-        {
-            var id = @event.source.id;
-            var data = Data(@event.source.id);
-            if (null == data)
-            {
-                Log.Warning(this, "Received a gesture update event for an untracked source.");
-                return;
-            }
-
-            data.Cancel();
-
-            if (null != OnPointerEnded)
-            {
-                OnPointerEnded(id);
-            }
-        }
-
-        /// <summary>
-        /// Called when a manipulation has been started.
-        /// </summary>
-        /// <param name="event">The event.</param>
-        private void Gestures_OnManipulateStarted(ManipulationStartedEventArgs @event)
-        {
-            var id = @event.source.id;
-            var source = new SourceData(@event.source, @event.sourcePose);
+            var id = @event.state.source.id;
+            var source = new SourceData(@event.state.source, @event.state.sourcePose);
             _sources.Add(source);
 
             if (null != OnPointerStarted)
             {
                 OnPointerStarted(id);
             }
+        }
+
+        /// <summary>
+        /// Called when a source has been removed.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void Interactions_OnSourceLost(InteractionSourceLostEventArgs @event)
+        {
+            Log.Info(this, "Source lost.");
+
+            var id = @event.state.source.id;
+            var data = Data(@event.state.source.id);
+            if (null == data)
+            {
+                Log.Warning(this, "Received a gesture update event for an untracked source.");
+                return;
+            }
+
+            data.Complete(@event.state.sourcePose);
+
+            if (null != OnPointerEnded)
+            {
+                OnPointerEnded(id);
+            }
+        }
+
+        /// <summary>
+        /// Called when a source has been updated.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void Interactions_OnSourceUpdated(InteractionSourceUpdatedEventArgs @event)
+        {
+            var data = Data(@event.state.source.id);
+            if (null == data)
+            {
+                Log.Warning(this, "Received a gesture update event for an untracked source.");
+                return;
+            }
+
+            data.Update(@event.state.sourcePose);
         }
     }
 }

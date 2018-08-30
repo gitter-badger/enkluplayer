@@ -609,6 +609,7 @@ namespace CreateAR.SpirePlayer
                 {
                     binder.Bind<MessageRouterScriptingInterface>().To<MessageRouterScriptingInterface>().ToSingleton();
                     binder.Bind<ProximityManager>().ToValue(LookupComponent<ProximityManager>());
+                    binder.Bind<GestureJsInterface>().To<GestureJsInterface>().ToSingleton();
                 }
             }
 
