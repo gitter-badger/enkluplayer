@@ -464,6 +464,15 @@ namespace CreateAR.SpirePlayer
 #endif
             }
 
+            // Gesture
+            {
+#if NETFX_CORE
+                binder.Bind<IGestureManager>().To<HoloLensGestureManager>().ToSingleton();          
+#else
+                binder.Bind<IGestureManager>().To<PassthroughGestureManager>().ToSingleton();
+#endif
+            }
+
             // UI
             {
                 binder.Bind<IUIManager>().To<UIManager>().ToSingleton();
@@ -600,6 +609,7 @@ namespace CreateAR.SpirePlayer
                 {
                     binder.Bind<MessageRouterScriptingInterface>().To<MessageRouterScriptingInterface>().ToSingleton();
                     binder.Bind<ProximityManager>().ToValue(LookupComponent<ProximityManager>());
+                    binder.Bind<GestureJsInterface>().To<GestureJsInterface>().ToSingleton();
                 }
             }
 

@@ -23,6 +23,7 @@ namespace CreateAR.SpirePlayer
         private readonly IAssetManager _assets;
         private readonly IAssetLoader _assetLoader;
         private readonly IBleService _ble;
+        private readonly IGestureManager _gestures;
         private readonly IWorldAnchorProvider _anchors;
         private readonly IAppSceneManager _scenes;
         private readonly CommandService _commands;
@@ -36,6 +37,7 @@ namespace CreateAR.SpirePlayer
             IAssetManager assets,
             IAssetLoader assetLoader,
             IBleService ble,
+            IGestureManager gestures,
             IWorldAnchorProvider anchors,
             IAppSceneManager scenes,
             CommandService commands,
@@ -45,6 +47,7 @@ namespace CreateAR.SpirePlayer
             _assets = assets;
             _assetLoader = assetLoader;            
             _ble = ble;
+            _gestures = gestures;
             _anchors = anchors;
             _scenes = scenes;
             _commands = commands;
@@ -56,7 +59,10 @@ namespace CreateAR.SpirePlayer
         {
             // ble
             _ble.Setup(_bleConfig);
-            
+
+            // gesture recognition
+            _gestures.Initialize();
+
             // reset assets
             _assets.Uninitialize();
 
@@ -98,7 +104,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc cref="IState"/>
         public void Exit()
         {
-            
+            // !
         }
 
         /// <summary>

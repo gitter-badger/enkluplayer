@@ -14,6 +14,47 @@ namespace CreateAR.SpirePlayer
     public class VersioningService : ApplicationService
     {
         /// <summary>
+        /// Semver parser.
+        /// </summary>
+        public struct VersionData
+        {
+            /// <summary>
+            /// Major version.
+            /// </summary>
+            public int Major;
+
+            /// <summary>
+            /// Minor version.
+            /// </summary>
+            public int Minor;
+
+            /// <summary>
+            /// Bug meta.
+            /// </summary>
+            public string Bug;
+
+            /// <summary>
+            /// Creates a version from a string.
+            /// </summary>
+            /// <param name="version">Version string.</param>
+            public VersionData(string version)
+            {
+                var split = version.Split('.');
+                if (split.Length != 3
+                    || !int.TryParse(split[0], out Major)
+                    || !int.TryParse(split[1], out Minor))
+                {
+                    Major = Minor = 0;
+                    Bug = string.Empty;
+                }
+                else
+                {
+                    Bug = split[2];
+                }
+            }
+        }
+
+        /// <summary>
         /// Application-wide configuration.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -90,21 +131,27 @@ namespace CreateAR.SpirePlayer
                 {
                     if (null != response.Payload && response.Payload.Success)
                     {
-                        var req = response.Payload.Body.Version;
-                        var local = _config.Version;
-
-                        // exact match or bust!
-                        if (req != local)
+                        var req = new VersionData(response.Payload.Body.Version);
+                        var local = new VersionData(_config.Version);
+                        
+                        if (req.Major != local.Major)
                         {
-                            Log.Warning(this, "New HoloLens build available!");
+                            Log.Warning(this, "New HoloLens build required.");
 
                             _messages.Publish(MessageTypes.VERSION_UPGRADE);
 
-                            token.Fail(new Exception("Version upgrade available."));
+                            token.Fail(new Exception("Version upgrade required."));
                         }
                         else
                         {
-                            Log.Info(this, "HoloLens version match.");
+                            if (req.Minor != local.Minor)
+                            {
+                                Log.Warning(this, "New version available.");
+                            }
+                            else
+                            {
+                                Log.Info(this, "HoloLens version match.");
+                            }
 
                             token.Succeed(Void.Instance);
                         }
