@@ -108,6 +108,15 @@ namespace CreateAR.SpirePlayer.Scripting
         }
 
         /// <summary>
+        /// Visibility.
+        /// </summary>
+        public bool visible
+        {
+            get { return _element.Schema.Get<bool>("visible").Value; }
+            set { _element.Schema.Set("visible", value); }
+        }
+
+        /// <summary>
         /// Called when Cleanup is called, so that external systems can perform cleanup logic.
         /// </summary>
         public event Action<ElementJs> OnCleanup;
@@ -245,6 +254,12 @@ namespace CreateAR.SpirePlayer.Scripting
         public void off(string eventType, Func<JsValue, JsValue[], JsValue> fn)
         {
             EventList(eventType).Remove(fn);
+        }
+
+        /// <inheritdoc />
+        public void dispatch(string eventType, object evt)
+        {
+            Dispatch(eventType, evt);
         }
 
         /// <summary>
