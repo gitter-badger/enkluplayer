@@ -217,6 +217,10 @@ namespace CreateAR.SpirePlayer.IUX
                 Bools = new Dictionary<string, bool>
                 {
                     { "focus.visible", true }
+                },
+                Vectors = new Dictionary<string, Vec3>
+                {
+                    { "position", new Vec3(0, 0, 2) }
                 }
             });
 
