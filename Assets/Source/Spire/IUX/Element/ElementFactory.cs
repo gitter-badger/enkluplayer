@@ -247,6 +247,15 @@ namespace CreateAR.SpirePlayer.IUX
 
             var lightSchema = _typeSchema[ElementTypes.LIGHT] = new ElementSchema("Base.Light");
             lightSchema.Load(new ElementSchemaData());
+
+            var screenSchema = _typeSchema[ElementTypes.SCREEN] = new ElementSchema("Base.Screen");
+            screenSchema.Load(new ElementSchemaData
+            {
+                Floats = new Dictionary<string, float>
+                {
+                    { "distance", 1.2f }
+                }
+            });
         }
 
         /// <summary>
