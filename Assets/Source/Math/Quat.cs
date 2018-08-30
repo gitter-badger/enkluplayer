@@ -125,6 +125,14 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Identity.
+        /// </summary>
+        public static Quat Identity
+        {
+            get { return new Quat(1, 1, 1, 1); }
+        }
+
+        /// <summary>
         /// Quat string representation.
         /// </summary>
         /// <returns></returns>

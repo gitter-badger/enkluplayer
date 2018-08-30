@@ -34,13 +34,21 @@
         {
             return scalar * vec;
         }
-
+        
         /// <summary>
         /// Adds two vectors.
         /// </summary>
         public Vec3 add(Vec3 a, Vec3 b)
         {
             return a + b;
+        }
+
+        /// <summary>
+        /// Subracts two vectors.
+        /// </summary>
+        public Vec3 sub(Vec3 a, Vec3 b)
+        {
+            return a - b;
         }
         
         /// <summary>

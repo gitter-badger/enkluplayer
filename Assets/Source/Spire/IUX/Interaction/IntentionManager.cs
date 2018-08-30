@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
@@ -18,13 +17,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// Forward from last frame.
         /// </summary>
         private Vector3 _lastForward = Vector3.forward;
-
-        /// <summary>
-        /// Interaction source states.
-        /// </summary>
-#if UNITY_WSA
-        private readonly UnityEngine.XR.WSA.Input.InteractionSourceState[] _interactionSourceStates = new UnityEngine.XR.WSA.Input.InteractionSourceState[10];
-#endif
 
         /// <summary>
         /// Current sample index.
@@ -186,7 +178,6 @@ namespace CreateAR.SpirePlayer.IUX
             
             UpdatePerspective();
             UpdateMouse();
-            UpdateHands();
             UpdateStability(deltaTime);
             UpdateFocus();
         }
@@ -227,37 +218,7 @@ namespace CreateAR.SpirePlayer.IUX
                 Forward = _lastMouseForward;
             }
         }
-
-        /// <summary>
-        /// Update the hand.
-        /// 
-        /// TODO: pull out into separate class.
-        /// </summary>
-        private void UpdateHands()
-        {
-#if UNITY_WSA
-            var cameraTransform = Main.transform;
-
-            var count = UnityEngine.XR.WSA.Input.InteractionManager.GetCurrentReading(_interactionSourceStates);
-            for (var i = 0; i < count; ++i)
-            {
-                Vector3 handPosition;
-                var interactionSourceState = _interactionSourceStates[i];
-                if (interactionSourceState.source.kind == UnityEngine.XR.WSA.Input.InteractionSourceKind.Hand
-                    && interactionSourceState.sourcePose.TryGetPosition(out handPosition))
-                {
-                    handPosition += cameraTransform.forward * LocalHandOffset.z
-                        + cameraTransform.up * LocalHandOffset.y
-                        + cameraTransform.right * LocalHandOffset.x;
-                    Forward = handPosition.ToVec() - Origin;
-                    Forward = Forward.ToVector().normalized.ToVec();
-
-                    break;
-                }
-            }
-#endif
-        }
-
+        
         /// <summary>
         /// Updates the steadiness of the intention.
         /// </summary>
