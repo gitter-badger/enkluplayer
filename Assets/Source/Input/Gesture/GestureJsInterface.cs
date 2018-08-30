@@ -4,7 +4,9 @@ using CreateAR.Commons.Unity.Logging;
 using Jint.Native;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
+
+namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// JS interface for gestures.
@@ -136,10 +138,10 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Tracks listeners.
         /// </summary>
-        private readonly Dictionary<string, List<Func<JsValue, JsValue[], JsValue>>> _listeners = new Dictionary<string, List<Func<JsValue, JsValue[], JsValue>>>
+        private readonly Dictionary<string, List<JsFunc>> _listeners = new Dictionary<string, List<JsFunc>>
         {
-            { EVENT_POINTER_STARTED, new List<Func<JsValue, JsValue[], JsValue>>() },
-            { EVENT_POINTER_ENDED, new List<Func<JsValue, JsValue[], JsValue>>() }
+            { EVENT_POINTER_STARTED, new List<JsFunc>() },
+            { EVENT_POINTER_ENDED, new List<JsFunc>() }
         };
 
         /// <summary>
@@ -153,7 +155,7 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Retrieves pose data for a specific od/
+        /// Retrieves pose data for a specific id.
         /// </summary>
         /// <param name="id">The id.</param>
         /// <returns></returns>
@@ -182,7 +184,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="eventName">The name of the event.</param>
         /// <param name="callback">The callback.</param>
-        public void on(string eventName, Func<JsValue, JsValue[], JsValue> callback)
+        public void on(string eventName, JsFunc callback)
         {
             List<Func<JsValue, JsValue[], JsValue>> list;
             if (_listeners.TryGetValue(eventName, out list))
@@ -200,7 +202,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         /// <param name="eventName">The name of the event.</param>
         /// <param name="callback">The callback.</param>
-        public void off(string eventName, Func<JsValue, JsValue[], JsValue> callback)
+        public void off(string eventName, JsFunc callback)
         {
             List<Func<JsValue, JsValue[], JsValue>> list;
             if (_listeners.TryGetValue(eventName, out list))

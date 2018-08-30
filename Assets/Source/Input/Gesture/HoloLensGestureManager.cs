@@ -45,7 +45,7 @@ namespace CreateAR.SpirePlayer
             }
 
             /// <summary>
-            /// Marks the interaction complate and updates poe.
+            /// Marks the interaction complate and updates pose.
             /// </summary>
             /// <param name="pose">Updated pose.</param>
             public void Complete(InteractionSourcePose pose)

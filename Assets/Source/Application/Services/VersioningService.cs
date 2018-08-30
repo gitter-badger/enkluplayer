@@ -140,7 +140,7 @@ namespace CreateAR.SpirePlayer
 
                             _messages.Publish(MessageTypes.VERSION_UPGRADE);
 
-                            token.Fail(new Exception("Version upgrade available."));
+                            token.Fail(new Exception("Version upgrade required."));
                         }
                         else
                         {
