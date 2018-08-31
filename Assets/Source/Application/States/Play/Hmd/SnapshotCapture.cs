@@ -6,8 +6,7 @@ using UnityEngine.XR.WSA.WebCam;
 namespace CreateAR.SpirePlayer
 {
     /// <summary>
-    /// Listens to a voice command, and invokes the full flow of saving snapshots to disk.
-    /// 
+    /// Captures a snapshot from the Hololens, as a mix of the device's front camera & holograms.
     /// Useful documentation: https://docs.microsoft.com/en-us/windows/mixed-reality/locatable-camera
     /// Currently defaults to 1280x720 to avoid cropping holograms.
     /// </summary>
