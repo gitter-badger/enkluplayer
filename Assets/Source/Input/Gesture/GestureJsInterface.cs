@@ -10,6 +10,7 @@ namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// JS interface for gestures.
+    /// TODO: call handlers with same context as was passed in.
     /// </summary>
     [JsInterface("gestures")]
     public class GestureJsInterface

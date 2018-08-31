@@ -9,6 +9,8 @@ namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
     /// JavaScript interface for setting timers.
+    /// 
+    /// TODO: call callbacks with same this context as setTimeout was called with.
     /// </summary>
     [JsInterface("timers")]
     public class TimerJsInterface

@@ -52,14 +52,9 @@ namespace CreateAR.SpirePlayer.Scripting
         public readonly ElementSchemaJsApi schema;
 
         /// <summary>
-        /// The backing transform interface <see cref="transform"/> uses.
-        /// </summary>
-        private readonly IElementTransformJsApi _transform;
-
-        /// <summary>
         /// The transform interface.
         /// </summary>
-        public IElementTransformJsApi transform { get { return _transform; } }
+        public IElementTransformJsApi transform { get; private set; }
 
         /// <summary>
         /// Unique id of the element.
@@ -136,7 +131,7 @@ namespace CreateAR.SpirePlayer.Scripting
             _engine = engine;
             
             schema = new ElementSchemaJsApi(engine, _element.Schema);
-            _transform = new ElementTransformJsApi(_element);
+            transform = new ElementTransformJsApi(_element);
 
             _this = JsValue.FromObject(_engine, this);
         }
@@ -156,7 +151,10 @@ namespace CreateAR.SpirePlayer.Scripting
         public bool isChildOf(IEntityJs parent)
         {
             var parentAsElement = parent as ElementJs;
-            if (parentAsElement == null) return false;
+            if (parentAsElement == null)
+            {
+                return false;
+            }
 
             return _element.IsChildOf(parentAsElement._element);
         }
@@ -255,13 +253,7 @@ namespace CreateAR.SpirePlayer.Scripting
         {
             EventList(eventType).Remove(fn);
         }
-
-        /// <inheritdoc />
-        public void dispatch(string eventType, object evt)
-        {
-            Dispatch(eventType, evt);
-        }
-
+        
         /// <summary>
         /// Dispatches an event.
         /// </summary>
@@ -338,11 +330,13 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <returns></returns>
         public static bool operator !=(ElementJs @this, object element)
         {
-            if (((object)@this == null) || (element == null)) { return (object)@this != element; }
-            if (element == null) { return true; }
+            if ((object) @this == null || element == null)
+            {
+                return (object)@this != element;
+            }
 
             var elementJs = element as ElementJs;
-            return @this._element != elementJs._element;
+            return elementJs != null && @this._element != elementJs._element;
         }
         
         /// <summary>
@@ -351,19 +345,20 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return (_element != null ? _element.GetHashCode() : 0);
+            return _element != null ? _element.GetHashCode() : 0;
         }
 
         /// <summary>
         /// Tests whether an object equals this ElementJs instance.
         /// </summary>
-        /// <param name="this"></param>
-        /// <param name="element"></param>
-        /// <returns></returns>
         public override bool Equals(object obj)
         {
-            if (obj == null) { return false; }
-            ElementJs elementJs = obj as ElementJs;
+            if (obj == null)
+            {
+                return false;
+            }
+
+            var elementJs = obj as ElementJs;
             return elementJs != null && _element == elementJs._element;
         }
 
