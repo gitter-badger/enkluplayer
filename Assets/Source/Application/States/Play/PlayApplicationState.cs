@@ -74,6 +74,11 @@ namespace CreateAR.SpirePlayer
         private readonly IVoiceCommandManager _voice;
 
         /// <summary>
+        /// Allows for snapshots to be captured.
+        /// </summary>
+        private readonly ISnapshotCapture _snapshot;
+
+        /// <summary>
         /// Status.
         /// </summary>
         private int _connectionStatusId = -1;
@@ -121,7 +126,8 @@ namespace CreateAR.SpirePlayer
             IUIManager ui,
             IConnection connection,
             IMessageRouter messages,
-            IVoiceCommandManager voice)
+            IVoiceCommandManager voice,
+            ISnapshotCapture snapshot)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -133,6 +139,7 @@ namespace CreateAR.SpirePlayer
             _connection = connection;
             _messages = messages;
             _voice = voice;
+            _snapshot = snapshot;
         }
 
         /// <inheritdoc />
@@ -176,6 +183,9 @@ namespace CreateAR.SpirePlayer
             // listen for reset command
             _voice.Register("reset", Voice_OnReset);
 
+            // listen for snapshot command
+            _voice.Register("snap", (cmd) => { _snapshot.Capture(); });
+
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
@@ -204,8 +214,12 @@ namespace CreateAR.SpirePlayer
             _criticalErrorUnsub();
             _criticalErrorId = -1;
 
-            // stop listening for reset
+            // stop listening for voice commands
             _voice.Unregister("reset");
+            _voice.Unregister("snap");
+
+            // teardown snapshot capture
+            _snapshot.Teardown();
 
             // stop watching loads
             _app.OnReady -= App_OnReady;

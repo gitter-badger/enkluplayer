@@ -473,6 +473,15 @@ namespace CreateAR.SpirePlayer
 #endif
             }
 
+            // Camera
+            {
+#if NETFX_CORE
+                binder.Bind<ISnapshotCapture>().To<SnapshotCapture>().ToSingleton();
+#else
+                binder.Bind<ISnapshotCapture>().To<PassthroughSnapshotCapture>().ToSingleton();
+#endif
+            }
+
             // UI
             {
                 binder.Bind<IUIManager>().To<UIManager>().ToSingleton();
