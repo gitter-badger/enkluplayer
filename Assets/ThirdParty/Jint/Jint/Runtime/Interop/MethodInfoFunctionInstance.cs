@@ -46,6 +46,89 @@ namespace Jint.Runtime.Interop
 
             foreach (var method in methods)
             {
+                var methodParameters = method.GetParameters();
+                if (methodParameters.Length > 0 && methodParameters.Length != arguments.Length + 1)
+                {
+                    continue;
+                }
+
+                var parameters = new object[arguments.Length + 1];
+                var argumentsMatch = true;
+
+                var parameterType = methodParameters[0].ParameterType;
+                if (parameterType != typeof(Engine))
+                {
+                    continue;
+                }
+
+                parameters[0] = _engine;
+
+                for (var i = 0; i < arguments.Length; i++)
+                {
+                    parameterType = methodParameters[i + 1].ParameterType;
+                    if (parameterType == typeof(JsValue))
+                    {
+                        parameters[i + 1] = arguments[i];
+                    }
+                    else if (parameterType == typeof(JsValue[]) && arguments[i].IsArray())
+                    {
+                        // Handle specific case of F(params JsValue[])
+
+                        var arrayInstance = arguments[i].AsArray();
+                        var len = TypeConverter.ToInt32(arrayInstance.Get("length"));
+                        var result = new JsValue[len];
+                        for (var k = 0; k < len; k++)
+                        {
+                            var pk = k.ToString();
+                            result[k] = arrayInstance.HasProperty(pk)
+                                ? arrayInstance.Get(pk)
+                                : JsValue.Undefined;
+                        }
+
+                        parameters[i + 1] = result;
+                    }
+                    else
+                    {
+                        if (!converter.TryConvert(arguments[i].ToObject(), parameterType, CultureInfo.InvariantCulture, out parameters[i + 1]))
+                        {
+                            argumentsMatch = false;
+                            break;
+                        }
+
+                        var lambdaExpression = parameters[i] as LambdaExpression;
+                        if (lambdaExpression != null)
+                        {
+                            parameters[i + 1] = lambdaExpression.Compile();
+                        }
+                    }
+                }
+
+                if (!argumentsMatch)
+                {
+                    continue;
+                }
+
+                // todo: cache method info
+                try
+                {
+                    return JsValue.FromObject(Engine, method.Invoke(thisObject.ToObject(), parameters.ToArray()));
+                }
+                catch (TargetInvocationException exception)
+                {
+                    var meaningfulException = exception.InnerException ?? exception;
+                    var handler = Engine.Options._ClrExceptionsHandler;
+
+                    if (handler != null && handler(meaningfulException))
+                    {
+                        throw new JavaScriptException(Engine.Error, meaningfulException.Message);
+                    }
+
+                    throw meaningfulException;
+                }
+            }
+
+            foreach (var method in methods)
+            {
                 var parameters = new object[arguments.Length];
                 var argumentsMatch = true;
 
