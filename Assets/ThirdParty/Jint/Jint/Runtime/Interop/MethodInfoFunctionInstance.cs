@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using CreateAR.SpirePlayer.Scripting;
 using Jint.Native;
 using Jint.Native.Array;
 using Jint.Native.Function;
@@ -44,8 +45,15 @@ namespace Jint.Runtime.Interop
 
             var converter = Engine.ClrTypeConverter;
 
+            // try to inject Engine parameter first
             foreach (var method in methods)
             {
+                var attributes = method.GetCustomAttributes(typeof(DenyJsAccess), true);
+                if (0 != attributes.Length)
+                {
+                    continue;
+                }
+
                 var methodParameters = method.GetParameters();
                 if (methodParameters.Length > 0 && methodParameters.Length != arguments.Length + 1)
                 {
@@ -127,8 +135,15 @@ namespace Jint.Runtime.Interop
                 }
             }
 
+            // check for exact parameter match (no Engine injection)
             foreach (var method in methods)
             {
+                var attributes = method.GetCustomAttributes(typeof(DenyJsAccess), true);
+                if (0 != attributes.Length)
+                {
+                    continue;
+                }
+
                 var parameters = new object[arguments.Length];
                 var argumentsMatch = true;
 
