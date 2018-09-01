@@ -29,7 +29,7 @@ namespace CreateAR.SpirePlayer
 
         public SnapshotCapture()
         {
-            PhotoCapture.CreateAsync(true, (PhotoCapture captureObject) =>
+            PhotoCapture.CreateAsync(true, (captureObject) =>
             {
                 _photoCapture = captureObject;
             });
@@ -54,14 +54,13 @@ namespace CreateAR.SpirePlayer
                 Log.Error(this, "PhotoCapture not created yet.");
                 return;
             }
-
-            // TODO: Capture lower resolution to avoid holograms visually clipping?
-            Log.Info(this, string.Format("Starting snapshot capture ({0}x{1}).", WIDTH, HEIGHT));
+            
+            Log.Info(this, string.Format("Starting snapshot capture ({0}x{1}).", width, height));
 
             var cameraParameters = new CameraParameters();
             cameraParameters.hologramOpacity = 1.0f;
-            cameraParameters.cameraResolutionWidth = WIDTH;
-            cameraParameters.cameraResolutionHeight = HEIGHT;
+            cameraParameters.cameraResolutionWidth = width;
+            cameraParameters.cameraResolutionHeight = height;
             cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;
 
             _photoCapture.StartPhotoModeAsync(cameraParameters, OnEnterPhotoMode);
@@ -85,7 +84,7 @@ namespace CreateAR.SpirePlayer
             var filename = string.Format("{0}.png", DateTime.UtcNow.ToString("yyyy.MM.dd-HH.mm.ss"));
             var fullPath = Path.Combine(UnityEngine.Application.persistentDataPath, filename);
             
-            // Windows API will handle saving the image directly to disk, avoiding coming back to Unity.
+            // PhotoCapture API will handle saving the image directly to disk, avoiding coming back to Unity.
             _photoCapture.TakePhotoAsync(fullPath, PhotoCaptureFileOutputFormat.PNG, (takeResult) =>
             {
                 OnTakePhoto(takeResult, fullPath, filename);
