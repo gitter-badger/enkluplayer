@@ -71,7 +71,7 @@ MonoBehaviour:
   - Platforms: 11000000
     Debug: 0
     Grid:
-      Enabled: 1
+      Enabled: 0
       CellSize: 0.5
       GridSize: {x: 10, y: 10}
       PrimaryColor: {r: 0.1397059, g: 0.1397059, b: 0.1397059, a: 0.38431373}

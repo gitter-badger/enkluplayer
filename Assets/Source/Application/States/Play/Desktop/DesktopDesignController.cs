@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
-using RTEditor;
+using RLD;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -30,11 +30,6 @@ namespace CreateAR.SpirePlayer
         private readonly IBridge _bridge;
         
         /// <summary>
-        /// Main camera.
-        /// </summary>
-        private readonly Camera _mainCamera;
-
-        /// <summary>
         /// Primary anchor.
         /// </summary>
         private readonly IPrimaryAnchorManager _primaryAnchor;
@@ -55,8 +50,7 @@ namespace CreateAR.SpirePlayer
         private ElementSchemaProp<float> _ambientIntensityProp;
         private ElementSchemaProp<string> _ambientColorProp;
         private ElementSchemaProp<bool> _ambientEnabledProp;
-        private DebugRendererMonoBehaviour _debugRenderer;
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -64,13 +58,11 @@ namespace CreateAR.SpirePlayer
             IElementUpdateDelegate elementUpdater,
             IAppSceneManager scenes,
             IBridge bridge,
-            MainCamera mainCamera,
             IPrimaryAnchorManager primaryAnchor)
         {
             _elementUpdater = elementUpdater;
             _scenes = scenes;
             _bridge = bridge;
-            _mainCamera = mainCamera.GetComponent<Camera>();
             _primaryAnchor = primaryAnchor;
         }
 
@@ -78,28 +70,6 @@ namespace CreateAR.SpirePlayer
         public void Setup(DesignerContext context, IAppController app)
         {
             _runtimeGizmos = Object.Instantiate(context.PlayConfig.RuntimeGizmoSystem);
-
-            // setup cameras + gizmos
-            {
-                var selectionSettings = _runtimeGizmos.GetComponentInChildren<EditorObjectSelection>().ObjectSelectionSettings;
-                selectionSettings.CanSelectSpriteObjects = false;
-                selectionSettings.CanSelectEmptyObjects = true;
-
-                _runtimeGizmos.GetComponentInChildren<SceneGizmo>().Corner = SceneGizmoCorner.BottomRight;
-
-                var camera = _runtimeGizmos.GetComponentInChildren<Camera>();
-                camera.transform.LookAt(Vector3.zero);
-
-                // move debug renderer
-                var prevDebugRenderer = _mainCamera.GetComponent<DebugRendererMonoBehaviour>();
-                _debugRenderer = camera.gameObject.AddComponent<DebugRendererMonoBehaviour>();
-                _debugRenderer.Enabled = prevDebugRenderer.Enabled;
-                _debugRenderer.Filter = prevDebugRenderer.Filter;
-                Object.Destroy(prevDebugRenderer);
-                Render.Renderer = _debugRenderer.Renderer;
-
-                _mainCamera.enabled = false;
-            }
 
             // setup updates
             {
@@ -133,28 +103,19 @@ namespace CreateAR.SpirePlayer
 
             // initialize reference object
             SetupReferenceObject();
-            
-            EditorObjectSelection.Instance.SelectionChanged += Editor_OnSelectionChanged;
+
+            RTObjectSelection.Get.Changed += Editor_OnSelectionChanged;
         }
 
         /// <inheritdoc />
         public void Teardown()
         {
-            EditorObjectSelection.Instance.SelectionChanged -= Editor_OnSelectionChanged;
+            RTObjectSelection.Get.Changed -= Editor_OnSelectionChanged;
 
             _ambientEnabledProp.OnChanged -= AmbientEnabled_OnChanged;
             _ambientColorProp.OnChanged -= AmbientColor_OnChanged;
             _ambientIntensityProp.OnChanged -= AmbientIntensity_OnChanged;
-
-            _mainCamera.enabled = true;
-
-            // move debug renderer
-            var debugRenderer = _mainCamera.gameObject.AddComponent<DebugRendererMonoBehaviour>();
-            debugRenderer.Enabled = _debugRenderer.Enabled;
-            debugRenderer.Filter = _debugRenderer.Filter;
-            Object.Destroy(_debugRenderer);
-            Render.Renderer = debugRenderer.Renderer;
-
+            
             Object.Destroy(_runtimeGizmos);
             Object.Destroy(_referenceCube);
         }
@@ -209,10 +170,10 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            EditorObjectSelection.Instance.ClearSelection(false);
-            EditorObjectSelection.Instance.SetSelectedObjects(
+            RTObjectSelection.Get.ClearSelection(true);
+            RTObjectSelection.Get.SetSelectedObjects(
                 new List<GameObject> { unityElement.GameObject },
-                false);
+                true);
         }
 
         /// <inheritdoc />
@@ -259,11 +220,11 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            EditorObjectSelection.Instance.ClearSelection(false);
-            EditorObjectSelection.Instance.SetSelectedObjects(
+            RTObjectSelection.Get.ClearSelection(true);
+            RTObjectSelection.Get.SetSelectedObjects(
                 new List<GameObject> { unityElement.GameObject },
                 false);
-            EditorCamera.Instance.FocusOnSelection();
+            RTFocusCamera.Get.Focus(RTObjectSelection.Get.GetWorldAABB());
         }
 
         /// <summary>
@@ -382,7 +343,7 @@ namespace CreateAR.SpirePlayer
         private void Editor_OnSelectionChanged(ObjectSelectionChangedEventArgs args)
         {
             // send to the OTHER SIDE
-            var selectedObjs = args.SelectedObjects;
+            var selectedObjs = args.ObjectsWhichWereSelected;
             if (selectedObjs.Count == 1)
             {
                 var selected = selectedObjs[0].GetComponent<ElementUpdateMonobehaviour>();

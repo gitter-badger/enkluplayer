@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
-using RTEditor;
+using RLD;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -15,12 +15,7 @@ namespace CreateAR.SpirePlayer
         /// List of messaging unsubscribes.
         /// </summary>
         private readonly List<Action> _unsubs = new List<Action>();
-
-        /// <summary>
-        /// The system to change.
-        /// </summary>
-        public EditorGizmoSystem Gizmos;
-
+        
         /// <summary>
         /// Fullscreen button.
         /// </summary>
@@ -37,7 +32,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void OnTranslate()
         {
-            Gizmos.ChangeActiveGizmo(GizmoType.Translation);
+            RTObjectSelectionGizmos.Get.SetWorkGizmo(ObjectSelectionGizmoId.MoveGizmo);
         }
 
         /// <summary>
@@ -45,7 +40,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void OnRotate()
         {
-            Gizmos.ChangeActiveGizmo(GizmoType.Rotation);
+            RTObjectSelectionGizmos.Get.SetWorkGizmo(ObjectSelectionGizmoId.RotationGizmo);
         }
 
         /// <summary>
@@ -53,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void OnScale()
         {
-            Gizmos.ChangeActiveGizmo(GizmoType.Scale);
+            RTObjectSelectionGizmos.Get.SetWorkGizmo(ObjectSelectionGizmoId.BoxScaleGizmo);
         }
 
         /// <inheritdoc cref="MonoBehaviour" />

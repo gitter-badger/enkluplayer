@@ -1,5 +1,4 @@
 ﻿using System;
-using RTEditor;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -58,13 +57,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             if (null == _cam)
             {
-                var editorCam = FindObjectOfType<EditorCamera>();
-                if (null == editorCam)
-                {
-                    return;
-                }
-
-                _cam = editorCam.GetComponent<Camera>();
+                _cam = Camera.main;
             }
             
             var type = ToLightType(_typeProp.Value);

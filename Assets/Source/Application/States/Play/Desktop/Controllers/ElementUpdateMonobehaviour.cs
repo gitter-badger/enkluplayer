@@ -1,6 +1,6 @@
 ﻿using System;
 using CreateAR.SpirePlayer.IUX;
-using RTEditor;
+using RLD;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Pushes positional updates through to the delegate.
     /// </summary>
-    public class ElementUpdateMonobehaviour : MonoBehaviour, IRTEditorEventListener
+    public class ElementUpdateMonobehaviour : MonoBehaviour, IRTObjectSelectionListener, IRTTransformGizmoListener
     {
         /// <summary>
         /// The delegate to push updates to.
@@ -83,7 +83,7 @@ namespace CreateAR.SpirePlayer
 
             return true;
         }
-
+        
         /// <inheritdoc />
         public void OnSelected(ObjectSelectEventArgs selectEventArgs)
         {
@@ -99,7 +99,13 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public void OnAlteredByTransformGizmo(Gizmo gizmo)
+        public bool OnCanBeTransformed(Gizmo transformGizmo)
+        {
+            return OnCanBeSelected(null);
+        }
+
+        /// <inheritdoc />
+        public void OnTransformed(Gizmo transformGizmo)
         {
             _lastAlterTime = DateTime.Now;
         }

@@ -1,5 +1,5 @@
 ﻿using System;
-using RTEditor;
+using RLD;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -7,7 +7,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Put on things you don't want to be selecable.
     /// </summary>
-    public class NonSelectableMonoBehaviour : MonoBehaviour, IRTEditorEventListener
+    public class NonSelectableMonoBehaviour : MonoBehaviour, IRTObjectSelectionListener
     {
         /// <inheritdoc />
         public bool OnCanBeSelected(ObjectSelectEventArgs selectEventArgs)
@@ -23,12 +23,6 @@ namespace CreateAR.SpirePlayer
 
         /// <inheritdoc />
         public void OnDeselected(ObjectDeselectEventArgs deselectEventArgs)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc />
-        public void OnAlteredByTransformGizmo(Gizmo gizmo)
         {
             throw new NotImplementedException();
         }

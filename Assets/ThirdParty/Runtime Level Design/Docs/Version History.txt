@@ -1,0 +1,36 @@
+Release 2.1
+--------------------------------------------------------------------------------------------------
+[New Feature]: added 'Deletable layers' mask in the RTObjectSelection Inspector to control what
+			   layers can be deleted;
+[New Feature]: added 'ExtrudeUpdate' event to object extrude gizmo;
+
+[Change]	 : removed 'IUndoRedoAction' param from 'CanUndoRedoHandler' delegate type;
+[Change]	 : renamed the 'OOBB' class to 'OBB';
+
+[Bug Fix]	 : fixed build errors for mobile devices;
+[Bug Fix]	 : fixed GetZoomFactor() not calculating zoom factor correctly for transform gizmo classes;
+[Bug Fix]	 : fixed object groups can not be added to database via Inspector when game objects are 
+			   model prefab instances (disconnected or otherwise);
+[Bug Fix]	 : fixed extrude gizmo handles inverted when object has negative scale;
+[Bug Fix]	 : fixed argument out of range exception thrown from 'RTObjectSelectionGizmos' class;
+
+Release 2.0 (complete rebuild - name changed to Runtime Level Design)
+--------------------------------------------------------------------------------------------------
+[New Feature]: universal gizmo (Move/Rotate/Scale all in one);
+[New Feature]: object extrude gizmo;
+[New Feature]: object-to-object snap;
+[New Feature]: selection grid snap;
+[New Feature]: multiple viewport support;
+[New Feature]: greatly improved surface snapping capabilities (surface embeding, rotate and scale, 
+			   adjust anchor, offset from surface, offset from anchor, rotate around anchor);
+[New Feature]: rotate selection using the keyboard with configurable rotation steps;
+[New Feature]: object groups (handy concept useful for customizing how objects get selected);
+[New Feature]: cyclical click select - for each click, a different object will be selected from
+			   a list of objects which are hovered by the mouse cursor. This is useful in certain
+			   situations such as selecting overlapping sprites;
+[New Feature]: new transform pivots: ObjectCenterPivot, CustomWorldPivot, CustomObjectLocalPivot;
+[New Feature]: optional prefab management and runtime prefab picker;
+
+[Improvement]: lots more gizmo customization options;
+[Improvement]: smooth camera perspective transition for the scene gizmo;
+[Improvement]: box scale gizmo can now be used to transform an entire hierarchy;

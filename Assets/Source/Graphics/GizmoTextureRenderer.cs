@@ -1,5 +1,4 @@
-﻿using RTEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace CreateAR.SpirePlayer
 {
@@ -55,11 +54,7 @@ namespace CreateAR.SpirePlayer
         {
             if (null == _cam)
             {
-                var editorCam = FindObjectOfType<EditorCamera>();
-                if (null != editorCam)
-                {
-                    _cam = editorCam.GetComponent<Camera>();
-                }
+                _cam = Camera.main;
             }
 
             return _cam;
