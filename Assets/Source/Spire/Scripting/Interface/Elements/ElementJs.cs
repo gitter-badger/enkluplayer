@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Jint;
 using Jint.Native;
@@ -135,7 +136,7 @@ namespace CreateAR.SpirePlayer.Scripting
 
             _this = JsValue.FromObject(_engine, this);
         }
-
+        
         /// <summary>
         /// Cleans up ElementJS instance.
         /// </summary>
@@ -305,38 +306,61 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[ElementJs Id={0}]", _element.Id);
+            return string.Format("[ElementJs Element={0}]", _element);
         }
 
         /// <summary>
-        /// Tests whether two ElementJs instances are equivalent, relative to their Elements
+        /// Tests whether two ElementJs instances are equivalent.
         /// </summary>
         /// <param name="this"></param>
         /// <param name="element"></param>
         /// <returns></returns>
         public static bool operator ==(ElementJs @this, object element)
         {
-            if ((object) @this == null || element == null) { return (object) @this == element; }
+            if (null == @this && null == element)
+            {
+                return true;
+            }
+
+            if (null == @this)
+            {
+                return false;
+            }
 
             var elementJs = element as ElementJs;
+            if (null == elementJs)
+            {
+                return false;
+            }
+
             return @this._element == elementJs._element;
         }
 
         /// <summary>
-        /// Tests whether two ElementJs instances are inequivalent, relative to their Elements
+        /// Tests whether two ElementJs instances are inequivalent.
         /// </summary>
         /// <param name="this"></param>
         /// <param name="element"></param>
         /// <returns></returns>
         public static bool operator !=(ElementJs @this, object element)
         {
-            if ((object) @this == null || element == null)
+            if (null == @this && null == element)
             {
-                return (object)@this != element;
+                return false;
+            }
+
+            if (null == @this)
+            {
+                return true;
             }
 
             var elementJs = element as ElementJs;
-            return elementJs != null && @this._element != elementJs._element;
+            if (null == elementJs)
+            {
+                return true;
+            }
+
+            return @this._element != elementJs._element;
         }
         
         /// <summary>
@@ -369,7 +393,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <returns></returns>
         protected bool Equals(ElementJs other)
         {
-            return Equals(_element, other._element);
+            return null != other && _element == other._element;
         }
     }
 }

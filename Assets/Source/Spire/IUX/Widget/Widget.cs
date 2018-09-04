@@ -332,7 +332,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LoadInternalBeforeChildren();
 
-            _nameProp = Schema.GetOwn("name", ToString());
+            _nameProp = Schema.GetOwn("name", GetType().Name);
             _nameProp.OnChanged += Name_OnChanged;
             _localVisibleProp = Schema.GetOwn("visible", true);
             _localVisibleProp.OnChanged += LocalVisible_OnChanged;
@@ -503,7 +503,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         protected virtual void OnAlphaUpdated()
         {
-            Log.Info(this, "Alpha updated to {0}.", Alpha);
             for (int i = 0, len = Children.Count; i < len; i++)
             {
                 var widget = Children[i] as Widget;

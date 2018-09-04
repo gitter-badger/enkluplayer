@@ -175,8 +175,6 @@ namespace CreateAR.SpirePlayer.IUX
             // starting invisible
             if (!_visibleProp.Value)
             {
-                Log.Info(this, "Starting invisible.");
-
                 var prop = _propNameProp.Value;
                 var value = _startValueProp.Value;
                 for (int i = 0, len = _records.Count; i < len; i++)
@@ -286,6 +284,15 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <inheritdoc />
+        protected override void DestroyInternal()
+        {
+            base.DestroyInternal();
+
+            UnityEngine.Object.Destroy(GameObject);
+            GameObject = null;
+        }
+
         /// <summary>
         /// Starts tweening a record.
         /// </summary>
@@ -314,13 +321,6 @@ namespace CreateAR.SpirePlayer.IUX
             bool prev,
             bool next)
         {
-            if (prev == next)
-            {
-                return;
-            }
-
-            Log.Debug(this, "Visibility changed to {0}. Restart all tweens.", next);
-
             // adjust all tween records
             for (int j = 0, jlen = _records.Count; j < jlen; j++)
             {
