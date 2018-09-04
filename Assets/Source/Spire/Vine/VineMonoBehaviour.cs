@@ -60,6 +60,13 @@ namespace CreateAR.SpirePlayer
 
             try
             {
+
+                // TODO: WHY IS THIS HAPPENING
+                if (null == Importer)
+                {
+                    Main.Inject(this);
+                }
+
                 _description = Importer.Parse(Script.Source, Parent.Schema);
             }
             catch (Exception exception)

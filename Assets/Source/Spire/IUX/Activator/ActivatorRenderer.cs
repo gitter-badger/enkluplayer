@@ -81,11 +81,30 @@ namespace CreateAR.SpirePlayer.IUX
         private ActivatorState _activatorState;
         private float _tweenDuration;
         private Col4 _frameColor;
+        private float _alpha;
 
         /// <summary>
         /// Bounding radius of the activator.
         /// </summary>
         public float Radius { get; private set; }
+
+        /// <summary>
+        /// Alpha!
+        /// </summary>
+        public float Alpha
+        {
+            get
+            {
+                return _alpha;
+            }
+            set
+            {
+                _alpha = value;
+
+                Frame.LocalAlpha = _alpha;
+                Icon.color = new Color(1, 1, 1, Alpha);
+            }
+        }
 
         /// <summary>
         /// Initialization.
@@ -109,7 +128,8 @@ namespace CreateAR.SpirePlayer.IUX
 
             GenerateBufferCollider();
             Radius = CalculateRadius();
-            
+            Alpha = activator.Alpha;
+
             if (Aim != null)
             {
                 Aim.Initialize(activator);
@@ -253,7 +273,7 @@ namespace CreateAR.SpirePlayer.IUX
             var tweenLerp = _tweenDuration > Mathf.Epsilon
                 ? deltaTime / _tweenDuration
                 : 1.0f;
-
+            
             // blend the frame's color.
             Frame.LocalColor = Col4.Lerp(
                 Frame.LocalColor,

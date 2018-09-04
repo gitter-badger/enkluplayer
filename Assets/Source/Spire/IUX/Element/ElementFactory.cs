@@ -114,7 +114,6 @@ namespace CreateAR.SpirePlayer.IUX
             _baseSchema.Set("color", Col4.White);
             _baseSchema.Set("virtualColor", "None");
             _baseSchema.Set("colorMode", WidgetColorMode.InheritColor);
-            _baseSchema.Set("visibilityMode", WidgetVisibilityMode.Inherit);
             _baseSchema.Set("layerMode", LayerMode.Default);
             _baseSchema.Set("autoDestroy", false);
             _baseSchema.Set("font", "Watchword_bold");
@@ -217,6 +216,10 @@ namespace CreateAR.SpirePlayer.IUX
                 Bools = new Dictionary<string, bool>
                 {
                     { "focus.visible", true }
+                },
+                Vectors = new Dictionary<string, Vec3>
+                {
+                    { "position", new Vec3(0, 0, 2) }
                 }
             });
 
@@ -247,6 +250,15 @@ namespace CreateAR.SpirePlayer.IUX
 
             var lightSchema = _typeSchema[ElementTypes.LIGHT] = new ElementSchema("Base.Light");
             lightSchema.Load(new ElementSchemaData());
+
+            var screenSchema = _typeSchema[ElementTypes.SCREEN] = new ElementSchema("Base.Screen");
+            screenSchema.Load(new ElementSchemaData
+            {
+                Floats = new Dictionary<string, float>
+                {
+                    { "distance", 1.2f }
+                }
+            });
         }
 
         /// <summary>

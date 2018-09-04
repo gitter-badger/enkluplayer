@@ -77,7 +77,6 @@ namespace CreateAR.SpirePlayer.IUX
                 Vector3.zero,
                 Quaternion.identity);
             _renderer.transform.SetParent(GameObject.transform, false);
-            _renderer.Initialize(this, _intention);
         }
 
         /// <inheritdoc cref="Element"/>
@@ -103,6 +102,8 @@ namespace CreateAR.SpirePlayer.IUX
                 _reorientProp.OnChanged += Reorient_OnChanged;
                 UpdateReorient();
             }
+
+            _renderer.Initialize(this, _intention);
         }
 
         /// <inheritdoc cref="Element"/>

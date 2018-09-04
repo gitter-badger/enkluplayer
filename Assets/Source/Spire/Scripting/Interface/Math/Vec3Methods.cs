@@ -30,7 +30,7 @@
         /// <summary>
         /// Multiplies a vector by scalar.
         /// </summary>
-        public Vec3 mult(float scalar, Vec3 vec)
+        public Vec3 scale(Vec3 vec, float scalar)
         {
             return scalar * vec;
         }

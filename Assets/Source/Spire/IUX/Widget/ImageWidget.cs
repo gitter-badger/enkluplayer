@@ -29,6 +29,11 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<float> _heightProp;
 
         /// <summary>
+        /// Un-alpha'd color.
+        /// </summary>
+        private Color _color;
+
+        /// <summary>
         /// The token returned from the loader.
         /// </summary>
         private IAsyncToken<ManagedTexture> _loadToken;
@@ -77,7 +82,10 @@ namespace CreateAR.SpirePlayer.IUX
                 _spriteProp.OnChanged += Sprite_OnChanged;
             }
 
+            _color = _image.color;
+
             UpdateSrc();
+            UpdateAlpha();
         }
 
         /// <inheritdoc />
@@ -101,6 +109,26 @@ namespace CreateAR.SpirePlayer.IUX
                 _widthProp.OnChanged -= Width_OnChanged;
                 _heightProp.OnChanged -= Height_OnChanged;
             }
+        }
+
+        /// <inheritdoc />
+        protected override void OnAlphaUpdated()
+        {
+            base.OnAlphaUpdated();
+
+            UpdateAlpha();
+        }
+
+        /// <summary>
+        /// Updates the image alpha.
+        /// </summary>
+        private void UpdateAlpha()
+        {
+            _image.color = new Color(
+                _color.r,
+                _color.g,
+                _color.b,
+                _color.a * Alpha);
         }
 
         /// <summary>

@@ -341,6 +341,14 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <inheritdoc />
+        protected override void OnAlphaUpdated()
+        {
+            base.OnAlphaUpdated();
+
+            _renderer.Alpha = Alpha;
+        }
+
         /// <summary>
         /// Moves into ready state.
         /// </summary>
