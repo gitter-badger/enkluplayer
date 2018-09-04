@@ -10,59 +10,43 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// For drawing.
         /// </summary>
-        private static Material _lineMaterial;
+        private Material _material;
 
         /// <inheritdoc cref="MonoBehaviour" />
         private void Awake()
         {
-            CreateLineMaterial();
-            _lineMaterial.SetPass(0);
-        }
-
-        /// <summary>
-        /// Lazily creates material for drawing lines.
-        /// </summary>
-        private static void CreateLineMaterial()
-        {
-            if (!_lineMaterial)
+            // Unity has a built-in shader that is useful for drawing
+            // simple colored things.
+            _material = new Material(Shader.Find("Hidden/Internal-Colored"))
             {
-                // Unity has a built-in shader that is useful for drawing
-                // simple colored things.
-                var shader = Shader.Find("Hidden/Internal-Colored");
-                _lineMaterial = new Material(shader);
-                _lineMaterial.hideFlags = HideFlags.HideAndDontSave;
+                hideFlags = HideFlags.HideAndDontSave
+            };
 
-                // Turn on alpha blending
-                _lineMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                _lineMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-
-                // Turn backface culling off
-                _lineMaterial.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
-
-                // Turn off depth writes
-                _lineMaterial.SetInt("_ZWrite", 0);
-            }
+            _material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+            _material.SetInt("_ZWrite", 0);
         }
-
+        
         /// <inheritdoc cref="MonoBehaviour" />
         private void OnRenderObject()
         {
             GL.PushMatrix();
             {
                 GL.MultMatrix(transform.localToWorldMatrix);
+
+                _material.SetPass(0);
                 GL.Begin(GL.LINES);
                 {
-                    //x-axis
+                    // x-axis
                     GL.Color(Color.red);
                     GL.Vertex(new Vector3(0, 0, 0));
                     GL.Vertex(new Vector3(1, 0, 0));
 
-                    //y-axis
+                    // y-axis
                     GL.Color(Color.green);
                     GL.Vertex(new Vector3(0, 0, 0));
                     GL.Vertex(new Vector3(0, 1, 0));
 
-                    //z-axis
+                    // z-axis
                     GL.Color(Color.blue);
                     GL.Vertex(new Vector3(0, 0, 0));
                     GL.Vertex(new Vector3(0, 0, 1));

@@ -96,12 +96,12 @@ namespace CreateAR.SpirePlayer.IUX
                     _transforms.Add(unityChild.GameObject.transform);
                 }
             }
-
-            _material.SetPass(0);
-
+            
             GL.PushMatrix();
             {
                 GL.LoadProjectionMatrix(cam.projectionMatrix);
+
+                _material.SetPass(0);
                 GL.Begin(GL.LINES);
                 GL.Color(0.4f * Color.white);
                 {
