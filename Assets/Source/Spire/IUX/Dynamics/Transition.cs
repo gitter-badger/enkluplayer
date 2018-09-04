@@ -161,11 +161,33 @@ namespace CreateAR.SpirePlayer.IUX
             _startValueProp = Schema.GetOwn("start", 0f);
             _endValueProp = Schema.GetOwn("end", 1f);
             _tweenProp = Schema.GetOwn("tween", TweenType.Pronounced.ToString());
-
             _visibleProp = Schema.GetOwn("visible", true);
             _visibleProp.OnChanged += Visible_OnChanged;
 
             GameObject.name = ToString();
+        }
+
+        /// <inheritdoc />
+        protected override void LoadInternalAfterChildren()
+        {
+            base.LoadInternalAfterChildren();
+
+            // starting invisible
+            if (!_visibleProp.Value)
+            {
+                Log.Info(this, "Starting invisible.");
+
+                var prop = _propNameProp.Value;
+                var value = _startValueProp.Value;
+                for (int i = 0, len = _records.Count; i < len; i++)
+                {
+                    var record = _records[i];
+                    record.Read();
+
+                    // snap
+                    record.Element.Schema.Set(prop, value);
+                }
+            }
         }
 
         /// <inheritdoc />
@@ -227,15 +249,10 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     record.Read();
 
-                    // turned visible
+                    // this element has turned visible
                     if (record.Visible.Value)
                     {
                         StartTween(record);
-                    }
-                    // turned invisible
-                    else
-                    {
-                        //
                     }
                 }
 
