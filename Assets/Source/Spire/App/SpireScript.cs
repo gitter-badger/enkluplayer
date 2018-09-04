@@ -187,6 +187,11 @@ namespace CreateAR.SpirePlayer
         /// <param name="parameters">The parameters.</param>
         public void Send(string name, params object[] parameters)
         {
+            if (Data.Type == ScriptType.Vine)
+            {
+                return;
+            }
+
             if (null != Executor)
             {
                 Executor.Send(name, parameters);

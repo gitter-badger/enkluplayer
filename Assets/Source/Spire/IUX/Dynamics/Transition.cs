@@ -44,11 +44,16 @@ namespace CreateAR.SpirePlayer.IUX
             /// End value.
             /// </summary>
             public float End;
-
+            
             /// <summary>
             /// Tween duration, in seconds.
             /// </summary>
             public float Duration;
+
+            /// <summary>
+            /// True iff we want to invert the tween.
+            /// </summary>
+            public bool Invert;
 
             /// <summary>
             /// True iff visibility has changed.
@@ -119,6 +124,11 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<string> _tweenProp;
 
         /// <summary>
+        /// Visibility.
+        /// </summary>
+        private ElementSchemaProp<bool> _visibleProp;
+
+        /// <summary>
         /// The GameObject.
         /// </summary>
         public GameObject GameObject { get; private set; }
@@ -134,6 +144,15 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <inheritdoc />
+        public override string ToString()
+        {
+            return string.Format("<{0} Id={1} Guid={2} />",
+                GetType().Name,
+                Id,
+                Guid);
+        }
+
+        /// <inheritdoc />
         protected override void LoadInternalBeforeChildren()
         {
             base.LoadInternalBeforeChildren();
@@ -142,6 +161,19 @@ namespace CreateAR.SpirePlayer.IUX
             _startValueProp = Schema.GetOwn("start", 0f);
             _endValueProp = Schema.GetOwn("end", 1f);
             _tweenProp = Schema.GetOwn("tween", TweenType.Pronounced.ToString());
+
+            _visibleProp = Schema.GetOwn("visible", true);
+            _visibleProp.OnChanged += Visible_OnChanged;
+
+            GameObject.name = ToString();
+        }
+
+        /// <inheritdoc />
+        protected override void UnloadInternalAfterChildren()
+        {
+            base.UnloadInternalAfterChildren();
+
+            _visibleProp.OnChanged -= Visible_OnChanged;
         }
 
         /// <inheritdoc />
@@ -156,6 +188,13 @@ namespace CreateAR.SpirePlayer.IUX
                     GameObject.transform,
                     false);
             }
+
+            // set initial value
+            element.Schema.Set(
+                _propNameProp.Value,
+                _visibleProp.Value
+                    ? _startValueProp.Value
+                    : _endValueProp.Value);
 
             _records.Add(new TweenRecord(element));
         }
@@ -204,17 +243,27 @@ namespace CreateAR.SpirePlayer.IUX
                 if (record.IsTweening)
                 {
                     var propName = _propNameProp.Value;
-                    var t = (float)(now.Subtract(record.StartTime).TotalSeconds / record.Duration);
+                    var elapsedSeconds = (float) now.Subtract(record.StartTime).TotalSeconds;
+                    var t = elapsedSeconds / record.Duration;
                     if (t > 1)
                     {
-                        record.Element.Schema.Set(propName, record.End);
+                        record.Element.Schema.Set(
+                            propName,
+                            record.Invert
+                                ? record.Start
+                                : record.End);
                         record.IsTweening = false;
                     }
                     else
                     {
-                        record.Element.Schema.Set(
-                            propName,
-                            record.Start + (record.End - record.Start) * t);
+                        if (record.Invert)
+                        {
+                            t = 1f - t;
+                        }
+
+                        var value = record.Start + t * (record.End - record.Start);
+
+                        record.Element.Schema.Set(propName, value);
                     }
                 }
             }
@@ -224,18 +273,42 @@ namespace CreateAR.SpirePlayer.IUX
         /// Starts tweening a record.
         /// </summary>
         /// <param name="record">The record to tween.</param>
-        private void StartTween(TweenRecord record)
+        /// <param name="invert">If true, inverts start and end.</param>
+        private void StartTween(TweenRecord record, bool invert = false)
         {
             var start = _startValueProp.Value;
             var end = _endValueProp.Value;
 
-            record.Element.Schema.Set(_propNameProp.Value, start);
-
             record.IsTweening = true;
             record.Duration = _tweens.DurationSeconds(_tweenProp.Value.ToEnum<TweenType>());
+            record.StartTime = DateTime.Now;
+            record.Invert = invert;
             record.Start = start;
             record.End = end;
-            record.StartTime = DateTime.Now;
+
+            record.Element.Schema.Set(_propNameProp.Value, record.Start);
+        }
+
+        /// <summary>
+        /// Called when visibility changes.
+        /// </summary>
+        private void Visible_OnChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            if (prev == next)
+            {
+                return;
+            }
+
+            Log.Debug(this, "Visibility changed to {0}. Restart all tweens.", next);
+
+            // adjust all tween records
+            for (int j = 0, jlen = _records.Count; j < jlen; j++)
+            {
+                StartTween(_records[j], !next);
+            }
         }
     }
 }

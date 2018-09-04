@@ -53,11 +53,6 @@ namespace CreateAR.SpirePlayer
         /// Creates elements.
         /// </summary>
         private readonly IElementJsFactory _elementJsFactory;
-
-        /// <summary>
-        /// Unique tag used for managing scripts.
-        /// </summary>
-        private string _scriptTag;
         
         /// <summary>
         /// Runs scripts.
@@ -135,7 +130,7 @@ namespace CreateAR.SpirePlayer
         {
             _pollRefreshScript = false;
 
-            if (!ShouldLoadAsset())
+            if (!ShouldLoadScripts())
             {
                 _pollRefreshScript = true;
                 return;
@@ -159,14 +154,7 @@ namespace CreateAR.SpirePlayer
 
             LoadScripts();
         }
-
-        /// <inheritdoc />
-        protected override void LoadInternalBeforeChildren()
-        {
-            base.LoadInternalBeforeChildren();
-            _scriptTag = Id;
-        }
-
+        
         /// <inheritdoc />
         protected override void LoadInternalAfterChildren()
         {
@@ -226,6 +214,20 @@ namespace CreateAR.SpirePlayer
                 return false;
             }
 
+            if (DeviceHelper.IsHoloLens())
+            {
+                return PrimaryAnchorManager.AreAllAnchorsReady;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Determines if this piece of content should load its scripts.
+        /// </summary>
+        /// <returns></returns>
+        private bool ShouldLoadScripts()
+        {
             if (DeviceHelper.IsHoloLens())
             {
                 return PrimaryAnchorManager.AreAllAnchorsReady;
@@ -313,7 +315,7 @@ namespace CreateAR.SpirePlayer
             }
 
             // release scripts we created
-            _scripts.ReleaseAll(_scriptTag);
+            _scripts.ReleaseAll(Id);
         }
         
         /// <summary>
@@ -337,7 +339,7 @@ namespace CreateAR.SpirePlayer
             // create scripts
             for (var i = 0; i < len; i++)
             {
-                var script = _scripts.Create(ids[i], _scriptTag);
+                var script = _scripts.Create(ids[i], ids[i], Id);
                 if (null == script)
                 {
                     Log.Error(this, "Could not create script.");

@@ -48,6 +48,7 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<LayerMode> _layerModeProp;
         private ElementSchemaProp<bool> _autoDestroyProp;
         private ElementSchemaProp<string> _faceProp;
+        private ElementSchemaProp<float> _alphaProp;
 
         /// <summary>
         /// Cached virtual color.
@@ -156,6 +157,22 @@ namespace CreateAR.SpirePlayer.IUX
             set
             {
                 _localVisibleProp.Value = value;
+            }
+        }
+
+        /// <summary>
+        /// Alpha, which is multiplied up the hierarchy.
+        /// </summary>
+        public float Alpha
+        {
+            get
+            {
+                if (null != _parentWidget)
+                {
+                    return _alphaProp.Value * _parentWidget.Alpha;
+                }
+
+                return _alphaProp.Value;
             }
         }
         
@@ -346,11 +363,13 @@ namespace CreateAR.SpirePlayer.IUX
             _virtualColorProp = Schema.GetOwn("virtualColor", "None");
             _virtualColorProp.OnChanged += VirtualColor_OnChanged;
             _colorModeProp = Schema.GetOwn("colorMode", WidgetColorMode.InheritColor);
-            _visibilityModeProp = Schema.GetOwn("visibilityMode", WidgetVisibilityMode.Inherit);
+            _visibilityModeProp = Schema.GetOwn("visibilityMode", WidgetVisibilityMode.Local);
             _layerModeProp = Schema.GetOwn("layerMode", LayerMode.Default);
             _autoDestroyProp = Schema.GetOwn("autoDestroy", false);
             _faceProp = Schema.GetOwn("face", string.Empty);
             _faceProp.OnChanged += Face_OnChanged;
+            _alphaProp = Schema.GetOwn("alpha", 1f);
+            _alphaProp.OnChanged += Alpha_OnChanged;
             UpdateFace(_faceProp.Value);
             
             GameObject.name = ToString();
@@ -386,7 +405,8 @@ namespace CreateAR.SpirePlayer.IUX
             _localPositionProp.OnChanged -= LocalPosition_OnChanged;
             _virtualColorProp.OnChanged -= VirtualColor_OnChanged;
             _faceProp.OnChanged -= Face_OnChanged;
-            
+            _alphaProp.OnChanged -= Alpha_OnChanged;
+
             Object.Destroy(GameObject);
             GameObject = null;
 
@@ -551,6 +571,22 @@ namespace CreateAR.SpirePlayer.IUX
         protected virtual void OnVisibilityUpdated()
         {
 
+        }
+
+        /// <summary>
+        /// Pushes alpha update down the hierarchy.
+        /// </summary>
+        protected virtual void OnAlphaUpdated()
+        {
+            //Log.Info(this, "Alpha updated to {0}.", _alphaProp.Value);
+            for (int i = 0, len = Children.Count; i < len; i++)
+            {
+                var widget = Children[i] as Widget;
+                if (null != widget)
+                {
+                    widget.OnAlphaUpdated();
+                }
+            }
         }
 
         /// <summary>
@@ -742,6 +778,20 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateFace(next);
         }
         
+        /// <summary>
+        /// Called when the alpha changes.
+        /// </summary>
+        /// <param name="prop">Face prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Alpha_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            OnAlphaUpdated();
+        }
+
         /// <summary>
         /// Called when the name prop changes.
         /// </summary>

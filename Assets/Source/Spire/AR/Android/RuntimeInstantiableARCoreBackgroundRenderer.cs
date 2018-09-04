@@ -1,4 +1,4 @@
-#if !UNITY_WSA && !UNITY_WEBGL
+#if !UNITY_WSA && !UNITY_WEBGL && false
 
 using GoogleARCore;
 
