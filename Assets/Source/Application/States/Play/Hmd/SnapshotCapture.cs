@@ -82,8 +82,13 @@ namespace CreateAR.SpirePlayer
             Log.Info(this, "Entered PhotoMode.");
 
             var filename = string.Format("{0}.png", DateTime.UtcNow.ToString("yyyy.MM.dd-HH.mm.ss"));
-            var fullPath = Path.Combine(UnityEngine.Application.persistentDataPath, filename);
+            var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "snapshots");
             
+            // Make sure "snapshots" dir exists
+            Directory.CreateDirectory(savePath);
+
+            var fullPath = Path.Combine(savePath, filename);
+
             // PhotoCapture API will handle saving the image directly to disk, avoiding coming back to Unity.
             _photoCapture.TakePhotoAsync(fullPath, PhotoCaptureFileOutputFormat.PNG, (takeResult) =>
             {
