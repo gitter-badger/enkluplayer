@@ -102,11 +102,7 @@ namespace CreateAR.SpirePlayer.IUX
                 _alpha = value;
 
                 Frame.LocalAlpha = _alpha;
-                Icon.color = new Color(
-                    _frameColor.r,
-                    _frameColor.g,
-                    _frameColor.b,
-                    _frameColor.a * Alpha);
+                Icon.color = new Color(1, 1, 1, Alpha);
             }
         }
 

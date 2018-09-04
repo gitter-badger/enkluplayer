@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
@@ -185,6 +184,8 @@ namespace CreateAR.SpirePlayer.IUX
                     // snap
                     record.Element.Schema.Set(prop, value);
                 }
+
+                GameObject.SetActive(false);
             }
         }
 
@@ -238,6 +239,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             base.LateUpdateInternal();
 
+            var isTweening = false;
             var now = DateTime.Now;
             for (var i = 0; i < _records.Count; i++)
             {
@@ -279,8 +281,20 @@ namespace CreateAR.SpirePlayer.IUX
                         var value = record.Start + t * (record.End - record.Start);
 
                         record.Element.Schema.Set(propName, value);
+
+                        isTweening = true;
                     }
                 }
+            }
+
+            // all tweens are done
+            if (!isTweening)
+            {
+                GameObject.SetActive(_visibleProp.Value);
+            }
+            else
+            {
+                GameObject.SetActive(true);
             }
         }
 
