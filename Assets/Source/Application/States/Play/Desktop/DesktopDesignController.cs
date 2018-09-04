@@ -28,7 +28,7 @@ namespace CreateAR.SpirePlayer
         /// Bridge.
         /// </summary>
         private readonly IBridge _bridge;
-
+        
         /// <summary>
         /// Main camera.
         /// </summary>
@@ -114,10 +114,10 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
-            //primary anchor setup
+            // primary anchor setup
             _primaryAnchor.Setup();
 
-            //  setup property watching
+            // setup property watching
             {
                 var sceneId = app.Scenes.All[0];
                 var sceneRoot = app.Scenes.Root(sceneId);
@@ -131,9 +131,9 @@ namespace CreateAR.SpirePlayer
                 UpdateAmbientLighting();
             }
 
-            //initialize reference object
+            // initialize reference object
             SetupReferenceObject();
-
+            
             EditorObjectSelection.Instance.SelectionChanged += Editor_OnSelectionChanged;
         }
 
@@ -438,7 +438,7 @@ namespace CreateAR.SpirePlayer
         {
             UpdateAmbientLighting();
         }
-
+        
         /// <summary>
         /// Converts a color from hex to Color representation
         /// </summary>

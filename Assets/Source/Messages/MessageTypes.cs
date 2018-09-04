@@ -84,6 +84,9 @@
         public const int BRIDGE_HELPER_FOCUS = 3992;
         public const int BRIDGE_HELPER_PREVIEW_ACTION = 3993;
         public const int BRIDGE_HELPER_REFRESH_ELEMENT_SCRIPTS = 3994;
+        public const int BRIDGE_HELPER_GIZMO_TRANSLATION = 3995;
+        public const int BRIDGE_HELPER_GIZMO_ROTATION = 3996;
+        public const int BRIDGE_HELPER_GIZMO_SCALE = 3997;
 
         ///////////////////////////////////////////////////////////////////////
         // Tools
