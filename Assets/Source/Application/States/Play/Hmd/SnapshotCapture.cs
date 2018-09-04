@@ -1,4 +1,6 @@
-﻿using CreateAR.Commons.Unity.Logging;
+﻿#if NETFX_CORE
+
+using CreateAR.Commons.Unity.Logging;
 using System;
 using System.IO;
 using UnityEngine.XR.WSA.WebCam;
@@ -152,3 +154,5 @@ namespace CreateAR.SpirePlayer
         }
     }
 }
+
+#endif
