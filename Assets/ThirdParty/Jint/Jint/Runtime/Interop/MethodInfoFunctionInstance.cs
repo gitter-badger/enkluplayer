@@ -49,7 +49,7 @@ namespace Jint.Runtime.Interop
             foreach (var method in methods)
             {
                 var attributes = method.GetCustomAttributes(typeof(DenyJsAccess), true);
-                if (0 != attributes.Length)
+                if (0 != attributes.Count())
                 {
                     continue;
                 }
@@ -139,7 +139,7 @@ namespace Jint.Runtime.Interop
             foreach (var method in methods)
             {
                 var attributes = method.GetCustomAttributes(typeof(DenyJsAccess), true);
-                if (0 != attributes.Length)
+                if (0 != attributes.Count())
                 {
                     continue;
                 }
