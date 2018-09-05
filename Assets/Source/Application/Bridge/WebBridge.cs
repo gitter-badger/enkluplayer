@@ -42,7 +42,7 @@ namespace CreateAR.SpirePlayer
             _handler = handler;
             
 #if !UNITY_EDITOR && UNITY_WEBGL
-            UnityEngine.WebGLInput.captureAllKeyboardInput = false;
+            //UnityEngine.WebGLInput.captureAllKeyboardInput = false;
 
             init();
 #endif

@@ -70,6 +70,7 @@ namespace CreateAR.SpirePlayer
             _unsubs.Add(Messages.Subscribe(MessageTypes.BRIDGE_HELPER_GIZMO_SCALE, Messages_OnScale));
         }
 
+        /// <inheritdoc cref="MonoBehaviour" />
         private void OnDestroy()
         {
             // unsubscribe
@@ -78,6 +79,16 @@ namespace CreateAR.SpirePlayer
                 _unsubs[i]();
             }
             _unsubs.Clear();
+        }
+
+        /// <inheritdoc cref="MonoBehaviour" />
+        private void Update()
+        {
+            if (Input.GetKeyUp(KeyCode.F))
+            {
+                // focus
+                RTFocusCamera.Get.Focus(RTObjectSelection.Get.GetWorldAABB());
+            }
         }
 
         /// <summary>
