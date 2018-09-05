@@ -60,7 +60,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <summary>
         /// Used to create session unique ids.
         /// </summary>
-        private static int IDS;
+        private static int IDS = 1;
 
         /// <summary>
         /// Records to process every frame.
