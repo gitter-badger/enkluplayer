@@ -55,7 +55,7 @@ namespace Jint.Runtime.Interop
                 }
 
                 var methodParameters = method.GetParameters();
-                if (methodParameters.Length > 0 && methodParameters.Length != arguments.Length + 1)
+                if (methodParameters.Length == 0 || methodParameters.Length != arguments.Length + 1)
                 {
                     continue;
                 }
