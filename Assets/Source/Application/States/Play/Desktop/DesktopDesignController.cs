@@ -50,7 +50,8 @@ namespace CreateAR.SpirePlayer
         private ElementSchemaProp<float> _ambientIntensityProp;
         private ElementSchemaProp<string> _ambientColorProp;
         private ElementSchemaProp<bool> _ambientEnabledProp;
-        
+        private DesktopControlBarView _controlBar;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -75,6 +76,9 @@ namespace CreateAR.SpirePlayer
             focus.Hotkeys.LookAround.IsEnabled = true;
             focus.Hotkeys.Orbit.IsEnabled = true;
             focus.ZoomSettings.PerspStandardZoomSensitivity = 100;
+
+            _controlBar = Object.Instantiate(context.PlayConfig.ControlBar);
+            _controlBar.transform.SetParent(GameObject.Find("IUX").transform, false);
 
             // setup updates
             {
@@ -121,6 +125,7 @@ namespace CreateAR.SpirePlayer
             _ambientColorProp.OnChanged -= AmbientColor_OnChanged;
             _ambientIntensityProp.OnChanged -= AmbientIntensity_OnChanged;
             
+            Object.Destroy(_controlBar);
             Object.Destroy(_runtimeGizmos);
             Object.Destroy(_referenceCube);
         }

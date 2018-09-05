@@ -26,5 +26,10 @@ namespace CreateAR.SpirePlayer
         /// Prefab for runtime gizmos.
         /// </summary>
         public GameObject RuntimeGizmoSystem;
+
+        /// <summary>
+        /// Control bar.
+        /// </summary>
+        public DesktopControlBarView ControlBar;
     }
 }

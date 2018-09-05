@@ -48,7 +48,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public void OnScale()
         {
-            RTObjectSelectionGizmos.Get.SetWorkGizmo(ObjectSelectionGizmoId.BoxScaleGizmo);
+            RTObjectSelectionGizmos.Get.SetWorkGizmo(ObjectSelectionGizmoId.ScaleGizmo);
         }
 
         /// <inheritdoc cref="MonoBehaviour" />

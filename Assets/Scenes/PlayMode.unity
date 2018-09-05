@@ -163,6 +163,8 @@ MonoBehaviour:
     type: 2}
   RuntimeGizmoSystem: {fileID: 1159616391367698, guid: e438c1ec51857a44d82121ea6cbd378e,
     type: 2}
+  ControlBar: {fileID: 114107272295946950, guid: 407d566edb5f347448f90315721ca44a,
+    type: 2}
 --- !u!114 &993257957
 MonoBehaviour:
   m_ObjectHideFlags: 0
