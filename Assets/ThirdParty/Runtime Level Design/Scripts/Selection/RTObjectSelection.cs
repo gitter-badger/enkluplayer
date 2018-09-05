@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using CreateAR.Commons.Unity.Logging;
 
 namespace RLD
 {
@@ -996,7 +995,6 @@ namespace RLD
                 }
                 else
                 {
-                    Log.Info(this, "Here");
                     var toBeSelected = new List<GameObject> { pickedObject };
                     ObjectPreSelectCustomizeInfo preSelectCustomizeInfo = DoPreSelectCustomize(toBeSelected, ObjectSelectReason.Click);
                     if (preSelectCustomizeInfo != null) toBeSelected = preSelectCustomizeInfo.ToBeSelected;
@@ -1020,9 +1018,7 @@ namespace RLD
                             deselectReason = ObjectDeselectReason.ClickSelectOther;
                             ClearSelection(deselectReason);
                         }
-
-                        Log.Info(this, "Somehow now we have {0} selected things", toBeSelected.Count);
-
+                        
                         foreach (var gameObj in toBeSelected)
                         {
                             // Select the object
@@ -1137,14 +1133,12 @@ namespace RLD
                 && !gameObject.name.StartsWith("<Caption")
                 && !gameObject.name.StartsWith("<Light"))
             {
-                Log.Info(this, "Nope on {0}", gameObject.name);
                 return false;
             }
 
             // require a collider
             if (null == gameObject.GetComponentInChildren<Collider>())
             {
-                Log.Info(this, "No collider on {0}", gameObject.name);
                 return false;
             }
             
@@ -1153,18 +1147,14 @@ namespace RLD
             if (selectionListener != null &&
                 !selectionListener.OnCanBeSelected(new ObjectSelectEventArgs(selectReason)))
             {
-                Log.Info(this, "Cannot be selected {0}", gameObject.name);
                 return false;
             }
-
-            Log.Info(this, "Selected " + gameObject.name + " : " + selectReason);
-
+            
             return true;
         }
 
         private void SelectObject(GameObject gameObject, ObjectSelectReason selectReason)
         {
-            Log.Info(this, "Select object {0} : {1}", gameObject.name, selectReason);
             _selectedObjects.Add(gameObject);
 
             // If the object has a selection listener attached, inform the mono that it was selected
