@@ -44,10 +44,10 @@ namespace CreateAR.SpirePlayer.IUX
         private ElementSchemaProp<TweenType> _tweenOutProp;
         private ElementSchemaProp<string> _virtualColorProp;
         private ElementSchemaProp<WidgetColorMode> _colorModeProp;
-        private ElementSchemaProp<WidgetVisibilityMode> _visibilityModeProp;
         private ElementSchemaProp<LayerMode> _layerModeProp;
         private ElementSchemaProp<bool> _autoDestroyProp;
         private ElementSchemaProp<string> _faceProp;
+        private ElementSchemaProp<float> _alphaProp;
 
         /// <summary>
         /// Cached virtual color.
@@ -116,16 +116,7 @@ namespace CreateAR.SpirePlayer.IUX
             get { return _colorModeProp.Value; }
             set { _colorModeProp.Value = value; }
         }
-
-        /// <summary>
-        /// Default mode is to inherit visibility
-        /// </summary>
-        public WidgetVisibilityMode VisibilityMode
-        {
-            get { return _visibilityModeProp.Value; }
-            set { _visibilityModeProp.Value = value; }
-        }
-
+        
         /// <summary>
         /// Layer mode.
         /// </summary>
@@ -156,6 +147,22 @@ namespace CreateAR.SpirePlayer.IUX
             set
             {
                 _localVisibleProp.Value = value;
+            }
+        }
+
+        /// <summary>
+        /// Alpha, which is multiplied up the hierarchy.
+        /// </summary>
+        public float Alpha
+        {
+            get
+            {
+                if (null != _parentWidget)
+                {
+                    return _alphaProp.Value * _parentWidget.Alpha;
+                }
+
+                return _alphaProp.Value;
             }
         }
         
@@ -319,18 +326,13 @@ namespace CreateAR.SpirePlayer.IUX
 
             _layer = _layers.Request(this);
         }
-        
-        /// <summary>
-        /// Initialization
-        /// </summary>
-        protected override void LoadInternalAfterChildren()
+
+        /// <inheritdoc />
+        protected override void LoadInternalBeforeChildren()
         {
-            base.LoadInternalAfterChildren();
+            base.LoadInternalBeforeChildren();
 
-            // default to gameobject
-            Visible = GameObject.activeSelf;
-
-            _nameProp = Schema.GetOwn("name", ToString());
+            _nameProp = Schema.GetOwn("name", GetType().Name);
             _nameProp.OnChanged += Name_OnChanged;
             _localVisibleProp = Schema.GetOwn("visible", true);
             _localVisibleProp.OnChanged += LocalVisible_OnChanged;
@@ -346,15 +348,23 @@ namespace CreateAR.SpirePlayer.IUX
             _virtualColorProp = Schema.GetOwn("virtualColor", "None");
             _virtualColorProp.OnChanged += VirtualColor_OnChanged;
             _colorModeProp = Schema.GetOwn("colorMode", WidgetColorMode.InheritColor);
-            _visibilityModeProp = Schema.GetOwn("visibilityMode", WidgetVisibilityMode.Inherit);
             _layerModeProp = Schema.GetOwn("layerMode", LayerMode.Default);
             _autoDestroyProp = Schema.GetOwn("autoDestroy", false);
             _faceProp = Schema.GetOwn("face", string.Empty);
             _faceProp.OnChanged += Face_OnChanged;
-            UpdateFace(_faceProp.Value);
-            
-            GameObject.name = ToString();
+            _alphaProp = Schema.GetOwn("alpha", 1f);
+            _alphaProp.OnChanged += Alpha_OnChanged;
 
+            GameObject.SetActive(_localVisibleProp.Value);
+            GameObject.name = ToString();
+        }
+
+        /// <inheritdoc />
+        protected override void LoadInternalAfterChildren()
+        {
+            base.LoadInternalAfterChildren();
+            
+            UpdateFace(_faceProp.Value);
             UpdateTransform();
             UpdateGlobalVisibility();
 
@@ -382,11 +392,16 @@ namespace CreateAR.SpirePlayer.IUX
         protected override void UnloadInternalAfterChildren()
         {
             IsLoaded = false;
-            
+
+            _nameProp.OnChanged -= Name_OnChanged;
+            _localVisibleProp.OnChanged -= LocalVisible_OnChanged;
             _localPositionProp.OnChanged -= LocalPosition_OnChanged;
+            _localRotationProp.OnChanged -= LocalRotation_OnChanged;
+            _localScaleProp.OnChanged -= LocalScale_OnChanged;
             _virtualColorProp.OnChanged -= VirtualColor_OnChanged;
             _faceProp.OnChanged -= Face_OnChanged;
-            
+            _alphaProp.OnChanged -= Alpha_OnChanged;
+
             Object.Destroy(GameObject);
             GameObject = null;
 
@@ -410,6 +425,12 @@ namespace CreateAR.SpirePlayer.IUX
                     GetChildHierarchyParent(element),
                     false);
             }
+
+            var widget = element as Widget;
+            if (null != widget)
+            {
+                widget._parentWidget = this;
+            }
         }
         
         /// <summary>
@@ -417,8 +438,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         protected override void UpdateInternal()
         {
-            _parentWidget = GetWidgetParent();
-
             var deltaTime = Time.deltaTime;
 
             UpdateGlobalVisibility();
@@ -436,28 +455,7 @@ namespace CreateAR.SpirePlayer.IUX
         {
             return GameObject.transform;
         }
-
-        /// <summary>
-        /// Retrieves the first ancestor Widget.
-        /// </summary>
-        /// <returns></returns>
-        protected Widget GetWidgetParent()
-        {
-            var parent = Parent;
-            while (null != parent)
-            {
-                var widget = parent as Widget;
-                if (null != widget)
-                {
-                    return widget;
-                }
-
-                parent = parent.Parent;
-            }
-
-            return null;
-        }
-
+        
         /// <summary>
         /// Updates the transform from props.
         /// </summary>
@@ -473,66 +471,13 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void UpdateGlobalVisibility()
         {
-            if (VisibilityMode == WidgetVisibilityMode.Local)
+            // no change
+            if (_localVisibleProp.Value == Visible)
             {
-                // no change
-                if (_localVisibleProp.Value == Visible)
-                {
-                    return;
-                }
-
-                Visible = _localVisibleProp.Value;
+                return;
             }
-            else
-            {
-                if (!_localVisibleProp.Value)
-                {
-                    // no change
-                    if (Visible == false)
-                    {
-                        return;
-                    }
 
-                    Visible = false;
-                }
-                // calculate from parent chain
-                else
-                {
-                    var invisibleParent = false;
-                    var parent = Parent;
-                    while (null != parent)
-                    {
-                        var widget = parent as Widget;
-                        if (null == widget)
-                        {
-                            var val = parent.Schema.Get<bool>("visible").Value;
-                            if (!val)
-                            {
-                                invisibleParent = true;
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            if (!widget.Visible)
-                            {
-                                invisibleParent = true;
-                                break;
-                            }
-                        }
-
-                        parent = parent.Parent;
-                    }
-
-                    // no change
-                    if (Visible != invisibleParent)
-                    {
-                        return;
-                    }
-
-                    Visible = !invisibleParent;
-                }
-            }
+            Visible = _localVisibleProp.Value;
 
             // guaranteed that visibility changed here
             GameObject.SetActive(Visible);
@@ -551,6 +496,21 @@ namespace CreateAR.SpirePlayer.IUX
         protected virtual void OnVisibilityUpdated()
         {
 
+        }
+
+        /// <summary>
+        /// Pushes alpha update down the hierarchy.
+        /// </summary>
+        protected virtual void OnAlphaUpdated()
+        {
+            for (int i = 0, len = Children.Count; i < len; i++)
+            {
+                var widget = Children[i] as Widget;
+                if (null != widget)
+                {
+                    widget.OnAlphaUpdated();
+                }
+            }
         }
 
         /// <summary>
@@ -742,6 +702,20 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateFace(next);
         }
         
+        /// <summary>
+        /// Called when the alpha changes.
+        /// </summary>
+        /// <param name="prop">Face prop.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Alpha_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            OnAlphaUpdated();
+        }
+
         /// <summary>
         /// Called when the name prop changes.
         /// </summary>

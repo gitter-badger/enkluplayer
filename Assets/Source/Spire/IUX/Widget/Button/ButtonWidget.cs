@@ -280,6 +280,14 @@ namespace CreateAR.SpirePlayer.IUX
             }
         }
 
+        /// <inheritdoc />
+        protected override void OnAlphaUpdated()
+        {
+            Text.Alpha = Alpha;
+            
+            base.OnAlphaUpdated();
+        }
+
         /// <summary>
         /// Registers voice command.
         /// </summary>

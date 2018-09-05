@@ -41,7 +41,16 @@ namespace CreateAR.SpirePlayer
 
             Log.Info(this, "Parse : {0}.", processed);
 
-            return _parser.Parse(processed, options);
+            try
+            {
+                return _parser.Parse(processed, options);
+            }
+            catch (ParserException exception)
+            {
+                Log.Warning(this, "Could not parse JS program : {0}.", exception);
+
+                return null;
+            }
         }
     }
 }

@@ -31,6 +31,19 @@
         public float a;
 
         /// <summary>
+        /// Creates a Color from a Color and alpha.
+        /// </summary>
+        /// <param name="color">Source color.</param>
+        /// <param name="alpha">Alpha.</param>
+        public Col4(Col4 color, float alpha)
+        {
+            r = color.r;
+            g = color.g;
+            b = color.b;
+            a = alpha;
+        }
+
+        /// <summary>
         /// Creates a Color from a Color.
         /// </summary>
         /// <param name="color">Source color.</param>

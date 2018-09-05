@@ -79,6 +79,11 @@ namespace CreateAR.SpirePlayer.IUX
         }
 
         /// <summary>
+        /// Local alpha.
+        /// </summary>
+        public float LocalAlpha { get; set; }
+
+        /// <summary>
         /// True if locally visible, ignores parent visibility.
         /// </summary>
         public bool LocalVisible
@@ -138,6 +143,8 @@ namespace CreateAR.SpirePlayer.IUX
         public void Initialize(Widget widget)
         {
             _source = widget;
+
+            LocalAlpha = _source.Alpha;
         }
 
         /// <summary>
@@ -154,7 +161,7 @@ namespace CreateAR.SpirePlayer.IUX
             UpdateTween(Time.deltaTime);
 
             var color = _source.Color * _localColor;
-            color.a *= _localTween;
+            color.a *= _localTween * LocalAlpha;
 
             if (Graphic != null)
             {

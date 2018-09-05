@@ -1,5 +1,4 @@
 ﻿#if NETFX_CORE
-
 using CreateAR.Commons.Unity.Logging;
 using System;
 using System.IO;
@@ -154,5 +153,4 @@ namespace CreateAR.SpirePlayer
         }
     }
 }
-
 #endif
