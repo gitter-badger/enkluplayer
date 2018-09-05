@@ -147,42 +147,42 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public bool TryGetPointerForward(uint id, out Vector3 position)
+        public bool TryGetPointerForward(uint id, out Vector3 forward)
         {
             var data = Data(id);
             if (null == data)
             {
-                position = Vector3.zero;
+                forward = Vector3.zero;
                 return false;
             }
 
-            return data.Pose.TryGetForward(out position);
+            return data.Pose.TryGetForward(out forward);
         }
 
         /// <inheritdoc />
-        public bool TryGetPointerUp(uint id, out Vector3 position)
+        public bool TryGetPointerUp(uint id, out Vector3 up)
         {
             var data = Data(id);
             if (null == data)
             {
-                position = Vector3.zero;
+                up = Vector3.zero;
                 return false;
             }
 
-            return data.Pose.TryGetUp(out position);
+            return data.Pose.TryGetUp(out up);
         }
 
         /// <inheritdoc />
-        public bool TryGetPointerRight(uint id, out Vector3 position)
+        public bool TryGetPointerRight(uint id, out Vector3 right)
         {
             var data = Data(id);
             if (null == data)
             {
-                position = Vector3.zero;
+                right = Vector3.zero;
                 return false;
             }
 
-            return data.Pose.TryGetRight(out position);
+            return data.Pose.TryGetRight(out right);
         }
 
         /// <inheritdoc />
@@ -196,6 +196,19 @@ namespace CreateAR.SpirePlayer
             }
 
             return data.Pose.TryGetRotation(out rotation);
+        }
+
+        /// <inheritdoc />
+        public bool TryGetPointerVelocity(uint id, out Vector3 velocity)
+        {
+            var data = Data(id);
+            if (null == data)
+            {
+                velocity = Vector3.zero;
+                return false;
+            }
+
+            return data.Pose.TryGetVelocity(out velocity);
         }
 
         /// <summary>
