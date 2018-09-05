@@ -123,6 +123,23 @@ namespace CreateAR.SpirePlayer.Scripting
                     return Quat.Identity;
                 }
             }
+
+            /// <summary>
+            /// Retrieves the velocity of a pose.
+            /// </summary>
+            public Vec3 velocity
+            {
+                get
+                {
+                    Vector3 velocity;
+                    if (_gestures.TryGetPointerVelocity(_id, out velocity))
+                    {
+                        return velocity.ToVec();
+                    }
+
+                    return Vec3.Zero;
+                }
+            }
         }
 
         /// <summary>

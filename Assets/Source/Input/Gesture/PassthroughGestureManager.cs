@@ -43,23 +43,23 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <inheritdoc />
-        public bool TryGetPointerForward(uint id, out Vector3 position)
+        public bool TryGetPointerForward(uint id, out Vector3 forward)
         {
-            position = Vector3.zero;
+            forward = Vector3.zero;
             return false;
         }
 
         /// <inheritdoc />
-        public bool TryGetPointerUp(uint id, out Vector3 position)
+        public bool TryGetPointerUp(uint id, out Vector3 up)
         {
-            position = Vector3.zero;
+            up = Vector3.zero;
             return false;
         }
 
         /// <inheritdoc />
-        public bool TryGetPointerRight(uint id, out Vector3 position)
+        public bool TryGetPointerRight(uint id, out Vector3 right)
         {
-            position = Vector3.zero;
+            right = Vector3.zero;
             return false;
         }
 
@@ -67,6 +67,13 @@ namespace CreateAR.SpirePlayer
         public bool TryGetPointerRotation(uint id, out Quaternion rotation)
         {
             rotation = Quaternion.identity;
+            return false;
+        }
+
+        /// <inheritdoc />
+        public bool TryGetPointerVelocity(uint id, out Vector3 velocity)
+        {
+            velocity = Vector3.zero;
             return false;
         }
     }
