@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using CreateAR.Commons.Unity.Logging;
 
 namespace RLD
 {
@@ -994,6 +996,7 @@ namespace RLD
                 }
                 else
                 {
+                    Log.Info(this, "Here");
                     var toBeSelected = new List<GameObject> { pickedObject };
                     ObjectPreSelectCustomizeInfo preSelectCustomizeInfo = DoPreSelectCustomize(toBeSelected, ObjectSelectReason.Click);
                     if (preSelectCustomizeInfo != null) toBeSelected = preSelectCustomizeInfo.ToBeSelected;
@@ -1017,6 +1020,8 @@ namespace RLD
                             deselectReason = ObjectDeselectReason.ClickSelectOther;
                             ClearSelection(deselectReason);
                         }
+
+                        Log.Info(this, "Somehow now we have {0} selected things", toBeSelected.Count);
 
                         foreach (var gameObj in toBeSelected)
                         {
@@ -1106,6 +1111,8 @@ namespace RLD
             return filtered;
         }
 
+        private static readonly Regex _elementParser = new Regex(@"Guid=([a-zA-Z0-9\-]+)");
+
         private bool CanSelectObject(GameObject gameObject, SelectRestrictFlags restrictFlags, ObjectSelectReason selectReason)
         {
             if (gameObject == null || !gameObject.activeInHierarchy) return false;
@@ -1113,22 +1120,51 @@ namespace RLD
             // Note: Camera object restrictions will always be applied regardless of 'ignoreRestrictions'.
             Camera objectCam = gameObject.GetComponent<Camera>();
             if (objectCam != null && !Settings.IsCameraSelectable(objectCam)) return false;
+            
+            // builtin
+            if (!Settings.IsObjectSelectable(gameObject)) return false;
 
-            if ((restrictFlags & SelectRestrictFlags.ObjectLayer) != 0 && !Settings.IsObjectLayerSelectable(gameObject.layer)) return false;
-            if ((restrictFlags & SelectRestrictFlags.ObjectType) != 0 && !Settings.IsObjectTypeSelectable(gameObject.GetGameObjectType())) return false;
-            if ((restrictFlags & SelectRestrictFlags.Object) != 0 && !Settings.IsObjectSelectable(gameObject)) return false;
+            // require an element
+            if (!_elementParser.IsMatch(gameObject.name)) return false;
 
-            if ((restrictFlags & SelectRestrictFlags.SelectionListener) != 0)
+            // no root
+            if (gameObject.name.Contains("Id=root")) return false;
+
+            // only specific element types
+            if (!gameObject.name.StartsWith("<Content")
+                && !gameObject.name.StartsWith("<WorldAnchor")
+                && !gameObject.name.StartsWith("<Container")
+                && !gameObject.name.StartsWith("<Caption")
+                && !gameObject.name.StartsWith("<Light"))
             {
-                IRTObjectSelectionListener selectionListener = gameObject.GetComponent<IRTObjectSelectionListener>();
-                if (selectionListener != null && !selectionListener.OnCanBeSelected(new ObjectSelectEventArgs(selectReason))) return false;
+                Log.Info(this, "Nope on {0}", gameObject.name);
+                return false;
             }
+
+            // require a collider
+            if (null == gameObject.GetComponentInChildren<Collider>())
+            {
+                Log.Info(this, "No collider on {0}", gameObject.name);
+                return false;
+            }
+            
+            // listener
+            IRTObjectSelectionListener selectionListener = gameObject.GetComponent<IRTObjectSelectionListener>();
+            if (selectionListener != null &&
+                !selectionListener.OnCanBeSelected(new ObjectSelectEventArgs(selectReason)))
+            {
+                Log.Info(this, "Cannot be selected {0}", gameObject.name);
+                return false;
+            }
+
+            Log.Info(this, "Selected " + gameObject.name + " : " + selectReason);
 
             return true;
         }
 
         private void SelectObject(GameObject gameObject, ObjectSelectReason selectReason)
         {
+            Log.Info(this, "Select object {0} : {1}", gameObject.name, selectReason);
             _selectedObjects.Add(gameObject);
 
             // If the object has a selection listener attached, inform the mono that it was selected

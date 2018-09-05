@@ -13,7 +13,7 @@ namespace RLD
         [SerializeField]
         private MultiSelectOverlapMode _multiSelectOverlapMode = MultiSelectOverlapMode.Partial;
         [SerializeField]
-        private GameObjectType _selectableObjectTypes = GameObjectType.Mesh | GameObjectType.Sprite | GameObjectType.Light | GameObjectType.ParticleSystem;
+        private GameObjectType _selectableObjectTypes = GameObjectType.Mesh | GameObjectType.Sprite | GameObjectType.Light;
         [SerializeField]
         private int _selectableLayers = ~0;
         [SerializeField]

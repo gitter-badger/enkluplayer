@@ -1,16 +1,35 @@
-﻿using UnityEngine;
+﻿using RLD;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.IUX
 {
     /// <summary>
     /// Renders axes for reference object.
     /// </summary>
-    public class ReferenceObjectAxesRenderer : MonoBehaviour
+    public class ReferenceObjectAxesRenderer : MonoBehaviour, IRTObjectSelectionListener
     {
         /// <summary>
         /// For drawing.
         /// </summary>
         private Material _material;
+
+        /// <inheritdoc />
+        public bool OnCanBeSelected(ObjectSelectEventArgs selectArgs)
+        {
+            return false;
+        }
+
+        /// <inheritdoc />
+        public void OnSelected(ObjectSelectEventArgs selectArgs)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public void OnDeselected(ObjectDeselectEventArgs deselectArgs)
+        {
+            throw new System.NotImplementedException();
+        }
 
         /// <inheritdoc cref="MonoBehaviour" />
         private void Awake()

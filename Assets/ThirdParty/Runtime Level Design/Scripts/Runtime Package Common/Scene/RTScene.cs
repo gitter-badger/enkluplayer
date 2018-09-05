@@ -146,17 +146,13 @@ namespace RLD
 
         public List<GameObjectRayHit> RaycastAllObjects(Ray ray, SceneRaycastPrecision rtRaycastPrecision)
         {
-            if (Settings.PhysicsMode == ScenePhysicsMode.UnityColliders)
-            {
-                RaycastHit[] hits3D = Physics.RaycastAll(ray, float.MaxValue);
-                RaycastHit2D[] hits2D = Physics2D.GetRayIntersectionAll(ray, float.MaxValue);
+            RaycastHit[] hits3D = Physics.RaycastAll(ray, float.MaxValue);
+            RaycastHit2D[] hits2D = Physics2D.GetRayIntersectionAll(ray, float.MaxValue);
 
-                List<GameObjectRayHit> allHits = new List<GameObjectRayHit>(GameObjectRayHit.Create(ray, hits3D));
-                allHits.AddRange(GameObjectRayHit.Create(ray, hits2D));
+            List<GameObjectRayHit> allHits = new List<GameObjectRayHit>(GameObjectRayHit.Create(ray, hits3D));
+            allHits.AddRange(GameObjectRayHit.Create(ray, hits2D));
 
-                return allHits;
-            }
-            else return _sceneTree.RaycastAll(ray, rtRaycastPrecision);
+            return allHits;
         }
 
         public List<GameObjectRayHit> RaycastAllObjectsSorted(Ray ray, SceneRaycastPrecision raycastPresicion)

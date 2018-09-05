@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using RLD;
 using UnityEngine;
 
@@ -18,12 +19,14 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void OnSelected(ObjectSelectEventArgs selectEventArgs)
         {
+            Log.Error(this, "Should not have been able to select {0}.", name);
             throw new NotImplementedException();
         }
 
         /// <inheritdoc />
         public void OnDeselected(ObjectDeselectEventArgs deselectEventArgs)
         {
+            Log.Error(this, "Should not have been able to deselect {0}.", name);
             throw new NotImplementedException();
         }
     }

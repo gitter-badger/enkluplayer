@@ -70,6 +70,11 @@ namespace CreateAR.SpirePlayer
         public void Setup(DesignerContext context, IAppController app)
         {
             _runtimeGizmos = Object.Instantiate(context.PlayConfig.RuntimeGizmoSystem);
+            var focus = _runtimeGizmos.GetComponentInChildren<RTFocusCamera>();
+            focus.Hotkeys.Pan.IsEnabled = true;
+            focus.Hotkeys.LookAround.IsEnabled = true;
+            focus.Hotkeys.Orbit.IsEnabled = true;
+            focus.ZoomSettings.PerspStandardZoomSensitivity = 100;
 
             // setup updates
             {

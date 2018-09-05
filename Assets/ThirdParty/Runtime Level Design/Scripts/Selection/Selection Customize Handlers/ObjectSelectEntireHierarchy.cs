@@ -17,14 +17,14 @@ namespace RLD
             if (isActive)
             {
                 _isActive = true;
-                RTObjectSelection.Get.PreSelectCustomize += OnPreSelectCustomize;
-                RTObjectSelection.Get.PreDeselectCustomize += OnPreDeselectCustomize;
+                //RTObjectSelection.Get.PreSelectCustomize += OnPreSelectCustomize;
+                //RTObjectSelection.Get.PreDeselectCustomize += OnPreDeselectCustomize;
             }
             else
             {
                 _isActive = false;
-                RTObjectSelection.Get.PreSelectCustomize -= OnPreSelectCustomize;
-                RTObjectSelection.Get.PreDeselectCustomize -= OnPreDeselectCustomize;
+                //RTObjectSelection.Get.PreSelectCustomize -= OnPreSelectCustomize;
+                //RTObjectSelection.Get.PreDeselectCustomize -= OnPreDeselectCustomize;
             }
         }
 
