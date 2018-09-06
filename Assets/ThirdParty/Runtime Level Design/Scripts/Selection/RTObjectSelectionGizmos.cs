@@ -150,7 +150,9 @@ namespace RLD
         public BoxGizmoHotkeys BoxScaleGizmoHotkeys { get { return _boxScaleGizmoHotkeys; } }
         public ObjectExtrudeGizmoLookAndFeel3D ExtrudeGizmoLookAndFeel3D { get { return _extrudeGizmoLookAndFeel3D; } }
         public ObjectExtrudeGizmoHotkeys ExtrudeGozmoHotkeys { get { return _extrudeGizmoHotkeys; } }
-             
+
+        public event Action<GizmoSpace> OnSpaceUpdated;
+
         #if UNITY_EDITOR
         public EditorToolbar MainToolbar { get { return _mainToolbar; } }
         public UniversalGizmoConfig UniversalGizmoConfig { get { return _universalGizmoConfig; } }
@@ -251,6 +253,11 @@ namespace RLD
             {
                 if (gizmo.IsTransformGizmo) gizmo.TransformGizmo.SetTransformSpace(transformSpace);
                 else if (gizmo.IsExtrudeGizmo) gizmo.ExtrudeGizmo.SetExtrudeSpace(transformSpace);
+            }
+
+            if (null != OnSpaceUpdated)
+            {
+                OnSpaceUpdated(transformSpace);
             }
         }
 
