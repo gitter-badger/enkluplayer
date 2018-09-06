@@ -350,6 +350,16 @@ namespace RLD
             _preTransformSnapshots = LocalTransformSnapshot.GetSnapshotCollection(_targetObjects);
             _transformableParents = GetTransformableParentObjects();
             _targetGroupAABBOnDragBegin = GetTargetObjectGroupWorldAABB();
+
+            // pass drag end
+            foreach (var target in _targetObjects)
+            {
+                var listener = target.GetComponent<IRTDragGizmoListener>();
+                if (null != listener)
+                {
+                    listener.OnStartDrag();
+                }
+            }
         }
 
         public override void OnGizmoDragUpdate(int handleId)
@@ -368,6 +378,16 @@ namespace RLD
             }
 
             RefreshPositionAndRotation();
+            
+            // pass drag end
+            foreach (var target in _targetObjects)
+            {
+                var listener = target.GetComponent<IRTDragGizmoListener>();
+                if (null != listener)
+                {
+                    listener.OnEndDrag();
+                }
+            }
         }
 
         private List<GameObject> GetTransformableParentObjects()

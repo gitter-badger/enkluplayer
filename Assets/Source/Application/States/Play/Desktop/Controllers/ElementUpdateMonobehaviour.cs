@@ -1,4 +1,4 @@
-﻿using System;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using RLD;
 using UnityEngine;
@@ -8,7 +8,7 @@ namespace CreateAR.SpirePlayer
     /// <summary>
     /// Pushes positional updates through to the delegate.
     /// </summary>
-    public class ElementUpdateMonobehaviour : MonoBehaviour, IRTObjectSelectionListener, IRTTransformGizmoListener
+    public class ElementUpdateMonobehaviour : MonoBehaviour, IRTObjectSelectionListener, IRTTransformGizmoListener, IRTDragGizmoListener
     {
         /// <summary>
         /// The delegate to push updates to.
@@ -22,17 +22,7 @@ namespace CreateAR.SpirePlayer
         private ElementSchemaProp<Vec3> _rotationProp;
         private ElementSchemaProp<Vec3> _scaleProp;
         private ElementSchemaProp<bool> _lockedProp;
-
-        /// <summary>
-        /// The last time a gizmo altered the element.
-        /// </summary>
-        private DateTime _lastAlterTime;
-
-        /// <summary>
-        /// The last time the element pushed an update.
-        /// </summary>
-        private DateTime _lastUpdateTime;
-
+        
         /// <summary>
         /// Retrieves the element.
         /// </summary>
@@ -87,15 +77,13 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void OnSelected(ObjectSelectEventArgs selectEventArgs)
         {
-            _lastAlterTime = _lastUpdateTime = DateTime.Now;
+            
         }
 
         /// <inheritdoc />
         public void OnDeselected(ObjectDeselectEventArgs deselectEventArgs)
         {
-            _lastAlterTime = _lastUpdateTime = DateTime.Now;
-
-            UpdateDelegate();
+            
         }
 
         /// <inheritdoc />
@@ -107,22 +95,21 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void OnTransformed(Gizmo transformGizmo)
         {
-            _lastAlterTime = DateTime.Now;
+            
         }
 
-        /// <inheritdoc cref="MonoBehaviour"/>
-        private void Update()
+        /// <inheritdoc />
+        public void OnStartDrag()
         {
-            var now = DateTime.Now;
-            if (_lastAlterTime > _lastUpdateTime
-                && now.Subtract(_lastAlterTime).TotalMilliseconds > 100)
-            {
-                _lastUpdateTime = now;
-
-                UpdateDelegate();
-            }
+            
         }
 
+        /// <inheritdoc />
+        public void OnEndDrag()
+        {
+            UpdateDelegate();
+        }
+        
         /// <summary>
         /// Pushes an update through the delegate.
         /// </summary>

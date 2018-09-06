@@ -71,11 +71,21 @@ namespace CreateAR.SpirePlayer
         public void Setup(DesignerContext context, IAppController app)
         {
             _runtimeGizmos = Object.Instantiate(context.PlayConfig.RuntimeGizmoSystem);
+
+            // settings
             var focus = _runtimeGizmos.GetComponentInChildren<RTFocusCamera>();
             focus.Hotkeys.Pan.IsEnabled = true;
             focus.Hotkeys.LookAround.IsEnabled = true;
             focus.Hotkeys.Orbit.IsEnabled = true;
             focus.ZoomSettings.PerspStandardZoomSensitivity = 100;
+
+            var selection = _runtimeGizmos.GetComponentInChildren<RTObjectSelectionGizmos>();
+            selection.Hotkeys.ActivateMoveGizmo.IsEnabled = true;
+            selection.Hotkeys.ActivateMoveGizmo.Key = KeyCode.Q;
+            selection.Hotkeys.ActivateRotationGizmo.IsEnabled = true;
+            selection.Hotkeys.ActivateRotationGizmo.Key = KeyCode.W;
+            selection.Hotkeys.ActivateScaleGizmo.IsEnabled = true;
+            selection.Hotkeys.ActivateScaleGizmo.Key = KeyCode.E;
 
             _controlBar = Object.Instantiate(context.PlayConfig.ControlBar);
             _controlBar.transform.SetParent(GameObject.Find("IUX").transform, false);
