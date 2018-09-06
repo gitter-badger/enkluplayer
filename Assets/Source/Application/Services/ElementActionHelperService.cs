@@ -76,6 +76,7 @@ namespace CreateAR.SpirePlayer
             _binder.Add<BridgeHelperGizmoEvent>(MessageTypes.BRIDGE_HELPER_GIZMO_TRANSLATION);
             _binder.Add<BridgeHelperGizmoEvent>(MessageTypes.BRIDGE_HELPER_GIZMO_ROTATION);
             _binder.Add<BridgeHelperGizmoEvent>(MessageTypes.BRIDGE_HELPER_GIZMO_SCALE);
+            _binder.Add<BridgeHelperGizmoEvent>(MessageTypes.BRIDGE_HELPER_TRANSFORM_SPACE);
         }
 
         /// <summary>

@@ -86,6 +86,9 @@ namespace CreateAR.SpirePlayer
             selection.Hotkeys.ActivateRotationGizmo.Key = KeyCode.W;
             selection.Hotkeys.ActivateScaleGizmo.IsEnabled = true;
             selection.Hotkeys.ActivateScaleGizmo.Key = KeyCode.E;
+            selection.Hotkeys.ToggleTransformSpace.IsEnabled = true;
+            selection.Hotkeys.ToggleTransformSpace.Key = KeyCode.R;
+            selection.SetTransformSpace(GizmoSpace.Local);
 
             _controlBar = Object.Instantiate(context.PlayConfig.ControlBar);
             _controlBar.transform.SetParent(GameObject.Find("IUX").transform, false);

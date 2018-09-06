@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using RLD;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace CreateAR.SpirePlayer
 {
@@ -26,7 +28,12 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         [Inject]
         public IMessageRouter Messages { get; set; }
-        
+
+        /// <summary>
+        /// Transform space toggle.
+        /// </summary>
+        public Toggle TransformSpace;
+
         /// <summary>
         /// Called when the translate button has been pressed.
         /// </summary>
@@ -51,6 +58,15 @@ namespace CreateAR.SpirePlayer
             RTObjectSelectionGizmos.Get.SetWorkGizmo(ObjectSelectionGizmoId.ScaleGizmo);
         }
 
+        /// <summary>
+        /// Called when the value of the transform space checkbox is changed.
+        /// </summary>
+        public void OnValueChanged()
+        {
+            var isChecked = TransformSpace.isOn;
+            RTObjectSelectionGizmos.Get.SetTransformSpace(isChecked ? GizmoSpace.Global : GizmoSpace.Local);
+        }
+        
         /// <inheritdoc cref="MonoBehaviour" />
         protected override void Awake()
         {
@@ -68,6 +84,7 @@ namespace CreateAR.SpirePlayer
             _unsubs.Add(Messages.Subscribe(MessageTypes.BRIDGE_HELPER_GIZMO_TRANSLATION, Messages_OnTranslation));
             _unsubs.Add(Messages.Subscribe(MessageTypes.BRIDGE_HELPER_GIZMO_ROTATION, Messages_OnRotation));
             _unsubs.Add(Messages.Subscribe(MessageTypes.BRIDGE_HELPER_GIZMO_SCALE, Messages_OnScale));
+            _unsubs.Add(Messages.Subscribe(MessageTypes.BRIDGE_HELPER_TRANSFORM_SPACE, Messages_OnTransformSpace));
         }
 
         /// <inheritdoc cref="MonoBehaviour" />
@@ -116,6 +133,17 @@ namespace CreateAR.SpirePlayer
         private void Messages_OnScale(object @evt)
         {
             OnScale();
+        }
+
+        /// <summary>
+        /// Called when transform space change is requested.
+        /// </summary>
+        /// <param name="evt">The event.</param>
+        private void Messages_OnTransformSpace(object evt)
+        {
+            TransformSpace.isOn = !TransformSpace.isOn;
+
+            OnValueChanged();
         }
     }
 }
