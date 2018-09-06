@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace RLD
 {
@@ -54,7 +55,11 @@ namespace RLD
             foreach(var behaviour in _behaviours)
             {
                 var bhvType = behaviour.GetType();
+#if NETFX_CORE
+                if (bhvType == queryType || bhvType.GetTypeInfo().IsSubclassOf(queryType)) outputList.Add(behaviour as Type);
+#else
                 if (bhvType == queryType || bhvType.IsSubclassOf(queryType)) outputList.Add(behaviour as Type);
+#endif
             }
             return outputList;
         }
@@ -67,7 +72,12 @@ namespace RLD
             foreach (var behaviour in _behaviours)
             {
                 var bhvType = behaviour.GetType();
+#if NETFX_CORE
+                if (bhvType == behaviourType || bhvType.GetTypeInfo().IsSubclassOf(behaviourType)) outputList.Add(behaviour);
+#else
                 if (bhvType == behaviourType || bhvType.IsSubclassOf(behaviourType)) outputList.Add(behaviour);
+#endif
+                
             }
             return outputList;
         }
