@@ -317,7 +317,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <returns></returns>
         public static bool operator ==(ElementJs @this, object element)
         {
-            if (null == @this && null == element)
+            if (null == (object) @this && null == element)
             {
                 return true;
             }
@@ -344,7 +344,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <returns></returns>
         public static bool operator !=(ElementJs @this, object element)
         {
-            if (null == @this && null == element)
+            if (null == (object) @this && null == element)
             {
                 return false;
             }
