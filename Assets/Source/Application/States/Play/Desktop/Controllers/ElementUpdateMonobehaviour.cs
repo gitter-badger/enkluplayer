@@ -41,7 +41,7 @@ namespace CreateAR.SpirePlayer
             _positionProp = element.Schema.Get<Vec3>("position");
             _rotationProp = element.Schema.Get<Vec3>("rotation");
             _scaleProp = element.Schema.Get<Vec3>("scale");
-            _lockedProp = element.Schema.Get<bool>("bool");
+            _lockedProp = element.Schema.GetOwn("locked", false);
         }
 
         /// <inheritdoc />
@@ -168,7 +168,7 @@ namespace CreateAR.SpirePlayer
             {
                 return true;
             }
-
+            
             // search up hierarchy
             var parent = Element.Parent;
             while (null != parent)

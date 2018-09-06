@@ -85,6 +85,8 @@ namespace CreateAR.SpirePlayer
             _unsubs.Add(Messages.Subscribe(MessageTypes.BRIDGE_HELPER_GIZMO_ROTATION, Messages_OnRotation));
             _unsubs.Add(Messages.Subscribe(MessageTypes.BRIDGE_HELPER_GIZMO_SCALE, Messages_OnScale));
             _unsubs.Add(Messages.Subscribe(MessageTypes.BRIDGE_HELPER_TRANSFORM_SPACE, Messages_OnTransformSpace));
+
+            RTObjectSelectionGizmos.Get.OnSpaceUpdated += space => TransformSpace.isOn = space == GizmoSpace.Global;
         }
 
         /// <inheritdoc cref="MonoBehaviour" />
