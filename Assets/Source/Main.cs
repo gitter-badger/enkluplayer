@@ -54,7 +54,8 @@ namespace CreateAR.SpirePlayer
                 new AppElementsJsApi(
                     jsCache,
                     _binder.GetInstance<IElementFactory>(),
-                    _binder.GetInstance<IElementManager>()));
+                    _binder.GetInstance<IElementManager>()),
+                _binder.GetInstance<PlayerJs>());
 	    }
 
         /// <summary>
