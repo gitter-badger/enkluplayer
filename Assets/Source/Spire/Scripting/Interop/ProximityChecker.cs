@@ -199,7 +199,7 @@ namespace CreateAR.SpirePlayer.Scripting
                     }
 
                     // Calculate distance
-                    var distanceSq = Vec3.DistanceHorizontalSqr(configA.Element.transform.position, configB.Element.transform.position);
+                    var distanceSq = Vec3.DistanceXZSqr(configA.Element.transform.position, configB.Element.transform.position);
 
                     // Determine proximity change
                     if (collision == null)

@@ -257,15 +257,15 @@ namespace CreateAR.SpirePlayer
             return (from - to).Magnitude;
         }
 
-        public static float DistanceHorizontalSqr(Vec3 from, Vec3 to)
+        public static float DistanceXZSqr(Vec3 from, Vec3 to)
         {
             var diff = from - to;
             return diff.x * diff.x + diff.z * diff.z;
         }
 
-        public static float DistanceHorizontal(Vec3 from, Vec3 to)
+        public static float DistanceXZ(Vec3 from, Vec3 to)
         {
-            return (float) Math.Sqrt(DistanceHorizontalSqr(from, to));
+            return (float) Math.Sqrt(DistanceXZSqr(from, to));
         }
     }
 }
