@@ -114,14 +114,14 @@
 
         /// <summary>
         /// Calculates the horizontal distance between two Vec3's.
-        /// If possible, use distanceHorizontalSqr for performance instead.
+        /// If possible, use distanceXZSqr for performance instead.
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public float distanceHorizontal(Vec3 a, Vec3 b)
+        public float distanceXZ(Vec3 a, Vec3 b)
         {
-            return Vec3.DistanceHorizontal(a, b);
+            return Vec3.DistanceXZ(a, b);
         }
 
         /// <summary>
@@ -130,9 +130,9 @@
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        public float distanceHorizontalSqr(Vec3 a, Vec3 b)
+        public float distanceXZSqr(Vec3 a, Vec3 b)
         {
-            return Vec3.DistanceHorizontalSqr(a, b);
+            return Vec3.DistanceXZSqr(a, b);
         }
     }
 }
