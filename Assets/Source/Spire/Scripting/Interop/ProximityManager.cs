@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using Jint.Runtime;
 
+using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
+
 namespace CreateAR.SpirePlayer.Scripting
 {
     /// <summary>
@@ -75,17 +77,17 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked when objects enter proximity.
         /// </summary>
-        private readonly Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>> _enterCallbacks = new Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>>();
+        private readonly Dictionary<IEntityJs, List<JsFunc>> _enterCallbacks = new Dictionary<IEntityJs, List<JsFunc>>();
 
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked every Update while objects are within proximity.
         /// </summary>
-        private readonly Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>> _stayCallbacks = new Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>>();
+        private readonly Dictionary<IEntityJs, List<JsFunc>> _stayCallbacks = new Dictionary<IEntityJs, List<JsFunc>>();
 
         /// <summary>
         /// Mapping of subscribed ElementJs->callbacks to be invoked when objects exit proximity.
         /// </summary>
-        private readonly Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>> _exitCallbacks = new Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>>();
+        private readonly Dictionary<IEntityJs, List<JsFunc>> _exitCallbacks = new Dictionary<IEntityJs, List<JsFunc>>();
 
         /// <summary>
         /// Called by Unity. Sets up against existing Elements and watches for new ones.
@@ -123,24 +125,24 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <param name="jsValue">Element that will listen for events</param>
         /// <param name="eventName">Event that will be listened for.</param>
         /// <param name="callback">JS callback to invoke on proximity changes</param>
-        public void subscribe(JsValue jsValue, string eventName, Func<JsValue, JsValue[], JsValue> callback)
+        public void subscribe(JsValue jsValue, string eventName, JsFunc callback)
         {
             var element = ConvertJsValue(jsValue);
             var map = GetMap(eventName);
 
             Log.Info(this, "Subscribing {0} to {1} events.", element.id, eventName);
 
-            List<Func<JsValue, JsValue[], JsValue>> list;
+            List<JsFunc> list;
             if (!map.TryGetValue(element, out list))
             {
-                list = map[element] = new List<Func<JsValue, JsValue[], JsValue>>();
+                list = map[element] = new List<JsFunc>();
 
                 // this is the first time subscribe has been called for this element, so listen for cleanup
                 element.OnCleanup += el =>
                 {
                     Log.Info(this, "Cleaning up subscriptions for {0}.", element.id);
 
-                    List<Func<JsValue, JsValue[], JsValue>> cleanupList;
+                    List<JsFunc> cleanupList;
                     if (_enterCallbacks.TryGetValue(element, out cleanupList))
                     {
                         cleanupList.Remove(callback);
@@ -169,12 +171,12 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <param name="jsValue">Element that will be unsubscribed</param>
         /// <param name="eventName">Event to unsubscribe from.</param>
         /// <param name="callback">JS callback to unsubscribe</param>
-        public void unsubscribe(JsValue jsValue, string eventName, Func<JsValue, JsValue[], JsValue> callback)
+        public void unsubscribe(JsValue jsValue, string eventName, JsFunc callback)
         {
             var element = ConvertJsValue(jsValue);
             var map = GetMap(eventName);
 
-            List<Func<JsValue, JsValue[], JsValue>> list;
+            List<JsFunc> list;
             if (map.TryGetValue(element, out list))
             {
                 list.Remove(callback);
@@ -208,7 +210,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         /// <param name="eventName">Name of the event.</param>
         /// <returns></returns>
-        private Dictionary<IEntityJs, List<Func<JsValue, JsValue[], JsValue>>> GetMap(string eventName)
+        private Dictionary<IEntityJs, List<JsFunc>> GetMap(string eventName)
         {
             switch (eventName)
             {
@@ -344,11 +346,11 @@ namespace CreateAR.SpirePlayer.Scripting
         {
             var map = GetMap(@event);
 
-            List<Func<JsValue, JsValue[], JsValue>> callbacks;
+            List<JsFunc> callbacks;
             if (map.TryGetValue(listener, out callbacks))
             {
                 var @this = JsValue.FromObject(_engine, listener);
-                var parameters = new [] { JsValue.FromObject(_engine, trigger) };
+                var parameters = new [] { JsValue.FromObject(_engine, listener), JsValue.FromObject(_engine, trigger) };
 
                 // copy for now, in case an unsubscribe is in the callback
                 var copy = callbacks.ToArray();
