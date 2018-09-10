@@ -1,6 +1,8 @@
 ﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.SpirePlayer.IUX;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Scripting
 {
@@ -33,22 +35,27 @@ namespace CreateAR.SpirePlayer.Scripting
         public Action<IEntityJs, IEntityJs> OnExit;
 
         /// <summary>
-        /// Helper class used to represent an element and its current configuration for proximity checking
+        /// Helper class used to represent an entity and its current configuration for proximity checking
         /// </summary>
         private class EntityConfig
         {
             /// <summary>
-            /// Element to represent
+            /// Entity to represent
             /// </summary>
-            public IEntityJs Element;
+            public IEntityJs Entity;
 
             /// <summary>
-            /// Whether the Element should react to triggers
+            /// Cached backing GameObject behind the IEntityJs
+            /// </summary>
+            public GameObject GameObject;
+
+            /// <summary>
+            /// Whether the Entity should react to triggers
             /// </summary>
             public bool IsListening;
 
             /// <summary>
-            /// Whether the Element should trigger proximity events with listeners
+            /// Whether the Entity should trigger proximity events with listeners
             /// </summary>
             public bool IsTrigger;
 
@@ -70,12 +77,12 @@ namespace CreateAR.SpirePlayer.Scripting
         private class Collision
         {
             /// <summary>
-            /// Configuration for one Element in a collision.
+            /// Configuration for one Entity in a collision.
             /// </summary>
             public EntityConfig A;
 
             /// <summary>
-            /// Configuration for the other Element in a collision.
+            /// Configuration for the other Entity in a collision.
             /// </summary>
             public EntityConfig B;
 
@@ -97,15 +104,22 @@ namespace CreateAR.SpirePlayer.Scripting
         private readonly List<Collision> _collisions = new List<Collision>();
 
         /// <summary>
-        /// Updates an Element with regards to its current listening state, and whether it is a trigger or not.
+        /// Updates an Entity with regards to its current listening state, and whether it is a trigger or not.
         /// </summary>
         /// <param name="element">The element to update.</param>
         /// <param name="isListening">True iff the element should receive events.</param>
         /// <param name="isTrigger">True iff the element should trigger events.</param>
-        public void SetElementState(IEntityJs element, bool isListening, bool isTrigger)
+        public void SetElementState(IEntityJs entity, bool isListening, bool isTrigger)
         {
+            var backingGameObject = EntityToGameObject(entity);
+            if (backingGameObject == null)
+            {
+                Log.Warning(this, "Can't find backing gameobject for " + entity);
+                return;
+            }
+
             // Find an existing config, or make a new one
-            var config = FindElementConfig(element);
+            var config = FindElementConfig(backingGameObject);
             if (config == null)
             {
                 // Just early out if it wouldn't be tracked anyway. This occurs commonly during scene building
@@ -113,10 +127,11 @@ namespace CreateAR.SpirePlayer.Scripting
                 {
                     return;
                 }
-
+                
                 config = new EntityConfig
                 {
-                    Element = element
+                    Entity = entity,
+                    GameObject = backingGameObject
                 };
                 _activeElements.Add(config);
             }
@@ -135,7 +150,7 @@ namespace CreateAR.SpirePlayer.Scripting
                 for (var i = 0; i < collisionsLen; i++)
                 {
                     var collision = _collisions[i];
-                    if (collision.A.Element == element || collision.B.Element == element)
+                    if (collision.A.GameObject == backingGameObject || collision.B.GameObject == backingGameObject)
                     {
                         _collisions.RemoveAt(i--);
 
@@ -148,12 +163,13 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <summary>
         /// Updates an Elements' radii values
         /// </summary>
-        /// <param name="element">Element to update</param>
+        /// <param name="element">Entity to update</param>
         /// <param name="innerRadius">Radius that'll trigger enter events</param>
         /// <param name="outerRadius">Raadius that'll trigger exit events</param>
-        public void SetElementRadii(IEntityJs element, float innerRadius, float outerRadius)
+        public void SetElementRadii(IEntityJs entity, float innerRadius, float outerRadius)
         {
-            var config = FindElementConfig(element);
+            var backingGameObject = EntityToGameObject(entity);
+            var config = FindElementConfig(backingGameObject);
             if (config != null)
             {
                 config.InnerRadius = Math.Max(0, innerRadius);
@@ -190,8 +206,8 @@ namespace CreateAR.SpirePlayer.Scripting
                     for (var k = 0; k < collisionsCount; k++)
                     {
                         var cachedCollision = _collisions[k];
-                        if ((configA.Element == cachedCollision.A.Element || configA.Element == cachedCollision.B.Element) &&
-                            (configB.Element == cachedCollision.A.Element || configB.Element == cachedCollision.B.Element))
+                        if ((configA.Entity == cachedCollision.A.Entity || configA.Entity == cachedCollision.B.Entity) &&
+                            (configB.Entity == cachedCollision.A.Entity || configB.Entity == cachedCollision.B.Entity))
                         {
                             collision = cachedCollision;
                             break;
@@ -199,7 +215,7 @@ namespace CreateAR.SpirePlayer.Scripting
                     }
 
                     // Calculate distance
-                    var distanceSq = Vec3.DistanceXZSqr(configA.Element.transform.position, configB.Element.transform.position);
+                    var distanceSq = CalculateDistanceXZSqr(configA.GameObject.transform.position, configB.GameObject.transform.position);
 
                     // Determine proximity change
                     if (collision == null)
@@ -247,37 +263,50 @@ namespace CreateAR.SpirePlayer.Scripting
         }
 
         /// <summary>
-        /// Finds an ElementConfig for a given Element
+        /// Finds an ElementConfig for a given Entity
         /// </summary>
-        /// <param name="element">Element to get Configuration for.</param>
+        /// <param name="gameObject">GameObject to get Configuration for.</param>
         /// <returns>Valid ElementConfig, or null.</returns>
-        private EntityConfig FindElementConfig(IEntityJs entity)
+        private EntityConfig FindElementConfig(GameObject gameObject)
         {
-            // TODO: Remove this abomination when there's one JS Engine for everything.
-            //  without casting to ElementJs, ElementJs' custom equality operators never get run
-            //  and different ElementJs instances that point to the same Element will cause duplicate
-            //  configurations, leading to multiple enter/exit events per Element.
-            var entityAsElement = entity as ElementJs;
-            var useCast = entityAsElement != null;
-
             var elementsLen = _activeElements.Count;
             for (var i = 0; i < elementsLen; i++)
             {
-                bool equivalent = false;
-                if (useCast)
-                {
-                    equivalent = entityAsElement == _activeElements[i].Element;
-                }
-                else 
-                {
-                    equivalent = entity == _activeElements[i].Element;
-                }
-
-                if (equivalent)
+                if (_activeElements[i].GameObject == gameObject)
                 {
                     return _activeElements[i];
                 }
             }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the underlying GameObject behind an IEntityJs instance.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        private GameObject EntityToGameObject(IEntityJs entity)
+        {
+            var elementJs = entity as ElementJs;
+            if (elementJs != null) 
+            {
+                // TODO: Traverse the hierarchy if this isn't widgets
+                var widget = elementJs.Element as Widget;
+                if (widget == null) 
+                {
+                    Log.Warning(this, "ElementJs was not a Widget");
+                    return null;
+                }
+
+                return widget.GameObject;
+            }
+
+            if (entity is PlayerJs) 
+            {
+                return ((PlayerJs) entity).gameObject;
+            }
+
+            Log.Warning(this, "IEntityJs was not ElementJs or PlayerJs");
             return null;
         }
 
@@ -293,11 +322,23 @@ namespace CreateAR.SpirePlayer.Scripting
             var validCollision = (a.IsListening && b.IsTrigger) || (b.IsListening && a.IsTrigger);
 
             // A little gross, would be nice to fully remove ElementJs knowledge. But ensure the camera won't pass this check
-            var aChildOfB = a.Element.isChildOf(b.Element);
-            var bChildOfA = b.Element.isChildOf(a.Element);
+            var aChildOfB = a.Entity.isChildOf(b.Entity);
+            var bChildOfA = b.Entity.isChildOf(a.Entity);
             var hierarchyOkay = !aChildOfB && !bChildOfA;
 
             return validCollision && hierarchyOkay;
+        }
+
+        /// <summary>
+        /// Calculates the squared horizontal distance between two Vector3's.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        private float CalculateDistanceXZSqr(Vector3 a, Vector3 b)
+        {
+            var diff = (a - b);
+            return diff.x * diff.x + diff.z * diff.z;
         }
 
         /// <summary>
@@ -315,12 +356,12 @@ namespace CreateAR.SpirePlayer.Scripting
 
             if (a.IsListening && b.IsTrigger)
             {
-                action(a.Element, b.Element);
+                action(a.Entity, b.Entity);
             }
 
             if (b.IsListening && a.IsTrigger)
             {
-                action(b.Element, a.Element);
+                action(b.Entity, a.Entity);
             }
         }
     }

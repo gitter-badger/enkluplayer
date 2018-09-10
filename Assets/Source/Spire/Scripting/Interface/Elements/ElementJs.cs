@@ -46,6 +46,15 @@ namespace CreateAR.SpirePlayer.Scripting
         /// Element we're wrapping.
         /// </summary>
         protected readonly Element _element;
+        
+        /// <summary>
+        /// The Element we're wrapping.
+        /// </summary>
+        [DenyJsAccess]
+        public Element Element
+        {
+            get { return _element; }
+        }
 
         /// <summary>
         /// The schema interface.
@@ -253,6 +262,29 @@ namespace CreateAR.SpirePlayer.Scripting
         public void off(string eventType, Func<JsValue, JsValue[], JsValue> fn)
         {
             EventList(eventType).Remove(fn);
+        }
+
+        /// <summary>
+        /// Returns the position of this ElementJs relative to another ElementJs. This value should not
+        /// be cached as elements aren't guarenteed to sit under the same world anchor.
+        ///
+        /// TODO: Make this more friendly/understandable for people unfamiliar with anchoring woes.
+        /// </summary>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public Vec3 positionRelativeTo(ElementJs other)
+        {
+            var thisAsWidget = _element as Widget;
+            var otherAsWidget = other._element as Widget;
+
+            // TODO: Traverse the hierarchy if these aren't widgets
+            if (thisAsWidget == null || otherAsWidget == null)
+            {
+                Log.Error(this, "Trying to find relative position with a non-widget?!");
+                return Vec3.Zero;
+            }
+
+            return (thisAsWidget.GameObject.transform.position - otherAsWidget.GameObject.transform.position).ToVec();
         }
         
         /// <summary>
