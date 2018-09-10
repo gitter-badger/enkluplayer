@@ -152,6 +152,8 @@ namespace CreateAR.SpirePlayer.IUX
         /// </summary>
         private void DrawPointGizmo()
         {
+            // TODO: Draw a sphere.
+            /*
             var handle = Render.Handle2D("Gizmo");
             if (null != handle)
             {
@@ -191,7 +193,7 @@ namespace CreateAR.SpirePlayer.IUX
                     ctx.Line(extents[8], extents[9]);
                     ctx.Line(extents[10], extents[11]);
                 });
-            }
+            }*/
         }
 
         /// <summary>
