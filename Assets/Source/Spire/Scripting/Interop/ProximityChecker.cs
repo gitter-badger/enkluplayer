@@ -290,6 +290,7 @@ namespace CreateAR.SpirePlayer.Scripting
             var elementJs = entity as ElementJs;
             if (elementJs != null) 
             {
+                // TODO: Traverse the hierarchy if this isn't widgets
                 var widget = elementJs.Element as Widget;
                 if (widget == null) 
                 {

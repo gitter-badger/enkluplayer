@@ -277,6 +277,7 @@ namespace CreateAR.SpirePlayer.Scripting
             var thisAsWidget = _element as Widget;
             var otherAsWidget = other._element as Widget;
 
+            // TODO: Traverse the hierarchy if these aren't widgets
             if (thisAsWidget == null || otherAsWidget == null)
             {
                 Log.Error(this, "Trying to find relative position with a non-widget?!");
