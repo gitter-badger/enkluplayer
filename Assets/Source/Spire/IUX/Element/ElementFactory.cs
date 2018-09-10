@@ -52,7 +52,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// Lookup from element type to base schema for that type.
         /// </summary>
         private readonly Dictionary<int, ElementSchema> _typeSchema = new Dictionary<int, ElementSchema>();
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -107,7 +107,7 @@ namespace CreateAR.SpirePlayer.IUX
             _metrics = metrics;
             _messages = messages;
             _elementJsFactory = elementJsFactory;
-
+            
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
             _baseSchema.Set("tweenOut", TweenType.Deliberate);
@@ -264,8 +264,6 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Constructor for tests. Not to be used in production code.
         /// </summary>
-        /// <param name="elements"></param>
-        /// <param name="gizmos"></param>
         public ElementFactory(IElementManager elements, IGizmoManager gizmos)
         {
             _elements = elements;

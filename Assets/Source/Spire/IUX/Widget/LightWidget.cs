@@ -105,7 +105,7 @@ namespace CreateAR.SpirePlayer.IUX
             _light.intensity = _intensityProp.Value;
             _light.shadows = ToLightShadows(_shadowsProp.Value);
             _light.color = _colorProp.Value.ToColor();
-
+            
             if (_light.type == LightType.Point)
             {
                 _light.range = _pointRangeProp.Value;
@@ -117,7 +117,7 @@ namespace CreateAR.SpirePlayer.IUX
 
             _light.spotAngle = _spotAngleProp.Value;
         }
-        
+
         /// <summary>
         /// Called when property changes.
         /// </summary>
