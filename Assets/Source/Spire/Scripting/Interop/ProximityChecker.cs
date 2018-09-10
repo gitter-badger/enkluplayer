@@ -111,7 +111,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <param name="isTrigger">True iff the element should trigger events.</param>
         public void SetElementState(IEntityJs entity, bool isListening, bool isTrigger)
         {
-            var backingGameObject = EntityToGameobject(entity);
+            var backingGameObject = EntityToGameObject(entity);
             if (backingGameObject == null)
             {
                 Log.Warning(this, "Can't find backing gameobject for " + entity);
@@ -168,7 +168,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <param name="outerRadius">Raadius that'll trigger exit events</param>
         public void SetElementRadii(IEntityJs entity, float innerRadius, float outerRadius)
         {
-            var backingGameObject = EntityToGameobject(entity);
+            var backingGameObject = EntityToGameObject(entity);
             var config = FindElementConfig(backingGameObject);
             if (config != null)
             {
@@ -272,7 +272,6 @@ namespace CreateAR.SpirePlayer.Scripting
             var elementsLen = _activeElements.Count;
             for (var i = 0; i < elementsLen; i++)
             {
-                bool equivalent = false;
                 if (_activeElements[i].GameObject == gameObject)
                 {
                     return _activeElements[i];
@@ -286,24 +285,28 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        private GameObject EntityToGameobject(IEntityJs entity)
+        private GameObject EntityToGameObject(IEntityJs entity)
         {
-            if(entity is ElementJs) {
-                var widget = ((ElementJs) entity).Element as Widget;
-                if(widget == null) {
+            var elementJs = entity as ElementJs;
+            if (elementJs != null) 
+            {
+                var widget = elementJs.Element as Widget;
+                if (widget == null) 
+                {
                     Log.Warning(this, "ElementJs was not a Widget");
                     return null;
                 }
 
                 return widget.GameObject;
             }
-            else if(entity is PlayerJs) {
-                return ((PlayerJs)entity).gameObject;
+
+            if (entity is PlayerJs) 
+            {
+                return ((PlayerJs) entity).gameObject;
             }
-            else {
-                Log.Warning(this, "IEntityJs was not ElementJs or PlayerJs");
-                return null;
-            }
+
+            Log.Warning(this, "IEntityJs was not ElementJs or PlayerJs");
+            return null;
         }
 
         /// <summary>
@@ -333,7 +336,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <returns></returns>
         private float CalculateDistanceXZSqr(Vector3 a, Vector3 b)
         {
-            Vector3 diff = (a - b);
+            var diff = (a - b);
             return diff.x * diff.x + diff.z * diff.z;
         }
 
