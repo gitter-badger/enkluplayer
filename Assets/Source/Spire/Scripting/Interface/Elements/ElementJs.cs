@@ -50,6 +50,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <summary>
         /// The Element we're wrapping.
         /// </summary>
+        [DenyJsAccess]
         public Element Element
         {
             get { return _element; }
