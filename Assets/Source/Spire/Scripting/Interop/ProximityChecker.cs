@@ -199,7 +199,7 @@ namespace CreateAR.SpirePlayer.Scripting
                     }
 
                     // Calculate distance
-                    var distanceSq = Vec3.DistanceSqr(configA.Element.transform.position, configB.Element.transform.position);
+                    var distanceSq = Vec3.DistanceXZSqr(configA.Element.transform.position, configB.Element.transform.position);
 
                     // Determine proximity change
                     if (collision == null)
@@ -251,12 +251,29 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         /// <param name="element">Element to get Configuration for.</param>
         /// <returns>Valid ElementConfig, or null.</returns>
-        private EntityConfig FindElementConfig(IEntityJs element)
+        private EntityConfig FindElementConfig(IEntityJs entity)
         {
+            // TODO: Remove this abomination when there's one JS Engine for everything.
+            //  without casting to ElementJs, ElementJs' custom equality operators never get run
+            //  and different ElementJs instances that point to the same Element will cause duplicate
+            //  configurations, leading to multiple enter/exit events per Element.
+            var entityAsElement = entity as ElementJs;
+            var useCast = entityAsElement != null;
+
             var elementsLen = _activeElements.Count;
             for (var i = 0; i < elementsLen; i++)
             {
-                if (_activeElements[i].Element == element)
+                bool equivalent = false;
+                if (useCast)
+                {
+                    equivalent = entityAsElement == _activeElements[i].Element;
+                }
+                else 
+                {
+                    equivalent = entity == _activeElements[i].Element;
+                }
+
+                if (equivalent)
                 {
                     return _activeElements[i];
                 }
