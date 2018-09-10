@@ -74,6 +74,12 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 return element.GetType().Name == _propValue;
             }
+
+            // Early out if the element doesn't contain the prop itself.
+            if (!element.Schema.HasOwnProp(_propName))
+            {
+                return false;
+            }
             
             // bool
             if (_propValue == "true" || _propValue == "false")
@@ -81,14 +87,14 @@ namespace CreateAR.SpirePlayer.IUX
                 var boolValue = _operator == OPERATOR_EQUALS
                     ? _propValue == "true"
                     : _propValue == "false";
-                return boolValue == element.Schema.Get<bool>(_propName).Value;
+                return boolValue == element.Schema.GetOwn(_propName, default(bool)).Value;
             }
 
             // int
             int intValue;
             if (int.TryParse(_propValue, out intValue))
             {
-                var val = element.Schema.Get<int>(_propName).Value;
+                var val = element.Schema.GetOwn(_propName, default(int)).Value;
                 switch (_operator)
                 {
                     case OPERATOR_EQUALS:
@@ -123,7 +129,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
 
             // string
-            return _propValue == element.Schema.Get<string>(_propName).Value;
+            return _propValue == element.Schema.GetOwn(_propName, string.Empty).Value;
         }
 
         /// <summary>
