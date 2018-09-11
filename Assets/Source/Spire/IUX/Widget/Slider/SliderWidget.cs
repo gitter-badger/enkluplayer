@@ -205,7 +205,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <inheritdoc />
         public bool Raycast(Vec3 origin, Vec3 direction)
         {
-            return true;
+            return _handle.Raycast(origin, direction);
         }
         
         /// <inheritdoc />
