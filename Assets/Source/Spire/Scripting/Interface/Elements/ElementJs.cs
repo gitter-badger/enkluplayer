@@ -70,7 +70,7 @@ namespace CreateAR.SpirePlayer.Scripting
         /// <summary>
         /// The animator interface.
         /// </summary>
-        public readonly AnimatorJsApi animator;
+        public AnimatorJsApi animator { get; private set; }
 
         /// <summary>
         /// Unique id of the element.
@@ -152,15 +152,7 @@ namespace CreateAR.SpirePlayer.Scripting
             var thisAsWidget = _element as ContentWidget;
             if (thisAsWidget != null)
             {
-                var assetGameObject = thisAsWidget.AssetGameObject;
-                if (assetGameObject != null)
-                {
-                    var unityAnimator = assetGameObject.GetComponent<Animator>();
-                    if (unityAnimator != null)
-                    {
-                        animator = new AnimatorJsApi(unityAnimator);
-                    }
-                }
+                thisAsWidget.OnLoaded.OnSuccess(CacheAnimator);
             }
 
             _this = JsValue.FromObject(_engine, this);
@@ -171,6 +163,12 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         public virtual void Cleanup()
         {
+            var thisAsWidget = _element as ContentWidget;
+            if (thisAsWidget != null)
+            {
+                thisAsWidget.OnLoaded.Remove(CacheAnimator);
+            }
+
             if (null != OnCleanup)
             {
                 OnCleanup(this);
@@ -350,6 +348,26 @@ namespace CreateAR.SpirePlayer.Scripting
             }
 
             return list;
+        }
+
+        /// <summary>
+        /// Attempts to set <see cref="animator"/>.
+        /// </summary>
+        private void CacheAnimator(ContentWidget @this)
+        {
+            var assetGameObject = @this.AssetGameObject;
+            if (assetGameObject != null)
+            {
+                var unityAnimator = assetGameObject.GetComponent<Animator>();
+                if (unityAnimator != null)
+                {
+                    animator = new AnimatorJsApi(unityAnimator);
+                }
+            }
+            else
+            {
+                Log.Error(this, "Caching Animator for a ContentWidget with no Asset yet");
+            }
         }
 
         /// <summary>
