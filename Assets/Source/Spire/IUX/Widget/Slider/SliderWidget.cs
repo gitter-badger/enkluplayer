@@ -87,17 +87,35 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 if (null != _handle)
                 {
-                    var delta = _handle.GameObject.transform.position - GameObject.transform.position;
-                    return delta.magnitude + _valueAtCenter;
+                    var center = (_maxImage.GameObject.transform.position + _minImage.GameObject.transform.position) / 2f;
+                    var handlePos = _handle.GameObject.transform.position;
+
+                    var minDelta = handlePos - _minImage.GameObject.transform.position;
+                    var maxDelta = handlePos - _maxImage.GameObject.transform.position;
+                    var minMag = minDelta.magnitude;
+                    var maxMag = maxDelta.magnitude;
+
+                    if (minMag < maxMag)
+                    {
+                        return _valueAtCenter - ValueMultiplier * (center - _handle.GameObject.transform.position).magnitude;
+                    }
+
+                    return _valueAtCenter + ValueMultiplier * (center - _handle.GameObject.transform.position).magnitude;
                 }
 
-                return 0f;
+                return _valueAtCenter;
             }
             set
             {
+                // TODO: Calculate what the value at the center would be given the current state
                 _valueAtCenter = value;
             }
         }
+
+        /// <summary>
+        /// Multiplies value.
+        /// </summary>
+        public float ValueMultiplier { get; set; }
 
         /// <inheritdoc />
         public bool Focused
@@ -194,6 +212,8 @@ namespace CreateAR.SpirePlayer.IUX
                 tweens,
                 colors)
         {
+            ValueMultiplier = 1f;
+
             _elements = elements;
             _intentions = intentions;
             _interactions = interactions;
@@ -224,11 +244,7 @@ namespace CreateAR.SpirePlayer.IUX
             _tooltipProp = Schema.Get<bool>("tooltip");
             _tooltipProp.OnChanged += Tooltip_OnChanged;
 
-            _handle = (ButtonWidget) _elements.Element(string.Format(
-                "<?Vine><Button id='btn-x' icon='{0}' position=(-0.2, 0, 0) ready.color='Highlight' />",
-                EnumExtensions.Parse<AxisType>(_axisProp.Value) == AxisType.X
-                    ? "arrow-double"
-                    : "arrow-double-vertical"));
+            _handle = (ButtonWidget) _elements.Element("<?Vine><Button id='btn-x' position=(-0.2, 0, 0) ready.color='Highlight' />");
             AddChild(_handle);
             _handle.Activator.OnActivated += MoveSlider_OnActivated;
 
@@ -325,9 +341,10 @@ namespace CreateAR.SpirePlayer.IUX
             }
             else if (axis == AxisType.Z)
             {
-                // plane tilted at 45 degrees
-                _d = Quaternion.AngleAxis(-45, Vector3.right) * flattenedForward;
-                _n = Quaternion.AngleAxis(-135, Vector3.right) * flattenedForward;
+                // plane tilted at 45 degrees from forward
+                var forward = _intentions.Forward.ToVector();
+                _d = Quaternion.AngleAxis(-45, Vector3.right) * forward;
+                _n = Quaternion.AngleAxis(-135, Vector3.right) * forward;
             }
             else
             {
@@ -358,7 +375,7 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _minImage.Schema.Set("src", "res://Art/Textures/arrow-down");
                 _maxImage.Schema.Set("src", "res://Art/Textures/arrow-up");
-                _handle.Schema.Set("icon", "arrow-double-vertical");
+                _handle.Schema.Set("icon", "arrow-z");
             }
             else
             {
