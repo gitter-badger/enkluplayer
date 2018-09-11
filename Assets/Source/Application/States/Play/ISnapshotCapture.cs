@@ -7,6 +7,11 @@
     public interface ISnapshotCapture
     {
         /// <summary>
+        /// Prep for capture.
+        /// </summary>
+        void Setup();
+
+        /// <summary>
         /// Captures a snapshot with the default/recommended resolution.
         /// </summary>
         void Capture();
@@ -20,7 +25,7 @@
         void Capture(int width, int height);
 
         /// <summary>
-        /// Cleans up the ISnapshotCapture implementation.
+        /// Shuts down the capture.
         /// </summary>
         void Teardown();
     }

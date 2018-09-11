@@ -1,13 +1,11 @@
 <?Vine>
 
-<Container face='camera' position=(-0.6, 0.1, 0)>
-	<ScaleTransition>
-		<Menu position=(0.3, 0, 0) >
-			<Toggle id='tgl-visible' label='Visible' />
-			<Button id='btn-move' label='Move' icon='move' />
-			<Button id='btn-setparent' label='Set Parent' icon='hierarchy' />
-			<Button id='btn-duplicate' label='Duplicate' icon='duplicate' />
-			<Button id='btn-delete' label='Delete' icon='trash' />
-		</Menu>
-	</ScaleTransition>
+<Container face='camera' position=(0, 0, 0)>
+	<Menu position=(-0.4, 0.15, 0) >
+		<Toggle id='tgl-visible' label='Visible' />
+		<Button id='btn-move' label='Move' icon='move' />
+		<Button id='btn-setparent' label='Set Parent' icon='hierarchy' />
+		<Button id='btn-duplicate' label='Duplicate' icon='duplicate' />
+		<Button id='btn-delete' label='Delete' icon='trash' />
+	</Menu>
 </Container>

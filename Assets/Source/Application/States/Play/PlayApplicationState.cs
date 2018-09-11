@@ -184,6 +184,7 @@ namespace CreateAR.SpirePlayer
             _voice.Register("reset", Voice_OnReset);
 
             // listen for snapshot command
+            _snapshot.Setup();
             _voice.Register("snap", (cmd) => { _snapshot.Capture(); });
 
             // load playmode scene

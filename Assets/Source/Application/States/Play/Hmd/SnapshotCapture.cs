@@ -28,26 +28,21 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private PhotoCapture _photoCapture;
 
-        public SnapshotCapture()
+        /// <inheritdoc />
+        public void Setup()
         {
-            PhotoCapture.CreateAsync(true, (captureObject) =>
-            {
-                _photoCapture = captureObject;
-            });
+            // TODO: if Teardown() is called before this returns, we need to destroy the
+            // TODO: object
+            PhotoCapture.CreateAsync(true, captureObject => _photoCapture = captureObject);
         }
 
-        /// <summary>
-        /// Creates a snapshot with the default Hololens resolution.
-        /// </summary>
+        /// <inheritdoc />
         public void Capture()
         {
             Capture(WIDTH, HEIGHT);
         }
 
-        /// <summary>
-        /// Creates a snapshot with a specified resolution.
-        /// </summary>
-        /// <param name="command">Voice command string.</param>
+        /// <inheritdoc />
         public void Capture(int width, int height)
         {
             if (_photoCapture == null)
@@ -65,6 +60,16 @@ namespace CreateAR.SpirePlayer
             cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;
 
             _photoCapture.StartPhotoModeAsync(cameraParameters, OnEnterPhotoMode);
+        }
+
+        /// <inheritdoc />
+        public void Teardown()
+        {
+            if (null != _photoCapture)
+            {
+                _photoCapture.Dispose();
+                _photoCapture = null;
+            }
         }
 
         /// <summary>
@@ -141,15 +146,6 @@ namespace CreateAR.SpirePlayer
                     Log.Error(this, string.Format("Failed to stop PhotoMode ({0}).", result.hResult));
                 }
             });
-        }
-
-        /// <summary>
-        /// Disposes of the underlying PhotoCapture instance.
-        /// </summary>
-        public void Teardown()
-        {
-            _photoCapture.Dispose();
-            _photoCapture = null;
         }
     }
 }
