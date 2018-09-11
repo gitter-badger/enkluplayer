@@ -312,19 +312,22 @@ namespace CreateAR.SpirePlayer.IUX
         {
             _O = GameObject.transform.position;
 
+            var flattenedForward = new Vector3(
+                _intentions.Forward.x,
+                0,
+                _intentions.Forward.z).normalized;
+
             var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
             if (axis == AxisType.Y)
             {
                 _d = Vector3.up;
-                _n = new Vector3(
-                    -_intentions.Forward.x,
-                    0,
-                    -_intentions.Forward.z).normalized;
+                _n = -flattenedForward;
             }
             else if (axis == AxisType.Z)
             {
-                _d = Vector3.forward;
-                _n = Vector3.right;
+                // plane tilted at 45 degrees
+                _d = Quaternion.AngleAxis(-45, Vector3.right) * flattenedForward;
+                _n = Quaternion.AngleAxis(-135, Vector3.right) * flattenedForward;
             }
             else
             {
@@ -332,22 +335,11 @@ namespace CreateAR.SpirePlayer.IUX
                     _intentions.Right.x,
                     0,
                     _intentions.Right.z).normalized;
-                _n = -_intentions.Forward.ToVector().normalized;
+                _n = -flattenedForward;
             }
 
             _renderer.O = _O;
             _renderer.d = _d;
-
-            var handle = Render.Handle("IUX");
-            if (null != handle)
-            {
-                handle.Draw(ctx =>
-                {
-                    ctx.Color(UnityEngine.Color.yellow);
-                    ctx.Cube(_O, 0.1f);
-                    ctx.Line(_O, _O + _d);
-                });
-            }
         }
 
         /// <summary>
@@ -364,8 +356,8 @@ namespace CreateAR.SpirePlayer.IUX
             }
             else if (axis == AxisType.Z)
             {
-                _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
-                _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
+                _minImage.Schema.Set("src", "res://Art/Textures/arrow-down");
+                _maxImage.Schema.Set("src", "res://Art/Textures/arrow-up");
                 _handle.Schema.Set("icon", "arrow-double-vertical");
             }
             else
@@ -413,6 +405,14 @@ namespace CreateAR.SpirePlayer.IUX
                     ctx.Cube(intersection, 0.1f);
                     ctx.Line(intersection, _O + projection * _d);
                     ctx.Line(_O, _O + projection * _d);
+
+                    ctx.Color(UnityEngine.Color.yellow);
+                    ctx.Cube(_O, 0.1f);
+
+                    ctx.Color(UnityEngine.Color.blue);
+                    ctx.Line(_O, _O + _d);
+                    ctx.Color(UnityEngine.Color.red);
+                    ctx.Line(_O, _O + _n);
                 });
             }
 
