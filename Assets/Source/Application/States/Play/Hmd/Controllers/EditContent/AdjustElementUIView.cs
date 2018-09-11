@@ -171,8 +171,7 @@ namespace CreateAR.SpirePlayer
             
             if (SliderZ.Visible)
             {
-                // cast from camera through focus to z-plane
-                //_controller.ElementTransform.position = SliderZ.Focus.ToVector() + _sliderOffset;
+                _controller.ElementTransform.position = _startPosition + SliderZ.Value * _startForward;
             }
 
             if (SliderScale.Visible)
@@ -389,6 +388,10 @@ namespace CreateAR.SpirePlayer
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
             _startPosition = _controller.ElementTransform.position;
+            _startForward = new Vector3(
+                Intention.Forward.x,
+                0,
+                Intention.Forward.z).normalized;
 
             CopyCurrentAssetTransform();
             _transformChangeConfirmed = false;
