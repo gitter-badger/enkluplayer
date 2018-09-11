@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Jint;
 using Jint.Native;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Scripting
 {
@@ -65,6 +66,11 @@ namespace CreateAR.SpirePlayer.Scripting
         /// The transform interface.
         /// </summary>
         public IElementTransformJsApi transform { get; private set; }
+
+        /// <summary>
+        /// The animator interface.
+        /// </summary>
+        public readonly AnimatorJsApi animator;
 
         /// <summary>
         /// Unique id of the element.
@@ -142,6 +148,16 @@ namespace CreateAR.SpirePlayer.Scripting
             
             schema = new ElementSchemaJsApi(engine, _element.Schema);
             transform = new ElementTransformJsApi(_element);
+
+            var thisAsWidget = _element as Widget;
+            if (thisAsWidget != null)
+            {
+                var unityAnimator = thisAsWidget.GameObject.GetComponent<Animator>();
+                if (unityAnimator != null)
+                {
+                    animator = new AnimatorJsApi(unityAnimator);
+                }
+            }
 
             _this = JsValue.FromObject(_engine, this);
         }
