@@ -62,6 +62,12 @@ namespace CreateAR.SpirePlayer
             }
         }
 
+        /// <inheritdoc />
+        public GameObject Assembly
+        {
+            get { return _instance; }
+        }
+
         /// <summary>
         /// Called when asset is setup.
         /// </summary>

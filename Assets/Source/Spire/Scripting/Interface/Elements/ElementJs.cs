@@ -149,13 +149,17 @@ namespace CreateAR.SpirePlayer.Scripting
             schema = new ElementSchemaJsApi(engine, _element.Schema);
             transform = new ElementTransformJsApi(_element);
 
-            var thisAsWidget = _element as Widget;
+            var thisAsWidget = _element as ContentWidget;
             if (thisAsWidget != null)
             {
-                var unityAnimator = thisAsWidget.GameObject.GetComponent<Animator>();
-                if (unityAnimator != null)
+                var assetGameObject = thisAsWidget.AssetGameObject;
+                if (assetGameObject != null)
                 {
-                    animator = new AnimatorJsApi(unityAnimator);
+                    var unityAnimator = assetGameObject.GetComponent<Animator>();
+                    if (unityAnimator != null)
+                    {
+                        animator = new AnimatorJsApi(unityAnimator);
+                    }
                 }
             }
 

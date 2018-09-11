@@ -14,6 +14,11 @@ namespace CreateAR.SpirePlayer
         Bounds Bounds { get; }
 
         /// <summary>
+        /// Retrieves the current assembled GameObject. May be null during loading.
+        /// </summary>
+        GameObject Assembly { get; }
+
+        /// <summary>
         /// Called when assembly is complete.
         /// </summary>
         event Action<GameObject> OnAssemblyComplete;

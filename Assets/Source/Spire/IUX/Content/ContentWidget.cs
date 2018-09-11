@@ -99,6 +99,14 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Returns the underlying <see cref="IContentAssembler"/>'s current Assembly.
+        /// </summary>
+        public GameObject AssetGameObject
+        {
+            get { return _assembler.Assembly; }
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ContentWidget(
