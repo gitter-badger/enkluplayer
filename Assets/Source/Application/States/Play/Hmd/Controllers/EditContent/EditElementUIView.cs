@@ -78,7 +78,13 @@ namespace CreateAR.SpirePlayer
             BtnReparent.Activator.OnActivated += Reparent_OnActivated;
             BtnDelete.Activator.OnActivated += Delete_OnActivated;
             BtnDuplicate.Activator.OnActivated += Duplicate_OnActivated;
-            Root.Schema.Get<bool>("visible").OnChanged += (prop, prev, next) => ResetMenuPosition();
+            Root.Schema.Get<bool>("visible").OnChanged += (prop, prev, next) =>
+            {
+                if (null != _controller)
+                {
+                    ResetMenuPosition();
+                }
+            };
         }
 
         /// <inheritdoc />
@@ -97,10 +103,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void ResetMenuPosition()
         {
-            if (null != _controller)
-            {
-                transform.position = _controller.ElementTransform.position;
-            }
+            transform.position = _controller.ElementTransform.position;
         }
 
         /// <summary>
