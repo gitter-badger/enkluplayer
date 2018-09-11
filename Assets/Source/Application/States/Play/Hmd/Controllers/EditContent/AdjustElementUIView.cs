@@ -39,6 +39,11 @@ namespace CreateAR.SpirePlayer
         /// Flag to determine the focus on line.
         /// </summary>
         private bool _transformChangeConfirmed;
+
+        /// <summary>
+        /// Offset to add to slider positioning.
+        /// </summary>
+        private Vector3 _sliderOffset;
         
         /// <summary>
         /// Storing previous values before adjusting transform.
@@ -154,17 +159,17 @@ namespace CreateAR.SpirePlayer
             
             if (SliderX.Visible)
             {
-                _controller.ElementTransform.position = SliderX.Focus.ToVector();
+                _controller.ElementTransform.position = SliderX.Focus.ToVector() + _sliderOffset;
             }
 
             if (SliderY.Visible)
             {
-                _controller.ElementTransform.position = SliderY.Focus.ToVector();
+                _controller.ElementTransform.position = SliderY.Focus.ToVector() + _sliderOffset;
             }
             
             if (SliderZ.Visible)
             {
-                _controller.ElementTransform.position = SliderZ.Focus.ToVector();
+                _controller.ElementTransform.position = SliderZ.Focus.ToVector() + _sliderOffset;
             }
 
             if (SliderScale.Visible)
@@ -210,9 +215,9 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void CopyCurrentAssetTransform()
         {
-            _prevPosition = _controller.transform.position;
-            _prevRotation = _controller.transform.localRotation;
-            _prevScale = _controller.transform.localScale;
+            _prevPosition = _controller.ElementTransform.localPosition;
+            _prevRotation = _controller.ElementTransform.localRotation;
+            _prevScale = _controller.ElementTransform.localScale;
         }
 
         /// <summary>
@@ -334,6 +339,13 @@ namespace CreateAR.SpirePlayer
             _transformChangeConfirmed = false;
 
             Container.LocalVisible = false;
+
+            // center slider on element's position
+            var elementPosition = _controller.ElementTransform.position;
+            _sliderOffset = elementPosition - activatorPrimitive.GameObject.transform.position;
+            SliderX.GameObject.transform.position = elementPosition;
+            SliderX.Value = 0f;
+            SliderX.Focus = (_controller.ElementTransform.position - _sliderOffset).ToVec();
             SliderX.LocalVisible = true;
         }
 
@@ -346,6 +358,13 @@ namespace CreateAR.SpirePlayer
             _transformChangeConfirmed = false;
 
             Container.LocalVisible = false;
+
+            // center slider on element's position
+            var elementPosition = _controller.ElementTransform.position;
+            _sliderOffset = elementPosition - activatorPrimitive.GameObject.transform.position;
+            SliderY.GameObject.transform.position = elementPosition;
+            SliderY.Value = 0f;
+            SliderY.Focus = (_controller.ElementTransform.position - _sliderOffset).ToVec();
             SliderY.LocalVisible = true;
         }
         
@@ -354,6 +373,7 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private void BtnZ_OnActivated(ActivatorPrimitive activatorPrimitive)
         {
+            return;
             _startPosition = _controller.ElementTransform.position;
 
             CopyCurrentAssetTransform();
@@ -361,6 +381,9 @@ namespace CreateAR.SpirePlayer
             
             Container.LocalVisible = false;
             SliderZ.LocalVisible = true;
+
+            // center slider on element's position
+            //SliderZ.GameObject.transform.position = _controller.ElementTransform.position;
         }
 
         /// <summary>

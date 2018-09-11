@@ -127,6 +127,10 @@ namespace CreateAR.SpirePlayer.IUX
                 }
                 return GameObject.transform.position.ToVec();
             }
+            set
+            {
+                _handle.GameObject.transform.position = value.ToVector();
+            }
         }
 
         /// <inheritdoc />
@@ -220,7 +224,11 @@ namespace CreateAR.SpirePlayer.IUX
             _tooltipProp = Schema.Get<bool>("tooltip");
             _tooltipProp.OnChanged += Tooltip_OnChanged;
 
-            _handle = (ButtonWidget) _elements.Element("<?Vine><Button id='btn-x' icon='arrow-double' position=(-0.2, 0, 0) ready.color='Highlight' />");
+            _handle = (ButtonWidget) _elements.Element(string.Format(
+                "<?Vine><Button id='btn-x' icon='{0}' position=(-0.2, 0, 0) ready.color='Highlight' />",
+                EnumExtensions.Parse<AxisType>(_axisProp.Value) == AxisType.X
+                    ? "arrow-double"
+                    : "arrow-double-vertical"));
             AddChild(_handle);
             _handle.Activator.OnActivated += MoveSlider_OnActivated;
 
@@ -303,20 +311,20 @@ namespace CreateAR.SpirePlayer.IUX
         private void UpdateBasis()
         {
             _O = GameObject.transform.position;
-            _n = -_intentions.Forward.ToVector().normalized;
 
             var axis = EnumExtensions.Parse<AxisType>(_axisProp.Value.ToUpperInvariant());
             if (axis == AxisType.Y)
             {
                 _d = Vector3.up;
+                _n = new Vector3(
+                    -_intentions.Forward.x,
+                    0,
+                    -_intentions.Forward.z).normalized;
             }
             else if (axis == AxisType.Z)
             {
-                _d = new Vector3(
-                    _intentions.Forward.x,
-                    0,
-                    _intentions.Forward.z).normalized;
-                _n = Vector3.Cross(_d, Vector3.up);
+                _d = Vector3.forward;
+                _n = Vector3.right;
             }
             else
             {
@@ -324,6 +332,7 @@ namespace CreateAR.SpirePlayer.IUX
                     _intentions.Right.x,
                     0,
                     _intentions.Right.z).normalized;
+                _n = -_intentions.Forward.ToVector().normalized;
             }
 
             _renderer.O = _O;
@@ -351,16 +360,19 @@ namespace CreateAR.SpirePlayer.IUX
             {
                 _minImage.Schema.Set("src", "res://Art/Textures/arrow-down");
                 _maxImage.Schema.Set("src", "res://Art/Textures/arrow-up");
+                _handle.Schema.Set("icon", "arrow-double-vertical");
             }
             else if (axis == AxisType.Z)
             {
                 _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
                 _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
+                _handle.Schema.Set("icon", "arrow-double-vertical");
             }
             else
             {
                 _minImage.Schema.Set("src", "res://Art/Textures/arrow-left");
                 _maxImage.Schema.Set("src", "res://Art/Textures/arrow-right");
+                _handle.Schema.Set("icon", "arrow-double");
             }
 
             _minImage.GameObject.transform.position = _O - _lengthProp.Value * _d;
