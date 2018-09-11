@@ -175,6 +175,7 @@ namespace CreateAR.SpirePlayer
             _scriptsProp.OnChanged += Scripts_OnChanged;
             
             UpdateAsset();
+            RefreshScripts();
         }
 
         /// <inheritdoc />
@@ -440,8 +441,6 @@ namespace CreateAR.SpirePlayer
             }
 
             _onAssetLoaded.Succeed(this);
-
-            RefreshScripts();
         }
 
         /// <summary>
