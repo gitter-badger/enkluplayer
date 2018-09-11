@@ -1,6 +1,6 @@
 <?Vine>
 
-<Float id='container' face='camera' position=(0, 0, 3) fov.reorient=0.5>
+<Float id='container' face='camera' position=(0, 0, 3) fov.reorient=0.1>
 	<Image
 		src='res://Art/Textures/Outer Gradient'
 		width=.6

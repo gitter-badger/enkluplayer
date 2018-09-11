@@ -218,14 +218,20 @@ namespace CreateAR.SpirePlayer
             _voice.Unregister("reset");
             _voice.Unregister("snap");
 
+            Log.Info(this, "Teardown snapshot.");
+
             // teardown snapshot capture
             _snapshot.Teardown();
 
             // stop watching loads
             _app.OnReady -= App_OnReady;
 
+            Log.Info(this, "Teardown app.");
+
             // teardown app
             _app.Unload();
+
+            Log.Info(this, "Teardown designer.");
 
             // teardown designer
             _design.Teardown();

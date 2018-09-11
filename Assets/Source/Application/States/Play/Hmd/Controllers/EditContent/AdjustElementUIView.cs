@@ -15,17 +15,7 @@ namespace CreateAR.SpirePlayer
         /// Ties together the propdata and content.
         /// </summary>
         private ElementSplashDesignController _controller;
-
-        /// <summary>
-        /// Starting scale.
-        /// </summary>
-        private Vector3 _startScale;
-
-        /// <summary>
-        /// Starting rotation.
-        /// </summary>
-        private Vector3 _startRotation;
-
+        
         /// <summary>
         /// Starting position.
         /// </summary>
@@ -313,9 +303,7 @@ namespace CreateAR.SpirePlayer
             _transformChangeConfirmed = false;
 
             Container.LocalVisible = false;
-
-            _startRotation = _controller.ElementTransform.localRotation.eulerAngles;
-
+            
             // center slider on element's position
             SliderRotate.GameObject.transform.position = activatorPrimitive.GameObject.transform.position;
             SliderRotate.Value = _controller.ElementTransform.localEulerAngles.y;
@@ -332,9 +320,7 @@ namespace CreateAR.SpirePlayer
             _transformChangeConfirmed = false;
 
             Container.LocalVisible = false;
-
-            _startScale = _controller.ElementTransform.localScale;
-
+            
             // center slider on element's position
             var elementPosition = _controller.ElementTransform.position;
             _sliderOffset = elementPosition - activatorPrimitive.GameObject.transform.position;

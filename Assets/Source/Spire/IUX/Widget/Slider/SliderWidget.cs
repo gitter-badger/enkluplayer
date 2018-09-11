@@ -143,11 +143,15 @@ namespace CreateAR.SpirePlayer.IUX
                 {
                     return _handle.GameObject.transform.position.ToVec();
                 }
+
                 return GameObject.transform.position.ToVec();
             }
             set
             {
-                _handle.GameObject.transform.position = value.ToVector();
+                if (_handle != null)
+                {
+                    _handle.GameObject.transform.position = value.ToVector();
+                }
             }
         }
 
@@ -341,7 +345,7 @@ namespace CreateAR.SpirePlayer.IUX
             }
             else if (axis == AxisType.Z)
             {
-                // plane tilted at 45 degrees from forward
+                // plane tilted at 45 degrees from flat forward
                 var forward = _intentions.Forward.ToVector();
                 _d = Quaternion.AngleAxis(-45, Vector3.right) * forward;
                 _n = Quaternion.AngleAxis(-135, Vector3.right) * forward;

@@ -25,7 +25,7 @@ namespace CreateAR.SpirePlayer.IUX
         /// <summary>
         /// Color.
         /// </summary>
-        public Color Color = 0.25f * Color.white;
+        public Color Color = new Color(255 / 255f, 221 / 255f, 148 / 255f);
 
         /// <inheritdoc cref="MonoBehaviour" />
         private void Awake()

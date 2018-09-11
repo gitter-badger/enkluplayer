@@ -76,6 +76,7 @@ namespace CreateAR.SpirePlayer
         {
             var assetId = Content.Schema.GetOwn("assetSrc", string.Empty).Value;
             var assetData = Assets.Manifest.Data(assetId);
+            var rot = Content.GameObject.transform.rotation.eulerAngles;
             var element = new ElementData
             {
                 Id = Guid.NewGuid().ToString(),
@@ -90,7 +91,7 @@ namespace CreateAR.SpirePlayer
                     Vectors =
                     {
                         { "position", Content.GameObject.transform.position.ToVec() },
-                        { "rotation", Content.GameObject.transform.rotation.eulerAngles.ToVec() },
+                        { "rotation", new Vec3(0, rot.y, 0) },
                         { "scale", Content.GameObject.transform.localScale.ToVec() }
                     }
                 }
