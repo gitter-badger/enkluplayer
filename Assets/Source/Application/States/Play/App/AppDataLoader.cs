@@ -84,6 +84,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Load(string appId)
         {
+            Log.Info(this, "Load App {0}.", appId);
             return Async.Map(
                 Async.All(
                     LoadPrerequisites(appId),
@@ -94,14 +95,12 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Unload()
         {
-            // stop loads
             foreach (var pair in _sceneLoads)
             {
                 pair.Value.Abort();
             }
+
             _sceneLoads.Clear();
-            
-            // unload data
             _sceneData.Clear();
         }
 
