@@ -1,4 +1,5 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using System;
+using CreateAR.SpirePlayer.IUX;
 using Jint;
 using UnityEngine;
 
@@ -45,8 +46,7 @@ namespace CreateAR.SpirePlayer.Scripting
         private void CacheAnimator(ContentWidget contentWidget)
         {
             var unityAnimator = contentWidget.GetComponent<Animator>();
-            if (unityAnimator != null)
-            {
+            if(unityAnimator != null) {
                 animator = new AnimatorJsApi(unityAnimator);
             }
         }
