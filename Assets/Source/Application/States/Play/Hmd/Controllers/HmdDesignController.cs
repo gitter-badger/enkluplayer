@@ -344,13 +344,14 @@ namespace CreateAR.SpirePlayer
 
             outline.Init(bounds);
 
-            //Sets the reference object created as child of primary anchor if found
+            // Sets the reference object created as child of primary anchor if found
             _primaryAnchor.OnPrimaryLocated(() => {
-                WorldAnchorWidget primaryAnchorWidget = _primaryAnchor.Anchor;
+                var primaryAnchorWidget = _primaryAnchor.Anchor;
                 if (primaryAnchorWidget != null)
                 {
-                    _referenceCube.transform.SetParent(primaryAnchorWidget.GameObject.transform, false);
-                    Log.Info(this, "Reference cube added as child of primary anchor");
+                    _referenceCube.transform.SetParent(
+                        primaryAnchorWidget.GameObject.transform,
+                        false);
                 }
             });
         }

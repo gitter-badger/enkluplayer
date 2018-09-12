@@ -8,7 +8,6 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.SpirePlayer.IUX;
 using UnityEngine;
-using UnityEngine.XR.WSA;
 
 namespace CreateAR.SpirePlayer
 {
@@ -41,7 +40,11 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         public const string PROP_TAG_KEY = "tag";
         public const string PROP_TAG_VALUE = "primary";
+        public const string PROP_ENABLED_KEY = "worldanchor.enabled";
 
+        /// <summary>
+        /// True iff all anchors are ready to go.
+        /// </summary>
         public static bool AreAllAnchorsReady { get; private set; }
 
         /// <summary>
@@ -110,11 +113,6 @@ namespace CreateAR.SpirePlayer
         private readonly List<Action> _onReady = new List<Action>();
 
         /// <summary>
-        /// The primary anchor.
-        /// </summary>
-        private WorldAnchorWidget _primaryAnchor;
-
-        /// <summary>
         /// Immediate child of anchor.
         /// </summary>
         private ScanWidget _scan;
@@ -154,25 +152,37 @@ namespace CreateAR.SpirePlayer
         /// </summary>
         private CaptionWidget _cpn;
 
+        /// <summary>
+        /// True iff world anchors are enabled.
+        /// </summary>
+        private bool _isAnchoringEnabled;
+
+        /// <summary>
+        /// True iff anchors are enabled.
+        /// </summary>
+        private ElementSchemaProp<bool> _anchorsEnabledProp;
+
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
         {
             get
             {
-                if (null == _primaryAnchor)
+                if (!_anchorsEnabledProp.Value)
+                {
+                    return WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated;
+                }
+
+                if (null == Anchor)
                 {
                     return WorldAnchorWidget.WorldAnchorStatus.None;
                 }
 
-                return _primaryAnchor.Status;
+                return Anchor.Status;
             }
         }
 
         /// <inheritdoc />
-        public WorldAnchorWidget Anchor
-        {
-            get { return _primaryAnchor; }
-        }
+        public WorldAnchorWidget Anchor { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -227,50 +237,18 @@ namespace CreateAR.SpirePlayer
                 return;
             }
 
-            FindPrimaryAnchor(root);
+            // see if we need to use anchors
+            _anchorsEnabledProp = root.Schema.GetOwn(PROP_ENABLED_KEY, false);
+            _anchorsEnabledProp.OnChanged += Anchors_OnEnabledChanged;
 
-            if (DeviceHelper.IsHoloLens())
+            if (_anchorsEnabledProp.Value)
             {
-                OpenStatusUI();
+                SetupAnchors();
             }
-
-            if (_config.Play.Edit && DeviceHelper.IsHoloLens())
+            else
             {
-                if (null == _primaryAnchor)
-                {
-                    Log.Info(this, "No primary anchor found. Will create one!");
-
-                    CreatePrimaryAnchor(_sceneId, root);
-                }
-                else
-                {
-                    Log.Info(this, "Primary anchor found.");
-
-                    SetupMeshScan(false);
-                }
+                Ready();
             }
-
-            OnPrimaryLocated(() =>
-            {
-                // attempt to move unlocated world anchors into place
-                var anchors = new List<WorldAnchorWidget>();
-                root.Find("..(@type==WorldAnchorWidget)", anchors);
-
-                foreach (var anchor in anchors)
-                {
-                    if (anchor == _primaryAnchor)
-                    {
-                        continue;
-                    }
-
-                    if (anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
-                    {
-                        continue;
-                    }
-
-                    PositionAnchorRelativeToPrimary(anchor);
-                }
-            });
         }
 
         /// <inheritdoc />
@@ -278,16 +256,19 @@ namespace CreateAR.SpirePlayer
         {
             CloseStatusUI();
 
+            _anchorsEnabledProp.OnChanged -= Anchors_OnEnabledChanged;
+            _anchorsEnabledProp = null;
+
             if (null != _autoExportUnsub)
             {
                 _autoExportUnsub();
                 _resetUnsub();
             }
 
-            if (null != _primaryAnchor)
+            if (null != Anchor)
             {
-                _primaryAnchor.OnLocated -= Primary_OnLocated;
-                _primaryAnchor = null;
+                Anchor.OnLocated -= Primary_OnLocated;
+                Anchor = null;
             }
 
             if (null != _createToken)
@@ -321,6 +302,88 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
+        /// Called when ready methods should be called.
+        /// </summary>
+        private void Ready()
+        {
+            var temp = _onReady.ToArray();
+            _onReady.Clear();
+
+            for (int i = 0, len = temp.Length; i < len; i++)
+            {
+                temp[i]();
+            }
+        }
+
+        /// <summary>
+        /// Tears down anchors.
+        /// </summary>
+        private void TeardownAnchors()
+        {
+            CloseStatusUI();
+
+            if (null != _createToken)
+            {
+                _createToken.Abort();
+            }
+
+            TeardownMeshScan();
+        }
+
+        /// <summary>
+        /// Sets up anchors.
+        /// </summary>
+        private void SetupAnchors()
+        {
+            var root = _scenes.Root(_sceneId);
+
+            FindPrimaryAnchor(root);
+
+            if (DeviceHelper.IsHoloLens())
+            {
+                OpenStatusUI();
+            }
+
+            if (_config.Play.Edit && DeviceHelper.IsHoloLens())
+            {
+                if (null == Anchor)
+                {
+                    Log.Info(this, "No primary anchor found. Will create one!");
+
+                    CreatePrimaryAnchor(_sceneId, root);
+                }
+                else
+                {
+                    Log.Info(this, "Primary anchor found.");
+
+                    SetupMeshScan(false);
+                }
+            }
+
+            OnPrimaryLocated(() =>
+            {
+                // attempt to move unlocated world anchors into place
+                var anchors = new List<WorldAnchorWidget>();
+                root.Find("..(@type==WorldAnchorWidget)", anchors);
+
+                foreach (var anchor in anchors)
+                {
+                    if (anchor == Anchor)
+                    {
+                        continue;
+                    }
+
+                    if (anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+                    {
+                        continue;
+                    }
+
+                    PositionAnchorRelativeToPrimary(anchor);
+                }
+            });
+        }
+
+        /// <summary>
         /// Locates the primary anchor in a hierarchy.
         /// </summary>
         /// <param name="root">The root element.</param>
@@ -334,23 +397,23 @@ namespace CreateAR.SpirePlayer
                 var anchor = _anchors[i];
                 if (PROP_TAG_VALUE == anchor.Schema.Get<string>(PROP_TAG_KEY).Value)
                 {
-                    if (null != _primaryAnchor)
+                    if (null != Anchor)
                     {
                         Log.Error(this, "Found multiple primary anchors! Choosing first by id.");
 
                         // compare id so we at least pick the same primary each time
                         if (string.Compare(
-                                _primaryAnchor.Id,
+                                Anchor.Id,
                                 anchor.Id,
                                 StringComparison.Ordinal) < 0)
                         {
-                            _primaryAnchor = anchor;
+                            Anchor = anchor;
                         }
                     }
                     else
                     {
-                        _primaryAnchor = anchor;
-                        _primaryAnchor.OnLocated += Primary_OnLocated;
+                        Anchor = anchor;
+                        Anchor.OnLocated += Primary_OnLocated;
                     }
                 }
                 else if (anchor.Schema.GetOwn("autoexport", false).Value)
@@ -359,9 +422,9 @@ namespace CreateAR.SpirePlayer
                 }
             }
 
-            if (null != _primaryAnchor)
+            if (null != Anchor)
             {
-                _scan = (ScanWidget) _primaryAnchor.Children[0];
+                _scan = (ScanWidget) Anchor.Children[0];
             }
         }
 
@@ -408,11 +471,11 @@ namespace CreateAR.SpirePlayer
                     anchor.GameObject.transform.position = position.ToVector();
                     anchor.GameObject.transform.rotation = Quaternion.Euler(rotation.ToVector());
 
-                    _primaryAnchor = anchor;
-                    _primaryAnchor.OnLocated += Primary_OnLocated;
+                    Anchor = anchor;
+                    Anchor.OnLocated += Primary_OnLocated;
                     _scan = (ScanWidget) anchor.Children[0];
 
-                    SaveAnchor(_primaryAnchor);
+                    SaveAnchor(Anchor);
                     SetupMeshScan(true);
                 })
                 .OnFailure(exception => Log.Error(this, "Could not create primary anchor : {0}", exception));
@@ -444,7 +507,7 @@ namespace CreateAR.SpirePlayer
             while (null != _rootUI)
             {
                 var unreadyCount = _anchors.Count(anchor => anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated && anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated);
-                if (null == _primaryAnchor)
+                if (null == Anchor)
                 {
                     AreAllAnchorsReady = true;
 
@@ -622,7 +685,7 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchor">The anchor in question.</param>
         private void PositionAnchorRelativeToPrimary(WorldAnchorWidget anchor)
         {
-            if (null == anchor || !anchor.GameObject || null == _primaryAnchor || !_primaryAnchor.GameObject)
+            if (null == anchor || !anchor.GameObject || null == Anchor || !Anchor.GameObject)
             {
                 return;
             }
@@ -630,16 +693,39 @@ namespace CreateAR.SpirePlayer
             var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
             var anchorSchemaEul = anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
 
-            var primarySchemaPos = _primaryAnchor.Schema.Get<Vec3>("position").Value.ToVector();
-            var primarySchemaEul = _primaryAnchor.Schema.Get<Vec3>("rotation").Value.ToVector();
+            var primarySchemaPos = Anchor.Schema.Get<Vec3>("position").Value.ToVector();
+            var primarySchemaEul = Anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
 
-            var primaryTransformQuat = _primaryAnchor.GameObject.transform.rotation;
+            var primaryTransformQuat = Anchor.GameObject.transform.rotation;
 
-            var localToWorld = _primaryAnchor.GameObject.transform.localToWorldMatrix;
+            var localToWorld = Anchor.GameObject.transform.localToWorldMatrix;
             anchor.GameObject.transform.position = localToWorld.MultiplyPoint3x4(anchorSchemaPos - primarySchemaPos);
             anchor.GameObject.transform.rotation = Quaternion.Euler(anchorSchemaEul) *
                                                    Quaternion.Inverse(Quaternion.Euler(primarySchemaEul)) *
                                                    primaryTransformQuat;
+        }
+
+        /// <summary>
+        /// Called when anchors have been enabled/disabled.
+        /// </summary>
+        private void Anchors_OnEnabledChanged(
+            ElementSchemaProp<bool> prop,
+            bool prev,
+            bool next)
+        {
+            if (prev == next)
+            {
+                return;
+            }
+
+            if (next)
+            {
+                SetupAnchors();
+            }
+            else
+            {
+                TeardownAnchors();
+            }
         }
 
         /// <summary>
@@ -648,15 +734,9 @@ namespace CreateAR.SpirePlayer
         /// <param name="anchor">The anchor.</param>
         private void Primary_OnLocated(WorldAnchorWidget anchor)
         {
-            var temp = _onReady.ToArray();
-            _onReady.Clear();
-
-            for (int i = 0, len = temp.Length; i < len; i++)
-            {
-                temp[i]();
-            }
+            Ready();
         }
-
+        
         /// <summary>
         /// Called when a widget wants to auto-export.
         /// </summary>
@@ -686,7 +766,7 @@ namespace CreateAR.SpirePlayer
         {
             Log.Info(this, "Reset primary anchor requested.");
 
-            if (null == _primaryAnchor)
+            if (null == Anchor)
             {
                 Log.Warning(this, "No primary anchor to destroy.");
                 return;
@@ -696,7 +776,7 @@ namespace CreateAR.SpirePlayer
 
             // destroy primary anchor
             _txns
-                .Request(new ElementTxn(_sceneId).Delete(_primaryAnchor.Id))
+                .Request(new ElementTxn(_sceneId).Delete(Anchor.Id))
                 .OnSuccess(response =>
                 {
                     Log.Info(this, "Destroyed primary anchor. Recreating.");
