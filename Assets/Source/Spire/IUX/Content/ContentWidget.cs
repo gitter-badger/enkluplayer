@@ -129,6 +129,7 @@ namespace CreateAR.SpirePlayer
             _assembler.OnAssemblyComplete.OnSuccess(Assembler_OnAssemblyComplete);
         }
 
+        /// <inheritdoc />
         protected override void DestroyInternal()
         {
             _assembler.OnAssemblyComplete.Remove(Assembler_OnAssemblyComplete);

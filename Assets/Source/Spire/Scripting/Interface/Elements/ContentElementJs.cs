@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Scripting
 {
+    /// <summary>
+    /// ElementJs derivation for Elements that are ContentWidgets.
+    /// </summary>
     public class ContentElementJs : ElementJs
     {
         /// <summary>
@@ -11,8 +14,13 @@ namespace CreateAR.SpirePlayer.Scripting
         /// </summary>
         public AnimatorJsApi animator { get; private set; }
 
-        private readonly ContentWidget _contentWidget;
-
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="scripts"></param>
+        /// <param name="cache"></param>
+        /// <param name="engine"></param>
+        /// <param name="element"></param>
         public ContentElementJs(
             IScriptManager scripts, 
             IElementJsCache cache, 
