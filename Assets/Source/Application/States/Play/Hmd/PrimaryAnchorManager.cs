@@ -247,6 +247,7 @@ namespace CreateAR.SpirePlayer
             }
             else
             {
+                AreAllAnchorsReady = true;
                 Ready();
             }
         }
@@ -295,7 +296,7 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void OnData(int id, MeshFilter filter)
         {
-            if (!_surfaces.ContainsKey(id))
+            if (!_surfaces.ContainsKey(id) && filter && filter.gameObject)
             {
                 _surfaces[id] = new SurfaceRecord(filter.gameObject);
             }
@@ -725,6 +726,8 @@ namespace CreateAR.SpirePlayer
             else
             {
                 TeardownAnchors();
+                AreAllAnchorsReady = true;
+                Ready();
             }
         }
 
