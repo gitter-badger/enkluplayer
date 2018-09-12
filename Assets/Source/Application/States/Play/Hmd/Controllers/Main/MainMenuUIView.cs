@@ -217,7 +217,6 @@ namespace CreateAR.SpirePlayer
             BtnExpLoad.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Load);
             BtnExpDuplicate.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Duplicate);
 
-
             // options
             {
                 SltTextureQuality.Selection = SltTextureQuality.Options.FirstOrDefault(op => int.Parse(op.Value) == QualitySettings.masterTextureLimit);
