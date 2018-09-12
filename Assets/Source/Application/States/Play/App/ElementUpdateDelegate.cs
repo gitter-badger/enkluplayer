@@ -28,12 +28,7 @@ namespace CreateAR.SpirePlayer
         /// Element transactions currently tracked.
         /// </summary>
         private readonly Dictionary<Element, ElementTxn> _transactions = new Dictionary<Element, ElementTxn>();
-
-        /// <summary>
-        /// Backing variable for Active property.
-        /// </summary>
-        private string _active;
-
+        
         /// <summary>
         /// Active scene.
         /// </summary>
@@ -41,16 +36,11 @@ namespace CreateAR.SpirePlayer
         {
             get
             {
-                if (string.IsNullOrEmpty(_active))
-                {
-                    _active = _scenes.All.FirstOrDefault();
-                }
-
-                return _active;
+                return _scenes.All.FirstOrDefault();
             }
             set
             {
-                _active = value;
+                // TODO: implement
             }
         }
 

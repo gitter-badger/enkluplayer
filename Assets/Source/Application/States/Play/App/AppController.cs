@@ -17,11 +17,6 @@ namespace CreateAR.SpirePlayer
         private readonly IAppDataLoader _loader;
 
         /// <summary>
-        /// Creates scenes from data and manages them.
-        /// </summary>
-        private readonly IAppSceneManager _scenes;
-
-        /// <summary>
         /// Pipe for all element updates.
         /// </summary>
         private readonly IElementTxnManager _txns;
@@ -54,10 +49,7 @@ namespace CreateAR.SpirePlayer
         public event Action OnReady;
 
         /// <inheritdoc />
-        public IAppSceneManager Scenes
-        {
-            get { return _scenes; }
-        }
+        public IAppSceneManager Scenes { get; private set; }
 
         /// <summary>
         /// Constructor.
@@ -70,7 +62,7 @@ namespace CreateAR.SpirePlayer
             IMetricsService metrics)
         {
             _loader = loader;
-            _scenes = scenes;
+            Scenes = scenes;
             _txns = txns;
             _connection = connection;
             _metrics = metrics;
@@ -112,7 +104,7 @@ namespace CreateAR.SpirePlayer
             _isLoaded = false;
 
             _loader.Unload();
-            _scenes.Uninitialize();
+            Scenes.Uninitialize();
             _txns.Uninitialize();
         }
 
@@ -124,7 +116,7 @@ namespace CreateAR.SpirePlayer
                 throw new Exception("App has not been loaded!");
             }
 
-            _scenes
+            Scenes
                 .Initialize(Id, _loader)
                 .OnSuccess(_ =>
                 {
@@ -139,7 +131,7 @@ namespace CreateAR.SpirePlayer
                         .Initialize(new AppTxnConfiguration
                         {
                             AppId = Id,
-                            Scenes =_scenes,
+                            Scenes =Scenes,
                             AuthenticateTxns = authenticate 
                         })
                         .OnSuccess(__ =>
