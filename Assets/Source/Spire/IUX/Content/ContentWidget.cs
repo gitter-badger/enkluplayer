@@ -176,7 +176,12 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public T GetComponent<T>()
         {
-            return _assetGameObject.GetComponent<T>();
+            if (_assetGameObject)
+            {
+                return _assetGameObject.GetComponent<T>();
+            }
+
+            return default(T);
         }
 
         /// <summary>
@@ -187,7 +192,12 @@ namespace CreateAR.SpirePlayer
         /// <returns></returns>
         public T GetComponentInChildren<T>()
         {
-            return _assetGameObject.GetComponentInChildren<T>();
+            if (_assetGameObject)
+            {
+                return _assetGameObject.GetComponentInChildren<T>();
+            }
+
+            return default(T);
         }
         
         /// <inheritdoc />
