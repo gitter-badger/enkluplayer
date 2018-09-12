@@ -76,6 +76,16 @@
         }
 
         /// <summary>
+        /// Vector length squared.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        public float lenSqr(Vec3 a)
+        {
+            return a.MagnitudeSqr;
+        }
+
+        /// <summary>
         /// Normalizes a vector.
         /// </summary>
         /// <param name="a">The vector to normalize.</param>
