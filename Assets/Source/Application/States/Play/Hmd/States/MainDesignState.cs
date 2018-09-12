@@ -291,6 +291,7 @@ namespace CreateAR.SpirePlayer
                     el.OnResetData += MainMenu_OnResetData;
                     el.OnClearAnchors += MainMenu_OnClearAnchors;
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
+                    el.OnSignout += MainMenu_OnSignout;
                     el.Initialize(_prefs.Data.App(_config.Play.AppId).Play);
                 })
                 .OnFailure(ex => Log.Error(this,
@@ -533,6 +534,16 @@ namespace CreateAR.SpirePlayer
 
                 next(data);
             });
+        }
+
+        /// <summary>
+        /// Called when signout is requested.
+        /// </summary>
+        private void MainMenu_OnSignout()
+        {
+            Log.Info(this, "Signout requested.");
+
+            _messages.Publish(MessageTypes.SIGNOUT);
         }
 
         /// <summary>

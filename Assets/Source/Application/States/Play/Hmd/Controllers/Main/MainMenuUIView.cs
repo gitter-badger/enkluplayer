@@ -105,6 +105,9 @@ namespace CreateAR.SpirePlayer
         [InjectElements("..slt-blendweights")]
         public SelectWidget SltBlendWeights { get; set; }
 
+        [InjectElements("..btn-logout")]
+        public ButtonWidget BtnLogout { get; set; }
+
         /// <summary>
         /// Called when we wish to go back.
         /// </summary>
@@ -139,6 +142,11 @@ namespace CreateAR.SpirePlayer
         /// Called when _visible_ log level has been changed.
         /// </summary>
         public event Action<LogLevel> OnLogLevelChanged;
+
+        /// <summary>
+        /// Called when signout is requested.
+        /// </summary>
+        public event Action OnSignout;
 
         /// <summary>
         /// Initializes the view with values
@@ -197,9 +205,18 @@ namespace CreateAR.SpirePlayer
                 }
             };
 
+            BtnLogout.OnActivated += _ =>
+            {
+                if (null != OnSignout)
+                {
+                    OnSignout();
+                }
+            };
+
             BtnExpNew.Activator.OnActivated += _ => Experience(ExperienceSubMenu.New);
             BtnExpLoad.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Load);
             BtnExpDuplicate.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Duplicate);
+
 
             // options
             {

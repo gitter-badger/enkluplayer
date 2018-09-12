@@ -107,17 +107,31 @@ namespace CreateAR.SpirePlayer
                 {
                     case ElementActionSchemaTypes.INT:
                     {
-                        action.Value = int.Parse(valueString);
+                        int value;
+                        if (int.TryParse(valueString, out value))
+                        {
+                            action.Value = value;
+                        }
                         break;
                     }
                     case ElementActionSchemaTypes.FLOAT:
                     {
-                        action.Value = float.Parse(valueString);
+                        float value;
+                        if (float.TryParse(valueString, out value))
+                        {
+                            action.Value = value;
+                        }
+                        
                         break;
                     }
                     case ElementActionSchemaTypes.BOOL:
                     {
-                        action.Value = bool.Parse(valueString);
+                        bool value;
+                        if (bool.TryParse(valueString, out value))
+                        {
+                            action.Value = value;
+                        }
+
                         break;
                     }
                     case ElementActionSchemaTypes.VEC3:

@@ -72,6 +72,7 @@
 						<Option label='Blend: 4 Bones' value='FourBones' />
 					</Select>
 				</SubMenu>
+				<Button id='btn-logout' label='Logout' ready.color='Negative' />
 			</SubMenu>
 
 			<SubMenu label='Experience' icon='world'>
