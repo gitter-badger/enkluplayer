@@ -152,6 +152,13 @@ namespace CreateAR.SpirePlayer
         /// <inheritdoc />
         public void Select(string sceneId, string elementId)
         {
+            // process deselect
+            if (string.IsNullOrEmpty(sceneId) && string.IsNullOrEmpty(elementId))
+            {
+                RTObjectSelection.Get.ClearSelection(true);
+                return;
+            }
+
             // find scene
             var scene = _scenes.Root(sceneId);
             if (null == scene)

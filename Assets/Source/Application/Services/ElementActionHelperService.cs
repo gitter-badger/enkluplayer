@@ -31,11 +31,6 @@ namespace CreateAR.SpirePlayer
         private readonly IDesignController _designer;
 
         /// <summary>
-        /// Transactions.
-        /// </summary>
-        private readonly IElementTxnManager _txns;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         public ElementActionHelperService(
@@ -44,7 +39,6 @@ namespace CreateAR.SpirePlayer
             IElementUpdateDelegate elementDelegate,
             IAppSceneManager scenes,
             IDesignController designer,
-            IElementTxnManager txns,
             IElementManager elements)
             : base(binder, messages)
         {
@@ -52,7 +46,6 @@ namespace CreateAR.SpirePlayer
             _elementDelegate = elementDelegate;
             _scenes = scenes;
             _designer = designer;
-            _txns = txns;
         }
 
         /// <inheritdoc />
