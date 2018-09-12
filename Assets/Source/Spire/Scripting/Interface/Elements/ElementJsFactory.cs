@@ -31,6 +31,10 @@ namespace CreateAR.SpirePlayer.Scripting
             {
                 return new ButtonElementJs(_scripts, cache, engine, element);
             }
+            if (type == typeof(ContentWidget))
+            {
+                return new ContentElementJs(_scripts, cache, engine, element);
+            }
 
             return new ElementJs(_scripts, cache, engine, element);
         }

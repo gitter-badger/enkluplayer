@@ -79,6 +79,11 @@ namespace CreateAR.SpirePlayer
         /// Set to true when we should poll to update scripts.
         /// </summary>
         private bool _pollRefreshScript;
+
+        /// <summary>
+        /// Cached from the callback of the <see cref="IContentAssembler"/>.
+        /// </summary>
+        private GameObject _assetGameObject;
         
         /// <summary>
         /// A token that is fired whenever the content has loaded.
@@ -96,14 +101,6 @@ namespace CreateAR.SpirePlayer
 
                 return _onLoaded;
             }
-        }
-
-        /// <summary>
-        /// Returns the underlying <see cref="IContentAssembler"/>'s current Assembly.
-        /// </summary>
-        public GameObject AssetGameObject
-        {
-            get { return _assembler.Assembly; }
         }
 
         /// <summary>
@@ -128,7 +125,14 @@ namespace CreateAR.SpirePlayer
             _scripts = scripts;
             _assembler = assembler;
             _elementJsFactory = elementFactory;
-            _assembler.OnAssemblyComplete += Assembler_OnAssemblyComplete;
+
+            _assembler.OnAssemblyComplete.OnSuccess(Assembler_OnAssemblyComplete);
+        }
+
+        protected override void DestroyInternal()
+        {
+            _assembler.OnAssemblyComplete.Remove(Assembler_OnAssemblyComplete);
+            base.DestroyInternal();
         }
 
         /// <summary>
@@ -161,6 +165,28 @@ namespace CreateAR.SpirePlayer
             // TODO: reset element -- all props need reset from data
 
             LoadScripts();
+        }
+
+        /// <summary>
+        /// Attempts to get <c>T</c> from the underlying asset's GameObject.
+        /// Throws NullReferenceException if the assembly hasn't finished yet.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T GetComponent<T>()
+        {
+            return _assetGameObject.GetComponent<T>();
+        }
+
+        /// <summary>
+        /// Attempts to get <c>T</c> from the underlying asset's GameObject & children.
+        /// Throws NullReferenceException if the assembly hasn't finished yet.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T GetComponentInChildren<T>()
+        {
+            return _assetGameObject.GetComponentInChildren<T>();
         }
         
         /// <inheritdoc />
@@ -427,9 +453,10 @@ namespace CreateAR.SpirePlayer
         private void Assembler_OnAssemblyComplete(GameObject instance)
         {
             // parent + orient
-            instance.name = _srcAssetProp.Value;
-            instance.transform.SetParent(GameObject.transform, false);
-            instance.SetActive(true);
+            _assetGameObject = instance;
+            _assetGameObject.name = _srcAssetProp.Value;
+            _assetGameObject.transform.SetParent(GameObject.transform, false);
+            _assetGameObject.SetActive(true);
 
             // setup collider
             var bounds = _assembler.Bounds;
