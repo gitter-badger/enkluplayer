@@ -1,4 +1,5 @@
 using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.Assets;
 using UnityEngine;
@@ -63,9 +64,15 @@ namespace CreateAR.SpirePlayer
         }
 
         /// <summary>
-        /// Called when asset is setup.
+        /// Called when asset is setup;
         /// </summary>
-        public event Action<GameObject> OnAssemblyComplete;
+        private MutableAsyncToken<GameObject> _onAssemblyComplete = new MutableAsyncToken<GameObject>();
+
+        /// <inheritdoc />
+        public IMutableAsyncToken<GameObject> OnAssemblyComplete
+        {
+            get { return _onAssemblyComplete; }
+        }
         
         /// <summary>
         /// Constructor.
@@ -210,10 +217,7 @@ namespace CreateAR.SpirePlayer
             }
 
             // asset is loaded
-            if (null != OnAssemblyComplete)
-            {
-                OnAssemblyComplete(_instance);
-            }
+            _onAssemblyComplete.Succeed(_instance);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Async;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Test
@@ -6,14 +7,17 @@ namespace CreateAR.SpirePlayer.Test
     public class DummyContentAssembler : IContentAssembler
     {
         public Bounds Bounds { get; private set; }
-        public event Action<GameObject> OnAssemblyComplete;
-        
+
+        private MutableAsyncToken<GameObject> _onAssemblyComplete = new MutableAsyncToken<GameObject>();
+
+        public IMutableAsyncToken<GameObject> OnAssemblyComplete
+        {
+            get { return _onAssemblyComplete; }
+        }
+
         public void Setup(Transform transform, string assetId)
         {
-            if (null != OnAssemblyComplete)
-            {
-                OnAssemblyComplete(null);
-            }
+            _onAssemblyComplete.Succeed(null);
         }
 
         public void Teardown()

@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Async;
 using UnityEngine;
 
 namespace CreateAR.SpirePlayer
@@ -16,7 +17,7 @@ namespace CreateAR.SpirePlayer
         /// <summary>
         /// Called when assembly is complete.
         /// </summary>
-        event Action<GameObject> OnAssemblyComplete;
+        IMutableAsyncToken<GameObject> OnAssemblyComplete { get; }
 
         /// <summary>
         /// Sets up the assembler.

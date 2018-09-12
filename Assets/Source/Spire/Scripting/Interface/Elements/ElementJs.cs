@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.SpirePlayer.IUX;
 using Jint;
 using Jint.Native;
+using UnityEngine;
 
 namespace CreateAR.SpirePlayer.Scripting
 {
