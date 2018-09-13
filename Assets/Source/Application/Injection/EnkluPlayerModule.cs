@@ -410,6 +410,8 @@ namespace CreateAR.EnkluPlayer
             ApplicationConfig config,
             InjectionBinder binder)
         {
+            binder.Bind<IAppQualityController>().To<AppQualityController>().ToSingleton();
+
             // AR
             {
                 binder.Bind<ArCameraRig>().ToValue(LookupComponent<ArCameraRig>());

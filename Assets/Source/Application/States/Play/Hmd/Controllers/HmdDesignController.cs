@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -28,6 +29,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IUIManager _ui;
         private readonly IMessageRouter _messages;
         private readonly IPrimaryAnchorManager _primaryAnchor;
+        private readonly IAppQualityController _quality;
 
         /// <summary>
         /// All states.
@@ -78,7 +80,7 @@ namespace CreateAR.EnkluPlayer
         /// Origin Reference Gameobject
         /// </summary>
         private GameObject _referenceCube;
-
+        
         /// <summary>
         /// Config for play mode.
         /// </summary>
@@ -119,6 +121,7 @@ namespace CreateAR.EnkluPlayer
             IUIManager ui,
             IMessageRouter messages,
             IPrimaryAnchorManager primaryAnchor,
+            IAppQualityController quality,
             ApiController api,
 
             // design states
@@ -143,6 +146,7 @@ namespace CreateAR.EnkluPlayer
             _ui = ui;
             _messages = messages;
             _primaryAnchor = primaryAnchor;
+            _quality = quality;
             _api = api;
 
             _states = new IArDesignState[]
@@ -183,6 +187,8 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
+            SetupCommon();
+
             if (context.Edit)
             {
                 SetupEdit();
@@ -201,6 +207,8 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Teardown()
         {
+            TeardownCommon();
+
             if (_setupEdit)
             {
                 TeardownEdit();
@@ -279,6 +287,21 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Sets up anything used in both play and edit modes.
+        /// </summary>
+        private void SetupCommon()
+        {
+            var id = _scenes.All.FirstOrDefault();
+            var root = _scenes.Root(id);
+            if (null == root)
+            {
+                return;
+            }
+
+            _quality.Setup(root);
+        }
+
+        /// <summary>
         /// Starts design mode.
         /// </summary>
         private void SetupEdit()
@@ -354,6 +377,14 @@ namespace CreateAR.EnkluPlayer
                         false);
                 }
             });
+        }
+
+        /// <summary>
+        /// Tears down anything that is used in both play and edit modes.
+        /// </summary>
+        private void TeardownCommon()
+        {
+            _quality.Teardown();
         }
 
         /// <summary>

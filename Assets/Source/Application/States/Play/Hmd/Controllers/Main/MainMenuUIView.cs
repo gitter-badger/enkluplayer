@@ -254,6 +254,12 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// Converts a string to an enum.
+        /// </summary>
+        /// <typeparam name="T">The enum type.</typeparam>
+        /// <param name="value">The string value.</param>
+        /// <returns></returns>
         private T To<T>(string value)
         {
             try
