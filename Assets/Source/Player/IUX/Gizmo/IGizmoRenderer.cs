@@ -6,6 +6,11 @@
     public interface IGizmoRenderer
     {
         /// <summary>
+        /// Toggles visibility.
+        /// </summary>
+        bool IsVisible { get; set; }
+
+        /// <summary>
         /// The element gizmos are being rendered for.
         /// </summary>
         Element Element { get; }

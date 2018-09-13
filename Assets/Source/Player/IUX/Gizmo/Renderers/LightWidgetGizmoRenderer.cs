@@ -20,12 +20,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Cached camera.
         /// </summary>
         private Camera _cam;
-
-        /// <summary>
-        /// Renders a texture to screen.
-        /// </summary>
-        public GizmoTextureRenderer TextureRenderer;
-
+        
         /// <inheritdoc />
         public override void Initialize(Element element)
         {
@@ -38,18 +33,8 @@ namespace CreateAR.EnkluPlayer.IUX
             _pointRangeProp = schema.Get<float>("point.range");
             _spotRangeProp = schema.Get<float>("spot.range");
             _angleProp = schema.Get<float>("spot.angle");
-
-            TextureRenderer.enabled = true;
         }
-
-        /// <summary>
-        /// Called on awake.
-        /// </summary>
-        private void Awake()
-        {
-            TextureRenderer.enabled = false;
-        }
-
+        
         /// <summary>
         /// Called every update.
         /// </summary>

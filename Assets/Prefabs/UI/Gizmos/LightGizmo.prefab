@@ -19,7 +19,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4626948668930336}
-  - component: {fileID: 114769698458851740}
   - component: {fileID: 114704250132613992}
   m_Layer: 0
   m_Name: LightGizmo
@@ -52,17 +51,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b3fd353c8d64d138eca0ff5238943af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TextureRenderer: {fileID: 114769698458851740}
---- !u!114 &114769698458851740
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1305864835684156}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33933c2f7e595fe45a1ddb44822ee2e2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Texture: {fileID: 2800000, guid: 10d37d58522fb40f3846b7dbf6df9506, type: 3}
-  ScreenSize: {x: 30, y: 30}

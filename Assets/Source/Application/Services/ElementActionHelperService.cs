@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
+using RLD;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -65,6 +68,9 @@ namespace CreateAR.EnkluPlayer
             Subscribe<BridgeHelperRefreshElementScriptEvent>(
                 MessageTypes.BRIDGE_HELPER_REFRESH_ELEMENT_SCRIPTS,
                 OnRefreshElementScripts);
+            Subscribe<BridgeHelperSettingsEvent>(
+                MessageTypes.BRIDGE_HELPER_SETTING,
+                OnSetting);
 
             _binder.Add<BridgeHelperGizmoEvent>(MessageTypes.BRIDGE_HELPER_GIZMO_TRANSLATION);
             _binder.Add<BridgeHelperGizmoEvent>(MessageTypes.BRIDGE_HELPER_GIZMO_ROTATION);
@@ -150,6 +156,89 @@ namespace CreateAR.EnkluPlayer
             }
 
             content.RefreshScripts();
+        }
+
+        /// <summary>
+        /// Called when a setting has been changed.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void OnSetting(BridgeHelperSettingsEvent @event)
+        {
+            if (@event.Category == "render")
+            {
+                switch (@event.Name)
+                {
+                    case "MeshScan":
+                    {
+                        Log.Info(this, "Disabling scan...");
+
+                        var scans = new List<Element>();
+                        var all = _scenes.All;
+                        foreach (var id in all)
+                        {
+                            var root = _scenes.Root(id);
+                            root.Find("..(@type==ScanWidget)", scans);
+                            
+                            foreach (var scan in scans)
+                            {
+                                scan.Schema.Set("visible", @event.Value);
+                            }
+                        }
+
+                        break;
+                    }
+                    case "Grid":
+                    {
+                        Log.Info(this, "Disabling grid...");
+
+                        var grid = UnityEngine.Object.FindObjectOfType<RTSceneGrid>();
+                        if (null != grid)
+                        {
+                            grid.Settings.IsVisible = @event.Value;
+                        }
+
+                        break;
+                    }
+                    case "ElementGizmos":
+                    {
+                        Log.Info(this, "Disabling element gizmos...");
+
+                        var scene = UnityEngine.Object.FindObjectOfType<RTScene>();
+                        if (null != scene)
+                        {
+                            scene.LookAndFeel.DrawLightIcons = @event.Value;
+                            scene.LookAndFeel.DrawParticleSystemIcons = @event.Value;
+                        }
+
+                        var gizmos = UnityEngine.Object.FindObjectOfType<GizmoManager>();
+                        if (null != gizmos)
+                        {
+                            gizmos.IsVisible = @event.Value;
+                        }
+
+                            break;
+                    }
+                    case "HierarchyLines":
+                    {
+                        Log.Info(this, "Disabling hierarchy lines...");
+
+                        var renderer = UnityEngine.Object.FindObjectOfType<HierarchyLineRenderer>();
+                        if (null != renderer)
+                        {
+                            renderer.enabled = @event.Value;
+                        }
+
+                        break;
+                    }
+                    default:
+                    {
+                        Log.Warning(this,
+                            "Could not set render property {0}. No such property exists.",
+                            @event.Name);
+                        break;
+                    }
+                }
+            }
         }
     }
 }
