@@ -1,7 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.AR;
+using CreateAR.EnkluPlayer.AR;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Setup for Hmd.

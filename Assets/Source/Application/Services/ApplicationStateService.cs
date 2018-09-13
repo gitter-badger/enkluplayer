@@ -5,7 +5,7 @@ using CreateAR.Commons.Unity.Messaging;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Manages major states of the application.

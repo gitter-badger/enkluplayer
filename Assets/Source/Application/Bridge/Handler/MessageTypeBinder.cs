@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Binds together a string and int.

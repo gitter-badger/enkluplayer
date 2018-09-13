@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// String to bytes and back.

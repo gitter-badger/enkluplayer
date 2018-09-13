@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 
-namespace CreateAR.SpirePlayer.Test.UI
+namespace CreateAR.EnkluPlayer.Test.UI
 {
     public class DummyElementManager : IElementManager
     {

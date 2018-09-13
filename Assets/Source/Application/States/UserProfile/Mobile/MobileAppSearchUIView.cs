@@ -4,7 +4,7 @@ using CreateAR.Trellis.Messages.SearchPublishedApps;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// UI for viewing and searching public apps.

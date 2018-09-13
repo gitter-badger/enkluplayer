@@ -4,7 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis.Messages;
 using UnityEditor;
 
-namespace CreateAR.SpirePlayer.Editor
+namespace CreateAR.EnkluPlayer.Editor
 {
     /// <summary>
     /// Holds objects and builds them appropriately for edit mode..

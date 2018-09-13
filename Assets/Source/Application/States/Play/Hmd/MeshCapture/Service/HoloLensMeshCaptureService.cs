@@ -4,11 +4,11 @@ using System.Collections;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
 using UnityEngine.XR.WSA;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Implementation for HoloLens.

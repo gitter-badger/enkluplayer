@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Controls splash menus.

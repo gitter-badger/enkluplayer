@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Text;
-using CreateAR.SpirePlayer.Util;
+using CreateAR.EnkluPlayer.Util;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test.Util
+namespace CreateAR.EnkluPlayer.Test.Util
 {
     [TestFixture]
     public class VersionedFileWriter_Tests

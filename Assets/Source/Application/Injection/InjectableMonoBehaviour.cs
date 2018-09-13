@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Base class for MonoBehaviours that need to have bindings injected into

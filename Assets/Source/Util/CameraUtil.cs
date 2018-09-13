@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Utilities when working with Cameras.

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Describes an interface thaqt can import a mesh at runtime.

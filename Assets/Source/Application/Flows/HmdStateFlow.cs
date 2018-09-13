@@ -1,6 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Determines app flow for Hmd.

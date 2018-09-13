@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Util
+namespace CreateAR.EnkluPlayer.Util
 {
     /// <summary>
     /// Simple component that destroys itself after a time.

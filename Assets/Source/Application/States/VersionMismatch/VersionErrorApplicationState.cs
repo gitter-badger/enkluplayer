@@ -1,7 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// State used when there is a version mismatch with the server-- this is

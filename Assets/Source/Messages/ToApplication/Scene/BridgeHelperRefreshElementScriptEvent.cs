@@ -1,6 +1,6 @@
 ﻿using LightJson;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Refreshes a script.

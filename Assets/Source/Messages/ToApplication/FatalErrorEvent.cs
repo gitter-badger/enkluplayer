@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// A fatal error.

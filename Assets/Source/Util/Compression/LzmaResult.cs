@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CreateAR.SpirePlayer.Util
+namespace CreateAR.EnkluPlayer.Util
 {
     /// <summary>
     /// Wraps LZMA encoder/decoder result.

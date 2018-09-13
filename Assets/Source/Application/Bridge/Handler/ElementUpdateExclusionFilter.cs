@@ -1,4 +1,4 @@
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Excludes element updates from a specific user.

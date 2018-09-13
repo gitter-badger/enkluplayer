@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.BLE;
+using CreateAR.EnkluPlayer.BLE;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     public class BleSearchApplicationState : IState, IBleWatcherDelegate
     {

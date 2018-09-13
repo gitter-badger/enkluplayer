@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Described an object that the IUIManager implementation can manage.

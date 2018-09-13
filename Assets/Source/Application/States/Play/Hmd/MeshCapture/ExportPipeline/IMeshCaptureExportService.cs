@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Describes an asynchronous pipeline that exports captures.

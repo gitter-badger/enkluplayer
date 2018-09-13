@@ -6,7 +6,7 @@ using RLD;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Responds to control bar.

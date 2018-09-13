@@ -1,9 +1,9 @@
 ﻿using System;
-using CreateAR.SpirePlayer.Assets;
-using CreateAR.SpirePlayer.Util;
+using CreateAR.EnkluPlayer.Assets;
+using CreateAR.EnkluPlayer.Util;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test.Util
+namespace CreateAR.EnkluPlayer.Test.Util
 {
     [TestFixture]
     public class Lzma_IntegrationTests

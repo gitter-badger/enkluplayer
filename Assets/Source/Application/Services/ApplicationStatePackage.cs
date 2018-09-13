@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Bundles up all the states and flows between them. This is useful for all

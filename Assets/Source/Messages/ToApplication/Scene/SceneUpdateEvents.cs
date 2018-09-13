@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using LightJson;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Base class for all scene events.

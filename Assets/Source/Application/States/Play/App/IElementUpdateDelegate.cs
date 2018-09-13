@@ -1,7 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Async;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// An interface for an object that updates elements.

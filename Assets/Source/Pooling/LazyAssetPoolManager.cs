@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// <c>IAssetPoolManager</c> implementation that does not actually pool.

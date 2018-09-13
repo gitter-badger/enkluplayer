@@ -9,7 +9,7 @@ using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateOrganizationDevice;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Determines if device needs to be registered.

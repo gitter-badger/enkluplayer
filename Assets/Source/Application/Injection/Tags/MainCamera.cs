@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Type to locate the main scene camera.

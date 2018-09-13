@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Outputs fake data.

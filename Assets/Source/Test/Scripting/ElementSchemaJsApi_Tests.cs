@@ -1,6 +1,6 @@
-﻿using CreateAR.SpirePlayer.Scripting;
+﻿using CreateAR.EnkluPlayer.Scripting;
 
-namespace CreateAR.SpirePlayer.Test.Scripting
+namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     public class ElementSchemaJsApi_Tests : JsTestBase
     {

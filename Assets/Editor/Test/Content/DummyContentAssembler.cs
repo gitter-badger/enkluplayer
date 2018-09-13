@@ -2,7 +2,7 @@
 using CreateAR.Commons.Unity.Async;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.EnkluPlayer.Test
 {
     public class DummyContentAssembler : IContentAssembler
     {

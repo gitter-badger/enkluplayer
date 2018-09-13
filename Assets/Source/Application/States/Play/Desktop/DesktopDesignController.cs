@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 using RLD;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Controls design for desktops.

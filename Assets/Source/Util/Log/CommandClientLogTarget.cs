@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// <c>ILogTarget</c> implementation that forwards logs to a list of <c>ICommandClient</c> implementations.

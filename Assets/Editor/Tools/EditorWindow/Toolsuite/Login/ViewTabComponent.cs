@@ -1,6 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Editor;
 
-namespace CreateAR.SpirePlayer.Editor
+namespace CreateAR.EnkluPlayer.Editor
 {
     /// <summary>
     /// <c>TabComponent</c> that wraps an <c>IEditorView</c>.

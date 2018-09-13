@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace CreateAR.SpirePlayer.Editor
+namespace CreateAR.EnkluPlayer.Editor
 {
     /// <summary>
     /// Abstracts out Application v User configuration.

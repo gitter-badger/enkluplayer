@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.Assets;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.Assets;
+using CreateAR.EnkluPlayer.IUX;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Controls the new item menu.

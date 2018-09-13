@@ -3,7 +3,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.EmailSignIn;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Application state that just prompts for login.

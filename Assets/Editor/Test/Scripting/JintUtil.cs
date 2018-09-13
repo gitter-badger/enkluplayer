@@ -4,7 +4,7 @@ using UnityEngine;
 using Jint;
 using Jint.Native;
 
-namespace CreateAR.SpirePlayer.Test.Scripting
+namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     public static class EngineExtensions
     {

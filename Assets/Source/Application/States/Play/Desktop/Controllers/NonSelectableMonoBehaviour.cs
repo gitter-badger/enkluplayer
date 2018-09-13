@@ -3,7 +3,7 @@ using CreateAR.Commons.Unity.Logging;
 using RLD;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Put on things you don't want to be selecable.

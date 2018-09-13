@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.EnkluPlayer.Test
 {
     /// <summary>
     /// An in-memory implementation of <c>IFileSystem</c>.

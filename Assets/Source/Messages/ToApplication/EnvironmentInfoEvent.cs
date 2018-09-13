@@ -1,6 +1,6 @@
 ﻿using LightJson;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Event pushed to change environment.

@@ -1,12 +1,12 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.IUX;
-using CreateAR.SpirePlayer.Scripting;
+using CreateAR.EnkluPlayer.IUX;
+using CreateAR.EnkluPlayer.Scripting;
 using strange.extensions.injector.impl;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Potential modes.
@@ -84,13 +84,6 @@ namespace CreateAR.SpirePlayer
 	                TypeName = true
 	            }));
             }
-            
-            // UWP should log to socket
-#if FALSE && NETFX_CORE
-            Log.AddLogTarget(new UwpSocketLogger(
-                "Spire",
-                new System.Uri("ws://127.0.0.1:9999")));
-#endif // NETFX_CORE
 
             // non-webgl should log to file
 #if !UNITY_WEBGL
@@ -118,7 +111,7 @@ namespace CreateAR.SpirePlayer
 	        }
 
             // load bindings
-            _binder.Load(new SpirePlayerModule());
+            _binder.Load(new EnkluPlayerModule());
 
 	        // non-editor builds should log to loggly
 	        if (!UnityEngine.Application.isEditor)

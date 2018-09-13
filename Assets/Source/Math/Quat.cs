@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Simple quaternion class.

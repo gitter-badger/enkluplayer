@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Runs services that run for the lifetime of the application.

@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer.Test
+﻿namespace CreateAR.EnkluPlayer.Test
 {
     /// <summary>
     /// Js api for RuntimeAssert.

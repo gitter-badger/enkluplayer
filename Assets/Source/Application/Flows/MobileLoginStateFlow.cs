@@ -1,8 +1,8 @@
 ﻿using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.AR;
-using CreateAR.SpirePlayer.States.HoloLogin;
+using CreateAR.EnkluPlayer.AR;
+using CreateAR.EnkluPlayer.States.HoloLogin;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Manages application flow for a logged in user on mobile.

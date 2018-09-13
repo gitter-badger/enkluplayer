@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer
+﻿namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Describes an object that determines the flow between states.

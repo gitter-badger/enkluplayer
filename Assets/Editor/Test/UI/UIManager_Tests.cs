@@ -3,7 +3,7 @@ using CreateAR.Commons.Unity.Async;
 using NUnit.Framework;
 using UnityEditor.VersionControl;
 
-namespace CreateAR.SpirePlayer.Test.UI
+namespace CreateAR.EnkluPlayer.Test.UI
 {
     public class DummyUIElement : IUIElement
     {

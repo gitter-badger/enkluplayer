@@ -12,7 +12,7 @@ using WebSocketSharp.Server;
 using LogLevel = WebSocketSharp.LogLevel;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// <c>IBridge</c> implementation over a websocket.

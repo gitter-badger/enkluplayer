@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Affects how containers are rendered.

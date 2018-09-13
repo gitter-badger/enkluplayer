@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using CreateAR.Commons.Unity.Http;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
 	/// <summary>
 	/// Native interface for IOS.

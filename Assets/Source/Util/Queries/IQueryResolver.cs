@@ -1,4 +1,4 @@
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// An interface that describes how to match a query against a set of tags.

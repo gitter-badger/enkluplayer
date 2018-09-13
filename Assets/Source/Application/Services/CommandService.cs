@@ -1,7 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Messaging;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Base implementation of service that receives commands.

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using CreateAR.Commons.Unity.Logging;
 
-namespace CreateAR.SpirePlayer.Util
+namespace CreateAR.EnkluPlayer.Util
 {
     /// <summary>
     /// Takes care of saving N versions of a file, deleting the oldest versions

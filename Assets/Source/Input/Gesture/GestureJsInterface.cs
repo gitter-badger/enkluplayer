@@ -6,7 +6,7 @@ using UnityEngine;
 
 using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
 
-namespace CreateAR.SpirePlayer.Scripting
+namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// JS interface for gestures.

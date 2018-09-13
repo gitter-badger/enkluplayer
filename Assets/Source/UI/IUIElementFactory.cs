@@ -1,6 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Async;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Describes an object that can create IUIElement instances.

@@ -1,7 +1,7 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// IDesignController that does nothing.

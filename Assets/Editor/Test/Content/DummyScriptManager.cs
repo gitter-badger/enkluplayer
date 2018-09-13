@@ -1,31 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.EnkluPlayer.Test
 {
     public class DummyScriptManager : IScriptManager
     {
-        public SpireScript FindOne(string id)
+        public EnkluScript FindOne(string id)
         {
             throw new NotImplementedException();
         }
 
-        public void FindAll(string id, List<SpireScript> scripts)
+        public void FindAll(string id, List<EnkluScript> scripts)
         {
             throw new NotImplementedException();
         }
 
-        public SpireScript FindOneTagged(string query)
+        public EnkluScript FindOneTagged(string query)
         {
             throw new NotImplementedException();
         }
 
-        public void FindAllTagged(string query, List<SpireScript> scripts)
+        public void FindAllTagged(string query, List<EnkluScript> scripts)
         {
             throw new NotImplementedException();
         }
 
-        public SpireScript Create(string scriptId, params string[] tags)
+        public EnkluScript Create(string scriptId, params string[] tags)
         {
             throw new NotImplementedException();
         }
@@ -35,7 +35,7 @@ namespace CreateAR.SpirePlayer.Test
             throw new NotImplementedException();
         }
 
-        public void Release(SpireScript script)
+        public void Release(EnkluScript script)
         {
             throw new NotImplementedException();
         }

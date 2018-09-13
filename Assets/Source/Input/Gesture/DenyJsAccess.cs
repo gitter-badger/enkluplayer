@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CreateAR.SpirePlayer.Scripting
+namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// Restricts method from being called by Js.

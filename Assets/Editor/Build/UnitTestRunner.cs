@@ -5,7 +5,7 @@ using NUnit.Framework.Interfaces;
 using UnityEditor;
 using UnityEngine.Events;
 
-namespace CreateAR.SpirePlayer.Editor
+namespace CreateAR.EnkluPlayer.Editor
 {
     /// <summary>
     /// Runs unit tests from an internal API.

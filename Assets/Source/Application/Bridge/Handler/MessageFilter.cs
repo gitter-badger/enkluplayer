@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Messaging;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Object that can filter messages.

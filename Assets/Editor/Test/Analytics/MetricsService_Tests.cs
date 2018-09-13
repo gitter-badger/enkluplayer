@@ -4,7 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Test.Analytics
+namespace CreateAR.EnkluPlayer.Test.Analytics
 {
     public class DummyMetricsTarget : IMetricsTarget
     {

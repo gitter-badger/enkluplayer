@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test.UI
+namespace CreateAR.EnkluPlayer.Test.UI
 {
     [TestFixture]
     public class ElementQuery_Tests

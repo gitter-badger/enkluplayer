@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test.Scripting
+namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     public class AssertJsApi_Tests : JsTestBase
     {

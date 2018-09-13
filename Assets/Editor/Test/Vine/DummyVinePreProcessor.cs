@@ -1,7 +1,7 @@
-﻿using CreateAR.SpirePlayer.IUX;
-using CreateAR.SpirePlayer.Vine;
+﻿using CreateAR.EnkluPlayer.IUX;
+using CreateAR.EnkluPlayer.Vine;
 
-namespace CreateAR.SpirePlayer.Test.Vine
+namespace CreateAR.EnkluPlayer.Test.Vine
 {
     /// <summary>
     /// Dummy implementation.

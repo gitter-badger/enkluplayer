@@ -4,7 +4,7 @@ using CreateAR.Commons.Unity.Editor;
 using UnityEditor;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Editor
+namespace CreateAR.EnkluPlayer.Editor
 {
     /// <summary>
     /// Window for setting up Trellis integration.

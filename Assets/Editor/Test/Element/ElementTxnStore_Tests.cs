@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using CreateAR.SpirePlayer.IUX;
-using CreateAR.SpirePlayer.Test.UI;
+using CreateAR.EnkluPlayer.IUX;
+using CreateAR.EnkluPlayer.Test.UI;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace CreateAR.SpirePlayer.Test.Txn
+namespace CreateAR.EnkluPlayer.Test.Txn
 {
     [TestFixture]
     public class ElementTxnStore_Tests

@@ -1,4 +1,4 @@
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// An <c>IQueryResolver</c> implementation that allows for AND, OR, and NOT.

@@ -1,9 +1,9 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Design controller for anchor widgets.

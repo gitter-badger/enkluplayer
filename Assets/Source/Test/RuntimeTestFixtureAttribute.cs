@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.EnkluPlayer.Test
 {
     public class RuntimeTestFixtureAttribute : Attribute
     {

@@ -1,7 +1,7 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using CreateAR.EnkluPlayer.IUX;
 using LightJson;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Event with application info inside.

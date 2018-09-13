@@ -1,6 +1,6 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using CreateAR.EnkluPlayer.IUX;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// View controller for scanning QR codes.

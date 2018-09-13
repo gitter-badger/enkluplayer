@@ -5,7 +5,7 @@ using System.Threading;
 using CreateAR.Commons.Unity.Http;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Imports meshes at runtime in a threadpool.

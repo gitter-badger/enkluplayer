@@ -1,8 +1,8 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using CreateAR.EnkluPlayer.IUX;
 using Jint;
 using Jint.Native;
 
-namespace CreateAR.SpirePlayer.Test.Scripting
+namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     [RuntimeTestFixture]
     public class JsTestBase

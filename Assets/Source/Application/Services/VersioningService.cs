@@ -6,7 +6,7 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Service that watches for versioning.

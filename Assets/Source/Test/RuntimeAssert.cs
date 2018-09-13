@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.EnkluPlayer.Test
 {
     /// <summary>
     /// Asserts for runtime.

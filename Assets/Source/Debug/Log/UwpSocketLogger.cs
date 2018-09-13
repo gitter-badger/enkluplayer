@@ -7,7 +7,7 @@ using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using CreateAR.Commons.Unity.Logging;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Logs to a websocket.

@@ -6,7 +6,7 @@ using CreateAR.Commons.Unity.Logging;
 using IotWeb.Common.Http;
 using IotWeb.Server;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Sets up a websocket server to listen for clients.

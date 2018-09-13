@@ -1,8 +1,8 @@
 ﻿using System;
-using CreateAR.SpirePlayer.Assets;
+using CreateAR.EnkluPlayer.Assets;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test.Assets
+namespace CreateAR.EnkluPlayer.Test.Assets
 {
     [TestFixture]
     public class AssetManifest_Tests

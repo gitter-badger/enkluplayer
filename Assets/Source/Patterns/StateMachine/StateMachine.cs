@@ -1,7 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Very basic state machine implementation.

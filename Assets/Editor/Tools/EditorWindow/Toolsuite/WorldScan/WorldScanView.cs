@@ -6,7 +6,7 @@ using CreateAR.Trellis.Messages.GetMyFilesByTags;
 using UnityEditor;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Editor
+namespace CreateAR.EnkluPlayer.Editor
 {
     /// <summary>
     /// View for world scans.

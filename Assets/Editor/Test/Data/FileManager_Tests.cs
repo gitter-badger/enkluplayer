@@ -1,7 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test.Files
+namespace CreateAR.EnkluPlayer.Test.Files
 {
     [TestFixture]
     public class FileManager_Tests

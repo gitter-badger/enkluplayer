@@ -4,14 +4,14 @@ using System.Reflection;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.AR;
-using CreateAR.SpirePlayer.Scripting;
+using CreateAR.EnkluPlayer.AR;
+using CreateAR.EnkluPlayer.Scripting;
 using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Manages the play state.

@@ -3,7 +3,7 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.HoloAuthorize;
 
-namespace CreateAR.SpirePlayer.States.HoloLogin
+namespace CreateAR.EnkluPlayer.States.HoloLogin
 {
     /// <summary>
     /// Hololens login.

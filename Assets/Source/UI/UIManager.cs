@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Basic implementation of IUIManager.

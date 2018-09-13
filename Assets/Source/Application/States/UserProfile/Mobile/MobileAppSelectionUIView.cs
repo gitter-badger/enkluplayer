@@ -3,7 +3,7 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages.GetMyApps;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Controls view for loading app.

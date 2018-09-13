@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using CreateAR.SpirePlayer.Scripting;
+using CreateAR.EnkluPlayer.Scripting;
 using Jint.Native;
 using Jint.Native.Array;
 using Jint.Native.Function;

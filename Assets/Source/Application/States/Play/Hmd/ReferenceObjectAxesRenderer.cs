@@ -1,7 +1,7 @@
 ﻿using RLD;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.IUX
+namespace CreateAR.EnkluPlayer.IUX
 {
     /// <summary>
     /// Renders axes for reference object.

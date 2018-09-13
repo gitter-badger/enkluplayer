@@ -5,7 +5,7 @@ using CreateAR.Commons.Unity.Logging;
 using LightJson;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Receives messages from a bridge.

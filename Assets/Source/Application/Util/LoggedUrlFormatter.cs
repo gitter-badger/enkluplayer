@@ -3,7 +3,7 @@ using System.Diagnostics;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Outpus log of Url transformation.

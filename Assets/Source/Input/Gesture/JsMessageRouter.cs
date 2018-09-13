@@ -1,6 +1,6 @@
 ﻿using CreateAR.Commons.Unity.Messaging;
 
-namespace CreateAR.SpirePlayer.Scripting
+namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// Strange IoC doesn't support named injections, so this is the next best thing.

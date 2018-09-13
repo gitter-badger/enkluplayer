@@ -1,6 +1,6 @@
 ﻿using LightJson;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Event received over bridge to help reparent.

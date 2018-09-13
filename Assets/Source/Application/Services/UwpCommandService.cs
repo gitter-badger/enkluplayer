@@ -9,7 +9,7 @@ using CreateAR.Commons.Unity.Messaging;
 using IotWeb.Common.Http;
 using IotWeb.Server;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Allows commands to be sent from conductor to UWP app.

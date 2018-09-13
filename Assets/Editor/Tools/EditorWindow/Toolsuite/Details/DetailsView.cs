@@ -2,7 +2,7 @@
 using CreateAR.Commons.Unity.Editor;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Editor
+namespace CreateAR.EnkluPlayer.Editor
 {
     /// <summary>
     /// Displays basic details about Trellis connection.

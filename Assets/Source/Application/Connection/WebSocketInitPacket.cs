@@ -1,6 +1,6 @@
 ﻿using LightJson;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Init packet we receive from Sails.

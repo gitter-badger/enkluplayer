@@ -5,7 +5,7 @@ using CreateAR.Commons.Unity.Http;
 using Jint;
 using Jint.Native;
 
-namespace CreateAR.SpirePlayer.Scripting
+namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// JavaScript interface for setting timers.

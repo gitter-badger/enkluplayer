@@ -3,7 +3,7 @@ using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Controls input view.

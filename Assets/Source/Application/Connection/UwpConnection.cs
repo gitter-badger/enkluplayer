@@ -10,7 +10,7 @@ using CreateAR.Commons.Unity.Logging;
 using UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// <c>IConnection</c> implementation for UWP.

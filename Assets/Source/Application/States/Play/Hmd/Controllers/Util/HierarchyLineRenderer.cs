@@ -1,7 +1,7 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Renders lines for the hierarchy.

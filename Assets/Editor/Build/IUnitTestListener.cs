@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework.Interfaces;
 
-namespace CreateAR.SpirePlayer.Editor
+namespace CreateAR.EnkluPlayer.Editor
 {
     /// <summary>
     /// Interface for objects that listen to <c>UnitTestRunner</c>.

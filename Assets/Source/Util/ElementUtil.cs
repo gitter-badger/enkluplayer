@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CreateAR.SpirePlayer.IUX
+namespace CreateAR.EnkluPlayer.IUX
 {
     /// <summary>
     /// Element utilities.

@@ -1,6 +1,6 @@
 ﻿using strange.extensions.injector.impl;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Simple interface for setting up modules.

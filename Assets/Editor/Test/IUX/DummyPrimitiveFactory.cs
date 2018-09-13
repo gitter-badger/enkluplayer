@@ -1,6 +1,6 @@
-﻿using CreateAR.SpirePlayer.IUX;
+﻿using CreateAR.EnkluPlayer.IUX;
 
-namespace CreateAR.SpirePlayer.Test.UI
+namespace CreateAR.EnkluPlayer.Test.UI
 {
     public class DummyPrimitiveFactory : IPrimitiveFactory
     {

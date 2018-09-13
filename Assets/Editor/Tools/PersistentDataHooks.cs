@@ -3,7 +3,7 @@ using System.IO;
 using CreateAR.Commons.Unity.Logging;
 using UnityEditor;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Hooks for managing persistent data.

@@ -1,8 +1,8 @@
 ﻿using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Design state for editing anchors.

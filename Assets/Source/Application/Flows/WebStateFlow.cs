@@ -1,7 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.AR;
+using CreateAR.EnkluPlayer.AR;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Flow for the web!

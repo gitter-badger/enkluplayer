@@ -1,9 +1,9 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Async;
-using CreateAR.SpirePlayer.Assets;
+using CreateAR.EnkluPlayer.Assets;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer.Test.Assets
+namespace CreateAR.EnkluPlayer.Test.Assets
 {
     public class DummyAssetManager : IAssetManager
     {

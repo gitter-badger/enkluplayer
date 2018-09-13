@@ -7,7 +7,7 @@ using System.Text;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.EnkluPlayer.Test
 {
     /// <summary>
     /// Test result for a single test.

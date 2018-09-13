@@ -5,7 +5,7 @@ using QRCoder;
 using UnityEngine;
 using Image = UnityEngine.UI.Image;
 
-namespace CreateAR.SpirePlayer.States.HoloLogin
+namespace CreateAR.EnkluPlayer.States.HoloLogin
 {
     /// <summary>
     /// View for holocode.

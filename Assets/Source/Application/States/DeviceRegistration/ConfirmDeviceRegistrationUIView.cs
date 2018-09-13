@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages.GetMyOrganizations;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Simple dialog to allow the user to confirm registration.

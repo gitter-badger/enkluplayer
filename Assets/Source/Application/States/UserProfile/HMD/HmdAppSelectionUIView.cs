@@ -1,9 +1,9 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages.GetMyApps;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Splash menu for users after login.

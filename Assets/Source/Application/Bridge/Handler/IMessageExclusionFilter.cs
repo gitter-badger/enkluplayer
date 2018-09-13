@@ -1,4 +1,4 @@
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Describes an object that can filter messages.

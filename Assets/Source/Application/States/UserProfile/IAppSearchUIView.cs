@@ -1,7 +1,7 @@
 ﻿using System;
 using CreateAR.Trellis.Messages.SearchPublishedApps;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Describes a UIView in which a user can search for apps.

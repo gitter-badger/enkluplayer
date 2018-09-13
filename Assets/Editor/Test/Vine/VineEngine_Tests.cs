@@ -1,9 +1,9 @@
 ﻿using System;
 using CreateAR.Commons.Vine;
-using CreateAR.SpirePlayer.Vine;
+using CreateAR.EnkluPlayer.Vine;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test.Vine
+namespace CreateAR.EnkluPlayer.Test.Vine
 {
     [TestFixture]
     public class VineEngine_Tests

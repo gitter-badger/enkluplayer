@@ -1,10 +1,10 @@
 using System;
 using CreateAR.Commons.Unity.Editor;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 using UnityEditor;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Editor
+namespace CreateAR.EnkluPlayer.Editor
 {
     /// <summary>
     /// Attribute for linking a prop renderer to a type.

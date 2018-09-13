@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer.IUX
+﻿namespace CreateAR.EnkluPlayer.IUX
 {
     /// <summary>
     /// Base class for IUX events.

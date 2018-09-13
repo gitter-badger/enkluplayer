@@ -6,7 +6,7 @@ using Jint.Native;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Test.Scripting
+namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     [TestFixture]
     public class VecJsApi_Tests

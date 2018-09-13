@@ -1,7 +1,7 @@
 ﻿using CreateAR.Commons.Unity.Async;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Describes an object that knows how to load all data for an app.

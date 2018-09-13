@@ -4,7 +4,7 @@ using System.Text;
 using NUnit.Framework.Interfaces;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Editor
+namespace CreateAR.EnkluPlayer.Editor
 {
     /// <summary>
     /// Default implementation of <c>IUnitTestListener</c>.

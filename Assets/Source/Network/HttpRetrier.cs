@@ -2,7 +2,7 @@
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     public static class HttpRetrier
     {

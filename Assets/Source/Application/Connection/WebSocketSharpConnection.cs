@@ -9,7 +9,7 @@ using CreateAR.Commons.Unity.Messaging;
 using WebSocketSharp;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// WebSocket based <c>IConnection</c>.

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Allows for listening of gestures, and querying state related to active ones.

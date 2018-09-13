@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using CreateAR.Commons.Unity.Logging;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Log formatter for the conductor.

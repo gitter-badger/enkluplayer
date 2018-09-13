@@ -1,9 +1,9 @@
-﻿using CreateAR.SpirePlayer.IUX;
-using CreateAR.SpirePlayer.Scripting;
+﻿using CreateAR.EnkluPlayer.IUX;
+using CreateAR.EnkluPlayer.Scripting;
 using Jint;
 using NUnit.Framework;
 
-namespace CreateAR.SpirePlayer.Test.Scripting
+namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     /// <summary>
     /// Tests the actual <see cref="ProximityChecker"/> class, with a wide range of mock scene configurations

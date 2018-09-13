@@ -4,12 +4,12 @@ using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.Assets;
-using CreateAR.SpirePlayer.BLE;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.Assets;
+using CreateAR.EnkluPlayer.BLE;
+using CreateAR.EnkluPlayer.IUX;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Initializes the application.

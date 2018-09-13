@@ -1,4 +1,4 @@
-﻿namespace CreateAR.SpirePlayer.Qr
+﻿namespace CreateAR.EnkluPlayer.Qr
 {
     /// <summary>
     /// Ios interface.

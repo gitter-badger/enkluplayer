@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using UnityEngine.XR.WSA.WebCam;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Captures a snapshot from the Hololens, as a mix of the device's front camera & holograms.

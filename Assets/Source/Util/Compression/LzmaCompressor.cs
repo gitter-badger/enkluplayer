@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using CreateAR.SpirePlayer.Assets;
+using CreateAR.EnkluPlayer.Assets;
 using SevenZip.Compression.LZMA;
 
-namespace CreateAR.SpirePlayer.Util
+namespace CreateAR.EnkluPlayer.Util
 {
     /// <summary>
     /// Object that compresses via LZMA.

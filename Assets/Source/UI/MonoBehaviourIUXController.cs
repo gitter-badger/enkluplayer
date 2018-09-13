@@ -1,9 +1,9 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.IUX;
-using CreateAR.SpirePlayer.Vine;
+using CreateAR.EnkluPlayer.IUX;
+using CreateAR.EnkluPlayer.Vine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// IUXController.

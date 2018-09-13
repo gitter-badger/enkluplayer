@@ -1,7 +1,7 @@
 using System;
 using CreateAR.Commons.Unity.Http;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Passes bytes through.

@@ -1,7 +1,7 @@
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Describes an object that can get and set files.

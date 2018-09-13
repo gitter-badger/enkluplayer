@@ -3,7 +3,7 @@ using System.Text;
 using CreateAR.Commons.Unity.Http;
 using LightJson;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Json implementation of ISerializer.

@@ -1,8 +1,8 @@
 ﻿using System;
-using CreateAR.SpirePlayer.Assets;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.Assets;
+using CreateAR.EnkluPlayer.IUX;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Controls the menu for placing objects.

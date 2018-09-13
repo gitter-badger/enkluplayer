@@ -1,7 +1,7 @@
 ﻿using System.Net.NetworkInformation;
 using System.Text;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Utils for networking.

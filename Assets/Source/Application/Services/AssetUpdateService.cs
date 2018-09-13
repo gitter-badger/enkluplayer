@@ -2,10 +2,10 @@ using System;
 using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using CreateAR.SpirePlayer.Assets;
+using CreateAR.EnkluPlayer.Assets;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Handles <c>Asset</c> related updates.

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// A group of filters, elements, and controllers.

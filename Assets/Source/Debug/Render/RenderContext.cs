@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// An object that actually makes the GL calls.

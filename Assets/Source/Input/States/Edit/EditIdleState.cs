@@ -1,6 +1,6 @@
 using System;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Input state when idle in edit mode.

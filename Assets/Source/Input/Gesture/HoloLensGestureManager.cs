@@ -8,7 +8,7 @@ using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.XR.WSA.Input;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// HoloLens implementation of <c>IGestureManager</c>.

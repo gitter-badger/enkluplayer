@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Stores the state of a mesh hierarchy.

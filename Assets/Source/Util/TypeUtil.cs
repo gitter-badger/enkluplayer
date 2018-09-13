@@ -2,7 +2,7 @@
 using System.Reflection;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     public static class TypeUtil
     {

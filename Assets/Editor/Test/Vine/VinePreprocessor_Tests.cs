@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using CreateAR.SpirePlayer.IUX;
-using CreateAR.SpirePlayer.Vine;
+using CreateAR.EnkluPlayer.IUX;
+using CreateAR.EnkluPlayer.Vine;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Test.Vine
+namespace CreateAR.EnkluPlayer.Test.Vine
 {
     public class VinePreprocessor_Tests
     {

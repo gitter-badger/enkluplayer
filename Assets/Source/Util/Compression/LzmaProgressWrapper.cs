@@ -1,7 +1,7 @@
-﻿using CreateAR.SpirePlayer.Assets;
+﻿using CreateAR.EnkluPlayer.Assets;
 using SevenZip;
 
-namespace CreateAR.SpirePlayer.Util
+namespace CreateAR.EnkluPlayer.Util
 {
     /// <summary>
     /// Forwards <c>ICodeProgress</c> to a <c>LoadProgress</c> object.

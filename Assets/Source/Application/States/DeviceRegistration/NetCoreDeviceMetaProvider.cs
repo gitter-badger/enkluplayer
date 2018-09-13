@@ -3,7 +3,7 @@ using System.Linq;
 using Windows.Networking;
 using Windows.System.Profile;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Provider implementation for UWP devices.

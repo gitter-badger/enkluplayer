@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using UnityEditor;
 using UnityEngine;
-using EditorApplication = CreateAR.SpirePlayer.Editor.EditorApplication;
+using EditorApplication = CreateAR.EnkluPlayer.Editor.EditorApplication;
 
-namespace CreateAR.SpirePlayer.Test
+namespace CreateAR.EnkluPlayer.Test
 {
     /// <summary>
     /// Runs an obj exporter.
@@ -38,7 +38,7 @@ namespace CreateAR.SpirePlayer.Test
         [MenuItem("Tools/Mesh/Import Meshes")]
         private static void Import()
         {
-            if (!EditorApplication.IsRunning)
+            if (!Editor.EditorApplication.IsRunning)
             {
                 EditorUtility.DisplayDialog(
                     "Whoops!",
@@ -54,7 +54,7 @@ namespace CreateAR.SpirePlayer.Test
             }
             
             var bytes = File.ReadAllBytes(path);
-            EditorApplication.ScanImporter.Import(
+            Editor.EditorApplication.ScanImporter.Import(
                 bytes,
                 (exception, execute) =>
                 {

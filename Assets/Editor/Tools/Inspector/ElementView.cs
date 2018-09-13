@@ -5,11 +5,11 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using CreateAR.Commons.Unity.Editor;
 using CreateAR.Commons.Unity.Logging;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 using UnityEditor;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Editor
+namespace CreateAR.EnkluPlayer.Editor
 {
     /// <summary>
     /// Draws controls for an element.

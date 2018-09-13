@@ -3,7 +3,7 @@ using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     public class MultiInput : IMultiInput
     {

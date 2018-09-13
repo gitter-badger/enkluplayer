@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Type includes that killed by AoT. Link.xml doesn't seem to be able to

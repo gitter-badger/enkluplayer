@@ -1,7 +1,7 @@
 ﻿using System;
 using CreateAR.Trellis.Messages.GetMyApps;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Describes a UI that allows a user to select the app to load into.

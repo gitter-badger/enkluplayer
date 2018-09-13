@@ -1,9 +1,9 @@
 ﻿using System;
-using CreateAR.SpirePlayer.Assets;
-using CreateAR.SpirePlayer.IUX;
+using CreateAR.EnkluPlayer.Assets;
+using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Controls the splash menu for anchors.

@@ -1,10 +1,10 @@
 using System;
-using CreateAR.SpirePlayer.Assets;
+using CreateAR.EnkluPlayer.Assets;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 
-namespace CreateAR.SpirePlayer.Test.Assets
+namespace CreateAR.EnkluPlayer.Test.Assets
 {
     [TestFixture]
     public class Asset_Tests

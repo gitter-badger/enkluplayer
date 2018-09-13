@@ -4,7 +4,7 @@ using NUnit.Framework;
 using Jint;
 using Jint.Native;
 
-namespace CreateAR.SpirePlayer.Test.Scripting
+namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     [TestFixture]
     public class QuatJSApi_Tests
