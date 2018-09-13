@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -9,11 +10,41 @@ namespace CreateAR.EnkluPlayer.IUX
     public class GizmoManager : InjectableMonoBehaviour, IGizmoManager
     {
         /// <summary>
+        /// List of all gizmo renderers.
+        /// </summary>
+        private readonly List<IGizmoRenderer> _all = new List<IGizmoRenderer>();
+
+        /// <summary>
+        /// Backing variable for property.
+        /// </summary>
+        private bool _isVisible = true;
+
+        /// <summary>
         /// MonoBehaviours.
         /// </summary>
         public MonoBehaviourGizmoRenderer QrAnchor;
         public MonoBehaviourGizmoRenderer Light;
         public MonoBehaviourGizmoRenderer WorldAnchor;
+
+        /// <summary>
+        /// True iff gizmos should be visible.
+        /// </summary>
+        public bool IsVisible
+        {
+            get
+            {
+                return _isVisible;
+            }
+            set
+            {
+                _isVisible = value;
+
+                for (int i = 0, len = _all.Count; i < len; i++)
+                {
+                    _all[i].IsVisible = _isVisible;
+                }
+            }
+        }
 
         /// <inheritdoc />
         public void Track(Element element)
@@ -23,9 +54,17 @@ namespace CreateAR.EnkluPlayer.IUX
             var impl = Renderer(element);
             if (null != impl)
             {
-                impl.Initialize(element);
+                _all.Add(impl);
 
-                element.OnDestroyed += _ => impl.Uninitialize();
+                impl.Initialize(element);
+                impl.IsVisible = IsVisible;
+
+                element.OnDestroyed += _ =>
+                {
+                    impl.Uninitialize();
+
+                    _all.Remove(impl);
+                };
             }
         }
 

@@ -82,8 +82,13 @@ namespace CreateAR.EnkluPlayer
                     {
                         var scene = all[i];
                         var root = Scenes.Root(scene);
-
-                        Draw(root, null);
+                        
+                        // start from immediate children
+                        var children = root.Children;
+                        for (int j = 0, jlen = children.Count; j < jlen; j++)
+                        {
+                            Draw(children[j], null);
+                        }
                     }
                 }
                 catch

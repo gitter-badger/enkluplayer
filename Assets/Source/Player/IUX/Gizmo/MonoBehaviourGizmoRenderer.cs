@@ -8,6 +8,13 @@ namespace CreateAR.EnkluPlayer.IUX
     public class MonoBehaviourGizmoRenderer : MonoBehaviour, IGizmoRenderer
     {
         /// <inheritdoc />
+        public bool IsVisible
+        {
+            get { return gameObject.activeInHierarchy; }
+            set { gameObject.SetActive(value); }
+        }
+
+        /// <inheritdoc />
         public Element Element { get; private set; }
 
         /// <inheritdoc />

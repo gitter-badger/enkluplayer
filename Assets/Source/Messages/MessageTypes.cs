@@ -88,6 +88,7 @@
         public const int BRIDGE_HELPER_GIZMO_ROTATION = 3996;
         public const int BRIDGE_HELPER_GIZMO_SCALE = 3997;
         public const int BRIDGE_HELPER_TRANSFORM_SPACE = 3998;
+        public const int BRIDGE_HELPER_SETTING = 4000;
 
         ///////////////////////////////////////////////////////////////////////
         // Tools
