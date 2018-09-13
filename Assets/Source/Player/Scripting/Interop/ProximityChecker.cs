@@ -301,14 +301,16 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return widget.GameObject;
             }
 
-            if (entity is PlayerJs) 
+            var entityAsPlayerJs = entity as PlayerJs;
+            if (entityAsPlayerJs != null) 
             {
-                return ((PlayerJs) entity).gameObject;
+                return entityAsPlayerJs.gameObject;
             }
 
-            if (entity is PlayerJs.HandJs)
+            var entityAsHandJs = entity as HandJs;
+            if (entityAsHandJs != null)
             {
-                return ((PlayerJs.HandJs) entity).gameObject;
+                return entityAsHandJs.gameObject;
             }
 
             Log.Warning(this, "IEntityJs was not ElementJs or PlayerJs");
