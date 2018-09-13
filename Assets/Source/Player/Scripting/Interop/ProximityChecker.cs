@@ -306,6 +306,11 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return ((PlayerJs) entity).gameObject;
             }
 
+            if (entity is PlayerJs.HandJs)
+            {
+                return ((PlayerJs.HandJs) entity).gameObject;
+            }
+
             Log.Warning(this, "IEntityJs was not ElementJs or PlayerJs");
             return null;
         }

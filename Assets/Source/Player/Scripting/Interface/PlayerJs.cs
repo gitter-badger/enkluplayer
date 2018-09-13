@@ -11,20 +11,20 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Underlying Dummy <see cref="IElementTransformJsApi"/> implementation. Values are populated from Unity's transform.
         /// </summary>
-        private class PlayerTransformJsApi : IElementTransformJsApi
+        private class UnityTransformJsApi : IElementTransformJsApi
         {
             /// <summary>
             /// Cached Unity Transform, used when setting values from the JsApi.
             /// </summary>
-            private readonly Transform _unityTransform;
+            public readonly Transform UnityTransform;
 
             /// <summary>
-            /// Creates a new PlayerTransformJsApi
+            /// Creates a new UnityTransformJsApi
             /// </summary>
             /// <param name="unityTransform"></param>
-            public PlayerTransformJsApi(Transform unityTransform)
+            public UnityTransformJsApi(Transform unityTransform)
             {
-                _unityTransform = unityTransform;
+                UnityTransform = unityTransform;
             }
 
             /// <summary>
@@ -52,9 +52,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 set
                 {
-                    _position = value;
                     Log.Warning(this, "Attempting to set PlayerJs transform");
-                    //_unityTransform.position = new Vector3(_position.x, _position.y, _position.z);
+                    //UnityTransform.position = new Vector3(_position.x, _position.y, _position.z);
                 }
             }
 
@@ -68,9 +67,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 set
                 {
-                    _rotation = value;
                     Log.Warning(this, "Attempting to set PlayerJs transform");
-                    //_unityTransform.rotation = new Quaternion(_rotation.x, _rotation.y, _rotation.z, _rotation.w);
+                    //UnityTransform.rotation = new Quaternion(_rotation.x, _rotation.y, _rotation.z, _rotation.w);
                 }
             }
 
@@ -84,32 +82,110 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 set
                 {
-                    _scale = value;
                     Log.Warning(this, "Attempting to set PlayerJs transform");
-                    //_unityTransform.localScale = new Vector3(_scale.x, _scale.y, _scale.z);
+                    //UnityTransform.localScale = new Vector3(_scale.x, _scale.y, _scale.z);
                 }
             }
 
             /// <summary>
             /// Updates <see cref="position"/>, <see cref="rotation"/>, and <see cref="scale"/> to match the underlying Unity Transform's values.
             /// </summary>
-            public void UpdateTransform()
+            [DenyJsAccess]
+            public void UpdateJsTransform()
             {
-                _position.Set(_unityTransform.position.x, _unityTransform.position.y, _unityTransform.position.z);
-                _rotation.Set(_unityTransform.rotation.x, _unityTransform.rotation.y, _unityTransform.rotation.z, _unityTransform.rotation.w);
-                _scale.Set(_unityTransform.localScale.x, _unityTransform.localScale.y, _unityTransform.localScale.z);
+                _position.Set(
+                    UnityTransform.localPosition.x, 
+                    UnityTransform.localPosition.y, 
+                    UnityTransform.localPosition.z);
+                _rotation.Set(
+                    UnityTransform.localRotation.x, 
+                    UnityTransform.localRotation.y,
+                    UnityTransform.localRotation.z, 
+                    UnityTransform.localRotation.w);
+                _scale.Set(
+                    UnityTransform.localScale.x, 
+                    UnityTransform.localScale.y, 
+                    UnityTransform.localScale.z);
             }
         }
 
         /// <summary>
-        /// Backing PlayerTransformJsApi.
+        /// Surfaces properties that are specific to the user's hand.
         /// </summary>
-        private PlayerTransformJsApi _transform;
+        public class HandJs : IEntityJs
+        {
+            /// <summary>
+            /// Backing transform helper.
+            /// </summary>
+            private readonly UnityTransformJsApi _unityTransform;
+
+            /// <summary>
+            /// Backing GameObject for the Hand.
+            /// </summary>
+            public readonly GameObject gameObject;
+
+            /// <summary>
+            /// Transform.
+            /// </summary>
+            public IElementTransformJsApi transform
+            {
+                get { return _unityTransform; }
+            }
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            /// <param name="gameObject"></param>
+            public HandJs(GameObject gameObject)
+            {
+                this.gameObject = gameObject;
+                _unityTransform = new UnityTransformJsApi(gameObject.transform);
+            }
+
+            /// <summary>
+            /// Always returns false, since the Hand can't belong to the hierarchy.
+            /// </summary>
+            /// <param name="parent"></param>
+            /// <returns></returns>
+            public bool isChildOf(IEntityJs parent)
+            {
+                return false;
+            }
+
+            /// <summary>
+            /// Sets the transforms local position and updates the JS transform values.
+            /// </summary>
+            /// <param name="position"></param>
+            public void UpdatePosition(Vector3 position)
+            {
+                _unityTransform.UnityTransform.localPosition = position;
+                _unityTransform.UpdateJsTransform();
+            }
+        }
+
+        /// <summary>
+        /// Backing UnityTransformJsApi.
+        /// </summary>
+        private UnityTransformJsApi _unityTransform;
+
+        /// <summary>
+        /// Current pointer ID, if any.
+        /// </summary>
+        private uint _pointerId;
 
         /// <summary>
         /// The transform interface.
         /// </summary>
-        public new IElementTransformJsApi transform { get { return _transform; } }
+        public new IElementTransformJsApi transform { get { return _unityTransform; } }
+
+        public HandJs hand { get; private set; }
+
+        /// <summary>
+        /// Used to place our underlying hand object.
+        /// </summary>
+        [Inject]
+        [DenyJsAccess]
+        public IGestureManager _gestureManager { get; set; }
 
         /// <summary>
         /// Always returns false, since PlayerJs cannot belong to the hierarchy.
@@ -127,15 +203,46 @@ namespace CreateAR.EnkluPlayer.Scripting
         protected override void Awake()
         {
             base.Awake();
-            _transform = new PlayerTransformJsApi(gameObject.transform);
+            _unityTransform = new UnityTransformJsApi(gameObject.transform);
+
+            // Create child GameObject for hand
+            GameObject handGameObject = new GameObject("Hand");
+            handGameObject.transform.SetParent(gameObject.transform);
+            hand = new HandJs(handGameObject);
+
+            _gestureManager.OnPointerStarted += OnPointerStarted;
+            _gestureManager.OnPointerEnded += OnPointerEnded;
         }
 
         /// <summary>
-        /// Called by Unity. Responsible for syncing Unity's transform with our <see cref="PlayerTransformJsApi"/>.
+        /// Called by Unity. Responsible for syncing Unity's transform with our <see cref="UnityTransformJsApi"/>.
         /// </summary>
         protected void Update()
         {
-            _transform.UpdateTransform();
+            _unityTransform.UpdateJsTransform();
+
+            if (_pointerId > 0)
+            {
+                Vector3 handPosition;
+                _gestureManager.TryGetPointerOrigin(_pointerId, out handPosition);
+
+                hand.UpdatePosition(handPosition);
+            }
+        }
+
+        private void OnPointerStarted(uint pointerId)
+        {
+            _pointerId = pointerId;
+        }
+
+        private void OnPointerEnded(uint pointerId)
+        {
+            if (pointerId == _pointerId)
+            {
+                _pointerId = 0;
+
+                hand.UpdatePosition(Vector3.zero);
+            }
         }
     }
 }
