@@ -93,6 +93,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IElementFactory _elements;
 
         /// <summary>
+        /// Voices....
+        /// </summary>
+        private readonly IVoiceCommandManager _voice;
+
+        /// <summary>
         /// Configuration for entire application.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -196,6 +201,7 @@ namespace CreateAR.EnkluPlayer
             IBootstrapper bootstrapper,
             IMessageRouter messages,
             IElementFactory elements,
+            IVoiceCommandManager voice,
             ApplicationConfig config)
         {
             _scenes = scenes;
@@ -206,6 +212,7 @@ namespace CreateAR.EnkluPlayer
             _bootstrapper = bootstrapper;
             _messages = messages;
             _elements = elements;
+            _voice = voice;
             _config = config;
         }
 
@@ -250,6 +257,13 @@ namespace CreateAR.EnkluPlayer
                 AreAllAnchorsReady = true;
                 Ready();
             }
+
+            _voice.Register("origin", str =>
+            {
+#if NETFX_CORE
+                UnityEngine.XR.InputTracking.Recenter();
+#endif
+            });
         }
 
         /// <inheritdoc />
