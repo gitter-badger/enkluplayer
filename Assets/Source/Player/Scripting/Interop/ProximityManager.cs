@@ -108,9 +108,13 @@ namespace CreateAR.EnkluPlayer.Scripting
                 InvokeCallbacks(EVENT_EXIT, listener, trigger);
             };
 
+            // TODO: Make these radii values configurable by scripting
             _proximityChecker.SetElementState(Player, false, true);
             _proximityChecker.SetElementRadii(Player, 1, 1);
 
+            _proximityChecker.SetElementState(Player.hand, false, true);
+            _proximityChecker.SetElementRadii(Player.hand, 0.1f, 0.1f);
+            
             ElementManager.OnCreated += WatchElement;
 
             for (var i = 0; i < ElementManager.All.Count; i++)
