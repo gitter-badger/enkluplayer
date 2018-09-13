@@ -202,6 +202,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 _resolver,
                 _scripts);
             var jsCache = new ElementJsCache(_elementJsFactory, host);
+            host.SetValue("system", SystemJsApi.Instance);
             host.SetValue("app", Main.NewAppJsApi(jsCache));
             host.SetValue("this", jsCache.Element(_element));
             _caches.Add(jsCache);
