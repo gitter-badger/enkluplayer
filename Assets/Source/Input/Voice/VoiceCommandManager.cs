@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CreateAR.Commons.Unity.Messaging;
 using UnityEngine.Windows.Speech;
 
 namespace CreateAR.EnkluPlayer
@@ -17,9 +18,26 @@ namespace CreateAR.EnkluPlayer
         private readonly Dictionary<string, Action<string>> _actions = new Dictionary<string, Action<string>>();
 
         /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
+        /// <summary>
         /// Recognizer!
         /// </summary>
         private KeywordRecognizer _recognizer;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public VoiceCommandManager(IMessageRouter messages)
+        {
+            _messages = messages;
+
+            _messages.Subscribe(
+                MessageTypes.APPLICATION_RESUME,
+                _ => RebuildRecognizer());
+        }
         
         /// <inheritdoc cref="IVoiceCommandManager"/>
         public bool Register(string keyword, Action<string> callback)
