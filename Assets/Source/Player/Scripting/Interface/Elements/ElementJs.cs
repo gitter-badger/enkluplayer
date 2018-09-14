@@ -150,6 +150,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Cleans up ElementJS instance.
         /// </summary>
+        [DenyJsAccess]
         public virtual void Cleanup()
         {
             if (null != OnCleanup)
