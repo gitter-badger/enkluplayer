@@ -146,13 +146,12 @@ namespace CreateAR.EnkluPlayer.Scripting
                 _activeElements.Remove(config);
 
                 // Remove any active collisions
-                var collisionsLen = _collisions.Count;
-                for (var i = 0; i < collisionsLen; i++)
+                for (var i = _collisions.Count - 1; i >= 0; i--)
                 {
                     var collision = _collisions[i];
                     if (collision.A.GameObject == backingGameObject || collision.B.GameObject == backingGameObject)
                     {
-                        _collisions.RemoveAt(i--);
+                        _collisions.RemoveAt(i);
 
                         InvokeCallbacks(OnExit, collision.A, collision.B);
                     }
