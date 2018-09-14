@@ -115,7 +115,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         private void UpdateVisibility()
         {
-            bool visible = _interaction.Visible.Count > 0;
+            var visible = _interaction.Visible.Count > 0;
 
             // Only show the cursor when hovering over an Interactable on Hololens
             if (DeviceHelper.IsHoloLens())
