@@ -55,6 +55,11 @@ namespace CreateAR.EnkluPlayer
         private readonly ShadowResolution _defaultShadowResolution;
 
         /// <summary>
+        /// True iff Setup has been called but Teardown has not yet.
+        /// </summary>
+        private bool _isSetup;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public AppQualityController()
@@ -121,11 +126,19 @@ namespace CreateAR.EnkluPlayer
             _blendWeightsProp = root.Schema.GetOwn(string.Format(PROP_TEMPLATE_BLENDWEIGHTS, platform), _defaultBlendWeights.ToString());
             _blendWeightsProp.OnChanged += BlendWeights_OnChanged;
             QualitySettings.blendWeights = _blendWeightsProp.Value.ToEnum<BlendWeights>();
+
+            _isSetup = true;
         }
 
         /// <inheritdoc />
         public void Teardown()
         {
+            // in the case that props have not yet been retrieved, return early
+            if (!_isSetup)
+            {
+                return;
+            }
+
             _textureLimitProp.OnChanged -= TextureLimit_OnChanged;
             _anisoProp.OnChanged -= Aniso_OnChanged;
             _aaProp.OnChanged -= Aa_OnChanged;

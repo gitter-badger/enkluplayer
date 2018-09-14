@@ -269,6 +269,8 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Teardown()
         {
+            _voice.Unregister("origin");
+
             CloseStatusUI();
 
             _anchorsEnabledProp.OnChanged -= Anchors_OnEnabledChanged;

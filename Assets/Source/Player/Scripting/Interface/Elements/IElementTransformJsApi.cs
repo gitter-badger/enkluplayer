@@ -1,6 +1,4 @@
-﻿using CreateAR.EnkluPlayer.IUX;
-
-namespace CreateAR.EnkluPlayer.Scripting
+﻿namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// Provides common transform specifics for an element.
