@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -67,6 +68,16 @@ namespace CreateAR.EnkluPlayer
         private readonly UserPreferenceService _preferenceService;
 
         /// <summary>
+        /// Manages scenes.
+        /// </summary>
+        private readonly IAppSceneManager _scenes;
+
+        /// <summary>
+        /// Manages txns.
+        /// </summary>
+        private readonly IElementTxnManager _txns;
+
+        /// <summary>
         /// UI frame.
         /// </summary>
         private UIManagerFrame _frame;
@@ -113,7 +124,9 @@ namespace CreateAR.EnkluPlayer
             IUIManager ui,
             UserPreferenceService preferenceService,
             IPrimaryAnchorManager primaryAnchor,
-            IVoiceCommandManager voice)
+            IVoiceCommandManager voice,
+            IAppSceneManager scenes,
+            IElementTxnManager txns)
         {
             _config = config;
             _messages = messages;
@@ -124,6 +137,8 @@ namespace CreateAR.EnkluPlayer
             _preferenceService = preferenceService;
             _primaryAnchor = primaryAnchor;
             _voice = voice;
+            _scenes = scenes;
+            _txns = txns;
         }
 
         /// <inheritdoc />
@@ -292,7 +307,14 @@ namespace CreateAR.EnkluPlayer
                     el.OnClearAnchors += MainMenu_OnClearAnchors;
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
                     el.OnSignout += MainMenu_OnSignout;
-                    el.Initialize(_prefs.Data.App(_config.Play.AppId).Play);
+
+                    // find root
+                    var id = _scenes.All.FirstOrDefault();
+                    el.Initialize(
+                        id,
+                        _scenes.Root(id),
+                        _txns,
+                        _prefs.Data.App(_config.Play.AppId).Play);
                 })
                 .OnFailure(ex => Log.Error(this,
                     "Could not open MainMenuUIView : {0}",

@@ -20,7 +20,7 @@ namespace CreateAR.EnkluPlayer
             Load,
             Duplicate
         }
-
+        
         /// <summary>
         /// Elements.
         /// </summary>
@@ -149,11 +149,33 @@ namespace CreateAR.EnkluPlayer
         public event Action OnSignout;
 
         /// <summary>
-        /// Initializes the view with values
+        /// Id of the scene.
         /// </summary>
-        /// <param name="play">True iff playmode.</param>
-        public void Initialize(bool play)
+        private string _sceneId;
+
+        /// <summary>
+        /// Root element of the scene.
+        /// </summary>
+        private Element _root;
+
+        /// <summary>
+        /// Manages element transactions.
+        /// </summary>
+        private IElementTxnManager _txns;
+
+        /// <summary>
+        /// Initializes the view.
+        /// </summary>
+        public void Initialize(
+            string sceneId,
+            Element root,
+            IElementTxnManager txns,
+            bool play)
         {
+            _sceneId = sceneId;
+            _root = root;
+            _txns = txns;
+
             SltPlay.Selection = SltPlay.Options.FirstOrDefault(option => play
                 ? option.Value == "Play"
                 : option.Value == "Edit");
@@ -219,38 +241,140 @@ namespace CreateAR.EnkluPlayer
 
             // options
             {
+                var platform = UnityEngine.Application.platform.ToString();
+
                 SltTextureQuality.Selection = SltTextureQuality.Options.FirstOrDefault(op => int.Parse(op.Value) == QualitySettings.masterTextureLimit);
-                SltTextureQuality.OnValueChanged += _ => QualitySettings.masterTextureLimit = int.Parse(SltTextureQuality.Selection.Value);
+                SltTextureQuality.OnValueChanged += _ =>
+                {
+                    var value = int.Parse(SltTextureQuality.Selection.Value);
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(
+                            _root.Id,
+                            string.Format(AppQualityController.PROP_TEMPLATE_TEXTUREQUALITY, platform),
+                            value))
+                        .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                };
 
                 SltAnisotropic.Selection = SltAnisotropic.Options.FirstOrDefault(op => To<AnisotropicFiltering>(op.Value) == QualitySettings.anisotropicFiltering);
-                SltAnisotropic.OnValueChanged += _ => QualitySettings.anisotropicFiltering = To<AnisotropicFiltering>(SltAnisotropic.Selection.Value);
+                SltAnisotropic.OnValueChanged += _ =>
+                {
+                    var value = To<AnisotropicFiltering>(SltAnisotropic.Selection.Value).ToString();
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(
+                            _root.Id,
+                            string.Format(AppQualityController.PROP_TEMPLATE_ANISO, platform),
+                            value))
+                        .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                };
 
                 SltAntiAliasing.Selection = SltAntiAliasing.Options.FirstOrDefault(op => int.Parse(op.Value) == QualitySettings.antiAliasing);
-                SltAntiAliasing.OnValueChanged += _ => QualitySettings.antiAliasing = int.Parse(SltAntiAliasing.Selection.Value);
+                SltAntiAliasing.OnValueChanged += _ =>
+                {
+                    var value = int.Parse(SltAntiAliasing.Selection.Value);
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(
+                            _root.Id,
+                            string.Format(AppQualityController.PROP_TEMPLATE_AA, platform),
+                            value))
+                        .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                    
+                };
 
                 TglSoftParticles.Value = QualitySettings.softParticles;
-                TglSoftParticles.OnValueChanged += _ => QualitySettings.softParticles = TglSoftParticles.Value;
+                TglSoftParticles.OnValueChanged += _ =>
+                {
+                    var value = TglSoftParticles.Value;
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(
+                            _root.Id,
+                            string.Format(AppQualityController.PROP_TEMPLATE_SOFTPARTICLES, platform),
+                            value))
+                        .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                };
 
                 TglRealtimeReflectionProbes.Value = QualitySettings.realtimeReflectionProbes;
-                TglRealtimeReflectionProbes.OnValueChanged += _ => QualitySettings.realtimeReflectionProbes = TglRealtimeReflectionProbes.Value;
+                TglRealtimeReflectionProbes.OnValueChanged += _ =>
+                {
+                    var value = TglRealtimeReflectionProbes.Value;
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(
+                            _root.Id,
+                            string.Format(AppQualityController.PROP_TEMPLATE_REALTIMEREFLECTIONPROBES, platform),
+                            value))
+                        .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                };
 
                 TglBillboards.Value = QualitySettings.billboardsFaceCameraPosition;
-                TglBillboards.OnValueChanged += _ => QualitySettings.billboardsFaceCameraPosition = TglBillboards.Value;
+                TglBillboards.OnValueChanged += _ =>
+                {
+                    var value = TglBillboards.Value;
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(
+                            _root.Id,
+                            string.Format(AppQualityController.PROP_TEMPLATE_BILLBOARDS, platform),
+                            value))
+                        .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                };
 
                 SltShadows.Selection = SltShadows.Options.FirstOrDefault(op => To<ShadowQuality>(op.Value) == QualitySettings.shadows);
-                SltShadows.OnValueChanged += _ => QualitySettings.shadows = To<ShadowQuality>(SltShadows.Selection.Value);
+                SltShadows.OnValueChanged += _ =>
+                {
+                    var value = To<ShadowQuality>(SltShadows.Selection.Value).ToString();
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(
+                            _root.Id,
+                            string.Format(AppQualityController.PROP_TEMPLATE_SHADOWQUALITY, platform),
+                            value))
+                        .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                };
 
                 SltShadowmask.Selection = SltShadowmask.Options.FirstOrDefault(op => To<ShadowmaskMode>(op.Value) == QualitySettings.shadowmaskMode);
-                SltShadowmask.OnValueChanged += _ => QualitySettings.shadowmaskMode = To<ShadowmaskMode>(SltShadows.Selection.Value);
+                SltShadowmask.OnValueChanged += _ =>
+                {
+                    var value = To<ShadowmaskMode>(SltShadowmask.Selection.Value).ToString();
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(
+                            _root.Id,
+                            string.Format(AppQualityController.PROP_TEMPLATE_SHADOWMASK, platform),
+                            value))
+                        .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                };
 
                 SltShadowResolution.Selection = SltShadowResolution.Options.FirstOrDefault(op => To<ShadowResolution>(op.Value) == QualitySettings.shadowResolution);
-                SltShadowResolution.OnValueChanged += _ => QualitySettings.shadowResolution = To<ShadowResolution>(SltShadowResolution.Selection.Value);
+                SltShadowResolution.OnValueChanged += _ =>
+                {
+                    var value = To<ShadowResolution>(SltShadowResolution.Selection.Value).ToString();
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(
+                            _root.Id,
+                            string.Format(AppQualityController.PROP_TEMPLATE_SHADOWRESOLUTION, platform),
+                            value))
+                        .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                };
 
                 SltShadowProjection.Selection = SltShadowProjection.Options.FirstOrDefault(op => To<ShadowProjection>(op.Value) == QualitySettings.shadowProjection);
-                SltShadowProjection.OnValueChanged += _ => QualitySettings.shadowProjection = To<ShadowProjection>(SltShadowProjection.Selection.Value);
+                SltShadowProjection.OnValueChanged += _ =>
+                {
+                    var value = To<ShadowProjection>(SltShadowProjection.Selection.Value).ToString();
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(
+                            _root.Id,
+                            string.Format(AppQualityController.PROP_TEMPLATE_SHADOWPROJECTION, platform),
+                            value))
+                        .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                };
 
                 SltBlendWeights.Selection = SltBlendWeights.Options.FirstOrDefault(op => To<BlendWeights>(op.Value) == QualitySettings.blendWeights);
-                SltBlendWeights.OnValueChanged += _ => QualitySettings.blendWeights = To<BlendWeights>(SltBlendWeights.Selection.Value);
+                SltBlendWeights.OnValueChanged += _ =>
+                {
+                    var value = To<BlendWeights>(SltBlendWeights.Selection.Value).ToString();
+                    _txns
+                        .Request(new ElementTxn(_sceneId).Update(
+                            _root.Id,
+                            string.Format(AppQualityController.PROP_TEMPLATE_BLENDWEIGHTS, platform),
+                            value))
+                        .OnFailure(ex => Log.Warning(this, "Could not change quality settings : {0}", ex));
+                };
             }
         }
 
