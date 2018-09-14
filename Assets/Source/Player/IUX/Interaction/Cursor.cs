@@ -29,7 +29,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// How well is the user aiming.
         /// </summary>
-        private float _aim;
+        private float _aim = -1;
 
         /// <summary>
         /// Scale of the points.
@@ -115,7 +115,15 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         private void UpdateVisibility()
         {
-            LocalVisible = _interaction.Visible.Count > 0;
+            bool visible = _interaction.Visible.Count > 0;
+
+            // Only show the cursor when hovering over an Interactable on Hololens
+            if (DeviceHelper.IsHoloLens())
+            {
+                visible = visible && _aim >= 0;
+            }
+
+            LocalVisible = visible;
         }
 
         /// <summary>
@@ -224,7 +232,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         private void UpdateAim()
         {
-            _aim = 0.0f;
+            _aim = -1.0f;
 
             var interactive = _intention.Focus;
             if (null != interactive)
