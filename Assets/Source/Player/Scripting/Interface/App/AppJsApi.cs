@@ -15,6 +15,9 @@
         /// </summary>
         public readonly AppElementsJsApi elements;
 
+        /// <summary>
+        /// API for the player.
+        /// </summary>
         public readonly PlayerJs player;
 
         /// <summary>
