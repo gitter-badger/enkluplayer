@@ -117,10 +117,11 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             bool visible = _interaction.Visible.Count > 0;
 
-#if NETFX_CORE
             // Only show the cursor when hovering over an Interactable on Hololens
-            visible = visible && _aim >= 0;
-#endif
+            if (DeviceHelper.IsHoloLens())
+            {
+                visible = visible && _aim >= 0;
+            }
 
             LocalVisible = visible;
         }
