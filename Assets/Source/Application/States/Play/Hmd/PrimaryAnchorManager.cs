@@ -172,7 +172,7 @@ namespace CreateAR.EnkluPlayer
         {
             get
             {
-                if (!_anchorsEnabledProp.Value)
+                if (null != _anchorsEnabledProp && !_anchorsEnabledProp.Value)
                 {
                     return WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated;
                 }
@@ -273,8 +273,11 @@ namespace CreateAR.EnkluPlayer
 
             CloseStatusUI();
 
-            _anchorsEnabledProp.OnChanged -= Anchors_OnEnabledChanged;
-            _anchorsEnabledProp = null;
+            if (null != _anchorsEnabledProp)
+            {
+                _anchorsEnabledProp.OnChanged -= Anchors_OnEnabledChanged;
+                _anchorsEnabledProp = null;
+            }
 
             if (null != _autoExportUnsub)
             {
