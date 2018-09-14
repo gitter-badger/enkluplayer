@@ -158,6 +158,9 @@ namespace CreateAR.EnkluPlayer
             {
                 UIDataId = UIDataIds.LOADING
             }, out _loadingScreenId);
+
+            // allow the cursor to be hidden
+            _config.Cursor.ForceShow = false;
             
             // watch tracking
             _ar.OnTrackingOffline += Ar_OnTrackingOffline;
@@ -242,6 +245,9 @@ namespace CreateAR.EnkluPlayer
 
             // close UI
             _frame.Release();
+
+            // set the cursor back to always drawing
+            _config.Cursor.ForceShow = true;
         }
 
         /// <summary>

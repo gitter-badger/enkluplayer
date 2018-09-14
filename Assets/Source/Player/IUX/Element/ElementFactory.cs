@@ -352,7 +352,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 case ElementTypes.CURSOR:
                 {
-                    return new Cursor(new GameObject("Element"), _config, _layers, _tweens, _colors, _intention, _interaction, _primitives);
+                    return new Cursor(new GameObject("Element"), _config, _layers, _tweens, _colors, _intention, _interaction, _primitives, _appConfig.Cursor, _appConfig.Play);
                 }
                 case ElementTypes.MENU:
                 {

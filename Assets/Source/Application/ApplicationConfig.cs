@@ -53,6 +53,11 @@ namespace CreateAR.EnkluPlayer
         public MetricsConfig Metrics = new MetricsConfig();
 
         /// <summary>
+        /// Cursor configuration.
+        /// </summary>
+        public CursorConfig Cursor = new CursorConfig();
+
+        /// <summary>
         /// Platform to use.
         /// </summary>
         public RuntimePlatform ParsedPlatform
@@ -547,5 +552,17 @@ namespace CreateAR.EnkluPlayer
                 ApplicationKey = config.ApplicationKey;
             }
         }
+    }
+
+    /// <summary>
+    /// Configuration for the Cursor.
+    /// </summary>
+    public class CursorConfig
+    {
+        /// <summary>
+        /// Authoritative setting. If true no app logic should hide the cursor.
+        /// to the screen.
+        /// </summary>
+        public bool ForceShow { get; set; }
     }
 }
