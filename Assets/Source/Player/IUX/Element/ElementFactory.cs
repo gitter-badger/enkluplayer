@@ -25,10 +25,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IInteractionManager _interaction;
         private readonly IElementManager _elements;
         private readonly ILayerManager _layers;
-        private readonly ColorConfig _colors;
-        private readonly TweenConfig _tweens;
         private readonly IVoiceCommandManager _voice;
-        private readonly WidgetConfig _config;
         private readonly IImageLoader _imageLoader;
         private readonly IHttpService _http;
         private readonly IWorldAnchorProvider _provider;
@@ -42,6 +39,10 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IMetricsService _metrics;
         private readonly IMessageRouter _messages;
         private readonly IElementJsFactory _elementJsFactory;
+        private readonly ColorConfig _colors;
+        private readonly TweenConfig _tweens;
+        private readonly WidgetConfig _config;
+        private readonly ApplicationConfig _appConfig;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -65,10 +66,7 @@ namespace CreateAR.EnkluPlayer.IUX
             IIntentionManager intention,
             IInteractionManager interaction,
             ILayerManager layers,
-            ColorConfig colors,
-            TweenConfig tweens,
             IVoiceCommandManager voice,
-            WidgetConfig config,
             IImageLoader imageLoader,
             IHttpService http,
             IWorldAnchorProvider provider,
@@ -81,7 +79,11 @@ namespace CreateAR.EnkluPlayer.IUX
             IScanImporter scanImporter,
             IMetricsService metrics,
             IMessageRouter messages,
-            IElementJsFactory elementJsFactory)
+            IElementJsFactory elementJsFactory,
+            ColorConfig colors,
+            TweenConfig tweens,
+            WidgetConfig config,
+            ApplicationConfig appConfig)
         {
             _parser = parser;
             _gizmos = gizmos;
@@ -107,6 +109,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _metrics = metrics;
             _messages = messages;
             _elementJsFactory = elementJsFactory;
+            _appConfig = appConfig;
             
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -404,7 +407,7 @@ namespace CreateAR.EnkluPlayer.IUX
                         _colors,
                         _resolver,
                         _scripts,
-                        new ModelContentAssembler(_assets, _pools),
+                        new ModelContentAssembler(_assets, _pools, _appConfig.Play),
                         _elementJsFactory);
                 }
                 case ElementTypes.TRANSITION:

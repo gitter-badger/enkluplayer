@@ -20,7 +20,12 @@ namespace CreateAR.EnkluPlayer
         /// Manages pooling.
         /// </summary>
         private readonly IAssetPoolManager _pools;
-        
+
+        /// <summary>
+        /// Configuration for play mode.
+        /// </summary>
+        private readonly PlayAppConfig _config;
+
         /// <summary>
         /// Bounds of the asset.
         /// </summary>
@@ -79,10 +84,12 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public ModelContentAssembler(
             IAssetManager assets,
-            IAssetPoolManager pools)
+            IAssetPoolManager pools,
+            PlayAppConfig config)
         {
             _assets = assets;
             _pools = pools;
+            _config = config;
         }
         
         /// <inheritdoc cref="IContentAssembler"/>
@@ -159,8 +166,8 @@ namespace CreateAR.EnkluPlayer
             {
                 SetupInstance(prefab);
             }
-            // otherwise, show a load indicator
-            else
+            // if it's not loaded and we're in edit mode, add a loading outline
+            else if (_config.Edit)
             {
                 _outline = transform
                     .gameObject
