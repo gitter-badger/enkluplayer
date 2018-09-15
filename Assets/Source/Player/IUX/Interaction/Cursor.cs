@@ -15,6 +15,8 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IIntentionManager _intention;
         private readonly IInteractionManager _interaction;
         private readonly IPrimitiveFactory _primitives;
+        private readonly CursorConfig _cursorConfig;
+        private readonly PlayAppConfig _playConfig;
 
         /// <summary>
         /// Reticle primitive.
@@ -67,7 +69,9 @@ namespace CreateAR.EnkluPlayer.IUX
             ColorConfig colors,
             IIntentionManager intention,
             IInteractionManager interaction,
-            IPrimitiveFactory primitives)
+            IPrimitiveFactory primitives,
+            CursorConfig cursorConfig,
+            PlayAppConfig playConfig)
             : base(
                 gameObject,
                 layers,
@@ -79,6 +83,8 @@ namespace CreateAR.EnkluPlayer.IUX
             _intention = intention;
             _interaction = interaction;
             _primitives = primitives;
+            _cursorConfig = cursorConfig;
+            _playConfig = playConfig;
         }
 
         /// <summary>
@@ -115,15 +121,22 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         private void UpdateVisibility()
         {
-            var visible = _interaction.Visible.Count > 0;
-
-            // Only show the cursor when hovering over an Interactable on Hololens
-            if (DeviceHelper.IsHoloLens())
+            if (_cursorConfig.ForceShow)
             {
-                visible = visible && _aim >= 0;
+                LocalVisible = true;
             }
+            else
+            {
+                var visible = _interaction.Visible.Count > 0;
 
-            LocalVisible = visible;
+                // Only show the cursor when hovering over an Interactable on Hololens
+                // TODO: Should all apps ignore the cursor outside of edit mode?
+                if(DeviceHelper.IsHoloLens() && !_playConfig.Edit) {
+                    visible = visible && _aim >= 0;
+                }
+
+                LocalVisible = visible;
+            }
         }
 
         /// <summary>
