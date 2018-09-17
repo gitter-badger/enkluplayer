@@ -11,23 +11,13 @@ namespace Jint.Runtime.Environments
     /// </summary>
     public sealed class LexicalEnvironment
     {
-        private readonly EnvironmentRecord _record;
-        private readonly LexicalEnvironment _outer;
+        public EnvironmentRecord Record { get; private set; }
+        public LexicalEnvironment Outer { get; private set; }
 
-        public LexicalEnvironment(EnvironmentRecord record, LexicalEnvironment outer)
+        public void Setup(EnvironmentRecord record, LexicalEnvironment outer)
         {
-            _record = record;
-            _outer = outer;
-        }
-
-        public EnvironmentRecord Record
-        {
-            get { return _record; }
-        }
-
-        public LexicalEnvironment Outer
-        {
-            get { return _outer; }
+            Record = record;
+            Outer = outer;
         }
 
         public static Reference GetIdentifierReference(LexicalEnvironment lex, string name, bool strict)
@@ -52,12 +42,18 @@ namespace Jint.Runtime.Environments
 
         public static LexicalEnvironment NewDeclarativeEnvironment(Engine engine, LexicalEnvironment outer = null)
         {
-            return new LexicalEnvironment(new DeclarativeEnvironmentRecord(engine), outer);
+            var env = new LexicalEnvironment();
+            env.Setup(new DeclarativeEnvironmentRecord(engine), outer);
+
+            return env;
         }
 
         public static LexicalEnvironment NewObjectEnvironment(Engine engine, ObjectInstance objectInstance, LexicalEnvironment outer, bool provideThis)
         {
-            return new LexicalEnvironment(new ObjectEnvironmentRecord(engine, objectInstance, provideThis), outer);
+            var env = new LexicalEnvironment();
+            env.Setup(new ObjectEnvironmentRecord(engine, objectInstance, provideThis), outer);
+
+            return env;
         }
     }
 
