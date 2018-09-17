@@ -5,36 +5,8 @@ namespace Jint.Runtime.Environments
 {
     public sealed class ExecutionContext : IOptimizedObjectPoolElement
     {
-        private LexicalEnvironment _lexicalEnvironment;
-        private LexicalEnvironment _variableEnvironment;
-
-        public LexicalEnvironment LexicalEnvironment
-        {
-            get { return _lexicalEnvironment; }
-            set
-            {
-                if (null != _lexicalEnvironment)
-                {
-                    Engine.PoolLexicalEnvironment.Put(_lexicalEnvironment);
-                }
-
-                _lexicalEnvironment = value;
-            }
-        }
-
-        public LexicalEnvironment VariableEnvironment
-        {
-            get { return _variableEnvironment; }
-            set
-            {
-                if (null != _variableEnvironment)
-                {
-                    Engine.PoolLexicalEnvironment.Put(_variableEnvironment);
-                }
-
-                _variableEnvironment = value;
-            }
-        }
+        public LexicalEnvironment LexicalEnvironment { get; set; }
+        public LexicalEnvironment VariableEnvironment { get; set; }
 
         public JsValue ThisBinding { get; set; }
 
