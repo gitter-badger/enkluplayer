@@ -381,16 +381,17 @@ namespace Jint.Runtime
                 yield return methods[0];
                 yield break;
             }
-            
-            foreach (var method in methods)
+
+            for (int j = 0, jlen = methods.Length; j < jlen; j++)
             {
+                var method = methods[j];
                 var perfectMatch = true;
                 var parameters = method.GetParameters();
                 for (var i = 0; i < arguments.Length; i++)
                 {
                     var arg = arguments[i].ToObject();
                     var paramType = parameters[i].ParameterType;
-                    
+
                     if (arg == null)
                     {
                         if (!TypeIsNullable(paramType))
@@ -413,8 +414,9 @@ namespace Jint.Runtime
                 }
             }
 
-            foreach (var method in methods)
+            for (int i = 0, len = methods.Length; i < len; i++)
             {
+                var method = methods[i];
                 yield return method;
             }
         }

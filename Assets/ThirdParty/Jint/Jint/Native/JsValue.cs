@@ -275,8 +275,9 @@ namespace Jint.Native
                 return Null;
             }
 
-            foreach (var converter in engine.Options._ObjectConverters)
+            for (int index = 0, len = engine.Options._ObjectConverters.Count; index < len; index++)
             {
+                var converter = engine.Options._ObjectConverters[index];
                 JsValue result;
                 if (converter.TryConvert(value, out result))
                 {
@@ -324,8 +325,10 @@ namespace Jint.Native
                     var array = (System.Array)v;
 
                     var jsArray = engine.Array.Construct(Arguments.Empty);
-                    foreach (var item in array)
+                    System.Collections.IList list = array;
+                    for (int i = 0, len = list.Count; i < len; i++)
                     {
+                        object item = list[i];
                         var jsItem = JsValue.FromObject(engine, item);
                         engine.Array.PrototypeObject.Push(jsArray, Arguments.From(jsItem));
                     }
@@ -476,7 +479,7 @@ namespace Jint.Native
                         case "Object":
                             IDictionary<string, object> o = new Dictionary<string, object>();
 
-                            foreach (var p in (_object as ObjectInstance).GetOwnProperties())
+                            foreach (var p in ((ObjectInstance) _object).GetOwnProperties())
                             {
                                 if (!p.Value.Enumerable.HasValue || p.Value.Enumerable.Value == false)
                                 {

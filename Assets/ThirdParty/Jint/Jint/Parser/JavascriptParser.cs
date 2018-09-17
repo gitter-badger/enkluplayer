@@ -1392,7 +1392,7 @@ namespace Jint.Parser
             return node;
         }
 
-        public ArrayExpression CreateArrayExpression(IEnumerable<Expression> elements)
+        public ArrayExpression CreateArrayExpression(List<Expression> elements)
         {
             return new ArrayExpression
                 {
@@ -1724,7 +1724,7 @@ namespace Jint.Parser
                 };
         }
 
-        public SwitchCase CreateSwitchCase(Expression test, IEnumerable<Statement> consequent)
+        public SwitchCase CreateSwitchCase(Expression test, List<Statement> consequent)
         {
             return new SwitchCase
                 {
@@ -1734,7 +1734,7 @@ namespace Jint.Parser
                 };
         }
 
-        public SwitchStatement CreateSwitchStatement(Expression discriminant, IEnumerable<SwitchCase> cases)
+        public SwitchStatement CreateSwitchStatement(Expression discriminant, List<SwitchCase> cases)
         {
             return new SwitchStatement
                 {
@@ -1761,8 +1761,8 @@ namespace Jint.Parser
                 };
         }
 
-        public TryStatement CreateTryStatement(Statement block, IEnumerable<Statement> guardedHandlers,
-                                               IEnumerable<CatchClause> handlers, Statement finalizer)
+        public TryStatement CreateTryStatement(Statement block, List<Statement> guardedHandlers,
+                                               List<CatchClause> handlers, Statement finalizer)
         {
             return new TryStatement
                 {
@@ -3405,7 +3405,7 @@ namespace Jint.Parser
                 ThrowError(Token.Empty, Messages.NoCatchOrFinally);
             }
 
-            return CreateTryStatement(block, new Statement[0], handlers, finalizer);
+            return CreateTryStatement(block, new List<Statement>(), handlers, finalizer);
         }
 
         // 12.15 The debugger statement
