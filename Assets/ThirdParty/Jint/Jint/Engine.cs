@@ -69,6 +69,8 @@ namespace Jint
 
         public static readonly OptimizedObjectPool<StrictModeScope> PoolStrictMode = new OptimizedObjectPool<StrictModeScope>(12, () => new StrictModeScope());
 
+        private static readonly OptimizedObjectPool<ExecutionContext> _poolExecutionContext = new OptimizedObjectPool<ExecutionContext>(12, () => new ExecutionContext());
+
         public Engine() : this(null)
         {
         }
@@ -223,15 +225,14 @@ namespace Jint
 
         public ExecutionContext EnterExecutionContext(LexicalEnvironment lexicalEnvironment, LexicalEnvironment variableEnvironment, JsValue thisBinding)
         {
-            var executionContext = new ExecutionContext
-                {
-                    LexicalEnvironment = lexicalEnvironment,
-                    VariableEnvironment = variableEnvironment,
-                    ThisBinding = thisBinding
-                };
-            _executionContexts.Push(executionContext);
+            var context = _poolExecutionContext.Get();
+            context.LexicalEnvironment = lexicalEnvironment;
+            context.VariableEnvironment = variableEnvironment;
+            context.ThisBinding = thisBinding;
+        
+            _executionContexts.Push(context);
 
-            return executionContext;
+            return context;
         }
 
         public Engine SetValue(string name, Delegate value)
@@ -268,7 +269,11 @@ namespace Jint
 
         public void LeaveExecutionContext()
         {
-            _executionContexts.Pop();
+            var context = _executionContexts.Pop();
+            if (null != context)
+            {
+                _poolExecutionContext.Put(context);
+            }
         }
 
         /// <summary>

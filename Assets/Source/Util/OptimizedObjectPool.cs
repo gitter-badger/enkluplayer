@@ -16,6 +16,30 @@ namespace CreateAR.EnkluPlayer.DataStructures
     }
 
     /// <summary>
+    /// Simple object wrapper for any element.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class OptimizedObjectPoolWrapper<T> : IOptimizedObjectPoolElement
+    {
+        /// <inheritdoc />
+        public int Index { get; set; }
+
+        /// <summary>
+        /// The value we're wrapping/
+        /// </summary>
+        public T Value { get; private set; }
+        
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="value">The internal value.</param>
+        public OptimizedObjectPoolWrapper(T value)
+        {
+            Value = value;
+        }
+    }
+
+    /// <summary>
     /// Very simple object pool that uses an interface for storing lookup index.
     /// </summary>
     /// <typeparam name="T">The type.</typeparam>
