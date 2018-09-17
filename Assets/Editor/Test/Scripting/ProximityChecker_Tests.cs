@@ -1,7 +1,9 @@
-﻿using CreateAR.EnkluPlayer.IUX;
+﻿using System.Collections.Generic;
+using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using Jint;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {
@@ -11,6 +13,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     [TestFixture]
     public class ProximityChecker_Tests
     {
+        private List<GameObject> _gameObjects;
+
         private Engine _engine;
         private ProximityChecker _proximityChecker;
 
@@ -24,6 +28,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
+            _gameObjects = new List<GameObject>();
             _engine = new Engine();
             _proximityChecker = new ProximityChecker();
 
@@ -48,6 +53,16 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 Assert.AreEqual(_elementB, callbackTrigger);
                 exitCount++;
             };
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            for (var i = 0; i < _gameObjects.Count; i++)
+            {
+                Object.DestroyImmediate(_gameObjects[i]);
+            }
+            _gameObjects.Clear();
         }
 
         /// <summary>
@@ -384,7 +399,12 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         private ElementJs BuildElementJs(bool isListening, bool isTrigger, float innerRadius, float outerRadius)
         {
-            ElementJs element = new ElementJs(null, null, _engine, new Element());
+            var gameObject = new GameObject("Proximity Tests");
+            _gameObjects.Add(gameObject);
+            var contentWidget = new ContentWidget(gameObject, new DummyScriptManager(false), new DummyContentAssembler());
+            contentWidget.Load(new ElementData(), new ElementSchema(), new Element[0]);
+
+            var element = new ElementJs(null, null, _engine, contentWidget);
             _proximityChecker.SetElementState(element, isListening, isTrigger);
             _proximityChecker.SetElementRadii(element, innerRadius, outerRadius);
             return element;
