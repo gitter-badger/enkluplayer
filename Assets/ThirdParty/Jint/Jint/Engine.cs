@@ -68,6 +68,7 @@ namespace Jint
         internal JintCallStack CallStack = new JintCallStack();
 
         public static readonly OptimizedObjectPool<StrictModeScope> PoolStrictMode = new OptimizedObjectPool<StrictModeScope>(12, () => new StrictModeScope());
+        public static readonly OptimizedObjectPool<LexicalEnvironment> PoolLexicalEnvironments = new OptimizedObjectPool<LexicalEnvironment>(12, () => new LexicalEnvironment());
 
         private static readonly OptimizedObjectPool<ExecutionContext> _poolExecutionContext = new OptimizedObjectPool<ExecutionContext>(12, () => new ExecutionContext());
 
@@ -137,7 +138,8 @@ namespace Jint
             Error.PrototypeObject.Configure();
 
             // create the global environment http://www.ecma-international.org/ecma-262/5.1/#sec-10.2.3
-            GlobalEnvironment = LexicalEnvironment.NewObjectEnvironment(this, Global, null, false);
+            GlobalEnvironment = PoolLexicalEnvironments.Get();
+            GlobalEnvironment.Setup(new ObjectEnvironmentRecord(this, Global, false), null);
 
             // create the global execution context http://www.ecma-international.org/ecma-262/5.1/#sec-10.4.1.1
             EnterExecutionContext(GlobalEnvironment, GlobalEnvironment, Global);
@@ -167,6 +169,11 @@ namespace Jint
             ClrTypeConverter = new DefaultTypeConverter(this);
             BreakPoints = new List<BreakPoint>();
             DebugHandler = new DebugHandler(this);
+        }
+
+        public void Destroy()
+        {
+            PoolLexicalEnvironments.Put(GlobalEnvironment);
         }
 
         public LexicalEnvironment GlobalEnvironment;
@@ -430,10 +437,7 @@ namespace Jint
 
                 case SyntaxNodes.WhileStatement:
                     return _statements.ExecuteWhileStatement(statement.As<WhileStatement>());
-
-                case SyntaxNodes.WithStatement:
-                    return _statements.ExecuteWithStatement(statement.As<WithStatement>());
-
+                    
                 case SyntaxNodes.Program:
                     return _statements.ExecuteProgram(statement.As<Program>());
 

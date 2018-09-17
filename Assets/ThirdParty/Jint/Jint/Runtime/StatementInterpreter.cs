@@ -315,38 +315,7 @@ namespace Jint.Runtime
             var exprRef = _engine.EvaluateExpression(statement.Argument);
             return new Completion(Completion.Return, _engine.GetValue(exprRef), null);
         }
-
-        /// <summary>
-        /// http://www.ecma-international.org/ecma-262/5.1/#sec-12.10
-        /// </summary>
-        /// <param name="withStatement"></param>
-        /// <returns></returns>
-        public Completion ExecuteWithStatement(WithStatement withStatement)
-        {
-            var val = _engine.EvaluateExpression(withStatement.Object);
-            var obj = TypeConverter.ToObject(_engine, _engine.GetValue(val));
-            var oldEnv = _engine.ExecutionContext.LexicalEnvironment;
-            var newEnv = LexicalEnvironment.NewObjectEnvironment(_engine, obj, oldEnv, true);
-            _engine.ExecutionContext.LexicalEnvironment = newEnv;
-
-            Completion c;
-            try
-            {
-                c = ExecuteStatement(withStatement.Body);
-            }
-            catch (JavaScriptException e)
-            {
-                c = new Completion(Completion.Throw, e.Error, null);
-                c.Location = withStatement.Location;
-            }
-            finally
-            {
-                _engine.ExecutionContext.LexicalEnvironment = oldEnv;
-            }
-
-            return c;
-        }
-
+        
         /// <summary>
         /// http://www.ecma-international.org/ecma-262/5.1/#sec-12.11
         /// </summary>

@@ -1,4 +1,5 @@
-﻿using Jint.Native;
+﻿using CreateAR.EnkluPlayer.DataStructures;
+using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime.References;
 
@@ -9,7 +10,7 @@ namespace Jint.Runtime.Environments
     /// http://www.ecma-international.org/ecma-262/5.1/#sec-10.2
     /// http://www.ecma-international.org/ecma-262/5.1/#sec-10.2.2
     /// </summary>
-    public sealed class LexicalEnvironment
+    public sealed class LexicalEnvironment : IOptimizedObjectPoolElement
     {
         public EnvironmentRecord Record { get; private set; }
         public LexicalEnvironment Outer { get; private set; }
@@ -47,14 +48,9 @@ namespace Jint.Runtime.Environments
 
             return env;
         }
-
-        public static LexicalEnvironment NewObjectEnvironment(Engine engine, ObjectInstance objectInstance, LexicalEnvironment outer, bool provideThis)
-        {
-            var env = new LexicalEnvironment();
-            env.Setup(new ObjectEnvironmentRecord(engine, objectInstance, provideThis), outer);
-
-            return env;
-        }
+        
+        public int Index { get; set; }
+        public bool Available { get; set; }
     }
 
     
