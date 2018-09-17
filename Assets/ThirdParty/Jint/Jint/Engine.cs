@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CreateAR.EnkluPlayer.DataStructures;
 using Jint.Native;
 using Jint.Native.Argument;
 using Jint.Native.Array;
@@ -65,6 +66,8 @@ namespace Jint
         };
 
         internal JintCallStack CallStack = new JintCallStack();
+
+        public static readonly OptimizedObjectPool<StrictModeScope> PoolStrictMode = new OptimizedObjectPool<StrictModeScope>(12, () => new StrictModeScope());
 
         public Engine() : this(null)
         {
@@ -309,19 +312,27 @@ namespace Jint
             ResetLastStatement();
             ResetCallStack();
 
-            using (new StrictModeScope(Options._IsStrict || program.Strict))
+            var scope = PoolStrictMode.Get();
+            scope.Setup(Options._IsStrict || program.Strict);
+            
+            DeclarationBindingInstantiation(DeclarationBindingType.GlobalCode, program.FunctionDeclarations, program.VariableDeclarations, null, null);
+
+            var result = _statements.ExecuteProgram(program);
+            if (result.Type == Completion.Throw)
             {
-                DeclarationBindingInstantiation(DeclarationBindingType.GlobalCode, program.FunctionDeclarations, program.VariableDeclarations, null, null);
+                var exception = new JavaScriptException(result.GetValueOrDefault())
+                    .SetCallstack(this, result.Location);
 
-                var result = _statements.ExecuteProgram(program);
-                if (result.Type == Completion.Throw)
-                {
-                    throw new JavaScriptException(result.GetValueOrDefault())
-                        .SetCallstack(this, result.Location);
-                }
+                scope.Teardown();
+                PoolStrictMode.Put(scope);
 
-                _completionValue = result.GetValueOrDefault();
+                throw exception;
             }
+
+            _completionValue = result.GetValueOrDefault();
+
+            scope.Teardown();
+            PoolStrictMode.Put(scope);
 
             return this;
         }

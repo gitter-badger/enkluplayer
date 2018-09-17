@@ -62,6 +62,12 @@ namespace CreateAR.EnkluPlayer.DataStructures
             get { return Size - _availableIndices.Count; }
         }
 
+        /// <inheritdoc />
+        public OptimizedObjectPool(int min, Func<T> factory) : this(min, 0, 4, factory)
+        {
+            //
+        }
+
         /// <summary>
         /// Constructor.
         /// </summary>
