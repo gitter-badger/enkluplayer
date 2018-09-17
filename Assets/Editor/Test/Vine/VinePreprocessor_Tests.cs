@@ -49,7 +49,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
             _preProcessor.DataStore = schema;
             var processed = _preProcessor.Execute("{[foo:bool]}");
 
-            Assert.AreEqual("True", processed);
+            Assert.AreEqual("true", processed);
         }
 
         [Test]

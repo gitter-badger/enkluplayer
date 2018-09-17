@@ -45,9 +45,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         }
 
         [Test]
-        public void Vec3Mult()
+        public void Vec3Scale()
         {
-            var result = _engine.Run<Vec3>(@"v.mult(3, vec3(1, 1, 1))");
+            var result = _engine.Run<Vec3>(@"v.scale(vec3(1, 1, 1), 3)");
             
             Assert.IsTrue(Math.Abs(3f - result.x) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(3f - result.y) < Mathf.Epsilon);
