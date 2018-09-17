@@ -136,12 +136,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 _activeElements.Add(config);
             }
 
-            // Update values
-            config.IsListening = isListening;
-            config.IsTrigger = isTrigger;
-
             // Remove if needed
-            if (!config.IsListening && !config.IsTrigger)
+            if (!isListening && !isTrigger)
             {
                 _activeElements.Remove(config);
 
@@ -157,6 +153,10 @@ namespace CreateAR.EnkluPlayer.Scripting
                     }
                 }
             }
+
+            // Update values
+            config.IsListening = isListening;
+            config.IsTrigger = isTrigger;
         }
 
         /// <summary>
