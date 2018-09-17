@@ -787,8 +787,10 @@ namespace Jint
             {
                 var argCount = arguments.Length;
                 var n = 0;
-                foreach (var argName in functionInstance.FormalParameters)
+                for (int i = 0, len = functionInstance.FormalParameters.Length; i < len; i++)
                 {
+                    var argName = functionInstance.FormalParameters[i];
+
                     n++;
                     var v = n > argCount ? Undefined.Instance : arguments[n - 1];
                     var argAlreadyDeclared = env.HasBinding(argName);
@@ -801,8 +803,9 @@ namespace Jint
                 }
             }
 
-            foreach (var f in functionDeclarations)
+            for (int i = 0, len = functionDeclarations.Count; i < len; i++)
             {
+                var f = functionDeclarations[i];
                 var fn = f.Id.Name;
                 var fo = Function.CreateFunctionObject(f);
                 var funcAlreadyDeclared = env.HasBinding(fn);
@@ -819,12 +822,12 @@ namespace Jint
                         if (existingProp.Configurable.Value)
                         {
                             go.DefineOwnProperty(fn,
-                                                 new PropertyDescriptor(
-                                                     value: Undefined.Instance,
-                                                     writable: true,
-                                                     enumerable: true,
-                                                     configurable: configurableBindings
-                                                     ), true);
+                                new PropertyDescriptor(
+                                    value: Undefined.Instance,
+                                    writable: true,
+                                    enumerable: true,
+                                    configurable: configurableBindings
+                                ), true);
                         }
                         else
                         {
@@ -865,14 +868,19 @@ namespace Jint
             }
 
             // process all variable declarations in the current parser scope
-            foreach (var d in variableDeclarations.SelectMany(x => x.Declarations))
+            for (int i = 0, ilen = variableDeclarations.Count; i < ilen; i++)
             {
-                var dn = d.Id.Name;
-                var varAlreadyDeclared = env.HasBinding(dn);
-                if (!varAlreadyDeclared)
+                var varDeclations = variableDeclarations[i];
+                for (int j = 0, jlen = varDeclations.Declarations.Count; j < jlen; j++)
                 {
-                    env.CreateMutableBinding(dn, configurableBindings);
-                    env.SetMutableBinding(dn, Undefined.Instance, strict);
+                    var d = varDeclations.Declarations[j];
+                    var dn = d.Id.Name;
+                    var varAlreadyDeclared = env.HasBinding(dn);
+                    if (!varAlreadyDeclared)
+                    {
+                        env.CreateMutableBinding(dn, configurableBindings);
+                        env.SetMutableBinding(dn, Undefined.Instance, strict);
+                    }
                 }
             }
         }

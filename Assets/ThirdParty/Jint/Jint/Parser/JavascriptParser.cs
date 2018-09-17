@@ -1797,7 +1797,7 @@ namespace Jint.Parser
         }
 
 
-        public VariableDeclaration CreateVariableDeclaration(IEnumerable<VariableDeclarator> declarations, string kind)
+        public VariableDeclaration CreateVariableDeclaration(IList<VariableDeclarator> declarations, string kind)
         {
             var variableDeclaration = new VariableDeclaration
                 {
@@ -2853,7 +2853,7 @@ namespace Jint.Parser
             return MarkEnd(CreateVariableDeclarator(id, init));
         }
 
-        private IEnumerable<VariableDeclarator> ParseVariableDeclarationList(string kind)
+        private IList<VariableDeclarator> ParseVariableDeclarationList(string kind)
         {
             var list = new List<VariableDeclarator>();
 
@@ -2874,7 +2874,7 @@ namespace Jint.Parser
         {
             ExpectKeyword("var");
 
-            IEnumerable<VariableDeclarator> declarations = ParseVariableDeclarationList(null);
+            var declarations = ParseVariableDeclarationList(null);
 
             ConsumeSemicolon();
 
@@ -2891,7 +2891,7 @@ namespace Jint.Parser
 
             ExpectKeyword(kind);
 
-            IEnumerable<VariableDeclarator> declarations = ParseVariableDeclarationList(kind);
+            var declarations = ParseVariableDeclarationList(kind);
 
             ConsumeSemicolon();
 
@@ -2997,7 +2997,7 @@ namespace Jint.Parser
         {
             MarkStart();
             Token token = Lex();
-            IEnumerable<VariableDeclarator> declarations = ParseVariableDeclarationList(null);
+            var declarations = ParseVariableDeclarationList(null);
 
             return MarkEnd(CreateVariableDeclaration(declarations, (string) token.Value));
         }
