@@ -60,5 +60,6 @@ namespace Jint
         }
 
         public int Index { get; set; }
+        public bool Available { get; set; }
     }
 }

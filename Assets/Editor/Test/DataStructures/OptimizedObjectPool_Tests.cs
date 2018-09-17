@@ -12,6 +12,7 @@ namespace CreateAR.EnkluPlayer.Test.DataStructures
             private static int IDS = 0;
 
             public int Index { get; set; }
+            public bool Available { get; set; }
 
             public readonly int Id = IDS++;
         }
@@ -117,6 +118,19 @@ namespace CreateAR.EnkluPlayer.Test.DataStructures
             Assert.IsNotNull(instance);
             Assert.Null(pool.Get());
             pool.Put(instance);
+        }
+
+        [Test]
+        public void GetPutMultiple()
+        {
+            var pool = new OptimizedObjectPool<DummyObject>(1, 0, 0, () => new DummyObject());
+
+            var instance = pool.Get();
+            pool.Put(instance);
+            pool.Put(instance);
+            
+            Assert.IsNotNull(pool.Get());
+            Assert.Null(pool.Get());
         }
     }
 }

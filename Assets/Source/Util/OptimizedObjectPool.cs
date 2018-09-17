@@ -13,6 +13,11 @@ namespace CreateAR.EnkluPlayer.DataStructures
         /// An index used by the <c>OptimizedObjectPool</c>.
         /// </summary>
         int Index { get; set; }
+
+        /// <summary>
+        /// Used to determine if this has already been put back into a pool.
+        /// </summary>
+        bool Available { get; set; }
     }
 
     /// <summary>
@@ -23,6 +28,9 @@ namespace CreateAR.EnkluPlayer.DataStructures
     {
         /// <inheritdoc />
         public int Index { get; set; }
+
+        /// <inheritdoc />
+        public bool Available { get; set; }
 
         /// <summary>
         /// The value we're wrapping/
@@ -109,6 +117,7 @@ namespace CreateAR.EnkluPlayer.DataStructures
             {
                 var instance = _factory();
                 instance.Index = _allocated.Count;
+                instance.Available = true;
 
                 _allocated.Add(instance);
                 _availableIndices.Enqueue(instance.Index);
@@ -140,7 +149,9 @@ namespace CreateAR.EnkluPlayer.DataStructures
 
             // pick available
             var index = _availableIndices.Dequeue();
-            return _allocated[index];
+            var instance = _allocated[index];
+            instance.Available = false;
+            return instance;
         }
 
         /// <summary>
@@ -149,6 +160,12 @@ namespace CreateAR.EnkluPlayer.DataStructures
         /// <param name="instance">The instance.</param>
         public void Put(T instance)
         {
+            if (instance.Available)
+            {
+                return;
+            }
+
+            instance.Available = true;
             _availableIndices.Enqueue(instance.Index);
         }
 
@@ -178,6 +195,7 @@ namespace CreateAR.EnkluPlayer.DataStructures
             {
                 var instance = _factory();
                 instance.Index = _allocated.Count;
+                instance.Available = true;
 
                 _allocated.Add(instance);
                 _availableIndices.Enqueue(instance.Index);
