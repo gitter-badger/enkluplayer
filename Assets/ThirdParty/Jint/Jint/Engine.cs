@@ -150,10 +150,7 @@ namespace Jint
             {
                 options(Options);
             }
-
-            Eval = new EvalFunctionInstance(this, new string[0], LexicalEnvironment.NewDeclarativeEnvironment(this, ExecutionContext.LexicalEnvironment), StrictModeScope.IsStrictModeCode);
-            Global.FastAddProperty("eval", Eval, true, false, true);
-
+            
             _statements = new StatementInterpreter(this);
             _expressions = new ExpressionInterpreter(this);
 
@@ -189,8 +186,7 @@ namespace Jint
         public DateConstructor Date { get; private set; }
         public MathInstance Math { get; private set; }
         public JsonInstance Json { get; private set; }
-        public EvalFunctionInstance Eval { get; private set; }
-
+        
         public ErrorConstructor Error { get; private set; }
         public ErrorConstructor EvalError { get; private set; }
         public ErrorConstructor SyntaxError { get; private set; }
