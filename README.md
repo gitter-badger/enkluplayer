@@ -1,19 +1,18 @@
 # Overview
 
-`SpirePlayer` is a basic player for UWP, WebGL, Android, iOS, embedded devices, and anything else we can get our hands on.
+**Enklu Player** is an Augmented Reality (AR) runtime for UWP, WebGL, Android, and iOS.
+
+* **Highly Iterative**: Enklu Player gives users instant feedback. Change layout, assets, UI, or scripts on the fly. There's no need to rebuild-- Enklu Player will automatically download the newest data.
+* **Truly Cross Platform**: Different platforms have different needs, and Enklu Player doesn't just compile to multiple targets, it allows users to tailor AR experiences to multiple platforms.
+* **Out of the Box Networking**: Enklu Player provides networking support with our cloud services or your own. Multiple users can edit an application together in realtime on separate devices, while many users simultaneously play through an experience. Collaboration and social engagement are pillars of Enklu Player.
 
 ### Getting Up and Running
 
-To develop with `spireplayer`, you will need a few prerequisites.
+To develop with Enklu Player, you will need a few prerequisites.
 
-* Requires **Unity 2018.1.1.**.
-* Download and install the latest version of [node.js](https://nodejs.org/en/download/).
-* Setup the [spire-react](https://github.com/create-ar/spire-react) project as shown in the `spire-react` [getting started guide](https://github.com/create-ar/spire-react/blob/master/docs/gettingstarted.md).
-* Setup the [spire-trellis](https://github.com/create-ar/spire-trellis) project as shown in the `spire-trellis` [getting started guide](https://github.com/create-ar/spire-trellis/blob/master/docs/gettingstarted.md).
-
-Run both the spire-react and spire-trellis projects.
-
-Run `spireplayer` in Unity. In the Spire Editor, be sure to setup the context to connect to `localhost` as shown in the [context documentation](https://github.com/create-ar/spire-react/blob/master/docs/contexts.md).
+* Requires **Unity 2018.1.1**.
+* Setup your [ApplicationConfig.json](docs/applicationconfig.md) file.
+* Enklu Player does not require an Enklu account, but it is best used with an [Enklu Web](https://editor.enklu.com) account. An account is required to use Enklu Player's builtin multi-user editing and realtime multiplayer features.
 
 ### Building
 
@@ -43,7 +42,7 @@ NSPhotoLibraryAddUsageDescription
 
 ##### HoloLens
 
-To enable crash logging, we add a small bit of code to the generated `App.cs` file:
+*To enable crash logging*, we add a small bit of code to the generated `App.cs` file:
 
 ```csharp
 CoreApplication.UnhandledErrorDetected += (sender, eventArgs) =>
@@ -58,12 +57,6 @@ CoreApplication.UnhandledErrorDetected += (sender, eventArgs) =>
 	}
 };
 ```
-
-### Event Flow
-
-In order to understand how `SpirePlayer` works, it's essential to understand how events flow through the application. In particular, much time has been spent on abstracting away the Spire Editor as the controlling portal for the device.
-
-A detailed diagram can be found [here](https://www.lucidchart.com/documents/view/971681eb-a74f-4ab7-a33c-5f3509065f2b).
 
 ### Systems of Interest
 
