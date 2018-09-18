@@ -286,12 +286,12 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// List of environments.
         /// </summary>
-        public EnvironmentData[] AllEnvironments;
+        public EnvironmentData[] AllEnvironments = new EnvironmentData[0];
 
         /// <summary>
         /// List of environments.
         /// </summary>
-        public CredentialsData[] AllCredentials;
+        public CredentialsData[] AllCredentials = new CredentialsData[0];
 
         /// <summary>
         /// Retrieves the current environment.
@@ -325,11 +325,6 @@ namespace CreateAR.EnkluPlayer
         {
             get
             {
-                if (null == AllCredentials || 0 == AllCredentials.Length)
-                {
-                    return null;
-                }
-
                 for (int i = 0, len = AllCredentials.Length; i < len; i++)
                 {
                     var creds = AllCredentials[i];

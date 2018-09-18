@@ -18,7 +18,7 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public float now()
         {
-            return Time.time * 1000;
+            return Time.time;
         }
 
         /// <summary>
