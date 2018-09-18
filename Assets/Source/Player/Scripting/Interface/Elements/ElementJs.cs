@@ -4,7 +4,6 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using Jint;
 using Jint.Native;
-using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {

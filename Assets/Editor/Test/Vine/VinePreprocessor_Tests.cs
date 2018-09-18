@@ -2,7 +2,6 @@
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Vine;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Test.Vine
 {
@@ -49,7 +48,8 @@ namespace CreateAR.EnkluPlayer.Test.Vine
             _preProcessor.DataStore = schema;
             var processed = _preProcessor.Execute("{[foo:bool]}");
 
-            Assert.AreEqual("True", processed);
+            // C# uses `True`, but JS uses `true` - check for the JS usage
+            Assert.AreEqual("true", processed);
         }
 
         [Test]

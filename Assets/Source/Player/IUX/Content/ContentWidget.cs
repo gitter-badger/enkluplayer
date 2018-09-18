@@ -106,6 +106,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor.
         /// </summary>
+        [Construct]
         public ContentWidget(
             GameObject gameObject,
             ILayerManager layers,
@@ -127,6 +128,20 @@ namespace CreateAR.EnkluPlayer
             _elementJsFactory = elementFactory;
 
             _assembler.OnAssemblyComplete.OnSuccess(Assembler_OnAssemblyComplete);
+        }
+
+        /// <summary>
+        /// Constructor used for testing.
+        /// </summary>
+        /// <param name="gameObject"></param>
+        public ContentWidget(
+            GameObject gameObject, 
+            IScriptManager scripts, 
+            IContentAssembler assembler ) 
+            : base(gameObject, null, null, null)
+        {
+            _scripts = scripts;
+            _assembler = assembler;
         }
 
         /// <inheritdoc />
