@@ -13,12 +13,12 @@ namespace CreateAR.EnkluPlayer
         public static readonly TimeJsApi Instance = new TimeJsApi();
         
         /// <summary>
-        /// Retrieves the current time.
+        /// Retrieves the current time in milliseconds.
         /// </summary>
         /// <returns></returns>
         public float now()
         {
-            return Time.time;
+            return Time.time * 1000;
         }
 
         /// <summary>
