@@ -178,7 +178,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 {
                     { "layout.radius", 0.8f },
                     { "layout.degrees", 25f },
-                    { "dividerOffset", 0f }
+                    { "divider.offset", 0f }
                 },
                 Ints = new Dictionary<string, int>
                 {

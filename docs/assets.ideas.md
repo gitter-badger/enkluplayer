@@ -1,8 +1,8 @@
 ##### Initializers
 
-Initializers are objects that preprocess assets every time they are loaded.
+Initializers are objects that preprocess assets every time they are loaded. This could be useful if, for instance, a specific `MonoBehaviour` should be added to each asset with a specific naming convention.
 
-```
+```csharp
 // register intitializer
 foreach (var reference in _assets.Find(Tags.Runnable))
 {

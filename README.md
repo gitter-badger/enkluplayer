@@ -11,61 +11,18 @@
 To develop with Enklu Player, you will need a few prerequisites.
 
 * Requires **Unity 2018.1.1**.
-* Setup your [ApplicationConfig.json](docs/applicationconfig.md) file.
-* Enklu Player does not require an Enklu account, but it is best used with an [Enklu Web](https://editor.enklu.com) account. An account is required to use Enklu Player's builtin multi-user editing and realtime multiplayer features.
+* Setup your [ApplicationConfig.json](docs/applicationconfig.md) file. A default has been provided.
+* Enklu Player does not require an Enklu account, but it is best used with an [Enklu Web](https://editor.enklu.com) account. An account is required to use Enklu Player's builtin multi-user editing, realtime multiplayer features, asset import system, or conductor application.
 
-### Building
-
-##### iOS
-
-Until we add support via the `Unity.iOS.Xcode.PBXProject` interface, you have to do a few things by hand:
-    * General > Signing - select valid team.
-    * _info.plist_ - Add:
-
-```
-<key>LSApplicationQueriesSchemes</key>
-<array>
-    <string>instagram</string>
-</array>
-```
-
-And
-
-```
-Privacy - Photo Library Usage Description
-```
-```
-NSPhotoLibraryAddUsageDescription
-```
-
-    * Build Phases > Link Binary with Libraries - Add Photos.framework.
-
-##### HoloLens
-
-*To enable crash logging*, we add a small bit of code to the generated `App.cs` file:
-
-```csharp
-CoreApplication.UnhandledErrorDetected += (sender, eventArgs) =>
-{
-	try
-	{
-		eventArgs.UnhandledError.Propagate();
-	}
-	catch (Exception exception)
-	{
-		Log.Fatal(exception, exception);
-	}
-};
-```
+See the [building](docs/building.md) documentation for device builds.
 
 ### Systems of Interest
 
 * [AssetManager](docs/assets.overview.md)
-  * For details on how assets are uploaded, imported, and served, see [this diagram](https://www.lucidchart.com/documents/view/dd316cb9-5b27-4e67-8829-e508d91b4e79).
-  * [Ideas](docs/assets.ideas.md)
+  * [Future Ideas](docs/assets.ideas.md)
 * [Scripting](docs/scripting.overview.md)
-  * [Ideas](docs/scripting.ideas.md)
-* [Element](docs/element.overview.md)
+  * [Future Ideas](docs/scripting.ideas.md)
+* [Elements](docs/element.overview.md)
   * [Queries](docs/element.query.md)
   * [Schema](docs/element.schema.md)
     * [Documented Element Properties](docs/element.schema.properties.md)
