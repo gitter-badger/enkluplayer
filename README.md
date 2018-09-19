@@ -76,6 +76,7 @@ CoreApplication.UnhandledErrorDetected += (sender, eventArgs) =>
   * [Metrics](docs/metrics.overview.md)
   * [Standard Queries](docs/standardqueries.overview.md)
 * [Trellis API](docs/trellis.api.md)
+* [JavaScript API](http://docs.enklu.com/jsapi-v0.3.0/index.html)
 
 ### Contributing
 
