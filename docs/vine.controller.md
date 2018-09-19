@@ -2,9 +2,9 @@
 
 When using vines to author IUX in Unity, there are a few primitives and best practices that can help accelerate development.
 
-#### InjectableIUXController
+#### MonoBehaviourIUXController
 
-We don't stick to a strict `M[MV]*C?` approach to developing UI. However, we generally do need some sort of "controller" that can create elements from a vine and pull out the objects that we need to interact with. To that end, we have provided `InjectableIUXController`. This object is responsible for loading a vine, creating elements, and pulling out references to requested elements automatically.
+We don't stick to a strict `M[MV]*C?` approach to developing UI. However, we generally do need some sort of "controller" that can create elements from a vine and pull out the objects that we need to interact with. To that end, we have provided `MonoBehaviourIUXController`. This object is responsible for loading a vine, creating elements, and pulling out references to requested elements automatically.
 
 #### Walkthrough
 
@@ -24,29 +24,18 @@ We can save this vine as a text asset and add a reference to the asset to the `V
 
 ![Vine Table](vinetable.png)
 
-Next, we make a new object that extends `InjectableIUXController`. The first thing we need to do is append the `InjectVine` attribute to our class.
+Next, we make a new object that extends `MonoBehaviourIUXController` and setting the vine property to the name of the vine in the vine table.
 
 ```csharp
-[InjectVine("MainMenu")]
-public class MenuController : InjectableIUXController
+public class MenuController : MonoBehaviourIUXController
 {
 	// 
 }
 ```
 
-The identifier we pass to `InjectVine` should match the identifier field in `VineTable`.
-
-At this point, if we were to use `AddComponent`, we would see that the elements would automatically be created and added as children to the component's `GameObject`.
-
-```csharp
-var root = new GameObject("Main Menu");
-var controller = root.AddComponent<MenuController>();
-```
-
 Next, we'll want our `MenuController` to pull out some specific objects we'll need to access. We can do this via the `InjectElements` attribute.
 
 ```csharp
-[InjectVine("Design.MainMenu")]
 public class MainMenuController : InjectableIUXController
 {
 	[InjectElements("..btn-play")]
@@ -73,6 +62,6 @@ protected override void Awake()
 }
 ```
 
-Finally, the `InjectableIUXController` keeps a reference to the root element that was created, accessible via the `Root` property. It then provides some handy integration with Unity lifecycle methods.
+Finally, the `MonoBehaviourIUXController` keeps a reference to the root element that was created, accessible via the `Root` property. It then provides some handy integration with Unity lifecycle methods.
 
 `OnEnable` sets visibility of the root element to true, `OnDisable` sets it to false. `OnDestroy` destroys the root element.

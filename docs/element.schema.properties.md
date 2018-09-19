@@ -149,10 +149,52 @@ Inherits all `Menu` properties.
 
 No special properties.
 
+#### Option
+
+| Property Name | Type   | Default | Description                            | Inherit |
+| ------------- | ------ | ------- | -------------------------------------- | ------- |
+| label         | string |         | The label used in parent elements.     | Yes     |
+| value         | string |         | The value associated with this option. | Yes     |
+
+#### OptionGroup
+
+| Property Name | Type   | Default | Description                            | Inherit |
+| ------------- | ------ | ------- | -------------------------------------- | ------- |
+| label         | string |         | The label used in parent elements.     | Yes     |
+| value         | string |         | The value associated with this option. | Yes     |
+
 #### Grid
 
-| Property Name | Type | Default | Description | Inherit |
-| ------------- | ---- | ------- | ----------- | ------- |
-|               |      |         |             |         |
-|               |      |         |             |         |
+| Property Name      | Type  | Default | Description                                                 | Inherit |
+| ------------------ | ----- | ------- | ----------------------------------------------------------- | ------- |
+| padding.vertical   | float | 0.15    | Determines vertical space between elements in the grid.     | Yes     |
+| padding.horizontal | float | 0.15    | Determines horizontal spacing between elements in the grid. | Yes     |
+
+#### Asset (Content)
+
+| Property Name | Type   | Default | Description                             | Inherit |
+| ------------- | ------ | ------- | --------------------------------------- | ------- |
+| assetSrc      | string |         | Id of AssetData.                        | No      |
+| scripts       | json   | []      | Comma delimited list of ScriptData ids. | No      |
+
+#### Transition
+
+| Property Name | Type   | Default    | Description                                                  | Inherit |
+| ------------- | ------ | ---------- | ------------------------------------------------------------ | ------- |
+| prop          | string | alpha      | The name of the prop to tween from start to end.             | No      |
+| start         | float  | 0          | The value at which to start the tween.                       | No      |
+| end           | float  | 1          | The value at which to end the tween.                         | No      |
+| tween         | string | Pronounced | The TweenType: Instance, Responsive, Deliberate, or Pronounced. | No      |
+
+#### Light
+
+| Property Name | Type   | Default      | Description                                                  | Inherit |
+| ------------- | ------ | ------------ | ------------------------------------------------------------ | ------- |
+| lightType     | string | Directional  | The type of light: Point, Spot, or Directional.              | No      |
+| intensity     | float  | 1            | The intensity of the light.                                  | No      |
+| shadows       | string | None         | The type of shadows this light should cast: None, Soft, or Hard. | No      |
+| color         | col4   | (1, 1, 1, 1) | The color of the light.                                      | No      |
+| point.range   | float  | 1            | The range of a point light.                                  | No      |
+| spot.range    | float  | 1            | The range of a spot light.                                   | No      |
+| spot.angle    | float  | 30           | The angle of spot light.                                     | No      |
 
