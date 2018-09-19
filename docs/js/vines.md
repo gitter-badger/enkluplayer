@@ -1,5 +1,0 @@
-### Proposal
-
-```javascript
-
-```

@@ -68,7 +68,7 @@ CoreApplication.UnhandledErrorDetected += (sender, eventArgs) =>
 * [Element](docs/element.overview.md)
   * [Queries](docs/element.query.md)
   * [Schema](docs/element.schema.md)
-    * [Documented Element Properties](docs/element.schema.properties.md)
+    * [Element Properties](docs/element.schema.properties.md)
   * [Widget](docs/element.widget.md)
   * [Ideas](docs/element.ideas.md)
 * [Vine](docs/vine.overview.md)
