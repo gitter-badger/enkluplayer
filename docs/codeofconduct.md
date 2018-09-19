@@ -44,4 +44,4 @@ If it is felt that an issue has not been dealt with by project maintainers, a pu
 
 ##### Attribution
 
-This Code of Conduct is adapted from the [Contributor Covenant][https://www.contributor-covenant.org/version/1/4/code-of-conduct.html], version 1.4.
+This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/version/1/4/code-of-conduct.html), version 1.4.

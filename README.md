@@ -19,8 +19,8 @@ To develop with Enklu Player, you will need a few prerequisites.
 ##### iOS
 
 Until we add support via the `Unity.iOS.Xcode.PBXProject` interface, you have to do a few things by hand:
-    * General > Signing - select valid team.
-    * _info.plist_ - Add:
+​    * General > Signing - select valid team.
+​    * _info.plist_ - Add:
 
 ```
 <key>LSApplicationQueriesSchemes</key>
@@ -61,7 +61,6 @@ CoreApplication.UnhandledErrorDetected += (sender, eventArgs) =>
 ### System Documentation
 
 * [AssetManager](docs/assets.overview.md)
-  * For details on how assets are uploaded, imported, and served, see [this diagram](https://www.lucidchart.com/documents/view/dd316cb9-5b27-4e67-8829-e508d91b4e79).
   * [Ideas](docs/assets.ideas.md)
 * [Scripting](docs/scripting.overview.md)
   * [Ideas](docs/scripting.ideas.md)
