@@ -127,4 +127,5 @@ print(stringProp.Value); // null
 ```
 ### Further Reading
 
+* [Supported Element Properties](element.schema.properties.md)
 * [Ideas](element.schema.ideas.md)
