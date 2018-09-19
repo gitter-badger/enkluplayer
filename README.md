@@ -58,7 +58,7 @@ CoreApplication.UnhandledErrorDetected += (sender, eventArgs) =>
 };
 ```
 
-### Systems of Interest
+### System Documentation
 
 * [AssetManager](docs/assets.overview.md)
   * For details on how assets are uploaded, imported, and served, see [this diagram](https://www.lucidchart.com/documents/view/dd316cb9-5b27-4e67-8829-e508d91b4e79).
@@ -76,4 +76,12 @@ CoreApplication.UnhandledErrorDetected += (sender, eventArgs) =>
 * Miscellany
   * [Metrics](docs/metrics.overview.md)
   * [Standard Queries](docs/standardqueries.overview.md)
+* [Trellis API](docs/trellis.api.md)
 
+### Contributing
+
+Enklu is dedicated to providing the most highly polished AR workflow to the world, and we firmly believe the best way to do that is out in the open. If you want to take part, please read through these sections to learn how you can help make Enklu Player even better.
+
+All contributors must read and agree to our [license](LICENSE.md) and [code of conduct](docs/codeofconduct.md).
+
+Read our [contribution guide](CONTRIBUTING.md) to learn what types of contributions we're after as well as how to best direct your energy. This guide covers creating issues, resolving bugs, and proposing new features.
