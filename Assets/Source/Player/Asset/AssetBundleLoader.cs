@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -79,14 +80,6 @@ namespace CreateAR.EnkluPlayer.Assets
         }
 
         /// <summary>
-        /// Loads the bundle.
-        /// </summary>
-        public void Load()
-        {
-            _bootstrapper.BootstrapCoroutine(DownloadBundle());
-        }
-
-        /// <summary>
         /// Retrieves an asset from the bundle.
         /// </summary>
         /// <param name="assetName">The name of the asset.</param>
@@ -97,6 +90,11 @@ namespace CreateAR.EnkluPlayer.Assets
             if (string.IsNullOrEmpty(assetName))
             {
                 throw new ArgumentException(assetName);
+            }
+
+            if (null == _bundleLoad)
+            {
+                Load();
             }
 
             Verbose("Load Asset {0}.", assetName);
@@ -132,6 +130,14 @@ namespace CreateAR.EnkluPlayer.Assets
         {
             LoadProgress progress;
             return Asset(assetName, out progress);
+        }
+
+        /// <summary>
+        /// Loads the bundle.
+        /// </summary>
+        private void Load()
+        {
+            _bootstrapper.BootstrapCoroutine(DownloadBundle());
         }
 
         /// <summary>
@@ -189,7 +195,10 @@ namespace CreateAR.EnkluPlayer.Assets
             if (!string.IsNullOrEmpty(request.error))
             {
                 Verbose("Network or Http error: {0}.", request.error);
-                
+
+                // allow retries
+                _bundleLoad = null;
+
                 token.Fail(new Exception(request.error));
             }
             else
@@ -238,8 +247,6 @@ namespace CreateAR.EnkluPlayer.Assets
             var asset = request.asset;
             if (null == asset)
             {
-                Log.Error(this, "Could not find asset in bundle.");
-
                 token.Fail(new Exception("Could not find asset."));
             }
             else
@@ -253,7 +260,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// </summary>
         /// <param name="message">Message to log.</param>
         /// <param name="replacements">Logging replacements.</param>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void Verbose(string message, params object[] replacements)
         {
             Log.Info(this,

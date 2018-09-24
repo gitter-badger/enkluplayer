@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using UnityEngine;
@@ -84,8 +85,7 @@ namespace CreateAR.EnkluPlayer.Assets
                 }
             }
             
-            var substrings = data.Uri.Split('/');
-            var url = Urls.Url("assets://" + substrings[substrings.Length - 1]);
+            var url = Urls.Url("assets://" + data.Uri);
             var externalProgress = progress = new LoadProgress();
 
             var token = new AsyncToken<Object>();
@@ -101,13 +101,12 @@ namespace CreateAR.EnkluPlayer.Assets
                         _config.Network,
                         _bootstrapper,
                         url);
-                    loader.Load();
                 }
 
                 // AssetImportServer uses the Guid
                 LoadProgress internalProgress;
                 loader
-                    .Asset(data.Guid, out internalProgress)
+                    .Asset(AssetName(data), out internalProgress)
                     .OnSuccess(token.Succeed)
                     .OnFailure(token.Fail)
                     .OnFinally(_ => _numDownloads--);
@@ -119,7 +118,7 @@ namespace CreateAR.EnkluPlayer.Assets
             
             return token;
         }
-        
+
         /// <inheritdoc />
         public void Destroy()
         {
@@ -147,6 +146,22 @@ namespace CreateAR.EnkluPlayer.Assets
 
                 yield return true;
             }
+        }
+
+        /// <summary>
+        /// Determines an asset's name from the <c>AssetData</c>.
+        /// </summary>
+        /// <param name="data">The data to find the name for.</param>
+        /// <returns></returns>
+        private static string AssetName(AssetData data)
+        {
+            var path = Path.GetFileNameWithoutExtension(data.Uri);
+            if (string.IsNullOrEmpty(path))
+            {
+                return string.Empty;
+            }
+
+            return path.Split('_')[0];
         }
     }
 }
