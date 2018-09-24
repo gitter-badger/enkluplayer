@@ -101,7 +101,6 @@ namespace CreateAR.EnkluPlayer.Assets
                         _config.Network,
                         _bootstrapper,
                         url);
-                    loader.Load();
                 }
 
                 // AssetImportServer uses the Guid

@@ -80,14 +80,6 @@ namespace CreateAR.EnkluPlayer.Assets
         }
 
         /// <summary>
-        /// Loads the bundle.
-        /// </summary>
-        public void Load()
-        {
-            _bootstrapper.BootstrapCoroutine(DownloadBundle());
-        }
-
-        /// <summary>
         /// Retrieves an asset from the bundle.
         /// </summary>
         /// <param name="assetName">The name of the asset.</param>
@@ -95,10 +87,14 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <returns></returns>
         public IAsyncToken<Object> Asset(string assetName, out LoadProgress progress)
         {
-            Log.Info(this, "HELLO {0}", assetName);
             if (string.IsNullOrEmpty(assetName))
             {
                 throw new ArgumentException(assetName);
+            }
+
+            if (null == _bundleLoad)
+            {
+                Load();
             }
 
             Verbose("Load Asset {0}.", assetName);
@@ -134,6 +130,14 @@ namespace CreateAR.EnkluPlayer.Assets
         {
             LoadProgress progress;
             return Asset(assetName, out progress);
+        }
+
+        /// <summary>
+        /// Loads the bundle.
+        /// </summary>
+        private void Load()
+        {
+            _bootstrapper.BootstrapCoroutine(DownloadBundle());
         }
 
         /// <summary>
@@ -191,7 +195,10 @@ namespace CreateAR.EnkluPlayer.Assets
             if (!string.IsNullOrEmpty(request.error))
             {
                 Verbose("Network or Http error: {0}.", request.error);
-                
+
+                // allow retries
+                _bundleLoad = null;
+
                 token.Fail(new Exception(request.error));
             }
             else
