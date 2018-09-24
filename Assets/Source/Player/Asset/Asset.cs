@@ -206,6 +206,10 @@ namespace CreateAR.EnkluPlayer.Assets
                     })
                     .OnFailure(exception =>
                     {
+                        Log.Info(this, "Could not load asset : {0} : {1}.",
+                            Data,
+                            exception);
+
                         _loadToken = null;
                         Error = exception.Message;
 

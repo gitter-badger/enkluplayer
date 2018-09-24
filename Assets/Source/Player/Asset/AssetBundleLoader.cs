@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -94,6 +95,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <returns></returns>
         public IAsyncToken<Object> Asset(string assetName, out LoadProgress progress)
         {
+            Log.Info(this, "HELLO {0}", assetName);
             if (string.IsNullOrEmpty(assetName))
             {
                 throw new ArgumentException(assetName);
@@ -238,8 +240,6 @@ namespace CreateAR.EnkluPlayer.Assets
             var asset = request.asset;
             if (null == asset)
             {
-                Log.Error(this, "Could not find asset in bundle.");
-
                 token.Fail(new Exception("Could not find asset."));
             }
             else
