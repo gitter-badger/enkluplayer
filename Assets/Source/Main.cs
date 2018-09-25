@@ -148,7 +148,7 @@ namespace CreateAR.EnkluPlayer
             // start metrics
             var config = _binder.GetInstance<ApplicationConfig>().Metrics;
             var metrics = _binder.GetInstance<IMetricsService>();
-            if (!UnityEngine.Application.isEditor)
+            if (config.Enabled && !UnityEngine.Application.isEditor)
             {
 #if !UNITY_WEBGL
                 metrics.AddTarget(new HostedGraphiteMetricsTarget(
