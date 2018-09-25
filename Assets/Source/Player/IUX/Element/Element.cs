@@ -212,6 +212,11 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         public void Destroy()
         {
+            if (OnDestroyed != null) {
+                OnDestroyed(this);
+                OnDestroyed = null;
+            }
+
             UnloadInternalBeforeChildren();
 
             // destroy children
@@ -226,12 +231,6 @@ namespace CreateAR.EnkluPlayer.IUX
 
             UnloadInternalAfterChildren();
             DestroyInternal();
-
-            if (OnDestroyed != null)
-            {
-                OnDestroyed(this);
-                OnDestroyed = null;
-            }
         }
 
         /// <summary>
