@@ -522,6 +522,11 @@ namespace CreateAR.EnkluPlayer
     public class MetricsConfig
     {
         /// <summary>
+        /// Whether metrics should be enabled or not.
+        /// </summary>
+        public bool Enabled = true;
+
+        /// <summary>
         /// Hostname of the metrics box.
         /// </summary>
         public string Hostname;
@@ -537,6 +542,8 @@ namespace CreateAR.EnkluPlayer
         /// <param name="config">The config.</param>
         public void Override(MetricsConfig config)
         {
+            Enabled = config.Enabled;
+
             if (!string.IsNullOrEmpty(config.Hostname))
             {
                 Hostname = config.Hostname;
