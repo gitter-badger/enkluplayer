@@ -212,7 +212,8 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         public void Destroy()
         {
-            if (OnDestroyed != null) {
+            if (OnDestroyed != null)
+            {
                 OnDestroyed(this);
                 OnDestroyed = null;
             }
