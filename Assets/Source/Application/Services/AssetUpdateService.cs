@@ -190,10 +190,11 @@ namespace CreateAR.EnkluPlayer
             else
             {
                 // v1
-                asset.Uri = string.Format(
+                var urlSplit = string.Format(
                     "{0}_{1}.bundle",
                     asset.Uri.Substring(0, index),
-                    GetBuildTarget());
+                    GetBuildTarget()).Split('/');
+                asset.Uri = urlSplit[urlSplit.Length - 1];
             }
         }
 
