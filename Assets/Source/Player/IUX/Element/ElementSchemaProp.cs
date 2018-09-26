@@ -73,6 +73,17 @@ namespace CreateAR.EnkluPlayer.IUX
             }
             set
             {
+                // Early out if the same value is being set
+                if (_value == null && value == null)
+                {
+                    return;
+                }
+
+                if (_value != null && _value.Equals(value))
+                {
+                    return;
+                }
+
                 // break connection
                 if (null != _parent)
                 {
