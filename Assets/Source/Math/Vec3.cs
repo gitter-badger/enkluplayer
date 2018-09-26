@@ -8,6 +8,9 @@ namespace CreateAR.EnkluPlayer
     [Serializable]
     public struct Vec3
     {
+        /// <summary>
+        /// Radians -> Degrees.
+        /// </summary>
         private const float RAD2_DEG = (float) (360 / (2 * Math.PI));
 
         /// <summary>
