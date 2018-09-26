@@ -24,9 +24,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void Now()
         {
             var result = (float) _engine.Run("time.now()").AsNumber();
-
-            // Enklu uses ms while Unity uses seconds.
-            var unityTime = Time.time * 1000;
+            var unityTime = Time.time;
 
             Assert.IsTrue(Mathf.Approximately(result, unityTime));
         }
