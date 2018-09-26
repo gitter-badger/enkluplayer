@@ -259,7 +259,9 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 Floats = new Dictionary<string, float>
                 {
-                    { "distance", 1.2f }
+                    { "distance", 1.2f },
+                    { "stabilization", 2f },
+                    { "smoothing", 15f }
                 }
             });
         }

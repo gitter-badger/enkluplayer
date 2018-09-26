@@ -136,6 +136,8 @@ Inherits all `Menu` properties.
 | Property Name | Type  | Default | Description                                                  | Inherit |
 | ------------- | ----- | ------- | ------------------------------------------------------------ | ------- |
 | distance      | float | 1       | Determines how far away from the camera the element will be locked. | No      |
+| stabilization | float | 2       | The angular drift (in degrees) to ignore before moving the screen.  | No      |
+| smoothing     | float | 15      | The rate the screen will move (degrees/second).                     | No      |
 
 #### Slider
 

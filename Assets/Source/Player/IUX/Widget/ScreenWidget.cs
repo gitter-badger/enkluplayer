@@ -73,9 +73,9 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             base.LoadInternalAfterChildren();
 
-            _distanceProp = Schema.GetOwn("distance", 1f);
-            _stabilizationProp = Schema.GetOwn("stabilization", 2f);
-            _smoothingProp = Schema.GetOwn("smoothing", 15f);
+            _distanceProp = Schema.Get<float>("distance");
+            _stabilizationProp = Schema.Get<float>("stabilization");
+            _smoothingProp = Schema.Get<float>("smoothing");
         }
 
         /// <inheritdoc />
