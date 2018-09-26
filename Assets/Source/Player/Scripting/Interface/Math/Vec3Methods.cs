@@ -68,6 +68,14 @@
         }
 
         /// <summary>
+        /// Angle between two vectors in degrees.
+        /// </summary>
+        public float angle(Vec3 a, Vec3 b)
+        {
+            return Vec3.Angle(a, b);
+        }
+
+        /// <summary>
         /// Vector length.
         /// </summary>
         public float len(Vec3 a)

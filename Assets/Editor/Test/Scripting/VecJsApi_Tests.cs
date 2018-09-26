@@ -90,6 +90,22 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             Assert.IsTrue(result < Mathf.Epsilon);
         }
+
+        [Test]
+        public void Vec3Angle()
+        {
+            var result = (float) _engine.Run(@"v.angle(v.right, v.up);").AsNumber();
+            var unityAngle = Vector3.Angle(Vector3.right, Vector3.up);
+            Assert.IsTrue(Mathf.Abs(result - unityAngle) < Mathf.Epsilon);
+
+            result = (float) _engine.Run(@"v.angle(v.up, v.up);").AsNumber();
+            unityAngle = Vector3.Angle(Vector3.up, Vector3.up);
+            Assert.IsTrue(Mathf.Abs(result - unityAngle) < Mathf.Epsilon);
+
+            result = (float) _engine.Run(@"v.angle(v.right, vec3(-1, 0, 0));").AsNumber();
+            unityAngle = Vector3.Angle(Vector3.right, Vector3.left);
+            Assert.IsTrue(Mathf.Abs(result - unityAngle) < Mathf.Epsilon);
+        }
         
         [Test]
         public void Vec3Len()
