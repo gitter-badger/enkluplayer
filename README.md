@@ -92,3 +92,5 @@ Enklu is dedicated to providing the most highly polished AR workflow to the worl
 All contributors must read and agree to our [license](LICENSE.md) and [code of conduct](docs/codeofconduct.md).
 
 Read our [contribution guide](CONTRIBUTING.md) to learn what types of contributions we're after as well as how to best direct your energy. This guide covers creating issues, resolving bugs, and proposing new features.
+
+To get started, checkout out issues with the label [good first issue](https://github.com/enklu/enkluplayer/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22). These are great for digging into the codebase.
