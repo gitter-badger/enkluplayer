@@ -162,7 +162,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public static Quat Identity
         {
-            get { return new Quat(1, 1, 1, 1); }
+            get { return new Quat(0, 0, 0, 1); }
         }
 
         /// <summary>
