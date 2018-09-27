@@ -259,16 +259,26 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <inheritdoc cref="IRaycaster"/>
         public bool Raycast(Vec3 origin, Vec3 direction)
         {
+            Vec3 hitPosition, colliderCenter;
+            return Raycast(origin, direction, out hitPosition, out colliderCenter);
+        }
+
+        public bool Raycast(Vec3 origin, Vec3 direction, out Vec3 hitPosition, out Vec3 colliderCenter)
+        {
             if (_renderer.FocusCollider != null)
             {
                 var ray = new Ray(origin.ToVector(), direction.ToVector());
                 RaycastHit hitInfo;
                 if (_renderer.FocusCollider.Raycast(ray, out hitInfo, float.PositiveInfinity))
                 {
+                    hitPosition = hitInfo.point.ToVec();
+                    colliderCenter = hitInfo.collider.bounds.center.ToVec();
                     return true;
                 }
             }
 
+            hitPosition = Vec3.Zero;
+            colliderCenter = Vec3.Zero;
             return false;
         }
 

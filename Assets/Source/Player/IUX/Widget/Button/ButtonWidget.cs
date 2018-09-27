@@ -102,6 +102,12 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <inheritdoc />
+        public bool Raycast(Vec3 origin, Vec3 direction, out Vec3 hitPos, out Vec3 colliderPos)
+        {
+            return Activator.Raycast(origin, direction, out hitPos, out colliderPos);
+        }
+
+        /// <inheritdoc />
         public bool Focused
         {
             get { return Activator.Focused; }
