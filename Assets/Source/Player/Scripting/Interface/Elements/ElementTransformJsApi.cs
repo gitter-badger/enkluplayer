@@ -54,6 +54,11 @@ namespace CreateAR.EnkluPlayer.Scripting
             set { _scaleProp.Value = value; }
         }
 
+        public Vec3 forward
+        {
+            get { return Quat.Mult(rotation, Vec3.Forward); }
+        }
+
         /// <summary>
         /// Constructor.
         /// </summary>
