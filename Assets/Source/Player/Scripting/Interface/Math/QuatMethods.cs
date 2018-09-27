@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace CreateAR.EnkluPlayer
+﻿namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Quaternion methods.
@@ -15,7 +13,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Identity rotation.
         /// </summary>
-        public readonly Quat identity = Quaternion.identity.ToQuat();
+        public readonly Quat identity = Quat.Identity;
 
         /// <summary>
         /// Creates a new Quat.
@@ -30,7 +28,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public Quat euler(float x, float y, float z)
         {
-            return Quaternion.Euler(x, y, z).ToQuat();
+            return Quat.Euler(x, y, z);
         }
 
         /// <summary>
@@ -38,7 +36,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public Quat eul(float x, float y, float z)
         {
-            return Quaternion.Euler(x, y, z).ToQuat();
+            return Quat.Euler(x, y, z);
         }
     }
 }

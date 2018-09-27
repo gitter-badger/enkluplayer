@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using NUnit.Framework;
 using Jint;
@@ -28,7 +29,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             var result = _engine.Run<Quat>("quat(-0.2, 0.9, -0.1, 0.2)");
 
-            Assert.IsTrue(result.GetType() == typeof(Quat));
             Assert.IsTrue(Math.Abs(-0.2f - result.x) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(0.9f  - result.y) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(-0.1f - result.z) < Mathf.Epsilon);
@@ -36,7 +36,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             result = _engine.Run<Quat>("quat(-0.2, 0.9, -0.1, 0.2).set(0.6, -0.3, 0.2, -0.1)");
 
-            Assert.IsTrue(result.GetType() == typeof(Quat));
             Assert.IsTrue(Math.Abs(0.6f  - result.x) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(-0.3f - result.y) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(0.2f  - result.z) < Mathf.Epsilon);
@@ -46,13 +45,28 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void QuatEuler()
         {
-            var quaternion = Quaternion.Euler(30, 90, 0);
-            var result = _engine.Run<Quat>("q.euler(30, 90, 0)");
+            // Test our Euler -> Quat matches Unity's Vector3 -> Quaternion over a variety of rotations
+            for (int i = 0; i < TestData.EulerArray.Length; i++)
+            {
+                var euler = TestData.EulerArray[i];
+                var quaternion = Quaternion.Euler(euler.x, euler.y, euler.z);
+                var result = _engine.Run<Quat>(
+                    string.Format("q.euler({0}, {1}, {2})", euler.x, euler.y, euler.z));
 
-            Assert.IsTrue(Math.Abs(quaternion.x - result.x) < Mathf.Epsilon);
-            Assert.IsTrue(Math.Abs(quaternion.y - result.y) < Mathf.Epsilon);
-            Assert.IsTrue(Math.Abs(quaternion.z - result.z) < Mathf.Epsilon);
-            Assert.IsTrue(Math.Abs(quaternion.w - result.w) < Mathf.Epsilon);
+                var equal = Mathf.Approximately(quaternion.x, result.x)
+                         && Mathf.Approximately(quaternion.y, result.y)
+                         && Mathf.Approximately(quaternion.z, result.z)
+                         && Mathf.Approximately(quaternion.w, result.w);
+
+                if (!equal)
+                {
+                    string quatStr = string.Format("({0:0.00}, {1:0.00}, {2:0.00}, {3:0.00})", 
+                        quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+                    Log.Error(this, euler + " " + quatStr + " " + result);
+                }
+
+                Assert.IsTrue(equal);
+            }
         }
     }
 }
