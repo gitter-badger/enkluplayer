@@ -457,20 +457,37 @@ namespace CreateAR.EnkluPlayer.IUX
             var directionToButton = delta.Normalized;
 
             var eyeDistance = delta.Magnitude;
-            var radius = _renderer.Radius;
+            var activateRadius = _renderer.ActivateRadius;
+            var focusRadius = _renderer.FocusRadius;
 
-            var maxTheta = Mathf.Atan2(radius, eyeDistance);
+            var activateMaxTheta = Mathf.Atan2(activateRadius, eyeDistance);
+            var focusMaxTheta = Mathf.Atan2(focusRadius, eyeDistance);
 
             var cosTheta = Vec3.Dot(
                 directionToButton,
                 eyeDirection);
-            var theta = Mathf.Approximately(cosTheta, 1.0f)
+            var theta = Mathf.Abs(Mathf.Approximately(cosTheta, 1.0f)
                 ? 0.0f
-                : Mathf.Acos(cosTheta);
-
-            Aim = Mathf.Approximately(maxTheta, 0.0f)
-                ? 0.0f
-                : 1.0f - Mathf.Clamp01(Mathf.Abs(theta / maxTheta));
+                : Mathf.Acos(cosTheta));
+            
+            // Kill the aim value if the object isn't able to be focused
+            if (Mathf.Approximately(focusMaxTheta, 0.0f))
+            {
+                Aim = -1;
+            }
+            else
+            {
+                if (theta > activateMaxTheta)
+                {
+                    // Scale -1 -> 0
+                    Aim = -Mathf.Clamp01((theta - activateMaxTheta) / (focusMaxTheta - activateMaxTheta));
+                }
+                else
+                {
+                    // Scale 0 -> 1
+                    Aim = 1.0f - Mathf.Clamp01(theta / activateMaxTheta);
+                }
+            }
         }
 
         /// <summary>
@@ -504,7 +521,7 @@ namespace CreateAR.EnkluPlayer.IUX
             }
 
             var pos = _renderer.transform.position;
-            var rad = _renderer.Radius;
+            var rad = _renderer.ActivateRadius;
             handle.Draw(ctx =>
             {
                 ctx.Prism(new Bounds(
