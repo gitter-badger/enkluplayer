@@ -234,70 +234,9 @@ namespace CreateAR.EnkluPlayer
                 .OnSuccess(el =>
                 {
                     el.OnCancel += OpenRegistration;
-                    el.OnRequest += License_OnSubmit;
+                    //el.OnRequest += License_OnSubmit;
                 })
                 .OnFailure(exception => Log.Error(this, "Could not open Signup.License : {0}", exception));
-        }
-        
-        /// <summary>
-        /// Called when license UI is ready to submit info.
-        /// </summary>
-        /// <param name="data">Data to make request with.</param>
-        private void License_OnSubmit(MobileLicenseUIView.LicenseRequestData data)
-        {
-            int loadingId;
-            _ui.Open<IUIElement>(new UIReference
-            {
-                UIDataId = UIDataIds.LOADING
-            }, out loadingId);
-            
-            _api
-                .GettingStarteds
-                .GetStarted(new Trellis.Messages.GetStarted.Request
-                {
-                    Email = data.Email,
-                    Name = data.Name,
-                    Company = data.Company,
-                    Phone = data.Phone,
-                    Story = data.Story
-                })
-                .OnSuccess(response =>
-                {
-                    _ui.Close(loadingId);
-                    _ui
-                        .Open<MobileMessageUIView>(new UIReference
-                        {
-                            UIDataId = "Common.Message"
-                        })
-                        .OnSuccess(el =>
-                        {
-                            el.Title = "Thank you";
-                            el.Description =
-                                "Your request has been sent along. We should be getting back to you shortly. Thanks for your patience.";
-                            el.Action = "Ok";
-                            el.OnOk += OpenLogin;
-                        })
-                        .OnFailure(exception =>
-                        {
-                            Log.Error(this, "Could not open MobileMessageUIView : {0}", exception);
-                            
-                            OpenLogin();
-                        });
-                })
-                .OnFailure(exception =>
-                {
-                    _ui
-                        .Open<ICommonErrorView>(new UIReference
-                        {
-                            UIDataId = UIDataIds.ERROR
-                        })
-                        .OnSuccess(el =>
-                        {
-                            el.Message = exception.Message;
-                            el.OnOk += OpenLogin;
-                        })
-                        .OnFailure(ex => Log.Error(this, "Could not open error view : {0}", ex));
-                });
         }
     }
 }
