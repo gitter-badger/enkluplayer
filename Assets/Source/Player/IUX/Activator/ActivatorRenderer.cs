@@ -14,7 +14,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Factor for buffer.
         /// TODO: Make this variable / schema driven
         /// </summary>
-        private const float COLLIDER_BUFFER_FACTOR = 2.0f;
+        private const float COLLIDER_BUFFER_FACTOR = 3.0f;
 
         /// <summary>
         /// Dependencies.
