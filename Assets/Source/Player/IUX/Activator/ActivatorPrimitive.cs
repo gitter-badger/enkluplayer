@@ -112,6 +112,10 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 else
                 {
+                    // Reset to ready state, this element might have been
+                    //  overlapped by another and not transitioned back.
+                    Ready();
+
                     _messages.Publish(
                         MessageTypes.WIDGET_UNFOCUS,
                         new WidgetUnfocusEvent(_target));
