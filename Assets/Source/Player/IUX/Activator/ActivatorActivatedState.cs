@@ -64,9 +64,9 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             base.Update(deltaTime);
 
-            if (!_activator.Focused)
+            if (_activator.Aim < 0)
             {
-                _activator.Ready();
+                _activator.Imminent();
             }
         }
 

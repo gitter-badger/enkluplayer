@@ -363,6 +363,19 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <summary>
+        /// Moves into imminent state.
+        /// </summary>
+        public void Imminent()
+        {
+            _states.Change<ActivatorImminentState>();
+
+            if (null != OnStateChanged)
+            {
+                OnStateChanged((ActivatorState) _states.Current);
+            }
+        }
+
+        /// <summary>
         /// Moves into activating state.
         /// </summary>
         public void Activating()
@@ -433,7 +446,8 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 _states = new FiniteStateMachine(new IState[]
                 {
-                    new ActivatorReadyState(_config, this, Schema),
+                    new ActivatorReadyState(this, Schema),
+                    new ActivatorImminentState(_config, this, Schema), 
                     new ActivatorActivatingState(_config, this, _intention, Schema, true),
                     new ActivatorActivatedState(_target, this, _messages, Schema)
                 });
