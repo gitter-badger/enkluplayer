@@ -189,7 +189,7 @@ namespace CreateAR.EnkluPlayer.IUX
                     size.z * scale.z);
                 radius = 0.5f * (scaledSize.x + scaledSize.y + scaledSize.z) / 3f;
 
-                // Bump the collider size up to increase padding
+                // Bump the collider size up to account for the buffer factor
                 FocusCollider.size = FocusCollider.size * _config.AimBufferFactor;
             }
 
@@ -202,7 +202,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         private void UpdateColliders()
         {
-            FocusCollider.enabled = true;
+            FocusCollider.enabled = _activator.Interactable;
         }
 
         /// <summary>
