@@ -3,7 +3,6 @@ using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using NUnit.Framework;
 using Jint;
-using Jint.Native;
 
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {
@@ -21,6 +20,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             });
 
             _engine.SetValue("q", QuatMethods.Instance);
+            _engine.SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
             _engine.SetValue("quat", new Func<float, float, float, float, Quat>(QuatMethods.create));
         }
 
@@ -65,6 +65,31 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                     Log.Error(this, euler + " " + quatStr + " " + result);
                 }
 
+                Assert.IsTrue(equal);
+            }
+        }
+
+        [Test]
+        public void FromToRotation()
+        {
+            for (var i = 0; i < TestData.DirectionArray.Length; i++) {
+                var dir = TestData.DirectionArray[i];
+
+                var enkluRot = _engine.Run<Quat>(
+                    string.Format("q.lookAt(vec3({0}, {1}, {2}));", dir.x, dir.y, dir.z));
+                var unityRot = Quaternion.FromToRotation(Vector3.forward, dir.ToVector());
+
+                var enkluEuler = enkluRot.ToQuaternion().eulerAngles;
+                var unityEuler = unityRot.eulerAngles;
+
+                var equal = Mathf.Approximately(enkluEuler.x, unityEuler.x)
+                            && Mathf.Approximately(enkluEuler.y, unityEuler.y)
+                            && Mathf.Approximately(enkluEuler.z, unityEuler.z);
+
+                if (!equal) {
+                    Log.Error(this, enkluRot + " " + unityRot);
+                    Log.Error(this, dir + " " + enkluEuler + " " + unityEuler);
+                }
                 Assert.IsTrue(equal);
             }
         }

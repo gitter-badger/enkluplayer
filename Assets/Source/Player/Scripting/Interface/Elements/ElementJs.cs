@@ -267,7 +267,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         /// <summary>
         /// Returns the position of this ElementJs relative to another ElementJs. This value should not
-        /// be cached as elements aren't guarenteed to sit under the same world anchor.
+        /// be cached as elements aren't guaranteed to sit under the same world anchor.
         ///
         /// TODO: Make this more friendly/understandable for people unfamiliar with anchoring woes.
         /// </summary>

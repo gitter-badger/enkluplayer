@@ -38,5 +38,10 @@
         {
             return Quat.Euler(x, y, z);
         }
+
+        public Quat lookAt(Vec3 direction)
+        {
+            return Quat.FromToRotation(Vec3.Forward, direction);
+        }
     }
 }

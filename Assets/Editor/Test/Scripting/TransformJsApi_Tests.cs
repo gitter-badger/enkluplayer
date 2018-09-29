@@ -19,6 +19,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _engine = new Engine();
             _element = new ElementJs(null, null, _engine, new Element());
             _engine.SetValue("this", _element);
+            _engine.SetValue("v", Vec3Methods.Instance);
+            _engine.SetValue("q", QuatMethods.Instance);
 
             _gameObject = new GameObject("TransformJsApi Tests");
         }
@@ -27,7 +29,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void Forward()
         {
             // Test that our forward matches Unity's over a variety of euler rotations
-            for (int i = 0; i < TestData.EulerArray.Length; i++)
+            for (var i = 0; i < TestData.EulerArray.Length; i++)
             {
                 var euler = TestData.EulerArray[i];
                 _element.transform.rotation = Quat.Euler(euler);
@@ -38,6 +40,19 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 var unityForward = _gameObject.transform.forward;
                 Assert.IsTrue(Vector3.Angle(enkluForward.ToVector(), unityForward) < Mathf.Epsilon);
             }
+        }
+
+        [Test]
+        public void LookAt()
+        {
+            var rotation = _engine.Run<Quat>(@"
+                this.this.transform.lookAt(v.normalize(v.create(1, 0, 0)));
+                this.this.transform.rotation;
+            ");
+
+            var euler = rotation.ToQuaternion().eulerAngles;
+            Debug.Log(euler);
+            Assert.IsTrue(euler.Approximately(new Vector3(0, 90, 0)));
         }
     }
 }
