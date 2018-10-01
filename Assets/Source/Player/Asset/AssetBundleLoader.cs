@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -242,7 +243,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// </summary>
         /// <param name="message">Message to log.</param>
         /// <param name="replacements">Logging replacements.</param>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void Verbose(string message, params object[] replacements)
         {
             Log.Info(this,

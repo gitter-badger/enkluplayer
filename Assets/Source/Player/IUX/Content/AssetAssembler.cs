@@ -106,7 +106,6 @@ namespace CreateAR.EnkluPlayer
             }
 
             // watch for asset reloads
-            Log.Info(this, "[{0}] WATCH.", _asset.Data.Guid);
             _unwatch = _asset.Watch<GameObject>(SetupInstance);
 
             // listen for asset load errors (make sure we only add once)
@@ -151,7 +150,6 @@ namespace CreateAR.EnkluPlayer
             }
 
             // automatically reload
-            Log.Info(this, "[{0}] Setting up autoload.", _asset.Data.Guid);
             _asset.AutoReload = true;
         }
 
@@ -166,7 +164,6 @@ namespace CreateAR.EnkluPlayer
 
             if (null != _unwatch)
             {
-                Log.Info(this, "[{0}] UNWATCH.", _asset.Data.Guid);
                 _unwatch();
                 _unwatch = null;
             }
@@ -190,8 +187,6 @@ namespace CreateAR.EnkluPlayer
         /// <param name="value">The GameObject that was loaded.</param>
         private void SetupInstance(GameObject value)
         {
-            Log.Info(this, "Asset {0} loaded. Assembling.", _asset.Data.Guid);
-
             // put existing instance back
             if (null != Assembly)
             {

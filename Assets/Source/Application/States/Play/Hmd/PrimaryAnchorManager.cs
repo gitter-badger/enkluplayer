@@ -260,6 +260,7 @@ namespace CreateAR.EnkluPlayer
 
             _voice.Register("origin", str =>
             {
+                Log.Info(this, "Recenter.");
 #if NETFX_CORE
                 UnityEngine.XR.InputTracking.Recenter();
 #endif
