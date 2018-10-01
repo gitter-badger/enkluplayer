@@ -79,12 +79,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
-        /// <inheritdoc />
-        public Vec3 worldPosition
-        {
-            get { return UnityTransform.position.ToVec(); }
-        }
-
         /// <summary>
         /// Updates <see cref="position"/>, <see cref="rotation"/>, and <see cref="scale"/> to match the underlying Unity Transform's values.
         /// </summary>

@@ -19,10 +19,5 @@
         /// Scale.
         /// </summary>
         Vec3 scale { get; set; }
-
-        /// <summary>
-        /// World position. Do not cache this value as world anchors will shift.
-        /// </summary>
-        Vec3 worldPosition { get; }
     }
 }

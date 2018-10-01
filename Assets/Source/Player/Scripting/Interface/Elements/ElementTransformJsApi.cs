@@ -51,23 +51,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             set { _scaleProp.Value = value; }
         }
 
-        /// <inheritdoc />
-        public Vec3 worldPosition
-        {
-            get
-            {
-                var widget = _element as Widget;
-                if (widget != null)
-                {
-                    return widget.GameObject.transform.position.ToVec();
-                }
-
-                // Eventually, work up our local transform tree until we hit a widget?
-                Log.Warning(this, "worldPosition not designed for non-widgets. Tell us your use case!");
-                return position;
-            }
-        }
-
         /// <summary>
         /// Forward.
         /// </summary>
