@@ -231,6 +231,12 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             return _handle.Raycast(origin, direction);
         }
+
+        /// <inheritdoc />
+        public bool Raycast(Vec3 origin, Vec3 direction, out Vec3 hitPos, out Vec3 colliderPos)
+        {
+            return _handle.Raycast(origin, direction, out hitPos, out colliderPos);
+        }
         
         /// <inheritdoc />
         protected override void LoadInternalBeforeChildren()

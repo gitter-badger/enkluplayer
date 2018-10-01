@@ -31,7 +31,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// How well is the user aiming.
         /// </summary>
-        private float _aim = -1;
+        private float _aim = 0;
 
         /// <summary>
         /// Scale of the points.
@@ -131,8 +131,9 @@ namespace CreateAR.EnkluPlayer.IUX
 
                 // Only show the cursor when hovering over an Interactable on Hololens
                 // TODO: Should all apps ignore the cursor outside of edit mode?
-                if(DeviceHelper.IsHoloLens() && !_playConfig.Edit) {
-                    visible = visible && _aim >= 0;
+                if (DeviceHelper.IsHoloLens() && !_playConfig.Edit)
+                {
+                    visible = visible && _intention.Focus != null;
                 }
 
                 LocalVisible = visible;
@@ -245,7 +246,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         private void UpdateAim()
         {
-            _aim = -1.0f;
+            _aim = 0;
 
             var interactive = _intention.Focus;
             if (null != interactive)
