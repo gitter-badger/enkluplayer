@@ -58,6 +58,11 @@ namespace CreateAR.EnkluPlayer.Test.Assets
             return token;
         }
 
+        public void ClearDownloadQueue()
+        {
+            
+        }
+
         public void Destroy()
         {
             //
