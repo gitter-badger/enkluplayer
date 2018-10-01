@@ -158,6 +158,38 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Returns the rotation from one Vec3 to another Vec3.
+        ///
+        /// References: https://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
+        public static Quat FromToRotation(Vec3 from, Vec3 to)
+        {
+            var dot = Vec3.Dot(from, to);
+            var cross = Vec3.Cross(from, to);
+
+            // Edge case 
+            if (dot == -1 && cross.MagnitudeSqr == 0)
+            {
+                return new Quat(1, 0, 0, 0);
+            }
+
+            var w = (float) Math.Sqrt(from.MagnitudeSqr * to.MagnitudeSqr) + dot;
+            var len = (float) Math.Sqrt(cross.x * cross.x + cross.y * cross.y + cross.z * cross.z + w * w);
+
+            // Normalize the Quat
+            Quat rot = new Quat(
+                cross.x / len,
+                cross.y / len,
+                cross.z / len,
+                w / len
+            );
+            return rot;
+        }
+
+        /// <summary>
         /// Identity.
         /// </summary>
         public static Quat Identity

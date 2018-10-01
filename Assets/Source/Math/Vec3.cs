@@ -262,6 +262,32 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Tests strict equality of Vector components.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool operator ==(Vec3 a, Vec3 b)
+        {
+            return a.x == b.x
+                && a.y == b.y
+                && a.z == b.z;
+        }
+
+        /// <summary>
+        /// Tests strict inequality of Vector components.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool operator !=(Vec3 a, Vec3 b)
+        {
+            return a.x != b.x
+                || a.y != b.y
+                || a.z != b.z;
+        }
+
+        /// <summary>
         /// Returns the squared distance between two Vec3's.
         /// </summary>
         /// <param name="from"></param>

@@ -37,9 +37,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private Vec3 _scale;
 
-        /// <summary>
-        /// Position.
-        /// </summary>
+        /// <inheritdoc />
         public Vec3 position
         {
             get
@@ -53,9 +51,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
-        /// <summary>
-        /// Rotation.
-        /// </summary>
+        /// <inheritdoc />
         public Quat rotation
         {
             get
@@ -69,9 +65,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
-        /// <summary>
-        /// Scale.
-        /// </summary>
+        /// <inheritdoc />
         public Vec3 scale
         {
             get
