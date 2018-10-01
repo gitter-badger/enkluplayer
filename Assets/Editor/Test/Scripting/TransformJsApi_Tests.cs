@@ -51,7 +51,6 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             ");
 
             var euler = rotation.ToQuaternion().eulerAngles;
-            Debug.Log(euler);
             Assert.IsTrue(euler.Approximately(new Vector3(0, 90, 0)));
         }
     }

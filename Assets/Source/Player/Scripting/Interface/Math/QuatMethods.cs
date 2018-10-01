@@ -39,7 +39,12 @@
             return Quat.Euler(x, y, z);
         }
 
-        public Quat lookAt(Vec3 direction)
+        /// <summary>
+        /// Creates a Quat that looks at the target Vec3 direction.
+        /// </summary>
+        /// <param name="direction"></param>
+        /// <returns></returns>
+        public Quat fromToRotation(Vec3 direction)
         {
             return Quat.FromToRotation(Vec3.Forward, direction);
         }

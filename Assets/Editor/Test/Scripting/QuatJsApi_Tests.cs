@@ -76,17 +76,18 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 var dir = TestData.DirectionArray[i];
 
                 var enkluRot = _engine.Run<Quat>(
-                    string.Format("q.lookAt(vec3({0}, {1}, {2}));", dir.x, dir.y, dir.z));
+                    string.Format("q.fromToRotation(vec3({0}, {1}, {2}));", dir.x, dir.y, dir.z));
                 var unityRot = Quaternion.FromToRotation(Vector3.forward, dir.ToVector());
 
                 var enkluEuler = enkluRot.ToQuaternion().eulerAngles;
                 var unityEuler = unityRot.eulerAngles;
 
                 var equal = Mathf.Approximately(enkluEuler.x, unityEuler.x)
-                            && Mathf.Approximately(enkluEuler.y, unityEuler.y)
-                            && Mathf.Approximately(enkluEuler.z, unityEuler.z);
+                         && Mathf.Approximately(enkluEuler.y, unityEuler.y)
+                         && Mathf.Approximately(enkluEuler.z, unityEuler.z);
 
-                if (!equal) {
+                if (!equal) 
+                {
                     Log.Error(this, enkluRot + " " + unityRot);
                     Log.Error(this, dir + " " + enkluEuler + " " + unityEuler);
                 }
