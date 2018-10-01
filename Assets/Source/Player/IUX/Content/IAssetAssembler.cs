@@ -1,13 +1,12 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Async;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
-    /// Interface for assembling a <c>GameObject</c> for <c>ContentWidget</c>.
+    /// Interface for assembling an asset.
     /// </summary>
-    public interface IContentAssembler
+    public interface IAssetAssembler
     {
         /// <summary>
         /// Retrieves the bounds.
@@ -15,10 +14,15 @@ namespace CreateAR.EnkluPlayer
         Bounds Bounds { get; }
 
         /// <summary>
-        /// Called when assembly is complete.
+        /// The assembled GameObject.
         /// </summary>
-        IMutableAsyncToken<GameObject> OnAssemblyComplete { get; }
+        GameObject Assembly { get; }
 
+        /// <summary>
+        /// Called when the assembly has been updated.
+        /// </summary>
+        event Action OnAssemblyUpdated;
+        
         /// <summary>
         /// Sets up the assembler.
         /// </summary>

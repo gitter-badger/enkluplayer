@@ -430,7 +430,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             var gameObject = new GameObject("Proximity Tests");
             _gameObjects.Add(gameObject);
-            var contentWidget = new ContentWidget(gameObject, new DummyScriptManager(false), new DummyContentAssembler());
+            var contentWidget = new ContentWidget(gameObject, new DummyScriptManager(false), new DummyAssetAssembler());
             contentWidget.Load(new ElementData(), new ElementSchema(), new Element[0]);
 
             var element = new ElementJs(null, null, _engine, contentWidget);

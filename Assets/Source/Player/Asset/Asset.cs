@@ -195,6 +195,8 @@ namespace CreateAR.EnkluPlayer.Assets
                             return;
                         }
 
+                        Verbose("Asset load came back. Call {0} watchers.", _watch.Count);
+
                         token.Succeed(cast);
 
                         // call watchers
@@ -396,6 +398,20 @@ namespace CreateAR.EnkluPlayer.Assets
             return string.Format(
                 "[AssetReference Info={0}]",
                 Data);
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        /// <param name="message">Message to log.</param>
+        /// <param name="replacements">Logging replacements.</param>
+        //[Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this,
+                "{0} {1}",
+                this,
+                string.Format(message, replacements));
         }
     }
 }

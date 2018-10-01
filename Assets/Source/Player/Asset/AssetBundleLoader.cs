@@ -161,15 +161,7 @@ namespace CreateAR.EnkluPlayer.Assets
                 token.Fail(new Exception("Could not load asset: Offline Mode enabled."));
                 yield break;
             }
-
-#if FALSE && !NETFX_CORE
-            Verbose("Download bundle from {0}.", _url);
             
-            var request = WWW.LoadFromCacheOrDownload(
-                _url,
-                0);
-            yield return request;
-#else
             var request = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle(_url, 0, 0);
 
             request.SendWebRequest();
@@ -179,7 +171,6 @@ namespace CreateAR.EnkluPlayer.Assets
 
                 yield return null;
             }
-#endif
             
             Verbose("DownloadBundle complete.");
 
@@ -203,9 +194,6 @@ namespace CreateAR.EnkluPlayer.Assets
             }
             else
             {
-#if FALSE && !NETFX_CORE
-                token.Succeed(request.assetBundle);
-#else           
                 // wait for bundle to complete
                 var bundle = UnityEngine.Networking.DownloadHandlerAssetBundle.GetContent(request);
                 if (null == bundle)
@@ -214,9 +202,10 @@ namespace CreateAR.EnkluPlayer.Assets
                 }
                 else
                 {
+                    Verbose("Succeeding token.");
+
                     token.Succeed(bundle);
                 }
-#endif
             }
 
             request.Dispose();
@@ -260,7 +249,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// </summary>
         /// <param name="message">Message to log.</param>
         /// <param name="replacements">Logging replacements.</param>
-        [Conditional("LOGGING_VERBOSE")]
+        //[Conditional("LOGGING_VERBOSE")]
         private void Verbose(string message, params object[] replacements)
         {
             Log.Info(this,

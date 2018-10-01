@@ -9,8 +9,8 @@
 			description.fontSize=50
 			layout.degrees=10.0
 			header.padding=-100.0>
-			<Button id='btn-confirm' position=(0, -0.1, 0) label='Register' />
-			<Button id='btn-cancel' position=(0, -0.2, 0) label='Later' ready.color='Negative' />
+			<Button id='btn-confirm' label='Register' />
+			<Button id='btn-cancel' label='Later' ready.color='Negative' />
 		</Menu>
 	</Float>
 </Container>
