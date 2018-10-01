@@ -5,6 +5,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.AR;
+using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.Scripting;
 using Jint.Unity;
 using UnityEngine;
@@ -79,6 +80,11 @@ namespace CreateAR.EnkluPlayer
         private readonly ISnapshotCapture _snapshot;
 
         /// <summary>
+        /// Loads assets.
+        /// </summary>
+        private readonly IAssetLoader _assetLoader;
+
+        /// <summary>
         /// Status.
         /// </summary>
         private int _connectionStatusId = -1;
@@ -127,7 +133,8 @@ namespace CreateAR.EnkluPlayer
             IConnection connection,
             IMessageRouter messages,
             IVoiceCommandManager voice,
-            ISnapshotCapture snapshot)
+            ISnapshotCapture snapshot,
+            IAssetLoader assetLoader)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -140,6 +147,7 @@ namespace CreateAR.EnkluPlayer
             _messages = messages;
             _voice = voice;
             _snapshot = snapshot;
+            _assetLoader = assetLoader;
         }
 
         /// <inheritdoc />
@@ -245,6 +253,9 @@ namespace CreateAR.EnkluPlayer
 
             // close UI
             _frame.Release();
+
+            // clear everything in the queue
+            _assetLoader.ClearDownloadQueue();
 
             // set the cursor back to always drawing
             _config.Cursor.ForceShow = true;

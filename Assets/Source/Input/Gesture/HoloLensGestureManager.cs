@@ -263,8 +263,6 @@ namespace CreateAR.EnkluPlayer
         /// <param name="event">The event.</param>
         private void Interactions_OnSourceDetected(InteractionSourceDetectedEventArgs @event)
         {
-            Log.Info(this, "Source added.");
-
             var id = @event.state.source.id;
             var source = new SourceData(@event.state.source, @event.state.sourcePose);
             _sources.Add(source);
@@ -281,8 +279,6 @@ namespace CreateAR.EnkluPlayer
         /// <param name="event">The event.</param>
         private void Interactions_OnSourceLost(InteractionSourceLostEventArgs @event)
         {
-            Log.Info(this, "Source lost.");
-
             var id = @event.state.source.id;
             var data = Data(@event.state.source.id);
             if (null == data)

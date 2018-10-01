@@ -208,7 +208,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         protected override void DestroyInternal()
         {
-            _assembler.OnAssemblyUpdated += Assembler_OnAssemblyUpdated;
+            _assembler.OnAssemblyUpdated -= Assembler_OnAssemblyUpdated;
 
             base.DestroyInternal();
         }
@@ -218,7 +218,7 @@ namespace CreateAR.EnkluPlayer
         {
             base.LoadInternalAfterChildren();
 
-            _assembler.OnAssemblyUpdated -= Assembler_OnAssemblyUpdated;
+            _assembler.OnAssemblyUpdated += Assembler_OnAssemblyUpdated;
 
             _srcAssetProp = Schema.GetOwn("assetSrc", "");
             _srcAssetProp.OnChanged += AssetSrc_OnChanged;

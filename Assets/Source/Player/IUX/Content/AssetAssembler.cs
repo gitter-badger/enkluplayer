@@ -84,41 +84,11 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Setup(Transform transform, string assetId)
         {
-            WatchMainAsset(transform, assetId);
-        }
-
-        /// <inheritdoc />
-        public void Teardown()
-        {
-            if (null != Assembly)
-            {
-                _pools.Put(Assembly);
-                Assembly = null;
-            }
-
-            if (null != _unwatch)
-            {
-                _unwatch();
-                _unwatch = null;
-            }
-
             if (null != _asset)
             {
-                _asset.OnRemoved -= Asset_OnRemoved;
-                _asset = null;
+                throw new Exception("AssetAssembler was asked to setup twice in a row without a Teardown in between.");
             }
 
-            if (null != _outline)
-            {
-                UnityEngine.Object.Destroy(_outline);
-            }
-        }
-
-        /// <summary>
-        /// Watches main asset changes.
-        /// </summary>
-        private void WatchMainAsset(Transform transform, string assetId)
-        {
             if (string.IsNullOrEmpty(assetId))
             {
                 return;
@@ -129,11 +99,15 @@ namespace CreateAR.EnkluPlayer
             if (null == _asset)
             {
                 Log.Warning(this,
-                    "Could not find Asset for content {0}.",
+                    "Could not find Asset by id {0}.",
                     assetId);
 
                 return;
             }
+
+            // watch for asset reloads
+            Log.Info(this, "[{0}] WATCH.", _asset.Data.Guid);
+            _unwatch = _asset.Watch<GameObject>(SetupInstance);
 
             // listen for asset load errors (make sure we only add once)
             _asset.OnLoadError -= Asset_OnLoadError;
@@ -168,7 +142,7 @@ namespace CreateAR.EnkluPlayer
                     _asset.Load<GameObject>();
                 };
                 _outline.Init(Bounds);
-                
+
                 // asset might already have failed to load
                 if (!string.IsNullOrEmpty(_asset.Error))
                 {
@@ -176,13 +150,39 @@ namespace CreateAR.EnkluPlayer
                 }
             }
 
-            // watch for asset reloads
-            _unwatch = _asset.Watch<GameObject>(SetupInstance);
-
             // automatically reload
+            Log.Info(this, "[{0}] Setting up autoload.", _asset.Data.Guid);
             _asset.AutoReload = true;
         }
 
+        /// <inheritdoc />
+        public void Teardown()
+        {
+            if (null != Assembly)
+            {
+                _pools.Put(Assembly);
+                Assembly = null;
+            }
+
+            if (null != _unwatch)
+            {
+                Log.Info(this, "[{0}] UNWATCH.", _asset.Data.Guid);
+                _unwatch();
+                _unwatch = null;
+            }
+
+            if (null != _asset)
+            {
+                _asset.OnRemoved -= Asset_OnRemoved;
+                _asset = null;
+            }
+
+            if (null != _outline)
+            {
+                UnityEngine.Object.Destroy(_outline);
+            }
+        }
+        
         /// <summary>
         /// Creates an instance of the loaded asset and replaces the existing
         /// instance, if there is one.
@@ -190,8 +190,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="value">The GameObject that was loaded.</param>
         private void SetupInstance(GameObject value)
         {
-            Verbose("Asset loaded, setup instance.");
-            Debug.Log("Asset loaded " + value);
+            Log.Info(this, "Asset {0} loaded. Assembling.", _asset.Data.Guid);
 
             // put existing instance back
             if (null != Assembly)
@@ -251,20 +250,6 @@ namespace CreateAR.EnkluPlayer
             {
                 _outline.ShowError(error);
             }
-        }
-
-        /// <summary>
-        /// Verbose logging.
-        /// </summary>
-        /// <param name="message">Message to log.</param>
-        /// <param name="replacements">Logging replacements.</param>
-        //[Conditional("LOGGING_VERBOSE")]
-        private void Verbose(string message, params object[] replacements)
-        {
-            Log.Info(this,
-                "{0} {1}",
-                this,
-                string.Format(message, replacements));
         }
     }
 }
