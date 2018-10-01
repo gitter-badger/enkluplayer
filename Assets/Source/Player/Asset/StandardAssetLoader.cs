@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Random = System.Random;
@@ -15,6 +16,27 @@ namespace CreateAR.EnkluPlayer.Assets
     /// </summary>
     public class StandardAssetLoader : IAssetLoader
     {
+        /// <summary>
+        /// User internally to track loads.
+        /// </summary>
+        private class QueuedLoad
+        {
+            /// <summary>
+            /// The data for the asset we want to load.
+            /// </summary>
+            public AssetData Data;
+
+            /// <summary>
+            /// The loader used.
+            /// </summary>
+            public AssetBundleLoader Loader;
+
+            /// <summary>
+            /// Timer metric.
+            /// </summary>
+            public int Timer;
+        }
+
         /// <summary>
         /// Max current downloads allowed.
         /// </summary>
@@ -34,6 +56,11 @@ namespace CreateAR.EnkluPlayer.Assets
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
         
         /// <summary>
         /// URI to loader.
@@ -43,7 +70,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <summary>
         /// Download queue.
         /// </summary>
-        private readonly Queue<Action> _queue = new Queue<Action>();
+        private readonly List<QueuedLoad> _queue = new List<QueuedLoad>();
 
         /// <summary>
         /// Number of downloads in progress right now.
@@ -59,10 +86,12 @@ namespace CreateAR.EnkluPlayer.Assets
         public StandardAssetLoader(
             ApplicationConfig config,
             IBootstrapper bootstrapper,
+            IMetricsService metrics,
             UrlFormatterCollection urls)
         {
             _config = config;
             _bootstrapper = bootstrapper;
+            _metrics = metrics;
             
             Urls = urls;
 
@@ -85,38 +114,58 @@ namespace CreateAR.EnkluPlayer.Assets
                 }
             }
             
-            var url = Urls.Url("assets://" + data.Uri);
-            var externalProgress = progress = new LoadProgress();
-
+            var url = Url(data);
             var token = new AsyncToken<Object>();
-
-            Action startLoad = () =>
-            {
-                _numDownloads++;
-
-                AssetBundleLoader loader;
-                if (!_bundles.TryGetValue(url, out loader))
-                {
-                    loader = _bundles[url] = new AssetBundleLoader(
-                        _config.Network,
-                        _bootstrapper,
-                        url);
-                }
-
-                // AssetImportServer uses the Guid
-                LoadProgress internalProgress;
-                loader
-                    .Asset(AssetName(data), out internalProgress)
-                    .OnSuccess(token.Succeed)
-                    .OnFailure(token.Fail)
-                    .OnFinally(_ => _numDownloads--);
-
-                internalProgress.Chain(externalProgress);
-            };
-
-            _queue.Enqueue(startLoad);
             
+            // create a loader if one doesn't exist
+            AssetBundleLoader loader;
+            if (!_bundles.TryGetValue(url, out loader))
+            {
+                Log.Info(this, "Adding {0} to the queue, length of {1}.",
+                    data.Guid,
+                    _queue.Count);
+
+                // timer how long this is in the queue
+                var timer = _metrics.Timer(MetricsKeys.ASSET_DL_QUEUE);
+
+                loader = _bundles[url] = new AssetBundleLoader(
+                    _config.Network,
+                    _bootstrapper,
+                    url);
+
+                // add loader to queue
+                var queuedLoad = new QueuedLoad
+                {
+                    Loader = loader,
+                    Data = data,
+                    Timer = timer.Start()
+                };
+                
+                _queue.Add(queuedLoad);
+            }
+
+            // load from loader
+            loader
+                .Asset(AssetName(data), out progress)
+                .OnSuccess(token.Succeed)
+                .OnFailure(token.Fail);
+
             return token;
+        }
+
+        /// <inheritdoc />
+        public void ClearDownloadQueue()
+        {
+            Log.Info(this, "Clear download queue.");
+
+            // remove all queued loads
+            while (_queue.Count > 0)
+            {
+                var record = _queue[0];
+
+                _queue.RemoveAt(0);
+                _bundles.Remove(Url(record.Data));
+            }
         }
 
         /// <inheritdoc />
@@ -132,7 +181,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <summary>
         /// Checks the queue every frame. We wait for frame updates rather
         /// than immediately moving to the next in the queue so that we can
-        /// ensure WebGL GC can have a chance to eval.
+        /// ensure WebGL GC can have a chance to run.
         /// </summary>
         private IEnumerator ProcessQueue()
         {
@@ -141,11 +190,48 @@ namespace CreateAR.EnkluPlayer.Assets
             {
                 while (_numDownloads < MAX_CONCURRENT && _queue.Count > 0)
                 {
-                    _queue.Dequeue()();
+                    var next = _queue[0];
+                    _queue.RemoveAt(0);
+
+                    // record metrics
+                    _metrics.Timer(MetricsKeys.ASSET_DL_QUEUE).Stop(next.Timer);
+
+                    Log.Info(this, "Starting next load.");
+
+                    var timer = _metrics.Timer(MetricsKeys.ASSET_DL_LOADING);
+                    var timerId = timer.Start();
+
+                    _numDownloads++;
+                    next.Loader
+                        .Load()
+                        // record metrics
+                        .OnSuccess(_ => timer.Stop(timerId))
+                        .OnFailure(ex =>
+                        {
+                            // remove so we can allow retries
+                            _bundles.Remove(Url(next.Data));
+
+                            // abort metrics
+                            timer.Abort(timerId);
+                        })
+                        .OnFinally(_=>
+                        {
+                            _numDownloads--;
+                        });
                 }
 
                 yield return true;
             }
+        }
+
+        /// <summary>
+        /// Creates a URL from asset data.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
+        private string Url(AssetData data)
+        {
+            return Urls.Url("assets://" + data.Uri);
         }
 
         /// <summary>

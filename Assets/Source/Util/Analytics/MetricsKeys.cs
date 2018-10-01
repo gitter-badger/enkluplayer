@@ -27,5 +27,11 @@
         public const string ANCHOR_SIZE_RAW = "WorldAnchor.Size.Raw";
         public const string ANCHOR_SIZE_COMPRESSED = "WorldAnchor.Size.Compressed";
         public const string ANCHOR_SIZE_RATIO = "WorldAnchor.Size.Ratio";
+
+        ///////////////////////////////////////////////////////////////////////
+        /// Assets
+        ///////////////////////////////////////////////////////////////////////
+        public const string ASSET_DL_QUEUE = "AssetDownload.Queued";
+        public const string ASSET_DL_LOADING = "AssetDownload.Loading";
     }
 }

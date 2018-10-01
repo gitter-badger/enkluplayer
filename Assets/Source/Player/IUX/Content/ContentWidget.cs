@@ -45,9 +45,9 @@ namespace CreateAR.EnkluPlayer
         private readonly IScriptManager _scripts;
 
         /// <summary>
-        /// Assembles <c>Content</c>.
+        /// Assembles an asset.
         /// </summary>
-        private readonly IContentAssembler _assembler;
+        private readonly IAssetAssembler _assembler;
 
         /// <summary>
         /// Creates elements.
@@ -81,7 +81,7 @@ namespace CreateAR.EnkluPlayer
         private bool _pollRefreshScript;
 
         /// <summary>
-        /// Cached from the callback of the <see cref="IContentAssembler"/>.
+        /// Cached from the callback of the <see cref="IAssetAssembler"/>.
         /// </summary>
         private GameObject _assetGameObject;
         
@@ -112,9 +112,9 @@ namespace CreateAR.EnkluPlayer
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
+            IAssetAssembler assembler,
             IScriptRequireResolver resolver,
             IScriptManager scripts,
-            IContentAssembler assembler,
             IElementJsFactory elementFactory )
             : base(
                 gameObject,
@@ -126,29 +126,19 @@ namespace CreateAR.EnkluPlayer
             _scripts = scripts;
             _assembler = assembler;
             _elementJsFactory = elementFactory;
-
-            _assembler.OnAssemblyComplete.OnSuccess(Assembler_OnAssemblyComplete);
         }
 
         /// <summary>
         /// Constructor used for testing.
         /// </summary>
-        /// <param name="gameObject"></param>
         public ContentWidget(
             GameObject gameObject, 
             IScriptManager scripts, 
-            IContentAssembler assembler ) 
+            IAssetAssembler assembler)
             : base(gameObject, null, null, null)
         {
             _scripts = scripts;
             _assembler = assembler;
-        }
-
-        /// <inheritdoc />
-        protected override void DestroyInternal()
-        {
-            _assembler.OnAssemblyComplete.Remove(Assembler_OnAssemblyComplete);
-            base.DestroyInternal();
         }
 
         /// <summary>
@@ -214,12 +204,22 @@ namespace CreateAR.EnkluPlayer
 
             return default(T);
         }
-        
+
+        /// <inheritdoc />
+        protected override void DestroyInternal()
+        {
+            _assembler.OnAssemblyUpdated -= Assembler_OnAssemblyUpdated;
+
+            base.DestroyInternal();
+        }
+
         /// <inheritdoc />
         protected override void LoadInternalAfterChildren()
         {
             base.LoadInternalAfterChildren();
-            
+
+            _assembler.OnAssemblyUpdated += Assembler_OnAssemblyUpdated;
+
             _srcAssetProp = Schema.GetOwn("assetSrc", "");
             _srcAssetProp.OnChanged += AssetSrc_OnChanged;
 
@@ -475,10 +475,12 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Called when the assembler has completed seting up the asset.
         /// </summary>
-        private void Assembler_OnAssemblyComplete(GameObject instance)
+        private void Assembler_OnAssemblyUpdated()
         {
+            LogVerbose("Assembly complete.");
+
             // parent + orient
-            _assetGameObject = instance;
+            _assetGameObject = _assembler.Assembly;
             _assetGameObject.name = _srcAssetProp.Value;
             _assetGameObject.transform.SetParent(GameObject.transform, false);
             _assetGameObject.SetActive(true);

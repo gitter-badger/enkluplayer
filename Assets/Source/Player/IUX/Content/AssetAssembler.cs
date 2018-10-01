@@ -1,5 +1,4 @@
 using System;
-using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Assets;
 using UnityEngine;
@@ -7,9 +6,9 @@ using UnityEngine;
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
-    /// Assembler for models.
+    /// Assembles an asset.
     /// </summary>
-    public class ModelContentAssembler : IContentAssembler
+    public class AssetAssembler : IAssetAssembler
     {
         /// <summary>
         /// Loads assets.
@@ -30,12 +29,7 @@ namespace CreateAR.EnkluPlayer
         /// Bounds of the asset.
         /// </summary>
         private AssetStatsBoundsData _bounds;
-
-        /// <summary>
-        /// Instance of Asset's prefab.
-        /// </summary>
-        private GameObject _instance;
-
+        
         /// <summary>
         /// The Asset.
         /// </summary>
@@ -68,21 +62,16 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
-        /// <summary>
-        /// Called when asset is setup;
-        /// </summary>
-        private MutableAsyncToken<GameObject> _onAssemblyComplete = new MutableAsyncToken<GameObject>();
+        /// <inheritdoc />
+        public GameObject Assembly { get; private set; }
 
         /// <inheritdoc />
-        public IMutableAsyncToken<GameObject> OnAssemblyComplete
-        {
-            get { return _onAssemblyComplete; }
-        }
-        
+        public event Action OnAssemblyUpdated;
+
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ModelContentAssembler(
+        public AssetAssembler(
             IAssetManager assets,
             IAssetPoolManager pools,
             PlayAppConfig config)
@@ -92,44 +81,14 @@ namespace CreateAR.EnkluPlayer
             _config = config;
         }
         
-        /// <inheritdoc cref="IContentAssembler"/>
+        /// <inheritdoc />
         public void Setup(Transform transform, string assetId)
         {
-            WatchMainAsset(transform, assetId);
-        }
-
-        /// <inheritdoc cref="IContentAssembler"/>
-        public void Teardown()
-        {
-            if (null != _instance)
-            {
-                _pools.Put(_instance);
-                _instance = null;
-            }
-
-            if (null != _unwatch)
-            {
-                _unwatch();
-                _unwatch = null;
-            }
-
             if (null != _asset)
             {
-                _asset.OnRemoved -= Asset_OnRemoved;
-                _asset = null;
+                throw new Exception("AssetAssembler was asked to setup twice in a row without a Teardown in between.");
             }
 
-            if (null != _outline)
-            {
-                UnityEngine.Object.Destroy(_outline);
-            }
-        }
-
-        /// <summary>
-        /// Watches main asset changes.
-        /// </summary>
-        private void WatchMainAsset(Transform transform, string assetId)
-        {
             if (string.IsNullOrEmpty(assetId))
             {
                 return;
@@ -140,11 +99,14 @@ namespace CreateAR.EnkluPlayer
             if (null == _asset)
             {
                 Log.Warning(this,
-                    "Could not find Asset for content {0}.",
+                    "Could not find Asset by id {0}.",
                     assetId);
 
                 return;
             }
+
+            // watch for asset reloads
+            _unwatch = _asset.Watch<GameObject>(SetupInstance);
 
             // listen for asset load errors (make sure we only add once)
             _asset.OnLoadError -= Asset_OnLoadError;
@@ -179,7 +141,7 @@ namespace CreateAR.EnkluPlayer
                     _asset.Load<GameObject>();
                 };
                 _outline.Init(Bounds);
-                
+
                 // asset might already have failed to load
                 if (!string.IsNullOrEmpty(_asset.Error))
                 {
@@ -187,16 +149,37 @@ namespace CreateAR.EnkluPlayer
                 }
             }
 
-            // watch for asset reloads
-            _unwatch = _asset.Watch<GameObject>(value =>
-            {
-                SetupInstance(value);
-            });
-
             // automatically reload
             _asset.AutoReload = true;
         }
 
+        /// <inheritdoc />
+        public void Teardown()
+        {
+            if (null != Assembly)
+            {
+                _pools.Put(Assembly);
+                Assembly = null;
+            }
+
+            if (null != _unwatch)
+            {
+                _unwatch();
+                _unwatch = null;
+            }
+
+            if (null != _asset)
+            {
+                _asset.OnRemoved -= Asset_OnRemoved;
+                _asset = null;
+            }
+
+            if (null != _outline)
+            {
+                UnityEngine.Object.Destroy(_outline);
+            }
+        }
+        
         /// <summary>
         /// Creates an instance of the loaded asset and replaces the existing
         /// instance, if there is one.
@@ -205,17 +188,17 @@ namespace CreateAR.EnkluPlayer
         private void SetupInstance(GameObject value)
         {
             // put existing instance back
-            if (null != _instance)
+            if (null != Assembly)
             {
-                _pools.Put(_instance);
-                _instance = null;
+                _pools.Put(Assembly);
+                Assembly = null;
             }
 
             // shut off garbage
             RemoveBadComponents(value);
 
             // get a new one
-            _instance = _pools.Get<GameObject>(value);
+            Assembly = _pools.Get<GameObject>(value);
 
             // shut off outline
             if (null != _outline)
@@ -223,8 +206,11 @@ namespace CreateAR.EnkluPlayer
                 UnityEngine.Object.Destroy(_outline);
             }
 
-            // asset is loaded
-            _onAssemblyComplete.Succeed(_instance);
+            // dispatch update
+            if (null != OnAssemblyUpdated)
+            {
+                OnAssemblyUpdated();
+            }
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
@@ -194,6 +195,8 @@ namespace CreateAR.EnkluPlayer.Assets
                                 typeof(T).Name)));
                             return;
                         }
+
+                        Verbose("Asset load came back. Call {0} watchers.", _watch.Count);
 
                         token.Succeed(cast);
 
@@ -396,6 +399,20 @@ namespace CreateAR.EnkluPlayer.Assets
             return string.Format(
                 "[AssetReference Info={0}]",
                 Data);
+        }
+
+        /// <summary>
+        /// Verbose logging.
+        /// </summary>
+        /// <param name="message">Message to log.</param>
+        /// <param name="replacements">Logging replacements.</param>
+        [Conditional("LOGGING_VERBOSE")]
+        private void Verbose(string message, params object[] replacements)
+        {
+            Log.Info(this,
+                "{0} {1}",
+                this,
+                string.Format(message, replacements));
         }
     }
 }

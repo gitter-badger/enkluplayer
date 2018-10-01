@@ -407,9 +407,9 @@ namespace CreateAR.EnkluPlayer.IUX
                         _layers,
                         _tweens,
                         _colors,
+                        new AssetAssembler(_assets, _pools, _appConfig.Play),
                         _resolver,
                         _scripts,
-                        new ModelContentAssembler(_assets, _pools, _appConfig.Play),
                         _elementJsFactory);
                 }
                 case ElementTypes.TRANSITION:
