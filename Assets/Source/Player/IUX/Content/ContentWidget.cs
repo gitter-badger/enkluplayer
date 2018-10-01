@@ -227,7 +227,6 @@ namespace CreateAR.EnkluPlayer
             _scriptsProp.OnChanged += Scripts_OnChanged;
             
             UpdateAsset();
-            RefreshScripts();
         }
 
         /// <inheritdoc />
@@ -494,6 +493,9 @@ namespace CreateAR.EnkluPlayer
             }
 
             _onAssetLoaded.Succeed(this);
+
+            // trigger refresh, so component specific references are new
+            RefreshScripts();
         }
 
         /// <summary>
