@@ -494,6 +494,7 @@ namespace CreateAR.EnkluPlayer
 
             _onAssetLoaded.Succeed(this);
 
+            // trigger refresh, so component specific references are new
             RefreshScripts();
         }
 
