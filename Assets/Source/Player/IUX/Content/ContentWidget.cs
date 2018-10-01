@@ -484,6 +484,9 @@ namespace CreateAR.EnkluPlayer
             _assetGameObject = _assembler.Assembly;
             _assetGameObject.name = _srcAssetProp.Value;
             _assetGameObject.transform.SetParent(GameObject.transform, false);
+            _assetGameObject.transform.localPosition = Vector3.zero;
+            _assetGameObject.transform.localRotation = Quaternion.identity;
+            _assetGameObject.transform.localScale = Vector3.one;
             _assetGameObject.SetActive(true);
 
             // setup collider
