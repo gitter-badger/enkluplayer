@@ -75,6 +75,9 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..txt-version")]
         public CaptionWidget TxtVersion { get; set; }
 
+        [InjectElements("..txt-deviceName")]
+        public CaptionWidget TxtDeviceName { get; set; }
+
         /// <summary>
         /// Quality settings.
         /// </summary>
@@ -189,6 +192,7 @@ namespace CreateAR.EnkluPlayer
             _txns = txns;
 
             TxtVersion.Label = string.Format("v.{0}", config.Version);
+            TxtDeviceName.Label = string.Format("Device: {0}", SystemInfo.deviceUniqueIdentifier);
 
             SltPlay.Selection = SltPlay.Options.FirstOrDefault(option => play
                 ? option.Value == "Play"
