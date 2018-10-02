@@ -30,7 +30,9 @@
         /// <returns></returns>
         Vec3 positionRelativeTo(IEntityJs entity);
 
-
+        /// <summary>
+        /// World position. DO NOT cache this value, as it shifts with world anchor readjustment.
+        /// </summary>
         [DenyJsAccess]
         Vec3 worldPosition { get; }
     }
