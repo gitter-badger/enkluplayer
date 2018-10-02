@@ -14,6 +14,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Element that we're wrapping.
         /// </summary>
         private readonly Element _element;
+
+        /// <summary>
+        /// Element as a ContentWidget.
+        /// TODO: Remove this when world positioning better handled.
+        /// </summary>
+        private readonly Widget _widget;
         
         /// <summary>
         /// Backing position prop.
@@ -59,15 +65,27 @@ namespace CreateAR.EnkluPlayer.Scripting
             get { return Quat.Mult(rotation, Vec3.Forward); }
         }
 
-        /// <summary>
-        /// Turns this transform to face a direction.
-        /// </summary>
-        /// <param name="direction"></param>
-        public void lookAt(Vec3 direction)
+        /// <inheritdoc />
+        [DenyJsAccess]
+        public Vec3 worldPosition
         {
-            rotation = Quat.FromToRotation(Vec3.Forward, direction);
+            get
+            {
+                if (_widget != null)
+                {
+                    return _widget.GameObject.transform.position.ToVec();
+                }
+                Log.Warning(this, "Trying to get worldPosition for non-widget. Tell us your use-case!");
+                return position;
+            }
         }
 
+        /// <inheritdoc />
+        public Vec3 positionRelativeTo(IEntityJs entity)
+        {
+            return worldPosition - entity.transform.worldPosition;
+        }
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -75,10 +93,20 @@ namespace CreateAR.EnkluPlayer.Scripting
         public ElementTransformJsApi(Element element)
         {
             _element = element;
+            _widget = element as Widget;
 
             _positionProp = _element.Schema.Get<Vec3>("position");
             _rotationProp = _element.Schema.Get<Vec3>("rotation");
             _scaleProp = _element.Schema.Get<Vec3>("scale");
+        }
+
+        /// <summary>
+        /// Turns this transform to face a direction.
+        /// </summary>
+        /// <param name="direction"></param>
+        public void lookAt(Vec3 direction)
+        {
+            rotation = Quat.FromToRotation(Vec3.Forward, direction);
         }
     }
 }

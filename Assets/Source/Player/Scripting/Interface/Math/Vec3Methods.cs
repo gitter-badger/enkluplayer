@@ -14,7 +14,7 @@
         /// Constants.
         /// </summary>
         public readonly Vec3 one = new Vec3(1, 1, 1);
-        public readonly Vec3 zero = new Vec3(1, 1, 1);
+        public readonly Vec3 zero = new Vec3(0, 0, 0);
         public readonly Vec3 up = new Vec3(0, 1, 0);
         public readonly Vec3 forward = new Vec3(0, 0, 1);
         public readonly Vec3 right = new Vec3(1, 0, 0);

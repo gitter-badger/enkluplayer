@@ -273,8 +273,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="element"></param>
         /// <returns></returns>
+        [Obsolete]
         public Vec3 positionRelativeTo(ElementJs other)
         {
+            Log.Warning(this, "Element.positionRelativeTo is obsolete. Please use Element.transform.positionRelativeTo instead.");
+
             var thisAsWidget = _element as Widget;
             var otherAsWidget = other._element as Widget;
 
