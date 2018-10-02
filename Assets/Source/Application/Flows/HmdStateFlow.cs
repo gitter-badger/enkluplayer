@@ -40,6 +40,7 @@ namespace CreateAR.EnkluPlayer
                 MessageTypes.ARSERVICE_EXCEPTION,
                 MessageTypes.FLOOR_FOUND,
                 MessageTypes.BUGREPORT,
+                MessageTypes.DEVICE_REGISTRATION,
                 MessageTypes.DEVICE_REGISTRATION_COMPLETE,
                 MessageTypes.SIGNOUT);
 
@@ -86,6 +87,7 @@ namespace CreateAR.EnkluPlayer
                     _states.ChangeState<LoginApplicationState>();
                     break;
                 }
+                case MessageTypes.DEVICE_REGISTRATION:
                 case MessageTypes.LOGIN_COMPLETE:
                 {
                     _states.ChangeState<DeviceRegistrationApplicationState>();

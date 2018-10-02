@@ -3,4 +3,5 @@
 <Float position=(0, -0.2, 2) face='camera' focus.visible=false>
 	<Button id='btn-back' position=(-0.1,0,0) ready.color='Negative' icon='arrow-left' />
 	<Button id='btn-edit' label='Edit' position=(0,0,0) icon='edit' />
+	<Text id='txt-name' label='' position=(0,-0.1,0) fontSize=80 width=1000.0 alignment='MidCenter' />
 </Float>

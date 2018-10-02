@@ -48,6 +48,9 @@ namespace CreateAR.EnkluPlayer
         private readonly HttpRequestCacher _helper;
 
         /// <inheritdoc />
+        public string Name { get; private set; }
+
+        /// <inheritdoc />
         public string[] Scenes
         {
             get
@@ -140,6 +143,9 @@ namespace CreateAR.EnkluPlayer
                     {
                         Log.Info(this, "\t{0}", response.Body.Scenes[i]);
                     }
+
+                    // set name
+                    Name = response.Body.Name;
 
                     // load each scene
                     Async

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
-using CreateAR.Trellis.Messages.GetMyOrganizations;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -33,11 +32,11 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Populates view with message.
         /// </summary>
-        public void Populate(Body[] organizations)
+        public void Populate(IList<string> organizations)
         {
             Menu.Schema.Set(
                 "description",
-                string.Format("You belong to ({0}) organization(s). Would you like to register this device?", organizations.Length));
+                string.Format("You belong to ({0}) organization(s). Would you like to register this device?", organizations.Count));
         }
 
         /// <inheritdoc />

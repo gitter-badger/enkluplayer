@@ -27,6 +27,25 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Creates a new array with the added element.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <param name="this">The array to add to.</param>
+        /// <param name="elements">The elements to add.</param>
+        /// <returns></returns>
+        public static T[] Add<T>(this T[] @this, T[] elements)
+        {
+            var len = @this.Length;
+            var elLen = elements.Length;
+            var copy = new T[len + elLen];
+
+            Array.Copy(@this, copy, len);
+            Array.Copy(elements, 0, copy, len, elLen);
+
+            return copy;
+        }
+
+        /// <summary>
         /// Created a new array with the specified element removed. If the array
         /// has more than one reference, all will be removed.
         /// </summary>

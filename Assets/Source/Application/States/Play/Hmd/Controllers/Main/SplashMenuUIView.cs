@@ -9,16 +9,14 @@ namespace CreateAR.EnkluPlayer
     public class SplashMenuUIView : MonoBehaviourIUXController
     {
         /// <summary>
-        /// Main menu button.
+        /// Elements.
         /// </summary>
         [InjectElements("..btn-menu")]
         public ButtonWidget BtnMenu { get; set; }
-
-        /// <summary>
-        /// Main menu button.
-        /// </summary>
         [InjectElements("..btn-play")]
         public ButtonWidget BtnPlay { get; set; }
+        [InjectElements("..txt-name")]
+        public CaptionWidget TxtName { get; set; }
 
         /// <summary>
         /// Called when the main menu should be opened.

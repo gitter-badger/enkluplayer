@@ -15,6 +15,8 @@ namespace CreateAR.EnkluPlayer
         public ButtonWidget BtnBack { get; set; }
         [InjectElements("..btn-edit")]
         public ButtonWidget BtnEdit { get; set; }
+        [InjectElements("..txt-name")]
+        public CaptionWidget TxtName { get; set; }
 
         /// <summary>
         /// Called to go back.

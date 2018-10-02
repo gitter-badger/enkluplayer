@@ -40,6 +40,9 @@ namespace CreateAR.EnkluPlayer
         public string Id { get; private set; }
 
         /// <inheritdoc />
+        public string Name { get; private set; }
+
+        /// <inheritdoc />
         public bool CanEdit { get; private set; }
 
         /// <inheritdoc />
@@ -85,6 +88,8 @@ namespace CreateAR.EnkluPlayer
                 .Load(appId)
                 .OnSuccess(_ =>
                 {
+                    Name = _loader.Name;
+
                     // metrics
                     _metrics.Timer(MetricsKeys.APP_DATA_LOAD).Stop(loadId);
 

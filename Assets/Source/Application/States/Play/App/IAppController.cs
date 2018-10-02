@@ -15,6 +15,11 @@ namespace CreateAR.EnkluPlayer
         string Id { get; }
 
         /// <summary>
+        /// Current App name.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// True iff we have edit permissions.
         /// </summary>
         bool CanEdit { get; }

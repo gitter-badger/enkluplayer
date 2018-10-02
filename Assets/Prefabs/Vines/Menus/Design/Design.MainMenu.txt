@@ -19,6 +19,7 @@
 					<Option label='Play' value='Play' />
 					<Option label='Edit' value='Edit' />
 				</Select>
+				<Button id='btn-deviceregistration' label='Sync Registration' icon='key' />
 				<Select id='slt-logging' visible=false >
 					<Option label='None' value='None' />
 					<Option label='Debug' value='Debug' />
@@ -79,6 +80,12 @@
 				<Button id='btn-exp-new' label='New' icon='plus' />
 				<Button id='btn-exp-load' label='Load' icon='load' />
 				<Button id='btn-exp-duplicate' label='Duplicate' icon='camera' />
+			</SubMenu>
+			
+			<SubMenu label='Application' icon='gear'>
+				<Text id='txt-version' label='' fontSize=80 width=200.0 />
+				<Text id='txt-deviceName' label='' fontSize=80 width=2200.0 alignment='MidLeft' />
+				<Button id='btn-updates' label='Check for Updates' icon='load' />
 			</SubMenu>
 		</Menu>
 	</ScaleTransition>
