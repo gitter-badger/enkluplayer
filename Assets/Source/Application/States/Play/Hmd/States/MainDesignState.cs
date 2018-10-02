@@ -268,6 +268,7 @@ namespace CreateAR.EnkluPlayer
                 }, out _splashId)
                 .OnSuccess(el =>
                 {
+                    el.TxtName.Label = _design.App.Name;
                     el.OnOpenMenu += Splash_OnOpenMenu;
                     el.OnPlay += Splash_OnPlay;
                 })

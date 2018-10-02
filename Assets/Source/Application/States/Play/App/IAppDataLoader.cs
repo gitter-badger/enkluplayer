@@ -9,6 +9,11 @@ namespace CreateAR.EnkluPlayer
     public interface IAppDataLoader
     {
         /// <summary>
+        /// Name of the app.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// List of all scene ids in this app.
         /// </summary>
         string[] Scenes { get; }

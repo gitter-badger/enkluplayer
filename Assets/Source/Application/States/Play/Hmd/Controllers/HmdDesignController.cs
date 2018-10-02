@@ -517,6 +517,7 @@ namespace CreateAR.EnkluPlayer
                     out _playMenuId)
                 .OnSuccess(el =>
                 {
+                    el.TxtName.Label = App.Name;
                     el.OnEdit += () =>
                     {
                         _config.Play.Edit = true;
