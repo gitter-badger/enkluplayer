@@ -479,23 +479,26 @@ namespace CreateAR.EnkluPlayer
         {
             LogVerbose("Assembly complete.");
 
-            // parent + orient
             _assetGameObject = _assembler.Assembly;
-            _assetGameObject.name = _srcAssetProp.Value;
-            _assetGameObject.transform.SetParent(GameObject.transform, false);
-            _assetGameObject.SetActive(true);
 
-            // setup collider
-            var bounds = _assembler.Bounds;
-            var collider = EditCollider;
-            if (null != collider)
+            if (_assetGameObject != null)
             {
-                collider.center = bounds.center;
-                collider.size = bounds.size;
+                // parent + orient
+                _assetGameObject.name = _srcAssetProp.Value;
+                _assetGameObject.transform.SetParent(GameObject.transform, false);
+                _assetGameObject.SetActive(true);
+
+                // setup collider
+                var bounds = _assembler.Bounds;
+                var collider = EditCollider;
+                if (null != collider) {
+                    collider.center = bounds.center;
+                    collider.size = bounds.size;
+                }
+
+                _onAssetLoaded.Succeed(this);
             }
-
-            _onAssetLoaded.Succeed(this);
-
+            
             // trigger refresh, so component specific references are new
             RefreshScripts();
         }

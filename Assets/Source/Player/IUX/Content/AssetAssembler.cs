@@ -91,6 +91,11 @@ namespace CreateAR.EnkluPlayer
 
             if (string.IsNullOrEmpty(assetId))
             {
+                // empty assets are valid
+                if (OnAssemblyUpdated != null)
+                {
+                    OnAssemblyUpdated();
+                }
                 return;
             }
 
