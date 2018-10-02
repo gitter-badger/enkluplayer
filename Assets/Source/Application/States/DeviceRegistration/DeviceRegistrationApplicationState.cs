@@ -109,6 +109,8 @@ namespace CreateAR.EnkluPlayer
                                 _deviceUpdateService.Initialize(registrations);
 
                                 UpdateUserPrefs(registrations);
+
+                                @continue();
                             })
                             .OnFailure(ex => @continue());
                     }
