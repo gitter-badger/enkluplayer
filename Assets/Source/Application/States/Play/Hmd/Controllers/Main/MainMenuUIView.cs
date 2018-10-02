@@ -57,6 +57,9 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..slt-play")]
         public SelectWidget SltPlay { get; set; }
 
+        [InjectElements("..btn-deviceregistration")]
+        public ButtonWidget BtnRegistration { get; set; }
+
         [InjectElements("..slt-logging")]
         public SelectWidget SltLogging { get; set; }
 
@@ -68,6 +71,9 @@ namespace CreateAR.EnkluPlayer
 
         [InjectElements("..btn-exp-duplicate")]
         public ButtonWidget BtnExpDuplicate { get; set; }
+
+        [InjectElements("..txt-version")]
+        public CaptionWidget TxtVersion { get; set; }
 
         /// <summary>
         /// Quality settings.
@@ -139,6 +145,11 @@ namespace CreateAR.EnkluPlayer
         public event Action<bool> OnDefaultPlayModeChanged;
 
         /// <summary>
+        /// Called when the user wants to sync device registrations.
+        /// </summary>
+        public event Action OnDeviceRegistration;
+
+        /// <summary>
         /// Called when _visible_ log level has been changed.
         /// </summary>
         public event Action<LogLevel> OnLogLevelChanged;
@@ -162,7 +173,7 @@ namespace CreateAR.EnkluPlayer
         /// Manages element transactions.
         /// </summary>
         private IElementTxnManager _txns;
-
+        
         /// <summary>
         /// Initializes the view.
         /// </summary>
@@ -170,11 +181,14 @@ namespace CreateAR.EnkluPlayer
             string sceneId,
             Element root,
             IElementTxnManager txns,
+            ApplicationConfig config,
             bool play)
         {
             _sceneId = sceneId;
             _root = root;
             _txns = txns;
+
+            TxtVersion.Label = string.Format("v.{0}", config.Version);
 
             SltPlay.Selection = SltPlay.Options.FirstOrDefault(option => play
                 ? option.Value == "Play"
@@ -217,6 +231,13 @@ namespace CreateAR.EnkluPlayer
             };
 
             SltPlay.OnValueChanged += SelectPlay_OnChanged;
+            BtnRegistration.OnActivated += _ =>
+            {
+                if (null != OnDeviceRegistration)
+                {
+                    OnDeviceRegistration();
+                }
+            };
             SltLogging.OnValueChanged += _ =>
             {
                 if (null != OnLogLevelChanged)

@@ -306,6 +306,7 @@ namespace CreateAR.EnkluPlayer
                     el.OnResetData += MainMenu_OnResetData;
                     el.OnClearAnchors += MainMenu_OnClearAnchors;
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
+                    el.OnDeviceRegistration += MainMenu_OnDeviceRegistration;
                     el.OnSignout += MainMenu_OnSignout;
 
                     // find root
@@ -314,6 +315,7 @@ namespace CreateAR.EnkluPlayer
                         id,
                         _scenes.Root(id),
                         _txns,
+                        _config,
                         _prefs.Data.App(_config.Play.AppId).Play);
                 })
                 .OnFailure(ex => Log.Error(this,
@@ -556,6 +558,14 @@ namespace CreateAR.EnkluPlayer
 
                 next(data);
             });
+        }
+
+        /// <summary>
+        /// Called when the user requests to sync registrations.
+        /// </summary>
+        private void MainMenu_OnDeviceRegistration()
+        {
+            _messages.Publish(MessageTypes.DEVICE_REGISTRATION);
         }
 
         /// <summary>
