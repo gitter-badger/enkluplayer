@@ -393,8 +393,7 @@ namespace CreateAR.EnkluPlayer
             
             var root = _scenes.Root(_sceneId);
             FindPrimaryAnchor(root);
-            OpenStatusUI();
-
+            
             // poll for anchors
             _pollAnchors = true;
             _bootstrapper.BootstrapCoroutine(PollAnchors());
@@ -423,6 +422,10 @@ namespace CreateAR.EnkluPlayer
                 _resetUnsub = _messages.Subscribe(
                     MessageTypes.ANCHOR_RESETPRIMARY,
                     Messages_OnResetPrimary);
+            }
+            else
+            {
+                OpenStatusUI();
             }
         }
 
@@ -588,11 +591,8 @@ namespace CreateAR.EnkluPlayer
                             }
                         }
                     }
-
-                    if (null == located)
-                    {
-                        UpdateStatusUI();
-                    }
+                    
+                    UpdateStatusUI();
                 }
                 
                 yield return null;
@@ -632,7 +632,7 @@ namespace CreateAR.EnkluPlayer
             {
                 return;
             }
-
+            
             var errors = 0;
             var downloading = 0;
             var importing = 0;
