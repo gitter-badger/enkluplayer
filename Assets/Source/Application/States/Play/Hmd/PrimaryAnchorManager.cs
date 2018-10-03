@@ -167,11 +167,23 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private ElementSchemaProp<bool> _anchorsEnabledProp;
 
+        /// <summary>
+        /// True iff we're bypassing anchor requirements.
+        /// </summary>
+        private bool _isBypass;
+
+        private ButtonWidget _bypassBtn;
+
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
         {
             get
             {
+                if (_isBypass)
+                {
+                    return WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated;
+                }
+
                 if (null != _anchorsEnabledProp && !_anchorsEnabledProp.Value)
                 {
                     return WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated;
@@ -243,6 +255,8 @@ namespace CreateAR.EnkluPlayer
                 Log.Warning(this, "Cannot setup PrimaryAnchorManager: could not find scene root.");
                 return;
             }
+
+            _isBypass = false;
 
             // see if we need to use anchors
             _anchorsEnabledProp = root.Schema.GetOwn(PROP_ENABLED_KEY, false);
@@ -509,12 +523,29 @@ namespace CreateAR.EnkluPlayer
         {
             _rootUI = _elements.Element(@"
 <?Vine>
-<Screen distance=3.8>
+<Float>
     <Caption id='cpn' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
-</Screen>");
+    <Button id='btn' position=(0, -0.1, 0) label='Bypass' visible=false />
+</Float>");
             _cpn = _rootUI.FindOne<CaptionWidget>("..cpn");
+            _bypassBtn = _rootUI.FindOne<ButtonWidget>("..btn");
+            _bypassBtn.OnActivated += _ => BypassAnchorRequirement();
 
             _bootstrapper.BootstrapCoroutine(UpdateStatusUI());
+        }
+
+        /// <summary>
+        /// Forcibly bypasses the requirement for anchors to be placed properly.
+        /// </summary>
+        private void BypassAnchorRequirement()
+        {
+            Log.Info(this, "Bypassing anchoring requirements.");
+
+            CloseStatusUI();
+            _isBypass = true;
+
+            AreAllAnchorsReady = true;
+            Ready();
         }
 
         /// <summary>
@@ -543,10 +574,12 @@ namespace CreateAR.EnkluPlayer
                             if (0 == unreadyCount)
                             {
                                 _cpn.Label = "All anchors are downloaded and imported but the primary anchor is not locating... Are you sure you're in the right space?";
-                                }
+                                _bypassBtn.Schema.Set("visible", true);
+                            }
                             else
                             {
                                 _cpn.Label = "Primary anchor loaded and imported but not locating... Are you sure you're in the right space?";
+                                _bypassBtn.Schema.Set("visible", true);
                             }
                             
                             break;
@@ -554,6 +587,7 @@ namespace CreateAR.EnkluPlayer
                         case WorldAnchorWidget.WorldAnchorStatus.IsError:
                         {
                             _cpn.Label = "Primary anchor is in an error state. Try reloading the experience.";
+                            _bypassBtn.Schema.Set("visible", true);
                             break;
                         }
                         case WorldAnchorWidget.WorldAnchorStatus.IsImporting:
@@ -583,6 +617,7 @@ namespace CreateAR.EnkluPlayer
                         if (_anchors.Any(anchor => anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError))
                         {
                             _cpn.Label = "One of the anchors is in an error state.";
+                            _bypassBtn.Schema.Set("visible", true);
                         }
                         else if (_anchors.Any(anchor => anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading))
                         {
