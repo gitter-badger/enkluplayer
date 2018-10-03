@@ -14,6 +14,7 @@ using UnityEngine.XR.WSA;
 using UnityEngine.XR.WSA.Persistence;
 using UnityEngine.XR.WSA.Sharing;
 using Object = UnityEngine.Object;
+using Random = System.Random;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -24,6 +25,11 @@ namespace CreateAR.EnkluPlayer.IUX
     public class HoloLensWorldAnchorProvider : IWorldAnchorProvider
     {
         /// <summary>
+        /// PRNG.
+        /// </summary>
+        private static readonly Random _Prng = new Random();
+
+        /// <summary>
         /// Bootstraps coroutines.
         /// </summary>
         private readonly IBootstrapper _bootstrapper;
@@ -32,7 +38,12 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Handles metrics.
         /// </summary>
         private readonly IMetricsService _metrics;
-        
+
+        /// <summary>
+        /// Configuration for the application.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
         /// <summary>
         /// Queue of actions to run on the main thread.
         /// </summary>
@@ -84,10 +95,12 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         public HoloLensWorldAnchorProvider(
             IBootstrapper bootstrapper,
-            IMetricsService metrics)
+            IMetricsService metrics,
+            ApplicationConfig config)
         {
             _bootstrapper = bootstrapper;
             _metrics = metrics;
+            _config = config;
         }
         
         /// <inheritdoc />
@@ -104,6 +117,14 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <inheritdoc />
         public IAsyncToken<Void> Anchor(string id, GameObject gameObject)
         {
+            if (_config.Network.AnchorImportFailChance > Mathf.Epsilon)
+            {
+                if (_Prng.NextDouble() < _config.Network.AnchorImportFailChance)
+                {
+                    return new AsyncToken<Void>(new Exception("Random failure configured by ApplicationConfig."));
+                }
+            }
+
             var ids = _store.GetAllIds();
             for (int i = 0, len = ids.Length; i < len; i++)
             {
@@ -181,7 +202,7 @@ namespace CreateAR.EnkluPlayer.IUX
             if (null != anchor)
             {
                 Log.Warning(this, "Tried to export anchor that was already part of lo0cal anchor store.");
-                token.Fail(new Exception("Tried to export anchor that was already part of lo0cal anchor store."));
+                token.Fail(new Exception("Tried to export anchor that was already part of local anchor store."));
 
                 return token;
             }
@@ -359,6 +380,15 @@ namespace CreateAR.EnkluPlayer.IUX
         public IAsyncToken<Void> Import(string id, byte[] bytes, GameObject gameObject)
         {
             Log.Info(this, "{0}::Import()", id);
+
+            // random failure?
+            if (_config.Network.AnchorImportFailChance > Mathf.Epsilon)
+            {
+                if (_Prng.NextDouble() < _config.Network.AnchorImportFailChance)
+                {
+                    return new AsyncToken<Void>(new Exception("Random failure configured by ApplicationConfig."));
+                }
+            }
             
             // metrics
             var queuedMetricId = _metrics.Timer(MetricsKeys.ANCHOR_EXPORT_QUEUED).Start();

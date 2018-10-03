@@ -6,6 +6,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages.UploadAnchor;
 using UnityEngine;
+using Random = System.Random;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -32,6 +33,11 @@ namespace CreateAR.EnkluPlayer.IUX
         private const double MAX_EXPORT_TIMEOUT = 120.0;
 
         /// <summary>
+        /// PRNG.
+        /// </summary>
+        private static readonly Random _Prng = new Random();
+
+        /// <summary>
         /// For downloading anchors.
         /// </summary>
         private readonly IHttpService _http;
@@ -50,6 +56,11 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Application-wide messages.
         /// </summary>
         private readonly IMessageRouter _messages;
+
+        /// <summary>
+        /// Application config.
+        /// </summary>
+        private readonly ApplicationConfig _config;
         
         /// <summary>
         /// Token for anchor download.
@@ -131,13 +142,15 @@ namespace CreateAR.EnkluPlayer.IUX
             IHttpService http,
             IWorldAnchorProvider provider,
             IMetricsService metrics,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            ApplicationConfig config)
             : base(gameObject, layers, tweens, colors)
         {
             _http = http;
             _provider = provider;
             _metrics = metrics;
             _messages = messages;
+            _config = config;
         }
 
         /// <summary>
@@ -360,9 +373,20 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <param name="url">Absolute url at which to download.</param>
         private void DownloadAndImport(string url)
         {
+            if (_config.Network.AnchorDownloadFailChance > Mathf.Epsilon)
+            {
+                if (_Prng.NextDouble() < _config.Network.AnchorDownloadFailChance)
+                {
+                    Log.Warning(this, "Random anchor download failure configured by ApplicationConfig.");
+
+                    Status = WorldAnchorStatus.IsError;
+                    return;
+                }
+            }
+
             // metrics
             var downloadId = _metrics.Timer(MetricsKeys.ANCHOR_DOWNLOAD).Start();
-
+            
             _downloadToken = _http
                 .Download(_http.Urls.Url(url))
                 .OnSuccess(response =>

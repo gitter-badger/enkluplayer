@@ -269,6 +269,16 @@ namespace CreateAR.EnkluPlayer
         public float AssetDownloadFailChance;
 
         /// <summary>
+        /// Likelyhood of forcing an anchor download to fail.
+        /// </summary>
+        public float AnchorDownloadFailChance;
+
+        /// <summary>
+        /// Likelyhood of forcing anchor import to fail.
+        /// </summary>
+        public float AnchorImportFailChance;
+
+        /// <summary>
         /// If true, forces all Http requests to fail.
         /// </summary>
         public bool Offline;
@@ -362,19 +372,29 @@ namespace CreateAR.EnkluPlayer
         /// <param name="overrideConfig">The config to override with.</param>
         public void Override(NetworkConfig overrideConfig)
         {
-            if (overrideConfig.AssetDownloadLagSec > double.Epsilon)
-            {
-                AssetDownloadLagSec = overrideConfig.AssetDownloadLagSec;
-            }
-
             if (!string.IsNullOrEmpty(overrideConfig.Current))
             {
                 Current = overrideConfig.Current;
             }
 
+            if (overrideConfig.AssetDownloadLagSec > double.Epsilon)
+            {
+                AssetDownloadLagSec = overrideConfig.AssetDownloadLagSec;
+            }
+
             if (overrideConfig.AssetDownloadFailChance > Mathf.Epsilon)
             {
                 AssetDownloadFailChance = overrideConfig.AssetDownloadFailChance;
+            }
+
+            if (overrideConfig.AnchorDownloadFailChance > Mathf.Epsilon)
+            {
+                AnchorDownloadFailChance = overrideConfig.AnchorDownloadFailChance;
+            }
+
+            if (overrideConfig.AnchorImportFailChance > Mathf.Epsilon)
+            {
+                AnchorImportFailChance = overrideConfig.AnchorImportFailChance;
             }
 
             if (!string.IsNullOrEmpty(overrideConfig.ApiVersion))
