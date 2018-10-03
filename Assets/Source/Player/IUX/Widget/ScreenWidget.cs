@@ -40,7 +40,7 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <inheritdoc />
-        protected override void UpdateInternal()
+        protected override void LateUpdateInternal()
         {
             base.UpdateInternal();
 
