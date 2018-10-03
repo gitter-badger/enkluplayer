@@ -108,7 +108,7 @@ namespace CreateAR.EnkluPlayer
         private readonly Dictionary<int, SurfaceRecord> _surfaces = new Dictionary<int, SurfaceRecord>();
 
         /// <summary>
-        /// List of anchors in scene.
+        /// List of anchors in scene, including the primary anchor.
         /// </summary>
         private readonly List<WorldAnchorWidget> _anchors = new List<WorldAnchorWidget>();
 
@@ -172,7 +172,15 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private bool _isBypass;
 
+        /// <summary>
+        /// The bypass button.
+        /// </summary>
         private ButtonWidget _bypassBtn;
+
+        /// <summary>
+        /// True iff anchors are enabled.
+        /// </summary>
+        private bool _pollAnchors;
 
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
@@ -231,17 +239,6 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Setup()
         {
-            if (UnityEngine.Application.isEditor)
-            {
-                return;
-            }
-
-            if (_config.Play.Edit)
-            {
-                _autoExportUnsub = _messages.Subscribe(MessageTypes.ANCHOR_AUTOEXPORT, Messages_OnAutoExport);
-                _resetUnsub = _messages.Subscribe(MessageTypes.ANCHOR_RESETPRIMARY, Messages_OnResetPrimary);
-            }
-
             _sceneId = _scenes.All.FirstOrDefault();
             if (string.IsNullOrEmpty(_sceneId))
             {
@@ -256,7 +253,14 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
+            // reset anchor bypass
             _isBypass = false;
+
+            // reset flag
+            AreAllAnchorsReady = false;
+
+            // reset anchors
+            _anchors.Clear();
 
             // see if we need to use anchors
             _anchorsEnabledProp = root.Schema.GetOwn(PROP_ENABLED_KEY, false);
@@ -268,15 +272,17 @@ namespace CreateAR.EnkluPlayer
             }
             else
             {
-                AreAllAnchorsReady = true;
                 Ready();
             }
 
+            // origin command
             _voice.Register("origin", str =>
             {
-                Log.Info(this, "Recenter.");
 #if NETFX_CORE
-                UnityEngine.XR.InputTracking.Recenter();
+                if (_isBypass || null == Anchor)
+                {
+                    UnityEngine.XR.InputTracking.Recenter();
+                }
 #endif
             });
         }
@@ -286,18 +292,12 @@ namespace CreateAR.EnkluPlayer
         {
             _voice.Unregister("origin");
 
-            CloseStatusUI();
+            TeardownAnchors();
 
             if (null != _anchorsEnabledProp)
             {
                 _anchorsEnabledProp.OnChanged -= Anchors_OnEnabledChanged;
                 _anchorsEnabledProp = null;
-            }
-
-            if (null != _autoExportUnsub)
-            {
-                _autoExportUnsub();
-                _resetUnsub();
             }
 
             if (null != Anchor)
@@ -310,8 +310,6 @@ namespace CreateAR.EnkluPlayer
             {
                 _createToken.Abort();
             }
-
-            TeardownMeshScan();
         }
 
         /// <inheritdoc />
@@ -341,6 +339,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void Ready()
         {
+            AreAllAnchorsReady = true;
+
             var temp = _onReady.ToArray();
             _onReady.Clear();
 
@@ -355,11 +355,25 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void TeardownAnchors()
         {
+            _pollAnchors = false;
             CloseStatusUI();
 
             if (null != _createToken)
             {
                 _createToken.Abort();
+                _createToken = null;
+            }
+
+            if (null != _autoExportUnsub)
+            {
+                _autoExportUnsub();
+                _autoExportUnsub = null;
+            }
+
+            if (null != _resetUnsub)
+            {
+                _resetUnsub();
+                _resetUnsub = null;
             }
 
             TeardownMeshScan();
@@ -370,16 +384,24 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void SetupAnchors()
         {
+            if (!DeviceHelper.IsHoloLens())
+            {
+                Ready();
+
+                return;
+            }
+            
             var root = _scenes.Root(_sceneId);
 
             FindPrimaryAnchor(root);
+            
+            OpenStatusUI();
 
-            if (DeviceHelper.IsHoloLens())
-            {
-                OpenStatusUI();
-            }
+            // always poll for anchors
+            _pollAnchors = true;
+            _bootstrapper.BootstrapCoroutine(PollAnchors());
 
-            if (_config.Play.Edit && DeviceHelper.IsHoloLens())
+            if (_config.Play.Edit)
             {
                 if (null == Anchor)
                 {
@@ -393,29 +415,14 @@ namespace CreateAR.EnkluPlayer
 
                     SetupMeshScan(false);
                 }
+
+                _autoExportUnsub = _messages.Subscribe(
+                    MessageTypes.ANCHOR_AUTOEXPORT,
+                    Messages_OnAutoExport);
+                _resetUnsub = _messages.Subscribe(
+                    MessageTypes.ANCHOR_RESETPRIMARY,
+                    Messages_OnResetPrimary);
             }
-
-            OnPrimaryLocated(() =>
-            {
-                // attempt to move unlocated world anchors into place
-                var anchors = new List<WorldAnchorWidget>();
-                root.Find("..(@type==WorldAnchorWidget)", anchors);
-
-                foreach (var anchor in anchors)
-                {
-                    if (anchor == Anchor)
-                    {
-                        continue;
-                    }
-
-                    if (anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
-                    {
-                        continue;
-                    }
-
-                    PositionAnchorRelativeToPrimary(anchor);
-                }
-            });
         }
 
         /// <summary>
@@ -530,8 +537,6 @@ namespace CreateAR.EnkluPlayer
             _cpn = _rootUI.FindOne<CaptionWidget>("..cpn");
             _bypassBtn = _rootUI.FindOne<ButtonWidget>("..btn");
             _bypassBtn.OnActivated += _ => BypassAnchorRequirement();
-
-            _bootstrapper.BootstrapCoroutine(UpdateStatusUI());
         }
 
         /// <summary>
@@ -544,7 +549,6 @@ namespace CreateAR.EnkluPlayer
             CloseStatusUI();
             _isBypass = true;
 
-            AreAllAnchorsReady = true;
             Ready();
         }
 
@@ -552,86 +556,141 @@ namespace CreateAR.EnkluPlayer
         /// Updates the status UI every frame.
         /// </summary>
         /// <returns></returns>
-        private IEnumerator UpdateStatusUI()
+        private IEnumerator PollAnchors()
         {
-            AreAllAnchorsReady = false;
-            
-            while (null != _rootUI)
+            while (_pollAnchors)
             {
-                var unreadyCount = _anchors.Count(anchor => anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated && anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated);
+                // no primary anchor
                 if (null == Anchor)
                 {
-                    AreAllAnchorsReady = true;
-
                     _rootUI.Schema.Set("visible", false);
                 }
-                else if (Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
-                {
-                    switch (Status)
-                    {
-                        case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
-                        {
-                            if (0 == unreadyCount)
-                            {
-                                _cpn.Label = "All anchors are downloaded and imported but the primary anchor is not locating... Are you sure you're in the right space?";
-                                _bypassBtn.Schema.Set("visible", true);
-                            }
-                            else
-                            {
-                                _cpn.Label = "Primary anchor loaded and imported but not locating... Are you sure you're in the right space?";
-                                _bypassBtn.Schema.Set("visible", true);
-                            }
-                            
-                            break;
-                        }
-                        case WorldAnchorWidget.WorldAnchorStatus.IsError:
-                        {
-                            _cpn.Label = "Primary anchor is in an error state. Try reloading the experience.";
-                            _bypassBtn.Schema.Set("visible", true);
-                            break;
-                        }
-                        case WorldAnchorWidget.WorldAnchorStatus.IsImporting:
-                        {
-                            _cpn.Label = "Primary anchor is importing.";
-                            break;
-                        }
-                        case WorldAnchorWidget.WorldAnchorStatus.IsLoading:
-                        {
-                            _cpn.Label = "Downloading primary anchor.";
-                            break;
-                        }
-                    }
-
-                    _rootUI.Schema.Set("visible", true);
-                }
+                // anchors
                 else
                 {
-                    if (0 == unreadyCount)
+                    var located = FirstLocatedAnchor();
+                    if (null != located)
                     {
-                        AreAllAnchorsReady = true;
-
-                        _rootUI.Schema.Set("visible", false);
+                        for (int i = 0, len = _anchors.Count; i < len; i++)
+                        {
+                            var anchor = _anchors[i];
+                            if (anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated
+                                && anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsExporting)
+                            {
+                                PositionAnchorRelative(anchor, located);
+                            }
+                        }
                     }
                     else
                     {
-                        if (_anchors.Any(anchor => anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError))
-                        {
-                            _cpn.Label = "One of the anchors is in an error state.";
-                            _bypassBtn.Schema.Set("visible", true);
-                        }
-                        else if (_anchors.Any(anchor => anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading))
-                        {
-                            _cpn.Label = "Some anchors are still downloading.";
-                        }
-                        else
-                        {
-                            _cpn.Label = string.Format("All anchors have been downloaded but {0} anchor(s) are still importing.", unreadyCount);
-                        }
+                        UpdateStatusUI();
                     }
                 }
-
+                
                 yield return null;
             }
+        }
+
+        private void PositionAnchorRelative(
+            WorldAnchorWidget anchor,
+            WorldAnchorWidget located)
+        {
+            var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
+            var anchorSchemaEul = anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
+
+            var locatedSchemaPos = located.Schema.Get<Vec3>("position").Value.ToVector();
+            var locatedSchemaEul = located.Schema.Get<Vec3>("rotation").Value.ToVector();
+
+            var locatedQuat = Anchor.GameObject.transform.rotation;
+
+            var localToWorld = Anchor.GameObject.transform.localToWorldMatrix;
+            anchor.GameObject.transform.position = localToWorld.MultiplyPoint3x4(anchorSchemaPos - locatedSchemaPos);
+            anchor.GameObject.transform.rotation = Quaternion.Euler(anchorSchemaEul) *
+                                                   Quaternion.Inverse(Quaternion.Euler(locatedSchemaEul)) *
+                                                   locatedQuat;
+        }
+
+        private void UpdateStatusUI()
+        {
+            var errors = 0;
+            var downloading = 0;
+            var importing = 0;
+            var unlocated = 0;
+            var located = 0;
+
+            for (int i = 0, len = _anchors.Count; i < len; i++)
+            {
+                switch (_anchors[i].Status)
+                {
+                    case WorldAnchorWidget.WorldAnchorStatus.IsError:
+                    {
+                        errors += 1;
+                        break;
+                    }
+                    case WorldAnchorWidget.WorldAnchorStatus.IsLoading:
+                    {
+                        downloading += 1;
+                        break;
+                    }
+                    case WorldAnchorWidget.WorldAnchorStatus.IsImporting:
+                    {
+                        importing += 1;
+                        break;
+                    }
+                    case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
+                    {
+                        unlocated += 1;
+                        break;
+                    }
+                    case WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated:
+                    {
+                        located += 1;
+                        break;
+                    }
+                }
+            }
+
+            _cpn.Label = string.Format(
+@"Downloading: {1} / {0}
+Importing: {2} / {0}
+Locating: {3} / {0}
+Errors: {4} / {0}",
+                _anchors.Count,
+                downloading,
+                importing,
+                unlocated,
+                errors);
+
+            if (located > 0)
+            {
+                _rootUI.Schema.Set("visible", false);
+            }
+            else
+            {
+                _rootUI.Schema.Set("visible", true);
+
+                if ((unlocated + errors) == _anchors.Count)
+                {
+                    _bypassBtn.Schema.Set("visible", true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the first located anchor or null if no anchors are located.
+        /// </summary>
+        private WorldAnchorWidget FirstLocatedAnchor()
+        {
+            for (int i = 0, len = _anchors.Count; i < len; i++)
+            {
+                var anchor = _anchors[i];
+                if (anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated)
+                {
+                    return anchor;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -734,33 +793,7 @@ namespace CreateAR.EnkluPlayer
 
             anchor.Export(_config.Play.AppId, _sceneId, _txns);
         }
-
-        /// <summary>
-        /// Moves an anchor to where it should be relative to the primary.
-        /// </summary>
-        /// <param name="anchor">The anchor in question.</param>
-        private void PositionAnchorRelativeToPrimary(WorldAnchorWidget anchor)
-        {
-            if (null == anchor || !anchor.GameObject || null == Anchor || !Anchor.GameObject)
-            {
-                return;
-            }
-
-            var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
-            var anchorSchemaEul = anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
-
-            var primarySchemaPos = Anchor.Schema.Get<Vec3>("position").Value.ToVector();
-            var primarySchemaEul = Anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
-
-            var primaryTransformQuat = Anchor.GameObject.transform.rotation;
-
-            var localToWorld = Anchor.GameObject.transform.localToWorldMatrix;
-            anchor.GameObject.transform.position = localToWorld.MultiplyPoint3x4(anchorSchemaPos - primarySchemaPos);
-            anchor.GameObject.transform.rotation = Quaternion.Euler(anchorSchemaEul) *
-                                                   Quaternion.Inverse(Quaternion.Euler(primarySchemaEul)) *
-                                                   primaryTransformQuat;
-        }
-
+        
         /// <summary>
         /// Called when anchors have been enabled/disabled.
         /// </summary>
@@ -781,7 +814,6 @@ namespace CreateAR.EnkluPlayer
             else
             {
                 TeardownAnchors();
-                AreAllAnchorsReady = true;
                 Ready();
             }
         }
@@ -809,10 +841,10 @@ namespace CreateAR.EnkluPlayer
             {
                 Log.Info(this, "Primary is located. Positioning AutoExport anchor.");
 
-                // position relative to primary
-                PositionAnchorRelativeToPrimary(anchor);
+                // add
+                _anchors.Add(anchor);
 
-                // export in this new position
+                // export from this new position
                 anchor.Export(_config.Play.AppId, _sceneId, _txns);
             });
         }
