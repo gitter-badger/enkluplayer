@@ -75,11 +75,6 @@ namespace CreateAR.EnkluPlayer
         private readonly IVoiceCommandManager _voice;
 
         /// <summary>
-        /// Allows for snapshots to be captured.
-        /// </summary>
-        private readonly ISnapshotCapture _snapshot;
-
-        /// <summary>
         /// Loads assets.
         /// </summary>
         private readonly IAssetLoader _assetLoader;
@@ -133,7 +128,6 @@ namespace CreateAR.EnkluPlayer
             IConnection connection,
             IMessageRouter messages,
             IVoiceCommandManager voice,
-            ISnapshotCapture snapshot,
             IAssetLoader assetLoader)
         {
             _config = config;
@@ -146,7 +140,6 @@ namespace CreateAR.EnkluPlayer
             _connection = connection;
             _messages = messages;
             _voice = voice;
-            _snapshot = snapshot;
             _assetLoader = assetLoader;
         }
 
@@ -194,10 +187,6 @@ namespace CreateAR.EnkluPlayer
             // listen for reset command
             _voice.Register("reset", Voice_OnReset);
 
-            // listen for snapshot command
-            _snapshot.Setup();
-            _voice.Register("snap", (cmd) => { _snapshot.Capture(); });
-
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
@@ -228,12 +217,6 @@ namespace CreateAR.EnkluPlayer
 
             // stop listening for voice commands
             _voice.Unregister("reset");
-            _voice.Unregister("snap");
-
-            Log.Info(this, "Teardown snapshot.");
-
-            // teardown snapshot capture
-            _snapshot.Teardown();
 
             // stop watching loads
             _app.OnReady -= App_OnReady;
