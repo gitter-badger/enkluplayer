@@ -392,23 +392,23 @@ namespace CreateAR.EnkluPlayer
             }
             
             var root = _scenes.Root(_sceneId);
-
             FindPrimaryAnchor(root);
-            
             OpenStatusUI();
 
-            // always poll for anchors
+            // poll for anchors
             _pollAnchors = true;
             _bootstrapper.BootstrapCoroutine(PollAnchors());
 
             if (_config.Play.Edit)
             {
+                // in edit mode, create a primary anchor
                 if (null == Anchor)
                 {
                     Log.Info(this, "No primary anchor found. Will create one!");
 
                     CreatePrimaryAnchor(_sceneId, root);
                 }
+                // or don't!
                 else
                 {
                     Log.Info(this, "Primary anchor found.");
@@ -416,6 +416,7 @@ namespace CreateAR.EnkluPlayer
                     SetupMeshScan(false);
                 }
 
+                // subscribe for export and reset
                 _autoExportUnsub = _messages.Subscribe(
                     MessageTypes.ANCHOR_AUTOEXPORT,
                     Messages_OnAutoExport);
@@ -569,19 +570,26 @@ namespace CreateAR.EnkluPlayer
                 else
                 {
                     var located = FirstLocatedAnchor();
-                    if (null != located)
+
+                    for (int i = 0, len = _anchors.Count; i < len; i++)
                     {
-                        for (int i = 0, len = _anchors.Count; i < len; i++)
+                        var anchor = _anchors[i];
+                        if (anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated
+                            && anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsExporting)
                         {
-                            var anchor = _anchors[i];
-                            if (anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated
-                                && anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsExporting)
+                            if (null != located)
                             {
                                 PositionAnchorRelative(anchor, located);
                             }
+                            else
+                            {
+                                anchor.GameObject.transform.position = anchor.Schema.GetOwn("position", Vec3.Zero).Value.ToVector();
+                                anchor.GameObject.transform.rotation = Quaternion.Euler(anchor.Schema.GetOwn("rotation", Vec3.Zero).Value.ToVector());
+                            }
                         }
                     }
-                    else
+
+                    if (null == located)
                     {
                         UpdateStatusUI();
                     }
@@ -591,6 +599,11 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// Postions an anchor relative to a located anchor.
+        /// </summary>
+        /// <param name="anchor">The anchor.</param>
+        /// <param name="located">The located anchor.</param>
         private void PositionAnchorRelative(
             WorldAnchorWidget anchor,
             WorldAnchorWidget located)
@@ -610,8 +623,16 @@ namespace CreateAR.EnkluPlayer
                                                    locatedQuat;
         }
 
+        /// <summary>
+        /// Updates the status UI.
+        /// </summary>
         private void UpdateStatusUI()
         {
+            if (null == _cpn || null == _rootUI)
+            {
+                return;
+            }
+
             var errors = 0;
             var downloading = 0;
             var importing = 0;
