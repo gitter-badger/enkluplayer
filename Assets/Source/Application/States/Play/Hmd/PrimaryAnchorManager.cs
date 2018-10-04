@@ -279,10 +279,7 @@ namespace CreateAR.EnkluPlayer
             _voice.Register("origin", str =>
             {
 #if NETFX_CORE
-                //if (_isBypass || null == Anchor)
-                {
-                    UnityEngine.XR.InputTracking.Recenter();
-                }
+                UnityEngine.XR.InputTracking.Recenter();
 #endif
             });
         }
