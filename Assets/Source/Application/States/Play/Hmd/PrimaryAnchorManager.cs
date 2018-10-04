@@ -634,7 +634,7 @@ namespace CreateAR.EnkluPlayer
 
             // T * A_anchor = A_located
             var A_anchor = Matrix4x4.TRS(anchorSchemaPos, anchorSchemaRot, Vector3.one);
-            var A_located = T * A_anchor;
+            var A_located = transformation * A_anchor;
 
             anchor.GameObject.transform.position = A_located.GetColumn(3);
             anchor.GameObject.transform.rotation = A_located.rotation;
