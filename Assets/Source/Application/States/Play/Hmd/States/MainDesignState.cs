@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CodeStage.AdvancedFPSCounter;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -309,6 +310,7 @@ namespace CreateAR.EnkluPlayer
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
                     el.OnDeviceRegistration += MainMenu_OnDeviceRegistration;
                     el.OnSignout += MainMenu_OnSignout;
+                    el.OnMetricsHud += MainMenu_OnMetricsHud;;
 
                     // find root
                     var id = _scenes.All.FirstOrDefault();
@@ -577,6 +579,28 @@ namespace CreateAR.EnkluPlayer
             Log.Info(this, "Signout requested.");
 
             _messages.Publish(MessageTypes.SIGNOUT);
+        }
+
+        /// <summary>
+        /// Called when the metrics hud visibility is toggled.
+        /// </summary>
+        /// <param name="enabled">Visibility.</param>
+        private void MainMenu_OnMetricsHud(bool enabled)
+        {
+            if (enabled)
+            {
+                if (null == AFPSCounter.Instance)
+                {
+                    AFPSCounter.AddToScene();
+                }
+            }
+            else
+            {
+                if (null != AFPSCounter.Instance)
+                {
+                    UnityEngine.Object.Destroy(AFPSCounter.Instance.gameObject);
+                }
+            }
         }
 
         /// <summary>

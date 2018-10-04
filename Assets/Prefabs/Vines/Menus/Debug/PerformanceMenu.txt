@@ -1,0 +1,22 @@
+<?Vine>
+
+<Float>
+	<Select id='slt-tab'>
+		<Option label='Frame Time' value='frame' />
+		<Option label='Memory' value='memory' />
+	</Select>
+	
+	<Container id='tab-frame'>
+		<Text id='txt-ave' position=(0, -0.02, 0)/>
+		<Text id='txt-min' position=(0, -0.03, 0)/>
+		<Text id='txt-max' position=(0, -0.04, 0)/>
+	</Container>
+	
+	<Container id='tab-memory' visible=false>
+		<Text id='txt-total' position=(0, -0.02, 0)/>
+		<Text id='txt-allocated' position=(0, -0.03, 0)/>
+		<Text id='txt-mono' position=(0, -0.04, 0)/>
+		<Text id='txt-gpu' position=(0, -0.05, 0)/>
+		<Text id='txt-graphics' position=(0, -0.06, 0)/>
+	</Container>
+</Float>
