@@ -7,6 +7,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
+using RLD;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -573,7 +574,25 @@ namespace CreateAR.EnkluPlayer
                 else
                 {
                     var located = FirstLocatedAnchor();
+                    var T = Matrix4x4.identity;
 
+                    // calculate inverse transformation
+                    if (null != located)
+                    {
+                        var locatedSchemaPos = located.Schema.Get<Vec3>("position").Value.ToVector();
+                        var locatedSchemaRot = Quaternion.Euler(located.Schema.Get<Vec3>("rotation").Value.ToVector());
+
+                        var locatedPos = located.GameObject.transform.position;
+                        var locatedRot = located.GameObject.transform.rotation;
+
+                        var A = Matrix4x4.TRS(locatedSchemaPos, locatedSchemaRot, Vector3.one);
+                        var B = Matrix4x4.TRS(locatedPos, locatedRot, Vector3.one);
+
+                        // T * A = B
+                        T = B * Matrix4x4.Inverse(A);
+                    }
+
+                    // place non-located anchors relative to the located anchor
                     for (int i = 0, len = _anchors.Count; i < len; i++)
                     {
                         var anchor = _anchors[i];
@@ -582,19 +601,15 @@ namespace CreateAR.EnkluPlayer
                             || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading
                             || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated)
                         {
-                            /*if (null != located)
+                            if (null != located)
                             {
-                                Log.Info(this, "Set {0} relative to {1}.",
-                                    anchor.Schema.Get<string>("name").Value,
-                                    located.Schema.Get<string>("name").Value);
-
-                                PositionAnchorRelative(anchor, located);
+                                PositionAnchorRelative(anchor, T);
                             }
                             else
-                            {*/
+                            {
                                 anchor.GameObject.transform.position = anchor.Schema.GetOwn("position", Vec3.Zero).Value.ToVector();
                                 anchor.GameObject.transform.rotation = Quaternion.Euler(anchor.Schema.GetOwn("rotation", Vec3.Zero).Value.ToVector());
-                            //}
+                            }
                         }
                     }
                     
@@ -609,42 +624,20 @@ namespace CreateAR.EnkluPlayer
         /// Postions an anchor relative to a located anchor.
         /// </summary>
         /// <param name="anchor">The anchor.</param>
-        /// <param name="located">The located anchor.</param>
+        /// <param name="transformation">The tranformation.</param>
         private void PositionAnchorRelative(
             WorldAnchorWidget anchor,
-            WorldAnchorWidget located)
+            Matrix4x4 transformation)
         {
-            /*var locatedSchemaPos = located.Schema.Get<Vec3>("position").Value.ToVector();
-            var locatedSchemaRot = Quaternion.Euler(located.Schema.Get<Vec3>("rotation").Value.ToVector());
+            var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
+            var anchorSchemaRot = Quaternion.Euler(anchor.Schema.Get<Vec3>("rotation").Value.ToVector());
 
-            var locatedPos = located.GameObject.transform.position;
-            var locatedRot = located.GameObject.transform.rotation;
+            // T * A_anchor = A_located
+            var A_anchor = Matrix4x4.TRS(anchorSchemaPos, anchorSchemaRot, Vector3.one);
+            var A_located = T * A_anchor;
 
-            var transformPos = locatedPos - locatedSchemaPos;
-            var transformRot = locatedRot * Quaternion.Inverse(locatedSchemaRot);
-
-            var schemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
-            var schemaRot = Quaternion.Euler(anchor.Schema.Get<Vec3>("rotation").Value.ToVector());
-
-            //anchor.GameObject.transform.position = schemaPos + transformPos;
-            //anchor.GameObject.transform.rotation = schemaRot * transformRot;
-
-            var transform = Matrix4x4.TRS(transformPos, transformRot, Vector3.one);
-            anchor.GameObject.transform.position = transform.MultiplyPoint3x4(schemaPos);*/
-
-            /*var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
-            var anchorSchemaEul = anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
-
-            var locatedSchemaPos = located.Schema.Get<Vec3>("position").Value.ToVector();
-            var locatedSchemaEul = located.Schema.Get<Vec3>("rotation").Value.ToVector();
-
-            var primaryTransformQuat = located.GameObject.transform.rotation;
-
-            var localToWorld = located.GameObject.transform.localToWorldMatrix;
-            anchor.GameObject.transform.position = localToWorld.MultiplyPoint3x4(anchorSchemaPos - locatedSchemaPos);
-            anchor.GameObject.transform.rotation = Quaternion.Euler(anchorSchemaEul) *
-                                                   Quaternion.Inverse(Quaternion.Euler(locatedSchemaEul)) *
-                                                   primaryTransformQuat;*/
+            anchor.GameObject.transform.position = A_located.GetColumn(3);
+            anchor.GameObject.transform.rotation = A_located.rotation;
         }
 
         /// <summary>
