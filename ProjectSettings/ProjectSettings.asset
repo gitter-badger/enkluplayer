@@ -707,7 +707,7 @@ PlayerSettings:
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Enklu
-  metroPackageVersion: 0.11.1.0
+  metroPackageVersion: 0.12.3.0
   metroCertificatePath: Assets/WSATestCertificate.pfx
   metroCertificatePassword: 
   metroCertificateSubject: CreateAR
