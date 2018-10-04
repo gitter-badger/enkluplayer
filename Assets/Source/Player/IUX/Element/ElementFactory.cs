@@ -422,7 +422,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 case ElementTypes.WORLD_ANCHOR:
                 {
-                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _provider, _metrics, _messages);
+                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _provider, _metrics, _messages, _appConfig);
                 }
                 case ElementTypes.QR_ANCHOR:
                 {

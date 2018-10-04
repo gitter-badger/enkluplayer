@@ -68,6 +68,11 @@ namespace CreateAR.EnkluPlayer
         /// Connection with Trellis.
         /// </summary>
         private readonly IConnection _connection;
+
+        /// <summary>
+        /// True iff version has already been checked.
+        /// </summary>
+        private bool _versionChecked;
         
         /// <summary>
         /// Constructor.
@@ -110,6 +115,11 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public IAsyncToken<Void> CheckVersions()
         {
+            if (_versionChecked)
+            {
+                return new AsyncToken<Void>(Void.Instance);
+            }
+
             return Async.Map(
                 Async.All(CheckApiVersion(), CheckHoloLensVersion()),
                 _ => Void.Instance);
@@ -123,6 +133,8 @@ namespace CreateAR.EnkluPlayer
             Log.Info(this, "Checking Trellis version.");
 
             var token = new AsyncToken<Void>();
+
+            _versionChecked = true;
 
             _api
                 .Versionings
