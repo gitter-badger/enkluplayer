@@ -608,19 +608,20 @@ namespace CreateAR.EnkluPlayer
             WorldAnchorWidget anchor,
             WorldAnchorWidget located)
         {
-            var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
-            var anchorSchemaEul = anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
-
             var locatedSchemaPos = located.Schema.Get<Vec3>("position").Value.ToVector();
-            var locatedSchemaEul = located.Schema.Get<Vec3>("rotation").Value.ToVector();
+            var locatedSchemaRot = Quaternion.Euler(located.Schema.Get<Vec3>("rotation").Value.ToVector());
 
-            var locatedQuat = Anchor.GameObject.transform.rotation;
+            var locatedPos = located.GameObject.transform.position;
+            var locatedRot = located.GameObject.transform.rotation;
 
-            var localToWorld = Anchor.GameObject.transform.localToWorldMatrix;
-            anchor.GameObject.transform.position = localToWorld.MultiplyPoint3x4(anchorSchemaPos - locatedSchemaPos);
-            anchor.GameObject.transform.rotation = Quaternion.Euler(anchorSchemaEul) *
-                                                   Quaternion.Inverse(Quaternion.Euler(locatedSchemaEul)) *
-                                                   locatedQuat;
+            var transformPos = locatedPos - locatedSchemaPos;
+            var transformRot = locatedRot * Quaternion.Inverse(locatedSchemaRot);
+
+            var schemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
+            var schemaRot = Quaternion.Euler(anchor.Schema.Get<Vec3>("rotation").Value.ToVector());
+
+            anchor.GameObject.transform.position = schemaPos + transformPos;
+            anchor.GameObject.transform.rotation = schemaRot * transformRot;
         }
 
         /// <summary>
