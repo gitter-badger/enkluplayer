@@ -279,7 +279,7 @@ namespace CreateAR.EnkluPlayer
             _voice.Register("origin", str =>
             {
 #if NETFX_CORE
-                if (_isBypass || null == Anchor)
+                //if (_isBypass || null == Anchor)
                 {
                     UnityEngine.XR.InputTracking.Recenter();
                 }
@@ -577,18 +577,24 @@ namespace CreateAR.EnkluPlayer
                     for (int i = 0, len = _anchors.Count; i < len; i++)
                     {
                         var anchor = _anchors[i];
-                        if (anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated
-                            && anchor.Status != WorldAnchorWidget.WorldAnchorStatus.IsExporting)
+                        if (anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError
+                            || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsImporting
+                            || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading
+                            || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated)
                         {
-                            if (null != located)
+                            /*if (null != located)
                             {
+                                Log.Info(this, "Set {0} relative to {1}.",
+                                    anchor.Schema.Get<string>("name").Value,
+                                    located.Schema.Get<string>("name").Value);
+
                                 PositionAnchorRelative(anchor, located);
                             }
                             else
-                            {
+                            {*/
                                 anchor.GameObject.transform.position = anchor.Schema.GetOwn("position", Vec3.Zero).Value.ToVector();
                                 anchor.GameObject.transform.rotation = Quaternion.Euler(anchor.Schema.GetOwn("rotation", Vec3.Zero).Value.ToVector());
-                            }
+                            //}
                         }
                     }
                     
@@ -608,7 +614,7 @@ namespace CreateAR.EnkluPlayer
             WorldAnchorWidget anchor,
             WorldAnchorWidget located)
         {
-            var locatedSchemaPos = located.Schema.Get<Vec3>("position").Value.ToVector();
+            /*var locatedSchemaPos = located.Schema.Get<Vec3>("position").Value.ToVector();
             var locatedSchemaRot = Quaternion.Euler(located.Schema.Get<Vec3>("rotation").Value.ToVector());
 
             var locatedPos = located.GameObject.transform.position;
@@ -620,8 +626,25 @@ namespace CreateAR.EnkluPlayer
             var schemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
             var schemaRot = Quaternion.Euler(anchor.Schema.Get<Vec3>("rotation").Value.ToVector());
 
-            anchor.GameObject.transform.position = schemaPos + transformPos;
-            anchor.GameObject.transform.rotation = schemaRot * transformRot;
+            //anchor.GameObject.transform.position = schemaPos + transformPos;
+            //anchor.GameObject.transform.rotation = schemaRot * transformRot;
+
+            var transform = Matrix4x4.TRS(transformPos, transformRot, Vector3.one);
+            anchor.GameObject.transform.position = transform.MultiplyPoint3x4(schemaPos);*/
+
+            /*var anchorSchemaPos = anchor.Schema.Get<Vec3>("position").Value.ToVector();
+            var anchorSchemaEul = anchor.Schema.Get<Vec3>("rotation").Value.ToVector();
+
+            var locatedSchemaPos = located.Schema.Get<Vec3>("position").Value.ToVector();
+            var locatedSchemaEul = located.Schema.Get<Vec3>("rotation").Value.ToVector();
+
+            var primaryTransformQuat = located.GameObject.transform.rotation;
+
+            var localToWorld = located.GameObject.transform.localToWorldMatrix;
+            anchor.GameObject.transform.position = localToWorld.MultiplyPoint3x4(anchorSchemaPos - locatedSchemaPos);
+            anchor.GameObject.transform.rotation = Quaternion.Euler(anchorSchemaEul) *
+                                                   Quaternion.Inverse(Quaternion.Euler(locatedSchemaEul)) *
+                                                   primaryTransformQuat;*/
         }
 
         /// <summary>

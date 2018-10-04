@@ -117,14 +117,6 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <inheritdoc />
         public IAsyncToken<Void> Anchor(string id, GameObject gameObject)
         {
-            if (_config.Network.AnchorImportFailChance > Mathf.Epsilon)
-            {
-                if (_Prng.NextDouble() < _config.Network.AnchorImportFailChance)
-                {
-                    return new AsyncToken<Void>(new Exception("Random failure configured by ApplicationConfig."));
-                }
-            }
-
             var ids = _store.GetAllIds();
             for (int i = 0, len = ids.Length; i < len; i++)
             {

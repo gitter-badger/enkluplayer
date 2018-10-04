@@ -271,12 +271,12 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Likelyhood of forcing an anchor download to fail.
         /// </summary>
-        public float AnchorDownloadFailChance;
+        public float AnchorDownloadFailChance = 0.0f;
 
         /// <summary>
         /// Likelyhood of forcing anchor import to fail.
         /// </summary>
-        public float AnchorImportFailChance;
+        public float AnchorImportFailChance = 0.0f;
 
         /// <summary>
         /// If true, forces all Http requests to fail.
