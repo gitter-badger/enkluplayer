@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -599,6 +600,9 @@ namespace CreateAR.EnkluPlayer
                     {
                         el.OnClose += () => _ui.Close(_hudId);
                     });
+
+                CloseMainMenu();
+                OpenSplashMenu();
             }
             else
             {

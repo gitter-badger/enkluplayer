@@ -26,7 +26,7 @@
 					<Option label='Warning' value='Warning' />
 					<Option label='Error' value='Error' />
 				</Select>
-				<Toggle id='tgl-metrics' label='Metrics HUD' />
+				<Toggle id='tgl-metrics' label='Perf HUD' />
 				<SubMenu label='Quality' icon='sliders'>
 					<Select id='slt-texturequality' >
 						<Option label='Full Res' value='0' />

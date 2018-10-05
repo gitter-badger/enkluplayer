@@ -143,13 +143,16 @@ namespace CreateAR.EnkluPlayer
             id = IDS++;
 
             // create record
-            var record = new UIRecord(id);
+            var record = new UIRecord(id)
+            {
+                Load = _factory.Element(reference, id)
+            };
 
             _overlays.Add(record);
 
             return Async.Map(
-                _factory
-                    .Element(reference, id)
+                record
+                    .Load
                     .OnSuccess(element =>
                     {
                         record.Element = element;
