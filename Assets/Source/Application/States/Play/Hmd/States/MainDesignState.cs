@@ -313,7 +313,7 @@ namespace CreateAR.EnkluPlayer
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
                     el.OnDeviceRegistration += MainMenu_OnDeviceRegistration;
                     el.OnSignout += MainMenu_OnSignout;
-                    el.OnMetricsHud += MainMenu_OnMetricsHud;;
+                    el.OnMetricsHud += MainMenu_OnMetricsHud;
 
                     // find root
                     var id = _scenes.All.FirstOrDefault();
