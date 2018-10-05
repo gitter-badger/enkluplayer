@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CodeStage.AdvancedFPSCounter;
+﻿using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -112,6 +109,11 @@ namespace CreateAR.EnkluPlayer
         /// Reference for the opened mainmenu ui view
         /// </summary>
         private MainMenuUIView _mainMenuUiViewReference;
+
+        /// <summary>
+        /// Perf hud id.
+        /// </summary>
+        private int _hudId;
 
         /// <summary>
         /// Constructor.
@@ -466,28 +468,26 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Called when the user selects one submenus under experience.
         /// </summary>
-        /// <param name="elementType">The type of element ot create.</param>
+        /// <param name="type">The type of element ot create.</param>
         private void MainMenu_OnExperience(MainMenuUIView.ExperienceSubMenu type)
         {
             switch (type)
             {
                 case MainMenuUIView.ExperienceSubMenu.New:
-                    {
-                        _design.ChangeState<CreateNewAppDesignState>();
-                        break;
-                    }
+                {
+                    _design.ChangeState<CreateNewAppDesignState>();
+                    break;
+                }
                 case MainMenuUIView.ExperienceSubMenu.Load:
-                    {
-                        _design.ChangeState<AppListViewDesignState>();
-                        break;
-                    }
-
+                {
+                    _design.ChangeState<AppListViewDesignState>();
+                    break;
+                }
                 case MainMenuUIView.ExperienceSubMenu.Duplicate:
-                    {
-                        //TODO
-                        OpenNotImplementedView();
-                        break;
-                    }
+                {
+                    OpenNotImplementedView();
+                    break;
+                }
             }
         }
 
@@ -500,37 +500,37 @@ namespace CreateAR.EnkluPlayer
             switch (elementType)
             {
                 case ElementTypes.CONTENT:
-                    {
-                        _design.ChangeState<NewContentDesignState>();
-                        break;
-                    }
+                {
+                    _design.ChangeState<NewContentDesignState>();
+                    break;
+                }
                 case ElementTypes.WORLD_ANCHOR:
-                    {
-                        _design.ChangeState<NewAnchorDesignState>();
-                        break;
-                    }
+                {
+                    _design.ChangeState<NewAnchorDesignState>();
+                    break;
+                }
                 case ElementTypes.CONTAINER:
-                    {
-                        _design.ChangeState<NewContainerDesignState>();
-                        break;
-                    }
+                {
+                    _design.ChangeState<NewContainerDesignState>();
+                    break;
+                }
                 case ElementTypes.CAPTION:
-                    {
-                        OpenNotImplementedView();
-                        break;
-                    }
+                {
+                    OpenNotImplementedView();
+                    break;
+                }
                 case ElementTypes.LIGHT:
-                    {
-                        OpenNotImplementedView();
-                        break;
-                    }
+                {
+                    OpenNotImplementedView();
+                    break;
+                }
                 default:
-                    {
-                        Log.Warning(this,
-                            "User requested to create {0}, but there is no inmplementation.",
-                            elementType);
-                        break;
-                    }
+                {
+                    Log.Warning(this,
+                        "User requested to create {0}, but there is no inmplementation.",
+                        elementType);
+                    break;
+                }
             }
         }
 
@@ -589,17 +589,20 @@ namespace CreateAR.EnkluPlayer
         {
             if (enabled)
             {
-                if (null == AFPSCounter.Instance)
-                {
-                    AFPSCounter.AddToScene();
-                }
+                // open
+                _ui
+                    .OpenOverlay<PerfDisplayUIView>(new UIReference
+                    {
+                        UIDataId = "Perf.Hud"
+                    }, out _hudId)
+                    .OnSuccess(el =>
+                    {
+                        el.OnClose += () => _ui.Close(_hudId);
+                    });
             }
             else
             {
-                if (null != AFPSCounter.Instance)
-                {
-                    UnityEngine.Object.Destroy(AFPSCounter.Instance.gameObject);
-                }
+                _ui.Close(_hudId);
             }
         }
 

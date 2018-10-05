@@ -1,10 +1,14 @@
-﻿using CreateAR.EnkluPlayer.IUX;
+﻿using System;
+using CreateAR.EnkluPlayer.IUX;
 
 namespace CreateAR.EnkluPlayer
 {
     public class PerfDisplayUIView : MonoBehaviourIUXController
     {
         private PerfMonitor _monitor;
+
+        [InjectElements("..btn-close")]
+        public ButtonWidget BtnClose { get; set; }
 
         [InjectElements("..slt-tab")]
         public SelectWidget SltTab { get; set; }
@@ -39,15 +43,25 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..txt-graphics")]
         public CaptionWidget TxtMemGraphics { get; set; }
 
+        public event Action OnClose;
+
         protected override void AfterElementsCreated()
         {
             base.AfterElementsCreated();
+
+            BtnClose.OnActivated += _ =>
+            {
+                if (null != OnClose)
+                {
+                    OnClose();
+                }
+            };
 
             SltTab.OnValueChanged += _ =>
             {
                 var selection = SltTab.Selection.Value;
                 TabFrame.Schema.Set("visible", selection == "frame");
-                TabFrame.Schema.Set("visible", selection == "memory");
+                TabMemory.Schema.Set("visible", selection == "memory");
             };
         }
 
@@ -79,15 +93,15 @@ namespace CreateAR.EnkluPlayer
             else
             {
                 // update memory
-                TxtMemTotal.Label = string.Format("{0:##.0} MB",
+                TxtMemTotal.Label = string.Format("Total: {0:#0.0} MB",
                     PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.Total));
-                TxtMemAllocated.Label = string.Format("{0:##.0} MB",
+                TxtMemAllocated.Label = string.Format("Allocated: {0:#0.0} MB",
                     PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.Allocated));
-                TxtMemMono.Label = string.Format("{0:##.0} MB",
+                TxtMemMono.Label = string.Format("Mono: {0:#0.0} MB",
                     PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.Mono));
-                TxtMemGpu.Label = string.Format("{0:##.0} MB",
+                TxtMemGpu.Label = string.Format("Gpu: {0:#0.0} MB",
                     PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.Gpu));
-                TxtMemGraphics.Label = string.Format("{0:##.0} MB",
+                TxtMemGraphics.Label = string.Format("Driver: {0:#0.0} MB",
                     PerfMonitor.MemoryData.BytesToMb(_monitor.Memory.GraphicsDriver));
             }
         }

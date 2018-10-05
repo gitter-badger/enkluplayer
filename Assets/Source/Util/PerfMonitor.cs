@@ -17,7 +17,7 @@ namespace CreateAR.EnkluPlayer
 
             public static int FrameTimeToFps(long ms)
             {
-                return Mathf.RoundToInt(ms / 1000f);
+                return Mathf.RoundToInt(1000f / ms);
             }
         }
 
