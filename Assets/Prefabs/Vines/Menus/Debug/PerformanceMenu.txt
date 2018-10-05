@@ -1,0 +1,26 @@
+<?Vine>
+
+<Float focus.visible=false>
+	<Container position=(0.3, 0, 0)>
+		<Button id='btn-close' label='Close' position=(0, 0.1, 0) icon='arrow-left' ready.color='Negative' />
+	
+		<Select id='slt-tab'>
+			<Option label='Frame Time' value='frame' />
+			<Option label='Memory' value='memory' />
+		</Select>
+		
+		<Container id='tab-frame'>
+			<Text id='txt-ave' position=(0, -0.1, 0) width=1200.0 fontSize=80 alignment='MidLeft'/>
+			<Text id='txt-min' position=(0, -0.2, 0) width=1200.0 fontSize=80 alignment='MidLeft'/>
+			<Text id='txt-max' position=(0, -0.3, 0) width=1200.0 fontSize=80 alignment='MidLeft'/>
+		</Container>
+		
+		<Container id='tab-memory' visible=false>
+			<Text id='txt-total' position=(0, -0.1, 0) width=1200.0 fontSize=80 alignment='MidLeft'/>
+			<Text id='txt-allocated' position=(0, -0.2, 0) width=1200.0 fontSize=80 alignment='MidLeft'/>
+			<Text id='txt-mono' position=(0, -0.3, 0) width=1200.0 fontSize=80 alignment='MidLeft'/>
+			<Text id='txt-gpu' position=(0, -0.4, 0) width=1200.0 fontSize=80 alignment='MidLeft'/>
+			<Text id='txt-graphics' position=(0, -0.5, 0) width=1200.0 fontSize=80 alignment='MidLeft'/>
+		</Container>
+	</Container>
+</Float>

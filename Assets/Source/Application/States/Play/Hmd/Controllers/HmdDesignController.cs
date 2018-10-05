@@ -432,6 +432,19 @@ namespace CreateAR.EnkluPlayer
             {
                 Voice_OnPlayMenu("menu");
             }
+
+            // perf
+            _voice.Register("performance", _ =>
+            {
+                // open
+                int hudId;
+                _ui
+                    .OpenOverlay<PerfDisplayUIView>(new UIReference
+                    {
+                        UIDataId = "Perf.Hud"
+                    }, out hudId)
+                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+            });
         }
 
         /// <summary>
@@ -443,6 +456,7 @@ namespace CreateAR.EnkluPlayer
 
             _voice.Unregister("menu");
             _voice.Unregister("edit");
+            _voice.Unregister("performance");
 
             _ui.Close(_playMenuId);
         }

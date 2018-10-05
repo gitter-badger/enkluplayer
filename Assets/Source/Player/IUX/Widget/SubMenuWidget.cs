@@ -78,6 +78,16 @@ namespace CreateAR.EnkluPlayer.IUX
             UpdateButtonState();
         }
 
+        /// <summary>
+        /// Closes the submenu.
+        /// </summary>
+        public void Close()
+        {
+            _menu.Schema.Set("visible", false);
+
+            UpdateButtonState();
+        }
+
         /// <inheritdoc />
         protected override void LoadInternalAfterChildren()
         {
@@ -156,16 +166,6 @@ namespace CreateAR.EnkluPlayer.IUX
                 _button.Schema.Set("icon", _iconProp.Value);
                 _button.Schema.Set("ready.color", "Ready");
             }
-        }
-
-        /// <summary>
-        /// Closes the submenu.
-        /// </summary>
-        private void Close()
-        {
-            _menu.Schema.Set("visible", false);
-
-            UpdateButtonState();
         }
 
         /// <summary>

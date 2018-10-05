@@ -54,6 +54,11 @@ namespace CreateAR.EnkluPlayer
         /// Element stack.
         /// </summary>
         private readonly List<UIRecord> _records = new List<UIRecord>();
+
+        /// <summary>
+        /// Collection of overlays.
+        /// </summary>
+        private readonly List<UIRecord> _overlays = new List<UIRecord>();
         
         /// <inheritdoc />
         public event Action<int> OnPush;
@@ -130,7 +135,34 @@ namespace CreateAR.EnkluPlayer
 
             return Open<T>(reference);
         }
-        
+
+        /// <inheritdoc />
+        public IAsyncToken<T> OpenOverlay<T>(UIReference reference, out int id) where T : IUIElement
+        {
+            id = IDS++;
+
+            // create record
+            var record = new UIRecord(id)
+            {
+                Load = _factory.Element(reference, id)
+            };
+
+            _overlays.Add(record);
+
+            return Async.Map(
+                record
+                    .Load
+                    .OnSuccess(element =>
+                    {
+                        record.Element = element;
+
+                        element.Created();
+                        element.Added();
+                        element.Revealed();
+                    }),
+                element => (T) element);
+        }
+
         /// <inheritdoc />
         public bool Reveal(int stackId)
         {
@@ -189,7 +221,13 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public bool Close(int stackId)
         {
-            // first, make sure element exists in stack at all
+            // see if this is an overlay
+            if (CloseOverlay(stackId))
+            {
+                return true;
+            }
+
+            // make sure element exists in stack at all
             var found = false;
             foreach (var record in _records)
             {
@@ -257,11 +295,39 @@ namespace CreateAR.EnkluPlayer
 
             return record.StackId;
         }
-
+        
         /// <inheritdoc />
         public UIManagerFrame CreateFrame()
         {
             return new UIManagerFrame(this);
+        }
+
+        /// <summary>
+        /// Closes an overlay.
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <returns>True iff an overlay was closed.</returns>
+        private bool CloseOverlay(int id)
+        {
+            for (var i = 0; i < _overlays.Count; i++)
+            {
+                var record = _overlays[i];
+                if (record.StackId == id)
+                {
+                    _overlays.RemoveAt(i);
+
+                    record.Load.Abort();
+
+                    if (null != record.Element)
+                    {
+                        record.Element.Removed();
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

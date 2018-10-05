@@ -58,6 +58,11 @@ namespace CreateAR.EnkluPlayer
         public CursorConfig Cursor = new CursorConfig();
 
         /// <summary>
+        /// Debug configuration
+        /// </summary>
+        public DebugConfig Debug = new DebugConfig();
+
+        /// <summary>
         /// Platform to use.
         /// </summary>
         public RuntimePlatform ParsedPlatform
@@ -124,6 +129,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="overrideConfig">The config to override with.</param>
         public void Override(ApplicationConfig overrideConfig)
         {
+            // TODO: Override at JSON level instead of here.
             if (!string.IsNullOrEmpty(overrideConfig.Platform))
             {
                 Platform = overrideConfig.Platform;
@@ -139,6 +145,7 @@ namespace CreateAR.EnkluPlayer
             Play.Override(overrideConfig.Play);
             Conductor.Override(overrideConfig.Conductor);
             Metrics.Override(overrideConfig.Metrics);
+            Debug.Override(overrideConfig.Debug);
         }
     }
 
@@ -586,5 +593,28 @@ namespace CreateAR.EnkluPlayer
         /// to the screen.
         /// </summary>
         public bool ForceShow { get; set; }
+    }
+
+    /// <summary>
+    /// Configuration for debugging.
+    /// </summary>
+    public class DebugConfig
+    {
+        /// <summary>
+        /// If true, disables debug lock on voice commands.
+        /// </summary>
+        public bool DisableVoiceLock = false;
+
+        /// <summary>
+        /// Overrides settings.
+        /// </summary>
+        /// <param name="config">Other config.</param>
+        public void Override(DebugConfig config)
+        {
+            if (config.DisableVoiceLock)
+            {
+                DisableVoiceLock = true;
+            }
+        }
     }
 }

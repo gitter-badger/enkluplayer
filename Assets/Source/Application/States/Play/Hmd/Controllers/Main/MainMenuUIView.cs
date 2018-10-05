@@ -78,6 +78,9 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..txt-deviceName")]
         public CaptionWidget TxtDeviceName { get; set; }
 
+        [InjectElements("..tgl-metrics")]
+        public ToggleWidget TglMetrics { get; set; }
+
         /// <summary>
         /// Quality settings.
         /// </summary>
@@ -161,6 +164,11 @@ namespace CreateAR.EnkluPlayer
         /// Called when signout is requested.
         /// </summary>
         public event Action OnSignout;
+
+        /// <summary>
+        /// Toggles metrics hud.
+        /// </summary>
+        public event Action<bool> OnMetricsHud;
 
         /// <summary>
         /// Id of the scene.
@@ -263,6 +271,14 @@ namespace CreateAR.EnkluPlayer
             BtnExpNew.Activator.OnActivated += _ => Experience(ExperienceSubMenu.New);
             BtnExpLoad.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Load);
             BtnExpDuplicate.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Duplicate);
+
+            TglMetrics.OnValueChanged += _ =>
+            {
+                if (null != OnMetricsHud)
+                {
+                    OnMetricsHud(TglMetrics.Value);
+                }
+            };
 
             // options
             {

@@ -13,14 +13,19 @@ namespace CreateAR.EnkluPlayer
     public class VoiceCommandManager : IVoiceCommandManager
     {
         /// <summary>
+        /// Threshold required between "debug" and command.
+        /// </summary>
+        private const int VOICE_LOCK_THRESHOLD_SECS = 3;
+
+        /// <summary>
+        /// Application wide configuration.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
+        /// <summary>
         /// Tracks keywords.
         /// </summary>
         private readonly Dictionary<string, Action<string>> _actions = new Dictionary<string, Action<string>>();
-
-        /// <summary>
-        /// Messages.
-        /// </summary>
-        private readonly IMessageRouter _messages;
 
         /// <summary>
         /// Recognizer!
@@ -28,15 +33,34 @@ namespace CreateAR.EnkluPlayer
         private KeywordRecognizer _recognizer;
 
         /// <summary>
+        /// Debug guard.
+        /// </summary>
+        private KeywordRecognizer _debugGuard;
+
+        /// <summary>
+        /// The last time at which the debug guard was called.
+        /// </summary>
+        private DateTime _debugGuardCalled = DateTime.MinValue;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
-        public VoiceCommandManager(IMessageRouter messages)
+        public VoiceCommandManager(
+            ApplicationConfig config,
+            IMessageRouter messages)
         {
-            _messages = messages;
+            _config = config;
 
-            _messages.Subscribe(
+            // application suspension kills voice recognizers
+            messages.Subscribe(
                 MessageTypes.APPLICATION_RESUME,
-                _ => RebuildRecognizer());
+                _ =>
+                {
+                    RebuildDebugGuard();
+                    RebuildRecognizer();
+                });
+
+            RebuildDebugGuard();
         }
         
         /// <inheritdoc cref="IVoiceCommandManager"/>
@@ -68,6 +92,18 @@ namespace CreateAR.EnkluPlayer
             return success;
         }
 
+        private void RebuildDebugGuard()
+        {
+            if (null != _debugGuard)
+            {
+                _debugGuard.Dispose();
+            }
+
+            _debugGuard = new KeywordRecognizer(new [] { "debug "});
+            _debugGuard.OnPhraseRecognized += DebugGuard_OnPhraseRecognized;
+            _debugGuard.Start();
+        }
+
         /// <summary>
         /// Builds a new recognizer from the current keywords.
         /// </summary>
@@ -76,6 +112,7 @@ namespace CreateAR.EnkluPlayer
             if (null != _recognizer)
             {
                 _recognizer.Dispose();
+                _recognizer = null;
             }
 
             var keywords = _actions.Keys.ToArray();
@@ -90,11 +127,29 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Called when debug is recognized.
+        /// </summary>
+        /// <param name="args">Event arguments.</param>
+        private void DebugGuard_OnPhraseRecognized(PhraseRecognizedEventArgs args)
+        {
+            _debugGuardCalled = DateTime.Now;
+        }
+
+        /// <summary>
         /// Called when a phrase is recognized.
         /// </summary>
         /// <param name="args">Event arguments.</param>
         private void Recognizer_OnPhraseRecognized(PhraseRecognizedEventArgs args)
         {
+            // check voice lock
+            if (!_config.Debug.DisableVoiceLock)
+            {
+                if (DateTime.Now.Subtract(_debugGuardCalled).TotalSeconds > VOICE_LOCK_THRESHOLD_SECS)
+                {
+                    return;
+                }
+            }
+
             var text = args.text;
 
             Action<string> action;
