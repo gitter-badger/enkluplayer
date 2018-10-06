@@ -37,6 +37,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public void trigger(string tag)
         {
+            Log.Info(this, "Trigger a snap.");
+
             _preferences
                 .ForCurrentUser()
                 .OnSuccess(prefs =>
@@ -48,6 +50,8 @@ namespace CreateAR.EnkluPlayer
                         Log.Warning(this, "No organizations.");
                         return;
                     }
+
+                    Log.Info(this, "Making snap request.");
 
                     _api
                         .Snaps
