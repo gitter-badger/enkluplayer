@@ -35,7 +35,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Triggers a snap to be taken.
         /// </summary>
-        public void trigger()
+        public void trigger(string tag)
         {
             _preferences
                 .ForCurrentUser()
@@ -51,7 +51,7 @@ namespace CreateAR.EnkluPlayer
 
                     _api
                         .Snaps
-                        .TriggerSnap(org.OrgId, "beta", new Request())
+                        .TriggerSnap(org.OrgId, tag, new Request())
                         .OnSuccess(response =>
                         {
                             if (response.Payload.Success)
