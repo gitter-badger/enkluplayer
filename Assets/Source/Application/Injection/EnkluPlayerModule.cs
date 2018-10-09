@@ -623,6 +623,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<MessagingJsInterface>().To<MessagingJsInterface>().ToSingleton();
                     binder.Bind<TimerJsInterface>().To<TimerJsInterface>().ToSingleton();
                     binder.Bind<SnapJsInterface>().To<SnapJsInterface>().ToSingleton();
+                    binder.Bind<MetricsJsInterface>().To<MetricsJsInterface>().ToSingleton();
                 }
             }
 
