@@ -665,7 +665,9 @@ namespace CreateAR.EnkluPlayer
             if (downloading + importing + errors > 0)
             {
                 _cpn.Label = string.Format(
-@"Downloading: {1} / {0}
+@"Please wait...
+
+Downloading: {1} / {0}
 Importing: {2} / {0}
 Errors: {3} / {0}",
                     _anchors.Count,
