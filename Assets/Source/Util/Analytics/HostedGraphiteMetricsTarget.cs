@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
 using System.Text;
 using CreateAR.Commons.Unity.Logging;
@@ -85,7 +84,7 @@ namespace CreateAR.EnkluPlayer
             Verbose(message);
 
 #if NETFX_CORE
-            Send(bytes);
+            Send(message, bytes);
 #else
             _socket.SendTo(bytes, _endpoint);
 #endif
@@ -132,12 +131,22 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Sends data.
         /// </summary>
+        /// <param name="originalMessage">The original message, before serialization.</param>
         /// <param name="bytes">The bytes to send.</param>
-        private async void Send(byte[] bytes)
+        private async void Send(string originalMessage, byte[] bytes)
         {
             _writer.WriteBytes(bytes);
 
-            await _writer.StoreAsync();
+            try
+            {
+                await _writer.StoreAsync();
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not send analytics data : [{0}] : {1}.",
+                    originalMessage,
+                    exception);
+            }
         }
 #endif
 
