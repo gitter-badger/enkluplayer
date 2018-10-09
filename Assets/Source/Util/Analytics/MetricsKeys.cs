@@ -6,9 +6,23 @@
     public static class MetricsKeys
     {
         ///////////////////////////////////////////////////////////////////////
+        /// Application
+        ///////////////////////////////////////////////////////////////////////
+        public const string APPLICATION_INIT = "Application.Creation";
+
+        ///////////////////////////////////////////////////////////////////////
         /// App
         ///////////////////////////////////////////////////////////////////////
         public const string APP_DATA_LOAD = "App.Data.Load";
+        public const string APP_PLAY = "App.Play";
+
+        ///////////////////////////////////////////////////////////////////////
+        /// States
+        ///////////////////////////////////////////////////////////////////////
+        public const string STATE_INIT = "State.Init";
+        public const string STATE_LOGIN = "State.Login";
+        public const string STATE_DEVICEREGISTRATION = "State.DeviceRegistration";
+        public const string STATE_LOAD = "State.Load";
 
         ///////////////////////////////////////////////////////////////////////
         /// Anchors
@@ -27,6 +41,8 @@
         public const string ANCHOR_SIZE_RAW = "WorldAnchor.Size.Raw";
         public const string ANCHOR_SIZE_COMPRESSED = "WorldAnchor.Size.Compressed";
         public const string ANCHOR_SIZE_RATIO = "WorldAnchor.Size.Ratio";
+
+        public const string ANCHOR_TRACKING_LOST = "WorldAnchor.TrackingLost";
 
         ///////////////////////////////////////////////////////////////////////
         /// Assets

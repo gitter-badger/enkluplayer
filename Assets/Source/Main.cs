@@ -33,8 +33,13 @@ namespace CreateAR.EnkluPlayer
 	    /// The application to run.
 	    /// </summary>
 	    private Application _app;
-        
+
         /// <summary>
+        /// Times how long it takes to create Application.
+        /// </summary>
+	    private int _initTimer;
+
+	    /// <summary>
         /// Injects bindings into an object.
         /// </summary>
 	    public static void Inject(object @object)
@@ -113,6 +118,9 @@ namespace CreateAR.EnkluPlayer
             // load bindings
             _binder.Load(new EnkluPlayerModule());
 
+            // start timer
+	        _initTimer = _binder.GetInstance<IMetricsService>().Timer(MetricsKeys.APPLICATION_INIT).Start();
+
 	        // non-editor builds should log to loggly
 	        if (!UnityEngine.Application.isEditor)
 	        {
@@ -129,6 +137,8 @@ namespace CreateAR.EnkluPlayer
 
             // create application!
             _app = _binder.GetInstance<Application>();
+
+
 
 	        if (null != _app)
 	        {
@@ -167,6 +177,9 @@ namespace CreateAR.EnkluPlayer
                 });
             
             _app.Initialize();
+
+            // stop timer
+            metrics.Timer(MetricsKeys.APPLICATION_INIT).Stop(_initTimer);
         }
 
         /// <summary>

@@ -37,6 +37,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IUIManager _ui;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Tracks app load.
         /// </summary>
         private IAsyncToken<Void> _loadToken;
@@ -52,6 +57,11 @@ namespace CreateAR.EnkluPlayer
         private int _errorStackId;
 
         /// <summary>
+        /// Unique id of the timer.
+        /// </summary>
+        private int _timerId;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public LoadAppApplicationState(
@@ -59,19 +69,23 @@ namespace CreateAR.EnkluPlayer
             IMessageRouter messages,
             IConnection connection,
             IAppController app,
-            IUIManager ui)
+            IUIManager ui,
+            IMetricsService metrics)
         {
             _config = config;
             _messages = messages;
             _connection = connection;
             _app = app;
             _ui = ui;
+            _metrics = metrics;
         }
 
         /// <inheritdoc />
         public void Enter(object context)
         {
-            Log.Info(this, "Loading app...");
+            Log.Info(this, "Entering LoadAppApplicationState.");
+
+            _timerId = _metrics.Timer(MetricsKeys.STATE_LOAD).Start();
 
             // open loading UI
             _ui
@@ -142,6 +156,8 @@ namespace CreateAR.EnkluPlayer
 
             _ui.Close(_loadingStackId);
             _ui.Close(_errorStackId);
+
+            _metrics.Timer(MetricsKeys.STATE_LOAD).Stop(_timerId);
         }
 
         /// <summary>
