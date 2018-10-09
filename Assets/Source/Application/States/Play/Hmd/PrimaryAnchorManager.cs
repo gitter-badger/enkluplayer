@@ -297,11 +297,7 @@ namespace CreateAR.EnkluPlayer
                 _anchorsEnabledProp = null;
             }
 
-            if (null != Anchor)
-            {
-                Anchor.OnLocated -= Primary_OnLocated;
-                Anchor = null;
-            }
+            Anchor = null;
 
             if (null != _createToken)
             {
@@ -456,7 +452,6 @@ namespace CreateAR.EnkluPlayer
                     else
                     {
                         Anchor = anchor;
-                        Anchor.OnLocated += Primary_OnLocated;
                     }
                 }
                 else if (anchor.Schema.GetOwn("autoexport", false).Value)
@@ -515,7 +510,6 @@ namespace CreateAR.EnkluPlayer
                     anchor.GameObject.transform.rotation = Quaternion.Euler(rotation.ToVector());
 
                     Anchor = anchor;
-                    Anchor.OnLocated += Primary_OnLocated;
                     _scan = (ScanWidget) anchor.Children[0];
 
                     SaveAnchor(Anchor);
@@ -608,8 +602,21 @@ namespace CreateAR.EnkluPlayer
                             }
                         }
                     }
-                    
-                    UpdateStatusUI();
+
+                    int errors, downloading, importing, unlocated, numLocated;
+                    CountAnchors(
+                        out errors,
+                        out downloading,
+                        out importing,
+                        out unlocated,
+                        out numLocated);
+
+                    UpdateStatusUI(errors, downloading, importing, unlocated, numLocated);
+
+                    if (!AreAllAnchorsReady && numLocated > 0 && importing == 0)
+                    {
+                        Ready();
+                    }
                 }
                 
                 yield return null;
@@ -639,18 +646,46 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Updates the status UI.
         /// </summary>
-        private void UpdateStatusUI()
+        private void UpdateStatusUI(int errors, int downloading, int importing, int unlocated, int located)
         {
             if (null == _cpn || null == _rootUI)
             {
                 return;
             }
-            
-            var errors = 0;
-            var downloading = 0;
-            var importing = 0;
-            var unlocated = 0;
-            var located = 0;
+
+            _cpn.Label = string.Format(
+@"Downloading: {1} / {0}
+Importing: {2} / {0}
+Locating: {3} / {0}
+Errors: {4} / {0}",
+                _anchors.Count,
+                downloading,
+                importing,
+                unlocated,
+                errors);
+
+            if (located > 0 && 0 == importing)
+            {
+                _rootUI.Schema.Set("visible", false);
+            }
+            else
+            {
+                _rootUI.Schema.Set("visible", true);
+
+                if (unlocated + errors == _anchors.Count)
+                {
+                    _bypassBtn.Schema.Set("visible", true);
+                }
+            }
+        }
+
+        private void CountAnchors(out int errors, out int downloading, out int importing, out int unlocated, out int located)
+        {
+            errors = 0;
+            downloading = 0;
+            importing = 0;
+            unlocated = 0;
+            located = 0;
 
             for (int i = 0, len = _anchors.Count; i < len; i++)
             {
@@ -681,31 +716,6 @@ namespace CreateAR.EnkluPlayer
                         located += 1;
                         break;
                     }
-                }
-            }
-
-            _cpn.Label = string.Format(
-@"Downloading: {1} / {0}
-Importing: {2} / {0}
-Locating: {3} / {0}
-Errors: {4} / {0}",
-                _anchors.Count,
-                downloading,
-                importing,
-                unlocated,
-                errors);
-
-            if (located > 0)
-            {
-                _rootUI.Schema.Set("visible", false);
-            }
-            else
-            {
-                _rootUI.Schema.Set("visible", true);
-
-                if ((unlocated + errors) == _anchors.Count)
-                {
-                    _bypassBtn.Schema.Set("visible", true);
                 }
             }
         }
@@ -850,15 +860,6 @@ Errors: {4} / {0}",
                 TeardownAnchors();
                 Ready();
             }
-        }
-
-        /// <summary>
-        /// Called when the primary anchor has been located.
-        /// </summary>
-        /// <param name="anchor">The anchor.</param>
-        private void Primary_OnLocated(WorldAnchorWidget anchor)
-        {
-            Ready();
         }
         
         /// <summary>

@@ -7,7 +7,6 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.AR;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.Scripting;
-using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -186,7 +185,7 @@ namespace CreateAR.EnkluPlayer
 
             // listen for reset command
             _voice.Register("reset", Voice_OnReset);
-
+            
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
