@@ -22,146 +22,75 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Gets the volume.
+        /// Volume.
         /// </summary>
-        /// <returns></returns>
-        public float getVolume()
+        public float volume
         {
-            return _audio.volume;
+            get { return _audio.volume; }
+            set { _audio.volume = value; }
         }
 
         /// <summary>
-        /// Sets the volume.
+        /// Loop.
         /// </summary>
-        /// <param name="volume"></param>
-        public void setVolume(float volume)
+        public bool loop
         {
-            _audio.volume = volume;
+            get { return _audio.loop; }
+            set { _audio.loop = value; }
         }
 
         /// <summary>
-        /// Gets looping.
+        /// Mute.
         /// </summary>
-        /// <returns></returns>
-        public bool getLoop()
+        public bool mute
         {
-            return _audio.loop;
+            get { return _audio.mute; }
+            set { _audio.mute = value; }
         }
 
         /// <summary>
-        /// Sets looping.
+        /// Whether the audio plays on awake or not.
         /// </summary>
-        /// <param name="loop"></param>
-        public void setLoop(bool loop)
+        public bool playOnAwake
         {
-            _audio.loop = loop;
+            get { return _audio.playOnAwake; }
+            set { _audio.playOnAwake = value; }
         }
 
         /// <summary>
-        /// Gets mute.
+        /// Spatial Blend. 0: 2D, 1:3D
         /// </summary>
-        /// <returns></returns>
-        public bool getMute()
+        public float spatialBlend
         {
-            return _audio.mute;
+            get { return _audio.spatialBlend; }
+            set { _audio.spatialBlend = value; }
         }
 
         /// <summary>
-        /// Sets mute.
+        /// Minimum distance.
         /// </summary>
-        public void setMute(bool mute)
+        public float minDistance
         {
-            _audio.mute = mute;
+            get { return _audio.minDistance; }
+            set { _audio.minDistance = value; }
         }
 
         /// <summary>
-        /// Gets playOnAwake.
+        /// Maximum distance.
         /// </summary>
-        /// <returns></returns>
-        public bool getPlayOnAwake()
+        public float maxDistance
         {
-            return _audio.playOnAwake;
+            get { return _audio.maxDistance; }
+            set { _audio.maxDistance = value; }
         }
 
         /// <summary>
-        /// Sets playOnAwake.
+        /// Doppler level.
         /// </summary>
-        /// <param name="playOnAwake"></param>
-        public void setPlayOnAwake(bool playOnAwake)
+        public float dopplerLevel
         {
-            _audio.playOnAwake = playOnAwake;
-        }
-
-        /// <summary>
-        /// Gets spatial blend.
-        /// </summary>
-        /// <returns></returns>
-        public float getSpatialBlend()
-        {
-            return _audio.spatialBlend;
-        }
-
-        /// <summary>
-        /// Sets spatial blend.
-        /// </summary>
-        /// <param name="blend"></param>
-        public void setSpatialBlend(float blend)
-        {
-            _audio.spatialBlend = blend;
-        }
-
-        /// <summary>
-        /// Gets min distance.
-        /// </summary>
-        /// <returns></returns>
-        public float getMinDistance()
-        {
-            return _audio.minDistance;
-        }
-
-        /// <summary>
-        /// Sets min distance.
-        /// </summary>
-        /// <param name="distance"></param>
-        public void setMinDistance(float distance)
-        {
-            _audio.minDistance = distance;
-        }
-
-        /// <summary>
-        /// Gets max distance.
-        /// </summary>
-        /// <returns></returns>
-        public float getMaxDistance()
-        {
-            return _audio.maxDistance;
-        }
-
-        /// <summary>
-        /// Sets max distance.
-        /// </summary>
-        /// <param name="distance"></param>
-        public void setMaxDistance(float distance)
-        {
-            _audio.maxDistance = distance;
-        }
-
-        /// <summary>
-        /// Gets the doppler level.
-        /// </summary>
-        /// <returns></returns>
-        public float getDoplerLevel()
-        {
-            return _audio.dopplerLevel;
-        }
-
-        /// <summary>
-        /// Sets the doppler level.
-        /// </summary>
-        /// <param name="doppler"></param>
-        public void setDoplerLevel(float doppler)
-        {
-            _audio.dopplerLevel = doppler;
+            get { return _audio.dopplerLevel; }
+            set { _audio.dopplerLevel = value; }
         }
     }
 }

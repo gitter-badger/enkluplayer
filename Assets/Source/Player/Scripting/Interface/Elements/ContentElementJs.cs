@@ -20,6 +20,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public MaterialJsApi material { get; private set; }
 
+        /// <summary>
+        /// The audio interface.
+        /// </summary>
         public AudioJsApi audio { get; private set; }
 
         /// <summary>
