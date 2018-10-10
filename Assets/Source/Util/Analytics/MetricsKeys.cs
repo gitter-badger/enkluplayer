@@ -52,6 +52,8 @@
         ///////////////////////////////////////////////////////////////////////
         public const string SCRIPT_DOWNLOADTIME = "Script.DownloadTime";
         public const string SCRIPT_LOADFROMCACHETIME = "Script.LoadFromCacheTime";
+        public const string SCRIPT_PARSING_VINE = "Script.Parsing.Vine";
+        public const string SCRIPT_PARSING_BEHAVIOR = "Script.Parsing.Behavior";
 
         ///////////////////////////////////////////////////////////////////////
         /// Assets

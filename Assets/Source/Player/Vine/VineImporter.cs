@@ -10,6 +10,11 @@ namespace CreateAR.EnkluPlayer.Vine
     public class VineImporter
     {
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Preprocess.
         /// </summary>
         private readonly IVinePreProcessor _preProcessor;
@@ -22,12 +27,12 @@ namespace CreateAR.EnkluPlayer.Vine
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="preProcessor">Preprocessor.</param>
-        /// <param name="loader"></param>
         public VineImporter(
+            IMetricsService metrics,
             IVinePreProcessor preProcessor,
             VineLoader loader)
         {
+            _metrics = metrics;
             _preProcessor = preProcessor;
             _loader = loader;
         }
@@ -40,6 +45,8 @@ namespace CreateAR.EnkluPlayer.Vine
         /// <returns></returns>
         public ElementDescription Parse(string data, ElementSchema dataStore = null)
         {
+            var id = _metrics.Timer(MetricsKeys.SCRIPT_PARSING_VINE).Start();
+
             _preProcessor.DataStore = dataStore;
             data = _preProcessor.Execute(data);
 
@@ -48,6 +55,8 @@ namespace CreateAR.EnkluPlayer.Vine
             var walker = new ParseTreeWalker();
             var listener = new ElementDescriptionListener();
             walker.Walk(listener, document);
+
+            _metrics.Timer(MetricsKeys.SCRIPT_PARSING_VINE).Stop(id);
 
             return listener.Description;
         }
