@@ -20,6 +20,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public MaterialJsApi material { get; private set; }
 
+        public AudioJsApi audio { get; private set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -68,6 +70,16 @@ namespace CreateAR.EnkluPlayer.Scripting
             else
             {
                 material = null;
+            }
+
+            var unityAudioSource = contentWidget.GetComponent<AudioSource>();
+            if (unityAudioSource != null)
+            {
+                audio = new AudioJsApi(unityAudioSource);
+            }
+            else
+            {
+                audio = null;
             }
         }
     }
