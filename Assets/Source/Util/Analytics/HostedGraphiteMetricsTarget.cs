@@ -128,9 +128,16 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private async void Connect()
         {
-            await _socket.ConnectAsync(new Windows.Networking.HostName(_hostname), "2003");
+            try
+            {
+                await _socket.ConnectAsync(new Windows.Networking.HostName(_hostname), "2003");
 
-            _writer = new Windows.Storage.Streams.DataWriter(_socket.OutputStream);
+                _writer = new Windows.Storage.Streams.DataWriter(_socket.OutputStream);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not connect to HostedGraphite : {0}.", exception);
+            }
         }
 
         /// <summary>
@@ -140,6 +147,12 @@ namespace CreateAR.EnkluPlayer
         /// <param name="bytes">The bytes to send.</param>
         private async void Send(string originalMessage, byte[] bytes)
         {
+            // send before connect
+            if (null == _writer)
+            {
+                return;
+            }
+
             _writer.WriteBytes(bytes);
 
             try
