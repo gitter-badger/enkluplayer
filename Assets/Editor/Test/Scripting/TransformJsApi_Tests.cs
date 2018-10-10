@@ -17,7 +17,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void Setup()
         {
             _engine = new Engine();
-            _element = new ElementJs(null, null, _engine, new Element());
+            _element = new ElementJs(null, null, new Element());
             _engine.SetValue("this", _element);
             _engine.SetValue("v", Vec3Methods.Instance);
             _engine.SetValue("q", QuatMethods.Instance);
