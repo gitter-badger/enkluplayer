@@ -66,7 +66,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             var unityRenderer = contentWidget.GetComponent<Renderer>();
-            if (unityRenderer != null)
+            if (unityRenderer != null && unityRenderer.sharedMaterial != null)
             {
                 material = new MaterialJsApi(unityRenderer);
             }
