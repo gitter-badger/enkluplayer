@@ -27,16 +27,23 @@ namespace CreateAR.EnkluPlayer
         private readonly IHttpService _http;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public StandardScriptLoader(
             NetworkConfig config,
             IScriptCache cache,
-            IHttpService http)
+            IHttpService http,
+            IMetricsService metrics)
         {
             _config = config;
             _cache = cache;
             _http = http;
+            _metrics = metrics;
         }
 
         /// <inheritdoc cref="IScriptLoader"/>
@@ -46,11 +53,20 @@ namespace CreateAR.EnkluPlayer
             
             if (_cache.Contains(script.Id, script.Version))
             {
+                var id = _metrics.Timer(MetricsKeys.SCRIPT_LOADFROMCACHETIME).Start();
+
                 _cache
                     .Load(script.Id, script.Version)
-                    .OnSuccess(token.Succeed)
+                    .OnSuccess(txt =>
+                    {
+                        _metrics.Timer(MetricsKeys.SCRIPT_LOADFROMCACHETIME).Stop(id);
+
+                        token.Succeed(txt);
+                    })
                     .OnFailure(exception =>
                     {
+                        _metrics.Timer(MetricsKeys.SCRIPT_LOADFROMCACHETIME).Abort(id);
+
                         Log.Error(
                             this,
                             "There was an error loading the script from disk : {0}. Attempting to load from network..",
@@ -101,12 +117,16 @@ namespace CreateAR.EnkluPlayer
 
             Log.Info(this, "Downloading script at {0}.", url);
 
+            var id = _metrics.Timer(MetricsKeys.SCRIPT_DOWNLOADTIME).Start();
+
             _http
                 .Download(url)
                 .OnSuccess(response =>
                 {
                     if (response.NetworkSuccess)
                     {
+                        _metrics.Timer(MetricsKeys.SCRIPT_DOWNLOADTIME).Stop(id);
+
                         token.Succeed(Encoding.UTF8.GetString(response.Payload));
                     }
                     else
@@ -114,6 +134,8 @@ namespace CreateAR.EnkluPlayer
                         Log.Error(this, "Could not download script at {0} : {1}.",
                             url,
                             response.NetworkError);
+
+                        _metrics.Timer(MetricsKeys.SCRIPT_DOWNLOADTIME).Abort(id);
 
                         token.Fail(new Exception(response.NetworkError));
                     }
@@ -123,6 +145,8 @@ namespace CreateAR.EnkluPlayer
                     Log.Error(this, "Could not download script at {0} : {1}.",
                         url,
                         exception);
+
+                    _metrics.Timer(MetricsKeys.SCRIPT_DOWNLOADTIME).Abort(id);
 
                     token.Fail(exception);
                 });

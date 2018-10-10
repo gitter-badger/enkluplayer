@@ -190,9 +190,6 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Count of different anchor statuses.
         /// </summary>
-        private int _pollErrors;
-        private int _pollDownloading;
-        private int _pollImporting;
         private int _pollUnlocated;
         private int _pollLocated;
 
@@ -597,19 +594,14 @@ namespace CreateAR.EnkluPlayer
                     }
 
                     // metrics
-                    if (_pollErrors != errors
-                        || _pollDownloading != downloading
-                        || _pollImporting != importing
-                        || _pollUnlocated != unlocated
-                        || _pollLocated != numLocated)
+                    if (0 == importing && 0 == errors
+                        && (_pollUnlocated != unlocated || _pollLocated != numLocated))
                     {
-                        _pollErrors = errors;
-                        _pollDownloading = downloading;
-                        _pollImporting = importing;
                         _pollUnlocated = unlocated;
                         _pollLocated = numLocated;
 
-                        // TODO: send
+                        _metrics.Value(MetricsKeys.ANCHOR_STATE_LOCATEDRATIO).Value((float) _pollLocated / _anchors.Count);
+                        _metrics.Value(MetricsKeys.ANCHOR_STATE_UNLOCATEDRATIO).Value((float) _pollUnlocated / _anchors.Count);
                     }
                 }
                 

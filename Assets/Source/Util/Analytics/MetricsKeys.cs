@@ -43,6 +43,15 @@
         public const string ANCHOR_SIZE_RATIO = "WorldAnchor.Size.Ratio";
 
         public const string ANCHOR_TRACKING_LOST = "WorldAnchor.TrackingLost";
+        
+        public const string ANCHOR_STATE_UNLOCATEDRATIO = "WorldAnchor.State.UnlocatedRatio";
+        public const string ANCHOR_STATE_LOCATEDRATIO = "WorldAnchor.State.LocatedRatio";
+
+        ///////////////////////////////////////////////////////////////////////
+        /// Scripts
+        ///////////////////////////////////////////////////////////////////////
+        public const string SCRIPT_DOWNLOADTIME = "Script.DownloadTime";
+        public const string SCRIPT_LOADFROMCACHETIME = "Script.LoadFromCacheTime";
 
         ///////////////////////////////////////////////////////////////////////
         /// Assets
