@@ -24,6 +24,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         private Element _element;
 
         /// <summary>
+        /// Caches JS objects.
+        /// </summary>
+        private IElementJsCache _jsCache;
+
+        /// <summary>
         /// Creates ElementJs instances.
         /// </summary>
         private IElementJsFactory _factory;
@@ -65,11 +70,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Initializes the host.
         /// </summary>
+        /// <param name="jsCache">Js cache.</param>
         /// <param name="factory">Creates elements.</param>
         /// <param name="engine">JS Engine.</param>
         /// <param name="script">The script to execute.</param>
         /// <param name="element">The element.</param>
         public void Initialize(
+            IElementJsCache jsCache,
             IElementJsFactory factory,
             Engine engine,
             EnkluScript script,
@@ -82,6 +89,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             _engine = engine;
             _element = element;
+            _jsCache = jsCache;
             _factory = factory;
 
             Script = script;
@@ -95,7 +103,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             var thisBinding = JsValue.FromObject(
                 _engine,
-                _factory.Instance(_engine, _element));
+                _factory.Instance(_jsCache, _element));
             _engine.ExecutionContext.ThisBinding = thisBinding;
 
             try

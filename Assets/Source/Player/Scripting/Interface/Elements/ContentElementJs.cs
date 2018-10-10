@@ -1,6 +1,4 @@
-﻿using System;
-using CreateAR.EnkluPlayer.IUX;
-using Jint;
+﻿using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -18,16 +16,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="scripts"></param>
-        /// <param name="cache"></param>
-        /// <param name="engine"></param>
-        /// <param name="element"></param>
         public ContentElementJs(
-            IScriptManager scripts, 
-            IElementJsCache cache, 
-            Engine engine, 
+            IScriptManager scripts,
+            IElementJsCache cache,
             Element element) 
-            : base(scripts, cache, engine, element)
+            : base(scripts, cache, element)
         {
             ((ContentWidget) _element).OnLoaded.OnSuccess(CacheAnimator);
         }
@@ -46,7 +39,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         private void CacheAnimator(ContentWidget contentWidget)
         {
             var unityAnimator = contentWidget.GetComponent<Animator>();
-            if(unityAnimator != null) {
+            if (unityAnimator != null) {
                 animator = new AnimatorJsApi(unityAnimator);
             }
         }

@@ -5,7 +5,7 @@ using Jint;
 namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
-    /// Implementation that lazily creates and caches JS instances.
+    /// Implementation that lazily creates and caches ElementJS instances.
     /// </summary>
     public class ElementJsCache : IElementJsCache
     {
@@ -13,11 +13,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Creates elements.
         /// </summary>
         private readonly IElementJsFactory _elements;
-
-        /// <summary>
-        /// Js engine.
-        /// </summary>
-        private readonly Engine _engine;
         
         /// <summary>
         /// Lookup from element to js interface.
@@ -27,12 +22,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ElementJsCache(
-            IElementJsFactory elements,
-            Engine engine)
+        public ElementJsCache(IElementJsFactory elements)
         {
             _elements = elements;
-            _engine = engine;
         }
         
         /// <inheritdoc />
@@ -49,7 +41,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return el;
             }
 
-            el = _elementMap[element] = _elements.Instance(_engine, element);
+            el = _elementMap[element] = _elements.Instance(this, element);
 
             return el;
         }
