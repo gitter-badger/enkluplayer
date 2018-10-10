@@ -145,5 +145,23 @@ namespace CreateAR.EnkluPlayer
         {
             _audio.maxDistance = distance;
         }
+
+        /// <summary>
+        /// Gets the doppler level.
+        /// </summary>
+        /// <returns></returns>
+        public float getDoplerLevel()
+        {
+            return _audio.dopplerLevel;
+        }
+
+        /// <summary>
+        /// Sets the doppler level.
+        /// </summary>
+        /// <param name="doppler"></param>
+        public void setDoplerLevel(float doppler)
+        {
+            _audio.dopplerLevel = doppler;
+        }
     }
 }
