@@ -131,8 +131,8 @@ namespace CreateAR.EnkluPlayer
 	                _binder.GetInstance<ILogglyMetadataProvider>(),
 	                _binder.GetInstance<IBootstrapper>())
 	            {
-                    // only log errors + above
-                    Filter = LogLevel.Error
+                    // only log warnings + above
+                    Filter = LogLevel.Warning
 	            });
             }
 
