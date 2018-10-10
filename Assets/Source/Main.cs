@@ -1,3 +1,4 @@
+using System.Linq;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -158,13 +159,25 @@ namespace CreateAR.EnkluPlayer
             // start metrics
             var config = _binder.GetInstance<ApplicationConfig>().Metrics;
             var metrics = _binder.GetInstance<IMetricsService>();
-            if (config.Enabled && !UnityEngine.Application.isEditor)
+            if (config.Enabled)
             {
-#if !UNITY_WEBGL
-                metrics.AddTarget(new HostedGraphiteMetricsTarget(
-                    config.Hostname,
-                    config.ApplicationKey));
-#endif
+                var targets = config.Targets.Split(',');
+                if (targets.Contains(HostedGraphiteMetricsTarget.TYPE)
+                    && !DeviceHelper.IsWebGl())
+                {
+                    Log.Info(this, "Adding HostedGraphiteMetricsTarget.");
+
+                    metrics.AddTarget(new HostedGraphiteMetricsTarget(
+                        config.Hostname,
+                        config.ApplicationKey));
+                }
+
+                if (targets.Contains(FileMetricsTarget.TYPE))
+                {
+                    Log.Info(this, "Adding FileMetricsTarget.");
+
+                    metrics.AddTarget(new FileMetricsTarget());
+                }
             }
 
             // handle restarts

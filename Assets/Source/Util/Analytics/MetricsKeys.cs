@@ -49,5 +49,7 @@
         ///////////////////////////////////////////////////////////////////////
         public const string ASSET_DL_QUEUE = "AssetDownload.Queued";
         public const string ASSET_DL_LOADING = "AssetDownload.Loading";
+        public const string ASSET_DL_QUEUE_NONEMPTY = "AssetDownload.Queue.NonEmpty";
+        public const string ASSET_DL_QUEUE_LENGTH = "AssetDownload.Queue.Length";
     }
 }

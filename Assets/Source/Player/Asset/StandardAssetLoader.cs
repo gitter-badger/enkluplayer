@@ -77,6 +77,11 @@ namespace CreateAR.EnkluPlayer.Assets
         /// </summary>
         private int _numDownloads;
 
+        /// <summary>
+        /// Timer id for a non-empty queue.
+        /// </summary>
+        private int _queueNonEmptyId;
+
         /// <inheritdoc />
         public UrlFormatterCollection Urls { get; private set; }
 
@@ -140,8 +145,15 @@ namespace CreateAR.EnkluPlayer.Assets
                     Data = data,
                     Timer = timer.Start()
                 };
+
+                if (_queue.Count == 0)
+                {
+                    _queueNonEmptyId = _metrics.Timer(MetricsKeys.ASSET_DL_QUEUE_NONEMPTY).Start();
+                }
                 
                 _queue.Add(queuedLoad);
+
+                _metrics.Counter(MetricsKeys.ASSET_DL_QUEUE_LENGTH).Increment();
             }
 
             // load from loader
@@ -192,6 +204,13 @@ namespace CreateAR.EnkluPlayer.Assets
                 {
                     var next = _queue[0];
                     _queue.RemoveAt(0);
+
+                    _metrics.Counter(MetricsKeys.ASSET_DL_QUEUE_LENGTH).Decrement();
+
+                    if (0 == _queue.Count)
+                    {
+                        _metrics.Timer(MetricsKeys.ASSET_DL_QUEUE_NONEMPTY).Stop(_queueNonEmptyId);
+                    }
 
                     // record metrics
                     _metrics.Timer(MetricsKeys.ASSET_DL_QUEUE).Stop(next.Timer);

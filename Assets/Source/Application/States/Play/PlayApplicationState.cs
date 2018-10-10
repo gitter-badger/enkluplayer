@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Runtime.InteropServices;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -181,7 +180,7 @@ namespace CreateAR.EnkluPlayer
             _resolver.Initialize(
 #if NETFX_CORE
                 // reference by hand
-                Assembly.Load(new AssemblyName("Assembly-CSharp"))
+                System.Reflection.Assembly.Load(new System.Reflection.AssemblyName("Assembly-CSharp"))
 #else
                 AppDomain.CurrentDomain.GetAssemblies()
 #endif

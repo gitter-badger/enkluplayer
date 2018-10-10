@@ -3,6 +3,10 @@
     "Log": {
         "Level": "Error"
     },
+	"Metrics": {
+		"Enabled": true,
+		"Targets": "json"
+	},
     "Network": {
         "ApiVersion": "0.0.1",
         "Current": "cloud",
@@ -15,8 +19,5 @@
                 "ThumbsUrl": "https://s3-us-west-2.amazonaws.com:443/axatmtcyltmxltqzltmw.assets.thumbs/"
             }
         ]
-    },
-    "Metrics": {
-        "Enabled": false
     }
 }

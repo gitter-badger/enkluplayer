@@ -554,6 +554,11 @@ namespace CreateAR.EnkluPlayer
         public bool Enabled = true;
 
         /// <summary>
+        /// A comma-delimited list of targets.
+        /// </summary>
+        public string Targets = "HostedGraphite";
+
+        /// <summary>
         /// Hostname of the metrics box.
         /// </summary>
         public string Hostname;
@@ -579,6 +584,11 @@ namespace CreateAR.EnkluPlayer
             if (!string.IsNullOrEmpty(config.ApplicationKey))
             {
                 ApplicationKey = config.ApplicationKey;
+            }
+
+            if (!string.IsNullOrEmpty(config.Targets))
+            {
+                Targets = config.Targets;
             }
         }
     }

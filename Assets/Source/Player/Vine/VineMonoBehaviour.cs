@@ -71,7 +71,7 @@ namespace CreateAR.EnkluPlayer
             }
             catch (Exception exception)
             {
-                Log.Error(this, "Could not parse {0} : {1}.",
+                Log.Warning(this, "Could not parse {0} : {1}.",
                     Script,
                     exception);
             }

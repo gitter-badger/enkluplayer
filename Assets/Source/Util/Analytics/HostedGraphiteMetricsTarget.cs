@@ -12,6 +12,11 @@ namespace CreateAR.EnkluPlayer
     public class HostedGraphiteMetricsTarget : IMetricsTarget, IDisposable
     {
         /// <summary>
+        /// Type used in config.
+        /// </summary>
+        public const string TYPE = "HostedGraphite";
+
+        /// <summary>
         /// Application appKey.
         /// </summary>
         private readonly string _appKey;
@@ -66,7 +71,7 @@ namespace CreateAR.EnkluPlayer
             {
                 _endpoint = new IPEndPoint(addresses[0], 2003);
                 _socket =
- new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp)
+                new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp)
                 {
                     Blocking = false
                 };
