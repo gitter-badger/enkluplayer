@@ -55,11 +55,19 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 animator = new AnimatorJsApi(unityAnimator);
             }
+            else
+            {
+                animator = null;
+            }
 
             var unityRenderer = contentWidget.GetComponent<Renderer>();
             if (unityRenderer != null)
             {
                 material = new MaterialJsApi(unityRenderer);
+            }
+            else
+            {
+                material = null;
             }
         }
     }
