@@ -1,4 +1,5 @@
 ﻿using CreateAR.EnkluPlayer.IUX;
+using Jint;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -10,9 +11,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Creates an instance.
         /// </summary>
-        /// <param name="cache">Js cache.</param>
+        /// <param name="engine">The engine to create in.</param>
         /// <param name="element">The element.</param>
         /// <returns></returns>
-        ElementJs Instance(IElementJsCache cache, Element element);
+        ElementJs Instance(Engine engine, Element element);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CreateAR.EnkluPlayer.IUX;
+using Jint;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -18,8 +19,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         public ButtonElementJs(
             IScriptManager scripts,
             IElementJsCache cache,
+            Engine engine,
             Element element)
-            : base(scripts, cache, element)
+            : base(scripts, cache, engine, element)
         {
             ((ButtonWidget) element).OnActivated += Button_OnActivated;
         }

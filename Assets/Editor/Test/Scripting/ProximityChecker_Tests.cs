@@ -15,6 +15,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     {
         private List<GameObject> _gameObjects;
 
+        private Engine _engine;
         private ProximityChecker _proximityChecker;
 
         private IEntityJs _elementA;
@@ -28,6 +29,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void Setup()
         {
             _gameObjects = new List<GameObject>();
+            _engine = new Engine();
             _proximityChecker = new ProximityChecker();
 
             enterCount = 0;
@@ -431,7 +433,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var contentWidget = new ContentWidget(gameObject, new DummyScriptManager(false), new DummyAssetAssembler());
             contentWidget.Load(new ElementData(), new ElementSchema(), new Element[0]);
 
-            var element = new ElementJs(null, null, contentWidget);
+            var element = new ElementJs(null, null, _engine, contentWidget);
             _proximityChecker.SetElementState(element, isListening, isTrigger);
             _proximityChecker.SetElementRadii(element, innerRadius, outerRadius);
             return element;

@@ -50,11 +50,6 @@ namespace CreateAR.EnkluPlayer
         private readonly IAssetAssembler _assembler;
 
         /// <summary>
-        /// Caches elements.
-        /// </summary>
-        private readonly IElementJsCache _jsCache;
-
-        /// <summary>
         /// Creates elements.
         /// </summary>
         private readonly IElementJsFactory _elementJsFactory;
@@ -120,8 +115,7 @@ namespace CreateAR.EnkluPlayer
             IAssetAssembler assembler,
             IScriptRequireResolver resolver,
             IScriptManager scripts,
-            IElementJsCache cache,
-            IElementJsFactory elementFactory)
+            IElementJsFactory elementFactory )
             : base(
                 gameObject,
                 layers,
@@ -131,7 +125,6 @@ namespace CreateAR.EnkluPlayer
             _resolver = resolver;
             _scripts = scripts;
             _assembler = assembler;
-            _jsCache = cache;
             _elementJsFactory = elementFactory;
         }
 
@@ -168,7 +161,6 @@ namespace CreateAR.EnkluPlayer
                 _runner = new ScriptCollectionRunner(
                     _scripts,
                     _resolver,
-                    _jsCache,
                     _elementJsFactory,
                     GameObject,
                     this);
