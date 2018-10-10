@@ -12,22 +12,26 @@ namespace CreateAR.EnkluPlayer.Scripting
     /// </summary>
     public class ElementJs : IEntityJs, IJsEventDispatcher
     {
-        private class EventListenerRecord
-        {
-            public Engine Engine;
-            public Func<JsValue, JsValue[], JsValue> Handler;
-        }
-
         /// <summary>
         /// Used to track events.
         /// </summary>
-        private readonly Dictionary<string, List<EventListenerRecord>> _events = new Dictionary<string, List<EventListenerRecord>>();
+        private readonly Dictionary<string, List<Func<JsValue, JsValue[], JsValue>>> _events = new Dictionary<string, List<Func<JsValue, JsValue[], JsValue>>>();
         
         /// <summary>
         /// Scratch list for find.
         /// </summary>
         private readonly List<Element> _findScratch = new List<Element>();
-        
+
+        /// <summary>
+        /// The JS engine.
+        /// </summary>
+        private readonly Engine _engine;
+
+        /// <summary>
+        /// This value.
+        /// </summary>
+        private readonly JsValue _this;
+
         /// <summary>
         /// Runs scripts.
         /// </summary>
@@ -127,15 +131,19 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public ElementJs(
             IScriptManager scripts,
-            IElementJsCache cache,
+            IElementJsCache cache, 
+            Engine engine,
             Element element)
         {
             _scripts = scripts;
             _element = element;
             _cache = cache;
+            _engine = engine;
             
-            schema = new ElementSchemaJsApi(_element.Schema);
+            schema = new ElementSchemaJsApi(engine, _element.Schema);
             transform = new ElementTransformJsApi(_element);
+
+            _this = JsValue.FromObject(_engine, this);
         }
         
         /// <summary>
@@ -240,13 +248,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        public void on(Engine engine, string eventType, Func<JsValue, JsValue[], JsValue> fn)
+        public void on(string eventType, Func<JsValue, JsValue[], JsValue> fn)
         {
-            EventList(eventType).Add(new EventListenerRecord
-            {
-                Engine = engine,
-                Handler = fn
-            });
+            EventList(eventType).Add(fn);
         }
 
         /// <inheritdoc />
@@ -256,19 +260,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        public void off(Engine engine, string eventType, Func<JsValue, JsValue[], JsValue> fn)
+        public void off(string eventType, Func<JsValue, JsValue[], JsValue> fn)
         {
-            var list = EventList(eventType);
-            for (int i = 0, len = list.Count; i < len; i++)
-            {
-                var record = list[i];
-                if (record.Handler == fn)
-                {
-                    list.RemoveAt(i);
-
-                    break;
-                }
-            }
+            EventList(eventType).Remove(fn);
         }
 
         /// <summary>
@@ -277,7 +271,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         ///
         /// TODO: Make this more friendly/understandable for people unfamiliar with anchoring woes.
         /// </summary>
-        /// <param name="other">The other element.</param>
+        /// <param name="element"></param>
         /// <returns></returns>
         [Obsolete]
         public Vec3 positionRelativeTo(ElementJs other)
@@ -310,16 +304,19 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 return;
             }
-
-            var copy = list.ToArray();
-            for (var i = 0; i < count; i++)
+            
+            var param = new[] { JsValue.FromObject(_engine, evt) };
+            if (1 == count)
             {
-                var record = copy[i];
-                var param = new[] { JsValue.FromObject(record.Engine, evt) };
-
-                record.Handler(
-                    JsValue.FromObject(record.Engine, this),
-                    param);
+                list[0](_this, param);
+            }
+            else
+            {
+                var copy = list.ToArray();
+                for (var i = 0; i < count; i++)
+                {
+                    copy[i](_this, param);
+                }
             }
         }
 
@@ -328,12 +325,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="eventType">The type.</param>
         /// <returns></returns>
-        private List<EventListenerRecord> EventList(string eventType)
+        private List<Func<JsValue, JsValue[], JsValue>> EventList(string eventType)
         {
-            List<EventListenerRecord> list;
+            List<Func<JsValue, JsValue[], JsValue>> list;
             if (!_events.TryGetValue(eventType, out list))
             {
-                list = _events[eventType] = new List<EventListenerRecord>();
+                list = _events[eventType] = new List<Func<JsValue, JsValue[], JsValue>>();
             }
 
             return list;

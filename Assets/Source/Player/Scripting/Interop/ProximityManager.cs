@@ -244,7 +244,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="element"></param>
         private void WatchElement(Element element)
         {
-            ElementJs elementjs = new ElementJs(null, null, element);
+            ElementJs elementjs = new ElementJs(null, null, _engine, element);
 
             Action<ElementSchemaProp<bool>, bool, bool> triggerChange = (prop, old, @new) =>
             {

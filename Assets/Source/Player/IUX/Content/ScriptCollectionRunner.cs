@@ -22,11 +22,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly IScriptRequireResolver _resolver;
 
         /// <summary>
-        /// Js cache.
-        /// </summary>
-        private readonly IElementJsCache _jsCache;
-
-        /// <summary>
         /// Creates ElementJS implementations.
         /// </summary>
         private readonly IElementJsFactory _elementJsFactory;
@@ -67,14 +62,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         public ScriptCollectionRunner(
             IScriptManager scripts,
             IScriptRequireResolver resolver,
-            IElementJsCache jsCache,
             IElementJsFactory elementJsFactory,
             GameObject root,
             Element element)
         {
             _scripts = scripts;
             _resolver = resolver;
-            _jsCache = jsCache;
             _elementJsFactory = elementJsFactory;
             _root = root;
             _element = element;
@@ -208,13 +201,14 @@ namespace CreateAR.EnkluPlayer.Scripting
                 this,
                 _resolver,
                 _scripts);
+            var jsCache = new ElementJsCache(_elementJsFactory, host);
             host.SetValue("system", SystemJsApi.Instance);
-            host.SetValue("app", Main.NewAppJsApi(_jsCache));
-            host.SetValue("this", _jsCache.Element(_element));
-            _caches.Add(_jsCache);
+            host.SetValue("app", Main.NewAppJsApi(jsCache));
+            host.SetValue("this", jsCache.Element(_element));
+            _caches.Add(jsCache);
 
             var component = GetBehaviorComponent();
-            component.Initialize(_jsCache, _elementJsFactory, host, script, _element);
+            component.Initialize(_elementJsFactory, host, script, _element);
             component.Configure();
             component.Enter();
         }
