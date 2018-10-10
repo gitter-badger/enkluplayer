@@ -16,6 +16,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         public AnimatorJsApi animator { get; private set; }
 
         /// <summary>
+        /// The material interface.
+        /// </summary>
+        public MaterialJsApi material { get; private set; }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="scripts"></param>
@@ -46,8 +51,15 @@ namespace CreateAR.EnkluPlayer.Scripting
         private void CacheAnimator(ContentWidget contentWidget)
         {
             var unityAnimator = contentWidget.GetComponent<Animator>();
-            if(unityAnimator != null) {
+            if (unityAnimator != null) 
+            {
                 animator = new AnimatorJsApi(unityAnimator);
+            }
+
+            var unityRenderer = contentWidget.GetComponent<Renderer>();
+            if (unityRenderer != null)
+            {
+                material = new MaterialJsApi(unityRenderer);
             }
         }
     }
