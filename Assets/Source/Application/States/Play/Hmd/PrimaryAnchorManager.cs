@@ -98,6 +98,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IVoiceCommandManager _voice;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Configuration for entire application.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -182,6 +187,15 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private bool _pollAnchors;
 
+        /// <summary>
+        /// Count of different anchor statuses.
+        /// </summary>
+        private int _pollErrors;
+        private int _pollDownloading;
+        private int _pollImporting;
+        private int _pollUnlocated;
+        private int _pollLocated;
+
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
         {
@@ -222,6 +236,7 @@ namespace CreateAR.EnkluPlayer
             IMessageRouter messages,
             IElementFactory elements,
             IVoiceCommandManager voice,
+            IMetricsService metrics,
             ApplicationConfig config)
         {
             _scenes = scenes;
@@ -233,6 +248,7 @@ namespace CreateAR.EnkluPlayer
             _messages = messages;
             _elements = elements;
             _voice = voice;
+            _metrics = metrics;
             _config = config;
         }
 
@@ -572,12 +588,28 @@ namespace CreateAR.EnkluPlayer
                         out importing,
                         out unlocated,
                         out numLocated);
-
+                    
                     UpdateStatusUI(errors, downloading, importing, unlocated, numLocated);
 
                     if (!AreAllAnchorsReady && numLocated > 0 && importing == 0)
                     {
                         Ready();
+                    }
+
+                    // metrics
+                    if (_pollErrors != errors
+                        || _pollDownloading != downloading
+                        || _pollImporting != importing
+                        || _pollUnlocated != unlocated
+                        || _pollLocated != numLocated)
+                    {
+                        _pollErrors = errors;
+                        _pollDownloading = downloading;
+                        _pollImporting = importing;
+                        _pollUnlocated = unlocated;
+                        _pollLocated = numLocated;
+
+                        // TODO: send
                     }
                 }
                 
