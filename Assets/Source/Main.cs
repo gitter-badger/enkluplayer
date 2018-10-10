@@ -78,18 +78,13 @@ namespace CreateAR.EnkluPlayer
             // setup logging
 	        Log.Filter = LogLevel.Debug;
 
-            // log to unity only in the editor and webgl
-#if !UNITY_WEBGL
-            //if (UnityEngine.Application.isEditor)
-#endif
-            {
-	            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
-	            {
-	                Level = false,
-	                Timestamp = false,
-	                TypeName = true
-	            }));
-            }
+            // forward logs to unity
+	        Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
+	        {
+	            Level = false,
+	            Timestamp = false,
+	            TypeName = true
+	        }));
 
             // non-webgl should log to file
 #if !UNITY_WEBGL

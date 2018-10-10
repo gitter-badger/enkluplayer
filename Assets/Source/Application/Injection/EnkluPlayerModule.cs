@@ -32,6 +32,7 @@ namespace CreateAR.EnkluPlayer
             // main configuration
             var config = LoadConfig();
 
+            Log.Filter = config.Log.ParsedLevel;
             Log.Info(this, "ApplicationConfig:\n{0}", config);
 
             binder.Bind<ApplicationConfig>().ToValue(config);

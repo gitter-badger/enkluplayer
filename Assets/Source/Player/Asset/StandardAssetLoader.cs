@@ -99,7 +99,7 @@ namespace CreateAR.EnkluPlayer.Assets
             _metrics = metrics;
             
             Urls = urls;
-
+            
             _bootstrapper.BootstrapCoroutine(ProcessQueue());
         }
         
