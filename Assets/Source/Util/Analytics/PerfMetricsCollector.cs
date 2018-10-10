@@ -28,11 +28,10 @@ namespace CreateAR.EnkluPlayer
         /// Starts the object.
         /// </summary>
         /// <param name="metrics">The metrics object.</param>
-        /// <param name="monitor">The monitor to use.</param>
-        public void Initialize(IMetricsService metrics, PerfMonitor monitor)
+        public void Initialize(IMetricsService metrics)
         {
             _metrics = metrics;
-            _monitor = monitor;
+            _monitor = gameObject.AddComponent<PerfMonitor>();
 
             _frameTime = _metrics.Value(MetricsKeys.PERF_FRAMETIME);
             _memory = _metrics.Value(MetricsKeys.PERF_MEMORY);

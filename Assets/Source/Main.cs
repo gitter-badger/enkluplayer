@@ -138,9 +138,7 @@ namespace CreateAR.EnkluPlayer
 
             // create application!
             _app = _binder.GetInstance<Application>();
-
-
-
+            
 	        if (null != _app)
 	        {
 	            Log.Info(this, "Application created.");
@@ -179,10 +177,10 @@ namespace CreateAR.EnkluPlayer
                     metrics.AddTarget(new FileMetricsTarget());
                 }
 
-                var monitor = gameObject.AddComponent<PerfMonitor>();
-                gameObject.AddComponent<PerfMetricsCollector>().Initialize(
-                    metrics,
-                    monitor);
+                // collect performance metrics
+                gameObject
+                    .AddComponent<PerfMetricsCollector>()
+                    .Initialize(metrics);
             }
 
             // handle restarts
