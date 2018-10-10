@@ -8,7 +8,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
     [TestFixture]
     public class VineEngine_Tests
     {
-        private readonly VineImporter _importer = new VineImporter(new DummyVinePreProcessor(), new VineLoader());
+        private readonly VineImporter _importer = new VineImporter(new MetricsService(), new DummyVinePreProcessor(), new VineLoader());
 
         [Test]
         public void MultipleRoots()

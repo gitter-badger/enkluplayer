@@ -178,6 +178,11 @@ namespace CreateAR.EnkluPlayer
 
                     metrics.AddTarget(new FileMetricsTarget());
                 }
+
+                var monitor = gameObject.AddComponent<PerfMonitor>();
+                gameObject.AddComponent<PerfMetricsCollector>().Initialize(
+                    metrics,
+                    monitor);
             }
 
             // handle restarts

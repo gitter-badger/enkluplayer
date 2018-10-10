@@ -62,5 +62,11 @@
         public const string ASSET_DL_LOADING = "AssetDownload.Loading";
         public const string ASSET_DL_QUEUE_NONEMPTY = "AssetDownload.Queue.NonEmpty";
         public const string ASSET_DL_QUEUE_LENGTH = "AssetDownload.Queue.Length";
+
+        ///////////////////////////////////////////////////////////////////////
+        /// Performance
+        ///////////////////////////////////////////////////////////////////////
+        public const string PERF_FRAMETIME = "Perf.FrameTime";
+        public const string PERF_MEMORY = "Perf.Memory";
     }
 }
