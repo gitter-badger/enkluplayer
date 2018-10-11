@@ -57,7 +57,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     binder.Bind<IHttpService>()
                         .To(new HttpService(
-                            new JsonSerializer(),
+                            binder.GetInstance<JsonSerializer>(),
                             LookupComponent<MonoBehaviourBootstrapper>(),
                             binder.GetInstance<UrlFormatterCollection>()))
                         .ToSingleton();

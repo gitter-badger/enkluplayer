@@ -4,8 +4,8 @@
         "Level": "Error"
     },
 	"Metrics": {
-		"Enabled": true,
-		"Targets": "json"
+		"Enabled": false,
+		"Targets": ""
 	},
     "Network": {
         "ApiVersion": "0.0.1",
