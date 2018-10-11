@@ -99,7 +99,6 @@ namespace CreateAR.EnkluPlayer.Vine
                 },
                 token.Succeed);
             
-
             return token;
         }
     }

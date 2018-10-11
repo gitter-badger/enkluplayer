@@ -62,7 +62,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Aborsts a timer for a specific invocation.
+        /// Aborts a timer for a specific invocation.
         /// </summary>
         /// <param name="id">The invocation id.</param>
         public void abortTimer(int id)
