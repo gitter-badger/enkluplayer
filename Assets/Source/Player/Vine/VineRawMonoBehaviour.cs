@@ -96,7 +96,7 @@ namespace CreateAR.EnkluPlayer
                 ElementDescription description;
                 try
                 {
-                    description = Importer.Parse(Vine);
+                    description = Importer.ParseSync(Vine);
                 }
                 catch (Exception exception)
                 {

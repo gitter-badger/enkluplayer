@@ -22,21 +22,20 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        public ElementJs Instance(Engine engine, Element element)
+        public ElementJs Instance(IElementJsCache jsCache, Element element)
         {
-            var cache = new ElementJsCache(this, engine);
-
             var type = element.GetType();
             if (type == typeof(ButtonWidget))
             {
-                return new ButtonElementJs(_scripts, cache, engine, element);
-            }
-            if (type == typeof(ContentWidget))
-            {
-                return new ContentElementJs(_scripts, cache, engine, element);
+                return new ButtonElementJs(_scripts, jsCache, element);
             }
 
-            return new ElementJs(_scripts, cache, engine, element);
+            if (type == typeof(ContentWidget))
+            {
+                return new ContentElementJs(_scripts, jsCache, element);
+            }
+
+            return new ElementJs(_scripts, jsCache, element);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Reflection;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -79,6 +78,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IAssetLoader _assetLoader;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Status.
         /// </summary>
         private int _connectionStatusId = -1;
@@ -114,6 +118,11 @@ namespace CreateAR.EnkluPlayer
         private UIManagerFrame _frame;
 
         /// <summary>
+        /// Timer for tracking loss.
+        /// </summary>
+        private int _trackingId;
+
+        /// <summary>
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
@@ -127,7 +136,8 @@ namespace CreateAR.EnkluPlayer
             IConnection connection,
             IMessageRouter messages,
             IVoiceCommandManager voice,
-            IAssetLoader assetLoader)
+            IAssetLoader assetLoader,
+            IMetricsService metrics)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -140,6 +150,7 @@ namespace CreateAR.EnkluPlayer
             _messages = messages;
             _voice = voice;
             _assetLoader = assetLoader;
+            _metrics = metrics;
         }
 
         /// <inheritdoc />
@@ -169,7 +180,7 @@ namespace CreateAR.EnkluPlayer
             _resolver.Initialize(
 #if NETFX_CORE
                 // reference by hand
-                Assembly.Load(new AssemblyName("Assembly-CSharp"))
+                System.Reflection.Assembly.Load(new System.Reflection.AssemblyName("Assembly-CSharp"))
 #else
                 AppDomain.CurrentDomain.GetAssemblies()
 #endif
@@ -330,6 +341,8 @@ namespace CreateAR.EnkluPlayer
         {
             Log.Info(this, "Ar tracking lost!");
 
+            _trackingId = _metrics.Timer(MetricsKeys.ANCHOR_TRACKING_LOST).Start();
+
             _ui.Open<IUIElement>(new UIReference
             {
                 UIDataId = "Ar.Interrupted"
@@ -342,6 +355,8 @@ namespace CreateAR.EnkluPlayer
         private void Ar_OnTrackingOnline()
         {
             Log.Info(this, "Ar tracking back online.");
+
+            _metrics.Timer(MetricsKeys.ANCHOR_TRACKING_LOST).Stop(_trackingId);
 
             _ui.Close(_interruptId);
         }

@@ -121,6 +121,8 @@ namespace CreateAR.EnkluPlayer
                 throw new Exception("App has not been loaded!");
             }
 
+            var playId = _metrics.Timer(MetricsKeys.APP_PLAY).Start();
+
             Scenes
                 .Initialize(Id, _loader)
                 .OnSuccess(_ =>
@@ -143,12 +145,19 @@ namespace CreateAR.EnkluPlayer
                         {
                             Log.Info(this, "Txns initialized.");
 
+                            _metrics.Timer(MetricsKeys.APP_PLAY).Stop(playId);
+
                             if (null != OnReady)
                             {
                                 OnReady();
                             }
                         })
-                        .OnFailure(exception => Log.Error(this, "Could not initialize txns : {0}.", exception));
+                        .OnFailure(exception =>
+                        {
+                            Log.Error(this, "Could not initialize txns : {0}.", exception);
+
+                            _metrics.Timer(MetricsKeys.APP_PLAY).Abort(playId);
+                        });
                 })
                 .OnFailure(exception =>
                 {

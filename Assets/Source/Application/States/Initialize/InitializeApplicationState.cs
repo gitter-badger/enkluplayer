@@ -26,8 +26,14 @@ namespace CreateAR.EnkluPlayer
         private readonly IGestureManager _gestures;
         private readonly IWorldAnchorProvider _anchors;
         private readonly IAppSceneManager _scenes;
+        private readonly IMetricsService _metrics;
         private readonly CommandService _commands;
         private readonly BleServiceConfiguration _bleConfig;
+
+        /// <summary>
+        /// Id for timer.
+        /// </summary>
+        private int _timerId;
 
         /// <summary>
         /// Constructor.
@@ -40,6 +46,7 @@ namespace CreateAR.EnkluPlayer
             IGestureManager gestures,
             IWorldAnchorProvider anchors,
             IAppSceneManager scenes,
+            IMetricsService metrics,
             CommandService commands,
             BleServiceConfiguration bleConfig)
         {
@@ -50,6 +57,7 @@ namespace CreateAR.EnkluPlayer
             _gestures = gestures;
             _anchors = anchors;
             _scenes = scenes;
+            _metrics = metrics;
             _commands = commands;
             _bleConfig = bleConfig;
         }
@@ -57,6 +65,9 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc cref="IState"/>
         public void Enter(object context)
         {
+            // time it
+            _timerId = _metrics.Timer(MetricsKeys.STATE_INIT).Start();
+
             // ble
             _ble.Setup(_bleConfig);
 
@@ -104,7 +115,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc cref="IState"/>
         public void Exit()
         {
-            // !
+            _metrics.Timer(MetricsKeys.STATE_INIT).Stop(_timerId);
         }
 
         /// <summary>

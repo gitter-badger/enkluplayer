@@ -32,6 +32,7 @@ namespace CreateAR.EnkluPlayer
             // main configuration
             var config = LoadConfig();
 
+            Log.Filter = config.Log.ParsedLevel;
             Log.Info(this, "ApplicationConfig:\n{0}", config);
 
             binder.Bind<ApplicationConfig>().ToValue(config);
@@ -45,6 +46,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
                 binder.Bind<IMetricsService>().To<MetricsService>().ToSingleton();
+                binder.Bind<ParserWorker>().To<ParserWorker>().ToSingleton();
 
                 if (config.Network.Offline)
                 {
@@ -55,7 +57,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     binder.Bind<IHttpService>()
                         .To(new HttpService(
-                            new JsonSerializer(),
+                            binder.GetInstance<JsonSerializer>(),
                             LookupComponent<MonoBehaviourBootstrapper>(),
                             binder.GetInstance<UrlFormatterCollection>()))
                         .ToSingleton();
@@ -604,14 +606,13 @@ namespace CreateAR.EnkluPlayer
 #if UNITY_WEBGL
                     binder.Bind<IScriptCache>().To<PassthroughScriptCache>().ToSingleton();
 #else
-                    //binder.Bind<IScriptCache>().To<StandardScriptCache>().ToSingleton();
-
                     binder.Bind<IScriptCache>().To<PassthroughScriptCache>().ToSingleton();
 #endif
                 }
                 
                 binder.Bind<IScriptLoader>().To<StandardScriptLoader>().ToSingleton();
                 binder.Bind<IScriptRequireResolver>().ToValue(new EnkluScriptRequireResolver(binder));
+                binder.Bind<IElementJsCache>().To<ElementJsCache>().ToSingleton();
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
                 binder.Bind<PlayerJs>().ToValue(LookupComponent<PlayerJs>());
@@ -625,6 +626,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<MessagingJsInterface>().To<MessagingJsInterface>().ToSingleton();
                     binder.Bind<TimerJsInterface>().To<TimerJsInterface>().ToSingleton();
                     binder.Bind<SnapJsInterface>().To<SnapJsInterface>().ToSingleton();
+                    binder.Bind<MetricsJsInterface>().To<MetricsJsInterface>().ToSingleton();
                 }
             }
 

@@ -36,6 +36,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Application wide configuration.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -51,6 +56,11 @@ namespace CreateAR.EnkluPlayer
         private CredentialsData _credentials;
 
         /// <summary>
+        /// Times state.
+        /// </summary>
+        private int _timerId;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public LoginApplicationState(
@@ -58,6 +68,7 @@ namespace CreateAR.EnkluPlayer
             ILoginStrategy strategy,
             IHttpService http,
             IMessageRouter messages,
+            IMetricsService metrics,
             ApplicationConfig config,
             VersioningService versioning)
         {
@@ -65,6 +76,7 @@ namespace CreateAR.EnkluPlayer
             _strategy = strategy;
             _http = http;
             _messages = messages;
+            _metrics = metrics;
             _config = config;
             _versioning = versioning;
 
@@ -80,6 +92,8 @@ namespace CreateAR.EnkluPlayer
         public void Enter(object context)
         {
             Log.Info(this, "LoginApplicationState::Enter");
+
+            _timerId = _metrics.Timer(MetricsKeys.STATE_LOGIN).Start();
 
             _versioning
                 .CheckVersions()
@@ -126,6 +140,8 @@ namespace CreateAR.EnkluPlayer
         public void Exit()
         {
             _credentials = null;
+
+            _metrics.Timer(MetricsKeys.STATE_LOGIN).Stop(_timerId);
         }
 
         /// <summary>

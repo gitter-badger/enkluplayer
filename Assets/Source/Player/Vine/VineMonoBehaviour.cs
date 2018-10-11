@@ -1,7 +1,10 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Vine;
+
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -54,27 +57,35 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Call after script is ready, before FSM flow.
         /// </summary>
-        public void Configure()
+        public IAsyncToken<Void> Configure()
         {
             Log.Info(this, "Importing Vine {0}.", Script.Data.Id);
 
-            try
+            var token = new AsyncToken<Void>();
+            
+            // TODO: WHY IS THIS HAPPENING
+            if (null == Importer)
             {
+                Main.Inject(this);
+            }
 
-                // TODO: WHY IS THIS HAPPENING
-                if (null == Importer)
+            Importer
+                .Parse(Script.Source, Parent.Schema)
+                .OnSuccess(description =>
                 {
-                    Main.Inject(this);
-                }
+                    _description = description;
 
-                _description = Importer.Parse(Script.Source, Parent.Schema);
-            }
-            catch (Exception exception)
-            {
-                Log.Error(this, "Could not parse {0} : {1}.",
-                    Script,
-                    exception);
-            }
+                    if (null == _description)
+                    {
+                        token.Fail(new Exception("Could not parse vine."));
+                    }
+                    else
+                    {
+                        token.Succeed(Void.Instance);
+                    }
+                });
+
+            return token;
         }
 
         /// <summary>

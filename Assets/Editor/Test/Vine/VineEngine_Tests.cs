@@ -8,14 +8,18 @@ namespace CreateAR.EnkluPlayer.Test.Vine
     [TestFixture]
     public class VineEngine_Tests
     {
-        private readonly VineImporter _importer = new VineImporter(new DummyVinePreProcessor(), new VineLoader());
+        private readonly VineImporter _importer = new VineImporter(
+            new MetricsService(),
+            new DummyVinePreProcessor(),
+            new VineLoader(),
+            null);
 
         [Test]
         public void MultipleRoots()
         {
             Assert.Throws<Exception>(() =>
             {
-                _importer.Parse(@"
+                _importer.ParseSync(@"
                     <?Vine>
                     <Container />
                     <Container />");
@@ -25,7 +29,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container></Container>");
 
@@ -35,7 +39,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Child()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container>
     <Container />
@@ -48,7 +52,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_ChildTypes()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container>
     <Container />
@@ -68,7 +72,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Child_Deep()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container>
     <Menu>
@@ -92,7 +96,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_SelfClosing()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container />");
 
@@ -104,7 +108,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         {
             Assert.Throws<Exception>(() =>
             {
-                _importer.Parse(@"
+                _importer.ParseSync(@"
 <?Vine>
 <Foo></Foo>");
             });
@@ -115,7 +119,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         {
             Assert.Throws<Exception>(() =>
             {
-                _importer.Parse(@"
+                _importer.ParseSync(@"
 <?Vine>
 <Foo />");
             });
@@ -124,7 +128,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Attributes_String()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container id='test_container'>
 </Container>");
@@ -135,7 +139,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Attributes_Int()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container foo=5>
 </Container>");
@@ -146,7 +150,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Attributes_Float()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container foo=5.4>
 </Container>");
@@ -157,7 +161,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Attributes_Bool_True()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container foo=true>
 </Container>");
@@ -168,7 +172,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Attributes_Bool_False()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container foo=false>
 </Container>");
@@ -179,7 +183,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Attributes_Vec3()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container foo=(3.1, 2, 1)>
 </Container>");
@@ -193,7 +197,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Attributes_Multi()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container
     foo='test_value'
@@ -211,7 +215,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Attributes_Multi_SelfClosing()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container
     foo='test_value'
@@ -228,7 +232,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Attributes_Multi_SameName()
         {
-            var description = _importer.Parse(@"
+            var description = _importer.ParseSync(@"
 <?Vine>
 <Container foo='test_value' foo=5>
 </Container>");
@@ -240,7 +244,7 @@ namespace CreateAR.EnkluPlayer.Test.Vine
         [Test]
         public void Element_Attributes_Multi_Collide()
         {
-            Assert.Throws<Exception>(() => _importer.Parse(@"
+            Assert.Throws<Exception>(() => _importer.ParseSync(@"
 <?Vine>
 <Container foo='test_value' foo='another_value'>
 </Container>"));

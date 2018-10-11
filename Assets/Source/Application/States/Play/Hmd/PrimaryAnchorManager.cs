@@ -98,6 +98,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IVoiceCommandManager _voice;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Configuration for entire application.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -182,6 +187,12 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private bool _pollAnchors;
 
+        /// <summary>
+        /// Count of different anchor statuses.
+        /// </summary>
+        private int _pollUnlocated;
+        private int _pollLocated;
+
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
         {
@@ -222,6 +233,7 @@ namespace CreateAR.EnkluPlayer
             IMessageRouter messages,
             IElementFactory elements,
             IVoiceCommandManager voice,
+            IMetricsService metrics,
             ApplicationConfig config)
         {
             _scenes = scenes;
@@ -233,6 +245,7 @@ namespace CreateAR.EnkluPlayer
             _messages = messages;
             _elements = elements;
             _voice = voice;
+            _metrics = metrics;
             _config = config;
         }
 
@@ -563,45 +576,7 @@ namespace CreateAR.EnkluPlayer
                 // anchors
                 else
                 {
-                    var located = FirstLocatedAnchor();
-                    var T = Matrix4x4.identity;
-
-                    // calculate inverse transformation
-                    if (null != located)
-                    {
-                        var locatedSchemaPos = located.Schema.Get<Vec3>("position").Value.ToVector();
-                        var locatedSchemaRot = Quaternion.Euler(located.Schema.Get<Vec3>("rotation").Value.ToVector());
-
-                        var locatedPos = located.GameObject.transform.position;
-                        var locatedRot = located.GameObject.transform.rotation;
-
-                        var A = Matrix4x4.TRS(locatedSchemaPos, locatedSchemaRot, Vector3.one);
-                        var B = Matrix4x4.TRS(locatedPos, locatedRot, Vector3.one);
-
-                        // T * A = B
-                        T = B * Matrix4x4.Inverse(A);
-                    }
-
-                    // place non-located anchors relative to the located anchor
-                    for (int i = 0, len = _anchors.Count; i < len; i++)
-                    {
-                        var anchor = _anchors[i];
-                        if (anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError
-                            || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsImporting
-                            || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading
-                            || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated)
-                        {
-                            if (null != located)
-                            {
-                                PositionAnchorRelative(anchor, T);
-                            }
-                            else
-                            {
-                                anchor.GameObject.transform.position = anchor.Schema.GetOwn("position", Vec3.Zero).Value.ToVector();
-                                anchor.GameObject.transform.rotation = Quaternion.Euler(anchor.Schema.GetOwn("rotation", Vec3.Zero).Value.ToVector());
-                            }
-                        }
-                    }
+                    UpdateRelativePositioning();
 
                     int errors, downloading, importing, unlocated, numLocated;
                     CountAnchors(
@@ -610,16 +585,74 @@ namespace CreateAR.EnkluPlayer
                         out importing,
                         out unlocated,
                         out numLocated);
-
+                    
                     UpdateStatusUI(errors, downloading, importing, unlocated, numLocated);
 
                     if (!AreAllAnchorsReady && numLocated > 0 && importing == 0)
                     {
                         Ready();
                     }
+
+                    // metrics
+                    if (0 == importing && 0 == errors
+                        && (_pollUnlocated != unlocated || _pollLocated != numLocated))
+                    {
+                        _pollUnlocated = unlocated;
+                        _pollLocated = numLocated;
+
+                        _metrics.Value(MetricsKeys.ANCHOR_STATE_LOCATEDRATIO).Value((float) _pollLocated / _anchors.Count);
+                        _metrics.Value(MetricsKeys.ANCHOR_STATE_UNLOCATEDRATIO).Value((float) _pollUnlocated / _anchors.Count);
+                    }
                 }
                 
                 yield return null;
+            }
+        }
+
+        /// <summary>
+        /// Updates relative positioning of all un-located anchors.
+        /// </summary>
+        private void UpdateRelativePositioning()
+        {
+            var located = FirstLocatedAnchor();
+            var T = Matrix4x4.identity;
+
+            // calculate inverse transformation
+            if (null != located)
+            {
+                var locatedSchemaPos = located.Schema.Get<Vec3>("position").Value.ToVector();
+                var locatedSchemaRot = Quaternion.Euler(located.Schema.Get<Vec3>("rotation").Value.ToVector());
+
+                var locatedPos = located.GameObject.transform.position;
+                var locatedRot = located.GameObject.transform.rotation;
+
+                var A = Matrix4x4.TRS(locatedSchemaPos, locatedSchemaRot, Vector3.one);
+                var B = Matrix4x4.TRS(locatedPos, locatedRot, Vector3.one);
+
+                // T * A = B
+                T = B * Matrix4x4.Inverse(A);
+            }
+
+            // place non-located anchors relative to the located anchor
+            for (int i = 0, len = _anchors.Count; i < len; i++)
+            {
+                var anchor = _anchors[i];
+                if (anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError
+                    || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsImporting
+                    || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading
+                    || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated)
+                {
+                    if (null != located)
+                    {
+                        PositionAnchorRelative(anchor, T);
+                    }
+                    else
+                    {
+                        anchor.GameObject.transform.position = anchor.Schema.GetOwn("position", Vec3.Zero).Value.ToVector();
+                        anchor.GameObject.transform.rotation =
+                            Quaternion.Euler(anchor.Schema.GetOwn("rotation", Vec3.Zero).Value.ToVector());
+                    }
+                }
             }
         }
 
@@ -653,32 +686,46 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            _cpn.Label = string.Format(
-@"Downloading: {1} / {0}
-Importing: {2} / {0}
-Locating: {3} / {0}
-Errors: {4} / {0}",
-                _anchors.Count,
-                downloading,
-                importing,
-                unlocated,
-                errors);
-
-            if (located > 0 && 0 == importing)
+            if (downloading + importing + errors > 0)
             {
-                _rootUI.Schema.Set("visible", false);
+                _cpn.Label = string.Format(
+@"Please wait...
+
+Downloading: {1} / {0}
+Importing: {2} / {0}
+Errors: {3} / {0}",
+                    _anchors.Count,
+                    downloading,
+                    importing,
+                    errors);
+
+                _rootUI.Schema.Set("visible", true);
+            }
+            else if (0 == located)
+            {
+                _cpn.Label = "Attempting to locate content.\nPlease walk around space.";
+
+                _rootUI.Schema.Set("visible", true);
             }
             else
             {
-                _rootUI.Schema.Set("visible", true);
-
-                if (unlocated + errors == _anchors.Count)
-                {
-                    _bypassBtn.Schema.Set("visible", true);
-                }
+                _rootUI.Schema.Set("visible", false);
+            }
+            
+            if (unlocated + errors == _anchors.Count)
+            {
+                _bypassBtn.Schema.Set("visible", true);
             }
         }
 
+        /// <summary>
+        /// Counts up anchor types.
+        /// </summary>
+        /// <param name="errors">Number of anchors in an error state.</param>
+        /// <param name="downloading">Number of anchors currently downloading.</param>
+        /// <param name="importing">Number of anchors currently importing.</param>
+        /// <param name="unlocated">Number of anchors currently unlocated.</param>
+        /// <param name="located">Number of locatd anchors.</param>
         private void CountAnchors(out int errors, out int downloading, out int importing, out int unlocated, out int located)
         {
             errors = 0;

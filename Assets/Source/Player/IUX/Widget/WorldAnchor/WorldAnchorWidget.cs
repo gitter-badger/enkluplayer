@@ -84,6 +84,11 @@ namespace CreateAR.EnkluPlayer.IUX
         private bool _pollStatus;
 
         /// <summary>
+        /// Timer whilst unlocated.
+        /// </summary>
+        private int _unlocatedTimerId = -1;
+
+        /// <summary>
         /// Backing variable for Status.
         /// </summary>
         private WorldAnchorStatus _status;
@@ -106,6 +111,8 @@ namespace CreateAR.EnkluPlayer.IUX
 
                 if (_status == WorldAnchorStatus.IsReadyLocated)
                 {
+                    _metrics.Timer(MetricsKeys.ANCHOR_UNLOCATED).Stop(_unlocatedTimerId);
+
                     if (null != OnLocated)
                     {
                         OnLocated(this);
@@ -113,6 +120,8 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 else if (prev == WorldAnchorStatus.IsReadyLocated)
                 {
+                    _unlocatedTimerId = _metrics.Timer(MetricsKeys.ANCHOR_UNLOCATED).Start();
+
                     if (null != OnUnlocated)
                     {
                         OnUnlocated(this);

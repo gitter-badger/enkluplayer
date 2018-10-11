@@ -17,5 +17,18 @@
             return false;
 #endif
         }
+
+        /// <summary>
+        /// True iff the platform is WebGL.
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsWebGl()
+        {
+#if UNITY_WEBGL
+            return true;
+#else
+            return false;
+#endif
+        }
     }
 }

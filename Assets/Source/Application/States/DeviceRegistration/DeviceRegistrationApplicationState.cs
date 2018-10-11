@@ -22,6 +22,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private readonly IUIManager _ui;
         private readonly IMessageRouter _messages;
+        private readonly IMetricsService _metrics;
         private readonly UserPreferenceService _preferences;
         private readonly ApiController _api;
         private readonly DeviceResourceUpdateService _deviceUpdateService;
@@ -42,17 +43,24 @@ namespace CreateAR.EnkluPlayer
         private Trellis.Messages.GetMyOrganizations.Body[] _orgs;
 
         /// <summary>
+        /// Id of the timer.
+        /// </summary>
+        private int _timerId;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public DeviceRegistrationApplicationState(
             IUIManager ui,
             IMessageRouter messages,
+            IMetricsService metrics,
             UserPreferenceService preferences,
             ApiController api,
             DeviceResourceUpdateService deviceUpdateService)
         {
             _ui = ui;
             _messages = messages;
+            _metrics = metrics;
             _preferences = preferences;
             _api = api;
             _deviceUpdateService = deviceUpdateService;
@@ -61,6 +69,10 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Enter(object context)
         {
+            Log.Info(this, "Enterting DeviceRegistrationApplicationState.");
+
+            _timerId = _metrics.Timer(MetricsKeys.STATE_DEVICEREGISTRATION).Start();
+
             _frame = _ui.CreateFrame();
 
             // show loading UI
@@ -136,6 +148,8 @@ namespace CreateAR.EnkluPlayer
         public void Exit()
         {
             _frame.Release();
+
+            _metrics.Timer(MetricsKeys.STATE_DEVICEREGISTRATION).Stop(_timerId);
         }
 
         /// <summary>
