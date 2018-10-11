@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
+using CreateAR.EnkluPlayer.Vine;
 using strange.extensions.injector.impl;
 using UnityEngine;
 
@@ -177,6 +178,10 @@ namespace CreateAR.EnkluPlayer
                     .AddComponent<PerfMetricsCollector>()
                     .Initialize(metrics);
             }
+
+            // start action workers
+            var worker = _binder.GetInstance<ParserWorker>();
+            System.Threading.ThreadPool.QueueUserWorkItem(_ => worker.Start());
 
             // handle restarts
             _binder.GetInstance<IMessageRouter>().Subscribe(

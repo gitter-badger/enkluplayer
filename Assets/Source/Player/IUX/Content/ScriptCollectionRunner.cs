@@ -192,8 +192,9 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             var component = GetVineComponent();
             component.Initialize(_element, script);
-            component.Configure();
-            component.Enter();
+            component
+                .Configure()
+                .OnSuccess(_ => component.Enter());
         }
         
         /// <summary>

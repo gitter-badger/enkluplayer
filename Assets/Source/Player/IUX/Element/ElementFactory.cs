@@ -287,7 +287,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <inheritdoc />
         public Element Element(string vine)
         {
-            return Element(_parser.Parse(vine));
+            return Element(_parser.ParseSync(vine));
         }
 
         /// <summary>

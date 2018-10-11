@@ -46,6 +46,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
                 binder.Bind<IMetricsService>().To<MetricsService>().ToSingleton();
+                binder.Bind<ParserWorker>().To<ParserWorker>().ToSingleton();
 
                 if (config.Network.Offline)
                 {
