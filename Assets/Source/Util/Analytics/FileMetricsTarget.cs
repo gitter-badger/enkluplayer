@@ -23,11 +23,6 @@ namespace CreateAR.EnkluPlayer
         public class KeyRecord
         {
             /// <summary>
-            /// All values.
-            /// </summary>
-            private readonly List<float> _values = new List<float>();
-
-            /// <summary>
             /// Name of the key.
             /// </summary>
             public string Name;
@@ -48,6 +43,11 @@ namespace CreateAR.EnkluPlayer
             public float Ave;
 
             /// <summary>
+            /// Raw values.
+            /// </summary>
+            public float[] Values = new float[0];
+
+            /// <summary>
             /// Creates a new record.
             /// </summary>
             /// <param name="name">The name of the key.</param>
@@ -65,15 +65,15 @@ namespace CreateAR.EnkluPlayer
             /// <param name="value">The value.</param>
             public void AddValue(float value)
             {
-                _values.Add(value);
+                Values = Values.Add(value);
 
                 Min = float.MaxValue;
                 Max = float.MinValue;
 
                 var sum = 0f;
-                for (int i = 0, len = _values.Count; i < len; i++)
+                for (int i = 0, len = Values.Length; i < len; i++)
                 {
-                    var val = _values[i];
+                    var val = Values[i];
                     if (val < Min)
                     {
                         Min = val;
@@ -87,7 +87,7 @@ namespace CreateAR.EnkluPlayer
                     sum += val;
                 }
 
-                Ave = sum / _values.Count;
+                Ave = sum / Values.Length;
             }
         }
 
