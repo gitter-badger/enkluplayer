@@ -35,6 +35,8 @@ namespace CreateAR.EnkluPlayer
             SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
             SetValue("q", QuatMethods.Instance);
             SetValue("quat", new Func<float, float, float, float, Quat>(QuatMethods.create));
+            SetValue("c", Col4Methods.Instance);
+            SetValue("col", new Func<float, float, float, float, Col4>(Col4Methods.create));
             SetValue("time", TimeJsApi.Instance);
         }
     }
