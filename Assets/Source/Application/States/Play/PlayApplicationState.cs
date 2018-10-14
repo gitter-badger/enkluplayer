@@ -168,7 +168,10 @@ namespace CreateAR.EnkluPlayer
         public void Update(float dt)
         {
 #if !UNITY_WEBGL
-            UpdateConnectionStatus();
+            if (_config.Play.Edit)
+            {
+                UpdateConnectionStatus();
+            }
 #endif
         }
 
