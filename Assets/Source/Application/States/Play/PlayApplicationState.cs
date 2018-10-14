@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -23,64 +24,21 @@ namespace CreateAR.EnkluPlayer
         private const string SCENE_NAME = "PlayMode";
 
         /// <summary>
-        /// Configuration.
+        /// Dependencies.
         /// </summary>
         private readonly ApplicationConfig _config;
-
-        /// <summary>
-        /// Bootstraps coroutines.
-        /// </summary>
         private readonly IBootstrapper _bootstrapper;
-        
-        /// <summary>
-        /// Resolves script requires.
-        /// </summary>
         private readonly IScriptRequireResolver _resolver;
-
-        /// <summary>
-        /// Controls design mode.
-        /// </summary>
         private readonly IDesignController _design;
-
-        /// <summary>
-        /// Manages app.
-        /// </summary>
         private readonly IAppController _app;
-
-        /// <summary>
-        /// AR interface.
-        /// </summary>
         private readonly IArService _ar;
-
-        /// <summary>
-        /// UI interface.
-        /// </summary>
         private readonly IUIManager _ui;
-
-        /// <summary>
-        /// Connection.
-        /// </summary>
         private readonly IConnection _connection;
-
-        /// <summary>
-        /// Application-wide messages.
-        /// </summary>
         private readonly IMessageRouter _messages;
-
-        /// <summary>
-        /// Handles voice commands.
-        /// </summary>
         private readonly IVoiceCommandManager _voice;
-
-        /// <summary>
-        /// Loads assets.
-        /// </summary>
         private readonly IAssetLoader _assetLoader;
-
-        /// <summary>
-        /// Metrics.
-        /// </summary>
         private readonly IMetricsService _metrics;
+        private readonly IAppQualityController _quality;
 
         /// <summary>
         /// Status.
@@ -137,7 +95,8 @@ namespace CreateAR.EnkluPlayer
             IMessageRouter messages,
             IVoiceCommandManager voice,
             IAssetLoader assetLoader,
-            IMetricsService metrics)
+            IMetricsService metrics,
+            IAppQualityController quality)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -151,6 +110,7 @@ namespace CreateAR.EnkluPlayer
             _voice = voice;
             _assetLoader = assetLoader;
             _metrics = metrics;
+            _quality = quality;
         }
 
         /// <inheritdoc />
@@ -216,7 +176,10 @@ namespace CreateAR.EnkluPlayer
         public void Exit()
         {
             Log.Info(this, "PlayApplicationState::Exit()");
-            
+
+            // shutoff quality
+            _quality.Teardown();
+
             // unwatch tracking
             _ar.OnTrackingOffline -= Ar_OnTrackingOffline;
             _ar.OnTrackingOnline -= Ar_OnTrackingOnline;
@@ -268,6 +231,13 @@ namespace CreateAR.EnkluPlayer
             {
                 throw new Exception("Could not find PlayModeConfig.");
             }
+
+            // setup quality
+            var id = _app.Scenes.All.FirstOrDefault();
+            if (!string.IsNullOrEmpty(id))
+            {
+                _quality.Setup(_app.Scenes.Root(id));
+            }            
 
             // initialize with app id
             _app.Play();
