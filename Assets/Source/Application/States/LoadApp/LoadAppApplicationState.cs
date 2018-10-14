@@ -95,7 +95,7 @@ namespace CreateAR.EnkluPlayer
                 }, out _loadingStackId);
 
             // load app
-            _loadToken = _app.Load(_config.Play.AppId);
+            _loadToken = _app.Load(_config.Play);
             _loadToken
                 .OnSuccess(_ =>
                 {

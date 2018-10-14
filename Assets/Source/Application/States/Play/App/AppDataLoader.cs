@@ -85,13 +85,16 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Load(string appId)
+        public IAsyncToken<Void> Load(PlayAppConfig config)
         {
-            Log.Info(this, "Load App {0}.", appId);
+            var id = config.AppId;
+
+            Log.Info(this, "Load App {0}.", id);
+
             return Async.Map(
                 Async.All(
-                    LoadPrerequisites(appId),
-                    LoadScenes(appId)),
+                    LoadPrerequisites(id),
+                    LoadScenes(id)),
                 _ => Void.Instance);
         }
 

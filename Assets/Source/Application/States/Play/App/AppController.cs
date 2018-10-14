@@ -36,6 +36,11 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private bool _isLoaded;
 
+        /// <summary>
+        /// Configuration.
+        /// </summary>
+        private PlayAppConfig _config;
+
         /// <inheritdoc />
         public string Id { get; private set; }
 
@@ -72,9 +77,11 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Load(string appId)
+        public IAsyncToken<Void> Load(PlayAppConfig config)
         {
-            Id = appId;
+            _config = config;
+
+            Id = _config.AppId;
 
             CanEdit = true;
             CanDelete = true;
@@ -85,7 +92,7 @@ namespace CreateAR.EnkluPlayer
             var loadId = _metrics.Timer(MetricsKeys.APP_DATA_LOAD).Start();
 
             return _loader
-                .Load(appId)
+                .Load(_config)
                 .OnSuccess(_ =>
                 {
                     Name = _loader.Name;
@@ -123,45 +130,57 @@ namespace CreateAR.EnkluPlayer
 
             var playId = _metrics.Timer(MetricsKeys.APP_PLAY).Start();
 
+            // init scenes
             Scenes
                 .Initialize(Id, _loader)
                 .OnSuccess(_ =>
                 {
-                    var authenticate = _connection.IsConnected;
+                    // edit mode
+                    if (_config.Edit)
+                    {
+                        var authenticate = DeviceHelper.IsWebGl() || _connection.IsConnected;
 
-                    // webgl is special
-                    #if UNITY_WEBGL
-                    authenticate = true;
-                    #endif
-
-                    _txns
-                        .Initialize(new AppTxnConfiguration
-                        {
-                            AppId = Id,
-                            Scenes =Scenes,
-                            AuthenticateTxns = authenticate 
-                        })
-                        .OnSuccess(__ =>
-                        {
-                            Log.Info(this, "Txns initialized.");
-
-                            _metrics.Timer(MetricsKeys.APP_PLAY).Stop(playId);
-
-                            if (null != OnReady)
+                        _txns
+                            .Initialize(new AppTxnConfiguration
                             {
-                                OnReady();
-                            }
-                        })
-                        .OnFailure(exception =>
-                        {
-                            Log.Error(this, "Could not initialize txns : {0}.", exception);
+                                AppId = Id,
+                                Scenes = Scenes,
+                                AuthenticateTxns = authenticate
+                            })
+                            .OnSuccess(__ =>
+                            {
+                                Log.Info(this, "Txns initialized.");
 
-                            _metrics.Timer(MetricsKeys.APP_PLAY).Abort(playId);
-                        });
+                                _metrics.Timer(MetricsKeys.APP_PLAY).Stop(playId);
+
+                                if (null != OnReady)
+                                {
+                                    OnReady();
+                                }
+                            })
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this, "Could not initialize txns : {0}.", exception);
+
+                                _metrics.Timer(MetricsKeys.APP_PLAY).Abort(playId);
+                            });
+                    }
+                    // play mode
+                    else
+                    {
+                        _metrics.Timer(MetricsKeys.APP_PLAY).Stop(playId);
+
+                        if (null != OnReady)
+                        {
+                            OnReady();
+                        }
+                    }
                 })
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Could not initialize scenes : {0}.", exception);
+
+                    _metrics.Timer(MetricsKeys.APP_PLAY).Abort(playId);
                 });
         }
         
