@@ -606,7 +606,7 @@ namespace CreateAR.EnkluPlayer
 #if UNITY_WEBGL
                     binder.Bind<IScriptCache>().To<PassthroughScriptCache>().ToSingleton();
 #else
-                    binder.Bind<IScriptCache>().To<PassthroughScriptCache>().ToSingleton();
+                    binder.Bind<IScriptCache>().To<DelayedScriptCache>().ToSingleton();
 #endif
                 }
                 
