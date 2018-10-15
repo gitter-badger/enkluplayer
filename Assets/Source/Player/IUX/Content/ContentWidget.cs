@@ -335,14 +335,14 @@ namespace CreateAR.EnkluPlayer
             // unescape-- this is dumb obviously
             scriptsSrc = scriptsSrc.Replace("\\\"", "\"");
 
-            JObject value;
+            JArray value;
             try
             {
-                value = JObject.Parse(scriptsSrc);
+                value = JArray.Parse(scriptsSrc);
             }
             catch (Exception exception)
             {
-                Log.Info(this, "Could not parse \"{0}\" : {1}.",
+                Log.Error(this, "Could not parse \"{0}\" : {1}.",
                     scriptsSrc,
                     exception);
 
