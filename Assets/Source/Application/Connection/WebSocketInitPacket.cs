@@ -1,4 +1,4 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -7,16 +7,16 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class WebSocketInitPacket
     {
-        [JsonName("sid")]
-        public string Sid;
+        [JsonProperty("sid")]
+        public string Sid { get; set; }
 
-        [JsonName("upgrades")]
-        public string[] Upgrades;
+        [JsonProperty("upgrades")]
+        public string[] Upgrades { get; set; }
 
-        [JsonName("pingInterval")]
-        public int PingInterval;
+        [JsonProperty("pingInterval")]
+        public int PingInterval { get; set; }
 
-        [JsonName("pingTimeout")]
-        public int PingTimeout;
+        [JsonProperty("pingTimeout")]
+        public int PingTimeout { get; set; }
     }
 }

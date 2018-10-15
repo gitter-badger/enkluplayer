@@ -1,4 +1,4 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -10,25 +10,25 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Base URL.
         /// </summary>
-        [JsonName("trellisBaseUrl")]
-        public string TrellisBaseUrl;
+        [JsonProperty("trellisBaseUrl")]
+        public string TrellisBaseUrl { get; set; }
 
         /// <summary>
         /// Asset base url.
         /// </summary>
-        [JsonName("assetBaseUrl")]
-        public string AssetBaseUrl;
+        [JsonProperty("assetBaseUrl")]
+        public string AssetBaseUrl { get; set; }
 
         /// <summary>
         /// Bundles url.
         /// </summary>
-        [JsonName("bundlesUrl")]
-        public string BundlesUrl;
+        [JsonProperty("bundlesUrl")]
+        public string BundlesUrl { get; set; }
 
         /// <summary>
         /// Thumbs url.
         /// </summary>
-        [JsonName("thumbsUrl")]
-        public string ThumbsUrl;
+        [JsonProperty("thumbsUrl")]
+        public string ThumbsUrl { get; set; }
     }
 }

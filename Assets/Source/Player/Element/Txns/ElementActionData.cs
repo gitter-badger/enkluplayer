@@ -1,5 +1,5 @@
 ﻿using CreateAR.EnkluPlayer.IUX;
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -11,43 +11,43 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Type of action.
         /// </summary>
-        [JsonName("type")]
+        [JsonProperty("type")]
         public string Type;
 
         /// <summary>
         /// Id of the element this action affects.
         /// </summary>
-        [JsonName("elementId")]
+        [JsonProperty("elementId")]
         public string ElementId;
         
         /// <summary>
         /// Id of the parent node, used for create actions.
         /// </summary>
-        [JsonName("parentId")]
+        [JsonProperty("parentId")]
         public string ParentId;
 
         /// <summary>
         /// The element structure, used for create actions.
         /// </summary>
-        [JsonName("data")]
+        [JsonProperty("data")]
         public ElementData Element;
 
         /// <summary>
         /// Type of schema data to affect, used for update actions.
         /// </summary>
-        [JsonName("schemaType")]
+        [JsonProperty("schemaType")]
         public string SchemaType;
 
         /// <summary>
         /// Key for schema data to affect, used for update actions.
         /// </summary>
-        [JsonName("key")]
+        [JsonProperty("key")]
         public string Key;
 
         /// <summary>
         /// Value of schema data, used for update actions.
         /// </summary>
-        [JsonName("value")]
+        [JsonProperty("value")]
         public object Value;
 
         /// <summary>

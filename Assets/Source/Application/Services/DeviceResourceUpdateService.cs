@@ -2,7 +2,7 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -19,8 +19,8 @@ namespace CreateAR.EnkluPlayer
             /// <summary>
             /// Contains meta.
             /// </summary>
-            [JsonName("meta")]
-            public DeviceResourceMeta Meta;
+            [JsonProperty("meta")]
+            public DeviceResourceMeta Meta { get; set; }
         }
 
         /// <summary>

@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using CreateAR.Commons.Unity.Logging;
-using LightJson;
+using Newtonsoft.Json;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -97,7 +97,7 @@ namespace CreateAR.EnkluPlayer
             object payload = null;
             try
             {
-                payload = JsonValue.Parse(payloadString).As(payloadType);
+                payload = JsonConvert.DeserializeObject(payloadString, payloadType);
             }
             catch (Exception exception)
             {

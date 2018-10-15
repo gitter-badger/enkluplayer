@@ -1,5 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Logging;
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -26,49 +26,49 @@ namespace CreateAR.EnkluPlayer
         /// The URI at which to download the script. This is not a complete URI
         /// but used to create a complete URI.
         /// </summary>
-        [JsonName("uri")]
+        [JsonProperty("uri")]
         public string Uri;
 
         /// <summary>
         /// If true, plays on its own.
         /// </summary>
-        [JsonName("autoplay")]
+        [JsonProperty("autoplay")]
         public bool AutoPlay;
 
         /// <summary>
         /// Tags associated with this script.
         /// </summary>
-        [JsonName("tags")]
+        [JsonProperty("tags")]
         public string TagString;
 
         /// <summary>
         /// CRC.
         /// </summary>
-        [JsonName("crc")]
+        [JsonProperty("crc")]
         public string Crc;
 
         /// <summary>
         /// Time at which script was created.
         /// </summary>
-        [JsonName("createdAt")]
+        [JsonProperty("createdAt")]
         public string CreatedAt;
 
         /// <summary>
         /// Time at which script was last updated.
         /// </summary>
-        [JsonName("updatedAt")]
+        [JsonProperty("updatedAt")]
         public string UpdatedAt;
 
         /// <summary>
         /// Id of owning user.
         /// </summary>
-        [JsonName("owner")]
+        [JsonProperty("owner")]
         public string Owner;
 
         /// <summary>
         /// Version.
         /// </summary>
-        [JsonName("version")]
+        [JsonProperty("version")]
         public int Version;
 
         /// <summary>

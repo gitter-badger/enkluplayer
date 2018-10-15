@@ -1,4 +1,4 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -21,26 +21,26 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Url to hit. This should not include the host.
         /// </summary>
-        [JsonName("url")]
-        public string Url;
+        [JsonProperty("url")]
+        public string Url { get; set; }
 
         /// <summary>
         /// Http method.
         /// </summary>
-        [JsonName("method")]
-        public string Method;
+        [JsonProperty("method")]
+        public string Method { get; set; }
 
         /// <summary>
         /// Header info.
         /// </summary>
-        [JsonName("headers")]
-        public HeaderData Headers;
+        [JsonProperty("headers")]
+        public HeaderData Headers { get; set; }
 
         /// <summary>
         /// The data to send, if the http verb supports a body.
         /// </summary>
-        [JsonName("data")]
-        public object Data;
+        [JsonProperty("data")]
+        public object Data { get; set; }
 
         /// <summary>
         /// Creates a request.

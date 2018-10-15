@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using LightJson;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -132,9 +133,8 @@ namespace CreateAR.EnkluPlayer
 
             try
             {
-                _initPacket = (WebSocketInitPacket) JsonValue
-                    .Parse(message)
-                    .As(typeof(WebSocketInitPacket));
+                _initPacket = (WebSocketInitPacket) JsonConvert
+                    .DeserializeObject(message, typeof(WebSocketInitPacket));
             }
             catch (Exception exception)
             {
@@ -179,11 +179,11 @@ namespace CreateAR.EnkluPlayer
             LogVerbose("Received Trellis message : {0}", message);
 
             // try to parse using 'type'-- these are messages from the editor
-            JsonValue parsed;
+            JObject parsed;
 
             try
             {
-                parsed = JsonValue.Parse(message);
+                parsed = JObject.Parse(message);
             }
             catch (InvalidOperationException exception)
             {
@@ -211,9 +211,15 @@ namespace CreateAR.EnkluPlayer
             return false;
         }
 
-        private bool HandleEditorMessage(JsonValue parsed)
+        private bool HandleEditorMessage(JObject parsed)
         {
-            var messageType = parsed["type"].AsInteger;
+            var token = parsed["type"];
+            if (null == token)
+            {
+                return false;
+            }
+
+            var messageType = token.ToObject<int>();
             if (0 != messageType)
             {
                 var type = _binder.ByMessageType(messageType);
@@ -224,7 +230,7 @@ namespace CreateAR.EnkluPlayer
                     object typedMessage = null;
                     try
                     {
-                        typedMessage = parsed.As(type);
+                        typedMessage = parsed.ToObject(type);
                     }
                     catch (Exception exception)
                     {
@@ -247,9 +253,15 @@ namespace CreateAR.EnkluPlayer
             return false;
         }
 
-        private bool HandleAssetMessage(JsonValue parsed)
+        private bool HandleAssetMessage(JObject parsed)
         {
-            var messageType = parsed["messageType"].AsString;
+            var token = parsed["messageType"];
+            if (null == token)
+            {
+                return false;
+            }
+
+            var messageType = token.ToObject<string>();
             switch (messageType)
             {
                 case "assetcreation":
@@ -260,13 +272,11 @@ namespace CreateAR.EnkluPlayer
                         var assetData = parsed["payload"]["asset"];
 
                         // first, parse stats
-                        var statsString = assetData["stats"].AsString;
-                        var stats = (AssetStatsData) JsonValue
-                            .Parse(statsString)
-                            .As(typeof(AssetStatsData));
-                        assetData["stats"] = new JsonValue();
+                        var statsString = assetData["stats"].ToObject<string>();
+                        var stats = JsonConvert.DeserializeObject<AssetStatsData>(statsString);
+                        assetData["stats"] = null;
 
-                        asset = (AssetData) assetData.As(typeof(AssetData));
+                        asset = assetData.ToObject<AssetData>();
                         asset.Stats = stats;
                     }
                     catch (Exception exception)
@@ -290,14 +300,12 @@ namespace CreateAR.EnkluPlayer
                     try
                     {
                         // first, parse stats
-                        var statsString = parsed["payload"]["stats"].AsString;
-                        var stats = (AssetStatsData) JsonValue
-                            .Parse(statsString)
-                            .As(typeof(AssetStatsData));
+                        var statsString = parsed["payload"]["stats"].ToObject<string>();
+                        var stats = JsonConvert.DeserializeObject<AssetStatsData>(statsString);
 
                         @event = new AssetStatsEvent
                         {
-                            Id = parsed["payload"]["assetId"].AsString,
+                            Id = parsed["payload"]["assetId"].ToObject<string>(),
                             Stats = stats
                         };
                     }
@@ -315,7 +323,7 @@ namespace CreateAR.EnkluPlayer
                 }
                 case "assetdeleted":
                 {
-                    var id = parsed["payload"]["assetId"].AsString;
+                    var id = parsed["payload"]["assetId"].ToObject<string>();
 
                     _filter.Publish(
                         MessageTypes.RECV_ASSET_REMOVE,
@@ -336,9 +344,15 @@ namespace CreateAR.EnkluPlayer
             return false;
         }
 
-        private bool HandleScriptMessage(JsonValue parsed)
+        private bool HandleScriptMessage(JObject parsed)
         {
-            var messageType = parsed["messageType"].AsString;
+            var token = parsed["messageType"];
+            if (null == token)
+            {
+                return false;
+            }
+
+            var messageType = token.ToObject<string>();
             switch (messageType)
             {
                 case "scriptcreated":
@@ -346,7 +360,7 @@ namespace CreateAR.EnkluPlayer
                     ScriptData payload;
                     try
                     {
-                        payload = (ScriptData) parsed["payload"].As(typeof(ScriptData));
+                        payload = parsed["payload"].ToObject<ScriptData>();
                     }
                     catch (Exception exception)
                     {
@@ -369,7 +383,7 @@ namespace CreateAR.EnkluPlayer
                     ScriptData payload;
                     try
                     {
-                        payload = (ScriptData) parsed["payload"].As(typeof(ScriptData));
+                        payload = parsed["payload"].ToObject<ScriptData>();
                     }
                     catch (Exception exception)
                     {
@@ -389,7 +403,7 @@ namespace CreateAR.EnkluPlayer
                 }
                 case "scriptdeleted":
                 {
-                    var id = parsed["payload"].AsString;
+                    var id = parsed["payload"].ToObject<string>();
 
                     _filter.Publish(
                         MessageTypes.RECV_SCRIPT_REMOVE,

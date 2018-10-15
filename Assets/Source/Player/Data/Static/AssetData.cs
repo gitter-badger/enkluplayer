@@ -1,4 +1,4 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -10,13 +10,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Minumum.
         /// </summary>
-        [JsonName("min")]
+        [JsonProperty("min")]
         public Vec3 Min;
 
         /// <summary>
         /// Maximum.
         /// </summary>
-        [JsonName("max")]
+        [JsonProperty("max")]
         public Vec3 Max;
     }
     
@@ -28,19 +28,19 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Vert count.
         /// </summary>
-        [JsonName("vertCount")]
+        [JsonProperty("vertCount")]
         public int VertCount;
 
         /// <summary>
         /// Tri count.
         /// </summary>
-        [JsonName("triCount")]
+        [JsonProperty("triCount")]
         public int TriCount;
 
         /// <summary>
         /// Bounds.
         /// </summary>
-        [JsonName("bounds")]
+        [JsonProperty("bounds")]
         public AssetStatsBoundsData Bounds;
     }
 
@@ -54,111 +54,111 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Identifier unique to this asset.
         /// </summary>
-        [JsonName("id")]
+        [JsonProperty("id")]
         public string Guid;
 
         /// <summary>
         /// Description.
         /// </summary>
-        [JsonName("description")]
+        [JsonProperty("description")]
         public string Description;
 
         /// <summary>
         /// Id of owning user.
         /// </summary>
-        [JsonName("owner")]
+        [JsonProperty("owner")]
         public string Owner;
 
         /// <summary>
         /// Owning app.
         /// </summary>
-        [JsonName("app")]
+        [JsonProperty("app")]
         public string App;
 
         /// <summary>
         /// The URI at which to download the asset. This is not a complete URI
         /// but used to create a complete URI.
         /// </summary>
-        [JsonName("uri")]
+        [JsonProperty("uri")]
         public string Uri;
 
         /// <summary>
         /// The URI at which to download the asset thumbnail. This is not a
         /// complete URI but used to create a complete URI.
         /// </summary>
-        [JsonName("uriThumb")]
+        [JsonProperty("uriThumb")]
         public string UriThumb;
 
         /// <summary>
         /// Name of the asset in the bundle.
         /// </summary>
-        [JsonName("name")]
+        [JsonProperty("name")]
         public string AssetName;
 
         /// <summary>
         /// Version of the asset.
         /// </summary>
-        [JsonName("version")]
+        [JsonProperty("version")]
         public int Version;
 
         /// <summary>
         /// Crc for checking download validity.
         /// </summary>
-        [JsonName("crc")]
+        [JsonProperty("crc")]
         public string Crc;
 
         /// <summary>
         /// Tags associated with this asset.
         /// </summary>
-        [JsonName("tags")]
+        [JsonProperty("tags")]
         public string Tags;
 
         /// <summary>
         /// Stats associated with this asset, if any.
         /// </summary>
-        [JsonName("stats")]
+        [JsonProperty("stats")]
         public AssetStatsData Stats = new AssetStatsData();
 
         /// <summary>
         /// TODO: Remove unused field.
         /// </summary>
-        [JsonName("status")]
+        [JsonProperty("status")]
         public string Status;
 
         /// <summary>
         /// Type of asset.
         /// </summary>
-        [JsonName("type")]
+        [JsonProperty("type")]
         public string Type;
 
         /// <summary>
         /// Time at which the asset was created.
         /// </summary>
-        [JsonName("createdAt")]
+        [JsonProperty("createdAt")]
         public string CreatedAt;
 
         /// <summary>
         /// Last updated time.
         /// </summary>
-        [JsonName("updatedAt")]
+        [JsonProperty("updatedAt")]
         public string UpdatedAt;
 
         /// <summary>
         /// iOS import status.
         /// </summary>
-        [JsonName("ios")]
+        [JsonProperty("ios")]
         public string Ios;
 
         /// <summary>
         /// Webgl import status.
         /// </summary>
-        [JsonName("webgl")]
+        [JsonProperty("webgl")]
         public string Webgl;
 
         /// <summary>
         /// WsaPlayer import status.
         /// </summary>
-        [JsonName("wsaplayer")]
+        [JsonProperty("wsaplayer")]
         public string Wsaplayer;
         
         /// <summary>
