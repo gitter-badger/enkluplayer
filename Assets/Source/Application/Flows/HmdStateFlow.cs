@@ -13,16 +13,31 @@ namespace CreateAR.EnkluPlayer
         private readonly ApplicationConfig _config;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Manages flows and states.
         /// </summary>
         private IApplicationStateManager _states;
 
         /// <summary>
+        /// Timer id for time to play.
+        /// </summary>
+        private int _timeToPlayTimer;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
-        public HmdStateFlow(ApplicationConfig config)
+        public HmdStateFlow(
+            ApplicationConfig config,
+            IMetricsService metrics)
         {
             _config = config;
+            _metrics = metrics;
+
+            _timeToPlayTimer = _metrics.Timer(MetricsKeys.STATE_TIMETOPLAY).Start();
         }
         
         /// <inheritdoc />
@@ -120,6 +135,8 @@ namespace CreateAR.EnkluPlayer
                 }
                 case MessageTypes.PLAY:
                 {
+                    _metrics.Timer(MetricsKeys.STATE_TIMETOPLAY).Stop(_timeToPlayTimer);
+
                     _states.ChangeState<PlayApplicationState>();
                     break;
                 }
