@@ -90,7 +90,17 @@ namespace CreateAR.EnkluPlayer
                 case MessageTypes.DEVICE_REGISTRATION:
                 case MessageTypes.LOGIN_COMPLETE:
                 {
-                    _states.ChangeState<DeviceRegistrationApplicationState>();
+                    if (_config.Play.SkipDeviceRegistration)
+                    {
+                        Log.Info(this, "Skipping device registration.");
+
+                        _states.ChangeState<LoadDefaultAppApplicationState>();
+                    }
+                    else
+                    {
+                        _states.ChangeState<DeviceRegistrationApplicationState>();
+                    }
+                    
                     break;
                 }
                 case MessageTypes.DEVICE_REGISTRATION_COMPLETE:

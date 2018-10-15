@@ -31,6 +31,11 @@ namespace CreateAR.EnkluPlayer
         /// Messages.
         /// </summary>
         private readonly IMessageRouter _messages;
+
+        /// <summary>
+        /// User prefs.
+        /// </summary>
+        private readonly UserPreferenceService _prefs;
         
         /// <summary>
         /// Lookup from sceneId -> scene loads.
@@ -46,6 +51,11 @@ namespace CreateAR.EnkluPlayer
         /// Http helper.
         /// </summary>
         private readonly HttpRequestCacher _helper;
+
+        /// <summary>
+        /// Play mode configuration.
+        /// </summary>
+        private PlayAppConfig _config;
 
         /// <inheritdoc />
         public string Name { get; private set; }
@@ -65,11 +75,13 @@ namespace CreateAR.EnkluPlayer
         public AppDataLoader(
             ApiController api,
             HttpRequestCacher cache,
+            UserPreferenceService prefs,
             IMessageRouter messages)
         {
             _api = api;
-            _messages = messages;
             _helper = cache;
+            _prefs = prefs;
+            _messages = messages;
         }
 
         /// <inheritdoc />
@@ -91,11 +103,74 @@ namespace CreateAR.EnkluPlayer
 
             Log.Info(this, "Load App {0}.", id);
 
-            return Async.Map(
-                Async.All(
-                    LoadPrerequisites(id),
-                    LoadScenes(id)),
-                _ => Void.Instance);
+            var token = new AsyncToken<Void>();
+            
+            // first, load user prefs
+            _prefs
+                .ForCurrentUser()
+                .OnSuccess(sync =>
+                {
+                    var appPrefs = sync.Data.App(id);
+
+                    var behavior = HttpRequestCacher.LoadBehavior.NetworkFirst;
+                    if (config.PeriodicUpdates)
+                    {
+                        Log.Info(this, "Periodic update requested.");
+
+                        if (string.IsNullOrEmpty(appPrefs.LastUpdate))
+                        {
+                            Log.Info(this, "App has never been updatd, proceeding with network load.");
+                        }
+                        else
+                        {
+                            DateTime lastUpdate;
+                            if (DateTime.TryParse(appPrefs.LastUpdate, out lastUpdate))
+                            {
+                                var delta = DateTime.Now.Subtract(lastUpdate).TotalMinutes;
+                                if (delta < config.PeriodicUpdatesMinutes)
+                                {
+                                    Log.Info(this, "Periodic update has not expired. Loading app from disk.");
+
+                                    behavior = HttpRequestCacher.LoadBehavior.DiskOnly;
+                                }
+                                else
+                                {
+                                    Log.Info(this, "Periodic update expired ({0} minutes), refreshing from network.",
+                                        delta);
+                                }
+                            }
+                            else
+                            {
+                                Log.Warning(this, "Invalid DateTime string, proceeding with network load.");
+                            }
+                        }
+                    }
+
+                    // save last updated time
+                    sync.Queue((state, up) =>
+                    {
+                        Log.Info(this, "Saving last update time.");
+
+                        state.App(id).LastUpdate = DateTime.Now.ToString();
+
+                        up(state);
+                    });
+
+                    LoadApp(id, behavior)
+                        .OnSuccess(token.Succeed)
+                        .OnFailure(token.Fail);
+                })
+                .OnFailure(ex =>
+                {
+                    Log.Error(this, "Could not get user prefs : {0}", ex);
+
+                    // load
+                    LoadApp(id, HttpRequestCacher.LoadBehavior.NetworkFirst)
+                        .OnSuccess(token.Succeed)
+                        .OnFailure(token.Fail);
+                });
+
+            return token;
         }
 
         /// <inheritdoc />
@@ -109,34 +184,46 @@ namespace CreateAR.EnkluPlayer
             _sceneLoads.Clear();
             _sceneData.Clear();
         }
+        
+        /// <summary>
+        /// Updates app data.
+        /// </summary>
+        private IAsyncToken<Void> LoadApp(
+            string appId,
+            HttpRequestCacher.LoadBehavior behavior)
+        {
+            return Async.Map(
+                Async.All(
+                    LoadPrerequisites(appId, behavior),
+                    LoadScenes(appId, behavior)),
+                _ => Void.Instance);
+        }
 
         /// <summary>
         /// Loads prerequisites for an app.
         /// </summary>
-        /// <param name="appId">The id of the app.</param>
-        /// <returns></returns>
-        private IAsyncToken<Void> LoadPrerequisites(string appId)
+        private IAsyncToken<Void> LoadPrerequisites(string appId, HttpRequestCacher.LoadBehavior behavior)
         {
             return Async.Map(
                 Async.All(
-                    GetAssets(appId),
-                    GetScripts(appId)),
+                    GetAssets(appId, behavior),
+                    GetScripts(appId, behavior)),
                 _ => Void.Instance);
         }
 
         /// <summary>
         /// Loads all of an app's scenes.
         /// </summary>
-        /// <param name="appId">The id of the app.</param>
-        /// <returns></returns>
-        private IAsyncToken<Void> LoadScenes(string appId)
+        private IAsyncToken<Void> LoadScenes(
+            string appId,
+            HttpRequestCacher.LoadBehavior behavior)
         {
             var token = new AsyncToken<Void>();
             
             // get app
             _helper
                 .Request(
-                    HttpRequestCacher.LoadBehavior.NetworkFirst,
+                    behavior,
                     "appdata://" + appId + "/scenelist",
                     () => _api.PublishedApps.GetPublishedApp(appId))
                 .OnSuccess(response =>
@@ -155,7 +242,7 @@ namespace CreateAR.EnkluPlayer
                         .All(response
                             .Body
                             .Scenes
-                            .Select(scene => LoadScene(appId, scene).OnSuccess(description => _sceneData[scene] = description))
+                            .Select(scene => LoadScene(appId, scene, behavior).OnSuccess(description => _sceneData[scene] = description))
                             .ToArray())
                         .OnSuccess(_ =>
                         {
@@ -173,14 +260,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Retrieves AssetData.
         /// </summary>
-        /// <returns></returns>
-        private IAsyncToken<Void> GetAssets(string appId)
+        private IAsyncToken<Void> GetAssets(string appId, HttpRequestCacher.LoadBehavior behavior)
         {
             var token = new AsyncToken<Void>();
             
             // load from network
             _helper.Request(
-                    HttpRequestCacher.LoadBehavior.NetworkFirst,
+                    behavior,
                     "appdata://" + appId + "/assets",
                     () => _api.PublishedApps.GetPublishedAssets(appId))
                 .OnSuccess(response =>
@@ -207,14 +293,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Retrieves ScriptData.
         /// </summary>
-        /// <returns></returns>
-        private IAsyncToken<Void> GetScripts(string appId)
+        private IAsyncToken<Void> GetScripts(string appId, HttpRequestCacher.LoadBehavior behavior)
         {
             var token = new AsyncToken<Void>();
 
             // load from network
             _helper.Request(
-                    HttpRequestCacher.LoadBehavior.NetworkFirst,
+                    behavior,
                     "appdata://" + appId + "/scripts",
                     () => _api.PublishedApps.GetPublishedAppScripts(appId))
                 .OnSuccess(response =>
@@ -241,17 +326,15 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Loads a scene by id.
         /// </summary>
-        /// <param name="appId">Id of the app.</param>
-        /// <param name="sceneId">The id of the scene.</param>
-        /// <returns></returns>
         private IAsyncToken<ElementDescription> LoadScene(
             string appId,
-            string sceneId)
+            string sceneId,
+            HttpRequestCacher.LoadBehavior behavior)
         {
             var token = new AsyncToken<ElementDescription>();
 
             _sceneLoads[sceneId] = _helper.Request(
-                    HttpRequestCacher.LoadBehavior.NetworkFirst,
+                    behavior,
                     "appdata://" + appId + "/Scenes/" + sceneId,
                     () => _api.PublishedApps.GetPublishedScene(appId, sceneId))
                 .OnSuccess(response =>
