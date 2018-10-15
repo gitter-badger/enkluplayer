@@ -197,9 +197,8 @@ module = null;
                     string.Empty));
                 if (null == asset)
                 {
-                    throw new Exception(string.Format(
-                        "Could not find require in Resources '{0}'.",
-                        require));
+                    Log.Error(this, "Could not find require in Resources '{0}'.", require);
+                    return null;
                 }
 
                 source = asset.text;
@@ -210,9 +209,8 @@ module = null;
                 var script = scripts.FindOne(require);
                 if (null == script)
                 {
-                    throw new Exception(string.Format(
-                        "Could not find require '{0}'.",
-                        require));
+                    Log.Error(this, "Could not find require '{0}'.", require);
+                    return null;
                 }
 
                 source = script.Source;
@@ -232,10 +230,8 @@ module = null;
             }
             catch (Exception exception)
             {
-                throw new Exception(string.Format(
-                    "Could not execute {0} : {1}.",
-                    require,
-                    exception));
+                Log.Error(this, string.Format("Could not execute {0} : {1}.", require, exception));
+                return null;
             }
 
             records.Add(new RequireRecord(require, module));
