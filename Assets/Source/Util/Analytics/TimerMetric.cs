@@ -5,6 +5,8 @@ namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Metric that times things.
+    /// 
+    /// TODO: Clear timers during sleep/resume.
     /// </summary>
     public class TimerMetric
     {
