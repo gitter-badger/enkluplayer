@@ -130,30 +130,22 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void StartLogin()
         {
-            // check disk cache for credentials
-            if (_files.Exists(CREDS_URI))
-            {
-                _files
-                    .Get<CredentialsData>(CREDS_URI)
-                    .OnSuccess(file =>
-                    {
-                        // load into default app
-                        Log.Info(this, "Credentials loaded from disk.");
+            // load creds
+            _files
+                .Get<CredentialsData>(CREDS_URI)
+                .OnSuccess(file =>
+                {
+                    // load into default app
+                    Log.Info(this, "Credentials loaded from disk.");
 
-                        ConfigureCredentials(file.Data);
-                    })
-                    .OnFailure(exception =>
-                    {
-                        Log.Error(this, "Could not load credential information: {0}", exception);
+                    ConfigureCredentials(file.Data);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not load credential information: {0}", exception);
 
-                        NetworkLogin();
-                    });
-            }
-            else
-            {
-                // nothing on disk, fresh login
-                NetworkLogin();
-            }
+                    NetworkLogin();
+                });
         }
 
         /// <summary>
