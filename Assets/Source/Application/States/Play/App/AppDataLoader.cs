@@ -147,14 +147,17 @@ namespace CreateAR.EnkluPlayer
                     }
 
                     // save last updated time
-                    sync.Queue((state, up) =>
+                    if (behavior == HttpRequestCacher.LoadBehavior.NetworkFirst)
                     {
-                        Log.Info(this, "Saving last update time.");
+                        sync.Queue((state, up) =>
+                        {
+                            Log.Info(this, "Saving last update time.");
 
-                        state.App(id).LastUpdate = DateTime.Now.ToString();
+                            state.App(id).LastUpdate = DateTime.Now.ToString();
 
-                        up(state);
-                    });
+                            up(state);
+                        });
+                    }
 
                     LoadApp(id, behavior)
                         .OnSuccess(token.Succeed)

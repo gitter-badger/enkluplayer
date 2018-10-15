@@ -90,7 +90,7 @@ namespace CreateAR.EnkluPlayer
 
             // metrics
             var loadId = _metrics.Timer(MetricsKeys.APP_DATA_LOAD).Start();
-
+            
             return _loader
                 .Load(_config)
                 .OnSuccess(_ =>
