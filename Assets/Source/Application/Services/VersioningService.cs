@@ -52,6 +52,15 @@ namespace CreateAR.EnkluPlayer
                     Bug = split[2];
                 }
             }
+
+            /// <inheritdoc />
+            public override string ToString()
+            {
+                return "{0}.{1}.{2}".Format(
+                    Major,
+                    Minor,
+                    Bug);
+            }
         }
 
         /// <summary>
@@ -146,7 +155,7 @@ namespace CreateAR.EnkluPlayer
                         var req = new VersionData(response.Payload.Body.Version);
                         var local = new VersionData(_config.Version);
                         
-                        if (req.Major != local.Major)
+                        if (req.Major > local.Major)
                         {
                             Log.Warning(this, "New HoloLens build required.");
 
@@ -156,13 +165,15 @@ namespace CreateAR.EnkluPlayer
                         }
                         else
                         {
-                            if (req.Minor != local.Minor)
+                            if (req.Minor > local.Minor)
                             {
-                                Log.Warning(this, "New version available.");
+                                Log.Warning(this, "New version available. Current [{0}], New [{1}].",
+                                    local,
+                                    req);
                             }
                             else
                             {
-                                Log.Info(this, "HoloLens version match.");
+                                Log.Info(this, "HoloLens version match or prerelease.");
                             }
 
                             token.Succeed(Void.Instance);
