@@ -241,6 +241,11 @@ namespace CreateAR.EnkluPlayer
         public bool SkipDeviceRegistration;
 
         /// <summary>
+        /// If true, skips version check.
+        /// </summary>
+        public bool SkipVersionCheck;
+
+        /// <summary>
         /// Parses designer name.
         /// </summary>
         public DesignerType ParsedDesigner
@@ -289,6 +294,11 @@ namespace CreateAR.EnkluPlayer
             if (overrideConfig.SkipDeviceRegistration)
             {
                 SkipDeviceRegistration = overrideConfig.SkipDeviceRegistration;
+            }
+
+            if (overrideConfig.SkipVersionCheck)
+            {
+                SkipVersionCheck = overrideConfig.SkipVersionCheck;
             }
         }
     }
