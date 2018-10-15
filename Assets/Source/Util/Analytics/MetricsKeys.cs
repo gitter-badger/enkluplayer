@@ -23,6 +23,7 @@
         public const string STATE_LOGIN = "State.Login";
         public const string STATE_DEVICEREGISTRATION = "State.DeviceRegistration";
         public const string STATE_LOAD = "State.Load";
+        public const string STATE_TIMETOPLAY = "State.TimeToPlay";
 
         ///////////////////////////////////////////////////////////////////////
         /// Anchors

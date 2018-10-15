@@ -30,13 +30,13 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <inheritdoc />
-        public bool Contains(string id, int version)
+        public virtual bool Contains(string id, int version)
         {
             return _files.Exists(Uri(id, version));
         }
 
         /// <inheritdoc />
-        public void Save(string id, int version, string value)
+        public virtual void Save(string id, int version, string value)
         {
             _files
                 .Set(Uri(id, version), value)
@@ -47,7 +47,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<string> Load(string id, int version)
+        public virtual IAsyncToken<string> Load(string id, int version)
         {
             return Async.Map(
                 _files.Get<string>(Uri(id, version)),
@@ -55,7 +55,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public void Purge(DateTime cutoff)
+        public virtual void Purge(DateTime cutoff)
         {
             throw new NotImplementedException();
         }

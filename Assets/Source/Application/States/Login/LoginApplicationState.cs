@@ -95,35 +95,16 @@ namespace CreateAR.EnkluPlayer
 
             _timerId = _metrics.Timer(MetricsKeys.STATE_LOGIN).Start();
 
-            _versioning
-                .CheckVersions()
-                .OnSuccess(_ =>
-                {
-                    // check disk cache for credentials
-                    if (_files.Exists(CREDS_URI))
-                    {
-                        _files
-                            .Get<CredentialsData>(CREDS_URI)
-                            .OnSuccess(file =>
-                            {
-                                // load into default app
-                                Log.Info(this, "Credentials loaded from disk.");
-
-                                ConfigureCredentials(file.Data);
-                            })
-                            .OnFailure(exception =>
-                            {
-                                Log.Error(this, "Could not load credential information: {0}", exception);
-
-                                Login();
-                            });
-                    }
-                    else
-                    {
-                        // nothing on disk, fresh login
-                        Login();
-                    }
-                });
+            if (_config.Play.SkipVersionCheck)
+            {
+                StartLogin();
+            }
+            else
+            {
+                _versioning
+                    .CheckVersions()
+                    .OnSuccess(_ => StartLogin());
+            }
         }
 
         /// <inheritdoc />
@@ -145,9 +126,32 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Begins login procedure.
+        /// </summary>
+        private void StartLogin()
+        {
+            // load creds
+            _files
+                .Get<CredentialsData>(CREDS_URI)
+                .OnSuccess(file =>
+                {
+                    // load into default app
+                    Log.Info(this, "Credentials loaded from disk.");
+
+                    ConfigureCredentials(file.Data);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not load credential information: {0}", exception);
+
+                    NetworkLogin();
+                });
+        }
+
+        /// <summary>
         /// Logs in and obtains credentials object.
         /// </summary>
-        private void Login()
+        private void NetworkLogin()
         {
             // different platforms have different login strategies
             _strategy

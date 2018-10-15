@@ -223,6 +223,29 @@ namespace CreateAR.EnkluPlayer
         public bool Edit = true;
 
         /// <summary>
+        /// If true, the player will only check for updates every X minutes,
+        /// as given by <c>PeriodicUpdatesMinutes</c>. If false, the player
+        /// checks for updates each time play mode is entered.
+        /// </summary>
+        public bool PeriodicUpdates;
+
+        /// <summary>
+        /// Minutes to wait before checking for updates again. Only used if
+        /// <c>PeriodicUpdates</c> is set to true.
+        /// </summary>
+        public int PeriodicUpdatesMinutes;
+
+        /// <summary>
+        /// If true, skips device registration.
+        /// </summary>
+        public bool SkipDeviceRegistration;
+
+        /// <summary>
+        /// If true, skips version check.
+        /// </summary>
+        public bool SkipVersionCheck;
+
+        /// <summary>
         /// Parses designer name.
         /// </summary>
         public DesignerType ParsedDesigner
@@ -256,6 +279,26 @@ namespace CreateAR.EnkluPlayer
             if (!string.IsNullOrEmpty(overrideConfig.Designer))
             {
                 Designer = overrideConfig.Designer;
+            }
+
+            if (overrideConfig.PeriodicUpdates)
+            {
+                PeriodicUpdates = overrideConfig.PeriodicUpdates;
+            }
+
+            if (overrideConfig.PeriodicUpdatesMinutes > 0)
+            {
+                PeriodicUpdatesMinutes = overrideConfig.PeriodicUpdatesMinutes;
+            }
+
+            if (overrideConfig.SkipDeviceRegistration)
+            {
+                SkipDeviceRegistration = overrideConfig.SkipDeviceRegistration;
+            }
+
+            if (overrideConfig.SkipVersionCheck)
+            {
+                SkipVersionCheck = overrideConfig.SkipVersionCheck;
             }
         }
     }

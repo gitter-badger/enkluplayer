@@ -114,7 +114,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             var backingGameObject = EntityToGameObject(entity);
             if (backingGameObject == null)
             {
-                Log.Warning(this, "Can't find backing gameobject for " + entity);
+                Log.Info(this, "Can't find backing gameobject for " + entity);
                 return;
             }
 
@@ -176,7 +176,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
             else
             {
-                Log.Warning(this, "Attempting to set radii for untracked element");
+                Log.Info(this, "Attempting to set radii for untracked element");
             }
         }
 
@@ -293,7 +293,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 var widget = elementJs.Element as Widget;
                 if (widget == null) 
                 {
-                    Log.Warning(this, "ElementJs was not a Widget");
+                    Log.Info(this, "ElementJs was not a Widget");
                     return null;
                 }
 
@@ -312,7 +312,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return entityAsHandJs.gameObject;
             }
 
-            Log.Warning(this, "IEntityJs was not ElementJs or PlayerJs");
+            Log.Info(this, "IEntityJs was not ElementJs or PlayerJs");
             return null;
         }
 

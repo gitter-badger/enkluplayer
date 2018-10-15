@@ -95,28 +95,37 @@ namespace CreateAR.EnkluPlayer
                 }, out _loadingStackId);
 
             // load app
-            _loadToken = _app.Load(_config.Play.AppId);
+            _loadToken = _app.Load(_config.Play);
             _loadToken
                 .OnSuccess(_ =>
                 {
                     Log.Info(this, "App loaded.");
 
-                    Log.Info(this, "Connecting to Trellis...");
+                    if (_config.Play.Edit)
+                    {
+                        Log.Info(this, "Connecting to Trellis...");
 
-                    _connection
-                        .Connect(_config.Network.Environment)
-                        .OnFailure(exception =>
-                        {
-                            Log.Error(this, "Could not connect to Trellis : {0}.", exception);
+                        _connection
+                            .Connect(_config.Network.Environment)
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this, "Could not connect to Trellis : {0}.", exception);
 
-                            // That's okay.
-                        })
-                        .OnFinally(__ =>
-                        {
-                            Log.Info(this, "Moving to play mode.");
+                                // That's okay.
+                            })
+                            .OnFinally(__ =>
+                            {
+                                Log.Info(this, "Moving to play mode.");
 
-                            _messages.Publish(MessageTypes.PLAY);
-                        });
+                                _messages.Publish(MessageTypes.PLAY);
+                            });
+                    }
+                    else
+                    {
+                        Log.Info(this, "Moving to play mode.");
+
+                        _messages.Publish(MessageTypes.PLAY);
+                    }
                 })
                 .OnFailure(exception =>
                 {

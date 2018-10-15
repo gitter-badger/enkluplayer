@@ -13,16 +13,31 @@ namespace CreateAR.EnkluPlayer
         private readonly ApplicationConfig _config;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Manages flows and states.
         /// </summary>
         private IApplicationStateManager _states;
 
         /// <summary>
+        /// Timer id for time to play.
+        /// </summary>
+        private int _timeToPlayTimer;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
-        public HmdStateFlow(ApplicationConfig config)
+        public HmdStateFlow(
+            ApplicationConfig config,
+            IMetricsService metrics)
         {
             _config = config;
+            _metrics = metrics;
+
+            _timeToPlayTimer = _metrics.Timer(MetricsKeys.STATE_TIMETOPLAY).Start();
         }
         
         /// <inheritdoc />
@@ -90,7 +105,17 @@ namespace CreateAR.EnkluPlayer
                 case MessageTypes.DEVICE_REGISTRATION:
                 case MessageTypes.LOGIN_COMPLETE:
                 {
-                    _states.ChangeState<DeviceRegistrationApplicationState>();
+                    if (_config.Play.SkipDeviceRegistration)
+                    {
+                        Log.Info(this, "Skipping device registration.");
+
+                        _states.ChangeState<LoadDefaultAppApplicationState>();
+                    }
+                    else
+                    {
+                        _states.ChangeState<DeviceRegistrationApplicationState>();
+                    }
+                    
                     break;
                 }
                 case MessageTypes.DEVICE_REGISTRATION_COMPLETE:
@@ -110,6 +135,8 @@ namespace CreateAR.EnkluPlayer
                 }
                 case MessageTypes.PLAY:
                 {
+                    _metrics.Timer(MetricsKeys.STATE_TIMETOPLAY).Stop(_timeToPlayTimer);
+
                     _states.ChangeState<PlayApplicationState>();
                     break;
                 }
