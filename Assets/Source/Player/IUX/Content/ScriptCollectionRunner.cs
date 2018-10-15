@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -11,6 +13,27 @@ namespace CreateAR.EnkluPlayer.Scripting
     /// </summary>
     public class ScriptCollectionRunner
     {
+        /// <summary>
+        /// The state of script setup.
+        /// </summary>
+        private enum SetupState
+        {
+            /// <summary>
+            /// Scripts aren't loaded.
+            /// </summary>
+            None,
+
+            /// <summary>
+            /// Scripts are initializing.
+            /// </summary>
+            Initializing,
+
+            /// <summary>
+            /// Scripts are ready for use.
+            /// </summary>
+            Done
+        }
+
         /// <summary>
         /// Manages scripts.
         /// </summary>
@@ -42,9 +65,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly Element _element;
 
         /// <summary>
-        /// True iff Setup has been called but Teardown has not.
+        /// The current state of script loading.
         /// </summary>
-        private bool _isSetup;
+        private SetupState _setupState;
 
         /// <summary>
         /// Tracks js caches in use.
@@ -86,15 +109,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="scripts">The scripts to execute.</param>
         public void Setup(IList<EnkluScript> scripts)
         {
-            if (_isSetup)
+            if (_setupState != SetupState.None)
             {
                 throw new Exception("Already Setup!");
             }
 
-            _isSetup = true;
+            _setupState = SetupState.Initializing;
             
             // start all vines first
             var len = scripts.Count;
+            var vineSetupTokens = new List<IAsyncToken<Void>>(len);
             for (var i = 0; i < len; i++)
             {
                 var script = scripts[i];
@@ -105,24 +129,32 @@ namespace CreateAR.EnkluPlayer.Scripting
 
                 if (script.Data.Type == ScriptType.Vine)
                 {
-                    RunVine(script);
+                    vineSetupTokens.Add(RunVine(script));
                 }
             }
 
             // start all behaviors after vines
-            for (var i = 0; i < len; i++)
+            Async.All(vineSetupTokens.ToArray()).OnFinally(_ =>
             {
-                var script = scripts[i];
-                if (null == script)
+                // Check that scripts weren't unloaded while vines processed.
+                if (_setupState == SetupState.None)
                 {
-                    continue;
+                    return;
                 }
 
-                if (script.Data.Type == ScriptType.Behavior)
-                {
-                    RunBehavior(script);
+                for (var i = 0; i < len; i++) {
+                    var script = scripts[i];
+                    if (null == script) {
+                        continue;
+                    }
+
+                    if (script.Data.Type == ScriptType.Behavior) {
+                        RunBehavior(script);
+                    }
                 }
-            }
+
+                _setupState = SetupState.Done;
+            });
         }
 
         /// <summary>
@@ -130,7 +162,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public void Update()
         {
-            if (!_isSetup)
+            if (_setupState != SetupState.Done)
             {
                 return;
             }
@@ -146,12 +178,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public void Teardown()
         {
-            if (!_isSetup)
+            if (_setupState != SetupState.None)
             {
                 return;
             }
 
-            _isSetup = false;
+            _setupState = SetupState.None;
 
             Log.Info(this, "\t-Destroying {0} scripts.", _scriptComponents.Count);
 
@@ -186,13 +218,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Runs a vine script
         /// </summary>
         /// <param name="script">The vine to run.</param>
-        private void RunVine(EnkluScript script)
+        private IAsyncToken<Void> RunVine(EnkluScript script)
         {
             Log.Info(this, "Run vine({0}) : {1}", script.Data, script.Source);
 
             var component = GetVineComponent();
             component.Initialize(_element, script);
-            component
+            return component
                 .Configure()
                 .OnSuccess(_ => component.Enter());
         }
