@@ -4,7 +4,7 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
-using LightJson;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -335,10 +335,10 @@ namespace CreateAR.EnkluPlayer
             // unescape-- this is dumb obviously
             scriptsSrc = scriptsSrc.Replace("\\\"", "\"");
 
-            JsonArray value;
+            JObject value;
             try
             {
-                value = JsonValue.Parse(scriptsSrc).AsJsonArray;
+                value = JObject.Parse(scriptsSrc);
             }
             catch (Exception exception)
             {
@@ -354,7 +354,7 @@ namespace CreateAR.EnkluPlayer
             var ids = new string[len];
             for (var i = 0; i < len; i++)
             {
-                ids[i] = value[i]["id"].AsString;
+                ids[i] = value[i]["id"].ToObject<string>();
             }
 
             return ids;

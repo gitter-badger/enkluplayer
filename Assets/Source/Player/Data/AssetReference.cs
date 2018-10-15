@@ -1,5 +1,5 @@
 ﻿using System;
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -12,13 +12,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Unique id of the AssetData.
         /// </summary>
-        [JsonName("id")]
+        [JsonProperty("id")]
         public string AssetDataId;
         
         /// <summary>
         /// Describes how this asset should be pooled.
         /// </summary>
-        [JsonName("pooling")]
+        [JsonProperty("pooling")]
         public PoolData Pooling;
 
         /// <summary>

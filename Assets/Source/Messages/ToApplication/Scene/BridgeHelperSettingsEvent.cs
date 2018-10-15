@@ -1,4 +1,4 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -10,19 +10,19 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// The category.
         /// </summary>
-        [JsonName("category")]
-        public string Category;
+        [JsonProperty("category")]
+        public string Category { get; set; }
 
         /// <summary>
         /// Name of the setting.
         /// </summary>
-        [JsonName("name")]
-        public string Name;
+        [JsonProperty("name")]
+        public string Name { get; set; }
 
         /// <summary>
         /// Setting value.
         /// </summary>
-        [JsonName("value")]
-        public bool Value;
+        [JsonProperty("value")]
+        public bool Value { get; set; }
     }
 }

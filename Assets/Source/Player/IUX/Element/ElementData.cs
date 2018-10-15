@@ -1,5 +1,5 @@
 using System.Linq;
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
@@ -11,25 +11,25 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Unique to this set element.
         /// </summary>
-        [JsonName("id")]
+        [JsonProperty("id")]
         public string Id;
 
         /// <summary>
         /// Type of element to construct.
         /// </summary>
-        [JsonName("type")]
+        [JsonProperty("type")]
         public int Type;
 
         /// <summary>
         /// Set of children.
         /// </summary>
-        [JsonName("children")]
+        [JsonProperty("children")]
         public ElementData[] Children = new ElementData[0];
 
         /// <summary>
         /// Schema object.
         /// </summary>
-        [JsonName("schema")]
+        [JsonProperty("schema")]
         public ElementSchemaData Schema = new ElementSchemaData();
         
         /// <summary>

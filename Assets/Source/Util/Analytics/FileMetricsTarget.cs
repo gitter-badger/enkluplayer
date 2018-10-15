@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using CreateAR.Commons.Unity.Logging;
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -163,10 +161,10 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void Flush()
         {
-            var value = new JsonObject(new RecordAccumulator
+            var value = JsonConvert.SerializeObject(new RecordAccumulator
             {
                 Records = _records.ToArray()
-            }).ToString(true);
+            });
 
             File.WriteAllText(_path, value);
         }

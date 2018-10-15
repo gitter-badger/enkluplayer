@@ -1,5 +1,5 @@
 ﻿using System;
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -12,19 +12,19 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Unique identifier.
         /// </summary>
-        [JsonName("id")]
+        [JsonProperty("id")]
         public string Id;
 
         /// <summary>
         /// Human readable name. Non-unique.
         /// </summary>
-        [JsonName("name")]
+        [JsonProperty("name")]
         public string Name;
 
         /// <summary>
         /// Optional description.
         /// </summary>
-        [JsonName("description")]
+        [JsonProperty("description")]
         public string Description;
 
         /// <summary>

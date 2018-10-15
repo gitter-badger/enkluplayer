@@ -1,4 +1,4 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -10,13 +10,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Scene to apply actions.
         /// </summary>
-        [JsonName("sceneId")]
-        public string SceneId;
+        [JsonProperty("sceneId")]
+        public string SceneId { get; set; }
 
         /// <summary>
         /// Actions.
         /// </summary>
-        [JsonName("actions")]
-        public ElementActionData[] Actions;
+        [JsonProperty("actions")]
+        public ElementActionData[] Actions { get; set; }
     }
 }

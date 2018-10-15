@@ -1,5 +1,5 @@
 ﻿using System;
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -12,13 +12,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Unique id of the script to play.
         /// </summary>
-        [JsonName("id")]
+        [JsonProperty("id")]
         public string ScriptDataId;
 
         /// <summary>
         /// If true, starts the script immediately after loading.
         /// </summary>
-        [JsonName("playOnAwake")]
+        [JsonProperty("playOnAwake")]
         public bool PlayOnAwake;
     }
 }

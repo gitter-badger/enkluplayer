@@ -1,5 +1,4 @@
-﻿using CreateAR.EnkluPlayer.IUX;
-using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -11,8 +10,8 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Application id.
         /// </summary>
-        [JsonName("appId")]
-        public string AppId;
+        [JsonProperty("appId")]
+        public string AppId { get; set; }
         
         /// <summary>
         /// Useful ToString.

@@ -1,37 +1,37 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
     public class AssetListEvent
     {
-        [JsonName("assets")]
-        public AssetData[] Assets;
+        [JsonProperty("assets")]
+        public AssetData[] Assets { get; set; }
     }
 
     public class AssetAddEvent
     {
-        [JsonName("asset")]
-        public AssetData Asset;
+        [JsonProperty("asset")]
+        public AssetData Asset { get; set; }
     }
 
     public class AssetUpdateEvent
     {
-        [JsonName("asset")]
-        public AssetData Asset;
+        [JsonProperty("asset")]
+        public AssetData Asset { get; set; }
     }
 
     public class AssetStatsEvent
     {
-        [JsonName("assetId")]
-        public string Id;
+        [JsonProperty("assetId")]
+        public string Id { get; set; }
 
-        [JsonName("stats")]
-        public AssetStatsData Stats;
+        [JsonProperty("stats")]
+        public AssetStatsData Stats { get; set; }
     }
 
     public class AssetDeleteEvent
     {
-        [JsonName("assetId")]
-        public string Id;
+        [JsonProperty("assetId")]
+        public string Id { get; set; }
     }
 }

@@ -1,10 +1,10 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
     public class UserCredentialsModel
     {
-        [JsonName("token")]
+        [JsonProperty("token")]
         public string Token;
 
         public override string ToString()
@@ -16,13 +16,13 @@ namespace CreateAR.EnkluPlayer
 
     public class UserProfileModel
     {
-        [JsonName("id")]
+        [JsonProperty("id")]
         public string Id;
         
-        [JsonName("displayName")]
+        [JsonProperty("displayName")]
         public string DisplayName;
         
-        [JsonName("email")]
+        [JsonProperty("email")]
         public string Email;
 
         public override string ToString()
@@ -39,10 +39,10 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class UserCredentialsEvent
     {
-        [JsonName("credentials")]
+        [JsonProperty("credentials")]
         public UserCredentialsModel Credentials;
         
-        [JsonName("profile")]
+        [JsonProperty("profile")]
         public UserProfileModel Profile;
 
         public override string ToString()

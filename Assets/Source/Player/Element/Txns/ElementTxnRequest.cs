@@ -1,4 +1,4 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -10,13 +10,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Id of the transaction.
         /// </summary>
-        [JsonName("id")]
+        [JsonProperty("id")]
         public int Id;
 
         /// <summary>
         /// Actions.
         /// </summary>
-        [JsonName("actions")]
+        [JsonProperty("actions")]
         public ElementActionData[] Actions;
 
         /// <summary>
@@ -36,13 +36,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// True iff txn was successful.
         /// </summary>
-        [JsonName("success")]
+        [JsonProperty("success")]
         public bool Success;
 
         /// <summary>
         /// Error string, if any.
         /// </summary>
-        [JsonName("error")]
+        [JsonProperty("error")]
         public string Error;
     }
 }
