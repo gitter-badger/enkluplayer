@@ -294,7 +294,71 @@ namespace CreateAR.EnkluPlayer
         {
             return _schema.GetOwn(key, @default).Value;
         }
-        
+
+        /// <summary>
+        /// Retrieves the value of a Vec3 property.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <returns></returns>
+        public Vec3 getVec3(string key)
+        {
+            return _schema.Get<Vec3>(key).Value;
+        }
+
+        /// <summary>
+        /// Retrieves the value of an Element's own vec3 prop, with a
+        /// customizeable default.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <param name="default">default(Vec3) if unprovided.</param>
+        /// <returns></returns>
+        public Vec3 getOwnVec3(string key, Vec3 @default = default(Vec3))
+        {
+            return _schema.GetOwn(key, @default).Value;
+        }
+
+        /// <summary>
+        /// Sets the value of a Vec3 property.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <param name="value">The value to set.</param>
+        public void setVec3(string key, Vec3 value)
+        {
+            _schema.Set(key, value);
+        }
+
+        /// <summary>
+        /// Retrieves the value of a Col4 property.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <returns></returns>
+        public Col4 getCol(string key)
+        {
+            return _schema.Get<Col4>(key).Value;
+        }
+
+        /// <summary>
+        /// Retrieves the value of an Element's own Col4 prop, with a
+        /// customizeable default.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <param name="default">default(Col4) if unprovided.</param>
+        /// <returns></returns>
+        public Col4 getOwnCol(string key, Col4 @default = default(Col4))
+        {
+            return _schema.GetOwn(key, @default).Value;
+        }
+
+        /// <summary>
+        /// Sets the value of a Col4 property.
+        /// </summary>
+        /// <param name="key">The string key.</param>
+        /// <param name="value">The value to set.</param>
+        public void setCol(string key, Col4 value)
+        {
+            _schema.Set(key, value);
+        }
+
         /// <summary>
         /// Adds a watcher to a prop.
         /// </summary>
@@ -365,6 +429,54 @@ namespace CreateAR.EnkluPlayer
         public void unwatchNumber(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
         {
             _callbackHelper.Unwatch<float>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Adds a watcher to a prop.
+        /// </summary>
+        public void watchVec(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Watch<Vec3>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Adds a one time watcher to a prop.
+        /// </summary>
+        public void watchVecOnce(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.WatchOnce<Vec3>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Removes a watcher from a prop.
+        /// </summary>
+        public void unwatchVec(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Unwatch<Vec3>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Adds a watcher to a prop.
+        /// </summary>
+        public void watchCol(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Watch<Col4>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Adds a one time watcher to a prop.
+        /// </summary>
+        public void watchColOnce(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.WatchOnce<Col4>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Removes a watcher from a prop.
+        /// </summary>
+        public void unwatchCol(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Unwatch<Col4>(engine, key, callback);
         }
     }
 }
