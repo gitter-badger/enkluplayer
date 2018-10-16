@@ -29,13 +29,5 @@
             this.elements = elements;
             this.player = player;
         }
-
-        /// <summary>
-        /// Terminates the application.
-        /// </summary>
-        public void terminate()
-        {
-            UnityEngine.Application.Quit();
-        }
     }
 }
