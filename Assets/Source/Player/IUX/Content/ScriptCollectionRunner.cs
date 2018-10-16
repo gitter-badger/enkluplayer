@@ -85,6 +85,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly List<VineMonoBehaviour> _vineComponents = new List<VineMonoBehaviour>();
 
         /// <summary>
+        /// Tracks hosts.
+        /// </summary>
+        private readonly List<UnityScriptingHost> _hosts = new List<UnityScriptingHost>();
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ScriptCollectionRunner(
@@ -212,6 +217,13 @@ namespace CreateAR.EnkluPlayer.Scripting
                 _caches[i].Clear();
             }
             _caches.Clear();
+
+            // destroy engines
+            for (int i = 0, len = _hosts.Count; i < len; i++)
+            {
+                _hosts[i].Destroy();
+            }
+            _hosts.Clear();
         }
 
         /// <summary>

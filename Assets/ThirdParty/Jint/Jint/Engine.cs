@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CreateAR.EnkluPlayer.DataStructures;
 using Jint.Native;
 using Jint.Native.Argument;
 using Jint.Native.Array;
@@ -65,6 +66,11 @@ namespace Jint
         };
 
         internal JintCallStack CallStack = new JintCallStack();
+
+        public static readonly OptimizedObjectPool<StrictModeScope> PoolStrictMode = new OptimizedObjectPool<StrictModeScope>(12, () => new StrictModeScope());
+        public static readonly OptimizedObjectPool<LexicalEnvironment> PoolLexicalEnvironments = new OptimizedObjectPool<LexicalEnvironment>(12, () => new LexicalEnvironment());
+
+        private static readonly OptimizedObjectPool<ExecutionContext> _poolExecutionContext = new OptimizedObjectPool<ExecutionContext>(12, () => new ExecutionContext());
 
         public Engine() : this(null)
         {
@@ -132,7 +138,8 @@ namespace Jint
             Error.PrototypeObject.Configure();
 
             // create the global environment http://www.ecma-international.org/ecma-262/5.1/#sec-10.2.3
-            GlobalEnvironment = LexicalEnvironment.NewObjectEnvironment(this, Global, null, false);
+            GlobalEnvironment = PoolLexicalEnvironments.Get();
+            GlobalEnvironment.Setup(new ObjectEnvironmentRecord(this, Global, false), null);
 
             // create the global execution context http://www.ecma-international.org/ecma-262/5.1/#sec-10.4.1.1
             EnterExecutionContext(GlobalEnvironment, GlobalEnvironment, Global);
@@ -143,10 +150,7 @@ namespace Jint
             {
                 options(Options);
             }
-
-            Eval = new EvalFunctionInstance(this, new string[0], LexicalEnvironment.NewDeclarativeEnvironment(this, ExecutionContext.LexicalEnvironment), StrictModeScope.IsStrictModeCode);
-            Global.FastAddProperty("eval", Eval, true, false, true);
-
+            
             _statements = new StatementInterpreter(this);
             _expressions = new ExpressionInterpreter(this);
 
@@ -164,6 +168,11 @@ namespace Jint
             DebugHandler = new DebugHandler(this);
         }
 
+        public void Destroy()
+        {
+            PoolLexicalEnvironments.Put(GlobalEnvironment);
+        }
+
         public LexicalEnvironment GlobalEnvironment;
 
         public GlobalObject Global { get; private set; }
@@ -177,8 +186,7 @@ namespace Jint
         public DateConstructor Date { get; private set; }
         public MathInstance Math { get; private set; }
         public JsonInstance Json { get; private set; }
-        public EvalFunctionInstance Eval { get; private set; }
-
+        
         public ErrorConstructor Error { get; private set; }
         public ErrorConstructor EvalError { get; private set; }
         public ErrorConstructor SyntaxError { get; private set; }
@@ -220,15 +228,14 @@ namespace Jint
 
         public ExecutionContext EnterExecutionContext(LexicalEnvironment lexicalEnvironment, LexicalEnvironment variableEnvironment, JsValue thisBinding)
         {
-            var executionContext = new ExecutionContext
-                {
-                    LexicalEnvironment = lexicalEnvironment,
-                    VariableEnvironment = variableEnvironment,
-                    ThisBinding = thisBinding
-                };
-            _executionContexts.Push(executionContext);
+            var context = _poolExecutionContext.Get();
+            context.LexicalEnvironment = lexicalEnvironment;
+            context.VariableEnvironment = variableEnvironment;
+            context.ThisBinding = thisBinding;
+        
+            _executionContexts.Push(context);
 
-            return executionContext;
+            return context;
         }
 
         public Engine SetValue(string name, Delegate value)
@@ -265,7 +272,11 @@ namespace Jint
 
         public void LeaveExecutionContext()
         {
-            _executionContexts.Pop();
+            var context = _executionContexts.Pop();
+            if (null != context)
+            {
+                _poolExecutionContext.Put(context);
+            }
         }
 
         /// <summary>
@@ -309,19 +320,27 @@ namespace Jint
             ResetLastStatement();
             ResetCallStack();
 
-            using (new StrictModeScope(Options._IsStrict || program.Strict))
+            var scope = PoolStrictMode.Get();
+            scope.Setup(Options._IsStrict || program.Strict);
+            
+            DeclarationBindingInstantiation(DeclarationBindingType.GlobalCode, program.FunctionDeclarations, program.VariableDeclarations, null, null);
+
+            var result = _statements.ExecuteProgram(program);
+            if (result.Type == Completion.Throw)
             {
-                DeclarationBindingInstantiation(DeclarationBindingType.GlobalCode, program.FunctionDeclarations, program.VariableDeclarations, null, null);
+                var exception = new JavaScriptException(result.GetValueOrDefault())
+                    .SetCallstack(this, result.Location);
 
-                var result = _statements.ExecuteProgram(program);
-                if (result.Type == Completion.Throw)
-                {
-                    throw new JavaScriptException(result.GetValueOrDefault())
-                        .SetCallstack(this, result.Location);
-                }
+                scope.Teardown();
+                PoolStrictMode.Put(scope);
 
-                _completionValue = result.GetValueOrDefault();
+                throw exception;
             }
+
+            _completionValue = result.GetValueOrDefault();
+
+            scope.Teardown();
+            PoolStrictMode.Put(scope);
 
             return this;
         }
@@ -414,10 +433,7 @@ namespace Jint
 
                 case SyntaxNodes.WhileStatement:
                     return _statements.ExecuteWhileStatement(statement.As<WhileStatement>());
-
-                case SyntaxNodes.WithStatement:
-                    return _statements.ExecuteWithStatement(statement.As<WithStatement>());
-
+                    
                 case SyntaxNodes.Program:
                     return _statements.ExecuteProgram(statement.As<Program>());
 
@@ -771,8 +787,10 @@ namespace Jint
             {
                 var argCount = arguments.Length;
                 var n = 0;
-                foreach (var argName in functionInstance.FormalParameters)
+                for (int i = 0, len = functionInstance.FormalParameters.Length; i < len; i++)
                 {
+                    var argName = functionInstance.FormalParameters[i];
+
                     n++;
                     var v = n > argCount ? Undefined.Instance : arguments[n - 1];
                     var argAlreadyDeclared = env.HasBinding(argName);
@@ -785,8 +803,9 @@ namespace Jint
                 }
             }
 
-            foreach (var f in functionDeclarations)
+            for (int i = 0, len = functionDeclarations.Count; i < len; i++)
             {
+                var f = functionDeclarations[i];
                 var fn = f.Id.Name;
                 var fo = Function.CreateFunctionObject(f);
                 var funcAlreadyDeclared = env.HasBinding(fn);
@@ -803,12 +822,12 @@ namespace Jint
                         if (existingProp.Configurable.Value)
                         {
                             go.DefineOwnProperty(fn,
-                                                 new PropertyDescriptor(
-                                                     value: Undefined.Instance,
-                                                     writable: true,
-                                                     enumerable: true,
-                                                     configurable: configurableBindings
-                                                     ), true);
+                                new PropertyDescriptor(
+                                    value: Undefined.Instance,
+                                    writable: true,
+                                    enumerable: true,
+                                    configurable: configurableBindings
+                                ), true);
                         }
                         else
                         {
@@ -849,14 +868,19 @@ namespace Jint
             }
 
             // process all variable declarations in the current parser scope
-            foreach (var d in variableDeclarations.SelectMany(x => x.Declarations))
+            for (int i = 0, ilen = variableDeclarations.Count; i < ilen; i++)
             {
-                var dn = d.Id.Name;
-                var varAlreadyDeclared = env.HasBinding(dn);
-                if (!varAlreadyDeclared)
+                var varDeclations = variableDeclarations[i];
+                for (int j = 0, jlen = varDeclations.Declarations.Count; j < jlen; j++)
                 {
-                    env.CreateMutableBinding(dn, configurableBindings);
-                    env.SetMutableBinding(dn, Undefined.Instance, strict);
+                    var d = varDeclations.Declarations[j];
+                    var dn = d.Id.Name;
+                    var varAlreadyDeclared = env.HasBinding(dn);
+                    if (!varAlreadyDeclared)
+                    {
+                        env.CreateMutableBinding(dn, configurableBindings);
+                        env.SetMutableBinding(dn, Undefined.Instance, strict);
+                    }
                 }
             }
         }
