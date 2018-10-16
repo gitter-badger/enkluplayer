@@ -55,11 +55,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly IElementJsFactory _elementJsFactory;
 
         /// <summary>
-        /// Metrics.
-        /// </summary>
-        private readonly IMetricsService _metrics;
-
-        /// <summary>
         /// GameObject to attach scripts to.
         /// </summary>
         private readonly GameObject _root;
@@ -102,7 +97,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             IScriptRequireResolver resolver,
             IElementJsCache jsCache,
             IElementJsFactory elementJsFactory,
-            IMetricsService metrics,
             GameObject root,
             Element element)
         {
@@ -110,7 +104,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             _resolver = resolver;
             _jsCache = jsCache;
             _elementJsFactory = elementJsFactory;
-            _metrics = metrics;
             _root = root;
             _element = element;
         }
@@ -266,7 +259,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             _caches.Add(_jsCache);
 
             var component = GetBehaviorComponent();
-            component.Initialize(_jsCache, _elementJsFactory, _metrics, host, script, _element);
+            component.Initialize(_jsCache, _elementJsFactory, host, script, _element);
             component.Configure();
             component.Enter();
         }
