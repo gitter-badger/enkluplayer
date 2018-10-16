@@ -44,9 +44,20 @@
         /// </summary>
         /// <param name="direction"></param>
         /// <returns></returns>
-        public Quat fromToRotation(Vec3 direction)
+        public Quat fromToRotation(Vec3 forward, Vec3 direction)
         {
-            return Quat.FromToRotation(Vec3.Forward, direction);
+            return Quat.FromToRotation(forward, direction);
+        }
+
+        /// <summary>
+        /// Returns a Vec3 representing a Vec3 forward rotated by a Quat.
+        /// </summary>
+        /// <param name="rotation"></param>
+        /// <param name="forward"></param>
+        /// <returns></returns>
+        public Vec3 rotate(Quat rotation, Vec3 forward)
+        {
+            return Quat.Mult(rotation, forward);
         }
     }
 }
