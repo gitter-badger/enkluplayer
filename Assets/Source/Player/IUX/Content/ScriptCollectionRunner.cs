@@ -85,12 +85,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly List<VineMonoBehaviour> _vineComponents = new List<VineMonoBehaviour>();
 
         /// <summary>
-        /// Cached/shared SystemJsApi instance.
-        /// TODO: Make an IScriptInterfaceResolver that's part of IScriptManager maybe?!
-        /// </summary>
-        private static SystemJsApi _systemJsApi;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         public ScriptCollectionRunner(
@@ -98,7 +92,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             IScriptRequireResolver resolver,
             IElementJsCache jsCache,
             IElementJsFactory elementJsFactory,
-            IDeviceMetaProvider deviceMetaProvider,
             GameObject root,
             Element element)
         {
@@ -108,11 +101,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             _elementJsFactory = elementJsFactory;
             _root = root;
             _element = element;
-
-            if (_systemJsApi == null)
-            {
-                _systemJsApi = new SystemJsApi(deviceMetaProvider);
-            }
         }
 
         /// <summary>
@@ -253,7 +241,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 this,
                 _resolver,
                 _scripts);
-            host.SetValue("system", _systemJsApi);
+            host.SetValue("system", SystemJsApi.Instance);
             host.SetValue("app", Main.NewAppJsApi(_jsCache));
             host.SetValue("this", _jsCache.Element(_element));
             _caches.Add(_jsCache);

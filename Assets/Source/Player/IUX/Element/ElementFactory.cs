@@ -417,8 +417,7 @@ namespace CreateAR.EnkluPlayer.IUX
                         _resolver,
                         _scripts,
                         _jsCache,
-                        _elementJsFactory,
-                        _deviceMetaProvider);
+                        _elementJsFactory);
                 }
                 case ElementTypes.TRANSITION:
                 {

@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer.Scripting
+﻿using System;
+
+namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// System-wide API.
@@ -6,12 +8,22 @@
     public class SystemJsApi
     {
         /// <summary>
-        /// Constructor.
+        /// The instance.
         /// </summary>
-        /// <param name="deviceMeta"></param>
-        public SystemJsApi(IDeviceMetaProvider deviceMeta)
-        {
-            device = new DeviceJsApi(deviceMeta);
+        public static SystemJsApi Instance = new SystemJsApi();
+
+        /// <summary>
+        /// Provider for getting DeviceMeta.
+        /// </summary>
+        public static IDeviceMetaProvider DeviceMetaProvider {
+            set {
+                if (Instance.device != null)
+                {
+                    throw new Exception("DeviceMetaProvider already configured");
+                }
+
+                Instance.device = new DeviceJsApi(value);
+            }
         }
 
         /// <summary>
