@@ -1,28 +1,28 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
     public class ScriptListEvent
     {
-        [JsonName("scripts")]
+        [JsonProperty("scripts")]
         public ScriptData[] Scripts;
     }
 
     public class ScriptAddEvent
     {
-        [JsonName("script")]
+        [JsonProperty("script")]
         public ScriptData Script;
     }
 
     public class ScriptUpdateEvent
     {
-        [JsonName("script")]
+        [JsonProperty("script")]
         public ScriptData Script;
     }
 
     public class ScriptRemoveEvent
     {
-        [JsonName("id")]
+        [JsonProperty("id")]
         public string Id;
     }
 }

@@ -11,7 +11,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             base.SetUp();
             
-            var cache = new ElementJsCache(null, _engine);
+            var cache = new ElementJsCache(null);
             _elementsApi = new AppElementsJsApi(cache, ElementFactory, Elements);
             _engine.SetValue("elements", _elementsApi);
 

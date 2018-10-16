@@ -35,6 +35,7 @@
         public const int DEVICE_REGISTRATION_COMPLETE = 1000004;
         public const int ANCHOR_AUTOEXPORT = 1000005;
         public const int ANCHOR_RESETPRIMARY = 1000006;
+        public const int DEVICE_REGISTRATION = 1000007;
 
         // Assets
         public const int RECV_ASSET_LIST = 10;
@@ -48,13 +49,7 @@
         public const int RECV_SCRIPT_ADD = 21;
         public const int RECV_SCRIPT_REMOVE = 22;
         public const int RECV_SCRIPT_UPDATE = 23;
-
-        // Materials
-        public const int MATERIAL_LIST = 40;
-        public const int MATERIAL_ADD = 41;
-        public const int MATERIAL_REMOVE = 42;
-        public const int MATERIAL_UPDATE = 43;
-
+        
         // Shaders
         public const int SHADER_LIST = 50;
         public const int SHADER_ADD = 51;

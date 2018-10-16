@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
 using System.Text;
 using CreateAR.Commons.Unity.Logging;
@@ -12,6 +11,11 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class HostedGraphiteMetricsTarget : IMetricsTarget, IDisposable
     {
+        /// <summary>
+        /// Type used in config.
+        /// </summary>
+        public const string TYPE = "HostedGraphite";
+
         /// <summary>
         /// Application appKey.
         /// </summary>
@@ -67,7 +71,7 @@ namespace CreateAR.EnkluPlayer
             {
                 _endpoint = new IPEndPoint(addresses[0], 2003);
                 _socket =
- new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp)
+                new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp)
                 {
                     Blocking = false
                 };
@@ -85,7 +89,7 @@ namespace CreateAR.EnkluPlayer
             Verbose(message);
 
 #if NETFX_CORE
-            Send(bytes);
+            Send(message, bytes);
 #else
             _socket.SendTo(bytes, _endpoint);
 #endif
@@ -124,20 +128,43 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private async void Connect()
         {
-            await _socket.ConnectAsync(new Windows.Networking.HostName(_hostname), "2003");
+            try
+            {
+                await _socket.ConnectAsync(new Windows.Networking.HostName(_hostname), "2003");
 
-            _writer = new Windows.Storage.Streams.DataWriter(_socket.OutputStream);
+                _writer = new Windows.Storage.Streams.DataWriter(_socket.OutputStream);
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not connect to HostedGraphite : {0}.", exception);
+            }
         }
 
         /// <summary>
         /// Sends data.
         /// </summary>
+        /// <param name="originalMessage">The original message, before serialization.</param>
         /// <param name="bytes">The bytes to send.</param>
-        private async void Send(byte[] bytes)
+        private async void Send(string originalMessage, byte[] bytes)
         {
+            // send before connect
+            if (null == _writer)
+            {
+                return;
+            }
+
             _writer.WriteBytes(bytes);
 
-            await _writer.StoreAsync();
+            try
+            {
+                await _writer.StoreAsync();
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not send analytics data : [{0}] : {1}.",
+                    originalMessage,
+                    exception);
+            }
         }
 #endif
 

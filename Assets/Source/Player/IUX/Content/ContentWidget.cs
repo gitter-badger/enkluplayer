@@ -4,7 +4,7 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
-using LightJson;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -45,9 +45,14 @@ namespace CreateAR.EnkluPlayer
         private readonly IScriptManager _scripts;
 
         /// <summary>
-        /// Assembles <c>Content</c>.
+        /// Assembles an asset.
         /// </summary>
-        private readonly IContentAssembler _assembler;
+        private readonly IAssetAssembler _assembler;
+
+        /// <summary>
+        /// Caches elements.
+        /// </summary>
+        private readonly IElementJsCache _jsCache;
 
         /// <summary>
         /// Creates elements.
@@ -81,7 +86,7 @@ namespace CreateAR.EnkluPlayer
         private bool _pollRefreshScript;
 
         /// <summary>
-        /// Cached from the callback of the <see cref="IContentAssembler"/>.
+        /// Cached from the callback of the <see cref="IAssetAssembler"/>.
         /// </summary>
         private GameObject _assetGameObject;
         
@@ -106,15 +111,17 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor.
         /// </summary>
+        [Construct]
         public ContentWidget(
             GameObject gameObject,
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
+            IAssetAssembler assembler,
             IScriptRequireResolver resolver,
             IScriptManager scripts,
-            IContentAssembler assembler,
-            IElementJsFactory elementFactory )
+            IElementJsCache cache,
+            IElementJsFactory elementFactory)
             : base(
                 gameObject,
                 layers,
@@ -124,16 +131,21 @@ namespace CreateAR.EnkluPlayer
             _resolver = resolver;
             _scripts = scripts;
             _assembler = assembler;
+            _jsCache = cache;
             _elementJsFactory = elementFactory;
-
-            _assembler.OnAssemblyComplete.OnSuccess(Assembler_OnAssemblyComplete);
         }
 
-        /// <inheritdoc />
-        protected override void DestroyInternal()
+        /// <summary>
+        /// Constructor used for testing.
+        /// </summary>
+        public ContentWidget(
+            GameObject gameObject, 
+            IScriptManager scripts, 
+            IAssetAssembler assembler)
+            : base(gameObject, null, null, null)
         {
-            _assembler.OnAssemblyComplete.Remove(Assembler_OnAssemblyComplete);
-            base.DestroyInternal();
+            _scripts = scripts;
+            _assembler = assembler;
         }
 
         /// <summary>
@@ -156,6 +168,7 @@ namespace CreateAR.EnkluPlayer
                 _runner = new ScriptCollectionRunner(
                     _scripts,
                     _resolver,
+                    _jsCache,
                     _elementJsFactory,
                     GameObject,
                     this);
@@ -199,12 +212,22 @@ namespace CreateAR.EnkluPlayer
 
             return default(T);
         }
-        
+
+        /// <inheritdoc />
+        protected override void DestroyInternal()
+        {
+            _assembler.OnAssemblyUpdated -= Assembler_OnAssemblyUpdated;
+
+            base.DestroyInternal();
+        }
+
         /// <inheritdoc />
         protected override void LoadInternalAfterChildren()
         {
             base.LoadInternalAfterChildren();
-            
+
+            _assembler.OnAssemblyUpdated += Assembler_OnAssemblyUpdated;
+
             _srcAssetProp = Schema.GetOwn("assetSrc", "");
             _srcAssetProp.OnChanged += AssetSrc_OnChanged;
 
@@ -212,7 +235,6 @@ namespace CreateAR.EnkluPlayer
             _scriptsProp.OnChanged += Scripts_OnChanged;
             
             UpdateAsset();
-            RefreshScripts();
         }
 
         /// <inheritdoc />
@@ -313,14 +335,14 @@ namespace CreateAR.EnkluPlayer
             // unescape-- this is dumb obviously
             scriptsSrc = scriptsSrc.Replace("\\\"", "\"");
 
-            JsonArray value;
+            JArray value;
             try
             {
-                value = JsonValue.Parse(scriptsSrc).AsJsonArray;
+                value = JArray.Parse(scriptsSrc);
             }
             catch (Exception exception)
             {
-                Log.Info(this, "Could not parse \"{0}\" : {1}.",
+                Log.Error(this, "Could not parse \"{0}\" : {1}.",
                     scriptsSrc,
                     exception);
 
@@ -332,7 +354,7 @@ namespace CreateAR.EnkluPlayer
             var ids = new string[len];
             for (var i = 0; i < len; i++)
             {
-                ids[i] = value[i]["id"].AsString;
+                ids[i] = value[i]["id"].ToObject<string>();
             }
 
             return ids;
@@ -461,24 +483,32 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Called when the assembler has completed seting up the asset.
         /// </summary>
-        private void Assembler_OnAssemblyComplete(GameObject instance)
+        private void Assembler_OnAssemblyUpdated()
         {
-            // parent + orient
-            _assetGameObject = instance;
-            _assetGameObject.name = _srcAssetProp.Value;
-            _assetGameObject.transform.SetParent(GameObject.transform, false);
-            _assetGameObject.SetActive(true);
+            LogVerbose("Assembly complete.");
 
-            // setup collider
-            var bounds = _assembler.Bounds;
-            var collider = EditCollider;
-            if (null != collider)
+            _assetGameObject = _assembler.Assembly;
+
+            if (_assetGameObject != null)
             {
-                collider.center = bounds.center;
-                collider.size = bounds.size;
-            }
+                // parent + orient
+                _assetGameObject.name = _srcAssetProp.Value;
+                _assetGameObject.transform.SetParent(GameObject.transform, false);
+                _assetGameObject.SetActive(true);
 
-            _onAssetLoaded.Succeed(this);
+                // setup collider
+                var bounds = _assembler.Bounds;
+                var collider = EditCollider;
+                if (null != collider) {
+                    collider.center = bounds.center;
+                    collider.size = bounds.size;
+                }
+
+                _onAssetLoaded.Succeed(this);
+            }
+            
+            // trigger refresh, so component specific references are new
+            RefreshScripts();
         }
 
         /// <summary>

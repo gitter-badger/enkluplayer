@@ -244,7 +244,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="element"></param>
         private void WatchElement(Element element)
         {
-            ElementJs elementjs = new ElementJs(null, null, _engine, element);
+            ElementJs elementjs = new ElementJs(null, null, element);
 
             Action<ElementSchemaProp<bool>, bool, bool> triggerChange = (prop, old, @new) =>
             {
@@ -266,6 +266,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 element.Schema.Get<bool>(PROP_PROXIMITY_TRIGGER).OnChanged -= triggerChange;
                 element.Schema.Get<float>(PROP_PROXIMITY_INNER).OnChanged -= radiusChange;
                 element.Schema.Get<float>(PROP_PROXIMITY_OUTER).OnChanged -= radiusChange;
+
+                RemoveElement(elementjs);
             };
 
             // Trigger initial update.
@@ -289,6 +291,15 @@ namespace CreateAR.EnkluPlayer.Scripting
                     element.schema.getOwnNumber(PROP_PROXIMITY_INNER),
                     element.schema.getOwnNumber(PROP_PROXIMITY_OUTER));
             }
+        }
+
+        /// <summary>
+        /// Configure the ProximityChecker to remove tracking for an ElementJs instance.
+        /// </summary>
+        /// <param name="element"></param>
+        private void RemoveElement(ElementJs element)
+        {
+            _proximityChecker.SetElementState(element, false, false);
         }
 
         /// <summary>

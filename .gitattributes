@@ -1,1 +1,3 @@
-* text eof=lf
+*.dll binary
+*.pdb bunary
+*.mdb binary

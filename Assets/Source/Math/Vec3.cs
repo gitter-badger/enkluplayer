@@ -1,4 +1,5 @@
 ﻿﻿using System;
+ using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -8,6 +9,11 @@ namespace CreateAR.EnkluPlayer
     [Serializable]
     public struct Vec3
     {
+        /// <summary>
+        /// Radians -> Degrees.
+        /// </summary>
+        private const float RAD2_DEG = (float) (360 / (2 * Math.PI));
+
         /// <summary>
         /// Default vector.
         /// </summary>
@@ -19,9 +25,19 @@ namespace CreateAR.EnkluPlayer
         public static readonly Vec3 One = new Vec3(1, 1, 1);
 
         /// <summary>
-        /// Identity vector.
+        /// Right vector.
+        /// </summary>
+        public static readonly Vec3 Right = new Vec3(1, 0, 0);
+
+        /// <summary>
+        /// Up vector.
         /// </summary>
         public static readonly Vec3 Up = new Vec3(0, 1, 0);
+
+        /// <summary>
+        /// Forward vector.
+        /// </summary>
+        public static readonly Vec3 Forward = new Vec3(0, 0, 1);
 
         /// <summary>
         /// X component.
@@ -89,6 +105,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Scalar magnitude of the vector.
         /// </summary>
+        [JsonIgnore]
         public float Magnitude
         {
             get { return (float) Math.Sqrt(x * x + y * y + z * z); }
@@ -97,6 +114,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Scalar squared magnitude of the vector.
         /// </summary>
+        [JsonIgnore]
         public float MagnitudeSqr
         {
             get { return x * x + y * y + z * z; }
@@ -105,6 +123,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Returns the same vector with magnitude of 1.
         /// </summary>
+        [JsonIgnore]
         public Vec3 Normalized
         {
             get
@@ -169,8 +188,8 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Returns the dot product for two vectors.
         /// </summary>
-        /// <param name="lhs">Left hand side of the dot product.</param>
-        /// <param name="rhs">Right hand side of the dot product.</param>
+        /// <param name="lhs">Left hand side of the cross product.</param>
+        /// <param name="rhs">Right hand side of the cross product.</param>
         /// <returns></returns>
         public static Vec3 Cross(Vec3 lhs, Vec3 rhs)
         {
@@ -178,6 +197,17 @@ namespace CreateAR.EnkluPlayer
                 lhs.y*rhs.z - lhs.z*rhs.y,
                 lhs.z*rhs.x - lhs.x*rhs.z,
                 lhs.x*rhs.y - lhs.y*rhs.x);
+        }
+
+        /// <summary>
+        /// Returns the angle between two vectors in degrees.
+        /// </summary>
+        /// <param name="lhs">Left hand side of the angle.</param>
+        /// <param name="rhs">Right hand side of the angle.</param>
+        /// <returns></returns>
+        public static float Angle(Vec3 lhs, Vec3 rhs)
+        {
+            return (float) Math.Acos(Dot(lhs, rhs) / (lhs.Magnitude * rhs.Magnitude)) * RAD2_DEG;
         }
 
         /// <summary>
@@ -233,6 +263,32 @@ namespace CreateAR.EnkluPlayer
                 lhs.x - rhs.x,
                 lhs.y - rhs.y,
                 lhs.z - rhs.z);
+        }
+
+        /// <summary>
+        /// Tests strict equality of Vector components.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool operator ==(Vec3 a, Vec3 b)
+        {
+            return a.x == b.x
+                && a.y == b.y
+                && a.z == b.z;
+        }
+
+        /// <summary>
+        /// Tests strict inequality of Vector components.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static bool operator !=(Vec3 a, Vec3 b)
+        {
+            return a.x != b.x
+                || a.y != b.y
+                || a.z != b.z;
         }
 
         /// <summary>

@@ -11,22 +11,12 @@ namespace CreateAR.EnkluPlayer.IUX
     public class ActivatorRenderer : MonoBehaviour
     {
         /// <summary>
-        /// Factor for buffer.
-        /// </summary>
-        private const float AUTO_GEN_BUFFER_FACTOR = 2.0f;
-
-        /// <summary>
         /// Dependencies.
         /// </summary>
         private WidgetConfig _config;
         private TweenConfig _tweens;
         private ColorConfig _colors;
         private ActivatorPrimitive _activator;
-
-        /// <summary>
-        /// For losing focus.
-        /// </summary>
-        private BoxCollider _bufferCollider;
 
         /// <summary>
         /// True iff the renderer is initialized.
@@ -82,11 +72,16 @@ namespace CreateAR.EnkluPlayer.IUX
         private float _tweenDuration;
         private Col4 _frameColor;
         private float _alpha;
+        
+        /// <summary>
+        /// Bounding radius of the Activator with padding.
+        /// </summary>
+        public float FocusRadius { get; private set; }
 
         /// <summary>
-        /// Bounding radius of the activator.
+        /// Bounding radius of the Activator.
         /// </summary>
-        public float Radius { get; private set; }
+        public float ActivateRadius { get; private set; }
 
         /// <summary>
         /// Alpha!
@@ -126,8 +121,7 @@ namespace CreateAR.EnkluPlayer.IUX
 
             _activator.OnActivated += Activator_OnActivated;
 
-            GenerateBufferCollider();
-            Radius = CalculateRadius();
+            CalculateRadius();
             Alpha = activator.Alpha;
 
             if (Aim != null)
@@ -182,7 +176,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Returns the radius of the widget.
         /// </summary>
-        private float CalculateRadius()
+        private void CalculateRadius()
         {
             var radius = 1f;
             if (null != FocusCollider)
@@ -194,28 +188,13 @@ namespace CreateAR.EnkluPlayer.IUX
                     size.y * scale.y,
                     size.z * scale.z);
                 radius = 0.5f * (scaledSize.x + scaledSize.y + scaledSize.z) / 3f;
+
+                // Bump the collider size up to account for the buffer factor
+                FocusCollider.size = FocusCollider.size * _config.AimBufferFactor;
             }
 
-            return radius;
-        }
-
-        /// <summary>
-        /// Generate buffer collider
-        /// </summary>
-        private void GenerateBufferCollider()
-        {
-            if (FocusCollider == null)
-            {
-                Log.Error(this, "Missing FocusCollider for AutoGenerateBufferCollider!");
-                return;
-            }
-
-            if (_bufferCollider == null)
-            {
-                _bufferCollider = gameObject.AddComponent<BoxCollider>();
-            }
-
-            _bufferCollider.size = FocusCollider.size * AUTO_GEN_BUFFER_FACTOR;
+            ActivateRadius = radius;
+            FocusRadius = ActivateRadius * _config.AimBufferFactor;
         }
 
         /// <summary>
@@ -224,8 +203,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private void UpdateColliders()
         {
             FocusCollider.enabled = _activator.Interactable;
-
-            _bufferCollider.enabled = _activator.Focused;
         }
 
         /// <summary>

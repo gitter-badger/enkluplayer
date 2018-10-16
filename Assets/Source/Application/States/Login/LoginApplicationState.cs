@@ -36,6 +36,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Application wide configuration.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -51,6 +56,11 @@ namespace CreateAR.EnkluPlayer
         private CredentialsData _credentials;
 
         /// <summary>
+        /// Times state.
+        /// </summary>
+        private int _timerId;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public LoginApplicationState(
@@ -58,6 +68,7 @@ namespace CreateAR.EnkluPlayer
             ILoginStrategy strategy,
             IHttpService http,
             IMessageRouter messages,
+            IMetricsService metrics,
             ApplicationConfig config,
             VersioningService versioning)
         {
@@ -65,6 +76,7 @@ namespace CreateAR.EnkluPlayer
             _strategy = strategy;
             _http = http;
             _messages = messages;
+            _metrics = metrics;
             _config = config;
             _versioning = versioning;
 
@@ -81,35 +93,18 @@ namespace CreateAR.EnkluPlayer
         {
             Log.Info(this, "LoginApplicationState::Enter");
 
-            _versioning
-                .CheckVersions()
-                .OnSuccess(_ =>
-                {
-                    // check disk cache for credentials
-                    if (_files.Exists(CREDS_URI))
-                    {
-                        _files
-                            .Get<CredentialsData>(CREDS_URI)
-                            .OnSuccess(file =>
-                            {
-                                // load into default app
-                                Log.Info(this, "Credentials loaded from disk.");
+            _timerId = _metrics.Timer(MetricsKeys.STATE_LOGIN).Start();
 
-                                ConfigureCredentials(file.Data);
-                            })
-                            .OnFailure(exception =>
-                            {
-                                Log.Error(this, "Could not load credential information: {0}", exception);
-
-                                Login();
-                            });
-                    }
-                    else
-                    {
-                        // nothing on disk, fresh login
-                        Login();
-                    }
-                });
+            if (_config.Play.SkipVersionCheck)
+            {
+                StartLogin();
+            }
+            else
+            {
+                _versioning
+                    .CheckVersions()
+                    .OnSuccess(_ => StartLogin());
+            }
         }
 
         /// <inheritdoc />
@@ -126,12 +121,37 @@ namespace CreateAR.EnkluPlayer
         public void Exit()
         {
             _credentials = null;
+
+            _metrics.Timer(MetricsKeys.STATE_LOGIN).Stop(_timerId);
+        }
+
+        /// <summary>
+        /// Begins login procedure.
+        /// </summary>
+        private void StartLogin()
+        {
+            // load creds
+            _files
+                .Get<CredentialsData>(CREDS_URI)
+                .OnSuccess(file =>
+                {
+                    // load into default app
+                    Log.Info(this, "Credentials loaded from disk.");
+
+                    ConfigureCredentials(file.Data);
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not load credential information: {0}", exception);
+
+                    NetworkLogin();
+                });
         }
 
         /// <summary>
         /// Logs in and obtains credentials object.
         /// </summary>
-        private void Login()
+        private void NetworkLogin()
         {
             // different platforms have different login strategies
             _strategy

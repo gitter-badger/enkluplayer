@@ -41,6 +41,14 @@ namespace CreateAR.EnkluPlayer
         IAsyncToken<T> Replace<T>(UIReference reference) where T : IUIElement;
 
         /// <summary>
+        /// Opens an overlay, which is not part of the stack.
+        /// </summary>
+        /// <param name="reference">Reference to a UI element.</param>
+        /// <param name="id">An id used for overlays.</param>
+        /// <returns></returns>
+        IAsyncToken<T> OpenOverlay<T>(UIReference reference, out int id) where T : IUIElement;
+        
+        /// <summary>
         /// Moves down the stack, removing UI elements until the element with
         /// the passed in id is on top.
         /// </summary>
@@ -59,9 +67,9 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <returns>Stack id of closed UI or -1 if nothing was removed.</returns>
         int Pop();
-
+        
         /// <summary>
-        /// Creates an object that will track all future pushes and pops.
+        /// Creates an object that will track all future pushes and pops. Does not apply to overlays.
         /// </summary>
         UIManagerFrame CreateFrame();
     }

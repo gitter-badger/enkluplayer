@@ -34,7 +34,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private Vec3 _lastMouseOrigin;
 
         /// <summary>
-        /// Last state of mouse do
+        /// Last state of mouse down.
         /// </summary>
         private Vec3 _lastMouseForward;
 
@@ -259,18 +259,36 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         private void UpdateFocus()
         {
+            IInteractable closestInteractable = null;
+            var closestAngle = Mathf.Infinity;
+
             var all = Interactables.All;
             for (int i = 0, len = all.Count; i < len; i++)
             {
                 var interactable = all[i];
-                if (interactable.Interactable && interactable.Raycast(Origin, Forward))
+                Vec3 hitPos;
+                Vec3 colliderPos;
+                if (interactable.Interactable && 
+                    interactable.Raycast(Origin, Forward, out hitPos, out colliderPos))
                 {
-                    Focus = interactable;
-                    return;
+                    var colliderDir = colliderPos - Origin;
+                    var angleToCollider = Vec3.Angle(Forward, colliderDir);
+
+                    if (angleToCollider < closestAngle)
+                    {
+                        closestInteractable = interactable;
+                        closestAngle = angleToCollider;
+                    }
                 }
             }
+
+            if (closestInteractable != null)
+            {
+                Focus = closestInteractable;
+                return;
+            }
             
-            // determine if the current interactable should lose focuse
+            // determine if the current interactable should lose focus.
             if (Focus != null)
             {
                 if (!Focus.Raycast(Origin, Forward))

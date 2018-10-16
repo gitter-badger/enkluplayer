@@ -2,7 +2,6 @@
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Vine;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Test.Vine
 {

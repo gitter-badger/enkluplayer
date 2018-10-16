@@ -37,6 +37,11 @@ namespace CreateAR.EnkluPlayer
         private readonly IUIManager _ui;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Tracks app load.
         /// </summary>
         private IAsyncToken<Void> _loadToken;
@@ -52,6 +57,11 @@ namespace CreateAR.EnkluPlayer
         private int _errorStackId;
 
         /// <summary>
+        /// Unique id of the timer.
+        /// </summary>
+        private int _timerId;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public LoadAppApplicationState(
@@ -59,19 +69,23 @@ namespace CreateAR.EnkluPlayer
             IMessageRouter messages,
             IConnection connection,
             IAppController app,
-            IUIManager ui)
+            IUIManager ui,
+            IMetricsService metrics)
         {
             _config = config;
             _messages = messages;
             _connection = connection;
             _app = app;
             _ui = ui;
+            _metrics = metrics;
         }
 
         /// <inheritdoc />
         public void Enter(object context)
         {
-            Log.Info(this, "Loading app...");
+            Log.Info(this, "Entering LoadAppApplicationState.");
+
+            _timerId = _metrics.Timer(MetricsKeys.STATE_LOAD).Start();
 
             // open loading UI
             _ui
@@ -81,28 +95,37 @@ namespace CreateAR.EnkluPlayer
                 }, out _loadingStackId);
 
             // load app
-            _loadToken = _app.Load(_config.Play.AppId);
+            _loadToken = _app.Load(_config.Play);
             _loadToken
                 .OnSuccess(_ =>
                 {
                     Log.Info(this, "App loaded.");
 
-                    Log.Info(this, "Connecting to Trellis...");
+                    if (_config.Play.Edit)
+                    {
+                        Log.Info(this, "Connecting to Trellis...");
 
-                    _connection
-                        .Connect(_config.Network.Environment)
-                        .OnFailure(exception =>
-                        {
-                            Log.Error(this, "Could not connect to Trellis : {0}.", exception);
+                        _connection
+                            .Connect(_config.Network.Environment)
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this, "Could not connect to Trellis : {0}.", exception);
 
-                            // That's okay.
-                        })
-                        .OnFinally(__ =>
-                        {
-                            Log.Info(this, "Moving to play mode.");
+                                // That's okay.
+                            })
+                            .OnFinally(__ =>
+                            {
+                                Log.Info(this, "Moving to play mode.");
 
-                            _messages.Publish(MessageTypes.PLAY);
-                        });
+                                _messages.Publish(MessageTypes.PLAY);
+                            });
+                    }
+                    else
+                    {
+                        Log.Info(this, "Moving to play mode.");
+
+                        _messages.Publish(MessageTypes.PLAY);
+                    }
                 })
                 .OnFailure(exception =>
                 {
@@ -142,6 +165,8 @@ namespace CreateAR.EnkluPlayer
 
             _ui.Close(_loadingStackId);
             _ui.Close(_errorStackId);
+
+            _metrics.Timer(MetricsKeys.STATE_LOAD).Stop(_timerId);
         }
 
         /// <summary>

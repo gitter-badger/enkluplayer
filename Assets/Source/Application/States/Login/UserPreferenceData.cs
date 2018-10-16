@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer
+﻿using System;
+
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Data that associates the device and the org.
@@ -30,6 +32,11 @@
         /// Which mode to default to.
         /// </summary>
         public bool Play = true;
+
+        /// <summary>
+        /// Last time app was updated.
+        /// </summary>
+        public string LastUpdate;
     }
 
     /// <summary>

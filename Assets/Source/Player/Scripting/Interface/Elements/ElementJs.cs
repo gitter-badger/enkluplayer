@@ -4,7 +4,6 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using Jint;
 using Jint.Native;
-using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -13,26 +12,22 @@ namespace CreateAR.EnkluPlayer.Scripting
     /// </summary>
     public class ElementJs : IEntityJs, IJsEventDispatcher
     {
+        private class EventListenerRecord
+        {
+            public Engine Engine;
+            public Func<JsValue, JsValue[], JsValue> Handler;
+        }
+
         /// <summary>
         /// Used to track events.
         /// </summary>
-        private readonly Dictionary<string, List<Func<JsValue, JsValue[], JsValue>>> _events = new Dictionary<string, List<Func<JsValue, JsValue[], JsValue>>>();
+        private readonly Dictionary<string, List<EventListenerRecord>> _events = new Dictionary<string, List<EventListenerRecord>>();
         
         /// <summary>
         /// Scratch list for find.
         /// </summary>
         private readonly List<Element> _findScratch = new List<Element>();
-
-        /// <summary>
-        /// The JS engine.
-        /// </summary>
-        private readonly Engine _engine;
-
-        /// <summary>
-        /// This value.
-        /// </summary>
-        private readonly JsValue _this;
-
+        
         /// <summary>
         /// Runs scripts.
         /// </summary>
@@ -132,19 +127,15 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public ElementJs(
             IScriptManager scripts,
-            IElementJsCache cache, 
-            Engine engine,
+            IElementJsCache cache,
             Element element)
         {
             _scripts = scripts;
             _element = element;
             _cache = cache;
-            _engine = engine;
             
-            schema = new ElementSchemaJsApi(engine, _element.Schema);
+            schema = new ElementSchemaJsApi(_element.Schema);
             transform = new ElementTransformJsApi(_element);
-
-            _this = JsValue.FromObject(_engine, this);
         }
         
         /// <summary>
@@ -249,9 +240,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        public void on(string eventType, Func<JsValue, JsValue[], JsValue> fn)
+        public void on(Engine engine, string eventType, Func<JsValue, JsValue[], JsValue> fn)
         {
-            EventList(eventType).Add(fn);
+            EventList(eventType).Add(new EventListenerRecord
+            {
+                Engine = engine,
+                Handler = fn
+            });
         }
 
         /// <inheritdoc />
@@ -261,21 +256,34 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        public void off(string eventType, Func<JsValue, JsValue[], JsValue> fn)
+        public void off(Engine engine, string eventType, Func<JsValue, JsValue[], JsValue> fn)
         {
-            EventList(eventType).Remove(fn);
+            var list = EventList(eventType);
+            for (int i = 0, len = list.Count; i < len; i++)
+            {
+                var record = list[i];
+                if (record.Handler == fn)
+                {
+                    list.RemoveAt(i);
+
+                    break;
+                }
+            }
         }
 
         /// <summary>
         /// Returns the position of this ElementJs relative to another ElementJs. This value should not
-        /// be cached as elements aren't guarenteed to sit under the same world anchor.
+        /// be cached as elements aren't guaranteed to sit under the same world anchor.
         ///
         /// TODO: Make this more friendly/understandable for people unfamiliar with anchoring woes.
         /// </summary>
-        /// <param name="element"></param>
+        /// <param name="other">The other element.</param>
         /// <returns></returns>
+        [Obsolete]
         public Vec3 positionRelativeTo(ElementJs other)
         {
+            Log.Warning(this, "Element.positionRelativeTo is obsolete. Please use Element.transform.positionRelativeTo instead.");
+
             var thisAsWidget = _element as Widget;
             var otherAsWidget = other._element as Widget;
 
@@ -302,19 +310,16 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 return;
             }
-            
-            var param = new[] { JsValue.FromObject(_engine, evt) };
-            if (1 == count)
+
+            var copy = list.ToArray();
+            for (var i = 0; i < count; i++)
             {
-                list[0](_this, param);
-            }
-            else
-            {
-                var copy = list.ToArray();
-                for (var i = 0; i < count; i++)
-                {
-                    copy[i](_this, param);
-                }
+                var record = copy[i];
+                var param = new[] { JsValue.FromObject(record.Engine, evt) };
+
+                record.Handler(
+                    JsValue.FromObject(record.Engine, this),
+                    param);
             }
         }
 
@@ -323,12 +328,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="eventType">The type.</param>
         /// <returns></returns>
-        private List<Func<JsValue, JsValue[], JsValue>> EventList(string eventType)
+        private List<EventListenerRecord> EventList(string eventType)
         {
-            List<Func<JsValue, JsValue[], JsValue>> list;
+            List<EventListenerRecord> list;
             if (!_events.TryGetValue(eventType, out list))
             {
-                list = _events[eventType] = new List<Func<JsValue, JsValue[], JsValue>>();
+                list = _events[eventType] = new List<EventListenerRecord>();
             }
 
             return list;

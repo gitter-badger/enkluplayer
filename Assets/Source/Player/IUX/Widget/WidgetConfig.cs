@@ -13,9 +13,14 @@ namespace CreateAR.EnkluPlayer.IUX
         public IconConfig Icons;
 
         /// <summary>
-        /// Color of the aim widget as a function of aim percentage.
+        /// The scale factor a widget can use for a buffer.
         /// </summary>
         [Header("Aim")]
+        public float AimBufferFactor = 3.0f;
+
+        /// <summary>
+        /// Color of the aim widget as a function of aim percentage.
+        /// </summary>
         public Gradient AimFeedbackColor;
 
         /// <summary>

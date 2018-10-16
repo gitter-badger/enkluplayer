@@ -1,4 +1,4 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -10,7 +10,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Id of the element to refresh.
         /// </summary>
-        [JsonName("id")]
-        public string Id;
+        [JsonProperty("id")]
+        public string Id { get; set; }
     }
 }

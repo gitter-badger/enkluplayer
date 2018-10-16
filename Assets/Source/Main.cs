@@ -1,8 +1,10 @@
+using System.Linq;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
+using CreateAR.EnkluPlayer.Vine;
 using strange.extensions.injector.impl;
 using UnityEngine;
 
@@ -33,8 +35,13 @@ namespace CreateAR.EnkluPlayer
 	    /// The application to run.
 	    /// </summary>
 	    private Application _app;
-        
+
         /// <summary>
+        /// Times how long it takes to create Application.
+        /// </summary>
+	    private int _initTimer;
+
+	    /// <summary>
         /// Injects bindings into an object.
         /// </summary>
 	    public static void Inject(object @object)
@@ -72,18 +79,13 @@ namespace CreateAR.EnkluPlayer
             // setup logging
 	        Log.Filter = LogLevel.Debug;
 
-            // log to unity only in the editor and webgl
-#if !UNITY_WEBGL
-            //if (UnityEngine.Application.isEditor)
-#endif
-            {
-	            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
-	            {
-	                Level = false,
-	                Timestamp = false,
-	                TypeName = true
-	            }));
-            }
+            // forward logs to unity
+	        Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
+	        {
+	            Level = false,
+	            Timestamp = false,
+	            TypeName = true
+	        }));
 
             // non-webgl should log to file
 #if !UNITY_WEBGL
@@ -113,6 +115,9 @@ namespace CreateAR.EnkluPlayer
             // load bindings
             _binder.Load(new EnkluPlayerModule());
 
+            // start timer
+	        _initTimer = _binder.GetInstance<IMetricsService>().Timer(MetricsKeys.APPLICATION_INIT).Start();
+
 	        // non-editor builds should log to loggly
 	        if (!UnityEngine.Application.isEditor)
 	        {
@@ -122,14 +127,14 @@ namespace CreateAR.EnkluPlayer
 	                _binder.GetInstance<ILogglyMetadataProvider>(),
 	                _binder.GetInstance<IBootstrapper>())
 	            {
-                    // only log errors + above
-                    Filter = LogLevel.Error
+                    // only log warnings + above
+                    Filter = LogLevel.Warning
 	            });
             }
 
             // create application!
             _app = _binder.GetInstance<Application>();
-
+            
 	        if (null != _app)
 	        {
 	            Log.Info(this, "Application created.");
@@ -148,14 +153,39 @@ namespace CreateAR.EnkluPlayer
             // start metrics
             var config = _binder.GetInstance<ApplicationConfig>().Metrics;
             var metrics = _binder.GetInstance<IMetricsService>();
-            if (!UnityEngine.Application.isEditor)
+            if (config.Enabled)
             {
-#if !UNITY_WEBGL
-                metrics.AddTarget(new HostedGraphiteMetricsTarget(
-                    config.Hostname,
-                    config.ApplicationKey));
-#endif
+                var targets = config.Targets.Split(',');
+                if (targets.Contains(HostedGraphiteMetricsTarget.TYPE)
+                    && !DeviceHelper.IsWebGl())
+                {
+                    Log.Info(this, "Adding HostedGraphiteMetricsTarget.");
+
+                    metrics.AddTarget(new HostedGraphiteMetricsTarget(
+                        config.Hostname,
+                        config.ApplicationKey));
+                }
+
+                if (targets.Contains(FileMetricsTarget.TYPE))
+                {
+                    Log.Info(this, "Adding FileMetricsTarget.");
+
+                    metrics.AddTarget(new FileMetricsTarget());
+                }
+
+                // collect performance metrics
+                gameObject
+                    .AddComponent<PerfMetricsCollector>()
+                    .Initialize(metrics);
             }
+
+            // start action workers
+            var worker = _binder.GetInstance<ParserWorker>();
+#if NETFX_CORE
+            Windows.System.Threading.ThreadPool.RunAsync(_ => worker.Start());
+#else
+            System.Threading.ThreadPool.QueueUserWorkItem(_ => worker.Start());
+#endif
 
             // handle restarts
             _binder.GetInstance<IMessageRouter>().Subscribe(
@@ -167,6 +197,9 @@ namespace CreateAR.EnkluPlayer
                 });
             
             _app.Initialize();
+
+            // stop timer
+            metrics.Timer(MetricsKeys.APPLICATION_INIT).Stop(_initTimer);
         }
 
         /// <summary>

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Assets
 {
@@ -29,14 +31,14 @@ namespace CreateAR.EnkluPlayer.Assets
         private readonly string _url;
 
         /// <summary>
+        /// The load.
+        /// </summary>
+        private readonly AsyncToken<AssetBundle> _bundleLoad = new AsyncToken<AssetBundle>();
+
+        /// <summary>
         /// True iff the loader has been destroyed.
         /// </summary>
         private bool _destroy;
-
-        /// <summary>
-        /// The load.
-        /// </summary>
-        private IAsyncToken<AssetBundle> _bundleLoad;
         
         /// <summary>
         /// The bundle that was loaded.
@@ -81,9 +83,13 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <summary>
         /// Loads the bundle.
         /// </summary>
-        public void Load()
+        public IAsyncToken<Void> Load()
         {
             _bootstrapper.BootstrapCoroutine(DownloadBundle());
+
+            return Async.Map(
+                _bundleLoad,
+                _ => Void.Instance);
         }
 
         /// <summary>
@@ -98,7 +104,7 @@ namespace CreateAR.EnkluPlayer.Assets
             {
                 throw new ArgumentException(assetName);
             }
-
+            
             Verbose("Load Asset {0}.", assetName);
 
             var token = new AsyncToken<Object>();
@@ -140,9 +146,6 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <returns></returns>
         private IEnumerator DownloadBundle()
         {
-            var token = new AsyncToken<AssetBundle>();
-            _bundleLoad = token;
-
             // artificial lag
             if (_config.AssetDownloadLagSec > Mathf.Epsilon)
             {
@@ -152,28 +155,19 @@ namespace CreateAR.EnkluPlayer.Assets
             // offline mode
             if (_config.Offline)
             {
-                token.Fail(new Exception("Could not load asset: Offline Mode enabled."));
+                _bundleLoad.Fail(new Exception("Could not load asset: Offline Mode enabled."));
                 yield break;
             }
-
-#if FALSE && !NETFX_CORE
-            Verbose("Download bundle from {0}.", _url);
             
-            var request = WWW.LoadFromCacheOrDownload(
-                _url,
-                0);
-            yield return request;
-#else
             var request = UnityEngine.Networking.UnityWebRequestAssetBundle.GetAssetBundle(_url, 0, 0);
-
             request.SendWebRequest();
+
             while (!request.isDone)
             {
                 Progress.Value = request.downloadProgress;
 
                 yield return null;
             }
-#endif
             
             Verbose("DownloadBundle complete.");
 
@@ -189,25 +183,23 @@ namespace CreateAR.EnkluPlayer.Assets
             if (!string.IsNullOrEmpty(request.error))
             {
                 Verbose("Network or Http error: {0}.", request.error);
-                
-                token.Fail(new Exception(request.error));
+
+                _bundleLoad.Fail(new Exception(request.error));
             }
             else
             {
-#if FALSE && !NETFX_CORE
-                token.Succeed(request.assetBundle);
-#else           
                 // wait for bundle to complete
                 var bundle = UnityEngine.Networking.DownloadHandlerAssetBundle.GetContent(request);
                 if (null == bundle)
                 {
-                    token.Fail(new Exception(request.error));
+                    _bundleLoad.Fail(new Exception(request.error));
                 }
                 else
                 {
-                    token.Succeed(bundle);
+                    Verbose("Succeeding token.");
+
+                    _bundleLoad.Succeed(bundle);
                 }
-#endif
             }
 
             request.Dispose();
@@ -238,8 +230,6 @@ namespace CreateAR.EnkluPlayer.Assets
             var asset = request.asset;
             if (null == asset)
             {
-                Log.Error(this, "Could not find asset in bundle.");
-
                 token.Fail(new Exception("Could not find asset."));
             }
             else
@@ -253,7 +243,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// </summary>
         /// <param name="message">Message to log.</param>
         /// <param name="replacements">Logging replacements.</param>
-        //[Conditional("LOGGING_VERBOSE")]
+        [Conditional("LOGGING_VERBOSE")]
         private void Verbose(string message, params object[] replacements)
         {
             Log.Info(this,

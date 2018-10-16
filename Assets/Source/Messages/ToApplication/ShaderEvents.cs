@@ -1,28 +1,28 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
     public class ShaderListEvent
     {
-        [JsonName("shaders")]
+        [JsonProperty("shaders")]
         public ShaderData[] Shaders;
     }
 
     public class ShaderAddEvent
     {
-        [JsonName("shader")]
+        [JsonProperty("shader")]
         public ShaderData Shader;
     }
 
     public class ShaderUpdateEvent
     {
-        [JsonName("shader")]
+        [JsonProperty("shader")]
         public ShaderData Shader;
     }
 
     public class ShaderRemoveEvent
     {
-        [JsonName("id")]
+        [JsonProperty("id")]
         public string Id;
     }
 }

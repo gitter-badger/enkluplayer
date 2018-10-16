@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using CreateAR.Commons.Unity.Http;
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -11,13 +11,14 @@ namespace CreateAR.EnkluPlayer
     public class JsonSerializer : ISerializer
     {
         /// <inheritdoc cref="ISerializer"/>
-        public void Serialize(object value, out byte[] bytes)
+        public virtual void Serialize(object value, out byte[] bytes)
         {
-            bytes = Encoding.UTF8.GetBytes(new JsonObject(value).ToString(true));
+            var json = JsonConvert.SerializeObject(value);
+            bytes = Encoding.UTF8.GetBytes(json);
         }
 
         /// <inheritdoc cref="ISerializer"/>
-        public void Deserialize(Type type, ref byte[] bytes, out object value)
+        public virtual void Deserialize(Type type, ref byte[] bytes, out object value)
         {
             var json = Encoding.UTF8.GetString(bytes);
             if (string.IsNullOrEmpty(json))
@@ -26,9 +27,7 @@ namespace CreateAR.EnkluPlayer
             }
             else
             {
-                value = JsonValue
-                    .Parse(json)
-                    .As(type);
+                value = JsonConvert.DeserializeObject(json, type);
             }
         }
     }

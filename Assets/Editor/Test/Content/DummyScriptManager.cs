@@ -5,44 +5,83 @@ namespace CreateAR.EnkluPlayer.Test
 {
     public class DummyScriptManager : IScriptManager
     {
+        private readonly bool _throwErrors;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="throwErrors">Whether method calls throw a
+        /// <see cref="NotImplementedException"/> or not.</param>
+        public DummyScriptManager(bool throwErrors = true)
+        {
+            _throwErrors = throwErrors;
+        }
+
         public EnkluScript FindOne(string id)
         {
-            throw new NotImplementedException();
+            if (_throwErrors)
+            {
+                throw new NotImplementedException();
+            }
+            return null;
         }
 
         public void FindAll(string id, List<EnkluScript> scripts)
         {
-            throw new NotImplementedException();
+            if (_throwErrors)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public EnkluScript FindOneTagged(string query)
         {
-            throw new NotImplementedException();
+            if (_throwErrors)
+            {
+                throw new NotImplementedException();
+            }
+            return null;
         }
 
         public void FindAllTagged(string query, List<EnkluScript> scripts)
         {
-            throw new NotImplementedException();
+            if (_throwErrors)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public EnkluScript Create(string scriptId, params string[] tags)
         {
-            throw new NotImplementedException();
+            if (_throwErrors)
+            {
+                throw new NotImplementedException();
+            }
+            return null;
         }
 
         public void Send(string query, string name, params object[] parameters)
         {
-            throw new NotImplementedException();
+            if (_throwErrors) 
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public void Release(EnkluScript script)
         {
-            throw new NotImplementedException();
+            if (_throwErrors) 
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public void ReleaseAll(params string[] tags)
         {
-            throw new NotImplementedException();
+            if (_throwErrors) 
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

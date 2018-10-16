@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -29,7 +28,6 @@ namespace CreateAR.EnkluPlayer
         private readonly IUIManager _ui;
         private readonly IMessageRouter _messages;
         private readonly IPrimaryAnchorManager _primaryAnchor;
-        private readonly IAppQualityController _quality;
 
         /// <summary>
         /// All states.
@@ -121,7 +119,6 @@ namespace CreateAR.EnkluPlayer
             IUIManager ui,
             IMessageRouter messages,
             IPrimaryAnchorManager primaryAnchor,
-            IAppQualityController quality,
             ApiController api,
 
             // design states
@@ -146,7 +143,6 @@ namespace CreateAR.EnkluPlayer
             _ui = ui;
             _messages = messages;
             _primaryAnchor = primaryAnchor;
-            _quality = quality;
             _api = api;
 
             _states = new IArDesignState[]
@@ -186,9 +182,7 @@ namespace CreateAR.EnkluPlayer
                 ShowFatalError();
                 return;
             }
-
-            SetupCommon();
-
+            
             if (context.Edit)
             {
                 SetupEdit();
@@ -207,8 +201,6 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Teardown()
         {
-            TeardownCommon();
-
             if (_setupEdit)
             {
                 TeardownEdit();
@@ -285,22 +277,7 @@ namespace CreateAR.EnkluPlayer
         {
             // ignore forced focus in AR mode
         }
-
-        /// <summary>
-        /// Sets up anything used in both play and edit modes.
-        /// </summary>
-        private void SetupCommon()
-        {
-            var id = _scenes.All.FirstOrDefault();
-            var root = _scenes.Root(id);
-            if (null == root)
-            {
-                return;
-            }
-
-            _quality.Setup(root);
-        }
-
+        
         /// <summary>
         /// Starts design mode.
         /// </summary>
@@ -378,15 +355,7 @@ namespace CreateAR.EnkluPlayer
                 }
             });
         }
-
-        /// <summary>
-        /// Tears down anything that is used in both play and edit modes.
-        /// </summary>
-        private void TeardownCommon()
-        {
-            _quality.Teardown();
-        }
-
+        
         /// <summary>
         /// Tears down edit mode.
         /// </summary>
@@ -432,6 +401,19 @@ namespace CreateAR.EnkluPlayer
             {
                 Voice_OnPlayMenu("menu");
             }
+
+            // perf
+            _voice.Register("performance", _ =>
+            {
+                // open
+                int hudId;
+                _ui
+                    .OpenOverlay<PerfDisplayUIView>(new UIReference
+                    {
+                        UIDataId = "Perf.Hud"
+                    }, out hudId)
+                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+            });
         }
 
         /// <summary>
@@ -443,6 +425,7 @@ namespace CreateAR.EnkluPlayer
 
             _voice.Unregister("menu");
             _voice.Unregister("edit");
+            _voice.Unregister("performance");
 
             _ui.Close(_playMenuId);
         }
@@ -517,6 +500,7 @@ namespace CreateAR.EnkluPlayer
                     out _playMenuId)
                 .OnSuccess(el =>
                 {
+                    el.TxtName.Label = App.Name;
                     el.OnEdit += () =>
                     {
                         _config.Play.Edit = true;

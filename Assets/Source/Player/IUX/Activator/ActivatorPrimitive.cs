@@ -112,6 +112,10 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 else
                 {
+                    // Reset to ready state, this element might have been
+                    //  overlapped by another and not transitioned back.
+                    Ready();
+
                     _messages.Publish(
                         MessageTypes.WIDGET_UNFOCUS,
                         new WidgetUnfocusEvent(_target));
@@ -255,16 +259,26 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <inheritdoc cref="IRaycaster"/>
         public bool Raycast(Vec3 origin, Vec3 direction)
         {
+            Vec3 hitPosition, colliderCenter;
+            return Raycast(origin, direction, out hitPosition, out colliderCenter);
+        }
+
+        public bool Raycast(Vec3 origin, Vec3 direction, out Vec3 hitPosition, out Vec3 colliderCenter)
+        {
             if (_renderer.FocusCollider != null)
             {
                 var ray = new Ray(origin.ToVector(), direction.ToVector());
                 RaycastHit hitInfo;
                 if (_renderer.FocusCollider.Raycast(ray, out hitInfo, float.PositiveInfinity))
                 {
+                    hitPosition = hitInfo.point.ToVec();
+                    colliderCenter = hitInfo.collider.bounds.center.ToVec();
                     return true;
                 }
             }
 
+            hitPosition = Vec3.Zero;
+            colliderCenter = Vec3.Zero;
             return false;
         }
 
@@ -363,6 +377,19 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <summary>
+        /// Moves into imminent state.
+        /// </summary>
+        public void Imminent()
+        {
+            _states.Change<ActivatorImminentState>();
+
+            if (null != OnStateChanged)
+            {
+                OnStateChanged((ActivatorState) _states.Current);
+            }
+        }
+
+        /// <summary>
         /// Moves into activating state.
         /// </summary>
         public void Activating()
@@ -433,7 +460,8 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 _states = new FiniteStateMachine(new IState[]
                 {
-                    new ActivatorReadyState(_config, this, Schema),
+                    new ActivatorReadyState(this, Schema),
+                    new ActivatorImminentState(_config, this, Schema), 
                     new ActivatorActivatingState(_config, this, _intention, Schema, true),
                     new ActivatorActivatedState(_target, this, _messages, Schema)
                 });
@@ -457,20 +485,37 @@ namespace CreateAR.EnkluPlayer.IUX
             var directionToButton = delta.Normalized;
 
             var eyeDistance = delta.Magnitude;
-            var radius = _renderer.Radius;
+            var activateRadius = _renderer.ActivateRadius;
+            var focusRadius = _renderer.FocusRadius;
 
-            var maxTheta = Mathf.Atan2(radius, eyeDistance);
+            var activateMaxTheta = Mathf.Atan2(activateRadius, eyeDistance);
+            var focusMaxTheta = Mathf.Atan2(focusRadius, eyeDistance);
 
             var cosTheta = Vec3.Dot(
                 directionToButton,
                 eyeDirection);
-            var theta = Mathf.Approximately(cosTheta, 1.0f)
+            var theta = Mathf.Abs(Mathf.Approximately(cosTheta, 1.0f)
                 ? 0.0f
-                : Mathf.Acos(cosTheta);
-
-            Aim = Mathf.Approximately(maxTheta, 0.0f)
-                ? 0.0f
-                : 1.0f - Mathf.Clamp01(Mathf.Abs(theta / maxTheta));
+                : Mathf.Acos(cosTheta));
+            
+            // Kill the aim value if the object isn't able to be focused
+            if (Mathf.Approximately(focusMaxTheta, 0.0f))
+            {
+                Aim = -1;
+            }
+            else
+            {
+                if (theta > activateMaxTheta)
+                {
+                    // Scale -1 -> 0
+                    Aim = -Mathf.Clamp01((theta - activateMaxTheta) / (focusMaxTheta - activateMaxTheta));
+                }
+                else
+                {
+                    // Scale 0 -> 1
+                    Aim = 1.0f - Mathf.Clamp01(theta / activateMaxTheta);
+                }
+            }
         }
 
         /// <summary>
@@ -504,7 +549,7 @@ namespace CreateAR.EnkluPlayer.IUX
             }
 
             var pos = _renderer.transform.position;
-            var rad = _renderer.Radius;
+            var rad = _renderer.ActivateRadius;
             handle.Draw(ctx =>
             {
                 ctx.Prism(new Bounds(

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections;
-using System.Reflection;
+using System.Linq;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.AR;
+using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.Scripting;
-using Jint.Unity;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -24,59 +24,21 @@ namespace CreateAR.EnkluPlayer
         private const string SCENE_NAME = "PlayMode";
 
         /// <summary>
-        /// Configuration.
+        /// Dependencies.
         /// </summary>
         private readonly ApplicationConfig _config;
-
-        /// <summary>
-        /// Bootstraps coroutines.
-        /// </summary>
         private readonly IBootstrapper _bootstrapper;
-        
-        /// <summary>
-        /// Resolves script requires.
-        /// </summary>
         private readonly IScriptRequireResolver _resolver;
-
-        /// <summary>
-        /// Controls design mode.
-        /// </summary>
         private readonly IDesignController _design;
-
-        /// <summary>
-        /// Manages app.
-        /// </summary>
         private readonly IAppController _app;
-
-        /// <summary>
-        /// AR interface.
-        /// </summary>
         private readonly IArService _ar;
-
-        /// <summary>
-        /// UI interface.
-        /// </summary>
         private readonly IUIManager _ui;
-
-        /// <summary>
-        /// Connection.
-        /// </summary>
         private readonly IConnection _connection;
-
-        /// <summary>
-        /// Application-wide messages.
-        /// </summary>
         private readonly IMessageRouter _messages;
-
-        /// <summary>
-        /// Handles voice commands.
-        /// </summary>
         private readonly IVoiceCommandManager _voice;
-
-        /// <summary>
-        /// Allows for snapshots to be captured.
-        /// </summary>
-        private readonly ISnapshotCapture _snapshot;
+        private readonly IAssetLoader _assetLoader;
+        private readonly IMetricsService _metrics;
+        private readonly IAppQualityController _quality;
 
         /// <summary>
         /// Status.
@@ -114,6 +76,11 @@ namespace CreateAR.EnkluPlayer
         private UIManagerFrame _frame;
 
         /// <summary>
+        /// Timer for tracking loss.
+        /// </summary>
+        private int _trackingId;
+
+        /// <summary>
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
@@ -127,7 +94,9 @@ namespace CreateAR.EnkluPlayer
             IConnection connection,
             IMessageRouter messages,
             IVoiceCommandManager voice,
-            ISnapshotCapture snapshot)
+            IAssetLoader assetLoader,
+            IMetricsService metrics,
+            IAppQualityController quality)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -139,7 +108,9 @@ namespace CreateAR.EnkluPlayer
             _connection = connection;
             _messages = messages;
             _voice = voice;
-            _snapshot = snapshot;
+            _assetLoader = assetLoader;
+            _metrics = metrics;
+            _quality = quality;
         }
 
         /// <inheritdoc />
@@ -158,6 +129,9 @@ namespace CreateAR.EnkluPlayer
             {
                 UIDataId = UIDataIds.LOADING
             }, out _loadingScreenId);
+
+            // allow the cursor to be hidden
+            _config.Cursor.ForceShow = false;
             
             // watch tracking
             _ar.OnTrackingOffline += Ar_OnTrackingOffline;
@@ -166,7 +140,7 @@ namespace CreateAR.EnkluPlayer
             _resolver.Initialize(
 #if NETFX_CORE
                 // reference by hand
-                Assembly.Load(new AssemblyName("Assembly-CSharp"))
+                System.Reflection.Assembly.Load(new System.Reflection.AssemblyName("Assembly-CSharp"))
 #else
                 AppDomain.CurrentDomain.GetAssemblies()
 #endif
@@ -182,11 +156,7 @@ namespace CreateAR.EnkluPlayer
 
             // listen for reset command
             _voice.Register("reset", Voice_OnReset);
-
-            // listen for snapshot command
-            _snapshot.Setup();
-            _voice.Register("snap", (cmd) => { _snapshot.Capture(); });
-
+            
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
@@ -198,7 +168,10 @@ namespace CreateAR.EnkluPlayer
         public void Update(float dt)
         {
 #if !UNITY_WEBGL
-            UpdateConnectionStatus();
+            if (_config.Play.Edit)
+            {
+                UpdateConnectionStatus();
+            }
 #endif
         }
 
@@ -206,7 +179,10 @@ namespace CreateAR.EnkluPlayer
         public void Exit()
         {
             Log.Info(this, "PlayApplicationState::Exit()");
-            
+
+            // shutoff quality
+            _quality.Teardown();
+
             // unwatch tracking
             _ar.OnTrackingOffline -= Ar_OnTrackingOffline;
             _ar.OnTrackingOnline -= Ar_OnTrackingOnline;
@@ -217,12 +193,6 @@ namespace CreateAR.EnkluPlayer
 
             // stop listening for voice commands
             _voice.Unregister("reset");
-            _voice.Unregister("snap");
-
-            Log.Info(this, "Teardown snapshot.");
-
-            // teardown snapshot capture
-            _snapshot.Teardown();
 
             // stop watching loads
             _app.OnReady -= App_OnReady;
@@ -242,6 +212,12 @@ namespace CreateAR.EnkluPlayer
 
             // close UI
             _frame.Release();
+
+            // clear everything in the queue
+            _assetLoader.ClearDownloadQueue();
+
+            // set the cursor back to always drawing
+            _config.Cursor.ForceShow = true;
         }
 
         /// <summary>
@@ -258,6 +234,13 @@ namespace CreateAR.EnkluPlayer
             {
                 throw new Exception("Could not find PlayModeConfig.");
             }
+
+            // setup quality
+            var id = _app.Scenes.All.FirstOrDefault();
+            if (!string.IsNullOrEmpty(id))
+            {
+                _quality.Setup(_app.Scenes.Root(id));
+            }            
 
             // initialize with app id
             _app.Play();
@@ -331,6 +314,8 @@ namespace CreateAR.EnkluPlayer
         {
             Log.Info(this, "Ar tracking lost!");
 
+            _trackingId = _metrics.Timer(MetricsKeys.ANCHOR_TRACKING_LOST).Start();
+
             _ui.Open<IUIElement>(new UIReference
             {
                 UIDataId = "Ar.Interrupted"
@@ -343,6 +328,8 @@ namespace CreateAR.EnkluPlayer
         private void Ar_OnTrackingOnline()
         {
             Log.Info(this, "Ar tracking back online.");
+
+            _metrics.Timer(MetricsKeys.ANCHOR_TRACKING_LOST).Stop(_trackingId);
 
             _ui.Close(_interruptId);
         }

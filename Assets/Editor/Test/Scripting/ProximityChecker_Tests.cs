@@ -1,7 +1,9 @@
-﻿using CreateAR.EnkluPlayer.IUX;
+﻿using System.Collections.Generic;
+using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using Jint;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {
@@ -11,7 +13,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     [TestFixture]
     public class ProximityChecker_Tests
     {
-        private Engine _engine;
+        private List<GameObject> _gameObjects;
+
         private ProximityChecker _proximityChecker;
 
         private IEntityJs _elementA;
@@ -24,7 +27,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
-            _engine = new Engine();
+            _gameObjects = new List<GameObject>();
             _proximityChecker = new ProximityChecker();
 
             enterCount = 0;
@@ -48,6 +51,16 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 Assert.AreEqual(_elementB, callbackTrigger);
                 exitCount++;
             };
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            for (var i = 0; i < _gameObjects.Count; i++)
+            {
+                Object.DestroyImmediate(_gameObjects[i]);
+            }
+            _gameObjects.Clear();
         }
 
         /// <summary>
@@ -380,11 +393,45 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(_elementB, cachedExitTrigger);
         }
 
+        /// <summary>
+        /// After initial collision, remove the element from ProximityChecker
+        /// to ensure existing collisions are cleaned up properly.
+        /// </summary>
+        [Test]
+        public void RemovalDuringCollision()
+        {
+            // Setup elements. A is a listener, B is a trigger
+            _elementA = BuildElementJs(true, false, 3, 5);
+            _elementB = BuildElementJs(false, true, 2, 5);
+
+            // Check for no-op
+            _elementB.transform.position = new Vec3(10, 0, 0);
+            _proximityChecker.Update();
+            CheckCallbackCounts(0, 0, 0);
+
+            // Check for enter
+            _elementB.transform.position = new Vec3(4, 0, 0);
+            _proximityChecker.Update();
+            CheckCallbackCounts(1, 0, 0);
+
+            _proximityChecker.SetElementState(_elementB, false, false);
+            // Exit should be called when an element is removed during collision
+            CheckCallbackCounts(1, 0, 1);
+
+            _proximityChecker.Update();
+            CheckCallbackCounts(1, 0, 1);
+        }
+
         // Helpers
 
         private ElementJs BuildElementJs(bool isListening, bool isTrigger, float innerRadius, float outerRadius)
         {
-            ElementJs element = new ElementJs(null, null, _engine, new Element());
+            var gameObject = new GameObject("Proximity Tests");
+            _gameObjects.Add(gameObject);
+            var contentWidget = new ContentWidget(gameObject, new DummyScriptManager(false), new DummyAssetAssembler());
+            contentWidget.Load(new ElementData(), new ElementSchema(), new Element[0]);
+
+            var element = new ElementJs(null, null, contentWidget);
             _proximityChecker.SetElementState(element, isListening, isTrigger);
             _proximityChecker.SetElementRadii(element, innerRadius, outerRadius);
             return element;

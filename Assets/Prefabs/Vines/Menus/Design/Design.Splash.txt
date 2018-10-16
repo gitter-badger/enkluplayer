@@ -4,5 +4,6 @@
 	<ScaleTransition>
 		<Button id='btn-menu' position=(0,0,0) icon='grid' ready.color='Highlight' />
 		<Button id='btn-play' position=(0.1,0,0) icon='play' />
+		<Text id='txt-name' label='' position=(0,-0.1,0) fontSize=80 width=1000.0 alignment='MidCenter' />
 	</ScaleTransition>
 </Float>

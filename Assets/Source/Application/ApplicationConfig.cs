@@ -53,6 +53,16 @@ namespace CreateAR.EnkluPlayer
         public MetricsConfig Metrics = new MetricsConfig();
 
         /// <summary>
+        /// Cursor configuration.
+        /// </summary>
+        public CursorConfig Cursor = new CursorConfig();
+
+        /// <summary>
+        /// Debug configuration
+        /// </summary>
+        public DebugConfig Debug = new DebugConfig();
+
+        /// <summary>
         /// Platform to use.
         /// </summary>
         public RuntimePlatform ParsedPlatform
@@ -119,6 +129,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="overrideConfig">The config to override with.</param>
         public void Override(ApplicationConfig overrideConfig)
         {
+            // TODO: Override at JSON level instead of here.
             if (!string.IsNullOrEmpty(overrideConfig.Platform))
             {
                 Platform = overrideConfig.Platform;
@@ -134,6 +145,7 @@ namespace CreateAR.EnkluPlayer
             Play.Override(overrideConfig.Play);
             Conductor.Override(overrideConfig.Conductor);
             Metrics.Override(overrideConfig.Metrics);
+            Debug.Override(overrideConfig.Debug);
         }
     }
 
@@ -211,6 +223,29 @@ namespace CreateAR.EnkluPlayer
         public bool Edit = true;
 
         /// <summary>
+        /// If true, the player will only check for updates every X minutes,
+        /// as given by <c>PeriodicUpdatesMinutes</c>. If false, the player
+        /// checks for updates each time play mode is entered.
+        /// </summary>
+        public bool PeriodicUpdates;
+
+        /// <summary>
+        /// Minutes to wait before checking for updates again. Only used if
+        /// <c>PeriodicUpdates</c> is set to true.
+        /// </summary>
+        public int PeriodicUpdatesMinutes;
+
+        /// <summary>
+        /// If true, skips device registration.
+        /// </summary>
+        public bool SkipDeviceRegistration;
+
+        /// <summary>
+        /// If true, skips version check.
+        /// </summary>
+        public bool SkipVersionCheck;
+
+        /// <summary>
         /// Parses designer name.
         /// </summary>
         public DesignerType ParsedDesigner
@@ -245,6 +280,26 @@ namespace CreateAR.EnkluPlayer
             {
                 Designer = overrideConfig.Designer;
             }
+
+            if (overrideConfig.PeriodicUpdates)
+            {
+                PeriodicUpdates = overrideConfig.PeriodicUpdates;
+            }
+
+            if (overrideConfig.PeriodicUpdatesMinutes > 0)
+            {
+                PeriodicUpdatesMinutes = overrideConfig.PeriodicUpdatesMinutes;
+            }
+
+            if (overrideConfig.SkipDeviceRegistration)
+            {
+                SkipDeviceRegistration = overrideConfig.SkipDeviceRegistration;
+            }
+
+            if (overrideConfig.SkipVersionCheck)
+            {
+                SkipVersionCheck = overrideConfig.SkipVersionCheck;
+            }
         }
     }
 
@@ -264,6 +319,16 @@ namespace CreateAR.EnkluPlayer
         public float AssetDownloadFailChance;
 
         /// <summary>
+        /// Likelyhood of forcing an anchor download to fail.
+        /// </summary>
+        public float AnchorDownloadFailChance = 0.0f;
+
+        /// <summary>
+        /// Likelyhood of forcing anchor import to fail.
+        /// </summary>
+        public float AnchorImportFailChance = 0.0f;
+
+        /// <summary>
         /// If true, forces all Http requests to fail.
         /// </summary>
         public bool Offline;
@@ -281,12 +346,12 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// List of environments.
         /// </summary>
-        public EnvironmentData[] AllEnvironments;
+        public EnvironmentData[] AllEnvironments = new EnvironmentData[0];
 
         /// <summary>
         /// List of environments.
         /// </summary>
-        public CredentialsData[] AllCredentials;
+        public CredentialsData[] AllCredentials = new CredentialsData[0];
 
         /// <summary>
         /// Retrieves the current environment.
@@ -320,11 +385,6 @@ namespace CreateAR.EnkluPlayer
         {
             get
             {
-                if (null == AllCredentials || 0 == AllCredentials.Length)
-                {
-                    return null;
-                }
-
                 for (int i = 0, len = AllCredentials.Length; i < len; i++)
                 {
                     var creds = AllCredentials[i];
@@ -362,19 +422,29 @@ namespace CreateAR.EnkluPlayer
         /// <param name="overrideConfig">The config to override with.</param>
         public void Override(NetworkConfig overrideConfig)
         {
-            if (overrideConfig.AssetDownloadLagSec > double.Epsilon)
-            {
-                AssetDownloadLagSec = overrideConfig.AssetDownloadLagSec;
-            }
-
             if (!string.IsNullOrEmpty(overrideConfig.Current))
             {
                 Current = overrideConfig.Current;
             }
 
+            if (overrideConfig.AssetDownloadLagSec > double.Epsilon)
+            {
+                AssetDownloadLagSec = overrideConfig.AssetDownloadLagSec;
+            }
+
             if (overrideConfig.AssetDownloadFailChance > Mathf.Epsilon)
             {
                 AssetDownloadFailChance = overrideConfig.AssetDownloadFailChance;
+            }
+
+            if (overrideConfig.AnchorDownloadFailChance > Mathf.Epsilon)
+            {
+                AnchorDownloadFailChance = overrideConfig.AnchorDownloadFailChance;
+            }
+
+            if (overrideConfig.AnchorImportFailChance > Mathf.Epsilon)
+            {
+                AnchorImportFailChance = overrideConfig.AnchorImportFailChance;
             }
 
             if (!string.IsNullOrEmpty(overrideConfig.ApiVersion))
@@ -522,6 +592,16 @@ namespace CreateAR.EnkluPlayer
     public class MetricsConfig
     {
         /// <summary>
+        /// Whether metrics should be enabled or not.
+        /// </summary>
+        public bool Enabled = true;
+
+        /// <summary>
+        /// A comma-delimited list of targets.
+        /// </summary>
+        public string Targets = "HostedGraphite";
+
+        /// <summary>
         /// Hostname of the metrics box.
         /// </summary>
         public string Hostname;
@@ -537,6 +617,8 @@ namespace CreateAR.EnkluPlayer
         /// <param name="config">The config.</param>
         public void Override(MetricsConfig config)
         {
+            Enabled = config.Enabled;
+
             if (!string.IsNullOrEmpty(config.Hostname))
             {
                 Hostname = config.Hostname;
@@ -545,6 +627,46 @@ namespace CreateAR.EnkluPlayer
             if (!string.IsNullOrEmpty(config.ApplicationKey))
             {
                 ApplicationKey = config.ApplicationKey;
+            }
+
+            if (!string.IsNullOrEmpty(config.Targets))
+            {
+                Targets = config.Targets;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Configuration for the Cursor.
+    /// </summary>
+    public class CursorConfig
+    {
+        /// <summary>
+        /// Authoritative setting. If true no app logic should hide the cursor.
+        /// to the screen.
+        /// </summary>
+        public bool ForceShow { get; set; }
+    }
+
+    /// <summary>
+    /// Configuration for debugging.
+    /// </summary>
+    public class DebugConfig
+    {
+        /// <summary>
+        /// If true, disables debug lock on voice commands.
+        /// </summary>
+        public bool DisableVoiceLock = false;
+
+        /// <summary>
+        /// Overrides settings.
+        /// </summary>
+        /// <param name="config">Other config.</param>
+        public void Override(DebugConfig config)
+        {
+            if (config.DisableVoiceLock)
+            {
+                DisableVoiceLock = true;
             }
         }
     }

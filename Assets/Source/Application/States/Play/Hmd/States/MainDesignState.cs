@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
@@ -111,6 +110,11 @@ namespace CreateAR.EnkluPlayer
         /// Reference for the opened mainmenu ui view
         /// </summary>
         private MainMenuUIView _mainMenuUiViewReference;
+
+        /// <summary>
+        /// Perf hud id.
+        /// </summary>
+        private int _hudId;
 
         /// <summary>
         /// Constructor.
@@ -268,6 +272,7 @@ namespace CreateAR.EnkluPlayer
                 }, out _splashId)
                 .OnSuccess(el =>
                 {
+                    el.TxtName.Label = _design.App.Name;
                     el.OnOpenMenu += Splash_OnOpenMenu;
                     el.OnPlay += Splash_OnPlay;
                 })
@@ -306,7 +311,9 @@ namespace CreateAR.EnkluPlayer
                     el.OnResetData += MainMenu_OnResetData;
                     el.OnClearAnchors += MainMenu_OnClearAnchors;
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
+                    el.OnDeviceRegistration += MainMenu_OnDeviceRegistration;
                     el.OnSignout += MainMenu_OnSignout;
+                    el.OnMetricsHud += MainMenu_OnMetricsHud;
 
                     // find root
                     var id = _scenes.All.FirstOrDefault();
@@ -314,6 +321,7 @@ namespace CreateAR.EnkluPlayer
                         id,
                         _scenes.Root(id),
                         _txns,
+                        _config,
                         _prefs.Data.App(_config.Play.AppId).Play);
                 })
                 .OnFailure(ex => Log.Error(this,
@@ -461,28 +469,26 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Called when the user selects one submenus under experience.
         /// </summary>
-        /// <param name="elementType">The type of element ot create.</param>
+        /// <param name="type">The type of element ot create.</param>
         private void MainMenu_OnExperience(MainMenuUIView.ExperienceSubMenu type)
         {
             switch (type)
             {
                 case MainMenuUIView.ExperienceSubMenu.New:
-                    {
-                        _design.ChangeState<CreateNewAppDesignState>();
-                        break;
-                    }
+                {
+                    _design.ChangeState<CreateNewAppDesignState>();
+                    break;
+                }
                 case MainMenuUIView.ExperienceSubMenu.Load:
-                    {
-                        _design.ChangeState<AppListViewDesignState>();
-                        break;
-                    }
-
+                {
+                    _design.ChangeState<AppListViewDesignState>();
+                    break;
+                }
                 case MainMenuUIView.ExperienceSubMenu.Duplicate:
-                    {
-                        //TODO
-                        OpenNotImplementedView();
-                        break;
-                    }
+                {
+                    OpenNotImplementedView();
+                    break;
+                }
             }
         }
 
@@ -495,37 +501,37 @@ namespace CreateAR.EnkluPlayer
             switch (elementType)
             {
                 case ElementTypes.CONTENT:
-                    {
-                        _design.ChangeState<NewContentDesignState>();
-                        break;
-                    }
+                {
+                    _design.ChangeState<NewContentDesignState>();
+                    break;
+                }
                 case ElementTypes.WORLD_ANCHOR:
-                    {
-                        _design.ChangeState<NewAnchorDesignState>();
-                        break;
-                    }
+                {
+                    _design.ChangeState<NewAnchorDesignState>();
+                    break;
+                }
                 case ElementTypes.CONTAINER:
-                    {
-                        _design.ChangeState<NewContainerDesignState>();
-                        break;
-                    }
+                {
+                    _design.ChangeState<NewContainerDesignState>();
+                    break;
+                }
                 case ElementTypes.CAPTION:
-                    {
-                        OpenNotImplementedView();
-                        break;
-                    }
+                {
+                    OpenNotImplementedView();
+                    break;
+                }
                 case ElementTypes.LIGHT:
-                    {
-                        OpenNotImplementedView();
-                        break;
-                    }
+                {
+                    OpenNotImplementedView();
+                    break;
+                }
                 default:
-                    {
-                        Log.Warning(this,
-                            "User requested to create {0}, but there is no inmplementation.",
-                            elementType);
-                        break;
-                    }
+                {
+                    Log.Warning(this,
+                        "User requested to create {0}, but there is no inmplementation.",
+                        elementType);
+                    break;
+                }
             }
         }
 
@@ -559,6 +565,14 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Called when the user requests to sync registrations.
+        /// </summary>
+        private void MainMenu_OnDeviceRegistration()
+        {
+            _messages.Publish(MessageTypes.DEVICE_REGISTRATION);
+        }
+
+        /// <summary>
         /// Called when signout is requested.
         /// </summary>
         private void MainMenu_OnSignout()
@@ -566,6 +580,34 @@ namespace CreateAR.EnkluPlayer
             Log.Info(this, "Signout requested.");
 
             _messages.Publish(MessageTypes.SIGNOUT);
+        }
+
+        /// <summary>
+        /// Called when the metrics hud visibility is toggled.
+        /// </summary>
+        /// <param name="enabled">Visibility.</param>
+        private void MainMenu_OnMetricsHud(bool enabled)
+        {
+            if (enabled)
+            {
+                // open
+                _ui
+                    .OpenOverlay<PerfDisplayUIView>(new UIReference
+                    {
+                        UIDataId = "Perf.Hud"
+                    }, out _hudId)
+                    .OnSuccess(el =>
+                    {
+                        el.OnClose += () => _ui.Close(_hudId);
+                    });
+
+                CloseMainMenu();
+                OpenSplashMenu();
+            }
+            else
+            {
+                _ui.Close(_hudId);
+            }
         }
 
         /// <summary>

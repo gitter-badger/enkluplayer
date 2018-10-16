@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -11,25 +11,25 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Txn id.
         /// </summary>
-        [JsonName("id")]
+        [JsonProperty("id")]
         public long Id;
 
         /// <summary>
         /// Type of event.
         /// </summary>
-        [JsonName("type")]
+        [JsonProperty("type")]
         public int Type;
 
         /// <summary>
         /// Id of scene.
         /// </summary>
-        [JsonName("sceneId")]
+        [JsonProperty("sceneId")]
         public string Scene;
 
         /// <summary>
         /// Id of user.
         /// </summary>
-        [JsonName("user")]
+        [JsonProperty("user")]
         public string User;
     }
 
@@ -49,7 +49,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// All actions.
         /// </summary>
-        [JsonName("actions")]
+        [JsonProperty("actions")]
         public ElementActionData[] Actions;
 
         /// <summary>

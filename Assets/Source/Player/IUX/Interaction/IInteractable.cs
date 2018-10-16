@@ -44,9 +44,10 @@ namespace CreateAR.EnkluPlayer.IUX
 
         /// <summary>
         /// (IUX PATENT)
-        /// A scalar percentage [0..1] representing targeting clarity.
-        /// 0 = low clarity - may be aiming at the edge of this.
-        /// 1 = high clarity - definitely targeting at center of this.
+        /// A scalar percentage [-1..1] representing targeting clarity.
+        /// -1 = no clarity - aim is in the buffer area.
+        ///  0 = low clarity - may be aiming at the edge of this.
+        ///  1 = high clarity - definitely targeting at center of this.
         /// </summary>
         float Aim { get; }
 

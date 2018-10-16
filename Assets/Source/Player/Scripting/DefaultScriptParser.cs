@@ -12,6 +12,11 @@ namespace CreateAR.EnkluPlayer
     public class DefaultScriptParser : IScriptParser
     {
         /// <summary>
+        /// Tracking metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
+
+        /// <summary>
         /// Preprocesses.
         /// </summary>
         private readonly IVinePreProcessor _preprocessor;
@@ -25,9 +30,11 @@ namespace CreateAR.EnkluPlayer
         /// Constructor.
         /// </summary>
         public DefaultScriptParser(
+            IMetricsService metrics,
             IVinePreProcessor preprocessor,
             JavaScriptParser parser)
         {
+            _metrics = metrics;
             _preprocessor = preprocessor;
             _parser = parser;
         }
@@ -35,6 +42,8 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc cref="IScriptParser"/>
         public Program Parse(string code, ElementSchema data, ParserOptions options)
         {
+            var id = _metrics.Timer(MetricsKeys.SCRIPT_PARSING_BEHAVIOR).Start();
+
             _preprocessor.DataStore = data;
 
             var processed = _preprocessor.Execute(code);
@@ -43,11 +52,17 @@ namespace CreateAR.EnkluPlayer
 
             try
             {
-                return _parser.Parse(processed, options);
+                var program = _parser.Parse(processed, options);
+
+                _metrics.Timer(MetricsKeys.SCRIPT_PARSING_BEHAVIOR).Stop(id);
+
+                return program;
             }
             catch (ParserException exception)
             {
                 Log.Warning(this, "Could not parse JS program : {0}.", exception);
+
+                _metrics.Timer(MetricsKeys.SCRIPT_PARSING_BEHAVIOR).Abort(id);
 
                 return null;
             }

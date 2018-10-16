@@ -93,7 +93,7 @@ namespace CreateAR.EnkluPlayer
 
                             // load
                             _app
-                                .Load(_config.Play.AppId)
+                                .Load(_config.Play)
                                 .OnSuccess(__ => _messages.Publish(MessageTypes.PLAY))
                                 .OnFailure(ex => Log.Error(this, "Could not load app : {0}", ex));
                         })

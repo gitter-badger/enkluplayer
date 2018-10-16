@@ -1,43 +1,43 @@
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
     public class ShaderFormPropData
     {
-        [JsonName("name")]
+        [JsonProperty("name")]
         public string Name;
 
-        [JsonName("uniform")]
+        [JsonProperty("uniform")]
         public string Uniform;
 
-        [JsonName("type")]
+        [JsonProperty("type")]
         public string Type;
     }
 
     public class ShaderFormTextureData
     {
-        [JsonName("name")]
+        [JsonProperty("name")]
         public string Name;
 
-        [JsonName("uniform")]
+        [JsonProperty("uniform")]
         public string Uniform;
     }
 
     public class ShaderFormData
     {
-        [JsonName("properties")]
+        [JsonProperty("properties")]
         public ShaderFormPropData[] Properties;
 
-        [JsonName("textures")]
+        [JsonProperty("textures")]
         public ShaderFormTextureData[] Textures;
     }
 
     public class ShaderData : StaticData
     {
-        [JsonName("tags")]
+        [JsonProperty("tags")]
         public string Tags;
 
-        [JsonName("form")]
+        [JsonProperty("form")]
         public ShaderFormData Form;
     }
 }

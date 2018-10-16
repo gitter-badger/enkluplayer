@@ -9,6 +9,11 @@ namespace CreateAR.EnkluPlayer
     public interface IAppDataLoader
     {
         /// <summary>
+        /// Name of the app.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// List of all scene ids in this app.
         /// </summary>
         string[] Scenes { get; }
@@ -23,9 +28,9 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Loads all app data.
         /// </summary>
-        /// <param name="appId">The id of the app.</param>
+        /// <param name="config">Configuration.</param>
         /// <returns></returns>
-        IAsyncToken<Void> Load(string appId);
+        IAsyncToken<Void> Load(PlayAppConfig config);
 
         /// <summary>
         /// Unloads all app data.

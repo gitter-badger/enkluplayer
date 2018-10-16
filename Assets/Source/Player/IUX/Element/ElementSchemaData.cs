@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using LightJson;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer.IUX
 {
@@ -11,37 +11,37 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Name to string value.
         /// </summary>
-        [JsonName("strings")]
+        [JsonProperty("strings")]
         public Dictionary<string, string> Strings = new Dictionary<string, string>();
 
         /// <summary>
         /// Name to int value.
         /// </summary>
-        [JsonName("ints")]
+        [JsonProperty("ints")]
         public Dictionary<string, int> Ints = new Dictionary<string, int>();
 
         /// <summary>
         /// Name to float value.
         /// </summary>
-        [JsonName("floats")]
+        [JsonProperty("floats")]
         public Dictionary<string, float> Floats = new Dictionary<string, float>();
 
         /// <summary>
         /// Name to bool value.
         /// </summary>
-        [JsonName("bools")]
+        [JsonProperty("bools")]
         public Dictionary<string, bool> Bools = new Dictionary<string, bool>();
 
         /// <summary>
         /// Name to Vec3 value.
         /// </summary>
-        [JsonName("vectors")]
+        [JsonProperty("vectors")]
         public Dictionary<string, Vec3> Vectors = new Dictionary<string, Vec3>();
 
         /// <summary>
         /// Name to Vec3 value.
         /// </summary>
-        [JsonName("colors")]
+        [JsonProperty("colors")]
         public Dictionary<string, Col4> Colors = new Dictionary<string, Col4>();
 
         /// <summary>

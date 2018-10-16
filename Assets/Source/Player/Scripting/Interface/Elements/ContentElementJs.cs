@@ -1,6 +1,4 @@
-﻿using System;
-using CreateAR.EnkluPlayer.IUX;
-using Jint;
+﻿using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -16,18 +14,23 @@ namespace CreateAR.EnkluPlayer.Scripting
         public AnimatorJsApi animator { get; private set; }
 
         /// <summary>
+        /// The material interface.
+        /// </summary>
+        public MaterialJsApi material { get; private set; }
+
+        /// <summary>
+        /// The audio interface.
+        /// </summary>
+        public AudioJsApi audio { get; private set; }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="scripts"></param>
-        /// <param name="cache"></param>
-        /// <param name="engine"></param>
-        /// <param name="element"></param>
         public ContentElementJs(
-            IScriptManager scripts, 
-            IElementJsCache cache, 
-            Engine engine, 
+            IScriptManager scripts,
+            IElementJsCache cache,
             Element element) 
-            : base(scripts, cache, engine, element)
+            : base(scripts, cache, element)
         {
             ((ContentWidget) _element).OnLoaded.OnSuccess(CacheAnimator);
         }
@@ -46,8 +49,33 @@ namespace CreateAR.EnkluPlayer.Scripting
         private void CacheAnimator(ContentWidget contentWidget)
         {
             var unityAnimator = contentWidget.GetComponent<Animator>();
-            if(unityAnimator != null) {
+            if (unityAnimator != null) 
+            {
                 animator = new AnimatorJsApi(unityAnimator);
+            }
+            else
+            {
+                animator = null;
+            }
+
+            var unityRenderer = contentWidget.GetComponent<Renderer>();
+            if (unityRenderer != null && unityRenderer.sharedMaterial != null)
+            {
+                material = new MaterialJsApi(unityRenderer);
+            }
+            else
+            {
+                material = null;
+            }
+
+            var unityAudioSource = contentWidget.GetComponent<AudioSource>();
+            if (unityAudioSource != null)
+            {
+                audio = new AudioJsApi(unityAudioSource);
+            }
+            else
+            {
+                audio = null;
             }
         }
     }

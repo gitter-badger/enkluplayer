@@ -180,10 +180,22 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            asset.Uri = string.Format(
-                "{0}_{1}.bundle",
-                asset.Uri.Substring(0, index),
-                GetBuildTarget());
+            if (asset.Uri.Contains("{{platform}}"))
+            {
+                // v2
+                asset.Uri = asset.Uri.Replace(
+                    "{{platform}}",
+                    GetBuildTarget());
+            }
+            else
+            {
+                // v1
+                var urlSplit = string.Format(
+                    "{0}_{1}.bundle",
+                    asset.Uri.Substring(0, index),
+                    GetBuildTarget()).Split('/');
+                asset.Uri = urlSplit[urlSplit.Length - 1];
+            }
         }
 
         /// <summary>

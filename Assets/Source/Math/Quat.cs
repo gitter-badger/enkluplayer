@@ -99,29 +99,94 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Create a Quat from Euler angles.
         /// 
-        /// From: http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
+        /// References: http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
+        ///           : https://stackoverflow.com/questions/11492299/quaternion-to-euler-angles-algorithm-how-to-convert-to-y-up-and-between-ha
+        /// Notes: Adapted from references. They are in radians
+        /// and have mixed coordinate systems / x, y, z, w order
         /// </summary>
-        /// <param name="euler">The euler angles in querstion.</param>
+        /// <param name="euler">The euler angles in question.</param>
         /// <returns></returns>
         public static Quat Euler(Vec3 euler)
         {
-            var c1 = Math.Cos(euler.x / 2.0);
-            var s1 = Math.Sin(euler.x / 2.0);
-            
-            var c2 = Math.Cos(euler.y / 2.0);
-            var s2 = Math.Sin(euler.y / 2.0);
-            
-            var c3 = Math.Cos(euler.z / 2.0);
-            var s3 = Math.Sin(euler.z / 2.0);
-            
-            var c1c2 = c1 * c2;
-            var s1s2 = s1 * s2;
-            
+            var radians = (float) Math.PI / 180 * euler;
+
+            // Yaw
+            var sy = (float) Math.Sin(radians.x / 2);
+            var cy = (float) Math.Cos(radians.x / 2);
+
+            // Pitch
+            var sp = (float) Math.Sin(radians.y / 2);
+            var cp = (float) Math.Cos(radians.y / 2);
+
+            // Roll
+            var sr = (float) Math.Sin(radians.z / 2);
+            var cr = (float) Math.Cos(radians.z / 2);
+
             return new Quat(
-                (float) (c1c2 * c3 - s1s2 * s3),
-                (float) (c1c2 * s3 + s1s2 * c3),
-                (float) (s1 * c2 * c3 + c1 * s2 * s3),
-                (float) (c1 * s2 * c3 - s1 * c2 * s3));
+                sy * cp * cr + cy * sp * sr,
+                cy * sp * cr - sy * cp * sr,
+                cy * cp * sr - sy * sp * cr,
+                cy * cp * cr + sy * sp * sr
+            );
+        }
+
+        /// <summary>
+        /// Multiples a Vec3 by a Quat.
+        ///
+        /// References: http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/transforms/derivations/vectors/index.htm
+        /// </summary>
+        /// <param name="rotation"></param>
+        /// <param name="forward"></param>
+        /// <returns></returns>
+        public static Vec3 Mult(Quat rotation, Vec3 forward)
+        {
+            var xSq2 = rotation.x * rotation.x * 2f;
+            var ySq2 = rotation.y * rotation.y * 2f;
+            var zSq2 = rotation.z * rotation.z * 2f;
+            var xy2 = rotation.x * rotation.y * 2f;
+            var xz2 = rotation.x * rotation.z * 2f;
+            var yz2 = rotation.y * rotation.z * 2f;
+            var wx2 = rotation.w * rotation.x * 2f;
+            var wy2 = rotation.w * rotation.y * 2f;
+            var wz2 = rotation.w * rotation.z * 2f;
+            
+            return new Vec3(
+                (float) ((1.0 - (ySq2 + zSq2)) * forward.x + (xy2 - wz2) * forward.y + (xz2 + wy2) * forward.z),
+                (float) ((xy2 + wz2) * forward.x + (1.0 - (xSq2 + zSq2)) * forward.y + (yz2 - wx2) * forward.z),
+                (float) ((xz2 - wy2) * forward.x + (yz2 + wx2) * forward.y + (1.0 - (xSq2 + ySq2)) * forward.z)
+            );
+        }
+
+        /// <summary>
+        /// Returns the rotation from one Vec3 to another Vec3.
+        ///
+        /// References: https://stackoverflow.com/questions/1171849/finding-quaternion-representing-the-rotation-from-one-vector-to-another
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
+        public static Quat FromToRotation(Vec3 from, Vec3 to)
+        {
+            var dot = Vec3.Dot(from, to);
+            var cross = Vec3.Cross(from, to);
+
+            // Edge case 
+            if (dot == -1 && cross.MagnitudeSqr == 0)
+            {
+                return new Quat(1, 0, 0, 0);
+            }
+
+            var w = (float) Math.Sqrt(from.MagnitudeSqr * to.MagnitudeSqr) + dot;
+            var len = (float) Math.Sqrt(cross.x * cross.x + cross.y * cross.y + cross.z * cross.z + w * w);
+
+            // Normalize the Quat
+            Quat rot = new Quat(
+                cross.x / len,
+                cross.y / len,
+                cross.z / len,
+                w / len
+            );
+            return rot;
         }
 
         /// <summary>
@@ -129,7 +194,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public static Quat Identity
         {
-            get { return new Quat(1, 1, 1, 1); }
+            get { return new Quat(0, 0, 0, 1); }
         }
 
         /// <summary>

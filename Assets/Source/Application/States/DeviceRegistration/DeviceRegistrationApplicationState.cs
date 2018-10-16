@@ -8,6 +8,7 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateOrganizationDevice;
 using UnityEngine;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -21,7 +22,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private readonly IUIManager _ui;
         private readonly IMessageRouter _messages;
-        private readonly ApplicationConfig _config;
+        private readonly IMetricsService _metrics;
         private readonly UserPreferenceService _preferences;
         private readonly ApiController _api;
         private readonly DeviceResourceUpdateService _deviceUpdateService;
@@ -32,19 +33,34 @@ namespace CreateAR.EnkluPlayer
         private UIManagerFrame _frame;
 
         /// <summary>
+        /// Authoratative server registrations for this device.
+        /// </summary>
+        private DeviceRegistration[] _serverRegistrations;
+
+        /// <summary>
+        /// Organizations this user belongs to.
+        /// </summary>
+        private Trellis.Messages.GetMyOrganizations.Body[] _orgs;
+
+        /// <summary>
+        /// Id of the timer.
+        /// </summary>
+        private int _timerId;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public DeviceRegistrationApplicationState(
             IUIManager ui,
             IMessageRouter messages,
-            ApplicationConfig config,
+            IMetricsService metrics,
             UserPreferenceService preferences,
             ApiController api,
             DeviceResourceUpdateService deviceUpdateService)
         {
             _ui = ui;
             _messages = messages;
-            _config = config;
+            _metrics = metrics;
             _preferences = preferences;
             _api = api;
             _deviceUpdateService = deviceUpdateService;
@@ -53,6 +69,10 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Enter(object context)
         {
+            Log.Info(this, "Enterting DeviceRegistrationApplicationState.");
+
+            _timerId = _metrics.Timer(MetricsKeys.STATE_DEVICEREGISTRATION).Start();
+
             _frame = _ui.CreateFrame();
 
             // show loading UI
@@ -66,156 +86,58 @@ namespace CreateAR.EnkluPlayer
             // continues to next state
             Action @continue = () => _messages.Publish(MessageTypes.DEVICE_REGISTRATION_COMPLETE);
 
-            // check user prefs to see if we need to register
-            _preferences
-                .ForUser(_config.Network.Credentials.UserId)
-                .OnSuccess(data =>
+            // get registrations from server
+            // get orgs
+            Async
+                .All(
+                    GetServerRegistrations(),
+                    GetOrgs())
+                .OnSuccess(_ =>
                 {
-                    var registrations = data.Data.DeviceRegistrations;
-                    if (registrations.Length > 0)
+                    // ids of orgs we are not registered with
+                    var missingRegistions = new List<string>();
+
+                    // compare organizations list against authoritative list
+                    for (int i = 0, len = _orgs.Length; i < len; i++)
                     {
-                        Log.Info(this, "Device is already registered.");
+                        var org = _orgs[i];
+                        var registration = _serverRegistrations.FirstOrDefault(reg => reg.OrgId == org.Id);
 
-                        // TODO: validate
-
-                        // start update service
-                        _deviceUpdateService.Initialize(registrations);
-
-                        @continue();
+                        // we are not registered with this organization
+                        if (null == registration)
+                        {
+                            missingRegistions.Add(org.Id);
+                        }
                     }
-                    else if (data.Data.IgnoreDeviceRegistration)
+
+                    // if there are some missing, then request we add
+                    if (missingRegistions.Count > 0)
                     {
-                        Log.Info(this, "User has previously ignored registration.");
-
-                        @continue();
-                    }
-                    else
-                    {
-                        // get list of organizations
-                        _api
-                            .Organizations
-                            .GetMyOrganizations()
-                            .OnSuccess(response =>
+                        Register(missingRegistions)
+                            .OnSuccess(registrations =>
                             {
-                                // open confirmation UI
-                                var organizations = response.Payload.Body;
-                                if (organizations.Length > 0)
-                                {
-                                    int confirmViewId;
-                                    _ui
-                                        .Open<ConfirmDeviceRegistrationUIView>(new UIReference
-                                        {
-                                            UIDataId = "Device.Registration.Confirm"
-                                        }, out confirmViewId)
-                                        .OnSuccess(el =>
-                                        {
-                                            el.Populate(organizations);
-                                            el.OnConfirm += () =>
-                                            {
-                                                // open load UI
-                                                _ui.Close(confirmViewId);
-                                                _ui.Open<ICommonLoadingView>(new UIReference{ UIDataId = UIDataIds.LOADING });
+                                registrations = _serverRegistrations.Add(registrations);
 
-                                                // create device resources
-                                                var tokens = new List<IAsyncToken<HttpResponse<Response>>>();
-                                                foreach (var org in organizations)
-                                                {
-                                                    var token = _api
-                                                        .Devices
-                                                        .CreateOrganizationDevice(org.Id, new Request
-                                                        {
-                                                            Name = "HoloLens",
-                                                            Description = "My new device.",
-                                                            Token = SystemInfo.deviceUniqueIdentifier
-                                                        });
-                                                    tokens.Add(token);
-                                                }
+                                _deviceUpdateService.Initialize(registrations);
 
-                                                // wait till they are all done
-                                                Async
-                                                    .All(tokens.ToArray())
-                                                    .OnSuccess(responses =>
-                                                    {
-                                                        var responseRegistrations = responses
-                                                            .Select(res => new DeviceRegistration
-                                                            {
-                                                                DeviceId = res.Payload.Body.Id,
-                                                                OrgId = res.Payload.Body.Org
-                                                            })
-                                                            .ToArray();
-
-                                                        data.Queue((before, next) =>
-                                                        {
-                                                            // save them
-                                                            before.DeviceRegistrations = responseRegistrations;
-
-                                                            next(before);
-                                                        });
-
-                                                        // start device update service
-                                                        _deviceUpdateService.Initialize(responseRegistrations);
-
-                                                        @continue();
-                                                    })
-                                                    .OnFailure(exception =>
-                                                    {
-                                                        Log.Error(this, "Could not create Device resources : {0}", exception);
-
-                                                        _ui
-                                                            .Open<ICommonErrorView>(new UIReference
-                                                            {
-                                                                UIDataId = UIDataIds.ERROR
-                                                            })
-                                                            .OnSuccess(err =>
-                                                            {
-                                                                err.Message = "Could not register device. Please try again later.";
-                                                                err.Action = "Okay";
-                                                                err.OnOk += @continue;
-                                                            });
-                                                    });
-                                            };
-
-                                            el.OnCancel += () =>
-                                            {
-                                                data.Queue((before, next) =>
-                                                {
-                                                    before.IgnoreDeviceRegistration = true;
-                                                    next(before);
-                                                });
-
-                                                @continue();
-                                            };
-                                        })
-                                        .OnFailure(exception =>
-                                        {
-                                            Log.Error(this, "Could not open Device.Registration.Confirm : {0}", exception);
-
-                                            @continue();
-                                        });
-                                }
-                                else
-                                {
-                                    Log.Info(this, "Not a member of any organizations.");
-
-                                    @continue();
-                                }
-                            })
-                            .OnFailure(exception =>
-                            {
-                                Log.Error(this, "Could not get my organizations : {0}", exception);
+                                UpdateUserPrefs(registrations);
 
                                 @continue();
-                            });
+                            })
+                            .OnFailure(ex => @continue());
                     }
-                })
-                .OnFailure(exception =>
-                {
-                    Log.Error(this, "Could not load UserPreferenceData. Skipping device registration : {0}", exception);
+                    // otherwise we are already registered with each org
+                    else
+                    {
+                        UpdateUserPrefs(_serverRegistrations);
 
-                    @continue();
+                        _deviceUpdateService.Initialize(_serverRegistrations);
+
+                        @continue();
+                    }
                 });
         }
-
+        
         /// <inheritdoc />
         public void Update(float dt)
         {
@@ -226,6 +148,219 @@ namespace CreateAR.EnkluPlayer
         public void Exit()
         {
             _frame.Release();
+
+            _metrics.Timer(MetricsKeys.STATE_DEVICEREGISTRATION).Stop(_timerId);
+        }
+
+        /// <summary>
+        /// Saves the updates list of device registrations.
+        /// </summary>
+        /// <param name="registrations">The registrations.</param>
+        private void UpdateUserPrefs(DeviceRegistration[] registrations)
+        {
+            // update local data in case device changed
+            _preferences
+                .ForCurrentUser()
+                .OnSuccess(prefs => prefs.Queue((prev, next) =>
+                {
+                    prev.DeviceRegistrations = registrations;
+
+                    next(prev);
+                }))
+                .OnFailure(err => Log.Error(this, "Could not get user prefs : {0}", err));
+        }
+
+        /// <summary>
+        /// Retrieves all server registrations for this device.
+        /// </summary>
+        /// <returns></returns>
+        private IAsyncToken<Void> GetServerRegistrations()
+        {
+            var token = new AsyncToken<Void>();
+
+            // get list of organizations
+            _api
+                .Organizations
+                .GetMyOrganizations()
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        var tokens = response.Payload.Body
+                            .Select(org => GetOrgRegistrations(org.Id))
+                            .ToArray();
+                        Async
+                            .All(tokens)
+                            .OnSuccess(multiArray =>
+                            {
+                                _serverRegistrations = multiArray
+                                    .SelectMany(arr => arr)
+                                    .ToArray();
+
+                                token.Succeed(Void.Instance);
+                            })
+                            .OnFailure(token.Fail);
+                    }
+                    else
+                    {
+                        token.Fail(new Exception(response.Payload.Error));
+                    }
+                })
+                .OnFailure(token.Fail);
+
+            return token;
+        }
+
+        /// <summary>
+        /// Retrieves registrations for a specific org.
+        /// </summary>
+        /// <param name="orgId">The org id.</param>
+        /// <returns></returns>
+        private IAsyncToken<DeviceRegistration[]> GetOrgRegistrations(string orgId)
+        {
+            var token = new AsyncToken<DeviceRegistration[]>();
+
+            _api
+                .Devices
+                .GetOrganizationDevices(orgId)
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        token.Succeed(response
+                            .Payload
+                            .Body
+                            .Where(body => body.Token == SystemInfo.deviceUniqueIdentifier)
+                            .Select(body =>
+                                new DeviceRegistration
+                                {
+                                    OrgId = orgId,
+                                    DeviceId = body.Id
+                                })
+                            .ToArray());
+                    }
+                    else
+                    {
+                        token.Fail(new Exception(response.Payload.Error));
+                    }
+                })
+                .OnFailure(token.Fail);
+
+            return token;
+        }
+
+        /// <summary>
+        /// Retrieves all orgs this user belongs to.
+        /// </summary>
+        /// <returns></returns>
+        private IAsyncToken<Void> GetOrgs()
+        {
+            var token = new AsyncToken<Void>();
+
+            _api
+                .Organizations
+                .GetMyOrganizations()
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        _orgs = response.Payload.Body;
+
+                        token.Succeed(Void.Instance);
+                    }
+                    else
+                    {
+                        token.Fail(new Exception(response.Payload.Error));
+                    }
+                })
+                .OnFailure(token.Fail);
+
+            return token;
+        }
+
+        /// <summary>
+        /// Registers the device with a set of orgs.
+        /// </summary>
+        /// <param name="orgIds">The set of orgs this user belongs to.</param>
+        /// <returns></returns>
+        private IAsyncToken<DeviceRegistration[]> Register(IList<string> orgIds)
+        {
+            var token = new AsyncToken<DeviceRegistration[]>();
+
+            // open confirmation UI
+            int confirmViewId;
+            _ui
+                .Open<ConfirmDeviceRegistrationUIView>(new UIReference
+                {
+                    UIDataId = "Device.Registration.Confirm"
+                }, out confirmViewId)
+                .OnSuccess(el =>
+                {
+                    el.Populate(orgIds);
+                    el.OnConfirm += () =>
+                    {
+                        // open load UI
+                        _ui.Close(confirmViewId);
+                        _ui.Open<ICommonLoadingView>(new UIReference { UIDataId = UIDataIds.LOADING });
+
+                        // create device resources
+                        var tokens = new List<IAsyncToken<HttpResponse<Response>>>();
+                        foreach (var id in orgIds)
+                        {
+                            tokens
+                                .Add(_api
+                                .Devices
+                                .CreateOrganizationDevice(id, new Request
+                                {
+                                    Name = SystemInfo.deviceUniqueIdentifier,
+                                    Description = "My new device.",
+                                    Token = SystemInfo.deviceUniqueIdentifier
+                                }));
+                        }
+
+                        // wait till they are all done
+                        Async
+                            .All(tokens.ToArray())
+                            .OnSuccess(responses =>
+                            {
+                                var responseRegistrations = responses
+                                    .Select(res => new DeviceRegistration
+                                    {
+                                        DeviceId = res.Payload.Body.Id,
+                                        OrgId = res.Payload.Body.Org
+                                    })
+                                    .ToArray();
+                                
+                                token.Succeed(responseRegistrations);
+                            })
+                            .OnFailure(exception =>
+                            {
+                                Log.Error(this, "Could not create Device resources : {0}", exception);
+
+                                _ui
+                                    .Open<ICommonErrorView>(new UIReference
+                                    {
+                                        UIDataId = UIDataIds.ERROR
+                                    })
+                                    .OnSuccess(err =>
+                                    {
+                                        err.Message = "Could not register device. Please try again later.";
+                                        err.Action = "Okay";
+                                        err.OnOk += () => token.Fail(exception);
+                                    });
+                            });
+                    };
+
+                    el.OnCancel += () => token.Fail(new Exception("User canceled."));
+                })
+                .OnFailure(exception =>
+                {
+                    Log.Error(this, "Could not open Device.Registration.Confirm : {0}", exception);
+
+                    token.Fail(exception);
+                });
+
+            return token;
         }
     }
 }

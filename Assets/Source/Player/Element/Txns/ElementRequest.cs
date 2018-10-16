@@ -1,4 +1,4 @@
-﻿using LightJson;
+﻿using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -10,13 +10,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Type.
         /// </summary>
-        [JsonName("type")]
+        [JsonProperty("type")]
         public string Type;
 
         /// <summary>
         /// Id of element to affect.
         /// </summary>
-        [JsonName("elementId")]
+        [JsonProperty("elementId")]
         public string ElementId;
     }
 }

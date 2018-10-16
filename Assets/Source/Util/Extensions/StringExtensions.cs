@@ -29,5 +29,21 @@ namespace CreateAR.EnkluPlayer
                 return default(T);
             }
         }
+
+        /// <summary>
+        /// Calculates a hash of a string.
+        /// </summary>
+        /// <param name="this">The hash.</param>
+        /// <returns></returns>
+        public static ulong Crc64(this string @this)
+        {
+            var hashedValue = 3074457345618258791ul;
+            for (int i = 0, len = @this.Length; i <len; i++)
+            {
+                hashedValue += @this[i];
+                hashedValue *= 3074457345618258799ul;
+            }
+            return hashedValue;
+        }
     }
 }

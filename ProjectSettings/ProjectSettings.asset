@@ -677,7 +677,7 @@ PlayerSettings:
   splashScreenBackgroundSourceLandscape: {fileID: 0}
   splashScreenBackgroundSourcePortrait: {fileID: 0}
   spritePackerPolicy: 
-  webGLMemorySize: 320
+  webGLMemorySize: 768
   webGLExceptionSupport: 1
   webGLNameFilesAsHashes: 0
   webGLDataCaching: 1
@@ -691,7 +691,7 @@ PlayerSettings:
   webGLLinkerTarget: 1
   scriptingDefineSymbols:
     7: 
-    13: DEBUG_RENDERING
+    13: 
   platformArchitecture:
     iOS: 2
   scriptingBackend:
@@ -707,20 +707,20 @@ PlayerSettings:
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Enklu
-  metroPackageVersion: 1.0.0.0
+  metroPackageVersion: 0.12.13.0
   metroCertificatePath: Assets/WSATestCertificate.pfx
   metroCertificatePassword: 
   metroCertificateSubject: CreateAR
   metroCertificateIssuer: CreateAR
   metroCertificateNotAfter: 002687d9e698d401
-  metroApplicationDescription: SpirePlayer
+  metroApplicationDescription: AR content engine.
   wsaImages: {}
   metroTileShortName: Enklu
   metroCommandLineArgsFile: 
   metroTileShowName: 0
-  metroMediumTileShowName: 0
-  metroLargeTileShowName: 0
-  metroWideTileShowName: 0
+  metroMediumTileShowName: 1
+  metroLargeTileShowName: 1
+  metroWideTileShowName: 1
   metroDefaultTileSize: 1
   metroTileForegroundText: 2
   metroTileBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21568628, a: 0}

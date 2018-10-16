@@ -63,6 +63,16 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.IsTrue(Math.Abs(3f - result.y) < Mathf.Epsilon);
             Assert.IsTrue(Math.Abs(3f - result.z) < Mathf.Epsilon);
         }
+
+        [Test]
+        public void Vec3Sub()
+        {
+            var result = _engine.Run<Vec3>(@"v.sub(vec3(4, 5, 6), vec3(1, 2, 3))");
+
+            Assert.IsTrue(Math.Abs(3f - result.x) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(3f - result.y) < Mathf.Epsilon);
+            Assert.IsTrue(Math.Abs(3f - result.z) < Mathf.Epsilon);
+        }
         
         [Test]
         public void Vec3Dot()
@@ -80,6 +90,22 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             Assert.IsTrue(result < Mathf.Epsilon);
         }
+
+        [Test]
+        public void Vec3Angle()
+        {
+            var result = (float) _engine.Run(@"v.angle(v.right, v.up);").AsNumber();
+            var unityAngle = Vector3.Angle(Vector3.right, Vector3.up);
+            Assert.IsTrue(Mathf.Abs(result - unityAngle) < Mathf.Epsilon);
+
+            result = (float) _engine.Run(@"v.angle(v.up, v.up);").AsNumber();
+            unityAngle = Vector3.Angle(Vector3.up, Vector3.up);
+            Assert.IsTrue(Mathf.Abs(result - unityAngle) < Mathf.Epsilon);
+
+            result = (float) _engine.Run(@"v.angle(v.right, vec3(-1, 0, 0));").AsNumber();
+            unityAngle = Vector3.Angle(Vector3.right, Vector3.left);
+            Assert.IsTrue(Mathf.Abs(result - unityAngle) < Mathf.Epsilon);
+        }
         
         [Test]
         public void Vec3Len()
@@ -87,6 +113,14 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var result = _engine.Run(@"v.len(vec3(1, 0, 0))").AsNumber();
             
             Assert.IsTrue(Math.Abs(result - 1f) < Mathf.Epsilon);
+        }
+
+        [Test]
+        public void Vec3LenSqr()
+        {
+            var result = _engine.Run(@"v.lenSqr(vec3(2, 0, 0))").AsNumber();
+
+            Assert.IsTrue(Math.Abs(result - 4f) < Mathf.Epsilon);
         }
 
         [Test]
@@ -122,6 +156,38 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             float result = (float) _engine.Run<double>(string.Format("v.distanceSqr({0}, {1})", aStr, bStr));
             Assert.IsTrue(Math.Abs(result - (a - b).sqrMagnitude) < Mathf.Epsilon);
+        }
+
+        [Test]
+        public void Vec3DistanceXZ()
+        {
+            Vector3 a = new Vector3(-2.2f, 6, -3);
+            Vector3 b = new Vector3(8.7f, -2, 0);
+
+            string aStr = string.Format("vec3({0}, {1}, {2})", a.x, a.y, a.z);
+            string bStr = string.Format("vec3({0}, {1}, {2})", b.x, b.y, b.z);
+
+            Vector3 c = a - b;
+            c.y = 0;
+
+            double result = _engine.Run<double>(string.Format("v.distanceXZ({0}, {1})", aStr, bStr));
+            Assert.IsTrue(Math.Abs(result - c.magnitude) < Mathf.Epsilon);
+        }
+
+        [Test]
+        public void Vec3DistanceXZSqr()
+        {
+            Vector3 a = new Vector3(-2.2f, 6, -3);
+            Vector3 b = new Vector3(8.7f, -2, 0);
+
+            string aStr = string.Format("vec3({0}, {1}, {2})", a.x, a.y, a.z);
+            string bStr = string.Format("vec3({0}, {1}, {2})", b.x, b.y, b.z);
+
+            Vector3 c = a - b;
+            c.y = 0;
+
+            double result = _engine.Run<double>(string.Format("v.distanceXZSqr({0}, {1})", aStr, bStr));
+            Assert.IsTrue(Math.Abs(result - c.sqrMagnitude) < Mathf.Epsilon);
         }
     }
 }

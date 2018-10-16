@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using Jint;
 using Jint.Native;
@@ -47,16 +46,6 @@ namespace CreateAR.EnkluPlayer
             /// Lookups from type to callbacks.
             /// </summary>
             private readonly List<CallbackRecord> _callbacks = new List<CallbackRecord>();
-
-            /// <summary>
-            /// Value of "this" in JS callbacks.
-            /// </summary>
-            private readonly JsValue _this;
-            
-            /// <summary>
-            /// JS Engine.
-            /// </summary>
-            private readonly Engine _engine;
             
             /// <summary>
             /// The schema to provide an API for.
@@ -66,55 +55,58 @@ namespace CreateAR.EnkluPlayer
             /// <summary>
             /// Constructor.
             /// </summary>
-            public CallbackHelper(JsValue @this, Engine engine, ElementSchema schema)
+            public CallbackHelper(ElementSchema schema)
             {
-                _this = @this;
-                _engine = engine;
                 _schema = schema;
             }
 
             /// <summary>
             /// Watches a value.
             /// </summary>
+            /// <param name="engine">The associated engine.</param>
             /// <param name="key">The string key.</param>
             /// <param name="callback">The JS callback to call.</param>
-            public void Watch<T>(string key, Func<JsValue, JsValue[], JsValue> callback)
+            public void Watch<T>(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
             {
                 _schema
                     .Get<T>(key)
-                    .OnChanged += OnChanged<T>(key, callback);
+                    .OnChanged += OnChanged<T>(engine, key, callback);
             }
-            
+
             /// <summary>
             /// Adds a watcher that is only called once.
             /// </summary>
+            /// <param name="engine">The associated engine.</param>
             /// <param name="key">The string key.</param>
             /// <param name="callback">The JS callback to call.</param>
-            public void WatchOnce<T>(string key, Func<JsValue, JsValue[], JsValue> callback)
+            public void WatchOnce<T>(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
             {
                 _schema
                     .Get<T>(key)
-                    .OnChanged += OnChangedOnce<T>(callback);
+                    .OnChanged += OnChangedOnce<T>(engine, callback);
             }
-            
+
             /// <summary>
             /// Removes a watcher.
             /// </summary>
+            /// <param name="engine">The associated engine.</param>
             /// <param name="key">The string key.</param>
             /// <param name="callback">The JS callback.</param>
-            public void Unwatch<T>(string key, Func<JsValue, JsValue[], JsValue> callback)
+            public void Unwatch<T>(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
             {
                 _schema
                     .Get<T>(key)
-                    .OnChanged -= OnChanged<T>(key, callback);
+                    .OnChanged -= OnChanged<T>(engine, key, callback);
             }
 
             /// <summary>
             /// Called when a prop has changed.
             /// </summary>
+            /// <param name="engine">The associated engine.</param>
             /// <param name="key">The string key.</param>
             /// <param name="callback">The JS callback.</param>
             private Action<ElementSchemaProp<T>, T, T> OnChanged<T>(
+                Engine engine,
                 string key,
                 Func<JsValue, JsValue[], JsValue> callback)
             {
@@ -127,10 +119,10 @@ namespace CreateAR.EnkluPlayer
                 Action<ElementSchemaProp<T>, T, T> handler = null;
                 handler = (prop, prev, next) =>
                 {
-                    callback(_this, new JsValue[2]
+                    callback(null, new []
                     {
-                        JsValue.FromObject(_engine, prev),
-                        JsValue.FromObject(_engine, next)
+                        JsValue.FromObject(engine, prev),
+                        JsValue.FromObject(engine, next)
                     });
                 };
                 
@@ -144,22 +136,25 @@ namespace CreateAR.EnkluPlayer
 
                 return handler;
             }
-            
+
             /// <summary>
             /// Called when a prop has changed once.
             /// </summary>
+            /// <param name="engine">The associated engine.</param>
             /// <param name="callback">The callback.</param>
-            private Action<ElementSchemaProp<T>, T, T> OnChangedOnce<T>(Func<JsValue, JsValue[], JsValue> callback)
+            private Action<ElementSchemaProp<T>, T, T> OnChangedOnce<T>(
+                Engine engine,
+                Func<JsValue, JsValue[], JsValue> callback)
             {
                 Action<ElementSchemaProp<T>, T, T> handler = null;
                 handler = (prop, prev, next) =>
                 {
                     prop.OnChanged -= handler;
                     
-                    callback(_this, new JsValue[2]
+                    callback(null, new []
                     {
-                        JsValue.FromObject(_engine, prev),
-                        JsValue.FromObject(_engine, next)
+                        JsValue.FromObject(engine, prev),
+                        JsValue.FromObject(engine, next)
                     });
                 };
 
@@ -201,15 +196,11 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// The constructor.
         /// </summary>
-        /// <param name="engine">The JS engine.</param>
         /// <param name="schema">The schema to wrap.</param>
-        public ElementSchemaJsApi(Engine engine, ElementSchema schema)
+        public ElementSchemaJsApi(ElementSchema schema)
         {
             _schema = schema;
-            _callbackHelper = new CallbackHelper(
-                JsValue.FromObject(engine, this),
-                engine,
-                schema);
+            _callbackHelper = new CallbackHelper(schema);
         }
 
         /// <summary>
@@ -239,8 +230,6 @@ namespace CreateAR.EnkluPlayer
         /// <param name="value">The value at which to set it.</param>
         public void setNumber(string key, float value)
         {
-            Log.Info(this, "Set " + key);
-            
             _schema.Set(key, value);
         }
         
@@ -305,78 +294,189 @@ namespace CreateAR.EnkluPlayer
         {
             return _schema.GetOwn(key, @default).Value;
         }
-        
+
         /// <summary>
-        /// Adds a watcher to a prop.
+        /// Retrieves the value of a Vec3 property.
         /// </summary>
-        public void watchString(string key, Func<JsValue, JsValue[], JsValue> callback)
+        /// <param name="key">The string key.</param>
+        /// <returns></returns>
+        public Vec3 getVec3(string key)
         {
-            _callbackHelper.Watch<string>(key, callback);
+            return _schema.Get<Vec3>(key).Value;
         }
-        
+
         /// <summary>
-        /// Adds a one time watcher to a prop.
+        /// Retrieves the value of an Element's own vec3 prop, with a
+        /// customizeable default.
         /// </summary>
-        public void watchStringOnce(string key, Func<JsValue, JsValue[], JsValue> callback)
+        /// <param name="key">The string key.</param>
+        /// <param name="default">default(Vec3) if unprovided.</param>
+        /// <returns></returns>
+        public Vec3 getOwnVec3(string key, Vec3 @default = default(Vec3))
         {
-            _callbackHelper.WatchOnce<string>(key, callback);
+            return _schema.GetOwn(key, @default).Value;
         }
-        
+
         /// <summary>
-        /// Removes a watcher from a prop.
+        /// Sets the value of a Vec3 property.
         /// </summary>
-        public void unwatchString(string key, Func<JsValue, JsValue[], JsValue> callback)
+        /// <param name="key">The string key.</param>
+        /// <param name="value">The value to set.</param>
+        public void setVec3(string key, Vec3 value)
         {
-            _callbackHelper.Unwatch<string>(key, callback);
+            _schema.Set(key, value);
         }
-        
+
         /// <summary>
-        /// Adds a watcher to a prop.
+        /// Retrieves the value of a Col4 property.
         /// </summary>
-        public void watchBool(string key, Func<JsValue, JsValue[], JsValue> callback)
+        /// <param name="key">The string key.</param>
+        /// <returns></returns>
+        public Col4 getCol(string key)
         {
-            _callbackHelper.Watch<bool>(key, callback);
+            return _schema.Get<Col4>(key).Value;
         }
-        
+
         /// <summary>
-        /// Adds a one time watcher to a prop.
+        /// Retrieves the value of an Element's own Col4 prop, with a
+        /// customizeable default.
         /// </summary>
-        public void watchBoolOnce(string key, Func<JsValue, JsValue[], JsValue> callback)
+        /// <param name="key">The string key.</param>
+        /// <param name="default">default(Col4) if unprovided.</param>
+        /// <returns></returns>
+        public Col4 getOwnCol(string key, Col4 @default = default(Col4))
         {
-            _callbackHelper.WatchOnce<bool>(key, callback);
+            return _schema.GetOwn(key, @default).Value;
         }
-        
+
         /// <summary>
-        /// Removes a watcher from a prop.
+        /// Sets the value of a Col4 property.
         /// </summary>
-        public void unwatchBool(string key, Func<JsValue, JsValue[], JsValue> callback)
+        /// <param name="key">The string key.</param>
+        /// <param name="value">The value to set.</param>
+        public void setCol(string key, Col4 value)
         {
-            _callbackHelper.Unwatch<bool>(key, callback);
+            _schema.Set(key, value);
         }
 
         /// <summary>
         /// Adds a watcher to a prop.
         /// </summary>
-        public void watchNumber(string key, Func<JsValue, JsValue[], JsValue> callback)
+        public void watchString(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
         {
-            Log.Info(this, "Watch " + key);
-            _callbackHelper.Watch<float>(key, callback);
+            _callbackHelper.Watch<string>(engine, key, callback);
         }
         
         /// <summary>
-        /// Adds a watcher to a prop.
+        /// Adds a one time watcher to a prop.
         /// </summary>
-        public void watchNumberOnce(string key, Func<JsValue, JsValue[], JsValue> callback)
+        public void watchStringOnce(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
         {
-            _callbackHelper.WatchOnce<float>(key, callback);
+            _callbackHelper.WatchOnce<string>(engine, key, callback);
         }
         
         /// <summary>
         /// Removes a watcher from a prop.
         /// </summary>
-        public void unwatchNumber(string key, Func<JsValue, JsValue[], JsValue> callback)
+        public void unwatchString(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
         {
-            _callbackHelper.Unwatch<float>(key, callback);
+            _callbackHelper.Unwatch<string>(engine, key, callback);
+        }
+        
+        /// <summary>
+        /// Adds a watcher to a prop.
+        /// </summary>
+        public void watchBool(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Watch<bool>(engine, key, callback);
+        }
+        
+        /// <summary>
+        /// Adds a one time watcher to a prop.
+        /// </summary>
+        public void watchBoolOnce(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.WatchOnce<bool>(engine, key, callback);
+        }
+        
+        /// <summary>
+        /// Removes a watcher from a prop.
+        /// </summary>
+        public void unwatchBool(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Unwatch<bool>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Adds a watcher to a prop.
+        /// </summary>
+        public void watchNumber(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Watch<float>(engine, key, callback);
+        }
+        
+        /// <summary>
+        /// Adds a watcher to a prop.
+        /// </summary>
+        public void watchNumberOnce(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.WatchOnce<float>(engine, key, callback);
+        }
+        
+        /// <summary>
+        /// Removes a watcher from a prop.
+        /// </summary>
+        public void unwatchNumber(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Unwatch<float>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Adds a watcher to a prop.
+        /// </summary>
+        public void watchVec(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Watch<Vec3>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Adds a one time watcher to a prop.
+        /// </summary>
+        public void watchVecOnce(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.WatchOnce<Vec3>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Removes a watcher from a prop.
+        /// </summary>
+        public void unwatchVec(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Unwatch<Vec3>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Adds a watcher to a prop.
+        /// </summary>
+        public void watchCol(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Watch<Col4>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Adds a one time watcher to a prop.
+        /// </summary>
+        public void watchColOnce(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.WatchOnce<Col4>(engine, key, callback);
+        }
+
+        /// <summary>
+        /// Removes a watcher from a prop.
+        /// </summary>
+        public void unwatchCol(Engine engine, string key, Func<JsValue, JsValue[], JsValue> callback)
+        {
+            _callbackHelper.Unwatch<Col4>(engine, key, callback);
         }
     }
 }

@@ -126,6 +126,9 @@ namespace CreateAR.EnkluPlayer.IUX
         public abstract bool Raycast(Vec3 origin, Vec3 direction);
 
         /// <inheritdoc />
+        public abstract bool Raycast(Vec3 origin, Vec3 direction, out Vec3 hitPos, out Vec3 colliderPos);
+
+        /// <inheritdoc />
         protected override void LoadInternalAfterChildren()
         {
             base.LoadInternalAfterChildren();

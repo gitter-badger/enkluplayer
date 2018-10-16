@@ -38,7 +38,9 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IScanImporter _scanImporter;
         private readonly IMetricsService _metrics;
         private readonly IMessageRouter _messages;
+        private readonly IElementJsCache _jsCache;
         private readonly IElementJsFactory _elementJsFactory;
+        private readonly IDeviceMetaProvider _deviceMetaProvider;
         private readonly ColorConfig _colors;
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
@@ -79,7 +81,9 @@ namespace CreateAR.EnkluPlayer.IUX
             IScanImporter scanImporter,
             IMetricsService metrics,
             IMessageRouter messages,
+            IElementJsCache jsCache,
             IElementJsFactory elementJsFactory,
+            IDeviceMetaProvider deviceMetaProvider,
             ColorConfig colors,
             TweenConfig tweens,
             WidgetConfig config,
@@ -108,7 +112,9 @@ namespace CreateAR.EnkluPlayer.IUX
             _scanImporter = scanImporter;
             _metrics = metrics;
             _messages = messages;
+            _jsCache = jsCache;
             _elementJsFactory = elementJsFactory;
+            _deviceMetaProvider = deviceMetaProvider;
             _appConfig = appConfig;
             
             // TODO: Load this all from data
@@ -178,7 +184,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 {
                     { "layout.radius", 0.8f },
                     { "layout.degrees", 25f },
-                    { "dividerOffset", 0f }
+                    { "divider.offset", 0f }
                 },
                 Ints = new Dictionary<string, int>
                 {
@@ -259,7 +265,9 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 Floats = new Dictionary<string, float>
                 {
-                    { "distance", 1.2f }
+                    { "distance", 1.2f },
+                    { "stabilization", 2f },
+                    { "smoothing", 15f }
                 }
             });
         }
@@ -282,7 +290,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <inheritdoc />
         public Element Element(string vine)
         {
-            return Element(_parser.Parse(vine));
+            return Element(_parser.ParseSync(vine));
         }
 
         /// <summary>
@@ -352,7 +360,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 case ElementTypes.CURSOR:
                 {
-                    return new Cursor(new GameObject("Element"), _config, _layers, _tweens, _colors, _intention, _interaction, _primitives);
+                    return new Cursor(new GameObject("Element"), _config, _layers, _tweens, _colors, _intention, _interaction, _primitives, _appConfig.Cursor, _appConfig.Play);
                 }
                 case ElementTypes.MENU:
                 {
@@ -405,9 +413,10 @@ namespace CreateAR.EnkluPlayer.IUX
                         _layers,
                         _tweens,
                         _colors,
+                        new AssetAssembler(_assets, _pools, _appConfig.Play),
                         _resolver,
                         _scripts,
-                        new ModelContentAssembler(_assets, _pools, _appConfig.Play),
+                        _jsCache,
                         _elementJsFactory);
                 }
                 case ElementTypes.TRANSITION:
@@ -420,7 +429,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 case ElementTypes.WORLD_ANCHOR:
                 {
-                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _provider, _metrics, _messages);
+                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _provider, _metrics, _messages, _appConfig);
                 }
                 case ElementTypes.QR_ANCHOR:
                 {

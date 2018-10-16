@@ -77,9 +77,9 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <param name="deltaTime"></param>
         public override void Update(float deltaTime)
         {
-            if (!_activator.Focused)
+            if (_activator.Aim < 0)
             {
-                _activator.Ready();
+                _activator.Imminent();
                 return;
             }
 

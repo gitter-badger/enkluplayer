@@ -82,6 +82,18 @@ namespace CreateAR.EnkluPlayer.IUX
                     LinkBroken = true;
                 }
 
+                // return if there's no change in the value
+                //  so no listeners get invoked.
+                if (_value == null && value == null)
+                {
+                    return;
+                }
+
+                if (_value != null && _value.Equals(value))
+                {
+                    return;
+                }
+
                 var prev = _value;
                 _value = value;
 

@@ -137,6 +137,9 @@ MonoBehaviour:
     - UIDataId: Editor.Input
       Element: {fileID: 114491377387284416, guid: 8b5efe3cbebd8514da51f00321be2fa4,
         type: 2}
+    - UIDataId: Perf.Hud
+      Element: {fileID: 114778551667930286, guid: 2ce878fa058fd6d4c8086791952d7142,
+        type: 2}
   - Platforms: 080000000b000000
     Links:
     - UIDataId: Common.Error

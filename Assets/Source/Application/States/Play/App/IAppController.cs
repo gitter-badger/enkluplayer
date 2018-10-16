@@ -15,6 +15,11 @@ namespace CreateAR.EnkluPlayer
         string Id { get; }
 
         /// <summary>
+        /// Current App name.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
         /// True iff we have edit permissions.
         /// </summary>
         bool CanEdit { get; }
@@ -37,9 +42,9 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Loads the app.
         /// </summary>
-        /// <param name="appId">The id of the app.</param>
+        /// <param name="config">configuration for play.</param>
         /// <returns></returns>
-        IAsyncToken<Void> Load(string appId);
+        IAsyncToken<Void> Load(PlayAppConfig config);
 
         /// <summary>
         /// Unloads the app.
