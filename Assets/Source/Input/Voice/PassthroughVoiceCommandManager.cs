@@ -8,7 +8,7 @@ namespace CreateAR.EnkluPlayer
     public class PassthroughVoiceCommandManager : IVoiceCommandManager
     {
         /// <inheritdoc cref="IVoiceCommandManager"/>
-        public bool Register(string keyword, Action<string> @delegate)
+        public bool Register(string keyword, Action<string> @delegate, bool adminCommand = false)
         {
             return true;
         }

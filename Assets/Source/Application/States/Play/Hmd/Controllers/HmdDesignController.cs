@@ -393,8 +393,8 @@ namespace CreateAR.EnkluPlayer
 
             _primaryAnchor.Setup();
 
-            _voice.Register("menu", Voice_OnPlayMenu);
-            _voice.Register("edit", Voice_OnEdit);
+            _voice.Register("menu", Voice_OnPlayMenu, true);
+            _voice.Register("edit", Voice_OnEdit, true);
 
             // for editor only
             if (UnityEngine.Application.isEditor)
