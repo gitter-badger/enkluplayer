@@ -66,15 +66,22 @@ namespace CreateAR.EnkluPlayer
 
             Connect();
 #else
-            var addresses = Dns.GetHostAddresses(hostname);
-            if (addresses.Length > 0)
+            try
             {
-                _endpoint = new IPEndPoint(addresses[0], 2003);
-                _socket =
-                new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp)
+                var addresses = Dns.GetHostAddresses(hostname);
+                if (addresses.Length > 0)
                 {
-                    Blocking = false
-                };
+                    _endpoint = new IPEndPoint(addresses[0], 2003);
+                    _socket =
+                        new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, System.Net.Sockets.ProtocolType.Udp)
+                        {
+                            Blocking = false
+                        };
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(this, "Could not create socket : {0}", ex);
             }
 #endif
         }
@@ -91,7 +98,10 @@ namespace CreateAR.EnkluPlayer
 #if NETFX_CORE
             Send(message, bytes);
 #else
-            _socket.SendTo(bytes, _endpoint);
+            if (null != _socket)
+            {
+                _socket.SendTo(bytes, _endpoint);
+            }
 #endif
         }
 
