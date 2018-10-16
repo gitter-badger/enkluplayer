@@ -12,7 +12,7 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class VoiceCommandManager : IVoiceCommandManager
     {
-        private struct PhraseConfig
+        private struct KeywordConfig
         {
             public Action<string> Callback;
             public bool AdminPhrase;
@@ -31,7 +31,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Tracks keywords.
         /// </summary>
-        private readonly Dictionary<string, PhraseConfig> _actions = new Dictionary<string, PhraseConfig>();
+        private readonly Dictionary<string, KeywordConfig> _actions = new Dictionary<string, KeywordConfig>();
 
         /// <summary>
         /// Recognizer!
@@ -82,22 +82,14 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <inheritdoc cref="IVoiceCommandManager"/>
-        public bool Register(string keyword, Action<string> callback, bool adminCommand = false)
+        public bool Register(string keyword, Action<string> callback)
         {
-            if (_actions.ContainsKey(keyword))
-            {
-                return false;
-            }
+            return RegisterKeyword(keyword, callback, false);
+        }
 
-            _actions[keyword] = new PhraseConfig()
-            {
-                Callback = callback,
-                AdminPhrase = adminCommand
-            };
-
-            RebuildRecognizer();
-
-            return true;
+        public bool RegisterAdmin(string keyword, Action<string> callback)
+        {
+            return RegisterKeyword(keyword, callback, true);
         }
 
         /// <inheritdoc cref="IVoiceCommandManager"/>
@@ -112,6 +104,29 @@ namespace CreateAR.EnkluPlayer
             RebuildRecognizer();
 
             return success;
+        }
+
+        /// <summary>
+        /// Registers a keyword with the voice recognizer.
+        /// </summary>
+        /// <param name="keyword">Keyword to bind to.</param>
+        /// <param name="callback">Callback to invoke.</param>
+        /// <param name="adminCommand">If this keyword should be guarded by "admin".</param>
+        /// <returns></returns>
+        private bool RegisterKeyword(string keyword, Action<string> callback, bool adminCommand)
+        {
+            if (_actions.ContainsKey(keyword)) {
+                return false;
+            }
+
+            _actions[keyword] = new KeywordConfig {
+                Callback = callback,
+                AdminPhrase = adminCommand
+            };
+
+            RebuildRecognizer();
+
+            return true;
         }
 
         /// <summary>
@@ -200,14 +215,14 @@ namespace CreateAR.EnkluPlayer
         {
             var text = args.text;
 
-            PhraseConfig phraseConfig;
-            if (_actions.TryGetValue(text, out phraseConfig))
+            KeywordConfig keywordConfig;
+            if (_actions.TryGetValue(text, out keywordConfig))
             {
                 // check extra admin lock
-                if (phraseConfig.AdminPhrase && !_config.Debug.DisableAdminLock)
+                if (keywordConfig.AdminPhrase && !_config.Debug.DisableAdminLock)
                 {
                     if (DateTime.Now.Subtract(_adminGuardCalled).TotalSeconds < VOICE_LOCK_THRESHOLD_SECS) {
-                        phraseConfig.Callback(text);
+                        keywordConfig.Callback(text);
                     }
                     return;
                 }
@@ -221,7 +236,7 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
 
-                phraseConfig.Callback(text);
+                keywordConfig.Callback(text);
             }
         }
     }

@@ -13,7 +13,16 @@ namespace CreateAR.EnkluPlayer
         /// <param name="keyword">The keyword to look for.</param>
         /// <param name="delegate">The delegate that will be called.</param>
         /// <returns></returns>
-        bool Register(string keyword, Action<string> @delegate, bool adminCommand = false);
+        bool Register(string keyword, Action<string> @delegate);
+
+        /// <summary>
+        /// Registers a keyword for detection.
+        /// Admin keywords are guarded by the "admin" phrase.
+        /// </summary>
+        /// <param name="keyword">The keyword to look for.</param>
+        /// <param name="delegate">The delegate that will be called.</param>
+        /// <returns></returns>
+        bool RegisterAdmin(string keyword, Action<string> @delegate);
 
         /// <summary>
         /// Unregisters a keyword.
