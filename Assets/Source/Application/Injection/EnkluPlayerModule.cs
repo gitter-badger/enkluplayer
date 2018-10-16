@@ -597,8 +597,7 @@ namespace CreateAR.EnkluPlayer
 
                 if (UnityEngine.Application.isEditor)
                 {
-                    //binder.Bind<IScriptCache>().To<PassthroughScriptCache>().ToSingleton();
-                    binder.Bind<IScriptCache>().To<DelayedScriptCache>().ToSingleton();
+                    binder.Bind<IScriptCache>().To<PassthroughScriptCache>().ToSingleton();
                 }
                 else
                 {
