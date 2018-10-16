@@ -46,8 +46,9 @@ namespace Jint.Runtime.Interop
             var converter = Engine.ClrTypeConverter;
 
             // try to inject Engine parameter first
-            foreach (var method in methods)
+            for (int q = 0, qlen = methods.Count; q < qlen; q++)
             {
+                var method = methods[q];
                 var attributes = method.GetCustomAttributes(typeof(DenyJsAccess), true);
                 if (0 != attributes.Count())
                 {
@@ -97,7 +98,8 @@ namespace Jint.Runtime.Interop
                     }
                     else
                     {
-                        if (!converter.TryConvert(arguments[i].ToObject(), parameterType, CultureInfo.InvariantCulture, out parameters[i + 1]))
+                        if (!converter.TryConvert(arguments[i].ToObject(), parameterType, CultureInfo.InvariantCulture,
+                            out parameters[i + 1]))
                         {
                             argumentsMatch = false;
                             break;
@@ -136,8 +138,9 @@ namespace Jint.Runtime.Interop
             }
 
             // check for exact parameter match (no Engine injection)
-            foreach (var method in methods)
+            for (int q = 0, qlen = methods.Count; q < qlen; q++)
             {
+                var method = methods[q];
                 var attributes = method.GetCustomAttributes(typeof(DenyJsAccess), true);
                 if (0 != attributes.Count())
                 {
@@ -174,7 +177,8 @@ namespace Jint.Runtime.Interop
                     }
                     else
                     {
-                        if (!converter.TryConvert(arguments[i].ToObject(), parameterType, CultureInfo.InvariantCulture, out parameters[i]))
+                        if (!converter.TryConvert(arguments[i].ToObject(), parameterType, CultureInfo.InvariantCulture,
+                            out parameters[i]))
                         {
                             argumentsMatch = false;
                             break;
@@ -218,10 +222,11 @@ namespace Jint.Runtime.Interop
         /// <summary>
         /// Reduces a flat list of parameters to a params array
         /// </summary>
-        private JsValue[] ProcessParamsArrays(JsValue[] jsArguments, IEnumerable<MethodInfo> methodInfos)
+        private JsValue[] ProcessParamsArrays(JsValue[] jsArguments, MethodInfo[] methodInfos)
         {
-            foreach (var methodInfo in methodInfos)
+            for (int i = 0, len = methodInfos.Length; i < len; i++)
             {
+                var methodInfo = methodInfos[i];
                 var parameters = methodInfo.GetParameters();
                 if (!parameters.Any(p => p.HasAttribute<ParamArrayAttribute>()))
                     continue;

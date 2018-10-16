@@ -187,7 +187,7 @@ namespace Jint
             get { return _lookupAssemblies; }
         }
 
-        internal IEnumerable<IObjectConverter> _ObjectConverters
+        internal List<IObjectConverter> _ObjectConverters
         {
             get { return _objectConverters; }
         }

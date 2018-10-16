@@ -248,11 +248,9 @@ namespace CreateAR.EnkluPlayer
                 })
                 .OnFailure(ex =>
                 {
-                    Log.Error(this, "Could not verify version match : {0}", ex);
+                    Log.Error(this, "Could not verify Trellis version match : {0}", ex);
 
-                    _messages.Publish(MessageTypes.VERSION_MISMATCH);
-
-                    token.Fail(ex);
+                    token.Succeed(Void.Instance);
                 });
 
             return token;
