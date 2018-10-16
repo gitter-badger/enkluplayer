@@ -178,7 +178,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public void Teardown()
         {
-            if (_setupState != SetupState.None)
+            if (_setupState == SetupState.None)
             {
                 return;
             }
