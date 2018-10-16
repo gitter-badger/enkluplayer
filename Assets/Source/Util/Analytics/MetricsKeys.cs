@@ -56,6 +56,10 @@
         public const string SCRIPT_PARSING_VINE = "Script.Parsing.Vine";
         public const string SCRIPT_PARSING_BEHAVIOR = "Script.Parsing.Behavior";
 
+        public const string SCRIPT_EXECUTION_START = "Script.Execution.Start";
+        public const string SCRIPT_EXECUTION_ENTER = "Script.Execution.Enter";
+        public const string SCRIPT_EXECUTION_UPDATE = "Script.Execution.Update";
+
         ///////////////////////////////////////////////////////////////////////
         /// Assets
         ///////////////////////////////////////////////////////////////////////

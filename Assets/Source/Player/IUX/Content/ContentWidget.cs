@@ -58,6 +58,11 @@ namespace CreateAR.EnkluPlayer
         /// Creates elements.
         /// </summary>
         private readonly IElementJsFactory _elementJsFactory;
+
+        /// <summary>
+        /// Metrics.
+        /// </summary>
+        private readonly IMetricsService _metrics;
         
         /// <summary>
         /// Runs scripts.
@@ -121,7 +126,8 @@ namespace CreateAR.EnkluPlayer
             IScriptRequireResolver resolver,
             IScriptManager scripts,
             IElementJsCache cache,
-            IElementJsFactory elementFactory)
+            IElementJsFactory elementFactory,
+            IMetricsService metrics)
             : base(
                 gameObject,
                 layers,
@@ -133,6 +139,7 @@ namespace CreateAR.EnkluPlayer
             _assembler = assembler;
             _jsCache = cache;
             _elementJsFactory = elementFactory;
+            _metrics = metrics;
         }
 
         /// <summary>
@@ -170,6 +177,7 @@ namespace CreateAR.EnkluPlayer
                     _resolver,
                     _jsCache,
                     _elementJsFactory,
+                    _metrics,
                     GameObject,
                     this);
             }

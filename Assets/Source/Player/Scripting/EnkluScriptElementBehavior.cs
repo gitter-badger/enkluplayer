@@ -32,7 +32,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Creates ElementJs instances.
         /// </summary>
         private IElementJsFactory _factory;
-
+        
         /// <summary>
         /// True iff has been started.
         /// </summary>
@@ -56,6 +56,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private readonly JsValue[] _nullArgs = new JsValue[0];
 
+        private TimerMetric _startTimer;
+        private TimerMetric _enterTimer;
+        private TimerMetric _updateTimer;
+
         /// <summary>
         /// Retrieves the <c>EnkluScript</c> instance.
         /// </summary>
@@ -72,12 +76,14 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="jsCache">Js cache.</param>
         /// <param name="factory">Creates elements.</param>
+        /// <param name="metrics">Metrics.</param>
         /// <param name="engine">JS Engine.</param>
         /// <param name="script">The script to execute.</param>
         /// <param name="element">The element.</param>
         public void Initialize(
             IElementJsCache jsCache,
             IElementJsFactory factory,
+            IMetricsService metrics,
             Engine engine,
             EnkluScript script,
             Element element)
@@ -94,6 +100,10 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             Script = script;
             Script.Executor = this;
+
+            _startTimer = metrics.Timer(MetricsKeys.SCRIPT_EXECUTION_START);
+            _enterTimer = metrics.Timer(MetricsKeys.SCRIPT_EXECUTION_ENTER);
+            _updateTimer = metrics.Timer(MetricsKeys.SCRIPT_EXECUTION_UPDATE);
         }
 
         /// <summary>
@@ -106,14 +116,21 @@ namespace CreateAR.EnkluPlayer.Scripting
                 _factory.Instance(_jsCache, _element));
             _engine.ExecutionContext.ThisBinding = thisBinding;
 
+            var id = _startTimer.Start();
+
             try
             {
                 Log.Info(this, "Execute : {0}", Script.Source);
+
                 _engine.Execute(Script.Program);
+
+                _startTimer.Stop(id);
             }
             catch (Exception exception)
             {
                 Debug.LogWarning("Could not execute script: " + exception);
+
+                _startTimer.Abort(id);
 
                 return;
             }
@@ -139,16 +156,22 @@ namespace CreateAR.EnkluPlayer.Scripting
             Log.Info(this, "Entering script {0}.", Script.Data.Name);
 
             _isStarted = true;
-
+            
             if (null != _enter)
             {
+                var id = _enterTimer.Start();
+
                 try
                 {
                     _enter.Call(_this, _nullArgs);
+
+                    _enterTimer.Stop(id);
                 }
                 catch (JavaScriptException exception)
                 {
                     Log.Warning(this, "JavaScript error : {0}.", exception);
+
+                    _enterTimer.Abort(id);
                 }
             }
         }
@@ -160,13 +183,19 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             if (_isStarted && null != _update)
             {
+                var id = _updateTimer.Start();
+
                 try
                 {
                     _update.Call(_this, _nullArgs);
+
+                    _updateTimer.Stop(id);
                 }
                 catch (JavaScriptException exception)
                 {
                     Log.Warning(this, "JavaScript error : {0}.", exception);
+
+                    _updateTimer.Abort(id);
                 }
             }
         }
