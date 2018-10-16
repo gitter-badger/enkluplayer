@@ -162,9 +162,6 @@ namespace CreateAR.EnkluPlayer
 #endif
                 }
 
-                // player specific bindings
-                AddPlayerBindings(config, binder);
-
                 // services
                 {
                     binder.Bind<ApplicationStateService>().To<ApplicationStateService>().ToSingleton();
@@ -191,6 +188,9 @@ namespace CreateAR.EnkluPlayer
 
                     binder.Bind<DeviceResourceUpdateService>().To<DeviceResourceUpdateService>().ToSingleton();
                 }
+
+                // player specific bindings
+                AddPlayerBindings(config, binder);
 
                 // login
                 {
@@ -615,6 +615,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
                 binder.Bind<PlayerJs>().ToValue(LookupComponent<PlayerJs>());
+                SystemJsApi.DeviceMetaProvider = binder.GetInstance<IDeviceMetaProvider>();
 
                 // scripting interfaces
                 {
