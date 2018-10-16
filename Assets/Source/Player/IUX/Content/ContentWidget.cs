@@ -58,6 +58,11 @@ namespace CreateAR.EnkluPlayer
         /// Creates elements.
         /// </summary>
         private readonly IElementJsFactory _elementJsFactory;
+
+        /// <summary>
+        /// Provides meta about the device.
+        /// </summary>
+        private readonly IDeviceMetaProvider _deviceMetaProvider;
         
         /// <summary>
         /// Runs scripts.
@@ -121,7 +126,8 @@ namespace CreateAR.EnkluPlayer
             IScriptRequireResolver resolver,
             IScriptManager scripts,
             IElementJsCache cache,
-            IElementJsFactory elementFactory)
+            IElementJsFactory elementFactory,
+            IDeviceMetaProvider deviceMetaProvider)
             : base(
                 gameObject,
                 layers,
@@ -133,6 +139,7 @@ namespace CreateAR.EnkluPlayer
             _assembler = assembler;
             _jsCache = cache;
             _elementJsFactory = elementFactory;
+            _deviceMetaProvider = deviceMetaProvider;
         }
 
         /// <summary>
@@ -170,6 +177,7 @@ namespace CreateAR.EnkluPlayer
                     _resolver,
                     _jsCache,
                     _elementJsFactory,
+                    _deviceMetaProvider,
                     GameObject,
                     this);
             }

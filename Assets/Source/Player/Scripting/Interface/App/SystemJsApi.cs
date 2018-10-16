@@ -6,9 +6,18 @@
     public class SystemJsApi
     {
         /// <summary>
-        /// The instance.
+        /// Constructor.
         /// </summary>
-        public static SystemJsApi Instance = new SystemJsApi();
+        /// <param name="deviceMeta"></param>
+        public SystemJsApi(IDeviceMetaProvider deviceMeta)
+        {
+            device = new DeviceJsApi(deviceMeta);
+        }
+
+        /// <summary>
+        /// Provides details about the device.
+        /// </summary>
+        public DeviceJsApi device { get; private set; }
 
         /// <summary>
         /// Recenters tracking.
