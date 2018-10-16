@@ -129,6 +129,9 @@ namespace CreateAR.EnkluPlayer
             _debugGuard.Start();
         }
 
+        /// <summary>
+        /// Rebuilds the admin guard.
+        /// </summary>
         private void RebuildAdminGuard()
         {
             if (null != _adminGuard)
