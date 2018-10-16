@@ -1,4 +1,5 @@
 ﻿﻿using System;
+ using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -104,6 +105,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Scalar magnitude of the vector.
         /// </summary>
+        [JsonIgnore]
         public float Magnitude
         {
             get { return (float) Math.Sqrt(x * x + y * y + z * z); }
@@ -112,6 +114,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Scalar squared magnitude of the vector.
         /// </summary>
+        [JsonIgnore]
         public float MagnitudeSqr
         {
             get { return x * x + y * y + z * z; }
@@ -120,6 +123,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Returns the same vector with magnitude of 1.
         /// </summary>
+        [JsonIgnore]
         public Vec3 Normalized
         {
             get
