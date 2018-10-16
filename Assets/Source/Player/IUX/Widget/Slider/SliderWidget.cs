@@ -170,7 +170,10 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <inheritdoc />
-        public bool Interactable { get; private set; }
+        public bool Interactable
+        {
+            get { return false; }
+        }
 
         /// <inheritdoc />
         public int HighlightPriority { get; set; }
@@ -267,9 +270,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _maxImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/arrow-right' width=0.1 height=0.1 />");
             AddChild(_maxImage);
             
-            _interactions.Add(this);
-            Interactable = true;
-            
             _renderer.enabled = true;
             _isDirty = true;
             _valueAtCenter = 0f;
@@ -282,9 +282,6 @@ namespace CreateAR.EnkluPlayer.IUX
         protected override void UnloadInternalAfterChildren()
         {
             _renderer.enabled = false;
-
-            Interactable = false;
-            _interactions.Remove(this);
 
             _lengthProp.OnChanged -= Length_OnChanged;
             _axisProp.OnChanged -= Axis_OnChanged;
@@ -311,17 +308,6 @@ namespace CreateAR.EnkluPlayer.IUX
         protected override void OnVisibilityUpdated()
         {
             base.OnVisibilityUpdated();
-
-            if (Visible)
-            {
-                _interactions.Add(this);
-                Interactable = true;
-            }
-            else
-            {
-                Interactable = false;
-                _interactions.Remove(this);
-            }
 
             _isDirty = true;
 
