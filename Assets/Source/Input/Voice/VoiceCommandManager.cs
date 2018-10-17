@@ -12,6 +12,12 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class VoiceCommandManager : IVoiceCommandManager
     {
+        private struct KeywordConfig
+        {
+            public Action<string> Callback;
+            public bool AdminPhrase;
+        }
+        
         /// <summary>
         /// Threshold required between "debug" and command.
         /// </summary>
@@ -25,7 +31,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Tracks keywords.
         /// </summary>
-        private readonly Dictionary<string, Action<string>> _actions = new Dictionary<string, Action<string>>();
+        private readonly Dictionary<string, KeywordConfig> _actions = new Dictionary<string, KeywordConfig>();
 
         /// <summary>
         /// Recognizer!
@@ -38,9 +44,19 @@ namespace CreateAR.EnkluPlayer
         private KeywordRecognizer _debugGuard;
 
         /// <summary>
+        /// Admin guard.
+        /// </summary>
+        private KeywordRecognizer _adminGuard;
+
+        /// <summary>
         /// The last time at which the debug guard was called.
         /// </summary>
         private DateTime _debugGuardCalled = DateTime.MinValue;
+
+        /// <summary>
+        /// The last time at which the admin guard was called.
+        /// </summary>
+        private DateTime _adminGuardCalled = DateTime.MinValue;
 
         /// <summary>
         /// Constructor.
@@ -57,25 +73,23 @@ namespace CreateAR.EnkluPlayer
                 _ =>
                 {
                     RebuildDebugGuard();
+                    RebuildAdminGuard();
                     RebuildRecognizer();
                 });
 
             RebuildDebugGuard();
+            RebuildAdminGuard();
         }
         
         /// <inheritdoc cref="IVoiceCommandManager"/>
         public bool Register(string keyword, Action<string> callback)
         {
-            if (_actions.ContainsKey(keyword))
-            {
-                return false;
-            }
+            return RegisterKeyword(keyword, callback, false);
+        }
 
-            _actions[keyword] = callback;
-
-            RebuildRecognizer();
-
-            return true;
+        public bool RegisterAdmin(string keyword, Action<string> callback)
+        {
+            return RegisterKeyword(keyword, callback, true);
         }
 
         /// <inheritdoc cref="IVoiceCommandManager"/>
@@ -92,6 +106,32 @@ namespace CreateAR.EnkluPlayer
             return success;
         }
 
+        /// <summary>
+        /// Registers a keyword with the voice recognizer.
+        /// </summary>
+        /// <param name="keyword">Keyword to bind to.</param>
+        /// <param name="callback">Callback to invoke.</param>
+        /// <param name="adminCommand">If this keyword should be guarded by "admin".</param>
+        /// <returns></returns>
+        private bool RegisterKeyword(string keyword, Action<string> callback, bool adminCommand)
+        {
+            if (_actions.ContainsKey(keyword)) {
+                return false;
+            }
+
+            _actions[keyword] = new KeywordConfig {
+                Callback = callback,
+                AdminPhrase = adminCommand
+            };
+
+            RebuildRecognizer();
+
+            return true;
+        }
+
+        /// <summary>
+        /// Rebuilds the debug guard.
+        /// </summary>
         private void RebuildDebugGuard()
         {
             if (null != _debugGuard)
@@ -102,6 +142,21 @@ namespace CreateAR.EnkluPlayer
             _debugGuard = new KeywordRecognizer(new [] { "debug "});
             _debugGuard.OnPhraseRecognized += DebugGuard_OnPhraseRecognized;
             _debugGuard.Start();
+        }
+
+        /// <summary>
+        /// Rebuilds the admin guard.
+        /// </summary>
+        private void RebuildAdminGuard()
+        {
+            if (null != _adminGuard)
+            {
+                _adminGuard.Dispose();
+            }
+
+            _adminGuard = new KeywordRecognizer(new [] { "admin " });
+            _adminGuard.OnPhraseRecognized += AdminGuard_OnPhraseRecognized;
+            _adminGuard.Start();
         }
 
         /// <summary>
@@ -136,12 +191,11 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Called when a phrase is recognized.
+        /// Called when admin is recognized.
         /// </summary>
-        /// <param name="args">Event arguments.</param>
-        private void Recognizer_OnPhraseRecognized(PhraseRecognizedEventArgs args)
+        /// <param name="args"></param>
+        private void AdminGuard_OnPhraseRecognized(PhraseRecognizedEventArgs args)
         {
-            // check voice lock
             if (!_config.Debug.DisableVoiceLock)
             {
                 if (DateTime.Now.Subtract(_debugGuardCalled).TotalSeconds > VOICE_LOCK_THRESHOLD_SECS)
@@ -149,13 +203,40 @@ namespace CreateAR.EnkluPlayer
                     return;
                 }
             }
+            
+            _adminGuardCalled = DateTime.Now;
+        }
 
+        /// <summary>
+        /// Called when a phrase is recognized.
+        /// </summary>
+        /// <param name="args">Event arguments.</param>
+        private void Recognizer_OnPhraseRecognized(PhraseRecognizedEventArgs args)
+        {
             var text = args.text;
 
-            Action<string> action;
-            if (_actions.TryGetValue(text, out action))
+            KeywordConfig keywordConfig;
+            if (_actions.TryGetValue(text, out keywordConfig))
             {
-                action(text);
+                // check extra admin lock
+                if (keywordConfig.AdminPhrase && !_config.Debug.DisableAdminLock)
+                {
+                    if (DateTime.Now.Subtract(_adminGuardCalled).TotalSeconds < VOICE_LOCK_THRESHOLD_SECS) {
+                        keywordConfig.Callback(text);
+                    }
+                    return;
+                }
+
+                // check voice lock
+                if (!_config.Debug.DisableVoiceLock)
+                {
+                    if (DateTime.Now.Subtract(_debugGuardCalled).TotalSeconds > VOICE_LOCK_THRESHOLD_SECS)
+                    {
+                        return;
+                    }
+                }
+
+                keywordConfig.Callback(text);
             }
         }
     }

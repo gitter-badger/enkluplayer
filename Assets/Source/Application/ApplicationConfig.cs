@@ -659,6 +659,11 @@ namespace CreateAR.EnkluPlayer
         public bool DisableVoiceLock = false;
 
         /// <summary>
+        /// If true, requires saying "admin" before admin voice commands.
+        /// </summary>
+        public bool DisableAdminLock = false;
+
+        /// <summary>
         /// Overrides settings.
         /// </summary>
         /// <param name="config">Other config.</param>
@@ -667,6 +672,11 @@ namespace CreateAR.EnkluPlayer
             if (config.DisableVoiceLock)
             {
                 DisableVoiceLock = true;
+            }
+
+            if (config.DisableAdminLock)
+            {
+                DisableAdminLock = true;
             }
         }
     }
