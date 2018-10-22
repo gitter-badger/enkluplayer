@@ -60,6 +60,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void WatchUnwatch()
         {
+            // Setup test variables & watch.
             _engine.Run(@"
                 var cachedPrev;
                 var cachedNext;
@@ -79,6 +80,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual("undefined", _engine.Run("cachedNext").ToString());
             Assert.AreEqual(0, _engine.Run("invokeCount").AsNumber());
 
+            // Change and check for updates.
             _engine.Run(@"
                 this.this.schema.setBool('visible', false);
             ");
@@ -87,6 +89,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(false, _engine.Run("cachedNext").AsBoolean());
             Assert.AreEqual(1, _engine.Run("invokeCount").AsNumber());
 
+            // Change again.
             _engine.Run(@"
                 this.this.schema.setBool('visible', true);
             ");
@@ -95,6 +98,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(true, _engine.Run("cachedNext").AsBoolean());
             Assert.AreEqual(2, _engine.Run("invokeCount").AsNumber());
 
+            // Unsub and ensure nothing changes.
             _engine.Run(@"
                 this.this.schema.unwatchBool('visible', onVisibleChanged);
                 this.this.schema.setBool('visible', false);
