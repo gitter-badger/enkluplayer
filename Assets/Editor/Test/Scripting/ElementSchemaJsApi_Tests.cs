@@ -20,15 +20,15 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             });
 
             _element = new ElementJs(null, null, new Element());
-            _engine.SetValue("this", _element);
+            _engine.SetValue("element", _element);
         }
 
         [Test]
         public void GetSetNumber()
         {
             var output = _engine.Run(@"
-                this.this.schema.setNumber('foo', 12);
-                this.this.schema.getNumber('foo');
+                element.schema.setNumber('foo', 12);
+                element.schema.getNumber('foo');
             ");
 
             Assert.AreEqual(12, output.AsNumber());
@@ -38,9 +38,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void GetSetString()
         {
             var output = _engine.Run(@"
-                
-                this.this.schema.setString('fooString', 'bar');
-                this.this.schema.getString('fooString');
+                element.schema.setString('fooString', 'bar');
+                element.schema.getString('fooString');
             ");
 
             Assert.AreEqual("bar", output.AsString());
@@ -50,8 +49,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void GetSetBool()
         {
             var output = _engine.Run(@"
-                this.this.schema.setBool('fooBool', true);
-                this.this.schema.getBool('fooBool')
+                element.schema.setBool('fooBool', true);
+                element.schema.getBool('fooBool')
             ");
 
             Assert.AreEqual(true, output.AsBoolean());
@@ -72,8 +71,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                     cachedNext = next;
                 }
 
-                this.this.schema.setBool('visible', true);
-                this.this.schema.watchBool('visible', onVisibleChanged);
+                element.schema.setBool('visible', true);
+                element.schema.watchBool('visible', onVisibleChanged);
             ");
 
             Assert.AreEqual("undefined", _engine.Run("cachedPrev").ToString());
@@ -82,7 +81,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             // Change and check for updates.
             _engine.Run(@"
-                this.this.schema.setBool('visible', false);
+                element.schema.setBool('visible', false);
             ");
 
             Assert.AreEqual(true, _engine.Run("cachedPrev").AsBoolean());
@@ -91,7 +90,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             // Change again.
             _engine.Run(@"
-                this.this.schema.setBool('visible', true);
+                element.schema.setBool('visible', true);
             ");
 
             Assert.AreEqual(false, _engine.Run("cachedPrev").AsBoolean());
@@ -100,8 +99,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             // Unsub and ensure nothing changes.
             _engine.Run(@"
-                this.this.schema.unwatchBool('visible', onVisibleChanged);
-                this.this.schema.setBool('visible', false);
+                element.schema.unwatchBool('visible', onVisibleChanged);
+                element.schema.setBool('visible', false);
             ");
 
             Assert.AreEqual(false, _engine.Run("cachedPrev").AsBoolean());
