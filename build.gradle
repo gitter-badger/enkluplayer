@@ -1,0 +1,79 @@
+apply plugin: 'com.createar.plugins.unity'
+apply plugin: 'maven'
+group = 'com.createar.enkluplayer'
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+
+        maven {
+            url "${nexusUrl}/maven-releases/"
+            credentials {
+                username = nexusUsername
+                password = nexusPassword
+            }
+        }
+    }
+
+    dependencies {
+        classpath "com.createar.plugins:unity:0.1.1"
+    }
+}
+
+// build dirs
+def uwpdir = './Builds/Wsa.x86'
+def webgldir = './Builds/WebGl'
+
+// wsa
+task builduwp_clean(type:Delete) {
+    delete uwpdir
+}
+
+task builduwp_unity(type:com.createar.plugins.unity.UnityMethodTask) {
+    method 'CreateAR.EnkluPlayer.Editor.UnityBuilderHooks.BuildWsaPlayer'
+    target 'wsaplayer'
+    logPath UNITY_LOG
+    unityBin UNITY_BIN
+    username UNITY_USERNAME
+    password UNITY_PASSWORD
+    serial UNITY_SERIAL
+}
+builduwp_unity.dependsOn = [builduwp_clean]
+
+task builduwp_restore(type:Exec) {
+    workingDir uwpdir
+    executable nugetAbsPath
+    args 'restore'
+    standardOutput System.out
+}
+builduwp_restore.dependsOn = [builduwp_unity]
+
+task builduwp(type:Exec) {
+    // msbuild /p:Configuration=Release /p:platform=x86
+    workingDir uwpdir
+    executable cscPath
+    args '/p:Configuration=Release', '/p:Platform=x86'
+    standardOutput System.out
+}
+builduwp.dependsOn = [builduwp_restore];
+
+// webgl
+task buildwebgl_clean(type:Delete) {
+    delete webgldir
+}
+
+task buildwebgl(type:com.createar.plugins.unity.UnityMethodTask) {
+    method 'CreateAR.EnkluPlayer.Editor.UnityBuilderHooks.BuildWebGlPlayer'
+    target 'webgl'
+    logPath UNITY_LOG
+    unityBin UNITY_BIN
+    username UNITY_USERNAME
+    password UNITY_PASSWORD
+    serial UNITY_SERIAL
+}
+buildwebgl.dependsOn = [buildwebgl_clean]

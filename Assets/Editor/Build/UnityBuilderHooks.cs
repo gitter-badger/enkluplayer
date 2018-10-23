@@ -27,10 +27,7 @@ namespace CreateAR.EnkluPlayer.Editor
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene("Assets/Scenes/Main.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/PlayMode.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/Qr.unity", false),
-                new EditorBuildSettingsScene("Assets/Scenes/WorldMeshCaptureMode.unity", false),
-                new EditorBuildSettingsScene("Assets/Scenes/InputLogin.unity", false),
+                new EditorBuildSettingsScene("Assets/Scenes/PlayMode.unity", true)
             };
         }
 
@@ -44,10 +41,7 @@ namespace CreateAR.EnkluPlayer.Editor
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene("Assets/Scenes/Main.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/PlayMode.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/Qr.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/WorldMeshCaptureMode.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/InputLogin.unity", false),
+                new EditorBuildSettingsScene("Assets/Scenes/PlayMode.unity", true)
             };
         }
 
@@ -61,10 +55,7 @@ namespace CreateAR.EnkluPlayer.Editor
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene("Assets/Scenes/Main.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/PlayMode.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/Qr.unity", false),
-                new EditorBuildSettingsScene("Assets/Scenes/WorldMeshCaptureMode.unity", false),
-                new EditorBuildSettingsScene("Assets/Scenes/InputLogin.unity", true),
+                new EditorBuildSettingsScene("Assets/Scenes/PlayMode.unity", true)
             };
         }
 
