@@ -156,6 +156,7 @@ namespace CreateAR.EnkluPlayer
 
             // listen for reset command
             _voice.Register("reset", Voice_OnReset);
+            _voice.Register("update", Voice_OnUpdate);
             
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
@@ -361,6 +362,31 @@ namespace CreateAR.EnkluPlayer
                     el.OnCancel += () => _ui.Close(id);
                 })
                 .OnFailure(ex => Log.Error(this, "Could not open reset confirmation popup : {0}", ex));
+        }
+
+        /// <summary>
+        /// Called when the update command is recognized.
+        /// </summary>
+        /// <param name="command">The command.</param>
+        private void Voice_OnUpdate(string command)
+        {
+            int id;
+            _ui
+                .Open<ConfirmationUIView>(new UIReference
+                {
+                    UIDataId = UIDataIds.CONFIRMATION
+                }, out id)
+                .OnSuccess(el =>
+                {
+                    el.Message = "Are you sure you want to update the application?";
+                    el.OnConfirm += () =>
+                    {
+                        // HACK
+                        AppDataLoader.ForceUpdate = true;
+                    };
+                    el.OnCancel += () => _ui.Close(id);
+                })
+                .OnFailure(ex => Log.Error(this, "Could not open update confirmation popup : {0}", ex));
         }
     }
 }

@@ -60,6 +60,8 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public string Name { get; private set; }
 
+        public static bool ForceUpdate;
+
         /// <inheritdoc />
         public string[] Scenes
         {
@@ -113,7 +115,7 @@ namespace CreateAR.EnkluPlayer
                     var appPrefs = sync.Data.App(id);
 
                     var behavior = HttpRequestCacher.LoadBehavior.NetworkFirst;
-                    if (config.PeriodicUpdates)
+                    if (!config.Edit && config.PeriodicUpdates)
                     {
                         Log.Info(this, "Periodic update requested.");
 
@@ -144,6 +146,13 @@ namespace CreateAR.EnkluPlayer
                                 Log.Warning(this, "Invalid DateTime string, proceeding with network load.");
                             }
                         }
+                    }
+
+                    if (ForceUpdate)
+                    {
+                        ForceUpdate = false;
+
+                        behavior = HttpRequestCacher.LoadBehavior.NetworkFirst;
                     }
 
                     // save last updated time
