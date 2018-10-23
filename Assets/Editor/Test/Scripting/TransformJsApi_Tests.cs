@@ -1,4 +1,4 @@
-﻿using CreateAR.EnkluPlayer.IUX;
+using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using Jint;
 using NUnit.Framework;
@@ -18,7 +18,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             _engine = new Engine();
             _element = new ElementJs(null, null, new Element());
-            _engine.SetValue("this", _element);
+            _engine.SetValue("element", _element);
             _engine.SetValue("v", Vec3Methods.Instance);
             _engine.SetValue("q", QuatMethods.Instance);
 
@@ -34,9 +34,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 var euler = TestData.EulerArray[i];
                 _element.transform.rotation = Quat.Euler(euler);
                 _gameObject.transform.rotation = Quaternion.Euler(euler.ToVector());
-
-                // Why does this require this.this?!
-                var enkluForward = _engine.Run<Vec3>("this.this.transform.forward");
+                
+                var enkluForward = _engine.Run<Vec3>("element.transform.forward");
                 var unityForward = _gameObject.transform.forward;
                 Assert.IsTrue(Vector3.Angle(enkluForward.ToVector(), unityForward) < Mathf.Epsilon);
             }
@@ -46,8 +45,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void LookAt()
         {
             var rotation = _engine.Run<Quat>(@"
-                this.this.transform.lookAt(v.normalize(v.create(1, 0, 0)));
-                this.this.transform.rotation;
+                element.transform.lookAt(v.normalize(v.create(1, 0, 0)));
+                element.transform.rotation;
             ");
 
             var euler = rotation.ToQuaternion().eulerAngles;

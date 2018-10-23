@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using Jint;
@@ -119,7 +119,7 @@ namespace CreateAR.EnkluPlayer
                 Action<ElementSchemaProp<T>, T, T> handler = null;
                 handler = (prop, prev, next) =>
                 {
-                    callback(null, new []
+                    callback(JsValue.FromObject(engine, this), new []
                     {
                         JsValue.FromObject(engine, prev),
                         JsValue.FromObject(engine, next)
