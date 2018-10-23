@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using NUnit.Framework;
@@ -76,7 +76,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 var dir = TestData.DirectionArray[i];
 
                 var enkluRot = _engine.Run<Quat>(
-                    string.Format("q.fromToRotation(vec3({0}, {1}, {2}));", dir.x, dir.y, dir.z));
+                    string.Format("q.fromToRotation(vec3(0, 0, 1), vec3({0}, {1}, {2}));", dir.x, dir.y, dir.z));
                 var unityRot = Quaternion.FromToRotation(Vector3.forward, dir.ToVector());
 
                 var enkluEuler = enkluRot.ToQuaternion().eulerAngles;
