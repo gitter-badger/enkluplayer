@@ -45,3 +45,6 @@ sysinfo.txt
 
 # app config overrides
 Assets/Resources/ApplicationConfig.Override*
+
+# unit test output
+Tests.xml

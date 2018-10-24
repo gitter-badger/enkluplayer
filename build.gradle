@@ -8,7 +8,7 @@ buildscript {
         mavenCentral()
 
         maven {
-            url "https://plugins.gradle.org/m2/"
+            url 'https://plugins.gradle.org/m2/'
         }
 
         maven {
@@ -21,7 +21,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.createar.plugins:unity:0.1.1"
+        classpath 'com.createar.plugins:unity:0.2.4'
     }
 }
 
@@ -37,7 +37,7 @@ task builduwp_clean(type:Delete) {
 task builduwp_unity(type:com.createar.plugins.unity.UnityMethodTask) {
     method 'CreateAR.EnkluPlayer.Editor.UnityBuilderHooks.BuildWsaPlayer'
     target 'wsaplayer'
-    logPath UNITY_LOG
+    logPath 'wsa.log'
     unityBin UNITY_BIN
     username UNITY_USERNAME
     password UNITY_PASSWORD
@@ -64,10 +64,10 @@ builduwp_csc.dependsOn = [builduwp_restore]
 
 task builduwp(type:Zip) {
     from("$uwpdir/Enklu/AppPackages") {
-        include "**/*.appx"
+        include '**/*.appx'
     }
-    archiveName "uwp.build.zip"
-    destinationDir file(".")
+    archiveName 'uwp.build.zip'
+    destinationDir file('.')
 }
 builduwp.dependsOn = [builduwp_csc];
 
@@ -79,7 +79,7 @@ task buildwebgl_clean(type:Delete) {
 task buildwebgl_csc(type:com.createar.plugins.unity.UnityMethodTask) {
     method 'CreateAR.EnkluPlayer.Editor.UnityBuilderHooks.BuildWebGlPlayer'
     target 'webgl'
-    logPath UNITY_LOG
+    logPath 'webgl.log'
     unityBin UNITY_BIN
     username UNITY_USERNAME
     password UNITY_PASSWORD
@@ -89,9 +89,18 @@ buildwebgl_csc.dependsOn = [buildwebgl_clean]
 
 task buildwebgl(type:Zip) {
     from("$webgldir") {
-        include "**/*"
+        include '**/*'
     }
-    archiveName "webgl.build.zip"
-    destinationDir file(".")
+    archiveName 'webgl.build.zip'
+    destinationDir file('.')
 }
 buildwebgl.dependsOn = [buildwebgl_csc]
+
+task test_webgl(type:com.createar.plugins.unity.UnityUnitTestTask) {
+    target 'webgl'
+    logPath 'webgl.log'
+    unityBin UNITY_BIN
+    username UNITY_USERNAME
+    password UNITY_PASSWORD
+    serial UNITY_SERIAL
+}
