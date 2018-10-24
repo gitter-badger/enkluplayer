@@ -1,8 +1,8 @@
-### Overview
+### Platforms
 
-Enklu Player builds to multiple platforms. This document provides notes on specific needs of specific platforms.
+Enkluplayer builds to multiple platforms. This document provides notes on specific needs of specific platforms.
 
-#### iOS
+##### iOS
 
 Until we add support via the `Unity.iOS.Xcode.PBXProject` interface, you have to do a few things by hand:
 ​    * General > Signing - select valid team.
@@ -29,7 +29,7 @@ NSPhotoLibraryAddUsageDescription
 * Build Phases > Link Binary with Libraries - Add Photos.framework.
 ```
 
-#### HoloLens
+##### HoloLens
 
 *To enable crash logging*, we add a small bit of code to the generated `App.cs` file:
 
@@ -47,4 +47,18 @@ CoreApplication.UnhandledErrorDetected += (sender, eventArgs) =>
 };
 ```
 
-### 
+### UnityBuilderHooks
+
+We have provided Unity context menu options in `UnityBuilderHooks.cs` for switching platforms and building executables for target platforms.  These methods are also used when building from the command line.
+
+### Gradle
+
+We use [gradle](http://gradle.org) to automate our build process. This, together with a custom gradle plugin (which will be released shortly) allows us to run tests, build from Unity, and in the case of certain platforms (like HoloLens), build the output from Unity.
+
+Look in `build.gradle` for more information.
+
+| Name       | Parameters | Description                                                  |
+| ---------- | ---------- | ------------------------------------------------------------ |
+| builduwp   | N/A        | Runs tests in target platform, outputs a VS2017 project, builds the project into an appx, then creates an archive of appx and needed dependencies. |
+| buildwebgl | N/A        | Runs tests in target platform, outputs wasm, then creates an archive of web template. |
+
