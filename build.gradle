@@ -53,21 +53,30 @@ task builduwp_restore(type:Exec) {
 }
 builduwp_restore.dependsOn = [builduwp_unity]
 
-task builduwp(type:Exec) {
+task builduwp_csc(type:Exec) {
     // msbuild /p:Configuration=Release /p:platform=x86
     workingDir uwpdir
     executable cscPath
     args '/p:Configuration=Release', '/p:Platform=x86'
     standardOutput System.out
 }
-builduwp.dependsOn = [builduwp_restore];
+builduwp_csc.dependsOn = [builduwp_restore]
+
+task builduwp(type:Zip) {
+    from("$uwpdir/Enklu/AppPackages") {
+        include "**/*.appx"
+    }
+    archiveName "uwp.build.zip"
+    destinationDir file(".")
+}
+builduwp.dependsOn = [builduwp_csc];
 
 // webgl
 task buildwebgl_clean(type:Delete) {
     delete webgldir
 }
 
-task buildwebgl(type:com.createar.plugins.unity.UnityMethodTask) {
+task buildwebgl_csc(type:com.createar.plugins.unity.UnityMethodTask) {
     method 'CreateAR.EnkluPlayer.Editor.UnityBuilderHooks.BuildWebGlPlayer'
     target 'webgl'
     logPath UNITY_LOG
@@ -76,4 +85,13 @@ task buildwebgl(type:com.createar.plugins.unity.UnityMethodTask) {
     password UNITY_PASSWORD
     serial UNITY_SERIAL
 }
-buildwebgl.dependsOn = [buildwebgl_clean]
+buildwebgl_csc.dependsOn = [buildwebgl_clean]
+
+task buildwebgl(type:Zip) {
+    from("$webgldir") {
+        include "**/*"
+    }
+    archiveName "webgl.build.zip"
+    destinationDir file(".")
+}
+buildwebgl.dependsOn = [buildwebgl_csc]
