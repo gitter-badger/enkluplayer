@@ -30,9 +30,19 @@ def uwpdir = './Builds/Wsa.x86'
 def webgldir = './Builds/WebGl'
 
 // wsa
+task builduwp_test(type:com.createar.plugins.unity.UnityUnitTestTask) {
+    target 'wsaplayer'
+    logPath 'wsa.log'
+    unityBin UNITY_BIN
+    username UNITY_USERNAME
+    password UNITY_PASSWORD
+    serial UNITY_SERIAL
+}
+
 task builduwp_clean(type:Delete) {
     delete uwpdir
 }
+builduwp_clean.dependsOn = [builduwp_test]
 
 task builduwp_unity(type:com.createar.plugins.unity.UnityMethodTask) {
     method 'CreateAR.EnkluPlayer.Editor.UnityBuilderHooks.BuildWsaPlayer'
@@ -72,9 +82,19 @@ task builduwp(type:Zip) {
 builduwp.dependsOn = [builduwp_csc];
 
 // webgl
+task buildwebgl_test(type:com.createar.plugins.unity.UnityUnitTestTask) {
+    target 'webgl'
+    logPath 'webgl.log'
+    unityBin UNITY_BIN
+    username UNITY_USERNAME
+    password UNITY_PASSWORD
+    serial UNITY_SERIAL
+}
+
 task buildwebgl_clean(type:Delete) {
     delete webgldir
 }
+buildwebgl_clean.dependsOn = [buildwebgl_test]
 
 task buildwebgl_csc(type:com.createar.plugins.unity.UnityMethodTask) {
     method 'CreateAR.EnkluPlayer.Editor.UnityBuilderHooks.BuildWebGlPlayer'
@@ -95,12 +115,3 @@ task buildwebgl(type:Zip) {
     destinationDir file('.')
 }
 buildwebgl.dependsOn = [buildwebgl_csc]
-
-task test_webgl(type:com.createar.plugins.unity.UnityUnitTestTask) {
-    target 'webgl'
-    logPath 'webgl.log'
-    unityBin UNITY_BIN
-    username UNITY_USERNAME
-    password UNITY_PASSWORD
-    serial UNITY_SERIAL
-}
