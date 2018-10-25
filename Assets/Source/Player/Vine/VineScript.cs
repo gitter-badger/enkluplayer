@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
+    /// <summary>
+    /// Creates elements from a vine.
+    /// </summary>
     public abstract class VineScript : MonoBehaviour
     {
         /// <summary>

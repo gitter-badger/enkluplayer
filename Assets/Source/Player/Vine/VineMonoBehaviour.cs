@@ -8,9 +8,7 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
-    /// <summary>
-    /// Creates elements from a vine.
-    /// </summary>
+    /// <inheritdoc />
     public class VineMonoBehaviour : VineScript
     {
         /// <summary>

@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
+    /// <inheritdoc />
     public class ScriptFactory : IScriptFactory
     {
         /// <summary>

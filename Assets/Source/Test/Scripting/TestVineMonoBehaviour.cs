@@ -5,6 +5,9 @@ using CreateAR.EnkluPlayer.Vine;
 
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {
+    /// <summary>
+    /// Mimics a VineMonoBehaviour and counts invokes on general script flow calls.
+    /// </summary>
     public class TestVineMonoBehaviour : VineScript
     {
         public int EnterInvoked { get; private set; }

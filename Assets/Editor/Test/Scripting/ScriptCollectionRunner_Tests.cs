@@ -1,8 +1,5 @@
 using System.Collections.Generic;
-using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
-using CreateAR.EnkluPlayer.Test.UI;
-using CreateAR.EnkluPlayer.Test.Vine;
 using CreateAR.EnkluPlayer.Vine;
 using Jint.Parser;
 using NUnit.Framework;
@@ -24,16 +21,16 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             _scriptFactory = new TestScriptFactory();
             
-            DefaultScriptParser parser = new DefaultScriptParser(
+            var parser = new DefaultScriptParser(
                 null, new JsVinePreProcessor(), new JavaScriptParser());
             
 
-            ScriptData behaviorData = new ScriptData
+            var behaviorData = new ScriptData
             {
                 Id = "script-behavior"
             };
 
-            ScriptData vineData = new ScriptData
+            var vineData = new ScriptData
             {
                 Id = "script-vine",
                 TagString = "vine"
@@ -41,9 +38,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             // For testing, just load the script IDs as the source program.
             _behavior = new EnkluScript(
-                parser, new LocalScriptLoader(behaviorData.Id), behaviorData);
+                parser, new TestScriptLoader(behaviorData.Id), behaviorData);
             _vine = new EnkluScript(
-                parser, new LocalScriptLoader(behaviorData.Id), vineData);
+                parser, new TestScriptLoader(behaviorData.Id), vineData);
 
             _scriptRunner = new ScriptCollectionRunner(
                 new GameObject("ScriptCollectionRunner_Tests"),
