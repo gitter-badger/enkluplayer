@@ -13,6 +13,11 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public string Program { get; set; }
 
+        public LocalScriptLoader(string defaultProgram)
+        {
+            Program = defaultProgram;
+        }
+
         /// <inheritdoc cref="IScriptLoader"/>
         public IAsyncToken<string> Load(ScriptData script)
         {

@@ -592,6 +592,7 @@ namespace CreateAR.EnkluPlayer
 
             // scripting
             {
+                binder.Bind<IScriptFactory>().To<ScriptFactory>().ToSingleton();
                 binder.Bind<JavaScriptParser>().ToValue(new JavaScriptParser(false));
                 binder.Bind<IScriptParser>().To<DefaultScriptParser>().ToSingleton();
 
@@ -626,6 +627,19 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<TimerJsInterface>().To<TimerJsInterface>().ToSingleton();
                     binder.Bind<SnapJsInterface>().To<SnapJsInterface>().ToSingleton();
                     binder.Bind<MetricsJsInterface>().To<MetricsJsInterface>().ToSingleton();
+                }
+
+                // scripting apis
+                {
+                    var jsCache = binder.GetInstance<IElementJsCache>();
+                    binder.Bind<AppJsApi>().ToValue(new AppJsApi(
+                        new AppScenesJsApi(jsCache, binder.GetInstance<IAppSceneManager>()),
+                        new AppElementsJsApi(
+                            jsCache,
+                            binder.GetInstance<IElementFactory>(),
+                            binder.GetInstance<IElementManager>()),
+                        binder.GetInstance<PlayerJs>()
+                    ));
                 }
             }
 

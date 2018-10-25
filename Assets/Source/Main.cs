@@ -50,22 +50,6 @@ namespace CreateAR.EnkluPlayer
 	    }
 
         /// <summary>
-        /// TODO: REMOVE THIS EVIL. This is here because of a circular dependency. IElementFactory < == > IElementJsFactory.
-        /// </summary>
-        /// <param name="jsCache">The cache.</param>
-        /// <returns></returns>
-	    public static AppJsApi NewAppJsApi(IElementJsCache jsCache)
-	    {
-            return new AppJsApi(
-                new AppScenesJsApi(jsCache, _binder.GetInstance<IAppSceneManager>()),
-                new AppElementsJsApi(
-                    jsCache,
-                    _binder.GetInstance<IElementFactory>(),
-                    _binder.GetInstance<IElementManager>()),
-                _binder.GetInstance<PlayerJs>());
-	    }
-
-        /// <summary>
         /// Analogous to the main() function.
         /// </summary>
         private void Awake()

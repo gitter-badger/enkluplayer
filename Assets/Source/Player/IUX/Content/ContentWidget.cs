@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -40,24 +40,13 @@ namespace CreateAR.EnkluPlayer
         private readonly List<EnkluScript> _enkluScripts = new List<EnkluScript>();
 
         /// <summary>
-        /// Loads and executes scripts.
+        /// Dependencies.
         /// </summary>
         private readonly IScriptManager _scripts;
-
-        /// <summary>
-        /// Assembles an asset.
-        /// </summary>
         private readonly IAssetAssembler _assembler;
-
-        /// <summary>
-        /// Caches elements.
-        /// </summary>
         private readonly IElementJsCache _jsCache;
-
-        /// <summary>
-        /// Creates elements.
-        /// </summary>
-        private readonly IElementJsFactory _elementJsFactory;
+        private readonly IScriptFactory _scriptFactory;
+        private readonly AppJsApi _appJsApi;
         
         /// <summary>
         /// Runs scripts.
@@ -121,7 +110,8 @@ namespace CreateAR.EnkluPlayer
             IScriptRequireResolver resolver,
             IScriptManager scripts,
             IElementJsCache cache,
-            IElementJsFactory elementFactory)
+            IScriptFactory scriptFactory,
+            AppJsApi appJsApi)
             : base(
                 gameObject,
                 layers,
@@ -132,7 +122,8 @@ namespace CreateAR.EnkluPlayer
             _scripts = scripts;
             _assembler = assembler;
             _jsCache = cache;
-            _elementJsFactory = elementFactory;
+            _scriptFactory = scriptFactory;
+            _appJsApi = appJsApi;
         }
 
         /// <summary>
@@ -169,7 +160,8 @@ namespace CreateAR.EnkluPlayer
                     _scripts,
                     _resolver,
                     _jsCache,
-                    _elementJsFactory,
+                    _scriptFactory,
+                    _appJsApi,
                     GameObject,
                     this);
             }

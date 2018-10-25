@@ -39,8 +39,8 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IMetricsService _metrics;
         private readonly IMessageRouter _messages;
         private readonly IElementJsCache _jsCache;
-        private readonly IElementJsFactory _elementJsFactory;
-        private readonly IDeviceMetaProvider _deviceMetaProvider;
+        private readonly IScriptFactory _scriptFactory;
+        private readonly AppJsApi _appJsApi;
         private readonly ColorConfig _colors;
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
@@ -82,8 +82,8 @@ namespace CreateAR.EnkluPlayer.IUX
             IMetricsService metrics,
             IMessageRouter messages,
             IElementJsCache jsCache,
-            IElementJsFactory elementJsFactory,
-            IDeviceMetaProvider deviceMetaProvider,
+            IScriptFactory scriptFactory,
+            AppJsApi appJsApi,
             ColorConfig colors,
             TweenConfig tweens,
             WidgetConfig config,
@@ -113,8 +113,8 @@ namespace CreateAR.EnkluPlayer.IUX
             _metrics = metrics;
             _messages = messages;
             _jsCache = jsCache;
-            _elementJsFactory = elementJsFactory;
-            _deviceMetaProvider = deviceMetaProvider;
+            _scriptFactory = _scriptFactory;
+            _appJsApi = appJsApi;
             _appConfig = appConfig;
             
             // TODO: Load this all from data
@@ -417,7 +417,8 @@ namespace CreateAR.EnkluPlayer.IUX
                         _resolver,
                         _scripts,
                         _jsCache,
-                        _elementJsFactory);
+                        _scriptFactory,
+                        _appJsApi);
                 }
                 case ElementTypes.TRANSITION:
                 {

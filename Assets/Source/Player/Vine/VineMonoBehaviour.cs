@@ -1,17 +1,17 @@
-﻿using System;
+using System;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Vine;
-
+using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
-namespace CreateAR.EnkluPlayer
+namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// Creates elements from a vine.
     /// </summary>
-    public class VineMonoBehaviour : InjectableMonoBehaviour
+    public class VineMonoBehaviour : VineScript
     {
         /// <summary>
         /// Parsed script.
@@ -22,18 +22,16 @@ namespace CreateAR.EnkluPlayer
         /// The element created.
         /// </summary>
         private Element _element;
-        
+
         /// <summary>
         /// Imports from vine.
         /// </summary>
-        [Inject]
-        public VineImporter Importer { get; set; }
+        private VineImporter _importer;
 
         /// <summary>
         /// Creates elements.
         /// </summary>
-        [Inject]
-        public IElementFactory Elements { get; set; }
+        private IElementFactory _elements;
 
         /// <summary>
         /// The parent of the script.
@@ -45,32 +43,28 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public EnkluScript Script { get; private set; }
         
-        /// <summary>
-        /// Initializes script.
-        /// </summary>
-        public void Initialize(Element parent, EnkluScript script)
+        /// <inheritdoc />
+        public override void Initialize(
+            Element parent, 
+            EnkluScript script, 
+            VineImporter importer, 
+            IElementFactory elements)
         {
             Parent = parent;
             Script = script;
+            _importer = importer;
+            _elements = elements;
         }
 
-        /// <summary>
-        /// Call after script is ready, before FSM flow.
-        /// </summary>
-        public IAsyncToken<Void> Configure()
+        /// <inheritdoc />
+        public override IAsyncToken<Void> Configure()
         {
             Log.Info(this, "Importing Vine {0}.", Script.Data.Id);
 
             var token = new AsyncToken<Void>();
-            
-            // TODO: WHY IS THIS HAPPENING
-            if (null == Importer)
-            {
-                Main.Inject(this);
-            }
 
-            Importer
-                .Parse(Script.Source, Parent.Schema)
+            _importer
+                .Parse(Script.Source, Parent != null ? Parent.Schema : null)
                 .OnSuccess(description =>
                 {
                     _description = description;
@@ -88,33 +82,27 @@ namespace CreateAR.EnkluPlayer
             return token;
         }
 
-        /// <summary>
-        /// Runs script.
-        /// </summary>
-        public void Enter()
+        /// <inheritdoc />
+        public override void Enter()
         {
             if (null == _description)
             {
                 return;
             }
 
-            _element = Elements.Element(_description);
+            _element = _elements.Element(_description);
 
             Parent.AddChild(_element);
         }
 
-        /// <summary>
-        /// Called every frame.
-        /// </summary>
-        public void FrameUpdate()
+        /// <inheritdoc />
+        public override void FrameUpdate()
         {
             //
         }
 
-        /// <summary>
-        /// Destroys component and created elements.
-        /// </summary>
-        public void Exit()
+        /// <inheritdoc />
+        public override void Exit()
         {
             if (null != _element)
             {
