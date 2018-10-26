@@ -342,6 +342,7 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <inheritdoc />
         public void PositionRelatively(WorldAnchorWidget anchor)
         {
             PositionAnchorRelative(anchor, _lastTransformMatrix);

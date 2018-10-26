@@ -186,7 +186,6 @@ namespace CreateAR.EnkluPlayer.IUX
         public void Export(string appId, string sceneId, IElementTxnManager txns)
         {
             // Update this Anchor's position relative to a located Anchor
-            Log.Warning(this, "Export {0}", Status);
             _anchorManager.PositionRelatively(this);
             
             _pollStatus = false;
