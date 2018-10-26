@@ -33,5 +33,11 @@ namespace CreateAR.EnkluPlayer
         /// Called to get reference to primary anchor
         /// </summary>
         WorldAnchorWidget Anchor { get; }
+
+        /// <summary>
+        /// Repositions an anchor's underlying GameObject relative to the primary anchor.
+        /// </summary>
+        /// <param name="anchor"></param>
+        void PositionRelatively(WorldAnchorWidget anchor);
     }
 }

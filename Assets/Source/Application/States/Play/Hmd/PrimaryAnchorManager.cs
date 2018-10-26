@@ -193,6 +193,8 @@ namespace CreateAR.EnkluPlayer
         private int _pollUnlocated;
         private int _pollLocated;
 
+        private Matrix4x4 _lastTransformMatrix;
+
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
         {
@@ -338,6 +340,11 @@ namespace CreateAR.EnkluPlayer
             {
                 _surfaces[id] = new SurfaceRecord(filter.gameObject);
             }
+        }
+
+        public void PositionRelatively(WorldAnchorWidget anchor)
+        {
+            PositionAnchorRelative(anchor, _lastTransformMatrix);
         }
 
         /// <summary>
@@ -615,7 +622,7 @@ namespace CreateAR.EnkluPlayer
         private void UpdateRelativePositioning()
         {
             var located = FirstLocatedAnchor();
-            var T = Matrix4x4.identity;
+            _lastTransformMatrix = Matrix4x4.identity;
 
             // calculate inverse transformation
             if (null != located)
@@ -630,21 +637,18 @@ namespace CreateAR.EnkluPlayer
                 var B = Matrix4x4.TRS(locatedPos, locatedRot, Vector3.one);
 
                 // T * A = B
-                T = B * Matrix4x4.Inverse(A);
+                _lastTransformMatrix = B * Matrix4x4.Inverse(A);
             }
 
             // place non-located anchors relative to the located anchor
             for (int i = 0, len = _anchors.Count; i < len; i++)
             {
                 var anchor = _anchors[i];
-                if (anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError
-                    || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsImporting
-                    || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading
-                    || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated)
+                if (ShouldPositionRelatively(anchor))
                 {
                     if (null != located)
                     {
-                        PositionAnchorRelative(anchor, T);
+                        PositionAnchorRelative(anchor, _lastTransformMatrix);
                     }
                     else
                     {
@@ -654,6 +658,20 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Determines if an anchor should be manually repositioned or not.
+        /// </summary>
+        /// <param name="anchor">The anchor to check.</param>
+        /// <returns></returns>
+        private bool ShouldPositionRelatively(WorldAnchorWidget anchor)
+        {
+            return anchor.Status == WorldAnchorWidget.WorldAnchorStatus.None
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsImporting
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated;
         }
 
         /// <summary>
@@ -924,7 +942,11 @@ Errors: {3} / {0}",
                 Log.Info(this, "Primary is located. Positioning AutoExport anchor.");
 
                 // add
-                _anchors.Add(anchor);
+                if (!_anchors.Contains(anchor))
+                {
+                    _anchors.Add(anchor);
+                }
+                
 
                 // export from this new position
                 anchor.Export(_config.Play.AppId, _sceneId, _txns);

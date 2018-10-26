@@ -58,6 +58,11 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IMessageRouter _messages;
 
         /// <summary>
+        /// Allows for Anchor repositioning.
+        /// </summary>
+        private readonly IPrimaryAnchorManager _anchorManager;
+
+        /// <summary>
         /// Application config.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -152,6 +157,7 @@ namespace CreateAR.EnkluPlayer.IUX
             IWorldAnchorProvider provider,
             IMetricsService metrics,
             IMessageRouter messages,
+            IPrimaryAnchorManager anchorManager,
             ApplicationConfig config)
             : base(gameObject, layers, tweens, colors)
         {
@@ -178,6 +184,10 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <param name="txns">Object to make txns with.</param>
         public void Export(string appId, string sceneId, IElementTxnManager txns)
         {
+            // Update this Anchor's position relative to a located Anchor
+            Log.Warning(this, "Export {0}", Status);
+            _anchorManager.PositionRelatively(this);
+            
             _pollStatus = false;
             Status = WorldAnchorStatus.IsExporting;
 
