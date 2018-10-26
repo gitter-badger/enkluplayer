@@ -65,6 +65,15 @@ namespace CreateAR.EnkluPlayer
                 _binder.GetInstance<PlayerJs>());
 	    }
 
+		/// <summary>
+		/// TODO: REMOVE THIS UNHOLY ABOMINATION. This is here because of a circular dependency between IElementFactory < == > IPrimaryAnchorManager
+		/// </summary>
+		/// <returns></returns>
+		public static IPrimaryAnchorManager PrimaryAnchorManager()
+		{
+			return _binder.GetInstance<IPrimaryAnchorManager>();
+		}
+
         /// <summary>
         /// Analogous to the main() function.
         /// </summary>

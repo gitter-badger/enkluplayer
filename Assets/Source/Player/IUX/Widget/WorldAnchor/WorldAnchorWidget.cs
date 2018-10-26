@@ -157,7 +157,6 @@ namespace CreateAR.EnkluPlayer.IUX
             IWorldAnchorProvider provider,
             IMetricsService metrics,
             IMessageRouter messages,
-            IPrimaryAnchorManager anchorManager,
             ApplicationConfig config)
             : base(gameObject, layers, tweens, colors)
         {
@@ -166,6 +165,8 @@ namespace CreateAR.EnkluPlayer.IUX
             _metrics = metrics;
             _messages = messages;
             _config = config;
+
+            _anchorManager = Main.PrimaryAnchorManager();
         }
 
         /// <summary>

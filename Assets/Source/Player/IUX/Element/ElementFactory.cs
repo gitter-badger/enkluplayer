@@ -40,7 +40,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IMessageRouter _messages;
         private readonly IElementJsCache _jsCache;
         private readonly IElementJsFactory _elementJsFactory;
-        private readonly IPrimaryAnchorManager _anchorManager;
         private readonly ColorConfig _colors;
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
@@ -83,7 +82,6 @@ namespace CreateAR.EnkluPlayer.IUX
             IMessageRouter messages,
             IElementJsCache jsCache,
             IElementJsFactory elementJsFactory,
-            IPrimaryAnchorManager anchorManager,
             ColorConfig colors,
             TweenConfig tweens,
             WidgetConfig config,
@@ -114,7 +112,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _messages = messages;
             _jsCache = jsCache;
             _elementJsFactory = elementJsFactory;
-            _anchorManager = anchorManager;
             _appConfig = appConfig;
             
             // TODO: Load this all from data
@@ -438,7 +435,6 @@ namespace CreateAR.EnkluPlayer.IUX
                         _provider, 
                         _metrics, 
                         _messages, 
-                        _anchorManager, 
                         _appConfig);
                 }
                 case ElementTypes.QR_ANCHOR:
