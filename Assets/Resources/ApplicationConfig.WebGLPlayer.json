@@ -1,5 +1,5 @@
 {
-	"Metrics": {
-		"Enabled": false
-	}
+	"Log": {
+        "Level": "Warning"
+    }
 }
