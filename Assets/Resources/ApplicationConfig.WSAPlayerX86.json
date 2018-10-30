@@ -1,0 +1,9 @@
+{
+	"Log": {
+		"Level": "Warning"
+	},
+	"Metrics": {
+		"Enabled": true,
+		"Targets": "HostedGraphite"
+	}
+}
