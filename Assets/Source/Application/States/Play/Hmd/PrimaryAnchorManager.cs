@@ -193,8 +193,6 @@ namespace CreateAR.EnkluPlayer
         private int _pollUnlocated;
         private int _pollLocated;
 
-        private Matrix4x4 _lastTransformMatrix;
-
         /// <inheritdoc />
         public WorldAnchorWidget.WorldAnchorStatus Status
         {
@@ -340,12 +338,6 @@ namespace CreateAR.EnkluPlayer
             {
                 _surfaces[id] = new SurfaceRecord(filter.gameObject);
             }
-        }
-
-        /// <inheritdoc />
-        public void PositionRelatively(WorldAnchorWidget anchor)
-        {
-            PositionAnchorRelative(anchor, _lastTransformMatrix);
         }
 
         /// <summary>
@@ -623,7 +615,7 @@ namespace CreateAR.EnkluPlayer
         private void UpdateRelativePositioning()
         {
             var located = FirstLocatedAnchor();
-            _lastTransformMatrix = Matrix4x4.identity;
+            var T = Matrix4x4.identity;
 
             // calculate inverse transformation
             if (null != located)
@@ -638,7 +630,7 @@ namespace CreateAR.EnkluPlayer
                 var B = Matrix4x4.TRS(locatedPos, locatedRot, Vector3.one);
 
                 // T * A = B
-                _lastTransformMatrix = B * Matrix4x4.Inverse(A);
+                T = B * Matrix4x4.Inverse(A);
             }
 
             // place non-located anchors relative to the located anchor
@@ -649,7 +641,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     if (null != located)
                     {
-                        PositionAnchorRelative(anchor, _lastTransformMatrix);
+                        PositionAnchorRelative(anchor, T);
                     }
                     else
                     {
@@ -948,6 +940,9 @@ Errors: {3} / {0}",
                     _anchors.Add(anchor);
                 }
                 
+                // Trigger relative positioning update so the anchor pending export
+                //    has the right position before it is saved.
+                UpdateRelativePositioning();
 
                 // export from this new position
                 anchor.Export(_config.Play.AppId, _sceneId, _txns);

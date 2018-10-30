@@ -58,11 +58,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IMessageRouter _messages;
 
         /// <summary>
-        /// Allows for Anchor repositioning.
-        /// </summary>
-        private readonly IPrimaryAnchorManager _anchorManager;
-
-        /// <summary>
         /// Application config.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -165,8 +160,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _metrics = metrics;
             _messages = messages;
             _config = config;
-
-            _anchorManager = Main.PrimaryAnchorManager();
         }
 
         /// <summary>
@@ -185,9 +178,6 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <param name="txns">Object to make txns with.</param>
         public void Export(string appId, string sceneId, IElementTxnManager txns)
         {
-            // Update this Anchor's position relative to a located Anchor
-            _anchorManager.PositionRelatively(this);
-            
             _pollStatus = false;
             Status = WorldAnchorStatus.IsExporting;
 
