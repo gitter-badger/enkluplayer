@@ -637,10 +637,7 @@ namespace CreateAR.EnkluPlayer
             for (int i = 0, len = _anchors.Count; i < len; i++)
             {
                 var anchor = _anchors[i];
-                if (anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError
-                    || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsImporting
-                    || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading
-                    || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated)
+                if (ShouldPositionRelatively(anchor))
                 {
                     if (null != located)
                     {
@@ -654,6 +651,20 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Determines if an anchor should be manually repositioned or not.
+        /// </summary>
+        /// <param name="anchor">The anchor to check.</param>
+        /// <returns></returns>
+        private bool ShouldPositionRelatively(WorldAnchorWidget anchor)
+        {
+            return anchor.Status == WorldAnchorWidget.WorldAnchorStatus.None
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsError
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsImporting
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsLoading
+                   || anchor.Status == WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated;
         }
 
         /// <summary>
@@ -923,8 +934,15 @@ Errors: {3} / {0}",
             {
                 Log.Info(this, "Primary is located. Positioning AutoExport anchor.");
 
-                // add
-                _anchors.Add(anchor);
+                // TODO: Anchoring Refactor - Manage invocation of this better so anchors can't be double added
+                if (!_anchors.Contains(anchor))
+                {
+                    _anchors.Add(anchor);
+                }
+                
+                // Trigger relative positioning update so the anchor pending export
+                //    has the right position before it is saved.
+                UpdateRelativePositioning();
 
                 // export from this new position
                 anchor.Export(_config.Play.AppId, _sceneId, _txns);
