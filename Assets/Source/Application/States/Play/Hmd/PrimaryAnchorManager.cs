@@ -934,7 +934,7 @@ Errors: {3} / {0}",
             {
                 Log.Info(this, "Primary is located. Positioning AutoExport anchor.");
 
-                // add
+                // TODO: Anchoring Refactor - Manage invocation of this better so anchors can't be double added
                 if (!_anchors.Contains(anchor))
                 {
                     _anchors.Add(anchor);
