@@ -2,9 +2,13 @@
 
 Configuration settings are applied through the *ApplicationConfig.json* file found in *Resources/ApplicationConfig.json*. A default config is provided in the repository.
 
+#### Platform Specific Configs
+
+Each platform has its own `ApplicationConfig` that overrides any settings in `ApplicationConfig.json`. These configs are given by `ApplicationConfig.[RuntimePlatform].json`. So, for example, both `WebGLPlayer` and `WSAPlayerX86` have separate configurations.
+
 #### Override
 
-You may also specify an override, called *ApplicationConfig.Override.json*, which has been added to the `.gitignore`. This file is for you to change the default application config without worrying about it accidentally being added to version control. Any settings you configure here will override the default config.
+You may also specify an override, called *ApplicationConfig.Override.json*, which has been added to the `.gitignore`. This file is layered on top of the platform specific config and allows you to edit config locally without worrying about it accidentally being added to version control.
 
 #### Options
 
@@ -26,17 +30,23 @@ Remaining options are grouped into sub-objects.
 
 ##### Play
 
-| Name  | Default Value | Description                                                  |
-| ----- | ------------- | ------------------------------------------------------------ |
-| AppId | ""            | If set, the application will automatically load into this experience. Only applicable on certain platforms. |
-| Edit  | true          | Determines which mode the HoloLens will default to loading experiences in from the experience load menu. |
+| Name                   | Default Value | Description                                                  |
+| ---------------------- | ------------- | ------------------------------------------------------------ |
+| AppId                  | ""            | If set, the application will automatically load into this experience. Only applicable on certain platforms. |
+| Edit                   | true          | Determines which mode the HoloLens will default to loading experiences in from the experience load menu. |
+| PeriodicUpdates        | false         | If true, the player will only check for experience updates every X minutes, as given by `PeriodicUpdatesMinutes`. If false, the player checks for updates every time the experience is loaded. |
+| PeriodicUpdateMinutes  | 0             | The number of minutes to wait between updates.               |
+| SkipDeviceRegistration | false         | If true, skips the device registration portion of startup flow. |
+| SkipVersionCheck       | false         | If true, skips the version check portion of the startup flow. |
 
 ##### Network
 
 | Name                       | Default Value | Description                                                  |
 | -------------------------- | ------------- | ------------------------------------------------------------ |
 | AssetDownloadLagSec        | 0             | Number of seconds to pad downloads with. This is useful for debugging slow network environments. |
-| AssetDownloadFailureChance | 0             | This value, between 0 and 1, determines the chance that an asset will forcibly be forced to fail loading. This is useful for debugging spotty networking conditions. |
+| AssetDownloadFailureChance | 0             | This value, between 0 and 1, determines the chance that an asset will be forced to fail loading. This is useful for debugging spotty networking conditions. |
+| AnchorDownloadFailChance   | 0             | This value, between 0 and 1, determines the chance that an anchor will be forced to fail downloading. |
+| AnchorImportFailChance     | 0             | This value, between 0 and 1, determines the chance that an anchor will be forced to fail importing. |
 | Offline                    | false         | If set to true, the player will disable networking entirely. Only previously cached experiences may be loaded. |
 | ApiVersion                 | 0.0.0         | The Trellis API version that the player is compatible with.  |
 | Current                    | ""            | The name of the current environment to connect to.           |
@@ -73,6 +83,8 @@ Remaining options are grouped into sub-objects.
 
 | Name           | Default Value | Description                                                  |
 | -------------- | ------------- | ------------------------------------------------------------ |
+| Enabled        | true          | If true, enables the MetricsService.                         |
+| Targets        | ""            | Specifies a comma-delimited list of metrics targets. Currently, only `HostedGraphite` and `json` are supported. |
 | Hostname       | ""            | The hostname of a metrics gathering service. The default metrics provider is Graphite. |
 | ApplicationKey | ""            | The application key associated with the metrics gathering service. The metrics provider will use this to authorize transactions. |
 
