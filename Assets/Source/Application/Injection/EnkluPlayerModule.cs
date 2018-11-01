@@ -15,6 +15,7 @@ using CreateAR.EnkluPlayer.States.HoloLogin;
 using CreateAR.EnkluPlayer.Vine;
 using CreateAR.Trellis.Messages;
 using Jint.Parser;
+using Newtonsoft.Json;
 using strange.extensions.injector.impl;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -33,7 +34,7 @@ namespace CreateAR.EnkluPlayer
             var config = LoadConfig();
 
             Log.Filter = config.Log.ParsedLevel;
-            Log.Info(this, "ApplicationConfig:\n{0}", config);
+            Log.Info(this, "ApplicationConfig:\n{0}", JsonConvert.SerializeObject(config, Formatting.Indented));
 
             binder.Bind<ApplicationConfig>().ToValue(config);
             binder.Bind<NetworkConfig>().ToValue(config.Network);
@@ -371,6 +372,15 @@ namespace CreateAR.EnkluPlayer
 
             // load base
             var config = Config("ApplicationConfig");
+
+            // load platform specific config
+            var platform = Config(string.Format(
+                "ApplicationConfig.{0}",
+                UnityEngine.Application.platform));
+            if (null != platform)
+            {
+                config.Override(platform);
+            }
 
             // load override
             var overrideConfig = Config("ApplicationConfig.Override");

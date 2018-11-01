@@ -84,6 +84,7 @@ namespace CreateAR.EnkluPlayer.IUX
             IElementJsCache jsCache,
             IScriptFactory scriptFactory,
             AppJsApi appJsApi,
+            IElementJsFactory elementJsFactory,
             ColorConfig colors,
             TweenConfig tweens,
             WidgetConfig config,
@@ -113,7 +114,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _metrics = metrics;
             _messages = messages;
             _jsCache = jsCache;
-            _scriptFactory = _scriptFactory;
+            _scriptFactory = scriptFactory;
             _appJsApi = appJsApi;
             _appConfig = appConfig;
             
@@ -430,7 +431,16 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 case ElementTypes.WORLD_ANCHOR:
                 {
-                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _provider, _metrics, _messages, _appConfig);
+                    return new WorldAnchorWidget(
+                        new GameObject("WorldAnchor"), 
+                        _layers, 
+                        _tweens, 
+                        _colors, 
+                        _http, 
+                        _provider, 
+                        _metrics, 
+                        _messages, 
+                        _appConfig);
                 }
                 case ElementTypes.QR_ANCHOR:
                 {

@@ -1,14 +1,14 @@
 {
-    "Version": "0.12.12",
+    "Version": "0.12.15",
     "Log": {
-        "Level": "Error"
+        "Level": "Info"
     },
 	"Metrics": {
 		"Enabled": false,
 		"Targets": ""
 	},
     "Network": {
-        "ApiVersion": "0.0.1",
+        "ApiVersion": "0.1.0",
         "Current": "cloud",
         "AllEnvironments": [
             {

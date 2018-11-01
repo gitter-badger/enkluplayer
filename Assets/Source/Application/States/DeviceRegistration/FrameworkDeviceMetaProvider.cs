@@ -34,11 +34,18 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         private string[] GetIps()
         {
-            return Dns.GetHostEntry(Dns.GetHostName())
-                .AddressList
-                .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
-                .Select(ip => ip.ToString())
-                .ToArray();
+            try
+            {
+                return Dns.GetHostEntry(Dns.GetHostName())
+                    .AddressList
+                    .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                    .Select(ip => ip.ToString())
+                    .ToArray();
+            }
+            catch
+            {
+                return new string[0];
+            }
         }
     }
 }
