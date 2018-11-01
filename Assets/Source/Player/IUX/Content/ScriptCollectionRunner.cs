@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using CreateAR.EnkluPlayer.Vine;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -16,7 +17,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// The state of script setup.
         /// </summary>
-        private enum SetupState
+        public enum SetupState
         {
             /// <summary>
             /// Scripts aren't loaded.
@@ -50,9 +51,14 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly IElementJsCache _jsCache;
 
         /// <summary>
-        /// Creates ElementJS implementations.
+        /// Creates Script instances.
         /// </summary>
-        private readonly IElementJsFactory _elementJsFactory;
+        private readonly IScriptFactory _scriptFactory;
+
+        /// <summary>
+        /// AppJsApi instance.
+        /// </summary>
+        private readonly AppJsApi _appJsApi;
 
         /// <summary>
         /// GameObject to attach scripts to.
@@ -65,47 +71,52 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly Element _element;
 
         /// <summary>
-        /// The current state of script loading.
-        /// </summary>
-        private SetupState _setupState;
-
-        /// <summary>
-        /// Tracks js caches in use.
-        /// </summary>
-        private readonly List<IElementJsCache> _caches = new List<IElementJsCache>();
-
-        /// <summary>
         /// Behaviors.
         /// </summary>
-        private readonly List<EnkluScriptElementBehavior> _scriptComponents = new List<EnkluScriptElementBehavior>();
+        private readonly List<BehaviorScript> _scriptComponents = new List<BehaviorScript>();
 
         /// <summary>
         /// Vines.
         /// </summary>
-        private readonly List<VineMonoBehaviour> _vineComponents = new List<VineMonoBehaviour>();
+        private readonly List<VineScript> _vineComponents = new List<VineScript>();
 
         /// <summary>
-        /// Tracks hosts.
+        /// The current state of script loading.
         /// </summary>
-        private readonly List<UnityScriptingHost> _hosts = new List<UnityScriptingHost>();
+        public SetupState CurrentState { get; private set; }
 
         /// <summary>
         /// Constructor.
         /// </summary>
+        [Construct]
         public ScriptCollectionRunner(
             IScriptManager scripts,
             IScriptRequireResolver resolver,
             IElementJsCache jsCache,
-            IElementJsFactory elementJsFactory,
+            IScriptFactory scriptFactory,
+            AppJsApi appJsApi,
             GameObject root,
             Element element)
         {
             _scripts = scripts;
             _resolver = resolver;
             _jsCache = jsCache;
-            _elementJsFactory = elementJsFactory;
+            _scriptFactory = scriptFactory;
+            _appJsApi = appJsApi;
             _root = root;
             _element = element;
+        }
+
+        /// <summary>
+        /// Constructor used for tests.
+        /// </summary>
+        public ScriptCollectionRunner(
+            GameObject root, 
+            IScriptFactory scriptFactory)
+        {
+            _root = root;
+            _scriptFactory = scriptFactory;
+            _jsCache = new ElementJsCache(null);
         }
 
         /// <summary>
@@ -114,12 +125,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="scripts">The scripts to execute.</param>
         public void Setup(IList<EnkluScript> scripts)
         {
-            if (_setupState != SetupState.None)
+            if (CurrentState != SetupState.None)
             {
                 throw new Exception("Already Setup!");
             }
 
-            _setupState = SetupState.Initializing;
+            CurrentState = SetupState.Initializing;
             
             // start all vines first
             var len = scripts.Count;
@@ -142,7 +153,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             Async.All(vineSetupTokens.ToArray()).OnFinally(_ =>
             {
                 // Check that scripts weren't unloaded while vines processed.
-                if (_setupState == SetupState.None)
+                if (CurrentState == SetupState.None)
                 {
                     return;
                 }
@@ -158,7 +169,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     }
                 }
 
-                _setupState = SetupState.Done;
+                CurrentState = SetupState.Done;
             });
         }
 
@@ -167,7 +178,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public void Update()
         {
-            if (_setupState != SetupState.Done)
+            if (CurrentState != SetupState.Done)
             {
                 return;
             }
@@ -183,12 +194,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public void Teardown()
         {
-            if (_setupState == SetupState.None)
+            if (CurrentState == SetupState.None)
             {
                 return;
             }
 
-            _setupState = SetupState.None;
+            CurrentState = SetupState.None;
 
             Log.Info(this, "\t-Destroying {0} scripts.", _scriptComponents.Count);
 
@@ -210,20 +221,6 @@ namespace CreateAR.EnkluPlayer.Scripting
                 UnityEngine.Object.Destroy(component);
             }
             _scriptComponents.Clear();
-
-            // clear caches
-            for (int i = 0, len = _caches.Count; i < len; i++)
-            {
-                _caches[i].Clear();
-            }
-            _caches.Clear();
-
-            // destroy engines
-            for (int i = 0, len = _hosts.Count; i < len; i++)
-            {
-                _hosts[i].Destroy();
-            }
-            _hosts.Clear();
         }
 
         /// <summary>
@@ -234,8 +231,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             Log.Info(this, "Run vine({0}) : {1}", script.Data, script.Source);
 
-            var component = GetVineComponent();
-            component.Initialize(_element, script);
+            var component = _scriptFactory.Vine(_root, _element, script);
+            _vineComponents.Add(component);
+            
             return component
                 .Configure()
                 .OnSuccess(_ => component.Enter());
@@ -254,38 +252,15 @@ namespace CreateAR.EnkluPlayer.Scripting
                 _resolver,
                 _scripts);
             host.SetValue("system", SystemJsApi.Instance);
-            host.SetValue("app", Main.NewAppJsApi(_jsCache));
+            host.SetValue("app", _appJsApi);
             host.SetValue("this", _jsCache.Element(_element));
-            _caches.Add(_jsCache);
 
-            var component = GetBehaviorComponent();
-            component.Initialize(_jsCache, _elementJsFactory, host, script, _element);
+            var component = _scriptFactory.Behavior(
+                _root, _jsCache, host, script, _element);
+            _scriptComponents.Add(component);
+            
             component.Configure();
             component.Enter();
-        }
-
-        /// <summary>
-        /// Retrieves a VineMonoBehaviour or creates one.
-        /// </summary>
-        /// <returns></returns>
-        private VineMonoBehaviour GetVineComponent()
-        {
-            var component = _root.AddComponent<VineMonoBehaviour>();
-            _vineComponents.Add(component);
-
-            return component;
-        }
-
-        /// <summary>
-        /// Retrieves a EnkluScriptElementBehavior or creates one.
-        /// </summary>
-        /// <returns></returns>
-        private EnkluScriptElementBehavior GetBehaviorComponent()
-        {
-            var component = _root.AddComponent<EnkluScriptElementBehavior>();
-            _scriptComponents.Add(component);
-
-            return component;
         }
     }
 }

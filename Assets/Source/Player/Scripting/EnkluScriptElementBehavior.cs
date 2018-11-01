@@ -8,10 +8,8 @@ using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
-    /// <summary>
-    /// This object is able to run a JS script on an Element similar to a MonoBehaviour.
-    /// </summary>
-    public class EnkluScriptElementBehavior : MonoBehaviour, EnkluScript.IScriptExecutor
+    /// <inheritdoc cref="BehaviorScript"/>
+    public class EnkluScriptElementBehavior : BehaviorScript, EnkluScript.IScriptExecutor
     {
         /// <summary>
         /// An engine to run the scripts with.
@@ -67,15 +65,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             get { return null == _element ? null : _element.Schema; }
         }
 
-        /// <summary>
-        /// Initializes the host.
-        /// </summary>
-        /// <param name="jsCache">Js cache.</param>
-        /// <param name="factory">Creates elements.</param>
-        /// <param name="engine">JS Engine.</param>
-        /// <param name="script">The script to execute.</param>
-        /// <param name="element">The element.</param>
-        public void Initialize(
+        /// <inheritdoc />
+        public override void Initialize(
             IElementJsCache jsCache,
             IElementJsFactory factory,
             Engine engine,
@@ -96,10 +87,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             Script.Executor = this;
         }
 
-        /// <summary>
-        /// Called after script is ready, before FSM flow.
-        /// </summary>
-        public void Configure()
+        /// <inheritdoc />
+        public override void Configure()
         {
             var thisBinding = JsValue.FromObject(
                 _engine,
@@ -126,10 +115,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             _exit = _engine.GetFunction("exit");
         }
         
-        /// <summary>
-        /// Enters the script.
-        /// </summary>
-        public void Enter()
+        /// <inheritdoc />
+        public override void Enter()
         {
             if (_isStarted)
             {
@@ -153,10 +140,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
-        /// <summary>
-        /// Called every frame.
-        /// </summary>
-        public void FrameUpdate()
+        /// <inheritdoc />
+        public override void FrameUpdate()
         {
             if (_isStarted && null != _update)
             {
@@ -171,10 +156,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
-        /// <summary>
-        /// Exits the script.
-        /// </summary>
-        public void Exit()
+        /// <inheritdoc />
+        public override void Exit()
         {
             if (!_isStarted)
             {

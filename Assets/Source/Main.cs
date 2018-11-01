@@ -49,21 +49,15 @@ namespace CreateAR.EnkluPlayer
 	        _binder.injector.Inject(@object);
 	    }
 
-        /// <summary>
-        /// TODO: REMOVE THIS EVIL. This is here because of a circular dependency. IElementFactory < == > IElementJsFactory.
-        /// </summary>
-        /// <param name="jsCache">The cache.</param>
-        /// <returns></returns>
-	    public static AppJsApi NewAppJsApi(IElementJsCache jsCache)
-	    {
-            return new AppJsApi(
-                new AppScenesJsApi(jsCache, _binder.GetInstance<IAppSceneManager>()),
-                new AppElementsJsApi(
-                    jsCache,
-                    _binder.GetInstance<IElementFactory>(),
-                    _binder.GetInstance<IElementManager>()),
-                _binder.GetInstance<PlayerJs>());
-	    }
+		/// <summary>
+		/// TODO: Will be removed with deterministic scripting changes.
+		/// </summary>
+		/// <returns></returns>
+		public static void GetScriptingDependencies(out IScriptFactory scriptFactory, out AppJsApi appJsApi)
+		{
+			scriptFactory = _binder.GetInstance<IScriptFactory>();
+			appJsApi = _binder.GetInstance<AppJsApi>();
+		}
 
         /// <summary>
         /// Analogous to the main() function.

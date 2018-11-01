@@ -6,12 +6,17 @@ namespace CreateAR.EnkluPlayer
     /// <summary>
     /// Implementation of <c>IScriptLoader</c> that returns a string.
     /// </summary>
-    public class LocalScriptLoader : IScriptLoader
+    public class TestScriptLoader : IScriptLoader
     {
         /// <summary>
         /// The program string.
         /// </summary>
         public string Program { get; set; }
+
+        public TestScriptLoader(string defaultProgram)
+        {
+            Program = defaultProgram;
+        }
 
         /// <inheritdoc cref="IScriptLoader"/>
         public IAsyncToken<string> Load(ScriptData script)

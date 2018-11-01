@@ -599,9 +599,23 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
             }
+            
+            // misc
+            {
+                binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
+            }
+            
+            // dependant on previous bindings
+            {
+                binder.Bind<IAdminAppDataManager>().To<AppDataManager>().ToSingleton();
+                
+                var appData = binder.GetInstance<IAdminAppDataManager>();
+                binder.Bind<IAppDataManager>().ToValue(appData);
+            }
 
             // scripting
             {
+                binder.Bind<IScriptFactory>().To<ScriptFactory>().ToSingleton();
                 binder.Bind<JavaScriptParser>().ToValue(new JavaScriptParser(false));
                 binder.Bind<IScriptParser>().To<DefaultScriptParser>().ToSingleton();
 
@@ -637,19 +651,19 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<SnapJsInterface>().To<SnapJsInterface>().ToSingleton();
                     binder.Bind<MetricsJsInterface>().To<MetricsJsInterface>().ToSingleton();
                 }
-            }
 
-            // misc
-            {
-                binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
-            }
-
-            // dependant on previous bindings
-            {
-                binder.Bind<IAdminAppDataManager>().To<AppDataManager>().ToSingleton();
-
-                var appData = binder.GetInstance<IAdminAppDataManager>();
-                binder.Bind<IAppDataManager>().ToValue(appData);
+                // scripting apis
+                {
+                    var jsCache = binder.GetInstance<IElementJsCache>();
+                    binder.Bind<AppJsApi>().ToValue(new AppJsApi(
+                        new AppScenesJsApi(jsCache, binder.GetInstance<IAppSceneManager>()),
+                        new AppElementsJsApi(
+                            jsCache,
+                            binder.GetInstance<IElementFactory>(),
+                            binder.GetInstance<IElementManager>()),
+                        binder.GetInstance<PlayerJs>()
+                    ));
+                }
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();
