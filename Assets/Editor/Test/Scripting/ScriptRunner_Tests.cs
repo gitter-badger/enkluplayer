@@ -53,8 +53,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Behavior()
         {
-            var widget = CreateWidget();
-            AddScriptToWidget(_behaviors[0], widget);
+            var widget = CreateWidget(_behaviors[0]);
             
             _scriptRunner.AddWidget(widget);
             
@@ -69,8 +68,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Vine()
         {
-            var widget = CreateWidget();
-            AddScriptToWidget(_vines[0], widget);
+            var widget = CreateWidget(_vines[0]);
             
             // Vines are async, check that it hasn't finished.
             Assert.AreEqual(ScriptRunner.SetupState.Parsing, _scriptRunner.GetSetupState(widget));
@@ -89,13 +87,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void Combined()
         {
             // Test both scripts together. Load them in a random-ish order
-            var widget = CreateWidget();
-            AddScriptToWidget(_behaviors[2], widget);
-            AddScriptToWidget(_vines[1], widget);
-            AddScriptToWidget(_behaviors[0], widget);
-            AddScriptToWidget(_behaviors[1], widget);
-            AddScriptToWidget(_vines[2], widget);
-            AddScriptToWidget(_vines[0], widget);
+            var widget = CreateWidget(
+                _behaviors[2], _vines[1], _behaviors[0], _behaviors[1], _vines[2], _vines[0]);
             
             Assert.AreEqual(ScriptRunner.SetupState.Parsing, _scriptRunner.GetSetupState(widget));
             
@@ -148,9 +141,15 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(ScriptRunner.SetupState.Done, _scriptRunner.GetSetupState(widget));
         }
 
-        private Widget CreateWidget()
+        private Widget CreateWidget(params EnkluScript[] scripts)
         {
-            return new Widget(new GameObject("ScriptRunner_Tests"), null, null, null);
+            var widget = new Widget(new GameObject("ScriptRunner_Tests"), null, null, null);
+            for (var i = 0; i < scripts.Length; i++)
+            {
+                AddScriptToWidget(scripts[i], widget);
+            }
+
+            return widget;
         }
 
         private void AddScriptToWidget(EnkluScript script, Widget widget)
