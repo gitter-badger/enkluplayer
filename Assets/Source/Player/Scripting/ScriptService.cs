@@ -8,6 +8,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         public ScriptService(
             MessageTypeBinder binder, 
             IMessageRouter messages,
+            IScriptFactory scriptFactory,
             IElementManager elementManager) : base(binder, messages)
         {
             

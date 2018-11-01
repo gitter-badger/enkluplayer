@@ -21,8 +21,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
+            _scriptFactory = new TestScriptFactory();
             _elementManager = new TestElementManager();
-            _scriptService = new ScriptService(null, null, _elementManager);
+            _scriptService = new ScriptService(null, null, _scriptFactory, _elementManager);
             
             var parser = new DefaultScriptParser(
                 null, new JsVinePreProcessor(), new JavaScriptParser());
