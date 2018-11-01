@@ -11,11 +11,11 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     /// </summary>
     public class TestScriptFactory : IScriptFactory
     {
-        private Dictionary<EnkluScript, TestVineMonoBehaviour> _vineCache = new Dictionary<EnkluScript, TestVineMonoBehaviour>();
-        private Dictionary<EnkluScript, TestBehaviorMonoBehaviour> _behaviorCache = new Dictionary<EnkluScript, TestBehaviorMonoBehaviour>();
+        private readonly Dictionary<EnkluScript, TestVineMonoBehaviour> _vineCache = new Dictionary<EnkluScript, TestVineMonoBehaviour>();
+        private readonly Dictionary<EnkluScript, TestBehaviorMonoBehaviour> _behaviorCache = new Dictionary<EnkluScript, TestBehaviorMonoBehaviour>();
         
         /// <inheritdoc />
-        public VineScript CreateVineComponent(GameObject root, Element element, EnkluScript script)
+        public VineScript Vine(GameObject root, Element element, EnkluScript script)
         {
             var component = root.AddComponent<TestVineMonoBehaviour>();
             _vineCache.Add(script, component);
@@ -24,7 +24,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         }
 
         /// <inheritdoc />
-        public BehaviorScript CreateBehaviorComponent(
+        public BehaviorScript Behavior(
             GameObject root, 
             IElementJsCache jsCache,  
             UnityScriptingHost host,

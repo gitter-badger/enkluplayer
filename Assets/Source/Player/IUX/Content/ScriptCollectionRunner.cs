@@ -231,7 +231,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             Log.Info(this, "Run vine({0}) : {1}", script.Data, script.Source);
 
-            var component = _scriptFactory.CreateVineComponent(_root, _element, script);
+            var component = _scriptFactory.Vine(_root, _element, script);
             _vineComponents.Add(component);
             
             return component
@@ -255,7 +255,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             host.SetValue("app", _appJsApi);
             host.SetValue("this", _jsCache.Element(_element));
 
-            var component = _scriptFactory.CreateBehaviorComponent(
+            var component = _scriptFactory.Behavior(
                 _root, _jsCache, host, script, _element);
             _scriptComponents.Add(component);
             

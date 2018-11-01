@@ -12,32 +12,39 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Vine importer.
         /// </summary>
-        [Inject]
-        public VineImporter VineImporter { get; set; }
-        
+        private readonly VineImporter _vineImporter;
+
         /// <summary>
         /// Creates elements.
         /// </summary>
-        [Inject]
-        public IElementFactory ElementFactory { get; set; }
-        
+        private readonly IElementFactory _elementFactory;
+
         /// <summary>
         /// Creates ElementJs instances
         /// </summary>
-        [Inject]
-        public IElementJsFactory ElementJsFactory { get; set; }
+        private readonly IElementJsFactory _elementJsFactory;
+
+        public ScriptFactory(
+            IElementFactory elementFactory, 
+            IElementJsFactory elementJsFactory, 
+            VineImporter vineImporter)
+        {
+            _elementFactory = elementFactory;
+            _elementJsFactory = elementJsFactory;
+            _vineImporter = vineImporter;
+        }
         
         /// <inheritdoc />
-        public VineScript CreateVineComponent(GameObject root, Element element, EnkluScript script)
+        public VineScript Vine(GameObject root, Element element, EnkluScript script)
         {
             var component = root.AddComponent<VineMonoBehaviour>();
-            component.Initialize(element, script, VineImporter, ElementFactory);
+            component.Initialize(element, script, _vineImporter, _elementFactory);
             
             return component;
         }
 
         /// <inheritdoc />
-        public BehaviorScript CreateBehaviorComponent(
+        public BehaviorScript Behavior(
             GameObject root, 
             IElementJsCache jsCache,  
             UnityScriptingHost host, 
@@ -45,7 +52,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             Element element)
         {
             var component = root.AddComponent<EnkluScriptElementBehavior>();
-            component.Initialize(jsCache, ElementJsFactory, host, script, element);
+            component.Initialize(jsCache, _elementJsFactory, host, script, element);
 
             return component;
         }
