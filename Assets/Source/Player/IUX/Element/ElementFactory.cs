@@ -39,8 +39,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IMetricsService _metrics;
         private readonly IMessageRouter _messages;
         private readonly IElementJsCache _jsCache;
-        private readonly IScriptFactory _scriptFactory;
-        private readonly AppJsApi _appJsApi;
         private readonly ColorConfig _colors;
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
@@ -82,9 +80,6 @@ namespace CreateAR.EnkluPlayer.IUX
             IMetricsService metrics,
             IMessageRouter messages,
             IElementJsCache jsCache,
-            IScriptFactory scriptFactory,
-            AppJsApi appJsApi,
-            IElementJsFactory elementJsFactory,
             ColorConfig colors,
             TweenConfig tweens,
             WidgetConfig config,
@@ -114,8 +109,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _metrics = metrics;
             _messages = messages;
             _jsCache = jsCache;
-            _scriptFactory = scriptFactory;
-            _appJsApi = appJsApi;
             _appConfig = appConfig;
             
             // TODO: Load this all from data
@@ -417,9 +410,7 @@ namespace CreateAR.EnkluPlayer.IUX
                         new AssetAssembler(_assets, _pools, _appConfig.Play),
                         _resolver,
                         _scripts,
-                        _jsCache,
-                        _scriptFactory,
-                        _appJsApi);
+                        _jsCache);
                 }
                 case ElementTypes.TRANSITION:
                 {

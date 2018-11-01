@@ -49,6 +49,16 @@ namespace CreateAR.EnkluPlayer
 	        _binder.injector.Inject(@object);
 	    }
 
+		/// <summary>
+		/// TODO: Will be removed with deterministic scripting changes.
+		/// </summary>
+		/// <returns></returns>
+		public static void GetScriptingDependencies(out IScriptFactory scriptFactory, out AppJsApi appJsApi)
+		{
+			scriptFactory = _binder.GetInstance<IScriptFactory>();
+			appJsApi = _binder.GetInstance<AppJsApi>();
+		}
+
         /// <summary>
         /// Analogous to the main() function.
         /// </summary>

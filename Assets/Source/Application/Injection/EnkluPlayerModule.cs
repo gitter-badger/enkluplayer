@@ -599,6 +599,19 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
             }
+            
+            // misc
+            {
+                binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
+            }
+            
+            // dependant on previous bindings
+            {
+                binder.Bind<IAdminAppDataManager>().To<AppDataManager>().ToSingleton();
+                
+                var appData = binder.GetInstance<IAdminAppDataManager>();
+                binder.Bind<IAppDataManager>().ToValue(appData);
+            }
 
             // scripting
             {
@@ -651,19 +664,6 @@ namespace CreateAR.EnkluPlayer
                         binder.GetInstance<PlayerJs>()
                     ));
                 }
-            }
-
-            // misc
-            {
-                binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
-            }
-
-            // dependant on previous bindings
-            {
-                binder.Bind<IAdminAppDataManager>().To<AppDataManager>().ToSingleton();
-
-                var appData = binder.GetInstance<IAdminAppDataManager>();
-                binder.Bind<IAppDataManager>().ToValue(appData);
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();

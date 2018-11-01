@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
@@ -109,9 +109,7 @@ namespace CreateAR.EnkluPlayer
             IAssetAssembler assembler,
             IScriptRequireResolver resolver,
             IScriptManager scripts,
-            IElementJsCache cache,
-            IScriptFactory scriptFactory,
-            AppJsApi appJsApi)
+            IElementJsCache cache)
             : base(
                 gameObject,
                 layers,
@@ -122,8 +120,8 @@ namespace CreateAR.EnkluPlayer
             _scripts = scripts;
             _assembler = assembler;
             _jsCache = cache;
-            _scriptFactory = scriptFactory;
-            _appJsApi = appJsApi;
+            
+            Main.GetScriptingDependencies(out _scriptFactory, out _appJsApi);
         }
 
         /// <summary>
