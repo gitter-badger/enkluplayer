@@ -13,17 +13,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Creates & Initializes a VineScript on a given GameObject.
         /// </summary>
         /// <returns></returns>
-        VineScript Vine(GameObject root, Element element, EnkluScript script);
+        VineScript Vine(Widget widget, EnkluScript script);
 
         /// <summary>
         /// Creates & Initializes a BehaviorScript or creates one.
         /// </summary>
         /// <returns></returns>
         BehaviorScript Behavior(
-            GameObject root, 
+            Widget widget,
             IElementJsCache jsCache,  
             UnityScriptingHost host,
-            EnkluScript script, 
-            Element element);
+            EnkluScript script);
     }
 }

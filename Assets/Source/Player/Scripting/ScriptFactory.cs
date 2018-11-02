@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Vine;
@@ -35,24 +36,33 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
         
         /// <inheritdoc />
-        public VineScript Vine(GameObject root, Element element, EnkluScript script)
+        public VineScript Vine(Widget widget, EnkluScript script)
         {
-            var component = root.AddComponent<VineMonoBehaviour>();
-            component.Initialize(element, script, _vineImporter, _elementFactory);
+            if (widget == null)
+            {
+                throw new Exception("Vine attached to non-widget?!");
+            }
+            
+            var component = widget.GameObject.AddComponent<VineMonoBehaviour>();
+            component.Initialize(widget, script, _vineImporter, _elementFactory);
             
             return component;
         }
 
         /// <inheritdoc />
         public BehaviorScript Behavior(
-            GameObject root, 
+            Widget widget,
             IElementJsCache jsCache,  
             UnityScriptingHost host, 
-            EnkluScript script, 
-            Element element)
+            EnkluScript script)
         {
-            var component = root.AddComponent<EnkluScriptElementBehavior>();
-            component.Initialize(jsCache, _elementJsFactory, host, script, element);
+            if (widget == null)
+            {
+                throw new Exception("Vine attached to non-widget?!");
+            }
+            
+            var component = widget.GameObject.AddComponent<EnkluScriptElementBehavior>();
+            component.Initialize(jsCache, _elementJsFactory, host, script, widget);
 
             return component;
         }

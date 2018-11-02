@@ -15,9 +15,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         private readonly Dictionary<EnkluScript, TestBehaviorMonoBehaviour> _behaviorCache = new Dictionary<EnkluScript, TestBehaviorMonoBehaviour>();
         
         /// <inheritdoc />
-        public VineScript Vine(GameObject root, Element element, EnkluScript script)
+        public VineScript Vine(Widget widget, EnkluScript script)
         {
-            var component = root.AddComponent<TestVineMonoBehaviour>();
+            var component = widget.GameObject.AddComponent<TestVineMonoBehaviour>();
             _vineCache.Add(script, component);
 
             return component;
@@ -25,13 +25,12 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         /// <inheritdoc />
         public BehaviorScript Behavior(
-            GameObject root, 
+            Widget widget,
             IElementJsCache jsCache,  
             UnityScriptingHost host,
-            EnkluScript script, 
-            Element element)
+            EnkluScript script)
         {
-            var component = root.AddComponent<TestBehaviorMonoBehaviour>();
+            var component = widget.GameObject.AddComponent<TestBehaviorMonoBehaviour>();
             _behaviorCache.Add(script, component);
 
             return component;

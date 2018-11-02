@@ -111,12 +111,14 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Constructor used for tests.
         /// </summary>
         public ScriptCollectionRunner(
-            GameObject root, 
-            IScriptFactory scriptFactory)
+            Widget widget, 
+            IScriptFactory scriptFactory,
+            IElementJsCache elementJsCache)
         {
-            _root = root;
+            _root = widget.GameObject;
             _scriptFactory = scriptFactory;
-            _jsCache = new ElementJsCache(null);
+            _jsCache = elementJsCache;
+            _element = widget;
         }
 
         /// <summary>
@@ -231,7 +233,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             Log.Info(this, "Run vine({0}) : {1}", script.Data, script.Source);
 
-            var component = _scriptFactory.Vine(_root, _element, script);
+            var component = _scriptFactory.Vine(_element as Widget, script);
             _vineComponents.Add(component);
             
             return component
@@ -256,7 +258,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             host.SetValue("this", _jsCache.Element(_element));
 
             var component = _scriptFactory.Behavior(
-                _root, _jsCache, host, script, _element);
+                _element as Widget, _jsCache, host, script);
             _scriptComponents.Add(component);
             
             component.Configure();
