@@ -24,6 +24,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
+            TestBehaviorMonoBehaviour.ResetInvokeIds();
+            
             _scriptManager = new TestScriptManager();
             _scriptFactory = new TestScriptFactory();
             _scriptRunner = new ScriptRunner(
