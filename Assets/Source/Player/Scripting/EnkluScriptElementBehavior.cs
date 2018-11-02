@@ -1,10 +1,12 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
 using UnityEngine;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -88,8 +90,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        public override void Configure()
+        public override IAsyncToken<Void> Configure()
         {
+            var token = new AsyncToken<Void>();
+            
             var thisBinding = JsValue.FromObject(
                 _engine,
                 _factory.Instance(_jsCache, _element));
@@ -103,8 +107,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             catch (Exception exception)
             {
                 Debug.LogWarning("Could not execute script: " + exception);
-
-                return;
+                token.Fail(exception);
+                return token;
             }
 
             _this = thisBinding;
@@ -113,6 +117,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             _enter = _engine.GetFunction("enter");
             _update = _engine.GetFunction("update");
             _exit = _engine.GetFunction("exit");
+
+            token.Succeed(Void.Instance);
+            return token;
         }
         
         /// <inheritdoc />
