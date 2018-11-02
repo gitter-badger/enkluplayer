@@ -1,3 +1,4 @@
+using CreateAR.Commons.Unity.Async;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using Jint;
@@ -20,9 +21,11 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
         }
 
-        public override void Configure()
+        public override IAsyncToken<Void> Configure()
         {
-            
+            var token = new AsyncToken<Void>();
+            token.Succeed(Void.Instance);
+            return token;
         }
 
         public override void Enter()

@@ -4,6 +4,7 @@ using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Vine;
 using Jint.Parser;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using UnityEngine;
@@ -14,7 +15,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     public class ScriptRunner_Tests
     {
         private ScriptRunner _scriptRunner;
-        
+
+        private TestScriptManager _scriptManager;
         private TestScriptFactory _scriptFactory;
         private EnkluScript[] _behaviors = new EnkluScript[3];
         private EnkluScript[] _vines = new EnkluScript[3];
@@ -22,7 +24,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
-            _scriptRunner = new ScriptRunner(new TestScriptManager());
+            _scriptManager = new TestScriptManager();
+            _scriptFactory = new TestScriptFactory();
+            _scriptRunner = new ScriptRunner(
+                _scriptManager, _scriptFactory, null, new ElementJsCache(null));
             
             var parser = new DefaultScriptParser(
                 null, new JsVinePreProcessor(), new JavaScriptParser());
@@ -56,9 +61,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = CreateWidget(_behaviors[0]);
             
             _scriptRunner.AddWidget(widget);
+            _scriptRunner.Parse();
             
             // Behaviors load synchronously. Check that the script has loaded & invoked.
-            _scriptRunner.ParseSync();
             Assert.AreEqual(ScriptRunner.SetupState.Done, _scriptRunner.GetSetupState(widget));
             
             var component = _scriptFactory.GetBehavior(_behaviors[0]);
@@ -69,6 +74,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void Vine()
         {
             var widget = CreateWidget(_vines[0]);
+            
+            _scriptRunner.AddWidget(widget);
+            _scriptRunner.Parse();
             
             // Vines are async, check that it hasn't finished.
             Assert.AreEqual(ScriptRunner.SetupState.Parsing, _scriptRunner.GetSetupState(widget));
@@ -90,6 +98,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = CreateWidget(
                 _behaviors[2], _vines[1], _behaviors[0], _behaviors[1], _vines[2], _vines[0]);
             
+            _scriptRunner.AddWidget(widget);
+            _scriptRunner.Parse();
+            
             Assert.AreEqual(ScriptRunner.SetupState.Parsing, _scriptRunner.GetSetupState(widget));
             
             var vineComponents = new TestVineMonoBehaviour[_vines.Length];
@@ -101,37 +112,36 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 Assert.AreEqual(0, vineComponents[i].EnterInvoked);
             }
             
-            // Helper to check Vine enter invocation counts
-            Action<int[], bool> checkVineInvokes = (vineInvokes, behaviorsNull) =>
-            {
-                Assert.AreEqual(vineInvokes[0], vineComponents[0].EnterInvoked);
-                Assert.AreEqual(vineInvokes[1], vineComponents[1].EnterInvoked);
-                Assert.AreEqual(vineInvokes[2], vineComponents[2].EnterInvoked);
-                Assert.AreEqual(behaviorsNull, _scriptFactory.GetBehavior(_behaviors[0]) == null);
-                Assert.AreEqual(behaviorsNull, _scriptFactory.GetBehavior(_behaviors[1]) == null);
-                Assert.AreEqual(behaviorsNull, _scriptFactory.GetBehavior(_behaviors[2]) == null);
-            };
-            
-            // Start resolving Vines. Currently, they run in the order they finish parsing
-            vineComponents[1].FinishConfigure();
-            checkVineInvokes(new[] {0, 1, 0}, true);
-            
-            vineComponents[2].FinishConfigure();
-            checkVineInvokes(new[] {0, 1, 1}, true);
-            
-            // The final vine resolve will trigger behaviors
-            vineComponents[0].FinishConfigure();
-            checkVineInvokes(new[] {1, 1, 1}, false);
-            
-            // Check Behavior order
             var behaviorComponents = new TestBehaviorMonoBehaviour[_behaviors.Length];
             for (var i = 0; i < behaviorComponents.Length; i++)
             {
                 behaviorComponents[i] = _scriptFactory.GetBehavior(_behaviors[i]);
                 
-                // Behaviors should exist and be invoked now
-                Assert.AreEqual(1, behaviorComponents[i].EnterInvoked);
+                // Behaviors should exist
+                Assert.AreEqual(0, behaviorComponents[i].EnterInvoked);
             }
+            
+            // Helper to check Vine enter invocation counts
+            Action<int[], int> checkVineInvokes = (vineInvokes, behaviorInvokes) =>
+            {
+                Assert.AreEqual(vineInvokes[0], vineComponents[0].EnterInvoked);
+                Assert.AreEqual(vineInvokes[1], vineComponents[1].EnterInvoked);
+                Assert.AreEqual(vineInvokes[2], vineComponents[2].EnterInvoked);
+                Assert.AreEqual(behaviorInvokes, behaviorComponents[0].EnterInvoked);
+                Assert.AreEqual(behaviorInvokes, behaviorComponents[1].EnterInvoked);
+                Assert.AreEqual(behaviorInvokes, behaviorComponents[2].EnterInvoked);
+            };
+            
+            // Start resolving Vines. Currently, they run in the order they finish parsing
+            vineComponents[1].FinishConfigure();
+            checkVineInvokes(new[] {0, 1, 0}, 0);
+            
+            vineComponents[2].FinishConfigure();
+            checkVineInvokes(new[] {0, 1, 1}, 0);
+            
+            // The final vine resolve will trigger behaviors
+            vineComponents[0].FinishConfigure();
+            checkVineInvokes(new[] {1, 1, 1}, 1);
             
             // Check behavior invoke order, should match script list order
             Assert.AreEqual(0, behaviorComponents[2].LastInvokeId);
@@ -159,10 +169,15 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             if (!existingScripts.Contains(script.Data.Id))
             {
-                existingScripts.Add(script.Data.Id);
+                existingScripts.Add(JToken.FromObject(new Dictionary<string, string>
+                {
+                    { "id", script.Data.Id }
+                }));
+                
+                _scriptManager.AddEntry(script.Data.Id, script);
             }
             
-            widget.Schema.Set("scripts", existingScripts);
+            widget.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));
         }
     }
 }

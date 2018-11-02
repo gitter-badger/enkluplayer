@@ -4,6 +4,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     public class TestScriptManager : IScriptManager
     {
+        private readonly Dictionary<string, EnkluScript> _scriptLookup = new Dictionary<string, EnkluScript>();
+        
         public EnkluScript FindOne(string id)
         {
             throw new System.NotImplementedException();
@@ -26,7 +28,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         public EnkluScript Create(string scriptId, params string[] tags)
         {
-            throw new System.NotImplementedException();
+            EnkluScript rtn;
+            _scriptLookup.TryGetValue(scriptId, out rtn);
+            return rtn;
         }
 
         public void Send(string query, string name, params object[] parameters)
@@ -42,6 +46,11 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void ReleaseAll(params string[] tags)
         {
             throw new System.NotImplementedException();
+        }
+
+        public void AddEntry(string scriptId, EnkluScript script)
+        {
+            _scriptLookup.Add(scriptId, script);
         }
     }
 }

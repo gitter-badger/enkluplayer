@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Vine;
 using Jint.Parser;
@@ -24,8 +25,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             _scriptFactory = new TestScriptFactory();
             _scriptRunner = new ScriptCollectionRunner(
-                new GameObject("ScriptCollectionRunner_Tests"),
-                _scriptFactory);
+                new Widget(new GameObject("ScriptCollectionRunner_Tests"), null, null, null),
+                _scriptFactory,
+                new DummyElementJsCache());
             
             var parser = new DefaultScriptParser(
                 null, new JsVinePreProcessor(), new JavaScriptParser());
@@ -45,7 +47,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             {
                 var vineData = new ScriptData
                 {
-                    Id = "script-vine" + i,
+                    Id = "script-vine-" + i,
                     TagString = "vine"
                 };
                 _vines[i] = new EnkluScript(
