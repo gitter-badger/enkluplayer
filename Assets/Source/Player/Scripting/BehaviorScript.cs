@@ -1,13 +1,12 @@
 using CreateAR.EnkluPlayer.IUX;
 using Jint;
-using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// This object is able to run a JS script on an Element similar to a MonoBehaviour.
     /// </summary>
-    public abstract class BehaviorScript : MonoBehaviour
+    public abstract class BehaviorScript : Script
     {
         /// <summary>
         /// Initializes the host.
@@ -23,25 +22,5 @@ namespace CreateAR.EnkluPlayer.Scripting
             Engine engine,
             EnkluScript script,
             Element element);
-
-        /// <summary>
-        /// Called after script is ready, before FSM flow.
-        /// </summary>
-        public abstract void Configure();
-
-        /// <summary>
-        /// Enters the script.
-        /// </summary>
-        public abstract void Enter();
-
-        /// <summary>
-        /// Called every frame.
-        /// </summary>
-        public abstract void FrameUpdate();
-
-        /// <summary>
-        /// Exits the script.
-        /// </summary>
-        public abstract void Exit();
     }
 }
