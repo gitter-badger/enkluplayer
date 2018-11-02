@@ -7,7 +7,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 {
     public class TestElementManager : IElementManager
     {
-        private List<Element> _elements;
+        private List<Element> _elements = new List<Element>();
         public ReadOnlyCollection<Element> All
         {
             get { return _elements.AsReadOnly(); }

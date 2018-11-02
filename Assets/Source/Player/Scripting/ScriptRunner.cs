@@ -38,6 +38,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly List<IAsyncToken<Void>> _vineTokens = new List<IAsyncToken<Void>>();
         private readonly AsyncToken<Void> _vinesComplete = new AsyncToken<Void>();
 
+        private SetupState _globalState = SetupState.None;
+
         public ScriptRunner(
             IScriptManager scriptManager, 
             IScriptFactory scriptFactory,
@@ -61,16 +63,22 @@ namespace CreateAR.EnkluPlayer.Scripting
             _vines.Add(widget, new List<VineScript>());
             _behaviors.Add(widget, new List<BehaviorScript>());
             _engines.Add(widget, CreateBehaviorHost(widget));
-            _setupStates.Add(widget, SetupState.Parsing);
+            _setupStates.Add(widget, SetupState.None);
 
             try
             {
-                CreateScripts(widget).OnSuccess((_) => _setupStates[widget] = SetupState.Done);
+                // TODO: Handle the async here
+                CreateScripts(widget);
             }
             catch (Exception e)
             {
-                Log.Error("Error running scripts for {0}", widget);
+                Log.Error("Error running scripts for {0} : {1}", widget, e);
                 _setupStates[widget] = SetupState.Error;
+            }
+
+            if (_globalState == SetupState.Done || _globalState == SetupState.Error)
+            {
+                ParseWidget(widget);
             }
         }
 
@@ -84,50 +92,18 @@ namespace CreateAR.EnkluPlayer.Scripting
             return _setupStates[widget];
         }
 
-        public void Parse()
+        public void ParseAll()
         {
-            foreach (var kvp in _scriptLookup)
+            _globalState = SetupState.Parsing;
+            
+            foreach (var key in _scriptLookup.Keys)
             {
-                var widget = kvp.Key;
-                var scripts = kvp.Value;
-                
-                for (int i = 0, len = scripts.Count; i < len; i++)
-                {
-                    switch (scripts[i].Data.Type)
-                    {
-                        case ScriptType.Vine:
-                        {
-                            var vineComponent = _scriptFactory.Vine(widget, scripts[i]);
-                        
-                            _vines[widget].Add(vineComponent);
-                            _vineTokens.Add(vineComponent.Configure().OnSuccess((_) =>
-                            {
-                                // TODO: Defer this until ScriptService calls
-                                StartScript(vineComponent);
-                            }));
-                            break;
-                        }
-                        case ScriptType.Behavior:
-                        {
-                            var behaviorComponent = _scriptFactory.Behavior(
-                                widget, _jsCache, _engines[widget], scripts[i]);
-                            
-                            _behaviors[widget].Add(behaviorComponent);
-                            _vinesComplete.OnFinally((_) =>
-                            {
-                                behaviorComponent.Configure();
-                                
-                                // TODO: Defer this until ScriptService calls
-                                StartScript(behaviorComponent);
-                            });
-                            break;
-                        }
-                    }
-                }
+                ParseWidget(key);
             }
 
             Async.All(_vineTokens.ToArray()).OnSuccess((_) =>
             {
+                // Currently, this triggers behavior parsing/entering
                 _vinesComplete.Succeed(Void.Instance);
 
                 var keys = _setupStates.Keys.ToList();
@@ -136,7 +112,55 @@ namespace CreateAR.EnkluPlayer.Scripting
                     // TODO: Don't blindly assume success
                     _setupStates[keys[i]] = SetupState.Done;
                 }
+
+                _globalState = SetupState.Done;
             });
+        }
+
+        private void ParseWidget(Widget widget)
+        {
+            if (_setupStates[widget] != SetupState.None)
+            {
+                return;
+            }
+            _setupStates[widget] = SetupState.Parsing;
+            
+            var scripts = _scriptLookup[widget];
+                
+            for (int i = 0, len = scripts.Count; i < len; i++)
+            {
+                
+                switch (scripts[i].Data.Type)
+                {
+                    case ScriptType.Vine:
+                    {
+                        var vineComponent = _scriptFactory.Vine(widget, scripts[i]);
+                        
+                        _vines[widget].Add(vineComponent);
+                        _vineTokens.Add(vineComponent.Configure().OnSuccess((_) =>
+                        {
+                            // TODO: Defer this until ScriptService calls
+                            StartScript(vineComponent);
+                        }));
+                        break;
+                    }
+                    case ScriptType.Behavior:
+                    {
+                        var behaviorComponent = _scriptFactory.Behavior(
+                            widget, _jsCache, _engines[widget], scripts[i]);
+                            
+                        _behaviors[widget].Add(behaviorComponent);
+                        _vinesComplete.OnFinally((_) =>
+                        {
+                            behaviorComponent.Configure();
+                                
+                            // TODO: Defer this until ScriptService calls
+                            StartScript(behaviorComponent);
+                        });
+                        break;
+                    }
+                }
+            }
         }
 
         public void StartScripts()

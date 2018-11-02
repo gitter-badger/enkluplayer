@@ -63,7 +63,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = CreateWidget(_behaviors[0]);
             
             _scriptRunner.AddWidget(widget);
-            _scriptRunner.Parse();
+            _scriptRunner.ParseAll();
             
             // Behaviors load synchronously. Check that the script has loaded & invoked.
             Assert.AreEqual(ScriptRunner.SetupState.Done, _scriptRunner.GetSetupState(widget));
@@ -78,7 +78,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = CreateWidget(_vines[0]);
             
             _scriptRunner.AddWidget(widget);
-            _scriptRunner.Parse();
+            _scriptRunner.ParseAll();
             
             // Vines are async, check that it hasn't finished.
             Assert.AreEqual(ScriptRunner.SetupState.Parsing, _scriptRunner.GetSetupState(widget));
@@ -101,7 +101,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 _behaviors[2], _vines[1], _behaviors[0], _behaviors[1], _vines[2], _vines[0]);
             
             _scriptRunner.AddWidget(widget);
-            _scriptRunner.Parse();
+            _scriptRunner.ParseAll();
             
             Assert.AreEqual(ScriptRunner.SetupState.Parsing, _scriptRunner.GetSetupState(widget));
             

@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Vine;
 using Jint.Parser;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using UnityEngine;
@@ -11,6 +13,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     [TestFixture]
     public class ScriptService_Tests
     {
+        private TestScriptManager _scriptManager;
         private ScriptService _scriptService;
         private IElementManager _elementManager;
         
@@ -21,9 +24,17 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [SetUp]
         public void Setup()
         {
+            _scriptManager = new TestScriptManager();
             _scriptFactory = new TestScriptFactory();
             _elementManager = new TestElementManager();
-            _scriptService = new ScriptService(null, null, _scriptFactory, _elementManager);
+            _scriptService = new ScriptService(
+                null, 
+                null, 
+                _scriptManager, 
+                _scriptFactory, 
+                _elementManager, 
+                new ElementJsCache(null),
+                null);
             
             var parser = new DefaultScriptParser(
                 null, new JsVinePreProcessor(), new JavaScriptParser());
@@ -66,7 +77,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var behaviorComponent = _scriptFactory.GetBehavior(_behaviors[0]);
             
             Assert.AreEqual(0, vineComponent.EnterInvoked);
-            Assert.IsNull(behaviorComponent);
+            Assert.AreEqual(0, behaviorComponent.EnterInvoked);
             
             vineComponent.FinishConfigure();
             
@@ -92,10 +103,15 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             if (!existingScripts.Contains(script.Data.Id))
             {
-                existingScripts.Add(script.Data.Id);
+                existingScripts.Add(JToken.FromObject(new Dictionary<string, string>
+                {
+                    { "id", script.Data.Id }
+                }));
+                
+                _scriptManager.AddEntry(script.Data.Id, script);
             }
             
-            widget.Schema.Set("scripts", existingScripts);
+            widget.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));
         }
     }
 }
