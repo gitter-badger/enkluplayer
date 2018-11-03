@@ -35,5 +35,10 @@ namespace CreateAR.EnkluPlayer
         /// <param name="sceneId">The id of a scene.</param>
         /// <returns></returns>
         Element Root(string sceneId);
+        
+        /// <summary>
+        /// Resolves when all scenes' elements have been initialized.
+        /// </summary>
+        IAsyncToken<Void> OnInitialized { get; }
     }
 }

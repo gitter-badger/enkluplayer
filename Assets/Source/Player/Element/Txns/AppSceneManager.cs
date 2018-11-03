@@ -20,6 +20,11 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private readonly Dictionary<string, Element> _scenes = new Dictionary<string, Element>();
 
+        /// <summary>
+        /// Backing value for <c>OnInitialized</c>
+        /// </summary>
+        private readonly AsyncToken<Void> _onInitializedBacking = new AsyncToken<Void>();
+
         /// <inheritdoc />
         public string[] All
         {
@@ -27,6 +32,12 @@ namespace CreateAR.EnkluPlayer
             {
                 return _scenes.Keys.ToArray();
             }
+        }
+        
+        /// <inheritdoc />
+        public IAsyncToken<Void> OnInitialized
+        {
+            get { return _onInitializedBacking; }
         }
 
         /// <summary>
@@ -47,7 +58,8 @@ namespace CreateAR.EnkluPlayer
                 _scenes[sceneId] = _elements.Element(description);
             }
 
-            return new AsyncToken<Void>(Void.Instance);
+            _onInitializedBacking.Succeed(Void.Instance);
+            return OnInitialized;
         }
 
         /// <inheritdoc />
