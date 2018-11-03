@@ -168,6 +168,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<ApplicationStateService>().To<ApplicationStateService>().ToSingleton();
                     binder.Bind<EnvironmentUpdateService>().To<EnvironmentUpdateService>().ToSingleton();
                     binder.Bind<AssetUpdateService>().To<AssetUpdateService>().ToSingleton();
+                    binder.Bind<ScriptService>().To<ScriptService>().ToSingleton();
                     binder.Bind<ScriptUpdateService>().To<ScriptUpdateService>().ToSingleton();
                     binder.Bind<ShaderUpdateService>().To<ShaderUpdateService>().ToSingleton();
                     binder.Bind<SceneUpdateService>().To<SceneUpdateService>().ToSingleton();
@@ -349,6 +350,7 @@ namespace CreateAR.EnkluPlayer
                         binder.GetInstance<EnvironmentUpdateService>(),
                         binder.GetInstance<VersioningService>(),
                         binder.GetInstance<AssetUpdateService>(),
+                        binder.GetInstance<ScriptService>(),
                         binder.GetInstance<ScriptUpdateService>(),
                         binder.GetInstance<ShaderUpdateService>(),
                         binder.GetInstance<SceneUpdateService>(),

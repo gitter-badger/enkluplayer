@@ -31,10 +31,11 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 null, 
                 null, 
                 _scriptManager, 
-                _scriptFactory, 
+                _scriptFactory,
+                null,
+                null,
                 _elementManager, 
-                new ElementJsCache(null),
-                null);
+                new ElementJsCache(null));
             
             var parser = new DefaultScriptParser(
                 null, new JsVinePreProcessor(), new JavaScriptParser());

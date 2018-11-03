@@ -142,6 +142,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public void RefreshScripts()
         {
+            return;
+            
             _pollRefreshScript = false;
 
             if (!ShouldLoadScripts())
@@ -221,8 +223,8 @@ namespace CreateAR.EnkluPlayer
             _srcAssetProp = Schema.GetOwn("assetSrc", "");
             _srcAssetProp.OnChanged += AssetSrc_OnChanged;
 
-            _scriptsProp = Schema.GetOwn("scripts", "[]");
-            _scriptsProp.OnChanged += Scripts_OnChanged;
+//            _scriptsProp = Schema.GetOwn("scripts", "[]");
+//            _scriptsProp.OnChanged += Scripts_OnChanged;
             
             UpdateAsset();
         }

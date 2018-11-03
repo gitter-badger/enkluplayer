@@ -5,6 +5,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 {
     public class ScriptService : ApplicationService
     {
+        private readonly IAppSceneManager _sceneManager;
         private readonly IElementManager _elementManager;
 
         private readonly ScriptRunner _scriptRunner;
@@ -14,10 +15,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             IMessageRouter messages,
             IScriptManager scriptManager,
             IScriptFactory scriptFactory,
+            IScriptRequireResolver requireResolver,
+            IAppSceneManager sceneManager,
             IElementManager elementManager,
-            IElementJsCache elementJsCache,
-            EnkluScriptRequireResolver requireResolver) : base(binder, messages)
+            IElementJsCache elementJsCache) : base(binder, messages)
         {
+            _sceneManager = sceneManager;
             _elementManager = elementManager;
             
             _scriptRunner = new ScriptRunner(
@@ -28,14 +31,24 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             base.Start();
 
-            _elementManager.OnCreated += OnElementCreated;
-
-            for (int i = 0, len = _elementManager.All.Count; i < len; i++)
+            _sceneManager.OnInitialized.OnSuccess((_) =>
             {
-                OnElementCreated(_elementManager.All[i]);
-            }
-            
-            _scriptRunner.ParseAll();
+                for (int i = 0, len = _elementManager.All.Count; i < len; i++)
+                {
+                    OnElementCreated(_elementManager.All[i]);
+                }
+                
+                _scriptRunner.ParseAll();
+                
+                _elementManager.OnCreated += OnElementCreated;
+            });
+        }
+
+        public override void Update(float dt)
+        {
+            base.Update(dt);
+
+            _scriptRunner.Update();
         }
 
         public override void Stop()

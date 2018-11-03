@@ -26,15 +26,18 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly IScriptRequireResolver _requireResolver;
         private readonly IElementJsCache _jsCache;
 
+        // TODO: Replace with Scene root elements and iterate downwards
+        private readonly List<Widget> _widgets = new List<Widget>();
+        
         private readonly Dictionary<Widget, List<EnkluScript>> _scriptLookup = new Dictionary<Widget, List<EnkluScript>>();
         private readonly Dictionary<Widget, SetupState> _setupStates = new Dictionary<Widget, SetupState>();
 
         private readonly Dictionary<Widget, List<VineScript>> _vines = new Dictionary<Widget, List<VineScript>>();
-
         private readonly Dictionary<Widget, List<BehaviorScript>> _behaviors = new Dictionary<Widget, List<BehaviorScript>>();
 
         private readonly Dictionary<Widget, UnityScriptingHost> _engines = new Dictionary<Widget, UnityScriptingHost>();
         
+        private readonly List<IAsyncToken<Void[]>> _scriptLoading = new List<IAsyncToken<Void[]>>();
         private readonly List<IAsyncToken<Void>> _vineTokens = new List<IAsyncToken<Void>>();
         private readonly AsyncToken<Void> _vinesComplete = new AsyncToken<Void>();
 
@@ -59,6 +62,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 throw new Exception("Widget already added.");
             }
             
+            _widgets.Add(widget);
             _scriptLookup.Add(widget, new List<EnkluScript>());
             _vines.Add(widget, new List<VineScript>());
             _behaviors.Add(widget, new List<BehaviorScript>());
@@ -67,8 +71,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             try
             {
-                // TODO: Handle the async here
-                CreateScripts(widget);
+                _scriptLoading.Add(CreateScripts(widget));
             }
             catch (Exception e)
             {
@@ -92,29 +95,46 @@ namespace CreateAR.EnkluPlayer.Scripting
             return _setupStates[widget];
         }
 
-        public void ParseAll()
+        public IAsyncToken<Void> ParseAll()
         {
-            _globalState = SetupState.Parsing;
-            
-            foreach (var key in _scriptLookup.Keys)
+            if (_globalState != SetupState.None)
             {
-                ParseWidget(key);
+                throw new Exception("ParseAll is invalid. Current state: " + _globalState);
             }
+            _globalState = SetupState.Parsing;
+            Log.Info(this, "Script parsing requested.");
 
-            Async.All(_vineTokens.ToArray()).OnSuccess((_) =>
+            var rtn = new AsyncToken<Void>();
+            Async.All(_scriptLoading.ToArray()).OnFinally((_) =>
             {
-                // Currently, this triggers behavior parsing/entering
-                _vinesComplete.Succeed(Void.Instance);
-
-                var keys = _setupStates.Keys.ToList();
-                for (int i = 0, len = keys.Count; i < len; i++)
+                Log.Info(this, "Scripts loaded. Starting parsing.");
+                
+                foreach (var key in _scriptLookup.Keys)
                 {
-                    // TODO: Don't blindly assume success
-                    _setupStates[keys[i]] = SetupState.Done;
+                    ParseWidget(key);
                 }
 
-                _globalState = SetupState.Done;
+                Async.All(_vineTokens.ToArray()).OnSuccess((__) =>
+                {
+                    Log.Info(this, "Vines parsed. Parsing Behaviors.");
+                    
+                    // Currently, this triggers behavior parsing/entering
+                    _vinesComplete.Succeed(Void.Instance);
+
+                    var keys = _setupStates.Keys.ToList();
+                    for (int i = 0, len = keys.Count; i < len; i++)
+                    {
+                        // TODO: Don't blindly assume success
+                        _setupStates[keys[i]] = SetupState.Done;
+                    }
+
+                    Log.Info(this, "All parsing complete.");
+                    _globalState = SetupState.Done;
+                    
+                    rtn.Succeed(Void.Instance);
+                });
             });
+            return rtn;
         }
 
         private void ParseWidget(Widget widget)
@@ -182,6 +202,21 @@ namespace CreateAR.EnkluPlayer.Scripting
                 for (int i = 0, len = behaviorComponents.Count; i < len; i++)
                 {
                     StartScript(behaviorComponents[i]);
+                }
+            }
+        }
+
+        public void Update()
+        {
+            // Vines currently have no Update usage, so skip for now.
+
+            for (int i = 0, iLen = _widgets.Count; i < iLen; i++)
+            {
+                var behaviors = _behaviors[_widgets[i]];
+
+                for (int j = 0, jLen = behaviors.Count; j < jLen; j++)
+                {
+                    behaviors[j].FrameUpdate();
                 }
             }
         }
