@@ -39,7 +39,17 @@ namespace CreateAR.EnkluPlayer
         /// Outlines model bounds.
         /// </summary>
         private ModelLoadingOutline _outline;
-        
+
+        /// <summary>
+        /// Transform to attach to.
+        /// </summary>
+        private Transform _transform;
+
+        /// <summary>
+        /// Action for unwatching.
+        /// </summary>
+        private Action _unwatchUpdate;
+
         /// <inheritdoc />
         public Bounds Bounds
         {
@@ -91,28 +101,66 @@ namespace CreateAR.EnkluPlayer
                 {
                     OnAssemblyUpdated();
                 }
-                return;
-            }
-
-            // get the corresponding asset
-            _asset = _assets.Manifest.Asset(assetId, version);
-            if (null == _asset)
-            {
-                Log.Warning(this,
-                    "Could not find Asset by id {0}.",
-                    assetId);
 
                 return;
             }
 
-            // TODO: watch for new versions if it's not version locked
+            _transform = transform;
+
+            // watch for new versions if the asset is not version locked
             if (-1 == version)
             {
-                
+                // watch
+                _unwatchUpdate = _assets.Manifest.WatchUpdate(assetId, data => SetupAsset(assetId, -1));
+            }
+            
+            // finally, setup the actual asset
+            SetupAsset(assetId, version);
+        }
+
+        /// <inheritdoc />
+        public void Teardown()
+        {
+            TeardownAsset();
+
+            if (null != Assembly)
+            {
+                _pools.Put(Assembly);
+                Assembly = null;
             }
 
-            // TODO: watch for remove
+            if (null != _unwatchUpdate)
+            {
+                _unwatchUpdate();
+                _unwatchUpdate = null;
+            }
+            
+            if (null != _outline)
+            {
+                UnityEngine.Object.Destroy(_outline);
+                _outline = null;
+            }
+        }
 
+        /// <summary>
+        /// Sets up the assembler based on a specific asset.
+        /// </summary>
+        /// <param name="assetId">The asset id.</param>
+        /// <param name="version">The version.</param>
+        private void SetupAsset(string assetId, int version)
+        {
+            TeardownAsset();
+
+            _asset = _assets.Manifest.Asset(assetId, version);
+
+            if (null == _asset)
+            {
+                Log.Warning(this, "Could not find asset {0}:{1}.",
+                    assetId,
+                    version);
+                return;
+            }
+            
             // safely listen for asset load errors
             _asset.OnLoadError -= Asset_OnLoadError;
             _asset.OnLoadError += Asset_OnLoadError;
@@ -138,7 +186,7 @@ namespace CreateAR.EnkluPlayer
                 // if it's not loaded and we're in edit mode, add a loading outline
                 if (_config.Edit)
                 {
-                    _outline = transform
+                    _outline = _transform
                         .gameObject
                         .AddComponent<ModelLoadingOutline>();
                     _outline.OnRetry += () =>
@@ -158,25 +206,18 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
-        /// <inheritdoc />
-        public void Teardown()
+        /// <summary>
+        /// Teardown related to the asset.
+        /// </summary>
+        private void TeardownAsset()
         {
-            if (null != Assembly)
+            if (null != _asset)
             {
-                _pools.Put(Assembly);
-                Assembly = null;
-            }
-            
-            // TODO: stop watching for new versions
-
-            // TODO: stop watching for removed
-
-            if (null != _outline)
-            {
-                UnityEngine.Object.Destroy(_outline);
+                _asset.OnLoadError -= Asset_OnLoadError;
+                _asset = null;
             }
         }
-        
+
         /// <summary>
         /// Creates an instance of the loaded asset and replaces the existing
         /// instance, if there is one.
@@ -222,16 +263,7 @@ namespace CreateAR.EnkluPlayer
                 camera.enabled = false;
             }
         }
-
-        /// <summary>
-        /// Called when the asset has been removed from the manifest.
-        /// </summary>
-        /// <param name="asset">The asset that has been removed.</param>
-        private void Asset_OnRemoved(Asset asset)
-        {
-            Teardown();
-        }
-
+        
         /// <summary>
         /// Called when there's an asset load error.
         /// </summary>

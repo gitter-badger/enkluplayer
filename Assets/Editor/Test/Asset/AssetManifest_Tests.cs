@@ -185,7 +185,7 @@ namespace CreateAR.EnkluPlayer.Test.Assets
                 Guid = "a"
             };
 
-            _manifest.Watch("a", data =>
+            _manifest.WatchUpdate("a", data =>
             {
                 eventCalled = true;
             });
@@ -204,7 +204,7 @@ namespace CreateAR.EnkluPlayer.Test.Assets
                 Guid = "a"
             };
 
-            var unwatch = _manifest.Watch("a", data =>
+            var unwatch = _manifest.WatchUpdate("a", data =>
             {
                 eventCalled = true;
             });
@@ -224,12 +224,43 @@ namespace CreateAR.EnkluPlayer.Test.Assets
                 Guid = "b"
             };
 
-            _manifest.Watch("a", data =>
+            _manifest.WatchUpdate("a", data =>
             {
                 eventCalled = true;
             });
 
             _manifest.Update(info);
+
+            Assert.IsFalse(eventCalled);
+        }
+
+        [Test]
+        public void WatchRemove()
+        {
+            var eventCalled = false;
+            
+            _manifest.WatchRemove("a", () =>
+            {
+                eventCalled = true;
+            });
+
+            _manifest.Remove("a");
+
+            Assert.IsTrue(eventCalled);
+        }
+
+        [Test]
+        public void UnwatchRemove()
+        {
+            var eventCalled = false;
+
+            var unwatch = _manifest.WatchRemove("a", () =>
+            {
+                eventCalled = true;
+            });
+            unwatch();
+
+            _manifest.Remove("a");
 
             Assert.IsFalse(eventCalled);
         }

@@ -23,7 +23,8 @@ namespace CreateAR.EnkluPlayer.Assets
             /// <summary>
             /// Watchers.
             /// </summary>
-            private readonly List<Action<AssetData>> _watchers = new List<Action<AssetData>>();
+            private readonly List<Action<AssetData>> _watchUpdate = new List<Action<AssetData>>();
+            private readonly List<Action> _watchRemove = new List<Action>();
 
             /// <summary>
             /// List of references. Latest first.
@@ -54,7 +55,7 @@ namespace CreateAR.EnkluPlayer.Assets
                 Data = data;
                 References.Insert(0, new Asset(_loader, data, data.Version));
 
-                var copy = _watchers.ToArray();
+                var copy = _watchUpdate.ToArray();
                 for (int i = 0, len = copy.Length; i < len; i++)
                 {
                     copy[i](data);
@@ -96,7 +97,7 @@ namespace CreateAR.EnkluPlayer.Assets
             /// <summary>
             /// Destroys all references.
             /// </summary>
-            public void Destroy()
+            public void Remove()
             {
                 foreach (var asset in References)
                 {
@@ -104,6 +105,12 @@ namespace CreateAR.EnkluPlayer.Assets
                 }
 
                 References.Clear();
+
+                var copy = _watchRemove.ToArray();
+                for (int i = 0, len = copy.Length; i < len; i++)
+                {
+                    copy[i]();
+                }
             }
 
             /// <summary>
@@ -113,9 +120,21 @@ namespace CreateAR.EnkluPlayer.Assets
             /// <returns></returns>
             public Action Watch(Action<AssetData> callback)
             {
-                _watchers.Add(callback);
+                _watchUpdate.Add(callback);
 
-                return () => _watchers.Remove(callback);
+                return () => _watchUpdate.Remove(callback);
+            }
+
+            /// <summary>
+            /// Watches for removes.
+            /// </summary>
+            /// <param name="callback">The callback.</param>
+            /// <returns></returns>
+            public Action WatchRemove(Action callback)
+            {
+                _watchRemove.Add(callback);
+
+                return () => _watchRemove.Remove(callback);
             }
         }
 
@@ -244,7 +263,7 @@ namespace CreateAR.EnkluPlayer.Assets
                 AssetRecord record;
                 if (_guidToRecord.TryGetValue(assetId, out record))
                 {
-                    record.Destroy();
+                    record.Remove();
 
                     _guidToRecord.Remove(assetId);
 
@@ -398,12 +417,23 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <param name="assetId">The asset id to watch.</param>
         /// <param name="callback">The callback.</param>
         /// <returns></returns>
-        public Action Watch(string assetId, Action<AssetData> callback)
+        public Action WatchUpdate(string assetId, Action<AssetData> callback)
         {
             AssetRecord record;
             if (_guidToRecord.TryGetValue(assetId, out record))
             {
                 return record.Watch(callback);
+            }
+
+            return () => { };
+        }
+
+        public Action WatchRemove(string assetId, Action callback)
+        {
+            AssetRecord record;
+            if (_guidToRecord.TryGetValue(assetId, out record))
+            {
+                return record.WatchRemove(callback);
             }
 
             return () => { };
