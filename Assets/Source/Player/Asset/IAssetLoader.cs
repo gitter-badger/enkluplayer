@@ -21,7 +21,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// asset for.</param>
         /// <param name="progress">Progress on the load.</param>
         /// <returns></returns>
-        IAsyncToken<Object> Load(AssetData data, out LoadProgress progress);
+        IAsyncToken<Object> Load(AssetData data, int version, out LoadProgress progress);
 
         /// <summary>
         /// Clears the download queue.

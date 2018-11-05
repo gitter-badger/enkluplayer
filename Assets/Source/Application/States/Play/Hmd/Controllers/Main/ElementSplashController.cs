@@ -70,7 +70,7 @@ namespace CreateAR.EnkluPlayer
             if (null != assetWidget)
             {
                 var assetId = assetWidget.Schema.Get<string>("assetSrc").Value;
-                var asset = Assets.Manifest.Asset(assetId);
+                var asset = Assets.Manifest.Asset(assetId, -1);
                 if (null != asset)
                 {
                     var bounds = asset.Data.Stats.Bounds;

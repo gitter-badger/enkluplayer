@@ -172,7 +172,23 @@ namespace CreateAR.EnkluPlayer
         /// <param name="asset">The asset received.</param>
         private void FormatAssetData(AssetData asset)
         {
-            // append build target to URI
+            FormatUri(asset);
+            FormatUriThumb(asset);
+        }
+
+        /// <summary>
+        /// Formats URI.
+        ///
+        ///  TODO: remove when we deprecate v1 and v2 assets.
+        /// </summary>
+        /// <param name="asset">The asset.</param>
+        private void FormatUri(AssetData asset)
+        {
+            if (string.IsNullOrEmpty(asset.Uri))
+            {
+                return;
+            }
+
             var index = asset.Uri.IndexOf(".bundle", StringComparison.Ordinal);
             if (-1 == index)
             {
@@ -186,6 +202,16 @@ namespace CreateAR.EnkluPlayer
                 asset.Uri = asset.Uri.Replace(
                     "{{platform}}",
                     GetBuildTarget());
+
+                // v3
+                var pieces = asset.Uri.Split('.');
+                if (3 == pieces.Length)
+                {
+                    asset.Uri = string.Format("{0}.{1}.{2}",
+                        pieces[0],
+                        asset.Version,
+                        pieces[2]);
+                }
             }
             else
             {
@@ -195,6 +221,44 @@ namespace CreateAR.EnkluPlayer
                     asset.Uri.Substring(0, index),
                     GetBuildTarget()).Split('/');
                 asset.Uri = urlSplit[urlSplit.Length - 1];
+            }
+        }
+
+        /// <summary>
+        /// Formats the URI to the thumb nail.
+        ///
+        /// TODO: remove upon deprication of v1 and v2 assets.
+        /// </summary>
+        /// <param name="asset">The asset.</param>
+        private void FormatUriThumb(AssetData asset)
+        {
+            if (string.IsNullOrEmpty(asset.UriThumb))
+            {
+                return;
+            }
+
+            // v1
+            if (asset.UriThumb.StartsWith("/thumb"))
+            {
+                asset.UriThumb = string.Format("{0}.png", asset.Guid);
+            }
+            else
+            {
+                var parts = asset.UriThumb.Split('.');
+                
+                // v3
+                if (3 == parts.Length)
+                {
+                    asset.UriThumb = string.Format("{0}.{1}.{2}",
+                        parts[0],
+                        asset.Version,
+                        parts[2]);
+                }
+                // v2
+                else
+                {
+                    // do nothing
+                }
             }
         }
 

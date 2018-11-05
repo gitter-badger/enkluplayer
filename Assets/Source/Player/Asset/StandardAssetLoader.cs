@@ -106,6 +106,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <inheritdoc />
         public IAsyncToken<Object> Load(
             AssetData data,
+            int version,
             out LoadProgress progress)
         {
             // see if this load should fail (for testing porpoises)

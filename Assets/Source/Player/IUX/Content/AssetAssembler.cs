@@ -36,11 +36,6 @@ namespace CreateAR.EnkluPlayer
         private Asset _asset;
         
         /// <summary>
-        /// An action to unsubscribe from <c>Asset</c> updates.
-        /// </summary>
-        private Action _unwatch;
-
-        /// <summary>
         /// Outlines model bounds.
         /// </summary>
         private ModelLoadingOutline _outline;
@@ -82,7 +77,7 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <inheritdoc />
-        public void Setup(Transform transform, string assetId)
+        public void Setup(Transform transform, string assetId, int version)
         {
             if (null != _asset)
             {
@@ -100,7 +95,7 @@ namespace CreateAR.EnkluPlayer
             }
 
             // get the corresponding asset
-            _asset = _assets.Manifest.Asset(assetId);
+            _asset = _assets.Manifest.Asset(assetId, version);
             if (null == _asset)
             {
                 Log.Warning(this,
@@ -110,10 +105,11 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            // watch for asset reloads
-            _unwatch = _asset.Watch<GameObject>(SetupInstance);
+            // TODO: watch for new versions
 
-            // listen for asset load errors (make sure we only add once)
+            // TODO: watch for remove
+
+            // safely listen for asset load errors
             _asset.OnLoadError -= Asset_OnLoadError;
             _asset.OnLoadError += Asset_OnLoadError;
 
@@ -124,38 +120,38 @@ namespace CreateAR.EnkluPlayer
                 Max = 0.5f * Vec3.One
             };
 
-            // watch to unload
-            _asset.OnRemoved += Asset_OnRemoved;
-
             // asset might already be loaded!
             var prefab = _asset.As<GameObject>();
             if (null != prefab)
             {
                 SetupInstance(prefab);
             }
-            // if it's not loaded and we're in edit mode, add a loading outline
-            else if (_config.Edit)
+            else
             {
-                _outline = transform
-                    .gameObject
-                    .AddComponent<ModelLoadingOutline>();
-                _outline.OnRetry += () =>
-                {
-                    _outline.HideError();
+                // load
+                _asset.Load<GameObject>();
 
-                    _asset.Load<GameObject>();
-                };
-                _outline.Init(Bounds);
-
-                // asset might already have failed to load
-                if (!string.IsNullOrEmpty(_asset.Error))
+                // if it's not loaded and we're in edit mode, add a loading outline
+                if (_config.Edit)
                 {
-                    _outline.ShowError(_asset.Error);
+                    _outline = transform
+                        .gameObject
+                        .AddComponent<ModelLoadingOutline>();
+                    _outline.OnRetry += () =>
+                    {
+                        _outline.HideError();
+
+                        _asset.Load<GameObject>();
+                    };
+                    _outline.Init(Bounds);
+
+                    // asset might already have failed to load
+                    if (!string.IsNullOrEmpty(_asset.Error))
+                    {
+                        _outline.ShowError(_asset.Error);
+                    }
                 }
             }
-
-            // automatically reload
-            _asset.AutoReload = true;
         }
 
         /// <inheritdoc />
@@ -166,18 +162,10 @@ namespace CreateAR.EnkluPlayer
                 _pools.Put(Assembly);
                 Assembly = null;
             }
+            
+            // TODO: stop watching for new versions
 
-            if (null != _unwatch)
-            {
-                _unwatch();
-                _unwatch = null;
-            }
-
-            if (null != _asset)
-            {
-                _asset.OnRemoved -= Asset_OnRemoved;
-                _asset = null;
-            }
+            // TODO: stop watching for removed
 
             if (null != _outline)
             {

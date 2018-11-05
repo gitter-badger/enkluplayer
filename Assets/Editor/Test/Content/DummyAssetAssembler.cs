@@ -10,7 +10,7 @@ namespace CreateAR.EnkluPlayer.Test
 
         public event Action OnAssemblyUpdated;
 
-        public void Setup(Transform transform, string assetId)
+        public void Setup(Transform transform, string assetId, int version)
         {
             Assembly = new GameObject(assetId);
 

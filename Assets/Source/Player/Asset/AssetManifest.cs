@@ -5,14 +5,101 @@ using System.Linq;
 namespace CreateAR.EnkluPlayer.Assets
 {
     /// <summary>
-    /// Serves as the table of contets for all Assets.
+    /// Serves as the table of contents for all Assets.
     /// </summary>
     public class AssetManifest
     {
         /// <summary>
-        /// A lookup from guid to Asset.
+        /// Used for internal record-keeping. Holds at least the latest
+        /// <c>Asset</c>, lazily creating previous versions are requested.
         /// </summary>
-        private readonly Dictionary<string, Asset> _guidToReference = new Dictionary<string, Asset>();
+        private class AssetRecord
+        {
+            /// <summary>
+            /// The loader passed to Assets.
+            /// </summary>
+            private readonly IAssetLoader _loader;
+
+            /// <summary>
+            /// List of references. Latest first.
+            /// </summary>
+            public readonly List<Asset> References = new List<Asset>();
+
+            /// <summary>
+            /// Data for the latest version.
+            /// </summary>
+            public AssetData Data { get; private set; }
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            public AssetRecord(IAssetLoader loader, AssetData data)
+            {
+                _loader = loader;
+
+                Update(data);
+            }
+
+            /// <summary>
+            /// Updates record with the latest version of data.
+            /// </summary>
+            /// <param name="data">The latest data.</param>
+            public void Update(AssetData data)
+            {
+                Data = data;
+                References.Insert(0, new Asset(_loader, data, data.Version));
+            }
+
+            /// <summary>
+            /// Retrieves an asset for a specific version of data.
+            /// </summary>
+            /// <param name="version">The version.</param>
+            /// <returns></returns>
+            public Asset Version(int version)
+            {
+                if (-1 == version)
+                {
+                    return References[0];
+                }
+
+                if (version > Data.Version)
+                {
+                    return null;
+                }
+
+                for (int i = 0, len = References.Count; i < len; i++)
+                {
+                    var reference = References[i];
+                    if (reference.Version == version)
+                    {
+                        return reference;
+                    }
+                }
+
+                var asset = new Asset(_loader, Data, version);
+                References.Add(asset);
+
+                return asset;
+            }
+
+            /// <summary>
+            /// Destroys all references.
+            /// </summary>
+            public void Destroy()
+            {
+                foreach (var asset in References)
+                {
+                    asset.Unload();
+                }
+
+                References.Clear();
+            }
+        }
+
+        /// <summary>
+        /// A lookup from guid to AssetRecord.
+        /// </summary>
+        private readonly Dictionary<string, AssetRecord> _guidToRecord = new Dictionary<string, AssetRecord>();
 
         /// <summary>
         /// Resolves queries against tags.
@@ -32,27 +119,24 @@ namespace CreateAR.EnkluPlayer.Assets
         {
             get
             {
-                return _guidToReference
-                    .Values
-                    .Select(asset => asset.Data)
-                    .ToArray();
+                return _guidToRecord.Values.Select(rec => rec.Data).ToArray();
             }
         }
 
         /// <summary>
         /// Called when an asset has been added.
         /// </summary>
-        public event Action<Asset> OnAssetAdded;
+        public event Action<AssetData> OnAssetAdded;
 
         /// <summary>
         /// Called when an asset has been updated.
         /// </summary>
-        public event Action<Asset> OnAssetUpdated;
+        public event Action<AssetData> OnAssetUpdated;
 
         /// <summary>
         /// Called when an asset has been removed.
         /// </summary>
-        public event Action<Asset> OnAssetRemoved;
+        public event Action<AssetData> OnAssetRemoved;
 
         /// <summary>
         /// Constructor.
@@ -73,11 +157,14 @@ namespace CreateAR.EnkluPlayer.Assets
         public void Destroy()
         {
             // destroy
-            foreach (var pair in _guidToReference)
+            foreach (var record in _guidToRecord.Values)
             {
-                pair.Value.Unload();
+                foreach (var reference in record.References)
+                {
+                    reference.Unload();
+                }
             }
-            _guidToReference.Clear();
+            _guidToRecord.Clear();
         }
 
         /// <summary>
@@ -95,7 +182,7 @@ namespace CreateAR.EnkluPlayer.Assets
             // validate
             for (int i = 0, len = assets.Length; i < len; i++)
             {
-                if (_guidToReference.ContainsKey(assets[i].Guid))
+                if (_guidToRecord.ContainsKey(assets[i].Guid))
                 {
                     throw new ArgumentException("Cannot add AssetInfo with same Guid as previous asset : " + assets[i].Guid);
                 }
@@ -104,14 +191,14 @@ namespace CreateAR.EnkluPlayer.Assets
             // add
             for (int i = 0, len = assets.Length; i < len; i++)
             {
-                var info = assets[i];
-                var reference = new Asset(_loader, info);
+                var data = assets[i];
+                var record = new AssetRecord(_loader, data);
 
-                _guidToReference[info.Guid] = reference;
+                _guidToRecord[data.Guid] = record;
 
                 if (null != OnAssetAdded)
                 {
-                    OnAssetAdded(reference);
+                    OnAssetAdded(data);
                 }
             }
         }
@@ -130,16 +217,17 @@ namespace CreateAR.EnkluPlayer.Assets
             for (int i = 0, len = assetIds.Length; i < len; i++)
             {
                 var assetId = assetIds[i];
-                var asset = Asset(assetId);
-                if (null != asset)
-                {
-                    _guidToReference.Remove(assetId);
 
-                    asset.Remove();
+                AssetRecord record;
+                if (_guidToRecord.TryGetValue(assetId, out record))
+                {
+                    record.Destroy();
+
+                    _guidToRecord.Remove(assetId);
 
                     if (null != OnAssetRemoved)
                     {
-                        OnAssetRemoved(asset);
+                        OnAssetRemoved(record.Data);
                     }
                 }
             }
@@ -165,7 +253,7 @@ namespace CreateAR.EnkluPlayer.Assets
                     throw new ArgumentException("Cannot update with null or empty Guid.");
                 }
 
-                if (!_guidToReference.ContainsKey(guid))
+                if (!_guidToRecord.ContainsKey(guid))
                 {
                     throw new ArgumentException("Cannot update non-existent Asset : " + guid);
                 }
@@ -173,18 +261,19 @@ namespace CreateAR.EnkluPlayer.Assets
 
             for (int i = 0, len = assets.Length; i < len; i++)
             {
-                var info = assets[i];
-                var reference = Asset(info.Guid);
-                if (null == reference)
+                var data = assets[i];
+
+                AssetRecord record;
+                if (!_guidToRecord.TryGetValue(data.Guid, out record))
                 {
-                    throw new ArgumentException("Invalid AssetInfo.");
+                    throw new ArgumentException("Invalid AssetData update refers to asset that does not exist.");
                 }
 
-                reference.Update(info);
+                record.Update(data);
 
                 if (null != OnAssetUpdated)
                 {
-                    OnAssetUpdated(reference);
+                    OnAssetUpdated(record.Data);
                 }
             }
         }
@@ -196,29 +285,35 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <returns></returns>
         public AssetData Data(string guid)
         {
-            var reference = Asset(guid);
+            AssetRecord record;
+            if (_guidToRecord.TryGetValue(guid, out record))
+            {
+                return record.Data;
+            }
 
-            return null == reference
-                ? null
-                : reference.Data;
+            return null;
         }
 
         /// <summary>
         /// Retrieves the <c>Asset</c> for a particular guid.
         /// </summary>
         /// <param name="guid">The guid for a particular asset.</param>
+        /// <param name="version">An optional version or -1 for latest.</param>
         /// <returns></returns>
-        public Asset Asset(string guid)
+        public Asset Asset(string guid, int version)
         {
             if (string.IsNullOrEmpty(guid))
             {
                 return null;
             }
 
-            Asset reference;
-            _guidToReference.TryGetValue(guid, out reference);
+            AssetRecord record;
+            if (_guidToRecord.TryGetValue(guid, out record))
+            {
+                return record.Version(version);
+            }
 
-            return reference;
+            return null;
         }
 
         /// <summary>
@@ -229,17 +324,18 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <c>AssetManagerConfiguration.</c>
         /// </summary>
         /// <param name="query">The query to resolve.</param>
+        /// <param name="version">Version of results or -1 for latest.</param>
         /// <returns></returns>
-        public Asset FindOne(string query)
+        public Asset FindOne(string query, int version)
         {
-            foreach (var pair in _guidToReference)
+            foreach (var pair in _guidToRecord)
             {
                 var tagsArray = pair.Value.Data.Tags.Split(',');
                 if (_resolver.Resolve(
                     query,
                     ref tagsArray))
                 {
-                    return pair.Value;
+                    return pair.Value.Version(version);
                 }
             }
 
@@ -254,18 +350,19 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <c>AssetManagerConfiguration.</c>
         /// </summary>
         /// <param name="query">The query to resolve.</param>
+        /// <param name="version">Version of results or -1 for latest.</param>
         /// <returns></returns>
-        public Asset[] Find(string query)
+        public Asset[] Find(string query, int version)
         {
             var references = new List<Asset>();
-            foreach (var pair in _guidToReference)
+            foreach (var pair in _guidToRecord)
             {
                 var tagsArray = pair.Value.Data.Tags.Split(',');
                 if (_resolver.Resolve(
                     query,
                     ref tagsArray))
                 {
-                    references.Add(pair.Value);
+                    references.Add(pair.Value.Version(version));
                 }
             }
 
