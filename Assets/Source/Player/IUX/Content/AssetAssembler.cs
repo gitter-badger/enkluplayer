@@ -105,7 +105,11 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            // TODO: watch for new versions
+            // TODO: watch for new versions if it's not version locked
+            if (-1 == version)
+            {
+                
+            }
 
             // TODO: watch for remove
 

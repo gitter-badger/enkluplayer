@@ -21,6 +21,11 @@ namespace CreateAR.EnkluPlayer.Assets
             private readonly IAssetLoader _loader;
 
             /// <summary>
+            /// Watchers.
+            /// </summary>
+            private readonly List<Action<AssetData>> _watchers = new List<Action<AssetData>>();
+
+            /// <summary>
             /// List of references. Latest first.
             /// </summary>
             public readonly List<Asset> References = new List<Asset>();
@@ -48,6 +53,12 @@ namespace CreateAR.EnkluPlayer.Assets
             {
                 Data = data;
                 References.Insert(0, new Asset(_loader, data, data.Version));
+
+                var copy = _watchers.ToArray();
+                for (int i = 0, len = copy.Length; i < len; i++)
+                {
+                    copy[i](data);
+                }
             }
 
             /// <summary>
@@ -93,6 +104,18 @@ namespace CreateAR.EnkluPlayer.Assets
                 }
 
                 References.Clear();
+            }
+
+            /// <summary>
+            /// Watches for updates.
+            /// </summary>
+            /// <param name="callback">The callback.</param>
+            /// <returns></returns>
+            public Action Watch(Action<AssetData> callback)
+            {
+                _watchers.Add(callback);
+
+                return () => _watchers.Remove(callback);
             }
         }
 
@@ -367,6 +390,23 @@ namespace CreateAR.EnkluPlayer.Assets
             }
 
             return references.ToArray();
+        }
+
+        /// <summary>
+        /// Watches for changes to an asset.
+        /// </summary>
+        /// <param name="assetId">The asset id to watch.</param>
+        /// <param name="callback">The callback.</param>
+        /// <returns></returns>
+        public Action Watch(string assetId, Action<AssetData> callback)
+        {
+            AssetRecord record;
+            if (_guidToRecord.TryGetValue(assetId, out record))
+            {
+                return record.Watch(callback);
+            }
+
+            return () => { };
         }
     }
 }

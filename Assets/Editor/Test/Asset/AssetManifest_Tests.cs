@@ -175,5 +175,63 @@ namespace CreateAR.EnkluPlayer.Test.Assets
 
             Assert.IsTrue(eventCalled);
         }
+
+        [Test]
+        public void WatchForUpdate()
+        {
+            var eventCalled = false;
+            var info = new AssetData
+            {
+                Guid = "a"
+            };
+
+            _manifest.Watch("a", data =>
+            {
+                eventCalled = true;
+            });
+
+            _manifest.Update(info);
+
+            Assert.IsTrue(eventCalled);
+        }
+
+        [Test]
+        public void UnwatchForUpdate()
+        {
+            var eventCalled = false;
+            var info = new AssetData
+            {
+                Guid = "a"
+            };
+
+            var unwatch = _manifest.Watch("a", data =>
+            {
+                eventCalled = true;
+            });
+            unwatch();
+
+            _manifest.Update(info);
+
+            Assert.IsFalse(eventCalled);
+        }
+
+        [Test]
+        public void WatchGoodUpdate()
+        {
+            var eventCalled = false;
+            var info = new AssetData
+            {
+                Guid = "b"
+            };
+
+            _manifest.Watch("a", data =>
+            {
+                eventCalled = true;
+            });
+
+            _manifest.Update(info);
+
+            Assert.IsFalse(eventCalled);
+        }
     }
 }
