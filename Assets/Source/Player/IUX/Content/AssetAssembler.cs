@@ -82,7 +82,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Setup(Transform transform, string assetId, int version)
         {
-            Log.Info(this, "Setup assembler : v{0}", version);
+            Log.Info(this, "Setup assembler : {0}-v.{1}", assetId, version);
 
             if (null != _asset)
             {
@@ -232,7 +232,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="value">The GameObject that was loaded.</param>
         private void SetupInstance(GameObject value)
         {
-            Log.Info(this, "SetupInstance.");
+            Log.Info(this, "SetupInstance : {0}", value);
 
             // destroy instance
             if (null != Assembly)

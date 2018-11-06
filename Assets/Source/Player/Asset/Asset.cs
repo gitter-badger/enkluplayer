@@ -17,11 +17,6 @@ namespace CreateAR.EnkluPlayer.Assets
         private readonly IAssetLoader _loader;
         
         /// <summary>
-        /// Backing variable for <c>Progress</c> property.
-        /// </summary>
-        private readonly LoadProgress _progress = new LoadProgress();
-
-        /// <summary>
         /// The object returned from the loader.
         /// </summary>
         private Object _asset;
@@ -29,7 +24,12 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <summary>
         /// Token returned from loader.
         /// </summary>
-        private IAsyncToken<Object> _loadToken;
+        private AsyncToken<Object> _loadToken;
+
+        /// <summary>
+        /// Backing variable.
+        /// </summary>
+        private readonly LoadProgress _progress = new LoadProgress();
 
         /// <summary>
         /// The data object describing the object.
@@ -44,7 +44,10 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <summary>
         /// Progress of the load.
         /// </summary>
-        public LoadProgress Progress { get { return _progress; } }
+        public LoadProgress Progress
+        {
+            get { return _progress; }
+        }
         
         /// <summary>
         /// Called when there is a load error.
@@ -119,19 +122,17 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <returns></returns>
         public IAsyncToken<T> Load<T>(out LoadProgress progress) where T : Object
         {
-            var token = new AsyncToken<T>();
-
+            // load has not started
             if (null == _loadToken)
             {
-                _loadToken = _loader.Load(Data, Version, out progress);
+                _loadToken = new AsyncToken<Object>();
 
-                // chain to class instance
+                var internalLoad = _loader.Load(Data, Version, out progress);
                 progress.Chain(Progress);
-
-                _loadToken
+                
+                internalLoad
                     .OnSuccess(asset =>
                     {
-                        _loadToken = null;
                         _asset = asset;
 
                         Error = string.Empty;
@@ -139,15 +140,15 @@ namespace CreateAR.EnkluPlayer.Assets
                         var cast = As<T>();
                         if (null == cast)
                         {
-                            token.Fail(new Exception(string.Format(
+                            _loadToken.Fail(new Exception(string.Format(
                                 "Asset {0} was loaded, but could not be cast from {1} to {2}.",
                                 Data.Guid,
                                 _asset.GetType().Name,
                                 typeof(T).Name)));
                             return;
                         }
-                        
-                        token.Succeed(cast);
+
+                        _loadToken.Succeed(cast);
                     })
                     .OnFailure(exception =>
                     {
@@ -155,7 +156,6 @@ namespace CreateAR.EnkluPlayer.Assets
                             Data,
                             exception);
 
-                        _loadToken = null;
                         Error = exception.Message;
 
                         if (null != OnLoadError)
@@ -163,21 +163,19 @@ namespace CreateAR.EnkluPlayer.Assets
                             OnLoadError(Error);
                         }
 
-                        token.Fail(exception);
+                        _loadToken.Fail(exception);
                     });
             }
+            // load has already started
             else
             {
-                // load is complete
-                progress = new LoadProgress
-                {
-                    Value = 1f
-                };
-
-                token.Succeed(As<T>());
+                progress = new LoadProgress();
+                Progress.Chain(progress);
             }
 
-            return token;
+            return Async.Map(
+                _loadToken.Token(),
+                obj => (T) obj);
         }
 
         /// <summary>
