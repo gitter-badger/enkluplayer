@@ -14,12 +14,7 @@ namespace CreateAR.EnkluPlayer
         /// Loads assets.
         /// </summary>
         private readonly IAssetManager _assets;
-
-        /// <summary>
-        /// Manages pooling.
-        /// </summary>
-        private readonly IAssetPoolManager _pools;
-
+        
         /// <summary>
         /// Configuration for play mode.
         /// </summary>
@@ -78,17 +73,17 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public AssetAssembler(
             IAssetManager assets,
-            IAssetPoolManager pools,
             PlayAppConfig config)
         {
             _assets = assets;
-            _pools = pools;
             _config = config;
         }
         
         /// <inheritdoc />
         public void Setup(Transform transform, string assetId, int version)
         {
+            Log.Info(this, "Setup assembler : v{0}", version);
+
             if (null != _asset)
             {
                 throw new Exception("AssetAssembler was asked to setup twice in a row without a Teardown in between.");
@@ -121,11 +116,13 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Teardown()
         {
+            Log.Info(this, "Teardown assembler.");
+
             TeardownAsset();
 
             if (null != Assembly)
             {
-                _pools.Put(Assembly);
+                UnityEngine.Object.Destroy(Assembly);
                 Assembly = null;
             }
 
@@ -181,7 +178,9 @@ namespace CreateAR.EnkluPlayer
             else
             {
                 // load
-                _asset.Load<GameObject>();
+                _asset
+                    .Load<GameObject>()
+                    .OnSuccess(SetupInstance);
 
                 // if it's not loaded and we're in edit mode, add a loading outline
                 if (_config.Edit)
@@ -193,7 +192,9 @@ namespace CreateAR.EnkluPlayer
                     {
                         _outline.HideError();
 
-                        _asset.Load<GameObject>();
+                        _asset
+                            .Load<GameObject>()
+                            .OnSuccess(SetupInstance);
                     };
                     _outline.Init(Bounds);
 
@@ -216,6 +217,12 @@ namespace CreateAR.EnkluPlayer
                 _asset.OnLoadError -= Asset_OnLoadError;
                 _asset = null;
             }
+
+            // shut off outline
+            if (null != _outline)
+            {
+                UnityEngine.Object.Destroy(_outline);
+            }
         }
 
         /// <summary>
@@ -225,10 +232,12 @@ namespace CreateAR.EnkluPlayer
         /// <param name="value">The GameObject that was loaded.</param>
         private void SetupInstance(GameObject value)
         {
-            // put existing instance back
+            Log.Info(this, "SetupInstance.");
+
+            // destroy instance
             if (null != Assembly)
             {
-                _pools.Put(Assembly);
+                UnityEngine.Object.Destroy(Assembly);
                 Assembly = null;
             }
 
@@ -236,14 +245,10 @@ namespace CreateAR.EnkluPlayer
             RemoveBadComponents(value);
 
             // get a new one
-            Assembly = _pools.Get<GameObject>(value);
-
-            // shut off outline
-            if (null != _outline)
-            {
-                UnityEngine.Object.Destroy(_outline);
-            }
-
+            Assembly = UnityEngine.Object.Instantiate(value,
+                Vector3.zero,
+                Quaternion.identity);
+            
             // dispatch update
             if (null != OnAssemblyUpdated)
             {

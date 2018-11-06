@@ -335,7 +335,7 @@ namespace CreateAR.EnkluPlayer
             _assembler.Teardown();
             _assembler.Setup(
                 GameObject.transform,
-                _srcAssetProp.Value,
+                assetId,
                 version);
         }
 

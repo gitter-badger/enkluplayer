@@ -27,6 +27,11 @@ namespace CreateAR.EnkluPlayer.Assets
             public AssetData Data;
 
             /// <summary>
+            /// The version we wish to load.
+            /// </summary>
+            public int Version;
+
+            /// <summary>
             /// The loader used.
             /// </summary>
             public AssetBundleLoader Loader;
@@ -120,7 +125,7 @@ namespace CreateAR.EnkluPlayer.Assets
                 }
             }
             
-            var url = Url(data);
+            var url = Url(data, version);
             var token = new AsyncToken<Object>();
             
             // create a loader if one doesn't exist
@@ -144,6 +149,7 @@ namespace CreateAR.EnkluPlayer.Assets
                 {
                     Loader = loader,
                     Data = data,
+                    Version = version,
                     Timer = timer.Start()
                 };
 
@@ -177,7 +183,7 @@ namespace CreateAR.EnkluPlayer.Assets
                 var record = _queue[0];
 
                 _queue.RemoveAt(0);
-                _bundles.Remove(Url(record.Data));
+                _bundles.Remove(Url(record.Data, record.Version));
             }
         }
 
@@ -229,7 +235,7 @@ namespace CreateAR.EnkluPlayer.Assets
                         .OnFailure(ex =>
                         {
                             // remove so we can allow retries
-                            _bundles.Remove(Url(next.Data));
+                            _bundles.Remove(Url(next.Data, next.Version));
 
                             // abort metrics
                             timer.Abort(timerId);
@@ -249,9 +255,21 @@ namespace CreateAR.EnkluPlayer.Assets
         /// </summary>
         /// <param name="data">The data.</param>
         /// <returns></returns>
-        private string Url(AssetData data)
+        private string Url(AssetData data, int version)
         {
-            return Urls.Url("assets://" + data.Uri);
+            var uri = data.Uri;
+
+            // try to insert version
+            var pieces = data.Uri.Split('.');
+            if (pieces.Length == 3)
+            {
+                uri = string.Format("{0}.{1}.{2}",
+                    pieces[0],
+                    version,
+                    pieces[2]);
+            }
+
+            return Urls.Url("assets://" + uri);
         }
 
         /// <summary>
