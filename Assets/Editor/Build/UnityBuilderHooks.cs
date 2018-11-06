@@ -13,8 +13,8 @@ namespace CreateAR.EnkluPlayer.Editor
             | BuildOptions.ForceEnableAssertions;
 
         private const string BASE_PATH = "./Builds/";
-        private const string PATH_WEBGL = BASE_PATH + "WebGl";
-        private const string PATH_WSAX86 = BASE_PATH + "Wsa.x86";
+        private const string PATH_WEBGL = BASE_PATH + "WebGLPlayer";
+        private const string PATH_WSAX86 = BASE_PATH + "WSAPlayerX86";
         private const string PATH_IOS = BASE_PATH + "iOS";
 
         /// <summary>
