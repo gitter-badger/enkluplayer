@@ -32,7 +32,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return null;
             }
 
-            var collider = target.ContentWidget.GameObject.GetComponent<Collider>();
+            var collider = target.ContentWidget.GetComponent<Collider>();
             if (!collider)
             {
                 Log.Error(this, "Element has no Collider");
