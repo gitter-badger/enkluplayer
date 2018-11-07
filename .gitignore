@@ -1,11 +1,12 @@
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
-Builds/
 UWP/
 .Packages/
 .idea/
 .DS_Store
+build/
+Builds/
 
 # Visual Studio 2015 cache directory
 /.vs/

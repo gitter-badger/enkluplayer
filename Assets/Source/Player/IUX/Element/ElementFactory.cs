@@ -40,7 +40,6 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IMessageRouter _messages;
         private readonly IElementJsCache _jsCache;
         private readonly IElementJsFactory _elementJsFactory;
-        private readonly IDeviceMetaProvider _deviceMetaProvider;
         private readonly ColorConfig _colors;
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
@@ -83,7 +82,6 @@ namespace CreateAR.EnkluPlayer.IUX
             IMessageRouter messages,
             IElementJsCache jsCache,
             IElementJsFactory elementJsFactory,
-            IDeviceMetaProvider deviceMetaProvider,
             ColorConfig colors,
             TweenConfig tweens,
             WidgetConfig config,
@@ -114,7 +112,6 @@ namespace CreateAR.EnkluPlayer.IUX
             _messages = messages;
             _jsCache = jsCache;
             _elementJsFactory = elementJsFactory;
-            _deviceMetaProvider = deviceMetaProvider;
             _appConfig = appConfig;
             
             // TODO: Load this all from data
@@ -429,7 +426,16 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 case ElementTypes.WORLD_ANCHOR:
                 {
-                    return new WorldAnchorWidget(new GameObject("WorldAnchor"), _layers, _tweens, _colors, _http, _provider, _metrics, _messages, _appConfig);
+                    return new WorldAnchorWidget(
+                        new GameObject("WorldAnchor"), 
+                        _layers, 
+                        _tweens, 
+                        _colors, 
+                        _http, 
+                        _provider, 
+                        _metrics, 
+                        _messages, 
+                        _appConfig);
                 }
                 case ElementTypes.QR_ANCHOR:
                 {

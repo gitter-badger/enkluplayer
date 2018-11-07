@@ -240,10 +240,10 @@ namespace CreateAR.EnkluPlayer.IUX
             _versionProp = Schema.GetOwn("version", -1);
             _versionProp.OnChanged += Version_OnChanged;
 
-            _lockedProp = Schema.GetOwn("locked", true);
+            _lockedProp = Schema.GetOwn("locked", false);
             _lockedProp.OnChanged += Locked_OnChanged;
             
-            var autoexport = Schema.GetOwn("autoexport", false).Value;
+            var autoexport = Schema.GetOwn("autoexport", true).Value;
             if (autoexport)
             {
                 _messages.Publish(MessageTypes.ANCHOR_AUTOEXPORT, this);

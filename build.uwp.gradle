@@ -1,0 +1,111 @@
+apply from: 'common.gradle'
+apply plugin: 'com.createar.plugins.unity'
+apply plugin: 'maven'
+group = 'com.createar'
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+
+        maven {
+            url "${nexusUrl}/maven-releases/"
+            credentials {
+                username = nexusUsername
+                password = nexusPassword
+            }
+        }
+    }
+
+    dependencies {
+        classpath 'com.createar.plugins:unity:0.2.4'
+    }
+}
+
+// needed directories
+def platform = 'WSAPlayerX86'
+def buildDir = './Builds'
+def outputDir = "$buildDir/$platform"
+
+// archives build
+task archive(type:Zip) {
+    from("$outputDir/Enklu/AppPackages") {
+        include '**/*.appx'
+    }
+
+    archiveName getArchiveFileName(platform)
+    destinationDir file(buildDir)
+}
+
+// sets the artifacts for upload
+artifacts {
+    archives file("${buildDir}/${getArchiveFileName(platform)}")
+}
+
+// uploads archives
+uploadArchives() {
+    repositories {
+        mavenDeployer {
+            repository(url: nexusUrl + '/maven-releases') {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+
+            pom.version = getArtifactVersion(platform)
+            pom.artifactId = getArtifactName(platform)
+        }
+    }
+}
+
+// wsa
+task runTests(type:com.createar.plugins.unity.UnityUnitTestTask) {
+    target 'wsaplayer'
+    logPath 'wsa.log'
+    unityBin UNITY_BIN
+    username UNITY_USERNAME
+    password UNITY_PASSWORD
+    serial UNITY_SERIAL
+}
+
+task runClean(type:Delete) {
+    delete outputDir
+}
+runClean.dependsOn = [runTests]
+
+task runUnity(type:com.createar.plugins.unity.UnityMethodTask) {
+    method 'CreateAR.EnkluPlayer.Editor.UnityBuilderHooks.BuildWsaPlayer'
+    target 'wsaplayer'
+    logPath 'wsa.log'
+    unityBin UNITY_BIN
+    username UNITY_USERNAME
+    password UNITY_PASSWORD
+    serial UNITY_SERIAL
+}
+runUnity.dependsOn = [runClean]
+
+task runRestore(type:Exec) {
+    workingDir outputDir
+    executable nugetAbsPath
+    args 'restore'
+    standardOutput System.out
+}
+runRestore.dependsOn = [runUnity]
+
+task runCsc(type:Exec) {
+    // msbuild /p:Configuration=Release /p:platform=x86
+    workingDir outputDir
+    executable cscPath
+    args '/p:Configuration=Release', '/p:Platform=x86'
+    standardOutput System.out
+}
+runCsc.dependsOn = [runRestore]
+
+task runBuild() {
+    doLast {
+        println 'UWP build complete.'
+    }
+}
+runBuild.dependsOn = [runCsc];
