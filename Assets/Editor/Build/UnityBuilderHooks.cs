@@ -8,13 +8,9 @@ namespace CreateAR.EnkluPlayer.Editor
     /// </summary>
     public static class UnityBuilderHooks
     {
-        private static readonly BuildOptions _BuildOptions = BuildOptions.AllowDebugging
-            | BuildOptions.Development
-            | BuildOptions.ForceEnableAssertions;
-
         private const string BASE_PATH = "./Builds/";
-        private const string PATH_WEBGL = BASE_PATH + "WebGl";
-        private const string PATH_WSAX86 = BASE_PATH + "Wsa.x86";
+        private const string PATH_WEBGL = BASE_PATH + "WebGLPlayer";
+        private const string PATH_WSAX86 = BASE_PATH + "WSAPlayerX86";
         private const string PATH_IOS = BASE_PATH + "iOS";
 
         /// <summary>
@@ -24,11 +20,6 @@ namespace CreateAR.EnkluPlayer.Editor
         public static void SwitchPlatformWebgl()
         {
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.WebGL, BuildTarget.WebGL);
-            EditorBuildSettings.scenes = new[]
-            {
-                new EditorBuildSettingsScene("Assets/Scenes/Main.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/PlayMode.unity", true)
-            };
         }
 
         /// <summary>
@@ -38,11 +29,6 @@ namespace CreateAR.EnkluPlayer.Editor
         private static void SwitchPlatformWsa()
         {
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.WSA, BuildTarget.WSAPlayer);
-            EditorBuildSettings.scenes = new[]
-            {
-                new EditorBuildSettingsScene("Assets/Scenes/Main.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/PlayMode.unity", true)
-            };
         }
 
         /// <summary>
@@ -52,11 +38,6 @@ namespace CreateAR.EnkluPlayer.Editor
         private static void SwitchToIos()
         {
             EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.iOS, BuildTarget.iOS);
-            EditorBuildSettings.scenes = new[]
-            {
-                new EditorBuildSettingsScene("Assets/Scenes/Main.unity", true),
-                new EditorBuildSettingsScene("Assets/Scenes/PlayMode.unity", true)
-            };
         }
 
         /// <summary>
@@ -67,8 +48,7 @@ namespace CreateAR.EnkluPlayer.Editor
         {
             SwitchPlatformWebgl();
 
-            BuildPlayer(PATH_WEBGL,
-                BuildTarget.WebGL);
+            BuildPlayer(PATH_WEBGL, BuildTarget.WebGL);
         }
 
         /// <summary>
@@ -115,14 +95,15 @@ namespace CreateAR.EnkluPlayer.Editor
             string path,
             BuildTarget target)
         {
-            var options = new BuildPlayerOptions
-            {
-                locationPathName = path,
-                target = target,
-                options = _BuildOptions
-            };
-
-            BuildPipeline.BuildPlayer(options);
+            BuildPipeline.BuildPlayer(
+                new[]
+                {
+                    new EditorBuildSettingsScene("Assets/Scenes/Main.unity", true),
+                    new EditorBuildSettingsScene("Assets/Scenes/PlayMode.unity", true)
+                },
+                path,
+                target,
+                BuildOptions.None);
         }
     }
 }
