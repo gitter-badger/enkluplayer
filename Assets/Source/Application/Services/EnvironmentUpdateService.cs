@@ -1,4 +1,5 @@
-﻿using CreateAR.Commons.Unity.Http;
+﻿using System;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 
@@ -18,7 +19,12 @@ namespace CreateAR.EnkluPlayer
         /// Http service.
         /// </summary>
         private readonly IHttpService _http;
-        
+
+        /// <summary>
+        /// Unsubscribes from env updates.
+        /// </summary>
+        private Action _unsubEnvUpdates;
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -53,6 +59,16 @@ namespace CreateAR.EnkluPlayer
                     
                     RegisterUrlBuilders(env);
                 });
+            _unsubEnvUpdates = _messages.Subscribe(
+                MessageTypes.ENV_INFO_UPDATE,
+                Messages_OnEnvInfoUpdate);
+        }
+
+        public override void Stop()
+        {
+            base.Stop();
+
+            _unsubEnvUpdates();
         }
 
         /// <summary>
@@ -101,6 +117,15 @@ namespace CreateAR.EnkluPlayer
 
             // reapply
             _config.Network.Credentials.Apply(_http);
+        }
+
+        /// <summary>
+        /// Called when environment info is updated.
+        /// </summary>
+        /// <param name="obj">Environment info.</param>
+        private void Messages_OnEnvInfoUpdate(object obj)
+        {
+            RegisterUrlBuilders((EnvironmentData) obj);
         }
     }
 }

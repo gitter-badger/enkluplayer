@@ -5,6 +5,7 @@ using CreateAR.Commons.Unity.Messaging;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <inheritdoc />
     /// <summary>
     /// Decides how to login.
     /// </summary>
@@ -13,7 +14,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Credentials.
         /// </summary>
-        public const string CREDS_URI = "login://DefaultCredentials";
+        public const string CREDENTIALS_URI = "login://DefaultCredentials";
 
         /// <summary>
         /// Reads and writes files.
@@ -132,7 +133,7 @@ namespace CreateAR.EnkluPlayer
         {
             // load creds
             _files
-                .Get<CredentialsData>(CREDS_URI)
+                .Get<CredentialsData>(CREDENTIALS_URI)
                 .OnSuccess(file =>
                 {
                     // load into default app
@@ -165,7 +166,7 @@ namespace CreateAR.EnkluPlayer
                     Log.Info(this, "Saving credentials to disk.");
 
                     _files
-                        .Set(CREDS_URI, credentials)
+                        .Set(CREDENTIALS_URI, credentials)
                         .OnFailure(exception => Log.Error(this, "Could not write credentials to disk : {0}.", exception));
                 })
                 .OnFailure(exception =>

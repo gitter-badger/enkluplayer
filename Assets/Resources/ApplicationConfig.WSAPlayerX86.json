@@ -2,9 +2,5 @@
 	"Version": "0.12.15",
 	"Log": {
 		"Level": "Warning"
-	},
-	"Metrics": {
-		"Enabled": true,
-		"Targets": "HostedGraphite"
 	}
 }

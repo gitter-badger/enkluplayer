@@ -36,7 +36,7 @@ namespace CreateAR.EnkluPlayer
             
             // delete saved credentials
             _files
-                .Delete(LoginApplicationState.CREDS_URI)
+                .Delete(LoginApplicationState.CREDENTIALS_URI)
                 .OnFailure(exception => Log.Warning(this, "Could not delete credentials : {0}.", exception))
                 // redirect to login
                 .OnFinally(_ => _messages.Publish(MessageTypes.LOGIN));

@@ -95,7 +95,7 @@ namespace CreateAR.EnkluPlayer
                     _view.OnSignIn += () =>
                     {
                         _files
-                            .Delete(LoginApplicationState.CREDS_URI)
+                            .Delete(LoginApplicationState.CREDENTIALS_URI)
                             .OnFailure(ex => Log.Error(this, "Could not delete saved credentials : {0}.", ex.Message))
                             .OnFinally(_ => _messages.Publish(MessageTypes.LOGIN));
                     };
