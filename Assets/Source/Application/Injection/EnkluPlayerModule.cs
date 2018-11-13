@@ -197,8 +197,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86 && UnityEngine.Application.isEditor)
                     {
-                        //binder.Bind<ILoginStrategy>().To<EditorLoginStrategy>();
-                        binder.Bind<ILoginStrategy>().To<QrLoginStrategy>();
+                        binder.Bind<ILoginStrategy>().To<EditorLoginStrategy>();
                     }
                     else if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86
                        || config.ParsedPlatform == RuntimePlatform.WSAPlayerARM
