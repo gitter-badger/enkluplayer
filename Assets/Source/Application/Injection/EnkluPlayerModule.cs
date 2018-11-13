@@ -195,7 +195,7 @@ namespace CreateAR.EnkluPlayer
 
                 // login
                 {
-                    if (config.ParsedPlatform == RuntimePlatform.MetroPlayerX86 && UnityEngine.Application.isEditor)
+                    if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86 && UnityEngine.Application.isEditor)
                     {
                         binder.Bind<ILoginStrategy>().To<EditorLoginStrategy>();
                     }

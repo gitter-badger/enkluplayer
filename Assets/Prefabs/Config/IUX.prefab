@@ -140,6 +140,12 @@ MonoBehaviour:
     - UIDataId: Perf.Hud
       Element: {fileID: 114778551667930286, guid: 2ce878fa058fd6d4c8086791952d7142,
         type: 2}
+    - UIDataId: Qr.Login
+      Element: {fileID: 114964363122458936, guid: c3449d0d0e577f346a86c7140c3e8043,
+        type: 2}
+    - UIDataId: EnvSelection
+      Element: {fileID: 114044542537696304, guid: 0a99393eb3ec64b4ab88fdd41fc572c3,
+        type: 2}
   - Platforms: 080000000b000000
     Links:
     - UIDataId: Common.Error
