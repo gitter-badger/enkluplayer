@@ -87,6 +87,12 @@ namespace CreateAR.EnkluPlayer
                 new LocalFileSystem(Path.Combine(
                     UnityEngine.Application.persistentDataPath,
                     "Login")));
+            _files.Register(
+                "config://",
+                new JsonSerializer(),
+                new LocalFileSystem(Path.Combine(
+                    UnityEngine.Application.persistentDataPath,
+                    "Config")));
         }
 
         /// <inheritdoc />
