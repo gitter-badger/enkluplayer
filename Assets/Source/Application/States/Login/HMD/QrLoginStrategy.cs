@@ -4,14 +4,14 @@ using System.Text;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Qr;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.HoloSignin;
-using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <inheritdoc />
     /// <summary>
     /// Logs a user in via Qr code.
     /// </summary>
@@ -33,15 +33,20 @@ namespace CreateAR.EnkluPlayer
         private readonly IQrReaderService _qr;
 
         /// <summary>
+        /// UI.
+        /// </summary>
+        private readonly IUIManager _ui;
+
+        /// <summary>
+        /// Messages.
+        /// </summary>
+        private readonly IMessageRouter _messages;
+
+        /// <summary>
         /// Makes API calls.
         /// </summary>
         private readonly ApiController _api;
-
-        /// <summary>
-        /// Root of UI.
-        /// </summary>
-        private GameObject _root;
-
+        
         /// <summary>
         /// View controller.
         /// </summary>
@@ -68,42 +73,95 @@ namespace CreateAR.EnkluPlayer
         private bool _isAlive;
 
         /// <summary>
+        /// UI id for QR.
+        /// </summary>
+        private int _qrId;
+
+        /// <summary>
+        /// UI id for env select.
+        /// </summary>
+        private int _envSelectId;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public QrLoginStrategy(
             IBootstrapper bootstrapper,
             IQrReaderService qr,
+            IUIManager ui,
+            IMessageRouter messages,
             ApiController api)
         {
             _bootstrapper = bootstrapper;
             _qr = qr;
+            _ui = ui;
+            _messages = messages;
             _api = api;
         }
 
         /// <inheritdoc />
         public IAsyncToken<CredentialsData> Login()
         {
+            _qrId = -1;
+
             _loginToken = new AsyncToken<CredentialsData>();
             _loginToken.OnFinally(_ =>
             {
                 _isAlive = false;
 
+                _ui.Close(_qrId);
+                _ui.Close(_envSelectId);
+
                 // shutdown qr
                 _qr.Stop();
                 _qr.OnRead -= Qr_OnRead;
-
-                UnityEngine.Object.Destroy(_root);
             });
-            
-            _root = new GameObject("Qr");
-            _view = _root.AddComponent<QrViewController>();
 
+            OpenQrReader();
+            
             _qr.OnRead += Qr_OnRead;
             _qr.Start();
 
             _bootstrapper.BootstrapCoroutine(WatchToken());
 
             return _loginToken.Token();
+        }
+
+        /// <summary>
+        /// Opens Qr reader view.
+        /// </summary>
+        private void OpenQrReader()
+        {
+            _ui
+                .Open<QrViewController>(new UIReference
+                {
+                    UIDataId = "Qr.Login"
+                }, out _qrId)
+                .OnSuccess(el =>
+                {
+                    _view = el;
+                    _view.OnConfigure += () =>
+                    {
+                        _ui.Close(_qrId);
+
+                        OpenEnvSelect();
+                    };
+                })
+                .OnFailure(ex => Log.Error(this, "Could not open Qr.Scanning : {0}.", ex));
+        }
+
+        /// <summary>
+        /// Opens environment selection view.
+        /// </summary>
+        private void OpenEnvSelect()
+        {
+            _ui
+                .Open<EnvSelectController>(new UIReference
+                {
+                    UIDataId = "EnvSelection"
+                }, out _envSelectId)
+                .OnSuccess(envSelect => envSelect.OnEnvironmentSelected += EnvSelect_OnSelected)
+                .OnFailure(exception => Log.Error(this, "Could not open EnvSelectController: {0}.", exception));
         }
 
         /// <summary>
@@ -129,7 +187,20 @@ namespace CreateAR.EnkluPlayer
                 yield return null;
             }
         }
-        
+
+        /// <summary>
+        /// Called when environment has been selected.
+        /// </summary>
+        /// <param name="env">The environment data.</param>
+        private void EnvSelect_OnSelected(EnvironmentData env)
+        {
+            _ui.Close(_envSelectId);
+
+            _messages.Publish(MessageTypes.ENV_INFO_UPDATE, env);
+
+            OpenQrReader();
+        }
+
         /// <summary>
         /// Called when the QR service reads a value.
         /// </summary>
@@ -189,7 +260,7 @@ namespace CreateAR.EnkluPlayer
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this, "Could not sign in with holocode : {0}", exception);
+                    Log.Error(this, "Could not sign in with holo-code : {0}", exception);
                     
                     _view.ShowMessage("Network error. Are you sure you're connected to the Internet? Please contact support@enklu.com if this persists.");
                 });

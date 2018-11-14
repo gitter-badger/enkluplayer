@@ -22,6 +22,20 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// The audio interface.
         /// </summary>
         public AudioJsApi audio { get; private set; }
+        
+        /// <summary>
+        /// The underling ContentWidget.
+        /// </summary>
+        [DenyJsAccess]
+        public ContentWidget ContentWidget
+        {
+            get { return _contentWidget; }
+        }
+        
+        /// <summary>
+        /// Backing variable.
+        /// </summary>
+        private readonly ContentWidget _contentWidget;
 
         /// <summary>
         /// Constructor.
@@ -32,7 +46,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             Element element) 
             : base(scripts, cache, element)
         {
-            ((ContentWidget) _element).OnLoaded.OnSuccess(CacheAnimator);
+            _contentWidget = (ContentWidget) _element;
+            _contentWidget.OnLoaded.OnSuccess(CacheAnimator);
         }
 
         /// <inheritdoc />
@@ -40,7 +55,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             base.Cleanup();
 
-            ((ContentWidget) _element).OnLoaded.Remove(CacheAnimator);
+            _contentWidget.OnLoaded.Remove(CacheAnimator);
         }
 
         /// <summary>

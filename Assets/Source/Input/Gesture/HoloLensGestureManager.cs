@@ -1,4 +1,4 @@
-﻿#if NETFX_CORE
+﻿#if UNITY_WSA
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -92,6 +92,12 @@ namespace CreateAR.EnkluPlayer
         public event Action<uint> OnPointerEnded;
 
         /// <inheritdoc />
+        public event Action<uint> OnPointerPressed;
+
+        /// <inheritdoc />
+        public event Action<uint> OnPointerReleased;
+
+        /// <inheritdoc />
         public uint[] Pointers
         {
             get
@@ -117,6 +123,8 @@ namespace CreateAR.EnkluPlayer
             InteractionManager.InteractionSourceDetected += Interactions_OnSourceDetected;
             InteractionManager.InteractionSourceLost += Interactions_OnSourceLost;
             InteractionManager.InteractionSourceUpdated += Interactions_OnSourceUpdated;
+            InteractionManager.InteractionSourcePressed += Interactions_OnSourcePressed;
+            InteractionManager.InteractionSourceReleased += Interactions_OnSourceReleased;
             
             _bootstrapper.BootstrapCoroutine(Update());
         }
@@ -129,6 +137,8 @@ namespace CreateAR.EnkluPlayer
             InteractionManager.InteractionSourceDetected -= Interactions_OnSourceDetected;
             InteractionManager.InteractionSourceLost -= Interactions_OnSourceLost;
             InteractionManager.InteractionSourceUpdated -= Interactions_OnSourceUpdated;
+            InteractionManager.InteractionSourcePressed -= Interactions_OnSourcePressed;
+            InteractionManager.InteractionSourceReleased -= Interactions_OnSourceReleased;
 
             _updateId = 0;
         }
@@ -309,6 +319,46 @@ namespace CreateAR.EnkluPlayer
             }
 
             data.Update(@event.state.sourcePose);
+        }
+
+        /// <summary>
+        /// Called when a source has been pressed.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void Interactions_OnSourcePressed(InteractionSourcePressedEventArgs @event)
+        {
+            var id = @event.state.source.id;
+            var data = Data(id);
+            if (null == data)
+            {
+                Log.Warning(this, "Recieved a gesture pressed event for an untracked source.");
+                return;
+            }
+
+            if (null != OnPointerPressed)
+            {
+                OnPointerPressed(id);
+            }
+        }
+        
+        /// <summary>
+        /// Called when a source has been released.
+        /// </summary>
+        /// <param name="event">The event.</param>
+        private void Interactions_OnSourceReleased(InteractionSourceReleasedEventArgs @event)
+        {
+            var id = @event.state.source.id;
+            var data = Data(id);
+            if (null == data)
+            {
+                Log.Warning(this, "Recieved a gesture released event for an untracked source.");
+                return;
+            }
+
+            if (null != OnPointerReleased)
+            {
+                OnPointerReleased(id);
+            }
         }
     }
 }

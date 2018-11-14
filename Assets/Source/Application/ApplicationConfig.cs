@@ -360,21 +360,7 @@ namespace CreateAR.EnkluPlayer
         {
             get
             {
-                if (null == AllEnvironments || 0 == AllEnvironments.Length)
-                {
-                    return null;
-                }
-
-                for (int i = 0, len = AllEnvironments.Length; i < len; i++)
-                {
-                    var env = AllEnvironments[i];
-                    if (env.Name == Current)
-                    {
-                        return env;
-                    }
-                }
-
-                return null;
+                return EnvironmentByName(Current);
             }
         }
 
@@ -403,6 +389,30 @@ namespace CreateAR.EnkluPlayer
 
                 return defaultCreds;
             }
+        }
+
+        /// <summary>
+        /// Retrieves an environment by name.
+        /// </summary>
+        /// <param name="name">The name of the environment to use.</param>
+        /// <returns></returns>
+        public EnvironmentData EnvironmentByName(string name)
+        {
+            if (null == AllEnvironments || 0 == AllEnvironments.Length)
+            {
+                return null;
+            }
+
+            for (int i = 0, len = AllEnvironments.Length; i < len; i++)
+            {
+                var env = AllEnvironments[i];
+                if (env.Name == name)
+                {
+                    return env;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
