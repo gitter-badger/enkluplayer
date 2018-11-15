@@ -33,7 +33,16 @@
         /// <summary>
         /// World position. DO NOT cache this value, as it shifts with world anchor readjustment.
         /// </summary>
-        [DenyJsAccess]
         Vec3 worldPosition { get; }
+        
+        /// <summary>
+        /// World rotation. DO NOT cache this value, as it shifts with world anchor readjustment.
+        /// </summary>
+        Quat worldRotation { get; }
+        
+        /// <summary>
+        /// World scale. This one is probably safe to cache. Probably.
+        /// </summary>
+        Vec3 worldScale { get; }
     }
 }

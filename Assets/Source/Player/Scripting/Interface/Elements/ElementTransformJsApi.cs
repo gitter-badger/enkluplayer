@@ -66,7 +66,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        [DenyJsAccess]
         public Vec3 worldPosition
         {
             get
@@ -77,6 +76,34 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 Log.Warning(this, "Trying to get worldPosition for non-widget. Tell us your use-case!");
                 return position;
+            }
+        }
+
+        /// <inheritdoc />
+        public Quat worldRotation
+        {
+            get
+            {
+                if (_widget != null)
+                {
+                    return _widget.GameObject.transform.rotation.ToQuat();
+                }
+                Log.Warning(this, "Trying to get worldRotation for non-widget. Tell us your use-case!");
+                return rotation;
+            }
+        }
+
+        /// <inheritdoc />
+        public Vec3 worldScale
+        {
+            get
+            {
+                if (_widget != null)
+                {
+                    return _widget.GameObject.transform.lossyScale.ToVec();
+                }
+                Log.Warning(this, "Trying to get worldScale for non-widget. Tell us your use-case!");
+                return scale;
             }
         }
 

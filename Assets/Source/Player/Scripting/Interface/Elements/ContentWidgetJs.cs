@@ -6,7 +6,7 @@ namespace CreateAR.EnkluPlayer.Scripting
     /// <summary>
     /// ElementJs derivation for Elements that are ContentWidgets.
     /// </summary>
-    public class ContentElementJs : ElementJs
+    public class ContentWidgetJs : ElementJs
     {
         /// <summary>
         /// The animator interface.
@@ -22,7 +22,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// The audio interface.
         /// </summary>
         public AudioJsApi audio { get; private set; }
-        
+
         /// <summary>
         /// The underling ContentWidget.
         /// </summary>
@@ -40,14 +40,14 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ContentElementJs(
+        public ContentWidgetJs(
             IScriptManager scripts,
             IElementJsCache cache,
             Element element) 
             : base(scripts, cache, element)
         {
-            _contentWidget = (ContentWidget) _element;
-            _contentWidget.OnLoaded.OnSuccess(CacheAnimator);
+            _contentWidget = ((ContentWidget) _element);
+            _contentWidget.OnLoaded.OnSuccess(CacheComponents);
         }
 
         /// <inheritdoc />
@@ -55,13 +55,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             base.Cleanup();
 
-            _contentWidget.OnLoaded.Remove(CacheAnimator);
+            ((ContentWidget) _element).OnLoaded.Remove(CacheComponents);
         }
 
         /// <summary>
         /// Attempts to set <see cref="animator"/>.
         /// </summary>
-        private void CacheAnimator(ContentWidget contentWidget)
+        private void CacheComponents(ContentWidget contentWidget)
         {
             var unityAnimator = contentWidget.GetComponent<Animator>();
             if (unityAnimator != null) 

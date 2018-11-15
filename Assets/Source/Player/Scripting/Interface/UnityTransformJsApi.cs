@@ -85,6 +85,18 @@ namespace CreateAR.EnkluPlayer.Scripting
             get { return UnityTransform.position.ToVec(); }
         }
 
+        /// <inheritdoc />
+        public Quat worldRotation
+        {
+            get { return UnityTransform.rotation.ToQuat();  }
+        }
+
+        /// <inheritdoc />
+        public Vec3 worldScale
+        {
+            get { return UnityTransform.lossyScale.ToVec(); }
+        }
+
         /// <summary>
         /// Updates <see cref="position"/>, <see cref="rotation"/>, and <see cref="scale"/> to match the underlying Unity Transform's values.
         /// </summary>
