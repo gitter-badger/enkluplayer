@@ -75,13 +75,14 @@ namespace CreateAR.EnkluPlayer
         /// Returns true when component-wise approximately equal.
         /// </summary>
         /// <param name="lhs">Another vec3.</param>
+        /// <param name="threshold">Optional value to use for comparison.</param>
         /// <returns></returns>
-        public bool Approximately(Quat lhs)
+        public bool Approximately(Quat lhs, float threshold = float.Epsilon)
         {
-            return Math.Abs(x - lhs.x) < float.Epsilon
-               && Math.Abs(y - lhs.y) < float.Epsilon
-               && Math.Abs(z - lhs.z) < float.Epsilon
-               && Math.Abs(w - lhs.w) < float.Epsilon;
+            return Math.Abs(x - lhs.x) < threshold
+               && Math.Abs(y - lhs.y) < threshold
+               && Math.Abs(z - lhs.z) < threshold
+               && Math.Abs(w - lhs.w) < threshold;
         }
 
         /// <summary>
@@ -195,6 +196,14 @@ namespace CreateAR.EnkluPlayer
         public static Quat Identity
         {
             get { return new Quat(0, 0, 0, 1); }
+        }
+
+        /// <summary>
+        /// Returns the inverse of a Quat.
+        /// </summary>
+        public static Quat Inverse(Quat q)
+        {
+            return new Quat(-q.x, -q.y, -q.z, q.w);
         }
 
         /// <summary>

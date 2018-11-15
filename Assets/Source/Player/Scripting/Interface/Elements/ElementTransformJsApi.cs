@@ -135,5 +135,20 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             rotation = Quat.FromToRotation(Vec3.Forward, direction);
         }
+        
+        /// <inheritdoc />
+        public Vec3 transformPoint(Vec3 src)
+        {
+            // Scale the incoming vec.
+            var cachedScale = worldScale;
+            var rtn = new Vec3(src.x * cachedScale.x, src.y * cachedScale.y, src.z * cachedScale.z);
+            
+            // Rotate it...
+            rtn = Quat.Mult(worldRotation, rtn);
+            
+            // Reposition it!
+            rtn = rtn + worldPosition;
+            return rtn;
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer.Scripting
+﻿using System;
+
+namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// Provides common transform specifics for an element.
@@ -28,6 +30,7 @@
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
+        [Obsolete]
         Vec3 positionRelativeTo(IEntityJs entity);
 
         /// <summary>
@@ -44,5 +47,12 @@
         /// World scale. This one is probably safe to cache. Probably.
         /// </summary>
         Vec3 worldScale { get; }
+
+        /// <summary>
+        /// Transforms a Vec3 to be relative to this transform.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
+        Vec3 transformPoint(Vec3 src);
     }
 }

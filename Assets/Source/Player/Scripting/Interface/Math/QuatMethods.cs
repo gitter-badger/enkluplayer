@@ -22,6 +22,14 @@
         {
             return new Quat(x, y, z, w);
         }
+
+        /// <summary>
+        /// Returns the inverse of a Quat.
+        /// </summary>
+        public static Quat inverse(Quat q)
+        {
+            return Quat.Inverse(q);
+        }
         
         /// <summary>
         /// Creates a Quat from Euler rotations.

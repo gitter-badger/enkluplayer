@@ -123,5 +123,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             return worldPosition - entity.transform.worldPosition;
         }
+
+        /// <inheritdoc />
+        public Vec3 transformPoint(Vec3 point)
+        {
+            return UnityTransform.TransformPoint(point.ToVector()).ToVec();
+        }
     }
 }
