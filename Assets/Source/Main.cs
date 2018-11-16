@@ -178,15 +178,7 @@ namespace CreateAR.EnkluPlayer
                     .AddComponent<PerfMetricsCollector>()
                     .Initialize(metrics);
             }
-
-            // start action workers
-            var worker = _binder.GetInstance<ParserWorker>();
-#if NETFX_CORE
-            Windows.System.Threading.ThreadPool.RunAsync(_ => worker.Start());
-#else
-            System.Threading.ThreadPool.QueueUserWorkItem(_ => worker.Start());
-#endif
-
+            
             // handle restarts
             _binder.GetInstance<IMessageRouter>().Subscribe(
                 MessageTypes.RESTART,
