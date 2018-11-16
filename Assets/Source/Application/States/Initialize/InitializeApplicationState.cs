@@ -29,6 +29,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IMetricsService _metrics;
         private readonly CommandService _commands;
         private readonly BleServiceConfiguration _bleConfig;
+        private readonly EnvironmentUpdateService _envService;
 
         /// <summary>
         /// Id for timer.
@@ -48,7 +49,8 @@ namespace CreateAR.EnkluPlayer
             IAppSceneManager scenes,
             IMetricsService metrics,
             CommandService commands,
-            BleServiceConfiguration bleConfig)
+            BleServiceConfiguration bleConfig,
+            EnvironmentUpdateService envService)
         {
             _messages = messages;
             _assets = assets;
@@ -60,6 +62,7 @@ namespace CreateAR.EnkluPlayer
             _metrics = metrics;
             _commands = commands;
             _bleConfig = bleConfig;
+            _envService = envService;
         }
 
         /// <inheritdoc cref="IState"/>
@@ -88,17 +91,15 @@ namespace CreateAR.EnkluPlayer
                     Loader = _assetLoader,
                     Queries = new StandardQueryResolver()
                 }),
-                _anchors.Initialize(_scenes)
+                _anchors.Initialize(_scenes),
+                _envService.Load()
             };
             
             Async
                 .All(tasks.ToArray())
-                .OnSuccess(_ =>
-                {
-                    _messages.Publish(
-                        MessageTypes.APPLICATION_INITIALIZED,
-                        Void.Instance);
-                })
+                .OnSuccess(_ => _messages.Publish(
+                    MessageTypes.APPLICATION_INITIALIZED,
+                    Void.Instance))
                 .OnFailure(exception =>
                 {
                     // rethrow

@@ -195,7 +195,7 @@ namespace CreateAR.EnkluPlayer
 
                 // login
                 {
-                    if (config.ParsedPlatform == RuntimePlatform.MetroPlayerX86 && UnityEngine.Application.isEditor)
+                    if (config.ParsedPlatform == RuntimePlatform.WSAPlayerX86 && UnityEngine.Application.isEditor)
                     {
                         binder.Bind<ILoginStrategy>().To<EditorLoginStrategy>();
                     }
@@ -636,6 +636,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<TimerJsInterface>().To<TimerJsInterface>().ToSingleton();
                     binder.Bind<SnapJsInterface>().To<SnapJsInterface>().ToSingleton();
                     binder.Bind<MetricsJsInterface>().To<MetricsJsInterface>().ToSingleton();
+                    binder.Bind<PhysicsJsInterface>().To<PhysicsJsInterface>().ToSingleton();
                 }
             }
 

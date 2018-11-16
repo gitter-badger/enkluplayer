@@ -147,6 +147,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private const string EVENT_POINTER_STARTED = "pointerstarted";
         private const string EVENT_POINTER_ENDED = "pointerended";
+        private const string EVENT_POINTER_PRESSED = "pointerpressed";
+        private const string EVENT_POINTER_RELEASED = "pointerreleased";
 
         /// <summary>
         /// Gesture interface.
@@ -159,7 +161,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly Dictionary<string, List<JsFunc>> _listeners = new Dictionary<string, List<JsFunc>>
         {
             { EVENT_POINTER_STARTED, new List<JsFunc>() },
-            { EVENT_POINTER_ENDED, new List<JsFunc>() }
+            { EVENT_POINTER_ENDED, new List<JsFunc>() },
+            { EVENT_POINTER_PRESSED, new List<JsFunc>() },
+            { EVENT_POINTER_RELEASED, new List<JsFunc>() }
         };
 
         /// <summary>
@@ -170,6 +174,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             _gestures = gestures;
             _gestures.OnPointerStarted += Gestures_OnPointerStarted;
             _gestures.OnPointerEnded += Gestures_OnPointerEnded;
+            _gestures.OnPointerPressed += Gestures_OnPointerPressed;
+            _gestures.OnPointerReleased += Gestures_OnPointerReleased;
         }
 
         /// <summary>
@@ -257,6 +263,36 @@ namespace CreateAR.EnkluPlayer.Scripting
             var parameters = new[] { new JsValue(id.ToString()) };
 
             var list = _listeners[EVENT_POINTER_ENDED].ToArray();
+            for (int i = 0, len = list.Length; i < len; i++)
+            {
+                list[i](null, parameters);
+            }
+        }
+
+        /// <summary>
+        /// Called when the gestures interface fires a pointer is pressed.
+        /// </summary>
+        /// <param name="id">Unique id of the pose.</param>
+        private void Gestures_OnPointerPressed(uint id)
+        {
+            var parameters = new[] { new JsValue(id.ToString()) };
+
+            var list = _listeners[EVENT_POINTER_PRESSED].ToArray();
+            for (int i = 0, len = list.Length; i < len; i++)
+            {
+                list[i](null, parameters);
+            }
+        }
+
+        /// <summary>
+        /// Called when the gestures interface fires a pointer is released.
+        /// </summary>
+        /// <param name="id">Unique id of the pose.</param>
+        private void Gestures_OnPointerReleased(uint id)
+        {
+            var parameters = new[] { new JsValue(id.ToString()) };
+            
+            var list = _listeners[EVENT_POINTER_RELEASED].ToArray();
             for (int i = 0, len = list.Length; i < len; i++)
             {
                 list[i](null, parameters);

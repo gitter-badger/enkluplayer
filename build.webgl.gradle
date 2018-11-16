@@ -1,0 +1,94 @@
+apply from: 'common.gradle'
+apply plugin: 'com.createar.plugins.unity'
+apply plugin: 'maven'
+group = 'com.createar'
+
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+
+        maven {
+            url "${nexusUrl}/maven-releases/"
+            credentials {
+                username = nexusUsername
+                password = nexusPassword
+            }
+        }
+    }
+
+    dependencies {
+        classpath 'com.createar.plugins:unity:0.2.4'
+    }
+}
+
+// needed directories
+def platform = 'WebGLPlayer'
+def buildDir = './Builds'
+def outputDir = "$buildDir/$platform"
+
+// archives build
+task archive(type:Zip) {
+    from("$outputDir") {
+        include '**/*'
+    }
+
+    archiveName getArchiveFileName(platform)
+    destinationDir file(buildDir)
+}
+
+// sets the artifacts for upload
+artifacts {
+    archives file("${buildDir}/${getArchiveFileName(platform)}")
+}
+
+// uploads archives
+uploadArchives() {
+    repositories {
+        mavenDeployer {
+            repository(url: nexusUrl + '/maven-releases') {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+
+            pom.version = getArtifactVersion(platform)
+            pom.artifactId = getArtifactName(platform)
+        }
+    }
+}
+
+// webgl
+task runTests(type:com.createar.plugins.unity.UnityUnitTestTask) {
+    target 'webgl'
+    logPath 'webgl.log'
+    unityBin UNITY_BIN
+    username UNITY_USERNAME
+    password UNITY_PASSWORD
+    serial UNITY_SERIAL
+}
+
+task runClean(type:Delete) {
+    delete outputDir
+}
+runClean.dependsOn = [runTests]
+
+task runCsc(type:com.createar.plugins.unity.UnityMethodTask) {
+    method 'CreateAR.EnkluPlayer.Editor.UnityBuilderHooks.BuildWebGlPlayer'
+    target 'webgl'
+    logPath 'webgl.log'
+    unityBin UNITY_BIN
+    username UNITY_USERNAME
+    password UNITY_PASSWORD
+    serial UNITY_SERIAL
+}
+runCsc.dependsOn = [runClean]
+
+task runBuild() {
+    doLast {
+        println 'WebGL build complete.'
+    }
+}
+runBuild.dependsOn = [runCsc]
