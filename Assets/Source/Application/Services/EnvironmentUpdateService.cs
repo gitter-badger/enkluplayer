@@ -70,6 +70,7 @@ namespace CreateAR.EnkluPlayer
                     env.BundlesUrl = message.BundlesUrl;
                     env.ThumbsUrl = message.ThumbsUrl;
                     env.TrellisUrl = message.TrellisBaseUrl;
+                    env.ScriptsUrl = message.ScriptsUrl;
                     
                     RegisterUrlBuilders(env);
                 });
@@ -143,11 +144,18 @@ namespace CreateAR.EnkluPlayer
                 Log.Error(this, "Invalid thumbs URL : " + env.ThumbsUrl);
             }
 
+            var scriptsFormatter = new LoggedUrlFormatter();
+            if (!scriptsFormatter.FromUrl(env.ScriptsUrl))
+            {
+                Log.Error(this, "Invalid script URL : " + env.ScriptsUrl);
+            } 
+
             var urls = _http.Urls;
             urls.Register("trellis", trellisFormatter);
             urls.Register("meshcapture", meshCaptureFormatter);
             urls.Register("assets", assetsFormatter);
             urls.Register("thumbs", thumbsFormatter);
+            urls.Register("scripts", scriptsFormatter);
 
             urls.Default = "trellis";
 
