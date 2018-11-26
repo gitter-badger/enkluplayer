@@ -1,6 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
-using Jint.Native;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -139,16 +138,15 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <inheritdoc />
         public Vec3 transformPoint(Vec3 src)
         {
-            // Scale the incoming vec.
-            var cachedScale = worldScale;
-            var rtn = new Vec3(src.x * cachedScale.x, src.y * cachedScale.y, src.z * cachedScale.z);
-            
-            // Rotate it...
-            rtn = Quat.Mult(worldRotation, rtn);
-            
-            // Reposition it!
-            rtn = rtn + worldPosition;
-            return rtn;
+            var matrix = Matrix4x4.TRS(worldPosition.ToVector(), worldRotation.ToQuaternion(), worldScale.ToVector());
+            return matrix.MultiplyPoint(src.ToVector()).ToVec();
+        }
+
+        /// <inheritdoc />
+        public Vec3 inverseTransformPoint(Vec3 src)
+        {
+            var matrix = Matrix4x4.TRS(worldPosition.ToVector(), worldRotation.ToQuaternion(), worldScale.ToVector()).inverse;
+            return matrix.MultiplyPoint(src.ToVector()).ToVec();
         }
     }
 }

@@ -129,5 +129,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             return UnityTransform.TransformPoint(point.ToVector()).ToVec();
         }
+
+        /// <inheritdoc />
+        public Vec3 inverseTransformPoint(Vec3 point)
+        {
+            return UnityTransform.InverseTransformPoint(point.ToVector()).ToVec();
+        }
     }
 }
