@@ -81,7 +81,7 @@ namespace CreateAR.EnkluPlayer
             }
             catch (Exception ex)
             {
-                Log.Error(this, "Could not create socket : {0}", ex);
+                Log.Error(this, "Could not connect to HostedGraphite : {0}", ex);
             }
 #endif
         }
@@ -171,7 +171,7 @@ namespace CreateAR.EnkluPlayer
             }
             catch (Exception exception)
             {
-                Log.Error(this, "Could not send analytics data : [{0}] : {1}.",
+                Log.Warning(this, "Could not send analytics data : [{0}] : {1}.",
                     originalMessage,
                     exception);
             }
