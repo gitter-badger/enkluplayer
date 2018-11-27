@@ -192,7 +192,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 // remove from options
                 if (!_options.Remove(option))
                 {
-                    Log.Error(this, "Untracked Option removed from Select element!");
+                    Log.Warning(this, "Untracked Option removed from Select element!");
                     return;
                 }
 
