@@ -93,18 +93,42 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
-        private readonly ConcurrentQueue<Record> _queue = new ConcurrentQueue<Record>();
+        /// <summary>
+        /// Queue of records that need to be sent off.
+        /// </summary>
+        private readonly BlockingCollection<Record> _queue = new BlockingCollection<Record>();
 
+        /// <summary>
+        /// Hostname so we can reconnect.
+        /// </summary>
         private string _hostname;
+
+        /// <summary>
+        /// API key for sending to HostedGraphite.
+        /// </summary>
         private string _key;
 
+        /// <summary>
+        /// The C# UDP socket API.
+        /// </summary>
         private DatagramSocket _socket;
 
+        /// <summary>
+        /// For writing to a socket.
+        /// </summary>
         private DataWriter _writer;
 
+        /// <summary>
+        /// Specific id for the current consumer task.
+        /// </summary>
         private string _consumerId;
+
+        /// <summary>
+        /// Allows for cancelling the consumer task.
+        /// </summary>
         private CancellationTokenSource _source;
 
+        /// <inheritdoc />
         public void Setup(string hostname, string key)
         {
             _hostname = hostname;
@@ -113,9 +137,13 @@ namespace CreateAR.EnkluPlayer
             Connect();
         }
 
+        /// <inheritdoc />
         public void Send(string key, float value)
         {
-            _queue.Enqueue(new Record(key, value));
+            if (!_queue.TryAdd(new Record(key, value), 5))
+            {
+                Log.Warning(this, "Timed out queuing metric.");
+            }
         }
 
         /// <inheritdoc />
@@ -158,69 +186,88 @@ namespace CreateAR.EnkluPlayer
 
                 _writer = new DataWriter(_socket.OutputStream);
 
-                Start();
+                StartConsumer();
             }
             catch (Exception exception)
             {
                 Log.Error(this, "Could not connect to HostedGraphite : {0}.", exception);
                 
-                // TODO: schedule a retry
+                // TODO: schedule a retry for later
             }
         }
 
         /// <summary>
-        /// Start consuming.
+        /// Starts a consumer task.
         /// </summary>
-        private void Start()
+        private void StartConsumer()
         {
             var local = _consumerId = Guid.NewGuid().ToString();
 
-            // cancel the last one
+            // cancel the last consumer thread
             _source?.Cancel();
 
-            // new cancellation
+            // new cancellation source
             _source = new CancellationTokenSource();
-            var token = _source.Token;
 
             // create consumer
-            Task.Run(async () =>
+            try
             {
-                var isReconnect = false;
-                
-                while (local == _consumerId && _queue.TryDequeue(out var payload))
+                Task.Run(async () =>
                 {
-                    _writer.WriteBytes(payload.ToBytes(_key));
+                    var isReconnect = false;
 
-                    try
+                    // check that the consumer id matches-- if not then a consumer has been started
+                    // since this consumer was started
+                    while (local == _consumerId)
                     {
-                        await _writer.StoreAsync();
-                    }
-                    catch (Exception exception)
-                    {
-                        // try again later
-                        Reschedule(payload);
-
-                        if (SocketError.GetStatus(exception.HResult) == SocketErrorStatus.Unknown)
+                        // take will block until there is something in the queue or the token has been cancelled
+                        Record payload;
+                        try
                         {
-                            Log.Warning(this, "Socket died, reconnecting.");
-
-                            // we need to reconnect
-                            isReconnect = true;
-
-                            // kill!
-                            _writer?.Dispose();
-                            _socket?.Dispose();
-
+                            payload = _queue.Take(_source.Token);
+                        }
+                        catch
+                        {
                             break;
                         }
+
+                        _writer.WriteBytes(payload.ToBytes(_key));
+
+                        try
+                        {
+                            await _writer.StoreAsync();
+                        }
+                        catch (Exception exception)
+                        {
+                            // try again later
+                            Reschedule(payload);
+
+                            if (SocketError.GetStatus(exception.HResult) == SocketErrorStatus.Unknown)
+                            {
+                                Log.Warning(this, "Socket died, reconnecting.");
+
+                                // we need to reconnect
+                                isReconnect = true;
+
+                                // kill!
+                                _writer?.Dispose();
+                                _socket?.Dispose();
+
+                                break;
+                            }
+                        }
                     }
-                }
-                
-                if (isReconnect)
-                {
-                    Connect();
-                }
-            }, token);
+
+                    if (isReconnect)
+                    {
+                        Connect();
+                    }
+                }, _source.Token);
+            }
+            catch
+            {
+                // this will be called when the task has been cancelled
+            }
         }
 
         /// <summary>
@@ -241,8 +288,11 @@ namespace CreateAR.EnkluPlayer
             }
             else
             {
-                // TODO: schedule for retry later
-                _queue.Enqueue(payload);
+                // TODO: schedule for retry later instead of immediately
+                if (!_queue.TryAdd(payload, 5))
+                {
+                    Log.Warning(this, "Rescheduling metric timed out.");
+                }
             }
         }
     }
