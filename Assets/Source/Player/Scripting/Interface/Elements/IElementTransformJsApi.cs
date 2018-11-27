@@ -53,13 +53,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="src"></param>
         /// <returns></returns>
-        Vec3 transformPoint(Vec3 src);
+        Vec3 localToWorld(Vec3 src);
 
         /// <summary>
         /// Transforms a Vec3 from world space to local space.
         /// </summary>
         /// <param name="src"></param>
         /// <returns></returns>
-        Vec3 inverseTransformPoint(Vec3 src);
+        Vec3 worldToLocal(Vec3 src);
     }
 }

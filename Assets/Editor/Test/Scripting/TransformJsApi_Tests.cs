@@ -132,7 +132,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _element.transform.scale = new Vec3(3, -1, 0.5f);
             
             var point = _engine.Run<Vec3>(@"
-                element.transform.transformPoint(v.create(4, -5, 6));
+                element.transform.localToWorld(v.create(4, -5, 6));
             ");
 
             var widget = (Widget) _element.Element;
@@ -150,7 +150,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _element.transform.scale = new Vec3(3, -1, 0.5f);
             
             var point = _engine.Run<Vec3>(@"
-                element.transform.inverseTransformPoint(v.create(4, -5, 6));
+                element.transform.worldToLocal(v.create(4, -5, 6));
             ");
 
             var widget = (Widget) _element.Element;

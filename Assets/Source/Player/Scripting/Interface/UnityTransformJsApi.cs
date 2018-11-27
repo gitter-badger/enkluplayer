@@ -125,13 +125,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        public Vec3 transformPoint(Vec3 point)
+        public Vec3 localToWorld(Vec3 point)
         {
             return UnityTransform.TransformPoint(point.ToVector()).ToVec();
         }
 
         /// <inheritdoc />
-        public Vec3 inverseTransformPoint(Vec3 point)
+        public Vec3 worldToLocal(Vec3 point)
         {
             return UnityTransform.InverseTransformPoint(point.ToVector()).ToVec();
         }

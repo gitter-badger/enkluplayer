@@ -136,14 +136,14 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
         
         /// <inheritdoc />
-        public Vec3 transformPoint(Vec3 src)
+        public Vec3 localToWorld(Vec3 src)
         {
             var matrix = Matrix4x4.TRS(worldPosition.ToVector(), worldRotation.ToQuaternion(), worldScale.ToVector());
             return matrix.MultiplyPoint(src.ToVector()).ToVec();
         }
 
         /// <inheritdoc />
-        public Vec3 inverseTransformPoint(Vec3 src)
+        public Vec3 worldToLocal(Vec3 src)
         {
             var matrix = Matrix4x4.TRS(worldPosition.ToVector(), worldRotation.ToQuaternion(), worldScale.ToVector()).inverse;
             return matrix.MultiplyPoint(src.ToVector()).ToVec();
