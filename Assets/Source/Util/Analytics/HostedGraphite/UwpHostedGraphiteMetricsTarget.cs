@@ -12,6 +12,9 @@ using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// Uwp specific implementation for sending metrics to HostedGraphite.
+    /// </summary>
     public class UwpHostedGraphiteMetricsTarget : IHostedGraphiteMetricsTarget, IDisposable
     {
         /// <summary>

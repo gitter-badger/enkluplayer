@@ -75,32 +75,7 @@ namespace CreateAR.EnkluPlayer
 
             // always run
 	        UnityEngine.Application.runInBackground = true;
-
-            // setup logging
-	        Log.Filter = LogLevel.Debug;
-
-            // forward logs to unity
-	        Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
-	        {
-	            Level = false,
-	            Timestamp = false,
-	            TypeName = true
-	        }));
-
-            // non-webgl should log to file
-#if !UNITY_WEBGL
-            Log.AddLogTarget(new FileLogTarget(
-				new DefaultLogFormatter
-				{
-                    Level = true,
-                    Timestamp = true,
-                    TypeName = true
-				},
-                System.IO.Path.Combine(
-                    UnityEngine.Application.persistentDataPath,
-                    "Application.log")));
-#endif // UNITY_WEBGL
-
+            
             // setup debug renderer
             var host = FindObjectOfType<DebugRendererMonoBehaviour>();
 	        if (null != host)
@@ -114,24 +89,10 @@ namespace CreateAR.EnkluPlayer
 
             // load bindings
             _binder.Load(new EnkluPlayerModule());
-
+            
             // start timer
 	        _initTimer = _binder.GetInstance<IMetricsService>().Timer(MetricsKeys.APPLICATION_INIT).Start();
-
-	        // non-editor builds should log to loggly
-	        if (!UnityEngine.Application.isEditor)
-	        {
-	            Log.AddLogTarget(new LogglyLogTarget(
-	                "1f0810f5-db28-4ea3-aeea-ec83d8cb3c0f",
-	                "EnkluPlayer",
-	                _binder.GetInstance<ILogglyMetadataProvider>(),
-	                _binder.GetInstance<IBootstrapper>())
-	            {
-                    // only log warnings + above
-                    Filter = LogLevel.Warning
-	            });
-            }
-
+            
             // create application!
             _app = _binder.GetInstance<Application>();
             

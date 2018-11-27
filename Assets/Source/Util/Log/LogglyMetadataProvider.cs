@@ -4,7 +4,7 @@ using CreateAR.Commons.Unity.Messaging;
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
-    /// Provides user metadata to logglu.
+    /// Provides user metadata to loggly.
     /// </summary>
     public class LogglyMetadataProvider : ILogglyMetadataProvider
     {
@@ -30,9 +30,9 @@ namespace CreateAR.EnkluPlayer
                 {
                     var profile = config.Network.Credentials;
 
-                    Meta["userId"] = profile.UserId ?? string.Empty;
-                    Meta["email"] = profile.Email ?? string.Empty;
-                    Meta["environment"] = profile.Environment ?? string.Empty;
+                    Meta["userId"] = profile.UserId ?? "Unknown";
+                    Meta["environment"] = profile.Environment ?? "Unknown";
+                    Meta["version"] = config.Version;
                 });
         }
     }
