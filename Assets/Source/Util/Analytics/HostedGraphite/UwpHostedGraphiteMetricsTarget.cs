@@ -40,7 +40,7 @@ namespace CreateAR.EnkluPlayer
             /// <summary>
             /// Timestamp is only set if retried.
             /// </summary>
-            private double _timestamp;
+            private double _timestamp = 0.0;
 
             /// <summary>
             /// Tracks number of tries.
@@ -70,7 +70,7 @@ namespace CreateAR.EnkluPlayer
             {
                 string message;
 
-                if (_timestamp > double.Epsilon)
+                if (_timestamp < double.Epsilon)
                 {
                     message = $"{appKey}.{_key} {_value:0.####}\n";
                 }
@@ -187,6 +187,8 @@ namespace CreateAR.EnkluPlayer
                 _socket = new DatagramSocket();
                 await _socket.ConnectAsync(new HostName(_hostname), "2003");
 
+                Log.Info(this, "Successfully connected to graphite.");
+
                 _writer = new DataWriter(_socket.OutputStream);
 
                 StartConsumer();
@@ -217,8 +219,12 @@ namespace CreateAR.EnkluPlayer
             {
                 var token = _source.Token;
 
+                Log.Info(this, "Starting graphite consumer thread.");
+
                 Task.Run(async () =>
                 {
+                    Log.Info(this, "Consumer thread started.");
+
                     var isReconnect = false;
 
                     // check if we've been cancelled
@@ -234,7 +240,7 @@ namespace CreateAR.EnkluPlayer
                         {
                             break;
                         }
-
+                        
                         _writer.WriteBytes(payload.ToBytes(_key));
 
                         try
