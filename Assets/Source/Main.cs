@@ -148,7 +148,12 @@ namespace CreateAR.EnkluPlayer
                     _app.Uninitialize();
                     _app.Initialize();
                 });
+
+            // test command
+            // TODO: Move to test service
+            _binder.GetInstance<IVoiceCommandManager>().RegisterAdmin("crash", _ => Log.Fatal(this, "Test crash."));
             
+            // init app
             _app.Initialize();
 
             // stop timer
