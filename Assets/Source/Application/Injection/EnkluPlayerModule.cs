@@ -430,7 +430,10 @@ namespace CreateAR.EnkluPlayer
                     "1f0810f5-db28-4ea3-aeea-ec83d8cb3c0f",
                     "EnkluPlayer",
                     binder.GetInstance<ILogglyMetadataProvider>(),
-                    binder.GetInstance<IBootstrapper>()));
+                    binder.GetInstance<IBootstrapper>())
+                {
+                    Filter = LogLevel.Error
+                });
             }
         }
 
