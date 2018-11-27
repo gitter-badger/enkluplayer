@@ -149,7 +149,7 @@ namespace CreateAR.EnkluPlayer
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this, "Could not load credential information: {0}", exception);
+                    Log.Info(this, "Could not load credential information: {0}", exception);
 
                     NetworkLogin();
                 });

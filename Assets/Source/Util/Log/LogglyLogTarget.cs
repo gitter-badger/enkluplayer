@@ -42,18 +42,13 @@ namespace CreateAR.EnkluPlayer
             /// Stack trace.
             /// </summary>
             public string StackTrace;
+
+            /// <summary>
+            /// Class name of the caller.
+            /// </summary>
+            public string ClassName;
         }
-
-        /// <summary>
-        /// The log formatter.
-        /// </summary>
-        private readonly ILogFormatter _formatter = new DefaultLogFormatter
-        {
-            Level = false,
-            Timestamp = true,
-            TypeName = true
-        };
-
+        
         /// <summary>
         /// Loggly customer token.
         /// </summary>
@@ -119,8 +114,9 @@ namespace CreateAR.EnkluPlayer
                 _records.Add(new LogRecord
                 {
                     Level = level.ToString(),
-                    Message = _formatter.Format(level, caller, message),
-                    StackTrace = Environment.StackTrace
+                    Message = message,
+                    StackTrace = Environment.StackTrace,
+                    ClassName = caller.GetType().ToString()
                 });
             }
         }
@@ -153,6 +149,7 @@ namespace CreateAR.EnkluPlayer
                         loggingForm.AddField("level", record.Level);
                         loggingForm.AddField("message", record.Message);
                         loggingForm.AddField("stackTrace", record.StackTrace);
+                        loggingForm.AddField("className", record.ClassName);
                         loggingForm.AddField("deviceModel", SystemInfo.deviceModel);
                         loggingForm.AddField("platform", UnityEngine.Application.platform.ToString());
 
