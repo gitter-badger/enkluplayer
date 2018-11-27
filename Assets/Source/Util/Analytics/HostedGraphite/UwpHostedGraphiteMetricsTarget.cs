@@ -117,12 +117,7 @@ namespace CreateAR.EnkluPlayer
         /// For writing to a socket.
         /// </summary>
         private DataWriter _writer;
-
-        /// <summary>
-        /// Specific id for the current consumer task.
-        /// </summary>
-        private string _consumerId;
-
+        
         /// <summary>
         /// Allows for cancelling the consumer task.
         /// </summary>
@@ -167,9 +162,14 @@ namespace CreateAR.EnkluPlayer
         private void ReleaseUnmanagedResources()
         {
             _writer?.Dispose();
+            _writer = null;
+
             _socket?.Dispose();
+            _socket = null;
+
             _source?.Cancel();
-            _consumerId = string.Empty;
+            _source?.Dispose();
+            _source = null;
         }
 
         /// <summary>
@@ -201,10 +201,10 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void StartConsumer()
         {
-            var local = _consumerId = Guid.NewGuid().ToString();
-
             // cancel the last consumer thread
             _source?.Cancel();
+            _source?.Dispose();
+            _source = null;
 
             // new cancellation source
             _source = new CancellationTokenSource();
@@ -212,13 +212,14 @@ namespace CreateAR.EnkluPlayer
             // create consumer
             try
             {
+                var token = _source.Token;
+
                 Task.Run(async () =>
                 {
                     var isReconnect = false;
 
-                    // check that the consumer id matches-- if not then a consumer has been started
-                    // since this consumer was started
-                    while (local == _consumerId)
+                    // check if we've been cancelled
+                    while (!token.IsCancellationRequested)
                     {
                         // take will block until there is something in the queue or the token has been cancelled
                         Record payload;
@@ -251,7 +252,10 @@ namespace CreateAR.EnkluPlayer
 
                                 // kill!
                                 _writer?.Dispose();
+                                _writer = null;
+
                                 _socket?.Dispose();
+                                _socket = null;
 
                                 break;
                             }
@@ -262,7 +266,9 @@ namespace CreateAR.EnkluPlayer
                     {
                         Connect();
                     }
-                }, _source.Token);
+
+                    // we don't really need to use token.ThrowIfCancellationRequested()
+                }, token);
             }
             catch
             {
