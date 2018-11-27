@@ -45,7 +45,7 @@ namespace CreateAR.EnkluPlayer
             private int _tries;
 
             /// <summary>
-            /// Trie iff retried enough times.
+            /// True iff retried enough times.
             /// </summary>
             public bool IsExpired => _tries >= MAX_RETRIES;
 

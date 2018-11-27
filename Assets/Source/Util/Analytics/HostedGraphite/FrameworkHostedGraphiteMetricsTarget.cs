@@ -71,14 +71,16 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Send(string key, float value)
         {
+            if (null == _socket)
+            {
+                return;
+            }
+
             var message = string.Format("{0}.{1} {2}\n", _appKey, key,
                 value);
             var bytes = Encoding.ASCII.GetBytes(message);
-
-            if (null != _socket)
-            {
-                _socket.SendTo(bytes, _endpoint);
-            }
+            
+            _socket.SendTo(bytes, _endpoint);
         }
 
         /// <inheritdoc />
