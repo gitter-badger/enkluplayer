@@ -41,6 +41,9 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<MeshCaptureConfig>().To(LookupComponent<MeshCaptureConfig>());
             }
 
+            // required for loggly
+            binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
+
             // load configuration
             var config = LoadConfig();
             binder.Bind<ApplicationConfig>().ToValue(config);
@@ -57,7 +60,6 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<ISerializer>().To<JsonSerializer>();
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
-                binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
 
                 // parser is async on platforms with threads
 #if UNITY_WEBGL
