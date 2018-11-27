@@ -65,7 +65,7 @@ namespace CreateAR.EnkluPlayer.Vine
                         break;
                     }
 
-                    Log.Info(this, "ParserWorker->Next()");
+                    Log.Info(this, "ActionWorker->Next()");
 
                     var action = _queue.Dequeue();
                     action();

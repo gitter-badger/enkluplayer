@@ -39,6 +39,15 @@ namespace CreateAR.EnkluPlayer
             binder.Bind<ApplicationConfig>().ToValue(config);
             binder.Bind<NetworkConfig>().ToValue(config.Network);
 
+            // tagged components
+            {
+                binder.Bind<MainCamera>().ToValue(LookupComponent<MainCamera>());
+                binder.Bind<InputConfig>().ToValue(LookupComponent<InputConfig>());
+                binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
+                binder.Bind<WebBridge>().ToValue(LookupComponent<WebBridge>());
+                binder.Bind<GridRenderer>().ToValue(LookupComponent<GridRenderer>());
+            }
+
             // misc dependencies
             {
                 binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>().ToSingleton();
@@ -46,7 +55,23 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
-                binder.Bind<ParserWorker>().To<ParserWorker>().ToSingleton();
+
+                // parser is async on platforms with threads
+#if UNITY_WEBGL
+                binder.Bind<IParserWorker>().To<SyncParserWorker>().ToSingleton();
+#else
+                binder.Bind<IParserWorker>().To<ThreadedParserWorker>().ToSingleton();
+#endif
+
+                // start worker
+                var worker = binder.GetInstance<IParserWorker>();
+#if NETFX_CORE
+                Windows.System.Threading.ThreadPool.RunAsync(_ => worker.Start());
+#elif UNITY_WEBGL
+                worker.Start();
+#else
+                System.Threading.ThreadPool.QueueUserWorkItem(_ => worker.Start());
+#endif
 
                 // metrics
 #if NETFX_CORE
@@ -125,15 +150,6 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IState>().To<EditModeInputState>().ToName(NamedInjections.INPUT_STATE_DEFAULT);
                     binder.Bind<IInputManager>().To<InputManager>().ToSingleton();
                     binder.Bind<IMultiInput>().To<MultiInput>().ToSingleton();
-                }
-
-                // tagged components
-                {
-                    binder.Bind<MainCamera>().ToValue(LookupComponent<MainCamera>());
-                    binder.Bind<InputConfig>().ToValue(LookupComponent<InputConfig>());
-                    binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
-                    binder.Bind<WebBridge>().ToValue(LookupComponent<WebBridge>());
-                    binder.Bind<GridRenderer>().ToValue(LookupComponent<GridRenderer>());
                 }
             }
 
