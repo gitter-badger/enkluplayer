@@ -156,14 +156,14 @@ namespace CreateAR.EnkluPlayer
             if (config.Enabled)
             {
                 var targets = config.Targets.Split(',');
-                if (targets.Contains(HostedGraphiteMetricsTarget.TYPE)
-                    && !DeviceHelper.IsWebGl())
+                if (targets.Contains("HostedGraphite") && !DeviceHelper.IsWebGl())
                 {
                     Log.Info(this, "Adding HostedGraphiteMetricsTarget.");
 
-                    metrics.AddTarget(new HostedGraphiteMetricsTarget(
-                        config.Hostname,
-                        config.ApplicationKey));
+                    var target = _binder.GetInstance<IHostedGraphiteMetricsTarget>();
+                    target.Setup(config.Hostname, config.ApplicationKey);
+
+                    metrics.AddTarget(target);
                 }
 
                 if (targets.Contains(FileMetricsTarget.TYPE))

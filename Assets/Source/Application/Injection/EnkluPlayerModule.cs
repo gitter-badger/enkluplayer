@@ -46,8 +46,15 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
                 binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
-                binder.Bind<IMetricsService>().To<MetricsService>().ToSingleton();
                 binder.Bind<ParserWorker>().To<ParserWorker>().ToSingleton();
+
+                // metrics
+#if NETFX_CORE
+                binder.Bind<IHostedGraphiteMetricsTarget>().To<UwpHostedGraphiteMetricsTarget>().ToSingleton();
+#else
+                binder.Bind<IHostedGraphiteMetricsTarget>().To<FrameworkHostedGraphiteMetricsTarget>().ToSingleton();
+#endif
+                binder.Bind<IMetricsService>().To<MetricsService>().ToSingleton();
 
                 if (config.Network.Offline)
                 {
@@ -149,11 +156,11 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
 #elif UNITY_WEBGL
                     binder.Bind<IConnection>().To<PassthroughConnection>().ToSingleton();
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
                         binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
-    #else
+#else
                         binder.Bind<IBridge>().To(LookupComponent<WebBridge>());
-    #endif
+#endif
 #elif UNITY_EDITOR
                     binder.Bind<IBridge>().To<WebSocketBridge>().ToSingleton();
                     binder.Bind<IConnection>().To<WebSocketSharpConnection>().ToSingleton();
