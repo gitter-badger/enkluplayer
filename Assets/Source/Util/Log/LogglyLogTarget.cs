@@ -50,7 +50,7 @@ namespace CreateAR.EnkluPlayer
         private readonly ILogFormatter _formatter = new DefaultLogFormatter
         {
             Level = false,
-            Timestamp = true,
+            Timestamp = false,
             TypeName = true
         };
 
