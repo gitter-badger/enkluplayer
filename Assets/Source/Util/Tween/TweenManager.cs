@@ -73,7 +73,7 @@ namespace CreateAR.EnkluPlayer.Util
     {
         public ElementSchema Schema { get; private set; }
         public TweenData Data { get; private set; }
-
+        
         public float Time
         {
             get { return _time; }
@@ -84,9 +84,28 @@ namespace CreateAR.EnkluPlayer.Util
                 // parameterized t
                 var t = _ease(Mathf.Clamp((_time - Data.DelaySec) / Data.DurationSec, 0, 1));
                 Update(t);
+
+                // completion callback
+                if (Math.Abs(1f - t) < Mathf.Epsilon)
+                {
+                    if (!_isComplete)
+                    {
+                        if (null != Data.OnComplete)
+                        {
+                            Data.OnComplete();
+                        }
+                    }
+
+                    _isComplete = true;
+                }
+                else
+                {
+                    _isComplete = false;
+                }
             }
         }
 
+        private bool _isComplete;
         private float _time;
         protected readonly Func<float, float> _ease;
 
@@ -106,7 +125,6 @@ namespace CreateAR.EnkluPlayer.Util
         private readonly ElementSchemaProp<float> _prop;
         private readonly float _originalValue;
         private readonly float _diff;
-        private bool _isComplete;
         
         public FloatTween(ElementSchema schema, TweenData data)
             : base(schema, data)
@@ -119,23 +137,6 @@ namespace CreateAR.EnkluPlayer.Util
         protected override void Update(float parameter)
         {
             _prop.Value = _originalValue + parameter * _diff;
-
-            if (Math.Abs(1f - parameter) < Mathf.Epsilon)
-            {
-                if (!_isComplete)
-                {
-                    if (null != Data.OnComplete)
-                    {
-                        Data.OnComplete();
-                    }
-                }
-
-                _isComplete = true;
-            }
-            else
-            {
-                _isComplete = false;
-            }
         }
     }
 }
