@@ -30,23 +30,36 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc cref="IInjectionModule"/>
         public void Load(InjectionBinder binder)
         {
-            // main configuration
+            // bind tagged components first-- these already exist
+            {
+                binder.Bind<MainCamera>().ToValue(LookupComponent<MainCamera>());
+                binder.Bind<InputConfig>().ToValue(LookupComponent<InputConfig>());
+                binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
+                binder.Bind<WebBridge>().ToValue(LookupComponent<WebBridge>());
+                binder.Bind<GridRenderer>().ToValue(LookupComponent<GridRenderer>());
+                binder.Bind<IVineTable>().To(LookupComponent<VineTable>());
+                binder.Bind<MeshCaptureConfig>().To(LookupComponent<MeshCaptureConfig>());
+            }
+
+            // required for loggly
+            binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
+
+            // load configuration
             var config = LoadConfig();
-
-            Log.Filter = config.Log.ParsedLevel;
-            Log.Info(this, "ApplicationConfig:\n{0}", JsonConvert.SerializeObject(config, Formatting.Indented));
-
             binder.Bind<ApplicationConfig>().ToValue(config);
             binder.Bind<NetworkConfig>().ToValue(config.Network);
 
+            // setup logging
+            SetupLogging(binder, config.Log);
+
+            // log out the config ASAP
+            Log.Info(this, "ApplicationConfig:\n{0}", JsonConvert.SerializeObject(config, Formatting.Indented));
+
             // misc dependencies
             {
-                binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>().ToSingleton();
                 binder.Bind<ISerializer>().To<JsonSerializer>();
                 binder.Bind<JsonSerializer>().To<JsonSerializer>();
                 binder.Bind<UrlFormatterCollection>().To<UrlFormatterCollection>().ToSingleton();
-                binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
-                binder.Bind<IMetricsService>().To<MetricsService>().ToSingleton();
 
                 // parser is async on platforms with threads
 #if UNITY_WEBGL
@@ -64,6 +77,14 @@ namespace CreateAR.EnkluPlayer
 #else
                 System.Threading.ThreadPool.QueueUserWorkItem(_ => worker.Start());
 #endif
+
+                // metrics
+#if NETFX_CORE
+                binder.Bind<IHostedGraphiteMetricsTarget>().To<UwpHostedGraphiteMetricsTarget>().ToSingleton();
+#else
+                binder.Bind<IHostedGraphiteMetricsTarget>().To<FrameworkHostedGraphiteMetricsTarget>().ToSingleton();
+#endif
+                binder.Bind<IMetricsService>().To<MetricsService>().ToSingleton();
 
                 if (config.Network.Offline)
                 {
@@ -112,7 +133,6 @@ namespace CreateAR.EnkluPlayer
                 
                 binder.Bind<IElementFactory>().To<ElementFactory>().ToSingleton();
                 binder.Bind<IVinePreProcessor>().To<JsVinePreProcessor>().ToSingleton();
-                binder.Bind<IVineTable>().To(LookupComponent<VineTable>());
                 binder.Bind<VineLoader>().To<VineLoader>().ToSingleton();
                 binder.Bind<VineImporter>().To<VineImporter>().ToSingleton();
 
@@ -134,15 +154,6 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IState>().To<EditModeInputState>().ToName(NamedInjections.INPUT_STATE_DEFAULT);
                     binder.Bind<IInputManager>().To<InputManager>().ToSingleton();
                     binder.Bind<IMultiInput>().To<MultiInput>().ToSingleton();
-                }
-
-                // tagged components
-                {
-                    binder.Bind<MainCamera>().ToValue(LookupComponent<MainCamera>());
-                    binder.Bind<InputConfig>().ToValue(LookupComponent<InputConfig>());
-                    binder.Bind<IBootstrapper>().ToValue(LookupComponent<MonoBehaviourBootstrapper>());
-                    binder.Bind<WebBridge>().ToValue(LookupComponent<WebBridge>());
-                    binder.Bind<GridRenderer>().ToValue(LookupComponent<GridRenderer>());
                 }
             }
 
@@ -263,7 +274,6 @@ namespace CreateAR.EnkluPlayer
                         // tools
                         {
                             binder.Bind<ToolModeApplicationState>().To<ToolModeApplicationState>();
-                            binder.Bind<MeshCaptureConfig>().To(LookupComponent<MeshCaptureConfig>());
 #if !UNITY_EDITOR && UNITY_WSA
                             binder.Bind<IMeshCaptureService>().To<HoloLensMeshCaptureService>().ToSingleton();
 #else
@@ -375,6 +385,57 @@ namespace CreateAR.EnkluPlayer
                         binder.GetInstance<CommandService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
+            }
+        }
+
+        /// <summary>
+        /// Sets up log targets.
+        /// </summary>
+        private void SetupLogging(InjectionBinder binder, LogAppConfig config)
+        {
+            // forward logs to unity
+            Log.AddLogTarget(new UnityLogTarget(new DefaultLogFormatter
+            {
+                Level = false,
+                Timestamp = false,
+                TypeName = true
+            })
+            {
+                Filter = config.ParsedLevel
+            });
+
+            // non-webgl should log to file
+#if !UNITY_WEBGL
+            Log.AddLogTarget(new FileLogTarget(
+                new DefaultLogFormatter
+                {
+                    Level = true,
+                    Timestamp = true,
+                    TypeName = true
+                },
+                System.IO.Path.Combine(
+                    UnityEngine.Application.persistentDataPath,
+                    "Application.log"))
+            {
+                // warning and up
+                Filter = LogLevel.Warning
+            });
+#endif // UNITY_WEBGL
+
+            // non-editor builds should log to loggly
+            if (!UnityEngine.Application.isEditor)
+            {
+                binder.Bind<ILogglyMetadataProvider>().To<LogglyMetadataProvider>().ToSingleton();
+
+                Log.AddLogTarget(new LogglyLogTarget(
+                    // TODO: move to config
+                    "1f0810f5-db28-4ea3-aeea-ec83d8cb3c0f",
+                    "EnkluPlayer",
+                    binder.GetInstance<ILogglyMetadataProvider>(),
+                    binder.GetInstance<IBootstrapper>())
+                {
+                    Filter = LogLevel.Error
+                });
             }
         }
 

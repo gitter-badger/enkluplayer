@@ -32,7 +32,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             if (type == typeof(ContentWidget))
             {
-                return new ContentElementJs(_scripts, jsCache, element);
+                return new ContentWidgetJs(_scripts, jsCache, element);
             }
 
             return new ElementJs(_scripts, jsCache, element);
