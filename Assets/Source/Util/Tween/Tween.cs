@@ -124,8 +124,8 @@ namespace CreateAR.EnkluPlayer.Util
             : base(schema, data)
         {
             _prop = schema.Get<float>(Data.Prop);
-            _originalValue = _prop.Value;
-            _diff = (float)data.To - _originalValue;
+            _originalValue = data.CustomFrom ? (float) data.From : _prop.Value;
+            _diff = (float) data.To - _originalValue;
         }
 
         /// <inheritdoc />

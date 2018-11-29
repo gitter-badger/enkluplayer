@@ -11,16 +11,21 @@ namespace CreateAR.EnkluPlayer.Util
         /// The prop to tween.
         /// </summary>
         public string Prop;
+        
+        /// <summary>
+        /// To parameter.
+        /// </summary>
+        public object To;
+
+        /// <summary>
+        /// True iff the from should be used.
+        /// </summary>
+        public bool CustomFrom;
 
         /// <summary>
         /// From parameter.
         /// </summary>
         public object From;
-
-        /// <summary>
-        /// To parameter.
-        /// </summary>
-        public object To;
 
         /// <summary>
         /// Easing equation.

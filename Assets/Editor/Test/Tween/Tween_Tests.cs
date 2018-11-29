@@ -47,6 +47,7 @@ namespace CreateAR.EnkluPlayer.Test.Util
                 Prop = "foo",
                 To = to,
                 From = from,
+                CustomFrom = true,
                 DurationSec = 0.1f
             });
             
