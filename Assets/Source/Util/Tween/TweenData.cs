@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CreateAR.EnkluPlayer.Util
+﻿namespace CreateAR.EnkluPlayer.Util
 {
     /// <summary>
     /// Data for a tween.
@@ -41,15 +39,5 @@ namespace CreateAR.EnkluPlayer.Util
         /// Delay in seconds before the tween should start.
         /// </summary>
         public float DelaySec = 0f;
-
-        /// <summary>
-        /// Called when the value moves from 0 to something non zero.
-        /// </summary>
-        public Action OnStart;
-
-        /// <summary>
-        /// Called when the value moves to To value from a value that is not To.
-        /// </summary>
-        public Action OnComplete;
     }
 }

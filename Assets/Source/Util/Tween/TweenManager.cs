@@ -6,7 +6,7 @@ namespace CreateAR.EnkluPlayer.Util
     /// <summary>
     /// Creates and manages tweens.
     /// </summary>
-    public class TweenManager
+    public class TweenManager : ITweenManager
     {
         /// <summary>
         /// For internal record keeping.
@@ -61,13 +61,15 @@ namespace CreateAR.EnkluPlayer.Util
         public void Start(Tween tween)
         {
             _active.Insert(0, new TweenRecord(tween));
+
+            tween.Time = 0;
         }
 
         /// <summary>
-        /// Stops a tween for good.
+        /// Stops a tween.
         /// </summary>
         /// <param name="tween">The tween to stop.</param>
-        public void Abort(Tween tween)
+        public void Stop(Tween tween)
         {
             _queuedRemoves.Add(tween);
         }

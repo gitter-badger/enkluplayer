@@ -10,6 +10,16 @@ namespace CreateAR.EnkluPlayer.Util
     public abstract class Tween
     {
         /// <summary>
+        /// The easing function.
+        /// </summary>
+        protected readonly Func<float, float> _ease;
+
+        /// <summary>
+        /// The current time.
+        /// </summary>
+        private float _time = -1f;
+
+        /// <summary>
         /// The schema to affect.
         /// </summary>
         public ElementSchema Schema { get; private set; }
@@ -29,18 +39,19 @@ namespace CreateAR.EnkluPlayer.Util
             {
                 var prev = _time;
                 
-                _time = value;
+                _time = Mathf.Max(0f, value);
 
                 // parameterized t
                 var t = _ease(Mathf.Clamp((_time - Data.DelaySec) / Data.DurationSec, 0, 1));
                 Update(t);
 
                 // start callback
-                if (Math.Abs(prev) < Mathf.Epsilon && _time > 0f)
+                if (prev < Mathf.Epsilon && _time > 0f
+                    || Math.Abs(prev + 1f) < Mathf.Epsilon)
                 {
-                    if (null != Data.OnStart)
+                    if (null != OnStart)
                     {
-                        Data.OnStart();
+                        OnStart();
                     }
                 }
 
@@ -49,9 +60,9 @@ namespace CreateAR.EnkluPlayer.Util
                 {
                     if (!IsComplete)
                     {
-                        if (null != Data.OnComplete)
+                        if (null != OnComplete)
                         {
-                            Data.OnComplete();
+                            OnComplete();
                         }
                     }
 
@@ -70,14 +81,14 @@ namespace CreateAR.EnkluPlayer.Util
         public bool IsComplete { get; private set; }
 
         /// <summary>
-        /// The easing function.
+        /// Called the first time the time is set, and every time the tween moves from zero time to a non-zero time.
         /// </summary>
-        protected readonly Func<float, float> _ease;
+        public event Action OnStart;
 
         /// <summary>
-        /// The current time.
+        /// Called when the tween completes.
         /// </summary>
-        private float _time;
+        public event Action OnComplete;
 
         /// <summary>
         /// Constructor.

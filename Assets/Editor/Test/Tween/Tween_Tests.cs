@@ -4,7 +4,7 @@ using CreateAR.EnkluPlayer.Util;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace CreateAR.EnkluPlayer.Test.Util
+namespace CreateAR.EnkluPlayer.Test.Util.Tween
 {
     [TestFixture]
     public class Tween_Tests
@@ -111,10 +111,11 @@ namespace CreateAR.EnkluPlayer.Test.Util
             {
                 Prop = "foo",
                 To = 1f,
-                DurationSec = 1f,
-                OnComplete = () => called = true
+                DurationSec = 1f
             });
-            
+            tween.OnComplete += () => called = true;
+
+
             tween.Time = 1;
 
             Assert.IsTrue(called);
@@ -128,13 +129,32 @@ namespace CreateAR.EnkluPlayer.Test.Util
             {
                 Prop = "foo",
                 To = 1f,
-                DurationSec = 1f,
-                OnStart = () => called = true
+                DurationSec = 1f
             });
+            tween.OnStart += () => called = true;
 
             Assert.IsFalse(called);
 
             tween.Time = 0.1f;
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void FloatTweenOnStartZero()
+        {
+            var called = false;
+            var tween = new FloatTween(_schema, new TweenData
+            {
+                Prop = "foo",
+                To = 1f,
+                DurationSec = 1f
+            });
+            tween.OnStart += () => called = true;
+
+            Assert.IsFalse(called);
+
+            tween.Time = 0f;
 
             Assert.IsTrue(called);
         }
@@ -147,9 +167,9 @@ namespace CreateAR.EnkluPlayer.Test.Util
             {
                 Prop = "foo",
                 To = 1f,
-                DurationSec = 1f,
-                OnStart = () => called++
+                DurationSec = 1f
             });
+            tween.OnStart += () => called++;
 
             tween.Time = 0.1f;
             tween.Time = 0.2f;
@@ -166,9 +186,9 @@ namespace CreateAR.EnkluPlayer.Test.Util
             {
                 Prop = "foo",
                 To = 1f,
-                DurationSec = 1f,
-                OnStart = () => called++
+                DurationSec = 1f
             });
+            tween.OnStart += () => called++;
 
             tween.Time = 0.1f;
             tween.Time = 0f;
@@ -185,9 +205,9 @@ namespace CreateAR.EnkluPlayer.Test.Util
             {
                 Prop = "foo",
                 To = 1f,
-                DurationSec = 1f,
-                OnComplete = () => called++
+                DurationSec = 1f
             });
+            tween.OnComplete += () => called++;
 
             tween.Time = 1;
             tween.Time = 1;
@@ -204,9 +224,9 @@ namespace CreateAR.EnkluPlayer.Test.Util
             {
                 Prop = "foo",
                 To = 1f,
-                DurationSec = 1f,
-                OnComplete = () => called++
+                DurationSec = 1f
             });
+            tween.OnComplete += () => called++;
 
             tween.Time = 1;
             tween.Time = 0.9f;
