@@ -2,15 +2,34 @@
 
 namespace CreateAR.EnkluPlayer.Util
 {
+    /// <summary>
+    /// Describes an object that can create and manage tweens.
+    /// </summary>
     public interface ITweenManager
     {
         /// <summary>
         /// Creates a tween for a float value.
         /// </summary>
-        /// <param name="element">The element to affect..</param>
+        /// <param name="element">The element to affect.</param>
         /// <param name="data">The data for the tween.</param>
         /// <returns></returns>
         Tween Float(Element element, TweenData data);
+
+        /// <summary>
+        /// Creates a tween for a color value.
+        /// </summary>
+        /// <param name="element">The element to affect.</param>
+        /// <param name="data">The data for the tween.</param>
+        /// <returns></returns>
+        Tween Col4(Element element, TweenData data);
+
+        /// <summary>
+        /// Creates a tween for a vec3 value.
+        /// </summary>
+        /// <param name="element">The element to affect.</param>
+        /// <param name="data">The data for the tween.</param>
+        /// <returns></returns>
+        Tween Vec3(Element element, TweenData data);
 
         /// <summary>
         /// Starts a tween.

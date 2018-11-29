@@ -43,21 +43,25 @@ namespace CreateAR.EnkluPlayer.Util
         /// </summary>
         private readonly List<Tween> _queuedRemoves = new List<Tween>();
 
-        /// <summary>
-        /// Creates a tween for a float value.
-        /// </summary>
-        /// <param name="element">The element to affect..</param>
-        /// <param name="data">The data for the tween.</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public Tween Float(Element element, TweenData data)
         {
             return new FloatTween(element.Schema, data);
         }
 
-        /// <summary>
-        /// Starts a tween.
-        /// </summary>
-        /// <param name="tween">The tween to start.</param>
+        /// <inheritdoc />
+        public Tween Col4(Element element, TweenData data)
+        {
+            return new Col4Tween(element.Schema, data);
+        }
+
+        /// <inheritdoc />
+        public Tween Vec3(Element element, TweenData data)
+        {
+            return new Vec3Tween(element.Schema, data);
+        }
+
+        /// <inheritdoc />
         public void Start(Tween tween)
         {
             _active.Insert(0, new TweenRecord(tween));
@@ -65,19 +69,13 @@ namespace CreateAR.EnkluPlayer.Util
             tween.Time = 0;
         }
 
-        /// <summary>
-        /// Stops a tween.
-        /// </summary>
-        /// <param name="tween">The tween to stop.</param>
+        /// <inheritdoc />
         public void Stop(Tween tween)
         {
             _queuedRemoves.Add(tween);
         }
 
-        /// <summary>
-        /// Pauses a tween.
-        /// </summary>
-        /// <param name="tween">The tween to pause.</param>
+        /// <inheritdoc />
         public void Pause(Tween tween)
         {
             var record = Record(tween);
@@ -87,10 +85,7 @@ namespace CreateAR.EnkluPlayer.Util
             }
         }
 
-        /// <summary>
-        /// Resumes a tween.
-        /// </summary>
-        /// <param name="tween">The tween to resume.</param>
+        /// <inheritdoc />
         public void Resume(Tween tween)
         {
             var record = Record(tween);
@@ -100,10 +95,7 @@ namespace CreateAR.EnkluPlayer.Util
             }
         }
 
-        /// <summary>
-        /// Call to advance tweens.
-        /// </summary>
-        /// <param name="dt">The number of seconds to advance the tweens.</param>
+        /// <inheritdoc />
         public void Update(float dt)
         {
             // remove queued first

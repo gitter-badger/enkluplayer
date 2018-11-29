@@ -145,4 +145,80 @@ namespace CreateAR.EnkluPlayer.Util
             _prop.Value = _originalValue + parameter * _diff;
         }
     }
+
+    /// <summary>
+    /// Tween for a Col4.
+    /// </summary>
+    public class Col4Tween : Tween
+    {
+        /// <summary>
+        /// The prop.
+        /// </summary>
+        private readonly ElementSchemaProp<Col4> _prop;
+
+        /// <summary>
+        /// The original value of the prop.
+        /// </summary>
+        private readonly Col4 _originalValue;
+
+        /// <summary>
+        /// The difference between start and ending values.
+        /// </summary>
+        private readonly Col4 _diff;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public Col4Tween(ElementSchema schema, TweenData data)
+            : base(schema, data)
+        {
+            _prop = schema.Get<Col4>(Data.Prop);
+            _originalValue = data.CustomFrom ? (Col4) data.From : _prop.Value;
+            _diff = (Col4) data.To - _originalValue;
+        }
+
+        /// <inheritdoc />
+        protected override void Update(float parameter)
+        {
+            _prop.Value = _originalValue + parameter * _diff;
+        }
+    }
+
+    /// <summary>
+    /// Tween for a vec3.
+    /// </summary>
+    public class Vec3Tween : Tween
+    {
+        /// <summary>
+        /// The prop.
+        /// </summary>
+        private readonly ElementSchemaProp<Vec3> _prop;
+
+        /// <summary>
+        /// The original value of the prop.
+        /// </summary>
+        private readonly Vec3 _originalValue;
+
+        /// <summary>
+        /// The difference between start and ending values.
+        /// </summary>
+        private readonly Vec3 _diff;
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public Vec3Tween(ElementSchema schema, TweenData data)
+            : base(schema, data)
+        {
+            _prop = schema.Get<Vec3>(Data.Prop);
+            _originalValue = data.CustomFrom ? (Vec3) data.From : _prop.Value;
+            _diff = (Vec3) data.To - _originalValue;
+        }
+
+        /// <inheritdoc />
+        protected override void Update(float parameter)
+        {
+            _prop.Value = _originalValue + parameter * _diff;
+        }
+    }
 }

@@ -171,31 +171,47 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             switch (_type)
             {
-                default:
+                case TweenManagerJsApi.FLOAT:
                 {
                     _tween = _tweens.Float(_element, Data);
-
-                    var context = JsValue.FromObject(engine, this);
-
-                    // add starts
-                    for (int i = 0, len = _onStart.Count; i < len; i++)
-                    {
-                        var callback = _onStart[i];
-                        _tween.OnStart += () => callback(context, new JsValue[0]);
-                    }
-
-                    // add completes
-                    for (int i = 0, len = _onComplete.Count; i < len; i++)
-                    {
-                        var callback = _onComplete[i];
-                        _tween.OnComplete += () => callback(context, new JsValue[0]);
-                    }
-
-                    _tweens.Start(_tween);
+                        
+                    break;
+                }
+                case TweenManagerJsApi.COL4:
+                {
+                    _tween = _tweens.Col4(_element, Data);
 
                     break;
                 }
+                case TweenManagerJsApi.VEC3:
+                {
+                    _tween = _tweens.Vec3(_element, Data);
+
+                    break;
+                }
+                default:
+                {
+                    throw new Exception(string.Format("Unknown tween type : {0}.", _type));
+                }
             }
+
+            var context = JsValue.FromObject(engine, this);
+
+            // add starts
+            for (int i = 0, len = _onStart.Count; i<len; i++)
+            {
+                var callback = _onStart[i];
+                _tween.OnStart += () => callback(context, new JsValue[0]);
+            }
+
+            // add completes
+            for (int i = 0, len = _onComplete.Count; i<len; i++)
+            {
+                var callback = _onComplete[i];
+                _tween.OnComplete += () => callback(context, new JsValue[0]);
+            }
+
+            _tweens.Start(_tween);
         }
 
         public void stop()
