@@ -214,6 +214,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 var callback = _onStart[i];
                 _tween.OnStart += () => callback(context, new JsValue[0]);
             }
+            _onStart.Clear();
 
             // add completes
             for (int i = 0, len = _onComplete.Count; i<len; i++)
@@ -221,6 +222,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 var callback = _onComplete[i];
                 _tween.OnComplete += () => callback(context, new JsValue[0]);
             }
+            _onComplete.Clear();
 
             _tweens.Start(_tween);
         }
