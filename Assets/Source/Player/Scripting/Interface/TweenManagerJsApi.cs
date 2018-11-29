@@ -21,6 +21,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly ITweenManager _tweens;
 
         /// <summary>
+        /// Easing types.
+        /// </summary>
+        public readonly TweenEasingTypes easing = new TweenEasingTypes();
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public TweenManagerJsApi(ITweenManager tweens)

@@ -32,7 +32,7 @@ namespace CreateAR.EnkluPlayer.Test.Util.Tween
             const float to = 7.4f;
             const float duration = 45f;
             const float delay = 10f;
-            const TweenEasingType easing = TweenEasingType.BounceOut;
+            const string easing = TweenEasingTypes.BounceOut;
 
             var tween = _api
                 .number(_el, "foo")

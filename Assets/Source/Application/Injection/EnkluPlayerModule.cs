@@ -12,6 +12,7 @@ using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Qr;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.States.HoloLogin;
+using CreateAR.EnkluPlayer.Util;
 using CreateAR.EnkluPlayer.Vine;
 using CreateAR.Trellis.Messages;
 using Jint.Parser;
@@ -154,6 +155,11 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IState>().To<EditModeInputState>().ToName(NamedInjections.INPUT_STATE_DEFAULT);
                     binder.Bind<IInputManager>().To<InputManager>().ToSingleton();
                     binder.Bind<IMultiInput>().To<MultiInput>().ToSingleton();
+                }
+
+                // tweening
+                {
+                    binder.Bind<ITweenManager>().To<TweenManager>().ToSingleton();
                 }
             }
 
@@ -714,6 +720,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<SnapJsInterface>().To<SnapJsInterface>().ToSingleton();
                     binder.Bind<MetricsJsInterface>().To<MetricsJsInterface>().ToSingleton();
                     binder.Bind<PhysicsJsInterface>().To<PhysicsJsInterface>().ToSingleton();
+                    binder.Bind<TweenManagerJsApi>().To<TweenManagerJsApi>().ToSingleton();
                 }
             }
 

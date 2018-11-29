@@ -107,7 +107,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return this;
             }
 
-            Data.Easing = EnumExtensions.Parse<TweenEasingType>(easing);
+            Data.Easing = easing;
 
             return this;
         }

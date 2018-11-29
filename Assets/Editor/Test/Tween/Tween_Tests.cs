@@ -234,5 +234,33 @@ namespace CreateAR.EnkluPlayer.Test.Util.Tween
 
             Assert.AreEqual(2, called);
         }
+
+        [Test]
+        public void Vec3Tween()
+        {
+            var tween = new Vec3Tween(_schema, new TweenData
+            {
+                Prop = "foo",
+                To = new Vec3(1, 10, 100)
+            });
+
+            tween.Time = 0.5f;
+
+            Assert.IsTrue(new Vec3(0.5f, 5f, 50f).Approximately(_schema.Get<Vec3>("foo").Value));
+        }
+
+        [Test]
+        public void Col4Tween()
+        {
+            var tween = new Col4Tween(_schema, new TweenData
+            {
+                Prop = "foo",
+                To = new Col4(1, 1, 1, 1)
+            });
+
+            tween.Time = 0.5f;
+
+            Assert.IsTrue(new Col4(0.5f, 0.5f, 0.5f, 0.5f).Approximately(_schema.Get<Col4>("foo").Value));
+        }
     }
 }

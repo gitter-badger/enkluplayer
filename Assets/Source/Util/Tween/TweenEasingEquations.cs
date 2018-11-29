@@ -15,79 +15,79 @@ namespace CreateAR.EnkluPlayer.Util
         /// </summary>
         /// <param name="type">The type of equation to retrieve.</param>
         /// <returns></returns>
-        public static Func<float, float> Equation(TweenEasingType type)
+        public static Func<float, float> Equation(string type)
         {
             switch (type)
             {
-                case TweenEasingType.BounceIn:
+                case TweenEasingTypes.BounceIn:
                 {
                     return BounceIn;
                 }
-                case TweenEasingType.BounceOut:
+                case TweenEasingTypes.BounceOut:
                 {
                     return BounceOut;
                 }
-                case TweenEasingType.BounceInOut:
+                case TweenEasingTypes.BounceInOut:
                 {
                     return BounceInOut;
                 }
-                case TweenEasingType.QuadraticIn:
+                case TweenEasingTypes.QuadraticIn:
                 {
                     return QuadraticIn;
                 }
-                case TweenEasingType.QuadraticOut:
+                case TweenEasingTypes.QuadraticOut:
                 {
                     return QuadraticOut;
                 }
-                case TweenEasingType.QuadraticInOut:
+                case TweenEasingTypes.QuadraticInOut:
                 {
                     return QuadraticInOut;
                 }
-                case TweenEasingType.CubicIn:
+                case TweenEasingTypes.CubicIn:
                 {
                     return CubicIn;
                 }
-                case TweenEasingType.CubicOut:
+                case TweenEasingTypes.CubicOut:
                 {
                     return CubicOut;
                 }
-                case TweenEasingType.CubicInOut:
+                case TweenEasingTypes.CubicInOut:
                 {
                     return CubicInOut;
                 }
-                case TweenEasingType.QuarticIn:
+                case TweenEasingTypes.QuarticIn:
                 {
                     return QuarticIn;
                 }
-                case TweenEasingType.QuarticOut:
+                case TweenEasingTypes.QuarticOut:
                 {
                     return QuarticOut;
                 }
-                case TweenEasingType.QuarticInOut:
+                case TweenEasingTypes.QuarticInOut:
                 {
                     return QuarticInOut;
                 }
-                case TweenEasingType.QuinticIn:
+                case TweenEasingTypes.QuinticIn:
                 {
                     return QuinticIn;
                 }
-                case TweenEasingType.QuinticOut:
+                case TweenEasingTypes.QuinticOut:
                 {
                     return QuinticOut;
                 }
-                case TweenEasingType.QuinticInOut:
+                case TweenEasingTypes.QuinticInOut:
                 {
                     return QuinticInOut;
                 }
-                case TweenEasingType.ExpoIn:
+                case TweenEasingTypes.ExpoIn:
                 {
                     return ExpoIn;
                 }
-                case TweenEasingType.ExpoOut:
+                case TweenEasingTypes.ExpoOut:
                 {
                     return ExpoOut;
                 }
-                case TweenEasingType.ExpoInOut:
+                case TweenEasingTypes.ExpoInOut:
                 {
                     return ExpoInOut;
                 }

@@ -28,7 +28,7 @@
         /// <summary>
         /// Easing equation.
         /// </summary>
-        public TweenEasingType Easing = TweenEasingType.Linear;
+        public string Easing = TweenEasingTypes.Linear;
 
         /// <summary>
         /// Duration of tween.
