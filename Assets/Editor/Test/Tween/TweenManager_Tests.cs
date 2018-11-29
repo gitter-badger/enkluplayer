@@ -147,5 +147,27 @@ namespace CreateAR.EnkluPlayer.Test.Util.Tween
             Assert.IsTrue(Math.Abs(1f - _el.Schema.Get<float>("foo").Value) < Mathf.Epsilon);
             Assert.IsTrue(tween.IsComplete);
         }
+
+        [Test]
+        public void CompleteRestartTween()
+        {
+            // create tween
+            var tween = _tweens.Float(_el, new TweenData
+            {
+                Prop = "foo",
+                To = 1f,
+                DurationSec = 1f
+            });
+
+            _tweens.Start(tween);
+            _tweens.Update(10f);
+
+            Assert.IsTrue(tween.IsComplete);
+
+            _tweens.Start(tween);
+            _tweens.Update(0.5f);
+
+            Assert.IsTrue(Math.Abs(tween.Time - 0.5f) < Mathf.Epsilon);
+        }
     }
 }

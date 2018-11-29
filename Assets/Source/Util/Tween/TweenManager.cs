@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using CreateAR.EnkluPlayer.IUX;
 
 namespace CreateAR.EnkluPlayer.Util
@@ -64,7 +65,7 @@ namespace CreateAR.EnkluPlayer.Util
         /// <inheritdoc />
         public void Start(Tween tween)
         {
-            _active.Insert(0, new TweenRecord(tween));
+            _active.Add(new TweenRecord(tween));
 
             tween.Time = 0;
         }
@@ -73,6 +74,12 @@ namespace CreateAR.EnkluPlayer.Util
         public void Stop(Tween tween)
         {
             _queuedRemoves.Add(tween);
+        }
+
+        /// <inheritdoc />
+        public void StopAll()
+        {
+            _queuedRemoves.AddRange(_active.Select(rec => rec.Tween));
         }
 
         /// <inheritdoc />
@@ -133,7 +140,7 @@ namespace CreateAR.EnkluPlayer.Util
 
                 if (tween.IsComplete)
                 {
-                    _active.RemoveAt(i);
+                    _queuedRemoves.Add(tween);
                 }
             }
         }

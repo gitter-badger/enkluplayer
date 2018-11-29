@@ -44,6 +44,11 @@ namespace CreateAR.EnkluPlayer.Util
         void Stop(Tween tween);
 
         /// <summary>
+        /// Stops all tweens.
+        /// </summary>
+        void StopAll();
+
+        /// <summary>
         /// Pauses a tween.
         /// </summary>
         /// <param name="tween">The tween to pause.</param>

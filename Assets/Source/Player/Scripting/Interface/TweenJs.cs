@@ -75,7 +75,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             };
         }
 
-        public TweenJs to(float target)
+        public TweenJs to(object target)
         {
             if (PlayState.NotStarted != _state)
             {
@@ -87,7 +87,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             return this;
         }
 
-        public TweenJs from(float start)
+        public TweenJs from(object start)
         {
             if (PlayState.NotStarted != _state)
             {
@@ -162,6 +162,17 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         public void start(Engine engine)
         {
+            // tween might already be created
+            if (null != _tween)
+            {
+                _tweens.Stop(_tween);
+                _tweens.Start(_tween);
+
+                _state = PlayState.Started;
+
+                return;
+            }
+
             if (PlayState.NotStarted != _state)
             {
                 return;
