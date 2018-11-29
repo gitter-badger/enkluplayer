@@ -24,7 +24,7 @@ namespace CreateAR.EnkluPlayer.Test.Util
 
             var tween = new FloatTween(_schema, new TweenData
             {
-                PropName = "foo",
+                Prop = "foo",
                 To = to,
                 DurationSec = 0.1f
             });
@@ -43,7 +43,7 @@ namespace CreateAR.EnkluPlayer.Test.Util
 
             var tween = new FloatTween(_schema, new TweenData
             {
-                PropName = "foo",
+                Prop = "foo",
                 To = to,
                 DurationSec = 1f
             });
@@ -62,7 +62,7 @@ namespace CreateAR.EnkluPlayer.Test.Util
 
             var tween = new FloatTween(_schema, new TweenData
             {
-                PropName = "foo",
+                Prop = "foo",
                 To = to,
                 DurationSec = 1f,
                 DelaySec = 0.5f
@@ -85,7 +85,7 @@ namespace CreateAR.EnkluPlayer.Test.Util
             var called = false;
             var tween = new FloatTween(_schema, new TweenData
             {
-                PropName = "foo",
+                Prop = "foo",
                 To = 1f,
                 DurationSec = 1f,
                 OnComplete = () => called = true
@@ -97,12 +97,69 @@ namespace CreateAR.EnkluPlayer.Test.Util
         }
 
         [Test]
+        public void FloatTweenOnStart()
+        {
+            var called = false;
+            var tween = new FloatTween(_schema, new TweenData
+            {
+                Prop = "foo",
+                To = 1f,
+                DurationSec = 1f,
+                OnStart = () => called = true
+            });
+
+            Assert.IsFalse(called);
+
+            tween.Time = 0.1f;
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void FloatTweenOnStartNoMulti()
+        {
+            var called = 0;
+            var tween = new FloatTween(_schema, new TweenData
+            {
+                Prop = "foo",
+                To = 1f,
+                DurationSec = 1f,
+                OnStart = () => called++
+            });
+
+            tween.Time = 0.1f;
+            tween.Time = 0.2f;
+            tween.Time = 0.3f;
+
+            Assert.AreEqual(1, called);
+        }
+
+        [Test]
+        public void FloatTweenOnStartRewindMulti()
+        {
+            var called = 0;
+            var tween = new FloatTween(_schema, new TweenData
+            {
+                Prop = "foo",
+                To = 1f,
+                DurationSec = 1f,
+                OnStart = () => called++
+            });
+
+            tween.Time = 0.1f;
+            tween.Time = 0f;
+            tween.Time = 0.3f;
+
+            Assert.AreEqual(2, called);
+        }
+
+        [Test]
         public void FloatTweenOnCompleteNoMulti()
         {
             var called = 0;
             var tween = new FloatTween(_schema, new TweenData
             {
-                PropName = "foo",
+                Prop = "foo",
                 To = 1f,
                 DurationSec = 1f,
                 OnComplete = () => called++
@@ -121,7 +178,7 @@ namespace CreateAR.EnkluPlayer.Test.Util
             var called = 0;
             var tween = new FloatTween(_schema, new TweenData
             {
-                PropName = "foo",
+                Prop = "foo",
                 To = 1f,
                 DurationSec = 1f,
                 OnComplete = () => called++
