@@ -1,0 +1,50 @@
+﻿using System;
+
+namespace CreateAR.EnkluPlayer.Util
+{
+    /// <summary>
+    /// Data for a tween.
+    /// </summary>
+    public class TweenData
+    {
+        /// <summary>
+        /// The prop to tween.
+        /// </summary>
+        public string Prop;
+
+        /// <summary>
+        /// From parameter.
+        /// </summary>
+        public object From;
+
+        /// <summary>
+        /// To parameter.
+        /// </summary>
+        public object To;
+
+        /// <summary>
+        /// Easing equation.
+        /// </summary>
+        public TweenEasingType Easing = TweenEasingType.Linear;
+
+        /// <summary>
+        /// Duration of tween.
+        /// </summary>
+        public float DurationSec = 1f;
+
+        /// <summary>
+        /// Delay in seconds before the tween should start.
+        /// </summary>
+        public float DelaySec = 0f;
+
+        /// <summary>
+        /// Called when the value moves from 0 to something non zero.
+        /// </summary>
+        public Action OnStart;
+
+        /// <summary>
+        /// Called when the value moves to To value from a value that is not To.
+        /// </summary>
+        public Action OnComplete;
+    }
+}

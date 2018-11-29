@@ -37,6 +37,29 @@ namespace CreateAR.EnkluPlayer.Test.Util
         }
 
         [Test]
+        public void FloatTweenFromTo()
+        {
+            const float to = 0.5f;
+            const float from = 50f;
+
+            var tween = new FloatTween(_schema, new TweenData
+            {
+                Prop = "foo",
+                To = to,
+                From = from,
+                DurationSec = 0.1f
+            });
+            
+            tween.Time = 0;
+
+            Assert.IsTrue(Math.Abs(from - _schema.Get<float>("foo").Value) < Mathf.Epsilon);
+
+            tween.Time = 1;
+
+            Assert.IsTrue(Math.Abs(to - _schema.Get<float>("foo").Value) < Mathf.Epsilon);
+        }
+
+        [Test]
         public void FloatTweenToLinear()
         {
             const float to = 0.5f;
