@@ -19,7 +19,7 @@ namespace CreateAR.EnkluPlayer
     }
 
     /// <summary>
-    /// ILogTarget implementation that forwards to Unity.
+    /// ILogTarget implementation that forwards to Loggly.
     /// </summary>
     public class LogglyLogTarget : ILogTarget
     {
@@ -42,18 +42,18 @@ namespace CreateAR.EnkluPlayer
             /// Stack trace.
             /// </summary>
             public string StackTrace;
+
+            /// <summary>
+            /// Class name of the caller.
+            /// </summary>
+            public string ClassName;
+
+            /// <summary>
+            /// Dump of small amount of log history.
+            /// </summary>
+            public string LogDump;
         }
-
-        /// <summary>
-        /// The log formatter.
-        /// </summary>
-        private readonly ILogFormatter _formatter = new DefaultLogFormatter
-        {
-            Level = false,
-            Timestamp = true,
-            TypeName = true
-        };
-
+        
         /// <summary>
         /// Loggly customer token.
         /// </summary>
@@ -80,9 +80,21 @@ namespace CreateAR.EnkluPlayer
         private readonly List<LogRecord> _records = new List<LogRecord>();
 
         /// <summary>
-        /// Log level at which to filter.
+        /// Keeps history.
         /// </summary>
-        public LogLevel Filter;
+        private readonly HistoryLogTarget _history = new HistoryLogTarget(new DefaultLogFormatter
+        {
+            Level = true,
+            ObjectToString = true,
+            Timestamp = true,
+            TypeName = true
+        })
+        {
+            Filter = LogLevel.Debug
+        };
+
+        /// <inheritdoc />
+        public LogLevel Filter { get; set; }
 
         /// <summary>
         /// Constructor.
@@ -101,7 +113,7 @@ namespace CreateAR.EnkluPlayer
             _tag = tag;
             _provider = provider;
             _bootstrapper = bootstrapper;
-
+            
             bootstrapper.BootstrapCoroutine(Watch());
         }
         
@@ -110,6 +122,9 @@ namespace CreateAR.EnkluPlayer
         {
             if (level < Filter)
             {
+                // forward all other logs to history
+                _history.OnLog(level, caller, message);
+
                 return;
             }
 
@@ -119,8 +134,10 @@ namespace CreateAR.EnkluPlayer
                 _records.Add(new LogRecord
                 {
                     Level = level.ToString(),
-                    Message = _formatter.Format(level, caller, message),
-                    StackTrace = Environment.StackTrace
+                    Message = message,
+                    StackTrace = Environment.StackTrace,
+                    ClassName = caller.GetType().ToString(),
+                    LogDump = _history.GenerateDump()
                 });
             }
         }
@@ -153,6 +170,8 @@ namespace CreateAR.EnkluPlayer
                         loggingForm.AddField("level", record.Level);
                         loggingForm.AddField("message", record.Message);
                         loggingForm.AddField("stackTrace", record.StackTrace);
+                        loggingForm.AddField("className", record.ClassName);
+                        loggingForm.AddField("dump", record.LogDump);
                         loggingForm.AddField("deviceModel", SystemInfo.deviceModel);
                         loggingForm.AddField("platform", UnityEngine.Application.platform.ToString());
 

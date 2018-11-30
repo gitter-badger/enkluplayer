@@ -25,7 +25,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <returns></returns>
         public object raycast(Vec3 start, Vec3 dir, ElementJs elementJs)
         {
-            var target = elementJs as ContentElementJs;
+            var target = elementJs as ContentWidgetJs;
             if (target == null)
             {
                 Log.Error(this, "Target element is not a ContentWidget");
