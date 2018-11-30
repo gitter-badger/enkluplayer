@@ -7,6 +7,7 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.AR;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.Scripting;
+using CreateAR.EnkluPlayer.Util;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -39,6 +40,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IAssetLoader _assetLoader;
         private readonly IMetricsService _metrics;
         private readonly IAppQualityController _quality;
+        private readonly ITweenManager _tweens;
 
         /// <summary>
         /// Status.
@@ -96,7 +98,8 @@ namespace CreateAR.EnkluPlayer
             IVoiceCommandManager voice,
             IAssetLoader assetLoader,
             IMetricsService metrics,
-            IAppQualityController quality)
+            IAppQualityController quality,
+            ITweenManager tweens)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -111,6 +114,7 @@ namespace CreateAR.EnkluPlayer
             _assetLoader = assetLoader;
             _metrics = metrics;
             _quality = quality;
+            _tweens = tweens;
         }
 
         /// <inheritdoc />
@@ -168,6 +172,8 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
+            _tweens.Update(dt);
+
 #if !UNITY_WEBGL
             if (_config.Play.Edit)
             {
@@ -180,6 +186,9 @@ namespace CreateAR.EnkluPlayer
         public void Exit()
         {
             Log.Info(this, "PlayApplicationState::Exit()");
+
+            // kill all tweens
+            _tweens.StopAll();
 
             // shutoff quality
             _quality.Teardown();
