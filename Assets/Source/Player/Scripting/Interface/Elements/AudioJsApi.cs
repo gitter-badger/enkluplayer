@@ -1,4 +1,5 @@
 ﻿using CreateAR.EnkluPlayer.IUX;
+using CreateAR.EnkluPlayer.Scripting;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -11,8 +12,11 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Underlying AudioSource to wrap.
         /// </summary>
-        private readonly AudioSource _audio;
+        private readonly IAudioSource _audio;
 
+        /// <summary>
+        /// Backing Schema prop.
+        /// </summary>
         private readonly ElementSchemaProp<float> _volumeProp;
 
         /// <summary>
@@ -20,7 +24,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="schema"></param>
         /// <param name="audio"></param>
-        public AudioJsApi(ElementSchema schema, AudioSource audio)
+        public AudioJsApi(ElementSchema schema, IAudioSource audio)
         {
             _audio = audio;
 
@@ -28,10 +32,12 @@ namespace CreateAR.EnkluPlayer
             
             if (_volumeProp.Value >= 0)
             {
-                volume = _volumeProp.Value;
+                // Set initial
+                OnVolumeChanged(_volumeProp, _volumeProp.Value, _volumeProp.Value);
             }
             else
             {
+                // Load from prefab
                 _volumeProp.Value = volume;
             }
 
@@ -57,8 +63,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public bool loop
         {
-            get { return _audio.loop; }
-            set { _audio.loop = value; }
+            get { return _audio.Loop; }
+            set { _audio.Loop = value; }
         }
 
         /// <summary>
@@ -66,8 +72,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public bool mute
         {
-            get { return _audio.mute; }
-            set { _audio.mute = value; }
+            get { return _audio.Mute; }
+            set { _audio.Mute = value; }
         }
 
         /// <summary>
@@ -75,8 +81,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public bool playOnAwake
         {
-            get { return _audio.playOnAwake; }
-            set { _audio.playOnAwake = value; }
+            get { return _audio.PlayOnAwake; }
+            set { _audio.PlayOnAwake = value; }
         }
 
         /// <summary>
@@ -84,8 +90,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public float spatialBlend
         {
-            get { return _audio.spatialBlend; }
-            set { _audio.spatialBlend = value; }
+            get { return _audio.SpatialBlend; }
+            set { _audio.SpatialBlend = value; }
         }
 
         /// <summary>
@@ -93,8 +99,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public float minDistance
         {
-            get { return _audio.minDistance; }
-            set { _audio.minDistance = value; }
+            get { return _audio.MinDistance; }
+            set { _audio.MinDistance = value; }
         }
 
         /// <summary>
@@ -102,8 +108,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public float maxDistance
         {
-            get { return _audio.maxDistance; }
-            set { _audio.maxDistance = value; }
+            get { return _audio.MaxDistance; }
+            set { _audio.MaxDistance = value; }
         }
 
         /// <summary>
@@ -111,8 +117,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public float dopplerLevel
         {
-            get { return _audio.dopplerLevel; }
-            set { _audio.dopplerLevel = value; }
+            get { return _audio.DopplerLevel; }
+            set { _audio.DopplerLevel = value; }
         }
 
         /// <summary>
@@ -120,7 +126,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void OnVolumeChanged(ElementSchemaProp<float> prop, float prev, float @new)
         {
-            _audio.volume = @new;
+            _audio.Volume = @new;
         }
     }
 }

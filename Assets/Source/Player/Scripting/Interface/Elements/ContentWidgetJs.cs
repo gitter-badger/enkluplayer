@@ -88,7 +88,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             var unityAudioSource = contentWidget.GetComponent<AudioSource>();
             if (unityAudioSource != null)
             {
-                audio = new AudioJsApi(_element.Schema, unityAudioSource);
+                var audioSource = new UnityAudioSource(unityAudioSource);
+                audio = new AudioJsApi(_element.Schema, audioSource);
             }
             else
             {
