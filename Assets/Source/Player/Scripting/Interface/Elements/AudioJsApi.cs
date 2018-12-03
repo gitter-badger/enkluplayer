@@ -44,6 +44,9 @@ namespace CreateAR.EnkluPlayer
             _volumeProp.OnChanged += OnVolumeChanged;
         }
 
+        /// <summary>
+        /// Destructor.
+        /// </summary>
         ~AudioJsApi()
         {
             _volumeProp.OnChanged -= OnVolumeChanged;

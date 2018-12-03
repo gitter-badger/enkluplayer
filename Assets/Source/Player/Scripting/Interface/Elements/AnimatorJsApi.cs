@@ -60,6 +60,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 
                 var prop = _schema.GetOwn(ToSchemaName(_parameterNames[i]));
 
+                // Load defaults if available
                 if (prop != null)
                 {
                     if (prop.Type == typeof(float))
@@ -94,7 +95,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Deconstructor
+        /// Destructor.
         /// </summary>
         ~AnimatorJsApi()
         {

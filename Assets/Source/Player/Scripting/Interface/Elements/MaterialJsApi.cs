@@ -46,7 +46,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Deconstructor
+        /// Destructor.
         /// </summary>
         ~MaterialJsApi()
         {
