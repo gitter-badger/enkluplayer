@@ -424,7 +424,7 @@ namespace CreateAR.EnkluPlayer
                     "Application.log"))
             {
                 // warning and up
-                Filter = LogLevel.Warning
+                Filter = LogLevel.Debug
             });
 #endif // UNITY_WEBGL
 
