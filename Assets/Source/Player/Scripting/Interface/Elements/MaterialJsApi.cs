@@ -72,6 +72,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
+        /// Gets a float material property.
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public float getFloat(string param)
+        {
+            return _renderer.SharedMaterial.GetFloat(param);
+        }
+
+        /// <summary>
         /// Sets a float material property.
         /// </summary>
         /// <param name="param"></param>
@@ -91,6 +101,16 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 prop.Value = value;
             }
+        }
+
+        /// <summary>
+        /// Gets an integer material property.
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public int getInt(string param)
+        {
+            return _renderer.SharedMaterial.GetInt(param);
         }
 
         /// <summary>
@@ -116,6 +136,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
+        /// Gets a Vec3 for a Vector material property.
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public Vec3 getVector(string param)
+        {
+            return _renderer.SharedMaterial.GetVec3(param);
+        }
+
+        /// <summary>
         /// Sets a Vector material property with a Vec3.
         /// </summary>
         /// <param name="param"></param>
@@ -138,8 +168,17 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Sets a Vector material property with a Vec3 & alpha.
-        /// TODO: Add in a Vec4 and use that instead.
+        /// Gets a Col4 for a Vector material property.
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public Col4 getColor(string param)
+        {
+            return _renderer.SharedMaterial.GetCol4(param);
+        }
+
+        /// <summary>
+        /// Sets a Vector material property with a Col4.
         /// </summary>
         /// <param name="param"></param>
         /// <param name="value"></param>

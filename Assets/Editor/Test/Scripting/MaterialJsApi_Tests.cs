@@ -58,15 +58,15 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(new Col4(0.1f, 0.2f, 0.3f, 1), _schema.GetOwn("material._Color", Col4.White).Value);
             
             // Test setting via Schema
-            _schema.Set("_Alpha", 0.2f);
-            _schema.Set("_Daytime", 0);
-            _schema.Set("_Center", new Vec3(3, 2, 1));
-            _schema.Set("_Color", new Col4(1, 2, 3, 1));
+            _schema.Set("material._Alpha", 0.2f);
+            _schema.Set("material._Daytime", 0);
+            _schema.Set("material._Center", new Vec3(3, 2, 1));
+            _schema.Set("material._Color", new Col4(1, 2, 3, 1));
             
-            Assert.AreEqual(0.2f, _schema.GetOwn("_Alpha", -1f).Value);
-            Assert.AreEqual(0, _schema.GetOwn("_Daytime", -1).Value);
-            Assert.AreEqual(new Vec3(3, 2, 1), _schema.GetOwn("Center", Vec3.Zero).Value);
-            Assert.AreEqual(new Col4(0.1f, 0.2f, 0.3f, 1), _schema.GetOwn("_Alpha", Col4.White).Value);
+            Assert.AreEqual(0.2f, _materialJsApi.getFloat("_Alpha"));
+            Assert.AreEqual(0, _materialJsApi.getInt("_Daytime"));
+            Assert.AreEqual(new Vec3(3, 2, 1), _materialJsApi.getVector("_Center"));
+            Assert.AreEqual(new Col4(1f, 2f, 3f, 1), _materialJsApi.getColor("_Color"));
         }
     }
 }
