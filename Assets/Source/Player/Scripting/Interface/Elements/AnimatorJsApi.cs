@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
@@ -152,7 +153,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public int getInteger(string name)
+        public int getInt(string name)
         {
             return _animator.GetInt(name);
         }
@@ -162,7 +163,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
-        public void setInteger(string name, int value)
+        public void setInt(string name, int value)
         {
             var prop = GetSchemaProp(_propsInt, name);
             if (prop == null)
@@ -177,6 +178,30 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 prop.Value = value;   
             }
+        }
+
+        /// <summary>
+        /// Gets the current value for a parameter.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [Obsolete]
+        public int getInteger(string name)
+        {
+            Log.Warning(this, "animator.getInteger is deprecated. Use animator.getInt instead.");
+            return getInt(name);
+        }
+
+        /// <summary>
+        /// Sets the value for a parameter.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        [Obsolete]
+        public void setInteger(string name, int value)
+        {
+            Log.Warning(this, "animator.setInteger is deprecated. Use animator.setInt instead.");
+            setInt(name, value);
         }
 
         /// <summary>
