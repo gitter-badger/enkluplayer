@@ -19,9 +19,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly ElementSchema _schema;
         
         /// <summary>
-        /// Underlying Unity Animator to wrap.
+        /// Backing IAnimator.
         /// </summary>
-        private readonly Animator _animator;
+        private readonly IAnimator _animator;
 
         /// <summary>
         /// List of available parameter names.
@@ -48,15 +48,15 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="schema"></param>
         /// <param name="animator"></param>
-        public AnimatorJsApi(ElementSchema schema, Animator animator)
+        public AnimatorJsApi(ElementSchema schema, IAnimator animator)
         {
             _schema = schema;
             _animator = animator;
 
-            _parameterNames = new string[_animator.parameterCount];
-            for (var i = 0; i < _animator.parameters.Length; i++)
+            _parameterNames = new string[_animator.Parameters.Length];
+            for (var i = 0; i < _parameterNames.Length; i++)
             {
-                _parameterNames[i] = _animator.parameters[i].name;
+                _parameterNames[i] = _animator.Parameters[i].name;
                 
                 var prop = _schema.GetOwn(ToSchemaName(_parameterNames[i]));
 
@@ -68,6 +68,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                         
                         _propsFloat.Add(propFloat);
                         propFloat.OnChanged += OnSchemaFloatChange;
+                        
+                        _animator.SetFloat(_parameterNames[i], propFloat.Value);
                     } 
                     else if (prop.Type == typeof(int))
                     {
@@ -75,6 +77,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                         
                         _propsInt.Add(propInt);
                         propInt.OnChanged += OnSchemaIntChange;
+                        
+                        _animator.SetInt(_parameterNames[i], propInt.Value);
                     }
                     else if (prop.Type == typeof(bool))
                     {
@@ -82,6 +86,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                         
                         _propsBool.Add(propBool);
                         propBool.OnChanged += OnSchemaBoolChange;
+                        
+                        _animator.SetBool(_parameterNames[i], propBool.Value);
                     }
                 }
             }
@@ -129,12 +135,15 @@ namespace CreateAR.EnkluPlayer.Scripting
             if (prop == null)
             {
                 prop = _schema.GetOwn(ToSchemaName(name), value);
-                prop.OnChanged += OnSchemaBoolChange;
-                
                 _propsBool.Add(prop);
+                
+                prop.OnChanged += OnSchemaBoolChange;
+                OnSchemaBoolChange(prop, value, value);
             }
-            
-            prop.Value = value;
+            else
+            {
+                prop.Value = value;                
+            }
         }
 
         /// <summary>
@@ -144,7 +153,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <returns></returns>
         public int getInteger(string name)
         {
-            return _animator.GetInteger(name);
+            return _animator.GetInt(name);
         }
 
         /// <summary>
@@ -158,12 +167,15 @@ namespace CreateAR.EnkluPlayer.Scripting
             if (prop == null)
             {
                 prop = _schema.GetOwn(ToSchemaName(name), value);
-                prop.OnChanged += OnSchemaIntChange;
-                
                 _propsInt.Add(prop);
+                
+                prop.OnChanged += OnSchemaIntChange;
+                OnSchemaIntChange(prop, value, value);
             }
-            
-            prop.Value = value;
+            else
+            {
+                prop.Value = value;   
+            }
         }
 
         /// <summary>
@@ -187,12 +199,15 @@ namespace CreateAR.EnkluPlayer.Scripting
             if (prop == null)
             {
                 prop = _schema.GetOwn(ToSchemaName(name), value);
-                prop.OnChanged += OnSchemaFloatChange;
-                
                 _propsFloat.Add(prop);
+                
+                prop.OnChanged += OnSchemaFloatChange;
+                OnSchemaFloatChange(prop, value, value);
             }
-            
-            prop.Value = value;
+            else
+            {
+                prop.Value = value;                
+            }
         }
 
         /// <summary>
@@ -202,7 +217,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <returns></returns>
         public string getCurrentClipName(int layer = 0)
         {
-            return _animator.GetCurrentAnimatorClipInfo(layer)[0].clip.name;
+            return _animator.CurrentClipName(layer);
         }
 
         /// <summary>
@@ -213,17 +228,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <returns></returns>
         public bool isClipPlaying(string clipName, int layer = 0)
         {
-            var clips = _animator.GetCurrentAnimatorClipInfo(layer);
-
-            for (var i = 0; i < clips.Length; i++)
-            {
-                if (clips[i].clip.name == clipName)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return _animator.IsClipPlaying(clipName, layer);
         }
         
         /// <summary>
@@ -265,7 +270,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="new"></param>
         private void OnSchemaIntChange(ElementSchemaProp<int> prop, int prev, int @new)
         {
-            _animator.SetInteger(FromSchemaName(prop.Name), @new);
+            _animator.SetInt(FromSchemaName(prop.Name), @new);
         }
 
         /// <summary>

@@ -66,7 +66,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             var unityAnimator = contentWidget.GetComponent<Animator>();
             if (unityAnimator != null) 
             {
-                animator = new AnimatorJsApi(_element.Schema, unityAnimator);
+                var anim = new UnityAnimator(unityAnimator);
+                animator = new AnimatorJsApi(_element.Schema, anim);
             }
             else
             {
