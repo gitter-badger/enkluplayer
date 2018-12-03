@@ -1,4 +1,6 @@
-﻿#if NETFX_CORE
+﻿using CreateAR.Commons.Unity.Logging;
+
+#if NETFX_CORE
 namespace MediaFrameQrProcessing.Wrappers
 {
   using global::ZXing;
@@ -66,13 +68,33 @@ namespace MediaFrameQrProcessing.Wrappers
       }
       if (frameProcessor != null)
       {
-        // Process frames for up to 30 seconds to see if we get any QR codes...
-        await frameProcessor.ProcessFramesAsync(timeout, resultCallback);
+          try
+          {
+              // Process frames for up to 30 seconds to see if we get any QR codes...
+              await frameProcessor.ProcessFramesAsync(timeout, resultCallback);
+          }
+          catch (ObjectDisposedException ex)
+          {
+              Log.Info(ex, "Handled ObjectDisposedException because Stop() was called.");
+
+              // Stop() was called
+              return;
+          }
 
         // See what result we got.
         result = frameProcessor.Result;
       }
     }
+
+      public static void Stop()
+      {
+          if (null != frameProcessor)
+          {
+              frameProcessor.Dispose();
+              frameProcessor = null;
+          }
+      }
+
     static QrCaptureFrameProcessor frameProcessor;
   }
 }
