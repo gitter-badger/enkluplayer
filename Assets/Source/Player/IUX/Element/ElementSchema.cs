@@ -414,6 +414,11 @@ namespace CreateAR.EnkluPlayer.IUX
 
             return Default<T>();
         }
+
+        public ElementSchemaProp GetOwn(string name)
+        {
+            return Prop(name);
+        }
         
         /// <summary>
         /// Returns true iff the schema or parent schemas have a property with

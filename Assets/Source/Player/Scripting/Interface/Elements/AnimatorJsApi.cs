@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
+using CreateAR.EnkluPlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -11,6 +14,11 @@ namespace CreateAR.EnkluPlayer.Scripting
     public class AnimatorJsApi
     {
         /// <summary>
+        /// Schema to back animator properties.
+        /// </summary>
+        private readonly ElementSchema _schema;
+        
+        /// <summary>
         /// Underlying Unity Animator to wrap.
         /// </summary>
         private readonly Animator _animator;
@@ -19,6 +27,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// List of available parameter names.
         /// </summary>
         private readonly string[] _parameterNames;
+        
+        /// <summary>
+        /// Backing schema props
+        /// </summary>
+        private readonly List<ElementSchemaProp<float>> _propsFloat = new List<ElementSchemaProp<float>>();
+        private readonly List<ElementSchemaProp<int>> _propsInt = new List<ElementSchemaProp<int>>();
+        private readonly List<ElementSchemaProp<bool>> _propsBool = new List<ElementSchemaProp<bool>>();
 
         /// <summary>
         /// List of available parameter names.
@@ -31,15 +46,65 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Constructor.
         /// </summary>
+        /// <param name="schema"></param>
         /// <param name="animator"></param>
-        public AnimatorJsApi(Animator animator)
+        public AnimatorJsApi(ElementSchema schema, Animator animator)
         {
+            _schema = schema;
             _animator = animator;
 
             _parameterNames = new string[_animator.parameterCount];
-            for (int i = 0; i < _animator.parameters.Length; i++)
+            for (var i = 0; i < _animator.parameters.Length; i++)
             {
                 _parameterNames[i] = _animator.parameters[i].name;
+                
+                var prop = _schema.GetOwn(ToSchemaName(_parameterNames[i]));
+
+                if (prop != null)
+                {
+                    if (prop.Type == typeof(float))
+                    {
+                        var propFloat = (ElementSchemaProp<float>) prop;
+                        
+                        _propsFloat.Add(propFloat);
+                        propFloat.OnChanged += OnSchemaFloatChange;
+                    } 
+                    else if (prop.Type == typeof(int))
+                    {
+                        var propInt = (ElementSchemaProp<int>) prop;
+                        
+                        _propsInt.Add(propInt);
+                        propInt.OnChanged += OnSchemaIntChange;
+                    }
+                    else if (prop.Type == typeof(bool))
+                    {
+                        var propBool = (ElementSchemaProp<bool>) prop;
+                        
+                        _propsBool.Add(propBool);
+                        propBool.OnChanged += OnSchemaBoolChange;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Deconstructor
+        /// </summary>
+        ~AnimatorJsApi()
+        {
+            for (var i = 0; i < _propsFloat.Count; i++)
+            {
+                _propsFloat[i].OnChanged -= OnSchemaFloatChange;
+            }
+            
+            for (var i = 0; i < _propsInt.Count; i++)
+            {
+                _propsInt[i].OnChanged -= OnSchemaIntChange;
+            }
+            
+            for (var i = 0; i < _propsBool.Count; i++)
+            {
+                _propsBool[i].OnChanged -= OnSchemaBoolChange;
             }
         }
 
@@ -60,7 +125,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="value"></param>
         public void setBool(string name, bool value)
         {
-            _animator.SetBool(name, value);
+            var prop = GetSchemaProp(_propsBool, name);
+            if (prop == null)
+            {
+                prop = _schema.GetOwn(ToSchemaName(name), value);
+                prop.OnChanged += OnSchemaBoolChange;
+                
+                _propsBool.Add(prop);
+            }
+            
+            prop.Value = value;
         }
 
         /// <summary>
@@ -80,7 +154,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="value"></param>
         public void setInteger(string name, int value)
         {
-            _animator.SetInteger(name, value);
+            var prop = GetSchemaProp(_propsInt, name);
+            if (prop == null)
+            {
+                prop = _schema.GetOwn(ToSchemaName(name), value);
+                prop.OnChanged += OnSchemaIntChange;
+                
+                _propsInt.Add(prop);
+            }
+            
+            prop.Value = value;
         }
 
         /// <summary>
@@ -100,7 +183,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="value"></param>
         public void setFloat(string name, float value)
         {
-            _animator.SetFloat(name, value);
+            var prop = GetSchemaProp(_propsFloat, name);
+            if (prop == null)
+            {
+                prop = _schema.GetOwn(ToSchemaName(name), value);
+                prop.OnChanged += OnSchemaFloatChange;
+                
+                _propsFloat.Add(prop);
+            }
+            
+            prop.Value = value;
         }
 
         /// <summary>
@@ -132,6 +224,81 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             return false;
+        }
+        
+        /// <summary>
+        /// Converts a schema name to a parameter name.
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        private string FromSchemaName(string schema)
+        {
+            return schema.Substring(schema.IndexOf('.') + 1);
+        }
+
+        /// <summary>
+        /// Converts a parameter name to a schema name.
+        /// </summary>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        private string ToSchemaName(string param)
+        {
+            return "animator." + param;
+        }
+
+        /// <summary>
+        /// Update the underlying animator based on schema changes.
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="prev"></param>
+        /// <param name="new"></param>
+        private void OnSchemaFloatChange(ElementSchemaProp<float> prop, float prev, float @new)
+        {
+            _animator.SetFloat(FromSchemaName(prop.Name), @new);
+        }
+
+        /// <summary>
+        /// Update the underlying animator based on schema changes.
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="prev"></param>
+        /// <param name="new"></param>
+        private void OnSchemaIntChange(ElementSchemaProp<int> prop, int prev, int @new)
+        {
+            _animator.SetInteger(FromSchemaName(prop.Name), @new);
+        }
+
+        /// <summary>
+        /// Update the underlying animator based on schema changes.
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="prev"></param>
+        /// <param name="new"></param>
+        private void OnSchemaBoolChange(ElementSchemaProp<bool> prop, bool prev, bool @new)
+        {
+            _animator.SetBool(FromSchemaName(prop.Name), @new);
+        }
+
+        /// <summary>
+        /// Gets an ElementSchemaProp by name.
+        /// </summary>
+        /// <param name="props"></param>
+        /// <param name="param"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        private ElementSchemaProp<T> GetSchemaProp<T>(List<ElementSchemaProp<T>> props, string param)
+        {
+            var schemaName = ToSchemaName(param);
+            
+            for (var i = 0; i < props.Count; i++)
+            {
+                if (props[i].Name == schemaName)
+                {
+                    return props[i];
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using CreateAR.EnkluPlayer.IUX;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -12,13 +13,34 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private readonly AudioSource _audio;
 
+        private readonly ElementSchemaProp<float> _volumeProp;
+
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <param name="schema"></param>
         /// <param name="audio"></param>
-        public AudioJsApi(AudioSource audio)
+        public AudioJsApi(ElementSchema schema, AudioSource audio)
         {
             _audio = audio;
+
+            _volumeProp = schema.GetOwn<float>("audio.volume", -1);
+            
+            if (_volumeProp.Value >= 0)
+            {
+                volume = _volumeProp.Value;
+            }
+            else
+            {
+                _volumeProp.Value = volume;
+            }
+
+            _volumeProp.OnChanged += OnVolumeChanged;
+        }
+
+        ~AudioJsApi()
+        {
+            _volumeProp.OnChanged -= OnVolumeChanged;
         }
 
         /// <summary>
@@ -26,8 +48,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public float volume
         {
-            get { return _audio.volume; }
-            set { _audio.volume = value; }
+            get { return _volumeProp.Value; }
+            set { _volumeProp.Value = value; }
         }
 
         /// <summary>
@@ -91,6 +113,14 @@ namespace CreateAR.EnkluPlayer
         {
             get { return _audio.dopplerLevel; }
             set { _audio.dopplerLevel = value; }
+        }
+
+        /// <summary>
+        /// Invoked when the volume changes via schema.
+        /// </summary>
+        private void OnVolumeChanged(ElementSchemaProp<float> prop, float prev, float @new)
+        {
+            _audio.volume = @new;
         }
     }
 }
