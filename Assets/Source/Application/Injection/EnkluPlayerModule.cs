@@ -46,7 +46,7 @@ namespace CreateAR.EnkluPlayer
             binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
 
             // load configuration
-            var config = LoadConfig();
+            var config = ApplicationConfigCompositor.Config;
             binder.Bind<ApplicationConfig>().ToValue(config);
             binder.Bind<NetworkConfig>().ToValue(config.Network);
 
@@ -443,57 +443,6 @@ namespace CreateAR.EnkluPlayer
                     Filter = LogLevel.Error
                 });
             }
-        }
-
-        /// <summary>
-        /// Loads application config.
-        /// </summary>
-        /// <returns></returns>
-        private ApplicationConfig LoadConfig()
-        {
-            // TODO: override at JSON level instead.
-
-            // load base
-            var config = Config("ApplicationConfig");
-
-            // load platform specific config
-            var platform = Config(string.Format(
-                "ApplicationConfig.{0}",
-                UnityEngine.Application.platform));
-            if (null != platform)
-            {
-                config.Override(platform);
-            }
-
-            // load override
-            var overrideConfig = Config("ApplicationConfig.Override");
-            if (null != overrideConfig)
-            {
-                config.Override(overrideConfig);
-            }
-
-            return config;
-        }
-
-        /// <summary>
-        /// Loads a config at a path.
-        /// </summary>
-        /// <param name="path">The path to load the config from.</param>
-        /// <returns></returns>
-        private ApplicationConfig Config(string path)
-        {
-            var configAsset = Resources.Load<TextAsset>(path);
-            if (null == configAsset)
-            {
-                return null;
-            }
-
-            var serializer = new JsonSerializer();
-            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
-            object app;
-            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
-
-            return (ApplicationConfig) app;
         }
 
         /// <summary>
