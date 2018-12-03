@@ -415,6 +415,11 @@ namespace CreateAR.EnkluPlayer.IUX
             return Default<T>();
         }
 
+        /// <summary>
+        /// Returns the prop if locally defined, or null otherwise.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public ElementSchemaProp GetOwn(string name)
         {
             return Prop(name);
