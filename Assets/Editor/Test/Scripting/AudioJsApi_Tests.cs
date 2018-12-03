@@ -2,8 +2,9 @@
 using CreateAR.EnkluPlayer.Test.Scripting;
 using NUnit.Framework;
 
-namespace CreateAR.EnkluPlayer.Tests.Scripting
+namespace CreateAR.EnkluPlayer.Test.Scripting
 {
+	[TestFixture]
 	public class AudioJsApi_Tests
 	{
 		private ElementSchema _schema;
