@@ -45,6 +45,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
+        /// Tracks whether Setup has been called.
+        /// </summary>
+        private bool _setup;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="schema"></param>
@@ -53,8 +58,20 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             _schema = schema;
             _animator = animator;
-
+            
             _parameterNames = new string[_animator.Parameters.Length];
+        }
+
+        /// <summary>
+        /// Subscribes to schema.
+        /// </summary>
+        public void Setup()
+        {
+            if (_setup)
+            {
+                throw new Exception("AnimatorJsApi already setup.");
+            }
+            
             for (var i = 0; i < _parameterNames.Length; i++)
             {
                 _parameterNames[i] = _animator.Parameters[i].name;
@@ -69,7 +86,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                         var propFloat = (ElementSchemaProp<float>) prop;
                         
                         _propsFloat.Add(propFloat);
-                        propFloat.OnChanged += OnSchemaFloatChange;
+                        propFloat.OnChanged += Prop_OnFloatChanged;
                         
                         _animator.SetFloat(_parameterNames[i], propFloat.Value);
                     } 
@@ -78,7 +95,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                         var propInt = (ElementSchemaProp<int>) prop;
                         
                         _propsInt.Add(propInt);
-                        propInt.OnChanged += OnSchemaIntChange;
+                        propInt.OnChanged += Prop_OnIntChanged;
                         
                         _animator.SetInt(_parameterNames[i], propInt.Value);
                     }
@@ -87,33 +104,42 @@ namespace CreateAR.EnkluPlayer.Scripting
                         var propBool = (ElementSchemaProp<bool>) prop;
                         
                         _propsBool.Add(propBool);
-                        propBool.OnChanged += OnSchemaBoolChange;
+                        propBool.OnChanged += Prop_OnBoolChanged;
                         
                         _animator.SetBool(_parameterNames[i], propBool.Value);
                     }
                 }
             }
+
+            _setup = true;
         }
 
         /// <summary>
-        /// Destructor.
+        /// Unsubscribes from schema.
         /// </summary>
-        ~AnimatorJsApi()
+        public void Teardown()
         {
+            if (!_setup)
+            {
+                throw new Exception("AnimatorJsApi not setup.");
+            }
+            
             for (var i = 0; i < _propsFloat.Count; i++)
             {
-                _propsFloat[i].OnChanged -= OnSchemaFloatChange;
+                _propsFloat[i].OnChanged -= Prop_OnFloatChanged;
             }
             
             for (var i = 0; i < _propsInt.Count; i++)
             {
-                _propsInt[i].OnChanged -= OnSchemaIntChange;
+                _propsInt[i].OnChanged -= Prop_OnIntChanged;
             }
             
             for (var i = 0; i < _propsBool.Count; i++)
             {
-                _propsBool[i].OnChanged -= OnSchemaBoolChange;
+                _propsBool[i].OnChanged -= Prop_OnBoolChanged;
             }
+
+            _setup = false;
         }
 
         /// <summary>
@@ -139,8 +165,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 prop = _schema.GetOwn(ToSchemaName(name), value);
                 _propsBool.Add(prop);
                 
-                prop.OnChanged += OnSchemaBoolChange;
-                OnSchemaBoolChange(prop, value, value);
+                prop.OnChanged += Prop_OnBoolChanged;
+                Prop_OnBoolChanged(prop, value, value);
             }
             else
             {
@@ -171,8 +197,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 prop = _schema.GetOwn(ToSchemaName(name), value);
                 _propsInt.Add(prop);
                 
-                prop.OnChanged += OnSchemaIntChange;
-                OnSchemaIntChange(prop, value, value);
+                prop.OnChanged += Prop_OnIntChanged;
+                Prop_OnIntChanged(prop, value, value);
             }
             else
             {
@@ -185,7 +211,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        [Obsolete]
+        [Obsolete("Use animate.getInt instead.")]
         public int getInteger(string name)
         {
             Log.Warning(this, "animator.getInteger is deprecated. Use animator.getInt instead.");
@@ -197,7 +223,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="name"></param>
         /// <param name="value"></param>
-        [Obsolete]
+        [Obsolete("Use animate.setInt instead.")]
         public void setInteger(string name, int value)
         {
             Log.Warning(this, "animator.setInteger is deprecated. Use animator.setInt instead.");
@@ -227,8 +253,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 prop = _schema.GetOwn(ToSchemaName(name), value);
                 _propsFloat.Add(prop);
                 
-                prop.OnChanged += OnSchemaFloatChange;
-                OnSchemaFloatChange(prop, value, value);
+                prop.OnChanged += Prop_OnFloatChanged;
+                Prop_OnFloatChanged(prop, value, value);
             }
             else
             {
@@ -262,7 +288,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        private string FromSchemaName(string schema)
+        private static string FromSchemaName(string schema)
         {
             return schema.Substring(schema.IndexOf('.') + 1);
         }
@@ -272,7 +298,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        private string ToSchemaName(string param)
+        private static string ToSchemaName(string param)
         {
             return "animator." + param;
         }
@@ -283,7 +309,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="prop"></param>
         /// <param name="prev"></param>
         /// <param name="new"></param>
-        private void OnSchemaFloatChange(ElementSchemaProp<float> prop, float prev, float @new)
+        private void Prop_OnFloatChanged(ElementSchemaProp<float> prop, float prev, float @new)
         {
             _animator.SetFloat(FromSchemaName(prop.Name), @new);
         }
@@ -294,7 +320,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="prop"></param>
         /// <param name="prev"></param>
         /// <param name="new"></param>
-        private void OnSchemaIntChange(ElementSchemaProp<int> prop, int prev, int @new)
+        private void Prop_OnIntChanged(ElementSchemaProp<int> prop, int prev, int @new)
         {
             _animator.SetInt(FromSchemaName(prop.Name), @new);
         }
@@ -305,7 +331,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="prop"></param>
         /// <param name="prev"></param>
         /// <param name="new"></param>
-        private void OnSchemaBoolChange(ElementSchemaProp<bool> prop, bool prev, bool @new)
+        private void Prop_OnBoolChanged(ElementSchemaProp<bool> prop, bool prev, bool @new)
         {
             _animator.SetBool(FromSchemaName(prop.Name), @new);
         }
@@ -317,7 +343,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="param"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private ElementSchemaProp<T> GetSchemaProp<T>(List<ElementSchemaProp<T>> props, string param)
+        private static ElementSchemaProp<T> GetSchemaProp<T>(List<ElementSchemaProp<T>> props, string param)
         {
             var schemaName = ToSchemaName(param);
             

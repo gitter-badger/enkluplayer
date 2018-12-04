@@ -1,4 +1,5 @@
-﻿using CreateAR.EnkluPlayer.IUX;
+﻿using System;
+using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using UnityEngine;
 
@@ -20,6 +21,11 @@ namespace CreateAR.EnkluPlayer
         private readonly ElementSchemaProp<float> _volumeProp;
 
         /// <summary>
+        /// Tracks whether Setup has been called.
+        /// </summary>
+        private bool _setup;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="schema"></param>
@@ -29,11 +35,22 @@ namespace CreateAR.EnkluPlayer
             _audio = audio;
 
             _volumeProp = schema.GetOwn<float>("audio.volume", -1);
+        }
+
+        /// <summary>
+        /// Subscribes to schema.
+        /// </summary>
+        public void Setup()
+        {
+            if (_setup)
+            {
+                throw new Exception("AudioJsApi already setup.");
+            }
             
             if (_volumeProp.Value >= 0)
             {
                 // Set initial
-                OnVolumeChanged(_volumeProp, _volumeProp.Value, _volumeProp.Value);
+                Volume_OnChanged(_volumeProp, _volumeProp.Value, _volumeProp.Value);
             }
             else
             {
@@ -41,15 +58,24 @@ namespace CreateAR.EnkluPlayer
                 _volumeProp.Value = volume;
             }
 
-            _volumeProp.OnChanged += OnVolumeChanged;
+            _volumeProp.OnChanged += Volume_OnChanged;
+
+            _setup = true;
         }
 
         /// <summary>
-        /// Destructor.
+        /// Unsubscribes from schema.
         /// </summary>
-        ~AudioJsApi()
+        public void Teardown()
         {
-            _volumeProp.OnChanged -= OnVolumeChanged;
+            if (!_setup)
+            {
+                throw new Exception("AudioJsApi not setup.");
+            }
+            
+            _volumeProp.OnChanged -= Volume_OnChanged;
+
+            _setup = false;
         }
 
         /// <summary>
@@ -127,7 +153,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Invoked when the volume changes via schema.
         /// </summary>
-        private void OnVolumeChanged(ElementSchemaProp<float> prop, float prev, float @new)
+        private void Volume_OnChanged(ElementSchemaProp<float> prop, float prev, float @new)
         {
             _audio.Volume = @new;
         }

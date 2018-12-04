@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
 
@@ -29,6 +30,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly List<ElementSchemaProp<Col4>> _propsCol4;
 
         /// <summary>
+        /// Tracks whether Setup has been called.
+        /// </summary>
+        private bool _setup;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="schema"></param>
@@ -38,7 +44,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             _schema = schema;
             _renderer = renderer;
 
-            // TODO: Unity 2018.2 upgrade - Look at Material.GetTexturePropertyNames for setting defaults?!
             _propsFloat = new List<ElementSchemaProp<float>>();
             _propsInt = new List<ElementSchemaProp<int>>();
             _propsVec3 = new List<ElementSchemaProp<Vec3>>();
@@ -46,29 +51,51 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <summary>
-        /// Destructor.
+        /// Subscribes to schema.
         /// </summary>
-        ~MaterialJsApi()
+        public void Setup()
         {
+            if (_setup)
+            {
+                throw new Exception("MaterialJsApi already setup.");
+            }
+            
+            // TODO: Unity 2018.2 upgrade - Look at Material.GetTexturePropertyNames for setting defaults?!
+            
+            _setup = true;
+        }
+
+        /// <summary>
+        /// Unsubscribes from schema.
+        /// </summary>
+        public void Teardown()
+        {
+            if (!_setup)
+            {
+                throw new Exception("MaterialJsApi not setup.");
+            }
+            
             for (int i = 0, len = _propsFloat.Count; i < len; i++)
             {
-                _propsFloat[i].OnChanged -= OnSchemaFloatChange;
+                _propsFloat[i].OnChanged -= Prop_OnFloatChanged;
             }
             
             for (int i = 0, len = _propsInt.Count; i < len; i++)
             {
-                _propsInt[i].OnChanged -= OnSchemaIntChange;
+                _propsInt[i].OnChanged -= Prop_OnIntChanged;
             }
             
             for (int i = 0, len = _propsVec3.Count; i < len; i++)
             {
-                _propsVec3[i].OnChanged -= OnSchemaVectorChange;
+                _propsVec3[i].OnChanged -= Prop_OnVectorChanged;
             }
             
             for (int i = 0, len = _propsCol4.Count; i < len; i++)
             {
-                _propsCol4[i].OnChanged -= OnSchemaColorChange;
+                _propsCol4[i].OnChanged -= Prop_OnColorChanged;
             }
+
+            _setup = false;
         }
 
         /// <summary>
@@ -94,8 +121,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 prop = _schema.GetOwn(ToSchemaName(param), value);
                 _propsFloat.Add(prop);
                 
-                prop.OnChanged += OnSchemaFloatChange;
-                OnSchemaFloatChange(prop, value, value);
+                prop.OnChanged += Prop_OnFloatChanged;
+                Prop_OnFloatChanged(prop, value, value);
             }
             else
             {
@@ -126,8 +153,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 prop = _schema.GetOwn(ToSchemaName(param), value);
                 _propsInt.Add(prop);
                 
-                prop.OnChanged += OnSchemaIntChange;
-                OnSchemaIntChange(prop, value, value);
+                prop.OnChanged += Prop_OnIntChanged;
+                Prop_OnIntChanged(prop, value, value);
             }
             else
             {
@@ -158,8 +185,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 prop = _schema.GetOwn(ToSchemaName(param), value);
                 _propsVec3.Add(prop);
                 
-                prop.OnChanged += OnSchemaVectorChange;
-                OnSchemaVectorChange(prop, value, value);
+                prop.OnChanged += Prop_OnVectorChanged;
+                Prop_OnVectorChanged(prop, value, value);
             }
             else
             {
@@ -190,8 +217,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 prop = _schema.GetOwn(ToSchemaName(param), value);
                 _propsCol4.Add(prop);
                 
-                prop.OnChanged += OnSchemaColorChange;
-                OnSchemaColorChange(prop, value, value);
+                prop.OnChanged += Prop_OnColorChanged;
+                Prop_OnColorChanged(prop, value, value);
             }
             else
             {
@@ -204,7 +231,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="schema"></param>
         /// <returns></returns>
-        private string FromSchemaName(string schema)
+        private static string FromSchemaName(string schema)
         {
             return schema.Substring(schema.IndexOf('.') + 1);
         }
@@ -214,7 +241,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="param"></param>
         /// <returns></returns>
-        private string ToSchemaName(string param)
+        private static string ToSchemaName(string param)
         {
             return "material." + param;
         }
@@ -225,7 +252,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="prop"></param>
         /// <param name="prev"></param>
         /// <param name="new"></param>
-        private void OnSchemaFloatChange(ElementSchemaProp<float> prop, float prev, float @new)
+        private void Prop_OnFloatChanged(ElementSchemaProp<float> prop, float prev, float @new)
         {
             _renderer.SharedMaterial.SetFloat(FromSchemaName(prop.Name), @new);
         }
@@ -236,7 +263,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="prop"></param>
         /// <param name="prev"></param>
         /// <param name="new"></param>
-        private void OnSchemaIntChange(ElementSchemaProp<int> prop, int prev, int @new)
+        private void Prop_OnIntChanged(ElementSchemaProp<int> prop, int prev, int @new)
         {
             _renderer.SharedMaterial.SetInt(FromSchemaName(prop.Name), @new);
         }
@@ -247,7 +274,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="prop"></param>
         /// <param name="prev"></param>
         /// <param name="new"></param>
-        private void OnSchemaVectorChange(ElementSchemaProp<Vec3> prop, Vec3 prev, Vec3 @new)
+        private void Prop_OnVectorChanged(ElementSchemaProp<Vec3> prop, Vec3 prev, Vec3 @new)
         {
             _renderer.SharedMaterial.SetVec3(FromSchemaName(prop.Name), @new);
         }
@@ -258,7 +285,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="prop"></param>
         /// <param name="prev"></param>
         /// <param name="new"></param>
-        private void OnSchemaColorChange(ElementSchemaProp<Col4> prop, Col4 prev, Col4 @new)
+        private void Prop_OnColorChanged(ElementSchemaProp<Col4> prop, Col4 prev, Col4 @new)
         {
             _renderer.SharedMaterial.SetCol4(FromSchemaName(prop.Name), @new);
         }
