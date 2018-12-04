@@ -467,6 +467,9 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void MainMenu_OnLoggingHud()
         {
+            CloseMainMenu();
+            OpenSplashMenu();
+
             _ui
                 .OpenOverlay<LoggingUIView>(new UIReference
                 {

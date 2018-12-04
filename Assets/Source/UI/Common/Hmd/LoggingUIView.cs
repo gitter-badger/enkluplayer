@@ -11,14 +11,17 @@ namespace CreateAR.EnkluPlayer
     public class LoggingUIView : MonoBehaviourIUXController, ILogTarget
     {
         /// <summary>
-        /// Formats logs.
+        /// Keeps history.
         /// </summary>
-        private readonly DefaultLogFormatter _formatter = new DefaultLogFormatter
+        private readonly HistoryLogTarget _history = new HistoryLogTarget(new DefaultLogFormatter
         {
-            Level = false,
+            Level = true,
             ObjectToString = false,
             Timestamp = true,
             TypeName = true
+        })
+        {
+            Filter = LogLevel.Debug
         };
 
         /// <summary>
@@ -33,7 +36,7 @@ namespace CreateAR.EnkluPlayer
         public ButtonWidget BtnClose { get; set; }
         [InjectElements("..slt-level")]
         public SelectWidget SltLevel { get; set; }
-        [InjectElements("txt-box")]
+        [InjectElements("..txt-box")]
         public TextWidget TxtBox { get; set; }
 
         /// <summary>
@@ -48,7 +51,17 @@ namespace CreateAR.EnkluPlayer
         public event Action OnClose;
 
         /// <inheritdoc />
-        public LogLevel Filter { get; set; }
+        public LogLevel Filter
+        {
+            get { return _history.Filter; }
+            set { _history.Filter = value; }
+        }
+
+        /// <inheritdoc />
+        private void Start()
+        {
+            Log.AddLogTarget(this);
+        }
 
         /// <inheritdoc />
         protected override void AfterElementsCreated()
@@ -79,6 +92,8 @@ namespace CreateAR.EnkluPlayer
 
                         next(prev);
                     });
+
+                    TxtBox.Label = _history.GenerateDump();
                 })
                 .OnFailure(ex => Log.Error(this, "Could not load user prefs : {0}", ex))
                 .OnFinally(_ => Log.AddLogTarget(this));
@@ -101,12 +116,14 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void OnLog(LogLevel level, object caller, string message)
         {
-            if (level < Filter)
-            {
-                return;
-            }
+            // pass everything to history
+            _history.OnLog(level, caller, message);
 
-            TxtBox.Label += _formatter.Format(level, caller, message);
+            // forward to text box
+            if (null != TxtBox)
+            {
+                TxtBox.Label = _history.GenerateDump();
+            }
         }
     }
 }

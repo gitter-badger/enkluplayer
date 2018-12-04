@@ -170,6 +170,21 @@ namespace CreateAR.EnkluPlayer.IUX
 
             _typeSchema[ElementTypes.SELECT] = _typeSchema[ElementTypes.TOGGLE] = buttonSchema;
 
+            var textSchema = new ElementSchema("Base.Text");
+            textSchema.Load(new ElementSchemaData
+            {
+                Strings = new Dictionary<string, string>
+                {
+                    { "verticalOverflow", "Overflow" },
+                    { "font", "Watchword_bold" }  
+                },
+                Ints = new Dictionary<string, int>
+                {
+                    { "fontSize", 80 }
+                }
+            });
+            _typeSchema[ElementTypes.CAPTION] = textSchema;
+
             var menuSchema = _typeSchema[ElementTypes.MENU] = new ElementSchema("Base.Menu");
             menuSchema.Load(new ElementSchemaData
             {

@@ -146,7 +146,6 @@ namespace CreateAR.EnkluPlayer.IUX
         {            
             _text.HorizontalOverflow = EnumExtensions.Parse<HorizontalWrapMode>(_overflowProp.Value);
             _text.VerticalOverflow = EnumExtensions.Parse<VerticalWrapMode>(_verticalOverflowProp.Value);
-
         }
         
         /// <summary>

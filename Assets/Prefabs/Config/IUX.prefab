@@ -146,6 +146,9 @@ MonoBehaviour:
     - UIDataId: EnvSelection
       Element: {fileID: 114044542537696304, guid: 0a99393eb3ec64b4ab88fdd41fc572c3,
         type: 2}
+    - UIDataId: Logging.Hud
+      Element: {fileID: 114181391073327978, guid: 20f80ed0737fdac4793979645e8ad470,
+        type: 2}
   - Platforms: 080000000b000000
     Links:
     - UIDataId: Common.Error
