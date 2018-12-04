@@ -349,7 +349,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 case ElementTypes.CAPTION:
                 {
-                    return new CaptionWidget(new GameObject("Element"), _primitives, _layers, _tweens, _colors);
+                    return new TextWidget(new GameObject("Element"), _primitives, _layers, _tweens, _colors);
                 }
                 case ElementTypes.BUTTON:
                 {

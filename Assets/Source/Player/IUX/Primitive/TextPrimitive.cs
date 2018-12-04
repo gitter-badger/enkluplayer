@@ -183,12 +183,21 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <summary>
-        /// Sets overflow method.
+        /// Sets horizontal overflow method.
         /// </summary>
-        public HorizontalWrapMode Overflow
+        public HorizontalWrapMode HorizontalOverflow
         {
             get { return _renderer.Text.horizontalOverflow; }
             set { _renderer.Text.horizontalOverflow = value; }
+        }
+
+        /// <summary>
+        /// Sets vertical overflow method.
+        /// </summary>
+        public VerticalWrapMode VerticalOverflow
+        {
+            get { return _renderer.Text.verticalOverflow; }
+            set { _renderer.Text.verticalOverflow = value; }
         }
 
         /// <summary>

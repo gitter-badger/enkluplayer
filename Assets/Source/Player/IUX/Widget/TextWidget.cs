@@ -5,7 +5,7 @@ namespace CreateAR.EnkluPlayer.IUX
     /// <summary>
     /// Basic text rendering widget.
     /// </summary>
-    public class CaptionWidget : Widget
+    public class TextWidget : Widget
     {
         /// <summary>
         /// Primitives!
@@ -23,8 +23,10 @@ namespace CreateAR.EnkluPlayer.IUX
         private ElementSchemaProp<string> _labelProp;
         private ElementSchemaProp<int> _fontSizeProp;
         private ElementSchemaProp<float> _widthProp;
+        private ElementSchemaProp<float> _heightProp;
         private ElementSchemaProp<string> _alignmentProp;
         private ElementSchemaProp<string> _overflowProp;
+        private ElementSchemaProp<string> _verticalOverflowProp;
         
         /// <summary>
         /// Gets/sets the label.
@@ -51,7 +53,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Constructor.
         /// </summary>
-        public CaptionWidget(
+        public TextWidget(
             GameObject gameObject,
             IPrimitiveFactory primitives,
             ILayerManager layers,
@@ -80,16 +82,23 @@ namespace CreateAR.EnkluPlayer.IUX
             _widthProp = Schema.Get<float>("width");
             _widthProp.OnChanged += Width_OnChanged;
 
+            _heightProp = Schema.Get<float>("height");
+            _heightProp.OnChanged += Height_OnChanged;
+
             _alignmentProp = Schema.Get<string>("alignment");
             _alignmentProp.OnChanged += Alignment_OnChanged;
 
             _overflowProp = Schema.Get<string>("overflow");
             _overflowProp.OnChanged += Overflow_OnChanged;
+
+            _verticalOverflowProp = Schema.Get<string>("verticalOverflow");
+            _verticalOverflowProp.OnChanged += VerticalOverflow_OnChanged;
             
             _text = _primitives.Text(Schema);
             _text.Text = _labelProp.Value;
             _text.FontSize = _fontSizeProp.Value;
             _text.Width = _widthProp.Value;
+            _text.Height = _heightProp.Value;
             _text.Alpha = Alpha;
 
             UpdateAlignment();
@@ -104,8 +113,10 @@ namespace CreateAR.EnkluPlayer.IUX
             _labelProp.OnChanged -= Label_OnChanged;
             _fontSizeProp.OnChanged -= FontSize_OnChanged;
             _widthProp.OnChanged -= Width_OnChanged;
+            _heightProp.OnChanged -= Height_OnChanged;
             _alignmentProp.OnChanged -= Alignment_OnChanged;
             _overflowProp.OnChanged -= Overflow_OnChanged;
+            _verticalOverflowProp.OnChanged -= VerticalOverflow_OnChanged;
             
             base.UnloadInternalAfterChildren();
         }
@@ -132,12 +143,12 @@ namespace CreateAR.EnkluPlayer.IUX
         /// Updates overflow from the prop.
         /// </summary>
         private void UpdateOverflow()
-        {
-            var value = _overflowProp.Value;
+        {            
+            _text.HorizontalOverflow = EnumExtensions.Parse<HorizontalWrapMode>(_overflowProp.Value);
+            _text.VerticalOverflow = EnumExtensions.Parse<VerticalWrapMode>(_verticalOverflowProp.Value);
 
-            _text.Overflow = EnumExtensions.Parse<HorizontalWrapMode>(value);
         }
-
+        
         /// <summary>
         /// Called when the label changes.
         /// </summary>
@@ -181,6 +192,20 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <summary>
+        /// Called when the height changes.
+        /// </summary>
+        /// <param name="prop">Property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void Height_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            _text.Height = next;
+        }
+
+        /// <summary>
         /// Called when the alignment changes.
         /// </summary>
         /// <param name="prop">Property.</param>
@@ -201,6 +226,20 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <param name="prev">Previous value.</param>
         /// <param name="next">Next value.</param>
         private void Overflow_OnChanged(
+            ElementSchemaProp<string> prop,
+            string prev,
+            string next)
+        {
+            UpdateOverflow();
+        }
+
+        /// <summary>
+        /// Called when the vertical overflow changes.
+        /// </summary>
+        /// <param name="prop">Property.</param>
+        /// <param name="prev">Previous value.</param>
+        /// <param name="next">Next value.</param>
+        private void VerticalOverflow_OnChanged(
             ElementSchemaProp<string> prop,
             string prev,
             string next)
