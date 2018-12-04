@@ -24,60 +24,7 @@ namespace CreateAR.EnkluPlayer
         /// Tracks whether Setup has been called.
         /// </summary>
         private bool _setup;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="schema"></param>
-        /// <param name="audio"></param>
-        public AudioJsApi(ElementSchema schema, IAudioSource audio)
-        {
-            _audio = audio;
-
-            _volumeProp = schema.GetOwn<float>("audio.volume", -1);
-        }
-
-        /// <summary>
-        /// Subscribes to schema.
-        /// </summary>
-        public void Setup()
-        {
-            if (_setup)
-            {
-                throw new Exception("AudioJsApi already setup.");
-            }
-            
-            if (_volumeProp.Value >= 0)
-            {
-                // Set initial
-                Volume_OnChanged(_volumeProp, _volumeProp.Value, _volumeProp.Value);
-            }
-            else
-            {
-                // Load from prefab
-                _volumeProp.Value = volume;
-            }
-
-            _volumeProp.OnChanged += Volume_OnChanged;
-
-            _setup = true;
-        }
-
-        /// <summary>
-        /// Unsubscribes from schema.
-        /// </summary>
-        public void Teardown()
-        {
-            if (!_setup)
-            {
-                throw new Exception("AudioJsApi not setup.");
-            }
-            
-            _volumeProp.OnChanged -= Volume_OnChanged;
-
-            _setup = false;
-        }
-
+        
         /// <summary>
         /// Volume.
         /// </summary>
@@ -148,6 +95,59 @@ namespace CreateAR.EnkluPlayer
         {
             get { return _audio.DopplerLevel; }
             set { _audio.DopplerLevel = value; }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="schema"></param>
+        /// <param name="audio"></param>
+        public AudioJsApi(ElementSchema schema, IAudioSource audio)
+        {
+            _audio = audio;
+
+            _volumeProp = schema.GetOwn<float>("audio.volume", -1);
+        }
+
+        /// <summary>
+        /// Subscribes to schema.
+        /// </summary>
+        public void Setup()
+        {
+            if (_setup)
+            {
+                throw new Exception("AudioJsApi already setup.");
+            }
+            
+            if (_volumeProp.Value >= 0)
+            {
+                // Set initial
+                Volume_OnChanged(_volumeProp, _volumeProp.Value, _volumeProp.Value);
+            }
+            else
+            {
+                // Load from prefab
+                _volumeProp.Value = volume;
+            }
+
+            _volumeProp.OnChanged += Volume_OnChanged;
+
+            _setup = true;
+        }
+
+        /// <summary>
+        /// Unsubscribes from schema.
+        /// </summary>
+        public void Teardown()
+        {
+            if (!_setup)
+            {
+                throw new Exception("AudioJsApi not setup.");
+            }
+            
+            _volumeProp.OnChanged -= Volume_OnChanged;
+
+            _setup = false;
         }
 
         /// <summary>
