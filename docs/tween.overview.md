@@ -1,10 +1,12 @@
 ### Overview
 
-EnkluPlayer comes with a small tweening system made for elements. This tween system also includes a JS scripting interface.
+EnkluPlayer comes with a small tweening system made specifically for tweening element properties. While it could be extended to tween anything, the focus on element properties means all the guarantees of the prop system may be extended to the tweening system.
+
+A simple JS interface is included for completeness, but not discussed in much detail here.
 
 ##### TweenData
 
-Tweens use a POCO to dictate how they run. This means tweens can be easily serialized or passed around as messages. The `TweenData` object itself is a grab bag of required and optional parameters that are used by `Tween` objects. The C# tweening system does not provide much in the way of nice patterns for building `TweenData` objects, though the JS API does.
+Tweens use a POCO to define their behavior. This means that tweens can be easily serialized, duplicated, or passed around as messages. The `TweenData` object itself is a grab bag of required and optional parameters that are used by `Tween` objects. The C# tweening system does not provide much in the way of nice patterns for building `TweenData` objects, though the JS API does.
 
 Look at the `TweenData` object for a full reference of all supported options.
 
@@ -16,7 +18,7 @@ The `Tween` object is given a schema to act on and the `TweenData` instance that
 var a = new Tween(element.Schema, new TweenData { Prop = "Alpha", To = 1, DurationSec = 5f });
 ```
 
-`Tween` also provides a time interface for explicit calculation of intermediate values. This means that `Tween` instances may be paused and scrubbed. Unlike the usual `Update(dt)` interfaces found in many libraries, `Tween` simply has a `float T` that can be set to any value. Subclasses tell the `Tween` object how to calculate intermediate values.
+Unlike the usual `Update(dt)` interfaces found in many libraries, `Tween` simply has a `float T` that can be set to any value. This means that `Tween` instances may be paused, played in reverse, or even scrubbed with no instability. Subclasses tell the `Tween` object how to calculate these values.
 
 ```csharp
 var a = new Tween(schema, data);
@@ -48,6 +50,8 @@ new TweenData
     Easing = TweenEasingTypes.CubicInOut
 }
 ```
+
+These equations are separate enough to be useful outside of the tween system as well.
 
 ##### TweenManager
 
@@ -128,6 +132,8 @@ public class Vector3Tween : Tween
     }
 }
 ```
+
+The creation of tweens is _baked in_ to `TweenManager`-- there is no separate factory that creates `Tween` instances from data. Perhaps this will be something we do in the future, but for now it's been judged more useful to have the factory built-in to the `TweenManager` interface.
 
 ##### JS API
 
