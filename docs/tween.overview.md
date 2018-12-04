@@ -129,3 +129,6 @@ public class Vector3Tween : Tween
 }
 ```
 
+##### JS API
+
+The JS API is specified via `TweenManagerJsApi.cs` and `TweenJs.cs`. These two objects roughly mirror the C# interface, but provide a nice builder pattern. to create tweens. More can be found on the JS documentation pages.
