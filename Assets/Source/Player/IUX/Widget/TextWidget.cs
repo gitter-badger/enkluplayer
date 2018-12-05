@@ -95,7 +95,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _verticalOverflowProp = Schema.Get<string>("verticalOverflow");
             _verticalOverflowProp.OnChanged += VerticalOverflow_OnChanged;
 
-            _lineSpacingProp = Schema.GetOwn("lineSpacing", 1f);
+            _lineSpacingProp = Schema.Get<float>("lineSpacing");
             _lineSpacingProp.OnChanged += LineSpacing_OnChanged;
 
             _text = _primitives.Text(Schema);
