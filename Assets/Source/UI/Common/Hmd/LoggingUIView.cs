@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
@@ -13,16 +14,14 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Keeps history.
         /// </summary>
-        private readonly HistoryLogTarget _history = new HistoryLogTarget(new DefaultLogFormatter
-        {
-            Level = true,
-            ObjectToString = false,
-            Timestamp = true,
-            TypeName = true
-        })
-        {
-            Filter = LogLevel.Debug
-        };
+        private readonly HistoryLogTarget _history = new HistoryLogTarget(
+            new DefaultLogFormatter
+            {
+                Level = false,
+                ObjectToString = false,
+                Timestamp = true,
+                TypeName = true
+            });
 
         /// <summary>
         /// Token for loading user preferences.
@@ -58,6 +57,15 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
+        public void OnLog(LogLevel level, object caller, string message)
+        {
+            // pass everything to history
+            _history.OnLog(level, caller, message);
+
+            UpdateTextField();
+        }
+
+        /// <inheritdoc />
         private void Start()
         {
             Log.AddLogTarget(this);
@@ -84,16 +92,18 @@ namespace CreateAR.EnkluPlayer
                 .OnSuccess(prefs =>
                 {
                     Filter = prefs.Data.LogLevel;
+                    SltLevel.Selection = FindLevelOption(SltLevel.Options, Filter);
 
                     // add listener here so we know we have what we need
                     SltLevel.OnValueChanged += widget => prefs.Queue((prev, next) =>
                     {
-                        prev.LogLevel = EnumExtensions.Parse<LogLevel>(SltLevel.Selection.Value);
+                        Filter = prev.LogLevel = EnumExtensions.Parse<LogLevel>(SltLevel.Selection.Value);
+                        UpdateTextField();
 
                         next(prev);
                     });
 
-                    TxtBox.Label = _history.GenerateDump();
+                    UpdateTextField();
                 })
                 .OnFailure(ex => Log.Error(this, "Could not load user prefs : {0}", ex))
                 .OnFinally(_ => Log.AddLogTarget(this));
@@ -113,17 +123,36 @@ namespace CreateAR.EnkluPlayer
             Log.RemoveLogTarget(this);
         }
 
-        /// <inheritdoc />
-        public void OnLog(LogLevel level, object caller, string message)
+        /// <summary>
+        /// Updates text field from logs.
+        /// </summary>
+        private void UpdateTextField()
         {
-            // pass everything to history
-            _history.OnLog(level, caller, message);
-
             // forward to text box
             if (null != TxtBox)
             {
-                TxtBox.Label = _history.GenerateDump();
+                TxtBox.Label = _history.GenerateDump(HistoryLogTarget.LogDumpOptions.Reverse);
             }
+        }
+
+        /// <summary>
+        /// Finds the appropriate option for the input log level.
+        /// </summary>
+        /// <param name="options">Options.</param>
+        /// <param name="level">The log level to look for.</param>
+        /// <returns></returns>
+        private static Option FindLevelOption(ReadOnlyCollection<Option> options, LogLevel level)
+        {
+            for (int i = 0, len = options.Count; i < len; i++)
+            {
+                var option = options[i];
+                if (option.Value == level.ToString())
+                {
+                    return option;
+                }
+            }
+
+            return options[0];
         }
     }
 }
