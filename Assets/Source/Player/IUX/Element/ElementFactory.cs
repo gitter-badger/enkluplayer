@@ -181,6 +181,10 @@ namespace CreateAR.EnkluPlayer.IUX
                 Ints = new Dictionary<string, int>
                 {
                     { "fontSize", 80 }
+                },
+                Floats = new Dictionary<string, float>
+                {
+                    { "lineSpacing", 1f }
                 }
             });
             _typeSchema[ElementTypes.CAPTION] = textSchema;
