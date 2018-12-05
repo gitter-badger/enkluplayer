@@ -1,7 +1,7 @@
 <?Vine>
 
-<Float position=(-0.5, -0.5, 3) focus.visible=false>
-
+<Float position=(-0.5, -0.5, 3) fov.reorient=10000.0 focus.visible=false>
+	
 	<Button
 		position=(0, 0.55, 0)
 		id='btn-close'
@@ -16,12 +16,13 @@
 		<Option label='Error' value='Error' />
 		<Option label='Fatal' value='Fatal' />
 	</Select>
-
 	
 	<Text
 		id='txt-box' 
 		position=(0, -1.05, 0)
-		fontSize=60
+		fontSize=40
+		lineSpacing=0.75
+		font='Inconsolata-Regular'
 		width=1000.0
 		height=2000.0
 		alignment='TopLeft'

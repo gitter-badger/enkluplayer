@@ -210,6 +210,15 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <summary>
+        /// Line spacing.
+        /// </summary>
+        public float LineSpacing
+        {
+            get { return _renderer.LineSpacing; }
+            set { _renderer.LineSpacing = value; }
+        }
+
+        /// <summary>
         /// Alpha.
         /// </summary>
         public float Alpha

@@ -27,7 +27,8 @@ namespace CreateAR.EnkluPlayer.IUX
         private ElementSchemaProp<string> _alignmentProp;
         private ElementSchemaProp<string> _overflowProp;
         private ElementSchemaProp<string> _verticalOverflowProp;
-        
+        private ElementSchemaProp<float> _lineSpacingProp;
+
         /// <summary>
         /// Gets/sets the label.
         /// </summary>
@@ -93,13 +94,17 @@ namespace CreateAR.EnkluPlayer.IUX
 
             _verticalOverflowProp = Schema.Get<string>("verticalOverflow");
             _verticalOverflowProp.OnChanged += VerticalOverflow_OnChanged;
-            
+
+            _lineSpacingProp = Schema.GetOwn("lineSpacing", 1f);
+            _lineSpacingProp.OnChanged += LineSpacing_OnChanged;
+
             _text = _primitives.Text(Schema);
             _text.Text = _labelProp.Value;
             _text.FontSize = _fontSizeProp.Value;
             _text.Width = _widthProp.Value;
             _text.Height = _heightProp.Value;
             _text.Alpha = Alpha;
+            _text.LineSpacing = _lineSpacingProp.Value;
 
             UpdateAlignment();
             UpdateOverflow();
@@ -244,6 +249,20 @@ namespace CreateAR.EnkluPlayer.IUX
             string next)
         {
             UpdateOverflow();
+        }
+
+        /// <summary>
+        /// Called when line spacing changed.
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <param name="prev"></param>
+        /// <param name="next"></param>
+        private void LineSpacing_OnChanged(
+            ElementSchemaProp<float> prop,
+            float prev,
+            float next)
+        {
+            _text.LineSpacing = next;
         }
     }
 }

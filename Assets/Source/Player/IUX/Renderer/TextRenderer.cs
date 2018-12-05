@@ -55,6 +55,15 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <summary>
+        /// Line spacing.
+        /// </summary>
+        public float LineSpacing
+        {
+            get { return Text.lineSpacing; }
+            set { Text.lineSpacing = value; }
+        }
+
+        /// <summary>
         /// Refreshes the alignment of the text renderer
         /// </summary>
         private void RefreshAlignment()
