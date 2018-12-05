@@ -203,6 +203,8 @@ namespace CreateAR.EnkluPlayer
 
             // stop listening for voice commands
             _voice.Unregister("reset");
+            _voice.Unregister("performance");
+            _voice.Unregister("logging");
 
             // stop watching loads
             _app.OnReady -= App_OnReady;
@@ -257,6 +259,31 @@ namespace CreateAR.EnkluPlayer
 
             // start designer
             _design.Setup(_context, _app);
+
+            // perf
+            _voice.Register("performance", _ =>
+            {
+                // open
+                int hudId;
+                _ui
+                    .OpenOverlay<PerfDisplayUIView>(new UIReference
+                    {
+                        UIDataId = "Perf.Hud"
+                    }, out hudId)
+                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+            });
+
+            // logging
+            _voice.Register("logging", _ =>
+            {
+                int hudId;
+                _ui
+                    .OpenOverlay<LoggingUIView>(new UIReference
+                    {
+                        UIDataId = "Logging.Hud"
+                    }, out hudId)
+                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+            });
         }
 
         /// <summary>

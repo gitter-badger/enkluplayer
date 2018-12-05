@@ -599,31 +599,23 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Called when the metrics hud visibility is toggled.
+        /// Called when the metrics hud should be opened.
         /// </summary>
-        /// <param name="enabled">Visibility.</param>
-        private void MainMenu_OnMetricsHud(bool enabled)
+        private void MainMenu_OnMetricsHud()
         {
-            if (enabled)
-            {
-                // open
-                _ui
-                    .OpenOverlay<PerfDisplayUIView>(new UIReference
-                    {
-                        UIDataId = "Perf.Hud"
-                    }, out _perfHudId)
-                    .OnSuccess(el =>
-                    {
-                        el.OnClose += () => _ui.Close(_perfHudId);
-                    });
+            // open
+            _ui
+                .OpenOverlay<PerfDisplayUIView>(new UIReference
+                {
+                    UIDataId = "Perf.Hud"
+                }, out _perfHudId)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(_perfHudId);
+                });
 
-                CloseMainMenu();
-                OpenSplashMenu();
-            }
-            else
-            {
-                _ui.Close(_perfHudId);
-            }
+            CloseMainMenu();
+            OpenSplashMenu();
         }
 
         /// <summary>
