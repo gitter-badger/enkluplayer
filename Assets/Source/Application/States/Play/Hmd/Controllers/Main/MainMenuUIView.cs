@@ -60,8 +60,8 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..btn-deviceregistration")]
         public ButtonWidget BtnRegistration { get; set; }
 
-        [InjectElements("..slt-logging")]
-        public SelectWidget SltLogging { get; set; }
+        [InjectElements("..btn-logging")]
+        public ButtonWidget BtnLogging { get; set; }
 
         [InjectElements("..btn-exp-new")]
         public ButtonWidget BtnExpNew { get; set; }
@@ -73,13 +73,13 @@ namespace CreateAR.EnkluPlayer
         public ButtonWidget BtnExpDuplicate { get; set; }
 
         [InjectElements("..txt-version")]
-        public CaptionWidget TxtVersion { get; set; }
+        public TextWidget TxtVersion { get; set; }
 
         [InjectElements("..txt-deviceName")]
-        public CaptionWidget TxtDeviceName { get; set; }
+        public TextWidget TxtDeviceName { get; set; }
 
-        [InjectElements("..tgl-metrics")]
-        public ToggleWidget TglMetrics { get; set; }
+        [InjectElements("..btn-metrics")]
+        public ButtonWidget BtnMetrics { get; set; }
 
         /// <summary>
         /// Quality settings.
@@ -156,19 +156,19 @@ namespace CreateAR.EnkluPlayer
         public event Action OnDeviceRegistration;
 
         /// <summary>
-        /// Called when _visible_ log level has been changed.
-        /// </summary>
-        public event Action<LogLevel> OnLogLevelChanged;
-
-        /// <summary>
         /// Called when signout is requested.
         /// </summary>
         public event Action OnSignout;
 
         /// <summary>
-        /// Toggles metrics hud.
+        /// Opens metrics hud.
         /// </summary>
-        public event Action<bool> OnMetricsHud;
+        public event Action OnMetricsHud;
+
+        /// <summary>
+        /// Opens logging hud.
+        /// </summary>
+        public event Action OnLoggingHud;
 
         /// <summary>
         /// Id of the scene.
@@ -250,13 +250,11 @@ namespace CreateAR.EnkluPlayer
                     OnDeviceRegistration();
                 }
             };
-            SltLogging.OnValueChanged += _ =>
+            BtnLogging.OnActivated += _ =>
             {
-                if (null != OnLogLevelChanged)
+                if (null != OnLoggingHud)
                 {
-                    OnLogLevelChanged(EnumExtensions.Parse(
-                        SltLogging.Selection.Value,
-                        LogLevel.Info));
+                    OnLoggingHud();
                 }
             };
 
@@ -272,11 +270,11 @@ namespace CreateAR.EnkluPlayer
             BtnExpLoad.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Load);
             BtnExpDuplicate.Activator.OnActivated += _ => Experience(ExperienceSubMenu.Duplicate);
 
-            TglMetrics.OnValueChanged += _ =>
+            BtnMetrics.OnActivated += _ =>
             {
                 if (null != OnMetricsHud)
                 {
-                    OnMetricsHud(TglMetrics.Value);
+                    OnMetricsHud();
                 }
             };
 

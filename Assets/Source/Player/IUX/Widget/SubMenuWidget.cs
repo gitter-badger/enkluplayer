@@ -119,7 +119,7 @@ namespace CreateAR.EnkluPlayer.IUX
             // menu
             {
                 _menu = (MenuWidget) _elements.Element(string.Format(
-                    "<Menu id='{0}' position=(-0.4, 0, 0) divider.visible=false visible=false focus.visible=false />",
+                    "<Menu id='{0}' layout.radius=0.9 position=(-0.4, 0, 0) divider.visible=false visible=false focus.visible=false />",
                     menuId));
                 AddChild(_menu);
             }

@@ -18,7 +18,7 @@ namespace CreateAR.EnkluPlayer
         public ButtonWidget BtnCancel { get; set; }
 
         [InjectElements("..cpn-text")]
-        public CaptionWidget CpnText { get; set; }
+        public TextWidget CpnText { get; set; }
 
         /// <summary>
         /// Called when confirm is pressed.

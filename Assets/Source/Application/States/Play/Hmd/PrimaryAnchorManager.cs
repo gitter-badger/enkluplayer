@@ -160,7 +160,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Caption on UI.
         /// </summary>
-        private CaptionWidget _cpn;
+        private TextWidget _cpn;
 
         /// <summary>
         /// True iff world anchors are enabled.
@@ -542,7 +542,7 @@ namespace CreateAR.EnkluPlayer
     <Caption id='cpn' position=(0, 0.25, 0) label='Locating anchors.' width=1400.0 alignment='MidCenter' fontSize=100 />
     <Button id='btn' position=(0, -0.1, 0) label='Bypass' visible=false />
 </Float>");
-            _cpn = _rootUI.FindOne<CaptionWidget>("..cpn");
+            _cpn = _rootUI.FindOne<TextWidget>("..cpn");
             _bypassBtn = _rootUI.FindOne<ButtonWidget>("..btn");
             _bypassBtn.OnActivated += _ => BypassAnchorRequirement();
         }

@@ -50,7 +50,7 @@ namespace CreateAR.EnkluPlayer
         [ElementLink(typeof(Cursor))]
         public const int CURSOR = 20;
 
-        [ElementLink(typeof(CaptionWidget))]
+        [ElementLink(typeof(TextWidget))]
         public const int CAPTION = 30;
 
         [ElementLink(typeof(MenuWidget))]

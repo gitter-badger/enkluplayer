@@ -182,7 +182,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _descriptionPrimitive = _primitives.Text(Schema);
             AddChild(_descriptionPrimitive);
 
-            _descriptionPrimitive.Overflow = HorizontalWrapMode.Wrap;
+            _descriptionPrimitive.HorizontalOverflow = HorizontalWrapMode.Wrap;
             _descriptionPrimitive.Alignment = TextAlignmentType.TopLeft;
             _descriptionPrimitive.Text = _descriptionProp.Value;
 
