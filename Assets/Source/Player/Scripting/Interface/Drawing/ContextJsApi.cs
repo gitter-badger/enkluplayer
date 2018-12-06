@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CreateAR.EnkluPlayer.Scripting;
+﻿using CreateAR.EnkluPlayer.Scripting;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer

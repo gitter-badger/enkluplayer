@@ -99,7 +99,7 @@ namespace CreateAR.EnkluPlayer
         public RenderContext Reset()
         {
             _color = Color.white;
-            _current = new MatrixData();
+            _current.Reset();
             _matrices.Clear();
 
             return this;
@@ -111,6 +111,8 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public RenderContext ResetMatrix()
         {
+            _current.Reset();
+
             return this;
         }
 
