@@ -549,12 +549,13 @@ namespace CreateAR.EnkluPlayer.IUX
             }
 
             var pos = _renderer.transform.position;
+            var rot = _renderer.transform.rotation;
             var rad = _renderer.ActivateRadius;
             handle.Draw(ctx =>
             {
-                ctx.Prism(new Bounds(
-                    pos,
-                    rad * Vector3.one));
+                ctx.Translate(pos);
+                ctx.Rotate(rot);
+                ctx.Prism(rad, rad, rad);
             });
         }
 

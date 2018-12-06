@@ -39,7 +39,7 @@ namespace CreateAR.EnkluPlayer
 
         public RenderContext Reset()
         {
-            _color = UnityEngine.Color.white;
+            _color = Color.white;
             _current = Matrix4x4.identity;
             _matrices.Clear();
 
@@ -101,14 +101,19 @@ namespace CreateAR.EnkluPlayer
             return this;
         }
 
+        public RenderContext Rotate(Quaternion rotation)
+        {
+            _current *= Matrix4x4.Rotate(rotation);
+
+            return this;
+        }
+
         public RenderContext Rotate(float x, float y, float z)
         {
-            _current *= Matrix4x4.Rotate(Quaternion.Euler(
+            return Rotate(Quaternion.Euler(
                 x * Mathf.Rad2Deg,
                 y * Mathf.Rad2Deg,
                 z * Mathf.Rad2Deg));
-
-            return this;
         }
 
         public RenderContext Scale(Vector3 to)
@@ -123,26 +128,21 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="color">The color to draw with.</param>
         /// <returns></returns>
-        public RenderContext Color(Color color)
+        public RenderContext Stroke(Color color)
         {
-            return Color(color.r, color.g, color.b, color.a);
+            return Stroke(color.r, color.g, color.b, color.a);
         }
 
-        public RenderContext Color(float r, float g, float b)
+        public RenderContext Stroke(float r, float g, float b)
         {
-            return Color(r, g, b, _color.a);
+            return Stroke(r, g, b, _color.a);
         }
 
-        public RenderContext Color(float r, float g, float b, float a)
+        public RenderContext Stroke(float r, float g, float b, float a)
         {
             _color = new Color(r, g, b, a);
 
             return this;
-        }
-
-        public RenderContext Alpha(float a)
-        {
-            return Color(_color.r, _color.g, _color.b, a);
         }
         
         /// <summary>
@@ -205,72 +205,72 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Draws a cube.
         /// </summary>
-        /// <param name="center">The center of the cube.</param>
         /// <param name="size">The size of the cube.</param>
         /// <returns></returns>
-        public RenderContext Cube(Vector3 center, float size)
+        public RenderContext Cube(float size)
         {
-            return Prism(new Bounds(center, size * Vector3.one));
+            return Prism(size, size, size);
         }
 
         /// <summary>
         /// Draws a prism.
         /// </summary>
-        /// <param name="bounds">The bounds to draw.</param>
-        /// <returns></returns>
-        public RenderContext Prism(Bounds bounds)
+        public RenderContext Prism(float w, float h, float d)
         {
-            var min = bounds.min;
-            var max = bounds.max;
+            var center = _current.MultiplyPoint3x4(Vector3.zero);
+            var right = _current.MultiplyPoint3x4(w * Vector3.right) / 2f;
+            var forward = _current.MultiplyPoint3x4(d * Vector3.forward) / 2f;
+            var up = _current.MultiplyPoint3x4(h * Vector3.up) / 2f;
+            
             Setup(GL.LINES);
             {
                 // bottom rect
                 {
-                    GL.Vertex3(min.x, min.y, min.z);
-                    GL.Vertex3(min.x, min.y, max.z);
+                    var bot = center - up;
 
-                    GL.Vertex3(min.x, min.y, max.z);
-                    GL.Vertex3(max.x, min.y, max.z);
+                    GL.Vertex(bot - right - forward);
+                    GL.Vertex(bot - right + forward);
 
-                    GL.Vertex3(max.x, min.y, max.z);
-                    GL.Vertex3(max.x, min.y, min.z);
+                    GL.Vertex(bot + right - forward);
+                    GL.Vertex(bot + right + forward);
 
-                    GL.Vertex3(max.x, min.y, min.z);
-                    GL.Vertex3(min.x, min.y, min.z);
+                    GL.Vertex(bot - right - forward);
+                    GL.Vertex(bot + right - forward);
+
+                    GL.Vertex(bot - right + forward);
+                    GL.Vertex(bot + right + forward);
+                }
+                
+                // top rect
+                {
+                    var bot = center + up;
+
+                    GL.Vertex(bot - right - forward);
+                    GL.Vertex(bot - right + forward);
+
+                    GL.Vertex(bot + right - forward);
+                    GL.Vertex(bot + right + forward);
+
+                    GL.Vertex(bot - right - forward);
+                    GL.Vertex(bot + right - forward);
+
+                    GL.Vertex(bot - right + forward);
+                    GL.Vertex(bot + right + forward);
                 }
 
-                // render flat prisms differently
-                if (Mathf.Abs(min.y - max.y) > Mathf.Epsilon)
+                // connect rects
                 {
-                    // top rect
-                    {
-                        GL.Vertex3(min.x, max.y, min.z);
-                        GL.Vertex3(min.x, max.y, max.z);
+                    GL.Vertex(center + up - right - forward);
+                    GL.Vertex(center - up - right - forward);
 
-                        GL.Vertex3(min.x, max.y, max.z);
-                        GL.Vertex3(max.x, max.y, max.z);
+                    GL.Vertex(center + up - right + forward);
+                    GL.Vertex(center - up - right + forward);
 
-                        GL.Vertex3(max.x, max.y, max.z);
-                        GL.Vertex3(max.x, max.y, min.z);
+                    GL.Vertex(center + up + right + forward);
+                    GL.Vertex(center - up + right + forward);
 
-                        GL.Vertex3(max.x, max.y, min.z);
-                        GL.Vertex3(min.x, max.y, min.z);
-                    }
-
-                    // connect rects
-                    {
-                        GL.Vertex3(min.x, min.y, min.z);
-                        GL.Vertex3(min.x, max.y, min.z);
-
-                        GL.Vertex3(min.x, min.y, max.z);
-                        GL.Vertex3(min.x, max.y, max.z);
-
-                        GL.Vertex3(max.x, min.y, max.z);
-                        GL.Vertex3(max.x, max.y, max.z);
-
-                        GL.Vertex3(max.x, min.y, min.z);
-                        GL.Vertex3(max.x, max.y, min.z);
-                    }
+                    GL.Vertex(center + up + right - forward);
+                    GL.Vertex(center - up + right - forward);
                 }
             }
             Teardown();

@@ -308,19 +308,14 @@ namespace CreateAR.EnkluPlayer.IUX
             }
 
             var pos = _renderer.transform.position;
+            var rot = _renderer.transform.rotation;
             var rect = WorldRect;
             
             handle.Draw(ctx =>
             {
-                ctx.Prism(new Bounds(
-                    new Vector3(
-                        rect.min.x + rect.size.x / 2f,
-                        rect.min.y + rect.size.y / 2f,
-                        pos.z), 
-                    new Vector3(
-                        rect.size.x,
-                        rect.size.y,
-                        0)));
+                ctx.Translate(pos);
+                ctx.Rotate(rot);
+                ctx.Prism(rect.size.x, rect.size.y, 0);
             });
         }
 

@@ -23,7 +23,6 @@ namespace CreateAR.EnkluPlayer.IUX
         /// </summary>
         private readonly IElementFactory _elements;
         private readonly IIntentionManager _intentions;
-        private readonly IInteractionManager _interactions;
 
         /// <summary>
         /// Props.
@@ -210,7 +209,6 @@ namespace CreateAR.EnkluPlayer.IUX
             ILayerManager layers,
             TweenConfig tweens,
             ColorConfig colors,
-            IInteractionManager interactions,
             IElementFactory elements,
             IIntentionManager intentions)
             : base(
@@ -223,7 +221,6 @@ namespace CreateAR.EnkluPlayer.IUX
 
             _elements = elements;
             _intentions = intentions;
-            _interactions = interactions;
 
             _renderer = GameObject.AddComponent<SliderLineRenderer>();
             _renderer.enabled = false;
@@ -414,13 +411,15 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 handle.Draw(ctx =>
                 {
-                    ctx.Stroke(UnityEngine.Color.green);
-                    ctx.Cube(intersection, 0.1f);
+                    ctx.Translate(intersection);
+                    ctx.Stroke(UnityEngine.Color.green); 
+                    ctx.Prism(0.1f, 0.1f, 0.1f);
                     ctx.Line(intersection, _O + projection * _d);
                     ctx.Line(_O, _O + projection * _d);
 
                     ctx.Stroke(UnityEngine.Color.yellow);
-                    ctx.Cube(_O, 0.1f);
+                    ctx.Translate(_O);
+                    ctx.Prism(0.1f, 0.1f, 0.1f);
 
                     ctx.Stroke(UnityEngine.Color.blue);
                     ctx.Line(_O, _O + _d);

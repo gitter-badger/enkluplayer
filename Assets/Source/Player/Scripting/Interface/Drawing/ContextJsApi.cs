@@ -147,9 +147,9 @@ namespace CreateAR.EnkluPlayer
             return this;
         }
 
-        public ContextJsApi wireBox()
+        public ContextJsApi wireBox(double w, double h, double d)
         {
-            
+            _context.Prism((float) w, (float) h, (float) d);
 
             return this;
         }
