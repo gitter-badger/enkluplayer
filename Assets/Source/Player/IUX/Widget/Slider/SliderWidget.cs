@@ -414,17 +414,17 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 handle.Draw(ctx =>
                 {
-                    ctx.Color(UnityEngine.Color.green);
+                    ctx.Stroke(UnityEngine.Color.green);
                     ctx.Cube(intersection, 0.1f);
                     ctx.Line(intersection, _O + projection * _d);
                     ctx.Line(_O, _O + projection * _d);
 
-                    ctx.Color(UnityEngine.Color.yellow);
+                    ctx.Stroke(UnityEngine.Color.yellow);
                     ctx.Cube(_O, 0.1f);
 
-                    ctx.Color(UnityEngine.Color.blue);
+                    ctx.Stroke(UnityEngine.Color.blue);
                     ctx.Line(_O, _O + _d);
-                    ctx.Color(UnityEngine.Color.red);
+                    ctx.Stroke(UnityEngine.Color.red);
                     ctx.Line(_O, _O + _n);
                 });
             }
@@ -468,7 +468,7 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 handle.Draw(ctx =>
                 {
-                    ctx.Color(UnityEngine.Color.blue);
+                    ctx.Stroke(UnityEngine.Color.blue);
                     ctx.Line(_O, _O + _n);
                 });
             }

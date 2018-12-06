@@ -177,7 +177,7 @@ namespace CreateAR.EnkluPlayer.IUX.Dynamics
 
             handle.Draw(ctx =>
             {
-                ctx.Color(Color.red);
+                ctx.Stroke(Color.red);
                 ctx.Prism(new Bounds(
                     Target.Position,
                     0.5f * Vector3.one));

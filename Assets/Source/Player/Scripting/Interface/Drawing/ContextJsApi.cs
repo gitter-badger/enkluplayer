@@ -19,55 +19,27 @@ namespace CreateAR.EnkluPlayer
             _context.Reset();
         }
         
-        public ContextJsApi color(Col4 col)
+        public ContextJsApi stroke(Col4 col)
         {
-            _context.Color(col.r, col.g, col.b, col.a);
+            _context.Stroke(col.r, col.g, col.b, col.a);
 
             return this;
         }
 
-        public ContextJsApi color(double r, double g, double b)
+        public ContextJsApi stroke(double r, double g, double b)
         {
-            _context.Color((float) r, (float) g, (float) b);
+            _context.Stroke((float) r, (float) g, (float) b);
 
             return this;
         }
 
-        public ContextJsApi color(double r, double g, double b, double a)
+        public ContextJsApi stroke(double r, double g, double b, double a)
         {
-            _context.Color(new Color((float) r, (float) g, (float) b, (float) a));
+            _context.Stroke(new Color((float) r, (float) g, (float) b, (float) a));
 
             return this;
         }
-
-        public ContextJsApi alpha(double a)
-        {
-            _context.Alpha((float) a);
-
-            return this;
-        }
-
-        public ContextJsApi red(double r)
-        {
-            _context.Red((float) r);
-
-            return this;
-        }
-
-        public ContextJsApi green(double g)
-        {
-            _context.Green((float) g);
-
-            return this;
-        }
-
-        public ContextJsApi blue(double b)
-        {
-            _context.Blue((float) b);
-
-            return this;
-        }
-
+        
         public ContextJsApi line(Vec3 from, Vec3 to)
         {
             _context.Line(from.ToVector(), to.ToVector());

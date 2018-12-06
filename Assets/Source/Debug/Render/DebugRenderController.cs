@@ -157,7 +157,7 @@ namespace CreateAR.EnkluPlayer
                 _renderers[i].Action(_context);
 
                 _defaultColor = Color.white;
-                _context.Color(_defaultColor);
+                _context.Stroke(_defaultColor);
             }
             _renderers.Clear();
 

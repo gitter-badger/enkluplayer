@@ -144,22 +144,7 @@ namespace CreateAR.EnkluPlayer
         {
             return Color(_color.r, _color.g, _color.b, a);
         }
-
-        public RenderContext Red(float r)
-        {
-            return Color(r, _color.g, _color.b, _color.a);
-        }
-
-        public RenderContext Green(float r)
-        {
-            return Color(r, _color.g, _color.b, _color.a);
-        }
-
-        public RenderContext Blue(float r)
-        {
-            return Color(r, _color.g, _color.b, _color.a);
-        }
-
+        
         /// <summary>
         /// Draws a line segment.
         /// </summary>
