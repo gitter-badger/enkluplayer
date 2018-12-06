@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -11,6 +12,9 @@ namespace CreateAR.EnkluPlayer
         /// The color to draw with.
         /// </summary>
         protected Color _color;
+
+        private readonly Stack<Matrix4x4> _matrices = new Stack<Matrix4x4>();
+        private Matrix4x4 _current;
 
         /// <summary>
         /// Sets up for drawing. Must be followed with a Tearfown.
@@ -33,6 +37,87 @@ namespace CreateAR.EnkluPlayer
             GL.PopMatrix();
         }
 
+        public RenderContext Reset()
+        {
+            _color = UnityEngine.Color.white;
+            _current = Matrix4x4.identity;
+            _matrices.Clear();
+
+            return this;
+        }
+
+        public RenderContext ResetMatrix()
+        {
+            return this;
+        }
+
+        public RenderContext PushMatrix()
+        {
+            _matrices.Push(_current);
+            _current = Matrix4x4.identity;
+            
+            return this;
+        }
+
+        public RenderContext PopMatrix()
+        {
+            _current = _matrices.Pop();
+
+            return this;
+        }
+
+        public RenderContext Translate(Vector3 to)
+        {
+            _current *= Matrix4x4.Translate(to);
+
+            return this;
+        }
+
+        public RenderContext RotateX(float radians)
+        {
+            _current *= Matrix4x4.Rotate(Quaternion.Euler(
+                radians * Mathf.Rad2Deg,
+                0, 0));
+
+            return this;
+        }
+
+        public RenderContext RotateY(float radians)
+        {
+            _current *= Matrix4x4.Rotate(Quaternion.Euler(
+                0,
+                radians * Mathf.Rad2Deg,
+                0));
+
+            return this;
+        }
+
+        public RenderContext RotateZ(float radians)
+        {
+            _current *= Matrix4x4.Rotate(Quaternion.Euler(
+                0, 0,
+                radians * Mathf.Rad2Deg));
+
+            return this;
+        }
+
+        public RenderContext Rotate(float x, float y, float z)
+        {
+            _current *= Matrix4x4.Rotate(Quaternion.Euler(
+                x * Mathf.Rad2Deg,
+                y * Mathf.Rad2Deg,
+                z * Mathf.Rad2Deg));
+
+            return this;
+        }
+
+        public RenderContext Scale(Vector3 to)
+        {
+            _current *= Matrix4x4.Scale(to);
+
+            return this;
+        }
+
         /// <summary>
         /// Sets the color to draw with.
         /// </summary>
@@ -40,11 +125,41 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public RenderContext Color(Color color)
         {
-            _color = color;
+            return Color(color.r, color.g, color.b, color.a);
+        }
+
+        public RenderContext Color(float r, float g, float b)
+        {
+            return Color(r, g, b, _color.a);
+        }
+
+        public RenderContext Color(float r, float g, float b, float a)
+        {
+            _color = new Color(r, g, b, a);
 
             return this;
         }
-        
+
+        public RenderContext Alpha(float a)
+        {
+            return Color(_color.r, _color.g, _color.b, a);
+        }
+
+        public RenderContext Red(float r)
+        {
+            return Color(r, _color.g, _color.b, _color.a);
+        }
+
+        public RenderContext Green(float r)
+        {
+            return Color(r, _color.g, _color.b, _color.a);
+        }
+
+        public RenderContext Blue(float r)
+        {
+            return Color(r, _color.g, _color.b, _color.a);
+        }
+
         /// <summary>
         /// Draws a line segment.
         /// </summary>

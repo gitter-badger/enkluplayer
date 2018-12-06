@@ -10,17 +10,40 @@ namespace CreateAR.EnkluPlayer
     [JsInterface("drawing")]
     public class DrawingJsApi : MonoBehaviour
     {
+        /// <summary>
+        /// Record for callback.
+        /// </summary>
         private class CallbackRecord
         {
+            /// <summary>
+            /// The calling engine.
+            /// </summary>
             public Engine Engine;
+
+            /// <summary>
+            /// The associated category that can be filtered on.
+            /// </summary>
             public string Category;
+
+            /// <summary>
+            /// The callback to call.
+            /// </summary>
             public JsFunc Callback;
         }
 
+        /// <summary>
+        /// List of callbacks received.
+        /// </summary>
         private readonly List<CallbackRecord> _cbs = new List<CallbackRecord>();
 
+        /// <summary>
+        /// Does the drawing.
+        /// </summary>
         private readonly ContextJsApi _context = new ContextJsApi();
 
+        /// <summary>
+        /// Filters renderer contexts.
+        /// </summary>
         private string _filter = string.Empty;
 
         /// <summary>
@@ -28,11 +51,21 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private Material _material;
 
+        /// <summary>
+        /// Filters callbacks.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
         public void filter(string filter)
         {
             _filter = filter.ToLower();
         }
         
+        /// <summary>
+        /// Registers a callback for drawing.
+        /// </summary>
+        /// <param name="engine">The engine.</param>
+        /// <param name="category">The category associated with this callback.</param>
+        /// <param name="fn">The callback.</param>
         public void render(Engine engine, string category, JsFunc fn)
         {
             _cbs.Add(new CallbackRecord
@@ -55,6 +88,7 @@ namespace CreateAR.EnkluPlayer
             _material.SetInt("_ZWrite", 0);
         }
 
+        /// <inheritdoc cref="MonoBehaviour"/>
         private void OnPostRender()
         {
             var len = _cbs.Count;
