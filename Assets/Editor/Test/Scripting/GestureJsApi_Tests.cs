@@ -50,6 +50,8 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             public event Action<uint> OnPointerStarted;
             public event Action<uint> OnPointerEnded;
+            public event Action<uint> OnPointerPressed;
+            public event Action<uint> OnPointerReleased;
             public uint[] Pointers { get; private set; }
 
             public void SetPointers(uint[] ids)

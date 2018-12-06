@@ -3,10 +3,19 @@ using CreateAR.EnkluPlayer.IUX;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// UI view with performance information.
+    /// </summary>
     public class PerfDisplayUIView : MonoBehaviourIUXController
     {
+        /// <summary>
+        /// Underlying performance metrics object.
+        /// </summary>
         private PerfMonitor _monitor;
 
+        /// <summary>
+        /// Injected controls.
+        /// </summary>
         [InjectElements("..btn-close")]
         public ButtonWidget BtnClose { get; set; }
 
@@ -20,31 +29,35 @@ namespace CreateAR.EnkluPlayer
         public ContainerWidget TabMemory { get; set; }
 
         [InjectElements("..txt-ave")]
-        public CaptionWidget TxtFrameAve { get; set; }
+        public TextWidget TxtFrameAve { get; set; }
 
         [InjectElements("..txt-min")]
-        public CaptionWidget TxtFrameMin { get; set; }
+        public TextWidget TxtFrameMin { get; set; }
 
         [InjectElements("..txt-max")]
-        public CaptionWidget TxtFrameMax { get; set; }
+        public TextWidget TxtFrameMax { get; set; }
 
         [InjectElements("..txt-total")]
-        public CaptionWidget TxtMemTotal { get; set; }
+        public TextWidget TxtMemTotal { get; set; }
 
         [InjectElements("..txt-allocated")]
-        public CaptionWidget TxtMemAllocated { get; set; }
+        public TextWidget TxtMemAllocated { get; set; }
 
         [InjectElements("..txt-mono")]
-        public CaptionWidget TxtMemMono { get; set; }
+        public TextWidget TxtMemMono { get; set; }
 
         [InjectElements("..txt-gpu")]
-        public CaptionWidget TxtMemGpu { get; set; }
+        public TextWidget TxtMemGpu { get; set; }
 
         [InjectElements("..txt-graphics")]
-        public CaptionWidget TxtMemGraphics { get; set; }
+        public TextWidget TxtMemGraphics { get; set; }
 
+        /// <summary>
+        /// Called when the perf hud should be closed.
+        /// </summary>
         public event Action OnClose;
 
+        /// <inheritdoc />
         protected override void AfterElementsCreated()
         {
             base.AfterElementsCreated();
@@ -65,11 +78,13 @@ namespace CreateAR.EnkluPlayer
             };
         }
 
+        /// <inheritdoc />
         private void Start()
         {
             _monitor = gameObject.AddComponent<PerfMonitor>();
         }
         
+        /// <inheritdoc />
         private void Update()
         {
             if (null == SltTab)

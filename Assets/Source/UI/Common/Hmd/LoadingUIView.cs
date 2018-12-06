@@ -11,7 +11,7 @@ namespace CreateAR.EnkluPlayer
         /// The caption.
         /// </summary>
         [InjectElements("..cpn-status")]
-        public CaptionWidget CpnStatus { get; set; }
+        public TextWidget CpnStatus { get; set; }
 
         /// <summary>
         /// Gets/sets the status value.

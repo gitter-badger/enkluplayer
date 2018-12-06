@@ -1,4 +1,4 @@
-﻿using System;
+﻿using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -38,7 +38,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public string LastUpdate;
     }
-
+    
     /// <summary>
     /// Preference data for a user.
     /// </summary>
@@ -55,20 +55,20 @@ namespace CreateAR.EnkluPlayer
         public string MostRecentAppId;
 
         /// <summary>
+        /// Log level to show in log hud.
+        /// </summary>
+        public LogLevel LogLevel = LogLevel.Error;
+
+        /// <summary>
         /// All organizations this device is registered to.
         /// </summary>
         public DeviceRegistration[] DeviceRegistrations = new DeviceRegistration[0];
-
-        /// <summary>
-        /// If true, device registration has been ignored in the past.
-        /// </summary>
-        public bool IgnoreDeviceRegistration = false;
-
+        
         /// <summary>
         /// Preference data for each app.
         /// </summary>
         public UserAppPreferenceData[] Apps = new UserAppPreferenceData[0];
-
+        
         /// <summary>
         /// Retrieves preference data for an app. If preference data does not exist, it is created.
         /// </summary>

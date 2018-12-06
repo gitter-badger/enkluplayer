@@ -19,6 +19,16 @@ namespace CreateAR.EnkluPlayer
         event Action<uint> OnPointerEnded;
 
         /// <summary>
+        /// Dispatched when an existing gesture is pressed.
+        /// </summary>
+        event Action<uint> OnPointerPressed;
+
+        /// <summary>
+        /// Dispatched when an existing gesture is released. 
+        /// </summary>
+        event Action<uint> OnPointerReleased;
+
+        /// <summary>
         /// Array of active gesture IDs.
         /// </summary>
         uint[] Pointers { get; }

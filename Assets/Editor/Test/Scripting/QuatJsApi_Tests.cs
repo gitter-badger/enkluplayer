@@ -25,7 +25,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         }
 
         [Test]
-        public void Quat()
+        public void Creation()
         {
             var result = _engine.Run<Quat>("quat(-0.2, 0.9, -0.1, 0.2)");
 
@@ -43,10 +43,33 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         }
 
         [Test]
+        public void Inverse()
+        {
+            for (var i = 0; i < TestData.EulerArray.Length; i++)
+            {
+                var euler = TestData.EulerArray[i];
+                var quat = Quat.Euler(euler);
+                
+                var result = _engine.Run<Quat>(
+                    string.Format("q.inverse(quat({0}, {1}, {2}, {3}));", quat.x, quat.y, quat.z, quat.w));
+                var unity = Quaternion.Inverse(new Quaternion(quat.x, quat.y, quat.z, quat.w)).ToQuat();
+
+                var areEqual = result.Approximately(unity, 0.00001f);
+
+                if (!areEqual)
+                {
+                    Log.Error(this, "Inverse error: {0} : {1} : {2}", euler, unity, result);
+                }
+                
+                Assert.IsTrue(areEqual);
+            }
+        }
+
+        [Test]
         public void QuatEuler()
         {
             // Test our Euler -> Quat matches Unity's Vector3 -> Quaternion over a variety of rotations
-            for (int i = 0; i < TestData.EulerArray.Length; i++)
+            for (var i = 0; i < TestData.EulerArray.Length; i++)
             {
                 var euler = TestData.EulerArray[i];
                 var quaternion = Quaternion.Euler(euler.x, euler.y, euler.z);

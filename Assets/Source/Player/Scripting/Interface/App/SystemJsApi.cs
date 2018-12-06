@@ -35,6 +35,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         public DeviceJsApi device { get; private set; }
 
         /// <summary>
+        /// Provides API for experiences.
+        /// </summary>
+        public ExperienceJsApi experiences { get; private set; }
+
+        /// <summary>
         /// Recenters tracking.
         /// </summary>
         public void recenter()
@@ -70,5 +75,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             Log.Warning(this, "Restart not supported for this platform.");
 #endif
         }
+
+        
     }
 }

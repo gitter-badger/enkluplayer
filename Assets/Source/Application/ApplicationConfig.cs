@@ -1,11 +1,167 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// Composites configuration from many sources and provides a consistent <c>ApplicationConfig</c> object.
+    ///
+    /// NOTE: Calling code must guarantee thread safety guarantees.
+    /// </summary>
+    public static class ApplicationConfigCompositor
+    {
+        /// <summary>
+        /// URI to env prefs.
+        /// </summary>
+        private static readonly string ENV_URI = Path.Combine(
+            UnityEngine.Application.persistentDataPath,
+            "Config/env.prefs");
+
+        /// <summary>
+        /// Backing variable for property.
+        /// </summary>
+        private static ApplicationConfig _config;
+
+        /// <summary>
+        /// The composited config.
+        /// </summary>
+        public static ApplicationConfig Config
+        {
+            get
+            {
+                if (null == _config)
+                {
+                    _config = Load();
+                }
+
+                return _config;
+            }
+        }
+
+        /// <summary>
+        /// Overwrites a piece of the config. 
+        /// </summary>
+        /// <param name="env">Environment data.</param>
+        public static void Overwrite(EnvironmentData env)
+        {
+            // write to disk
+            try
+            {
+                var dir = Path.GetDirectoryName(ENV_URI);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                File.WriteAllText(ENV_URI, JsonConvert.SerializeObject(env));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(env, "Could not write EnvironmentData to file : {0}", ex);
+            }
+
+            Apply(Config, env);
+        }
+
+        /// <summary>
+        /// Loads the config.
+        /// </summary>
+        /// <returns></returns>
+        private static ApplicationConfig Load()
+        {
+            // load base
+            var config = LoadConfig("ApplicationConfig");
+
+            // load platform specific config
+            var platform = LoadConfig(string.Format(
+                "ApplicationConfig.{0}",
+                UnityEngine.Application.platform));
+            if (null != platform)
+            {
+                config.Override(platform);
+            }
+
+            // load override
+            var overrideConfig = LoadConfig("ApplicationConfig.Override");
+            if (null != overrideConfig)
+            {
+                config.Override(overrideConfig);
+            }
+
+            // load custom overwrites
+            try
+            {
+                var text = File.ReadAllText(ENV_URI);
+                var env = JsonConvert.DeserializeObject<EnvironmentData>(text);
+
+                Apply(config, env);
+            }
+            catch
+            {
+                //
+            }
+
+            return config;
+        }
+
+        /// <summary>
+        /// Applies a piece of the config to the composited config.
+        /// </summary>
+        /// <param name="config">The config to apply to.</param>
+        /// <param name="env">The piece of data to apply.</param>
+        private static void Apply(ApplicationConfig config, EnvironmentData env)
+        {
+            // apply to config immediately
+            var network = config.Network;
+
+            var found = false;
+            var environments = network.AllEnvironments;
+            for (int i = 0, len = environments.Length; i < len; i++)
+            {
+                if (environments[i].Name == env.Name)
+                {
+                    found = true;
+                    environments[i] = env;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                network.AllEnvironments = network.AllEnvironments.Add(env);
+            }
+
+            network.Current = env.Name;
+        }
+
+        /// <summary>
+        /// Loads a config at a path.
+        /// </summary>
+        /// <param name="path">The path to load the config from.</param>
+        /// <returns></returns>
+        private static ApplicationConfig LoadConfig(string path)
+        {
+            var configAsset = Resources.Load<TextAsset>(path);
+            if (null == configAsset)
+            {
+                return null;
+            }
+
+            var serializer = new JsonSerializer();
+            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
+            object app;
+            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
+
+            return (ApplicationConfig)app;
+        }
+    }
+
     /// <summary>
     /// Application wide configuration.
     /// </summary>
@@ -130,6 +286,12 @@ namespace CreateAR.EnkluPlayer
         public void Override(ApplicationConfig overrideConfig)
         {
             // TODO: Override at JSON level instead of here.
+
+            if (!string.IsNullOrEmpty(overrideConfig.Version))
+            {
+                Version = overrideConfig.Version;
+            }
+
             if (!string.IsNullOrEmpty(overrideConfig.Platform))
             {
                 Platform = overrideConfig.Platform;
@@ -360,21 +522,7 @@ namespace CreateAR.EnkluPlayer
         {
             get
             {
-                if (null == AllEnvironments || 0 == AllEnvironments.Length)
-                {
-                    return null;
-                }
-
-                for (int i = 0, len = AllEnvironments.Length; i < len; i++)
-                {
-                    var env = AllEnvironments[i];
-                    if (env.Name == Current)
-                    {
-                        return env;
-                    }
-                }
-
-                return null;
+                return EnvironmentByName(Current);
             }
         }
 
@@ -403,6 +551,30 @@ namespace CreateAR.EnkluPlayer
 
                 return defaultCreds;
             }
+        }
+
+        /// <summary>
+        /// Retrieves an environment by name.
+        /// </summary>
+        /// <param name="name">The name of the environment to use.</param>
+        /// <returns></returns>
+        public EnvironmentData EnvironmentByName(string name)
+        {
+            if (null == AllEnvironments || 0 == AllEnvironments.Length)
+            {
+                return null;
+            }
+
+            for (int i = 0, len = AllEnvironments.Length; i < len; i++)
+            {
+                var env = AllEnvironments[i];
+                if (env.Name == name)
+                {
+                    return env;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>

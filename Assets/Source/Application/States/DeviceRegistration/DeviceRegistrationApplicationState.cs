@@ -167,7 +167,7 @@ namespace CreateAR.EnkluPlayer
 
                     next(prev);
                 }))
-                .OnFailure(err => Log.Error(this, "Could not get user prefs : {0}", err));
+                .OnFailure(err => Log.Warning(this, "Could not get user prefs to update them : {0}", err));
         }
 
         /// <summary>

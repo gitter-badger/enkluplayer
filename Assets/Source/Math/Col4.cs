@@ -101,8 +101,8 @@
         /// <summary>
         /// Multiplies one color by another color.
         /// </summary>
-        /// <param name="lhs">Left hand side of the addition.</param>
-        /// <param name="rhs">Right hand side of the addition.</param>
+        /// <param name="lhs">Left hand side of the multiplication.</param>
+        /// <param name="rhs">Right hand side of the multiplication.</param>
         /// <returns></returns>
         public static Col4 operator *(Col4 lhs, Col4 rhs)
         {
@@ -111,6 +111,51 @@
                 lhs.g * rhs.g,
                 lhs.b * rhs.b,
                 lhs.a * rhs.a);
+        }
+
+        /// <summary>
+        /// Multiplies one color by a scalar.
+        /// </summary>
+        /// <param name="lhs">Left hand side of the multiplication.</param>
+        /// <param name="rhs">Right hand side of the multiplication.</param>
+        /// <returns></returns>
+        public static Col4 operator *(float scalar, Col4 rhs)
+        {
+            return new Col4(
+                scalar * rhs.r,
+                scalar * rhs.g,
+                scalar * rhs.b,
+                scalar * rhs.a);
+        }
+
+        /// <summary>
+        /// Adds one color to another color.
+        /// </summary>
+        /// <param name="lhs">Left hand side of the addition.</param>
+        /// <param name="rhs">Right hand side of the addition.</param>
+        /// <returns></returns>
+        public static Col4 operator +(Col4 lhs, Col4 rhs)
+        {
+            return new Col4(
+                lhs.r + rhs.r,
+                lhs.g + rhs.g,
+                lhs.b + rhs.b,
+                lhs.a + rhs.a);
+        }
+
+        /// <summary>
+        /// Subtracts one color from another color.
+        /// </summary>
+        /// <param name="lhs">Left hand side of the addition.</param>
+        /// <param name="rhs">Right hand side of the addition.</param>
+        /// <returns></returns>
+        public static Col4 operator -(Col4 lhs, Col4 rhs)
+        {
+            return new Col4(
+                lhs.r - rhs.r,
+                lhs.g - rhs.g,
+                lhs.b - rhs.b,
+                lhs.a - rhs.a);
         }
     }
 }

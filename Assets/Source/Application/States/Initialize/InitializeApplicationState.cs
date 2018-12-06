@@ -93,12 +93,9 @@ namespace CreateAR.EnkluPlayer
             
             Async
                 .All(tasks.ToArray())
-                .OnSuccess(_ =>
-                {
-                    _messages.Publish(
-                        MessageTypes.APPLICATION_INITIALIZED,
-                        Void.Instance);
-                })
+                .OnSuccess(_ => _messages.Publish(
+                    MessageTypes.APPLICATION_INITIALIZED,
+                    Void.Instance))
                 .OnFailure(exception =>
                 {
                     // rethrow

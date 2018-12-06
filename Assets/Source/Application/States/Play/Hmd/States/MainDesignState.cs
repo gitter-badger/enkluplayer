@@ -112,9 +112,14 @@ namespace CreateAR.EnkluPlayer
         private MainMenuUIView _mainMenuUiViewReference;
 
         /// <summary>
-        /// Perf hud id.
+        /// UI id for the perf hud.
         /// </summary>
-        private int _hudId;
+        private int _perfHudId;
+
+        /// <summary>
+        /// UI id for the logging hud.
+        /// </summary>
+        private int _loggingHudId;
 
         /// <summary>
         /// Constructor.
@@ -221,7 +226,7 @@ namespace CreateAR.EnkluPlayer
                     _voice.Register("new", Voice_OnNew);
                  
                 })
-                .OnFailure(ex => Log.Error(this, "Could not load user preferences!"));
+                .OnFailure(ex => Log.Warning(this, "Could not load user preferences: {0}", ex));
         }
 
         /// <summary>
@@ -307,7 +312,7 @@ namespace CreateAR.EnkluPlayer
                     el.OnBack += MainMenu_OnBack;
                     el.OnNew += MainMenu_OnNew;
                     el.OnExperience += MainMenu_OnExperience;
-                    el.OnLogLevelChanged += MainMenu_OnLogLevelChanged;
+                    el.OnLoggingHud += MainMenu_OnLoggingHud;
                     el.OnResetData += MainMenu_OnResetData;
                     el.OnClearAnchors += MainMenu_OnClearAnchors;
                     el.OnDefaultPlayModeChanged += MainMenu_OnDefaultPlayModeChanged;
@@ -328,31 +333,6 @@ namespace CreateAR.EnkluPlayer
                     "Could not open MainMenuUIView : {0}",
                     ex));
             }
-        }
-
-        /// <summary>
-        /// Called when Reset button is activated
-        /// </summary>
-        private void MainMenu_OnResetData()
-        {
-            OpenNotImplementedView();
-        }
-
-        /// <summary>
-        /// Called when anchors should be cleared.
-        /// </summary>
-        private void MainMenu_OnClearAnchors()
-        {
-            _anchorProvider.ClearAllAnchors();
-        }
-
-        /// <summary>
-        /// Called on Log level changed
-        /// </summary>
-        /// <param name="obj"></param>
-        private void MainMenu_OnLogLevelChanged(LogLevel obj)
-        {
-            OpenNotImplementedView();
         }
 
         /// <summary>
@@ -395,7 +375,7 @@ namespace CreateAR.EnkluPlayer
         {
             _ui.Close(_mainId);
         }
-
+        
         /// <summary>
         /// Scene id for element.
         /// </summary>
@@ -464,6 +444,42 @@ namespace CreateAR.EnkluPlayer
         {
             CloseMainMenu();
             OpenSplashMenu();
+        }
+
+        /// <summary>
+        /// Called when Reset button is activated
+        /// </summary>
+        private void MainMenu_OnResetData()
+        {
+            OpenNotImplementedView();
+        }
+
+        /// <summary>
+        /// Called when anchors should be cleared.
+        /// </summary>
+        private void MainMenu_OnClearAnchors()
+        {
+            _anchorProvider.ClearAllAnchors();
+        }
+
+        /// <summary>
+        /// Called when the logging hud should be opened.
+        /// </summary>
+        private void MainMenu_OnLoggingHud()
+        {
+            CloseMainMenu();
+            OpenSplashMenu();
+
+            _ui
+                .OpenOverlay<LoggingUIView>(new UIReference
+                {
+                    UIDataId = "Logging.Hud"
+                }, out _loggingHudId)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(_loggingHudId);
+                })
+                .OnFailure(ex => Log.Error(this, "Could not open Logging.Hud : {0}", ex));
         }
 
         /// <summary>
@@ -583,31 +599,23 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Called when the metrics hud visibility is toggled.
+        /// Called when the metrics hud should be opened.
         /// </summary>
-        /// <param name="enabled">Visibility.</param>
-        private void MainMenu_OnMetricsHud(bool enabled)
+        private void MainMenu_OnMetricsHud()
         {
-            if (enabled)
-            {
-                // open
-                _ui
-                    .OpenOverlay<PerfDisplayUIView>(new UIReference
-                    {
-                        UIDataId = "Perf.Hud"
-                    }, out _hudId)
-                    .OnSuccess(el =>
-                    {
-                        el.OnClose += () => _ui.Close(_hudId);
-                    });
+            // open
+            _ui
+                .OpenOverlay<PerfDisplayUIView>(new UIReference
+                {
+                    UIDataId = "Perf.Hud"
+                }, out _perfHudId)
+                .OnSuccess(el =>
+                {
+                    el.OnClose += () => _ui.Close(_perfHudId);
+                });
 
-                CloseMainMenu();
-                OpenSplashMenu();
-            }
-            else
-            {
-                _ui.Close(_hudId);
-            }
+            CloseMainMenu();
+            OpenSplashMenu();
         }
 
         /// <summary>

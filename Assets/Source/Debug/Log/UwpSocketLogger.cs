@@ -39,6 +39,9 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private Task _task;
 
+        /// <inheritdoc />
+        public LogLevel Filter { get; set; }
+
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -137,6 +140,11 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc cref="ILogTarget"/>
         public void OnLog(LogLevel level, object caller, string message)
         {
+            if (level < Filter)
+            {
+                return;
+            }
+
             string command;
             switch (level)
             {

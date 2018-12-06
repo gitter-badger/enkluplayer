@@ -12,7 +12,7 @@ namespace CreateAR.EnkluPlayer
         /// Elements.
         /// </summary>
         [InjectElements("..cpn-error")]
-        public CaptionWidget CpnError { get; set; }
+        public TextWidget CpnError { get; set; }
         [InjectElements("..btn-ok")]
         public ButtonWidget BtnOk { get; set; }
 

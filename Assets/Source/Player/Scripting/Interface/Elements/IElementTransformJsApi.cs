@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer.Scripting
+﻿using System;
+
+namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// Provides common transform specifics for an element.
@@ -28,12 +30,36 @@
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
+        [Obsolete]
         Vec3 positionRelativeTo(IEntityJs entity);
 
         /// <summary>
         /// World position. DO NOT cache this value, as it shifts with world anchor readjustment.
         /// </summary>
-        [DenyJsAccess]
         Vec3 worldPosition { get; }
+        
+        /// <summary>
+        /// World rotation. DO NOT cache this value, as it shifts with world anchor readjustment.
+        /// </summary>
+        Quat worldRotation { get; }
+        
+        /// <summary>
+        /// World scale. This one is probably safe to cache. Probably.
+        /// </summary>
+        Vec3 worldScale { get; }
+
+        /// <summary>
+        /// Transforms a Vec3 from local space to world space.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
+        Vec3 localToWorld(Vec3 src);
+
+        /// <summary>
+        /// Transforms a Vec3 from world space to local space.
+        /// </summary>
+        /// <param name="src"></param>
+        /// <returns></returns>
+        Vec3 worldToLocal(Vec3 src);
     }
 }

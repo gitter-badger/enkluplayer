@@ -1,6 +1,5 @@
 ﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
-using Jint.Native;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -66,7 +65,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
 
         /// <inheritdoc />
-        [DenyJsAccess]
         public Vec3 worldPosition
         {
             get
@@ -77,6 +75,34 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 Log.Warning(this, "Trying to get worldPosition for non-widget. Tell us your use-case!");
                 return position;
+            }
+        }
+
+        /// <inheritdoc />
+        public Quat worldRotation
+        {
+            get
+            {
+                if (_widget != null)
+                {
+                    return _widget.GameObject.transform.rotation.ToQuat();
+                }
+                Log.Warning(this, "Trying to get worldRotation for non-widget. Tell us your use-case!");
+                return rotation;
+            }
+        }
+
+        /// <inheritdoc />
+        public Vec3 worldScale
+        {
+            get
+            {
+                if (_widget != null)
+                {
+                    return _widget.GameObject.transform.lossyScale.ToVec();
+                }
+                Log.Warning(this, "Trying to get worldScale for non-widget. Tell us your use-case!");
+                return scale;
             }
         }
 
@@ -107,6 +133,20 @@ namespace CreateAR.EnkluPlayer.Scripting
         public void lookAt(Vec3 direction)
         {
             rotation = Quat.FromToRotation(Vec3.Forward, direction);
+        }
+        
+        /// <inheritdoc />
+        public Vec3 localToWorld(Vec3 src)
+        {
+            var matrix = Matrix4x4.TRS(worldPosition.ToVector(), worldRotation.ToQuaternion(), worldScale.ToVector());
+            return matrix.MultiplyPoint(src.ToVector()).ToVec();
+        }
+
+        /// <inheritdoc />
+        public Vec3 worldToLocal(Vec3 src)
+        {
+            var matrix = Matrix4x4.TRS(worldPosition.ToVector(), worldRotation.ToQuaternion(), worldScale.ToVector()).inverse;
+            return matrix.MultiplyPoint(src.ToVector()).ToVec();
         }
     }
 }

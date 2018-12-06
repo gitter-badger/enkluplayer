@@ -30,7 +30,7 @@ namespace CreateAR.EnkluPlayer.Vine
         /// <summary>
         /// Worker.
         /// </summary>
-        private readonly ParserWorker _worker;
+        private readonly IParserWorker _worker;
 
         /// <summary>
         /// Constructor.
@@ -39,7 +39,7 @@ namespace CreateAR.EnkluPlayer.Vine
             IMetricsService metrics,
             IVinePreProcessor preProcessor,
             VineLoader loader,
-            ParserWorker worker)
+            IParserWorker worker)
         {
             _metrics = metrics;
             _preProcessor = preProcessor;

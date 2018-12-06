@@ -34,10 +34,10 @@ namespace CreateAR.EnkluPlayer
         public ToggleWidget TglAutoSave { get; set; }
 
         [InjectElements("..cpn-vertices")]
-        public CaptionWidget CpnVerts { get; set; }
+        public TextWidget CpnVerts { get; set; }
 
         [InjectElements("..cpn-meshes")]
-        public CaptionWidget CpnMeshes { get; set; }
+        public TextWidget CpnMeshes { get; set; }
 
         /// <summary>
         /// Called when back is requested.

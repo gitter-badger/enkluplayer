@@ -1,12 +1,12 @@
-﻿using CreateAR.EnkluPlayer.IUX;
+﻿using System;
+using CreateAR.EnkluPlayer.IUX;
 
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// View controller for scanning QR codes.
     /// </summary>
-    [InjectVine("Qr.Scanning")]
-    public class QrViewController : InjectableIUXController
+    public class QrViewController : MonoBehaviourIUXController
     {
         /// <summary>
         /// Elements.
@@ -14,7 +14,28 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..img-qr")]
         public ImageWidget Qr { get; set; }
         [InjectElements("..caption-progress")]
-        public CaptionWidget Progress { get; set; }
+        public TextWidget Progress { get; set; }
+        [InjectElements("..(@type==ButtonWidget)")]
+        public ButtonWidget Btn { get; set; }
+
+        /// <summary>
+        /// Fired when config button has been pressed.
+        /// </summary>
+        public event Action OnConfigure;
+
+        /// <inheritdoc />
+        protected override void AfterElementsCreated()
+        {
+            base.AfterElementsCreated();
+
+            Btn.OnActivated += _ =>
+            {
+                if (null != OnConfigure)
+                {
+                    OnConfigure();
+                }
+            };
+        }
 
         /// <summary>
         /// Shows a message instead of the QR image.
