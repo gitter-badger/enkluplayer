@@ -20,7 +20,7 @@ namespace CreateAR.EnkluPlayer.Editor
         private LogLevel _level;
 
         /// <summary>
-        /// Menu item that opens eindow.
+        /// Menu item that opens window.
         /// </summary>
         [MenuItem("Tools/Log Emulator")]
         private static void Open()
