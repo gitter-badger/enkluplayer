@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -414,16 +415,6 @@ namespace CreateAR.EnkluPlayer.IUX
 
             return Default<T>();
         }
-
-        /// <summary>
-        /// Returns the prop if locally defined, or null otherwise.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public ElementSchemaProp GetOwn(string name)
-        {
-            return Prop(name);
-        }
         
         /// <summary>
         /// Returns true iff the schema or parent schemas have a property with
@@ -471,6 +462,16 @@ namespace CreateAR.EnkluPlayer.IUX
             }
 
             return false;
+        }
+        
+        /// <summary>
+        /// Returns a ReadOnlyCollection of all props specific to this Element.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public ReadOnlyCollection<ElementSchemaProp> GetOwnProps()
+        {
+            return _props.AsReadOnly();
         }
 
         /// <summary>

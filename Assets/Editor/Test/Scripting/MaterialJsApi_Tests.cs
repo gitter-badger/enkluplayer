@@ -43,6 +43,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void NoSchema()
         {
             _materialJsApi = new MaterialJsApi(_schema, _renderer);
+            _materialJsApi.Setup();
             
             // Test setting via the API
             _materialJsApi.setFloat("_Alpha", 0.9f);

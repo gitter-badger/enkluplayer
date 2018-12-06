@@ -71,43 +71,56 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 throw new Exception("AnimatorJsApi already setup.");
             }
+
+            var props = _schema.GetOwnProps();
             
             for (var i = 0; i < _parameterNames.Length; i++)
             {
                 _parameterNames[i] = _animator.Parameters[i].name;
-                
-                var prop = _schema.GetOwn(ToSchemaName(_parameterNames[i]));
 
-                // Load defaults if available
-                if (prop != null)
+                // Find a matching prop
+                ElementSchemaProp prop = null;
+                var schemaName = ToSchemaName(_parameterNames[i]);
+                for (var j = 0; j < props.Count; j++)
                 {
-                    if (prop.Type == typeof(float))
+                    if (props[j].Name == schemaName)
                     {
-                        var propFloat = (ElementSchemaProp<float>) prop;
-                        
-                        _propsFloat.Add(propFloat);
-                        propFloat.OnChanged += Prop_OnFloatChanged;
-                        
-                        _animator.SetFloat(_parameterNames[i], propFloat.Value);
-                    } 
-                    else if (prop.Type == typeof(int))
-                    {
-                        var propInt = (ElementSchemaProp<int>) prop;
-                        
-                        _propsInt.Add(propInt);
-                        propInt.OnChanged += Prop_OnIntChanged;
-                        
-                        _animator.SetInt(_parameterNames[i], propInt.Value);
+                        prop = props[j];
                     }
-                    else if (prop.Type == typeof(bool))
-                    {
-                        var propBool = (ElementSchemaProp<bool>) prop;
+                }
+
+                if (prop == null)
+                {
+                    continue;
+                }
+
+                // Load defaults
+                if (prop.Type == typeof(float))
+                {
+                    var propFloat = (ElementSchemaProp<float>) prop;
                         
-                        _propsBool.Add(propBool);
-                        propBool.OnChanged += Prop_OnBoolChanged;
+                    _propsFloat.Add(propFloat);
+                    propFloat.OnChanged += Prop_OnFloatChanged;
                         
-                        _animator.SetBool(_parameterNames[i], propBool.Value);
-                    }
+                    _animator.SetFloat(_parameterNames[i], propFloat.Value);
+                } 
+                else if (prop.Type == typeof(int))
+                {
+                    var propInt = (ElementSchemaProp<int>) prop;
+                        
+                    _propsInt.Add(propInt);
+                    propInt.OnChanged += Prop_OnIntChanged;
+                        
+                    _animator.SetInt(_parameterNames[i], propInt.Value);
+                }
+                else if (prop.Type == typeof(bool))
+                {
+                    var propBool = (ElementSchemaProp<bool>) prop;
+                        
+                    _propsBool.Add(propBool);
+                    propBool.OnChanged += Prop_OnBoolChanged;
+                        
+                    _animator.SetBool(_parameterNames[i], propBool.Value);
                 }
             }
 

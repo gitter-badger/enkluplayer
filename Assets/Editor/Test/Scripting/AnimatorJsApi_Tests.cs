@@ -45,6 +45,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 			_schema.Set("animator.Attack", 2);
 			
 			_animatorJsApi = new AnimatorJsApi(_schema, _animator);
+			_animatorJsApi.Setup();
 			
 			// Check values from schema were set
 			Assert.AreEqual(true, _animatorJsApi.getBool("Open"));
@@ -56,6 +57,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 		public void NoSchema()
 		{
 			_animatorJsApi = new AnimatorJsApi(_schema, _animator);
+			_animatorJsApi.Setup();
 			
 			// Set via API
 			_animatorJsApi.setBool("Open", true);

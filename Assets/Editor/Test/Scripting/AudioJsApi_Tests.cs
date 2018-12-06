@@ -25,6 +25,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 			_schema.Set("audio.volume", 1f);
 			
 			_audioJsApi = new AudioJsApi(_schema, _audioSource);
+			_audioJsApi.Setup();
 			
 			// Check values from schema were set
 			Assert.AreEqual(1f, _audioSource.Volume);
@@ -34,6 +35,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 		public void NoSchema()
 		{
 			_audioJsApi = new AudioJsApi(_schema, _audioSource);
+			_audioJsApi.Setup();
 
 			// Set via API
 			_audioJsApi.volume = 0.7f;
