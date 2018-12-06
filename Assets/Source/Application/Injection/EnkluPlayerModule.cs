@@ -40,6 +40,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<GridRenderer>().ToValue(LookupComponent<GridRenderer>());
                 binder.Bind<IVineTable>().To(LookupComponent<VineTable>());
                 binder.Bind<MeshCaptureConfig>().To(LookupComponent<MeshCaptureConfig>());
+                binder.Bind<DrawingJsApi>().To(LookupComponent<DrawingJsApi>());
             }
 
             // required for loggly

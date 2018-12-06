@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CreateAR.EnkluPlayer.Scripting;
+﻿using System.Collections.Generic;
 using Jint;
 using Jint.Native;
 using UnityEngine;
@@ -11,144 +7,85 @@ using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Nati
 
 namespace CreateAR.EnkluPlayer
 {
-    public class DrawingJsApi
+    [JsInterface("drawing")]
+    public class DrawingJsApi : MonoBehaviour
     {
-        private readonly List<JsFunc> _cbs = new List<JsFunc>();
+        private class CallbackRecord
+        {
+            public Engine Engine;
+            public string Category;
+            public JsFunc Callback;
+        }
+
+        private readonly List<CallbackRecord> _cbs = new List<CallbackRecord>();
 
         private readonly ContextJsApi _context = new ContextJsApi();
 
-        public void render(Engine engine, JsFunc fn)
+        private string _filter = string.Empty;
+
+        /// <summary>
+        /// The material to draw with, programmatically generated.
+        /// </summary>
+        private Material _material;
+
+        public void filter(string filter)
         {
-
-            fn(
-                JsValue.FromObject(engine, this),
-                new[] {JsValue.FromObject(engine, _context)});
-        }
-    }
-
-    public class ContextJsApi
-    {
-        private Color _color;
-
-        public ContextJsApi()
-        {
-            ResetState();
-        }
-
-        [DenyJsAccess]
-        public void ResetState()
-        {
-            _color = Color.white;
+            _filter = filter.ToLower();
         }
         
-        public ContextJsApi color(Col4 col)
+        public void render(Engine engine, string category, JsFunc fn)
         {
-            color(col.r, col.g, col.b, col.a);
-
-            return this;
-        }
-
-        public ContextJsApi color(float r, float g, float b, float a)
-        {
-            _color = new Color(r, g, b, a);
-
-            return this;
-        }
-
-        public ContextJsApi alpha(float a)
-        {
-            color(_color.r, _color.g, _color.b, a);
-
-            return this;
-        }
-
-        public ContextJsApi red(float r)
-        {
-            color(r, _color.g, _color.b, _color.a);
-
-            return this;
-        }
-
-        public ContextJsApi green(float g)
-        {
-            color(_color.r, g, _color.b, _color.a);
-
-            return this;
-        }
-
-        public ContextJsApi blue(float b)
-        {
-            color(_color.r, _color.g, b, _color.a);
-
-            return this;
-        }
-
-        public ContextJsApi line(Vec3 from, Vec3 to)
-        {
-            line(from.x, from.y, from.z, to.x, to.y, to.z);
-
-            return this;
-        }
-
-        public ContextJsApi line(
-            float xf, float yf, float zf,
-            float xt, float yt, float zt)
-        {
-            GL.Begin(GL.LINES);
-            GL.LoadProjectionMatrix(Camera.main.projectionMatrix);
-            GL.Color(_color);
+            _cbs.Add(new CallbackRecord
             {
-                GL.Vertex(new Vector3(xf, yf, zf));
-                GL.Vertex(new Vector3(xt, yt, zt));
-            }
-            GL.End();
-
-            return this;
+                Engine = engine,
+                Category = category.ToLower(),
+                Callback = fn
+            });
         }
 
-        public ContextJsApi lines(Vec3[] points)
+        /// <inheritdoc cref="MonoBehaviour"/>
+        private void Awake()
         {
-            GL.Begin(GL.LINES);
-            GL.LoadProjectionMatrix(Camera.main.projectionMatrix);
-            GL.Color(_color);
+            _material = new Material(Shader.Find("Hidden/Internal-Colored"))
             {
-                for (int i = 0, len = points.Length; i < len; i += 2)
+                hideFlags = HideFlags.HideAndDontSave
+            };
+
+            _material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+            _material.SetInt("_ZWrite", 0);
+        }
+
+        private void OnPostRender()
+        {
+            var len = _cbs.Count;
+            if (len > 0)
+            {
+                _material.SetPass(0);
+
+                for (var i = 0; i < len; i++)
                 {
-                    GL.Vertex(points[i].ToVector());
-                    GL.Vertex(points[i + 1].ToVector());
+                    var record = _cbs[i];
+                    if (!record.Category.StartsWith(_filter))
+                    {
+                        continue;
+                    }
+
+                    _context.ResetState();
+
+                    try
+                    {
+                        record.Callback(
+                            JsValue.FromObject(record.Engine, this),
+                            new[] {JsValue.FromObject(record.Engine, _context)});
+                    }
+                    catch
+                    {
+                        // 
+                    }
                 }
+
+                _cbs.Clear();
             }
-            GL.End();
-
-            return this;
-        }
-
-        public ContextJsApi linestrip(Vec3[] points)
-        {
-            GL.Begin(GL.LINE_STRIP);
-            GL.LoadProjectionMatrix(Camera.main.projectionMatrix);
-            GL.Color(_color);
-            {
-                for (int i = 0, len = points.Length; i < len; i++)
-                {
-                    GL.Vertex(points[i].ToVector());
-                }
-            }
-            GL.End();
-
-            return this;
-        }
-
-        public ContextJsApi box(float size)
-        {
-            box(size, size, size);
-
-            return this;
-        }
-
-        public ContextJsApi box(float width, float height, float depth)
-        {
-            return this;
         }
     }
 }
