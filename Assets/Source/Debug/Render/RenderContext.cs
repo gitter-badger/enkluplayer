@@ -9,15 +9,70 @@ namespace CreateAR.EnkluPlayer
     public class RenderContext
     {
         /// <summary>
+        /// For internal book-keeping.
+        /// </summary>
+        private class MatrixData
+        {
+            /// <summary>
+            /// Translation.
+            /// </summary>
+            public Vector3 T = Vector3.zero;
+
+            /// <summary>
+            /// Rotation.
+            /// </summary>
+            public Quaternion R = Quaternion.identity;
+
+            /// <summary>
+            /// Scale.
+            /// </summary>
+            public Vector3 S = Vector3.one;
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
+            public MatrixData()
+            {
+                Reset();
+            }
+
+            /// <summary>
+            /// Resets components.
+            /// </summary>
+            public void Reset()
+            {
+                T = Vector3.zero;
+                R = Quaternion.identity;
+                S = Vector3.one;
+            }
+
+            /// <summary>
+            /// Calculates Matrix4x4.
+            /// </summary>
+            /// <returns></returns>
+            public Matrix4x4 Calculate()
+            {
+                return Matrix4x4.TRS(T, R, S);
+            }
+        }
+
+        /// <summary>
         /// The color to draw with.
         /// </summary>
         protected Color _color;
 
-        private readonly Stack<Matrix4x4> _matrices = new Stack<Matrix4x4>();
-        private Matrix4x4 _current;
+        /// <summary>
+        /// Stack of Matrix data.
+        /// </summary>
+        private readonly Stack<MatrixData> _matrices = new Stack<MatrixData>();
 
         /// <summary>
-        /// Sets up for drawing. Must be followed with a Tearfown.
+        /// The current MatrixData to operate on.
+        /// </summary>
+        private MatrixData _current;
+
+        /// <summary>
+        /// Sets up for drawing. Must be followed with a Teardown.
         /// </summary>
         /// <param name="mode">The GL mode to draw with.</param>
         protected virtual void Setup(int mode)
@@ -29,7 +84,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Must be paired with a preceeding Setup.
+        /// Must be proceeded by a Setup.
         /// </summary>
         protected virtual void Teardown()
         {
@@ -37,28 +92,44 @@ namespace CreateAR.EnkluPlayer
             GL.PopMatrix();
         }
 
+        /// <summary>
+        /// Resets state of render context.
+        /// </summary>
+        /// <returns></returns>
         public RenderContext Reset()
         {
             _color = Color.white;
-            _current = Matrix4x4.identity;
+            _current = new MatrixData();
             _matrices.Clear();
 
             return this;
         }
 
+        /// <summary>
+        /// Resets the current matrix.
+        /// </summary>
+        /// <returns></returns>
         public RenderContext ResetMatrix()
         {
             return this;
         }
 
+        /// <summary>
+        /// Pushes current matrix onto the stack, starts a new one.
+        /// </summary>
+        /// <returns></returns>
         public RenderContext PushMatrix()
         {
             _matrices.Push(_current);
-            _current = Matrix4x4.identity;
+            _current = new MatrixData();
             
             return this;
         }
 
+        /// <summary>
+        /// Pops the previous matrix off the stack.
+        /// </summary>
+        /// <returns></returns>
         public RenderContext PopMatrix()
         {
             _current = _matrices.Pop();
@@ -66,48 +137,80 @@ namespace CreateAR.EnkluPlayer
             return this;
         }
 
+        /// <summary>
+        /// Sets up translation.
+        /// </summary>
+        /// <param name="to">The target.</param>
+        /// <returns></returns>
         public RenderContext Translate(Vector3 to)
         {
-            _current *= Matrix4x4.Translate(to);
+            _current.T += to;
 
             return this;
         }
 
+        /// <summary>
+        /// Rotates along the X axis.
+        /// </summary>
+        /// <param name="radians">Radians to rotate.</param>
+        /// <returns></returns>
         public RenderContext RotateX(float radians)
         {
-            _current *= Matrix4x4.Rotate(Quaternion.Euler(
+            _current.R *= Quaternion.Euler(
                 radians * Mathf.Rad2Deg,
-                0, 0));
+                0, 0);
 
             return this;
         }
 
+        /// <summary>
+        /// Rotates along the Y axis.
+        /// </summary>
+        /// <param name="radians">Radians to rotate.</param>
+        /// <returns></returns>
         public RenderContext RotateY(float radians)
         {
-            _current *= Matrix4x4.Rotate(Quaternion.Euler(
+            _current.R *= Quaternion.Euler(
                 0,
                 radians * Mathf.Rad2Deg,
-                0));
+                0);
 
             return this;
         }
 
+        /// <summary>
+        /// Rotates along the Z axis.
+        /// </summary>
+        /// <param name="radians">Radians to rotate.</param>
+        /// <returns></returns>
         public RenderContext RotateZ(float radians)
         {
-            _current *= Matrix4x4.Rotate(Quaternion.Euler(
+            _current.R *= Quaternion.Euler(
                 0, 0,
-                radians * Mathf.Rad2Deg));
+                radians * Mathf.Rad2Deg);
 
             return this;
         }
 
+        /// <summary>
+        /// Rotates.
+        /// </summary>
+        /// <param name="rotation">The rotation.</param>
+        /// <returns></returns>
         public RenderContext Rotate(Quaternion rotation)
         {
-            _current *= Matrix4x4.Rotate(rotation);
+            _current.R *= rotation;
 
             return this;
         }
 
+        /// <summary>
+        /// Rotates along each axis.
+        /// </summary>
+        /// <param name="x">Radians to rotate about x-axis.</param>
+        /// <param name="y">Radians to rotate about y-axis.</param>
+        /// <param name="z">Radians to rotate about z-axis.</param>
+        /// <returns></returns>
         public RenderContext Rotate(float x, float y, float z)
         {
             return Rotate(Quaternion.Euler(
@@ -116,15 +219,23 @@ namespace CreateAR.EnkluPlayer
                 z * Mathf.Rad2Deg));
         }
 
+        /// <summary>
+        /// Scales.
+        /// </summary>
+        /// <param name="to">Target scale.</param>
+        /// <returns></returns>
         public RenderContext Scale(Vector3 to)
         {
-            _current *= Matrix4x4.Scale(to);
+            _current.S = new Vector3(
+                _current.S.x * to.x,
+                _current.S.y * to.y,
+                _current.S.z * to.z);
 
             return this;
         }
 
         /// <summary>
-        /// Sets the color to draw with.
+        /// Sets the color to draw strokes with.
         /// </summary>
         /// <param name="color">The color to draw with.</param>
         /// <returns></returns>
@@ -133,11 +244,26 @@ namespace CreateAR.EnkluPlayer
             return Stroke(color.r, color.g, color.b, color.a);
         }
 
+        /// <summary>
+        /// Sets stroke color.
+        /// </summary>
+        /// <param name="r">Red component.</param>
+        /// <param name="g">Green component.</param>
+        /// <param name="b">Blue component.</param>
+        /// <returns></returns>
         public RenderContext Stroke(float r, float g, float b)
         {
             return Stroke(r, g, b, _color.a);
         }
 
+        /// <summary>
+        /// Sets stroke color.
+        /// </summary>
+        /// <param name="r">Red component.</param>
+        /// <param name="g">Green component.</param>
+        /// <param name="b">Blue component.</param>
+        /// <param name="a">Alpha component.</param>
+        /// <returns></returns>
         public RenderContext Stroke(float r, float g, float b, float a)
         {
             _color = new Color(r, g, b, a);
@@ -217,10 +343,12 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public RenderContext Prism(float w, float h, float d)
         {
-            var center = _current.MultiplyPoint3x4(Vector3.zero);
-            var right = _current.MultiplyPoint3x4(w * Vector3.right) / 2f;
-            var forward = _current.MultiplyPoint3x4(d * Vector3.forward) / 2f;
-            var up = _current.MultiplyPoint3x4(h * Vector3.up) / 2f;
+            var mat = _current.Calculate();
+
+            var center = mat.MultiplyPoint3x4(Vector3.zero);
+            var right = mat.MultiplyPoint3x4(w * Vector3.right) / 2f;
+            var forward = mat.MultiplyPoint3x4(d * Vector3.forward) / 2f;
+            var up = mat.MultiplyPoint3x4(h * Vector3.up) / 2f;
             
             Setup(GL.LINES);
             {
@@ -272,39 +400,6 @@ namespace CreateAR.EnkluPlayer
                     GL.Vertex(center + up + right - forward);
                     GL.Vertex(center - up + right - forward);
                 }
-            }
-            Teardown();
-
-            return this;
-        }
-
-        /// <summary>
-        /// Draws a plus sign.
-        /// </summary>
-        /// <param name="center">The center of the plus.</param>
-        /// <param name="size">The size of the plus' extents.</param>
-        /// <returns></returns>
-        public RenderContext Plus(Vector3 center, float size)
-        {
-            Setup(GL.LINES);
-            {
-                GL.Vertex(center);
-                GL.Vertex(center + size * Vector3.up);
-
-                GL.Vertex(center);
-                GL.Vertex(center + size * Vector3.right);
-
-                GL.Vertex(center);
-                GL.Vertex(center + size * Vector3.forward);
-
-                GL.Vertex(center);
-                GL.Vertex(center - size * Vector3.up);
-
-                GL.Vertex(center);
-                GL.Vertex(center - size * Vector3.right);
-
-                GL.Vertex(center);
-                GL.Vertex(center - size * Vector3.forward);
             }
             Teardown();
 
