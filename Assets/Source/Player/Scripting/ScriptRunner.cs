@@ -19,21 +19,24 @@ namespace CreateAR.EnkluPlayer.Scripting
             Done
         }
 
+        private class WidgetRecord
+        {
+            public List<EnkluScript> Scripts = new List<EnkluScript>();
+            public List<VineScript> Vines = new List<VineScript>();
+            public List<BehaviorScript> Behaviors = new List<BehaviorScript>();
+
+            public SetupState SetupState;
+            public UnityScriptingHost Engine;
+        }
+
         private const string SCHEMA_SOURCE = "scripts";
         
         private readonly IScriptManager _scriptManager;
         private readonly IScriptFactory _scriptFactory;
         private readonly IScriptRequireResolver _requireResolver;
         private readonly IElementJsCache _jsCache;
-
-        private readonly Dictionary<Widget, List<EnkluScript>> _scriptLookup = new Dictionary<Widget, List<EnkluScript>>();
-        private readonly Dictionary<Widget, SetupState> _setupStates = new Dictionary<Widget, SetupState>();
-
-        private readonly Dictionary<Widget, List<VineScript>> _vines = new Dictionary<Widget, List<VineScript>>();
-
-        private readonly Dictionary<Widget, List<BehaviorScript>> _behaviors = new Dictionary<Widget, List<BehaviorScript>>();
-
-        private readonly Dictionary<Widget, UnityScriptingHost> _engines = new Dictionary<Widget, UnityScriptingHost>();
+        
+        private readonly Dictionary<Widget, WidgetRecord> _widgetRecords = new Dictionary<Widget, WidgetRecord>();
         
         private readonly List<IAsyncToken<Void>> _vineTokens = new List<IAsyncToken<Void>>();
         private readonly AsyncToken<Void> _vinesComplete = new AsyncToken<Void>();
@@ -52,54 +55,54 @@ namespace CreateAR.EnkluPlayer.Scripting
         
         public void AddWidget(Widget widget)
         {
-            if (_scriptLookup.ContainsKey(widget))
+            if (_widgetRecords.ContainsKey(widget))
             {
                 throw new Exception("Widget already added.");
             }
             
-            _scriptLookup.Add(widget, new List<EnkluScript>());
-            _vines.Add(widget, new List<VineScript>());
-            _behaviors.Add(widget, new List<BehaviorScript>());
-            _engines.Add(widget, CreateBehaviorHost(widget));
-            _setupStates.Add(widget, SetupState.Parsing);
+            _widgetRecords.Add(widget, new WidgetRecord()
+            {
+                SetupState = SetupState.Parsing,
+                Engine = CreateBehaviorHost(widget)
+            });
 
             try
             {
-                CreateScripts(widget).OnSuccess((_) => _setupStates[widget] = SetupState.Done);
+                CreateScripts(widget).OnSuccess((_) => _widgetRecords[widget].SetupState = SetupState.Done);
             }
             catch (Exception e)
             {
                 Log.Error("Error running scripts for {0}", widget);
-                _setupStates[widget] = SetupState.Error;
+                _widgetRecords[widget].SetupState = SetupState.Error;
             }
         }
 
         public SetupState GetSetupState(Widget widget)
         {
-            if (!_setupStates.ContainsKey(widget))
+            if (!_widgetRecords.ContainsKey(widget))
             {
                 throw new Exception("Unknown widget.");
             }
 
-            return _setupStates[widget];
+            return _widgetRecords[widget].SetupState;
         }
 
         public void Parse()
         {
-            foreach (var kvp in _scriptLookup)
+            foreach (var kvp in _widgetRecords)
             {
                 var widget = kvp.Key;
-                var scripts = kvp.Value;
+                var record = kvp.Value;
                 
-                for (int i = 0, len = scripts.Count; i < len; i++)
+                for (int i = 0, len = record.Scripts.Count; i < len; i++)
                 {
-                    switch (scripts[i].Data.Type)
+                    switch (record.Scripts[i].Data.Type)
                     {
                         case ScriptType.Vine:
                         {
-                            var vineComponent = _scriptFactory.Vine(widget, scripts[i]);
+                            var vineComponent = _scriptFactory.Vine(widget, record.Scripts[i]);
                         
-                            _vines[widget].Add(vineComponent);
+                            record.Vines.Add(vineComponent);
                             _vineTokens.Add(vineComponent.Configure().OnSuccess((_) =>
                             {
                                 // TODO: Defer this until ScriptService calls
@@ -110,9 +113,9 @@ namespace CreateAR.EnkluPlayer.Scripting
                         case ScriptType.Behavior:
                         {
                             var behaviorComponent = _scriptFactory.Behavior(
-                                widget, _jsCache, _engines[widget], scripts[i]);
+                                widget, _jsCache, record.Engine, record.Scripts[i]);
                             
-                            _behaviors[widget].Add(behaviorComponent);
+                            record.Behaviors.Add(behaviorComponent);
                             _vinesComplete.OnFinally((_) =>
                             {
                                 behaviorComponent.Configure();
@@ -130,20 +133,20 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 _vinesComplete.Succeed(Void.Instance);
 
-                var keys = _setupStates.Keys.ToList();
+                var keys = _widgetRecords.Keys.ToList();
                 for (int i = 0, len = keys.Count; i < len; i++)
                 {
                     // TODO: Don't blindly assume success
-                    _setupStates[keys[i]] = SetupState.Done;
+                    _widgetRecords[keys[i]].SetupState = SetupState.Done;
                 }
             });
         }
 
         public void StartScripts()
         {
-            foreach (var kvp in _vines)
+            foreach (var kvp in _widgetRecords)
             {
-                var vineComponents = kvp.Value;
+                var vineComponents = kvp.Value.Vines;
 
                 for (int i = 0, len = vineComponents.Count; i < len; i++)
                 {
@@ -151,9 +154,9 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
             }
 
-            foreach (var kvp in _behaviors)
+            foreach (var kvp in _widgetRecords)
             {
-                var behaviorComponents = kvp.Value;
+                var behaviorComponents = kvp.Value.Behaviors;
 
                 for (int i = 0, len = behaviorComponents.Count; i < len; i++)
                 {
@@ -185,7 +188,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             var len = ids.Length;
             Log.Info(this, "\tLoading {0} scripts.", len);
 
-            List<EnkluScript> scripts = _scriptLookup[widget];
+            var scripts = _widgetRecords[widget].Scripts;
             
             for (var i = 0; i < len; i++)
             {
