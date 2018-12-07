@@ -15,6 +15,12 @@ namespace CreateAR.EnkluPlayer
         public event Action<uint> OnPointerEnded;
 
         /// <inheritdoc />
+        public event Action<uint> OnPointerPressed;
+
+        /// <inheritdoc />
+        public event Action<uint> OnPointerReleased;
+
+        /// <inheritdoc />
         public uint[] Pointers
         {
             get

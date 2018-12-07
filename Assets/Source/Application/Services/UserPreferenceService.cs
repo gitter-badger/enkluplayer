@@ -86,7 +86,7 @@ namespace CreateAR.EnkluPlayer
                     var appId = _config.Play.AppId;
                     var userId = _config.Network.Credentials.UserId;
 
-                    Load(userId)
+                    ForUser(userId)
                         .OnSuccess(prefs =>
                         {
                             prefs.Queue((data, next) =>

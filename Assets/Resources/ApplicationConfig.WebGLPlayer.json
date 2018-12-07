@@ -1,5 +1,6 @@
 {
+	"Version": "0.2.0",
 	"Log": {
-        "Level": "Warning"
+        "Level": "Info"
     }
 }

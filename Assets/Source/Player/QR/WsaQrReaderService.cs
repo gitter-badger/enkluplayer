@@ -44,6 +44,8 @@ namespace CreateAR.EnkluPlayer.Qr
         /// <inheritdoc />
         public IAsyncToken<Void> Stop()
         {
+            ZXingQrCodeScanner.Stop();
+
             return new AsyncToken<Void>(Void.Instance);
         }
     }

@@ -85,6 +85,18 @@ namespace CreateAR.EnkluPlayer.Scripting
             get { return UnityTransform.position.ToVec(); }
         }
 
+        /// <inheritdoc />
+        public Quat worldRotation
+        {
+            get { return UnityTransform.rotation.ToQuat();  }
+        }
+
+        /// <inheritdoc />
+        public Vec3 worldScale
+        {
+            get { return UnityTransform.lossyScale.ToVec(); }
+        }
+
         /// <summary>
         /// Updates <see cref="position"/>, <see cref="rotation"/>, and <see cref="scale"/> to match the underlying Unity Transform's values.
         /// </summary>
@@ -110,6 +122,18 @@ namespace CreateAR.EnkluPlayer.Scripting
         public Vec3 positionRelativeTo(IEntityJs entity)
         {
             return worldPosition - entity.transform.worldPosition;
+        }
+
+        /// <inheritdoc />
+        public Vec3 localToWorld(Vec3 point)
+        {
+            return UnityTransform.TransformPoint(point.ToVector()).ToVec();
+        }
+
+        /// <inheritdoc />
+        public Vec3 worldToLocal(Vec3 point)
+        {
+            return UnityTransform.InverseTransformPoint(point.ToVector()).ToVec();
         }
     }
 }

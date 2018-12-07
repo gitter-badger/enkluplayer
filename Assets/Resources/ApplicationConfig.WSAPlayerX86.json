@@ -1,9 +1,6 @@
 {
+	"Version": "0.13.4",
 	"Log": {
 		"Level": "Warning"
-	},
-	"Metrics": {
-		"Enabled": true,
-		"Targets": "HostedGraphite"
 	}
 }

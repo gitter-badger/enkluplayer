@@ -1,5 +1,5 @@
 {
-    "Version": "0.12.15",
+    "Version": "0.1.0",
     "Log": {
         "Level": "Info"
     },
@@ -13,7 +13,7 @@
         "AllEnvironments": [
             {
                 "Name": "cloud",
-                "TrellisUrl": "https://trellis.enklu.com:10001/v1",
+                "TrellisUrl": "https://cloud.enklu.com:10001/v1",
                 "AssetsUrl": "https://s3-us-west-2.amazonaws.com:443/axatmtcyltmxltqzltmw.assets.bundles/",
                 "BundlesUrl": "https://s3-us-west-2.amazonaws.com:443/axatmtcyltmxltqzltmw.assets.bundles/",
                 "ThumbsUrl": "https://s3-us-west-2.amazonaws.com:443/axatmtcyltmxltqzltmw.assets.thumbs/"

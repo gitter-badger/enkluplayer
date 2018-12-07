@@ -55,10 +55,4 @@ We have provided Unity context menu options in `UnityBuilderHooks.cs` for switch
 
 We use [gradle](http://gradle.org) to automate our build process. This, together with a custom gradle plugin (which will be released shortly) allows us to run tests, build from Unity, and in the case of certain platforms (like HoloLens), build the output from Unity.
 
-Look in `build.gradle` for more information.
-
-| Name       | Parameters | Description                                                  |
-| ---------- | ---------- | ------------------------------------------------------------ |
-| builduwp   | N/A        | Runs tests in target platform, outputs a VS2017 project, builds the project into an appx, then creates an archive of appx and needed dependencies. |
-| buildwebgl | N/A        | Runs tests in target platform, outputs wasm, then creates an archive of web template. |
-
+There is a build configuration for each target platform, which can be run with `gradle -b [file] task`.

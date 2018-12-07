@@ -1,0 +1,28 @@
+def configdir = './Assets/Resources'
+
+// retrieves the application config for the specified platform
+ext.getApplicationConfig = { platform ->
+    // read config
+    def path = "${configdir}/ApplicationConfig.${platform}.json"
+    def f = file(path)
+    if (!f.exists()) {
+        throw new GradleException("No config exists at ${path}.")
+    }
+
+    return new groovy.json.JsonSlurper().parseText(f.text)
+}
+
+// generates the name of the upload artifact
+ext.getArtifactName = { platform ->
+    return "enkluplayer.${platform}"
+}
+
+// generates the version of the upload artifact
+ext.getArtifactVersion = { platform ->
+    return getApplicationConfig(platform).Version
+}
+
+// generates the name of the upload archive
+ext.getArchiveFileName = { platform -> 
+    return "${getArtifactName(platform)}.${getArtifactVersion(platform)}.zip"
+}

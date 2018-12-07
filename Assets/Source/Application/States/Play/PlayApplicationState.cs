@@ -7,6 +7,7 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.AR;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.Scripting;
+using CreateAR.EnkluPlayer.Util;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -39,6 +40,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IAssetLoader _assetLoader;
         private readonly IMetricsService _metrics;
         private readonly IAppQualityController _quality;
+        private readonly ITweenManager _tweens;
 
         /// <summary>
         /// Status.
@@ -96,7 +98,8 @@ namespace CreateAR.EnkluPlayer
             IVoiceCommandManager voice,
             IAssetLoader assetLoader,
             IMetricsService metrics,
-            IAppQualityController quality)
+            IAppQualityController quality,
+            ITweenManager tweens)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -111,6 +114,7 @@ namespace CreateAR.EnkluPlayer
             _assetLoader = assetLoader;
             _metrics = metrics;
             _quality = quality;
+            _tweens = tweens;
         }
 
         /// <inheritdoc />
@@ -168,6 +172,8 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Update(float dt)
         {
+            _tweens.Update(dt);
+
 #if !UNITY_WEBGL
             if (_config.Play.Edit)
             {
@@ -180,6 +186,9 @@ namespace CreateAR.EnkluPlayer
         public void Exit()
         {
             Log.Info(this, "PlayApplicationState::Exit()");
+
+            // kill all tweens
+            _tweens.StopAll();
 
             // shutoff quality
             _quality.Teardown();
@@ -194,6 +203,8 @@ namespace CreateAR.EnkluPlayer
 
             // stop listening for voice commands
             _voice.Unregister("reset");
+            _voice.Unregister("performance");
+            _voice.Unregister("logging");
 
             // stop watching loads
             _app.OnReady -= App_OnReady;
@@ -248,6 +259,31 @@ namespace CreateAR.EnkluPlayer
 
             // start designer
             _design.Setup(_context, _app);
+
+            // perf
+            _voice.Register("performance", _ =>
+            {
+                // open
+                int hudId;
+                _ui
+                    .OpenOverlay<PerfDisplayUIView>(new UIReference
+                    {
+                        UIDataId = "Perf.Hud"
+                    }, out hudId)
+                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+            });
+
+            // logging
+            _voice.Register("logging", _ =>
+            {
+                int hudId;
+                _ui
+                    .OpenOverlay<LoggingUIView>(new UIReference
+                    {
+                        UIDataId = "Logging.Hud"
+                    }, out hudId)
+                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+            });
         }
 
         /// <summary>

@@ -5,12 +5,12 @@ namespace CreateAR.EnkluPlayer.Vine
     /// <summary>
     /// Named worker for parsing.
     /// </summary>
-    public class ParserWorker : ActionWorker
+    public class ThreadedParserWorker : ActionWorker, IParserWorker
     {
         /// <summary>
         /// Constructor.
         /// </summary>?
-        public ParserWorker(IBootstrapper bootstrapper)
+        public ThreadedParserWorker(IBootstrapper bootstrapper)
             : base(bootstrapper)
         {
             //

@@ -1,5 +1,5 @@
 ﻿﻿using System;
- using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -229,12 +229,13 @@ namespace CreateAR.EnkluPlayer
         /// Returns true when component-wise approximately equal.
         /// </summary>
         /// <param name="lhs">Another vec3.</param>
+        /// <param name="tolerance">Optional value to use for comparison.</param>
         /// <returns></returns>
-        public bool Approximately(Vec3 lhs)
+        public bool Approximately(Vec3 lhs, float tolerance = float.Epsilon)
         {
-            return Math.Abs(x - lhs.x) < float.Epsilon
-                && Math.Abs(y - lhs.y) < float.Epsilon
-                && Math.Abs(z - lhs.z) < float.Epsilon;
+            return Math.Abs(x - lhs.x) < tolerance
+                && Math.Abs(y - lhs.y) < tolerance
+                && Math.Abs(z - lhs.z) < tolerance;
         }
     
         /// <summary>
@@ -313,12 +314,24 @@ namespace CreateAR.EnkluPlayer
             return (from - to).Magnitude;
         }
 
+        /// <summary>
+        /// Returns the squared horizontal distance between two Vec3's.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
         public static float DistanceXZSqr(Vec3 from, Vec3 to)
         {
             var diff = from - to;
             return diff.x * diff.x + diff.z * diff.z;
         }
 
+        /// <summary>
+        /// Returns the horizonstal distance between two Vec3's. If possible, use DistanceXZSqr for performance instead.
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
         public static float DistanceXZ(Vec3 from, Vec3 to)
         {
             return (float) Math.Sqrt(DistanceXZSqr(from, to));
