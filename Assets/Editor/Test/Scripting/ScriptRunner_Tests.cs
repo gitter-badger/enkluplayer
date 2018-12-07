@@ -55,6 +55,12 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             }
         }
 
+        [TearDown]
+        public void Teardown()
+        {
+            TestBehaviorMonoBehaviour.ResetInvokeIds();
+        }
+
         [Test]
         public void Behavior()
         {
