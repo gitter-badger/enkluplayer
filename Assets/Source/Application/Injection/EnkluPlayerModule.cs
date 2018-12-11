@@ -103,6 +103,7 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 binder.Bind<HttpRequestCacher>().To<HttpRequestCacher>().ToSingleton();
+                binder.Bind<NetworkConnectivity>().To<NetworkConnectivity>().ToSingleton();
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_WSA
@@ -656,7 +657,6 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
                 binder.Bind<PlayerJs>().ToValue(LookupComponent<PlayerJs>());
-                SystemJsApi.DeviceMetaProvider = binder.GetInstance<IDeviceMetaProvider>();
 
                 // scripting interfaces
                 {
@@ -684,6 +684,13 @@ namespace CreateAR.EnkluPlayer
 
                 var appData = binder.GetInstance<IAdminAppDataManager>();
                 binder.Bind<IAppDataManager>().ToValue(appData);
+                
+                SystemJsApi.Initialize(
+                    binder.GetInstance<IDeviceMetaProvider>(),
+                    binder.GetInstance<NetworkConnectivity>(),
+                    binder.GetInstance<IMessageRouter>(),
+                    binder.GetInstance<ApiController>(),
+                    binder.GetInstance<ApplicationConfig>());
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();
