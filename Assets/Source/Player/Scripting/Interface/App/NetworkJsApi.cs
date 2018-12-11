@@ -15,7 +15,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Whether pings are being sent or not.
         /// </summary>
-        public bool enabled
+        public bool pingEnabled
         {
             get { return _networkConnectivity.Enabled; }
             set { _networkConnectivity.Enabled = value; }
