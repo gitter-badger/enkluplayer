@@ -20,11 +20,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         private static bool _configured;
 
         public static void SetDependencies(
-            PingConfig pingConfig,
             IDeviceMetaProvider deviceMetaProvider,
-            IHttpService httpService,
-            IBootstrapper bootstrapper,
-            IMetricsService metricsService)
+            NetworkConnectivity networkConnectivity)
         {
             if (_configured)
             {
@@ -32,7 +29,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
             
             Instance.device = new DeviceJsApi(deviceMetaProvider);
-            Instance.network = new NetworkJsApi(pingConfig, httpService, bootstrapper, metricsService);
+            Instance.network = new NetworkJsApi(networkConnectivity);
 
             _configured = true;
         }

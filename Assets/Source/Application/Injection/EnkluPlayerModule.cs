@@ -103,6 +103,7 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 binder.Bind<HttpRequestCacher>().To<HttpRequestCacher>().ToSingleton();
+                binder.Bind<NetworkConnectivity>().To<NetworkConnectivity>().ToSingleton();
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_WSA
@@ -685,11 +686,8 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IAppDataManager>().ToValue(appData);
                 
                 SystemJsApi.SetDependencies(
-                    config.Network.Ping,
                     binder.GetInstance<IDeviceMetaProvider>(),
-                    binder.GetInstance<IHttpService>(),
-                    binder.GetInstance<IBootstrapper>(),
-                    binder.GetInstance<IMetricsService>());
+                    binder.GetInstance<NetworkConnectivity>());
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();
