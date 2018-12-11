@@ -631,7 +631,7 @@ namespace CreateAR.EnkluPlayer
 
             if (overrideConfig.Ping != null)
             {
-                Ping.SetValues(overrideConfig.Ping);
+                Ping.Override(overrideConfig.Ping);
             }
 
             Offline = overrideConfig.Offline;
@@ -772,7 +772,7 @@ namespace CreateAR.EnkluPlayer
         /// Updates this PingConfig with values from another PingConfig.
         /// </summary>
         /// <param name="other"></param>
-        public void SetValues(PingConfig other)
+        public void Override(PingConfig other)
         {
             Enabled = other.Enabled;
             
