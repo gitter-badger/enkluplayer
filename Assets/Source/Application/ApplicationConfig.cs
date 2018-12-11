@@ -503,7 +503,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// The PingConfig to use.
         /// </summary>
-        public readonly PingConfig Ping = new PingConfig();
+        public PingConfig Ping = new PingConfig();
 
         /// <summary>
         /// Current environment we should connect to.
@@ -756,7 +756,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Whether pings should be sent or not.
         /// </summary>
-        public bool Enabled = false;
+        public bool Enabled = true;
         
         /// <summary>
         /// The interval to send pings, measured in ms.
