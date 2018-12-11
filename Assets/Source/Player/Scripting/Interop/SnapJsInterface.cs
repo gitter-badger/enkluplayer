@@ -27,6 +27,11 @@ namespace CreateAR.EnkluPlayer
         private readonly UserPreferenceService _preferences;
 
         /// <summary>
+        /// Cached Org Id.
+        /// </summary>
+        private string _orgId = string.Empty;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public SnapJsInterface(
@@ -42,7 +47,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public void trigger(Engine engine, string tag)
         {
-            trigger_callback(engine, tag, null);
+            triggerCallback(engine, tag, null);
         }
 
         /// <summary>
@@ -50,7 +55,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <param name="tag"></param>
         /// <param name="callback"></param>
-        public void trigger_callback(Engine engine, string tag, JsFunc callback)
+        public void triggerCallback(Engine engine, string tag, JsFunc callback)
         {
             Log.Info(this, "Trigger a snap.");
             
@@ -59,33 +64,43 @@ namespace CreateAR.EnkluPlayer
                 .OnSuccess(prefs =>
                 {
                     var getOrgToken = new AsyncToken<string>();
-                    
-                    // pick first organization
-                    var org = prefs.Data.DeviceRegistrations.FirstOrDefault();
 
-                    if (null != org)
+                    if (!string.IsNullOrEmpty(_orgId))
                     {
-                        getOrgToken.Succeed(org.OrgId);
+                        // use cached org id if already known
+                        getOrgToken.Succeed(_orgId);
                     }
                     else
                     {
-                        // Attempt to get the org if it wasn't available?!
-                        Log.Warning(this, "No organizations.");
+                        // pick first organization
+                        var org = prefs.Data.DeviceRegistrations.FirstOrDefault();
 
-                        _api.Organizations.GetMyOrganizations().OnSuccess(response =>
+                        if (null != org)
                         {
-                            if (response.Payload.Success && response.Payload.Body.Length > 0)
-                            {
-                                getOrgToken.Succeed(response.Payload.Body[0].Id);
-                            }
-                            else
-                            {
-                                getOrgToken.Fail(new Exception("GetMyOrganizations success: false"));
-                            }
-                        }).OnFailure(exception =>
+                            _orgId = org.OrgId;
+                            getOrgToken.Succeed(_orgId);
+                        }
+                        else
                         {
-                            getOrgToken.Fail(exception);
-                        });
+                            // Attempt to get the org if it wasn't available?!
+                            Log.Warning(this, "No organizations.");
+
+                            _api.Organizations.GetMyOrganizations().OnSuccess(response =>
+                            {
+                                if (response.Payload.Success && response.Payload.Body.Length > 0)
+                                {
+                                    _orgId = response.Payload.Body[0].Id;
+                                    getOrgToken.Succeed(_orgId);
+                                }
+                                else
+                                {
+                                    getOrgToken.Fail(new Exception("GetMyOrganizations success: false"));
+                                }
+                            }).OnFailure(exception =>
+                            {
+                                getOrgToken.Fail(exception);
+                            });
+                        }
                     }
                     
                     // After org is known
