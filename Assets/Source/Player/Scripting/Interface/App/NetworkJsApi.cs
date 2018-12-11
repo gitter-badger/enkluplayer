@@ -1,6 +1,4 @@
-using System.Collections;
-using CreateAR.Commons.Unity.Http;
-using UnityEngine;
+using System;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -51,7 +49,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         public float pingInterval
         {
             get { return _networkConnectivity.PingInterval; }
-            set { _networkConnectivity.PingInterval = value; }
+            // Add a slight minimum so scripting can't spam the network too much.
+            set { _networkConnectivity.PingInterval = Math.Max(1, value); }
         }
 
         /// <summary>
