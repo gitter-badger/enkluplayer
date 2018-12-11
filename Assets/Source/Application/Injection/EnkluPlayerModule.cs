@@ -685,7 +685,7 @@ namespace CreateAR.EnkluPlayer
                 var appData = binder.GetInstance<IAdminAppDataManager>();
                 binder.Bind<IAppDataManager>().ToValue(appData);
                 
-                SystemJsApi.SetDependencies(
+                SystemJsApi.Initialize(
                     binder.GetInstance<IDeviceMetaProvider>(),
                     binder.GetInstance<NetworkConnectivity>(),
                     binder.GetInstance<IMessageRouter>(),

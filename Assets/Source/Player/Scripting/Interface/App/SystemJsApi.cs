@@ -19,16 +19,16 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Guard to make sure this isn't configured twice.
         /// </summary>
-        private static bool _configured;
+        private static bool _initialized;
 
-        public static void SetDependencies(
+        public static void Initialize(
             IDeviceMetaProvider deviceMetaProvider,
             NetworkConnectivity networkConnectivity,
             IMessageRouter msgRouter,
             ApiController apiController,
             ApplicationConfig config)
         {
-            if (_configured)
+            if (_initialized)
             {
                 throw new Exception("Dependencies already set!");
             }
@@ -37,7 +37,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             Instance.experiences = new ExperienceJsApi(msgRouter, apiController, config);
             Instance.network = new NetworkJsApi(networkConnectivity);
 
-            _configured = true;
+            _initialized = true;
         }
 
         /// <summary>
