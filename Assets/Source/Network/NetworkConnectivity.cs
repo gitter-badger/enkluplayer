@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// Provides some information about internet access to the app.
+    /// </summary>
     public class NetworkConnectivity
     {
         /// <summary>
@@ -89,6 +92,13 @@ namespace CreateAR.EnkluPlayer
             }
         }
         
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="http"></param>
+        /// <param name="bootstrapper"></param>
+        /// <param name="metrics"></param>
         public NetworkConnectivity(
             NetworkConfig config, 
             IHttpService http, 

@@ -3,7 +3,7 @@ using System;
 namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
-    /// 
+    /// Provides information about the network to scripting.
     /// </summary>
     public class NetworkJsApi
     {
@@ -12,6 +12,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private NetworkConnectivity _networkConnectivity;
 
+        /// <summary>
+        /// Whether pings are being sent or not.
+        /// </summary>
         public bool enabled
         {
             get { return _networkConnectivity.Enabled; }
@@ -56,10 +59,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="http"></param>
-        /// <param name="bootstrapper"></param>
-        /// <param name="metrics"></param>
         public NetworkJsApi(NetworkConnectivity networkConnectivity)
         {
             _networkConnectivity = networkConnectivity;

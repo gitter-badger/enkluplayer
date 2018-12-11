@@ -687,7 +687,10 @@ namespace CreateAR.EnkluPlayer
                 
                 SystemJsApi.SetDependencies(
                     binder.GetInstance<IDeviceMetaProvider>(),
-                    binder.GetInstance<NetworkConnectivity>());
+                    binder.GetInstance<NetworkConnectivity>(),
+                    binder.GetInstance<IMessageRouter>(),
+                    binder.GetInstance<ApiController>(),
+                    binder.GetInstance<ApplicationConfig>());
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();

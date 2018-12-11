@@ -1,6 +1,8 @@
 ﻿using System;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
+using CreateAR.Trellis.Messages;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -21,7 +23,10 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         public static void SetDependencies(
             IDeviceMetaProvider deviceMetaProvider,
-            NetworkConnectivity networkConnectivity)
+            NetworkConnectivity networkConnectivity,
+            IMessageRouter msgRouter,
+            ApiController apiController,
+            ApplicationConfig config)
         {
             if (_configured)
             {
@@ -29,6 +34,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
             
             Instance.device = new DeviceJsApi(deviceMetaProvider);
+            Instance.experiences = new ExperienceJsApi(msgRouter, apiController, config);
             Instance.network = new NetworkJsApi(networkConnectivity);
 
             _configured = true;
