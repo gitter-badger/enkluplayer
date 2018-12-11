@@ -63,30 +63,54 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private void CacheComponents(ContentWidget contentWidget)
         {
+            // Animator
+            if (animator != null)
+            {
+                animator.Teardown();
+            }
+            
             var unityAnimator = contentWidget.GetComponent<Animator>();
             if (unityAnimator != null) 
             {
-                animator = new AnimatorJsApi(unityAnimator);
+                var anim = new UnityAnimator(unityAnimator);
+                animator = new AnimatorJsApi(_element.Schema, anim);
+                animator.Setup();
             }
             else
             {
                 animator = null;
             }
-
+            
+            // Material
+            if (material != null)
+            {
+                material.Teardown();
+            }
+            
             var unityRenderer = contentWidget.GetComponent<Renderer>();
             if (unityRenderer != null && unityRenderer.sharedMaterial != null)
             {
-                material = new MaterialJsApi(unityRenderer);
+                var renderer = new UnityRenderer(unityRenderer); 
+                material = new MaterialJsApi(_element.Schema, renderer);
+                material.Setup();
             }
             else
             {
                 material = null;
             }
 
+            // Audio
+            if (audio != null)
+            {
+                audio.Teardown();
+            }
+            
             var unityAudioSource = contentWidget.GetComponent<AudioSource>();
             if (unityAudioSource != null)
             {
-                audio = new AudioJsApi(unityAudioSource);
+                var audioSource = new UnityAudioSource(unityAudioSource);
+                audio = new AudioJsApi(_element.Schema, audioSource);
+                audio.Setup();
             }
             else
             {
