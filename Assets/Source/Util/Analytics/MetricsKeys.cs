@@ -69,5 +69,6 @@
         ///////////////////////////////////////////////////////////////////////
         public const string PERF_FRAMETIME = "Perf.FrameTime";
         public const string PERF_MEMORY = "Perf.Memory";
+        public const string PERF_PING = "Perf.Ping";
     }
 }

@@ -501,6 +501,11 @@ namespace CreateAR.EnkluPlayer
         public string ApiVersion = "0.0.0";
 
         /// <summary>
+        /// The PingConfig to use.
+        /// </summary>
+        public readonly PingConfig Ping = new PingConfig();
+
+        /// <summary>
         /// Current environment we should connect to.
         /// </summary>
         public string Current;
@@ -624,6 +629,11 @@ namespace CreateAR.EnkluPlayer
                 ApiVersion = overrideConfig.ApiVersion;
             }
 
+            if (overrideConfig.Ping != null)
+            {
+                Ping.SetValues(overrideConfig.Ping);
+            }
+
             Offline = overrideConfig.Offline;
 
             // combine arrays
@@ -735,6 +745,46 @@ namespace CreateAR.EnkluPlayer
         {
             http.Urls.Formatter("trellis").Replacements["userId"] = UserId;
             http.Headers["Authorization"] = string.Format("Bearer {0}", Token);
+        }
+    }
+    
+    /// <summary>
+    /// Configuration for pinging AWS.
+    /// </summary>
+    public class PingConfig
+    {
+        /// <summary>
+        /// Whether pings should be sent or not.
+        /// </summary>
+        public bool Enabled = false;
+        
+        /// <summary>
+        /// The interval to send pings, measured in ms.
+        /// </summary>
+        public int Interval = 30;
+        
+        /// <summary>
+        /// The AWS region to send pings to.
+        /// </summary>
+        public string Region = "us-west-2";
+
+        /// <summary>
+        /// Updates this PingConfig with values from another PingConfig.
+        /// </summary>
+        /// <param name="other"></param>
+        public void SetValues(PingConfig other)
+        {
+            Enabled = other.Enabled;
+            
+            if (other.Interval != 0)
+            {
+                Interval = other.Interval;
+            }
+
+            if (!string.IsNullOrEmpty(other.Region))
+            {
+                Region = other.Region;
+            }
         }
     }
 

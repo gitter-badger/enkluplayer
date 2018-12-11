@@ -1,4 +1,5 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -11,22 +12,29 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// The instance.
         /// </summary>
-        public static SystemJsApi Instance = new SystemJsApi();
-
+        public static readonly SystemJsApi Instance = new SystemJsApi();
+        
         /// <summary>
-        /// Provider for getting DeviceMeta.
+        /// Guard to make sure this isn't configured twice.
         /// </summary>
-        public static IDeviceMetaProvider DeviceMetaProvider
-        {
-            set
-            {
-                if (Instance.device != null)
-                {
-                    throw new Exception("DeviceMetaProvider already configured");
-                }
+        private static bool _configured;
 
-                Instance.device = new DeviceJsApi(value);
+        public static void SetDependencies(
+            PingConfig pingConfig,
+            IDeviceMetaProvider deviceMetaProvider,
+            IHttpService httpService,
+            IBootstrapper bootstrapper,
+            IMetricsService metricsService)
+        {
+            if (_configured)
+            {
+                throw new Exception("Dependencies already set!");
             }
+            
+            Instance.device = new DeviceJsApi(deviceMetaProvider);
+            Instance.network = new NetworkJsApi(pingConfig, httpService, bootstrapper, metricsService);
+
+            _configured = true;
         }
 
         /// <summary>
@@ -38,6 +46,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Provides API for experiences.
         /// </summary>
         public ExperienceJsApi experiences { get; private set; }
+        
+        /// <summary>
+        /// Provides API for networking.
+        /// </summary>
+        public NetworkJsApi network { get; private set; }
 
         /// <summary>
         /// Recenters tracking.
@@ -74,8 +87,6 @@ namespace CreateAR.EnkluPlayer.Scripting
 #else
             Log.Warning(this, "Restart not supported for this platform.");
 #endif
-        }
-
-        
+        }        
     }
 }

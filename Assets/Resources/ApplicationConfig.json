@@ -18,6 +18,9 @@
                 "BundlesUrl": "https://s3-us-west-2.amazonaws.com:443/axatmtcyltmxltqzltmw.assets.bundles/",
                 "ThumbsUrl": "https://s3-us-west-2.amazonaws.com:443/axatmtcyltmxltqzltmw.assets.thumbs/"
             }
-        ]
+        ],
+        "Ping": {
+            "Enabled": true
+        }
     }
 }

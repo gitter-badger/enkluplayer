@@ -656,7 +656,6 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
                 binder.Bind<PlayerJs>().ToValue(LookupComponent<PlayerJs>());
-                SystemJsApi.DeviceMetaProvider = binder.GetInstance<IDeviceMetaProvider>();
 
                 // scripting interfaces
                 {
@@ -684,6 +683,13 @@ namespace CreateAR.EnkluPlayer
 
                 var appData = binder.GetInstance<IAdminAppDataManager>();
                 binder.Bind<IAppDataManager>().ToValue(appData);
+                
+                SystemJsApi.SetDependencies(
+                    config.Network.Ping,
+                    binder.GetInstance<IDeviceMetaProvider>(),
+                    binder.GetInstance<IHttpService>(),
+                    binder.GetInstance<IBootstrapper>(),
+                    binder.GetInstance<IMetricsService>());
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();
