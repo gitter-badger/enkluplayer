@@ -1,5 +1,6 @@
 using System.Collections;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -89,7 +90,7 @@ namespace CreateAR.EnkluPlayer
         }
         
         public NetworkConnectivity(
-            PingConfig config, 
+            NetworkConfig config, 
             IHttpService http, 
             IBootstrapper bootstrapper,
             IMetricsService metrics)
@@ -98,7 +99,10 @@ namespace CreateAR.EnkluPlayer
             _bootstrapper = bootstrapper;
             _pingMetric = metrics.Value(MetricsKeys.PERF_PING);
 
-            Enabled = config.Enabled;
+            var pingConfig = config.Ping;
+            _pingInterval = pingConfig.Interval;
+            _pingRegion = pingConfig.Region;
+            Enabled = pingConfig.Enabled;
         }
         
         /// <summary>
@@ -123,6 +127,8 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         private IEnumerator Ping()
         {
+            Log.Info(this, "Starting ping. Interval: {0} Region: {1}", _pingInterval, _pingRegion);
+            
             var id = _coroutineID;
             var url = string.Format("https://ec2.{0}.amazonaws.com/ping", _pingRegion);
 
@@ -132,13 +138,14 @@ namespace CreateAR.EnkluPlayer
                 var inflight = true;
                 
                 // Send the request
-                _http.Get<string>(url).OnSuccess(httpResponse =>
+                _http.Download(url).OnSuccess(httpResponse =>
                 {
                     Online = true;
-                    PingMs = Time.realtimeSinceStartup - startTime;
+                    PingMs = (Time.realtimeSinceStartup - startTime) * 1000;
                     _pingMetric.Value(PingMs);
                 }).OnFailure(exception =>
                 {
+                    Log.Warning(this, exception);
                     Online = false;
                 }).OnFinally(_ =>
                 {
@@ -154,6 +161,8 @@ namespace CreateAR.EnkluPlayer
                     yield return null;
                 }
             }
+            
+            Log.Info(this, "Ping stopped");
         }
     }
 }
