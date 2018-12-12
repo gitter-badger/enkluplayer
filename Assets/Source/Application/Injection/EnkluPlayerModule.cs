@@ -672,6 +672,8 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<MetricsJsInterface>().To<MetricsJsInterface>().ToSingleton();
                     binder.Bind<PhysicsJsInterface>().To<PhysicsJsInterface>().ToSingleton();
                     binder.Bind<TweenManagerJsApi>().To<TweenManagerJsApi>().ToSingleton();
+                    binder.Bind<EditJsApi>().To<EditJsApi>().ToSingleton();
+                    binder.Bind<TxnJsApi>().To<TxnJsApi>().ToSingleton();
                 }
             }
 
