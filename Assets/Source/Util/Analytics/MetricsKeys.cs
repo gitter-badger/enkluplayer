@@ -48,6 +48,11 @@
         public const string ANCHOR_STATE_UNLOCATEDRATIO = "WorldAnchor.State.UnlocatedRatio";
         public const string ANCHOR_STATE_LOCATEDRATIO = "WorldAnchor.State.LocatedRatio";
 
+        public static string ANCHOR_STATE_UNLOCATED_NAMED(string name)
+        {
+            return "WorldAnchor.State.Unlocated." + name.Replace(" ", "-");
+        }
+
         ///////////////////////////////////////////////////////////////////////
         /// Scripts
         ///////////////////////////////////////////////////////////////////////
