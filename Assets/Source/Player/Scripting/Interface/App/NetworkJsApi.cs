@@ -11,12 +11,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Underlying network management this wraps.
         /// </summary>
         private readonly AwsPingController _awsPingController;
-
-        /// <summary>
-        /// Api for Trellis connection.
-        /// </summary>
-        public readonly ConnectionJsApi connection;
-
+        
         /// <summary>
         /// Whether pings are being sent or not.
         /// </summary>
