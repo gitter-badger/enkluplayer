@@ -471,16 +471,6 @@ namespace CreateAR.EnkluPlayer
                 {
                     Messages_OnAutoExport(anchor);
                 }
-
-                // Ensure we're only subbing once
-                Anchor.OnLocated -= Anchor_OnLocatedChanged;
-                Anchor.OnUnlocated -= Anchor_OnLocatedChanged;
-                
-                Anchor.OnLocated += Anchor_OnLocatedChanged;
-                Anchor.OnUnlocated += Anchor_OnLocatedChanged;
-                
-                // Proc the event to push the current state
-                Anchor_OnLocatedChanged(Anchor);
             }
 
             if (null != Anchor)
@@ -1005,25 +995,6 @@ Errors: {3} / {0}",
             _txns
                 .Request(new ElementTxn(_sceneId).Update(_scan.Id, "srcUrl", url))
                 .OnFailure(ex => Log.Error(this, "Could not set url of scan element : {0}", ex));
-        }
-
-        /// <summary>
-        /// Called when an Anchor has either located or unlocated.
-        /// </summary>
-        /// <param name="anchor"></param>
-        private void Anchor_OnLocatedChanged(WorldAnchorWidget anchor)
-        {
-            var status = anchor.Status;
-            var name = anchor.Schema.Get<string>("name").Value;
-            switch (status)
-            {
-                case WorldAnchorWidget.WorldAnchorStatus.IsReadyLocated:
-                    _metrics.Value(MetricsKeys.ANCHOR_STATE_UNLOCATED_NAMED(name)).Value(1);
-                    break;
-                case WorldAnchorWidget.WorldAnchorStatus.IsReadyNotLocated:
-                    _metrics.Value(MetricsKeys.ANCHOR_STATE_UNLOCATED_NAMED(name)).Value(0);
-                    break;
-            }
         }
     }
 }
