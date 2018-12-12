@@ -103,7 +103,7 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 binder.Bind<HttpRequestCacher>().To<HttpRequestCacher>().ToSingleton();
-                binder.Bind<NetworkConnectivity>().To<NetworkConnectivity>().ToSingleton();
+                binder.Bind<AwsPingController>().To<AwsPingController>().ToSingleton();
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_WSA
@@ -689,7 +689,7 @@ namespace CreateAR.EnkluPlayer
                 
                 SystemJsApi.Initialize(
                     binder.GetInstance<IDeviceMetaProvider>(),
-                    binder.GetInstance<NetworkConnectivity>(),
+                    binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());
