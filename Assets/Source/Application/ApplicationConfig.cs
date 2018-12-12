@@ -834,6 +834,11 @@ namespace CreateAR.EnkluPlayer
         public string ApplicationKey;
 
         /// <summary>
+        /// Metrics data configuration.
+        /// </summary>
+        public MetricsDataConfig MetricsDataConfig = new MetricsDataConfig();
+
+        /// <summary>
         /// Overrides settings.
         /// </summary>
         /// <param name="config">The config.</param>
@@ -855,6 +860,54 @@ namespace CreateAR.EnkluPlayer
             {
                 Targets = config.Targets;
             }
+
+            if (config.MetricsDataConfig != null)
+            {
+                MetricsDataConfig.Override(config.MetricsDataConfig);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Configuratino for various metrics datapoints
+    /// </summary>
+    public class MetricsDataConfig
+    {
+        /// <summary>
+        /// Whether datapoints should be uploaded or not.
+        /// </summary>
+        public bool Enabled = true;
+        
+        /// <summary>
+        /// The interval when datapoints will update.
+        /// </summary>
+        public int Interval = 30;
+        
+        /// <summary>
+        /// Battery level tracked.
+        /// </summary>
+        public bool Battery = true;
+
+        /// <summary>
+        /// Session duration tracked.
+        /// </summary>
+        public bool SessionDuration = true;
+
+        /// <summary>
+        /// Overrides the configuration.
+        /// </summary>
+        /// <param name="other"></param>
+        public void Override(MetricsDataConfig other)
+        {
+            Enabled = other.Enabled;
+
+            if (other.Interval > 0)
+            {
+                Interval = other.Interval;
+            }
+
+            Battery = other.Battery;
+            SessionDuration = other.SessionDuration;
         }
     }
 

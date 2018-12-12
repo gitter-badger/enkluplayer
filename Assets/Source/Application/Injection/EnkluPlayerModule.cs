@@ -208,6 +208,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<ElementActionHelperService>().To<ElementActionHelperService>().ToSingleton();
                     binder.Bind<UserPreferenceService>().To<UserPreferenceService>().ToSingleton();
                     binder.Bind<VersioningService>().To<VersioningService>().ToSingleton();
+                    binder.Bind<MetricsUpdateService>().To<MetricsUpdateService>().ToSingleton();
 
 #if NETFX_CORE
                     binder.Bind<CommandService>().To<UwpCommandService>().ToSingleton();
@@ -389,7 +390,8 @@ namespace CreateAR.EnkluPlayer
                         binder.GetInstance<UserPreferenceService>(),
                         binder.GetInstance<DeviceResourceUpdateService>(),
                         binder.GetInstance<ApplicationStateService>(),
-                        binder.GetInstance<CommandService>()
+                        binder.GetInstance<CommandService>(),
+                        binder.GetInstance<MetricsUpdateService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }

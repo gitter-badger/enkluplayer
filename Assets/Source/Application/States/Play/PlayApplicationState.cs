@@ -83,6 +83,11 @@ namespace CreateAR.EnkluPlayer
         private int _trackingId;
 
         /// <summary>
+        /// Whether the AR service has reported tracking loss or not.
+        /// </summary>
+        private bool _trackingLost;
+
+        /// <summary>
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
@@ -349,6 +354,13 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void Ar_OnTrackingOffline()
         {
+            // Guard against AR service reporting different, but still failing, states
+            if (_trackingLost)
+            {
+                return;
+            }
+            _trackingLost = true;
+            
             Log.Info(this, "Ar tracking lost!");
 
             _trackingId = _metrics.Timer(MetricsKeys.ANCHOR_TRACKING_LOST).Start();
@@ -364,6 +376,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void Ar_OnTrackingOnline()
         {
+            _trackingLost = false;
+            
             Log.Info(this, "Ar tracking back online.");
 
             _metrics.Timer(MetricsKeys.ANCHOR_TRACKING_LOST).Stop(_trackingId);
