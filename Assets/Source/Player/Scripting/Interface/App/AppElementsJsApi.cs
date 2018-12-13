@@ -7,8 +7,14 @@ namespace CreateAR.EnkluPlayer.Scripting
     /// <summary>
     /// Interface for an app's elements.
     /// </summary>
-    public class AppElementsJsApi
+    public class AppElementsJsApi : JsEventDispatcher
     {
+        /// <summary>
+        /// Event types.
+        /// </summary>
+        public const string EVENT_CREATED = "created";
+        public const string EVENT_DESTROYED = "destroyed";
+
         /// <summary>
         /// Caches js interfaces for elements.
         /// </summary>
@@ -35,6 +41,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             _cache = cache;
             _elementFactory = elementFactory;
             _elements = elements;
+
+            _elements.OnCreated += Elements_OnCreated;
+            _elements.OnDestroyed += Elements_OnDestroyed;
         }
 
         /// <summary>
@@ -109,6 +118,24 @@ namespace CreateAR.EnkluPlayer.Scripting
         public ElementJs byId(string id)
         {
             return _cache.Element(_elements.ById(id));
+        }
+
+        /// <summary>
+        /// Called when an element has been created.
+        /// </summary>
+        /// <param name="element"></param>
+        private void Elements_OnCreated(Element element)
+        {
+            Dispatch(EVENT_CREATED, _cache.Element(element));
+        }
+
+        /// <summary>
+        /// Called when element has been destroyed.
+        /// </summary>
+        /// <param name="element">The element in question.</param>
+        private void Elements_OnDestroyed(Element element)
+        {
+            Dispatch(EVENT_DESTROYED, _cache.Element(element));
         }
     }
 }
