@@ -1,4 +1,5 @@
-﻿using CreateAR.EnkluPlayer.IUX;
+﻿using CreateAR.Commons.Unity.Logging;
+using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -23,7 +24,12 @@ namespace CreateAR.EnkluPlayer
         public const string PROP_TEMPLATE_SHADOWRESOLUTION = "{0}.quality.shadowResolution";
         public const string PROP_TEMPLATE_SHADOWPROJECTION = "{0}.quality.shadowProjection";
         public const string PROP_TEMPLATE_BLENDWEIGHTS = "{0}.quality.blendWeights";
-        
+
+        /// <summary>
+        /// The config.
+        /// </summary>
+        private readonly ApplicationConfig _config;
+
         /// <summary>
         /// Props pulled from root element.
         /// </summary>
@@ -62,8 +68,10 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public AppQualityController()
+        public AppQualityController(ApplicationConfig config)
         {
+            _config = config;
+
             // save defaults
             _defaultTestureLimit = QualitySettings.masterTextureLimit;
             _defaultAniso = QualitySettings.anisotropicFiltering;
@@ -81,7 +89,9 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Setup(Element root)
         {
-            var platform = UnityEngine.Application.platform.ToString();
+            var platform = _config.ParsedPlatform.ToString();
+
+            Log.Error(this, "Listening for quality events for {0} platform.", platform);
 
             _textureLimitProp = root.Schema.GetOwn(string.Format(PROP_TEMPLATE_TEXTUREQUALITY, platform), _defaultTestureLimit);
             _textureLimitProp.OnChanged += TextureLimit_OnChanged;
@@ -163,6 +173,8 @@ namespace CreateAR.EnkluPlayer
             string prev,
             string next)
         {
+            Log.Info(this, "Updating blend weights.");
+
             QualitySettings.blendWeights = _blendWeightsProp.Value.ToEnum<BlendWeights>();
         }
 
@@ -177,6 +189,8 @@ namespace CreateAR.EnkluPlayer
             string prev,
             string next)
         {
+            Log.Info(this, "Updating shadow projection.");
+
             QualitySettings.shadowProjection = _shadowProjectionProp.Value.ToEnum<ShadowProjection>();
         }
 
@@ -191,6 +205,8 @@ namespace CreateAR.EnkluPlayer
             string prev,
             string next)
         {
+            Log.Info(this, "Updating shadow res.");
+
             QualitySettings.shadowResolution = _shadowResolutionProp.Value.ToEnum<ShadowResolution>();
         }
 
@@ -205,6 +221,8 @@ namespace CreateAR.EnkluPlayer
             string prev,
             string next)
         {
+            Log.Info(this, "Updating shadowmask.");
+
             QualitySettings.shadowmaskMode = _shadowMaskProp.Value.ToEnum<ShadowmaskMode>();
         }
 
@@ -219,6 +237,8 @@ namespace CreateAR.EnkluPlayer
             string prev,
             string next)
         {
+            Log.Info(this, "Updating shadows.");
+
             QualitySettings.shadows = _shadowQualityProp.Value.ToEnum<ShadowQuality>();
         }
 
@@ -233,6 +253,8 @@ namespace CreateAR.EnkluPlayer
             bool prev,
             bool next)
         {
+            Log.Info(this, "Updating billboards.");
+
             QualitySettings.billboardsFaceCameraPosition = _billboardsProp.Value;
         }
 
@@ -247,6 +269,8 @@ namespace CreateAR.EnkluPlayer
             bool prev,
             bool next)
         {
+            Log.Info(this, "Updating realtime reflection probes.");
+
             QualitySettings.realtimeReflectionProbes = _realtimeReflectionProbesProp.Value;
         }
 
@@ -261,6 +285,8 @@ namespace CreateAR.EnkluPlayer
             bool prev,
             bool next)
         {
+            Log.Info(this, "Updating soft particles.");
+
             QualitySettings.softParticles = _softParticlesProp.Value;
         }
 
@@ -275,6 +301,8 @@ namespace CreateAR.EnkluPlayer
             int prev,
             int next)
         {
+            Log.Info(this, "Updating AA.");
+
             QualitySettings.antiAliasing = _aaProp.Value;
         }
 
@@ -289,6 +317,8 @@ namespace CreateAR.EnkluPlayer
             string prev,
             string next)
         {
+            Log.Info(this, "Updating aniso.");
+
             QualitySettings.anisotropicFiltering = _anisoProp.Value.ToEnum<AnisotropicFiltering>();
         }
 
@@ -303,6 +333,8 @@ namespace CreateAR.EnkluPlayer
             int prev,
             int next)
         {
+            Log.Info(this, "Updating texture limit.");
+
             QualitySettings.masterTextureLimit = _textureLimitProp.Value;
         }
     }

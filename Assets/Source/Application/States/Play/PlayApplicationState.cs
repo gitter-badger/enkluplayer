@@ -251,14 +251,7 @@ namespace CreateAR.EnkluPlayer
             {
                 throw new Exception("Could not find PlayModeConfig.");
             }
-
-            // setup quality
-            var id = _app.Scenes.All.FirstOrDefault();
-            if (!string.IsNullOrEmpty(id))
-            {
-                _quality.Setup(_app.Scenes.Root(id));
-            }            
-
+            
             // initialize with app id
             _app.Play();
 
@@ -289,6 +282,11 @@ namespace CreateAR.EnkluPlayer
                     }, out hudId)
                     .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
             });
+        }
+
+        private void AppOnOnReady()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -391,6 +389,13 @@ namespace CreateAR.EnkluPlayer
         private void App_OnReady()
         {
             _ui.Close(_loadingScreenId);
+
+            // setup quality
+            var id = _app.Scenes.All.FirstOrDefault();
+            if (!string.IsNullOrEmpty(id))
+            {
+                _quality.Setup(_app.Scenes.Root(id));
+            }
         }
 
         /// <summary>
