@@ -48,7 +48,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Default values.
         /// </summary>
-        private readonly int _defaultTestureLimit;
+        private readonly int _defaultTextureLimit;
         private readonly AnisotropicFiltering _defaultAniso;
         private readonly BlendWeights _defaultBlendWeights;
         private readonly ShadowProjection _defaultShadowProjection;
@@ -73,7 +73,7 @@ namespace CreateAR.EnkluPlayer
             _config = config;
 
             // save defaults
-            _defaultTestureLimit = QualitySettings.masterTextureLimit;
+            _defaultTextureLimit = QualitySettings.masterTextureLimit;
             _defaultAniso = QualitySettings.anisotropicFiltering;
             _defaultAa = QualitySettings.antiAliasing;
             _defaultSoftParticles = QualitySettings.softParticles;
@@ -93,7 +93,7 @@ namespace CreateAR.EnkluPlayer
 
             Log.Error(this, "Listening for quality events for {0} platform.", platform);
 
-            _textureLimitProp = root.Schema.GetOwn(string.Format(PROP_TEMPLATE_TEXTUREQUALITY, platform), _defaultTestureLimit);
+            _textureLimitProp = root.Schema.GetOwn(string.Format(PROP_TEMPLATE_TEXTUREQUALITY, platform), _defaultTextureLimit);
             _textureLimitProp.OnChanged += TextureLimit_OnChanged;
             QualitySettings.masterTextureLimit = _textureLimitProp.Value;
 
