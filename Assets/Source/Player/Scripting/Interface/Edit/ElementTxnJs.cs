@@ -86,7 +86,11 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return this;
             }
 
-            var data = new ElementData(template);
+            var data = new ElementData(template)
+            {
+                Id = elementId
+            };
+            data.Schema.Strings["id"] = elementId;
             Txn.Create(parentId, data);
 
             return this;

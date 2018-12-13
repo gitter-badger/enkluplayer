@@ -227,6 +227,7 @@ namespace CreateAR.EnkluPlayer
             ElementActionData action,
             ElementActionUpdateRecord record)
         {
+            Log.Info(this, "ApplyActionToUpdateRecord");
             var element = _strategy.Element;
             if (element.Id != action.ElementId)
             {
@@ -234,6 +235,7 @@ namespace CreateAR.EnkluPlayer
 
                 if (null == element)
                 {
+                    Log.Info(this, "Could not find element.");
                     return false;
                 }
             }
