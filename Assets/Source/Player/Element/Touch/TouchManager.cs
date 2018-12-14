@@ -27,26 +27,32 @@ namespace CreateAR.EnkluPlayer
                 Delegate = @delegate;
             }
 
-            public void Start(uint pointerId)
+            public bool Start(uint pointerId)
             {
                 // already owned by another pointer
-                if (0 == HitPointer)
+                if (0 != HitPointer)
                 {
-                    return;
+                    return false;
                 }
 
                 HitPointer = pointerId;
                 IsHit = true;
+
+                return true;
             }
 
-            public void Stop(uint pointerId)
+            public bool Stop(uint pointerId)
             {
                 // only allow owning pointer to stop
                 if (HitPointer == pointerId)
                 {
                     IsHit = false;
                     HitPointer = 0;
+
+                    return true;
                 }
+
+                return false;
             }
         }
 
@@ -140,7 +146,11 @@ namespace CreateAR.EnkluPlayer
                     // stop all
                     for (int j = 0, jlen = _records.Count; j < jlen; j++)
                     {
-                        _records[j].Stop(pointer);
+                        var record = _records[j];
+                        if (record.Stop(pointer))
+                        {
+                            record.Delegate.TouchStopped(record.Element);
+                        }
                     }
                 }
 
@@ -184,15 +194,13 @@ namespace CreateAR.EnkluPlayer
                     {
                         record.Delegate.TouchDragged(record.Element, hit.point);
                     }
-                    else
+                    else if (record.Start(pointerId))
                     {
-                        record.Start(pointerId);
                         record.Delegate.TouchStarted(record.Element, hit.point);
                     }
                 }
-                else if (record.IsHit)
+                else if (record.IsHit && record.Stop(pointerId))
                 {
-                    record.Stop(pointerId);
                     record.Delegate.TouchStopped(record.Element);
                 }
             }
