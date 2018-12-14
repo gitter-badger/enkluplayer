@@ -506,6 +506,11 @@ namespace CreateAR.EnkluPlayer
         public PingConfig Ping = new PingConfig();
 
         /// <summary>
+        /// How long to wait before loading from disk. 0 - Off.
+        /// </summary>
+        public float DiskFallbackTime = 0;
+
+        /// <summary>
         /// Current environment we should connect to.
         /// </summary>
         public string Current;
@@ -632,6 +637,11 @@ namespace CreateAR.EnkluPlayer
             if (overrideConfig.Ping != null)
             {
                 Ping.Override(overrideConfig.Ping);
+            }
+
+            if (overrideConfig.DiskFallbackTime > 0)
+            {
+                DiskFallbackTime = overrideConfig.DiskFallbackTime;
             }
 
             Offline = overrideConfig.Offline;
