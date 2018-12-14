@@ -228,8 +228,7 @@ namespace CreateAR.EnkluPlayer
 
             // Setup primary behavior downloads
             _primaryLoadToken = Async.All(
-                    GetAssets(appId, behavior), 
-                    GetScripts(appId, behavior), 
+                    LoadPrerequisites(appId, HttpRequestCacher.LoadBehavior.DiskOnly), 
                     LoadScenes(appId, behavior))
                 .OnSuccess(_ => rtnToken.Succeed(Void.Instance))
                 .OnFailure(rtnToken.Fail)
@@ -268,8 +267,7 @@ namespace CreateAR.EnkluPlayer
             Log.Warning(this, "Timeout waiting for network content. Loading from disk.");
 
             Async.All(
-                    GetAssets(appId, HttpRequestCacher.LoadBehavior.DiskOnly),
-                    GetScripts(appId, HttpRequestCacher.LoadBehavior.DiskOnly),
+                    LoadPrerequisites(appId, HttpRequestCacher.LoadBehavior.DiskOnly),
                     LoadScenes(appId, HttpRequestCacher.LoadBehavior.DiskOnly))
                 .OnSuccess(_ => { rtnToken.Succeed(Void.Instance); })
                 .OnFailure(rtnToken.Fail)
@@ -285,6 +283,15 @@ namespace CreateAR.EnkluPlayer
             _assetToken = null;
             _scriptToken = null;
             _sceneToken = null;
+        }
+
+        private IAsyncToken<Void> LoadPrerequisites(string appId, HttpRequestCacher.LoadBehavior behavior)
+        {
+            return Async.Map(
+                Async.All(
+                    GetAssets(appId, behavior),
+                    GetScripts(appId, behavior)),
+                _ => Void.Instance);
         }
 
         /// <summary>
