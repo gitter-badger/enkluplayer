@@ -237,6 +237,7 @@ namespace CreateAR.EnkluPlayer
         private void Content_OnAssetLoaded(ContentWidget content)
         {
             var collider = content.Asset.AddComponent<MeshCollider>();
+            collider.convex = true;
             collider.isTrigger = true;
 
             var record = RecordForElement(content);
