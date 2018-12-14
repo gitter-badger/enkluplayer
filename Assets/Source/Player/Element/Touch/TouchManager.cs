@@ -142,6 +142,7 @@ namespace CreateAR.EnkluPlayer
                 for (var i = 0; i < removePointerLen; i++)
                 {
                     var pointer = _removedPointerIdQueue[i];
+                    _pointerIds.Remove(pointer);
 
                     // stop all
                     for (int j = 0, jlen = _records.Count; j < jlen; j++)
