@@ -266,9 +266,9 @@ namespace CreateAR.EnkluPlayer
             });
 
             // Set delay before giving up on the network load
-            if (_networkConfig.DiskFallbackTime > 0 && behavior == HttpRequestCacher.LoadBehavior.NetworkFirst)
+            if (_networkConfig.DiskFallbackSecs > float.Epsilon && behavior == HttpRequestCacher.LoadBehavior.NetworkFirst)
             {
-                _bootstrapper.BootstrapCoroutine(WaitForLoad(_networkConfig.DiskFallbackTime, appId, rtnToken));
+                _bootstrapper.BootstrapCoroutine(WaitForLoad(_networkConfig.DiskFallbackSecs, appId, rtnToken));
             }
             
             return rtnToken;

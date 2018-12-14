@@ -508,7 +508,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// How long to wait before loading from disk. 0 - Off.
         /// </summary>
-        public float DiskFallbackTime = 0;
+        public float DiskFallbackSecs = 0;
 
         /// <summary>
         /// Current environment we should connect to.
@@ -639,9 +639,9 @@ namespace CreateAR.EnkluPlayer
                 Ping.Override(overrideConfig.Ping);
             }
 
-            if (overrideConfig.DiskFallbackTime > 0)
+            if (overrideConfig.DiskFallbackSecs > float.Epsilon)
             {
-                DiskFallbackTime = overrideConfig.DiskFallbackTime;
+                DiskFallbackSecs = overrideConfig.DiskFallbackSecs;
             }
 
             Offline = overrideConfig.Offline;
