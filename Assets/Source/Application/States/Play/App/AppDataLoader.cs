@@ -304,8 +304,6 @@ namespace CreateAR.EnkluPlayer
                     () => _api.PublishedApps.GetPublishedApp(appId))
                 .OnSuccess(response =>
                 {
-                    Log.Warning(this, "response!");
-                    
                     Log.Info(this, "Retrieved scene list:");
                     for (var i = 0; i < response.Body.Scenes.Length; i++)
                     {
@@ -349,8 +347,6 @@ namespace CreateAR.EnkluPlayer
                     () => _api.PublishedApps.GetPublishedAssets(appId))
                 .OnSuccess(response =>
                 {
-                    Log.Warning(this, "response!");
-                    
                     var assets = response.Body.Assets.Select(ToAssetData).ToArray();
                     var @event = new AssetListEvent
                     {
@@ -384,8 +380,6 @@ namespace CreateAR.EnkluPlayer
                     () => _api.PublishedApps.GetPublishedAppScripts(appId))
                 .OnSuccess(response =>
                 {
-                    Log.Warning(this, "response!");
-                    
                     var scripts = response.Body.Select(ToScriptData).ToArray();
                     var @event = new ScriptListEvent
                     {
