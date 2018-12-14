@@ -91,7 +91,7 @@ namespace CreateAR.EnkluPlayer
         {
             var platform = GetPlatform();
 
-            Log.Error(this, "Listening for quality events for {0} platform.", platform);
+            Log.Info(this, "Listening for quality events for {0} platform.", platform);
 
             _textureLimitProp = root.Schema.GetOwn(string.Format(PROP_TEMPLATE_TEXTUREQUALITY, platform), _defaultTextureLimit);
             _textureLimitProp.OnChanged += TextureLimit_OnChanged;
