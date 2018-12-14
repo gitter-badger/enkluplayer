@@ -518,6 +518,7 @@ namespace CreateAR.EnkluPlayer
 #else
                 binder.Bind<IGestureManager>().To<PassthroughGestureManager>().ToSingleton();
 #endif
+                binder.Bind<ITouchManager>().To<TouchManager>().ToSingleton();
             }
 
             // Camera
@@ -674,6 +675,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<TweenManagerJsApi>().To<TweenManagerJsApi>().ToSingleton();
                     binder.Bind<EditJsApi>().To<EditJsApi>().ToSingleton();
                     binder.Bind<TxnJsApi>().To<TxnJsApi>().ToSingleton();
+                    binder.Bind<TouchManagerJsApi>().To<TouchManagerJsApi>().ToSingleton();
                 }
             }
 
@@ -682,7 +684,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
             }
 
-            // dependant on previous bindings
+            // dependent on previous bindings
             {
                 binder.Bind<IAdminAppDataManager>().To<AppDataManager>().ToSingleton();
 

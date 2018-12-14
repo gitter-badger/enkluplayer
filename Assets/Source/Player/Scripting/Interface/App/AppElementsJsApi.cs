@@ -126,7 +126,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="element"></param>
         private void Elements_OnCreated(Element element)
         {
-            Dispatch(EVENT_CREATED, _cache.Element(element));
+            dispatch(EVENT_CREATED, _cache.Element(element));
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="element">The element in question.</param>
         private void Elements_OnDestroyed(Element element)
         {
-            Dispatch(EVENT_DESTROYED, _cache.Element(element));
+            dispatch(EVENT_DESTROYED, _cache.Element(element));
         }
     }
 }

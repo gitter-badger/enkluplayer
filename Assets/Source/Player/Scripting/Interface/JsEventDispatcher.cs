@@ -63,6 +63,29 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
+        /// <inheritdoc />
+        public void dispatch(string eventType, object evt = null)
+        {
+            var list = EventList(eventType);
+            var count = list.Count;
+            if (0 == count)
+            {
+                return;
+            }
+
+            var copy = list.ToArray();
+            for (var i = 0; i < count; i++)
+            {
+                var record = copy[i];
+                
+                record.Handler(
+                    JsValue.FromObject(record.Engine, this),
+                    null == evt
+                        ? new JsValue[0]
+                        : new[] { JsValue.FromObject(record.Engine, evt) });
+            }
+        }
+
         /// <summary>
         /// Retrieves the list of event handlers for an event type.
         /// </summary>
@@ -77,33 +100,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             return list;
-        }
-
-        /// <summary>
-        /// Dispatches an event.
-        /// </summary>
-        /// <param name="eventType">The type of event.</param>
-        /// <param name="evt">The event.</param>
-        [DenyJsAccess]
-        protected void Dispatch(string eventType, object evt)
-        {
-            var list = EventList(eventType);
-            var count = list.Count;
-            if (0 == count)
-            {
-                return;
-            }
-
-            var copy = list.ToArray();
-            for (var i = 0; i < count; i++)
-            {
-                var record = copy[i];
-                var param = new[] { JsValue.FromObject(record.Engine, evt) };
-
-                record.Handler(
-                    JsValue.FromObject(record.Engine, this),
-                    param);
-            }
         }
     }
 }

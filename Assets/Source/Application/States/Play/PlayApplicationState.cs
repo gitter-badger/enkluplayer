@@ -41,6 +41,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IMetricsService _metrics;
         private readonly IAppQualityController _quality;
         private readonly ITweenManager _tweens;
+        private readonly ITouchManager _touches;
 
         /// <summary>
         /// Status.
@@ -104,7 +105,8 @@ namespace CreateAR.EnkluPlayer
             IAssetLoader assetLoader,
             IMetricsService metrics,
             IAppQualityController quality,
-            ITweenManager tweens)
+            ITweenManager tweens,
+            ITouchManager touches)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -120,6 +122,7 @@ namespace CreateAR.EnkluPlayer
             _metrics = metrics;
             _quality = quality;
             _tweens = tweens;
+            _touches = touches;
         }
 
         /// <inheritdoc />
@@ -178,6 +181,7 @@ namespace CreateAR.EnkluPlayer
         public void Update(float dt)
         {
             _tweens.Update(dt);
+            _touches.Update();
 
 #if !UNITY_WEBGL
             if (_config.Play.Edit)
@@ -282,11 +286,6 @@ namespace CreateAR.EnkluPlayer
                     }, out hudId)
                     .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
             });
-        }
-
-        private void AppOnOnReady()
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
