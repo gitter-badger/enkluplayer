@@ -285,6 +285,9 @@ namespace CreateAR.EnkluPlayer
             _sceneToken = null;
         }
 
+        /// <summary>
+        /// Loads prerequisites for an app.
+        /// </summary>
         private IAsyncToken<Void> LoadPrerequisites(string appId, HttpRequestCacher.LoadBehavior behavior)
         {
             return Async.Map(
