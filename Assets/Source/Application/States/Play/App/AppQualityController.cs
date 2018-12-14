@@ -89,7 +89,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public void Setup(Element root)
         {
-            var platform = _config.ParsedPlatform.ToString();
+            var platform = GetPlatform();
 
             Log.Error(this, "Listening for quality events for {0} platform.", platform);
 
@@ -336,6 +336,26 @@ namespace CreateAR.EnkluPlayer
             Log.Info(this, "Updating texture limit.");
 
             QualitySettings.masterTextureLimit = _textureLimitProp.Value;
+        }
+
+        /// <summary>
+        /// Retrieves the correct platform.
+        /// </summary>
+        /// <returns></returns>
+        private string GetPlatform()
+        {
+            var platform = _config.ParsedPlatform;
+
+            // make sure these return the same value
+#pragma warning disable 618
+            if (platform == RuntimePlatform.MetroPlayerX86
+                || platform == RuntimePlatform.WSAPlayerX86)
+#pragma warning restore 618
+            {
+                return "WSAPlayerX86";
+            }
+
+            return platform.ToString();
         }
     }
 }
