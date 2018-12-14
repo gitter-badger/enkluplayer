@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
 using UnityEngine;
@@ -23,23 +22,20 @@ namespace CreateAR.EnkluPlayer
         /// Underlying touch system.
         /// </summary>
         private readonly ITouchManager _touch;
-
-        /// <summary>
-        /// Registered JS elements.
-        ///
-        /// TODO: Use the script cache instead of managing a separate list that
-        /// TODO: can get out of sync.
-        /// </summary>
-        private readonly List<ElementJs> _registered = new List<ElementJs>();
+        private readonly IElementJsCache _cache;
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public TouchManagerJsApi(ITouchManager touch)
+        public TouchManagerJsApi(
+            ITouchManager touch,
+            IElementJsCache cache)
         {
             _touch = touch;
+            _cache = cache;
         }
 
+        /// <see cref="ITouchManager"/>
         public bool register(ElementJs element)
         {
             // pass to TouchManager
@@ -47,15 +43,11 @@ namespace CreateAR.EnkluPlayer
             {
                 return false;
             }
-
-            // TODO: listen for destroy so we can unregister
-
-            // add
-            _registered.Add(element);
-
+            
             return true;
         }
 
+        /// <see cref="ITouchManager"/>
         public bool unregister(ElementJs element)
         {
             // pass to TouchManager
@@ -63,14 +55,14 @@ namespace CreateAR.EnkluPlayer
             {
                 return false;
             }
-
-            _registered.Remove(element);
+            
             return true;
         }
 
+        /// <inheritdoc cref="ITouchDelegate"/>
         public void TouchStarted(Element element, Vector3 intersection)
         {
-            var elementJs = ElementJs(element);
+            var elementJs = _cache.Element(element);
             if (null == elementJs)
             {
                 Log.Warning(this, "Received a Touched message from unregistered Element {0}.", element);
@@ -80,9 +72,10 @@ namespace CreateAR.EnkluPlayer
             elementJs.dispatch(EVENT_TOUCH_STARTED, intersection);
         }
 
+        /// <inheritdoc cref="ITouchDelegate"/>
         public void TouchDragged(Element element, Vector3 intersection)
         {
-            var elementJs = ElementJs(element);
+            var elementJs = _cache.Element(element);
             if (null == elementJs)
             {
                 Log.Warning(this, "Received a Touched message from unregistered Element {0}.", element);
@@ -92,9 +85,10 @@ namespace CreateAR.EnkluPlayer
             elementJs.dispatch(EVENT_TOUCH_DRAGGED, intersection);
         }
 
+        /// <inheritdoc cref="ITouchDelegate"/>
         public void TouchStopped(Element element)
         {
-            var elementJs = ElementJs(element);
+            var elementJs = _cache.Element(element);
             if (null == elementJs)
             {
                 Log.Warning(this, "Received a Touched message from unregistered Element {0}.", element);
@@ -102,20 +96,6 @@ namespace CreateAR.EnkluPlayer
             }
 
             elementJs.dispatch(EVENT_TOUCH_STOPPED);
-        }
-
-        private ElementJs ElementJs(Element element)
-        {
-            for (int i = 0, len = _registered.Count; i < len; i++)
-            {
-                var elementJs = _registered[i];
-                if (elementJs.Element == element)
-                {
-                    return elementJs;
-                }
-            }
-
-            return null;
         }
     }
 }

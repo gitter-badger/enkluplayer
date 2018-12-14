@@ -11,22 +11,51 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class TouchManager : ITouchManager
     {
+        /// <summary>
+        /// Class for internal record-keeping.
+        /// </summary>
         private class TouchRecord
         {
-            public readonly Element Element;
-            public readonly ITouchDelegate Delegate;
+            /// <summary>
+            /// Element.
+            /// </summary>
+            public Element Element { get; private set; }
 
-            public Collider Collider;
-
+            /// <summary>
+            /// The object to push events to.
+            /// </summary>
+            public ITouchDelegate Delegate { get; private set; }
+            
+            /// <summary>
+            /// True iff the object is currently hit by an intersecting ray.
+            /// </summary>
             public bool IsHit { get; private set; }
+
+            /// <summary>
+            /// The id of the hit pointer.
+            /// </summary>
             public uint HitPointer { get; private set; }
 
+            /// <summary>
+            /// The collider.
+            /// </summary>
+            public Collider Collider { get; set; }
+
+            /// <summary>
+            /// Constructor.
+            /// </summary>
             public TouchRecord(Element element, ITouchDelegate @delegate)
             {
                 Element = element;
                 Delegate = @delegate;
             }
 
+            /// <summary>
+            /// Attempts to start a hit with a pointer id. Only one pointer can
+            /// own this at a time.
+            /// </summary>
+            /// <param name="pointerId">The id of the pointer.</param>
+            /// <returns></returns>
             public bool Start(uint pointerId)
             {
                 // already owned by another pointer
@@ -41,6 +70,12 @@ namespace CreateAR.EnkluPlayer
                 return true;
             }
 
+            /// <summary>
+            /// Attempts to stop a hit with a pointer id. Only the pointer that
+            /// successfully hit the element may stop the hit.
+            /// </summary>
+            /// <param name="pointerId">The id of the pointer.</param>
+            /// <returns></returns>
             public bool Stop(uint pointerId)
             {
                 // only allow owning pointer to stop
@@ -56,14 +91,41 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// All the objects currently watched.
+        /// </summary>
         private readonly List<TouchRecord> _records = new List<TouchRecord>();
+
+        /// <summary>
+        /// A queue of objects that will be removed at the beginning of next frame.
+        /// </summary>
         private readonly List<TouchRecord> _removeQueue = new List<TouchRecord>();
+
+        /// <summary>
+        /// Gesture API.
+        /// </summary>
         private readonly IGestureManager _gestures;
+
+        /// <summary>
+        /// Instead of using Camera.main (which may be the scene camera or null),
+        /// use the correct one.
+        /// </summary>
         private readonly MainCamera _camera;
 
-        private readonly List<uint> _removedPointerIdQueue = new List<uint>();
+        /// <summary>
+        /// All of the pointer ids that we are watching for gestures.
+        /// </summary>
         private readonly List<uint> _pointerIds = new List<uint>();
 
+        /// <summary>
+        /// A queue of pointers that have been removed since last frame. This
+        /// lets the system handle stop events.
+        /// </summary>
+        private readonly List<uint> _removedPointerIdQueue = new List<uint>();
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public TouchManager(
             IGestureManager gestures,
             MainCamera camera)
@@ -75,6 +137,7 @@ namespace CreateAR.EnkluPlayer
             _gestures.OnPointerEnded += Gestures_OnPointerEnded;
         }
 
+        /// <inheritdoc />
         public bool Register(Element element, ITouchDelegate @delegate)
         {
             var record = RecordForElement(element);
@@ -101,6 +164,7 @@ namespace CreateAR.EnkluPlayer
             return true;
         }
 
+        /// <inheritdoc />
         public bool Unregister(Element element)
         {
             var record = RecordForElement(element);
@@ -124,6 +188,7 @@ namespace CreateAR.EnkluPlayer
             return true;
         }
 
+        /// <inheritdoc />
         public void Update()
         {
             // remove queued removes
@@ -168,6 +233,10 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// Detects touches for a specific pointer id.
+        /// </summary>
+        /// <param name="pointerId">The pointer id.</param>
         private void DetectTouches(uint pointerId)
         {
             Vector3 position;
@@ -210,6 +279,11 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// Retrieves the internal record for a specific element.
+        /// </summary>
+        /// <param name="element">The element in question.</param>
+        /// <returns></returns>
         private TouchRecord RecordForElement(Element element)
         {
             for (int i = 0, len = _records.Count; i < len; i++)
@@ -224,43 +298,73 @@ namespace CreateAR.EnkluPlayer
             return null;
         }
 
+        /// <summary>
+        /// Sets up an element.
+        /// </summary>
+        /// <param name="element">The element.</param>
         private void SetupElement(Element element)
         {
             element.OnDestroyed += Element_OnDestroyed;
         }
 
+        /// <summary>
+        /// Tears down an element.
+        /// </summary>
+        /// <param name="element"></param>
         private void TeardownElement(Element element)
         {
             element.OnDestroyed -= Element_OnDestroyed;
         }
 
+        /// <summary>
+        /// Sets up content specifically.
+        /// </summary>
+        /// <param name="content">The content.</param>
         private void SetupContent(ContentWidget content)
         {
-            // listen for asset
             content.OnLoaded.OnSuccess(Content_OnAssetLoaded);
         }
 
+        /// <summary>
+        /// Tears down content listening.
+        /// </summary>
+        /// <param name="content">The content.</param>
         private void TeardownContent(ContentWidget content)
         {
-            // stop listening for asset
             content.OnLoaded.Remove(Content_OnAssetLoaded);
         }
 
+        /// <summary>
+        /// Called when an element has been destroyed.
+        /// </summary>
+        /// <param name="el">The element.</param>
         private void Element_OnDestroyed(Element el)
         {
             Unregister(el);
         }
 
+        /// <summary>
+        /// Called when a pointer gesture has been started.
+        /// </summary>
+        /// <param name="id">The id of the pointer.</param>
         private void Gestures_OnPointerStarted(uint id)
         {
             _pointerIds.Add(id);
         }
 
+        /// <summary>
+        /// Called when a pointer gesture has ended.
+        /// </summary>
+        /// <param name="id">The id of the pointer.</param>
         private void Gestures_OnPointerEnded(uint id)
         {
             _removedPointerIdQueue.Add(id);
         }
 
+        /// <summary>
+        /// Called when the asset has been loaded for an element.
+        /// </summary>
+        /// <param name="content">The content element.</param>
         private void Content_OnAssetLoaded(ContentWidget content)
         {
             var collider = content.Asset.AddComponent<MeshCollider>();
