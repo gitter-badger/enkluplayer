@@ -92,6 +92,7 @@ namespace CreateAR.EnkluPlayer
                 return false;
             }
 
+            SetupElement(element);
             SetupContent(content);
 
             // add
@@ -115,6 +116,8 @@ namespace CreateAR.EnkluPlayer
             {
                 TeardownContent(content);
             }
+
+            TeardownElement(element);
             
             _removeQueue.Add(record);
 
@@ -221,6 +224,16 @@ namespace CreateAR.EnkluPlayer
             return null;
         }
 
+        private void SetupElement(Element element)
+        {
+            element.OnDestroyed += Element_OnDestroyed;
+        }
+
+        private void TeardownElement(Element element)
+        {
+            element.OnDestroyed -= Element_OnDestroyed;
+        }
+
         private void SetupContent(ContentWidget content)
         {
             // listen for asset
@@ -231,6 +244,11 @@ namespace CreateAR.EnkluPlayer
         {
             // stop listening for asset
             content.OnLoaded.Remove(Content_OnAssetLoaded);
+        }
+
+        private void Element_OnDestroyed(Element el)
+        {
+            Unregister(el);
         }
 
         private void Gestures_OnPointerStarted(uint id)
