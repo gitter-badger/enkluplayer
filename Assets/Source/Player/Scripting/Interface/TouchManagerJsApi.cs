@@ -12,6 +12,22 @@ namespace CreateAR.EnkluPlayer
     public class TouchManagerJsApi : ITouchDelegate
     {
         /// <summary>
+        /// Info passed to js.
+        /// </summary>
+        public class HitInfoJs
+        {
+            /// <summary>
+            /// The position of the intersection.
+            /// </summary>
+            public Vector3 position;
+
+            /// <summary>
+            /// A vector normal to the surface at the point of intersection.
+            /// </summary>
+            public Vector3 normal;
+        }
+
+        /// <summary>
         /// Event names.
         /// </summary>
         public const string EVENT_TOUCH_STARTED = "touchstarted";
@@ -60,7 +76,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc cref="ITouchDelegate"/>
-        public void TouchStarted(Element element, Vector3 intersection)
+        public void TouchStarted(Element element, Vector3 intersection, Vector3 surfaceNormal)
         {
             var elementJs = _cache.Element(element);
             if (null == elementJs)
@@ -69,11 +85,15 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            elementJs.dispatch(EVENT_TOUCH_STARTED, intersection);
+            elementJs.dispatch(EVENT_TOUCH_STARTED, new HitInfoJs
+            {
+                position = intersection,
+                normal = surfaceNormal
+            });
         }
 
         /// <inheritdoc cref="ITouchDelegate"/>
-        public void TouchDragged(Element element, Vector3 intersection)
+        public void TouchDragged(Element element, Vector3 intersection, Vector3 surfaceNormal)
         {
             var elementJs = _cache.Element(element);
             if (null == elementJs)
@@ -82,7 +102,11 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            elementJs.dispatch(EVENT_TOUCH_DRAGGED, intersection);
+            elementJs.dispatch(EVENT_TOUCH_DRAGGED, new HitInfoJs
+            {
+                position = intersection,
+                normal = surfaceNormal
+            });
         }
 
         /// <inheritdoc cref="ITouchDelegate"/>

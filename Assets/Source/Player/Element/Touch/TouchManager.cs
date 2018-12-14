@@ -265,11 +265,11 @@ namespace CreateAR.EnkluPlayer
                 {
                     if (record.IsHit)
                     {
-                        record.Delegate.TouchDragged(record.Element, hit.point);
+                        record.Delegate.TouchDragged(record.Element, hit.point, hit.normal);
                     }
                     else if (record.Start(pointerId))
                     {
-                        record.Delegate.TouchStarted(record.Element, hit.point);
+                        record.Delegate.TouchStarted(record.Element, hit.point, hit.normal);
                     }
                 }
                 else if (record.IsHit && record.Stop(pointerId))
