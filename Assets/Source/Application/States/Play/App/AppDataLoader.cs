@@ -228,7 +228,7 @@ namespace CreateAR.EnkluPlayer
 
             // Setup primary behavior downloads
             _primaryLoadToken = Async.All(
-                    LoadPrerequisites(appId, HttpRequestCacher.LoadBehavior.DiskOnly), 
+                    LoadPrerequisites(appId, behavior), 
                     LoadScenes(appId, behavior))
                 .OnSuccess(_ => rtnToken.Succeed(Void.Instance))
                 .OnFailure(rtnToken.Fail)
