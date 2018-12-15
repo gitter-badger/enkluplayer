@@ -123,6 +123,9 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private readonly List<uint> _removedPointerIdQueue = new List<uint>();
 
+        /// <inheritdoc />
+        public Vec2 FingerOffset { get; set; }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -135,8 +138,10 @@ namespace CreateAR.EnkluPlayer
 
             _gestures.OnPointerStarted += Gestures_OnPointerStarted;
             _gestures.OnPointerEnded += Gestures_OnPointerEnded;
-        }
 
+            FingerOffset = new Vec2(0, 0.1f);
+        }
+        
         /// <inheritdoc />
         public bool Register(Element element, ITouchDelegate @delegate)
         {
@@ -244,16 +249,11 @@ namespace CreateAR.EnkluPlayer
             {
                 return;
             }
-            position += new Vector3(0, 0.1f, 0);
-            /*
-            Render.Renderer.Enabled = true;
-            Render.Renderer.Filter = "Touch";
-            Render.Handle("Touch").Draw(ctx =>
-            {
-                ctx.Color(Color.green);
-                ctx.Cube(position, 0.2f);
-            });
-            */
+
+            var cameraUp = _camera.transform.up;
+            var cameraRight = _camera.transform.right;
+            position += FingerOffset.x * cameraRight + FingerOffset.y * cameraUp;
+
             var cameraPosition = _camera.transform.position;
             var v = position - cameraPosition;
             var s = v.magnitude;
@@ -285,13 +285,29 @@ namespace CreateAR.EnkluPlayer
                 {
                     record.Delegate.TouchStopped(record.Element);
                 }
-                /*
-                Render.Handle("Touch").Draw(ctx =>
+            }
+
+            var handle = Render.Handle("Touch");
+            if (null != handle)
+            {
+                handle.Draw(ctx =>
                 {
-                    ctx.Color(isHit ? Color.red : Color.blue);
-                    ctx.Cube(collider.transform.position, collider.bounds.size.x);
+                    ctx.Color(Color.green);
+                    ctx.Cube(position, 0.05f);
+
+                    ctx.Color(Color.magenta);
+                    for (int i = 0, len = _records.Count; i < len; i++)
+                    {
+                        var record = _records[i];
+                        var collider = record.Collider;
+                        if (null == collider)
+                        {
+                            continue;
+                        }
+
+                        ctx.Prism(collider.bounds);
+                    }
                 });
-                */
             }
         }
 

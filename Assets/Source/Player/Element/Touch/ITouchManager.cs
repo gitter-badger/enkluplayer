@@ -8,6 +8,11 @@ namespace CreateAR.EnkluPlayer
     public interface ITouchManager
     {
         /// <summary>
+        /// Offset from pointer position.
+        /// </summary>
+        Vec2 FingerOffset { get; set; }
+
+        /// <summary>
         /// Registers an element for touch detection.
         /// </summary>
         /// <param name="element">The element.</param>

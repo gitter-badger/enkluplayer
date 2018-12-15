@@ -40,6 +40,13 @@ namespace CreateAR.EnkluPlayer
         private readonly ITouchManager _touch;
         private readonly IElementJsCache _cache;
 
+        /// <see cref="ITouchManager"/>
+        public Vec2 fingerOffset
+        {
+            get { return _touch.FingerOffset; }
+            set { _touch.FingerOffset = value; }
+        }
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -74,8 +81,9 @@ namespace CreateAR.EnkluPlayer
             
             return true;
         }
-
+        
         /// <inheritdoc cref="ITouchDelegate"/>
+        [DenyJsAccess]
         public void TouchStarted(Element element, Vector3 intersection, Vector3 surfaceNormal)
         {
             var elementJs = _cache.Element(element);
@@ -93,6 +101,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc cref="ITouchDelegate"/>
+        [DenyJsAccess]
         public void TouchDragged(Element element, Vector3 intersection, Vector3 surfaceNormal)
         {
             var elementJs = _cache.Element(element);
@@ -110,6 +119,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc cref="ITouchDelegate"/>
+        [DenyJsAccess]
         public void TouchStopped(Element element)
         {
             var elementJs = _cache.Element(element);
