@@ -155,11 +155,11 @@ namespace CreateAR.EnkluPlayer
                 return false;
             }
 
+            // add first
+            _records.Add(new TouchRecord(element, @delegate));
+            
             SetupElement(element);
             SetupContent(content);
-
-            // add
-            _records.Add(new TouchRecord(element, @delegate));
 
             return true;
         }
@@ -244,12 +244,21 @@ namespace CreateAR.EnkluPlayer
             {
                 return;
             }
-
+            position += new Vector3(0, 0.1f, 0);
+            /*
+            Render.Renderer.Enabled = true;
+            Render.Renderer.Filter = "Touch";
+            Render.Handle("Touch").Draw(ctx =>
+            {
+                ctx.Color(Color.green);
+                ctx.Cube(position, 0.2f);
+            });
+            */
             var cameraPosition = _camera.transform.position;
             var v = position - cameraPosition;
             var s = v.magnitude;
             var ray = new Ray(position, v.normalized);
-
+            
             for (int i = 0, len = _records.Count; i < len; i++)
             {
                 var record = _records[i];
@@ -258,7 +267,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     continue;
                 }
-
+                
                 RaycastHit hit;
                 var isHit = collider.Raycast(ray, out hit, s);
                 if (isHit)
@@ -276,6 +285,13 @@ namespace CreateAR.EnkluPlayer
                 {
                     record.Delegate.TouchStopped(record.Element);
                 }
+                /*
+                Render.Handle("Touch").Draw(ctx =>
+                {
+                    ctx.Color(isHit ? Color.red : Color.blue);
+                    ctx.Cube(collider.transform.position, collider.bounds.size.x);
+                });
+                */
             }
         }
 
@@ -349,6 +365,8 @@ namespace CreateAR.EnkluPlayer
         /// <param name="id">The id of the pointer.</param>
         private void Gestures_OnPointerStarted(uint id)
         {
+            Log.Info(this, "Adding pointer.");
+
             _pointerIds.Add(id);
         }
 
@@ -358,6 +376,8 @@ namespace CreateAR.EnkluPlayer
         /// <param name="id">The id of the pointer.</param>
         private void Gestures_OnPointerEnded(uint id)
         {
+            Log.Info(this, "Removing pointer.");
+
             _removedPointerIdQueue.Add(id);
         }
 
@@ -367,12 +387,19 @@ namespace CreateAR.EnkluPlayer
         /// <param name="content">The content element.</param>
         private void Content_OnAssetLoaded(ContentWidget content)
         {
+            var record = RecordForElement(content);
+            if (null == record)
+            {
+                Log.Error(this, "Somehow there is no record for loaded asset.");
+                return;
+            }
+
             var collider = content.Asset.AddComponent<MeshCollider>();
             collider.convex = true;
             collider.isTrigger = true;
-
-            var record = RecordForElement(content);
             record.Collider = collider;
+
+            Log.Info(this, "Added collider for {0}.", content.Id);
         }
     }
 }

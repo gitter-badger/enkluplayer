@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using Jint;
 using Jint.Native;
 
@@ -77,12 +78,19 @@ namespace CreateAR.EnkluPlayer.Scripting
             for (var i = 0; i < count; i++)
             {
                 var record = copy[i];
-                
-                record.Handler(
-                    JsValue.FromObject(record.Engine, this),
-                    null == evt
-                        ? new JsValue[0]
-                        : new[] { JsValue.FromObject(record.Engine, evt) });
+
+                try
+                {
+                    record.Handler(
+                        JsValue.FromObject(record.Engine, this),
+                        null == evt
+                            ? new JsValue[0]
+                            : new[] {JsValue.FromObject(record.Engine, evt)});
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(this, "Exception dispatching event {0} : {1}.", eventType, exception);
+                }
             }
         }
 

@@ -250,7 +250,14 @@ namespace CreateAR.EnkluPlayer.Scripting
             var list = _listeners[EVENT_POINTER_STARTED].ToArray();
             for (int i = 0, len = list.Length; i < len; i++)
             {
-                list[i](null, parameters);
+                try
+                {
+                    list[i](null, parameters);
+                }
+                catch (Exception exception)
+                {
+                    Log.Warning(this, "Error calling gesture callback : {0}.", exception);
+                }
             }
         }
 
@@ -265,7 +272,14 @@ namespace CreateAR.EnkluPlayer.Scripting
             var list = _listeners[EVENT_POINTER_ENDED].ToArray();
             for (int i = 0, len = list.Length; i < len; i++)
             {
-                list[i](null, parameters);
+                try
+                {
+                    list[i](null, parameters);
+                }
+                catch (Exception exception)
+                {
+                    Log.Warning(this, "Error calling gesture callback : {0}.", exception);
+                }
             }
         }
 
@@ -280,7 +294,14 @@ namespace CreateAR.EnkluPlayer.Scripting
             var list = _listeners[EVENT_POINTER_PRESSED].ToArray();
             for (int i = 0, len = list.Length; i < len; i++)
             {
-                list[i](null, parameters);
+                try
+                {
+                    list[i](null, parameters);
+                }
+                catch (Exception exception)
+                {
+                    Log.Warning(this, "Error calling gesture callback : {0}.", exception);
+                }
             }
         }
 
@@ -295,7 +316,14 @@ namespace CreateAR.EnkluPlayer.Scripting
             var list = _listeners[EVENT_POINTER_RELEASED].ToArray();
             for (int i = 0, len = list.Length; i < len; i++)
             {
-                list[i](null, parameters);
+                try
+                {
+                    list[i](null, parameters);
+                }
+                catch (Exception exception)
+                {
+                    Log.Warning(this, "Error calling gesture callback : {0}.", exception);
+                }
             }
         }
     }
