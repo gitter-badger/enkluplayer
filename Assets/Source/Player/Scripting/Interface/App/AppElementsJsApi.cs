@@ -71,7 +71,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 type,
                 id));
         }
-
+        
         /// <summary>
         /// Creates an element with an id.
         /// </summary>

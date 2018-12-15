@@ -63,7 +63,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     return false;
                 }
-
+                
                 HitPointer = pointerId;
                 IsHit = true;
 
@@ -286,7 +286,7 @@ namespace CreateAR.EnkluPlayer
                     record.Delegate.TouchStopped(record.Element);
                 }
             }
-
+            
             var handle = Render.Handle("Touch");
             if (null != handle)
             {
@@ -410,12 +410,21 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            var collider = content.Asset.AddComponent<MeshCollider>();
+            var collider = content.Asset.GetComponent<MeshCollider>();
+            if (null == collider)
+            {
+                collider = content.Asset.AddComponent<MeshCollider>();
+
+                Log.Info(this, "Added collider for {0}.", content.Id);
+            }
+            else
+            {
+                Log.Info(this, "Reusing collider for {0}.", content.Id);
+            }
+
             collider.convex = true;
             collider.isTrigger = true;
             record.Collider = collider;
-
-            Log.Info(this, "Added collider for {0}.", content.Id);
         }
     }
 }

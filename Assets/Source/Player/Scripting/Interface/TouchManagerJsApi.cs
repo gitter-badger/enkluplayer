@@ -93,6 +93,8 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
+            Log.Info(this, "Touch started.");
+
             elementJs.dispatch(EVENT_TOUCH_STARTED, new HitInfoJs
             {
                 position = intersection,
