@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.GetPublishedAssets;
+using UnityEngine;
 using Response = CreateAR.Trellis.Messages.GetPublishedScene.Response;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
@@ -16,7 +19,7 @@ namespace CreateAR.EnkluPlayer
 {
     /// <inheritdoc />
     public class AppDataLoader : IAppDataLoader
-    {
+    {        
         /// <summary>
         /// Json.
         /// </summary>
@@ -53,9 +56,22 @@ namespace CreateAR.EnkluPlayer
         private readonly HttpRequestCacher _helper;
 
         /// <summary>
-        /// Play mode configuration.
+        /// Network config.
         /// </summary>
-        private PlayAppConfig _config;
+        private readonly NetworkConfig _networkConfig;
+
+        /// <summary>
+        /// IBootstapper.
+        /// </summary>
+        private readonly IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Tokens used by the initial load behavior.
+        /// </summary>
+        private IAsyncToken<Trellis.Messages.GetPublishedAssets.Response> _assetToken;
+        private IAsyncToken<Trellis.Messages.GetPublishedAppScripts.Response> _scriptToken;
+        private IAsyncToken<Trellis.Messages.GetPublishedApp.Response> _sceneToken;
+        private IAsyncToken<Void[]> _primaryLoadToken;
 
         /// <inheritdoc />
         public string Name { get; private set; }
@@ -78,12 +94,16 @@ namespace CreateAR.EnkluPlayer
             ApiController api,
             HttpRequestCacher cache,
             UserPreferenceService prefs,
-            IMessageRouter messages)
+            IMessageRouter messages,
+            IBootstrapper bootstrapper,
+            NetworkConfig networkConfig)
         {
             _api = api;
             _helper = cache;
             _prefs = prefs;
             _messages = messages;
+            _bootstrapper = bootstrapper;
+            _networkConfig = networkConfig;
         }
 
         /// <inheritdoc />
@@ -204,11 +224,65 @@ namespace CreateAR.EnkluPlayer
             string appId,
             HttpRequestCacher.LoadBehavior behavior)
         {
-            return Async.Map(
-                Async.All(
-                    LoadPrerequisites(appId, behavior),
-                    LoadScenes(appId, behavior)),
-                _ => Void.Instance);
+            var rtnToken = new AsyncToken<Void>();
+
+            // Setup primary behavior downloads
+            _primaryLoadToken = Async.All(
+                    LoadPrerequisites(appId, behavior), 
+                    LoadScenes(appId, behavior))
+                .OnSuccess(_ => rtnToken.Succeed(Void.Instance))
+                .OnFailure(rtnToken.Fail)
+                .OnFinally(_ => InvalidateTokens());
+            
+            // Set delay before giving up on the network load
+            if (_networkConfig.DiskFallbackSecs > float.Epsilon && behavior == HttpRequestCacher.LoadBehavior.NetworkFirst)
+            {
+                _bootstrapper.BootstrapCoroutine(WaitForLoad(_networkConfig.DiskFallbackSecs, appId, rtnToken));
+            }
+            
+            return rtnToken;
+        }
+
+        /// <summary>
+        /// Waits for a specified number of seconds before starting to load from disk.
+        /// </summary>
+        /// <param name="seconds"></param>
+        /// <param name="appId"></param>
+        /// <param name="rtnToken"></param>
+        /// <returns></returns>
+        private IEnumerator WaitForLoad(float seconds, string appId, AsyncToken<Void> rtnToken)
+        {
+            yield return new WaitForSeconds(seconds);
+
+            if (_primaryLoadToken == null)
+            {
+                // Primary download finished in time!
+                yield break;
+            }
+
+            // Abort existing tokens
+            _assetToken.Abort();
+            _scriptToken.Abort();
+            _sceneToken.Abort();
+            Log.Warning(this, "Timeout waiting for network content. Loading from disk.");
+
+            Async.All(
+                    LoadPrerequisites(appId, HttpRequestCacher.LoadBehavior.DiskOnly),
+                    LoadScenes(appId, HttpRequestCacher.LoadBehavior.DiskOnly))
+                .OnSuccess(_ => { rtnToken.Succeed(Void.Instance); })
+                .OnFailure(rtnToken.Fail)
+                .OnFinally(_ => InvalidateTokens());
+        }
+
+        /// <summary>
+        /// Nulls out the tokens used during loading.
+        /// </summary>
+        private void InvalidateTokens()
+        {
+            _primaryLoadToken = null;
+            _assetToken = null;
+            _scriptToken = null;
+            _sceneToken = null;
         }
 
         /// <summary>
@@ -233,7 +307,7 @@ namespace CreateAR.EnkluPlayer
             var token = new AsyncToken<Void>();
             
             // get app
-            _helper
+            _sceneToken = _helper
                 .Request(
                     behavior,
                     "appdata://" + appId + "/scenelist",
@@ -277,7 +351,7 @@ namespace CreateAR.EnkluPlayer
             var token = new AsyncToken<Void>();
             
             // load from network
-            _helper.Request(
+            _assetToken = _helper.Request(
                     behavior,
                     "appdata://" + appId + "/assets",
                     () => _api.PublishedApps.GetPublishedAssets(appId))
@@ -310,7 +384,7 @@ namespace CreateAR.EnkluPlayer
             var token = new AsyncToken<Void>();
 
             // load from network
-            _helper.Request(
+            _scriptToken = _helper.Request(
                     behavior,
                     "appdata://" + appId + "/scripts",
                     () => _api.PublishedApps.GetPublishedAppScripts(appId))

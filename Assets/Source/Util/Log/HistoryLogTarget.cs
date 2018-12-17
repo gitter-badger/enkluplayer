@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using CreateAR.Commons.Unity.Logging;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -11,6 +12,29 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class HistoryLogTarget : ILogTarget
     {
+        [Flags]
+        public enum LogDumpOptions
+        {
+            None = 0x0,
+            Reverse = 0x1
+        }
+
+        /// <summary>
+        /// Record of a log.
+        /// </summary>
+        private class LogRecord
+        {
+            /// <summary>
+            /// The log level.
+            /// </summary>
+            public LogLevel Level;
+
+            /// <summary>
+            /// The log.
+            /// </summary>
+            public string FormattedLog;
+        }
+
         /// <summary>
         /// Formats logs.
         /// </summary>
@@ -24,7 +48,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Ring buffer of logs.
         /// </summary>
-        private readonly string[] _logs;
+        private readonly LogRecord[] _logs;
 
         /// <summary>
         /// Index into log buffer.
@@ -43,26 +67,32 @@ namespace CreateAR.EnkluPlayer
         {
             _formatter = formatter;
             _size = maxLogs;
-            _logs = new string[_size];
+            _logs = new LogRecord[_size];
+
+            for (var i = 0; i < _size; i++)
+            {
+                _logs[i] = new LogRecord();
+            }
         }
 
         /// <inheritdoc />
         public void OnLog(LogLevel level, object caller, string message)
         {
-            if (level < Filter)
-            {
-                return;
-            }
+            // keep all logs
+            var record = _logs[_index % _size];
+            record.Level = level;
+            record.FormattedLog = _formatter.Format(level, caller, message);
 
-            _logs[_index % _size] = _formatter.Format(level, caller, message);
             _index += 1;
         }
 
         /// <summary>
         /// Generates a dump of logs.
         /// </summary>
+        /// <param name="length"></param>
+        /// <param name="formatter"></param>
         /// <returns></returns>
-        public string GenerateDump()
+        public string GenerateDump(LogDumpOptions options = LogDumpOptions.None)
         {
             // trivial case: no logs yet
             if (0 == _index)
@@ -72,13 +102,27 @@ namespace CreateAR.EnkluPlayer
 
             var builder = new StringBuilder();
 
-            var start = Math.Max(0, _index - _size);
-            var end = _index;
-            for (var i = start; i <= end; i++)
+            for (var i = Mathf.Max(0, _index - 1); i > Mathf.Max(0, _index - _size + 1); i--)
             {
                 var index = i % _size;
+                var record = _logs[index];
 
-                builder.AppendLine(_logs[index]);
+                // filter here
+                if (record.Level < Filter)
+                {
+                    continue;
+                }
+
+                // prepend
+                if ((options & LogDumpOptions.Reverse) == 0)
+                {
+                    builder.Insert(0, record.FormattedLog + "\n");
+                }
+                // append
+                else
+                {
+                    builder.AppendLine(record.FormattedLog);
+                }
             }
 
             return builder.ToString();

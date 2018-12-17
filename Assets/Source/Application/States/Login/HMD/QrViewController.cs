@@ -14,7 +14,7 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..img-qr")]
         public ImageWidget Qr { get; set; }
         [InjectElements("..caption-progress")]
-        public CaptionWidget Progress { get; set; }
+        public TextWidget Progress { get; set; }
         [InjectElements("..(@type==ButtonWidget)")]
         public ButtonWidget Btn { get; set; }
 

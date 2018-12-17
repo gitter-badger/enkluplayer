@@ -133,10 +133,10 @@ namespace CreateAR.EnkluPlayer.Util
         /// </summary>
         public FloatTween(ElementSchema schema, TweenData data)
             : base(schema, data)
-        {
+        {    
             _prop = schema.Get<float>(Data.Prop);
-            _originalValue = data.CustomFrom ? (float) data.From : _prop.Value;
-            _diff = (float) data.To - _originalValue;
+            _originalValue = data.CustomFrom ? Convert.ToSingle(data.From) : _prop.Value;
+            _diff = Convert.ToSingle(data.To) - _originalValue;
         }
 
         /// <inheritdoc />
