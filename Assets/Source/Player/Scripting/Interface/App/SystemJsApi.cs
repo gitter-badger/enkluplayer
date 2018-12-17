@@ -21,9 +21,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private static bool _initialized;
 
+        /// <summary>
+        /// Initializes the object with everything is needs.
+        /// </summary>
         public static void Initialize(
             IDeviceMetaProvider deviceMetaProvider,
-            NetworkConnectivity networkConnectivity,
+            AwsPingController awsPingController,
             IMessageRouter msgRouter,
             ApiController apiController,
             ApplicationConfig config)
@@ -35,7 +38,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             
             Instance.device = new DeviceJsApi(deviceMetaProvider);
             Instance.experiences = new ExperienceJsApi(msgRouter, apiController, config);
-            Instance.network = new NetworkJsApi(networkConnectivity);
+            Instance.network = new NetworkJsApi(awsPingController);
+            Instance.debugRendering = new DebugRenderingJsApi();
 
             _initialized = true;
         }
@@ -54,6 +58,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Provides API for networking.
         /// </summary>
         public NetworkJsApi network { get; private set; }
+
+        /// <summary>
+        /// Provides API for debug rendering.
+        /// </summary>
+        public DebugRenderingJsApi debugRendering { get; private set; }
 
         /// <summary>
         /// Recenters tracking.
