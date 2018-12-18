@@ -65,7 +65,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             
             _widgetRecords.Add(widget, new WidgetRecord()
             {
-                SetupState = SetupState.Parsing,
+                SetupState = SetupState.None,
                 Engine = CreateBehaviorHost(widget)
             });
 
@@ -247,8 +247,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             var len = ids.Length;
             Log.Info(this, "\tLoading {0} scripts.", len);
 
+            // Create scripts
             var scripts = _widgetRecords[widget].Scripts;
-            
             for (var i = 0; i < len; i++)
             {
                 var script = _scriptManager.Create(ids[i], ids[i], widget.Id);
@@ -261,21 +261,31 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
                 
                 scripts.Add(script);
-                // TODO: Use script.status
             }
 
+            // Hook callbacks
             var scriptTokens = new IAsyncToken<Void>[len];
-
             for (var i = 0; i < len; i++)
             {
                 var scriptToken = new AsyncToken<Void>();
                 scriptTokens[i] = scriptToken;
                 
                 var script = scripts[i];
-                script.OnLoadSuccess += (_) => scriptToken.Succeed(Void.Instance);
-                script.OnLoadFailure += (_) => scriptToken.Succeed(Void.Instance);
+
+                if (script.Status == EnkluScript.LoadStatus.IsLoading)
+                {
+                    script.OnLoadSuccess += (_) => scriptToken.Succeed(Void.Instance);
+                    script.OnLoadFailure += (_) => scriptToken.Succeed(Void.Instance);
+                }
+                else
+                {
+                    scriptToken.Succeed(Void.Instance);
+                }
+                
+                // TODO: Support script updating
 //                script.OnUpdated += Script_OnUpdated;
             }
+            
 
             return Async.All(scriptTokens);
         }
