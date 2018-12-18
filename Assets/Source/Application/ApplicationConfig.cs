@@ -1,11 +1,167 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// Composites configuration from many sources and provides a consistent <c>ApplicationConfig</c> object.
+    ///
+    /// NOTE: Calling code must guarantee thread safety guarantees.
+    /// </summary>
+    public static class ApplicationConfigCompositor
+    {
+        /// <summary>
+        /// URI to env prefs.
+        /// </summary>
+        private static readonly string ENV_URI = Path.Combine(
+            UnityEngine.Application.persistentDataPath,
+            "Config/env.prefs");
+
+        /// <summary>
+        /// Backing variable for property.
+        /// </summary>
+        private static ApplicationConfig _config;
+
+        /// <summary>
+        /// The composited config.
+        /// </summary>
+        public static ApplicationConfig Config
+        {
+            get
+            {
+                if (null == _config)
+                {
+                    _config = Load();
+                }
+
+                return _config;
+            }
+        }
+
+        /// <summary>
+        /// Overwrites a piece of the config. 
+        /// </summary>
+        /// <param name="env">Environment data.</param>
+        public static void Overwrite(EnvironmentData env)
+        {
+            // write to disk
+            try
+            {
+                var dir = Path.GetDirectoryName(ENV_URI);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                File.WriteAllText(ENV_URI, JsonConvert.SerializeObject(env));
+            }
+            catch (Exception ex)
+            {
+                Log.Error(env, "Could not write EnvironmentData to file : {0}", ex);
+            }
+
+            Apply(Config, env);
+        }
+
+        /// <summary>
+        /// Loads the config.
+        /// </summary>
+        /// <returns></returns>
+        private static ApplicationConfig Load()
+        {
+            // load base
+            var config = LoadConfig("ApplicationConfig");
+
+            // load platform specific config
+            var platform = LoadConfig(string.Format(
+                "ApplicationConfig.{0}",
+                UnityEngine.Application.platform));
+            if (null != platform)
+            {
+                config.Override(platform);
+            }
+
+            // load override
+            var overrideConfig = LoadConfig("ApplicationConfig.Override");
+            if (null != overrideConfig)
+            {
+                config.Override(overrideConfig);
+            }
+
+            // load custom overwrites
+            try
+            {
+                var text = File.ReadAllText(ENV_URI);
+                var env = JsonConvert.DeserializeObject<EnvironmentData>(text);
+
+                Apply(config, env);
+            }
+            catch
+            {
+                //
+            }
+
+            return config;
+        }
+
+        /// <summary>
+        /// Applies a piece of the config to the composited config.
+        /// </summary>
+        /// <param name="config">The config to apply to.</param>
+        /// <param name="env">The piece of data to apply.</param>
+        private static void Apply(ApplicationConfig config, EnvironmentData env)
+        {
+            // apply to config immediately
+            var network = config.Network;
+
+            var found = false;
+            var environments = network.AllEnvironments;
+            for (int i = 0, len = environments.Length; i < len; i++)
+            {
+                if (environments[i].Name == env.Name)
+                {
+                    found = true;
+                    environments[i] = env;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                network.AllEnvironments = network.AllEnvironments.Add(env);
+            }
+
+            network.Current = env.Name;
+        }
+
+        /// <summary>
+        /// Loads a config at a path.
+        /// </summary>
+        /// <param name="path">The path to load the config from.</param>
+        /// <returns></returns>
+        private static ApplicationConfig LoadConfig(string path)
+        {
+            var configAsset = Resources.Load<TextAsset>(path);
+            if (null == configAsset)
+            {
+                return null;
+            }
+
+            var serializer = new JsonSerializer();
+            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
+            object app;
+            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
+
+            return (ApplicationConfig)app;
+        }
+    }
+
     /// <summary>
     /// Application wide configuration.
     /// </summary>
@@ -130,6 +286,12 @@ namespace CreateAR.EnkluPlayer
         public void Override(ApplicationConfig overrideConfig)
         {
             // TODO: Override at JSON level instead of here.
+
+            if (!string.IsNullOrEmpty(overrideConfig.Version))
+            {
+                Version = overrideConfig.Version;
+            }
+
             if (!string.IsNullOrEmpty(overrideConfig.Platform))
             {
                 Platform = overrideConfig.Platform;
@@ -339,6 +501,16 @@ namespace CreateAR.EnkluPlayer
         public string ApiVersion = "0.0.0";
 
         /// <summary>
+        /// The PingConfig to use.
+        /// </summary>
+        public PingConfig Ping = new PingConfig();
+
+        /// <summary>
+        /// How long to wait before loading from disk. 0 - Off.
+        /// </summary>
+        public float DiskFallbackSecs = 0;
+
+        /// <summary>
         /// Current environment we should connect to.
         /// </summary>
         public string Current;
@@ -462,6 +634,16 @@ namespace CreateAR.EnkluPlayer
                 ApiVersion = overrideConfig.ApiVersion;
             }
 
+            if (overrideConfig.Ping != null)
+            {
+                Ping.Override(overrideConfig.Ping);
+            }
+
+            if (overrideConfig.DiskFallbackSecs > float.Epsilon)
+            {
+                DiskFallbackSecs = overrideConfig.DiskFallbackSecs;
+            }
+
             Offline = overrideConfig.Offline;
 
             // combine arrays
@@ -581,6 +763,46 @@ namespace CreateAR.EnkluPlayer
             http.Headers["Authorization"] = string.Format("Bearer {0}", Token);
         }
     }
+    
+    /// <summary>
+    /// Configuration for pinging AWS.
+    /// </summary>
+    public class PingConfig
+    {
+        /// <summary>
+        /// Whether pings should be sent or not.
+        /// </summary>
+        public bool Enabled = true;
+        
+        /// <summary>
+        /// The interval to send pings, measured in ms.
+        /// </summary>
+        public int Interval = 30;
+        
+        /// <summary>
+        /// The AWS region to send pings to.
+        /// </summary>
+        public string Region = "us-west-2";
+
+        /// <summary>
+        /// Updates this PingConfig with values from another PingConfig.
+        /// </summary>
+        /// <param name="other"></param>
+        public void Override(PingConfig other)
+        {
+            Enabled = other.Enabled;
+            
+            if (other.Interval != 0)
+            {
+                Interval = other.Interval;
+            }
+
+            if (!string.IsNullOrEmpty(other.Region))
+            {
+                Region = other.Region;
+            }
+        }
+    }
 
     /// <summary>
     /// Conductor-related configuration.
@@ -628,6 +850,11 @@ namespace CreateAR.EnkluPlayer
         public string ApplicationKey;
 
         /// <summary>
+        /// Metrics data configuration.
+        /// </summary>
+        public MetricsDataConfig MetricsDataConfig = new MetricsDataConfig();
+
+        /// <summary>
         /// Overrides settings.
         /// </summary>
         /// <param name="config">The config.</param>
@@ -649,6 +876,54 @@ namespace CreateAR.EnkluPlayer
             {
                 Targets = config.Targets;
             }
+
+            if (config.MetricsDataConfig != null)
+            {
+                MetricsDataConfig.Override(config.MetricsDataConfig);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Configuratino for various metrics datapoints
+    /// </summary>
+    public class MetricsDataConfig
+    {
+        /// <summary>
+        /// Whether datapoints should be uploaded or not.
+        /// </summary>
+        public bool Enabled = true;
+        
+        /// <summary>
+        /// The interval when datapoints will update.
+        /// </summary>
+        public int Interval = 30;
+        
+        /// <summary>
+        /// Battery level tracked.
+        /// </summary>
+        public bool Battery = true;
+
+        /// <summary>
+        /// Session duration tracked.
+        /// </summary>
+        public bool SessionDuration = true;
+
+        /// <summary>
+        /// Overrides the configuration.
+        /// </summary>
+        /// <param name="other"></param>
+        public void Override(MetricsDataConfig other)
+        {
+            Enabled = other.Enabled;
+
+            if (other.Interval > 0)
+            {
+                Interval = other.Interval;
+            }
+
+            Battery = other.Battery;
+            SessionDuration = other.SessionDuration;
         }
     }
 

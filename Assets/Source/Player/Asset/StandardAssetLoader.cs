@@ -222,7 +222,7 @@ namespace CreateAR.EnkluPlayer.Assets
                     // record metrics
                     _metrics.Timer(MetricsKeys.ASSET_DL_QUEUE).Stop(next.Timer);
 
-                    Log.Info(this, "Starting next load.");
+                    Log.Info(this, "Starting next load : {0}", next.Data.AssetName);
 
                     var timer = _metrics.Timer(MetricsKeys.ASSET_DL_LOADING);
                     var timerId = timer.Start();

@@ -31,34 +31,9 @@ def platform = 'WebGLPlayer'
 def buildDir = './Builds'
 def outputDir = "$buildDir/$platform"
 
-// archives build
-task archive(type:Zip) {
-    from("$outputDir") {
-        include '**/*'
-    }
-
-    archiveName getArchiveFileName(platform)
-    destinationDir file(buildDir)
-}
-
-// sets the artifacts for upload
-artifacts {
-    archives file("${buildDir}/${getArchiveFileName(platform)}")
-}
-
-// uploads archives
-uploadArchives() {
-    repositories {
-        mavenDeployer {
-            repository(url: nexusUrl + '/maven-releases') {
-                authentication(userName: nexusUsername, password: nexusPassword)
-            }
-
-            pom.version = getArtifactVersion(platform)
-            pom.artifactId = getArtifactName(platform)
-        }
-    }
-}
+///////////////////////////////////////////////////////////////////////////////
+// Build
+///////////////////////////////////////////////////////////////////////////////
 
 // webgl
 task runTests(type:com.createar.plugins.unity.UnityUnitTestTask) {
@@ -92,3 +67,37 @@ task runBuild() {
     }
 }
 runBuild.dependsOn = [runCsc]
+
+///////////////////////////////////////////////////////////////////////////////
+// Archive
+///////////////////////////////////////////////////////////////////////////////
+
+// archives build
+task archive(type:Zip) {
+    from("$outputDir") {
+        include '**/*'
+    }
+
+    archiveName getArchiveFileName(platform)
+    destinationDir file(buildDir)
+}
+
+// sets the artifacts for upload
+artifacts {
+    archives file("${buildDir}/${getArchiveFileName(platform)}")
+}
+
+// uploads archives
+uploadArchives() {
+    repositories {
+        mavenDeployer {
+            repository(url: nexusUrl + '/maven-releases') {
+                authentication(userName: nexusUsername, password: nexusPassword)
+            }
+
+            pom.version = getArtifactVersion(platform)
+            pom.artifactId = getArtifactName(platform)
+        }
+    }
+}
+uploadArchives.dependsOn = [archive]

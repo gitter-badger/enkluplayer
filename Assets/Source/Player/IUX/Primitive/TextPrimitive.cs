@@ -183,12 +183,21 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <summary>
-        /// Sets overflow method.
+        /// Sets horizontal overflow method.
         /// </summary>
-        public HorizontalWrapMode Overflow
+        public HorizontalWrapMode HorizontalOverflow
         {
             get { return _renderer.Text.horizontalOverflow; }
             set { _renderer.Text.horizontalOverflow = value; }
+        }
+
+        /// <summary>
+        /// Sets vertical overflow method.
+        /// </summary>
+        public VerticalWrapMode VerticalOverflow
+        {
+            get { return _renderer.Text.verticalOverflow; }
+            set { _renderer.Text.verticalOverflow = value; }
         }
 
         /// <summary>
@@ -198,6 +207,15 @@ namespace CreateAR.EnkluPlayer.IUX
         {
             get { return _renderer.Alignment; }
             set { _renderer.Alignment = value; }
+        }
+
+        /// <summary>
+        /// Line spacing.
+        /// </summary>
+        public float LineSpacing
+        {
+            get { return _renderer.LineSpacing; }
+            set { _renderer.LineSpacing = value; }
         }
 
         /// <summary>

@@ -46,7 +46,7 @@ namespace CreateAR.EnkluPlayer
             binder.Bind<IMessageRouter>().To<MessageRouter>().ToSingleton();
 
             // load configuration
-            var config = LoadConfig();
+            var config = ApplicationConfigCompositor.Config;
             binder.Bind<ApplicationConfig>().ToValue(config);
             binder.Bind<NetworkConfig>().ToValue(config.Network);
 
@@ -103,6 +103,7 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 binder.Bind<HttpRequestCacher>().To<HttpRequestCacher>().ToSingleton();
+                binder.Bind<AwsPingController>().To<AwsPingController>().ToSingleton();
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_WSA
@@ -207,6 +208,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<ElementActionHelperService>().To<ElementActionHelperService>().ToSingleton();
                     binder.Bind<UserPreferenceService>().To<UserPreferenceService>().ToSingleton();
                     binder.Bind<VersioningService>().To<VersioningService>().ToSingleton();
+                    binder.Bind<MetricsUpdateService>().To<MetricsUpdateService>().ToSingleton();
 
 #if NETFX_CORE
                     binder.Bind<CommandService>().To<UwpCommandService>().ToSingleton();
@@ -388,7 +390,8 @@ namespace CreateAR.EnkluPlayer
                         binder.GetInstance<UserPreferenceService>(),
                         binder.GetInstance<DeviceResourceUpdateService>(),
                         binder.GetInstance<ApplicationStateService>(),
-                        binder.GetInstance<CommandService>()
+                        binder.GetInstance<CommandService>(),
+                        binder.GetInstance<MetricsUpdateService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }
@@ -424,7 +427,7 @@ namespace CreateAR.EnkluPlayer
                     "Application.log"))
             {
                 // warning and up
-                Filter = LogLevel.Warning
+                Filter = LogLevel.Debug
             });
 #endif // UNITY_WEBGL
 
@@ -443,57 +446,6 @@ namespace CreateAR.EnkluPlayer
                     Filter = LogLevel.Error
                 });
             }
-        }
-
-        /// <summary>
-        /// Loads application config.
-        /// </summary>
-        /// <returns></returns>
-        private ApplicationConfig LoadConfig()
-        {
-            // TODO: override at JSON level instead.
-
-            // load base
-            var config = Config("ApplicationConfig");
-
-            // load platform specific config
-            var platform = Config(string.Format(
-                "ApplicationConfig.{0}",
-                UnityEngine.Application.platform));
-            if (null != platform)
-            {
-                config.Override(platform);
-            }
-
-            // load override
-            var overrideConfig = Config("ApplicationConfig.Override");
-            if (null != overrideConfig)
-            {
-                config.Override(overrideConfig);
-            }
-
-            return config;
-        }
-
-        /// <summary>
-        /// Loads a config at a path.
-        /// </summary>
-        /// <param name="path">The path to load the config from.</param>
-        /// <returns></returns>
-        private ApplicationConfig Config(string path)
-        {
-            var configAsset = Resources.Load<TextAsset>(path);
-            if (null == configAsset)
-            {
-                return null;
-            }
-
-            var serializer = new JsonSerializer();
-            var bytes = Encoding.UTF8.GetBytes(configAsset.text);
-            object app;
-            serializer.Deserialize(typeof(ApplicationConfig), ref bytes, out app);
-
-            return (ApplicationConfig) app;
         }
 
         /// <summary>
@@ -566,6 +518,7 @@ namespace CreateAR.EnkluPlayer
 #else
                 binder.Bind<IGestureManager>().To<PassthroughGestureManager>().ToSingleton();
 #endif
+                binder.Bind<ITouchManager>().To<TouchManager>().ToSingleton();
             }
 
             // Camera
@@ -707,7 +660,6 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
                 binder.Bind<PlayerJs>().ToValue(LookupComponent<PlayerJs>());
-                SystemJsApi.DeviceMetaProvider = binder.GetInstance<IDeviceMetaProvider>();
 
                 // scripting interfaces
                 {
@@ -721,6 +673,9 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<MetricsJsInterface>().To<MetricsJsInterface>().ToSingleton();
                     binder.Bind<PhysicsJsInterface>().To<PhysicsJsInterface>().ToSingleton();
                     binder.Bind<TweenManagerJsApi>().To<TweenManagerJsApi>().ToSingleton();
+                    binder.Bind<EditJsApi>().To<EditJsApi>().ToSingleton();
+                    binder.Bind<TxnJsApi>().To<TxnJsApi>().ToSingleton();
+                    binder.Bind<TouchManagerJsApi>().To<TouchManagerJsApi>().ToSingleton();
                 }
             }
 
@@ -729,12 +684,19 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
             }
 
-            // dependant on previous bindings
+            // dependent on previous bindings
             {
                 binder.Bind<IAdminAppDataManager>().To<AppDataManager>().ToSingleton();
 
                 var appData = binder.GetInstance<IAdminAppDataManager>();
                 binder.Bind<IAppDataManager>().ToValue(appData);
+                
+                SystemJsApi.Initialize(
+                    binder.GetInstance<IDeviceMetaProvider>(),
+                    binder.GetInstance<AwsPingController>(),
+                    binder.GetInstance<IMessageRouter>(),
+                    binder.GetInstance<ApiController>(),
+                    binder.GetInstance<ApplicationConfig>());
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();

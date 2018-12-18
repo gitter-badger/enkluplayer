@@ -38,7 +38,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="buttonWidget">The button.</param>
         private void Button_OnActivated(ButtonWidget buttonWidget)
         {
-            Dispatch(EVENT_ACTIVATED, _cache.Element(buttonWidget));
+            dispatch(EVENT_ACTIVATED, _cache.Element(buttonWidget));
         }
     }
 }

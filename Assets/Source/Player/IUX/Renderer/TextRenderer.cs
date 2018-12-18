@@ -55,6 +55,15 @@ namespace CreateAR.EnkluPlayer.IUX
         }
 
         /// <summary>
+        /// Line spacing.
+        /// </summary>
+        public float LineSpacing
+        {
+            get { return Text.lineSpacing; }
+            set { Text.lineSpacing = value; }
+        }
+
+        /// <summary>
         /// Refreshes the alignment of the text renderer
         /// </summary>
         private void RefreshAlignment()
@@ -85,33 +94,33 @@ namespace CreateAR.EnkluPlayer.IUX
                 case TextAlignmentType.TopRight:
                 {
                     Text.rectTransform.pivot = new Vector2(1.0f, 0.0f);
-                    Text.alignment = TextAnchor.MiddleCenter;
+                    Text.alignment = TextAnchor.UpperRight;
                     break;
                 }
 
                 case TextAlignmentType.MidRight:
                 {
                     Text.rectTransform.pivot = new Vector2(1.0f, 0.5f);
-                    Text.alignment = TextAnchor.MiddleCenter;
+                    Text.alignment = TextAnchor.MiddleRight;
                     break;
                 }
 
                 case TextAlignmentType.BotRight:
                     Text.rectTransform.pivot = new Vector2(1.0f, 1.0f);
-                    Text.alignment = TextAnchor.MiddleCenter;
+                    Text.alignment = TextAnchor.LowerRight;
                     break;
 
                 case TextAlignmentType.BotCenter:
                 {
                     Text.rectTransform.pivot = new Vector2(0.5f, 1.0f);
-                    Text.alignment = TextAnchor.MiddleCenter;
+                    Text.alignment = TextAnchor.LowerCenter;
                     break;
                 }
 
                 case TextAlignmentType.BotLeft:
                 {
                     Text.rectTransform.pivot = new Vector2(0.0f, 1.0f);
-                    Text.alignment = TextAnchor.MiddleCenter;
+                    Text.alignment = TextAnchor.LowerLeft;
                     break;
                 }
 

@@ -234,6 +234,7 @@ namespace CreateAR.EnkluPlayer
 
                 if (null == element)
                 {
+                    Log.Warning(this, "Could not find element.");
                     return false;
                 }
             }

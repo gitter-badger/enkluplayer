@@ -114,3 +114,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 47d57b5f8cb1a124988065615ff6c8b6, type: 3}
   - Identifier: EnvSelection
     Source: {fileID: 4900000, guid: 6f7d9ed5634703246bb5d22206a71bd9, type: 3}
+  - Identifier: LoggingMenu
+    Source: {fileID: 4900000, guid: 8491c55de2581e2418a12c8e8c9609e2, type: 3}

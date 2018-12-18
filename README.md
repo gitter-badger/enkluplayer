@@ -26,6 +26,7 @@ To develop with Enklu Player, you will need a few prerequisites.
   * [Schema](docs/element.schema.md)
     * [Element Properties](docs/element.schema.properties.md)
   * [Widget](docs/element.widget.md)
+  * [Tweening](docs/tween.overview.md)
   * [Ideas](docs/element.ideas.md)
 * [Vine](docs/vine.overview.md)
   * [Controllers](docs/vine.controller.md)

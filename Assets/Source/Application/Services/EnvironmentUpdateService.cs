@@ -1,9 +1,7 @@
 ﻿using System;
-using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -13,11 +11,6 @@ namespace CreateAR.EnkluPlayer
     public class EnvironmentUpdateService : ApplicationService
     {
         /// <summary>
-        /// Environment URI.
-        /// </summary>
-        private const string ENV_URI = "config://env.prefs";
-
-        /// <summary>
         /// Application configuration.
         /// </summary>
         private readonly ApplicationConfig _config;
@@ -26,12 +19,7 @@ namespace CreateAR.EnkluPlayer
         /// Http service.
         /// </summary>
         private readonly IHttpService _http;
-
-        /// <summary>
-        /// Persistent data.
-        /// </summary>
-        private readonly IFileManager _files;
-
+        
         /// <summary>
         /// Unsubscribes from env updates.
         /// </summary>
@@ -43,16 +31,14 @@ namespace CreateAR.EnkluPlayer
         public EnvironmentUpdateService(
             ApplicationConfig config,
             MessageTypeBinder binder,
-            IFileManager files,
             IMessageRouter messages,
             IHttpService http)
             : base(binder, messages)
         {
             _config = config;
-            _files = files;
             _http = http;
         }
-
+        
         /// <inheritdoc />
         public override void Start()
         {
@@ -86,26 +72,6 @@ namespace CreateAR.EnkluPlayer
             base.Stop();
 
             _unsubEnvUpdates();
-        }
-
-        /// <summary>
-        /// Loads environment data.
-        /// </summary>
-        public IAsyncToken<Void> Load()
-        {
-            var token = new AsyncToken<Void>();
-
-            _files
-                .Get<EnvironmentData>(ENV_URI)
-                .OnSuccess(file =>
-                {
-                    Log.Info(this, "Found environment preference data.");
-
-                    RegisterUrlBuilders(file.Data);
-                })
-                .OnFinally(_ => token.Succeed(Void.Instance));
-
-            return token;
         }
 
         /// <summary>
@@ -171,12 +137,11 @@ namespace CreateAR.EnkluPlayer
         {
             var data = (EnvironmentData) obj;
 
+            // write environment data to disk
+            ApplicationConfigCompositor.Overwrite(data);
+            
+            // register new environment
             RegisterUrlBuilders(data);
-
-            _files
-                .Set(ENV_URI, data)
-                .OnSuccess(_ => Log.Info(this, "Successfully saved environment preferences."))
-                .OnFailure(ex => Log.Error(this, "Could not save environment preferences : {0}.", ex));
         }
     }
 }

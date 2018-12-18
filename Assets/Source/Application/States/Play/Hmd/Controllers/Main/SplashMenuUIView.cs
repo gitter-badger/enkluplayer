@@ -16,7 +16,7 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..btn-play")]
         public ButtonWidget BtnPlay { get; set; }
         [InjectElements("..txt-name")]
-        public CaptionWidget TxtName { get; set; }
+        public TextWidget TxtName { get; set; }
 
         /// <summary>
         /// Called when the main menu should be opened.

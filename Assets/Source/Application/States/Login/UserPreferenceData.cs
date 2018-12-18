@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer
+﻿using CreateAR.Commons.Unity.Logging;
+
+namespace CreateAR.EnkluPlayer
 {
     /// <summary>
     /// Data that associates the device and the org.
@@ -51,6 +53,11 @@
         /// App id of the most recently accessed app.
         /// </summary>
         public string MostRecentAppId;
+
+        /// <summary>
+        /// Log level to show in log hud.
+        /// </summary>
+        public LogLevel LogLevel = LogLevel.Error;
 
         /// <summary>
         /// All organizations this device is registered to.
