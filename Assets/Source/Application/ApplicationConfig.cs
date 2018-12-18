@@ -501,6 +501,16 @@ namespace CreateAR.EnkluPlayer
         public string ApiVersion = "0.0.0";
 
         /// <summary>
+        /// The PingConfig to use.
+        /// </summary>
+        public PingConfig Ping = new PingConfig();
+
+        /// <summary>
+        /// How long to wait before loading from disk. 0 - Off.
+        /// </summary>
+        public float DiskFallbackSecs = 0;
+
+        /// <summary>
         /// Current environment we should connect to.
         /// </summary>
         public string Current;
@@ -624,6 +634,16 @@ namespace CreateAR.EnkluPlayer
                 ApiVersion = overrideConfig.ApiVersion;
             }
 
+            if (overrideConfig.Ping != null)
+            {
+                Ping.Override(overrideConfig.Ping);
+            }
+
+            if (overrideConfig.DiskFallbackSecs > float.Epsilon)
+            {
+                DiskFallbackSecs = overrideConfig.DiskFallbackSecs;
+            }
+
             Offline = overrideConfig.Offline;
 
             // combine arrays
@@ -737,6 +757,46 @@ namespace CreateAR.EnkluPlayer
             http.Headers["Authorization"] = string.Format("Bearer {0}", Token);
         }
     }
+    
+    /// <summary>
+    /// Configuration for pinging AWS.
+    /// </summary>
+    public class PingConfig
+    {
+        /// <summary>
+        /// Whether pings should be sent or not.
+        /// </summary>
+        public bool Enabled = true;
+        
+        /// <summary>
+        /// The interval to send pings, measured in ms.
+        /// </summary>
+        public int Interval = 30;
+        
+        /// <summary>
+        /// The AWS region to send pings to.
+        /// </summary>
+        public string Region = "us-west-2";
+
+        /// <summary>
+        /// Updates this PingConfig with values from another PingConfig.
+        /// </summary>
+        /// <param name="other"></param>
+        public void Override(PingConfig other)
+        {
+            Enabled = other.Enabled;
+            
+            if (other.Interval != 0)
+            {
+                Interval = other.Interval;
+            }
+
+            if (!string.IsNullOrEmpty(other.Region))
+            {
+                Region = other.Region;
+            }
+        }
+    }
 
     /// <summary>
     /// Conductor-related configuration.
@@ -784,6 +844,11 @@ namespace CreateAR.EnkluPlayer
         public string ApplicationKey;
 
         /// <summary>
+        /// Metrics data configuration.
+        /// </summary>
+        public MetricsDataConfig MetricsDataConfig = new MetricsDataConfig();
+
+        /// <summary>
         /// Overrides settings.
         /// </summary>
         /// <param name="config">The config.</param>
@@ -805,6 +870,54 @@ namespace CreateAR.EnkluPlayer
             {
                 Targets = config.Targets;
             }
+
+            if (config.MetricsDataConfig != null)
+            {
+                MetricsDataConfig.Override(config.MetricsDataConfig);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Configuratino for various metrics datapoints
+    /// </summary>
+    public class MetricsDataConfig
+    {
+        /// <summary>
+        /// Whether datapoints should be uploaded or not.
+        /// </summary>
+        public bool Enabled = true;
+        
+        /// <summary>
+        /// The interval when datapoints will update.
+        /// </summary>
+        public int Interval = 30;
+        
+        /// <summary>
+        /// Battery level tracked.
+        /// </summary>
+        public bool Battery = true;
+
+        /// <summary>
+        /// Session duration tracked.
+        /// </summary>
+        public bool SessionDuration = true;
+
+        /// <summary>
+        /// Overrides the configuration.
+        /// </summary>
+        /// <param name="other"></param>
+        public void Override(MetricsDataConfig other)
+        {
+            Enabled = other.Enabled;
+
+            if (other.Interval > 0)
+            {
+                Interval = other.Interval;
+            }
+
+            Battery = other.Battery;
+            SessionDuration = other.SessionDuration;
         }
     }
 

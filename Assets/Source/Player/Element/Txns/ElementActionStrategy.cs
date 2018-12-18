@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
+using Newtonsoft.Json;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -61,7 +62,7 @@ namespace CreateAR.EnkluPlayer
                     action.Element
                 }
             });
-
+            
             parent.AddChild(element);
 
             error = string.Empty;

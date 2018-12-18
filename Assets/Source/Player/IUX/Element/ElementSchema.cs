@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace CreateAR.EnkluPlayer.IUX
@@ -461,6 +462,16 @@ namespace CreateAR.EnkluPlayer.IUX
             }
 
             return false;
+        }
+        
+        /// <summary>
+        /// Returns a ReadOnlyCollection of all props specific to this Element.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public ReadOnlyCollection<ElementSchemaProp> GetOwnProps()
+        {
+            return _props.AsReadOnly();
         }
 
         /// <summary>

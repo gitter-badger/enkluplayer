@@ -33,6 +33,7 @@ namespace CreateAR.EnkluPlayer
             // common apis
             SetValue("v", Vec3Methods.Instance);
             SetValue("vec3", new Func<float, float, float, Vec3>(Vec3Methods.create));
+            SetValue("vec2", new Func<float, float, Vec2>((x, y) => new Vec2(x, y)));
             SetValue("q", QuatMethods.Instance);
             SetValue("quat", new Func<float, float, float, float, Quat>(QuatMethods.create));
             SetValue("c", Col4Methods.Instance);

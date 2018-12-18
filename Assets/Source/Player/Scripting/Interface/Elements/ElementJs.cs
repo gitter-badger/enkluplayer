@@ -2,27 +2,14 @@
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
-using Jint;
-using Jint.Native;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// Js API for an element.
     /// </summary>
-    public class ElementJs : IEntityJs, IJsEventDispatcher
+    public class ElementJs : JsEventDispatcher, IEntityJs
     {
-        private class EventListenerRecord
-        {
-            public Engine Engine;
-            public Func<JsValue, JsValue[], JsValue> Handler;
-        }
-
-        /// <summary>
-        /// Used to track events.
-        /// </summary>
-        private readonly Dictionary<string, List<EventListenerRecord>> _events = new Dictionary<string, List<EventListenerRecord>>();
-        
         /// <summary>
         /// Scratch list for find.
         /// </summary>
@@ -238,39 +225,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             _scripts.Send(_element.Id, name, parameters);
         }
-
-        /// <inheritdoc />
-        public void on(Engine engine, string eventType, Func<JsValue, JsValue[], JsValue> fn)
-        {
-            EventList(eventType).Add(new EventListenerRecord
-            {
-                Engine = engine,
-                Handler = fn
-            });
-        }
-
-        /// <inheritdoc />
-        public void off(string eventType)
-        {
-            EventList(eventType).Clear();
-        }
-
-        /// <inheritdoc />
-        public void off(Engine engine, string eventType, Func<JsValue, JsValue[], JsValue> fn)
-        {
-            var list = EventList(eventType);
-            for (int i = 0, len = list.Count; i < len; i++)
-            {
-                var record = list[i];
-                if (record.Handler == fn)
-                {
-                    list.RemoveAt(i);
-
-                    break;
-                }
-            }
-        }
-
+        
         /// <summary>
         /// Returns the position of this ElementJs relative to another ElementJs. This value should not
         /// be cached as elements aren't guaranteed to sit under the same world anchor.
@@ -297,48 +252,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             return (thisAsWidget.GameObject.transform.position - otherAsWidget.GameObject.transform.position).ToVec();
         }
         
-        /// <summary>
-        /// Dispatches an event.
-        /// </summary>
-        /// <param name="eventType">The type of event.</param>
-        /// <param name="evt">The event.</param>
-        protected void Dispatch(string eventType, object evt)
-        {
-            var list = EventList(eventType);
-            var count = list.Count;
-            if (0 == count)
-            {
-                return;
-            }
-
-            var copy = list.ToArray();
-            for (var i = 0; i < count; i++)
-            {
-                var record = copy[i];
-                var param = new[] { JsValue.FromObject(record.Engine, evt) };
-
-                record.Handler(
-                    JsValue.FromObject(record.Engine, this),
-                    param);
-            }
-        }
-
-        /// <summary>
-        /// Retrieves the list of event handlers for an event type.
-        /// </summary>
-        /// <param name="eventType">The type.</param>
-        /// <returns></returns>
-        private List<EventListenerRecord> EventList(string eventType)
-        {
-            List<EventListenerRecord> list;
-            if (!_events.TryGetValue(eventType, out list))
-            {
-                list = _events[eventType] = new List<EventListenerRecord>();
-            }
-
-            return list;
-        }
-
         /// <summary>
         /// ToString implementation for ElementJs.
         /// </summary>
