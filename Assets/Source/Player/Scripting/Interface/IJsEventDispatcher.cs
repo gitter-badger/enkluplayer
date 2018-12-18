@@ -30,5 +30,12 @@ namespace CreateAR.EnkluPlayer
         /// <param name="type">The type.</param>
         /// <param name="fn">The handler.</param>
         void off(Engine engine, string type, Func<JsValue, JsValue[], JsValue> fn);
+
+        /// <summary>
+        /// Dispatches an event.
+        /// </summary>
+        /// <param name="eventType">The type of event.</param>
+        /// <param name="evt">The event.</param>
+        void dispatch(string eventType, object evt);
     }
 }
