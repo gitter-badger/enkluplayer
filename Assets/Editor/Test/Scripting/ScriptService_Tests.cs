@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
+using CreateAR.EnkluPlayer.Test.UI;
 using CreateAR.EnkluPlayer.Vine;
 using Jint.Parser;
 using Newtonsoft.Json;
@@ -20,10 +21,13 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         private TestScriptFactory _scriptFactory;
         private EnkluScript[] _behaviors = new EnkluScript[3];
         private EnkluScript[] _vines = new EnkluScript[3];
+
+        private IAppSceneManager _sceneManager;
         
         [SetUp]
         public void Setup()
         {
+            _sceneManager = new TestSceneManager();
             _scriptManager = new TestScriptManager();
             _scriptFactory = new TestScriptFactory();
             _elementManager = new TestElementManager();
@@ -33,7 +37,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 _scriptManager, 
                 _scriptFactory,
                 null,
-                null,
+                _sceneManager,
                 _elementManager, 
                 new ElementJsCache(null));
             
@@ -71,8 +75,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             var vine = CreateWidget(_vines[0]);
             _elementManager.Add(vine);
-
+            
             _scriptService.Start();
+            _sceneManager.Initialize("test", null);
 
             var vineComponent = _scriptFactory.GetVine(_vines[0]);
             var behaviorComponent = _scriptFactory.GetBehavior(_behaviors[0]);

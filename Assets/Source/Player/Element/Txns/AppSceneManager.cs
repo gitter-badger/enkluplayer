@@ -2,6 +2,7 @@
 using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.EnkluPlayer.IUX;
+using Action = System.Action;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -20,11 +21,6 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private readonly Dictionary<string, Element> _scenes = new Dictionary<string, Element>();
 
-        /// <summary>
-        /// Backing value for <c>OnInitialized</c>
-        /// </summary>
-        private readonly AsyncToken<Void> _onInitializedBacking = new AsyncToken<Void>();
-
         /// <inheritdoc />
         public string[] All
         {
@@ -35,10 +31,7 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> OnInitialized
-        {
-            get { return _onInitializedBacking; }
-        }
+        public Action OnInitialized { get; set; }
 
         /// <summary>
         /// Constructor.
@@ -58,8 +51,7 @@ namespace CreateAR.EnkluPlayer
                 _scenes[sceneId] = _elements.Element(description);
             }
 
-            _onInitializedBacking.Succeed(Void.Instance);
-            return OnInitialized;
+            return new AsyncToken<Void>(Void.Instance);
         }
 
         /// <inheritdoc />

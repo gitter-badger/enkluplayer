@@ -1,5 +1,7 @@
-﻿using CreateAR.Commons.Unity.Async;
+﻿using System;
+using CreateAR.Commons.Unity.Async;
 using CreateAR.EnkluPlayer.IUX;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -37,8 +39,8 @@ namespace CreateAR.EnkluPlayer
         Element Root(string sceneId);
         
         /// <summary>
-        /// Resolves when all scenes' elements have been initialized.
+        /// Invokes when all scenes' elements have been initialized.
         /// </summary>
-        IAsyncToken<Void> OnInitialized { get; }
+        Action OnInitialized { get; set; }
     }
 }

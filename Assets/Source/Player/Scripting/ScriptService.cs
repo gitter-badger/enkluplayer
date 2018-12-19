@@ -31,7 +31,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             base.Start();
 
-            _sceneManager.OnInitialized.OnSuccess((_) =>
+            _sceneManager.OnInitialized += () =>
             {
                 for (int i = 0, len = _elementManager.All.Count; i < len; i++)
                 {
@@ -41,7 +41,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 _scriptRunner.ParseAll();
                 
                 _elementManager.OnCreated += OnElementCreated;
-            });
+            };
         }
 
         public override void Update(float dt)
