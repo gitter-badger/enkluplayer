@@ -289,6 +289,38 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             return Async.All(scriptTokens);
         }
+
+        private void Script_OnUpdated(WidgetRecord record, EnkluScript script)
+        {
+            // Find existing script
+            Script existing;
+            
+            switch (script.Data.Type)
+            {
+                case ScriptType.Behavior:
+                    for (int i = 0, len = record.Behaviors.Count; i < len; i++)
+                    {
+                        if (record.Behaviors[i].Data.Id == script.Data.Id)
+                        {
+                            existing = record.Behaviors[i];
+                            break;
+                        }
+                    }
+                    break;
+                case ScriptType.Vine:
+                    for (int i = 0, len = record.Vines.Count; i < len; i++)
+                    {
+                        if (record.Vines[i].Data.Id == script.Data.Id)
+                        {
+                            existing = record.Vines[i];
+                            break;
+                        }
+                    }
+                    break;
+            }
+            
+            
+        }
         
         /// <summary>
         /// Retrieves script ids to load.
