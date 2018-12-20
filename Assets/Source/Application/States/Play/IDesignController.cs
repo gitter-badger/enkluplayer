@@ -16,8 +16,6 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Sets whether the DesignController should be in debug render mode.
         /// </summary>
-        /// <param name="sceneId">The id of the scene.</param>
-        /// <param name="elementId">The id of the element.</param>
         DesignControllerMode Mode { get; set; }
 
         /// <summary>
