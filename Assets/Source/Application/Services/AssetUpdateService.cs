@@ -1,9 +1,7 @@
-using System;
 using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Assets;
-using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -172,65 +170,8 @@ namespace CreateAR.EnkluPlayer
         /// <param name="asset">The asset received.</param>
         private void FormatAssetData(AssetData asset)
         {
-            // append build target to URI
-            var index = asset.Uri.IndexOf(".bundle", StringComparison.Ordinal);
-            if (-1 == index)
-            {
-                Log.Warning(this, "Invalid AssetData Uri : {0}.", asset.Uri);
-                return;
-            }
-
-            if (asset.Uri.Contains("{{platform}}"))
-            {
-                // v2
-                asset.Uri = asset.Uri.Replace(
-                    "{{platform}}",
-                    GetBuildTarget());
-            }
-            else
-            {
-                // v1
-                var urlSplit = string.Format(
-                    "{0}_{1}.bundle",
-                    asset.Uri.Substring(0, index),
-                    GetBuildTarget()).Split('/');
-                asset.Uri = urlSplit[urlSplit.Length - 1];
-            }
-        }
-
-        /// <summary>
-        /// Retrieves the build target we wish to download bundles for.
-        /// </summary>
-        /// <returns></returns>
-        private string GetBuildTarget()
-        {
-            switch (UnityEngine.Application.platform)
-            {
-                case RuntimePlatform.WebGLPlayer:
-                {
-                    return "webgl";
-                }
-                case RuntimePlatform.WSAPlayerX86:
-                case RuntimePlatform.WSAPlayerX64:
-                case RuntimePlatform.WSAPlayerARM:
-                {
-                    return "wsaplayer";
-                }
-                case RuntimePlatform.WindowsEditor:
-                case RuntimePlatform.OSXEditor:
-                case RuntimePlatform.LinuxEditor:
-                {
-                    return "webgl";
-                }
-                case RuntimePlatform.IPhonePlayer:
-                {
-                    return "ios";
-                }
-                default:
-                {
-                    return "UNKNOWN";
-                }
-            }
+            asset.Uri = AssetUrlHelper.FormatUri(asset);
+            asset.UriThumb = AssetUrlHelper.FormatUriThumb(asset);
         }
 
         /// <summary>

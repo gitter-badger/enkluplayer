@@ -429,7 +429,7 @@ namespace CreateAR.EnkluPlayer.IUX
                         _layers,
                         _tweens,
                         _colors,
-                        new AssetAssembler(_assets, _pools, _appConfig.Play),
+                        new AssetAssembler(_assets, _appConfig.Play),
                         _resolver,
                         _scripts,
                         _jsCache,

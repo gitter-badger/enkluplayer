@@ -22,13 +22,14 @@ namespace CreateAR.EnkluPlayer
         /// Called when the assembly has been updated.
         /// </summary>
         event Action OnAssemblyUpdated;
-        
+
         /// <summary>
         /// Sets up the assembler.
         /// </summary>
         /// <param name="transform">The transform.</param>
         /// <param name="assetId">The id of the asset to setup..</param>
-        void Setup(Transform transform, string assetId);
+        /// <param name="version"></param>
+        void Setup(Transform transform, string assetId, int version);
 
         /// <summary>
         /// Tears down any internal structures.
