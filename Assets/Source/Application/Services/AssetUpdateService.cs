@@ -52,8 +52,11 @@ namespace CreateAR.EnkluPlayer
         private void Messages_OnAssetUpdate(AssetUpdateEvent @event)
         {
             Log.Info(this, "Update asset.");
-            
-            _assets.Manifest.Update(@event.Asset);
+
+            var asset = @event.Asset;
+            FormatAssetData(asset);
+
+            _assets.Manifest.Update(asset);
         }
 
         /// <summary>
