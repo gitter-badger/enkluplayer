@@ -14,12 +14,7 @@ namespace CreateAR.EnkluPlayer
         /// Loads assets.
         /// </summary>
         private readonly IAssetManager _assets;
-
-        /// <summary>
-        /// Manages pooling.
-        /// </summary>
-        private readonly IAssetPoolManager _pools;
-
+        
         /// <summary>
         /// Configuration for play mode.
         /// </summary>
@@ -36,15 +31,20 @@ namespace CreateAR.EnkluPlayer
         private Asset _asset;
         
         /// <summary>
-        /// An action to unsubscribe from <c>Asset</c> updates.
-        /// </summary>
-        private Action _unwatch;
-
-        /// <summary>
         /// Outlines model bounds.
         /// </summary>
         private ModelLoadingOutline _outline;
-        
+
+        /// <summary>
+        /// Transform to attach to.
+        /// </summary>
+        private Transform _transform;
+
+        /// <summary>
+        /// Action for unwatching.
+        /// </summary>
+        private Action _unwatchUpdate;
+
         /// <inheritdoc />
         public Bounds Bounds
         {
@@ -73,17 +73,17 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public AssetAssembler(
             IAssetManager assets,
-            IAssetPoolManager pools,
             PlayAppConfig config)
         {
             _assets = assets;
-            _pools = pools;
             _config = config;
         }
         
         /// <inheritdoc />
-        public void Setup(Transform transform, string assetId)
+        public void Setup(Transform transform, string assetId, int version)
         {
+            Log.Info(this, "Setup assembler : {0}-v.{1}", assetId, version);
+
             if (null != _asset)
             {
                 throw new Exception("AssetAssembler was asked to setup twice in a row without a Teardown in between.");
@@ -96,24 +96,69 @@ namespace CreateAR.EnkluPlayer
                 {
                     OnAssemblyUpdated();
                 }
+
                 return;
             }
 
-            // get the corresponding asset
-            _asset = _assets.Manifest.Asset(assetId);
+            _transform = transform;
+
+            // watch for new versions if the asset is not version locked
+            if (-1 == version)
+            {
+                // watch
+                _unwatchUpdate = _assets.Manifest.WatchUpdate(assetId, data => SetupAsset(assetId, -1));
+            }
+            
+            // finally, setup the actual asset
+            SetupAsset(assetId, version);
+        }
+
+        /// <inheritdoc />
+        public void Teardown()
+        {
+            Log.Info(this, "Teardown assembler.");
+
+            TeardownAsset();
+
+            if (null != Assembly)
+            {
+                UnityEngine.Object.Destroy(Assembly);
+                Assembly = null;
+            }
+
+            if (null != _unwatchUpdate)
+            {
+                _unwatchUpdate();
+                _unwatchUpdate = null;
+            }
+            
+            if (null != _outline)
+            {
+                UnityEngine.Object.Destroy(_outline);
+                _outline = null;
+            }
+        }
+
+        /// <summary>
+        /// Sets up the assembler based on a specific asset.
+        /// </summary>
+        /// <param name="assetId">The asset id.</param>
+        /// <param name="version">The version.</param>
+        private void SetupAsset(string assetId, int version)
+        {
+            TeardownAsset();
+
+            _asset = _assets.Manifest.Asset(assetId, version);
+
             if (null == _asset)
             {
-                Log.Warning(this,
-                    "Could not find Asset by id {0}.",
-                    assetId);
-
+                Log.Warning(this, "Could not find asset {0}:{1}.",
+                    assetId,
+                    version);
                 return;
             }
-
-            // watch for asset reloads
-            _unwatch = _asset.Watch<GameObject>(SetupInstance);
-
-            // listen for asset load errors (make sure we only add once)
+            
+            // safely listen for asset load errors
             _asset.OnLoadError -= Asset_OnLoadError;
             _asset.OnLoadError += Asset_OnLoadError;
 
@@ -124,67 +169,62 @@ namespace CreateAR.EnkluPlayer
                 Max = 0.5f * Vec3.One
             };
 
-            // watch to unload
-            _asset.OnRemoved += Asset_OnRemoved;
-
             // asset might already be loaded!
             var prefab = _asset.As<GameObject>();
             if (null != prefab)
             {
                 SetupInstance(prefab);
             }
-            // if it's not loaded and we're in edit mode, add a loading outline
-            else if (_config.Edit)
+            else
             {
-                _outline = transform
-                    .gameObject
-                    .AddComponent<ModelLoadingOutline>();
-                _outline.OnRetry += () =>
-                {
-                    _outline.HideError();
+                // load
+                _asset
+                    .Load<GameObject>()
+                    .OnSuccess(SetupInstance);
 
-                    _asset.Load<GameObject>();
-                };
-                _outline.Init(Bounds);
-
-                // asset might already have failed to load
-                if (!string.IsNullOrEmpty(_asset.Error))
+                // if it's not loaded and we're in edit mode, add a loading outline
+                if (_config.Edit)
                 {
-                    _outline.ShowError(_asset.Error);
+                    _outline = _transform
+                        .gameObject
+                        .AddComponent<ModelLoadingOutline>();
+                    _outline.OnRetry += () =>
+                    {
+                        _outline.HideError();
+
+                        _asset
+                            .Load<GameObject>()
+                            .OnSuccess(SetupInstance);
+                    };
+                    _outline.Init(Bounds);
+
+                    // asset might already have failed to load
+                    if (!string.IsNullOrEmpty(_asset.Error))
+                    {
+                        _outline.ShowError(_asset.Error);
+                    }
                 }
             }
-
-            // automatically reload
-            _asset.AutoReload = true;
         }
 
-        /// <inheritdoc />
-        public void Teardown()
+        /// <summary>
+        /// Teardown related to the asset.
+        /// </summary>
+        private void TeardownAsset()
         {
-            if (null != Assembly)
-            {
-                _pools.Put(Assembly);
-                Assembly = null;
-            }
-
-            if (null != _unwatch)
-            {
-                _unwatch();
-                _unwatch = null;
-            }
-
             if (null != _asset)
             {
-                _asset.OnRemoved -= Asset_OnRemoved;
+                _asset.OnLoadError -= Asset_OnLoadError;
                 _asset = null;
             }
 
+            // shut off outline
             if (null != _outline)
             {
                 UnityEngine.Object.Destroy(_outline);
             }
         }
-        
+
         /// <summary>
         /// Creates an instance of the loaded asset and replaces the existing
         /// instance, if there is one.
@@ -192,10 +232,12 @@ namespace CreateAR.EnkluPlayer
         /// <param name="value">The GameObject that was loaded.</param>
         private void SetupInstance(GameObject value)
         {
-            // put existing instance back
+            Log.Info(this, "SetupInstance : {0}", value);
+
+            // destroy instance
             if (null != Assembly)
             {
-                _pools.Put(Assembly);
+                UnityEngine.Object.Destroy(Assembly);
                 Assembly = null;
             }
 
@@ -203,14 +245,10 @@ namespace CreateAR.EnkluPlayer
             RemoveBadComponents(value);
 
             // get a new one
-            Assembly = _pools.Get<GameObject>(value);
-
-            // shut off outline
-            if (null != _outline)
-            {
-                UnityEngine.Object.Destroy(_outline);
-            }
-
+            Assembly = UnityEngine.Object.Instantiate(value,
+                Vector3.zero,
+                Quaternion.identity);
+            
             // dispatch update
             if (null != OnAssemblyUpdated)
             {
@@ -230,16 +268,7 @@ namespace CreateAR.EnkluPlayer
                 camera.enabled = false;
             }
         }
-
-        /// <summary>
-        /// Called when the asset has been removed from the manifest.
-        /// </summary>
-        /// <param name="asset">The asset that has been removed.</param>
-        private void Asset_OnRemoved(Asset asset)
-        {
-            Teardown();
-        }
-
+        
         /// <summary>
         /// Called when there's an asset load error.
         /// </summary>

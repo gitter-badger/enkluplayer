@@ -27,6 +27,11 @@ namespace CreateAR.EnkluPlayer.Assets
             public AssetData Data;
 
             /// <summary>
+            /// The version we wish to load.
+            /// </summary>
+            public int Version;
+
+            /// <summary>
             /// The loader used.
             /// </summary>
             public AssetBundleLoader Loader;
@@ -106,6 +111,7 @@ namespace CreateAR.EnkluPlayer.Assets
         /// <inheritdoc />
         public IAsyncToken<Object> Load(
             AssetData data,
+            int version,
             out LoadProgress progress)
         {
             // see if this load should fail (for testing porpoises)
@@ -119,7 +125,7 @@ namespace CreateAR.EnkluPlayer.Assets
                 }
             }
             
-            var url = Url(data);
+            var url = Urls.Url(AssetUrlHelper.Uri(data, version));
             var token = new AsyncToken<Object>();
             
             // create a loader if one doesn't exist
@@ -143,6 +149,7 @@ namespace CreateAR.EnkluPlayer.Assets
                 {
                     Loader = loader,
                     Data = data,
+                    Version = version,
                     Timer = timer.Start()
                 };
 
@@ -176,7 +183,7 @@ namespace CreateAR.EnkluPlayer.Assets
                 var record = _queue[0];
 
                 _queue.RemoveAt(0);
-                _bundles.Remove(Url(record.Data));
+                _bundles.Remove(Urls.Url(AssetUrlHelper.Uri(record.Data, record.Version)));
             }
         }
 
@@ -215,7 +222,7 @@ namespace CreateAR.EnkluPlayer.Assets
                     // record metrics
                     _metrics.Timer(MetricsKeys.ASSET_DL_QUEUE).Stop(next.Timer);
 
-                    Log.Info(this, "Starting next load.");
+                    Log.Info(this, "Starting next load : {0}", next.Data.AssetName);
 
                     var timer = _metrics.Timer(MetricsKeys.ASSET_DL_LOADING);
                     var timerId = timer.Start();
@@ -228,7 +235,7 @@ namespace CreateAR.EnkluPlayer.Assets
                         .OnFailure(ex =>
                         {
                             // remove so we can allow retries
-                            _bundles.Remove(Url(next.Data));
+                            _bundles.Remove(Urls.Url(AssetUrlHelper.Uri(next.Data, next.Version)));
 
                             // abort metrics
                             timer.Abort(timerId);
@@ -242,17 +249,7 @@ namespace CreateAR.EnkluPlayer.Assets
                 yield return true;
             }
         }
-
-        /// <summary>
-        /// Creates a URL from asset data.
-        /// </summary>
-        /// <param name="data">The data.</param>
-        /// <returns></returns>
-        private string Url(AssetData data)
-        {
-            return Urls.Url("assets://" + data.Uri);
-        }
-
+        
         /// <summary>
         /// Determines an asset's name from the <c>AssetData</c>.
         /// </summary>

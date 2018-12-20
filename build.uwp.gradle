@@ -59,6 +59,7 @@ uploadArchives() {
         }
     }
 }
+uploadArchives.dependsOn = [archive]
 
 // wsa
 task runTests(type:com.createar.plugins.unity.UnityUnitTestTask) {

@@ -104,6 +104,7 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 binder.Bind<HttpRequestCacher>().To<HttpRequestCacher>().ToSingleton();
+                binder.Bind<AwsPingController>().To<AwsPingController>().ToSingleton();
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_WSA
@@ -208,6 +209,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<ElementActionHelperService>().To<ElementActionHelperService>().ToSingleton();
                     binder.Bind<UserPreferenceService>().To<UserPreferenceService>().ToSingleton();
                     binder.Bind<VersioningService>().To<VersioningService>().ToSingleton();
+                    binder.Bind<MetricsUpdateService>().To<MetricsUpdateService>().ToSingleton();
 
 #if NETFX_CORE
                     binder.Bind<CommandService>().To<UwpCommandService>().ToSingleton();
@@ -389,7 +391,8 @@ namespace CreateAR.EnkluPlayer
                         binder.GetInstance<UserPreferenceService>(),
                         binder.GetInstance<DeviceResourceUpdateService>(),
                         binder.GetInstance<ApplicationStateService>(),
-                        binder.GetInstance<CommandService>()
+                        binder.GetInstance<CommandService>(),
+                        binder.GetInstance<MetricsUpdateService>()
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }
@@ -516,6 +519,7 @@ namespace CreateAR.EnkluPlayer
 #else
                 binder.Bind<IGestureManager>().To<PassthroughGestureManager>().ToSingleton();
 #endif
+                binder.Bind<ITouchManager>().To<TouchManager>().ToSingleton();
             }
 
             // Camera
@@ -657,7 +661,6 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IElementJsFactory>().To<ElementJsFactory>().ToSingleton();
                 binder.Bind<IScriptManager>().To<ScriptManager>().ToSingleton();
                 binder.Bind<PlayerJs>().ToValue(LookupComponent<PlayerJs>());
-                SystemJsApi.DeviceMetaProvider = binder.GetInstance<IDeviceMetaProvider>();
 
                 // scripting interfaces
                 {
@@ -671,6 +674,9 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<MetricsJsInterface>().To<MetricsJsInterface>().ToSingleton();
                     binder.Bind<PhysicsJsInterface>().To<PhysicsJsInterface>().ToSingleton();
                     binder.Bind<TweenManagerJsApi>().To<TweenManagerJsApi>().ToSingleton();
+                    binder.Bind<EditJsApi>().To<EditJsApi>().ToSingleton();
+                    binder.Bind<TxnJsApi>().To<TxnJsApi>().ToSingleton();
+                    binder.Bind<TouchManagerJsApi>().To<TouchManagerJsApi>().ToSingleton();
                 }
             }
 
@@ -679,12 +685,19 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
             }
 
-            // dependant on previous bindings
+            // dependent on previous bindings
             {
                 binder.Bind<IAdminAppDataManager>().To<AppDataManager>().ToSingleton();
 
                 var appData = binder.GetInstance<IAdminAppDataManager>();
                 binder.Bind<IAppDataManager>().ToValue(appData);
+                
+                SystemJsApi.Initialize(
+                    binder.GetInstance<IDeviceMetaProvider>(),
+                    binder.GetInstance<AwsPingController>(),
+                    binder.GetInstance<IMessageRouter>(),
+                    binder.GetInstance<ApiController>(),
+                    binder.GetInstance<ApplicationConfig>());
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();

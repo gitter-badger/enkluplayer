@@ -41,6 +41,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IMetricsService _metrics;
         private readonly IAppQualityController _quality;
         private readonly ITweenManager _tweens;
+        private readonly ITouchManager _touches;
 
         /// <summary>
         /// Status.
@@ -83,6 +84,11 @@ namespace CreateAR.EnkluPlayer
         private int _trackingId;
 
         /// <summary>
+        /// Whether the AR service has reported tracking loss or not.
+        /// </summary>
+        private bool _trackingLost;
+
+        /// <summary>
         /// Plays an App.
         /// </summary>
         public PlayApplicationState(
@@ -99,7 +105,8 @@ namespace CreateAR.EnkluPlayer
             IAssetLoader assetLoader,
             IMetricsService metrics,
             IAppQualityController quality,
-            ITweenManager tweens)
+            ITweenManager tweens,
+            ITouchManager touches)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -115,6 +122,7 @@ namespace CreateAR.EnkluPlayer
             _metrics = metrics;
             _quality = quality;
             _tweens = tweens;
+            _touches = touches;
         }
 
         /// <inheritdoc />
@@ -173,6 +181,7 @@ namespace CreateAR.EnkluPlayer
         public void Update(float dt)
         {
             _tweens.Update(dt);
+            _touches.Update();
 
 #if !UNITY_WEBGL
             if (_config.Play.Edit)
@@ -203,6 +212,8 @@ namespace CreateAR.EnkluPlayer
 
             // stop listening for voice commands
             _voice.Unregister("reset");
+            _voice.Unregister("performance");
+            _voice.Unregister("logging");
 
             // stop watching loads
             _app.OnReady -= App_OnReady;
@@ -244,19 +255,37 @@ namespace CreateAR.EnkluPlayer
             {
                 throw new Exception("Could not find PlayModeConfig.");
             }
-
-            // setup quality
-            var id = _app.Scenes.All.FirstOrDefault();
-            if (!string.IsNullOrEmpty(id))
-            {
-                _quality.Setup(_app.Scenes.Root(id));
-            }            
-
+            
             // initialize with app id
             _app.Play();
 
             // start designer
             _design.Setup(_context, _app);
+
+            // perf
+            _voice.Register("performance", _ =>
+            {
+                // open
+                int hudId;
+                _ui
+                    .OpenOverlay<PerfDisplayUIView>(new UIReference
+                    {
+                        UIDataId = "Perf.Hud"
+                    }, out hudId)
+                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+            });
+
+            // logging
+            _voice.Register("logging", _ =>
+            {
+                int hudId;
+                _ui
+                    .OpenOverlay<LoggingUIView>(new UIReference
+                    {
+                        UIDataId = "Logging.Hud"
+                    }, out hudId)
+                    .OnSuccess(el => el.OnClose += () => _ui.Close(hudId));
+            });
         }
 
         /// <summary>
@@ -322,6 +351,13 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void Ar_OnTrackingOffline()
         {
+            // Guard against AR service reporting different, but still failing, states
+            if (_trackingLost)
+            {
+                return;
+            }
+            _trackingLost = true;
+            
             Log.Info(this, "Ar tracking lost!");
 
             _trackingId = _metrics.Timer(MetricsKeys.ANCHOR_TRACKING_LOST).Start();
@@ -337,6 +373,8 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private void Ar_OnTrackingOnline()
         {
+            _trackingLost = false;
+            
             Log.Info(this, "Ar tracking back online.");
 
             _metrics.Timer(MetricsKeys.ANCHOR_TRACKING_LOST).Stop(_trackingId);
@@ -350,6 +388,13 @@ namespace CreateAR.EnkluPlayer
         private void App_OnReady()
         {
             _ui.Close(_loadingScreenId);
+
+            // setup quality
+            var id = _app.Scenes.All.FirstOrDefault();
+            if (!string.IsNullOrEmpty(id))
+            {
+                _quality.Setup(_app.Scenes.Root(id));
+            }
         }
 
         /// <summary>

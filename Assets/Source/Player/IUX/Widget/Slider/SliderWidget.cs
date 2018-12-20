@@ -44,7 +44,7 @@ namespace CreateAR.EnkluPlayer.IUX
         /// <summary>
         /// Caption widget.
         /// </summary>
-        private CaptionWidget _tooltip;
+        private TextWidget _tooltip;
 
         /// <summary>
         /// Image widgets.
@@ -258,7 +258,7 @@ namespace CreateAR.EnkluPlayer.IUX
             AddChild(_handle);
             _handle.Activator.OnActivated += MoveSlider_OnActivated;
 
-            _tooltip = (CaptionWidget)_elements.Element("<?Vine><Caption position=(0, 0.1, 0) visible=true label='Placeholder' fontSize=50 width=500.0 alignment='MidCenter' />");
+            _tooltip = (TextWidget)_elements.Element("<?Vine><Caption position=(0, 0.1, 0) visible=true label='Placeholder' fontSize=50 width=500.0 alignment='MidCenter' />");
             _handle.AddChild(_tooltip);
 
             _minImage = (ImageWidget) _elements.Element("<?Vine><Image src='res://Art/Textures/arrow-left' width=0.1 height=0.1 />");

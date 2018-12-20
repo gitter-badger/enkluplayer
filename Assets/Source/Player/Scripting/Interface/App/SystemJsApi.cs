@@ -1,5 +1,8 @@
 ﻿using System;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
+using CreateAR.Commons.Unity.Messaging;
+using CreateAR.Trellis.Messages;
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
@@ -11,28 +14,55 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// The instance.
         /// </summary>
-        public static SystemJsApi Instance = new SystemJsApi();
+        public static readonly SystemJsApi Instance = new SystemJsApi();
+        
+        /// <summary>
+        /// Guard to make sure this isn't configured twice.
+        /// </summary>
+        private static bool _initialized;
 
         /// <summary>
-        /// Provider for getting DeviceMeta.
+        /// Initializes the object with everything is needs.
         /// </summary>
-        public static IDeviceMetaProvider DeviceMetaProvider
+        public static void Initialize(
+            IDeviceMetaProvider deviceMetaProvider,
+            AwsPingController awsPingController,
+            IMessageRouter msgRouter,
+            ApiController apiController,
+            ApplicationConfig config)
         {
-            set
+            if (_initialized)
             {
-                if (Instance.device != null)
-                {
-                    throw new Exception("DeviceMetaProvider already configured");
-                }
-
-                Instance.device = new DeviceJsApi(value);
+                throw new Exception("Dependencies already set!");
             }
+            
+            Instance.device = new DeviceJsApi(deviceMetaProvider);
+            Instance.experiences = new ExperienceJsApi(msgRouter, apiController, config);
+            Instance.network = new NetworkJsApi(awsPingController);
+            Instance.debugRendering = new DebugRenderingJsApi();
+
+            _initialized = true;
         }
 
         /// <summary>
         /// Provides details about the device.
         /// </summary>
         public DeviceJsApi device { get; private set; }
+
+        /// <summary>
+        /// Provides API for experiences.
+        /// </summary>
+        public ExperienceJsApi experiences { get; private set; }
+        
+        /// <summary>
+        /// Provides API for networking.
+        /// </summary>
+        public NetworkJsApi network { get; private set; }
+
+        /// <summary>
+        /// Provides API for debug rendering.
+        /// </summary>
+        public DebugRenderingJsApi debugRendering { get; private set; }
 
         /// <summary>
         /// Recenters tracking.
@@ -69,6 +99,6 @@ namespace CreateAR.EnkluPlayer.Scripting
 #else
             Log.Warning(this, "Restart not supported for this platform.");
 #endif
-        }
+        }        
     }
 }

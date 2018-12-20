@@ -114,7 +114,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             var backingGameObject = EntityToGameObject(entity);
             if (backingGameObject == null)
             {
-                Log.Info(this, "Can't find backing gameobject for " + entity);
                 return;
             }
 
@@ -223,8 +222,6 @@ namespace CreateAR.EnkluPlayer.Scripting
                         var radiiSumSq = (float) Math.Pow(configA.InnerRadius + configB.InnerRadius, 2);
                         if (distanceSq - radiiSumSq < 0)
                         {
-                            Log.Info(this, "No existing collision, so dispatching enter event.");
-
                             _collisions.Add(new Collision(configA, configB));
 
                             InvokeCallbacks(OnEnter, configA, configB);
@@ -240,8 +237,6 @@ namespace CreateAR.EnkluPlayer.Scripting
                         }
                         else
                         {
-                            Log.Info(this, "Collision exists already but we're leaving the area, so dispatch an exit.");
-
                             _collisions.Remove(collision);
 
                             InvokeCallbacks(OnExit, configA, configB);
@@ -293,7 +288,6 @@ namespace CreateAR.EnkluPlayer.Scripting
                 var widget = elementJs.Element as Widget;
                 if (widget == null) 
                 {
-                    Log.Info(this, "ElementJs was not a Widget");
                     return null;
                 }
 
