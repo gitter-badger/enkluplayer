@@ -50,8 +50,12 @@ Remaining options are grouped into sub-objects.
 | Offline                    | false         | If set to true, the player will disable networking entirely. Only previously cached experiences may be loaded. |
 | ApiVersion                 | 0.0.0         | The Trellis API version that the player is compatible with.  |
 | Current                    | ""            | The name of the current environment to connect to.           |
+| DiskFallbackSecs | 0 | How long to wait for network load before loading from disk. Leave at 0 to turn off. |
 | AllEnvironments            | []            | An array of EnvironmentData that the player can connect to.  |
 | AllCredentials             | []            | An array of CredentialsData that the player can use to connect to an environment automatically. |
+| Ping.Enabled | true | If set to true, starts a service that manages an AWS ping. |
+| Ping.Interval | 30 | Number of seconds between pings. |
+| Ping.Region | "us-west-2" | The AWS region to ping. |
 
 **EnvironmentData**
 
@@ -88,3 +92,15 @@ Remaining options are grouped into sub-objects.
 | Hostname       | ""            | The hostname of a metrics gathering service. The default metrics provider is Graphite. |
 | ApplicationKey | ""            | The application key associated with the metrics gathering service. The metrics provider will use this to authorize transactions. |
 
+##### Cursor
+
+| Name            | Default Value | Description |
+|-----------------|---------------|-------------|
+| ForceShow       | false         | If true, no application logic can hide the cursor. |
+
+##### Debug
+
+| Name             | Default Value | Description |
+|------------------|---------------|-------------|
+| DisableVoiceLock | false         | If true, disables "debug" lock on voice commands. |
+| DisableAdminLock | false         | If true, disables additional "admin" lock on admin voice commands. |
