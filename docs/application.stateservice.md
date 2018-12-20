@@ -31,7 +31,7 @@ public interface IState
 }
 ```
 
-An FSM then, is equally simple, exposing a single `ChangeState<T>` method that switching between states. All major states of the application are implemented using this simple interface. Our states also do not contain logic about what states to switch into. They simply dispatch events about what they are doing.
+An FSM then, is equally simple, exposing a single `ChangeState<T>` method that switches between states. All major states of the application are implemented using this simple interface. Our states also do not contain logic about what states to switch into. They simply dispatch events about what they are doing.
 
 ##### Flows
 
