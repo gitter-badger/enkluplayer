@@ -1,9 +1,7 @@
-using System;
 using System.Diagnostics;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Assets;
-using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -172,129 +170,8 @@ namespace CreateAR.EnkluPlayer
         /// <param name="asset">The asset received.</param>
         private void FormatAssetData(AssetData asset)
         {
-            FormatUri(asset);
-            FormatUriThumb(asset);
-        }
-
-        /// <summary>
-        /// Formats URI.
-        ///
-        ///  TODO: remove when we deprecate v1 and v2 assets.
-        /// </summary>
-        /// <param name="asset">The asset.</param>
-        private void FormatUri(AssetData asset)
-        {
-            if (string.IsNullOrEmpty(asset.Uri))
-            {
-                return;
-            }
-
-            var index = asset.Uri.IndexOf(".bundle", StringComparison.Ordinal);
-            if (-1 == index)
-            {
-                Log.Warning(this, "Invalid AssetData Uri : {0}.", asset.Uri);
-                return;
-            }
-
-            if (asset.Uri.Contains("{{platform}}"))
-            {
-                // v2
-                asset.Uri = asset.Uri.Replace(
-                    "{{platform}}",
-                    GetBuildTarget());
-
-                // v3
-                var pieces = asset.Uri.Split('.');
-                if (3 == pieces.Length)
-                {
-                    asset.Uri = string.Format("{0}.{1}.{2}",
-                        pieces[0],
-                        asset.Version,
-                        pieces[2]);
-                }
-            }
-            else
-            {
-                // v1
-                var urlSplit = string.Format(
-                    "{0}_{1}.bundle",
-                    asset.Uri.Substring(0, index),
-                    GetBuildTarget()).Split('/');
-                asset.Uri = urlSplit[urlSplit.Length - 1];
-            }
-        }
-
-        /// <summary>
-        /// Formats the URI to the thumb nail.
-        ///
-        /// TODO: remove upon deprication of v1 and v2 assets.
-        /// </summary>
-        /// <param name="asset">The asset.</param>
-        private void FormatUriThumb(AssetData asset)
-        {
-            if (string.IsNullOrEmpty(asset.UriThumb))
-            {
-                return;
-            }
-
-            // v1
-            if (asset.UriThumb.StartsWith("/thumb"))
-            {
-                asset.UriThumb = string.Format("{0}.png", asset.Guid);
-            }
-            else
-            {
-                var parts = asset.UriThumb.Split('.');
-                
-                // v3
-                if (3 == parts.Length)
-                {
-                    asset.UriThumb = string.Format("{0}.{1}.{2}",
-                        parts[0],
-                        asset.Version,
-                        parts[2]);
-                }
-                // v2
-                else
-                {
-                    // do nothing
-                }
-            }
-        }
-
-        /// <summary>
-        /// Retrieves the build target we wish to download bundles for.
-        /// </summary>
-        /// <returns></returns>
-        private string GetBuildTarget()
-        {
-            switch (UnityEngine.Application.platform)
-            {
-                case RuntimePlatform.WebGLPlayer:
-                {
-                    return "webgl";
-                }
-                case RuntimePlatform.WSAPlayerX86:
-                case RuntimePlatform.WSAPlayerX64:
-                case RuntimePlatform.WSAPlayerARM:
-                {
-                    return "wsaplayer";
-                }
-                case RuntimePlatform.WindowsEditor:
-                case RuntimePlatform.OSXEditor:
-                case RuntimePlatform.LinuxEditor:
-                {
-                    return "webgl";
-                }
-                case RuntimePlatform.IPhonePlayer:
-                {
-                    return "ios";
-                }
-                default:
-                {
-                    return "UNKNOWN";
-                }
-            }
+            asset.Uri = AssetUrlHelper.FormatUri(asset);
+            asset.UriThumb = AssetUrlHelper.FormatUriThumb(asset);
         }
 
         /// <summary>
