@@ -191,12 +191,6 @@ namespace CreateAR.EnkluPlayer
                     {
                         Log.Info(this, "Toggling grid...");
 
-                        var grid = UnityEngine.Object.FindObjectOfType<RTSceneGrid>();
-                        if (null != grid)
-                        {
-                            grid.Settings.IsVisible = @event.Value;
-                        }
-                        
                         _designer.Mode = @event.Value ? DesignControllerMode.DebugRendering : DesignControllerMode.Normal;
 
                         break;

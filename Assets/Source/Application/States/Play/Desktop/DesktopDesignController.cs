@@ -65,6 +65,12 @@ namespace CreateAR.EnkluPlayer
             {
                 _mode = value;
                 _referenceCube.SetActive(value == DesignControllerMode.DebugRendering);
+                
+                var grid = Object.FindObjectOfType<RTSceneGrid>();
+                if (null != grid)
+                {
+                    grid.Settings.IsVisible = value == DesignControllerMode.DebugRendering;
+                }
             }
         }
 
