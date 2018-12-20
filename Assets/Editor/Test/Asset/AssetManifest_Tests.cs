@@ -216,7 +216,7 @@ namespace CreateAR.EnkluPlayer.Test.Assets
         }
 
         [Test]
-        public void WatchGoodUpdate()
+        public void WatchUpdate()
         {
             var eventCalled = false;
             var info = new AssetData
