@@ -383,7 +383,7 @@ namespace RLD
 
             // We will need these later to fire a selection changed event
             bool selectionWasChanged = false;
-            ObjectSelectReason selectReason = ObjectSelectReason.None;
+            ObjectSelectReason selectReason = ObjectSelectReason.SetSelectedCall;
             ObjectDeselectReason deselectReason = ObjectDeselectReason.None;
             List<GameObject> objectsWhichWereSelected = new List<GameObject>();
             List<GameObject> objectsWhichWereDeselected = new List<GameObject>();
