@@ -21,6 +21,8 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         private class WidgetRecord
         {
+            public Widget Widget;
+            
             public List<EnkluScript> Scripts = new List<EnkluScript>();
             public List<VineScript> Vines = new List<VineScript>();
             public List<BehaviorScript> Behaviors = new List<BehaviorScript>();
@@ -65,6 +67,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             
             _widgetRecords.Add(widget, new WidgetRecord()
             {
+                Widget = widget,
                 SetupState = SetupState.None,
                 Engine = CreateBehaviorHost(widget)
             });
@@ -148,42 +151,26 @@ namespace CreateAR.EnkluPlayer.Scripting
                 return;
             }
             record.SetupState = SetupState.Parsing;
-            
-            var scripts = record.Scripts;
-                
-            for (int i = 0, len = scripts.Count; i < len; i++)
+
+            CreateScripts(widget).OnSuccess(_ =>
             {
-                switch (scripts[i].Data.Type)
+                var vineTokens = ParseVines(record);
+
+                if (_globalState == SetupState.Done)
                 {
-                    case ScriptType.Vine:
+                    for (int i = 0, len = vineTokens.Count; i < len; i++)
                     {
-                        var vineComponent = _scriptFactory.Vine(widget, scripts[i]);
-                        
-                        record.Vines.Add(vineComponent);
-                        _vineTokens.Add(vineComponent.Configure().OnSuccess((_) =>
-                        {
-                            // TODO: Defer this until ScriptService calls
-                            StartScript(vineComponent);
-                        }));
-                        break;
+                        _vineTokens.Add(vineTokens[i]);
                     }
-                    case ScriptType.Behavior:
-                    {
-                        var behaviorComponent = _scriptFactory.Behavior(
-                            widget, _jsCache, record.Engine, scripts[i]);
-                            
-                        record.Behaviors.Add(behaviorComponent);
-                        _vinesComplete.OnFinally((_) =>
-                        {
-                            behaviorComponent.Configure();
-                                
-                            // TODO: Defer this until ScriptService calls
-                            StartScript(behaviorComponent);
-                        });
-                        break;
-                    }
+                    
+                    ParseBehaviors(record, _vinesComplete);
                 }
-            }
+                else
+                {
+                    var allToken = Async.All(vineTokens.ToArray());
+                    ParseBehaviors(record,  Async.Map(allToken, __ => Void.Instance));
+                }
+            });
         }
 
         public void StartScripts()
@@ -282,18 +269,20 @@ namespace CreateAR.EnkluPlayer.Scripting
                     scriptToken.Succeed(Void.Instance);
                 }
                 
-                // TODO: Support script updating
-//                script.OnUpdated += Script_OnUpdated;
+                script.OnUpdated += (_) => Script_OnUpdated(widget, script);
             }
             
 
             return Async.All(scriptTokens);
         }
 
-        private void Script_OnUpdated(WidgetRecord record, EnkluScript script)
+        private void Script_OnUpdated(Widget widget, EnkluScript script)
         {
+            var record = _widgetRecords[widget];
+            
             // Find existing script
-            Script existing;
+            Script existing = null;
+            Script newScript;
             
             switch (script.Data.Type)
             {
@@ -306,6 +295,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                             break;
                         }
                     }
+
+                    newScript = _scriptFactory.Vine(widget, script);
                     break;
                 case ScriptType.Vine:
                     for (int i = 0, len = record.Vines.Count; i < len; i++)
@@ -316,10 +307,30 @@ namespace CreateAR.EnkluPlayer.Scripting
                             break;
                         }
                     }
+
+                    newScript = _scriptFactory.Behavior(widget, _jsCache, record.Engine, script);
                     break;
+                default:
+                    throw new Exception("Is there a new script type?!");
             }
-            
-            
+
+            newScript.Configure()
+                .OnSuccess(_ =>
+                {
+                    // TODO: Reload other scripts on this widget too?
+                    Log.Info(this, "Swapping script");
+                    if (existing != null)
+                    {
+                        existing.Exit();
+                        RemoveScript(record, existing);
+                    }
+                    
+                    AddScript(record, newScript);
+                })
+                .OnFailure(_ =>
+                {
+                    Log.Error(this, "Error creating new script.");
+                });
         }
         
         /// <summary>
@@ -355,6 +366,97 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             return ids;
+        }
+
+        /// <summary>
+        /// Adds a script to a widget's record.
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="script"></param>
+        private void AddScript(WidgetRecord record, Script script)
+        {
+            switch (script.Data.Type)
+            {
+                case ScriptType.Vine:
+                    record.Vines.Add((VineScript) script);
+                    break;
+                case ScriptType.Behavior:
+                    record.Behaviors.Add((BehaviorScript) script);
+                    break;
+            }
+        }
+        
+        /// <summary>
+        /// Removes a script from a Widget's record.
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="script"></param>
+        private void RemoveScript(WidgetRecord record, Script script)
+        {
+            switch (script.Data.Type)
+            {
+                case ScriptType.Vine:
+                    record.Vines.Remove((VineScript) script);
+                    break;
+                case ScriptType.Behavior:
+                    record.Behaviors.Remove((BehaviorScript) script);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Sets up Vine instances for a given WidgetRecord. Vine configuration tokens are returned.
+        /// </summary>
+        /// <param name="record"></param>
+        /// <returns></returns>
+        private List<IAsyncToken<Void>> ParseVines(WidgetRecord record)
+        {
+            List<IAsyncToken<Void>> tokens = new List<IAsyncToken<Void>>();
+
+            for (int i = 0, len = record.Scripts.Count; i < len; i++)
+            {
+                var script = record.Scripts[i];
+                if (script.Data.Type != ScriptType.Vine)
+                {
+                    continue;
+                }
+
+                var component = _scriptFactory.Vine(record.Widget, script);
+                
+                tokens.Add(component.Configure().OnSuccess((_) =>
+                {
+                    // TODO: Defer this until ScriptService calls
+                    StartScript(component);
+                }));
+            }
+
+            return tokens;
+        }
+
+        /// <summary>
+        /// Sets up Behavior instances for a given WidgetRecord.
+        /// All configuration happens on success of the trigger token.
+        /// </summary>
+        /// <param name="record"></param>
+        /// <param name="triggerToken"></param>
+        private void ParseBehaviors(WidgetRecord record, IAsyncToken<Void> triggerToken)
+        {
+            for (int i = 0, len = record.Scripts.Count; i < len; i++)
+            {
+                var script = record.Scripts[i];
+                if (script.Data.Type != ScriptType.Behavior)
+                {
+                    continue;
+                }
+
+                var component = _scriptFactory.Behavior(record.Widget, _jsCache, record.Engine, script);
+
+                triggerToken.OnSuccess((_) =>
+                {
+                    component.Configure();
+                    StartScript(component);
+                });
+            }
         }
     }
 }

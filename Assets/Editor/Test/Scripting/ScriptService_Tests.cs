@@ -67,18 +67,48 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             }
         }
 
+        /// <summary>
+        /// Tests a scene loading from scratch.
+        /// </summary>
         [Test]
         public void InitialScene()
         {
-            var behavior = CreateWidget(_behaviors[0]);
-            _elementManager.Add(behavior);
+            var behaviorWidget = CreateWidget(_behaviors[0]);
+            _elementManager.Add(behaviorWidget);
             
-            var vine = CreateWidget(_vines[0]);
-            _elementManager.Add(vine);
+            var vineWidget = CreateWidget(_vines[0]);
+            _elementManager.Add(vineWidget);
             
             _scriptService.Start();
             _sceneManager.Initialize("test", null);
 
+            var vineComponent = _scriptFactory.GetVine(_vines[0]);
+            var behaviorComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+            
+            Assert.AreEqual(0, vineComponent.EnterInvoked);
+            Assert.AreEqual(0, behaviorComponent.EnterInvoked);
+            
+            vineComponent.FinishConfigure();
+            
+            Assert.AreEqual(1, vineComponent.EnterInvoked);
+            Assert.AreEqual(1, behaviorComponent.EnterInvoked);
+        }
+
+        /// <summary>
+        /// Tests a script being added to an already added scene.
+        /// </summary>
+        [Test]
+        public void NewScript()
+        {
+            _scriptService.Start();
+            _sceneManager.Initialize("test", null);
+            
+            var behaviorWidget = CreateWidget(_behaviors[0]);
+            _elementManager.Add(behaviorWidget);
+            
+            var vineWidget = CreateWidget(_vines[0]);
+            _elementManager.Add(vineWidget);
+            
             var vineComponent = _scriptFactory.GetVine(_vines[0]);
             var behaviorComponent = _scriptFactory.GetBehavior(_behaviors[0]);
             
