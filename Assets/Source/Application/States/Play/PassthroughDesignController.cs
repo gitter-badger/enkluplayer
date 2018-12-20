@@ -8,6 +8,15 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class PassthroughDesignController : IDesignController
     {
+        private DesignControllerMode _mode = DesignControllerMode.Normal;
+        
+        /// <inheritdoc />
+        public DesignControllerMode Mode
+        {
+            get { return _mode; }
+            set { _mode = value; }
+        }
+        
         /// <inheritdoc />
         public void Setup(DesignerContext context, IAppController app)
         {
