@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using CreateAR.Commons.Unity.Logging;
-using CreateAR.EnkluPlayer.Scripting;
+﻿using CreateAR.EnkluPlayer.Scripting;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
