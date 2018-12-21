@@ -368,10 +368,10 @@ namespace CreateAR.EnkluPlayer
         {
             var mat = _current.Calculate();
 
-            var center = mat.MultiplyPoint3x4(Vector3.zero);
-            var right = mat.MultiplyPoint3x4(w * Vector3.right) / 2f;
-            var forward = mat.MultiplyPoint3x4(d * Vector3.forward) / 2f;
-            var up = mat.MultiplyPoint3x4(h * Vector3.up) / 2f;
+            var center = Vector3.zero;
+            var right = w * Vector3.right / 2f;
+            var forward = d * Vector3.forward / 2f;
+            var up = h * Vector3.up / 2f;
             
             Setup(GL.LINES);
             {
@@ -379,49 +379,49 @@ namespace CreateAR.EnkluPlayer
                 {
                     var bot = center - up;
 
-                    GL.Vertex(bot - right - forward);
-                    GL.Vertex(bot - right + forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(bot - right + forward));
 
-                    GL.Vertex(bot + right - forward);
-                    GL.Vertex(bot + right + forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(bot + right - forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(bot + right + forward));
 
-                    GL.Vertex(bot - right - forward);
-                    GL.Vertex(bot + right - forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(bot + right - forward));
 
-                    GL.Vertex(bot - right + forward);
-                    GL.Vertex(bot + right + forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(bot - right + forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(bot + right + forward));
                 }
                 
                 // top rect
                 {
                     var bot = center + up;
 
-                    GL.Vertex(bot - right - forward);
-                    GL.Vertex(bot - right + forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(bot - right + forward));
 
-                    GL.Vertex(bot + right - forward);
-                    GL.Vertex(bot + right + forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(bot + right - forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(bot + right + forward));
 
-                    GL.Vertex(bot - right - forward);
-                    GL.Vertex(bot + right - forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(bot + right - forward));
 
-                    GL.Vertex(bot - right + forward);
-                    GL.Vertex(bot + right + forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(bot - right + forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(bot + right + forward));
                 }
 
                 // connect rects
                 {
-                    GL.Vertex(center + up - right - forward);
-                    GL.Vertex(center - up - right - forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(center + up - right - forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(center - up - right - forward));
 
-                    GL.Vertex(center + up - right + forward);
-                    GL.Vertex(center - up - right + forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(center + up - right + forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(center - up - right + forward));
 
-                    GL.Vertex(center + up + right + forward);
-                    GL.Vertex(center - up + right + forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(center + up + right + forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(center - up + right + forward));
 
-                    GL.Vertex(center + up + right - forward);
-                    GL.Vertex(center - up + right - forward);
+                    GL.Vertex(mat.MultiplyPoint3x4(center + up + right - forward));
+                    GL.Vertex(mat.MultiplyPoint3x4(center - up + right - forward));
                 }
             }
             Teardown();
