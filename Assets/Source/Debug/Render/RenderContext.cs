@@ -9,54 +9,6 @@ namespace CreateAR.EnkluPlayer
     public class RenderContext
     {
         /// <summary>
-        /// For internal book-keeping.
-        /// </summary>
-        private class MatrixData
-        {
-            /// <summary>
-            /// Translation.
-            /// </summary>
-            public Vector3 T = Vector3.zero;
-
-            /// <summary>
-            /// Rotation.
-            /// </summary>
-            public Quaternion R = Quaternion.identity;
-
-            /// <summary>
-            /// Scale.
-            /// </summary>
-            public Vector3 S = Vector3.one;
-
-            /// <summary>
-            /// Constructor.
-            /// </summary>
-            public MatrixData()
-            {
-                Reset();
-            }
-
-            /// <summary>
-            /// Resets components.
-            /// </summary>
-            public void Reset()
-            {
-                T = Vector3.zero;
-                R = Quaternion.identity;
-                S = Vector3.one;
-            }
-
-            /// <summary>
-            /// Calculates Matrix4x4.
-            /// </summary>
-            /// <returns></returns>
-            public Matrix4x4 Calculate()
-            {
-                return Matrix4x4.TRS(T, R, S);
-            }
-        }
-
-        /// <summary>
         /// The color to draw with.
         /// </summary>
         protected Color _color;
@@ -64,13 +16,13 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Stack of Matrix data.
         /// </summary>
-        private readonly Stack<MatrixData> _matrices = new Stack<MatrixData>();
+        private readonly Stack<Matrix4x4> _matrices = new Stack<Matrix4x4>();
 
         /// <summary>
-        /// The current MatrixData to operate on.
+        /// Current matrix.
         /// </summary>
-        private MatrixData _current;
-
+        private Matrix4x4 _current;
+        
         /// <summary>
         /// Sets up for drawing. Must be followed with a Teardown.
         /// </summary>
@@ -99,16 +51,7 @@ namespace CreateAR.EnkluPlayer
         public RenderContext Reset()
         {
             _color = Color.white;
-
-            if (null == _current)
-            {
-                _current = new MatrixData();
-            }
-            else
-            {
-                _current.Reset();
-            }
-            
+            _current = Matrix4x4.identity;
             _matrices.Clear();
 
             return this;
@@ -120,7 +63,7 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public RenderContext ResetMatrix()
         {
-            _current.Reset();
+            _current = Matrix4x4.identity;
 
             return this;
         }
@@ -132,7 +75,7 @@ namespace CreateAR.EnkluPlayer
         public RenderContext PushMatrix()
         {
             _matrices.Push(_current);
-            _current = new MatrixData();
+            _current = Matrix4x4.identity;
             
             return this;
         }
@@ -155,23 +98,11 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public RenderContext Translate(Vector3 to)
         {
-            _current.T += to;
+            _current *= Matrix4x4.Translate(to);
 
             return this;
         }
-
-        /// <summary>
-        /// Sets position.
-        /// </summary>
-        /// <param name="to">The target.</param>
-        /// <returns></returns>
-        public RenderContext Position(Vector3 position)
-        {
-            _current.T = position;
-
-            return this;
-        }
-
+        
         /// <summary>
         /// Rotates along the X axis.
         /// </summary>
@@ -179,9 +110,9 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public RenderContext RotateX(float radians)
         {
-            _current.R *= Quaternion.Euler(
+            _current *= Matrix4x4.Rotate(Quaternion.Euler(
                 radians * Mathf.Rad2Deg,
-                0, 0);
+                0, 0));
 
             return this;
         }
@@ -193,10 +124,10 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public RenderContext RotateY(float radians)
         {
-            _current.R *= Quaternion.Euler(
+            _current *= Matrix4x4.Rotate(Quaternion.Euler(
                 0,
                 radians * Mathf.Rad2Deg,
-                0);
+                0));
 
             return this;
         }
@@ -208,9 +139,9 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public RenderContext RotateZ(float radians)
         {
-            _current.R *= Quaternion.Euler(
+            _current *= Matrix4x4.Rotate(Quaternion.Euler(
                 0, 0,
-                radians * Mathf.Rad2Deg);
+                radians * Mathf.Rad2Deg));
 
             return this;
         }
@@ -222,7 +153,7 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public RenderContext Rotate(Quaternion rotation)
         {
-            _current.R *= rotation;
+            _current *= Matrix4x4.Rotate(rotation);
 
             return this;
         }
@@ -249,10 +180,7 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public RenderContext Scale(Vector3 to)
         {
-            _current.S = new Vector3(
-                _current.S.x * to.x,
-                _current.S.y * to.y,
-                _current.S.z * to.z);
+            _current *= Matrix4x4.Scale(to);
 
             return this;
         }
@@ -304,8 +232,8 @@ namespace CreateAR.EnkluPlayer
         {
             Setup(GL.LINES);
             {
-                GL.Vertex(from);
-                GL.Vertex(to);
+                GL.Vertex(_current.MultiplyPoint3x4(from));
+                GL.Vertex(_current.MultiplyPoint3x4(to));
             }
             Teardown();
 
@@ -323,8 +251,8 @@ namespace CreateAR.EnkluPlayer
             {
                 for (int i = 0, len = lines.Length; i < len; i += 2)
                 {
-                    GL.Vertex(lines[i]);
-                    GL.Vertex(lines[i + 1]);
+                    GL.Vertex(_current.MultiplyPoint3x4(lines[i]));
+                    GL.Vertex(_current.MultiplyPoint3x4(lines[i + 1]));
                 }
             }
             Teardown();
@@ -343,7 +271,7 @@ namespace CreateAR.EnkluPlayer
             {
                 for (int i = 0, len = lines.Length; i < len; i++)
                 {
-                    GL.Vertex(lines[i]);
+                    GL.Vertex(_current.MultiplyPoint3x4(lines[i]));
                 }
             }
             Teardown();
@@ -366,8 +294,6 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public RenderContext Prism(float w, float h, float d)
         {
-            var mat = _current.Calculate();
-
             var center = Vector3.zero;
             var right = w * Vector3.right / 2f;
             var forward = d * Vector3.forward / 2f;
@@ -379,49 +305,49 @@ namespace CreateAR.EnkluPlayer
                 {
                     var bot = center - up;
 
-                    GL.Vertex(mat.MultiplyPoint3x4(bot - right - forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(bot - right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right + forward));
 
-                    GL.Vertex(mat.MultiplyPoint3x4(bot + right - forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(bot + right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right + forward));
 
-                    GL.Vertex(mat.MultiplyPoint3x4(bot - right - forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(bot + right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right - forward));
 
-                    GL.Vertex(mat.MultiplyPoint3x4(bot - right + forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(bot + right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right + forward));
                 }
                 
                 // top rect
                 {
                     var bot = center + up;
 
-                    GL.Vertex(mat.MultiplyPoint3x4(bot - right - forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(bot - right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right + forward));
 
-                    GL.Vertex(mat.MultiplyPoint3x4(bot + right - forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(bot + right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right + forward));
 
-                    GL.Vertex(mat.MultiplyPoint3x4(bot - right - forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(bot + right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right - forward));
 
-                    GL.Vertex(mat.MultiplyPoint3x4(bot - right + forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(bot + right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right + forward));
                 }
 
                 // connect rects
                 {
-                    GL.Vertex(mat.MultiplyPoint3x4(center + up - right - forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(center - up - right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center + up - right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center - up - right - forward));
 
-                    GL.Vertex(mat.MultiplyPoint3x4(center + up - right + forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(center - up - right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center + up - right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center - up - right + forward));
 
-                    GL.Vertex(mat.MultiplyPoint3x4(center + up + right + forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(center - up + right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center + up + right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center - up + right + forward));
 
-                    GL.Vertex(mat.MultiplyPoint3x4(center + up + right - forward));
-                    GL.Vertex(mat.MultiplyPoint3x4(center - up + right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center + up + right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center - up + right - forward));
                 }
             }
             Teardown();

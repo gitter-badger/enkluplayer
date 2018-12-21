@@ -293,7 +293,7 @@ namespace CreateAR.EnkluPlayer
                 handle.Draw(ctx =>
                 {
                     ctx.Stroke(Color.green);
-                    ctx.Position(position);
+                    ctx.Translate(position);
                     ctx.Cube(0.05f);
 
                     ctx.Stroke(Color.magenta);
@@ -307,8 +307,10 @@ namespace CreateAR.EnkluPlayer
                         }
 
                         var size = collider.bounds.size;
-                        ctx.Position(collider.bounds.center);
+                        ctx.PushMatrix();
+                        ctx.Translate(collider.bounds.center);
                         ctx.Prism(size.x, size.y, size.z);
+                        ctx.PopMatrix();
                     }
                 });
             }

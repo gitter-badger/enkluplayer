@@ -111,9 +111,9 @@ namespace CreateAR.EnkluPlayer
             return this;
         }
 
-        public ContextJsApi position(Vec3 pos)
+        public ContextJsApi translate(double x, double y, double z)
         {
-            _context.Position(pos.ToVector());
+            _context.Translate(new Vector3((float) x, (float) y, (float) z));
 
             return this;
         }
