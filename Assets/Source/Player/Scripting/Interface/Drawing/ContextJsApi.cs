@@ -1,4 +1,5 @@
-﻿using CreateAR.EnkluPlayer.Scripting;
+﻿using System;
+using CreateAR.EnkluPlayer.Scripting;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -146,6 +147,13 @@ namespace CreateAR.EnkluPlayer
             return this;
         }
 
+        public ContextJsApi scale(double scalar)
+        {
+            _context.Scale((float) scalar * Vector3.one);
+
+            return this;
+        }
+
         public ContextJsApi scale(Vec3 scale)
         {
             _context.Scale(scale.ToVector());
@@ -153,9 +161,23 @@ namespace CreateAR.EnkluPlayer
             return this;
         }
 
-        public ContextJsApi wireBox(double w, double h, double d)
+        public ContextJsApi box(double w, double h, double d)
         {
             _context.Prism((float) w, (float) h, (float) d);
+
+            return this;
+        }
+
+        public ContextJsApi sphere()
+        {
+            _context.Sphere();
+
+            return this;
+        }
+
+        public ContextJsApi sphere(double iterations)
+        {
+            _context.Sphere(Mathf.RoundToInt((float) iterations));
 
             return this;
         }
