@@ -5,7 +5,11 @@ namespace CreateAR.EnkluPlayer.Scripting
 {
     public abstract class Script : MonoBehaviour
     {
-        public ScriptData Data { get; protected set; }
+        
+        /// <summary>
+        /// Retrieves the <c>EnkluScript</c> instance.
+        /// </summary>
+        public EnkluScript EnkluScript { get; protected set; }
         
         public bool IsRunning { get; private set; }
         

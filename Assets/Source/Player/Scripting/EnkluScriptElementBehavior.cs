@@ -56,11 +56,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private readonly JsValue[] _nullArgs = new JsValue[0];
 
-        /// <summary>
-        /// Retrieves the <c>EnkluScript</c> instance.
-        /// </summary>
-        public EnkluScript Script { get; private set; }
-
         /// <inheritdoc />
         public ElementSchema Data
         {
@@ -85,8 +80,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             _jsCache = jsCache;
             _factory = factory;
 
-            Script = script;
-            Script.Executor = this;
+            EnkluScript = script;
+            EnkluScript.Executor = this;
         }
 
         /// <inheritdoc />
@@ -101,8 +96,8 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             try
             {
-                Log.Info(this, "Execute : {0}", Script.Source);
-                _engine.Execute(Script.Program);
+                Log.Info(this, "Execute : {0}", EnkluScript.Source);
+                _engine.Execute(EnkluScript.Program);
             }
             catch (Exception exception)
             {
@@ -132,7 +127,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 throw new Exception("Script already started.");
             }
 
-            Log.Info(this, "Entering script {0}.", Script.Data.Name);
+            Log.Info(this, "Entering script {0}.", EnkluScript.Data.Name);
 
             _isStarted = true;
 
@@ -175,7 +170,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 throw new Exception("Script hasn't been started.");
             }
 
-            Log.Info(this, "Exiting script {0}.", Script.Data.Name);
+            Log.Info(this, "Exiting script {0}.", EnkluScript.Data.Name);
 
             _isStarted = false;
 
@@ -192,7 +187,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
-        /// <inheritdoc cref="EnkluScript.IScriptExecutor.Send"/>
+        /// <inheritdoc cref="EnkluPlayer.EnkluScript.IScriptExecutor.Send"/>
         public void Send(string name, params object[] parameters)
         {
             var len = parameters.Length;

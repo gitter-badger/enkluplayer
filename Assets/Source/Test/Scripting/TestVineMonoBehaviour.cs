@@ -21,7 +21,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             VineImporter importer,
             IElementFactory elements)
         {
-            
+            EnkluScript = script;
         }
 
         public override IAsyncToken<Void> Configure()

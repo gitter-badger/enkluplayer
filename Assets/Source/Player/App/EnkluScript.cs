@@ -142,6 +142,7 @@ namespace CreateAR.EnkluPlayer
             {
                 OnUpdated(this);
             }
+            
         }
 
         /// <summary>

@@ -18,7 +18,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         
         public override void Initialize(IElementJsCache jsCache, IElementJsFactory factory, Engine engine, EnkluScript script, Element element)
         {
-            
+            EnkluScript = script;
         }
 
         public override IAsyncToken<Void> Configure()

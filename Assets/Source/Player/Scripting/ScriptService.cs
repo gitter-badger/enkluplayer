@@ -35,12 +35,12 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 for (int i = 0, len = _elementManager.All.Count; i < len; i++)
                 {
-                    OnElementCreated(_elementManager.All[i]);
+                    Element_OnCreated(_elementManager.All[i]);
                 }
                 
                 _scriptRunner.ParseAll();
                 
-                _elementManager.OnCreated += OnElementCreated;
+                _elementManager.OnCreated += Element_OnCreated;
             };
         }
 
@@ -55,10 +55,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             base.Stop();
             
-            _elementManager.OnCreated -= OnElementCreated;
+            _elementManager.OnCreated -= Element_OnCreated;
         }
 
-        private void OnElementCreated(Element element)
+        private void Element_OnCreated(Element element)
         {
             Widget widget = element as Widget;
             if (widget == null)

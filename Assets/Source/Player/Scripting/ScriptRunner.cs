@@ -328,24 +328,24 @@ namespace CreateAR.EnkluPlayer.Scripting
             
             switch (script.Data.Type)
             {
-                case ScriptType.Behavior:
-                    for (int i = 0, len = record.Behaviors.Count; i < len; i++)
+                case ScriptType.Vine:
+                    for (int i = 0, len = record.Vines.Count; i < len; i++)
                     {
-                        if (record.Behaviors[i].Data.Id == script.Data.Id)
+                        if (record.Vines[i].EnkluScript.Data.Id == script.Data.Id)
                         {
-                            existing = record.Behaviors[i];
+                            existing = record.Vines[i];
                             break;
                         }
                     }
 
                     newScript = _scriptFactory.Vine(widget, script);
                     break;
-                case ScriptType.Vine:
-                    for (int i = 0, len = record.Vines.Count; i < len; i++)
+                case ScriptType.Behavior:
+                    for (int i = 0, len = record.Behaviors.Count; i < len; i++)
                     {
-                        if (record.Vines[i].Data.Id == script.Data.Id)
+                        if (record.Behaviors[i].EnkluScript.Data.Id == script.Data.Id)
                         {
-                            existing = record.Vines[i];
+                            existing = record.Behaviors[i];
                             break;
                         }
                     }
@@ -363,7 +363,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     Log.Info(this, "Swapping script");
                     if (existing != null)
                     {
-                        existing.Exit();
+                        StopScript(existing);
                         RemoveScript(record, existing);
                     }
                     
@@ -428,7 +428,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="script"></param>
         private void AddScript(WidgetRecord record, Script script)
         {
-            switch (script.Data.Type)
+            switch (script.EnkluScript.Data.Type)
             {
                 case ScriptType.Vine:
                     record.Vines.Add((VineScript) script);
@@ -446,7 +446,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="script"></param>
         private void RemoveScript(WidgetRecord record, Script script)
         {
-            switch (script.Data.Type)
+            switch (script.EnkluScript.Data.Type)
             {
                 case ScriptType.Vine:
                     record.Vines.Remove((VineScript) script);
@@ -475,6 +475,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
 
                 var component = _scriptFactory.Vine(record.Widget, script);
+                AddScript(record, component);
                 
                 tokens.Add(component.Configure().OnSuccess((_) =>
                 {
@@ -487,7 +488,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }));
             }
 
-            return tokens;
+            return tokens; 
         }
 
         /// <summary>
@@ -507,7 +508,8 @@ namespace CreateAR.EnkluPlayer.Scripting
                 }
 
                 var component = _scriptFactory.Behavior(record.Widget, _jsCache, record.Engine, script);
-
+                AddScript(record, component);
+                
                 triggerToken.OnSuccess((_) =>
                 {
                     component.Configure();

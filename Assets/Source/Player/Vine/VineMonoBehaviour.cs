@@ -34,11 +34,6 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// The parent of the script.
         /// </summary>
         public Element Parent { get; private set; }
-
-        /// <summary>
-        /// EnkluScript.
-        /// </summary>
-        public EnkluScript Script { get; private set; }
         
         /// <inheritdoc />
         public override void Initialize(
@@ -48,7 +43,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             IElementFactory elements)
         {
             Parent = parent;
-            Script = script;
+            EnkluScript = script;
             _importer = importer;
             _elements = elements;
         }
@@ -56,12 +51,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <inheritdoc />
         public override IAsyncToken<Void> Configure()
         {
-            Log.Info(this, "Importing Vine {0}.", Script.Data.Id);
+            Log.Info(this, "Importing Vine {0}.", EnkluScript.Data.Id);
 
             var token = new AsyncToken<Void>();
 
             _importer
-                .Parse(Script.Source, Parent != null ? Parent.Schema : null)
+                .Parse(EnkluScript.Source, Parent != null ? Parent.Schema : null)
                 .OnSuccess(description =>
                 {
                     _description = description;
