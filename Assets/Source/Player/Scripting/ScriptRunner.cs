@@ -15,6 +15,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             Error = -1,
             None,
+            Loading,
+            Loaded,
             Parsing,
             Done
         }
@@ -23,12 +25,15 @@ namespace CreateAR.EnkluPlayer.Scripting
         {
             public Widget Widget;
             
-            public List<EnkluScript> Scripts = new List<EnkluScript>();
-            public List<VineScript> Vines = new List<VineScript>();
-            public List<BehaviorScript> Behaviors = new List<BehaviorScript>();
+            public readonly List<EnkluScript> Scripts = new List<EnkluScript>();
+            public readonly List<VineScript> Vines = new List<VineScript>();
+            public readonly List<BehaviorScript> Behaviors = new List<BehaviorScript>();
 
             public SetupState SetupState;
             public UnityScriptingHost Engine;
+
+            public ElementSchemaProp<string> ScriptSchema;
+            public IAsyncToken<Void[]> LoadToken;
         }
 
         private const string SCHEMA_SOURCE = "scripts";
@@ -64,29 +69,25 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 throw new Exception("Widget already added.");
             }
-            
-            _widgetRecords.Add(widget, new WidgetRecord()
+
+            var record = new WidgetRecord
             {
                 Widget = widget,
                 SetupState = SetupState.None,
                 Engine = CreateBehaviorHost(widget)
-            });
+            };
+            _widgetRecords.Add(widget, record);
+            
+            HookSchema(record);
+            LoadScripts(record);
 
             if (_globalState == SetupState.Done || _globalState == SetupState.Error)
             {
-                ParseWidget(widget);
+                ParseWidget(record);
             }
             else
             {
-                try
-                {
-                    _scriptLoading.Add(CreateScripts(widget));
-                }
-                catch (Exception e)
-                {
-                    Log.Error("Error running scripts for {0} : {1}", widget, e);
-                    _widgetRecords[widget].SetupState = SetupState.Error;
-                }
+                _scriptLoading.Add(record.LoadToken);
             }
         }
 
@@ -114,9 +115,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 Log.Info(this, "Scripts loaded. Starting parsing.");
                 
-                foreach (var key in _widgetRecords.Keys)
+                foreach (var record in _widgetRecords.Values)
                 {
-                    ParseWidget(key);
+                    ParseWidget(record);
                 }
 
                 Async.All(_vineTokens.ToArray()).OnSuccess((__) =>
@@ -142,33 +143,31 @@ namespace CreateAR.EnkluPlayer.Scripting
             return rtn;
         }
 
-        private void ParseWidget(Widget widget)
-        {
-            var record = _widgetRecords[widget];
-            
-            if (record.SetupState != SetupState.None)
+        private void ParseWidget(WidgetRecord record)
+        {   
+            if (record.SetupState != SetupState.Loaded)
             {
-                return;
+                throw new Exception("Should this be an exception?");
             }
             record.SetupState = SetupState.Parsing;
 
-            CreateScripts(widget).OnSuccess(_ =>
+            record.LoadToken.OnSuccess(_ =>
             {
                 var vineTokens = ParseVines(record);
 
-                if (_globalState == SetupState.Done)
+                if (_globalState != SetupState.Done)
                 {
                     for (int i = 0, len = vineTokens.Count; i < len; i++)
                     {
                         _vineTokens.Add(vineTokens[i]);
                     }
-                    
+
                     ParseBehaviors(record, _vinesComplete);
                 }
                 else
                 {
                     var allToken = Async.All(vineTokens.ToArray());
-                    ParseBehaviors(record,  Async.Map(allToken, __ => Void.Instance));
+                    ParseBehaviors(record, Async.Map(allToken, __ => Void.Instance));
                 }
             });
         }
@@ -219,7 +218,19 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
             catch (Exception e)
             {
-                Log.Error("Error entering Script: {0}", e);
+                Log.Error(this, "Error entering Script: {0}", e);
+            }
+        }
+
+        private void StopScript(Script script)
+        {
+            try
+            {
+                script.Exit();
+            }
+            catch (Exception e)
+            {
+                Log.Error(this, "Error exiting Script: {0}", e);
             }
         }
 
@@ -228,17 +239,47 @@ namespace CreateAR.EnkluPlayer.Scripting
             return new UnityScriptingHost(widget, _requireResolver, _scriptManager);
         }
 
-        private IAsyncToken<Void[]> CreateScripts(Widget widget)
+        private void HookSchema(WidgetRecord record)
         {
-            var ids = GetScriptIds(widget);
-            var len = ids.Length;
-            Log.Info(this, "\tLoading {0} scripts.", len);
+            record.ScriptSchema = record.Widget.Schema.GetOwn(SCHEMA_SOURCE, "[]");
+            record.ScriptSchema.OnChanged += (prop, s, arg3) =>
+            {
+                Log.Info(this, "Widget script list changed.");
+                LoadScripts(record);
+                ParseWidget(record);
+            };
+        }
+
+        private IAsyncToken<Void[]> CreateScripts(WidgetRecord record)
+        {
+            record.SetupState = SetupState.Loading;
+            
+            var ids = GetScriptIds(record);
+            var idsLen = ids.Length;
+            Log.Info(this, "\tLoading {0} scripts.", idsLen);
 
             // Create scripts
-            var scripts = _widgetRecords[widget].Scripts;
-            for (var i = 0; i < len; i++)
+            var scripts = record.Scripts;
+            var scriptsLen = scripts.Count;
+            for (var i = 0; i < idsLen; i++)
             {
-                var script = _scriptManager.Create(ids[i], ids[i], widget.Id);
+                var newScript = true;
+                // Ignore existing scripts
+                for (var j = 0; j < scriptsLen; j++)
+                {
+                    if (scripts[j].Data.Id == ids[i])
+                    {
+                        newScript = false;
+                        break;
+                    }
+                }
+
+                if (!newScript)
+                {
+                    continue;
+                }
+                
+                var script = _scriptManager.Create(ids[i], ids[i], record.Widget.Id);
                 if (script == null)
                 {
                     Log.Error(this, "Unable to create script {0}", ids[i]);
@@ -251,8 +292,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             // Hook callbacks
-            var scriptTokens = new IAsyncToken<Void>[len];
-            for (var i = 0; i < len; i++)
+            var scriptTokens = new IAsyncToken<Void>[idsLen];
+            for (var i = 0; i < idsLen; i++)
             {
                 var scriptToken = new AsyncToken<Void>();
                 scriptTokens[i] = scriptToken;
@@ -269,11 +310,12 @@ namespace CreateAR.EnkluPlayer.Scripting
                     scriptToken.Succeed(Void.Instance);
                 }
                 
-                script.OnUpdated += (_) => Script_OnUpdated(widget, script);
+                script.OnUpdated += (_) => Script_OnUpdated(record.Widget, script);
             }
             
 
-            return Async.All(scriptTokens);
+            return Async.All(scriptTokens)
+                .OnSuccess(_ => record.SetupState = SetupState.Loaded);
         }
 
         private void Script_OnUpdated(Widget widget, EnkluScript script)
@@ -337,12 +379,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Retrieves script ids to load.
         /// </summary>
         /// <returns></returns>
-        private string[] GetScriptIds(Widget widget)
+        private string[] GetScriptIds(WidgetRecord record)
         {
-            var scriptsSrc = widget.Schema.GetOwn(SCHEMA_SOURCE, "[]").Value;
-
             // unescape-- this is dumb obviously
-            scriptsSrc = scriptsSrc.Replace("\\\"", "\"");
+            var scriptsSrc = record.ScriptSchema.Value.Replace("\\\"", "\"");
 
             JArray value;
             try
@@ -366,6 +406,19 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             return ids;
+        }
+
+        private void LoadScripts(WidgetRecord record)
+        {
+            try
+            {
+                record.LoadToken = CreateScripts(record);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error running scripts for {0} : {1}", record.Widget, e);
+                record.SetupState = SetupState.Error;
+            }
         }
 
         /// <summary>
@@ -426,6 +479,10 @@ namespace CreateAR.EnkluPlayer.Scripting
                 tokens.Add(component.Configure().OnSuccess((_) =>
                 {
                     // TODO: Defer this until ScriptService calls
+                    if (component.IsRunning)
+                    {
+                        StopScript(component);
+                    }
                     StartScript(component);
                 }));
             }
@@ -454,6 +511,10 @@ namespace CreateAR.EnkluPlayer.Scripting
                 triggerToken.OnSuccess((_) =>
                 {
                     component.Configure();
+                    if (component.IsRunning)
+                    {
+                        StopScript(component);
+                    }
                     StartScript(component);
                 });
             }

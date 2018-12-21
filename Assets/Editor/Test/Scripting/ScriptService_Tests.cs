@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
-using CreateAR.EnkluPlayer.Test.UI;
 using CreateAR.EnkluPlayer.Vine;
 using Jint.Parser;
 using Newtonsoft.Json;
@@ -67,9 +66,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             }
         }
 
-        /// <summary>
         /// Tests a scene loading from scratch.
-        /// </summary>
         [Test]
         public void InitialScene()
         {
@@ -94,59 +91,136 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(1, behaviorComponent.EnterInvoked);
         }
 
-        /// <summary>
-        /// Tests a script being added to an already added scene.
-        /// </summary>
+        /// Tests elements being added to an already added scene.
         [Test]
-        public void NewScript()
+        public void NewElements()
         {
             _scriptService.Start();
             _sceneManager.Initialize("test", null);
             
-            var behaviorWidget = CreateWidget(_behaviors[0]);
-            _elementManager.Add(behaviorWidget);
-            
+            // Late add Vine
             var vineWidget = CreateWidget(_vines[0]);
             _elementManager.Add(vineWidget);
             
             var vineComponent = _scriptFactory.GetVine(_vines[0]);
+            
+            Assert.AreEqual(0, vineComponent.EnterInvoked);
+            vineComponent.FinishConfigure();
+            Assert.AreEqual(1, vineComponent.EnterInvoked);
+            
+            // Late add Behavior
+            var behaviorWidget = CreateWidget(_behaviors[0]);
+            _elementManager.Add(behaviorWidget);
+            
             var behaviorComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+            
+            Assert.AreEqual(1, behaviorComponent.EnterInvoked);
+            
+            // Late add Combined
+            var mixedWidget = CreateWidget(_behaviors[1], _vines[1]);
+            _elementManager.Add(mixedWidget);
+
+            vineComponent = _scriptFactory.GetVine(_vines[1]);
+            behaviorComponent = _scriptFactory.GetBehavior(_behaviors[1]);
             
             Assert.AreEqual(0, vineComponent.EnterInvoked);
             Assert.AreEqual(0, behaviorComponent.EnterInvoked);
-            
             vineComponent.FinishConfigure();
-            
             Assert.AreEqual(1, vineComponent.EnterInvoked);
             Assert.AreEqual(1, behaviorComponent.EnterInvoked);
         }
+
+        // Adding a script to an already existing Widget without scripts.
+        [Test]
+        public void FirstScript()
+        {
+            var widget1 = CreateWidget();
+            var widget2 = CreateWidget();
+            var widget3 = CreateWidget();
+            
+            _elementManager.Add(widget1);
+            _elementManager.Add(widget2);
+            _elementManager.Add(widget3);
+            _scriptService.Start();
+            _sceneManager.Initialize("test", null);
+            
+            // New Vine
+            AddScriptToWidget(widget1, _vines[0]);
+            
+            var vineComponent = _scriptFactory.GetVine(_vines[0]);
+            Assert.AreEqual(0, vineComponent.EnterInvoked);
+            vineComponent.FinishConfigure();
+            Assert.AreEqual(1, vineComponent.EnterInvoked);
+            
+            // New Behavior
+            AddScriptToWidget(widget2, _behaviors[0]);
+            
+            var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+            Assert.AreEqual(1, behaviourComponent.EnterInvoked);
+            
+            // New Combined
+            AddScriptToWidget(widget3, _behaviors[1], _vines[1]);
+            
+            vineComponent = _scriptFactory.GetVine(_vines[1]);
+            behaviourComponent = _scriptFactory.GetBehavior(_behaviors[1]);
+            
+            Assert.AreEqual(0, vineComponent.EnterInvoked);
+            Assert.AreEqual(0, behaviourComponent.EnterInvoked);
+            vineComponent.FinishConfigure();
+            Assert.AreEqual(1, behaviourComponent.EnterInvoked);
+            Assert.AreEqual(1, vineComponent.EnterInvoked);
+        }
+        
+        // Adding a script to an already existing Widget containing scripts. 
+        [Test]
+        public void AdditionalScripts()
+        {
+            var widget = CreateWidget(_vines[0]);
+            _elementManager.Add(widget);
+            _scriptService.Start();
+            _sceneManager.Initialize("test", null);
+            
+            var vineComponent = _scriptFactory.GetVine(_vines[0]);
+            vineComponent.FinishConfigure();
+
+            // Add a new Behavior
+            AddScriptToWidget(widget, _behaviors[0]);
+
+            var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+            
+            Assert.AreEqual(2, vineComponent.EnterInvoked);
+            Assert.AreEqual(1, behaviourComponent.EnterInvoked);
+        }
+        
+        
         
         private Widget CreateWidget(params EnkluScript[] scripts)
         {
             var widget = new Widget(new GameObject("ScriptRunner_Tests"), null, null, null);
-            for (var i = 0; i < scripts.Length; i++)
-            {
-                AddScriptToWidget(scripts[i], widget);
-            }
-
+            AddScriptToWidget(widget, scripts);
             return widget;
         }
 
-        private void AddScriptToWidget(EnkluScript script, Widget widget)
+        private void AddScriptToWidget(Widget widget, params EnkluScript[] scripts)
         {
             var existingScripts = JArray.Parse(
                 widget.Schema.GetOwn("scripts", "[]").Value);
 
-            if (!existingScripts.Contains(script.Data.Id))
+            for (int i = 0, len = scripts.Length; i < len; i++)
             {
-                existingScripts.Add(JToken.FromObject(new Dictionary<string, string>
-                {
-                    { "id", script.Data.Id }
-                }));
+                var script = scripts[i];
                 
-                _scriptManager.AddEntry(script.Data.Id, script);
+                if (!existingScripts.Contains(script.Data.Id))
+                {
+                    existingScripts.Add(JToken.FromObject(new Dictionary<string, string>
+                    {
+                        { "id", script.Data.Id }
+                    }));
+                
+                    _scriptManager.AddEntry(script.Data.Id, script);
+                }
             }
-            
+
             widget.Schema.Set("scripts", JsonConvert.SerializeObject(existingScripts));
         }
     }
