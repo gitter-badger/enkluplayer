@@ -80,6 +80,23 @@ namespace CreateAR.EnkluPlayer
             });
         }
 
+        /// <summary>
+        /// Removes a callback for drawing.
+        /// </summary>
+        /// <param name="engine">The calling engine.</param>
+        /// <param name="fn">The callback to remove.</param>
+        public void unregister(Engine engine, JsFunc fn)
+        {
+            for (int i = 0, len = _cbs.Count; i < len; i++)
+            {
+                if (fn == _cbs[i].Callback)
+                {
+                    _cbs.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
         /// <inheritdoc cref="MonoBehaviour"/>
         private void Awake()
         {

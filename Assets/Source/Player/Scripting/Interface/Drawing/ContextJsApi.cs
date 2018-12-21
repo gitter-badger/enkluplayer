@@ -196,6 +196,11 @@ namespace CreateAR.EnkluPlayer
             return this;
         }
 
+        public ContextJsApi box(double size)
+        {
+            return box(size, size, size);
+        }
+
         public ContextJsApi sphere()
         {
             _context.Sphere();
@@ -206,6 +211,20 @@ namespace CreateAR.EnkluPlayer
         public ContextJsApi sphere(double iterations)
         {
             _context.Sphere(Mathf.RoundToInt((float) iterations));
+
+            return this;
+        }
+
+        public ContextJsApi octohedron()
+        {
+            _context.Octohedron();
+
+            return this;
+        }
+
+        public ContextJsApi dodecahedron()
+        {
+            _context.Dodecahedron();
 
             return this;
         }

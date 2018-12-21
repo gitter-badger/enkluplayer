@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -401,6 +400,30 @@ namespace CreateAR.EnkluPlayer
             Vector3[] verts;
             int[] tris;
             GeometryHelper.GeoSphere(iterations, out verts, out tris);
+
+            Triangles(ref verts, ref tris);
+        }
+
+        /// <summary>
+        /// Creates an octohedron.
+        /// </summary>
+        public void Octohedron()
+        {
+            Vector3[] verts;
+            int[] tris;
+            GeometryHelper.Octohedron(out verts, out tris);
+
+            Triangles(ref verts, ref tris);
+        }
+
+        /// <summary>
+        /// Creates a dodecahedron.
+        /// </summary>
+        public void Dodecahedron()
+        {
+            Vector3[] verts;
+            int[] tris;
+            GeometryHelper.Dodecahedron(out verts, out tris);
 
             Triangles(ref verts, ref tris);
         }
