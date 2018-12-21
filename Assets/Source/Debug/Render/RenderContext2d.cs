@@ -34,7 +34,7 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public RenderContext2D Color(Color color)
         {
-            _context.Color(color);
+            _context.Stroke(color);
 
             return this;
         }
