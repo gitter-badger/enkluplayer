@@ -23,6 +23,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             }
             
             var component = widget.GameObject.AddComponent<TestVineMonoBehaviour>();
+            component.Initialize(widget.Parent, script, null, null);
             _vineCache.Add(script, component);
 
             return component;
@@ -43,6 +44,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             }
             
             var component = widget.GameObject.AddComponent<TestBehaviorMonoBehaviour>();
+            component.Initialize(jsCache, null, host, script, widget);
             _behaviorCache.Add(script, component);
 
             return component;
