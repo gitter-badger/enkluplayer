@@ -99,7 +99,16 @@ namespace CreateAR.EnkluPlayer
         public RenderContext Reset()
         {
             _color = Color.white;
-            _current.Reset();
+
+            if (null == _current)
+            {
+                _current = new MatrixData();
+            }
+            else
+            {
+                _current.Reset();
+            }
+            
             _matrices.Clear();
 
             return this;
@@ -140,13 +149,25 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Sets up translation.
+        /// Translates the current matrix.
         /// </summary>
         /// <param name="to">The target.</param>
         /// <returns></returns>
         public RenderContext Translate(Vector3 to)
         {
             _current.T += to;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets position.
+        /// </summary>
+        /// <param name="to">The target.</param>
+        /// <returns></returns>
+        public RenderContext Position(Vector3 position)
+        {
+            _current.T = position;
 
             return this;
         }

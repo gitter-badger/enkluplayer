@@ -292,10 +292,11 @@ namespace CreateAR.EnkluPlayer
             {
                 handle.Draw(ctx =>
                 {
-                    ctx.Color(Color.green);
-                    ctx.Cube(position, 0.05f);
+                    ctx.Stroke(Color.green);
+                    ctx.Position(position);
+                    ctx.Cube(0.05f);
 
-                    ctx.Color(Color.magenta);
+                    ctx.Stroke(Color.magenta);
                     for (int i = 0, len = _records.Count; i < len; i++)
                     {
                         var record = _records[i];
@@ -305,7 +306,9 @@ namespace CreateAR.EnkluPlayer
                             continue;
                         }
 
-                        ctx.Prism(collider.bounds);
+                        var size = collider.bounds.size;
+                        ctx.Position(collider.bounds.center);
+                        ctx.Prism(size.x, size.y, size.z);
                     }
                 });
             }

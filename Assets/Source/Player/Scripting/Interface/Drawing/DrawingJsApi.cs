@@ -57,7 +57,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="filter">The filter.</param>
         public void filter(string filter)
         {
-            _filter = filter.ToLower();
+            _filter = (filter ?? string.Empty).ToLower();
         }
         
         /// <summary>
@@ -66,8 +66,12 @@ namespace CreateAR.EnkluPlayer
         /// <param name="engine">The engine.</param>
         /// <param name="category">The category associated with this callback.</param>
         /// <param name="fn">The callback.</param>
-        public void render(Engine engine, string category, JsFunc fn)
+        public void register(Engine engine, string category, JsFunc fn)
         {
+            // this may be called multiple times on the same engine
+            engine.OnDestroy -= Engine_OnDestroy;
+            engine.OnDestroy += Engine_OnDestroy;
+
             _cbs.Add(new CallbackRecord
             {
                 Engine = engine,
@@ -117,8 +121,24 @@ namespace CreateAR.EnkluPlayer
                         // 
                     }
                 }
+            }
+        }
 
-                _cbs.Clear();
+        /// <summary>
+        /// Called when an engine has been destroyed.
+        /// </summary>
+        /// <param name="engine"></param>
+        private void Engine_OnDestroy(Engine engine)
+        {
+            engine.OnDestroy -= Engine_OnDestroy;
+
+            // remove all callbacks related to this engine
+            for (var i = _cbs.Count - 1; i >= 0; i--)
+            {
+                if (_cbs[i].Engine == engine)
+                {
+                    _cbs.RemoveAt(i);
+                }
             }
         }
     }

@@ -111,6 +111,13 @@ namespace CreateAR.EnkluPlayer
             return this;
         }
 
+        public ContextJsApi position(Vec3 pos)
+        {
+            _context.Position(pos.ToVector());
+
+            return this;
+        }
+
         public ContextJsApi rotateX(double rad)
         {
             _context.RotateX((float) rad);
