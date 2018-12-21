@@ -1,5 +1,4 @@
 using CreateAR.Commons.Unity.Async;
-using CreateAR.EnkluPlayer.IUX;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -7,6 +6,8 @@ namespace CreateAR.EnkluPlayer.Scripting
     public abstract class Script : MonoBehaviour
     {
         public ScriptData Data { get; protected set; }
+        
+        public bool IsRunning { get; private set; }
         
         /// <summary>
         /// Called after script is ready, before FSM flow.
@@ -16,7 +17,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Enters the script.
         /// </summary>
-        public abstract void Enter();
+        public virtual void Enter()
+        {
+            IsRunning = true;
+        }
 
         /// <summary>
         /// Called every frame.
@@ -26,6 +30,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Exits the script.
         /// </summary>
-        public abstract void Exit();
+        public virtual void Exit()
+        {
+            IsRunning = false;
+        }
     }
 }

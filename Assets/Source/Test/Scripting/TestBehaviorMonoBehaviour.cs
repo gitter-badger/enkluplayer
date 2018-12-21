@@ -30,6 +30,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         public override void Enter()
         {
+            base.Enter();
             EnterInvoked++;
             LastInvokeId = _invokeId++;
         }
@@ -41,6 +42,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
         public override void Exit()
         {
+            base.Exit();
             ExitInvoked++;
             LastInvokeId = _invokeId++;
         }

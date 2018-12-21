@@ -3,7 +3,6 @@ using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Vine;
-using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer.Scripting
@@ -83,6 +82,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <inheritdoc />
         public override void Enter()
         {
+            base.Enter();
+            
             if (null == _description)
             {
                 return;
@@ -102,6 +103,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <inheritdoc />
         public override void Exit()
         {
+            base.Exit();
+            
             if (null != _element)
             {
                 _element.Destroy();
