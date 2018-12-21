@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.EnkluPlayer.Scripting;
-using CreateAR.EnkluPlayer.Test.Vine;
-using UnityEngine;
 
 namespace CreateAR.EnkluPlayer.Test.Scripting
 {
@@ -17,6 +15,13 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// <inheritdoc />
         public VineScript Vine(Widget widget, EnkluScript script)
         {
+            var existing = GetVine(script);
+
+            if (existing != null)
+            {
+                return existing;
+            }
+            
             var component = widget.GameObject.AddComponent<TestVineMonoBehaviour>();
             _vineCache.Add(script, component);
 
@@ -30,6 +35,13 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             UnityScriptingHost host,
             EnkluScript script)
         {
+            var existing = GetBehavior(script);
+
+            if (existing != null)
+            {
+                return existing;
+            }
+            
             var component = widget.GameObject.AddComponent<TestBehaviorMonoBehaviour>();
             _behaviorCache.Add(script, component);
 
