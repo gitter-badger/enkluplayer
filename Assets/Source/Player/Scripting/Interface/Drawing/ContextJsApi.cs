@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Scripting;
 using UnityEngine;
 
@@ -80,6 +82,35 @@ namespace CreateAR.EnkluPlayer
             }
 
             _context.LineStrip(vectors);
+
+            return this;
+        }
+
+        public ContextJsApi triangles(object[] vertices, object[] indices)
+        {
+            var verticesLen = vertices.Length;
+            var verts = new Vector3[verticesLen];
+            var i = 0;
+            for (i = 0; i < verticesLen; i++)
+            {
+                verts[i] = ((Vec3) vertices[i]).ToVector();
+            }
+
+            var indicesLen = indices.Length;
+            var tris = new int[indicesLen];
+            for (i = 0; i < indicesLen; i++)
+            {
+                var index = indices[i];
+                if (null == index)
+                {
+                    continue;
+                }
+
+                var fl = (float) (double) indices[i];
+                tris[i] = Mathf.RoundToInt(fl);
+            }
+
+            _context.Triangles(ref verts, ref tris);
 
             return this;
         }

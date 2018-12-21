@@ -77,6 +77,11 @@ namespace CreateAR.EnkluPlayer
                     Subdivide(ref vertices, ref triangles);
                 }
             }
+
+            for (int i = 0, len = vertices.Length; i < len; i++)
+            {
+                vertices[i] = vertices[i].normalized;
+            }
         }
 
         /// <summary>

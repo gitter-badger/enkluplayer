@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -280,6 +281,33 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
+        /// Renders triangles.
+        /// </summary>
+        /// <param name="vertices">Array of vertices..</param>
+        /// /// <param name="indices">Indices into vertex array.</param>
+        public void Triangles(ref Vector3[] vertices, ref int[] indices)
+        {
+            Setup(GL.LINES);
+            {
+                for (int i = 0, len = indices.Length; i < len; i += 3)
+                {
+                    var va = vertices[indices[i]];
+                    var vb = vertices[indices[i + 1]];
+                    var vc = vertices[indices[i + 2]];
+
+                    var a = _current.MultiplyPoint3x4(va);
+                    var b = _current.MultiplyPoint3x4(vb);
+                    var c = _current.MultiplyPoint3x4(vc);
+
+                    GL.Vertex(a); GL.Vertex(b);
+                    GL.Vertex(b); GL.Vertex(c);
+                    GL.Vertex(c); GL.Vertex(a);
+                }
+            }
+            Teardown();
+        }
+
+        /// <summary>
         /// Draws a cube.
         /// </summary>
         /// <param name="size">The size of the cube.</param>
@@ -374,37 +402,7 @@ namespace CreateAR.EnkluPlayer
             int[] tris;
             GeometryHelper.GeoSphere(iterations, out verts, out tris);
 
-            RenderTriangles(ref tris, ref verts);
-        }
-
-        /// <summary>
-        /// Renders triangles.
-        /// </summary>
-        /// <param name="tris">Indices into vert array.</param>
-        /// <param name="verts">Verts.</param>
-        private void RenderTriangles(ref int[] tris, ref Vector3[] verts)
-        {
-            Setup(GL.LINES);
-            {
-                for (int i = 0, len = tris.Length; i < len; i += 3)
-                {
-                    var va = verts[tris[i]].normalized;
-                    var vb = verts[tris[i + 1]].normalized;
-                    var vc = verts[tris[i + 2]].normalized;
-
-                    var a = _current.MultiplyPoint3x4(va);
-                    var b = _current.MultiplyPoint3x4(vb);
-                    var c = _current.MultiplyPoint3x4(vc);
-
-                    GL.Vertex(a);
-                    GL.Vertex(b);
-                    GL.Vertex(b);
-                    GL.Vertex(c);
-                    GL.Vertex(c);
-                    GL.Vertex(a);
-                }
-            }
-            Teardown();
+            Triangles(ref verts, ref tris);
         }
     }
 }
