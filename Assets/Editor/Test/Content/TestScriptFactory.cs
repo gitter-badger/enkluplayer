@@ -15,16 +15,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// <inheritdoc />
         public VineScript Vine(Widget widget, EnkluScript script)
         {
-            var existing = GetVine(script);
-
-            if (existing != null)
-            {
-                return existing;
-            }
-            
             var component = widget.GameObject.AddComponent<TestVineMonoBehaviour>();
             component.Initialize(widget.Parent, script, null, null);
-            _vineCache.Add(script, component);
+
+            _vineCache[script] = component;
 
             return component;
         }
@@ -36,16 +30,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             UnityScriptingHost host,
             EnkluScript script)
         {
-            var existing = GetBehavior(script);
-
-            if (existing != null)
-            {
-                return existing;
-            }
-            
             var component = widget.GameObject.AddComponent<TestBehaviorMonoBehaviour>();
             component.Initialize(jsCache, null, host, script, widget);
-            _behaviorCache.Add(script, component);
+
+            _behaviorCache[script] = component;
 
             return component;
         }

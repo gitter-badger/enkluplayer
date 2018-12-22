@@ -13,6 +13,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         
         public bool IsRunning { get; private set; }
         
+        public bool IsConfigured { get; protected set; }
+
         /// <summary>
         /// Called after script is ready, before FSM flow.
         /// </summary>

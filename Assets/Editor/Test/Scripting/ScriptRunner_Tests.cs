@@ -64,6 +64,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
+            _scriptRunner.StartScripts();
             
             // Behaviors load synchronously. Check that the script has loaded & invoked.
             Assert.AreEqual(ScriptRunner.SetupState.Done, _scriptRunner.GetSetupState(widget));
@@ -79,6 +80,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
+            _scriptRunner.StartScripts();
             
             // Vines are async, check that it hasn't finished.
             Assert.AreEqual(ScriptRunner.SetupState.Parsing, _scriptRunner.GetSetupState(widget));
@@ -102,6 +104,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
+            _scriptRunner.StartScripts();
             
             Assert.AreEqual(ScriptRunner.SetupState.Parsing, _scriptRunner.GetSetupState(widget));
             
@@ -163,6 +166,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = WidgetUtil.CreateWidget();
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
+            _scriptRunner.StartScripts();
             
             WidgetUtil.AddScriptToWidget(widget, _scriptManager, _vines[0]);
             
@@ -178,6 +182,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = WidgetUtil.CreateWidget();
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
+            _scriptRunner.StartScripts();
             
             WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
             
@@ -191,6 +196,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = WidgetUtil.CreateWidget();
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
+            _scriptRunner.StartScripts();
             
             // New Combined
             WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[1], _vines[1]);
@@ -212,6 +218,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
+            _scriptRunner.StartScripts();
             
             var vineComponent = _scriptFactory.GetVine(_vines[0]);
             vineComponent.FinishConfigure();
@@ -234,6 +241,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
+            _scriptRunner.StartScripts();
             
             var oldComponent = _scriptFactory.GetVine(_vines[0]);
             oldComponent.FinishConfigure();
@@ -244,9 +252,16 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             
             vineScript.Updated();
             Assert.AreEqual(1, oldComponent.EnterInvoked);
-            Assert.AreEqual(1, oldComponent.ExitInvoked);
+            Assert.AreEqual(0, oldComponent.ExitInvoked);
             
             var newComponent = _scriptFactory.GetVine(_vines[0]);
+            newComponent.FinishConfigure();
+            
+            Assert.AreEqual(1, oldComponent.EnterInvoked);
+            Assert.AreEqual(1, oldComponent.ExitInvoked);
+            
+            
+            Assert.AreNotSame(oldComponent, newComponent);
             Assert.AreEqual(1, newComponent.EnterInvoked);
             Assert.AreEqual(0, newComponent.ExitInvoked);
         }

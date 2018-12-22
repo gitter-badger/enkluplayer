@@ -113,6 +113,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             _update = _engine.GetFunction("update");
             _exit = _engine.GetFunction("exit");
 
+            IsConfigured = true;
             token.Succeed(Void.Instance);
             return token;
         }

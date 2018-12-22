@@ -52,6 +52,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// </summary>
         public void FinishConfigure()
         {
+            IsConfigured = true;
             _configureToken.Succeed(Void.Instance);
         }
     }

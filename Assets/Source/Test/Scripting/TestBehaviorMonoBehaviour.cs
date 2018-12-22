@@ -25,6 +25,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             var token = new AsyncToken<Void>();
             token.Succeed(Void.Instance);
+            IsConfigured = true;
             return token;
         }
 

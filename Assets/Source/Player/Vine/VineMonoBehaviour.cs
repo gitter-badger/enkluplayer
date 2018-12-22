@@ -54,7 +54,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             Log.Info(this, "Importing Vine {0}.", EnkluScript.Data.Id);
 
             var token = new AsyncToken<Void>();
-
+            
             _importer
                 .Parse(EnkluScript.Source, Parent != null ? Parent.Schema : null)
                 .OnSuccess(description =>
@@ -68,6 +68,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     else
                     {
                         token.Succeed(Void.Instance);
+                        IsConfigured = true;
                     }
                 });
 

@@ -48,8 +48,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         private readonly List<IAsyncToken<Void[]>> _scriptLoading = new List<IAsyncToken<Void[]>>();
         private readonly List<IAsyncToken<Void>> _vineTokens = new List<IAsyncToken<Void>>();
         private readonly AsyncToken<Void> _vinesComplete = new AsyncToken<Void>();
-            
-        private SetupState _globalState = SetupState.None;
+
+        private bool _isSetup;
+        private bool _isRunning;
 
         public ScriptRunner(
             IScriptManager scriptManager, 
@@ -81,7 +82,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             HookSchema(record);
             LoadScripts(record);
 
-            if (_globalState == SetupState.Done || _globalState == SetupState.Error)
+            if (_isSetup)
             {
                 ParseWidget(record);
             }
@@ -103,11 +104,10 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         public IAsyncToken<Void> ParseAll()
         {
-            if (_globalState != SetupState.None)
+            if (_isSetup)
             {
-                throw new Exception("ParseAll is invalid. Current state: " + _globalState);
+                throw new Exception("ParseAll is invalid. Already setup.");
             }
-            _globalState = SetupState.Parsing;
             Log.Info(this, "Script parsing requested.");
 
             var rtn = new AsyncToken<Void>();
@@ -135,10 +135,10 @@ namespace CreateAR.EnkluPlayer.Scripting
                     }
 
                     Log.Info(this, "All parsing complete.");
-                    _globalState = SetupState.Done;
                     
                     rtn.Succeed(Void.Instance);
-                });
+                })
+                .OnFinally(__ => { _isSetup = true; });
             });
             return rtn;
         }
@@ -155,7 +155,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 var vineTokens = ParseVines(record);
 
-                if (_globalState != SetupState.Done)
+                if (!_isSetup)
                 {
                     for (int i = 0, len = vineTokens.Count; i < len; i++)
                     {
@@ -174,6 +174,8 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         public void StartScripts()
         {
+            _isRunning = true;
+            
             foreach (var kvp in _widgetRecords)
             {
                 var vineComponents = kvp.Value.Vines;
@@ -195,6 +197,31 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
+        public void StopScripts()
+        {
+            _isRunning = false;
+
+            foreach (var kvp in _widgetRecords)
+            {
+                var vineComponents = kvp.Value.Vines;
+
+                for (int i = 0, len = vineComponents.Count; i < len; i++)
+                {
+                    StopScript(vineComponents[i]);
+                }
+            }
+
+            foreach (var kvp in _widgetRecords)
+            {
+                var behaviorComponents = kvp.Value.Behaviors;
+
+                for (int i = 0, len = behaviorComponents.Count; i < len; i++)
+                {
+                    StopScript(behaviorComponents[i]);
+                }
+            }
+        }
+
         public void Update()
         {
             // Vines currently have no Update usage, so skip for now.
@@ -212,6 +239,11 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         private void StartScript(Script script)
         {
+            if (!script.IsConfigured)
+            {
+                return;
+            }
+            
             try
             {
                 script.Enter();
@@ -224,6 +256,11 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         private void StopScript(Script script)
         {
+            if (!script.IsConfigured)
+            {
+                return;
+            }
+            
             try
             {
                 script.Exit();
@@ -356,18 +393,31 @@ namespace CreateAR.EnkluPlayer.Scripting
                     throw new Exception("Is there a new script type?!");
             }
 
+            if (existing == null)
+            {
+                throw new Exception("No prior script when updating!");
+            }
+
             newScript.Configure()
                 .OnSuccess(_ =>
                 {
                     // TODO: Reload other scripts on this widget too?
                     Log.Info(this, "Swapping script");
-                    if (existing != null)
+
+                    var running = existing.IsRunning;
+
+                    if (_isRunning)
                     {
                         StopScript(existing);
-                        RemoveScript(record, existing);
                     }
                     
+                    RemoveScript(record, existing);
                     AddScript(record, newScript);
+
+                    if (_isRunning)
+                    {
+                        StartScript(newScript);
+                    }
                 })
                 .OnFailure(_ =>
                 {
@@ -480,11 +530,11 @@ namespace CreateAR.EnkluPlayer.Scripting
                 tokens.Add(component.Configure().OnSuccess((_) =>
                 {
                     // TODO: Defer this until ScriptService calls
-                    if (component.IsRunning)
+                    if (_isRunning)
                     {
                         StopScript(component);
+                        StartScript(component);
                     }
-                    StartScript(component);
                 }));
             }
 
@@ -513,11 +563,11 @@ namespace CreateAR.EnkluPlayer.Scripting
                 triggerToken.OnSuccess((_) =>
                 {
                     component.Configure();
-                    if (component.IsRunning)
+                    if (_isRunning)
                     {
                         StopScript(component);
+                        StartScript(component);
                     }
-                    StartScript(component);
                 });
             }
         }
