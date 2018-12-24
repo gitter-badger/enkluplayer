@@ -10,11 +10,13 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     /// </summary>
     public class TestBehaviorMonoBehaviour : BehaviorScript
     {
-        private static int _invokeId = 0;
+        private static int _enterInvokeId = 0;
+        private static int _exitInvokeId = 0;
         
         public int EnterInvoked { get; private set; }
         public int ExitInvoked { get; private set; }
-        public int LastInvokeId { get; private set; }
+        public int LastEnterInvokeId { get; private set; }
+        public int LastExitInvokeUd { get; private set; } 
         
         public override void Initialize(IElementJsCache jsCache, IElementJsFactory factory, Engine engine, EnkluScript script, Element element)
         {
@@ -33,7 +35,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             base.Enter();
             EnterInvoked++;
-            LastInvokeId = _invokeId++;
+            LastEnterInvokeId = _enterInvokeId++;
         }
 
         public override void FrameUpdate()
@@ -45,7 +47,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         {
             base.Exit();
             ExitInvoked++;
-            LastInvokeId = _invokeId++;
+            LastExitInvokeUd = _exitInvokeId++;
         }
         
         /// <summary>
@@ -53,7 +55,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         /// </summary>
         public static void ResetInvokeIds()
         {
-            _invokeId = 0;
+            _enterInvokeId = 0;
         }
     }
 }

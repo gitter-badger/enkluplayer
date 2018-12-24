@@ -134,10 +134,15 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
                 Assert.AreEqual(1, behaviorComponents[i].EnterInvoked);
             }
             
+            // CHeck all behaviors have started only once
+            Assert.AreEqual(1, behaviorComponents[0].EnterInvoked);
+            Assert.AreEqual(1, behaviorComponents[1].EnterInvoked);
+            Assert.AreEqual(1, behaviorComponents[2].EnterInvoked);
+            
             // Check behavior invoke order, should match script list order
-            Assert.AreEqual(0, behaviorComponents[2].LastInvokeId);
-            Assert.AreEqual(1, behaviorComponents[0].LastInvokeId);
-            Assert.AreEqual(2, behaviorComponents[1].LastInvokeId);
+            Assert.AreEqual(0, behaviorComponents[2].LastEnterInvokeId);
+            Assert.AreEqual(1, behaviorComponents[0].LastEnterInvokeId);
+            Assert.AreEqual(2, behaviorComponents[1].LastEnterInvokeId);
             
             Assert.AreEqual(ScriptCollectionRunner.SetupState.Done, _scriptRunner.CurrentState);
         }

@@ -1,4 +1,5 @@
 using System;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.Scripting;
 using CreateAR.EnkluPlayer.Vine;
 using Jint.Parser;
@@ -149,9 +150,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             checkVineInvokes(new[] {1, 1, 1}, 1);
             
             // Check behavior invoke order, should match script list order
-            Assert.AreEqual(0, behaviorComponents[2].LastInvokeId);
-            Assert.AreEqual(1, behaviorComponents[0].LastInvokeId);
-            Assert.AreEqual(2, behaviorComponents[1].LastInvokeId);
+            Log.Info(this, "{0} {1} {2}", behaviorComponents[2].LastEnterInvokeId, behaviorComponents[1].LastEnterInvokeId, behaviorComponents[0].LastEnterInvokeId);
+            Assert.AreEqual(0, behaviorComponents[2].LastEnterInvokeId);
+            Assert.AreEqual(1, behaviorComponents[0].LastEnterInvokeId);
+            Assert.AreEqual(2, behaviorComponents[1].LastEnterInvokeId);
             
             Assert.AreEqual(ScriptRunner.SetupState.Done, _scriptRunner.GetSetupState(widget));
         }
@@ -223,12 +225,23 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var vineComponent = _scriptFactory.GetVine(_vines[0]);
             vineComponent.FinishConfigure();
 
+            Assert.AreEqual(1, vineComponent.EnterInvoked);
+            
             // Add a new Behavior
             WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
-
-            var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[0]);
             
-            Assert.AreEqual(2, vineComponent.EnterInvoked);
+            // Ensure existing behavior exited
+            Assert.AreEqual(1, vineComponent.EnterInvoked);
+            Assert.AreEqual(1, vineComponent.ExitInvoked);
+            
+            // Ensure new behavior invoked
+            vineComponent = _scriptFactory.GetVine(_vines[0]);
+            vineComponent.FinishConfigure();
+            
+            Assert.AreEqual(1, vineComponent.EnterInvoked);
+            Assert.AreEqual(0, vineComponent.ExitInvoked);
+            
+            var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[0]);
             Assert.AreEqual(1, behaviourComponent.EnterInvoked);
         }
         #endregion

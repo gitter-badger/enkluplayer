@@ -237,9 +237,22 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
+        private void StopScripts(WidgetRecord record)
+        {
+            for (int i = 0, len = record.Vines.Count; i < len; i++)
+            {
+                StopScript(record.Vines[i]);
+            }
+            
+            for (int i = 0, len = record.Behaviors.Count; i < len; i++)
+            {
+                StopScript(record.Behaviors[i]);
+            }
+        }
+
         private void StartScript(Script script)
         {
-            if (!script.IsConfigured)
+            if (!script.IsConfigured || script.IsRunning)
             {
                 return;
             }
@@ -256,7 +269,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         private void StopScript(Script script)
         {
-            if (!script.IsConfigured)
+            if (!script.IsConfigured || !script.IsRunning)
             {
                 return;
             }
@@ -282,6 +295,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             record.ScriptSchema.OnChanged += (prop, s, arg3) =>
             {
                 Log.Info(this, "Widget script list changed.");
+                StopScripts(record);
                 LoadScripts(record);
                 ParseWidget(record);
             };
@@ -339,6 +353,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
                 if (script.Status == EnkluScript.LoadStatus.IsLoading)
                 {
+                    // TODO: Don't over subscribe
                     script.OnLoadSuccess += (_) => scriptToken.Succeed(Void.Instance);
                     script.OnLoadFailure += (_) => scriptToken.Succeed(Void.Instance);
                 }
@@ -357,7 +372,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
         private void Script_OnUpdated(Widget widget, EnkluScript script)
         {
-            var record = _widgetRecords[widget];
+            var record = _widgetRecords[widget]; 
             
             // Find existing script
             Script existing = null;
@@ -524,6 +539,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     continue;
                 }
 
+                Log.Info(this, "ParseVines");
                 var component = _scriptFactory.Vine(record.Widget, script);
                 AddScript(record, component);
                 
@@ -532,7 +548,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                     // TODO: Defer this until ScriptService calls
                     if (_isRunning)
                     {
-                        StopScript(component);
+//                        StopScript(component);
                         StartScript(component);
                     }
                 }));
