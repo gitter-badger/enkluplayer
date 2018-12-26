@@ -64,7 +64,10 @@ namespace CreateAR.EnkluPlayer
             set
             {
                 _mode = value;
-                _referenceCube.SetActive(value == DesignControllerMode.DebugRendering);
+                if (_referenceCube)
+                {
+                    _referenceCube.SetActive(value == DesignControllerMode.DebugRendering);                    
+                }
                 
                 var grid = Object.FindObjectOfType<RTSceneGrid>();
                 if (null != grid)
@@ -308,6 +311,8 @@ namespace CreateAR.EnkluPlayer
                     Log.Info(this, "Reference cube added as child of primary anchor");
                 }
             });
+
+            _referenceCube.SetActive(_mode == DesignControllerMode.DebugRendering);
         }
 
         /// <summary>

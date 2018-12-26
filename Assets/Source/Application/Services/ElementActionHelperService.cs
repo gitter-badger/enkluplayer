@@ -158,6 +158,11 @@ namespace CreateAR.EnkluPlayer
             content.RefreshScripts();
         }
 
+        private void UpdateSettings()
+        {
+            
+        }
+
         /// <summary>
         /// Called when a setting has been changed.
         /// </summary>
@@ -170,7 +175,7 @@ namespace CreateAR.EnkluPlayer
                 {
                     case "MeshScan":
                     {
-                        Log.Info(this, "Disabling scan...");
+                        Log.Info(this, String.Format("MeshScan: {0}", @event.Value));
 
                         var scans = new List<Element>();
                         var all = _scenes.All;
@@ -189,7 +194,7 @@ namespace CreateAR.EnkluPlayer
                     }
                     case "Grid":
                     {
-                        Log.Info(this, "Toggling grid...");
+                        Log.Info(this, String.Format("Grid: {0}", @event.Value));
 
                         _designer.Mode = @event.Value ? DesignControllerMode.DebugRendering : DesignControllerMode.Normal;
 
@@ -197,7 +202,7 @@ namespace CreateAR.EnkluPlayer
                     }
                     case "ElementGizmos":
                     {
-                        Log.Info(this, "Disabling element gizmos...");
+                        Log.Info(this, String.Format("ElementGizmos: {0}", @event.Value));
 
                         var scene = UnityEngine.Object.FindObjectOfType<RTScene>();
                         if (null != scene)
@@ -216,7 +221,7 @@ namespace CreateAR.EnkluPlayer
                     }
                     case "HierarchyLines":
                     {
-                        Log.Info(this, "Disabling hierarchy lines...");
+                        Log.Info(this, String.Format("HierarchyLines: {0}", @event.Value));
 
                         var renderer = UnityEngine.Object.FindObjectOfType<HierarchyLineRenderer>();
                         if (null != renderer)
