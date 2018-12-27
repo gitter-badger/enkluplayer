@@ -33,6 +33,11 @@ namespace CreateAR.EnkluPlayer
         /// Primary anchor.
         /// </summary>
         private readonly IPrimaryAnchorManager _primaryAnchor;
+        
+        /// <summary>
+        /// Stand-in for the editor.
+        /// </summary>
+        private readonly EditorProxy _editor;
 
         /// <summary>
         /// Runtime gizmo system.
@@ -61,20 +66,21 @@ namespace CreateAR.EnkluPlayer
         public DesignControllerMode Mode
         {
             get { return _mode; }
-            set
-            {
-                _mode = value;
-                if (_referenceCube)
-                {
-                    _referenceCube.SetActive(value == DesignControllerMode.DebugRendering);                    
-                }
-                
-                var grid = Object.FindObjectOfType<RTSceneGrid>();
-                if (null != grid)
-                {
-                    grid.Settings.IsVisible = value == DesignControllerMode.DebugRendering;
-                }
-            }
+            set { _mode = value; }
+//            set
+//            {
+//                _mode = value;
+//                if (null != _referenceCube)
+//                {
+//                    _referenceCube.SetActive(value == DesignControllerMode.DebugRendering);                    
+//                }
+//                
+//                var grid = Object.FindObjectOfType<RTSceneGrid>();
+//                if (null != grid)
+//                {
+//                    grid.Settings.IsVisible = value == DesignControllerMode.DebugRendering;
+//                }
+//            }
         }
 
         /// <summary>
@@ -84,12 +90,14 @@ namespace CreateAR.EnkluPlayer
             IElementUpdateDelegate elementUpdater,
             IAppSceneManager scenes,
             IBridge bridge,
-            IPrimaryAnchorManager primaryAnchor)
+            IPrimaryAnchorManager primaryAnchor,
+            EditorProxy editor)
         {
             _elementUpdater = elementUpdater;
             _scenes = scenes;
             _bridge = bridge;
             _primaryAnchor = primaryAnchor;
+            _editor = editor;
         }
 
         /// <inheritdoc />
@@ -152,6 +160,9 @@ namespace CreateAR.EnkluPlayer
             SetupReferenceObject();
 
             RTObjectSelection.Get.Changed += Editor_OnSelectionChanged;
+            
+            _editor.Settings.OnChanged += Editor_OnSettingsChanged;
+            _editor.Settings.Grid = _editor.Settings.Grid; // TODO This seems... bad.
         }
 
         /// <inheritdoc />
@@ -166,6 +177,8 @@ namespace CreateAR.EnkluPlayer
             Object.Destroy(_controlBar);
             Object.Destroy(_runtimeGizmos);
             Object.Destroy(_referenceCube);
+            
+            _editor.Settings.OnChanged -= Editor_OnSettingsChanged;
         }
 
         /// <inheritdoc />
@@ -312,7 +325,7 @@ namespace CreateAR.EnkluPlayer
                 }
             });
 
-            _referenceCube.SetActive(_mode == DesignControllerMode.DebugRendering);
+            _referenceCube.SetActive(_editor.Settings.Grid);
         }
 
         /// <summary>
@@ -421,6 +434,24 @@ namespace CreateAR.EnkluPlayer
                 _bridge.Send(string.Format(
                     @"{{""type"":{0}}}",
                     MessageTypes.BRIDGE_HELPER_SELECT));
+            }
+        }
+
+        private void Editor_OnSettingsChanged(SettingChangedArgs args)
+        {
+//            Mode = args.Value ? DesignControllerMode.DebugRendering : DesignControllerMode.Normal;
+            if (args.Type == EditorSettingsTypes.Grid)
+            {
+                if (null != _referenceCube)
+                {
+                    _referenceCube.SetActive(args.Value);                    
+                }
+                
+                var grid = Object.FindObjectOfType<RTSceneGrid>();
+                if (null != grid)
+                {
+                    grid.Settings.IsVisible = args.Value;
+                }                
             }
         }
 

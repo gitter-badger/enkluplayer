@@ -5,6 +5,7 @@ using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateScene;
+using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -80,10 +81,10 @@ namespace CreateAR.EnkluPlayer
         private GameObject _referenceCube;
 
         /// <summary>
-        /// The mode of this design controller.
+        /// Stand-in for the editor.
         /// </summary>
-        private DesignControllerMode _mode = DesignControllerMode.Normal;
-        
+        private EditorProxy _editor;
+
         /// <summary>
         /// Config for play mode.
         /// </summary>
@@ -110,17 +111,6 @@ namespace CreateAR.EnkluPlayer
             get { return _scenes; }
         }
         
-        /// <inheritdoc />
-        public DesignControllerMode Mode
-        {
-            get { return _mode; }
-            set
-            {
-                _mode = value;
-                _referenceCube.SetActive(value == DesignControllerMode.DebugRendering);
-            }
-        }
-
         /// <summary>
         /// Constuctor.
         /// </summary>
@@ -136,6 +126,7 @@ namespace CreateAR.EnkluPlayer
             IMessageRouter messages,
             IPrimaryAnchorManager primaryAnchor,
             ApiController api,
+            EditorProxy editor,
 
             // design states
             MainDesignState main,
@@ -160,6 +151,7 @@ namespace CreateAR.EnkluPlayer
             _messages = messages;
             _primaryAnchor = primaryAnchor;
             _api = api;
+            _editor = editor;
 
             _states = new IArDesignState[]
             {
@@ -212,6 +204,8 @@ namespace CreateAR.EnkluPlayer
             {
                 SetupPlay();
             }
+
+            _editor.Settings.OnChanged += Editor_OnSettingsChanged;
         }
 
         /// <inheritdoc />
@@ -230,6 +224,8 @@ namespace CreateAR.EnkluPlayer
             {
                 Object.Destroy(_root);
             }
+
+            _editor.Settings.OnChanged -= Editor_OnSettingsChanged;
         }
 
         /// <summary>
@@ -554,6 +550,14 @@ namespace CreateAR.EnkluPlayer
             _config.Play.Edit = false;
 
             _messages.Publish(MessageTypes.LOAD_APP);
+        }
+
+        private void Editor_OnSettingsChanged(SettingChangedArgs args)
+        {
+            if (args.Type == EditorSettingsTypes.Grid)
+            {
+                _referenceCube.SetActive(args.Value);
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using Source.Messages.ToApplication;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -43,6 +44,11 @@ namespace CreateAR.EnkluPlayer
         private readonly ApplicationConfig _config;
 
         /// <summary>
+        /// Editor settings.
+        /// </summary>
+        private readonly EditorProxy _editor;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ReceiveAppApplicationState(
@@ -52,7 +58,8 @@ namespace CreateAR.EnkluPlayer
             IAppController app,
             IBridge bridge,
             BridgeMessageHandler handler,
-            ApplicationConfig config)
+            ApplicationConfig config,
+            EditorProxy editor)
         {
             _messages = messages;
             _http = http;
@@ -60,6 +67,7 @@ namespace CreateAR.EnkluPlayer
             _app = app;
             _bridge = bridge;
             _config = config;
+            _editor = editor;
             
             handler.Binder.Add<UserCredentialsEvent>(MessageTypes.RECV_CREDENTIALS);
             handler.Binder.Add<AppInfoEvent>(MessageTypes.RECV_APP_INFO);
@@ -195,10 +203,11 @@ namespace CreateAR.EnkluPlayer
                 MessageTypes.INITIAL_EDITOR_SETTINGS,
                 obj =>
                 {
-                    var settings = (EditorSettingsEvent) obj;
+                    var settingsEvent = (EditorSettingsEvent) obj;
+                    Log.Info(this, "Editor settings received : {0}.", settingsEvent);
 
-                    Log.Info(this, "Editor settings received : {0}.", settings);
-
+                    _editor.Settings.PopulateFromEvent(settingsEvent);
+                    
                     callback();
                 });
         }

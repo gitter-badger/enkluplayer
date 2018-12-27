@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.Qr;
@@ -44,6 +45,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
         private readonly ApplicationConfig _appConfig;
+        private readonly EditorProxy _editor;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -85,7 +87,8 @@ namespace CreateAR.EnkluPlayer.IUX
             ColorConfig colors,
             TweenConfig tweens,
             WidgetConfig config,
-            ApplicationConfig appConfig)
+            ApplicationConfig appConfig,
+            EditorProxy editor)
         {
             _parser = parser;
             _gizmos = gizmos;
@@ -113,6 +116,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _jsCache = jsCache;
             _elementJsFactory = elementJsFactory;
             _appConfig = appConfig;
+            _editor = editor;
             
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -477,13 +481,15 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 case ElementTypes.SCAN:
                 {
-                    return new ScanWidget(
+                    var widget = new ScanWidget(
                         new GameObject("Scan"),
                         _layers,
                         _tweens,
                         _colors,
                         _scanImporter,
                         _scanLoader);
+                    widget.Schema.Set("visible", _editor.Settings.MeshScan);
+                    return widget;
                 }
                 default:
                 {
