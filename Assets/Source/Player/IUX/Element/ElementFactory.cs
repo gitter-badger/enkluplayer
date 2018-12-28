@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using CreateAR.Commons.Unity.Http;
-using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.Assets;
 using CreateAR.EnkluPlayer.Qr;
@@ -285,9 +284,9 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 Floats = new Dictionary<string, float>
                 {
-                    { "distance", 1.2f },
-                    { "stabilization", 2f },
-                    { "smoothing", 15f }
+                    {"distance", 1.2f},
+                    {"stabilization", 2f},
+                    {"smoothing", 15f}
                 }
             });
         }
@@ -344,6 +343,10 @@ namespace CreateAR.EnkluPlayer.IUX
             var element = ElementForType(data.Type);
             if (element != null)
             {
+                if (data.Type == ElementTypes.SCAN)
+                {
+                    schema.Set("visible", _editor.Settings.MeshScan);
+                }
                 element.Load(data, schema, children);
                 _elements.Add(element);
             }
@@ -481,15 +484,13 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 case ElementTypes.SCAN:
                 {
-                    var widget = new ScanWidget(
+                    return new ScanWidget(
                         new GameObject("Scan"),
                         _layers,
                         _tweens,
                         _colors,
                         _scanImporter,
                         _scanLoader);
-                    widget.Schema.Set("visible", _editor.Settings.MeshScan);
-                    return widget;
                 }
                 default:
                 {

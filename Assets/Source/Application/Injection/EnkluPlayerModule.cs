@@ -112,6 +112,9 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IHashProvider>().To<Sha256HashProvider>();
 #endif
 
+                // Editor proxy
+                binder.Bind<EditorProxy>().To<EditorProxy>().ToSingleton();
+                
                 // assets
                 {
                     binder.Bind<IScanImporter>().To<ScanImporter>().ToSingleton();
@@ -611,7 +614,6 @@ namespace CreateAR.EnkluPlayer
                     {
                         binder.Bind<ScanImporter>().To<ScanImporter>().ToSingleton();
                         binder.Bind<IDesignController>().To<DesktopDesignController>().ToSingleton();
-                        binder.Bind<EditorProxy>().To<EditorProxy>().ToSingleton();
                         break;
                     }
                     case PlayAppConfig.DesignerType.Ar:

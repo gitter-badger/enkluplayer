@@ -212,18 +212,18 @@ namespace CreateAR.EnkluPlayer
                         Log.Info(this, String.Format("ElementGizmos: {0}", @event.Value));
                         _editor.Settings.ElementGizmos = @event.Value;
 
-//                        var scene = UnityEngine.Object.FindObjectOfType<RTScene>();
-//                        if (null != scene)
-//                        {
-//                            scene.LookAndFeel.DrawLightIcons = @event.Value;
-//                            scene.LookAndFeel.DrawParticleSystemIcons = @event.Value;
-//                        }
-//
-//                        var gizmos = UnityEngine.Object.FindObjectOfType<GizmoManager>();
-//                        if (null != gizmos)
-//                        {
-//                            gizmos.IsVisible = @event.Value;
-//                        }
+                        var scene = UnityEngine.Object.FindObjectOfType<RTScene>();
+                        if (null != scene)
+                        {
+                            scene.LookAndFeel.DrawLightIcons = @event.Value;
+                            scene.LookAndFeel.DrawParticleSystemIcons = @event.Value;
+                        }
+
+                        var gizmos = UnityEngine.Object.FindObjectOfType<GizmoManager>();
+                        if (null != gizmos)
+                        {
+                            gizmos.IsVisible = @event.Value;
+                        }
 
                          break;
                     }

@@ -15,6 +15,11 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly List<IGizmoRenderer> _all = new List<IGizmoRenderer>();
 
         /// <summary>
+        /// Stands in for editor.
+        /// </summary>
+        private readonly EditorProxy _editor;
+
+        /// <summary>
         /// Backing variable for property.
         /// </summary>
         private bool _isVisible = true;
@@ -44,6 +49,18 @@ namespace CreateAR.EnkluPlayer.IUX
                     _all[i].IsVisible = _isVisible;
                 }
             }
+        }
+
+        public GizmoManager(EditorProxy editor): this()
+        {
+            _editor = editor;
+//            Log.Info("+++ {0}", _editor);
+            IsVisible = _editor.Settings.ElementGizmos;
+        }
+
+        private GizmoManager(): base()
+        {
+            
         }
 
         /// <inheritdoc />
