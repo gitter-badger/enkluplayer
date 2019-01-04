@@ -137,13 +137,6 @@ namespace CreateAR.EnkluPlayer
             
             _editorSettings.OnChanged += Editor_OnSettingsChanged;
             _editorSettings.Update();
-            
-            var scene = UnityEngine.Object.FindObjectOfType<RTScene>();
-            if (null != scene)
-            {
-                scene.LookAndFeel.DrawLightIcons = _editorSettings.ElementGizmos;
-                scene.LookAndFeel.DrawParticleSystemIcons = _editorSettings.ElementGizmos;
-            }
         }
 
         /// <inheritdoc />

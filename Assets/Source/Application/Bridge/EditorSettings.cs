@@ -168,6 +168,10 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// Populates settings from an EditorSettingsEvent
+        /// </summary>
+        /// <param name="obj">The event in question</param>
         public void PopulateFromEvent(EditorSettingsEvent obj)
         {
             MeshScan = obj.MeshScan;
@@ -176,6 +180,9 @@ namespace CreateAR.EnkluPlayer
             HierarchyLines = obj.HierarchyLines;
         }
 
+        /// <summary>
+        /// Requests the utility to run through all values and update the necessary components.
+        /// </summary>
         public void Update()
         {
             MeshScan = MeshScan;
@@ -185,7 +192,7 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <summary>
-        /// Notifies all listeners of current values. Useful if somebody missed an event the first time around.
+        /// Emits an event that states that something has changed.
         /// </summary>
         private void Notify(EditorSettingsTypes type = EditorSettingsTypes.All)
         {
@@ -196,6 +203,9 @@ namespace CreateAR.EnkluPlayer
         }
     }
 
+    /// <summary>
+    /// The types of settings that may be set.
+    /// </summary>
     public enum EditorSettingsTypes
     {
         MeshScan,
@@ -205,6 +215,9 @@ namespace CreateAR.EnkluPlayer
         All
     }
     
+    /// <summary>
+    /// The args for a settings change event.
+    /// </summary>
     public class SettingChangedArgs : EventArgs
     {
         public EditorSettingsTypes Type { get; set; }
