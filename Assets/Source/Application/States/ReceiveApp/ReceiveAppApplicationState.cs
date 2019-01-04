@@ -46,7 +46,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Editor settings.
         /// </summary>
-        private readonly EditorProxy _editor;
+        private readonly EditorSettings _editorSettings;
 
         /// <summary>
         /// Constructor.
@@ -59,7 +59,7 @@ namespace CreateAR.EnkluPlayer
             IBridge bridge,
             BridgeMessageHandler handler,
             ApplicationConfig config,
-            EditorProxy editor)
+            EditorSettings editorSettings)
         {
             _messages = messages;
             _http = http;
@@ -67,7 +67,7 @@ namespace CreateAR.EnkluPlayer
             _app = app;
             _bridge = bridge;
             _config = config;
-            _editor = editor;
+            _editorSettings = editorSettings;
             
             handler.Binder.Add<UserCredentialsEvent>(MessageTypes.RECV_CREDENTIALS);
             handler.Binder.Add<AppInfoEvent>(MessageTypes.RECV_APP_INFO);
@@ -206,7 +206,7 @@ namespace CreateAR.EnkluPlayer
                     var settingsEvent = (EditorSettingsEvent) obj;
                     Log.Info(this, "Editor settings received : {0}.", settingsEvent);
 
-                    _editor.Settings.PopulateFromEvent(settingsEvent);
+                    _editorSettings.PopulateFromEvent(settingsEvent);
                     
                     callback();
                 });

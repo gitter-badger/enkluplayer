@@ -44,7 +44,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
         private readonly ApplicationConfig _appConfig;
-        private readonly EditorProxy _editor;
+        private readonly EditorSettings _editorSettings;
 
         /// <summary>
         /// All widgets inherit this base schema
@@ -87,7 +87,7 @@ namespace CreateAR.EnkluPlayer.IUX
             TweenConfig tweens,
             WidgetConfig config,
             ApplicationConfig appConfig,
-            EditorProxy editor)
+            EditorSettings editorSettings)
         {
             _parser = parser;
             _gizmos = gizmos;
@@ -115,7 +115,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _jsCache = jsCache;
             _elementJsFactory = elementJsFactory;
             _appConfig = appConfig;
-            _editor = editor;
+            _editorSettings = editorSettings;
             
             // TODO: Load this all from data
             _baseSchema.Set("tweenIn", TweenType.Responsive);
@@ -345,7 +345,7 @@ namespace CreateAR.EnkluPlayer.IUX
             {
                 if (data.Type == ElementTypes.SCAN)
                 {
-                    schema.Set("visible", _editor.Settings.MeshScan);
+                    schema.Set("visible", _editorSettings.MeshScan);
                 }
                 element.Load(data, schema, children);
                 _elements.Add(element);

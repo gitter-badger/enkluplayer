@@ -83,7 +83,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Stand-in for the editor.
         /// </summary>
-        private EditorProxy _editor;
+        private EditorSettings _editorSettings;
 
         /// <summary>
         /// Config for play mode.
@@ -126,7 +126,7 @@ namespace CreateAR.EnkluPlayer
             IMessageRouter messages,
             IPrimaryAnchorManager primaryAnchor,
             ApiController api,
-            EditorProxy editor,
+            EditorSettings editorSettings,
 
             // design states
             MainDesignState main,
@@ -151,7 +151,7 @@ namespace CreateAR.EnkluPlayer
             _messages = messages;
             _primaryAnchor = primaryAnchor;
             _api = api;
-            _editor = editor;
+            _editorSettings = editorSettings;
 
             _states = new IArDesignState[]
             {
@@ -205,7 +205,7 @@ namespace CreateAR.EnkluPlayer
                 SetupPlay();
             }
 
-            _editor.Settings.OnChanged += Editor_OnSettingsChanged;
+            _editorSettings.OnChanged += Editor_OnSettingsChanged;
         }
 
         /// <inheritdoc />
@@ -225,7 +225,7 @@ namespace CreateAR.EnkluPlayer
                 Object.Destroy(_root);
             }
 
-            _editor.Settings.OnChanged -= Editor_OnSettingsChanged;
+            _editorSettings.OnChanged -= Editor_OnSettingsChanged;
         }
 
         /// <summary>

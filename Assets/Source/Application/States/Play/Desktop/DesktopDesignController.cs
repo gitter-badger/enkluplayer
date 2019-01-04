@@ -37,7 +37,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Stand-in for the editor.
         /// </summary>
-        private readonly EditorProxy _editor;
+        private readonly EditorSettings _editorSettings;
 
         /// <summary>
         /// Runtime gizmo system.
@@ -58,32 +58,6 @@ namespace CreateAR.EnkluPlayer
         private DesktopControlBarView _controlBar;
 
         /// <summary>
-        /// The mode of this design controller.
-        /// </summary>
-        private DesignControllerMode _mode = DesignControllerMode.Normal;
-        
-        /// <inheritdoc />
-        public DesignControllerMode Mode
-        {
-            get { return _mode; }
-            set { _mode = value; }
-//            set
-//            {
-//                _mode = value;
-//                if (null != _referenceCube)
-//                {
-//                    _referenceCube.SetActive(value == DesignControllerMode.DebugRendering);                    
-//                }
-//                
-//                var grid = Object.FindObjectOfType<RTSceneGrid>();
-//                if (null != grid)
-//                {
-//                    grid.Settings.IsVisible = value == DesignControllerMode.DebugRendering;
-//                }
-//            }
-        }
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         public DesktopDesignController(
@@ -91,13 +65,13 @@ namespace CreateAR.EnkluPlayer
             IAppSceneManager scenes,
             IBridge bridge,
             IPrimaryAnchorManager primaryAnchor,
-            EditorProxy editor)
+            EditorSettings editorSettings)
         {
             _elementUpdater = elementUpdater;
             _scenes = scenes;
             _bridge = bridge;
             _primaryAnchor = primaryAnchor;
-            _editor = editor;
+            _editorSettings = editorSettings;
         }
 
         /// <inheritdoc />
@@ -161,8 +135,15 @@ namespace CreateAR.EnkluPlayer
 
             RTObjectSelection.Get.Changed += Editor_OnSelectionChanged;
             
-            _editor.Settings.OnChanged += Editor_OnSettingsChanged;
-            _editor.Settings.Grid = _editor.Settings.Grid; // TODO This seems... bad.
+            _editorSettings.OnChanged += Editor_OnSettingsChanged;
+            _editorSettings.Grid = _editorSettings.Grid; // TODO This seems real bad.
+            
+            var scene = UnityEngine.Object.FindObjectOfType<RTScene>();
+            if (null != scene)
+            {
+                scene.LookAndFeel.DrawLightIcons = _editorSettings.ElementGizmos;
+                scene.LookAndFeel.DrawParticleSystemIcons = _editorSettings.ElementGizmos;
+            }
         }
 
         /// <inheritdoc />
@@ -178,7 +159,7 @@ namespace CreateAR.EnkluPlayer
             Object.Destroy(_runtimeGizmos);
             Object.Destroy(_referenceCube);
             
-            _editor.Settings.OnChanged -= Editor_OnSettingsChanged;
+            _editorSettings.OnChanged -= Editor_OnSettingsChanged;
         }
 
         /// <inheritdoc />
@@ -325,7 +306,7 @@ namespace CreateAR.EnkluPlayer
                 }
             });
 
-            _referenceCube.SetActive(_editor.Settings.Grid);
+            _referenceCube.SetActive(_editorSettings.Grid);
         }
 
         /// <summary>
@@ -439,19 +420,12 @@ namespace CreateAR.EnkluPlayer
 
         private void Editor_OnSettingsChanged(SettingChangedArgs args)
         {
-//            Mode = args.Value ? DesignControllerMode.DebugRendering : DesignControllerMode.Normal;
             if (args.Type == EditorSettingsTypes.Grid)
             {
                 if (null != _referenceCube)
                 {
-                    _referenceCube.SetActive(args.Value);                    
+                    _referenceCube.SetActive(_editorSettings.Grid);                    
                 }
-                
-                var grid = Object.FindObjectOfType<RTSceneGrid>();
-                if (null != grid)
-                {
-                    grid.Settings.IsVisible = args.Value;
-                }                
             }
         }
 

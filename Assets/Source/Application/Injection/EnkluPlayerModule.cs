@@ -113,7 +113,7 @@ namespace CreateAR.EnkluPlayer
 #endif
 
                 // Editor proxy
-                binder.Bind<EditorProxy>().To<EditorProxy>().ToSingleton();
+                binder.Bind<EditorSettings>().To<EditorSettings>().ToSingleton();
                 
                 // assets
                 {

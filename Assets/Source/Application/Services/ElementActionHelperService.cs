@@ -36,7 +36,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Stands in for the editor.
         /// </summary>
-        private readonly EditorProxy _editor;
+        private readonly EditorSettings _editorSettings;
 
         /// <summary>
         /// Constructor.
@@ -48,14 +48,14 @@ namespace CreateAR.EnkluPlayer
             IAppSceneManager scenes,
             IDesignController designer,
             IElementManager elements,
-            EditorProxy editor)
+            EditorSettings editorSettings)
             : base(binder, messages)
         {
             _elements = elements;
             _elementDelegate = elementDelegate;
             _scenes = scenes;
             _designer = designer;
-            _editor = editor;
+            _editorSettings = editorSettings;
         }
 
         /// <inheritdoc />
@@ -178,76 +178,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (@event.Category == "render")
             {
-                switch (@event.Name)
-                {
-                    case "MeshScan":
-                    {
-                        Log.Info(this, String.Format("MeshScan: {0}", @event.Value));
-                        _editor.Settings.MeshScan = @event.Value;
-
-//                        var scans = new List<Element>();
-//                        var all = _scenes.All;
-//                        foreach (var id in all)
-//                        {
-//                            var root = _scenes.Root(id);
-//                            root.Find("..(@type==ScanWidget)", scans);
-//                            
-//                            foreach (var scan in scans)
-//                            {
-//                                scan.Schema.Set("visible", @event.Value);
-//                            }
-//                        }
-
-                        break;
-                    }
-                    case "Grid":
-                    {
-                        Log.Info(this, String.Format("Grid: {0}", @event.Value));
-                        _editor.Settings.Grid = @event.Value;
-
-                        break;
-                    }
-                    case "ElementGizmos":
-                    {
-                        Log.Info(this, String.Format("ElementGizmos: {0}", @event.Value));
-                        _editor.Settings.ElementGizmos = @event.Value;
-
-                        var scene = UnityEngine.Object.FindObjectOfType<RTScene>();
-                        if (null != scene)
-                        {
-                            scene.LookAndFeel.DrawLightIcons = @event.Value;
-                            scene.LookAndFeel.DrawParticleSystemIcons = @event.Value;
-                        }
-
-                        var gizmos = UnityEngine.Object.FindObjectOfType<GizmoManager>();
-                        if (null != gizmos)
-                        {
-                            gizmos.IsVisible = @event.Value;
-                        }
-
-                         break;
-                    }
-                    case "HierarchyLines":
-                    {
-                        Log.Info(this, String.Format("HierarchyLines: {0}", @event.Value));
-                        _editor.Settings.HierarchyLines = @event.Value;
-
-//                        var renderer = UnityEngine.Object.FindObjectOfType<HierarchyLineRenderer>();
-//                        if (null != renderer)
-//                        {
-//                            renderer.enabled = @event.Value;
-//                        }
-
-                        break;
-                    }
-                    default:
-                    {
-                        Log.Warning(this,
-                            "Could not set render property {0}. No such property exists.",
-                            @event.Name);
-                        break;
-                    }
-                }
+                _editorSettings.SetSetting(@event.Name, @event.Value);
             }
         }
     }
