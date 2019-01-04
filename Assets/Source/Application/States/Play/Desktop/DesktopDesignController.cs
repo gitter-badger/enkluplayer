@@ -35,7 +35,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IPrimaryAnchorManager _primaryAnchor;
         
         /// <summary>
-        /// Stand-in for the editor.
+        /// Contains editor settings.
         /// </summary>
         private readonly EditorSettings _editorSettings;
 
@@ -136,7 +136,7 @@ namespace CreateAR.EnkluPlayer
             RTObjectSelection.Get.Changed += Editor_OnSelectionChanged;
             
             _editorSettings.OnChanged += Editor_OnSettingsChanged;
-            _editorSettings.Grid = _editorSettings.Grid; // TODO This seems real bad.
+            _editorSettings.Update();
             
             var scene = UnityEngine.Object.FindObjectOfType<RTScene>();
             if (null != scene)
@@ -420,7 +420,7 @@ namespace CreateAR.EnkluPlayer
 
         private void Editor_OnSettingsChanged(SettingChangedArgs args)
         {
-            if (args.Type == EditorSettingsTypes.Grid)
+            if (args.Type == EditorSettingsTypes.Grid || args.Type == EditorSettingsTypes.All)
             {
                 if (null != _referenceCube)
                 {

@@ -81,7 +81,7 @@ namespace CreateAR.EnkluPlayer
         private GameObject _referenceCube;
 
         /// <summary>
-        /// Stand-in for the editor.
+        /// Contains editor settings.
         /// </summary>
         private EditorSettings _editorSettings;
 
@@ -554,9 +554,9 @@ namespace CreateAR.EnkluPlayer
 
         private void Editor_OnSettingsChanged(SettingChangedArgs args)
         {
-            if (args.Type == EditorSettingsTypes.Grid)
+            if (args.Type == EditorSettingsTypes.Grid || args.Type == EditorSettingsTypes.All)
             {
-                _referenceCube.SetActive(args.Value);
+                _referenceCube.SetActive(_editorSettings.Grid);
             }
         }
     }

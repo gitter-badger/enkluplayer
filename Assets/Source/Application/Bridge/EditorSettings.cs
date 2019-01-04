@@ -65,11 +65,7 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
 
-                if (null != OnChanged)
-                {
-                    OnChanged(new SettingChangedArgs(EditorSettingsTypes.MeshScan, _meshScan));                            
-                }
-                               
+                Notify(EditorSettingsTypes.MeshScan);
             }
         }
 
@@ -89,10 +85,7 @@ namespace CreateAR.EnkluPlayer
                     sceneGrid.Settings.IsVisible = _grid;
                 }
                 
-                if (null != OnChanged)
-                {
-                    OnChanged(new SettingChangedArgs(EditorSettingsTypes.Grid, _grid));
-                }
+                Notify(EditorSettingsTypes.Grid);
             }
         }
         
@@ -119,10 +112,7 @@ namespace CreateAR.EnkluPlayer
                     gizmos.IsVisible = _elementGizmos;
                 }
                 
-                if (null != OnChanged)
-                {
-                    OnChanged(new SettingChangedArgs(EditorSettingsTypes.ElementGizmos, _elementGizmos));   
-                }               
+                Notify(EditorSettingsTypes.ElementGizmos);               
             }
         }
 
@@ -142,17 +132,9 @@ namespace CreateAR.EnkluPlayer
                     renderer.enabled = _hierarchyLines;
                 }
                 
-                if (null != OnChanged)
-                {
-                    OnChanged(new SettingChangedArgs(EditorSettingsTypes.HierarchyLines, _hierarchyLines));   
-                }               
+                Notify(EditorSettingsTypes.HierarchyLines);               
             }
         }
-
-//        public EditorSettings(IAppSceneManager scenes)
-//        {
-//            _scenes = scenes;
-//        }
 
         /// <summary>
         /// Sets any setting.
@@ -185,13 +167,32 @@ namespace CreateAR.EnkluPlayer
                 }
             }
         }
-        
+
         public void PopulateFromEvent(EditorSettingsEvent obj)
         {
             MeshScan = obj.MeshScan;
             Grid = obj.Grid;
             ElementGizmos = obj.ElementGizmos;
             HierarchyLines = obj.HierarchyLines;
+        }
+
+        public void Update()
+        {
+            MeshScan = MeshScan;
+            Grid = Grid;
+            ElementGizmos = ElementGizmos;
+            HierarchyLines = HierarchyLines;
+        }
+        
+        /// <summary>
+        /// Notifies all listeners of current values. Useful if somebody missed an event the first time around.
+        /// </summary>
+        private void Notify(EditorSettingsTypes type = EditorSettingsTypes.All)
+        {
+            if (null != OnChanged)
+            {
+                OnChanged(new SettingChangedArgs(type));   
+            } 
         }
     }
 
@@ -200,37 +201,17 @@ namespace CreateAR.EnkluPlayer
         MeshScan,
         Grid,
         ElementGizmos,
-        HierarchyLines
+        HierarchyLines,
+        All
     }
     
     public class SettingChangedArgs : EventArgs
     {
-        /// <summary>
-        /// Backing variable for Type.
-        /// </summary>
-        private EditorSettingsTypes _type;
-
-        /// <summary>
-        /// Backing variable for Value.
-        /// </summary>
-        private bool _value;
+        public EditorSettingsTypes Type { get; set; }
         
-        public SettingChangedArgs(EditorSettingsTypes type, bool value)
+        public SettingChangedArgs(EditorSettingsTypes type)
         {
-            _type = type;
-            _value = value;
-        }
-
-        public EditorSettingsTypes Type
-        {
-            get { return _type; }
-            set { _type = value; }
-        }
-
-        public bool Value
-        {
-            get { return _value; }
-            set { _value = value; }
+            Type = type;
         }
     }
 }

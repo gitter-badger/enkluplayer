@@ -111,8 +111,7 @@ namespace CreateAR.EnkluPlayer
 #else
                 binder.Bind<IHashProvider>().To<Sha256HashProvider>();
 #endif
-
-                // Editor proxy
+      
                 binder.Bind<EditorSettings>().To<EditorSettings>().ToSingleton();
                 
                 // assets

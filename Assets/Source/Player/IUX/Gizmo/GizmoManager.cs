@@ -27,12 +27,6 @@ namespace CreateAR.EnkluPlayer.IUX
         public MonoBehaviourGizmoRenderer WorldAnchor;
 
         /// <summary>
-        /// Stands in for editor.
-        /// </summary>
-        [Inject]
-        public EditorSettings Editor { get; set; }
-
-        /// <summary>
         /// True iff gizmos should be visible.
         /// </summary>
         public bool IsVisible
@@ -51,12 +45,6 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
             }
         }
-
-        [PostConstruct]
-//        public void CheckMode()
-//        {
-//            IsVisible = Editor.Settings.ElementGizmos;
-//        }
 
         /// <inheritdoc />
         public void Track(Element element)

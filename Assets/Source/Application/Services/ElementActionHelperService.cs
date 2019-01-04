@@ -34,7 +34,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IDesignController _designer;
         
         /// <summary>
-        /// Stands in for the editor.
+        /// Contains editor settings.
         /// </summary>
         private readonly EditorSettings _editorSettings;
 
@@ -163,11 +163,6 @@ namespace CreateAR.EnkluPlayer
             }
 
             content.RefreshScripts();
-        }
-
-        private void UpdateSettings()
-        {
-            
         }
 
         /// <summary>
