@@ -411,6 +411,10 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// Called when the a setting has changed in the editor.
+        /// </summary>
+        /// <param name="args">The event args from EditorSettings.</param>
         private void Editor_OnSettingsChanged(SettingChangedArgs args)
         {
             if (args.Type == EditorSettingsTypes.Grid || args.Type == EditorSettingsTypes.All)

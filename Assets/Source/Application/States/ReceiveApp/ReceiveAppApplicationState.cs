@@ -2,7 +2,7 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using Source.Messages.ToApplication;
+using CreateAR.EnkluPlayer;
 using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
@@ -206,7 +206,7 @@ namespace CreateAR.EnkluPlayer
                     var settingsEvent = (EditorSettingsEvent) obj;
                     Log.Info(this, "Editor settings received : {0}.", settingsEvent);
 
-                    _editorSettings.PopulateFromEvent(settingsEvent);
+                    _editorSettings.Populate(settingsEvent);
                     
                     callback();
                 });

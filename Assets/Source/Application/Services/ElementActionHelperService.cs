@@ -173,7 +173,7 @@ namespace CreateAR.EnkluPlayer
         {
             if (@event.Category == "render")
             {
-                _editorSettings.SetSetting(@event.Name, @event.Value);
+                _editorSettings.Set(@event.Name, @event.Value);
             }
         }
     }

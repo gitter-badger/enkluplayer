@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using RLD;
-using Source.Messages.ToApplication;
+using CreateAR.EnkluPlayer;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.EnkluPlayer
 {
+    /// <summary>
+    /// This object represents the current state of the editor's settings.
+    /// When changed, it will dispatch event OnChanged.
+    /// </summary>
     public class EditorSettings
     {
         /// <summary>
@@ -54,13 +58,14 @@ namespace CreateAR.EnkluPlayer
                 var scans = new List<Element>();
                 var all = Scenes.All;
                 
-                foreach (var id in all)
-                {
+                for (var i = 0; i < all.Length; i++){
+                    var id = all[i];
                     var root = Scenes.Root(id);
                     root.Find("..(@type==ScanWidget)", scans);
-                    
-                    foreach (var scan in scans)
+
+                    for (var j = 0; j < scans.Count; j++)
                     {
+                        var scan = scans[j];
                         scan.Schema.Set("visible", _meshScan);
                     }
                 }
@@ -139,26 +144,34 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Sets any setting.
         /// </summary>
-        public void SetSetting(string name, bool value)
+        public void Set(string name, bool value)
         {
             Log.Info(this, "Setting {0} to {1}", name, value);
             switch (name)
             {
                 case "MeshScan":
+                {
                     MeshScan = value;
-                    break;
-                
+                    break;   
+                }
+
                 case "Grid":
+                {
                     Grid = value;
-                    break;
-                
+                    break;   
+                }
+
                 case "ElementGizmos":
+                {
                     ElementGizmos = value;
                     break;
-                
+                }
+
                 case "HierarchyLines":
+                {
                     HierarchyLines = value;
-                    break;
+                    break;   
+                }
 
                 default:
                 {
@@ -172,7 +185,7 @@ namespace CreateAR.EnkluPlayer
         /// Populates settings from an EditorSettingsEvent
         /// </summary>
         /// <param name="obj">The event in question</param>
-        public void PopulateFromEvent(EditorSettingsEvent obj)
+        public void Populate(EditorSettingsEvent obj)
         {
             MeshScan = obj.MeshScan;
             Grid = obj.Grid;

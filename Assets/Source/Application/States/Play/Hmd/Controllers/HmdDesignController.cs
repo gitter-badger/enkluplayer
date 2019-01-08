@@ -83,7 +83,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Contains editor settings.
         /// </summary>
-        private EditorSettings _editorSettings;
+        private readonly EditorSettings _editorSettings;
 
         /// <summary>
         /// Config for play mode.
@@ -552,6 +552,10 @@ namespace CreateAR.EnkluPlayer
             _messages.Publish(MessageTypes.LOAD_APP);
         }
 
+        /// <summary>
+        /// Called when a setting has changed in the editor.
+        /// </summary>
+        /// <param name="args">The event args from EditorSettings.</param>
         private void Editor_OnSettingsChanged(SettingChangedArgs args)
         {
             if (args.Type == EditorSettingsTypes.Grid || args.Type == EditorSettingsTypes.All)
