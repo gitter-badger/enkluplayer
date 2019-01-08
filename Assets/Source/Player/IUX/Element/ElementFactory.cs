@@ -404,7 +404,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 }
                 case ElementTypes.SLIDER:
                 {
-                    return new SliderWidget(new GameObject("Element"), _layers, _tweens, _colors, _interaction, this, _intention);
+                    return new SliderWidget(new GameObject("Element"), _layers, _tweens, _colors, this, _intention);
                 }
                 case ElementTypes.SELECT:
                 {
@@ -429,7 +429,7 @@ namespace CreateAR.EnkluPlayer.IUX
                         _layers,
                         _tweens,
                         _colors,
-                        new AssetAssembler(_assets, _pools, _appConfig.Play),
+                        new AssetAssembler(_assets, _appConfig.Play),
                         _resolver,
                         _scripts,
                         _jsCache,

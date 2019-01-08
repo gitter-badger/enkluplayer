@@ -72,6 +72,8 @@ namespace Jint
 
         private static readonly OptimizedObjectPool<ExecutionContext> _poolExecutionContext = new OptimizedObjectPool<ExecutionContext>(12, () => new ExecutionContext());
 
+        public event Action<Engine> OnDestroy;
+
         public Engine() : this(null)
         {
         }
@@ -171,6 +173,11 @@ namespace Jint
         public void Destroy()
         {
             PoolLexicalEnvironments.Put(GlobalEnvironment);
+
+            if (null != OnDestroy)
+            {
+                OnDestroy(this);
+            }
         }
 
         public LexicalEnvironment GlobalEnvironment;

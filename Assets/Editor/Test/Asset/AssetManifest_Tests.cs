@@ -50,30 +50,30 @@ namespace CreateAR.EnkluPlayer.Test.Assets
         [Test]
         public void Get()
         {
-            Assert.AreSame("a", _manifest.Asset("a").Data.Guid);
+            Assert.AreSame("a", _manifest.Asset("a", -1).Data.Guid);
 
             // case sensitive
-            Assert.IsNull(_manifest.Asset("A"));
+            Assert.IsNull(_manifest.Asset("A", -1));
         }
 
         [Test]
         public void FindOne()
         {
-            Assert.AreSame("a", _manifest.FindOne("a").Data.Guid);
+            Assert.AreSame("a", _manifest.FindOne("a", -1).Data.Guid);
 
             // case insensitive
-            Assert.AreSame("a", _manifest.FindOne("A").Data.Guid);
+            Assert.AreSame("a", _manifest.FindOne("A", -1).Data.Guid);
         }
 
         [Test]
         public void Find()
         {
-            Assert.AreSame("d", _manifest.Find("d")[0].Data.Guid);
+            Assert.AreSame("d", _manifest.Find("d", -1)[0].Data.Guid);
             
-            Assert.AreEqual(2, _manifest.Find("a,b").Length);
-            Assert.AreEqual(1, _manifest.Find("a,c").Length);
-            Assert.AreEqual(2, _manifest.Find("!a").Length);
-            Assert.AreEqual(3, _manifest.Find("a c").Length);
+            Assert.AreEqual(2, _manifest.Find("a,b", -1).Length);
+            Assert.AreEqual(1, _manifest.Find("a,c", -1).Length);
+            Assert.AreEqual(2, _manifest.Find("!a", -1).Length);
+            Assert.AreEqual(3, _manifest.Find("a c", -1).Length);
         }
 
         [Test]
@@ -89,7 +89,7 @@ namespace CreateAR.EnkluPlayer.Test.Assets
             {
                 called = true;
 
-                Assert.AreSame(asset, added.Data);
+                Assert.AreSame(asset, added);
             };
             _manifest.Add(asset);
 
@@ -110,25 +110,7 @@ namespace CreateAR.EnkluPlayer.Test.Assets
 
             Assert.AreEqual(2, called);
         }
-
-        [Test]
-        public void RemoveAssetEvent()
-        {
-            var called = false;
-
-            var reference = _manifest.Asset("a");
-            reference.OnRemoved += r =>
-            {
-                called = true;
-
-                Assert.AreSame(reference, r);
-            };
-
-            _manifest.Remove("a");
-
-            Assert.IsTrue(called);
-        }
-
+        
         [Test]
         public void AddSameGuidError()
         {
@@ -182,16 +164,105 @@ namespace CreateAR.EnkluPlayer.Test.Assets
                 Guid = "a"
             };
 
-            _manifest.OnAssetUpdated += reference =>
+            _manifest.OnAssetUpdated += data =>
             {
                 eventCalled = true;
 
-                Assert.AreSame(info, reference.Data);
+                Assert.AreSame(info, data);
             };
 
             _manifest.Update(info);
 
             Assert.IsTrue(eventCalled);
+        }
+
+        [Test]
+        public void WatchForUpdate()
+        {
+            var eventCalled = false;
+            var info = new AssetData
+            {
+                Guid = "a"
+            };
+
+            _manifest.WatchUpdate("a", data =>
+            {
+                eventCalled = true;
+            });
+
+            _manifest.Update(info);
+
+            Assert.IsTrue(eventCalled);
+        }
+
+        [Test]
+        public void UnwatchForUpdate()
+        {
+            var eventCalled = false;
+            var info = new AssetData
+            {
+                Guid = "a"
+            };
+
+            var unwatch = _manifest.WatchUpdate("a", data =>
+            {
+                eventCalled = true;
+            });
+            unwatch();
+
+            _manifest.Update(info);
+
+            Assert.IsFalse(eventCalled);
+        }
+
+        [Test]
+        public void WatchUpdate()
+        {
+            var eventCalled = false;
+            var info = new AssetData
+            {
+                Guid = "b"
+            };
+
+            _manifest.WatchUpdate("a", data =>
+            {
+                eventCalled = true;
+            });
+
+            _manifest.Update(info);
+
+            Assert.IsFalse(eventCalled);
+        }
+
+        [Test]
+        public void WatchRemove()
+        {
+            var eventCalled = false;
+            
+            _manifest.WatchRemove("a", () =>
+            {
+                eventCalled = true;
+            });
+
+            _manifest.Remove("a");
+
+            Assert.IsTrue(eventCalled);
+        }
+
+        [Test]
+        public void UnwatchRemove()
+        {
+            var eventCalled = false;
+
+            var unwatch = _manifest.WatchRemove("a", () =>
+            {
+                eventCalled = true;
+            });
+            unwatch();
+
+            _manifest.Remove("a");
+
+            Assert.IsFalse(eventCalled);
         }
     }
 }

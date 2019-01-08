@@ -683,16 +683,22 @@ namespace CreateAR.EnkluPlayer
         public string ThumbsUrl = "localhost";
 
         /// <summary>
+        /// Url for scripts.
+        /// </summary>
+        public string ScriptsUrl = "localhost";
+
+        /// <summary>
         /// Useful ToString.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[EnvironmentData TrellisUrl={0}, AssetsUrl={1}, BundlesUrl={2}, ThumbsUrl={3}]",
+            return string.Format("[EnvironmentData TrellisUrl={0}, AssetsUrl={1}, BundlesUrl={2}, ThumbsUrl={3}, ScriptsUrl={4}]",
                 TrellisUrl,
                 AssetsUrl,
                 BundlesUrl,
-                ThumbsUrl);
+                ThumbsUrl,
+                ScriptsUrl);
         }
     }
 

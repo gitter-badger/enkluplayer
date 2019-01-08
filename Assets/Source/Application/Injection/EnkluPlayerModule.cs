@@ -40,6 +40,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<GridRenderer>().ToValue(LookupComponent<GridRenderer>());
                 binder.Bind<IVineTable>().To(LookupComponent<VineTable>());
                 binder.Bind<MeshCaptureConfig>().To(LookupComponent<MeshCaptureConfig>());
+                binder.Bind<DrawingJsApi>().To(LookupComponent<DrawingJsApi>());
             }
 
             // required for loggly
@@ -103,7 +104,7 @@ namespace CreateAR.EnkluPlayer
                 }
 
                 binder.Bind<HttpRequestCacher>().To<HttpRequestCacher>().ToSingleton();
-                binder.Bind<NetworkConnectivity>().To<NetworkConnectivity>().ToSingleton();
+                binder.Bind<AwsPingController>().To<AwsPingController>().ToSingleton();
                 binder.Bind<ApiController>().To<ApiController>().ToSingleton();
 
 #if !UNITY_EDITOR && UNITY_WSA
@@ -518,6 +519,7 @@ namespace CreateAR.EnkluPlayer
 #else
                 binder.Bind<IGestureManager>().To<PassthroughGestureManager>().ToSingleton();
 #endif
+                binder.Bind<ITouchManager>().To<TouchManager>().ToSingleton();
             }
 
             // Camera
@@ -672,6 +674,9 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<MetricsJsInterface>().To<MetricsJsInterface>().ToSingleton();
                     binder.Bind<PhysicsJsInterface>().To<PhysicsJsInterface>().ToSingleton();
                     binder.Bind<TweenManagerJsApi>().To<TweenManagerJsApi>().ToSingleton();
+                    binder.Bind<EditJsApi>().To<EditJsApi>().ToSingleton();
+                    binder.Bind<TxnJsApi>().To<TxnJsApi>().ToSingleton();
+                    binder.Bind<TouchManagerJsApi>().To<TouchManagerJsApi>().ToSingleton();
                 }
             }
 
@@ -680,7 +685,7 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IQueryResolver>().To<StandardQueryResolver>();
             }
 
-            // dependant on previous bindings
+            // dependent on previous bindings
             {
                 binder.Bind<IAdminAppDataManager>().To<AppDataManager>().ToSingleton();
 
@@ -689,7 +694,7 @@ namespace CreateAR.EnkluPlayer
                 
                 SystemJsApi.Initialize(
                     binder.GetInstance<IDeviceMetaProvider>(),
-                    binder.GetInstance<NetworkConnectivity>(),
+                    binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());

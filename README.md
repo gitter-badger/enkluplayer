@@ -17,6 +17,8 @@ To develop with Enklu Player, you will need a few prerequisites.
 
 ### System Documentation
 
+* [Application](docs/application.md)
+  * [States v Flows](docs/application.stateservice.md)
 * [AssetManager](docs/assets.overview.md)
   * [Ideas](docs/assets.ideas.md)
 * [Scripting](docs/scripting.overview.md)

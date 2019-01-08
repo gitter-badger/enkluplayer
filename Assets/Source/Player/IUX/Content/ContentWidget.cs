@@ -88,7 +88,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Cached from the callback of the <see cref="IAssetAssembler"/>.
         /// </summary>
-        private GameObject _assetGameObject;
+        public GameObject Asset { get; private set; }
         
         /// <summary>
         /// A token that is fired whenever the content has loaded.
@@ -189,9 +189,9 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public T GetComponent<T>()
         {
-            if (_assetGameObject)
+            if (Asset)
             {
-                return _assetGameObject.GetComponent<T>();
+                return Asset.GetComponent<T>();
             }
 
             return default(T);
@@ -205,9 +205,9 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         public T GetComponentInChildren<T>()
         {
-            if (_assetGameObject)
+            if (Asset)
             {
-                return _assetGameObject.GetComponentInChildren<T>();
+                return Asset.GetComponentInChildren<T>();
             }
 
             return default(T);
@@ -318,10 +318,25 @@ namespace CreateAR.EnkluPlayer
 
             LogVerbose("Refresh asset for {0}.", Id);
 
+            var assetId = _srcAssetProp.Value;
+            var version = -1;
+
+            var split = assetId.Split(':');
+            if (2 == split.Length)
+            {
+                assetId = split[0];
+
+                if (!int.TryParse(split[1], out version))
+                {
+                    Log.Warning(this, "Could not parse asset version : {0}.", assetId);
+                }
+            }
+
             _assembler.Teardown();
             _assembler.Setup(
                 GameObject.transform,
-                _srcAssetProp.Value);
+                assetId,
+                version);
         }
 
         /// <summary>
@@ -487,14 +502,14 @@ namespace CreateAR.EnkluPlayer
         {
             LogVerbose("Assembly complete.");
 
-            _assetGameObject = _assembler.Assembly;
+            Asset = _assembler.Assembly;
 
-            if (_assetGameObject != null)
+            if (Asset != null)
             {
                 // parent + orient
-                _assetGameObject.name = _srcAssetProp.Value;
-                _assetGameObject.transform.SetParent(GameObject.transform, false);
-                _assetGameObject.SetActive(true);
+                Asset.name = _srcAssetProp.Value;
+                Asset.transform.SetParent(GameObject.transform, false);
+                Asset.SetActive(true);
 
                 // setup collider
                 var bounds = _assembler.Bounds;

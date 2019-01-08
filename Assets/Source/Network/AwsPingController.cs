@@ -8,18 +8,18 @@ namespace CreateAR.EnkluPlayer
     /// <summary>
     /// Provides some information about internet access to the app.
     /// </summary>
-    public class NetworkConnectivity
+    public class AwsPingController
     {
         /// <summary>
         /// Dependencies.
         /// </summary>
-        private IHttpService _http;
-        private IBootstrapper _bootstrapper;
+        private readonly IHttpService _http;
+        private readonly IBootstrapper _bootstrapper;
         
         /// <summary>
         /// Metric to report ping via.
         /// </summary>
-        private ValueMetric _pingMetric;
+        private readonly ValueMetric _pingMetric;
         
         /// <summary>
         /// Backing variables.
@@ -31,7 +31,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// ID given to coroutines so if they overlap, they'll nicely die out.
         /// </summary>
-        private int _coroutineID = 0;
+        private int _coroutineId = 0;
         
         /// <summary>
         /// Whether a ping request is running or not.
@@ -99,7 +99,7 @@ namespace CreateAR.EnkluPlayer
         /// <param name="http"></param>
         /// <param name="bootstrapper"></param>
         /// <param name="metrics"></param>
-        public NetworkConnectivity(
+        public AwsPingController(
             NetworkConfig config, 
             IHttpService http, 
             IBootstrapper bootstrapper,
@@ -128,7 +128,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public void Stop()
         {
-            _coroutineID++;
+            _coroutineId++;
         }
 
         /// <summary>
@@ -139,10 +139,10 @@ namespace CreateAR.EnkluPlayer
         {
             Log.Info(this, "Starting ping. Interval: {0} Region: {1}", _pingInterval, _pingRegion);
             
-            var id = _coroutineID;
+            var id = _coroutineId;
             var url = string.Format("https://ec2.{0}.amazonaws.com/ping", _pingRegion);
 
-            while (id == _coroutineID)
+            while (id == _coroutineId)
             {
                 var startTime = Time.realtimeSinceStartup;
                 var inflight = true;

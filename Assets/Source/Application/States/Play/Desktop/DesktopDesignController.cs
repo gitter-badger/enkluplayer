@@ -396,6 +396,9 @@ namespace CreateAR.EnkluPlayer
         {
             // send to the OTHER SIDE
             var selectedObjs = args.ObjectsWhichWereSelected;
+            var notifyClient = args.SelectReason != ObjectSelectReason.SetSelectedCall &&
+                               args.DeselectReason != ObjectDeselectReason.ClearSelectionCall;
+
             if (selectedObjs.Count == 1)
             {
                 var selected = selectedObjs[0].GetComponent<ElementUpdateMonobehaviour>();
@@ -405,17 +408,23 @@ namespace CreateAR.EnkluPlayer
                     return;
                 }
 
-                _bridge.Send(string.Format(
-                    @"{{""type"":{0}, ""sceneId"":""{1}"", ""elementId"":""{2}""}}",
-                    MessageTypes.BRIDGE_HELPER_SELECT,
-                    _scenes.All[0],
-                    selected.Element.Id));
+                if (notifyClient)
+                {
+                    _bridge.Send(string.Format(
+                        @"{{""type"":{0}, ""sceneId"":""{1}"", ""elementId"":""{2}""}}",
+                        MessageTypes.BRIDGE_HELPER_SELECT,
+                        _scenes.All[0],
+                        selected.Element.Id));                    
+                }
             }
             else if (0 == selectedObjs.Count)
             {
-                _bridge.Send(string.Format(
-                    @"{{""type"":{0}}}",
-                    MessageTypes.BRIDGE_HELPER_SELECT));
+                if (notifyClient)
+                {
+                    _bridge.Send(string.Format(
+                        @"{{""type"":{0}}}",
+                        MessageTypes.BRIDGE_HELPER_SELECT));                    
+                }
             }
         }
 

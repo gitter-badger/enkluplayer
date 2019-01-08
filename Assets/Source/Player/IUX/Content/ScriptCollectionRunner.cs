@@ -257,6 +257,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             host.SetValue("app", Main.NewAppJsApi(_jsCache));
             host.SetValue("this", _jsCache.Element(_element));
             _caches.Add(_jsCache);
+            _hosts.Add(host);
 
             var component = GetBehaviorComponent();
             component.Initialize(_jsCache, _elementJsFactory, host, script, _element);

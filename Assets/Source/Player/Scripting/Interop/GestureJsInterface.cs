@@ -13,7 +13,7 @@ namespace CreateAR.EnkluPlayer.Scripting
     /// TODO: call handlers with same context as was passed in.
     /// </summary>
     [JsInterface("gestures")]
-    public class GestureJsInterface
+    public class GestureJsInterface : JsEventDispatcher
     {
         /// <summary>
         /// Pose data.
@@ -154,18 +154,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Gesture interface.
         /// </summary>
         private readonly IGestureManager _gestures;
-
-        /// <summary>
-        /// Tracks listeners.
-        /// </summary>
-        private readonly Dictionary<string, List<JsFunc>> _listeners = new Dictionary<string, List<JsFunc>>
-        {
-            { EVENT_POINTER_STARTED, new List<JsFunc>() },
-            { EVENT_POINTER_ENDED, new List<JsFunc>() },
-            { EVENT_POINTER_PRESSED, new List<JsFunc>() },
-            { EVENT_POINTER_RELEASED, new List<JsFunc>() }
-        };
-
+        
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -204,53 +193,18 @@ namespace CreateAR.EnkluPlayer.Scripting
         }
         
         /// <summary>
-        /// Adds a listener.
-        /// </summary>
-        /// <param name="eventName">The name of the event.</param>
-        /// <param name="callback">The callback.</param>
-        public void on(string eventName, JsFunc callback)
-        {
-            List<Func<JsValue, JsValue[], JsValue>> list;
-            if (_listeners.TryGetValue(eventName, out list))
-            {
-                list.Add(callback);
-            }
-            else
-            {
-                Log.Warning(this, "Unknown event type '{0}'.", eventName);
-            }
-        }
-
-        /// <summary>
-        /// Removes a listener.
-        /// </summary>
-        /// <param name="eventName">The name of the event.</param>
-        /// <param name="callback">The callback.</param>
-        public void off(string eventName, JsFunc callback)
-        {
-            List<Func<JsValue, JsValue[], JsValue>> list;
-            if (_listeners.TryGetValue(eventName, out list))
-            {
-                list.Remove(callback);
-            }
-            else
-            {
-                Log.Warning(this, "Unknown event type '{0}'.", eventName);
-            }
-        }
-
-        /// <summary>
         /// Called when the gestures interface fires a new pointer event.
         /// </summary>
         /// <param name="id">Unique id of the pose.</param>
         private void Gestures_OnPointerStarted(uint id)
         {
-            var parameters = new[] { new JsValue(id.ToString()) };
-
-            var list = _listeners[EVENT_POINTER_STARTED].ToArray();
-            for (int i = 0, len = list.Length; i < len; i++)
+            try
             {
-                list[i](null, parameters);
+                dispatch(EVENT_POINTER_STARTED, id.ToString());
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not dispatch pointer started event : {0}.", exception);
             }
         }
 
@@ -260,12 +214,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="id">Unique id of the pose.</param>
         private void Gestures_OnPointerEnded(uint id)
         {
-            var parameters = new[] { new JsValue(id.ToString()) };
-
-            var list = _listeners[EVENT_POINTER_ENDED].ToArray();
-            for (int i = 0, len = list.Length; i < len; i++)
+            try
             {
-                list[i](null, parameters);
+                dispatch(EVENT_POINTER_ENDED, id.ToString());
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not dispatch pointer ended event : {0}.", exception);
             }
         }
 
@@ -275,12 +230,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="id">Unique id of the pose.</param>
         private void Gestures_OnPointerPressed(uint id)
         {
-            var parameters = new[] { new JsValue(id.ToString()) };
-
-            var list = _listeners[EVENT_POINTER_PRESSED].ToArray();
-            for (int i = 0, len = list.Length; i < len; i++)
+            try
             {
-                list[i](null, parameters);
+                dispatch(EVENT_POINTER_PRESSED, id.ToString());
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not dispatch pointer pressed event : {0}.", exception);
             }
         }
 
@@ -290,12 +246,13 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="id">Unique id of the pose.</param>
         private void Gestures_OnPointerReleased(uint id)
         {
-            var parameters = new[] { new JsValue(id.ToString()) };
-            
-            var list = _listeners[EVENT_POINTER_RELEASED].ToArray();
-            for (int i = 0, len = list.Length; i < len; i++)
+            try
             {
-                list[i](null, parameters);
+                dispatch(EVENT_POINTER_RELEASED, id.ToString());
+            }
+            catch (Exception exception)
+            {
+                Log.Error(this, "Could not dispatch pointer released event : {0}.", exception);
             }
         }
     }

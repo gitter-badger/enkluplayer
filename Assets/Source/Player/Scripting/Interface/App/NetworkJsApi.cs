@@ -10,23 +10,23 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Underlying network management this wraps.
         /// </summary>
-        private NetworkConnectivity _networkConnectivity;
-
+        private readonly AwsPingController _awsPingController;
+        
         /// <summary>
         /// Whether pings are being sent or not.
         /// </summary>
         public bool pingEnabled
         {
-            get { return _networkConnectivity.Enabled; }
-            set { _networkConnectivity.Enabled = value; }
+            get { return _awsPingController.Enabled; }
+            set { _awsPingController.Enabled = value; }
         }
         
         /// <summary>
         /// Returns if there's an active connection to the internet.
         /// </summary>
-        public bool online
+        public bool isOnline
         {
-            get { return _networkConnectivity.Online; }
+            get { return _awsPingController.Online; }
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public float pingMs
         {
-            get { return _networkConnectivity.PingMs; }
+            get { return _awsPingController.PingMs; }
         }
 
         /// <summary>
@@ -42,8 +42,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public string pingRegion
         {
-            get { return _networkConnectivity.PingRegion; }
-            set { _networkConnectivity.PingRegion = value; }
+            get { return _awsPingController.PingRegion; }
+            set { _awsPingController.PingRegion = value; }
         }
 
         /// <summary>
@@ -51,17 +51,17 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public float pingInterval
         {
-            get { return _networkConnectivity.PingInterval; }
+            get { return _awsPingController.PingInterval; }
             // Add a slight minimum so scripting can't spam the network too much.
-            set { _networkConnectivity.PingInterval = Math.Max(1, value); }
+            set { _awsPingController.PingInterval = Math.Max(1, value); }
         }
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public NetworkJsApi(NetworkConnectivity networkConnectivity)
+        public NetworkJsApi(AwsPingController awsPingController)
         {
-            _networkConnectivity = networkConnectivity;
+            _awsPingController = awsPingController;
         }
     }
 }
