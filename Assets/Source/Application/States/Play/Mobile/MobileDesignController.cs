@@ -50,6 +50,18 @@ namespace CreateAR.EnkluPlayer
         private Camera _renderCamera;
 
         /// <summary>
+        /// The mode of this design controller.
+        /// </summary>
+        private DesignControllerMode _mode = DesignControllerMode.Normal;
+
+        /// <inheritdoc />
+        public DesignControllerMode Mode
+        {
+            get { return _mode; }
+            set { _mode = value; }
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public MobileDesignController(
@@ -150,7 +162,7 @@ namespace CreateAR.EnkluPlayer
         {
             //
         }
-
+        
         /// <summary>
         /// Shares to Insta.
         /// </summary>

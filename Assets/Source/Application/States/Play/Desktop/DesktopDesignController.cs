@@ -53,6 +53,28 @@ namespace CreateAR.EnkluPlayer
         private DesktopControlBarView _controlBar;
 
         /// <summary>
+        /// The mode of this design controller.
+        /// </summary>
+        private DesignControllerMode _mode = DesignControllerMode.Normal;
+        
+        /// <inheritdoc />
+        public DesignControllerMode Mode
+        {
+            get { return _mode; }
+            set
+            {
+                _mode = value;
+                _referenceCube.SetActive(value == DesignControllerMode.DebugRendering);
+                
+                var grid = Object.FindObjectOfType<RTSceneGrid>();
+                if (null != grid)
+                {
+                    grid.Settings.IsVisible = value == DesignControllerMode.DebugRendering;
+                }
+            }
+        }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public DesktopDesignController(

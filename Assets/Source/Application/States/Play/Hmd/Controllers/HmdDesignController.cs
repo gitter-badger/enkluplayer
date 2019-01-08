@@ -78,6 +78,11 @@ namespace CreateAR.EnkluPlayer
         /// Origin Reference Gameobject
         /// </summary>
         private GameObject _referenceCube;
+
+        /// <summary>
+        /// The mode of this design controller.
+        /// </summary>
+        private DesignControllerMode _mode = DesignControllerMode.Normal;
         
         /// <summary>
         /// Config for play mode.
@@ -103,6 +108,17 @@ namespace CreateAR.EnkluPlayer
         public IAppSceneManager Scenes
         {
             get { return _scenes; }
+        }
+        
+        /// <inheritdoc />
+        public DesignControllerMode Mode
+        {
+            get { return _mode; }
+            set
+            {
+                _mode = value;
+                _referenceCube.SetActive(value == DesignControllerMode.DebugRendering);
+            }
         }
 
         /// <summary>
