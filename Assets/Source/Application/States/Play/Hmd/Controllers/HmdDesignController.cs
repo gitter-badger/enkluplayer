@@ -556,9 +556,9 @@ namespace CreateAR.EnkluPlayer
         /// Called when a setting has changed in the editor.
         /// </summary>
         /// <param name="args">The event args from EditorSettings.</param>
-        private void Editor_OnSettingsChanged(SettingChangedArgs args)
+        private void Editor_OnSettingsChanged(EditorSettingsType type)
         {
-            if (args.Type == EditorSettingsTypes.Grid || args.Type == EditorSettingsTypes.All)
+            if (type == EditorSettingsType.Grid || type == EditorSettingsType.All)
             {
                 _referenceCube.SetActive(_editorSettings.Grid);
             }

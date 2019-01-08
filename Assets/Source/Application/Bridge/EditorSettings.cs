@@ -37,7 +37,7 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Fired when the value of any setting has changed.
         /// </summary>
-        public event Action<SettingChangedArgs> OnChanged;
+        public event Action<EditorSettingsType> OnChanged;
 
         /// <summary>
         /// All scenes.
@@ -70,7 +70,7 @@ namespace CreateAR.EnkluPlayer
                     }
                 }
 
-                Notify(EditorSettingsTypes.MeshScan);
+                Notify(EditorSettingsType.MeshScan);
             }
         }
 
@@ -90,7 +90,7 @@ namespace CreateAR.EnkluPlayer
                     sceneGrid.Settings.IsVisible = _grid;
                 }
                 
-                Notify(EditorSettingsTypes.Grid);
+                Notify(EditorSettingsType.Grid);
             }
         }
         
@@ -117,7 +117,7 @@ namespace CreateAR.EnkluPlayer
                     gizmos.IsVisible = _elementGizmos;
                 }
                 
-                Notify(EditorSettingsTypes.ElementGizmos);               
+                Notify(EditorSettingsType.ElementGizmos);               
             }
         }
 
@@ -137,7 +137,7 @@ namespace CreateAR.EnkluPlayer
                     renderer.enabled = _hierarchyLines;
                 }
                 
-                Notify(EditorSettingsTypes.HierarchyLines);               
+                Notify(EditorSettingsType.HierarchyLines);               
             }
         }
 
@@ -207,11 +207,11 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Emits an event that states that something has changed.
         /// </summary>
-        private void Notify(EditorSettingsTypes type = EditorSettingsTypes.All)
+        private void Notify(EditorSettingsType type = EditorSettingsType.All)
         {
             if (null != OnChanged)
             {
-                OnChanged(new SettingChangedArgs(type));   
+                OnChanged(type);   
             } 
         }
     }
@@ -219,7 +219,7 @@ namespace CreateAR.EnkluPlayer
     /// <summary>
     /// The types of settings that may be set.
     /// </summary>
-    public enum EditorSettingsTypes
+    public enum EditorSettingsType
     {
         MeshScan,
         Grid,
@@ -233,9 +233,9 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class SettingChangedArgs : EventArgs
     {
-        public EditorSettingsTypes Type { get; set; }
+        public EditorSettingsType Type { get; set; }
         
-        public SettingChangedArgs(EditorSettingsTypes type)
+        public SettingChangedArgs(EditorSettingsType type)
         {
             Type = type;
         }
