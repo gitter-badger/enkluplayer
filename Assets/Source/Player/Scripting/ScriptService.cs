@@ -42,7 +42,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 
                 _elementManager.OnCreated += Element_OnCreated;
                 
-                _scriptRunner.StartScripts();
+                _scriptRunner.StartAllScripts();
             };
         }
 
@@ -59,7 +59,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             
             _elementManager.OnCreated -= Element_OnCreated;
             
-            _scriptRunner.StopScripts();
+            _scriptRunner.StopAllScripts();
         }
 
         private void Element_OnCreated(Element element)

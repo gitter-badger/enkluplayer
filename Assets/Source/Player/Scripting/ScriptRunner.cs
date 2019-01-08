@@ -162,17 +162,17 @@ namespace CreateAR.EnkluPlayer.Scripting
                         _vineTokens.Add(vineTokens[i]);
                     }
 
-                    ParseBehaviors(record, _vinesComplete);
+                    ExecuteBehaviors(record, _vinesComplete);
                 }
                 else
                 {
                     var allToken = Async.All(vineTokens.ToArray());
-                    ParseBehaviors(record, Async.Map(allToken, __ => Void.Instance));
+                    ExecuteBehaviors(record, Async.Map(allToken, __ => Void.Instance));
                 }
             });
         }
 
-        public void StartScripts()
+        public void StartAllScripts()
         {
             _isRunning = true;
             
@@ -197,7 +197,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
-        public void StopScripts()
+        public void StopAllScripts()
         {
             _isRunning = false;
 
@@ -237,7 +237,20 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
-        private void StopScripts(WidgetRecord record)
+        private void StartWidget(WidgetRecord record)
+        {
+            for (int i = 0, len = record.Vines.Count; i < len; i++)
+            {
+                StartScript(record.Vines[i]);
+            }
+            
+            for (int i = 0, len = record.Behaviors.Count; i < len; i++)
+            {
+                StartScript(record.Behaviors[i]);
+            }
+        }
+
+        private void StopWidget(WidgetRecord record)
         {
             for (int i = 0, len = record.Vines.Count; i < len; i++)
             {
@@ -295,7 +308,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             record.ScriptSchema.OnChanged += (prop, s, arg3) =>
             {
                 Log.Info(this, "Widget script list changed.");
-                StopScripts(record);
+                StopWidget(record);
                 LoadScripts(record);
                 ParseWidget(record);
             };
@@ -416,14 +429,11 @@ namespace CreateAR.EnkluPlayer.Scripting
             newScript.Configure()
                 .OnSuccess(_ =>
                 {
-                    // TODO: Reload other scripts on this widget too?
                     Log.Info(this, "Swapping script");
-
-                    var running = existing.IsRunning;
 
                     if (_isRunning)
                     {
-                        StopScript(existing);
+                        StopWidget(record);
                     }
                     
                     RemoveScript(record, existing);
@@ -431,7 +441,7 @@ namespace CreateAR.EnkluPlayer.Scripting
 
                     if (_isRunning)
                     {
-                        StartScript(newScript);
+                        StartWidget(record);
                     }
                 })
                 .OnFailure(_ =>
@@ -563,7 +573,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="record"></param>
         /// <param name="triggerToken"></param>
-        private void ParseBehaviors(WidgetRecord record, IAsyncToken<Void> triggerToken)
+        private void ExecuteBehaviors(WidgetRecord record, IAsyncToken<Void> triggerToken)
         {
             for (int i = 0, len = record.Scripts.Count; i < len; i++)
             {
