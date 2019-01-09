@@ -126,7 +126,7 @@ namespace CreateAR.EnkluPlayer.Assets
             AssetBundleLoader loader;
             if (!_bundles.TryGetValue(url, out loader))
             {
-                Log.Info(this, "Adding {0} to the queue, length of {1}.",
+                Log.Debug(this, "Adding {0} to the queue, length of {1}.",
                     data.Guid,
                     _queue.Count);
 
@@ -215,7 +215,7 @@ namespace CreateAR.EnkluPlayer.Assets
                     // record metrics
                     _metrics.Timer(MetricsKeys.ASSET_DL_QUEUE).Stop(next.Timer);
 
-                    Log.Info(this, "Starting next load : {0}", next.Data.AssetName);
+                    Log.Debug(this, "Starting next load : {0}", next.Data.AssetName);
 
                     var timer = _metrics.Timer(MetricsKeys.ASSET_DL_LOADING);
                     var timerId = timer.Start();

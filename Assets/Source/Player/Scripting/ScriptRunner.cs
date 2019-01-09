@@ -92,6 +92,19 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
         }
 
+        public void RemoveWidget(Widget widget)
+        {
+            WidgetRecord record;
+
+            if (!_widgetRecords.TryGetValue(widget, out record))
+            {
+                throw new Exception("Trying to remove an unknown Widget!");
+            }
+            
+            StopWidget(record);
+            _widgetRecords.Remove(widget);
+        }
+
         public SetupState GetSetupState(Widget widget)
         {
             if (!_widgetRecords.ContainsKey(widget))
@@ -228,6 +241,12 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             foreach (var kvp in _widgetRecords)
             {
+                if (kvp.Value == null)
+                {
+                    Log.Warning(this, kvp);
+                    continue;
+                }
+                
                 var behaviors = kvp.Value.Behaviors;
 
                 for (int j = 0, jLen = behaviors.Count; j < jLen; j++)

@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 
@@ -33,16 +36,57 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             _sceneManager.OnInitialized += () =>
             {
+                
+                var assetTokens = new List<IMutableAsyncToken<ContentWidget>>();
+                var finished = 0;
+
+                var wtf = new List<ContentWidget>();
+                
                 for (int i = 0, len = _elementManager.All.Count; i < len; i++)
                 {
+                    var element = _elementManager.All[i];
+                    var contentWidget = element as ContentWidget;
+
+                    if (contentWidget != null)
+                    {
+                        if (contentWidget.Visible)
+                        {
+                            assetTokens.Add(contentWidget.OnAssetLoaded);
+                            
+                            wtf.Add(contentWidget);
+                            contentWidget.OnAssetLoaded.OnFinally(_ => { 
+                                Log.Warning(this, ++finished);
+                                wtf.Remove(contentWidget);
+
+                                if (finished == 380)
+                                {
+                                    for (int j = 0, jLen = wtf.Count; j < len; j++)
+                                    {
+                                        Log.Warning(this, wtf[j]);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    
                     Element_OnCreated(_elementManager.All[i]);
                 }
                 
-                _scriptRunner.ParseAll();
-                
                 _elementManager.OnCreated += Element_OnCreated;
-                
-                _scriptRunner.StartAllScripts();
+                _elementManager.OnDestroyed += Element_OnDestroyed;
+
+                Log.Warning(this, assetTokens.Count);
+                if (assetTokens.Count == 0)
+                {
+                    StartRunner();
+                }
+                else
+                {
+                    Async.All(assetTokens.ToArray()).OnFinally(_ =>
+                    {
+                        StartRunner();
+                    });
+                }
             };
         }
 
@@ -62,15 +106,33 @@ namespace CreateAR.EnkluPlayer.Scripting
             _scriptRunner.StopAllScripts();
         }
 
+        private void StartRunner()
+        {
+            Log.Warning(this, "Starting ScriptRunner");
+            _scriptRunner.ParseAll();
+            _scriptRunner.StartAllScripts();
+        }
+
         private void Element_OnCreated(Element element)
         {
-            Widget widget = element as Widget;
+            var widget = element as Widget;
             if (widget == null)
             {
                 return;
             }
             
             _scriptRunner.AddWidget(widget);
+        }
+
+        private void Element_OnDestroyed(Element element)
+        {
+            var widget = element as Widget;
+            if (widget == null)
+            {
+                return;
+            }
+            
+            _scriptRunner.RemoveWidget(widget);
         }
     }
 }

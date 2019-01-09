@@ -97,6 +97,11 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        public IMutableAsyncToken<ContentWidget> OnAssetLoaded
+        {
+            get { return _onAssetLoaded; }
+        }
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -495,9 +500,9 @@ namespace CreateAR.EnkluPlayer
                     collider.center = bounds.center;
                     collider.size = bounds.size;
                 }
-
-                _onAssetLoaded.Succeed(this);
             }
+            
+            _onAssetLoaded.Succeed(this);
             
             // trigger refresh, so component specific references are new
             RefreshScripts();

@@ -12,18 +12,18 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
     {
         private ScriptRunner _scriptRunner;
 
-        private TestScriptManager _scriptManager;
-        private TestScriptFactory _scriptFactory;
+        private TestScriptManager _testManager;
+        private TestScriptFactory _testFactory;
         private EnkluScript[] _behaviors = new EnkluScript[3];
         private EnkluScript[] _vines = new EnkluScript[3];
         
         [SetUp]
         public void Setup()
         {
-            _scriptManager = new TestScriptManager();
-            _scriptFactory = new TestScriptFactory();
+            _testManager = new TestScriptManager();
+            _testFactory = new TestScriptFactory();
             _scriptRunner = new ScriptRunner(
-                _scriptManager, _scriptFactory, null, new ElementJsCache(null));
+                _testManager, _testFactory, null, new ElementJsCache(null));
             
             var parser = new DefaultScriptParser(
                 null, new JsVinePreProcessor(), new JavaScriptParser());
@@ -61,7 +61,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void Behavior()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _behaviors[0]);
+            var widget = WidgetUtil.CreateWidget(_testManager, _behaviors[0]);
             
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
@@ -70,14 +70,14 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             // Behaviors load synchronously. Check that the script has loaded & invoked.
             Assert.AreEqual(ScriptRunner.SetupState.Done, _scriptRunner.GetSetupState(widget));
             
-            var component = _scriptFactory.GetBehavior(_behaviors[0]);
+            var component = _testFactory.GetBehavior(_behaviors[0]);
             Assert.AreEqual(1, component.EnterInvoked);
         }
 
         [Test]
         public void Vine()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
+            var widget = WidgetUtil.CreateWidget(_testManager, _vines[0]);
             
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
@@ -86,7 +86,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             // Vines are async, check that it hasn't finished.
             Assert.AreEqual(ScriptRunner.SetupState.Parsing, _scriptRunner.GetSetupState(widget));
             
-            var component = _scriptFactory.GetVine(_vines[0]);
+            var component = _testFactory.GetVine(_vines[0]);
             
             Assert.AreEqual(0, component.EnterInvoked);
             
@@ -100,7 +100,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         public void Combined()
         {
             // Test both scripts together. Load them in a random-ish order
-            var widget = WidgetUtil.CreateWidget(_scriptManager,
+            var widget = WidgetUtil.CreateWidget(_testManager,
                 _behaviors[2], _vines[1], _behaviors[0], _behaviors[1], _vines[2], _vines[0]);
             
             _scriptRunner.AddWidget(widget);
@@ -112,7 +112,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var vineComponents = new TestVineMonoBehaviour[_vines.Length];
             for (var i = 0; i < vineComponents.Length; i++)
             {
-                vineComponents[i] = _scriptFactory.GetVine(_vines[i]);
+                vineComponents[i] = _testFactory.GetVine(_vines[i]);
                 
                 // Ensure vine is loading
                 Assert.AreEqual(0, vineComponents[i].EnterInvoked);
@@ -121,7 +121,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             var behaviorComponents = new TestBehaviorMonoBehaviour[_behaviors.Length];
             for (var i = 0; i < behaviorComponents.Length; i++)
             {
-                behaviorComponents[i] = _scriptFactory.GetBehavior(_behaviors[i]);
+                behaviorComponents[i] = _testFactory.GetBehavior(_behaviors[i]);
                 
                 // Behaviors should exist
                 Assert.AreEqual(0, behaviorComponents[i].EnterInvoked);
@@ -170,9 +170,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptRunner.ParseAll();
             _scriptRunner.StartAllScripts();
             
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _vines[0]);
+            WidgetUtil.AddScriptToWidget(widget, _testManager, _vines[0]);
             
-            var vineComponent = _scriptFactory.GetVine(_vines[0]);
+            var vineComponent = _testFactory.GetVine(_vines[0]);
             Assert.AreEqual(0, vineComponent.EnterInvoked);
             vineComponent.FinishConfigure();
             Assert.AreEqual(1, vineComponent.EnterInvoked);
@@ -186,9 +186,9 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptRunner.ParseAll();
             _scriptRunner.StartAllScripts();
             
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
+            WidgetUtil.AddScriptToWidget(widget, _testManager, _behaviors[0]);
             
-            var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+            var behaviourComponent = _testFactory.GetBehavior(_behaviors[0]);
             Assert.AreEqual(1, behaviourComponent.EnterInvoked);
         }
         
@@ -201,10 +201,10 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptRunner.StartAllScripts();
             
             // New Combined
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[1], _vines[1]);
+            WidgetUtil.AddScriptToWidget(widget, _testManager, _behaviors[1], _vines[1]);
             
-            var vineComponent = _scriptFactory.GetVine(_vines[1]);
-            var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[1]);
+            var vineComponent = _testFactory.GetVine(_vines[1]);
+            var behaviourComponent = _testFactory.GetBehavior(_behaviors[1]);
             
             Assert.AreEqual(0, vineComponent.EnterInvoked);
             Assert.AreEqual(0, behaviourComponent.EnterInvoked);
@@ -217,31 +217,31 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void AdditionalScripts()
         {
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
+            var widget = WidgetUtil.CreateWidget(_testManager, _vines[0]);
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
             _scriptRunner.StartAllScripts();
             
-            var vineComponent = _scriptFactory.GetVine(_vines[0]);
+            var vineComponent = _testFactory.GetVine(_vines[0]);
             vineComponent.FinishConfigure();
 
             Assert.AreEqual(1, vineComponent.EnterInvoked);
             
             // Add a new Behavior
-            WidgetUtil.AddScriptToWidget(widget, _scriptManager, _behaviors[0]);
+            WidgetUtil.AddScriptToWidget(widget, _testManager, _behaviors[0]);
             
             // Ensure existing behavior exited
             Assert.AreEqual(1, vineComponent.EnterInvoked);
             Assert.AreEqual(1, vineComponent.ExitInvoked);
             
             // Ensure new behavior invoked
-            vineComponent = _scriptFactory.GetVine(_vines[0]);
+            vineComponent = _testFactory.GetVine(_vines[0]);
             vineComponent.FinishConfigure();
             
             Assert.AreEqual(1, vineComponent.EnterInvoked);
             Assert.AreEqual(0, vineComponent.ExitInvoked);
             
-            var behaviourComponent = _scriptFactory.GetBehavior(_behaviors[0]);
+            var behaviourComponent = _testFactory.GetBehavior(_behaviors[0]);
             Assert.AreEqual(1, behaviourComponent.EnterInvoked);
         }
         #endregion
@@ -256,18 +256,18 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             _scriptRunner.ParseAll();
             _scriptRunner.StartAllScripts();
             
-            var oldComponent = _scriptFactory.GetVine(_vines[0]);
+            var oldComponent = _testFactory.GetVine(_vines[0]);
             oldComponent.FinishConfigure();
             Assert.AreEqual(1, oldComponent.EnterInvoked);
             Assert.AreEqual(0, oldComponent.ExitInvoked);
 
-            var vineScript = _scriptManager.Create(oldComponent.EnkluScript.Data.Id);
+            var vineScript = _testManager.Create(oldComponent.EnkluScript.Data.Id);
             
             vineScript.Updated();
             Assert.AreEqual(1, oldComponent.EnterInvoked);
             Assert.AreEqual(0, oldComponent.ExitInvoked);
             
-            var newComponent = _scriptFactory.GetVine(_vines[0]);
+            var newComponent = _testFactory.GetVine(_vines[0]);
             newComponent.FinishConfigure();
             
             Assert.AreEqual(1, oldComponent.EnterInvoked);
