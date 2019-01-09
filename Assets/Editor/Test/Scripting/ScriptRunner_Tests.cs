@@ -250,8 +250,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
         [Test]
         public void UpdatingVine()
         {
-            // Vines
-            var widget = WidgetUtil.CreateWidget(_scriptManager, _vines[0]);
+            var widget = WidgetUtil.CreateWidget(_testManager, _vines[0]);
             _scriptRunner.AddWidget(widget);
             _scriptRunner.ParseAll();
             _scriptRunner.StartAllScripts();
@@ -263,6 +262,7 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
 
             var vineScript = _testManager.Create(oldComponent.EnkluScript.Data.Id);
             
+            // Old vine won't exit until new one has finished configuring
             vineScript.Updated();
             Assert.AreEqual(1, oldComponent.EnterInvoked);
             Assert.AreEqual(0, oldComponent.ExitInvoked);
@@ -273,10 +273,75 @@ namespace CreateAR.EnkluPlayer.Test.Scripting
             Assert.AreEqual(1, oldComponent.EnterInvoked);
             Assert.AreEqual(1, oldComponent.ExitInvoked);
             
+            Assert.AreNotSame(oldComponent, newComponent);
+            Assert.AreEqual(1, newComponent.EnterInvoked);
+            Assert.AreEqual(0, newComponent.ExitInvoked);
+        }
+
+        [Test]
+        public void UpdatingBehavior()
+        {
+            var widget = WidgetUtil.CreateWidget(_testManager, _behaviors[0]);
+            _scriptRunner.AddWidget(widget);
+            _scriptRunner.ParseAll();
+            _scriptRunner.StartAllScripts();
+            
+            var oldComponent = _testFactory.GetBehavior(_behaviors[0]);
+            Assert.AreEqual(1, oldComponent.EnterInvoked);
+            Assert.AreEqual(0, oldComponent.ExitInvoked);
+
+            var behaviorScript = _testManager.Create(oldComponent.EnkluScript.Data.Id);
+            
+            // Old behavior exits immediately since parsing is synchronous
+            behaviorScript.Updated();
+            Assert.AreEqual(1, oldComponent.EnterInvoked);
+            Assert.AreEqual(1, oldComponent.ExitInvoked);
+            
+            var newComponent = _testFactory.GetBehavior(_behaviors[0]);
             
             Assert.AreNotSame(oldComponent, newComponent);
             Assert.AreEqual(1, newComponent.EnterInvoked);
             Assert.AreEqual(0, newComponent.ExitInvoked);
+        }
+
+        [Test]
+        public void UpdatingStack()
+        {
+            // Test to make sure updating one script causes all of the scripts on an element to update
+            var widget = WidgetUtil.CreateWidget(_testManager, _vines[0], _behaviors[0]);
+            _scriptRunner.AddWidget(widget);
+            _scriptRunner.ParseAll();
+            _scriptRunner.StartAllScripts();
+            
+            var oldVineComponent = _testFactory.GetVine(_vines[0]);
+            var oldBehaviorComponent = _testFactory.GetBehavior(_behaviors[0]);
+            oldVineComponent.FinishConfigure();
+            Assert.AreEqual(1, oldVineComponent.EnterInvoked);
+            Assert.AreEqual(0, oldVineComponent.ExitInvoked);
+            Assert.AreEqual(1, oldBehaviorComponent.EnterInvoked);
+            Assert.AreEqual(0, oldBehaviorComponent.ExitInvoked);
+
+            var vineScript = _testManager.Create(oldVineComponent.EnkluScript.Data.Id);
+            
+            // Old vine won't exit until new one has finished configuring. Behavior waits for vine.
+            vineScript.Updated();
+            Assert.AreEqual(1, oldVineComponent.EnterInvoked);
+            Assert.AreEqual(0, oldVineComponent.ExitInvoked);
+            Assert.AreEqual(1, oldBehaviorComponent.EnterInvoked);
+            Assert.AreEqual(0, oldBehaviorComponent.ExitInvoked);
+            
+            var newVineComponent = _testFactory.GetVine(_vines[0]);
+            
+            newVineComponent.FinishConfigure();
+            
+            Assert.AreEqual(1, oldVineComponent.EnterInvoked);
+            Assert.AreEqual(1, oldVineComponent.ExitInvoked);
+            Assert.AreEqual(2, oldBehaviorComponent.EnterInvoked);
+            Assert.AreEqual(1, oldBehaviorComponent.ExitInvoked);
+            
+            Assert.AreNotSame(oldVineComponent, newVineComponent);
+            Assert.AreEqual(1, newVineComponent.EnterInvoked);
+            Assert.AreEqual(0, newVineComponent.ExitInvoked);
         }
         #endregion
     }
