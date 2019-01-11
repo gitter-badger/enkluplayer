@@ -12,7 +12,7 @@ To develop with Enklu Player, you will need a few prerequisites.
 
 * Requires **Unity 2018.1.1**.
 * Setup your [ApplicationConfig.json](docs/applicationconfig.md) file.
-* Enklu Player does not require an Enklu account, but it is best used with an [Enklu Web](https://editor.enklu.com) account. An account is required to use Enklu Player's builtin multi-user editing and realtime multiplayer features.
+* Enklu Player does not require an Enklu account, but it is best used with an [Enklu Web](https://cloud.enklu.com) account. An account is required to use Enklu Player's builtin multi-user editing and realtime multiplayer features.
 * See our documentation on [building](docs/building.md) for creating device builds.
 
 ### System Documentation
