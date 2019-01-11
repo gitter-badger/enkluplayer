@@ -1,17 +1,19 @@
-﻿#if NETFX_CORE
+﻿#if !NETFX_CORE
 using CreateAR.Commons.Unity.Logging;
 using System;
 using System.IO;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.XR.WSA.WebCam;
 
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
-    /// Captures a snapshot from the HoloLens, as a mix of the device's front camera & holograms.
+    /// Records images and video from the HoloLens, as a mix of the device's front camera & holograms.
     /// Useful documentation: https://docs.microsoft.com/en-us/windows/mixed-reality/locatable-camera
     /// Currently defaults to 1280x720 to avoid cropping holograms.
     /// </summary>
-    public class SnapshotCapture : ISnapshotCapture
+    public class MediaCapture : IMediaCapture
     {
         /// <summary>
         /// Snapshot width.
@@ -27,6 +29,11 @@ namespace CreateAR.EnkluPlayer
         /// Entrypoint to the PhotoMode API.
         /// </summary>
         private PhotoCapture _photoCapture;
+        
+        /// <summary>
+        /// Entrypoint to the VideoCapture API.
+        /// </summary>
+        private VideoCapture _videoCapture;
 
         /// <inheritdoc />
         public void Setup()
@@ -34,16 +41,17 @@ namespace CreateAR.EnkluPlayer
             // TODO: if Teardown() is called before this returns, we need to destroy the
             // TODO: object
             PhotoCapture.CreateAsync(true, captureObject => _photoCapture = captureObject);
+            VideoCapture.CreateAsync(true, captureObject => _videoCapture = captureObject);
         }
 
         /// <inheritdoc />
-        public void Capture()
+        public void CaptureImage()
         {
-            Capture(WIDTH, HEIGHT);
+            CaptureImage(WIDTH, HEIGHT);
         }
 
         /// <inheritdoc />
-        public void Capture(int width, int height)
+        public void CaptureImage(int width, int height)
         {
             if (_photoCapture == null)
             {
@@ -51,7 +59,7 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
             
-            Log.Info(this, string.Format("Starting snapshot capture ({0}x{1}).", width, height));
+            Log.Info(this, string.Format("Starting image capture ({0}x{1}).", width, height));
 
             var cameraParameters = new CameraParameters();
             cameraParameters.hologramOpacity = 1.0f;
@@ -60,6 +68,31 @@ namespace CreateAR.EnkluPlayer
             cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;
 
             _photoCapture.StartPhotoModeAsync(cameraParameters, OnEnterPhotoMode);
+        }
+
+        public void CaptureVideo()
+        {
+            if (_videoCapture == null)
+            {
+                Log.Error(this, "VideoCapture not created yet.");
+                return;
+            }
+            
+            Log.Info(this, "Starting video capture.");
+            
+            var frameRate = VideoCapture.GetSupportedFrameRatesForResolution(new Resolution(){width = WIDTH, height = HEIGHT})
+                .OrderByDescending((fps) => fps).First();
+
+            var cameraParameters = new CameraParameters()
+            {
+                hologramOpacity = 1.0f,
+                cameraResolutionWidth = WIDTH,
+                cameraResolutionHeight = HEIGHT,
+                frameRate = frameRate
+            };
+            
+            
+            _videoCapture.StartVideoModeAsync(cameraParameters, VideoCapture.AudioState.ApplicationAndMicAudio, OnEnterVideoMode);
         }
 
         /// <inheritdoc />
@@ -128,6 +161,11 @@ namespace CreateAR.EnkluPlayer
 #endif
 
             EndScreenshotCapture();
+        }
+
+        private void OnEnterVideoMode(VideoCapture.VideoCaptureResult result)
+        {
+            
         }
 
         /// <summary>
