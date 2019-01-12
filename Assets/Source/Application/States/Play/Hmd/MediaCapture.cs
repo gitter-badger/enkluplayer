@@ -1,5 +1,4 @@
-﻿#if !NETFX_CORE
-using CreateAR.Commons.Unity.Logging;
+﻿using CreateAR.Commons.Unity.Logging;
 using System;
 using System.IO;
 using System.Linq;
@@ -70,7 +69,7 @@ namespace CreateAR.EnkluPlayer
             _photoCapture.StartPhotoModeAsync(cameraParameters, OnEnterPhotoMode);
         }
 
-        public void CaptureVideo()
+        public void EnterVideoMode()
         {
             if (_videoCapture == null)
             {
@@ -78,10 +77,10 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
             
-            Log.Info(this, "Starting video capture.");
-            
             var frameRate = VideoCapture.GetSupportedFrameRatesForResolution(new Resolution(){width = WIDTH, height = HEIGHT})
                 .OrderByDescending((fps) => fps).First();
+            
+            Log.Info(this, "Starting video capture ({0}x{1}x{2})", WIDTH, HEIGHT, frameRate);
 
             var cameraParameters = new CameraParameters()
             {
@@ -91,8 +90,40 @@ namespace CreateAR.EnkluPlayer
                 frameRate = frameRate
             };
             
+            _videoCapture.StartVideoModeAsync(cameraParameters, VideoCapture.AudioState.ApplicationAndMicAudio,
+                (result) =>
+                {
+                    if (!result.success)
+                    {
+                        Log.Error(this, "Failed to start VideoMode ({0})", result.hResult);
+                        EndVideoCapture();
+                        return;
+                    }
             
-            _videoCapture.StartVideoModeAsync(cameraParameters, VideoCapture.AudioState.ApplicationAndMicAudio, OnEnterVideoMode);
+                    Log.Info(this, "Entered VideoMode");
+                });
+        }
+
+        public void ExitVideoMode()
+        {
+            EndVideoCapture();
+        }
+        
+        public void StartCaptureVideo()
+        {
+            var filename = string.Format("{0}.mp4", DateTime.UtcNow.ToString("yyyy.MM.dd-HH.mm.ss"));
+            var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "video");
+
+            Directory.CreateDirectory(savePath);
+
+            var fullPath = Path.Combine(savePath, filename);
+            
+            _videoCapture.StartRecordingAsync(fullPath, OnRecordingStart);
+        }
+
+        public void StopCaptureVideo()
+        {
+            EndVideoCapture();
         }
 
         /// <inheritdoc />
@@ -103,8 +134,15 @@ namespace CreateAR.EnkluPlayer
                 _photoCapture.Dispose();
                 _photoCapture = null;
             }
+
+            if (null != _videoCapture)
+            {
+                _videoCapture.Dispose();
+                _videoCapture = null;
+            }
         }
 
+        #region Image Capture
         /// <summary>
         /// Invoked after PhotoMode has attempted to enter, successfully or not.
         /// </summary>
@@ -163,11 +201,6 @@ namespace CreateAR.EnkluPlayer
             EndScreenshotCapture();
         }
 
-        private void OnEnterVideoMode(VideoCapture.VideoCaptureResult result)
-        {
-            
-        }
-
         /// <summary>
         /// Cleans up the PhotoCapture state, exiting PhotoMode if needed.
         /// </summary>
@@ -185,6 +218,44 @@ namespace CreateAR.EnkluPlayer
                 }
             });
         }
+        #endregion
+        
+        #region Video Capture
+
+        private void OnRecordingStart(VideoCapture.VideoCaptureResult result)
+        {
+            if (!result.success)
+            {
+                Log.Error(this, "Failed to start Recording ({0})", result.hResult);
+                EndVideoCapture();
+                return;
+            }
+            
+            Log.Info(this, "Recording started.");
+        }
+
+        private void EndVideoCapture()
+        {
+            _videoCapture.StopRecordingAsync((recResult) =>
+            {
+                if (!recResult.success)
+                {
+                    Log.Error(this, "Failed to stop recording ({0)", recResult.hResult);
+                }
+                else
+                {
+                    Log.Info(this, "Recording stopped.");
+                }
+                
+                _videoCapture.StopVideoModeAsync((modeResult) =>
+                {
+                    if (!modeResult.success)
+                    {
+                        Log.Error(this, "Failed to stop VideoMode ({0})", modeResult.hResult);
+                    }
+                });
+            });
+        }
+        #endregion
     }
 }
-#endif

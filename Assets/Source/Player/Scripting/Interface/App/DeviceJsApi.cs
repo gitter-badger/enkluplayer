@@ -14,15 +14,19 @@
         /// Cached meta for non-battery requests.
         /// </summary>
         private DeviceResourceMeta _meta;
+        
+        public MediaCaptureJsApi media { get; private set; }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="deviceMeta"></param>
-        public DeviceJsApi(IDeviceMetaProvider deviceMeta)
+        public DeviceJsApi(IDeviceMetaProvider deviceMeta, IMediaCapture mediaCapture)
         {
             _deviceMeta = deviceMeta;
             _meta = _deviceMeta.Meta();
+            
+            media = new MediaCaptureJsApi(mediaCapture);
         }
 
         /// <summary>

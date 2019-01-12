@@ -24,7 +24,13 @@
         /// <param name="height"></param>
         void CaptureImage(int width, int height);
 
-        void CaptureVideo();
+        void EnterVideoMode();
+
+        void ExitVideoMode();
+
+        void StartCaptureVideo();
+
+        void StopCaptureVideo();
 
         /// <summary>
         /// Shuts down the capture.

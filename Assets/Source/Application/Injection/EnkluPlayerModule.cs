@@ -223,6 +223,8 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IDeviceMetaProvider>().To<FrameworkDeviceMetaProvider>().ToSingleton();
 #endif
 
+                    binder.Bind<IMediaCapture>().To<MediaCapture>().ToSingleton();
+
                     binder.Bind<DeviceResourceUpdateService>().To<DeviceResourceUpdateService>().ToSingleton();
                 }
 
@@ -694,6 +696,7 @@ namespace CreateAR.EnkluPlayer
                 
                 SystemJsApi.Initialize(
                     binder.GetInstance<IDeviceMetaProvider>(),
+                    binder.GetInstance<IMediaCapture>(),
                     binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<ApiController>(),
