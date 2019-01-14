@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using CreateAR.Commons.Unity.Logging;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
@@ -113,6 +114,15 @@ namespace CreateAR.EnkluPlayer.Editor
 
                     WriteOverride();
                 }
+
+                var level = _config.Log.ParsedLevel;
+                var newLevel = (LogLevel) EditorGUILayout.EnumPopup(new GUIContent("Log Level"), level);
+                if (level != newLevel)
+                {
+                    _override.Log.Level = newLevel.ToString();
+
+                    WriteOverride();
+                }
             }
             GUILayout.EndVertical();
         }
@@ -147,7 +157,7 @@ namespace CreateAR.EnkluPlayer.Editor
 
             return 0;
         }
-
+        
         /// <summary>
         /// Reloads the configs.
         /// </summary>
