@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
@@ -561,6 +562,24 @@ namespace CreateAR.EnkluPlayer
             if (type == EditorSettingsType.Grid || type == EditorSettingsType.All)
             {
                 _referenceCube.SetActive(_editorSettings.Grid);
+            }
+            
+            if (type == EditorSettingsType.MeshScan || type == EditorSettingsType.All)
+            {
+                var scans = new List<Element>();<Element>();
+                var all = _scenes.All;
+                
+                for (var i = 0; i < all.Length; i++){
+                    var id = all[i];
+                    var root = _scenes.Root(id);
+                    root.Find("..(@type==ScanWidget)", scans);
+
+                    for (var j = 0; j < scans.Count; j++)
+                    {
+                        var scan = scans[j];
+                        scan.Schema.Set("visible", _editorSettings.MeshScan);
+                    }
+                }
             }
         }
     }
