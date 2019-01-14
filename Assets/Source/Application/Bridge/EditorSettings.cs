@@ -4,6 +4,7 @@ using CreateAR.Commons.Unity.Logging;
 using CreateAR.EnkluPlayer.IUX;
 using RLD;
 using CreateAR.EnkluPlayer;
+using Source.Player.IUX;
 using Object = UnityEngine.Object;
 
 namespace CreateAR.EnkluPlayer
@@ -14,6 +15,11 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class EditorSettings
     {
+        /// <summary>
+        /// Injected reference to schema defaults, used to set initial values.
+        /// </summary>
+        private readonly ElementSchemaDefaults _elementSchemaDefaults;
+        
         /// <summary>
         /// Backing variable for MeshScan.
         /// </summary>
@@ -40,12 +46,6 @@ namespace CreateAR.EnkluPlayer
         public event Action<EditorSettingsType> OnChanged;
 
         /// <summary>
-        /// All scenes.
-        /// </summary>
-        [Inject]
-        public IAppSceneManager Scenes { get; set; }
-
-        /// <summary>
         /// Whether the mesh scan is visible.
         /// </summary>
         public bool MeshScan
@@ -54,20 +54,11 @@ namespace CreateAR.EnkluPlayer
             set
             {
                 _meshScan = value;
-                
-                var scans = new List<Element>();
-                var all = Scenes.All;
-                
-                for (var i = 0; i < all.Length; i++){
-                    var id = all[i];
-                    var root = Scenes.Root(id);
-                    root.Find("..(@type==ScanWidget)", scans);
-
-                    for (var j = 0; j < scans.Count; j++)
-                    {
-                        var scan = scans[j];
-                        scan.Schema.Set("visible", _meshScan);
-                    }
+                // If such a schema exists, set is default visibility.
+                if (_elementSchemaDefaults.Has(ElementTypes.SCAN))
+                {
+                    var schema = _elementSchemaDefaults.Get(ElementTypes.SCAN);
+                    schema.Set("visible", _meshScan);
                 }
 
                 Notify(EditorSettingsType.MeshScan);
@@ -139,6 +130,11 @@ namespace CreateAR.EnkluPlayer
                 
                 Notify(EditorSettingsType.HierarchyLines);               
             }
+        }
+
+        public EditorSettings(ElementSchemaDefaults elementSchemaDefaults)
+        {
+            _elementSchemaDefaults = elementSchemaDefaults;
         }
 
         /// <summary>

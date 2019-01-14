@@ -160,10 +160,6 @@ namespace CreateAR.EnkluPlayer.IUX
             var element = ElementForType(data.Type);
             if (element != null)
             {
-                if (data.Type == ElementTypes.SCAN)
-                {
-                    schema.Set("visible", _editorSettings.MeshScan);
-                }
                 element.Load(data, schema, children);
                 _elements.Add(element);
             }

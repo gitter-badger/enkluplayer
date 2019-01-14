@@ -194,6 +194,16 @@ namespace Source.Player.IUX
                 }
             });
         }
+
+        /// <summary>
+        /// Returns whether this object contains a schema for the specified type.
+        /// </summary>
+        /// <param name="type">The type in question.</param>
+        /// <returns>Whether a schema of this type exists in this object.</returns>
+        public bool Has(int type)
+        {
+            return _typeSchema.ContainsKey(type);
+        }
         
         /// <summary>
         /// Gets the default schema for the specified type. Returns a default schema if the specified does not exist.
