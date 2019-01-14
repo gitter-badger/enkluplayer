@@ -18,6 +18,7 @@ using CreateAR.Trellis.Messages;
 using Jint.Parser;
 using Newtonsoft.Json;
 using strange.extensions.injector.impl;
+using Source.Player.IUX;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -111,7 +112,8 @@ namespace CreateAR.EnkluPlayer
 #else
                 binder.Bind<IHashProvider>().To<Sha256HashProvider>();
 #endif
-      
+
+                binder.Bind<ElementSchemaDefaults>().To<ElementSchemaDefaults>().ToSingleton();
                 binder.Bind<EditorSettings>().To<EditorSettings>().ToSingleton();
                 
                 // assets

@@ -227,17 +227,4 @@ namespace CreateAR.EnkluPlayer
         HierarchyLines,
         All
     }
-    
-    /// <summary>
-    /// The args for a settings change event.
-    /// </summary>
-    public class SettingChangedArgs : EventArgs
-    {
-        public EditorSettingsType Type { get; set; }
-        
-        public SettingChangedArgs(EditorSettingsType type)
-        {
-            Type = type;
-        }
-    }
 }
