@@ -561,12 +561,12 @@ namespace CreateAR.EnkluPlayer
         {
             if (type == EditorSettingsType.Grid || type == EditorSettingsType.All)
             {
-                _referenceCube.SetActive(_editorSettings.Grid);
+                _referenceCube.SetActive(_editorSettings.Get(EditorSettingsType.Grid));
             }
             
             if (type == EditorSettingsType.MeshScan || type == EditorSettingsType.All)
             {
-                var scans = new List<Element>();<Element>();
+                var scans = new List<Element>();
                 var all = _scenes.All;
                 
                 for (var i = 0; i < all.Length; i++){
@@ -577,7 +577,7 @@ namespace CreateAR.EnkluPlayer
                     for (var j = 0; j < scans.Count; j++)
                     {
                         var scan = scans[j];
-                        scan.Schema.Set("visible", _editorSettings.MeshScan);
+                        scan.Schema.Set("visible", _editorSettings.Get(EditorSettingsType.MeshScan));
                     }
                 }
             }

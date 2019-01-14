@@ -21,160 +21,66 @@ namespace CreateAR.EnkluPlayer
         private readonly ElementSchemaDefaults _elementSchemaDefaults;
         
         /// <summary>
-        /// Backing variable for MeshScan.
+        /// The current settings.
         /// </summary>
-        private bool _meshScan;
+        private readonly Dictionary<EditorSettingsType, bool> _settings = new Dictionary<EditorSettingsType, bool>
+        {
+            {EditorSettingsType.Grid, true},
+            {EditorSettingsType.MeshScan, true},
+            {EditorSettingsType.ElementGizmos, true},
+            {EditorSettingsType.HierarchyLines, true}
+        };
         
-        /// <summary>
-        /// Backing variable for Grid.
-        /// </summary>
-        private bool _grid;
-        
-        /// <summary>
-        /// Backing variable for ElementGizmos.
-        /// </summary>
-        private bool _elementGizmos;
-        
-        /// <summary>
-        /// Backing variable for HierarchyLines.
-        /// </summary>
-        private bool _hierarchyLines;
-
         /// <summary>
         /// Fired when the value of any setting has changed.
         /// </summary>
         public event Action<EditorSettingsType> OnChanged;
 
         /// <summary>
-        /// Whether the mesh scan is visible.
+        /// Constructor.
         /// </summary>
-        public bool MeshScan
-        {
-            get { return _meshScan; }
-            set
-            {
-                _meshScan = value;
-                // If such a schema exists, set is default visibility.
-                if (_elementSchemaDefaults.Has(ElementTypes.SCAN))
-                {
-                    var schema = _elementSchemaDefaults.Get(ElementTypes.SCAN);
-                    schema.Set("visible", _meshScan);
-                }
-
-                Notify(EditorSettingsType.MeshScan);
-            }
-        }
-
-        /// <summary>
-        /// Whether the grid is visible.
-        /// </summary>
-        public bool Grid
-        {
-            get { return _grid; }
-            set
-            {
-                _grid = value;
-                
-                var sceneGrid = Object.FindObjectOfType<RTSceneGrid>();
-                if (null != sceneGrid)
-                {
-                    sceneGrid.Settings.IsVisible = _grid;
-                }
-                
-                Notify(EditorSettingsType.Grid);
-            }
-        }
-        
-        /// <summary>
-        /// Whether the element gizmos are visible.
-        /// </summary>
-        public bool ElementGizmos
-        {
-            get { return _elementGizmos; }
-            set
-            {
-                _elementGizmos = value;
-                
-                var scene = Object.FindObjectOfType<RTScene>();
-                if (null != scene)
-                {
-                    scene.LookAndFeel.DrawLightIcons = _elementGizmos;
-                    scene.LookAndFeel.DrawParticleSystemIcons = _elementGizmos;
-                }
-
-                var gizmos = Object.FindObjectOfType<GizmoManager>();
-                if (null != gizmos)
-                {
-                    gizmos.IsVisible = _elementGizmos;
-                }
-                
-                Notify(EditorSettingsType.ElementGizmos);               
-            }
-        }
-
-        /// <summary>
-        /// Whether the hierarchy lines are visible.
-        /// </summary>
-        public bool HierarchyLines
-        {
-            get { return _hierarchyLines; }
-            set
-            {
-                _hierarchyLines = value;
-                
-                var renderer = Object.FindObjectOfType<HierarchyLineRenderer>();
-                if (null != renderer)
-                {
-                    renderer.enabled = _hierarchyLines;
-                }
-                
-                Notify(EditorSettingsType.HierarchyLines);               
-            }
-        }
-
+        /// <param name="elementSchemaDefaults">Injected ElementSchemaDefaults.</param>
         public EditorSettings(ElementSchemaDefaults elementSchemaDefaults)
         {
             _elementSchemaDefaults = elementSchemaDefaults;
         }
 
         /// <summary>
-        /// Sets any setting.
+        /// Sets any settings, via string keys.
         /// </summary>
+        /// <param name="name">The name of the setting.</param>
+        /// <param name="value">The new value of the setting.</param>
         public void Set(string name, bool value)
         {
             Log.Info(this, "Setting {0} to {1}", name, value);
-            switch (name)
+            var type = EnumExtensions.Parse(name, EditorSettingsType.None);
+            if (type != EditorSettingsType.None)
             {
-                case "MeshScan":
-                {
-                    MeshScan = value;
-                    break;   
-                }
-
-                case "Grid":
-                {
-                    Grid = value;
-                    break;   
-                }
-
-                case "ElementGizmos":
-                {
-                    ElementGizmos = value;
-                    break;
-                }
-
-                case "HierarchyLines":
-                {
-                    HierarchyLines = value;
-                    break;   
-                }
-
-                default:
-                {
-                    Log.Warning(this, "Could not set setting {0}. No such property.", name);
-                    break;
-                }
+                Set(type, value);
             }
+        }
+
+        /// <summary>
+        /// Sets any setting, via enum.
+        /// </summary>
+        /// <param name="type">The type of setting.</param>
+        /// <param name="value">The new value of the setting.</param>
+        public void Set(EditorSettingsType type, bool value)
+        {
+            _settings[type] = value;
+            Update(type);
+        }
+
+        /// <summary>
+        /// Gets the value of a setting.
+        /// </summary>
+        /// <param name="type">The type of setting to get.</param>
+        /// <returns>The value of the setting, or false if the setting does not exist.</returns>
+        public bool Get(EditorSettingsType type)
+        {
+            bool value;
+            _settings.TryGetValue(type, out value);
+            return value;
         }
 
         /// <summary>
@@ -183,32 +89,57 @@ namespace CreateAR.EnkluPlayer
         /// <param name="obj">The event in question</param>
         public void Populate(EditorSettingsEvent obj)
         {
-            MeshScan = obj.MeshScan;
-            Grid = obj.Grid;
-            ElementGizmos = obj.ElementGizmos;
-            HierarchyLines = obj.HierarchyLines;
+            Set(EditorSettingsType.MeshScan, obj.MeshScan);
+            Set(EditorSettingsType.Grid, obj.Grid);
+            Set(EditorSettingsType.ElementGizmos, obj.ElementGizmos);
+            Set(EditorSettingsType.HierarchyLines, obj.HierarchyLines);
         }
 
         /// <summary>
         /// Requests the utility to run through all values and update the necessary components.
         /// </summary>
-        public void Update()
+        public void Update(EditorSettingsType type = EditorSettingsType.All)
         {
-            MeshScan = MeshScan;
-            Grid = Grid;
-            ElementGizmos = ElementGizmos;
-            HierarchyLines = HierarchyLines;
-        }
-        
-        /// <summary>
-        /// Emits an event that states that something has changed.
-        /// </summary>
-        private void Notify(EditorSettingsType type = EditorSettingsType.All)
-        {
+            // Grid.
+            var sceneGrid = Object.FindObjectOfType<RTSceneGrid>();
+            if (null != sceneGrid)
+            {
+                sceneGrid.Settings.IsVisible = Get(EditorSettingsType.Grid);
+            }
+            
+            // Scan.
+            if (_elementSchemaDefaults.Has(ElementTypes.SCAN))
+            {
+                var schema = _elementSchemaDefaults.Get(ElementTypes.SCAN);
+                schema.Set("visible", Get(EditorSettingsType.MeshScan));
+            }
+            
+            // ElementGizmos
+            var scene = Object.FindObjectOfType<RTScene>();
+            var elementGizmos = Get(EditorSettingsType.ElementGizmos);
+            if (null != scene)
+            {
+                scene.LookAndFeel.DrawLightIcons = elementGizmos;
+                scene.LookAndFeel.DrawParticleSystemIcons = elementGizmos;
+            }
+
+            var gizmos = Object.FindObjectOfType<GizmoManager>();
+            if (null != gizmos)
+            {
+                gizmos.IsVisible = elementGizmos;
+            }
+            
+            // HierarchyLines
+            var renderer = Object.FindObjectOfType<HierarchyLineRenderer>();
+            if (null != renderer)
+            {
+                renderer.enabled = Get(EditorSettingsType.HierarchyLines);
+            }
+            
             if (null != OnChanged)
             {
                 OnChanged(type);   
-            } 
+            }
         }
     }
 
@@ -217,6 +148,7 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public enum EditorSettingsType
     {
+        None,
         MeshScan,
         Grid,
         ElementGizmos,

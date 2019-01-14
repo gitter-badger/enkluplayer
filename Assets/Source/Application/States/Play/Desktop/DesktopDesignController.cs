@@ -299,7 +299,7 @@ namespace CreateAR.EnkluPlayer
                 }
             });
 
-            _referenceCube.SetActive(_editorSettings.Grid);
+            _referenceCube.SetActive(_editorSettings.Get(EditorSettingsType.Grid));
         }
 
         /// <summary>
@@ -412,7 +412,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Called when the a setting has changed in the editor.
+        /// Called when a setting has changed in the editor.
         /// </summary>
         /// <param name="args">The event args from EditorSettings.</param>
         private void Editor_OnSettingsChanged(EditorSettingsType type)
@@ -421,7 +421,7 @@ namespace CreateAR.EnkluPlayer
             {
                 if (null != _referenceCube)
                 {
-                    _referenceCube.SetActive(_editorSettings.Grid);                    
+                    _referenceCube.SetActive(_editorSettings.Get(EditorSettingsType.Grid));                    
                 }
             }
 
@@ -438,7 +438,7 @@ namespace CreateAR.EnkluPlayer
                     for (var j = 0; j < scans.Count; j++)
                     {
                         var scan = scans[j];
-                        scan.Schema.Set("visible", _editorSettings.MeshScan);
+                        scan.Schema.Set("visible", _editorSettings.Get(EditorSettingsType.MeshScan));
                     }
                 }
             }
