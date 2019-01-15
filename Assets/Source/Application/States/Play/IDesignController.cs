@@ -14,11 +14,6 @@ namespace CreateAR.EnkluPlayer
     public interface IDesignController
     {
         /// <summary>
-        /// Sets whether the DesignController should be in debug render mode.
-        /// </summary>
-        DesignControllerMode Mode { get; set; }
-
-        /// <summary>
         /// Starts controllers.
         /// </summary>
         void Setup(DesignerContext context, IAppController app);
