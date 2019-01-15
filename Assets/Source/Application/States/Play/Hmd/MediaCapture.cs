@@ -2,8 +2,10 @@
 using System;
 using System.IO;
 using System.Linq;
+using CreateAR.Commons.Unity.Async;
 using UnityEngine;
 using UnityEngine.XR.WSA.WebCam;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -33,6 +35,9 @@ namespace CreateAR.EnkluPlayer
         /// Entrypoint to the VideoCapture API.
         /// </summary>
         private VideoCapture _videoCapture;
+        
+        /// <inheritdoc />
+        public CaptureState CaptureState { get; private set; }
 
         /// <inheritdoc />
         public void Setup()
@@ -41,46 +46,119 @@ namespace CreateAR.EnkluPlayer
             // TODO: object
             PhotoCapture.CreateAsync(true, captureObject => _photoCapture = captureObject);
             VideoCapture.CreateAsync(true, captureObject => _videoCapture = captureObject);
+
+            CaptureState = CaptureState.Idle;
         }
 
         /// <inheritdoc />
-        public void CaptureImage()
-        {
-            CaptureImage(WIDTH, HEIGHT);
-        }
-
-        /// <inheritdoc />
-        public void CaptureImage(int width, int height)
+        public IAsyncToken<Void> EnterPhotoMode()
         {
             if (_photoCapture == null)
             {
-                Log.Error(this, "PhotoCapture not created yet.");
-                return;
+                return new AsyncToken<Void>(new Exception("PhotoCapture not created yet."));
+            }
+
+            if (CaptureState != CaptureState.Idle)
+            {
+                return new AsyncToken<Void>(new Exception(string.Format("MediaCapture is not idle ({0})", CaptureState)));
             }
             
-            Log.Info(this, string.Format("Starting image capture ({0}x{1}).", width, height));
+            Log.Info(this, "Starting PhotoMode ({0}x{1})", WIDTH, HEIGHT);
+            
+            var cameraParameters = new CameraParameters
+            {
+                hologramOpacity = 1.0f,
+                cameraResolutionWidth = WIDTH,
+                cameraResolutionHeight = HEIGHT,
+                pixelFormat = CapturePixelFormat.BGRA32
+            };
 
-            var cameraParameters = new CameraParameters();
-            cameraParameters.hologramOpacity = 1.0f;
-            cameraParameters.cameraResolutionWidth = width;
-            cameraParameters.cameraResolutionHeight = height;
-            cameraParameters.pixelFormat = CapturePixelFormat.BGRA32;
+            var rtnToken = new AsyncToken<Void>();
+            
+            _photoCapture.StartPhotoModeAsync(cameraParameters, result =>
+            {
+                if (!result.success)
+                {
+                    ExitPhotoMode();
+                    rtnToken.Fail(new Exception(string.Format("Failed to start PhotoMode ({0})", result.hResult)));
+                    return;
+                }
+        
+                Log.Info(this, "Entered PhotoMode");
+                CaptureState = CaptureState.PhotoMode;
+                
+                rtnToken.Succeed(Void.Instance);
+            });
 
-            _photoCapture.StartPhotoModeAsync(cameraParameters, OnEnterPhotoMode);
+            return rtnToken;
         }
 
-        public void EnterVideoMode()
+        /// <inheritdoc />
+        public IAsyncToken<Void> CaptureImage()
+        {
+            var filename = string.Format("{0:yyyy.MM.dd-HH.mm.ss}.png", DateTime.UtcNow);
+            var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "snapshots");
+            var fullPath = Path.Combine(savePath, filename);
+            
+            Directory.CreateDirectory(savePath);
+
+            var rtnToken = new AsyncToken<Void>();
+            
+            _photoCapture.TakePhotoAsync(fullPath, PhotoCaptureFileOutputFormat.PNG, (result) =>
+            {
+                if (!result.success)
+                {
+                    ExitPhotoMode();
+                    rtnToken.Fail(new Exception(string.Format("Failed to take snapshot: " + result.hResult)));
+                    return;
+                }
+
+                Log.Info(this, "Snapshot saved to " + fullPath);
+                rtnToken.Succeed(Void.Instance);
+            });
+
+            return rtnToken;
+        }
+
+        /// <inheritdoc />
+        public IAsyncToken<Void> ExitPhotoMode()
+        {
+            var rtnToken = new AsyncToken<Void>();
+            
+            _photoCapture.StopPhotoModeAsync(result =>
+            {
+                if (!result.success)
+                {
+                    rtnToken.Fail(new Exception(string.Format("Failed to stop PhotoMode ({0})", result.hResult)));
+                }
+                else
+                {
+                    Log.Info(this, "Exited PhotoMode.");
+                    CaptureState = CaptureState.Idle;
+                    rtnToken.Succeed(Void.Instance);
+                }
+            });
+
+            return rtnToken;
+        }
+
+        /// <inheritdoc />
+        public IAsyncToken<Void> EnterVideoMode()
         {
             if (_videoCapture == null)
             {
-                Log.Error(this, "VideoCapture not created yet.");
-                return;
+                return new AsyncToken<Void>(new Exception("VideoCapture not created yet."));
+            }
+
+            if (CaptureState != CaptureState.Idle)
+            {
+                return new AsyncToken<Void>(new Exception(string.Format("MediaCapture is not idle ({0})", CaptureState)));
             }
             
             var frameRate = VideoCapture.GetSupportedFrameRatesForResolution(new Resolution(){width = WIDTH, height = HEIGHT})
                 .OrderByDescending((fps) => fps).First();
             
-            Log.Info(this, "Starting video capture ({0}x{1}x{2})", WIDTH, HEIGHT, frameRate);
+            Log.Info(this, "Starting VideoMode ({0}x{1}x{2})", WIDTH, HEIGHT, frameRate);
 
             var cameraParameters = new CameraParameters()
             {
@@ -90,40 +168,81 @@ namespace CreateAR.EnkluPlayer
                 frameRate = frameRate
             };
             
-            _videoCapture.StartVideoModeAsync(cameraParameters, VideoCapture.AudioState.ApplicationAndMicAudio,
-                (result) =>
-                {
-                    if (!result.success)
-                    {
-                        Log.Error(this, "Failed to start VideoMode ({0})", result.hResult);
-                        EndVideoCapture();
-                        return;
-                    }
+            var rtnToken = new AsyncToken<Void>();
             
-                    Log.Info(this, "Entered VideoMode");
-                });
-        }
-
-        public void ExitVideoMode()
-        {
-            EndVideoCapture();
+            _videoCapture.StartVideoModeAsync(cameraParameters, VideoCapture.AudioState.ApplicationAndMicAudio, (result) =>
+            {
+                if (!result.success)
+                {
+                    EndVideoCapture();
+                    rtnToken.Fail(new Exception(string.Format("Failed to start VideoMode ({0})", result.hResult)));
+                    return;
+                }
+        
+                Log.Info(this, "Entered VideoMode");
+                CaptureState = CaptureState.VideoMode;
+                
+                rtnToken.Succeed(Void.Instance);
+            });
+            
+            return rtnToken;
         }
         
-        public void StartCaptureVideo()
+        /// <inheritdoc />
+        public IAsyncToken<Void> StartRecording()
         {
-            var filename = string.Format("{0}.mp4", DateTime.UtcNow.ToString("yyyy.MM.dd-HH.mm.ss"));
+            var filename = string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
             var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "video");
 
             Directory.CreateDirectory(savePath);
 
             var fullPath = Path.Combine(savePath, filename);
             
-            _videoCapture.StartRecordingAsync(fullPath, OnRecordingStart);
+            var rtnToken = new AsyncToken<Void>();
+            
+            _videoCapture.StartRecordingAsync(fullPath, result =>
+            {
+                if (!result.success)
+                {
+                    EndVideoCapture();
+                    rtnToken.Fail(new Exception(string.Format("Failed to start Recording ({0})", result.hResult)));
+                    return;
+                }
+
+                CaptureState = CaptureState.VideoRecording;
+                Log.Info(this, "Recording started.");
+                rtnToken.Succeed(Void.Instance);
+            });
+
+            return rtnToken;
         }
 
-        public void StopCaptureVideo()
+        /// <inheritdoc />
+        public IAsyncToken<Void> StopRecording()
         {
-            EndVideoCapture();
+            var rtnToken = new AsyncToken<Void>();
+            
+            _videoCapture.StopRecordingAsync((recResult) =>
+            {
+                if (!recResult.success)
+                {
+                    rtnToken.Fail(new Exception(string.Format("Failed to stop recording ({0})", recResult.hResult)));
+                }
+                else
+                {
+                    CaptureState = CaptureState.VideoMode;
+                    Log.Info(this, "Recording stopped.");
+                    rtnToken.Succeed(Void.Instance);
+                }
+            });
+
+            return rtnToken;
+        }
+        
+        /// <inheritdoc />
+        public IAsyncToken<Void> ExitVideoMode()
+        {
+            return EndVideoCapture();
         }
 
         /// <inheritdoc />
@@ -141,121 +260,35 @@ namespace CreateAR.EnkluPlayer
                 _videoCapture = null;
             }
         }
-
-        #region Image Capture
-        /// <summary>
-        /// Invoked after PhotoMode has attempted to enter, successfully or not.
-        /// </summary>
-        /// <param name="result">PhotoMode entry result.</param>
-        private void OnEnterPhotoMode(PhotoCapture.PhotoCaptureResult result)
-        {
-            if (!result.success)
-            {
-                Log.Error(this, string.Format("Failed to start PhotoMode ({0}).", result.hResult));
-                EndScreenshotCapture();
-                return;
-            }
-
-            Log.Info(this, "Entered PhotoMode.");
-
-            var filename = string.Format("{0}.png", DateTime.UtcNow.ToString("yyyy.MM.dd-HH.mm.ss"));
-            var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "snapshots");
-            
-            // Make sure "snapshots" dir exists
-            Directory.CreateDirectory(savePath);
-
-            var fullPath = Path.Combine(savePath, filename);
-
-            // PhotoCapture API will handle saving the image directly to disk, avoiding coming back to Unity.
-            _photoCapture.TakePhotoAsync(fullPath, PhotoCaptureFileOutputFormat.PNG, (takeResult) =>
-            {
-                OnTakePhoto(takeResult, fullPath, filename);
-            });
-        }
-
-        /// <summary>
-        /// Invoked after TakePhoto runs, successfully or not.
-        /// </summary>
-        /// <param name="result">TakePhoto result.</param>
-        /// <param name="fullPath">Full path + name of the image.</param>
-        /// <param name="filename">Filename of the image. (Used in debugging)</param>
-        private void OnTakePhoto(PhotoCapture.PhotoCaptureResult result, string fullPath, string filename)
-        {
-            if (!result.success)
-            {
-                Log.Error(this, "Failed to take snapshot: " + result.hResult);
-                EndScreenshotCapture();
-                return;
-            }
-
-            Log.Info(this, "Snapshot saved to " + fullPath);
-
-#if DEBUG_SNAPSHOTS && !UNITY_EDITOR
-            // Copy the file to the device's camera roll so it can be accessed via USB easily.
-            var cameraRollFolder = Windows.Storage.KnownFolders.CameraRoll.Path;
-            var newPath = Path.Combine(cameraRollFolder, filename);
-            File.Copy(fullPath, newPath);
-            Log.Info(this, "Snapshot moved to " + newPath);
-#endif
-
-            EndScreenshotCapture();
-        }
-
-        /// <summary>
-        /// Cleans up the PhotoCapture state, exiting PhotoMode if needed.
-        /// </summary>
-        private void EndScreenshotCapture()
-        {
-            _photoCapture.StopPhotoModeAsync((result) =>
-            {
-                if (result.success)
-                {
-                    Log.Info(this, "Exited PhotoMode.");
-                }
-                else
-                {
-                    Log.Error(this, string.Format("Failed to stop PhotoMode ({0}).", result.hResult));
-                }
-            });
-        }
-        #endregion
         
-        #region Video Capture
-
-        private void OnRecordingStart(VideoCapture.VideoCaptureResult result)
+        /// <summary>
+        /// Helper to ensure any active recordings are finished before exiting VideoMode.
+        /// </summary>
+        /// <returns></returns>
+        private IAsyncToken<Void> EndVideoCapture()
         {
-            if (!result.success)
-            {
-                Log.Error(this, "Failed to start Recording ({0})", result.hResult);
-                EndVideoCapture();
-                return;
-            }
+            var rtnToken = new AsyncToken<Void>();
             
-            Log.Info(this, "Recording started.");
-        }
-
-        private void EndVideoCapture()
-        {
-            _videoCapture.StopRecordingAsync((recResult) =>
+            if (CaptureState == CaptureState.VideoRecording)
             {
-                if (!recResult.success)
+                StopRecording();
+            }
+
+            _videoCapture.StopVideoModeAsync((modeResult) =>
+            {
+                if (!modeResult.success)
                 {
-                    Log.Error(this, "Failed to stop recording ({0)", recResult.hResult);
+                    rtnToken.Fail(new Exception(string.Format("Failed to stop VideoMode ({0})", modeResult.hResult)));
                 }
                 else
                 {
-                    Log.Info(this, "Recording stopped.");
+                    CaptureState = CaptureState.Idle;
+                    Log.Info(this, "Exited VideoMode.");
+                    rtnToken.Succeed(Void.Instance);
                 }
-                
-                _videoCapture.StopVideoModeAsync((modeResult) =>
-                {
-                    if (!modeResult.success)
-                    {
-                        Log.Error(this, "Failed to stop VideoMode ({0})", modeResult.hResult);
-                    }
-                });
             });
+
+            return rtnToken;
         }
-        #endregion
     }
 }
