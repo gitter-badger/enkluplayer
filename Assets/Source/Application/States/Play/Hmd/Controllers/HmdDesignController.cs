@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using CreateAR.EnkluPlayer.IUX;
 using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.CreateScene;
+using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -80,10 +82,10 @@ namespace CreateAR.EnkluPlayer
         private GameObject _referenceCube;
 
         /// <summary>
-        /// The mode of this design controller.
+        /// Contains editor settings.
         /// </summary>
-        private DesignControllerMode _mode = DesignControllerMode.Normal;
-        
+        private readonly EditorSettings _editorSettings;
+
         /// <summary>
         /// Config for play mode.
         /// </summary>
@@ -110,17 +112,6 @@ namespace CreateAR.EnkluPlayer
             get { return _scenes; }
         }
         
-        /// <inheritdoc />
-        public DesignControllerMode Mode
-        {
-            get { return _mode; }
-            set
-            {
-                _mode = value;
-                _referenceCube.SetActive(value == DesignControllerMode.DebugRendering);
-            }
-        }
-
         /// <summary>
         /// Constuctor.
         /// </summary>
@@ -136,6 +127,7 @@ namespace CreateAR.EnkluPlayer
             IMessageRouter messages,
             IPrimaryAnchorManager primaryAnchor,
             ApiController api,
+            EditorSettings editorSettings,
 
             // design states
             MainDesignState main,
@@ -160,6 +152,7 @@ namespace CreateAR.EnkluPlayer
             _messages = messages;
             _primaryAnchor = primaryAnchor;
             _api = api;
+            _editorSettings = editorSettings;
 
             _states = new IArDesignState[]
             {
@@ -212,6 +205,8 @@ namespace CreateAR.EnkluPlayer
             {
                 SetupPlay();
             }
+
+            _editorSettings.OnChanged += Editor_OnSettingsChanged;
         }
 
         /// <inheritdoc />
@@ -230,6 +225,8 @@ namespace CreateAR.EnkluPlayer
             {
                 Object.Destroy(_root);
             }
+
+            _editorSettings.OnChanged -= Editor_OnSettingsChanged;
         }
 
         /// <summary>
@@ -554,6 +551,36 @@ namespace CreateAR.EnkluPlayer
             _config.Play.Edit = false;
 
             _messages.Publish(MessageTypes.LOAD_APP);
+        }
+
+        /// <summary>
+        /// Called when a setting has changed in the editor.
+        /// </summary>
+        /// <param name="args">The event args from EditorSettings.</param>
+        private void Editor_OnSettingsChanged(EditorSettingsType type)
+        {
+            if (type == EditorSettingsType.Grid || type == EditorSettingsType.All)
+            {
+                _referenceCube.SetActive(_editorSettings.Get(EditorSettingsType.Grid));
+            }
+            
+            if (type == EditorSettingsType.MeshScan || type == EditorSettingsType.All)
+            {
+                var scans = new List<Element>();
+                var all = _scenes.All;
+                
+                for (var i = 0; i < all.Length; i++){
+                    var id = all[i];
+                    var root = _scenes.Root(id);
+                    root.Find("..(@type==ScanWidget)", scans);
+
+                    for (var j = 0; j < scans.Count; j++)
+                    {
+                        var scan = scans[j];
+                        scan.Schema.Set("visible", _editorSettings.Get(EditorSettingsType.MeshScan));
+                    }
+                }
+            }
         }
     }
 }

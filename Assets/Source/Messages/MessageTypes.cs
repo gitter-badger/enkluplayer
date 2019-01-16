@@ -23,6 +23,7 @@
         public const int APPLICATION_INITIALIZED = 1;
         public const int RECV_CREDENTIALS = 2;
         public const int RECV_APP_INFO = 3;
+        public const int INITIAL_EDITOR_SETTINGS = 4001;
         public const int RECV_ENV_INFO = 4;
         public const int LOAD_APP = 5;
         public const int USER_PROFILE = 6;
