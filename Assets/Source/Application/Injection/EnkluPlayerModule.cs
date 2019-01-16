@@ -223,8 +223,6 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<IDeviceMetaProvider>().To<FrameworkDeviceMetaProvider>().ToSingleton();
 #endif
 
-                    binder.Bind<IMediaCapture>().To<MediaCapture>().ToSingleton();
-
                     binder.Bind<DeviceResourceUpdateService>().To<DeviceResourceUpdateService>().ToSingleton();
                 }
 
@@ -529,7 +527,7 @@ namespace CreateAR.EnkluPlayer
 #if NETFX_CORE
                 binder.Bind<ISnapshotCapture>().To<SnapshotCapture>().ToSingleton();
 #else
-                binder.Bind<ISnapshotCapture>().To<PassthroughSnapshotCapture>().ToSingleton();
+                binder.Bind<IMediaCapture>().To<MediaCapture>().ToSingleton();
 #endif
             }
 
