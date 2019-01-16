@@ -37,6 +37,8 @@ namespace CreateAR.EnkluPlayer
                 if (
                     // always reload if in edit mode
                     UnityEngine.Application.isEditor && !UnityEngine.Application.isPlaying
+
+                    // or if we haven't loaded it yet
                     || null == _config)
                 {
                     _config = Load();
@@ -167,6 +169,8 @@ namespace CreateAR.EnkluPlayer
                 {
                     return null;
                 }
+
+                text = configAsset.text;
             }
             else
             {

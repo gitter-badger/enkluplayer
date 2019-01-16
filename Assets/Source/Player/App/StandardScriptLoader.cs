@@ -179,7 +179,7 @@ namespace CreateAR.EnkluPlayer
                 return string.Empty;
             }
 
-            if (2 != version)
+            if (3 != version)
             {
                 Log.Warning(this, "Unknown script version in uri : {0}", uri);
 
