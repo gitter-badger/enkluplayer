@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -195,7 +196,10 @@ namespace CreateAR.EnkluPlayer.IUX
 
             // lock down
             txns
-                .Request(new ElementTxn(sceneId).Update(Id, "export.time", DateTime.UtcNow.ToString()))
+                .Request(new ElementTxn(sceneId).Update(
+                    Id,
+                    "export.time",
+                    DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)))
                 .OnSuccess(_ =>
                 {
                     var providerId = GetAnchorProviderId(Id, _versionProp.Value + 1);
@@ -346,8 +350,8 @@ namespace CreateAR.EnkluPlayer.IUX
             }
 
             // url check (there may be bad data for this anchor)
-            var url = Schema.Get<string>("src").Value;
-            if (string.IsNullOrEmpty(url))
+            var uri = Schema.Get<string>("src").Value;
+            if (string.IsNullOrEmpty(uri))
             {
                 Log.Warning(this, "Anchor [{0}] has invalid src prop.", Id);
 
@@ -372,15 +376,15 @@ namespace CreateAR.EnkluPlayer.IUX
                     Log.Warning(this, "Could not anchor {0} : {1}. Proceed to download and import.", providerId, exception);
                     
                     // anchor has not been imported before, apparently
-                    DownloadAndImport(url);
+                    DownloadAndImport(uri);
                 });
         }
 
         /// <summary>
         /// Downloads world anchor data and imports it.
         /// </summary>
-        /// <param name="url">Absolute url at which to download.</param>
-        private void DownloadAndImport(string url)
+        /// <param name="uri">Partial URI at which to download.</param>
+        private void DownloadAndImport(string uri)
         {
             if (_config.Network.AnchorDownloadFailChance > Mathf.Epsilon)
             {
@@ -395,9 +399,9 @@ namespace CreateAR.EnkluPlayer.IUX
 
             // metrics
             var downloadId = _metrics.Timer(MetricsKeys.ANCHOR_DOWNLOAD).Start();
-            
+
             _downloadToken = _http
-                .Download(_http.Urls.Url(url))
+                .Download(_http.Urls.Url(string.Format("anchors://{0}", uri)))
                 .OnSuccess(response =>
                 {
                     LogVerbose("Anchor downloaded. Importing.");
@@ -410,7 +414,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 {
                     LogVerbose(
                         "Could not download {0} : {1}.",
-                        url,
+                        uri,
                         exception);
 
                     Status = WorldAnchorStatus.IsError;
@@ -508,10 +512,15 @@ namespace CreateAR.EnkluPlayer.IUX
                         _metrics.Timer(MetricsKeys.ANCHOR_UPLOAD).Stop(uploadId);
 
                         // complete, now send out network update
+                        var version = _versionProp.Value + 1;
                         txns
                             .Request(new ElementTxn(sceneId)
-                                .Update(Id, "src", url)
-                                .Update(Id, "version", _versionProp.Value + 1)
+                                .Update(Id, "src", string.Format(
+                                    "{0}.{1}.{2}.anchor",
+                                    sceneId,
+                                    Id,
+                                    version))
+                                .Update(Id, "version", version)
                                 .Update(Id, "autoexport", false)
                                 .Update(Id, "export.time", ""))
                             .OnSuccess(_ => _pollStatus = true)

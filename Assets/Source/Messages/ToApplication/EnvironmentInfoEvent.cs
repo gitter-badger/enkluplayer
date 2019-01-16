@@ -36,5 +36,11 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         [JsonProperty("scriptsUrl")]
         public string ScriptsUrl { get; set; }
+
+        /// <summary>
+        /// Anchors url.
+        /// </summary>
+        [JsonProperty("anchorsUrl")]
+        public string AnchorsUrl { get; set; }
     }
 }
