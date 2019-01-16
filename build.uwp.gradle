@@ -74,7 +74,6 @@ task runTests(type:com.createar.plugins.unity.UnityUnitTestTask) {
 task runClean(type:Delete) {
     delete outputDir
 }
-runClean.dependsOn = [runTests]
 
 task runUnity(type:com.createar.plugins.unity.UnityMethodTask) {
     method 'CreateAR.EnkluPlayer.Editor.UnityBuilderHooks.BuildWsaPlayer'

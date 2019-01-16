@@ -2,6 +2,8 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.EnkluPlayer;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -42,6 +44,11 @@ namespace CreateAR.EnkluPlayer
         private readonly ApplicationConfig _config;
 
         /// <summary>
+        /// Editor settings.
+        /// </summary>
+        private readonly EditorSettings _editorSettings;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         public ReceiveAppApplicationState(
@@ -51,7 +58,8 @@ namespace CreateAR.EnkluPlayer
             IAppController app,
             IBridge bridge,
             BridgeMessageHandler handler,
-            ApplicationConfig config)
+            ApplicationConfig config,
+            EditorSettings editorSettings)
         {
             _messages = messages;
             _http = http;
@@ -59,9 +67,11 @@ namespace CreateAR.EnkluPlayer
             _app = app;
             _bridge = bridge;
             _config = config;
+            _editorSettings = editorSettings;
             
             handler.Binder.Add<UserCredentialsEvent>(MessageTypes.RECV_CREDENTIALS);
             handler.Binder.Add<AppInfoEvent>(MessageTypes.RECV_APP_INFO);
+            handler.Binder.Add<EditorSettingsEvent>(MessageTypes.INITIAL_EDITOR_SETTINGS);
 
             _bridge.Initialize(handler);
         }
@@ -73,6 +83,7 @@ namespace CreateAR.EnkluPlayer
             {
                 WaitForCredentials,
                 WaitForAppInfo,
+                WaitForEditorSettings,
                 WaitForAssets,
                 WaitForScripts
             };
@@ -176,6 +187,27 @@ namespace CreateAR.EnkluPlayer
                     // update application config
                     _config.Play.AppId = info.AppId;
 
+                    callback();
+                });
+        }
+
+        /// <summary>
+        /// Waits for initial settings to come through.
+        /// </summary>
+        /// <param name="callback">Callback once app info has been received.</param>
+        private void WaitForEditorSettings(Action callback)
+        {
+            Log.Info(this, "Waiting on editor settings.");
+
+            _messages.SubscribeOnce(
+                MessageTypes.INITIAL_EDITOR_SETTINGS,
+                obj =>
+                {
+                    var settingsEvent = (EditorSettingsEvent) obj;
+                    Log.Info(this, "Editor settings received : {0}.", settingsEvent);
+
+                    _editorSettings.Populate(settingsEvent);
+                    
                     callback();
                 });
         }
