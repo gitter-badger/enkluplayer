@@ -707,12 +707,12 @@ PlayerSettings:
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   metroPackageName: Enklu
-  metroPackageVersion: 0.15.2.0
-  metroCertificatePath: Assets\WSATestCertificate.pfx
+  metroPackageVersion: 0.16.0.0
+  metroCertificatePath: Assets/WSATestCertificate.pfx
   metroCertificatePassword: 
   metroCertificateSubject: CreateAR
   metroCertificateIssuer: CreateAR
-  metroCertificateNotAfter: 002687d9e698d401
+  metroCertificateNotAfter: 00c2ca2fbdccd501
   metroApplicationDescription: AR content engine.
   wsaImages: {}
   metroTileShortName: Enklu
