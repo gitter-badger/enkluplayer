@@ -94,6 +94,8 @@ namespace CreateAR.EnkluPlayer.Editor
                 _watcher.Dispose();
                 _watcher = null;
             }
+
+            UnityEditor.EditorApplication.update -= Update;
         }
 
         /// <summary>
@@ -146,10 +148,10 @@ namespace CreateAR.EnkluPlayer.Editor
         /// <returns></returns>
         private int PlatformIndex()
         {
-            var platform = _config.ParsedPlatform;
+            var platform = _config.ParsedPlatform.ToString();
             for (var i = 0; i < _Platforms.Length; i++)
             {
-                if (_Platforms[i] == platform.ToString())
+                if (_Platforms[i] == platform)
                 {
                     return i;
                 }

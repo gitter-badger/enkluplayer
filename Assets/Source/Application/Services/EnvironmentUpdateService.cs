@@ -2,7 +2,6 @@
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
-using UnityEngine.Networking.PlayerConnection;
 
 namespace CreateAR.EnkluPlayer
 {
