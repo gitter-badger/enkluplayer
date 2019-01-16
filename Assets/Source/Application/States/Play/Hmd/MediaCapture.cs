@@ -25,6 +25,11 @@ namespace CreateAR.EnkluPlayer
         /// Snapshot height.
         /// </summary>
         private const int HEIGHT = 720;
+
+        /// <summary>
+        /// Video framerate.
+        /// </summary>
+        private const int FRAMERATE = 30;
         
         /// <summary>
         /// Entrypoint to the PhotoMode API.
@@ -69,8 +74,7 @@ namespace CreateAR.EnkluPlayer
             {
                 hologramOpacity = 1.0f,
                 cameraResolutionWidth = WIDTH,
-                cameraResolutionHeight = HEIGHT,
-                pixelFormat = CapturePixelFormat.BGRA32
+                cameraResolutionHeight = HEIGHT
             };
 
             var rtnToken = new AsyncToken<Void>();
@@ -96,12 +100,12 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> CaptureImage()
         {
-            var filename = string.Format("{0:yyyy.MM.dd-HH.mm.ss}.png", DateTime.UtcNow);
-            var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "snapshots");
-            var fullPath = Path.Combine(savePath, filename);
+            if (CaptureState != CaptureState.PhotoMode)
+            {
+                return new AsyncToken<Void>(new Exception(string.Format("MediaCapture is not in PhotoMode ({0})", CaptureState)));
+            }
             
-            Directory.CreateDirectory(savePath);
-
+            var fullPath = CreateFilePath("snapshots", "png");
             var rtnToken = new AsyncToken<Void>();
             
             _photoCapture.TakePhotoAsync(fullPath, PhotoCaptureFileOutputFormat.PNG, (result) =>
@@ -155,17 +159,14 @@ namespace CreateAR.EnkluPlayer
                 return new AsyncToken<Void>(new Exception(string.Format("MediaCapture is not idle ({0})", CaptureState)));
             }
             
-            var frameRate = VideoCapture.GetSupportedFrameRatesForResolution(new Resolution(){width = WIDTH, height = HEIGHT})
-                .OrderByDescending((fps) => fps).First();
-            
-            Log.Info(this, "Starting VideoMode ({0}x{1}x{2})", WIDTH, HEIGHT, frameRate);
+            Log.Info(this, "Starting VideoMode ({0}x{1}x{2})", WIDTH, HEIGHT, FRAMERATE);
 
             var cameraParameters = new CameraParameters()
             {
                 hologramOpacity = 1.0f,
                 cameraResolutionWidth = WIDTH,
                 cameraResolutionHeight = HEIGHT,
-                frameRate = frameRate
+                frameRate = FRAMERATE
             };
             
             var rtnToken = new AsyncToken<Void>();
@@ -191,13 +192,12 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> StartRecording()
         {
-            var filename = string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
-            var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "video");
+            if (CaptureState != CaptureState.VideoMode)
+            {
+                return new AsyncToken<Void>(new Exception(string.Format("MediaCapture is not in VideoMode ({0})", CaptureState)));
+            }
 
-            Directory.CreateDirectory(savePath);
-
-            var fullPath = Path.Combine(savePath, filename);
-            
+            var fullPath = CreateFilePath("video", "mp4");
             var rtnToken = new AsyncToken<Void>();
             
             _videoCapture.StartRecordingAsync(fullPath, result =>
@@ -289,6 +289,22 @@ namespace CreateAR.EnkluPlayer
             });
 
             return rtnToken;
+        }
+
+        /// <summary>
+        /// Returns a filepath inside a valid directory for saving media.
+        /// </summary>
+        /// <param name="folder">The folder name.</param>
+        /// <param name="ext">The extension of the new file.</param>
+        /// <returns></returns>
+        private string CreateFilePath(string folder, string ext)
+        { 
+            var filename = string.Format("{0:yyyy.MM.dd-HH.mm.ss}.{1}", DateTime.UtcNow, ext);
+            var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, folder);
+
+            Directory.CreateDirectory(savePath);
+
+            return Path.Combine(savePath, filename);
         }
     }
 }
