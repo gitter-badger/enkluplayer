@@ -524,11 +524,7 @@ namespace CreateAR.EnkluPlayer
 
             // Camera
             {
-#if NETFX_CORE
-                binder.Bind<ISnapshotCapture>().To<SnapshotCapture>().ToSingleton();
-#else
                 binder.Bind<IMediaCapture>().To<MediaCapture>().ToSingleton();
-#endif
             }
 
             // UI
