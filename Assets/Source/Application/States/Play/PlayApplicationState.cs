@@ -42,7 +42,8 @@ namespace CreateAR.EnkluPlayer
         private readonly IAppQualityController _quality;
         private readonly ITweenManager _tweens;
         private readonly ITouchManager _touches;
-        private readonly IMediaCapture _mediaCapture;
+        private readonly IImageCapture _imageCapture;
+        private readonly IVideoCapture _videoCapture;
 
         /// <summary>
         /// Status.
@@ -108,7 +109,8 @@ namespace CreateAR.EnkluPlayer
             IAppQualityController quality,
             ITweenManager tweens,
             ITouchManager touches,
-            IMediaCapture mediaCapture)
+            IImageCapture imageCapture,
+            IVideoCapture videoCapture)
         {
             _config = config;
             _bootstrapper = bootstrapper;
@@ -125,7 +127,8 @@ namespace CreateAR.EnkluPlayer
             _quality = quality;
             _tweens = tweens;
             _touches = touches;
-            _mediaCapture = mediaCapture;
+            _imageCapture = imageCapture;
+            _videoCapture = videoCapture;
         }
 
         /// <inheritdoc />
@@ -173,9 +176,6 @@ namespace CreateAR.EnkluPlayer
             _voice.Register("reset", Voice_OnReset);
             _voice.Register("update", Voice_OnUpdate);
             
-            // initialize media capture
-            _mediaCapture.Setup();
-            
             // load playmode scene
             _bootstrapper.BootstrapCoroutine(WaitForScene(
                 SceneManager.LoadSceneAsync(
@@ -221,8 +221,9 @@ namespace CreateAR.EnkluPlayer
             _voice.Unregister("performance");
             _voice.Unregister("logging");
             
-            // unload media capture
-            _mediaCapture.Teardown();
+            // Cleanup image/video capture in case the experience didn't 
+            _imageCapture.Abort();
+            _videoCapture.Abort();
 
             // stop watching loads
             _app.OnReady -= App_OnReady;

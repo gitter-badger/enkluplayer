@@ -26,7 +26,8 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         public static void Initialize(
             IDeviceMetaProvider deviceMetaProvider,
-            IMediaCapture mediaCapture,
+            IImageCapture imageCapture,
+            IVideoCapture videoCapture,
             AwsPingController awsPingController,
             IMessageRouter msgRouter,
             ApiController apiController,
@@ -37,7 +38,7 @@ namespace CreateAR.EnkluPlayer.Scripting
                 throw new Exception("Dependencies already set!");
             }
             
-            Instance.device = new DeviceJsApi(deviceMetaProvider, mediaCapture);
+            Instance.device = new DeviceJsApi(deviceMetaProvider, imageCapture, videoCapture);
             Instance.experiences = new ExperienceJsApi(msgRouter, apiController, config);
             Instance.network = new NetworkJsApi(awsPingController);
             Instance.debugRendering = new DebugRenderingJsApi();

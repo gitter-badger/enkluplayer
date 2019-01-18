@@ -15,18 +15,21 @@
         /// </summary>
         private DeviceResourceMeta _meta;
         
-        public MediaCaptureJsApi media { get; private set; }
+        public ImageCaptureJsApi image { get; private set; }
+        
+        public VideoCaptureJsApi video { get; private set; }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="deviceMeta"></param>
-        public DeviceJsApi(IDeviceMetaProvider deviceMeta, IMediaCapture mediaCapture)
+        public DeviceJsApi(IDeviceMetaProvider deviceMeta, IImageCapture imageCapture, IVideoCapture videoCapture)
         {
             _deviceMeta = deviceMeta;
             _meta = _deviceMeta.Meta();
             
-            media = new MediaCaptureJsApi(mediaCapture);
+            image = new ImageCaptureJsApi(imageCapture);
+            video = new VideoCaptureJsApi(videoCapture);
         }
 
         /// <summary>
