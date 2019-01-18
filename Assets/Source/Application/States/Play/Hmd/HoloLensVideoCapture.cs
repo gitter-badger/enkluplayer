@@ -46,7 +46,6 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Warm()
         {
-            Log.Info(this, "Warm");
             if (_videoCapture != null)
             {
                 return new AsyncToken<Void>(new Exception(("HoloLensVideoCapture already warmed.")));
@@ -80,7 +79,6 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Start()
         {
-            Log.Info(this, "Start");
             IAsyncToken<Void> warmToken;
             if (_videoCapture == null)
             {
@@ -93,11 +91,9 @@ namespace CreateAR.EnkluPlayer
             
             var rtnToken = new AsyncToken<Void>();
 
-            Log.Info(this, Thread.CurrentThread.ManagedThreadId);
             warmToken
                 .OnSuccess(_ =>
                 {
-                    Log.Info(this, Thread.CurrentThread.ManagedThreadId);
                     var filename = string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
                     var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "videos");
                     _recordingFilePath = Path.Combine(savePath, filename);
@@ -106,7 +102,6 @@ namespace CreateAR.EnkluPlayer
                     
                     _videoCapture.StartRecordingAsync(_recordingFilePath, result =>
                     {
-                        Log.Info(this, Thread.CurrentThread.ManagedThreadId);
                         if (!result.success)
                         {
                             rtnToken.Fail(new Exception(string.Format("Failure starting recording ({0})", result.hResult)));
@@ -130,7 +125,6 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<string> Stop()
         {
-            Log.Info(this, "Stop");
             if (_videoCapture == null)
             {
                 return new AsyncToken<string>(new Exception("Attempting to stop before starting recording."));
@@ -161,8 +155,6 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Abort()
         {
-            Log.Info(this, "Abort");
-            
             var rtnToken = new AsyncToken<Void>();
             
             if (_videoCapture != null)
