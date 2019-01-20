@@ -412,7 +412,7 @@ namespace CreateAR.EnkluPlayer.IUX
                 })
                 .OnFailure(exception =>
                 {
-                    LogVerbose(
+                    Log.Error(this,
                         "Could not download {0} : {1}.",
                         uri,
                         exception);

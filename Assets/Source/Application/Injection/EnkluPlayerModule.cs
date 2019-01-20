@@ -706,6 +706,11 @@ namespace CreateAR.EnkluPlayer
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());
+
+#if NETFX_CORE
+                binder.Bind<HoloLensVideoManager>().To<HoloLensVideoManager>().ToSingleton();
+                binder.GetInstance<HoloLensVideoManager>();
+#endif
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();

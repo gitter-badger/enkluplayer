@@ -9,6 +9,8 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class PassthroughVideoCapture : IVideoCapture
     {
+        public Action<string> OnVideoCreated { get; set; }
+        
         /// <inheritdoc />
         public bool IsRecording
         {

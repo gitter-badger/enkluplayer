@@ -2,8 +2,8 @@
 
 using System;
 using System.IO;
-using System.Threading;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine.XR.WSA.WebCam;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -16,6 +16,8 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class HoloLensVideoCapture : IVideoCapture
     {
+        private IHttpService _httpService;
+        
         /// <summary>
         /// Underlying VideoCapture API.
         /// </summary>
@@ -38,14 +40,24 @@ namespace CreateAR.EnkluPlayer
         private string _recordingFilePath;
         
         /// <inheritdoc />
+        public Action<string> OnVideoCreated { get; set; }
+        
+        /// <inheritdoc />
         public bool IsRecording
         {
             get { return _videoCapture != null && _videoCapture.IsRecording; }
+        }
+
+        public HoloLensVideoCapture(IHttpService httpService)
+        {
+            _httpService = httpService;
         }
         
         /// <inheritdoc />
         public IAsyncToken<Void> Warm()
         {
+            Log.Info(this, "Warm");
+            
             if (_videoCapture != null)
             {
                 return new AsyncToken<Void>(new Exception(("HoloLensVideoCapture already warmed.")));
@@ -79,6 +91,8 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Start()
         {
+            Log.Info(this, "Start");
+            
             IAsyncToken<Void> warmToken;
             if (_videoCapture == null)
             {
@@ -90,13 +104,14 @@ namespace CreateAR.EnkluPlayer
             }
             
             var rtnToken = new AsyncToken<Void>();
-
+            
             warmToken
                 .OnSuccess(_ =>
                 {
-                    var filename = string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
+                    var filename = "testVideo.mp4"; //string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
                     var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "videos");
-                    _recordingFilePath = Path.Combine(savePath, filename);
+                    _recordingFilePath = Path.Combine(savePath, filename).Replace("/", "\\");
+                    Log.Info(this, "Path: " + _recordingFilePath);
                     
                     Directory.CreateDirectory(savePath);
                     
@@ -125,6 +140,8 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<string> Stop()
         {
+            Log.Info(this, "Stop");
+            
             if (_videoCapture == null)
             {
                 return new AsyncToken<string>(new Exception("Attempting to stop before starting recording."));
@@ -144,6 +161,18 @@ namespace CreateAR.EnkluPlayer
                     }
                     else
                     {
+                        if (OnVideoCreated != null)
+                        {
+                            try
+                            {
+                                OnVideoCreated(_recordingFilePath);
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error(this, "Error invoking OnVideoCreated ({0})", e);
+                            }
+                            
+                        }
                         rtnToken.Succeed(_recordingFilePath);
                     }
                 });
@@ -155,15 +184,14 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Abort()
         {
+            Log.Info(this, "Abort");
+            
             var rtnToken = new AsyncToken<Void>();
             
             if (_videoCapture != null)
             {
                 _videoCapture.StopVideoModeAsync(result =>
                 {
-                    _videoCapture.Dispose();
-                    _videoCapture = null;
-                    
                     if (!result.success)
                     {
                         rtnToken.Fail(new Exception(string.Format("Failure exiting VideoMode ({0})", result.hResult)));
@@ -171,6 +199,10 @@ namespace CreateAR.EnkluPlayer
                     else
                     {
                         Log.Info(this, "Exited VideoMode");
+                        
+                        _videoCapture.Dispose();
+                        _videoCapture = null;
+                        
                         rtnToken.Succeed(Void.Instance);
                     }
                 });

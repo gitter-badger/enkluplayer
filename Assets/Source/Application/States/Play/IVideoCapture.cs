@@ -1,4 +1,6 @@
+using System;
 using CreateAR.Commons.Unity.Async;
+using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -7,6 +9,11 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public interface IVideoCapture
     {
+        /// <summary>
+        /// Invoked whenever a new video has been created.
+        /// </summary>
+        Action<string> OnVideoCreated { get; set; } 
+        
         /// <summary>
         /// Returns whether the device is currently recording a video or not.
         /// </summary>
@@ -35,6 +42,5 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         /// <returns></returns>
         IAsyncToken<Void> Abort();
-        
     }
 }
