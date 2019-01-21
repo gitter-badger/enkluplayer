@@ -6,26 +6,62 @@ using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Nati
 
 namespace CreateAR.EnkluPlayer.Scripting
 {
+    /// <summary>
+    /// Scripting interface for capturing Images.
+    /// </summary>
     public class ImageCaptureJsApi
     {
+        /// <summary>
+        /// Backing IImageCapture system.
+        /// </summary>
         private readonly IImageCapture _imageCapture;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public ImageCaptureJsApi(IImageCapture imageCapture)
         {
             _imageCapture = imageCapture;
         }
         
-        public void warm(Engine engine, JsFunc callback = null)
+        /// <summary>
+        /// Preps the image capture system. Optional.
+        /// </summary>
+        /// <param name="engine"></param>
+        /// <param name="callback"></param>
+        public void warm(Engine engine, JsFunc callback)
         {
             JsCallback(engine, _imageCapture.Warm(), callback);
         }
 
-        public void capture(Engine engine, JsFunc callback = null)
+        /// <summary>
+        /// Captures an image.
+        /// TODO: Remove this overload when EK-1124 is resolved.
+        /// </summary>
+        /// <param name="engine"></param>
+        /// <param name="callback"></param>
+        public void capture(Engine engine, JsFunc callback)
         {
-            JsCallback(engine, Async.Map(_imageCapture.Capture(), _ => Void.Instance) , callback);
+            capture(engine, callback, null);
+        }
+        
+        /// <summary>
+        /// Captures an image.
+        /// </summary>
+        /// <param name="engine"></param>
+        /// <param name="callback"></param>
+        /// <param name="customPath"></param>
+        public void capture(Engine engine, JsFunc callback, string customPath)
+        {
+            JsCallback(engine, _imageCapture.Capture(customPath) , callback);
         }
 
-        public void abort(Engine engine, JsFunc callback = null)
+        /// <summary>
+        /// Cancels the capture process.
+        /// </summary>
+        /// <param name="engine"></param>
+        /// <param name="callback"></param>
+        public void abort(Engine engine, JsFunc callback)
         {
             JsCallback(engine, _imageCapture.Abort(), callback);
         }
@@ -36,12 +72,12 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="engine">Jint Engine</param>
         /// <param name="token">MediaCapture return token</param>
         /// <param name="callback">Js callback</param>
-        private void JsCallback(Engine engine, IAsyncToken<Void> token, JsFunc callback)
+        private void JsCallback<T>(Engine engine, IAsyncToken<T> token, JsFunc callback)
         {
             if (callback != null)
             {
                 token
-                    .OnSuccess(_ => callback(JsValue.FromObject(engine, this), new JsValue[] { true }))
+                    .OnSuccess(value => callback(JsValue.FromObject(engine, this), new JsValue[] { true, JsValue.FromObject(engine, value) }))
                     .OnFailure(e =>
                     {
                         Log.Error(this, e);

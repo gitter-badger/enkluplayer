@@ -22,7 +22,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Start()
+        public IAsyncToken<Void> Start(string customPath = null)
         {
             return new AsyncToken<Void>(new NotSupportedException());
         }

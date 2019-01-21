@@ -36,6 +36,8 @@ namespace CreateAR.EnkluPlayer
         /// The path the video file is streaming to.
         /// </summary>
         private string _recordingFilePath;
+
+        private AsyncToken<Void> _warmToken;
         
         /// <inheritdoc />
         public bool IsRecording
@@ -46,15 +48,22 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Warm()
         {
-            if (_videoCapture != null)
+            if (_warmToken != null)
             {
-                return new AsyncToken<Void>(new Exception(("HoloLensVideoCapture already warmed.")));
+                return _warmToken;
             }
             
-            var rtnToken = new AsyncToken<Void>();
+            _warmToken = new AsyncToken<Void>();
             
             VideoCapture.CreateAsync(true, captureObject =>
             {
+                // Check to make sure Abort() wasn't called immediately after Warm()
+                if (_warmToken == null)
+                {
+                    captureObject.Dispose();
+                    return;
+                }
+                
                 _videoCapture = captureObject;
                 
                 _videoCapture.StartVideoModeAsync(_cameraParameters, VideoCapture.AudioState.ApplicationAndMicAudio,
@@ -62,39 +71,29 @@ namespace CreateAR.EnkluPlayer
                     {
                         if (!result.success)
                         {
-                            rtnToken.Fail(new Exception(string.Format("Failure entering VideoMode ({0})", result.hResult)));
+                            _warmToken.Fail(new Exception(string.Format("Failure entering VideoMode ({0})", result.hResult)));
                             Abort();
                         }
                         else
                         {
                             Log.Info(this, "Entered VideoMode.");
-                            rtnToken.Succeed(Void.Instance);
+                            _warmToken.Succeed(Void.Instance);
                         }
                     });
             });
 
-            return rtnToken;
+            return _warmToken;
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Start()
+        public IAsyncToken<Void> Start(string customPath = null)
         {
-            IAsyncToken<Void> warmToken;
-            if (_videoCapture == null)
-            {
-                warmToken = Warm();
-            }
-            else
-            {
-                warmToken = new AsyncToken<Void>(Void.Instance);
-            }
-            
             var rtnToken = new AsyncToken<Void>();
-
-            warmToken
+            
+            Warm()
                 .OnSuccess(_ =>
                 {
-                    var filename = string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
+                    var filename = !string.IsNullOrEmpty(customPath) ? customPath : string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
                     var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "videos");
                     _recordingFilePath = Path.Combine(savePath, filename);
                     
@@ -125,27 +124,30 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<string> Stop()
         {
-            if (_videoCapture == null)
+            if (_warmToken == null)
             {
-                return new AsyncToken<string>(new Exception("Attempting to stop before starting recording."));
+                return new AsyncToken<string>(new Exception("Video Warm() wasn't called."));
             }
             
             var rtnToken = new AsyncToken<string>();
 
-            _videoCapture.StopRecordingAsync(result =>
-            {   
-                // Abort regardless of success
-                Abort().OnFinally(_ =>
-                {
-                    if (!result.success)
+            _warmToken.OnSuccess(_ =>
+            {
+                _videoCapture.StopRecordingAsync(result =>
+                {   
+                    // Abort regardless of success
+                    Abort().OnFinally(__ =>
                     {
-                        rtnToken.Fail(new Exception(string.Format("Failure stopping recording ({0})",
-                            result.hResult)));
-                    }
-                    else
-                    {
-                        rtnToken.Succeed(_recordingFilePath);
-                    }
+                        if (!result.success)
+                        {
+                            rtnToken.Fail(new Exception(string.Format("Failure stopping recording ({0})",
+                                result.hResult)));
+                        }
+                        else
+                        {
+                            rtnToken.Succeed(_recordingFilePath);
+                        }
+                    });
                 });
             });
             
@@ -157,12 +159,17 @@ namespace CreateAR.EnkluPlayer
         {
             var rtnToken = new AsyncToken<Void>();
             
-            if (_videoCapture != null)
+            if (_warmToken != null)
             {
-                _videoCapture.StopVideoModeAsync(result =>
+                _warmToken.Abort();
+                _warmToken = null;
+
+                var temp = _videoCapture;
+                _videoCapture = null;
+                
+                temp.StopVideoModeAsync(result =>
                 {
-                    _videoCapture.Dispose();
-                    _videoCapture = null;
+                    temp.Dispose();
                     
                     if (!result.success)
                     {
