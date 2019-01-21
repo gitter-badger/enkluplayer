@@ -100,8 +100,6 @@ namespace CreateAR.EnkluPlayer
             }
             catch (Exception e)
             {
-                Log.Error(this, "Error uploading");
-                Log.Error(this, e);
                 Log.Error(this, "Error uploading: {0}", e);
             }
 
