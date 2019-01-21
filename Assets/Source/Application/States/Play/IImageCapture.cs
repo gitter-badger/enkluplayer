@@ -17,7 +17,7 @@ namespace CreateAR.EnkluPlayer
         /// Captures an image.
         /// </summary>
         /// <returns></returns>
-        IAsyncToken<string> Capture();
+        IAsyncToken<string> Capture(string customPath = null);
 
         /// <summary>
         /// Aborts the image capture and frees underlying resources.

@@ -29,76 +29,80 @@ namespace CreateAR.EnkluPlayer
             cameraResolutionWidth = 1280,
             cameraResolutionHeight = 720
         };
+
+        /// <summary>
+        /// Cached token for Warm() invokes.
+        /// </summary>
+        private AsyncToken<Void> _warmToken;
         
         /// <inheritdoc />
         public IAsyncToken<Void> Warm()
         {
-            if (_photoCapture != null)
+            if (_warmToken != null)
             {
-                return new AsyncToken<Void>(new Exception("HoloLensImageCapture already warmed."));
+                return _warmToken;
             }
             
-            var rtnToken = new AsyncToken<Void>();
+            _warmToken = new AsyncToken<Void>();
             
             PhotoCapture.CreateAsync(true, captureObject =>
             {
+                // Check to make sure Abort() wasn't called immediately after Warm()
+                if (_warmToken == null)
+                {
+                    captureObject.Dispose();
+                    return;
+                }
+                
                 _photoCapture = captureObject;
                 _photoCapture.StartPhotoModeAsync(_cameraParameters, result =>
                 {
                     if (!result.success)
                     {
                         Abort();
-                        rtnToken.Fail(new Exception(string.Format("Failure starting PhotoMode ({0})", result.hResult)));
+                        _warmToken.Fail(new Exception(string.Format("Failure starting PhotoMode ({0})", result.hResult)));
                     }
                     else
                     {
                         Log.Info(this, "Entered PhotoMode.");
-                        rtnToken.Succeed(Void.Instance);
+                        _warmToken.Succeed(Void.Instance);
                     }
                 });
             });
 
-            return rtnToken;
+            return _warmToken;
         }
 
         /// <inheritdoc />
-        public IAsyncToken<string> Capture()
+        public IAsyncToken<string> Capture(string customPath = null)
         {
-            IAsyncToken<Void> warmToken;
-            
-            if (_photoCapture == null)
-            {
-                warmToken = Warm();
-            }
-            else
-            {
-                warmToken = new AsyncToken<Void>(Void.Instance);
-            }
-
             var rtnToken = new AsyncToken<string>();
-            
-            warmToken
+
+            Warm()
                 .OnSuccess(_ =>
                 {
-                    var filename = string.Format("{0:yyyy.MM.dd-HH.mm.ss}.png", DateTime.UtcNow);
+                    var filename = !string.IsNullOrEmpty(customPath)
+                        ? customPath
+                        : string.Format("{0:yyyy.MM.dd-HH.mm.ss}.png", DateTime.UtcNow);
                     var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "images");
                     var fullName = Path.Combine(savePath, filename);
-                    
+    
                     Directory.CreateDirectory(savePath);
-                    
+    
                     _photoCapture.TakePhotoAsync(fullName, PhotoCaptureFileOutputFormat.PNG,
                         result =>
                         {
-                            Abort();
-                            
-                            if (!result.success)
+                            Abort().OnFinally(__ =>
                             {
-                                rtnToken.Fail(new Exception(string.Format("Error capturing image ({0})", result.hResult)));
-                            }
-                            else
-                            {
-                                rtnToken.Succeed(fullName);
-                            }
+                                if (!result.success)
+                                {
+                                    rtnToken.Fail(new Exception(string.Format("Error capturing image ({0})", result.hResult)));
+                                }
+                                else
+                                {
+                                    rtnToken.Succeed(fullName);
+                                } 
+                            });
                         });
                 })
                 .OnFailure(exception =>
@@ -115,12 +119,17 @@ namespace CreateAR.EnkluPlayer
         {
             var rtnToken = new AsyncToken<Void>();
             
-            if (_photoCapture != null)
+            if (_warmToken != null)
             {
-                _photoCapture.StopPhotoModeAsync(result =>
+                _warmToken.Abort();
+                _warmToken = null;
+                
+                var temp = _photoCapture;
+                _photoCapture = null;
+                
+                temp.StopPhotoModeAsync(result =>
                 {
-                    _photoCapture.Dispose();
-                    _photoCapture = null;
+                    temp.Dispose();
                     
                     if (!result.success)
                     {

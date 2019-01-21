@@ -16,7 +16,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<string> Capture()
+        public IAsyncToken<string> Capture(string customPath = null)
         {
             return new AsyncToken<string>(new NotSupportedException());
         }

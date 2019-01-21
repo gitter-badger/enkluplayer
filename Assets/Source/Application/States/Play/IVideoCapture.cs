@@ -29,7 +29,7 @@ namespace CreateAR.EnkluPlayer
         /// Starts recording a video.
         /// </summary>
         /// <returns></returns>
-        IAsyncToken<Void> Start();
+        IAsyncToken<Void> Start(string customPath = null);
 
         /// <summary>
         /// Stops recording a video. File save path is returned.
