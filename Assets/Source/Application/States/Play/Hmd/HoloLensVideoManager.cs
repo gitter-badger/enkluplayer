@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
-using Windows.Storage;
+using Windows.Networking.BackgroundTransfer;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -32,8 +33,6 @@ namespace CreateAR.EnkluPlayer
         
         public HoloLensVideoManager(IVideoCapture videoCapture, IHttpService http, IBootstrapper bootstrapper, UserPreferenceService preferences)
         {
-            Debug().Wait(20000);
-
             _videoCapture = videoCapture;
             _http = http;
             _bootstrapper = bootstrapper;
@@ -42,51 +41,12 @@ namespace CreateAR.EnkluPlayer
             _videoCapture.OnVideoCreated += Video_OnCreated;
         }
 
-        private async Task Debug() 
-        {
-            Log.Info(this, "Debug 3");
-            try 
-            {
-                StorageFolder appInstalledFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-                Log.Info(this, appInstalledFolder.Path);
-
-                StorageFolder videoFolder = await appInstalledFolder.GetFolderAsync("videos");
-                Log.Info(this, videoFolder);
-
-                IReadOnlyList<StorageFile> fileList = await videoFolder.GetFilesAsync();
-                foreach (StorageFile file in fileList)
-                {
-                    Log.Info(this, file);
-                }
-
-                StorageFile fuckingFile = await videoFolder.GetFileAsync("testVideo.mp4");
-                Log.Info(this, fuckingFile);
-            }
-            catch (Exception e)
-            {
-                Log.Error(this, e);
-            }
-
-            Log.Info(this, "Debug 2");
-            try 
-            {
-                var path = "C:/Data/Users/james/AppData/Local/Packages/Enklu_wyr6ev42crejm/LocalState/videos/testVideo.mp4";
-                path = path.Replace("/", "\\");
-                StorageFile file1 = await StorageFile.GetFileFromPathAsync(path);
-                Log.Info(this, file1);
-            }
-            catch (Exception e)
-            {
-                Log.Error(this, e);
-            }
-        }
-
         private void Video_OnCreated(string file)
         {
             GetOrgId()
                 .OnSuccess(_ =>
                 {
-                    UploadFile(file).Wait(10000);
+                    UploadFile(file);
                 })
                 .OnFailure(exception =>
                 {
@@ -96,22 +56,54 @@ namespace CreateAR.EnkluPlayer
 
         private async Task UploadFile(string filepath)
         {
-            var filename = filepath.Substring(filepath.LastIndexOf("/") + 1);
-            var url = string.Format("/org/{0}/snap/gamma", _orgId);
-                    
-            Log.Info(this, "Uploading {0} to {1}", filepath, url);
-
-            var uploader = new Windows.Networking.BackgroundTransfer.BackgroundUploader();
-
-            foreach (var kvp in _http.Headers)
+            try 
             {
-                uploader.SetRequestHeader(kvp.Key, kvp.Value);
-            }
-            
-            Log.Info(this, "Uploading!!");
-//            await uploader.CreateUploadFromStreamAsync(new System.Uri(_http.Urls.Url(url)), new FileStream(filepath, FileMode.Open).AsInputStream()).StartAsync();
+                var url = _http.Urls.Url(string.Format("/org/{0}/snap/gamma", _orgId));
+                    
+                Log.Info(this, "Uploading {0} to {1}", filepath, url);
 
-            Log.Info(this, "Uploaded?!");
+// System.Net
+                var httpClient = new HttpClient();
+                foreach (var kvp in _http.Headers)
+                {
+                    Log.Info(this, "{0} : {1})", kvp.Key, kvp.Value);
+                    httpClient.DefaultRequestHeaders.Add(kvp.Key, kvp.Value);
+                }
+
+                var bytes = File.ReadAllBytes(filepath);
+                var content = new ByteArrayContent(bytes);
+                Log.Info(this, "Content-Type: {0}", content.Headers.ContentType);
+
+                var response = await httpClient.PostAsync(url, content);
+                Log.Info(this, "Status Code: {0}", response.StatusCode);
+                Log.Info(this, "Body: {0}", await response.Content.ReadAsStringAsync());
+                
+// Windows APIs
+//                var fileStream = File.OpenRead(filepath);
+//                var uploader = new BackgroundUploader();
+//    
+//                foreach (var kvp in _http.Headers)
+//                {
+//                    uploader.SetRequestHeader(kvp.Key, kvp.Value);
+//                }
+//
+//                uploader.SetRequestHeader()
+//                
+//                var uploadOp = await uploader.CreateUploadFromStreamAsync(new Uri(url), fileStream.AsInputStream());
+//                Log.Info(this, "Uploading!!");
+//    
+//                await uploadOp.StartAsync();
+//
+//                var responseInfo = uploadOp.GetResponseInformation();
+//                Log.Info(this, "Status Code: " + responseInfo.StatusCode);
+//                Log.Info(this, "Uri: " + responseInfo.ActualUri);
+            }
+            catch (Exception e)
+            {
+                Log.Error(this, "Error uploading");
+                Log.Error(this, e);
+                Log.Error(this, "Error uploading: {0}", e);
+            }
 
         }
 
