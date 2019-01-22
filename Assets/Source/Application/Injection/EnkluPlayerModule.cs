@@ -679,7 +679,6 @@ namespace CreateAR.EnkluPlayer
 
                 // scripting interfaces
                 {
-                    binder.Bind<MessageRouterScriptingInterface>().To<MessageRouterScriptingInterface>().ToSingleton();
                     binder.Bind<ProximityManager>().ToValue(LookupComponent<ProximityManager>());
                     binder.Bind<GestureJsInterface>().To<GestureJsInterface>().ToSingleton();
                     binder.Bind<JsMessageRouter>().To<JsMessageRouter>().ToSingleton();
@@ -692,6 +691,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<EditJsApi>().To<EditJsApi>().ToSingleton();
                     binder.Bind<TxnJsApi>().To<TxnJsApi>().ToSingleton();
                     binder.Bind<TouchManagerJsApi>().To<TouchManagerJsApi>().ToSingleton();
+                    binder.Bind<ChecksumJsInterface>().To<ChecksumJsInterface>().ToSingleton();
                 }
             }
 
