@@ -42,7 +42,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="callback"></param>
         public void capture(Engine engine, JsFunc callback)
         {
-            capture(engine, callback, null);
+            captureCustomPath(engine, callback, null);
         }
         
         /// <summary>
@@ -51,7 +51,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="engine"></param>
         /// <param name="callback"></param>
         /// <param name="customPath"></param>
-        public void capture(Engine engine, JsFunc callback, string customPath)
+        public void captureCustomPath(Engine engine, JsFunc callback, string customPath)
         {
             JsCallback(engine, _imageCapture.Capture(customPath) , callback);
         }

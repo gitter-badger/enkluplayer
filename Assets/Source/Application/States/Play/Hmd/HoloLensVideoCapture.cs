@@ -93,12 +93,20 @@ namespace CreateAR.EnkluPlayer
             Warm()
                 .OnSuccess(_ =>
                 {
-                    var filename = !string.IsNullOrEmpty(customPath) ? customPath : string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
-                    var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "videos");
-                    _recordingFilePath = Path.Combine(savePath, filename);
+                    var filename = !string.IsNullOrEmpty(customPath) 
+                        ? customPath 
+                        : string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
                     
-                    Directory.CreateDirectory(savePath);
+                    // Don't rely on the user to supply the extension
+                    if (!filename.EndsWith(".mp4")) filename += ".mp4";
                     
+                    var videoFolder = Path.Combine(UnityEngine.Application.persistentDataPath, "videos");
+                    _recordingFilePath = Path.Combine(videoFolder, filename).Replace("/", "\\");
+                    
+                    // Make sure to handle user paths (customPath="myExperienceName/myAwesomeVideo.mp4")
+                    Directory.CreateDirectory(_recordingFilePath.Substring(0, _recordingFilePath.LastIndexOf("\\")));
+                    
+                    Log.Info(this, "Recording to: " + _recordingFilePath);
                     _videoCapture.StartRecordingAsync(_recordingFilePath, result =>
                     {
                         if (!result.success)
