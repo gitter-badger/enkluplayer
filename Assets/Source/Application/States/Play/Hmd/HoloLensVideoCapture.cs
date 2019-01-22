@@ -37,6 +37,9 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private string _recordingFilePath;
 
+        /// <summary>
+        /// Cached token for Warm() invokes.
+        /// </summary>
         private AsyncToken<Void> _warmToken;
         
         /// <inheritdoc />
