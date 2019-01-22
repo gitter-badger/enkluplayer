@@ -210,10 +210,6 @@ namespace CreateAR.EnkluPlayer
                     else
                     {
                         Log.Info(this, "Exited VideoMode");
-                        
-                        _videoCapture.Dispose();
-                        _videoCapture = null;
-                        
                         rtnToken.Succeed(Void.Instance);
                     }
                 });
