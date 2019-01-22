@@ -1,4 +1,6 @@
-﻿namespace CreateAR.EnkluPlayer.Scripting
+﻿using UnityEngine;
+
+namespace CreateAR.EnkluPlayer.Scripting
 {
     /// <summary>
     /// Provides scripting access to some of the device's meta.
@@ -52,6 +54,14 @@
                 _meta = _deviceMeta.Meta();
                 return _meta.Battery;
             }
+        }
+
+        /// <summary>
+        /// Unique hardware id.
+        /// </summary>
+        public string hardwareId
+        {
+            get { return SystemInfo.deviceUniqueIdentifier; }
         }
     }
 }
