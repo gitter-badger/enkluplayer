@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
@@ -66,17 +67,41 @@ namespace CreateAR.EnkluPlayer
                 var httpClient = new HttpClient();
                 foreach (var kvp in _http.Headers)
                 {
-                    Log.Info(this, "{0} : {1})", kvp.Key, kvp.Value);
+                    Log.Info(this, "{0} : {1}", kvp.Key, kvp.Value);
                     httpClient.DefaultRequestHeaders.Add(kvp.Key, kvp.Value);
                 }
+                httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
 
-                var bytes = File.ReadAllBytes(filepath);
-                var content = new ByteArrayContent(bytes);
-                Log.Info(this, "Content-Type: {0}", content.Headers.ContentType);
+                var form = new MultipartFormDataContent();
+                form.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
 
-                var response = await httpClient.PostAsync(url, content);
+                var typeContent = new StringContent("video");
+                typeContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                {
+                    Name = "\"type\"",
+                };
+                form.Add(typeContent, "type");
+
+                var tagContent = new StringContent("holotest");
+                tagContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                {
+                    Name = "\"tag\"",
+                };
+                form.Add(tagContent, "tag");
+
+//                var fileStream = new FileStream(filepath, FileMode.Open);
+//                var fileContent = new StreamContent(fileStream);
+//                fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+//                {
+//                    Name = "\"file\""
+//                };
+//                form.Add(fileContent, "file");
+
+                var response = await httpClient.PostAsync(url, form);
                 Log.Info(this, "Status Code: {0}", response.StatusCode);
                 Log.Info(this, "Body: {0}", await response.Content.ReadAsStringAsync());
+
+//                fileStream.Dispose();
                 
 // Windows APIs
 //                var fileStream = File.OpenRead(filepath);
