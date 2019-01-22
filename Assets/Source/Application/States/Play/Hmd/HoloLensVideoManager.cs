@@ -4,70 +4,137 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
-using UnityEngine;
+using CreateAR.Trellis.Messages.CreateSnap;
+using Newtonsoft.Json;
 using Void = CreateAR.Commons.Unity.Async.Void;
-using Windows.Networking.BackgroundTransfer;
 
 namespace CreateAR.EnkluPlayer
 {
     // TODO: Throttle concurrent uploads
     // TODO: Retry failed uploads
     
-    public class HoloLensVideoManager
+    public class HoloLensVideoManager : IVideoManager
     {
         /// <summary>
         /// Dependencies
         /// </summary>
         private readonly IVideoCapture _videoCapture;
         private readonly IHttpService _http;
-        private readonly IBootstrapper _bootstrapper;
         private readonly UserPreferenceService _preferences;
 
         private string _orgId = string.Empty;
+
+        private bool _enabled;
         
-        public HoloLensVideoManager(IVideoCapture videoCapture, IHttpService http, IBootstrapper bootstrapper, UserPreferenceService preferences)
+        private string _tag = "default";
+
+        private AsyncToken<Void> _uploadToken;
+
+        private List<string> _waitingUploads = new List<string>();
+        private List<string> _failedUploads = new List<string>();
+        
+        public HoloLensVideoManager(IVideoCapture videoCapture, IHttpService http, UserPreferenceService preferences)
         {
             _videoCapture = videoCapture;
             _http = http;
-            _bootstrapper = bootstrapper;
             _preferences = preferences;
 
             _videoCapture.OnVideoCreated += Video_OnCreated;
         }
 
+        public void EnableUploads(string tag)
+        {
+            _tag = !string.IsNullOrEmpty(tag) ? tag : "default";
+            _enabled = true;
+        }
+
+        public void DisableUploads()
+        {
+            _enabled = false;
+        }
+
         private void Video_OnCreated(string file)
         {
+            Log.Info(this, "Video_OnCreated");
+
+            _waitingUploads.Add(file);
+            ProcessUploads();
+        }
+
+        private void ProcessUploads()
+        {
+            Log.Info(this, "ProcessUploads");
+
+            // If we're uploading, early out. The upload will reprocess upon completion.
+            if (_uploadToken != null)
+            {
+                return;
+            }
+
+            string currentUpload;
+            if (_waitingUploads.Count > 0) // Process a new upload.
+            {   
+                currentUpload = _waitingUploads[0];
+                _waitingUploads.RemoveAt(0);
+            } 
+            else if (_failedUploads.Count > 0) // Process a previous failure.
+            {   
+                currentUpload = _failedUploads[0];
+                _failedUploads.RemoveAt(0);
+            }
+            else // Nothing waiting. All done here.
+            {
+                return;
+            }
+            
+            _uploadToken = new AsyncToken<Void>();
+            _uploadToken
+                .OnSuccess(_ =>
+                {
+                    Log.Info(this, "Upload successful. Deleting from disk: ", currentUpload);
+                    File.Delete(currentUpload);
+                })
+                .OnFailure(exeception =>
+                {
+                    Log.Error(this, "Upload failed.");
+                    _failedUploads.Add(currentUpload);
+                })
+                .OnFinally(_ =>
+                {
+                    _uploadToken = null;
+                    ProcessUploads();
+                });
+            
             GetOrgId()
                 .OnSuccess(_ =>
                 {
-                    UploadFile(file);
+                    UploadFile(currentUpload, _uploadToken);
                 })
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Error uploading video ({0})", exception);
+                    _uploadToken.Fail(exception);
                 });
         }
 
-        private async Task UploadFile(string filepath)
+        private async Task UploadFile(string filepath, AsyncToken<Void> token)
         {
+            Log.Info(this, "UploadFile");
             try 
             {
                 var url = _http.Urls.Url(string.Format("/org/{0}/snap/gamma", _orgId));
                     
                 Log.Info(this, "Uploading {0} to {1}", filepath, url);
 
-// System.Net
                 var httpClient = new HttpClient();
                 foreach (var kvp in _http.Headers)
                 {
-                    Log.Info(this, "{0} : {1}", kvp.Key, kvp.Value);
                     httpClient.DefaultRequestHeaders.Add(kvp.Key, kvp.Value);
                 }
                 httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -84,7 +151,7 @@ namespace CreateAR.EnkluPlayer
                 };
                 form.Add(typeContent, "type");
 
-                var tagContent = new StringContent("holotest");
+                var tagContent = new StringContent(_tag);
                 tagContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
                 {
                     Name = "\"tag\"",
@@ -101,37 +168,25 @@ namespace CreateAR.EnkluPlayer
                 fileContent.Headers.ContentType = new MediaTypeHeaderValue("video/mp4");
                 form.Add(fileContent, "file");
 
-                var response = await httpClient.PostAsync(url, form);
-                Log.Info(this, "Status Code: {0}", response.StatusCode);
-                Log.Info(this, "Body: {0}", await response.Content.ReadAsStringAsync());
+                var rawResponse = await httpClient.PostAsync(url, form);
+                var response = JsonConvert.DeserializeObject<Response>(await rawResponse.Content.ReadAsStringAsync());
 
-//                fileStream.Dispose();
+                fileStream.Dispose();
                 
-// Windows APIs
-//                var fileStream = File.OpenRead(filepath);
-//                var uploader = new BackgroundUploader();
-//    
-//                foreach (var kvp in _http.Headers)
-//                {
-//                    uploader.SetRequestHeader(kvp.Key, kvp.Value);
-//                }
-//
-//                uploader.SetRequestHeader()
-//                
-//                var uploadOp = await uploader.CreateUploadFromStreamAsync(new Uri(url), fileStream.AsInputStream());
-//                Log.Info(this, "Uploading!!");
-//    
-//                await uploadOp.StartAsync();
-//
-//                var responseInfo = uploadOp.GetResponseInformation();
-//                Log.Info(this, "Status Code: " + responseInfo.StatusCode);
-//                Log.Info(this, "Uri: " + responseInfo.ActualUri);
+                if (response.Success)
+                {
+                    token.Succeed(Void.Instance);
+                }
+                else
+                {
+                    token.Fail(new Exception(response.Error));
+                }
             }
             catch (Exception e)
             {
                 Log.Error(this, "Error uploading: {0}", e);
+                token.Fail(e);
             }
-
         }
 
         private IAsyncToken<Void> GetOrgId()
