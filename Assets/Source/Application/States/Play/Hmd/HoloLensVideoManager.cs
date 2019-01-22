@@ -72,8 +72,10 @@ namespace CreateAR.EnkluPlayer
                 }
                 httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
 
-                var form = new MultipartFormDataContent();
-                form.Headers.ContentType = new MediaTypeHeaderValue("multipart/form-data");
+                var form = new MultipartFormDataContent("Boundary7MA4YWxkTrZu0gW");
+                var contentType = new MediaTypeHeaderValue("multipart/form-data");
+                contentType.Parameters.Add(new NameValueHeaderValue("boundary", "Boundary7MA4YWxkTrZu0gW"));
+                form.Headers.ContentType = contentType;
 
                 var typeContent = new StringContent("video");
                 typeContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
@@ -89,13 +91,15 @@ namespace CreateAR.EnkluPlayer
                 };
                 form.Add(tagContent, "tag");
 
-//                var fileStream = new FileStream(filepath, FileMode.Open);
-//                var fileContent = new StreamContent(fileStream);
-//                fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-//                {
-//                    Name = "\"file\""
-//                };
-//                form.Add(fileContent, "file");
+                var fileStream = new FileStream(filepath, FileMode.Open);
+                var fileContent = new StreamContent(fileStream);
+                fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+                {
+                    Name = "\"file\"",
+                    FileName = "\"" + "testVideo.mp4" + "\""
+                };
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue("video/mp4");
+                form.Add(fileContent, "file");
 
                 var response = await httpClient.PostAsync(url, form);
                 Log.Info(this, "Status Code: {0}", response.StatusCode);
