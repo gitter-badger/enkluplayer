@@ -1,8 +1,10 @@
 #if UNITY_WSA
 
 using System;
+using System.Collections;
 using System.IO;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine.XR.WSA.WebCam;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -15,6 +17,11 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class HoloLensImageCapture : IImageCapture
     {
+        /// <summary>
+        /// IBootstrapper.
+        /// </summary>
+        private IBootstrapper _bootstrapper;
+        
         /// <summary>
         /// The underlying PhotoCapture API.
         /// </summary>
@@ -34,6 +41,14 @@ namespace CreateAR.EnkluPlayer
         /// Cached token for Warm() invokes.
         /// </summary>
         private AsyncToken<Void> _warmToken;
+        
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public HoloLensImageCapture(IBootstrapper bootstrapper)
+        {
+            _bootstrapper = bootstrapper;
+        }
         
         /// <inheritdoc />
         public IAsyncToken<Void> Warm()
@@ -60,12 +75,14 @@ namespace CreateAR.EnkluPlayer
                     if (!result.success)
                     {
                         Abort();
-                        _warmToken.Fail(new Exception(string.Format("Failure starting PhotoMode ({0})", result.hResult)));
+                        _bootstrapper.BootstrapCoroutine(FailToken(
+                            _warmToken,
+                            new Exception(string.Format("Failure starting PhotoMode ({0})", result.hResult))));
                     }
                     else
                     {
                         Log.Info(this, "Entered PhotoMode.");
-                        _warmToken.Succeed(Void.Instance);
+                        _bootstrapper.BootstrapCoroutine(SucceedToken(_warmToken, Void.Instance));
                     }
                 });
             });
@@ -102,11 +119,13 @@ namespace CreateAR.EnkluPlayer
                             {
                                 if (!result.success)
                                 {
-                                    rtnToken.Fail(new Exception(string.Format("Error capturing image ({0})", result.hResult)));
+                                    _bootstrapper.BootstrapCoroutine(FailToken(
+                                        rtnToken,
+                                        new Exception(string.Format("Error capturing image ({0})", result.hResult))));
                                 }
                                 else
                                 {
-                                    rtnToken.Succeed(fullName);
+                                    _bootstrapper.BootstrapCoroutine(SucceedToken(rtnToken, fullName));
                                 } 
                             });
                         });
@@ -114,7 +133,7 @@ namespace CreateAR.EnkluPlayer
                 .OnFailure(exception =>
                 {
                     Abort();
-                    rtnToken.Fail(exception);
+                    _bootstrapper.BootstrapCoroutine(FailToken(rtnToken, exception));
                 });
 
             return rtnToken;
@@ -139,12 +158,14 @@ namespace CreateAR.EnkluPlayer
                     
                     if (!result.success)
                     {
-                        rtnToken.Fail(new Exception(string.Format("Failure exiting PhotoMode ({0})", result.hResult)));
+                        _bootstrapper.BootstrapCoroutine(FailToken(
+                            rtnToken, 
+                            new Exception(string.Format("Failure exiting PhotoMode ({0})", result.hResult))));
                     }
                     else
                     {
                         Log.Info(this, "Exited PhotoMode.");
-                        rtnToken.Succeed(Void.Instance);
+                        _bootstrapper.BootstrapCoroutine(SucceedToken(rtnToken, Void.Instance));
                     }
                 });
             }
@@ -154,6 +175,26 @@ namespace CreateAR.EnkluPlayer
             }
 
             return rtnToken;
+        }
+        
+        /// <summary>
+        /// Helper coroutine to succeed tokens on the main thread.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator SucceedToken<T>(AsyncToken<T> token, T value)
+        {
+            yield return null;
+            token.Succeed(value);
+        }
+
+        /// <summary>
+        /// Helper coroutine to fail tokens on the main thread.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator FailToken<T>(AsyncToken<T> token, Exception exception)
+        {
+            yield return null;
+            token.Fail(exception);
         }
     }
 }

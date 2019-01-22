@@ -1,9 +1,11 @@
 #if UNITY_WSA
 
 using System;
+using System.Collections;
 using System.IO;
 using System.Threading;
 using CreateAR.Commons.Unity.Async;
+using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using UnityEngine.XR.WSA.WebCam;
 using Void = CreateAR.Commons.Unity.Async.Void;
@@ -16,6 +18,11 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class HoloLensVideoCapture : IVideoCapture
     {
+        /// <summary>
+        /// IBootstrapper.
+        /// </summary>
+        private IBootstrapper _bootstrapper;
+        
         /// <summary>
         /// Underlying VideoCapture API.
         /// </summary>
@@ -47,6 +54,14 @@ namespace CreateAR.EnkluPlayer
         {
             get { return _videoCapture != null && _videoCapture.IsRecording; }
         }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public HoloLensVideoCapture(IBootstrapper bootstrapper)
+        {
+            _bootstrapper = bootstrapper;
+        }
         
         /// <inheritdoc />
         public IAsyncToken<Void> Warm()
@@ -74,13 +89,15 @@ namespace CreateAR.EnkluPlayer
                     {
                         if (!result.success)
                         {
-                            _warmToken.Fail(new Exception(string.Format("Failure entering VideoMode ({0})", result.hResult)));
+                            _bootstrapper.BootstrapCoroutine(FailToken(
+                                _warmToken, 
+                                new Exception(string.Format("Failure entering VideoMode ({0})", result.hResult))));
                             Abort();
                         }
                         else
                         {
                             Log.Info(this, "Entered VideoMode.");
-                            _warmToken.Succeed(Void.Instance);
+                            _bootstrapper.BootstrapCoroutine(SucceedToken(_warmToken, Void.Instance));
                         }
                     });
             });
@@ -114,19 +131,21 @@ namespace CreateAR.EnkluPlayer
                     {
                         if (!result.success)
                         {
-                            rtnToken.Fail(new Exception(string.Format("Failure starting recording ({0})", result.hResult)));
+                            _bootstrapper.BootstrapCoroutine(FailToken(
+                                rtnToken,
+                                new Exception(string.Format("Failure starting recording ({0})", result.hResult))));
                             Abort();
                         }
                         else
                         {
-                            rtnToken.Succeed(Void.Instance);
+                            _bootstrapper.BootstrapCoroutine(SucceedToken(rtnToken, Void.Instance));
                         }
                     });
                 })
                 .OnFailure(exception =>
                 {
                     Abort();
-                    rtnToken.Fail(exception);
+                    _bootstrapper.BootstrapCoroutine(FailToken(rtnToken, exception));
                 });
 
             return rtnToken;
@@ -151,12 +170,13 @@ namespace CreateAR.EnkluPlayer
                     {
                         if (!result.success)
                         {
-                            rtnToken.Fail(new Exception(string.Format("Failure stopping recording ({0})",
-                                result.hResult)));
+                            _bootstrapper.BootstrapCoroutine(FailToken(
+                                rtnToken,
+                                new Exception(string.Format("Failure stopping recording ({0})", result.hResult))));
                         }
                         else
                         {
-                            rtnToken.Succeed(_recordingFilePath);
+                            _bootstrapper.BootstrapCoroutine(SucceedToken(rtnToken, _recordingFilePath));
                         }
                     });
                 });
@@ -184,12 +204,14 @@ namespace CreateAR.EnkluPlayer
                     
                     if (!result.success)
                     {
-                        rtnToken.Fail(new Exception(string.Format("Failure exiting VideoMode ({0})", result.hResult)));
+                        _bootstrapper.BootstrapCoroutine(FailToken(
+                            rtnToken,
+                            new Exception(string.Format("Failure exiting VideoMode ({0})", result.hResult))));
                     }
                     else
                     {
                         Log.Info(this, "Exited VideoMode");
-                        rtnToken.Succeed(Void.Instance);
+                        _bootstrapper.BootstrapCoroutine(SucceedToken(rtnToken, Void.Instance));
                     }
                 });
             }
@@ -199,6 +221,26 @@ namespace CreateAR.EnkluPlayer
             }
 
             return rtnToken;
+        }
+
+        /// <summary>
+        /// Helper coroutine to succeed tokens on the main thread.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator SucceedToken<T>(AsyncToken<T> token, T value)
+        {
+            yield return null;
+            token.Succeed(value);
+        }
+
+        /// <summary>
+        /// Helper coroutine to fail tokens on the main thread.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator FailToken<T>(AsyncToken<T> token, Exception exception)
+        {
+            yield return null;
+            token.Fail(exception);
         }
     }
 }
