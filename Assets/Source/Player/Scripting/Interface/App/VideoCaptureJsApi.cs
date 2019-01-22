@@ -51,7 +51,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="callback"></param>
         public void start(Engine engine, JsFunc callback)
         {
-            start(engine, callback, null);
+            startCustomPath(engine, callback, null);
         }
         
         /// <summary>
@@ -60,7 +60,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="engine"></param>
         /// <param name="callback"></param>
         /// <param name="customPath"></param>
-        public void start(Engine engine, JsFunc callback, string customPath)
+        public void startCustomPath(Engine engine, JsFunc callback, string customPath)
         {
             JsCallback(engine, _videoCapture.Start(customPath), callback); 
         }
@@ -70,7 +70,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="callback"></param>
-        public void stop(Engine engine, JsFunc callback = null)
+        public void stop(Engine engine, JsFunc callback)
         {
             JsCallback(engine, _videoCapture.Stop(), callback); 
         }
@@ -80,7 +80,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="callback"></param>
-        public void abort(Engine engine, JsFunc callback = null)
+        public void abort(Engine engine, JsFunc callback)
         {
             JsCallback(engine, _videoCapture.Abort(), callback);
         }

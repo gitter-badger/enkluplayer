@@ -84,11 +84,17 @@ namespace CreateAR.EnkluPlayer
                     var filename = !string.IsNullOrEmpty(customPath)
                         ? customPath
                         : string.Format("{0:yyyy.MM.dd-HH.mm.ss}.png", DateTime.UtcNow);
+                    
+                    // Don't rely on the user to supply the extension
+                    if (!filename.EndsWith(".png")) filename += ".png";
+                    
                     var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "images");
-                    var fullName = Path.Combine(savePath, filename);
+                    var fullName = Path.Combine(savePath, filename).Replace("/", "\\");
     
-                    Directory.CreateDirectory(savePath);
+                    // Make sure to handle user paths (customPath="myExperienceName/myAwesomeImage.png")
+                    Directory.CreateDirectory(savePath.Substring(0, savePath.LastIndexOf("\\")));
     
+                    Log.Info(this, "Saving image to: " + savePath);
                     _photoCapture.TakePhotoAsync(fullName, PhotoCaptureFileOutputFormat.PNG,
                         result =>
                         {

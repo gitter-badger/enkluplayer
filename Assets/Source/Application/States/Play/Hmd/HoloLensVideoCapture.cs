@@ -58,8 +58,6 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Warm()
         {
-            Log.Info(this, "Warm");
-            
             if (_warmToken != null)
             {
                 return _warmToken;
@@ -100,20 +98,25 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Start(string customPath = null)
         {
-            Log.Info(this, "Start");
-
             var rtnToken = new AsyncToken<Void>();
             
             Warm()
                 .OnSuccess(_ =>
                 {
-                    var filename = !string.IsNullOrEmpty(customPath) ? customPath : string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
-                    var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "videos");
-                    _recordingFilePath = Path.Combine(savePath, filename).Replace("/", "\\");
-                    Log.Info(this, "Path: " + _recordingFilePath);
+                    var filename = !string.IsNullOrEmpty(customPath) 
+                        ? customPath 
+                        : string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
                     
-                    Directory.CreateDirectory(savePath);
+                    // Don't rely on the user to supply the extension
+                    if (!filename.EndsWith(".mp4")) filename += ".mp4";
                     
+                    var videoFolder = Path.Combine(UnityEngine.Application.persistentDataPath, "videos");
+                    _recordingFilePath = Path.Combine(videoFolder, filename).Replace("/", "\\");
+                    
+                    // Make sure to handle user paths (customPath="myExperienceName/myAwesomeVideo.mp4")
+                    Directory.CreateDirectory(_recordingFilePath.Substring(0, _recordingFilePath.LastIndexOf("\\")));
+                    
+                    Log.Info(this, "Recording to: " + _recordingFilePath);
                     _videoCapture.StartRecordingAsync(_recordingFilePath, result =>
                     {
                         if (!result.success)
@@ -139,8 +142,6 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<string> Stop()
         {
-            Log.Info(this, "Stop");
-            
             if (_warmToken == null)
             {
                 return new AsyncToken<string>(new Exception("Video Warm() wasn't called."));
@@ -187,8 +188,6 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Abort()
         {
-            Log.Info(this, "Abort");
-            
             var rtnToken = new AsyncToken<Void>();
             
             if (_warmToken != null)
