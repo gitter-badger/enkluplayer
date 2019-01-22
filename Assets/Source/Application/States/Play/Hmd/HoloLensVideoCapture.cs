@@ -58,13 +58,9 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<Void> Warm()
         {
-<<<<<<< HEAD
             Log.Info(this, "Warm");
             
-            if (_videoCapture != null)
-=======
             if (_warmToken != null)
->>>>>>> feature/video-capture
             {
                 return _warmToken;
             }
