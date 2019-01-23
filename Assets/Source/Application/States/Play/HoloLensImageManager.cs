@@ -17,15 +17,15 @@ using Void = CreateAR.Commons.Unity.Async.Void;
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
-    /// VideoManager for HoloLens. Handles uploading videos to Trellis
+    /// ImageManager for HoloLens. Handles uploading images to Trellis
     /// and managing failed uploads with a set cap.
     /// </summary>
-    public class HoloLensVideoManager : IVideoManager
+    public class HoloLensImageManager : IImageManager
     {
         /// <summary>
         /// Dependencies
         /// </summary>
-        private readonly IVideoCapture _videoCapture;
+        private readonly IImageCapture _imageCapture;
         private readonly IHttpService _http;
         private readonly UserPreferenceService _preferences;
 
@@ -35,12 +35,12 @@ namespace CreateAR.EnkluPlayer
         private string _orgId = string.Empty;
 
         /// <summary>
-        /// Whether videos should be uploaded or not.
+        /// Whether images should be uploaded or not.
         /// </summary>
         private bool _enabled;
         
         /// <summary>
-        /// The tag used to upload videos.
+        /// The tag used to upload images.
         /// </summary>
         private string _tag;
 
@@ -69,22 +69,22 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor.
         /// </summary>
-        public HoloLensVideoManager(
-            IVideoCapture videoCapture, 
+        public HoloLensImageManager(
+            IImageCapture imageCapture, 
             IHttpService http, 
             UserPreferenceService preferences,
             ApplicationConfig applicationConfig)
         {
-            _videoCapture = videoCapture;
+            _imageCapture = imageCapture;
             _http = http;
             _preferences = preferences;
             _snapConfig = applicationConfig.Snap;
 
-            _videoCapture.OnVideoCreated += Video_OnCreated;
+            _imageCapture.OnImageCreated += Image_OnCreated;
         }
 
         /// <summary>
-        /// Starts the upload process for pending videos & newly created ones.
+        /// Starts the upload process for pending images & newly created ones.
         /// </summary>
         /// <param name="tag">The tag to send to Trellis.</param>
         /// <param name="uploadExisting">Whether files on disk should be retried or not.</param>
@@ -95,7 +95,7 @@ namespace CreateAR.EnkluPlayer
             if (uploadExisting)
             {
                 // Find saves already on the device. If they're there, it means they failed previously.
-                var root = Path.Combine(UnityEngine.Application.persistentDataPath, _snapConfig.VideoFolder);
+                var root = Path.Combine(UnityEngine.Application.persistentDataPath, _snapConfig.ImageFolder);
                 FindExistingUploads(root, _failedUploads);
 
                 if (_failedUploads.Count > 0)
@@ -117,10 +117,10 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Adds a video to the upload queue and attempts to start the upload process.
+        /// Adds a image to the upload queue and attempts to start the upload process.
         /// </summary>
         /// <param name="file"></param>
-        private void Video_OnCreated(string file)
+        private void Image_OnCreated(string file)
         {
             _waitingUploads.Add(file);
             ProcessUploads();
@@ -182,7 +182,7 @@ namespace CreateAR.EnkluPlayer
                 })
                 .OnFailure(exception =>
                 {
-                    Log.Error(this, "Error uploading video ({0})", exception);
+                    Log.Error(this, "Error uploading image ({0})", exception);
                     _uploadToken.Fail(exception);
                 });
         }
@@ -201,7 +201,7 @@ namespace CreateAR.EnkluPlayer
                 await Task.Delay(_snapConfig.FailureDelayMilliseconds);
             }
             
-            try 
+            try
             {
                 var filename = filepath.Substring(filepath.LastIndexOf("\\" + 1));
                 var url = _http.Urls.Url(string.Format("/org/{0}/snap/gamma", _orgId));
@@ -220,7 +220,7 @@ namespace CreateAR.EnkluPlayer
                 contentType.Parameters.Add(new NameValueHeaderValue("boundary", "Boundary7MA4YWxkTrZu0gW"));
                 form.Headers.ContentType = contentType;
 
-                var typeContent = new StringContent("video");
+                var typeContent = new StringContent("still");
                 typeContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
                 {
                     Name = "\"type\"",
@@ -241,7 +241,7 @@ namespace CreateAR.EnkluPlayer
                     Name = "\"file\"",
                     FileName = "\"" + filename + "\""
                 };
-                fileContent.Headers.ContentType = new MediaTypeHeaderValue("video/mp4");
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue("image/png");
                 form.Add(fileContent, "file");
 
                 var rawResponse = await httpClient.PostAsync(url, form);
@@ -266,23 +266,23 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// On upload failure, determine if videos should be removed from disk or kept 
+        /// On upload failure, determine if images should be removed from disk or kept 
         /// </summary>
         private void Upload_OnFailure()
         {
-            if (_failedUploads.Count <= _snapConfig.MaxVideoUploads)
+            if (_failedUploads.Count <= _snapConfig.MaxImageUploads)
             {
                 return;
             }
             
-            Log.Info(this, "Too many failed recordings. Current: {0}  Limit: {1}", _failedUploads.Count, _snapConfig.MaxVideoUploads);
+            Log.Info(this, "Too many failed images. Current: {0}  Limit: {1}", _failedUploads.Count, _snapConfig.MaxImageUploads);
             
             // Not the most efficient since the creation times aren't cached,
             // but this shouldn't be run often or over a large dataset.
             _failedUploads.Sort((file1, file2) =>
                 (int) (File.GetCreationTime(file2) - File.GetCreationTime(file1)).TotalSeconds);
 
-            for (var i = _failedUploads.Count - 1; i >= _snapConfig.MaxVideoUploads; i--)
+            for (var i = _failedUploads.Count - 1; i >= _snapConfig.MaxImageUploads; i--)
             {
                 Log.Info(this, "Deleting failed upload: " + _failedUploads[i]);
                 File.Delete(_failedUploads[i]);

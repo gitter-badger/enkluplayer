@@ -21,6 +21,11 @@ namespace CreateAR.EnkluPlayer
         /// IBootstrapper.
         /// </summary>
         private IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Configuration for snaps.
+        /// </summary>
+        private SnapConfig _snapConfig;
         
         /// <summary>
         /// Underlying VideoCapture API.
@@ -60,9 +65,10 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor
         /// </summary>
-        public HoloLensVideoCapture(IBootstrapper bootstrapper)
+        public HoloLensVideoCapture(IBootstrapper bootstrapper, ApplicationConfig applicationConfig)
         {
             _bootstrapper = bootstrapper;
+            _snapConfig = applicationConfig.Snap;
         }
         
         /// <inheritdoc />
@@ -122,7 +128,7 @@ namespace CreateAR.EnkluPlayer
                     // Don't rely on the user to supply the extension
                     if (!filename.EndsWith(".mp4")) filename += ".mp4";
                     
-                    var videoFolder = Path.Combine(UnityEngine.Application.persistentDataPath, "videos");
+                    var videoFolder = Path.Combine(UnityEngine.Application.persistentDataPath, _snapConfig.VideoFolder);
                     _recordingFilePath = Path.Combine(videoFolder, filename).Replace("/", "\\");
                     
                     // Make sure to handle user paths (customPath="myExperienceName/myAwesomeVideo.mp4")

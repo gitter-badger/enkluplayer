@@ -60,9 +60,14 @@ namespace CreateAR.EnkluPlayer
         public CursorConfig Cursor = new CursorConfig();
 
         /// <summary>
-        /// Debug configuration
+        /// Debug configuration.
         /// </summary>
         public DebugConfig Debug = new DebugConfig();
+        
+        /// <summary>
+        /// Storage configuration.
+        /// </summary>
+        public SnapConfig Snap = new SnapConfig();
 
         /// <summary>
         /// Platform to use.
@@ -800,5 +805,36 @@ namespace CreateAR.EnkluPlayer
                 DisableAdminLock = true;
             }
         }
+    }
+
+    /// <summary>
+    /// Configuration for Snaps.
+    /// </summary>
+    public class SnapConfig
+    {
+        /// <summary>
+        /// The maximum number of failed video uploads to keep on disk.
+        /// </summary>
+        public int MaxVideoUploads = 3;
+
+        /// <summary>
+        /// The maximum number of failed image uploads to keep on disk.
+        /// </summary>
+        public int MaxImageUploads = 10;
+
+        /// <summary>
+        /// The delay to wait before uploading a file if there was a failure uploading.
+        /// </summary>
+        public int FailureDelayMilliseconds = 30000;
+
+        /// <summary>
+        /// The root folder videos will be stored at under the app's datapath.
+        /// </summary>
+        public string VideoFolder = "videos";
+
+        /// <summary>
+        /// The root folder images will be stored at under the app's datapath.
+        /// </summary>
+        public string ImageFolder = "images";
     }
 }

@@ -1,11 +1,9 @@
-using CreateAR.Commons.Unity.Async;
-
 namespace CreateAR.EnkluPlayer
 {
     /// <summary>
-    /// Video manager responsible for uploading/deleting videos on disk.
+    /// Image manager responsible for uploading/deleting images on disk.
     /// </summary>
-    public interface IVideoManager
+    public interface IImageManager
     {
         /// <summary>
         /// Enables the uploader to be active.

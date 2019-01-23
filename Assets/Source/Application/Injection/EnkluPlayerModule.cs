@@ -541,8 +541,10 @@ namespace CreateAR.EnkluPlayer
             {
 #if NETFX_CORE
                 binder.Bind<IVideoManager>().To<HoloLensVideoManager>().ToSingleton();
+                binder.Bind<IImageManager>().To<HoloLensImageManager>().ToSingleton();
 #else
-                binder.Bind<IVideoManager>().To<PassthroughVideoManager>().ToSingleton();
+                binder.Bind<IVideoManager>().To<PassthroughMediaManager>().ToSingleton();
+                binder.Bind<IImageManager>().To<PassthroughMediaManager>().ToSingleton();
 #endif
             }
 

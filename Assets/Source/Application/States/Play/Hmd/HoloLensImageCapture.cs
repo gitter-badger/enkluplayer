@@ -21,6 +21,11 @@ namespace CreateAR.EnkluPlayer
         /// IBootstrapper.
         /// </summary>
         private IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Configuration for snaps.
+        /// </summary>
+        private SnapConfig _snapConfig;
         
         /// <summary>
         /// The underlying PhotoCapture API.
@@ -42,12 +47,16 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private AsyncToken<Void> _warmToken;
         
+        /// <inheritdoc />
+        public Action<string> OnImageCreated { get; set; }
+        
         /// <summary>
         /// Constructor
         /// </summary>
-        public HoloLensImageCapture(IBootstrapper bootstrapper)
+        public HoloLensImageCapture(IBootstrapper bootstrapper, ApplicationConfig applicationConfig)
         {
             _bootstrapper = bootstrapper;
+            _snapConfig = applicationConfig.Snap;
         }
         
         /// <inheritdoc />
@@ -105,7 +114,7 @@ namespace CreateAR.EnkluPlayer
                     // Don't rely on the user to supply the extension
                     if (!filename.EndsWith(".png")) filename += ".png";
                     
-                    var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, "images");
+                    var savePath = Path.Combine(UnityEngine.Application.persistentDataPath, _snapConfig.ImageFolder);
                     var fullName = Path.Combine(savePath, filename).Replace("/", "\\");
     
                     // Make sure to handle user paths (customPath="myExperienceName/myAwesomeImage.png")
@@ -125,6 +134,10 @@ namespace CreateAR.EnkluPlayer
                                 }
                                 else
                                 {
+                                    if (OnImageCreated != null)
+                                    {
+                                        _bootstrapper.BootstrapCoroutine(ExecuteAction(OnImageCreated, fullName));
+                                    }
                                     _bootstrapper.BootstrapCoroutine(SucceedToken(rtnToken, fullName));
                                 } 
                             });
@@ -195,6 +208,16 @@ namespace CreateAR.EnkluPlayer
         {
             yield return null;
             token.Fail(exception);
+        }
+        
+        /// <summary>
+        /// Helper coroutine to execute actions on the main thread. Assumes the token is not null.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator ExecuteAction<T>(Action<T> action, T value)
+        {
+            yield return null;
+            action(value);
         }
     }
 }
