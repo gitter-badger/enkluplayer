@@ -106,6 +106,7 @@ task runPublisherReplacement() {
         }
     }
 }
+runPublisherReplacement.dependsOn = [runUnity]
 
 task runCsc(type:Exec) {
     def configuration = project.hasProperty('store') && project.store ? 'Master' : 'Release'
