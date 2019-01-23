@@ -78,6 +78,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             Material.SetVector(param, value.ToColor());
         }
 
+        /// <inheritdoc />
         public void Teardown()
         {
             if (!_shared)

@@ -100,6 +100,9 @@ namespace CreateAR.EnkluPlayer.Scripting
             _setup = false;
         }
 
+        /// <summary>
+        /// Breaks the underlying shared material link, causing this material to be unique.
+        /// </summary>
         public void makeUnique()
         {
             var mat = _renderer.Material;
