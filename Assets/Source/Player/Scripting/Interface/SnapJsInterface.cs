@@ -6,6 +6,7 @@ using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.TriggerSnap;
 using Jint;
 using Jint.Native;
+using Source.Player.Scripting.Interop;
 using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
 
 namespace CreateAR.EnkluPlayer
@@ -30,14 +31,19 @@ namespace CreateAR.EnkluPlayer
         /// Cached Org Id.
         /// </summary>
         private string _orgId = string.Empty;
+        
+        public SnapUploader uploader { get; private set; }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         public SnapJsInterface(
+            IVideoManager videoManager,
+            IImageManager imageManager,
             ApiController api,
             UserPreferenceService prefs)
         {
+            uploader = new SnapUploader(videoManager, imageManager);
             _api = api;
             _preferences = prefs;
         }

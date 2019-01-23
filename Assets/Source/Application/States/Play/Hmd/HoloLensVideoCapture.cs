@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.IO;
-using System.Threading;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -22,6 +21,16 @@ namespace CreateAR.EnkluPlayer
         /// IBootstrapper.
         /// </summary>
         private IBootstrapper _bootstrapper;
+
+        /// <summary>
+        /// Metrics.
+        /// </summary>
+        private IMetricsService _metrics;
+
+        /// <summary>
+        /// Configuration for snaps.
+        /// </summary>
+        private SnapConfig _snapConfig;
         
         /// <summary>
         /// Underlying VideoCapture API.
@@ -50,6 +59,9 @@ namespace CreateAR.EnkluPlayer
         private AsyncToken<Void> _warmToken;
         
         /// <inheritdoc />
+        public Action<string> OnVideoCreated { get; set; }
+        
+        /// <inheritdoc />
         public bool IsRecording
         {
             get { return _videoCapture != null && _videoCapture.IsRecording; }
@@ -58,9 +70,11 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor
         /// </summary>
-        public HoloLensVideoCapture(IBootstrapper bootstrapper)
+        public HoloLensVideoCapture(IBootstrapper bootstrapper, IMetricsService metrics, ApplicationConfig applicationConfig)
         {
             _bootstrapper = bootstrapper;
+            _metrics = metrics;
+            _snapConfig = applicationConfig.Snap;
         }
         
         /// <inheritdoc />
@@ -110,6 +124,10 @@ namespace CreateAR.EnkluPlayer
         {
             var rtnToken = new AsyncToken<Void>();
             
+            _metrics.Value(MetricsKeys.MEDIA_VIDEO_START).Value(1);
+            rtnToken
+                .OnFailure(_ => _metrics.Value(MetricsKeys.MEDIA_VIDEO_FAILURE).Value(1));
+            
             Warm()
                 .OnSuccess(_ =>
                 {
@@ -120,7 +138,7 @@ namespace CreateAR.EnkluPlayer
                     // Don't rely on the user to supply the extension
                     if (!filename.EndsWith(".mp4")) filename += ".mp4";
                     
-                    var videoFolder = Path.Combine(UnityEngine.Application.persistentDataPath, "videos");
+                    var videoFolder = Path.Combine(UnityEngine.Application.persistentDataPath, _snapConfig.VideoFolder);
                     _recordingFilePath = Path.Combine(videoFolder, filename).Replace("/", "\\");
                     
                     // Make sure to handle user paths (customPath="myExperienceName/myAwesomeVideo.mp4")
@@ -160,6 +178,9 @@ namespace CreateAR.EnkluPlayer
             }
             
             var rtnToken = new AsyncToken<string>();
+            rtnToken
+                .OnSuccess(_ => _metrics.Value(MetricsKeys.MEDIA_VIDEO_SUCCESS).Value(1))
+                .OnFailure(_ => _metrics.Value(MetricsKeys.MEDIA_VIDEO_FAILURE).Value(1));
 
             _warmToken.OnSuccess(_ =>
             {
@@ -168,6 +189,11 @@ namespace CreateAR.EnkluPlayer
                     // Abort regardless of success
                     Abort().OnFinally(__ =>
                     {
+                        if (OnVideoCreated != null)
+                        {
+                            _bootstrapper.BootstrapCoroutine(ExecuteAction(OnVideoCreated, _recordingFilePath));
+                        }
+                        
                         if (!result.success)
                         {
                             _bootstrapper.BootstrapCoroutine(FailToken(
@@ -241,6 +267,16 @@ namespace CreateAR.EnkluPlayer
         {
             yield return null;
             token.Fail(exception);
+        }
+
+        /// <summary>
+        /// Helper coroutine to execute actions on the main thread. Assumes the token is not null.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator ExecuteAction<T>(Action<T> action, T value)
+        {
+            yield return null;
+            action(value);
         }
     }
 }
