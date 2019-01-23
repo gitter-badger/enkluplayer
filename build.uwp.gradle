@@ -96,7 +96,9 @@ runRestore.dependsOn = [runUnity]
 
 task runPublisherReplacement() {
     doLast {
-        if (project.hasProperty('useStorePublisher') && project.useStorePublisher) {
+        if (project.hasProperty('onsite') && project.onsite
+            || project.hasProperty('store') && project.store) {
+
             println 'Sign with store key.'
 
             def f = new File('Builds/WSAPlayerX86/Enklu/Package.appxmanifest')
@@ -106,10 +108,12 @@ task runPublisherReplacement() {
 }
 
 task runCsc(type:Exec) {
+    def configuration = project.hasProperty('store') && project.store ? 'Master' : 'Release'
+
     // msbuild /p:Configuration=Release /p:platform=x86
     workingDir outputDir
     executable cscPath
-    args '/p:Configuration=Release', '/p:Platform=x86'
+    args "/p:Configuration=$configuration", '/p:Platform=x86'
     standardOutput System.out
 }
 runCsc.dependsOn = [runRestore, runPublisherReplacement]
