@@ -62,7 +62,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Cleans up the cache entry for an Element when it gets destroyed.
         /// </summary>
         /// <param name="element"></param>
-        public void Element_OnDestroy(Element element)
+        private void Element_OnDestroy(Element element)
         {
             ElementJs el;
             if (_elementMap.TryGetValue(element, out el))
