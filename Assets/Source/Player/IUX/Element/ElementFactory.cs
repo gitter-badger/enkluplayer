@@ -41,6 +41,7 @@ namespace CreateAR.EnkluPlayer.IUX
         private readonly IMessageRouter _messages;
         private readonly IElementJsCache _jsCache;
         private readonly IElementJsFactory _elementJsFactory;
+        private readonly IBootstrapper _bootstrapper;
         private readonly ColorConfig _colors;
         private readonly TweenConfig _tweens;
         private readonly WidgetConfig _config;
@@ -75,6 +76,7 @@ namespace CreateAR.EnkluPlayer.IUX
             IMessageRouter messages,
             IElementJsCache jsCache,
             IElementJsFactory elementJsFactory,
+            IBootstrapper bootstrapper,
             ColorConfig colors,
             TweenConfig tweens,
             WidgetConfig config,
@@ -107,6 +109,7 @@ namespace CreateAR.EnkluPlayer.IUX
             _messages = messages;
             _jsCache = jsCache;
             _elementJsFactory = elementJsFactory;
+            _bootstrapper = bootstrapper;
             _appConfig = appConfig;
             _editorSettings = editorSettings;
             _elementSchemaDefaults = elementSchemaDefaults;
@@ -273,7 +276,8 @@ namespace CreateAR.EnkluPlayer.IUX
                         _http, 
                         _provider, 
                         _metrics, 
-                        _messages, 
+                        _messages,
+                        _bootstrapper,
                         _appConfig);
                 }
                 case ElementTypes.QR_ANCHOR:
