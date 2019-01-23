@@ -714,7 +714,42 @@ PlayerSettings:
   metroCertificateIssuer: CreateAR
   metroCertificateNotAfter: 00c2ca2fbdccd501
   metroApplicationDescription: AR content engine.
-  wsaImages: {}
+  wsaImages:
+    65636: Assets/Art/Logo/UWP/StoreLogo.scale-100.png
+    65661: Assets/Art/Logo/UWP/StoreLogo.scale-125.png
+    65686: Assets/Art/Logo/UWP/StoreLogo.scale-150.png
+    65736: Assets/Art/Logo/UWP/StoreLogo.scale-200.png
+    65936: Assets/Art/Logo/UWP/StoreLogo.scale-400.png
+    2031632: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-16.png
+    2031640: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-24.png
+    2031648: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-32.png
+    2031664: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-48.png
+    2031716: Assets/Art/Logo/UWP/Square44x44Logo.scale-100.png
+    2031741: Assets/Art/Logo/UWP/Square44x44Logo.scale-125.png
+    2031766: Assets/Art/Logo/UWP/Square44x44Logo.scale-150.png
+    2031816: Assets/Art/Logo/UWP/Square44x44Logo.scale-200.png
+    2031872: Assets/Art/Logo/UWP/Square44x44Logo.targetsize-256.png
+    2032016: Assets/Art/Logo/UWP/Square44x44Logo.scale-400.png
+    2097252: Assets/Art/Logo/UWP/SmallTile.scale-100.png
+    2097277: Assets/Art/Logo/UWP/SmallTile.scale-125.png
+    2097302: Assets/Art/Logo/UWP/SmallTile.scale-150.png
+    2097352: Assets/Art/Logo/UWP/SmallTile.scale-200.png
+    2097552: Assets/Art/Logo/UWP/SmallTile.scale-400.png
+    2162788: Assets/Art/Logo/UWP/Square150x150Logo.scale-100.png
+    2162813: Assets/Art/Logo/UWP/Square150x150Logo.scale-125.png
+    2162838: Assets/Art/Logo/UWP/Square150x150Logo.scale-150.png
+    2162888: Assets/Art/Logo/UWP/Square150x150Logo.scale-200.png
+    2163088: Assets/Art/Logo/UWP/Square150x150Logo.scale-400.png
+    2228324: Assets/Art/Logo/UWP/LargeTile.scale-100.png
+    2228349: Assets/Art/Logo/UWP/LargeTile.scale-125.png
+    2228374: Assets/Art/Logo/UWP/LargeTile.scale-150.png
+    2228424: Assets/Art/Logo/UWP/LargeTile.scale-200.png
+    2228624: Assets/Art/Logo/UWP/LargeTile.scale-400.png
+    2293860: Assets/Art/Logo/UWP/Wide310x150Logo.scale-100.png
+    2293885: Assets/Art/Logo/UWP/Wide310x150Logo.scale-125.png
+    2293910: Assets/Art/Logo/UWP/Wide310x150Logo.scale-150.png
+    2293960: Assets/Art/Logo/UWP/Wide310x150Logo.scale-200.png
+    2294160: Assets/Art/Logo/UWP/Wide310x150Logo.scale-400.png
   metroTileShortName: Enklu
   metroCommandLineArgsFile: 
   metroTileShowName: 0
