@@ -21,11 +21,20 @@ namespace Source.Player.Scripting.Interop
             _videoManager = videoManager;
             _imageManager = imageManager;
         }
+        
+        /// <summary>
+        /// Enables the uploaders for processing.
+        /// TODO: Remove when EK-1124 is resolved.
+        /// </summary>
+        public void enableUploads(string tag)
+        {
+            enableUploads(tag, false);
+        }
 
         /// <summary>
         /// Enables the uploaders for processing.
         /// </summary>
-        public void enableUploads(string tag, bool uploadExisting = false)
+        public void enableUploads(string tag, bool uploadExisting)
         {
             _videoManager.EnableUploads(tag, uploadExisting);
             _imageManager.EnableUploads(tag, uploadExisting);
