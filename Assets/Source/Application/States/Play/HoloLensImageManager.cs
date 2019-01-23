@@ -64,6 +64,9 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private List<string> _failedUploads = new List<string>();
 
+        /// <summary>
+        /// Configuration for Snaps.
+        /// </summary>
         private SnapConfig _snapConfig;
         
         /// <summary>

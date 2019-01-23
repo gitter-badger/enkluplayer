@@ -39,10 +39,11 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public SnapJsInterface(
             IVideoManager videoManager,
+            IImageManager imageManager,
             ApiController api,
             UserPreferenceService prefs)
         {
-            uploader = new SnapUploader(videoManager);
+            uploader = new SnapUploader(videoManager, imageManager);
             _api = api;
             _preferences = prefs;
         }

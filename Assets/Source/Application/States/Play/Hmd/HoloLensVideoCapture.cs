@@ -23,6 +23,11 @@ namespace CreateAR.EnkluPlayer
         private IBootstrapper _bootstrapper;
 
         /// <summary>
+        /// Metrics.
+        /// </summary>
+        private IMetricsService _metrics;
+
+        /// <summary>
         /// Configuration for snaps.
         /// </summary>
         private SnapConfig _snapConfig;
@@ -65,9 +70,10 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor
         /// </summary>
-        public HoloLensVideoCapture(IBootstrapper bootstrapper, ApplicationConfig applicationConfig)
+        public HoloLensVideoCapture(IBootstrapper bootstrapper, IMetricsService metrics, ApplicationConfig applicationConfig)
         {
             _bootstrapper = bootstrapper;
+            _metrics = metrics;
             _snapConfig = applicationConfig.Snap;
         }
         
@@ -117,6 +123,10 @@ namespace CreateAR.EnkluPlayer
         public IAsyncToken<Void> Start(string customPath = null)
         {
             var rtnToken = new AsyncToken<Void>();
+            
+            _metrics.Value(MetricsKeys.MEDIA_VIDEO_START).Value(1);
+            rtnToken
+                .OnFailure(_ => _metrics.Value(MetricsKeys.MEDIA_VIDEO_FAILURE).Value(1));
             
             Warm()
                 .OnSuccess(_ =>
@@ -168,6 +178,9 @@ namespace CreateAR.EnkluPlayer
             }
             
             var rtnToken = new AsyncToken<string>();
+            rtnToken
+                .OnSuccess(_ => _metrics.Value(MetricsKeys.MEDIA_VIDEO_SUCCESS).Value(1))
+                .OnFailure(_ => _metrics.Value(MetricsKeys.MEDIA_VIDEO_FAILURE).Value(1));
 
             _warmToken.OnSuccess(_ =>
             {
