@@ -94,6 +94,17 @@ task runRestore(type:Exec) {
 }
 runRestore.dependsOn = [runUnity]
 
+task runPublisherReplacement() {
+    doLast {
+        if (project.hasProperty('useStoreKey') && project.useStoreKey) {
+            println 'Sign with store key.'
+
+            def f = new File('Builds/WSAPlayerX86/Enklu/Package.appxmanifest')
+            f.write(f.text.replaceAll('Publisher="CN=CreateAR"', storePublisher))
+        }
+    }
+}
+
 task runCsc(type:Exec) {
     // msbuild /p:Configuration=Release /p:platform=x86
     workingDir outputDir
