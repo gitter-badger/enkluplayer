@@ -1,18 +1,6 @@
 {
-	"Version": "0.16.0",
+	"Version": "0.16.0.0",
 	"Log": {
 		"Level": "Warning"
-	},
-	"Metrics": {
-		"Enabled": true,
-		"Targets": "HostedGraphite",
-		"Hostname": "1afe92f9.carbon.hostedgraphite.com",
-		"ApplicationKey": "3afe45ff-9423-4e41-b6c5-2b55b0be2c3d",
-		"MetricsDataConfig": {
-			"Enabled": true,
-			"Interval": 30,
-			"Battery": true,
-			"SessionDuration": true
-		}
 	}
 }
