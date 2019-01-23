@@ -134,6 +134,7 @@ namespace CreateAR.EnkluPlayer
             Conductor.Override(overrideConfig.Conductor);
             Metrics.Override(overrideConfig.Metrics);
             Debug.Override(overrideConfig.Debug);
+            Snap.Override(overrideConfig.Snap);
         }
     }
 
@@ -836,5 +837,37 @@ namespace CreateAR.EnkluPlayer
         /// The root folder images will be stored at under the app's datapath.
         /// </summary>
         public string ImageFolder = "images";
+
+        /// <summary>
+        /// Overrides configuration values with passed in values.
+        /// </summary>
+        /// <param name="other"></param>
+        public void Override(SnapConfig other)
+        {
+            if (other.MaxVideoUploads > 0)
+            {
+                MaxVideoUploads = other.MaxVideoUploads;
+            }
+            
+            if (other.MaxImageUploads > 0)
+            {
+                MaxImageUploads = other.MaxImageUploads;
+            }
+
+            if (other.FailureDelayMilliseconds > 0)
+            {
+                FailureDelayMilliseconds = other.FailureDelayMilliseconds;
+            }
+
+            if (!string.IsNullOrEmpty(other.VideoFolder))
+            {
+                VideoFolder = other.VideoFolder;
+            }
+
+            if (!string.IsNullOrEmpty(other.ImageFolder))
+            {
+                ImageFolder = other.ImageFolder;
+            }
+        }
     }
 }

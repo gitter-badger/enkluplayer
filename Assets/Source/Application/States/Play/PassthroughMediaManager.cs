@@ -10,7 +10,6 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public void EnableUploads(string tag, bool uploadExisting = false)
         {
-            throw new System.NotImplementedException();
         }
 
         /// <summary>
@@ -18,7 +17,6 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public void DisableUploads()
         {
-            throw new System.NotImplementedException();
         }
     }
 }
