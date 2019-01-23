@@ -53,6 +53,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Subscribes to schema.
         /// </summary>
+        [DenyJsAccess]
         public void Setup()
         {
             if (_setup)
@@ -68,6 +69,7 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <summary>
         /// Unsubscribes from schema.
         /// </summary>
+        [DenyJsAccess]
         public void Teardown()
         {
             if (!_setup)
@@ -96,6 +98,14 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             _setup = false;
+        }
+
+        /// <summary>
+        /// Breaks the underlying shared material link, causing this material to be unique.
+        /// </summary>
+        public void makeUnique()
+        {
+            var mat = _renderer.Material;
         }
 
         /// <summary>

@@ -42,17 +42,34 @@ namespace CreateAR.EnkluPlayer.Scripting
 
             el = _elementMap[element] = _elements.Instance(this, element);
 
+            element.OnDestroyed += Element_OnDestroy;
+
             return el;
         }
 
         /// <inheritdoc />
         public void Clear()
         {
-            foreach (var el in _elementMap.Values)
+            foreach (var kvp in _elementMap)
             {
-                el.Cleanup();
+                kvp.Key.OnDestroyed -= Element_OnDestroy;
+                kvp.Value.Cleanup();
             }
             _elementMap.Clear();
+        }
+
+        /// <summary>
+        /// Cleans up the cache entry for an Element when it gets destroyed.
+        /// </summary>
+        /// <param name="element"></param>
+        private void Element_OnDestroy(Element element)
+        {
+            ElementJs el;
+            if (_elementMap.TryGetValue(element, out el))
+            {
+                _elementMap.Remove(element);
+                el.Cleanup();
+            }
         }
     }
 }
