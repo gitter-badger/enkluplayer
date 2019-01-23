@@ -528,10 +528,12 @@ namespace CreateAR.EnkluPlayer
 
             // Camera
             {
-#if NETFX_CORE
-                binder.Bind<ISnapshotCapture>().To<SnapshotCapture>().ToSingleton();
+#if UNITY_WSA
+                binder.Bind<IImageCapture>().To<HoloLensImageCapture>().ToSingleton();
+                binder.Bind<IVideoCapture>().To<HoloLensVideoCapture>().ToSingleton();
 #else
-                binder.Bind<ISnapshotCapture>().To<PassthroughSnapshotCapture>().ToSingleton();
+                binder.Bind<IImageCapture>().To<PassthroughImageCapture>().ToSingleton();
+                binder.Bind<IVideoCapture>().To<PassthroughVideoCapture>().ToSingleton();
 #endif
             }
 
@@ -698,6 +700,8 @@ namespace CreateAR.EnkluPlayer
                 
                 SystemJsApi.Initialize(
                     binder.GetInstance<IDeviceMetaProvider>(),
+                    binder.GetInstance<IImageCapture>(),
+                    binder.GetInstance<IVideoCapture>(),
                     binder.GetInstance<AwsPingController>(),
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<ApiController>(),

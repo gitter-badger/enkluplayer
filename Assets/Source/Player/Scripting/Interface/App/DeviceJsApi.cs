@@ -16,15 +16,22 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Cached meta for non-battery requests.
         /// </summary>
         private DeviceResourceMeta _meta;
+        
+        public ImageCaptureJsApi image { get; private set; }
+        
+        public VideoCaptureJsApi video { get; private set; }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="deviceMeta"></param>
-        public DeviceJsApi(IDeviceMetaProvider deviceMeta)
+        public DeviceJsApi(IDeviceMetaProvider deviceMeta, IImageCapture imageCapture, IVideoCapture videoCapture)
         {
             _deviceMeta = deviceMeta;
             _meta = _deviceMeta.Meta();
+            
+            image = new ImageCaptureJsApi(imageCapture);
+            video = new VideoCaptureJsApi(videoCapture);
         }
 
         /// <summary>
