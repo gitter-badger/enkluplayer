@@ -60,5 +60,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// <param name="param"></param>
         /// <param name="value"></param>
         void SetCol4(string param, Col4 value);
+
+        /// <summary>
+        /// Cleanup.
+        /// </summary>
+        void Teardown();
     }
 }
