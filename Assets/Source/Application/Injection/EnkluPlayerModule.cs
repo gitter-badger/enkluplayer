@@ -536,6 +536,17 @@ namespace CreateAR.EnkluPlayer
                 binder.Bind<IVideoCapture>().To<PassthroughVideoCapture>().ToSingleton();
 #endif
             }
+            
+            // Storage
+            {
+#if NETFX_CORE
+                binder.Bind<IVideoManager>().To<HoloLensVideoManager>().ToSingleton();
+                binder.Bind<IImageManager>().To<HoloLensImageManager>().ToSingleton();
+#else
+                binder.Bind<IVideoManager>().To<PassthroughMediaManager>().ToSingleton();
+                binder.Bind<IImageManager>().To<PassthroughMediaManager>().ToSingleton();
+#endif
+            }
 
             // UI
             {
@@ -706,6 +717,7 @@ namespace CreateAR.EnkluPlayer
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());
+
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();
