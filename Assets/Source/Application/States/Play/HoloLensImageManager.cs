@@ -99,11 +99,14 @@ namespace CreateAR.EnkluPlayer
             {
                 // Find saves already on the device. If they're there, it means they failed previously.
                 var root = Path.Combine(UnityEngine.Application.persistentDataPath, _snapConfig.ImageFolder);
-                FindExistingUploads(root, _failedUploads);
-
-                if (_failedUploads.Count > 0)
+                if (Directory.Exists(root))
                 {
-                    Log.Info(this, "Previously failed uploads: {0}", _failedUploads.Count);
+                    FindExistingUploads(root, _failedUploads);
+
+                    if (_failedUploads.Count > 0)
+                    {
+                        Log.Info(this, "Previously failed uploads: {0}", _failedUploads.Count);
+                    }
                 }
             }
             
@@ -206,7 +209,7 @@ namespace CreateAR.EnkluPlayer
             
             try
             {
-                var filename = filepath.Substring(filepath.LastIndexOf("\\" + 1));
+                var filename = filepath.Substring(filepath.LastIndexOf("\\") + 1);
                 var url = _http.Urls.Url(string.Format("/org/{0}/snap/gamma", _orgId));
                     
                 Log.Info(this, "Uploading {0} to {1}", filepath, url);
