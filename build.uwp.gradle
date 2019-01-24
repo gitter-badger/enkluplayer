@@ -94,6 +94,34 @@ task runRestore(type:Exec) {
 }
 runRestore.dependsOn = [runUnity]
 
+task editApplicationConfigOverride() {
+    doLast {
+        // build override
+        def config = [:];
+
+        // network
+        if (project.hasProperty('envName')) {
+            config.Network = [
+                Current: project.envName,
+                AllEnvironments: [
+                    [
+                        Name: project.envName,
+                        TrellisUrl: "https://${project.envTrellis}:10001/v1",
+                        AssetsUrl: "https://s3-us-west-2.amazonaws.com:443/${project.envBucketPrefix}.assets.bundles/",
+                        BundlesUrl: "https://s3-us-west-2.amazonaws.com:443/${project.envBucketPrefix}.assets.bundles/",
+                        ThumbsUrl: "https://s3-us-west-2.amazonaws.com:443/${project.envBucketPrefix}.assets.thumbs/",
+                        AnchorsUrl: "https://s3-us-west-2.amazonaws.com:443/${project.envBucketPrefix}.anchors/",
+                        ScriptsUrl: "https://s3-us-west-2.amazonaws.com:443/${project.envBucketPrefix}.scripts/"
+                    ]
+                ]
+            ]
+        }
+        
+        // write override
+        new File('Assets/Resources/ApplicationConfig.Override.json').text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(config))
+    }
+}
+
 task runPublisherReplacement() {
     doLast {
         if (project.hasProperty('onsite') && project.onsite
