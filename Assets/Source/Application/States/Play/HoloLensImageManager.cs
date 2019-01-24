@@ -1,6 +1,7 @@
 #if NETFX_CORE
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Trellis.Messages.CreateSnap;
 using Newtonsoft.Json;
+using UnityEngine;
 using Void = CreateAR.Commons.Unity.Async.Void;
 
 namespace CreateAR.EnkluPlayer
@@ -27,6 +29,7 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         private readonly IImageCapture _imageCapture;
         private readonly IHttpService _http;
+        private readonly IBootstrapper _bootstrapper;
         private readonly UserPreferenceService _preferences;
 
         /// <summary>
@@ -74,12 +77,14 @@ namespace CreateAR.EnkluPlayer
         /// </summary>
         public HoloLensImageManager(
             IImageCapture imageCapture, 
-            IHttpService http, 
+            IHttpService http,
+            IBootstrapper bootstrapper,
             UserPreferenceService preferences,
             ApplicationConfig applicationConfig)
         {
             _imageCapture = imageCapture;
             _http = http;
+            _bootstrapper = bootstrapper;
             _preferences = preferences;
             _snapConfig = applicationConfig.Snap;
 
@@ -189,7 +194,7 @@ namespace CreateAR.EnkluPlayer
                 .OnFailure(exception =>
                 {
                     Log.Error(this, "Error uploading image ({0})", exception);
-                    _uploadToken.Fail(exception);
+                    _bootstrapper.BootstrapCoroutine(DelayedFail(_uploadToken, exception, _snapConfig.FailureDelayMilliseconds));
                 });
         }
 
@@ -328,21 +333,35 @@ namespace CreateAR.EnkluPlayer
                     .ForCurrentUser()
                     .OnSuccess(prefs =>
                     {
-                        var org = prefs.Data.DeviceRegistrations.FirstOrDefault();
+                        var org = prefs.Data.OrgIds.FirstOrDefault();
 
-                        if (org == null)
+                        if (string.IsNullOrEmpty(org))
                         {
                             rtnToken.Fail(new Exception("No organizations."));
                         }
                         else
                         {
-                            _orgId = org.OrgId;
+                            _orgId = org;
                             rtnToken.Succeed(Void.Instance);
                         }
                     });
             }
 
             return rtnToken;
+        }
+        
+        /// <summary>
+        /// Delays the failure of a token by a configurable number of seconds.
+        /// </summary>
+        /// <param name="token">Token to fail.</param>
+        /// <param name="exception">Exception to fail with.</param>
+        /// <param name="delaySeconds">Seconds to delay prior.</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        private IEnumerator DelayedFail<T>(AsyncToken<T> token, Exception exception, float delaySeconds)
+        {
+            yield return new WaitForSeconds(delaySeconds);
+            token.Fail(exception);
         }
     }
 }
