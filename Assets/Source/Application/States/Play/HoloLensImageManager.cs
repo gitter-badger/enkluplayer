@@ -91,11 +91,7 @@ namespace CreateAR.EnkluPlayer
             _imageCapture.OnImageCreated += Image_OnCreated;
         }
 
-        /// <summary>
-        /// Starts the upload process for pending images & newly created ones.
-        /// </summary>
-        /// <param name="tag">The tag to send to Trellis.</param>
-        /// <param name="uploadExisting">Whether files on disk should be retried or not.</param>
+        /// <inheritdoc />
         public void EnableUploads(string tag, bool uploadExisting = false)
         {
             _tag = !string.IsNullOrEmpty(tag) ? tag : "default";
@@ -119,9 +115,7 @@ namespace CreateAR.EnkluPlayer
             ProcessUploads();
         }
 
-        /// <summary>
-        /// Disables uploads. If an upload is in progress, it will finish.
-        /// </summary>
+        /// <inheritdoc />
         public void DisableUploads()
         {
             _enabled = false;
