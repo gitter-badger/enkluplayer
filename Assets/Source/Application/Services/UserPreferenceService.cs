@@ -161,7 +161,7 @@ namespace CreateAR.EnkluPlayer
                     else
                     {
                         Log.Info(this, "Missing organization data. Fetching from Trellis.");
-                        GetServerRegistrations()
+                        GetOrgs()
                             .OnSuccess(newRegistrations =>
                             {
                                 prefData.Data.OrgIds = newRegistrations;
@@ -203,7 +203,7 @@ namespace CreateAR.EnkluPlayer
         /// Retrieves all organizations for this user from Trellis.
         /// </summary>
         /// <returns></returns>
-        private IAsyncToken<string[]> GetServerRegistrations()
+        private IAsyncToken<string[]> GetOrgs()
         {
             var token = new AsyncToken<string[]>();
 
