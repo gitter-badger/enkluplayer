@@ -38,9 +38,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         /// <param name="engine"></param>
         /// <param name="callback"></param>
-        public void warm(Engine engine, JsFunc callback)
+        public void setup(Engine engine, JsFunc callback)
         {
-            JsCallback(engine, _videoCapture.Warm(), callback); 
+            JsCallback(engine, _videoCapture.Setup(), callback); 
         }
 
         /// <summary>
@@ -79,10 +79,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Cancels the capture process.
         /// </summary>
         /// <param name="engine"></param>
-        /// <param name="callback"></param>
-        public void abort(Engine engine, JsFunc callback)
+        public void teardown(Engine engine)
         {
-            JsCallback(engine, _videoCapture.Abort(), callback);
+            _videoCapture.Teardown();
         }
 
         /// <summary>
