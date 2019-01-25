@@ -96,11 +96,7 @@ namespace CreateAR.EnkluPlayer.Scripting
             {
                 token
                     .OnSuccess(value => callback(JsValue.FromObject(engine, this), new JsValue[] { true, JsValue.FromObject(engine, value) }))
-                    .OnFailure(e =>
-                    {
-                        Log.Error(this, e);
-                        callback(JsValue.FromObject(engine, this), new JsValue[] { false });
-                    });
+                    .OnFailure(e => callback(JsValue.FromObject(engine, this), new JsValue[] { false }));
             }
         }
     }

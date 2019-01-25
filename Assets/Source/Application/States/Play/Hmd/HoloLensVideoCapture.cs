@@ -161,9 +161,10 @@ namespace CreateAR.EnkluPlayer
                         }
                         else
                         {
+                            var exception = new Exception(string.Format("Failure entering VideoMode ({0})", result.hResult));
+                            Log.Error(this, exception);
                             _currentState = CaptureState.Error;
-                            rtnToken.Fail(new Exception(string.Format("Failure entering VideoMode ({0})",
-                                result.hResult)));
+                            rtnToken.Fail(exception);
                         }
                     });
             });
@@ -212,7 +213,9 @@ namespace CreateAR.EnkluPlayer
                 else
                 {
                     _currentState = CaptureState.Error;
-                    rtnToken.Fail(new Exception(string.Format("Failure starting recording ({0})", result.hResult)));
+                    var exception = new Exception(string.Format("Failure starting recording ({0})", result.hResult));
+                    Log.Error(this, exception);
+                    rtnToken.Fail(exception);
                 }
             });
 
@@ -257,7 +260,9 @@ namespace CreateAR.EnkluPlayer
                 else
                 {
                     _currentState = CaptureState.Error;
-                    rtnToken.Fail(new Exception(string.Format("Failure stopping recording ({0})", result.hResult)));
+                    var exception = new Exception(string.Format("Failure stopping recording ({0})", result.hResult));
+                    Log.Error(this, exception);
+                    rtnToken.Fail(exception);
                 }
             });
             
@@ -314,30 +319,39 @@ namespace CreateAR.EnkluPlayer
             var rtnToken = new AsyncToken<Void>();
             
             Log.Info(this, "Refreshing VideoMode.");
-            _videoCapture.StopVideoModeAsync(stopResult =>
+            if (_videoCapture != null)
             {
-                if (stopResult.success)
+                _videoCapture.StopVideoModeAsync(stopResult =>
                 {
-                    _videoCapture.StartVideoModeAsync(_cameraParameters, VideoCapture.AudioState.ApplicationAndMicAudio, startResult =>
+                    if (stopResult.success)
                     {
-                        if (startResult.success)
+                        if (_videoCapture != null)
                         {
-                            Log.Info(this, "VideoMode Refreshed.");
-                            rtnToken.Succeed(Void.Instance);
+                            _videoCapture.StartVideoModeAsync(_cameraParameters, VideoCapture.AudioState.ApplicationAndMicAudio, startResult =>
+                            {
+                                if (startResult.success)
+                                {
+                                    Log.Info(this, "VideoMode Refreshed.");
+                                    rtnToken.Succeed(Void.Instance);
+                                }
+                                else
+                                {
+                                    var exception = new Exception(string.Format("Failure entering VideoMode ({0})", startResult.hResult));
+                                    Log.Error(this, exception);
+                                    rtnToken.Fail(exception);     
+                                }
+                            });
                         }
-                        else
-                        {
-                            rtnToken.Fail(new Exception(string.Format("Failure entering VideoMode ({0})",
-                                startResult.hResult)));     
-                        }
-                    });
-                }
-                else
-                {
-                    rtnToken.Fail(new Exception(string.Format("Failure entering VideoMode ({0})",
-                        stopResult.hResult)));
-                }
-            });
+                    }
+                    else
+                    {
+                        var exception = new Exception(string.Format("Failure entering VideoMode ({0})", stopResult.hResult));
+                        Log.Error(this, exception);
+                        rtnToken.Fail(exception);
+                    }
+                });
+            }
+            
 
             return rtnToken;
         }
