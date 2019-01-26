@@ -223,7 +223,7 @@ namespace CreateAR.EnkluPlayer
             
             // Cleanup image/video capture in case the experience didn't 
             _imageCapture.Abort();
-            _videoCapture.Abort();
+            _videoCapture.Teardown();
 
             // stop watching loads
             _app.OnReady -= App_OnReady;
