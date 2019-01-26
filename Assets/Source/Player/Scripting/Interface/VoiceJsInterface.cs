@@ -32,12 +32,12 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// The backing IVoiceCommandManager.
         /// </summary>
-        private IVoiceCommandManager _voice;
+        private readonly IVoiceCommandManager _voice;
         
         /// <summary>
         /// Cache of bound commands/callbacks.
         /// </summary>
-        private Dictionary<string, JsCallback> _callbacks = new Dictionary<string, JsCallback>(); 
+        private readonly Dictionary<string, JsCallback> _callbacks = new Dictionary<string, JsCallback>(); 
 
         /// <summary>
         /// Constructor.
