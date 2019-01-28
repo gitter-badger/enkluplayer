@@ -514,7 +514,14 @@ namespace CreateAR.EnkluPlayer
 #if NETFX_CORE
                 binder.Bind<IVoiceCommandManager>().To<VoiceCommandManager>().ToSingleton();
 #else
-                binder.Bind<IVoiceCommandManager>().To<PassthroughVoiceCommandManager>().ToSingleton();
+                if (UnityEngine.Application.isEditor)
+                {
+                    binder.Bind<IVoiceCommandManager>().To<EditorVoiceCommandManager>().ToSingleton();
+                }
+                else
+                {
+                    binder.Bind<IVoiceCommandManager>().To<PassthroughVoiceCommandManager>().ToSingleton();
+                }
 #endif
             }
 
