@@ -148,31 +148,28 @@ namespace CreateAR.EnkluPlayer
                             SaveAndContinue)))
                         .OnFailure(fileToken.Fail);
                 });
-
-            // Check if prefs data has an organization
-            var networkToken = new AsyncToken<SynchronizedObject<UserPreferenceData>>();
+            
+            // update with org id when we can
             fileToken
                 .OnSuccess(prefData =>
                 {
-                    if (prefData.Data.OrgIds != null && prefData.Data.OrgIds.Length > 0)
-                    {
-                        networkToken.Succeed(prefData);
-                    }
-                    else
+                    if (prefData.Data.OrgIds == null || 0 == prefData.Data.OrgIds.Length)
                     {
                         Log.Info(this, "Missing organization data. Fetching from Trellis.");
+
                         GetOrgs()
-                            .OnSuccess(newRegistrations =>
+                            .OnSuccess(orgIds => prefData.Queue((prefs, next) =>
                             {
-                                prefData.Data.OrgIds = newRegistrations;
-                                SaveAndContinue(prefData.Data, () => networkToken.Succeed(prefData));
-                            })
-                            .OnFailure(exception => { networkToken.Fail(exception); });
+                                prefs.OrgIds = orgIds;
+
+                                next(prefs);
+                            }))
+                            .OnFailure(ex => Log.Error(this, "Could not get org data: {0}.", ex));
                     }
                 })
-                .OnFailure(e => { networkToken.Fail(e); });
+                .OnFailure(ex => Log.Error(this, "Could not get org data: {0}.", ex));
 
-            return networkToken;
+            return fileToken;
         }
 
         /// <summary>
