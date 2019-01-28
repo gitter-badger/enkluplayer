@@ -214,6 +214,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<UserPreferenceService>().To<UserPreferenceService>().ToSingleton();
                     binder.Bind<VersioningService>().To<VersioningService>().ToSingleton();
                     binder.Bind<MetricsUpdateService>().To<MetricsUpdateService>().ToSingleton();
+                    binder.Bind<DebugService>().To<DebugService>().ToSingleton();
 
 #if NETFX_CORE
                     binder.Bind<CommandService>().To<UwpCommandService>().ToSingleton();
@@ -396,7 +397,8 @@ namespace CreateAR.EnkluPlayer
                         binder.GetInstance<DeviceResourceUpdateService>(),
                         binder.GetInstance<ApplicationStateService>(),
                         binder.GetInstance<CommandService>(),
-                        binder.GetInstance<MetricsUpdateService>()
+                        binder.GetInstance<MetricsUpdateService>(),
+                        binder.GetInstance<DebugService>(),
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }
@@ -512,7 +514,14 @@ namespace CreateAR.EnkluPlayer
 #if NETFX_CORE
                 binder.Bind<IVoiceCommandManager>().To<VoiceCommandManager>().ToSingleton();
 #else
-                binder.Bind<IVoiceCommandManager>().To<PassthroughVoiceCommandManager>().ToSingleton();
+                if (UnityEngine.Application.isEditor)
+                {
+                    binder.Bind<IVoiceCommandManager>().To<EditorVoiceCommandManager>().ToSingleton();
+                }
+                else
+                {
+                    binder.Bind<IVoiceCommandManager>().To<PassthroughVoiceCommandManager>().ToSingleton();
+                }
 #endif
             }
 

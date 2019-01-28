@@ -24,9 +24,9 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Static constructor to handle UWP crashes.
+        /// Initializer.
         /// </summary>
-        static UwpCrashLogger()
+        public static void Initialize()
         {
             CoreApplication.UnhandledErrorDetected += (sender, eventArgs) =>
             {

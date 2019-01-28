@@ -791,6 +791,11 @@ namespace CreateAR.EnkluPlayer
         public bool DisableAdminLock = false;
 
         /// <summary>
+        /// Email address to send debug dumps.
+        /// </summary>
+        public string DumpEmail = "";
+
+        /// <summary>
         /// Overrides settings.
         /// </summary>
         /// <param name="config">Other config.</param>
@@ -804,6 +809,11 @@ namespace CreateAR.EnkluPlayer
             if (config.DisableAdminLock)
             {
                 DisableAdminLock = true;
+            }
+
+            if (!string.IsNullOrEmpty(config.DumpEmail))
+            {
+                DumpEmail = config.DumpEmail;
             }
         }
     }
