@@ -22,6 +22,12 @@ namespace CreateAR.Trellis.Messages
                 _http.Urls.Url("trellis://" + "/kv"));
         }
     
+        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.GetAllKvHeaders.Response>> GetAllKvHeaders()
+        {
+            return _http.Get<CreateAR.Trellis.Messages.GetAllKvHeaders.Response>(
+                _http.Urls.Url("trellis://" + "/kv?headers=true"));
+        }
+    
         public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.CreateKv.Response>> CreateKv(CreateAR.Trellis.Messages.CreateKv.Request request)
         {
             return _http.Post<CreateAR.Trellis.Messages.CreateKv.Response>(

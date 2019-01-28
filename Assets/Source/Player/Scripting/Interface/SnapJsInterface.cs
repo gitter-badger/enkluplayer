@@ -51,17 +51,15 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Triggers a snap to be taken.
         /// </summary>
-        public void trigger(Engine engine, string tag)
+        public void trigger(Engine engine, string instanceId)
         {
-            triggerCallback(engine, tag, null);
+            triggerCallback(engine, instanceId, string.Empty, null);
         }
 
         /// <summary>
         /// Triggers a snap to be taken. Notifies the callback on success/failure.
         /// </summary>
-        /// <param name="tag"></param>
-        /// <param name="callback"></param>
-        public void triggerCallback(Engine engine, string tag, JsFunc callback)
+        public void triggerCallback(Engine engine, string instanceId, string tag, JsFunc callback)
         {
             Log.Info(this, "Trigger a snap.");
             
@@ -116,7 +114,7 @@ namespace CreateAR.EnkluPlayer
 
                         _api
                             .Snaps
-                            .TriggerSnap(orgId, tag, new Request())
+                            .TriggerSnap(orgId, instanceId, tag, new Request())
                             .OnSuccess(response =>
                             {
                                 if (response.Payload.Success)
