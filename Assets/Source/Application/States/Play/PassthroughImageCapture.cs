@@ -10,6 +10,9 @@ namespace CreateAR.EnkluPlayer
     public class PassthroughImageCapture : IImageCapture
     {
         /// <inheritdoc />
+        public Action<string> OnImageCreated { get; set; }
+
+        /// <inheritdoc />
         public IAsyncToken<Void> Warm()
         {
             return new AsyncToken<Void>(new NotSupportedException());

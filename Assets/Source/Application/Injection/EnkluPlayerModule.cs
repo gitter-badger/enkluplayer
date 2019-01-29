@@ -214,6 +214,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<UserPreferenceService>().To<UserPreferenceService>().ToSingleton();
                     binder.Bind<VersioningService>().To<VersioningService>().ToSingleton();
                     binder.Bind<MetricsUpdateService>().To<MetricsUpdateService>().ToSingleton();
+                    binder.Bind<DebugService>().To<DebugService>().ToSingleton();
 
 #if NETFX_CORE
                     binder.Bind<CommandService>().To<UwpCommandService>().ToSingleton();
@@ -396,7 +397,8 @@ namespace CreateAR.EnkluPlayer
                         binder.GetInstance<DeviceResourceUpdateService>(),
                         binder.GetInstance<ApplicationStateService>(),
                         binder.GetInstance<CommandService>(),
-                        binder.GetInstance<MetricsUpdateService>()
+                        binder.GetInstance<MetricsUpdateService>(),
+                        binder.GetInstance<DebugService>(),
                     }));
                 binder.Bind<Application>().To<Application>().ToSingleton();
             }
@@ -512,7 +514,14 @@ namespace CreateAR.EnkluPlayer
 #if NETFX_CORE
                 binder.Bind<IVoiceCommandManager>().To<VoiceCommandManager>().ToSingleton();
 #else
-                binder.Bind<IVoiceCommandManager>().To<PassthroughVoiceCommandManager>().ToSingleton();
+                if (UnityEngine.Application.isEditor)
+                {
+                    binder.Bind<IVoiceCommandManager>().To<EditorVoiceCommandManager>().ToSingleton();
+                }
+                else
+                {
+                    binder.Bind<IVoiceCommandManager>().To<PassthroughVoiceCommandManager>().ToSingleton();
+                }
 #endif
             }
 
@@ -534,6 +543,17 @@ namespace CreateAR.EnkluPlayer
 #else
                 binder.Bind<IImageCapture>().To<PassthroughImageCapture>().ToSingleton();
                 binder.Bind<IVideoCapture>().To<PassthroughVideoCapture>().ToSingleton();
+#endif
+            }
+            
+            // Storage
+            {
+#if NETFX_CORE
+                binder.Bind<IVideoManager>().To<HoloLensVideoManager>().ToSingleton();
+                binder.Bind<IImageManager>().To<HoloLensImageManager>().ToSingleton();
+#else
+                binder.Bind<IVideoManager>().To<PassthroughMediaManager>().ToSingleton();
+                binder.Bind<IImageManager>().To<PassthroughMediaManager>().ToSingleton();
 #endif
             }
 
@@ -683,6 +703,7 @@ namespace CreateAR.EnkluPlayer
                     binder.Bind<TxnJsApi>().To<TxnJsApi>().ToSingleton();
                     binder.Bind<TouchManagerJsApi>().To<TouchManagerJsApi>().ToSingleton();
                     binder.Bind<ChecksumJsInterface>().To<ChecksumJsInterface>().ToSingleton();
+                    binder.Bind<VoiceJsInterface>().To<VoiceJsInterface>().ToSingleton();
                 }
             }
 
@@ -706,6 +727,7 @@ namespace CreateAR.EnkluPlayer
                     binder.GetInstance<IMessageRouter>(),
                     binder.GetInstance<ApiController>(),
                     binder.GetInstance<ApplicationConfig>());
+
             }
 
             binder.Bind<IAppController>().To<AppController>().ToSingleton();

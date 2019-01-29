@@ -69,7 +69,11 @@ namespace CreateAR.EnkluPlayer
         /// Analogous to the main() function.
         /// </summary>
         private void Awake()
-	    {
+        {
+#if NETFX_CORE
+            UwpCrashLogger.Initialize();
+#endif
+
             // for AOT platforms
             AotGenericTypeIncludes.Include();
 

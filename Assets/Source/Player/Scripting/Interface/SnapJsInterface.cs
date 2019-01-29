@@ -6,6 +6,7 @@ using CreateAR.Trellis.Messages;
 using CreateAR.Trellis.Messages.TriggerSnap;
 using Jint;
 using Jint.Native;
+using Source.Player.Scripting.Interop;
 using JsFunc = System.Func<Jint.Native.JsValue, Jint.Native.JsValue[], Jint.Native.JsValue>;
 
 namespace CreateAR.EnkluPlayer
@@ -30,14 +31,19 @@ namespace CreateAR.EnkluPlayer
         /// Cached Org Id.
         /// </summary>
         private string _orgId = string.Empty;
+        
+        public SnapUploader uploader { get; private set; }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         public SnapJsInterface(
+            IVideoManager videoManager,
+            IImageManager imageManager,
             ApiController api,
             UserPreferenceService prefs)
         {
+            uploader = new SnapUploader(videoManager, imageManager);
             _api = api;
             _preferences = prefs;
         }
@@ -45,17 +51,15 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Triggers a snap to be taken.
         /// </summary>
-        public void trigger(Engine engine, string tag)
+        public void trigger(Engine engine, string instanceId)
         {
-            triggerCallback(engine, tag, null);
+            triggerCallback(engine, instanceId, string.Empty, null);
         }
 
         /// <summary>
         /// Triggers a snap to be taken. Notifies the callback on success/failure.
         /// </summary>
-        /// <param name="tag"></param>
-        /// <param name="callback"></param>
-        public void triggerCallback(Engine engine, string tag, JsFunc callback)
+        public void triggerCallback(Engine engine, string instanceId, string tag, JsFunc callback)
         {
             Log.Info(this, "Trigger a snap.");
             
@@ -110,7 +114,7 @@ namespace CreateAR.EnkluPlayer
 
                         _api
                             .Snaps
-                            .TriggerSnap(orgId, tag, new Request())
+                            .TriggerSnap(orgId, instanceId, tag, new Request())
                             .OnSuccess(response =>
                             {
                                 if (response.Payload.Success)

@@ -9,6 +9,8 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class PassthroughVideoCapture : IVideoCapture
     {
+        public Action<string> OnVideoCreated { get; set; }
+        
         /// <inheritdoc />
         public bool IsRecording
         {
@@ -16,7 +18,7 @@ namespace CreateAR.EnkluPlayer
         }
         
         /// <inheritdoc />
-        public IAsyncToken<Void> Warm()
+        public IAsyncToken<Void> Setup()
         {
             return new AsyncToken<Void>(new NotSupportedException());
         }
@@ -34,9 +36,8 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Abort()
+        public void Teardown()
         {
-            return new AsyncToken<Void>(new NotSupportedException());
         }
     }
 }

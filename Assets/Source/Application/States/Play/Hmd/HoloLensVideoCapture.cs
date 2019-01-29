@@ -3,7 +3,6 @@
 using System;
 using System.Collections;
 using System.IO;
-using System.Threading;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Http;
 using CreateAR.Commons.Unity.Logging;
@@ -18,10 +17,63 @@ namespace CreateAR.EnkluPlayer
     /// </summary>
     public class HoloLensVideoCapture : IVideoCapture
     {
+        private enum CaptureState
+        {
+            /// <summary>
+            /// Idle. Nothing exists or is allocated yet.
+            /// </summary>
+            Idle,
+            
+            /// <summary>
+            /// Creating a VideoCapture instance.
+            /// </summary>
+            SettingUp,
+            
+            /// <summary>
+            /// Entering VideoMode.
+            /// </summary>
+            EnteringVideoMode,
+            
+            /// <summary>
+            /// Currently in VideoMode.
+            /// </summary>
+            InVideoMode,
+            
+            /// <summary>
+            /// Starting to record.
+            /// </summary>
+            StartingRecord,
+            
+            /// <summary>
+            /// Currently recording.
+            /// </summary>
+            Recording,
+            
+            /// <summary>
+            /// Stopping a recording.
+            /// </summary>
+            ExitingRecord,
+            
+            /// <summary>
+            /// Existing VideoMode.
+            /// </summary>
+            ExitingVideoMode,
+            
+            /// <summary>
+            /// An error occured in an Async VideoCapture call.
+            /// </summary>
+            Error
+        }
+
         /// <summary>
-        /// IBootstrapper.
+        /// Metrics.
         /// </summary>
-        private IBootstrapper _bootstrapper;
+        private IMetricsService _metrics;
+
+        /// <summary>
+        /// Configuration for snaps.
+        /// </summary>
+        private SnapConfig _snapConfig;
         
         /// <summary>
         /// Underlying VideoCapture API.
@@ -48,6 +100,14 @@ namespace CreateAR.EnkluPlayer
         /// Cached token for Warm() invokes.
         /// </summary>
         private AsyncToken<Void> _warmToken;
+
+        /// <summary>
+        /// Current state of the capture process.
+        /// </summary>
+        private CaptureState _currentState;
+        
+        /// <inheritdoc />
+        public Action<string> OnVideoCreated { get; set; }
         
         /// <inheritdoc />
         public bool IsRecording
@@ -58,95 +118,106 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Constructor
         /// </summary>
-        public HoloLensVideoCapture(IBootstrapper bootstrapper)
+        public HoloLensVideoCapture(IMetricsService metrics, ApplicationConfig applicationConfig)
         {
-            _bootstrapper = bootstrapper;
+            _metrics = metrics;
+            _snapConfig = applicationConfig.Snap;
+
+            _currentState = CaptureState.Idle;
         }
-        
+
         /// <inheritdoc />
-        public IAsyncToken<Void> Warm()
+        public IAsyncToken<Void> Setup()
         {
-            if (_warmToken != null)
+            if (_currentState != CaptureState.Idle)
             {
-                return _warmToken;
+                return new AsyncToken<Void>(new Exception(string.Format("Video CaptureState not Idle ({0})",
+                    _currentState)));
             }
-            
-            _warmToken = new AsyncToken<Void>();
-            
+
+            _currentState = CaptureState.SettingUp;
+
+            var rtnToken = new AsyncToken<Void>();
+
             VideoCapture.CreateAsync(true, captureObject =>
             {
-                // Check to make sure Abort() wasn't called immediately after Warm()
-                if (_warmToken == null)
+                if (_currentState != CaptureState.SettingUp)
                 {
                     captureObject.Dispose();
                     return;
                 }
-                
+
                 _videoCapture = captureObject;
-                
+                _currentState = CaptureState.EnteringVideoMode;
+
                 _videoCapture.StartVideoModeAsync(_cameraParameters, VideoCapture.AudioState.ApplicationAndMicAudio,
                     result =>
                     {
-                        if (!result.success)
+                        if (result.success)
                         {
-                            _bootstrapper.BootstrapCoroutine(FailToken(
-                                _warmToken, 
-                                new Exception(string.Format("Failure entering VideoMode ({0})", result.hResult))));
-                            Abort();
+                            Log.Info(this, "Entered VideoMode.");
+                            _currentState = CaptureState.InVideoMode;
+                            rtnToken.Succeed(Void.Instance);
                         }
                         else
                         {
-                            Log.Info(this, "Entered VideoMode.");
-                            _bootstrapper.BootstrapCoroutine(SucceedToken(_warmToken, Void.Instance));
+                            var exception = new Exception(string.Format("Failure entering VideoMode ({0})", result.hResult));
+                            Log.Error(this, exception);
+                            _currentState = CaptureState.Error;
+                            rtnToken.Fail(exception);
                         }
                     });
             });
 
-            return _warmToken;
+            return rtnToken;
         }
 
         /// <inheritdoc />
         public IAsyncToken<Void> Start(string customPath = null)
         {
+            if (_currentState != CaptureState.InVideoMode)
+            {
+                return new AsyncToken<Void>(new Exception(string.Format("Video CaptureState not InVideoMode ({0})", _currentState)));
+            }
+            
             var rtnToken = new AsyncToken<Void>();
             
-            Warm()
-                .OnSuccess(_ =>
+            // Metrics
+            _metrics.Value(MetricsKeys.MEDIA_VIDEO_START).Value(1);
+            rtnToken
+                .OnFailure(_ => _metrics.Value(MetricsKeys.MEDIA_VIDEO_FAILURE).Value(1));
+            
+            
+            var filename = !string.IsNullOrEmpty(customPath) 
+                ? customPath 
+                : string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
+                    
+            // Don't rely on the user to supply the extension
+            if (!filename.EndsWith(".mp4")) filename += ".mp4";
+                    
+            var videoFolder = Path.Combine(UnityEngine.Application.persistentDataPath, _snapConfig.VideoFolder);
+            _recordingFilePath = Path.Combine(videoFolder, filename).Replace("/", "\\");
+                    
+            // Make sure to handle user paths (customPath="myExperienceName/myAwesomeVideo.mp4")
+            Directory.CreateDirectory(_recordingFilePath.Substring(0, _recordingFilePath.LastIndexOf("\\")));
+                    
+            Log.Info(this, "Recording to: " + _recordingFilePath);
+            _currentState = CaptureState.StartingRecord;
+            _videoCapture.StartRecordingAsync(_recordingFilePath, result =>
+            {
+                if (result.success)
                 {
-                    var filename = !string.IsNullOrEmpty(customPath) 
-                        ? customPath 
-                        : string.Format("{0:yyyy.MM.dd-HH.mm.ss}.mp4", DateTime.UtcNow);
-                    
-                    // Don't rely on the user to supply the extension
-                    if (!filename.EndsWith(".mp4")) filename += ".mp4";
-                    
-                    var videoFolder = Path.Combine(UnityEngine.Application.persistentDataPath, "videos");
-                    _recordingFilePath = Path.Combine(videoFolder, filename).Replace("/", "\\");
-                    
-                    // Make sure to handle user paths (customPath="myExperienceName/myAwesomeVideo.mp4")
-                    Directory.CreateDirectory(_recordingFilePath.Substring(0, _recordingFilePath.LastIndexOf("\\")));
-                    
-                    Log.Info(this, "Recording to: " + _recordingFilePath);
-                    _videoCapture.StartRecordingAsync(_recordingFilePath, result =>
-                    {
-                        if (!result.success)
-                        {
-                            _bootstrapper.BootstrapCoroutine(FailToken(
-                                rtnToken,
-                                new Exception(string.Format("Failure starting recording ({0})", result.hResult))));
-                            Abort();
-                        }
-                        else
-                        {
-                            _bootstrapper.BootstrapCoroutine(SucceedToken(rtnToken, Void.Instance));
-                        }
-                    });
-                })
-                .OnFailure(exception =>
+                    _currentState = CaptureState.Recording;
+                    rtnToken.Succeed(Void.Instance);
+                }
+                else
                 {
-                    Abort();
-                    _bootstrapper.BootstrapCoroutine(FailToken(rtnToken, exception));
-                });
+                    _currentState = CaptureState.Error;
+                    var exception = new Exception(string.Format("Failure starting recording ({0})", result.hResult));
+                    Log.Error(this, exception);
+                    rtnToken.Fail(exception);
+                }
+            });
 
             return rtnToken;
         }
@@ -154,93 +225,135 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc />
         public IAsyncToken<string> Stop()
         {
-            if (_warmToken == null)
+            if (_currentState != CaptureState.Recording)
             {
-                return new AsyncToken<string>(new Exception("Video Warm() wasn't called."));
+                return new AsyncToken<string>(new Exception(string.Format("Video CaptureState not Recording ({0})", _currentState)));
             }
             
             var rtnToken = new AsyncToken<string>();
+            
+            // Metrics
+            rtnToken
+                .OnSuccess(_ => _metrics.Value(MetricsKeys.MEDIA_VIDEO_SUCCESS).Value(1))
+                .OnFailure(_ => _metrics.Value(MetricsKeys.MEDIA_VIDEO_FAILURE).Value(1));
 
-            _warmToken.OnSuccess(_ =>
-            {
-                _videoCapture.StopRecordingAsync(result =>
-                {   
-                    // Abort regardless of success
-                    Abort().OnFinally(__ =>
+            _currentState = CaptureState.ExitingRecord;
+            _videoCapture.StopRecordingAsync(result =>
+            {   
+                if (result.success)
+                {
+                    _currentState = CaptureState.InVideoMode;
+
+                    RefreshVideoMode()
+                        .OnSuccess(_ => rtnToken.Succeed(_recordingFilePath))
+                        .OnFailure(exception =>
+                        {
+                            _currentState = CaptureState.Error;
+                            rtnToken.Fail(exception);
+                        });
+                    
+                    if (OnVideoCreated != null)
                     {
-                        if (!result.success)
-                        {
-                            _bootstrapper.BootstrapCoroutine(FailToken(
-                                rtnToken,
-                                new Exception(string.Format("Failure stopping recording ({0})", result.hResult))));
-                        }
-                        else
-                        {
-                            _bootstrapper.BootstrapCoroutine(SucceedToken(rtnToken, _recordingFilePath));
-                        }
-                    });
-                });
+                        OnVideoCreated(_recordingFilePath);
+                    }
+                }
+                else
+                {
+                    _currentState = CaptureState.Error;
+                    var exception = new Exception(string.Format("Failure stopping recording ({0})", result.hResult));
+                    Log.Error(this, exception);
+                    rtnToken.Fail(exception);
+                }
             });
             
             return rtnToken;
         }
 
         /// <inheritdoc />
-        public IAsyncToken<Void> Abort()
+        public void Teardown()
         {
-            var rtnToken = new AsyncToken<Void>();
-            
-            if (_warmToken != null)
+            if (_currentState == CaptureState.Idle)
             {
-                _warmToken.Abort();
-                _warmToken = null;
+                return;
+            }
 
-                var temp = _videoCapture;
-                _videoCapture = null;
+            if (_currentState == CaptureState.Error)
+            {
+                Log.Error(this, "Teardown from error state?! Cross your fingers!");
+            }
+
+            // Possible if Setup() and Teardown() are called back to back.
+            if (_videoCapture != null)
+            {
+                _currentState = CaptureState.ExitingVideoMode;
                 
-                temp.StopVideoModeAsync(result =>
+                _videoCapture.StopVideoModeAsync(result =>
                 {
-                    temp.Dispose();
+                    _videoCapture.Dispose();
+                    _videoCapture = null;
                     
-                    if (!result.success)
+                    if (result.success)
                     {
-                        _bootstrapper.BootstrapCoroutine(FailToken(
-                            rtnToken,
-                            new Exception(string.Format("Failure exiting VideoMode ({0})", result.hResult))));
+                        _currentState = CaptureState.Idle;
+                        Log.Info(this, "Exited VideoMode");
                     }
                     else
                     {
-                        Log.Info(this, "Exited VideoMode");
-                        _bootstrapper.BootstrapCoroutine(SucceedToken(rtnToken, Void.Instance));
+                        _currentState = CaptureState.Error;
+                        throw new Exception(string.Format("Failure exiting VideoMode ({0})", result.hResult));
                     }
                 });
             }
             else
             {
-                rtnToken.Succeed(Void.Instance);
+                _currentState = CaptureState.Idle;
             }
+        }
+
+        /// <summary>
+        /// To get around a video capture bug, VideoMode must exit/enter after each capture.
+        /// </summary>
+        /// <returns></returns>
+        private IAsyncToken<Void> RefreshVideoMode()
+        {
+            var rtnToken = new AsyncToken<Void>();
+            
+            Log.Info(this, "Refreshing VideoMode.");
+            if (_videoCapture != null)
+            {
+                _videoCapture.StopVideoModeAsync(stopResult =>
+                {
+                    if (stopResult.success)
+                    {
+                        if (_videoCapture != null)
+                        {
+                            _videoCapture.StartVideoModeAsync(_cameraParameters, VideoCapture.AudioState.ApplicationAndMicAudio, startResult =>
+                            {
+                                if (startResult.success)
+                                {
+                                    Log.Info(this, "VideoMode Refreshed.");
+                                    rtnToken.Succeed(Void.Instance);
+                                }
+                                else
+                                {
+                                    var exception = new Exception(string.Format("Failure entering VideoMode ({0})", startResult.hResult));
+                                    Log.Error(this, exception);
+                                    rtnToken.Fail(exception);     
+                                }
+                            });
+                        }
+                    }
+                    else
+                    {
+                        var exception = new Exception(string.Format("Failure entering VideoMode ({0})", stopResult.hResult));
+                        Log.Error(this, exception);
+                        rtnToken.Fail(exception);
+                    }
+                });
+            }
+            
 
             return rtnToken;
-        }
-
-        /// <summary>
-        /// Helper coroutine to succeed tokens on the main thread.
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerator SucceedToken<T>(AsyncToken<T> token, T value)
-        {
-            yield return null;
-            token.Succeed(value);
-        }
-
-        /// <summary>
-        /// Helper coroutine to fail tokens on the main thread.
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerator FailToken<T>(AsyncToken<T> token, Exception exception)
-        {
-            yield return null;
-            token.Fail(exception);
         }
     }
 }

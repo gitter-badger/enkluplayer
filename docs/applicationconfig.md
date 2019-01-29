@@ -104,3 +104,4 @@ Remaining options are grouped into sub-objects.
 |------------------|---------------|-------------|
 | DisableVoiceLock | false         | If true, disables "debug" lock on voice commands. |
 | DisableAdminLock | false         | If true, disables additional "admin" lock on admin voice commands. |
+| DumpEmail        | ""            | If set, log dumps collected through the trace voice commands will be sent here. |
