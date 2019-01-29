@@ -56,6 +56,8 @@ namespace CreateAR.EnkluPlayer.Scripting
             base.Cleanup();
 
             _contentWidget.OnLoaded.Remove(CacheComponents);
+            
+            TeardownComponents();
         }
 
         /// <summary>
@@ -63,12 +65,9 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private void CacheComponents(ContentWidget contentWidget)
         {
-            // Animator
-            if (animator != null)
-            {
-                animator.Teardown();
-            }
+            TeardownComponents();
             
+            // Animator
             var unityAnimator = contentWidget.GetComponent<Animator>();
             if (unityAnimator != null) 
             {
@@ -82,11 +81,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
             
             // Material
-            if (material != null)
-            {
-                material.Teardown();
-            }
-            
             var unityRenderer = contentWidget.GetComponent<Renderer>();
             if (unityRenderer != null && unityRenderer.sharedMaterial != null)
             {
@@ -100,11 +94,6 @@ namespace CreateAR.EnkluPlayer.Scripting
             }
 
             // Audio
-            if (audio != null)
-            {
-                audio.Teardown();
-            }
-            
             var unityAudioSource = contentWidget.GetComponent<AudioSource>();
             if (unityAudioSource != null)
             {
@@ -115,6 +104,27 @@ namespace CreateAR.EnkluPlayer.Scripting
             else
             {
                 audio = null;
+            }
+        }
+
+        /// <summary>
+        /// Calls Teardown on any existing components.
+        /// </summary>
+        private void TeardownComponents()
+        {
+            if (animator != null)
+            {
+                animator.Teardown();
+            }
+            
+            if (material != null)
+            {
+                material.Teardown();
+            }
+            
+            if (audio != null)
+            {
+                audio.Teardown();
             }
         }
     }

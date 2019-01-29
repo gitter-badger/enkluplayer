@@ -1,6 +1,6 @@
 {
-	"Version": "0.4.4",
+	"Version": "0.16.8",
 	"Log": {
-        "Level": "Info"
+        "Level": "Debug"
     }
 }

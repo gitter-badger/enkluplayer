@@ -42,10 +42,17 @@ namespace CreateAR.Trellis.Messages
                 request);
         }
 
-        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.TriggerSnap.Response>> TriggerSnap(string organizationId, string instanceId, CreateAR.Trellis.Messages.TriggerSnap.Request request)
+        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.CreateSnapThumb.Response>> CreateSnapThumb(string organizationId, string instanceId, string snapId, CreateAR.Trellis.Messages.CreateSnapThumb.Request request)
+        {
+            return _http.Post<CreateAR.Trellis.Messages.CreateSnapThumb.Response>(
+                _http.Urls.Url("trellis://" + string.Format("/org/{0}/snap/{1}/{2}", organizationId, instanceId, snapId)),
+                request);
+        }
+
+        public IAsyncToken<HttpResponse<CreateAR.Trellis.Messages.TriggerSnap.Response>> TriggerSnap(string organizationId, string instanceId, string snapTag, CreateAR.Trellis.Messages.TriggerSnap.Request request)
         {
             return _http.Put<CreateAR.Trellis.Messages.TriggerSnap.Response>(
-                _http.Urls.Url("trellis://" + string.Format("/org/{0}/snap/{1}", organizationId, instanceId)),
+                _http.Urls.Url("trellis://" + string.Format("/org/{0}/snap/{1}?tag={2}", organizationId, instanceId, snapTag)),
                 request);
         }
 }
