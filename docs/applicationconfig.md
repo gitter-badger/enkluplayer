@@ -110,8 +110,8 @@ Remaining options are grouped into sub-objects.
 
 | Name             | Default Value | Description |
 |------------------|---------------|-------------|
-| MaxVideoUploads  | 3         | The maximum number of failed video uploads to keep on disk. |
-| MaxImageUploads  | 3         | The maximum number of failed image uploads to keep on disk. |
-| FailureDelayMilliseconds | 30000  | The delay to wait before uploading a file if there was a failure uploading. |
-| VideoFolder  | "videos"         | The root folder videos will be stored at under the app's datapath. |
-| ImageFolder  | "images"         | The root folder images will be stored at under the app's datapath. |
+| MaxVideoUploads  | 3             | The maximum number of failed video uploads to keep on disk. |
+| MaxImageUploads  | 3             | The maximum number of failed image uploads to keep on disk. |
+| FailureDelayMilliseconds | 30000 | The delay to wait before uploading a file if there was a failure uploading. |
+| VideoFolder      | "videos"      | The root folder videos will be stored at under the app's datapath. |
+| ImageFolder      | "images"      | The root folder images will be stored at under the app's datapath. |
