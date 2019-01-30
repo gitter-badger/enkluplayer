@@ -555,9 +555,6 @@ namespace CreateAR.EnkluPlayer
                 out id)
                 .OnSuccess(el =>
                 {
-                    el.TxtEnvironment.Label = "Cloud";
-                    el.TxtExperience.Label = App.Name;
-
                     el.OnClose += () => _ui.Close(id);
                 })
                 .OnFailure(e => Log.Error(this, e));

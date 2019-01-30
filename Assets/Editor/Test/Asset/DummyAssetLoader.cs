@@ -12,6 +12,7 @@ namespace CreateAR.EnkluPlayer.Test.Assets
         private string _error;
 
         public UrlFormatterCollection Urls { get; private set; }
+        public int QueueLength { get; private set; }
 
         public DummyAssetLoader()
         {

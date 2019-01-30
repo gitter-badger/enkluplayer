@@ -116,3 +116,5 @@ MonoBehaviour:
     Source: {fileID: 4900000, guid: 6f7d9ed5634703246bb5d22206a71bd9, type: 3}
   - Identifier: LoggingMenu
     Source: {fileID: 4900000, guid: 8491c55de2581e2418a12c8e8c9609e2, type: 3}
+  - Identifier: Experience.Hud
+    Source: {fileID: 4900000, guid: a30243e804b14f388c179bbe6cf39578, type: 3}

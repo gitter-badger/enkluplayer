@@ -13,6 +13,11 @@ namespace CreateAR.EnkluPlayer.Assets
         /// Builds URLs.
         /// </summary>
         UrlFormatterCollection Urls { get; }
+        
+        /// <summary>
+        /// The number of asset loads in progress.
+        /// </summary>
+        int QueueLength { get; }
 
         /// <summary>
         /// Loads an asset.

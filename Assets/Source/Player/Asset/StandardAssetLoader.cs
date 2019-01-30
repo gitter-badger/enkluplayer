@@ -89,6 +89,12 @@ namespace CreateAR.EnkluPlayer.Assets
 
         /// <inheritdoc />
         public UrlFormatterCollection Urls { get; private set; }
+        
+        /// <inheritdoc />
+        public int QueueLength
+        {
+            get { return _queue.Count; }
+        }
 
         /// <summary>
         /// Constructor.

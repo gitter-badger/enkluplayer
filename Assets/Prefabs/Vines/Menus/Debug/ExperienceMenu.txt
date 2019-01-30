@@ -1,22 +1,46 @@
 <?Vine>
         
 <Float focus.visible=false>
-	<Container position=(0.4, 0, 0)>
-		<Button id='btn-close' label='Close' position=(-0.2, 0.1, 0) icon='arrow-left' ready.color='Negative' />
+	<Container position=(0.3, 0, 0)>
+		<Button id='btn-close' label='Close' position=(0, 0.2, 0) icon='arrow-left' ready.color='Negative' />
 		
-		<Text 
-            id='txt-environment'
-            label='Cloud'
-            width=1000.0
-            alignment='MidLeft'
-        />
+		<Select id='slt-tab' position=(0, 0.1, 0)>
+		    <Option label='Overview' value='overview' />
+		    <Option label='Update' value='update' />
+		</Select>
 		
-		<Text 
-            id='txt-experience'
-            label='Version 3'
-            width=1000.0
-            alignment='MidLeft'
-            position=(0, -0.1, 0)
-        />
+		<Container id='tab-overview'>
+		    <Text 
+                id='txt-environment'
+                label=''
+                width=1000.0
+                alignment='MidLeft'
+            />
+            
+            <Text 
+                id='txt-experience'
+                label=''
+                width=1000.0
+                alignment='MidLeft'
+                position=(0, -0.1, 0)
+            />
+            
+            <Text 
+                id='txt-connection'
+                label=''
+                width=1000.0
+                alignment='MidLeft'
+                position=(0, -0.2, 0)
+            />
+		</Container>
+		
+		<Container id='tab-update'>
+		    <Text 
+                id='txt-queue'
+                label=''
+                width=1000.0
+                alignment='MidLeft'
+            />
+		</Container>
     </Container>
 </Float>
