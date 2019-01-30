@@ -1,0 +1,22 @@
+<?Vine>
+        
+<Float focus.visible=false>
+	<Container position=(0.4, 0, 0)>
+		<Button id='btn-close' label='Close' position=(-0.2, 0.1, 0) icon='arrow-left' ready.color='Negative' />
+		
+		<Text 
+            id='txt-environment'
+            label='Cloud'
+            width=1000.0
+            alignment='MidLeft'
+        />
+		
+		<Text 
+            id='txt-experience'
+            label='Version 3'
+            width=1000.0
+            alignment='MidLeft'
+            position=(0, -0.1, 0)
+        />
+    </Container>
+</Float>

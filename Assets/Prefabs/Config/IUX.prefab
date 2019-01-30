@@ -149,6 +149,9 @@ MonoBehaviour:
     - UIDataId: Logging.Hud
       Element: {fileID: 114181391073327978, guid: 20f80ed0737fdac4793979645e8ad470,
         type: 2}
+    - UIDataId: Play.Experience
+      Element: {fileID: 114411374390187880, guid: 432969b7b15653c4cb5afdc50826e689,
+        type: 2}
   - Platforms: 080000000b000000
     Links:
     - UIDataId: Common.Error
