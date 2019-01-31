@@ -38,6 +38,7 @@ namespace CreateAR.EnkluPlayer
         private readonly IMessageRouter _messages;
         private readonly IVoiceCommandManager _voice;
         private readonly IAssetLoader _assetLoader;
+        private readonly IScriptLoader _scriptLoader;
         private readonly IMetricsService _metrics;
         private readonly IAppQualityController _quality;
         private readonly ITweenManager _tweens;
@@ -105,6 +106,7 @@ namespace CreateAR.EnkluPlayer
             IMessageRouter messages,
             IVoiceCommandManager voice,
             IAssetLoader assetLoader,
+            IScriptLoader scriptLoader,
             IMetricsService metrics,
             IAppQualityController quality,
             ITweenManager tweens,
@@ -123,6 +125,7 @@ namespace CreateAR.EnkluPlayer
             _messages = messages;
             _voice = voice;
             _assetLoader = assetLoader;
+            _scriptLoader = scriptLoader;
             _metrics = metrics;
             _quality = quality;
             _tweens = tweens;
@@ -252,6 +255,7 @@ namespace CreateAR.EnkluPlayer
 
             // clear everything in the queue
             _assetLoader.ClearDownloadQueue();
+            _scriptLoader.ResetLoadTracking();
 
             // set the cursor back to always drawing
             _config.Cursor.ForceShow = true;

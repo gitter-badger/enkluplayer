@@ -48,6 +48,7 @@ namespace CreateAR.EnkluPlayer
         /// <inheritdoc cref="IScriptLoader"/>
         public int QueueLength { get; private set; }
         
+        /// <inheritdoc cref="IScriptLoader"/>
         public List<ScriptLoadFailure> LoadFailures { get; private set; }
 
         /// <summary>
@@ -152,6 +153,13 @@ namespace CreateAR.EnkluPlayer
             }
 
             return token;
+        }
+
+        /// <inheritdoc cref="IScriptLoader"/>
+        public void ResetLoadTracking()
+        {
+            QueueLength = 0;
+            LoadFailures.Clear();
         }
 
         /// <summary>

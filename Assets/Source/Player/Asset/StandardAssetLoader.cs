@@ -96,6 +96,7 @@ namespace CreateAR.EnkluPlayer.Assets
             get { return _queue.Count; }
         }
         
+        /// <inheritdoc />
         public List<AssetLoadFailure> LoadFailures { get; private set; }
 
         /// <summary>
