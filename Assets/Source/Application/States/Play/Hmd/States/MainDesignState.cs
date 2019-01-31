@@ -636,6 +636,9 @@ namespace CreateAR.EnkluPlayer
             OpenSplashMenu();
         }
 
+        /// <summary>
+        /// Called when the experience hud should be opened.
+        /// </summary>
         private void MainMenu_OnExperienceHud()
         {
             _ui
@@ -652,6 +655,9 @@ namespace CreateAR.EnkluPlayer
             OpenSplashMenu();
         }
 
+        /// <summary>
+        /// Called when the network hud should be opened.
+        /// </summary>
         private void MainMenu_OnNetworkHud()
         {
             _ui
@@ -668,6 +674,9 @@ namespace CreateAR.EnkluPlayer
             OpenSplashMenu();
         }
 
+        /// <summary>
+        /// Called when the anchors hud should be opened.
+        /// </summary>
         private void MainMenu_OnAnchorsHud()
         {
             _ui
