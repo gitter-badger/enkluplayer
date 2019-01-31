@@ -8,13 +8,29 @@ namespace CreateAR.EnkluPlayer
 {
     public class ExperienceUIView : MonoBehaviourIUXController
     {
-        private const int PAGE_SIZE = 6;
+        /// <summary>
+        /// Number of errors to display per page.
+        /// </summary>
+        private const int ERROR_PAGE_SIZE = 6;
         
+        /// <summary>
+        /// Cached number of asset failures.
+        /// </summary>
         private int _assetFails;
+        
+        /// <summary>
+        /// Cached number of script failures.
+        /// </summary>
         private int _scriptFails;
 
+        /// <summary>
+        /// Current Options being used in the error display.
+        /// </summary>
         private readonly List<Option> _options = new List<Option>();
 
+        /// <summary>
+        /// Current index to show for the error display.
+        /// </summary>
         private int _errorPageIndex;
         
         /// <summary>
@@ -71,8 +87,12 @@ namespace CreateAR.EnkluPlayer
         [InjectElements("..txt-errors")]
         public TextWidget TxtErrors { get; set; }
 
+        /// <summary>
+        /// Invoked when the UI should close.
+        /// </summary>
         public event Action OnClose;
 
+        /// <inheritdoc />
         protected override void AfterElementsCreated()
         {
             base.AfterElementsCreated();
@@ -106,6 +126,9 @@ namespace CreateAR.EnkluPlayer
             };
         }
 
+        /// <summary>
+        /// Updates the UI.
+        /// </summary>
         private void Update()
         {
             if (Select.Selection.Value == "update")
@@ -120,13 +143,17 @@ namespace CreateAR.EnkluPlayer
             }
         }
 
+        /// <summary>
+        /// Rebuilds the error display, adding/removing options as needed.
+        /// Triggers a refresh of the displayed text as well.
+        /// </summary>
         private void RebuildFailureDisplay()
         {
             _assetFails = AssetLoader.LoadFailures.Count;
             _scriptFails = ScriptLoader.LoadFailures.Count;
 
             var sum = _assetFails + _scriptFails;
-            var pages = sum / PAGE_SIZE;
+            var pages = sum / ERROR_PAGE_SIZE;
 
             if (pages > _options.Count)
             {
@@ -159,15 +186,18 @@ namespace CreateAR.EnkluPlayer
             PopulateErrors();
         }
 
+        /// <summary>
+        /// Refreshes the currently displayed errors based on the currently selected page.
+        /// </summary>
         private void PopulateErrors()
         {
-            var skip = PAGE_SIZE * _errorPageIndex;
+            var skip = ERROR_PAGE_SIZE * _errorPageIndex;
             var used = 0;
 
             var errorOutput = "";
             if (skip < _assetFails)
             {
-                for (int i = skip, len = AssetLoader.LoadFailures.Count; i < len && used < PAGE_SIZE; i++)
+                for (int i = skip, len = AssetLoader.LoadFailures.Count; i < len && used < ERROR_PAGE_SIZE; i++)
                 {
                     var failure = AssetLoader.LoadFailures[i];
                     errorOutput += string.Format("Asset: {0} - {1}\n", failure.AssetData.AssetName, failure.Exception);
@@ -175,7 +205,8 @@ namespace CreateAR.EnkluPlayer
                 }
             }
 
-            for (int i = (skip + used) - _assetFails, len = ScriptLoader.LoadFailures.Count; i < len && used < PAGE_SIZE; i++)
+            var start = (skip + used) - _assetFails;
+            for (int i = start, len = ScriptLoader.LoadFailures.Count; i < len && used < ERROR_PAGE_SIZE; i++)
             {
                 var failure = ScriptLoader.LoadFailures[i];
                 errorOutput += string.Format("Script: {0} - {1}\n", failure.ScriptData.Name, failure.Exception);
