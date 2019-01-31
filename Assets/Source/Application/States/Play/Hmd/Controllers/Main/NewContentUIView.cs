@@ -276,8 +276,8 @@ namespace CreateAR.EnkluPlayer
         /// <summary>
         /// Called when manifest is updated.
         /// </summary>
-        /// <param name="asset">The asset/</param>
-        private void Manifest_OnAssetEvent(Asset asset)
+        /// <param name="data">The asset data that was updated.</param>
+        private void Manifest_OnAssetEvent(AssetData data)
         {
             UpdateOptions();
         }

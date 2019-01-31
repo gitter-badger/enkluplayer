@@ -23,7 +23,7 @@ namespace CreateAR.EnkluPlayer.Test.Assets
             _error = error;
         }
 
-        public IAsyncToken<Object> Load(AssetData data, out LoadProgress progress)
+        public IAsyncToken<Object> Load(AssetData data, int version, out LoadProgress progress)
         {
             var token = new AsyncToken<Object>();
 

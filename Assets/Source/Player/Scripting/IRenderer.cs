@@ -9,5 +9,10 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// The shared material used.
         /// </summary>
         IMaterial SharedMaterial { get; set; }
+        
+        /// <summary>
+        /// The unique material used. Using this will break shared usages!!
+        /// </summary>
+        IMaterial Material { get; set; }
     }
 }

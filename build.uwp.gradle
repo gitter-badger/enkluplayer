@@ -59,6 +59,7 @@ uploadArchives() {
         }
     }
 }
+uploadArchives.dependsOn = [archive]
 
 // wsa
 task runTests(type:com.createar.plugins.unity.UnityUnitTestTask) {
@@ -73,7 +74,6 @@ task runTests(type:com.createar.plugins.unity.UnityUnitTestTask) {
 task runClean(type:Delete) {
     delete outputDir
 }
-runClean.dependsOn = [runTests]
 
 task runUnity(type:com.createar.plugins.unity.UnityMethodTask) {
     method 'CreateAR.EnkluPlayer.Editor.UnityBuilderHooks.BuildWsaPlayer'
@@ -94,14 +94,58 @@ task runRestore(type:Exec) {
 }
 runRestore.dependsOn = [runUnity]
 
+task editApplicationConfigOverride() {
+    doLast {
+        // build override
+        def config = [:];
+
+        // network
+        if (project.hasProperty('envName')) {
+            config.Network = [
+                Current: project.envName,
+                AllEnvironments: [
+                    [
+                        Name: project.envName,
+                        TrellisUrl: "https://${project.envTrellis}:10001/v1",
+                        AssetsUrl: "https://s3-us-west-2.amazonaws.com:443/${project.envBucketPrefix}.assets.bundles/",
+                        BundlesUrl: "https://s3-us-west-2.amazonaws.com:443/${project.envBucketPrefix}.assets.bundles/",
+                        ThumbsUrl: "https://s3-us-west-2.amazonaws.com:443/${project.envBucketPrefix}.assets.thumbs/",
+                        AnchorsUrl: "https://s3-us-west-2.amazonaws.com:443/${project.envBucketPrefix}.anchors/",
+                        ScriptsUrl: "https://s3-us-west-2.amazonaws.com:443/${project.envBucketPrefix}.scripts/"
+                    ]
+                ]
+            ]
+        }
+        
+        // write override
+        new File('Assets/Resources/ApplicationConfig.Override.json').text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(config))
+    }
+}
+
+task runPublisherReplacement() {
+    doLast {
+        if (project.hasProperty('onsite') && project.onsite
+            || project.hasProperty('store') && project.store) {
+
+            println 'Sign with store key.'
+
+            def f = new File('Builds/WSAPlayerX86/Enklu/Package.appxmanifest')
+            f.write(f.text.replaceAll('Publisher="CN=CreateAR"', storePublisher))
+        }
+    }
+}
+runPublisherReplacement.dependsOn = [runUnity]
+
 task runCsc(type:Exec) {
+    def configuration = project.hasProperty('store') && project.store ? 'Master' : 'Release'
+
     // msbuild /p:Configuration=Release /p:platform=x86
     workingDir outputDir
     executable cscPath
-    args '/p:Configuration=Release', '/p:Platform=x86'
+    args "/p:Configuration=$configuration", '/p:Platform=x86'
     standardOutput System.out
 }
-runCsc.dependsOn = [runRestore]
+runCsc.dependsOn = [runRestore, runPublisherReplacement]
 
 task runBuild() {
     doLast {

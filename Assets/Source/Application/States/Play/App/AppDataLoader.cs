@@ -194,7 +194,7 @@ namespace CreateAR.EnkluPlayer
                 })
                 .OnFailure(ex =>
                 {
-                    Log.Error(this, "Could not get user prefs : {0}", ex);
+                    Log.Info(this, "Could not get user prefs : {0}", ex);
 
                     // load
                     LoadApp(id, HttpRequestCacher.LoadBehavior.NetworkFirst)

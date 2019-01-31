@@ -8,6 +8,11 @@ namespace CreateAR.EnkluPlayer.Scripting
     public class UnityMaterial : IMaterial
     {
         /// <summary>
+        /// Whether the backing material is shared or not.
+        /// </summary>
+        private bool _shared;
+        
+        /// <summary>
         /// Backing material.
         /// </summary>
         public Material Material { get; private set; }
@@ -16,9 +21,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// Constructor.
         /// </summary>
         /// <param name="material"></param>
-        public UnityMaterial(Material material)
+        /// <param name="shared"></param>
+        public UnityMaterial(Material material, bool shared)
         {
             Material = material;
+            _shared = shared;
         }
         
         /// <inheritdoc />
@@ -69,6 +76,15 @@ namespace CreateAR.EnkluPlayer.Scripting
         public void SetCol4(string param, Col4 value)
         {
             Material.SetVector(param, value.ToColor());
+        }
+
+        /// <inheritdoc />
+        public void Teardown()
+        {
+            if (!_shared)
+            {
+                Object.Destroy(Material);
+            }
         }
     }
 }

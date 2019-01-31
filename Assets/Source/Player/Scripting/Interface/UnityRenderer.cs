@@ -18,6 +18,11 @@ namespace CreateAR.EnkluPlayer.Scripting
         /// </summary>
         private IMaterial _material;
 
+        /// <summary>
+        /// Whether the cached material is shared.
+        /// </summary>
+        private bool _shared;
+
         /// <inheritdoc />
         public IMaterial SharedMaterial
         {
@@ -34,6 +39,32 @@ namespace CreateAR.EnkluPlayer.Scripting
                 _renderer.sharedMaterial = unityMat.Material;
             }
         }
+        
+        /// <inheritdoc />
+        public IMaterial Material
+        {
+            get 
+            {
+                if (_shared)
+                {
+                    _shared = false;
+                    _material = new UnityMaterial(_renderer.material, _shared);
+                }
+
+                return _material;
+            }
+            set
+            {
+                var unityMat = value as UnityMaterial;
+                if (unityMat == null)
+                {
+                    throw new Exception("Trying to use non UnityMaterial with UnityRenderer");
+                }
+
+                _material = value;
+                _renderer.material = unityMat.Material;
+            }
+        }
 
         /// <summary>
         /// Constructor.
@@ -42,7 +73,18 @@ namespace CreateAR.EnkluPlayer.Scripting
         public UnityRenderer(Renderer renderer)
         {
             _renderer = renderer;
-            _material = new UnityMaterial(renderer.sharedMaterial);
+            _shared = true;
+            _material = new UnityMaterial(renderer.sharedMaterial, _shared);
+        }
+
+        /// <summary>
+        /// Creates a UnityMaterial around a Material instance.
+        /// </summary>
+        /// <param name="material"></param>
+        /// <returns></returns>
+        private UnityMaterial CreateMaterial(Material material)
+        {
+            return new UnityMaterial(_renderer.material, _shared);
         }
     }
 }

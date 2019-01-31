@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -13,7 +14,17 @@ namespace CreateAR.EnkluPlayer
         protected Color _color;
 
         /// <summary>
-        /// Sets up for drawing. Must be followed with a Tearfown.
+        /// Stack of Matrix data.
+        /// </summary>
+        private readonly Stack<Matrix4x4> _matrices = new Stack<Matrix4x4>();
+
+        /// <summary>
+        /// Current matrix.
+        /// </summary>
+        private Matrix4x4 _current;
+        
+        /// <summary>
+        /// Sets up for drawing. Must be followed with a Teardown.
         /// </summary>
         /// <param name="mode">The GL mode to draw with.</param>
         protected virtual void Setup(int mode)
@@ -25,7 +36,7 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Must be paired with a preceeding Setup.
+        /// Must be proceeded by a Setup.
         /// </summary>
         protected virtual void Teardown()
         {
@@ -34,13 +45,179 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Sets the color to draw with.
+        /// Resets state of render context.
+        /// </summary>
+        /// <returns></returns>
+        public RenderContext Reset()
+        {
+            _color = Color.white;
+            _current = Matrix4x4.identity;
+            _matrices.Clear();
+
+            return this;
+        }
+
+        /// <summary>
+        /// Resets the current matrix.
+        /// </summary>
+        /// <returns></returns>
+        public RenderContext ResetMatrix()
+        {
+            _current = Matrix4x4.identity;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Pushes current matrix onto the stack, starts a new one.
+        /// </summary>
+        /// <returns></returns>
+        public RenderContext PushMatrix()
+        {
+            _matrices.Push(_current);
+            _current = Matrix4x4.identity;
+            
+            return this;
+        }
+
+        /// <summary>
+        /// Pops the previous matrix off the stack.
+        /// </summary>
+        /// <returns></returns>
+        public RenderContext PopMatrix()
+        {
+            _current = _matrices.Pop();
+
+            return this;
+        }
+
+        /// <summary>
+        /// Translates the current matrix.
+        /// </summary>
+        /// <param name="to">The target.</param>
+        /// <returns></returns>
+        public RenderContext Translate(Vector3 to)
+        {
+            _current *= Matrix4x4.Translate(to);
+
+            return this;
+        }
+        
+        /// <summary>
+        /// Rotates along the X axis.
+        /// </summary>
+        /// <param name="radians">Radians to rotate.</param>
+        /// <returns></returns>
+        public RenderContext RotateX(float radians)
+        {
+            _current *= Matrix4x4.Rotate(Quaternion.Euler(
+                radians * Mathf.Rad2Deg,
+                0, 0));
+
+            return this;
+        }
+
+        /// <summary>
+        /// Rotates along the Y axis.
+        /// </summary>
+        /// <param name="radians">Radians to rotate.</param>
+        /// <returns></returns>
+        public RenderContext RotateY(float radians)
+        {
+            _current *= Matrix4x4.Rotate(Quaternion.Euler(
+                0,
+                radians * Mathf.Rad2Deg,
+                0));
+
+            return this;
+        }
+
+        /// <summary>
+        /// Rotates along the Z axis.
+        /// </summary>
+        /// <param name="radians">Radians to rotate.</param>
+        /// <returns></returns>
+        public RenderContext RotateZ(float radians)
+        {
+            _current *= Matrix4x4.Rotate(Quaternion.Euler(
+                0, 0,
+                radians * Mathf.Rad2Deg));
+
+            return this;
+        }
+
+        /// <summary>
+        /// Rotates.
+        /// </summary>
+        /// <param name="rotation">The rotation.</param>
+        /// <returns></returns>
+        public RenderContext Rotate(Quaternion rotation)
+        {
+            _current *= Matrix4x4.Rotate(rotation);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Rotates along each axis.
+        /// </summary>
+        /// <param name="x">Radians to rotate about x-axis.</param>
+        /// <param name="y">Radians to rotate about y-axis.</param>
+        /// <param name="z">Radians to rotate about z-axis.</param>
+        /// <returns></returns>
+        public RenderContext Rotate(float x, float y, float z)
+        {
+            return Rotate(Quaternion.Euler(
+                x * Mathf.Rad2Deg,
+                y * Mathf.Rad2Deg,
+                z * Mathf.Rad2Deg));
+        }
+
+        /// <summary>
+        /// Scales.
+        /// </summary>
+        /// <param name="to">Target scale.</param>
+        /// <returns></returns>
+        public RenderContext Scale(Vector3 to)
+        {
+            _current *= Matrix4x4.Scale(to);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the color to draw strokes with.
         /// </summary>
         /// <param name="color">The color to draw with.</param>
         /// <returns></returns>
-        public RenderContext Color(Color color)
+        public RenderContext Stroke(Color color)
         {
-            _color = color;
+            return Stroke(color.r, color.g, color.b, color.a);
+        }
+
+        /// <summary>
+        /// Sets stroke color.
+        /// </summary>
+        /// <param name="r">Red component.</param>
+        /// <param name="g">Green component.</param>
+        /// <param name="b">Blue component.</param>
+        /// <returns></returns>
+        public RenderContext Stroke(float r, float g, float b)
+        {
+            return Stroke(r, g, b, _color.a);
+        }
+
+        /// <summary>
+        /// Sets stroke color.
+        /// </summary>
+        /// <param name="r">Red component.</param>
+        /// <param name="g">Green component.</param>
+        /// <param name="b">Blue component.</param>
+        /// <param name="a">Alpha component.</param>
+        /// <returns></returns>
+        public RenderContext Stroke(float r, float g, float b, float a)
+        {
+            _color = new Color(r, g, b, a);
 
             return this;
         }
@@ -55,8 +232,8 @@ namespace CreateAR.EnkluPlayer
         {
             Setup(GL.LINES);
             {
-                GL.Vertex(from);
-                GL.Vertex(to);
+                GL.Vertex(_current.MultiplyPoint3x4(from));
+                GL.Vertex(_current.MultiplyPoint3x4(to));
             }
             Teardown();
 
@@ -74,8 +251,8 @@ namespace CreateAR.EnkluPlayer
             {
                 for (int i = 0, len = lines.Length; i < len; i += 2)
                 {
-                    GL.Vertex(lines[i]);
-                    GL.Vertex(lines[i + 1]);
+                    GL.Vertex(_current.MultiplyPoint3x4(lines[i]));
+                    GL.Vertex(_current.MultiplyPoint3x4(lines[i + 1]));
                 }
             }
             Teardown();
@@ -94,83 +271,110 @@ namespace CreateAR.EnkluPlayer
             {
                 for (int i = 0, len = lines.Length; i < len; i++)
                 {
-                    GL.Vertex(lines[i]);
+                    GL.Vertex(_current.MultiplyPoint3x4(lines[i]));
                 }
             }
             Teardown();
 
             return this;
+        }
+
+        /// <summary>
+        /// Renders triangles.
+        /// </summary>
+        /// <param name="vertices">Array of vertices..</param>
+        /// /// <param name="indices">Indices into vertex array.</param>
+        public void Triangles(ref Vector3[] vertices, ref int[] indices)
+        {
+            Setup(GL.LINES);
+            {
+                for (int i = 0, len = indices.Length; i < len; i += 3)
+                {
+                    var va = vertices[indices[i]];
+                    var vb = vertices[indices[i + 1]];
+                    var vc = vertices[indices[i + 2]];
+
+                    var a = _current.MultiplyPoint3x4(va);
+                    var b = _current.MultiplyPoint3x4(vb);
+                    var c = _current.MultiplyPoint3x4(vc);
+
+                    GL.Vertex(a); GL.Vertex(b);
+                    GL.Vertex(b); GL.Vertex(c);
+                    GL.Vertex(c); GL.Vertex(a);
+                }
+            }
+            Teardown();
         }
 
         /// <summary>
         /// Draws a cube.
         /// </summary>
-        /// <param name="center">The center of the cube.</param>
         /// <param name="size">The size of the cube.</param>
         /// <returns></returns>
-        public RenderContext Cube(Vector3 center, float size)
+        public RenderContext Cube(float size)
         {
-            return Prism(new Bounds(center, size * Vector3.one));
+            return Prism(size, size, size);
         }
 
         /// <summary>
         /// Draws a prism.
         /// </summary>
-        /// <param name="bounds">The bounds to draw.</param>
-        /// <returns></returns>
-        public RenderContext Prism(Bounds bounds)
+        public RenderContext Prism(float w, float h, float d)
         {
-            var min = bounds.min;
-            var max = bounds.max;
+            var center = Vector3.zero;
+            var right = w * Vector3.right / 2f;
+            var forward = d * Vector3.forward / 2f;
+            var up = h * Vector3.up / 2f;
+            
             Setup(GL.LINES);
             {
                 // bottom rect
                 {
-                    GL.Vertex3(min.x, min.y, min.z);
-                    GL.Vertex3(min.x, min.y, max.z);
+                    var bot = center - up;
 
-                    GL.Vertex3(min.x, min.y, max.z);
-                    GL.Vertex3(max.x, min.y, max.z);
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right + forward));
 
-                    GL.Vertex3(max.x, min.y, max.z);
-                    GL.Vertex3(max.x, min.y, min.z);
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right + forward));
 
-                    GL.Vertex3(max.x, min.y, min.z);
-                    GL.Vertex3(min.x, min.y, min.z);
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right - forward));
+
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right + forward));
+                }
+                
+                // top rect
+                {
+                    var bot = center + up;
+
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right + forward));
+
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right + forward));
+
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right - forward));
+
+                    GL.Vertex(_current.MultiplyPoint3x4(bot - right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(bot + right + forward));
                 }
 
-                // render flat prisms differently
-                if (Mathf.Abs(min.y - max.y) > Mathf.Epsilon)
+                // connect rects
                 {
-                    // top rect
-                    {
-                        GL.Vertex3(min.x, max.y, min.z);
-                        GL.Vertex3(min.x, max.y, max.z);
+                    GL.Vertex(_current.MultiplyPoint3x4(center + up - right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center - up - right - forward));
 
-                        GL.Vertex3(min.x, max.y, max.z);
-                        GL.Vertex3(max.x, max.y, max.z);
+                    GL.Vertex(_current.MultiplyPoint3x4(center + up - right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center - up - right + forward));
 
-                        GL.Vertex3(max.x, max.y, max.z);
-                        GL.Vertex3(max.x, max.y, min.z);
+                    GL.Vertex(_current.MultiplyPoint3x4(center + up + right + forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center - up + right + forward));
 
-                        GL.Vertex3(max.x, max.y, min.z);
-                        GL.Vertex3(min.x, max.y, min.z);
-                    }
-
-                    // connect rects
-                    {
-                        GL.Vertex3(min.x, min.y, min.z);
-                        GL.Vertex3(min.x, max.y, min.z);
-
-                        GL.Vertex3(min.x, min.y, max.z);
-                        GL.Vertex3(min.x, max.y, max.z);
-
-                        GL.Vertex3(max.x, min.y, max.z);
-                        GL.Vertex3(max.x, max.y, max.z);
-
-                        GL.Vertex3(max.x, min.y, min.z);
-                        GL.Vertex3(max.x, max.y, min.z);
-                    }
+                    GL.Vertex(_current.MultiplyPoint3x4(center + up + right - forward));
+                    GL.Vertex(_current.MultiplyPoint3x4(center - up + right - forward));
                 }
             }
             Teardown();
@@ -179,36 +383,49 @@ namespace CreateAR.EnkluPlayer
         }
 
         /// <summary>
-        /// Draws a plus sign.
+        /// Creates a sphere.
         /// </summary>
-        /// <param name="center">The center of the plus.</param>
-        /// <param name="size">The size of the plus' extents.</param>
-        /// <returns></returns>
-        public RenderContext Plus(Vector3 center, float size)
+        /// <param name="size">The size of sphere.</param>
+        public void Sphere()
         {
-            Setup(GL.LINES);
-            {
-                GL.Vertex(center);
-                GL.Vertex(center + size * Vector3.up);
+            Sphere(0);
+        }
 
-                GL.Vertex(center);
-                GL.Vertex(center + size * Vector3.right);
+        /// <summary>
+        /// Creates a sphere of variable smoothness.
+        /// </summary>
+        /// <param name="iterations">The number of iterations to use to smooth out the sphere.</param>
+        public void Sphere(int iterations)
+        {
+            Vector3[] verts;
+            int[] tris;
+            GeometryHelper.GeoSphere(iterations, out verts, out tris);
 
-                GL.Vertex(center);
-                GL.Vertex(center + size * Vector3.forward);
+            Triangles(ref verts, ref tris);
+        }
 
-                GL.Vertex(center);
-                GL.Vertex(center - size * Vector3.up);
+        /// <summary>
+        /// Creates an octohedron.
+        /// </summary>
+        public void Octohedron()
+        {
+            Vector3[] verts;
+            int[] tris;
+            GeometryHelper.Octohedron(out verts, out tris);
 
-                GL.Vertex(center);
-                GL.Vertex(center - size * Vector3.right);
+            Triangles(ref verts, ref tris);
+        }
 
-                GL.Vertex(center);
-                GL.Vertex(center - size * Vector3.forward);
-            }
-            Teardown();
+        /// <summary>
+        /// Creates a dodecahedron.
+        /// </summary>
+        public void Dodecahedron()
+        {
+            Vector3[] verts;
+            int[] tris;
+            GeometryHelper.Dodecahedron(out verts, out tris);
 
-            return this;
+            Triangles(ref verts, ref tris);
         }
     }
 }

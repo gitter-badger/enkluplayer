@@ -2,6 +2,12 @@
 
 namespace CreateAR.EnkluPlayer
 {
+    public enum DesignControllerMode
+    {
+        Normal,
+        DebugRendering
+    }
+    
     /// <summary>
     /// Design mode controller.
     /// </summary>

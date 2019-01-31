@@ -150,7 +150,7 @@ namespace CreateAR.EnkluPlayer
         {
             //
         }
-
+        
         /// <summary>
         /// Shares to Insta.
         /// </summary>

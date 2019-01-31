@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CreateAR.Commons.Unity.Async;
 using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
+using CreateAR.Trellis.Messages;
 
 namespace CreateAR.EnkluPlayer
 {
@@ -27,6 +29,11 @@ namespace CreateAR.EnkluPlayer
         private readonly ApplicationConfig _config;
 
         /// <summary>
+        /// Api Controller.
+        /// </summary>
+        private readonly ApiController _api;
+
+        /// <summary>
         /// Unsubscribe delegate for listening to Play.
         /// </summary>
         private Action _unsubPlay;
@@ -43,10 +50,12 @@ namespace CreateAR.EnkluPlayer
             MessageTypeBinder binder,
             IMessageRouter messages,
             IFileManager files,
+            ApiController api,
             ApplicationConfig config)
             : base(binder, messages)
         {
             _files = files;
+            _api = api;
             _config = config;
         }
 
@@ -118,11 +127,11 @@ namespace CreateAR.EnkluPlayer
         /// <returns></returns>
         private IAsyncToken<SynchronizedObject<UserPreferenceData>> Load(string userId)
         {
-            var token = new AsyncToken<SynchronizedObject<UserPreferenceData>>();
+            var fileToken = new AsyncToken<SynchronizedObject<UserPreferenceData>>();
 
             _files
                 .Get<UserPreferenceData>(Uri(userId))
-                .OnSuccess(file => token.Succeed(new SynchronizedObject<UserPreferenceData>(
+                .OnSuccess(file => fileToken.Succeed(new SynchronizedObject<UserPreferenceData>(
                     file.Data,
                     SaveAndContinue)))
                 .OnFailure(exception =>
@@ -134,14 +143,33 @@ namespace CreateAR.EnkluPlayer
 
                     _files
                         .Set(Uri(userId), prefs)
-                        .OnSuccess(file => token.Succeed(new SynchronizedObject<UserPreferenceData>(
+                        .OnSuccess(file => fileToken.Succeed(new SynchronizedObject<UserPreferenceData>(
                             prefs,
                             SaveAndContinue)))
-                        .OnFailure(token.Fail);
+                        .OnFailure(fileToken.Fail);
                 });
+            
+            // update with org id when we can
+            fileToken
+                .OnSuccess(prefData =>
+                {
+                    if (prefData.Data.OrgIds == null || 0 == prefData.Data.OrgIds.Length)
+                    {
+                        Log.Info(this, "Missing organization data. Fetching from Trellis.");
 
+                        GetOrgs()
+                            .OnSuccess(orgIds => prefData.Queue((prefs, next) =>
+                            {
+                                prefs.OrgIds = orgIds;
 
-            return token;
+                                next(prefs);
+                            }))
+                            .OnFailure(ex => Log.Error(this, "Could not get org data: {0}.", ex));
+                    }
+                })
+                .OnFailure(ex => Log.Error(this, "Could not get org data: {0}.", ex));
+
+            return fileToken;
         }
 
         /// <summary>
@@ -166,6 +194,35 @@ namespace CreateAR.EnkluPlayer
         private static string Uri(string userId)
         {
             return PREFERENCES_PREFIX + userId;
+        }
+        
+        /// <summary>
+        /// Retrieves all organizations for this user from Trellis.
+        /// </summary>
+        /// <returns></returns>
+        private IAsyncToken<string[]> GetOrgs()
+        {
+            var token = new AsyncToken<string[]>();
+
+            // get list of organizations
+            _api
+                .Organizations
+                .GetMyOrganizations()
+                .OnSuccess(response =>
+                {
+                    if (response.Payload.Success)
+                    {
+                        var orgIds = response.Payload.Body.Select(org => org.Id).ToArray();
+                        token.Succeed(orgIds);
+                    }
+                    else
+                    {
+                        token.Fail(new Exception(response.Payload.Error));
+                    }
+                })
+                .OnFailure(token.Fail);
+
+            return token;
         }
     }
 }

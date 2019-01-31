@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CreateAR.Commons.Unity.Logging;
 using CreateAR.Commons.Unity.Messaging;
 using UnityEngine.Windows.Speech;
 
@@ -139,9 +140,16 @@ namespace CreateAR.EnkluPlayer
                 _debugGuard.Dispose();
             }
 
-            _debugGuard = new KeywordRecognizer(new [] { "debug "});
-            _debugGuard.OnPhraseRecognized += DebugGuard_OnPhraseRecognized;
-            _debugGuard.Start();
+            try
+            {
+                _debugGuard = new KeywordRecognizer(new[] {"debug "});
+                _debugGuard.OnPhraseRecognized += DebugGuard_OnPhraseRecognized;
+                _debugGuard.Start();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(this, ex);
+            }
         }
 
         /// <summary>
@@ -154,9 +162,16 @@ namespace CreateAR.EnkluPlayer
                 _adminGuard.Dispose();
             }
 
-            _adminGuard = new KeywordRecognizer(new [] { "admin " });
-            _adminGuard.OnPhraseRecognized += AdminGuard_OnPhraseRecognized;
-            _adminGuard.Start();
+            try
+            {
+                _adminGuard = new KeywordRecognizer(new[] {"admin "});
+                _adminGuard.OnPhraseRecognized += AdminGuard_OnPhraseRecognized;
+                _adminGuard.Start();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(this, ex);
+            }
         }
 
         /// <summary>
@@ -176,9 +191,16 @@ namespace CreateAR.EnkluPlayer
                 return;
             }
 
-            _recognizer = new KeywordRecognizer(keywords);
-            _recognizer.OnPhraseRecognized += Recognizer_OnPhraseRecognized;
-            _recognizer.Start();
+            try
+            {
+                _recognizer = new KeywordRecognizer(keywords);
+                _recognizer.OnPhraseRecognized += Recognizer_OnPhraseRecognized;
+                _recognizer.Start();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(this, ex);
+            }
         }
 
         /// <summary>

@@ -60,6 +60,11 @@ namespace CreateAR.EnkluPlayer
         public LogLevel LogLevel = LogLevel.Error;
 
         /// <summary>
+        /// All the organizations the user belongs to.
+        /// </summary>
+        public string[] OrgIds;
+
+        /// <summary>
         /// All organizations this device is registered to.
         /// </summary>
         public DeviceRegistration[] DeviceRegistrations = new DeviceRegistration[0];
